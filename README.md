@@ -9,16 +9,16 @@ It can be used as a simple (even multi-) channel-in-a-box solution, as well as i
 - GPI as start source, aspect ratio control and external graphics trigger
 
 ### Rundowns
-- variety o rundown event types: movie, live, graphics
+- variety of rundown event types: movie, live, graphics
 - rundown nesting (aka blocks)
-- event nesting (e.g. movie can nest graphics)
-- event-based GPI triggering to control branding, parental control and information crawl
+- event nesting (e.g. movie may contain graphics)
+- event-based GPI triggering to control: branding, parental control and information crawl
 - frame-accurate time calculations
 
 ### Ingest
 - from watchfolders
 - from ftp's
-- from XDCAM, supports metadata and subclip ingest
+- from Sony [XDCAM](http://en.wikipedia.org/wiki/XDCAM) decks, supports metadata and subclip ingest
 - partial movie playout (via media trimming or logical sub-clips)
 - extensive clip playout-related metadata
 
