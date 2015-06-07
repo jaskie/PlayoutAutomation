@@ -1,0 +1,681 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{B2FD5EA3-CB51-470B-A58B-E2400983DD79}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TAS.Client</RootNamespace>
+    <AssemblyName>TVPlay</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\TVPlay.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Release\TVPlay.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>
+    </StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>film.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <WarningLevel>2</WarningLevel>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\TVPlay.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Release\TVPlay.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Accessibility">
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Automation.BDaq, Version=1.0.1.0, Culture=neutral, PublicKeyToken=463f5928d60183a0, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\Automation.BDaq.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Expression.Interactions">
+      <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data, Version=6.9.6.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\MySql.Data.6.9.6\lib\net40\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationFramework" />
+    <Reference Include="Svt.Caspar, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\casparcg\framework\csharp\trunk\Svt.Caspar\bin\Release\Svt.Caspar.dll</HintPath>
+    </Reference>
+    <Reference Include="Svt.Network, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\casparcg\framework\csharp\trunk\Svt.Caspar\bin\Release\Svt.Network.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Interactivity">
+      <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="..\..\CrawlTVP\CrawlRestServer\CrawlCommand.cs">
+      <Link>TVP\CrawlCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CrawlTVP\CrawlRestServer\CrawlState.cs">
+      <Link>TVP\CrawlState.cs</Link>
+    </Compile>
+    <Compile Include="Common\BindableSelectedItem.cs" />
+    <Compile Include="Common\ColorAttribute.cs" />
+    <Compile Include="Common\ConcurrentHashSet.cs" />
+    <Compile Include="Common\DelayedBindingTextBox.cs" />
+    <Compile Include="Common\DispatcherHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Common\EnumHelper.cs" />
+    <Compile Include="Common\FileUtils.cs" />
+    <Compile Include="Common\FocusExtension.cs" />
+    <Compile Include="Common\MouseDoubleClick.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Common\SimpleCommand.cs" />
+    <Compile Include="Common\TreeViewExtensions.cs" />
+    <Compile Include="Common\ObservableSynchronizedCollection.cs" />
+    <Compile Include="Common\StatusIndicator.xaml.cs">
+      <DependentUpon>StatusIndicator.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Common\SerializationHelper.cs" />
+    <Compile Include="Common\SimpleDictionary.cs" />
+    <Compile Include="Common\UIServices.cs" />
+    <Compile Include="Common\ValueConverters.cs" />
+    <Compile Include="MediaInfoDLL.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.pl.Designer.cs">
+      <DependentUpon>Resources.pl.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Server\LoudnessOperation.cs" />
+    <Compile Include="Server\Media\AnimationDirectory.cs" />
+    <Compile Include="Server\CasparServerChannel.cs" />
+    <Compile Include="Server\GPINotifier.cs" />
+    <Compile Include="Server\Media\MediaConversion.cs" />
+    <Compile Include="Server\Media\MediaSegment.cs" />
+    <Compile Include="Server\Media\FtpMediaStream.cs" />
+    <Compile Include="Server\Media\PInvokeWindowsNetworking.cs" />
+    <Compile Include="Server\PlayoutServerChannel.cs" />
+    <Compile Include="Server\Media\TempDirectory.cs" />
+    <Compile Include="Server\Enums.cs" />
+    <Compile Include="Server\Template.cs" />
+    <Compile Include="Server\Media\TempMedia.cs" />
+    <Compile Include="Server\XDCAM\Index.cs" />
+    <Compile Include="Server\XDCAM\NonRealTimeMeta.cs" />
+    <Compile Include="Server\XDCAM\SerializationHelper.cs" />
+    <Compile Include="Server\XDCAM\Smil.cs" />
+    <Compile Include="Server\XDCAM\XdcamStream.cs" />
+    <Compile Include="Setup\GPINotifierViewmodel.cs" />
+    <Compile Include="Setup\GPINotifierView.xaml.cs">
+      <DependentUpon>GPINotifierView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Setup\OkCancelViewmodelBase.cs" />
+    <Compile Include="Setup\EngineView.xaml.cs">
+      <DependentUpon>EngineView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Setup\EngineViewmodel.cs" />
+    <Compile Include="ViewModels\ConvertOperationViewModel.cs" />
+    <Compile Include="ViewModels\EventClipboard.cs" />
+    <Compile Include="ViewModels\EventEditViewmodel.cs" />
+    <Compile Include="ViewModels\FileManagerViewmodel.cs" />
+    <Compile Include="ViewModels\FileOperationViewmodel.cs" />
+    <Compile Include="ViewModels\IngestTrimmerViewmodel.cs" />
+    <Compile Include="ViewModels\IngestEditViewmodel.cs" />
+    <Compile Include="ViewModels\MediaSearchViewmodel.cs" />
+    <Compile Include="ViewModels\MediaSegmentViewmodel.cs" />
+    <Compile Include="ViewModels\PlayingEventViewmodel.cs" />
+    <Compile Include="ViewModels\TemplateViewmodel.cs" />
+    <Compile Include="ViewModels\TemplatesViewmodel.cs" />
+    <Compile Include="Common\AutoGreyableImage.cs" />
+    <Compile Include="Common\BindableSelectedItems.cs" />
+    <Compile Include="Common\MediaSeekSlider.cs" />
+    <Compile Include="Common\EmphasisedButton.cs" />
+    <Compile Include="Common\SMPTETimecode.cs" />
+    <Compile Include="Common\TreeViewItemBringIntoViewWhenSelected.cs" />
+    <Compile Include="Server\Media\ArchiveMedia.cs" />
+    <Compile Include="Server\Media\ArchiveDirectory.cs" />
+    <Compile Include="Server\ConvertOperation.cs" />
+    <Compile Include="Views\ConvertOperationView.xaml.cs">
+      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EngineStateView.xaml.cs">
+      <DependentUpon>EngineStateView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FileManagerView.xaml.cs">
+      <DependentUpon>FileManagerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\IngestEditorView.xaml.cs">
+      <DependentUpon>IngestEditorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MediaEditView.xaml.cs">
+      <DependentUpon>MediaEditView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MediaManagerView.xaml.cs">
+      <DependentUpon>MediaManagerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlayingEventView.xaml.cs">
+      <DependentUpon>PlayingEventView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PreviewView.xaml.cs">
+      <DependentUpon>PreviewView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Server\DatabaseConnector.cs" />
+    <Compile Include="Server\EngineController.cs" />
+    <Compile Include="Server\FileManager.cs" />
+    <Compile Include="Server\FileOperation.cs" />
+    <Compile Include="Server\Media\IngestDirectory.cs" />
+    <Compile Include="Server\Media\IngestMedia.cs" />
+    <Compile Include="Server\Media\Media.cs" />
+    <Compile Include="Server\Media\MediaDirectory.cs" />
+    <Compile Include="Server\Media\PersistentMedia.cs" />
+    <Compile Include="Server\Media\ServerDirectory.cs" />
+    <Compile Include="Server\Media\ServerMedia.cs" />
+    <Compile Include="Server\MediaManager.cs" />
+    <Compile Include="ProgramSearch\TVPProgramSearch.cs" />
+    <Compile Include="ProgramSearch\SimpleSearch.cs" />
+    <Compile Include="ProgramSearch\ProgramSearch.cs" />
+    <Compile Include="Views\MediaSearchView.xaml.cs">
+      <DependentUpon>MediaSearchView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EngineView.xaml.cs">
+      <DependentUpon>EngineView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TVP\RundownImporterSzarp.cs" />
+    <Compile Include="ViewModels\EngineViewmodel.cs" />
+    <Compile Include="ViewModels\EventViewmodel.cs" />
+    <Compile Include="ViewModels\MediaManagerViewmodel.cs" />
+    <Compile Include="ViewModels\MediaEditViewmodel.cs" />
+    <Compile Include="ViewModels\PreviewViewmodel.cs" />
+    <Compile Include="ViewModels\MediaViewViewmodel.cs" />
+    <Compile Include="ViewModels\ViewmodelBase.cs" />
+    <Compile Include="Views\TemplatesView.xaml.cs">
+      <DependentUpon>TemplatesView.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Changes.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Common\StatusIndicator.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Setup\EngineView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Setup\GPINotifierView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ConvertOperationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EngineStateView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FileManagerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\IngestEditorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MediaEditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PlayingEventView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PreviewView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EventPanelView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EventEditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Server\CasparServer.cs" />
+    <Compile Include="Server\PlayoutServer.cs" />
+    <Compile Include="Server\Engine.cs" />
+    <Compile Include="Server\Event.cs" />
+    <Compile Include="Views\EventPanelView.xaml.cs">
+      <DependentUpon>EventPanelView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventEditView.xaml.cs">
+      <DependentUpon>EventEditView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="Views\MediaSearchView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EngineView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MediaManagerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TemplatesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.pl.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.pl.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Setup\EngineView.resx" />
+    <EmbeddedResource Include="Setup\GPINotifierView.resx" />
+    <EmbeddedResource Include="Views\ConvertOperationView.pl.resx">
+      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ConvertOperationView.resx">
+      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineView.pl.resx">
+      <DependentUpon>EngineView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineView.resx">
+      <DependentUpon>EngineView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventEditView.pl.resx">
+      <DependentUpon>EventEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventEditView.resx">
+      <DependentUpon>EventEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventPanelView.pl.resx">
+      <DependentUpon>EventPanelView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventPanelView.resx">
+      <DependentUpon>EventPanelView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\FileManagerView.pl.resx">
+      <DependentUpon>FileManagerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\FileManagerView.resx">
+      <DependentUpon>FileManagerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\IngestEditorView.pl.resx">
+      <DependentUpon>IngestEditorView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\IngestEditorView.resx">
+      <DependentUpon>IngestEditorView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MainWindow.resx">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MainWindow.pl.resx">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MediaEditView.pl.resx">
+      <DependentUpon>MediaEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MediaEditView.resx">
+      <DependentUpon>MediaEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MediaManagerView.pl.resx">
+      <DependentUpon>MediaManagerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MediaManagerView.resx">
+      <DependentUpon>MediaManagerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MediaSearchView.pl.resx" />
+    <EmbeddedResource Include="Views\MediaSearchView.resx" />
+    <EmbeddedResource Include="Views\PreviewView.pl.resx">
+      <DependentUpon>PreviewView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\PreviewView.resx">
+      <DependentUpon>PreviewView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <None Include="app.config">
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 Client Profile %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Sql.Server.Express.10.0">
+      <Visible>False</Visible>
+      <ProductName>SQL Server 2008 Express</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 4.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <WCFMetadata Include="Service References\" />
+    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Glyphs\Stop.png" />
+    <Resource Include="Glyphs\timer24_h.png" />
+    <Resource Include="Glyphs\volume24b.png" />
+    <Resource Include="Glyphs\Delete.png" />
+    <Resource Include="Glyphs\Check.png" />
+    <Resource Include="Glyphs\Undo.png" />
+    <Resource Include="Glyphs\ArrowLeftUpRed.gif" />
+    <Resource Include="Glyphs\ArrowUpRed.gif" />
+    <Resource Include="Glyphs\VCRPark.gif" />
+    <Resource Include="Glyphs\Empty.png" />
+    <Resource Include="Glyphs\play.png" />
+    <Resource Include="Glyphs\WarningRed.png" />
+    <Resource Include="Glyphs\pause.png" />
+    <Resource Include="Glyphs\Circle_1.png" />
+    <Resource Include="Glyphs\Circle_2.png" />
+    <Resource Include="Glyphs\Circle_3.png" />
+    <Resource Include="Glyphs\Gearwheel.png" />
+    <Resource Include="Glyphs\Down.png" />
+    <Resource Include="Glyphs\trash.png" />
+    <Resource Include="Glyphs\EventTypes\StillImage.png" />
+    <Resource Include="Glyphs\NewMovie.png" />
+    <Resource Include="Glyphs\NewRundown.png" />
+    <Resource Include="Glyphs\NewSubMovie.png" />
+    <Resource Include="Glyphs\NewSubRundown.png" />
+    <Resource Include="Glyphs\NewNextLive.png" />
+    <Resource Include="Glyphs\NewSubLive.png" />
+    <Resource Include="Glyphs\WarningYellow.png" />
+    <Resource Include="Glyphs\Drawer.png" />
+    <Resource Include="Glyphs\Import.png" />
+    <Resource Include="Glyphs\Export.png" />
+    <Resource Include="Glyphs\go-bottom.png" />
+    <Resource Include="Glyphs\Refresh.png" />
+    <Resource Include="Glyphs\OneFrameBack.png" />
+    <Resource Include="Glyphs\OneFrameForward.png" />
+    <Resource Include="Glyphs\FFBack.png" />
+    <Resource Include="Glyphs\FFForward.png" />
+    <Resource Include="Glyphs\Copy_small.png" />
+    <Resource Include="Glyphs\save.png" />
+    <Resource Include="Glyphs\add.png" />
+    <Resource Include="Glyphs\Circle_A.png" />
+    <Resource Include="Glyphs\document_add.png" />
+    <Resource Include="Glyphs\document_edit.png" />
+    <Resource Include="Glyphs\file_delete.png" />
+    <Resource Include="Glyphs\MediaStates\Unknown.png" />
+    <Resource Include="Glyphs\MediaStates\Copying.png" />
+    <Resource Include="Glyphs\MediaStates\Deleted.png" />
+    <Resource Include="Glyphs\MediaStates\Available.png" />
+    <Resource Include="Glyphs\MediaStates\Copied.png" />
+    <Resource Include="Glyphs\MediaStates\CopyError.png" />
+    <Resource Include="Glyphs\MediaStates\CopyPending.png" />
+    <Resource Include="Glyphs\MediaStates\Required.png" />
+    <Resource Include="Glyphs\FileOperationStates\InProgress.png" />
+    <Resource Include="Glyphs\FileOperationStates\Finished.png" />
+    <Resource Include="Glyphs\FileOperationStates\Waiting.png" />
+    <Resource Include="Glyphs\FileOperationStates\Aborted.png" />
+    <Resource Include="Glyphs\FileOperationStates\Failed.png" />
+    <Resource Include="Glyphs\document_save.png" />
+    <Resource Include="Glyphs\document_done.png" />
+    <Resource Include="Glyphs\document_delete.png" />
+    <Resource Include="Glyphs\document_cancel.png" />
+    <Resource Include="Glyphs\Volume.png" />
+    <Resource Include="Glyphs\go-up.png" />
+    <Resource Include="Glyphs\MediaStates\ValidationError.png" />
+    <Resource Include="Glyphs\playpause.png" />
+    <Resource Include="Glyphs\Scizors.png" />
+    <Resource Include="Glyphs\EventTypes\Movie.png" />
+    <Resource Include="Glyphs\EventTypes\Rundown.gif" />
+    <Resource Include="Glyphs\EventTypes\Live.png" />
+    <Resource Include="Glyphs\EventTypes\Container.png" />
+    <Resource Include="Glyphs\VideoFormats\FHA.png" />
+    <Resource Include="Glyphs\VideoFormats\HD.png" />
+    <Resource Include="Glyphs\VideoFormats\4-3.png" />
+    <Resource Include="Glyphs\NewEmptyMovie.png" />
+    <Resource Include="Glyphs\tick_circle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CaspaServer.xml">
+    </None>
+    <None Include="IngestFolders.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Resource Include="Changes.txt" />
+    <Resource Include="film.ico" />
+    <Resource Include="Glyphs\OnAir.png" />
+    <Resource Include="Glyphs\Parentals\12.png" />
+    <Resource Include="Glyphs\Parentals\16.png" />
+    <Resource Include="Glyphs\Parentals\18.png" />
+    <Resource Include="Glyphs\Parentals\7.png" />
+    <Resource Include="Glyphs\Parentals\BO.png" />
+    <Resource Include="Glyphs\ExportDelete.png" />
+    <Content Include="x64\avcodec-56.dll" />
+    <Content Include="x64\avdevice-56.dll" />
+    <Content Include="x64\avfilter-5.dll" />
+    <Content Include="x64\avformat-56.dll" />
+    <Content Include="x64\avutil-54.dll" />
+    <Content Include="x64\ffmpeg.exe" />
+    <Content Include="x64\MediaInfo.dll" />
+    <Content Include="x64\postproc-53.dll" />
+    <Content Include="x64\swresample-1.dll" />
+    <Content Include="x64\swscale-3.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\DataSources\" />
+    <Folder Include="ViewModels\Interfaces\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FFMpegUtils\FFMpegUtils.vcxproj">
+      <Project>{AAA90FDF-4E13-490E-A4A4-9B83F522F6C4}</Project>
+      <Name>FFMpegUtils</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
+      <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>
+      <Name>Infralution.Localization.Wpf</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\System.Net.FtpClient\source\System.Net.FtpClient.csproj">
+      <Project>{e963b766-56bf-4966-8917-88c1ee69d61a}</Project>
+      <Name>System.Net.FtpClient</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(SolutionDir)\ffmpeg56\bin\*" "$(TargetDir)"
+copy "$(ProjectDir)\x64\*" "$(TargetDir)"</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

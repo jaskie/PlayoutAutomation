@@ -1,0 +1,179 @@
+﻿<UserControl ResxExtension.DefaultResxName="TAS.Client.Views.MediaEditView" Language="{UICulture}"
+             x:Class="TAS.Client.MediaEditView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:client="clr-namespace:TAS.Client"
+             xmlns:server="clr-namespace:TAS.Server"
+             mc:Ignorable="d" 
+             SnapsToDevicePixels="True">
+    <UserControl.InputBindings>
+        <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="Ctrl+S" />
+    </UserControl.InputBindings>
+    <UserControl.Resources>
+        <Style x:Key="fieldNameLabels" TargetType="Label" >
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Right" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Width" Value="120" />
+        </Style>
+        <Style x:Key="fieldsDetail" TargetType="TextBox" >
+            <Setter Property="Margin" Value="5, 3" />
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip"
+                Value="{Binding RelativeSource={RelativeSource Self}, 
+                       Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="combosDetail" TargetType="ComboBox" >
+            <Setter Property="Margin" Value="5, 3" />
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip"
+                Value="{Binding RelativeSource={RelativeSource Self}, 
+                       Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="gridDetail" TargetType="Grid" >
+            <Setter Property="Margin" Value="10, 3" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+    <Grid MinWidth="200">
+        <StackPanel>
+            <Grid Height="50" Visibility="{Binding IsNoAutoSave, Converter={StaticResource BoolToVis}}" >
+                <Button Width="40" Height="40" HorizontalAlignment="Right" Margin="10, 5" ToolTip="{Resx _buttonSave.ToolTip}" Command="{Binding CommandSaveEdit}" >
+                    <client:AutoGreyableImage Source="../Glyphs/Check.png" />
+                </Button>
+                <Button Width="40" Height="40" HorizontalAlignment="Right" Margin="120, 5" ToolTip="{Resx _buttonCancel.ToolTip}" Command="{Binding CommandCancelEdit}">
+                    <client:AutoGreyableImage Source="../Glyphs/Undo.png" />
+                </Button>
+            </Grid>
+            <DockPanel>
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _clipName}"/>
+                <TextBox Style="{StaticResource fieldsDetail}" Text="{Binding MediaName, UpdateSourceTrigger=PropertyChanged}" />
+            </DockPanel>
+            <DockPanel>
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _fileName}" />
+                <TextBox Style="{StaticResource fieldsDetail}" Text="{Binding FileName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+            </DockPanel>
+            <DockPanel Visibility="{Binding IsIngestDataShown, Converter={StaticResource BoolToVis}}" >
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _ingestTime}" />
+                <TextBox Style="{StaticResource fieldsDetail}" IsReadOnly="True" Text="{Binding LastUpdated, Mode=OneWay, Converter={StaticResource DateTimeFormat}, ConverterParameter=g}" />
+            </DockPanel>
+            <DockPanel>
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _times}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Resx _clip}"/>
+                    <DockPanel Grid.Column="1">
+                        <Button DockPanel.Dock="Right" Height="21" HorizontalContentAlignment="Center" Command="{Binding CommandGetTCFromPreview}" Margin="5, 0" Padding="0" ToolTip="{Resx _buttonGetTC.ToolTip}">
+                            <client:AutoGreyableImage Source="../Glyphs/Copy_small.png"/>
+                        </Button>
+                        <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" Content="{Resx _play}" />
+                    </DockPanel>
+                </Grid>
+            </DockPanel>
+            <DockPanel >
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _tCStart}" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <client:DelayedBindingTextBox Style="{StaticResource fieldsDetail}" Text="{Binding TCStart, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus}" />
+                    <client:DelayedBindingTextBox Grid.Column="1" Style="{StaticResource fieldsDetail}" Text="{Binding TCPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}" />
+                </Grid>
+            </DockPanel>
+            <DockPanel>
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _duration}" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <client:DelayedBindingTextBox Style="{StaticResource fieldsDetail}" Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus}" />
+                    <client:DelayedBindingTextBox Grid.Column="1" Style="{StaticResource fieldsDetail}" Text="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}" />
+                </Grid>
+            </DockPanel>
+            <!--<DockPanel Visibility="{Binding IsIngestDataShown, Converter={StaticResource BoolToVis}}">
+                <Label Style="{StaticResource fieldNameLabels}" Content="Ostatnio użyty" />
+                <TextBox Style="{StaticResource fieldsDetail}" IsReadOnly="True" Text="{Binding LastAccess, Mode=OneWay, Converter={StaticResource DateTimeToString}, ConverterParameter=g}" />
+            </DockPanel>-->
+            <DockPanel>
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _videoFormat}" />
+                <ComboBox Style="{StaticResource combosDetail}"  ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding VideoFormat}" />
+            </DockPanel>
+            <DockPanel Visibility="Collapsed">
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _audioChannelMappings}" />
+                <ComboBox Style="{StaticResource combosDetail}" ItemsSource="{Binding AudioChannelMappings}" SelectedValue="{Binding AudioChannelMapping}" />
+            </DockPanel>
+            <DockPanel>
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _category}" />
+                <ComboBox Style="{StaticResource combosDetail}" ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}"  />
+            </DockPanel>
+            <DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _emphasis}" />
+                <ComboBox Style="{StaticResource combosDetail}" ItemsSource="{Binding MediaEmphasises}" SelectedValue="{Binding MediaEmphasis}" >
+                    <ComboBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type ComboBoxItem}">
+                            <Setter Property="Background" Value="{Binding Color, Converter={StaticResource ColorToBrush}}" />
+                        </Style>
+                    </ComboBox.ItemContainerStyle>
+                </ComboBox> 
+            </DockPanel>
+            <DockPanel>
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _parental}" />
+                <ComboBox Style="{StaticResource combosDetail}" ItemsSource="{Binding Parentals}" SelectedValue="{Binding Parental}" />
+            </DockPanel>
+            <DockPanel>
+                <Label Content="{Resx _audioVolume}" Style="{StaticResource fieldNameLabels}" />
+                <Slider Margin="2" Width="80" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
+                <TextBox Margin="4" Width="35" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
+                <Label VerticalContentAlignment="Center" Content="dB" />
+            </DockPanel>
+            <!--<DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
+                <Label Style="{StaticResource fieldNameLabels}" Content="Usuń po" Target="{Binding ElementName=edKillDate}" />
+                <Grid Style="{StaticResource gridDetail}" HorizontalAlignment="Stretch">
+                    <CheckBox VerticalAlignment ="Center" HorizontalAlignment="Left" Padding="0" IsChecked="{Binding IsKillDate}" />
+                    <DatePicker Name="edKillDate"  Margin="30, 0, 0, 0" SelectedDate="{Binding KillDate}" HorizontalAlignment="Stretch"/>
+                </Grid>
+            </DockPanel>
+            <DockPanel Visibility="{Binding IsServerMedia, Converter={StaticResource BoolToVis}}">
+                <Label Style="{StaticResource fieldNameLabels}" Content="Nie archiwizuj" />
+                <CheckBox VerticalAlignment ="Center" IsChecked="{Binding DoNotArchive}" Margin="10, 3"/>
+            </DockPanel>-->
+            <DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _externalId}" />
+                <TextBox Style="{StaticResource fieldsDetail}" Text="{Binding IdAux, UpdateSourceTrigger=PropertyChanged}" />
+            </DockPanel>
+            <DockPanel>
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _status}" />
+                <DockPanel >
+                    <Button DockPanel.Dock="Right" Margin="5, 0" Padding="0" Height="21" Command="{Binding CommandRefreshStatus}" ToolTip="{Resx _checkStatus.ToolTip}" >
+                        <client:AutoGreyableImage Source="../Glyphs/Refresh.png" />
+                    </Button>
+                    <TextBox FlowDirection="LeftToRight" Style="{StaticResource fieldsDetail}" Background="#F0F0F0" Text="{Binding MediaStatus, Mode=OneWay}" IsReadOnly="True" />
+                </DockPanel>
+            </DockPanel>
+            <DockPanel>
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _mediaType}" />
+                <TextBox Style="{StaticResource fieldsDetail}" Background="#F0F0F0" Text="{Binding MediaType, Mode=OneWay}" IsReadOnly="True" />
+            </DockPanel>
+            <DockPanel>
+                <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _mediaGuid}" />
+                <TextBox Style="{StaticResource fieldsDetail}" Background="#F0F0F0" Text="{Binding MediaGuid, Mode=OneWay}" IsReadOnly="True" />
+            </DockPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

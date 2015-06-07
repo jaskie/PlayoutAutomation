@@ -1,0 +1,444 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="TAudioChannelMapping_DolbyDigital" xml:space="preserve">
+    <value>Dolby Digital</value>
+  </data>
+  <data name="TAudioChannelMapping_DolbyE" xml:space="preserve">
+    <value>Dolby E</value>
+  </data>
+  <data name="TAudioChannelMapping_Dts" xml:space="preserve">
+    <value>DTS</value>
+  </data>
+  <data name="TAudioChannelMapping_Mono" xml:space="preserve">
+    <value>Mono</value>
+  </data>
+  <data name="TAudioChannelMapping_Smpte" xml:space="preserve">
+    <value>SMPTE</value>
+  </data>
+  <data name="TAudioChannelMapping_Stereo" xml:space="preserve">
+    <value>Stereo</value>
+  </data>
+  <data name="TAudioChannelMapping_Unknown" xml:space="preserve">
+    <value>Nieznany</value>
+  </data>
+  <data name="TCrawl_NoCrawl" xml:space="preserve">
+    <value>Bez paska</value>
+  </data>
+  <data name="TCrawl_Normal" xml:space="preserve">
+    <value>Normalny</value>
+  </data>
+  <data name="TCrawl_Sport" xml:space="preserve">
+    <value>Sport</value>
+  </data>
+  <data name="TCrawl_Urgent" xml:space="preserve">
+    <value>Pilne</value>
+  </data>
+  <data name="TEventType_AnimationFlash" xml:space="preserve">
+    <value>Animacja</value>
+  </data>
+  <data name="TEventType_Container" xml:space="preserve">
+    <value>Kontener</value>
+  </data>
+  <data name="TEventType_Live" xml:space="preserve">
+    <value>Na żywo</value>
+  </data>
+  <data name="TEventType_Movie" xml:space="preserve">
+    <value>Klip</value>
+  </data>
+  <data name="TEventType_Rundown" xml:space="preserve">
+    <value>Playlista</value>
+  </data>
+  <data name="TEventType_StillImage" xml:space="preserve">
+    <value>Grafika</value>
+  </data>
+  <data name="TFieldOrder_BFF" xml:space="preserve">
+    <value>Najpierw dolne pole</value>
+  </data>
+  <data name="TFieldOrder_TFF" xml:space="preserve">
+    <value>Najpierw górne pole</value>
+  </data>
+  <data name="TLogo_Live" xml:space="preserve">
+    <value>Na żywo</value>
+  </data>
+  <data name="TLogo_NoLogo" xml:space="preserve">
+    <value>Bez loga</value>
+  </data>
+  <data name="TLogo_Normal" xml:space="preserve">
+    <value>Normalne</value>
+  </data>
+  <data name="TLogo_Premiere" xml:space="preserve">
+    <value>Premiera</value>
+  </data>
+  <data name="TLogo_Replay" xml:space="preserve">
+    <value>Powtórka</value>
+  </data>
+  <data name="TMediaCategory_Commercial" xml:space="preserve">
+    <value>Reklama</value>
+  </data>
+  <data name="TMediaCategory_Fill" xml:space="preserve">
+    <value>Wypełniacz</value>
+  </data>
+  <data name="TMediaCategory_Promo" xml:space="preserve">
+    <value>Oprawa</value>
+  </data>
+  <data name="TMediaCategory_Show" xml:space="preserve">
+    <value>Audycja</value>
+  </data>
+  <data name="TMediaCategory_Sponsored" xml:space="preserve">
+    <value>Bilboard</value>
+  </data>
+  <data name="TMediaCategory_Uncategorized" xml:space="preserve">
+    <value>Bez kategorii</value>
+  </data>
+  <data name="TMediaEmphasis_Beige" xml:space="preserve">
+    <value>Beżowe</value>
+  </data>
+  <data name="TMediaEmphasis_None" xml:space="preserve">
+    <value>Według kategorii</value>
+  </data>
+  <data name="TMediaEmphasis_Olive" xml:space="preserve">
+    <value>Oliwkowe</value>
+  </data>
+  <data name="TMediaEmphasis_Orange" xml:space="preserve">
+    <value>Pomarańczowe</value>
+  </data>
+  <data name="TMediaEmphasis_Pink" xml:space="preserve">
+    <value>Różowe</value>
+  </data>
+  <data name="TMediaEmphasis_SkyBlue" xml:space="preserve">
+    <value>Błękitne</value>
+  </data>
+  <data name="TMediaEmphasis_Violet" xml:space="preserve">
+    <value>Fioletowe</value>
+  </data>
+  <data name="TMediaEmphasis_Yellow" xml:space="preserve">
+    <value>Żółte</value>
+  </data>
+  <data name="TMediaStatus_Available" xml:space="preserve">
+    <value>Dostępny</value>
+  </data>
+  <data name="TMediaStatus_Copied" xml:space="preserve">
+    <value>Kopiowanie zakończone</value>
+  </data>
+  <data name="TMediaStatus_CopyError" xml:space="preserve">
+    <value>Błąd kopiowania</value>
+  </data>
+  <data name="TMediaStatus_Copying" xml:space="preserve">
+    <value>Trwa kopiowanie</value>
+  </data>
+  <data name="TMediaStatus_CopyPending" xml:space="preserve">
+    <value>Oczekuje na kopiowanie</value>
+  </data>
+  <data name="TMediaStatus_Deleted" xml:space="preserve">
+    <value>Usunięty</value>
+  </data>
+  <data name="TMediaStatus_Required" xml:space="preserve">
+    <value>Wymagany</value>
+  </data>
+  <data name="TMediaStatus_Unknown" xml:space="preserve">
+    <value>Nieznany</value>
+  </data>
+  <data name="TMediaStatus_ValidationError" xml:space="preserve">
+    <value>Błąd walidacji</value>
+  </data>
+  <data name="TMediaType_AnimationFlash" xml:space="preserve">
+    <value>Animacja Flash</value>
+  </data>
+  <data name="TMediaType_Audio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="TMediaType_Movie" xml:space="preserve">
+    <value>Klip</value>
+  </data>
+  <data name="TMediaType_Still" xml:space="preserve">
+    <value>Grafika</value>
+  </data>
+  <data name="TMediaType_Unknown" xml:space="preserve">
+    <value>Nieznany</value>
+  </data>
+  <data name="TParental_Limit07" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="TParental_Limit12" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="TParental_Limit16" xml:space="preserve">
+    <value>16</value>
+  </data>
+  <data name="TParental_Limit18" xml:space="preserve">
+    <value>18</value>
+  </data>
+  <data name="TParental_NoLimit" xml:space="preserve">
+    <value>B/O</value>
+  </data>
+  <data name="TParental_None" xml:space="preserve">
+    <value>Brak</value>
+  </data>
+  <data name="TPlayState_Aborted" xml:space="preserve">
+    <value>Przerwany</value>
+  </data>
+  <data name="TPlayState_Fading" xml:space="preserve">
+    <value>Zejście</value>
+  </data>
+  <data name="TPlayState_Paused" xml:space="preserve">
+    <value>Still</value>
+  </data>
+  <data name="TPlayState_Played" xml:space="preserve">
+    <value>Zakończony</value>
+  </data>
+  <data name="TPlayState_Playing" xml:space="preserve">
+    <value>Odtwarza</value>
+  </data>
+  <data name="TPlayState_Scheduled" xml:space="preserve">
+    <value />
+  </data>
+  <data name="TStartType_After" xml:space="preserve">
+    <value>Po zakończeniu</value>
+  </data>
+  <data name="TStartType_Manual" xml:space="preserve">
+    <value>Manualnie</value>
+  </data>
+  <data name="TStartType_None" xml:space="preserve">
+    <value>Nie można wystartować</value>
+  </data>
+  <data name="TStartType_OnFixedTime" xml:space="preserve">
+    <value>O zadanym czasie</value>
+  </data>
+  <data name="TStartType_With" xml:space="preserve">
+    <value>Wraz z rozpoczęciem</value>
+  </data>
+  <data name="TVideoFormat_HD1080i50" xml:space="preserve">
+    <value>1080i50</value>
+  </data>
+  <data name="TVideoFormat_HD1080p25" xml:space="preserve">
+    <value>1080p25</value>
+  </data>
+  <data name="TVideoFormat_Other" xml:space="preserve">
+    <value>Inny</value>
+  </data>
+  <data name="TVideoFormat_PAL_43" xml:space="preserve">
+    <value>PAL (4:3)</value>
+  </data>
+  <data name="TVideoFormat_PAL_FHA" xml:space="preserve">
+    <value>PAL (16:9)</value>
+  </data>
+  <data name="_button_Add" xml:space="preserve">
+    <value>Dodaj</value>
+  </data>
+  <data name="_caption_Confirmation" xml:space="preserve">
+    <value>Potwierdzenie</value>
+  </data>
+  <data name="_caption_Error" xml:space="preserve">
+    <value>Błąd</value>
+  </data>
+  <data name="_message_DeleteError" xml:space="preserve">
+    <value>Usunięcie nie powiodło się. Błąd, który wystąpił: {0}</value>
+  </data>
+  <data name="_message_DirectoryRefreshError" xml:space="preserve">
+    <value>Nie udało się odświeżyć zawartości katalogu z powodu błędu:\n{0}</value>
+  </data>
+  <data name="_message_SaveError" xml:space="preserve">
+    <value>Zapis nie powiódł się. Błąd, który wystąpił: {0}</value>
+  </data>
+  <data name="_or_" xml:space="preserve">
+    <value> lub </value>
+  </data>
+  <data name="_query_DeleteAllGraphics" xml:space="preserve">
+    <value>Usunąć wszystkie elementy grafiki?</value>
+  </data>
+  <data name="_query_DeleteItem" xml:space="preserve">
+    <value>Usunąć ten element z wszystkimi składnikami?</value>
+  </data>
+  <data name="_query_SaveChangedData" xml:space="preserve">
+    <value>Zapisać zmienione dane?</value>
+  </data>
+  <data name="_title_Delete" xml:space="preserve">
+    <value>Usuń: {0}:{1}</value>
+  </data>
+  <data name="_title_Duration" xml:space="preserve">
+    <value>Czas trwania</value>
+  </data>
+  <data name="_title_EmptyMovie" xml:space="preserve">
+    <value>Pusty klip</value>
+  </data>
+  <data name="_title_MeasureVolume" xml:space="preserve">
+    <value>Pomiar LUFS: {0}:{1}</value>
+  </data>
+  <data name="_title_NewLive" xml:space="preserve">
+    <value>Nowy live</value>
+  </data>
+  <data name="_title_NewRundown" xml:space="preserve">
+    <value>Nowa playlista</value>
+  </data>
+  <data name="_title_NewSegment" xml:space="preserve">
+    <value>Nowy</value>
+  </data>
+  <data name="_title_RundownEnd" xml:space="preserve">
+    <value>Koniec playlisty</value>
+  </data>
+  <data name="_title_SegmentName" xml:space="preserve">
+    <value>Nazwa segmentu</value>
+  </data>
+  <data name="_title_TCIn" xml:space="preserve">
+    <value>TC In</value>
+  </data>
+  <data name="_title_TCOut" xml:space="preserve">
+    <value>TC Out</value>
+  </data>
+  <data name="_validateStartPlayMustBeInsideFile" xml:space="preserve">
+    <value>Rozpoczęcie odtwarzania musi się zawierać pomiędzy TC początkowym i końcowym klipu</value>
+  </data>
+  <data name="_validate_DurationInvalid" xml:space="preserve">
+    <value>Czas trwania (z uwzględnieniem TC startu) jest dłuższy, niż klipu.</value>
+  </data>
+  <data name="_validate_FileAlreadyExists" xml:space="preserve">
+    <value>Plik o takiej nazwie już istnieje</value>
+  </data>
+  <data name="_validate_FileMustHaveExtension" xml:space="preserve">
+    <value>Plik musi mieć rozszerzenie nazwy {0}</value>
+  </data>
+  <data name="_validate_FileNameCanNotContainSpecialCharacters" xml:space="preserve">
+    <value>Nazwa pliku nie może zawierać znaków specjalnych</value>
+  </data>
+  <data name="_validate_StartTCAfterFile" xml:space="preserve">
+    <value>Timecode startu jest za klipem (końcowy TC klipu to {0})</value>
+  </data>
+  <data name="_validate_StartTCBeforeFile" xml:space="preserve">
+    <value>Timecode startu jest przed klipem (początkowy TC klipu to {0})</value>
+  </data>
+  <data name="_validate_StartTimePassed" xml:space="preserve">
+    <value>Czas startu już upłynął</value>
+  </data>
+  <data name="_validate_TransitionTimeInvalid" xml:space="preserve">
+    <value>Czas przejścia jest dłuższy, niż czas trwania.</value>
+  </data>
+  <data name="TAspectRatioControl_GPI" xml:space="preserve">
+    <value>Wyzwolenie GPI</value>
+  </data>
+  <data name="TAspectRatioControl_GPIandImageResize" xml:space="preserve">
+    <value>Skalowanie obrazu i GPI</value>
+  </data>
+  <data name="TAspectRatioControl_ImageResize" xml:space="preserve">
+    <value>Skalowanie obrazu</value>
+  </data>
+  <data name="TAspectRatioControl_None" xml:space="preserve">
+    <value>Brak</value>
+  </data>
+</root>

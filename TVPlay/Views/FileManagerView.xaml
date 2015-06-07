@@ -1,0 +1,81 @@
+﻿<UserControl Language="{UICulture}"
+             ResxExtension.DefaultResxName="TAS.Client.Views.FileManagerView"
+             x:Class="TAS.Client.FileManagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:client="clr-namespace:TAS.Client"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="800"
+             >
+    <UserControl.Resources>
+        <vm:FileManagerViewmodel x:Key="ViewModel"/>
+    </UserControl.Resources>
+    <Grid DataContext="{StaticResource ViewModel}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid VerticalAlignment="Center">
+            <Label Content="{Resx _fileOperations}" Padding="20, 0"/>
+            <CheckBox Content="{Resx _deleteFinished}" HorizontalAlignment="Right" Padding="8, 0" IsChecked="{Binding ClearFinished}"/>
+        </Grid>
+        <DataGrid Grid.Row="1" ItemsSource="{Binding OperationList}" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn x:Name="operationState" Width="10" CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image x:Name="stateImage" ToolTip="{Binding OperationStatus}"/>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding OperationStatus}" Value="Waiting">
+                                    <Setter Property="Source" TargetName="stateImage" Value="../Glyphs/FileOperationStates/Waiting.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding OperationStatus}" Value="Aborted">
+                                    <Setter Property="Source" TargetName="stateImage" Value="../Glyphs/FileOperationStates/Aborted.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding OperationStatus}" Value="Failed">
+                                    <Setter Property="Source" TargetName="stateImage" Value="../Glyphs/FileOperationStates/Failed.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding OperationStatus}" Value="InProgress">
+                                    <Setter Property="Source" TargetName="stateImage" Value="../Glyphs/FileOperationStates/InProgress.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding OperationStatus}" Value="Finished">
+                                    <Setter Property="Source" TargetName="stateImage" Value="../Glyphs/FileOperationStates/Finished.png"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Progress}" Width="80" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <ProgressBar IsIndeterminate="{Binding IsIndeterminate, Mode=OneWay}"  Value="{Binding Progress, Mode=OneWay}" Minimum="0" Maximum="100" />
+                                <Label Content="{Binding Path=Progress}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" Foreground="White" FontWeight="Bold" />
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Operation}" Binding="{Binding OperationDescription, Mode=OneWay}" Width="*" />
+
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Scheduled}" Width="100"  Binding="{Binding ScheduledTime, Converter={StaticResource DateTimeFormat}, ConverterParameter=T, Mode=OneWay}" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Started}" Width="100" Binding="{Binding StartTime, Converter={StaticResource DateTimeFormat}, ConverterParameter=T, Mode=OneWay}" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Finished}" Width="100" Binding="{Binding FinishedTime, Converter={StaticResource DateTimeFormat}, ConverterParameter=T, Mode=OneWay}" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.TryCount}" Binding="{Binding TryCount, Mode=OneWay}" />
+            </DataGrid.Columns>
+            <DataGrid.Resources>
+                <ContextMenu x:Key="ItemMenu">
+                    <MenuItem Header="{Resx _grid.Popup.Abort}" Command="{Binding CommandAbort}" />
+                </ContextMenu>
+            </DataGrid.Resources>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="ContextMenu" Value="{StaticResource ItemMenu}" />
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+    </Grid>
+</UserControl>

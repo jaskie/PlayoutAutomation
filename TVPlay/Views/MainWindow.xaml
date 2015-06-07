@@ -1,0 +1,10 @@
+﻿<Window ResxExtension.DefaultResxName="TAS.Client.Views.MainWindow" Language="{UICulture}"
+        x:Class="TAS.Client.Views.MainWindow" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        Name="AppMainWindow" Title="{Resx Window.Title}" Height="864" Width="1152"
+        Loaded="AppMainWindow_Loaded" Closed="AppMainWindow_Closed" Closing="AppMainWindow_Closing">
+    <TabControl Name="tcChannels" TabStripPlacement="Bottom">
+    </TabControl>
+</Window>
