@@ -28,21 +28,21 @@
     </UserControl.Resources>
     <UserControl.ContextMenu>
         <ContextMenu>
-            <MenuItem Header="{Resx _popupMenu.Copy}">
-                <MenuItem Header="{Resx _popupMenu.Copy.OnlyThis}" Command="{Binding CommandCopySingle}"/>
+            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Copy}">
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Copy.OnlyThis}" Command="{Binding CommandCopySingle}"/>
                 <!--<MenuItem Header="_Od tego elementu (Ctrl+Shift+X)" Command="{Binding CommandCopyMultiple}"/>-->
             </MenuItem>
-            <MenuItem Header="{Resx _popupMenu.Cut}">
-                <MenuItem Header="{Resx _popupMenu.Cut.OnlyThis}" Command="{Binding CommandCutSingle}"/>
-                <MenuItem Header="{Resx _popupmenu.Cut.FromThis}" Command="{Binding CommandCutMultiple}"/>
+            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Cut}">
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Cut.OnlyThis}" Command="{Binding CommandCutSingle}"/>
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupmenu.Cut.FromThis}" Command="{Binding CommandCutMultiple}"/>
             </MenuItem>
-            <MenuItem Header="{Resx _popupMenu.Paste}">
-                <MenuItem Header="{Resx _popupMenu.Paste.Before}" Command="{Binding CommandPaste}" CommandParameter="before" IsEnabled="{Binding CanPasteBefore}"/>
-                <MenuItem Header="{Resx _popupMenu.Paste.After}" Command="{Binding CommandPaste}" CommandParameter="after" IsEnabled="{Binding CanPasteAfter}"/>
-                <MenuItem Header="{Resx _popupMenu.Paste.Under}" Command="{Binding CommandPaste}" CommandParameter="under" IsEnabled="{Binding CanPasteUnder}"/>
+            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste}">
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Before}" Command="{Binding CommandPaste}" CommandParameter="before" IsEnabled="{Binding CanPasteBefore}"/>
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.After}" Command="{Binding CommandPaste}" CommandParameter="after" IsEnabled="{Binding CanPasteAfter}"/>
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Under}" Command="{Binding CommandPaste}" CommandParameter="under" IsEnabled="{Binding CanPasteUnder}"/>
             </MenuItem>
             <Separator/>
-            <MenuItem Header="{Resx _popupMenu.Hide}" Command="{Binding CommandToggleEnabled}" Visibility="{Binding IsRootContainer, Converter={StaticResource BoolToVis}}"/>
+            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Hide}" Command="{Binding CommandToggleEnabled}" Visibility="{Binding IsRootContainer, Converter={StaticResource BoolToVis}}"/>
         </ContextMenu>
     </UserControl.ContextMenu>
     <Border x:Name="border" Style="{StaticResource borderStyle}" BorderThickness="0, 0, 0, 1" Margin="0" BorderBrush="Gray" >
