@@ -308,9 +308,6 @@
     <Compile Include="Server\Media\ServerDirectory.cs" />
     <Compile Include="Server\Media\ServerMedia.cs" />
     <Compile Include="Server\MediaManager.cs" />
-    <Compile Include="ProgramSearch\TVPProgramSearch.cs" />
-    <Compile Include="ProgramSearch\SimpleSearch.cs" />
-    <Compile Include="ProgramSearch\ProgramSearch.cs" />
     <Compile Include="Views\MediaSearchView.xaml.cs">
       <DependentUpon>MediaSearchView.xaml</DependentUpon>
     </Compile>
@@ -637,16 +634,7 @@
     <Resource Include="Glyphs\Parentals\7.png" />
     <Resource Include="Glyphs\Parentals\BO.png" />
     <Resource Include="Glyphs\ExportDelete.png" />
-    <Content Include="x64\avcodec-56.dll" />
-    <Content Include="x64\avdevice-56.dll" />
-    <Content Include="x64\avfilter-5.dll" />
-    <Content Include="x64\avformat-56.dll" />
-    <Content Include="x64\avutil-54.dll" />
-    <Content Include="x64\ffmpeg.exe" />
     <Content Include="x64\MediaInfo.dll" />
-    <Content Include="x64\postproc-53.dll" />
-    <Content Include="x64\swresample-1.dll" />
-    <Content Include="x64\swscale-3.dll" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\DataSources\" />

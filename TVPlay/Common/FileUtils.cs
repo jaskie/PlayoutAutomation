@@ -20,9 +20,9 @@ namespace TAS.Server
 
     public static class DateTimeExtensions
     {
-        public static bool DateTimeEqualToSeconds(this DateTime self, DateTime dt)
+        public static bool DateTimeEqualToDays(this DateTime self, DateTime dt)
         {
-            return self.Date.Equals(dt.Date) && self.Hour == dt.Hour && self.Minute == dt.Minute && self.Second == dt.Second;
+            return (self.Date - dt).Days == 0;
         }
 
         public static DateTime FromFileTime(DateTime dt, DateTimeKind kind)

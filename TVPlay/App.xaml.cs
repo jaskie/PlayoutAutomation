@@ -24,8 +24,8 @@ namespace TAS.Client
             if (ConfigurationManager.AppSettings.AllKeys.Contains(volumeReferenceLoudnessKey))
                 decimal.TryParse(ConfigurationManager.AppSettings[volumeReferenceLoudnessKey], out referenceLoudness);
             App.Current.Properties["VolumeReferenceLoudness"] = referenceLoudness;
-            //CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
-            CultureManager.UICulture = new System.Globalization.CultureInfo("en");
+            CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
+            //CultureManager.UICulture = new System.Globalization.CultureInfo("en");
         }
     }
 }

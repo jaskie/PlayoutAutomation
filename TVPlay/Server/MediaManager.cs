@@ -363,7 +363,7 @@ namespace TAS.Server
                         ServerMedia pRVmedia = (ServerMedia)MediaDirectoryPRV.FindMedia(pGMmedia);
                         if (pRVmedia == null)
                         {
-                            pRVmedia = (ServerMedia)MediaDirectoryPRV.Files.FirstOrDefault((m) => m.FileExists() && m.FileSize == pGMmedia.FileSize && m.FileName == pGMmedia.FileName && m.LastUpdated == pGMmedia.LastUpdated);
+                            pRVmedia = (ServerMedia)MediaDirectoryPRV.Files.FirstOrDefault((m) => m.FileExists() && m.FileSize == pGMmedia.FileSize && m.FileName == pGMmedia.FileName && m.LastUpdated.DateTimeEqualToDays(pGMmedia.LastUpdated)); 
                             if (pRVmedia != null)
                             {
                                 pRVmedia.MediaGuid = pGMmedia.MediaGuid;
@@ -393,7 +393,7 @@ namespace TAS.Server
                 {
                     if (pGMmedia.MediaStatus == TMediaStatus.Available)
                     {
-                        var pRVmedia = (ServerMedia)MediaDirectoryPRV.Files.FirstOrDefault(m => m.Folder == pGMmedia.Folder && m.FileName == pGMmedia.FileName);
+                        var pRVmedia = (ServerMedia)MediaDirectoryPRV.Files.FirstOrDefault(m => m.Folder == pGMmedia.Folder && m.FileName == pGMmedia.FileName && m.LastUpdated.DateTimeEqualToDays(pGMmedia.LastUpdated));
                         if (pRVmedia != null)
                         {
                             pRVmedia.MediaGuid = pGMmedia.MediaGuid;

@@ -404,10 +404,10 @@ namespace TAS.Server
         {
             if (Verified || (_mediaStatus == TMediaStatus.Copying) || (_mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required))
                 return;
-            if (!File.Exists(FullPath))
+            if (!File.Exists(FullPath) && _directory != null && System.IO.Directory.Exists(_directory.Folder))
             {
-                _mediaStatus = TMediaStatus.Deleted;
-                return; // in case that no file was found
+                _mediaStatus = TMediaStatus.Deleted; 
+                return; // in case that no file was found, and directory exists
             }
             FileInfo fi = new FileInfo(FullPath);
             if (fi.Length == 0L)
@@ -425,7 +425,8 @@ namespace TAS.Server
                 || this._mediaStatus == TMediaStatus.Copied
                 || (this.MediaType != TMediaType.Still && this.Duration == TimeSpan.Zero)
                 || this.FileSize != (UInt64)fi.Length
-                || !LastUpdated.DateTimeEqualToSeconds(fi.LastWriteTimeUtc)))
+                || !LastUpdated.DateTimeEqualToDays(fi.LastWriteTimeUtc)
+                ))
             {
                 this.FileSize = (UInt64)fi.Length;
                 this.LastUpdated = DateTimeExtensions.FromFileTime(fi.LastWriteTimeUtc, DateTimeKind.Utc);
