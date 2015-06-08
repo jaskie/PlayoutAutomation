@@ -142,11 +142,29 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Really exit application?.
+        /// </summary>
+        internal static string _query_ExitApplication {
+            get {
+                return ResourceManager.GetString("_query_ExitApplication", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Save modified date?.
         /// </summary>
         internal static string _query_SaveChangedData {
             get {
                 return ResourceManager.GetString("_query_SaveChangedData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Application should execute in one instance only, but was running already.\nReally start new one?.
+        /// </summary>
+        internal static string _query_StartAnotherInstance {
+            get {
+                return ResourceManager.GetString("_query_StartAnotherInstance", resourceCulture);
             }
         }
         

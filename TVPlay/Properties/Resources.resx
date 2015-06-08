@@ -441,4 +441,10 @@
   <data name="TAspectRatioControl_None" xml:space="preserve">
     <value>None</value>
   </data>
+  <data name="_query_ExitApplication" xml:space="preserve">
+    <value>Really exit application?</value>
+  </data>
+  <data name="_query_StartAnotherInstance" xml:space="preserve">
+    <value>Application should execute in one instance only, but was running already.\nReally start new one?</value>
+  </data>
 </root>

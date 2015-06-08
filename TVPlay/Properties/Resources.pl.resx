@@ -441,4 +441,10 @@
   <data name="TAspectRatioControl_None" xml:space="preserve">
     <value>Brak</value>
   </data>
+  <data name="_query_ExitApplication" xml:space="preserve">
+    <value>Zakończyć sterowanie emisją?</value>
+  </data>
+  <data name="_query_StartAnotherInstance" xml:space="preserve">
+    <value>Program może byc uruchomiony tylko raz.\nJeśli jego poprzednia kopia nie odpowiada i chcesz uruchomić nową, naciśnij OK. W przeciwnym razie naciśnij Anuluj.</value>
+  </data>
 </root>

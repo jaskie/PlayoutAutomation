@@ -14,7 +14,6 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Diagnostics;
 using TAS.Server;
-using Svt.Caspar;
 using TAS.Client.ViewModels;
 using System.Threading;
 
@@ -32,8 +31,8 @@ namespace TAS.Client.Views
             try
             {
                 if (!mutex.WaitOne(5000)
-                    && (MessageBox.Show("Program może byc uruchomiony tylko raz.\nJeśli jego poprzednia kopia nie odpowiada i chcesz uruchomić nową, naciśnij OK. W przeciwnym razie naciśnij Anuluj.",
-                                    "Aplikacja już uruchomiona", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel))
+                    && (MessageBox.Show(Properties.Resources._query_StartAnotherInstance,
+                                    Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel))
                 {
                     _systemShutdown = true;
                     Application.Current.Shutdown(0);
@@ -100,7 +99,7 @@ namespace TAS.Client.Views
         private void AppMainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
 #if DEBUG == false
-            e.Cancel = !_systemShutdown && MessageBox.Show("Zamknąć sterowanie emisją?", "Potwierdzenie", MessageBoxButton.YesNo) == MessageBoxResult.No;
+            e.Cancel = !_systemShutdown && MessageBox.Show(Properties.Resources._query_ExitApplication, Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.No;
 #endif // DEBUG
         }
     }
