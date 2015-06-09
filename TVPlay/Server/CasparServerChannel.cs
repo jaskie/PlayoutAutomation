@@ -352,11 +352,7 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (_checkConnected() && channel != null)
             {
-                channel.Clear((int)VideoLayer.Program);
-                channel.Clear((int)VideoLayer.Preset);
-                channel.Clear((int)VideoLayer.CG1);
-                channel.Clear((int)VideoLayer.CG2);
-                channel.Clear((int)VideoLayer.CG3);
+                channel.Clear();
                 Debug.WriteLine(this, "CasparClear");
             }
         }
