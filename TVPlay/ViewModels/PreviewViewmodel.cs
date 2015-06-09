@@ -109,17 +109,8 @@ namespace TAS.Client.ViewModels
                 && duration.Ticks >= _engine.FrameDuration)
             {
                 LoadedMedia = media;
-                NotifyPropertyChanged("CommandStop");
-                NotifyPropertyChanged("CommandSeek");
-                NotifyPropertyChanged("CommandCopyToTCIn");
-                NotifyPropertyChanged("CommandCopyToTCOut");
-                NotifyPropertyChanged("CommandNewSegment");
                 TCIn = tcIn;
                 TCOut = tcIn + duration - TimeSpan.FromTicks(_engine.FrameDuration);
-                NotifyPropertyChanged("StartTC");
-                NotifyPropertyChanged("Duration");
-                NotifyPropertyChanged("IsLoaded");
-                NotifyPropertyChanged("IsPlayable");
                 if (reloadSegments)
                 {
                     MediaSegments.Clear();
@@ -132,11 +123,8 @@ namespace TAS.Client.ViewModels
                     newPosition = 0;
                 _loadedDuration = duration.Ticks / _engine.FrameDuration;
                 _engine.PreviewLoad(media, _loadedSeek, _loadedDuration, newPosition);
-                NotifyPropertyChanged("Position");
-                NotifyPropertyChanged("SliderPosition");
-                NotifyPropertyChanged("MediaName");
-                NotifyPropertyChanged("FileName");
             }
+            NotifyPropertyChanged(null);
         }
 
         void _mediaUnload()
@@ -145,6 +133,7 @@ namespace TAS.Client.ViewModels
             TCOut = TimeSpan.Zero;
             LoadedMedia = null;
             _engine.PreviewUnload();
+            NotifyPropertyChanged(null);
         }
 
         public TimeSpan StartTC

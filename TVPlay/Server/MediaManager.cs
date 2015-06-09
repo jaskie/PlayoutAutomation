@@ -366,7 +366,7 @@ namespace TAS.Server
                             pRVmedia = (ServerMedia)MediaDirectoryPRV.Files.FirstOrDefault((m) => m.FileExists() && m.FileSize == pGMmedia.FileSize && m.FileName == pGMmedia.FileName && m.LastUpdated.DateTimeEqualToDays(pGMmedia.LastUpdated)); 
                             if (pRVmedia != null)
                             {
-                                pRVmedia.MediaGuid = pGMmedia.MediaGuid;
+                                pRVmedia.CloneMediaProperties(pGMmedia);;
                                 pRVmedia.Save();
                             }
                             else
@@ -396,7 +396,7 @@ namespace TAS.Server
                         var pRVmedia = (ServerMedia)MediaDirectoryPRV.Files.FirstOrDefault(m => m.Folder == pGMmedia.Folder && m.FileName == pGMmedia.FileName && m.LastUpdated.DateTimeEqualToDays(pGMmedia.LastUpdated));
                         if (pRVmedia != null)
                         {
-                            pRVmedia.MediaGuid = pGMmedia.MediaGuid;
+                            pRVmedia.CloneMediaProperties(pGMmedia);
                             pRVmedia.Save();
                         }
                     }
