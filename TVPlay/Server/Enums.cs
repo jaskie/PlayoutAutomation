@@ -72,7 +72,7 @@ namespace TAS.Server
         Show,
         Commercial,
         Promo,
-        Sposored,
+        Sponsored,
         Fill,
     };
     class TMediaCategoryEnumConverter : ResourceEnumConverter

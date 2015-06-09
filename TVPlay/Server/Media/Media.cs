@@ -273,16 +273,19 @@ namespace TAS.Server
 
         public virtual void CloneMediaProperties(Media fromMedia)
         {
+            MediaGuid = fromMedia.MediaGuid;
+            MediaName = fromMedia.MediaName;
             AudioChannelMapping = fromMedia.AudioChannelMapping;
             AudioVolume = fromMedia.AudioVolume;
+            AudioLevelIntegrated = fromMedia.AudioLevelIntegrated;
+            AudioLevelPeak = fromMedia.AudioLevelPeak;
             Duration = fromMedia.Duration;
             DurationPlay = fromMedia.DurationPlay;
             TCStart = fromMedia.TCStart;
-            TCPlay = fromMedia.DurationPlay;
+            TCPlay = fromMedia.TCPlay;
             VideoFormat = fromMedia.VideoFormat;
             MediaCategory = fromMedia.MediaCategory;
             Parental = fromMedia.Parental;
-            MediaGuid = fromMedia.MediaGuid;
         }
 
         protected virtual Stream _getFileStream(bool forWrite)

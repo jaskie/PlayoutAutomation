@@ -65,6 +65,7 @@ namespace TAS.Server
                 idFormat = (fromMedia as PersistentMedia).idFormat;
                 idProgramme = (fromMedia as PersistentMedia).idProgramme;
                 OriginalMedia = (fromMedia as PersistentMedia).OriginalMedia;
+                MediaEmphasis = (fromMedia as PersistentMedia).MediaEmphasis;
             }
         }
 
