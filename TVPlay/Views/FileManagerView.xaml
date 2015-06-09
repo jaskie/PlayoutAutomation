@@ -68,7 +68,7 @@
             </DataGrid.Columns>
             <DataGrid.Resources>
                 <ContextMenu x:Key="ItemMenu">
-                    <MenuItem Header="{Resx _grid.Popup.Abort}" Command="{Binding CommandAbort}" />
+                    <MenuItem Header="{Resx ResxName=TAS.Client.Views.FileManagerView,  Key=_grid.Popup.Abort}" Command="{Binding CommandAbort}" />
                 </ContextMenu>
             </DataGrid.Resources>
             <DataGrid.RowStyle>

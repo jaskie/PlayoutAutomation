@@ -21,14 +21,14 @@ namespace TAS.Server
 
         #region Properties
 
-        private bool _hasMoreThan8AudioChannels = false;
-        private TimeSpan _duration;
+        int _audioStreamCount;
+        TimeSpan _duration;
 
-        private static string _ffExe = "ffmpeg.exe";
-        private static string _lProgressPattern = "time=" + @"\d\d:\d\d:\d\d\.?\d*";
-        private static string _progressPattern = @"\d\d:\d\d:\d\d\.?\d*";
-        private readonly Regex _regexlProgress = new Regex(_lProgressPattern, RegexOptions.None);
-        private readonly Regex _regexProgress = new Regex(_progressPattern, RegexOptions.None);
+        static string _ffExe = "ffmpeg.exe";
+        static string _lProgressPattern = "time=" + @"\d\d:\d\d:\d\d\.?\d*";
+        static string _progressPattern = @"\d\d:\d\d:\d\d\.?\d*";
+        readonly Regex _regexlProgress = new Regex(_lProgressPattern, RegexOptions.None);
+        readonly Regex _regexProgress = new Regex(_progressPattern, RegexOptions.None);
 
         public ConvertOperation()
         {
@@ -48,7 +48,8 @@ namespace TAS.Server
             {
                 mi.Open(mf.FullPath);
                 mi.Option("Complete");
-                _hasMoreThan8AudioChannels = mi.Count_Get(StreamKind.Audio) > 8;
+                _audioStreamCount = mi.Count_Get(StreamKind.Audio);
+               
                 string miOutput = mi.Inform();
 
                 Regex format_lxf = new Regex("Format\\s*:\\s*LXF");
@@ -256,10 +257,15 @@ namespace TAS.Server
                 vf.Add("crop=720:576:0:32");
                 vf.Add("setdar=dar=16/9");
             }
-            if (_hasMoreThan8AudioChannels)
+            if (_audioStreamCount > 8)
                 af.Add("aformat=channel_layouts=0xFFFF");
             _addConversion(AspectConversion, ep, vf, af);
             _addConversion(SourceFieldOrderEnforceConversion, ep, vf, af);
+            if (_audioStreamCount >= 4 && !AudioChannelMappingConversion.OutputFormat.Equals(TAudioChannelMapping.Unknown)) 
+            {
+                for (int i = 1; i <= _audioStreamCount; i++)
+                    ep.AppendFormat(" -map_channel 0.{0}.0", i);
+            }
             _addConversion(AudioChannelMappingConversion, ep, vf, af);
             if (AudioVolume != decimal.Zero)
                 _addConversion(new MediaConversionAudioVolume(AudioVolume), ep, vf, af);
@@ -274,9 +280,8 @@ namespace TAS.Server
         {
             Debug.WriteLine(this, "Convert operation started");
             DestMedia.MediaStatus = TMediaStatus.Copying;
-            string encodeParams = _encodeParameters(inputMedia);
-
             CheckInputFile(inputMedia);
+            string encodeParams = _encodeParameters(inputMedia);
 
             string Params = string.Format("-i \"{0}\" -y {1} -timecode {2} \"{3}\"",
                     inputMedia.FullPath,
