@@ -349,13 +349,16 @@
     <value>Błąd</value>
   </data>
   <data name="_message_DeleteError" xml:space="preserve">
-    <value>Usunięcie nie powiodło się. Błąd, który wystąpił: {0}</value>
+    <value>Usunięcie nie powiodło się. Błąd, który wystąpił:
+{0}</value>
   </data>
   <data name="_message_DirectoryRefreshError" xml:space="preserve">
-    <value>Nie udało się odświeżyć zawartości katalogu z powodu błędu:\n{0}</value>
+    <value>Nie udało się odświeżyć zawartości katalogu z powodu błędu:
+{0}</value>
   </data>
   <data name="_message_SaveError" xml:space="preserve">
-    <value>Zapis nie powiódł się. Błąd, który wystąpił: {0}</value>
+    <value>Zapis nie powiódł się. Błąd, który wystąpił:
+{0}</value>
   </data>
   <data name="_or_" xml:space="preserve">
     <value> lub </value>
@@ -445,6 +448,28 @@
     <value>Zakończyć sterowanie emisją?</value>
   </data>
   <data name="_query_StartAnotherInstance" xml:space="preserve">
-    <value>Program może byc uruchomiony tylko raz.\nJeśli jego poprzednia kopia nie odpowiada i chcesz uruchomić nową, naciśnij OK. W przeciwnym razie naciśnij Anuluj.</value>
+    <value>Program może byc uruchomiony tylko raz.
+Jeśli jego poprzednia kopia nie odpowiada i chcesz uruchomić nową, naciśnij OK. W przeciwnym razie naciśnij Anuluj.</value>
+  </data>
+  <data name="_query_DeleteSelectedFiles" xml:space="preserve">
+    <value>Pliki do usunięcia:
+{0}
+
+Naprawdę usunąć?</value>
+  </data>
+  <data name="_message_CopyFailed" xml:space="preserve">
+    <value>Kopiowanie powiodło się. Błąd, który wystąpił:
+{0}</value>
+  </data>
+  <data name="_message_CutFailed" xml:space="preserve">
+    <value>Wycięcie nie powiodło się. Błąd, który wystąpił:
+{0}</value>
+  </data>
+  <data name="_message_PasteFailed" xml:space="preserve">
+    <value>Wklejenie nie powiodło się. Błąd, który wystąpił:
+{0}</value>
+  </data>
+  <data name="_query_DeleteSelected" xml:space="preserve">
+    <value>Usunąć wybrane elementy ({0})?</value>
   </data>
 </root>

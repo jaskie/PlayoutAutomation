@@ -224,7 +224,7 @@ namespace TAS.Client.ViewModels
             }
             catch (Exception e)
             {
-                MessageBox.Show(string.Format("Wycięcie nie powiodło się. Błąd, który wystąpił: {0}", e.Message), "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(Properties.Resources._message_CutFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -239,7 +239,7 @@ namespace TAS.Client.ViewModels
             }
             catch (Exception e)
             {
-                MessageBox.Show(string.Format("Kopiowanie powiodło się. Błąd, który wystąpił: {0}", e.Message), "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(Properties.Resources._message_CopyFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -265,7 +265,7 @@ namespace TAS.Client.ViewModels
             }
             catch (Exception e)
             {
-                MessageBox.Show(string.Format("Wklejenie nie powiodło się. Błąd, który wystąpił: {0}", e.Message), "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(Properties.Resources._message_PasteFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -275,7 +275,7 @@ namespace TAS.Client.ViewModels
             {
                 var evmList = _selectedEvents.ToList();
                 if (evmList.Count() > 0
-                    && MessageBox.Show(string.Format("Usunąć wybrane elementy ({0})?", evmList.Count()), "Potwierdź usunięcie", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+                    && MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelected, evmList.Count()), Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
                     UiServices.SetBusyState();
                     (new Action(() =>
@@ -296,7 +296,7 @@ namespace TAS.Client.ViewModels
             }
             catch (Exception e)
             {
-                MessageBox.Show(string.Format("Usunięcie nie powiodło się. Błąd, który wystąpił: {0}", e.Message), "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(Properties.Resources._message_DeleteError, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

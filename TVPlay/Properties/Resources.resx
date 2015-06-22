@@ -349,13 +349,16 @@
     <value>Error</value>
   </data>
   <data name="_message_DeleteError" xml:space="preserve">
-    <value>Delete failed. Following error occured: {0}</value>
+    <value>Delete failed. Following error occurred:
+{0}</value>
   </data>
   <data name="_message_DirectoryRefreshError" xml:space="preserve">
-    <value>Directory refresh failed because of error:\n{0}</value>
+    <value>Directory refresh failed because of error:
+{0}</value>
   </data>
   <data name="_message_SaveError" xml:space="preserve">
-    <value>Sasve failed. Following error occured: {0}</value>
+    <value>Save failed. Following error occurred:
+{0}</value>
   </data>
   <data name="_or_" xml:space="preserve">
     <value> or </value>
@@ -367,7 +370,7 @@
     <value>Delete this item with all subitems?</value>
   </data>
   <data name="_query_SaveChangedData" xml:space="preserve">
-    <value>Save modified date?</value>
+    <value>Save modified data?</value>
   </data>
   <data name="_title_Delete" xml:space="preserve">
     <value>Delete: {0}:{1}</value>
@@ -445,6 +448,31 @@
     <value>Really exit application?</value>
   </data>
   <data name="_query_StartAnotherInstance" xml:space="preserve">
-    <value>Application should execute in one instance only, but was running already.\nReally start new one?</value>
+    <value>Application should execute in one instance only, but was running already.
+Really start new one?</value>
+  </data>
+  <data name="_query_DeleteSelectedFiles" xml:space="preserve">
+    <value>Files to delete:
+{0}
+
+Really delete?</value>
+  </data>
+  <data name="String" xml:space="preserve">
+    <value />
+  </data>
+  <data name="_message_CopyFailed" xml:space="preserve">
+    <value>Copy failed. Following error occurred:
+{0}</value>
+  </data>
+  <data name="_message_CutFailed" xml:space="preserve">
+    <value>Cut failed. Following error occurred:
+{0}</value>
+  </data>
+  <data name="_message_PasteFailed" xml:space="preserve">
+    <value>Paste failed. Following error occurred:
+{0}</value>
+  </data>
+  <data name="_query_DeleteSelected" xml:space="preserve">
+    <value>Delete selected items ({0})?</value>
   </data>
 </root>
