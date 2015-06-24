@@ -51,6 +51,7 @@ namespace TAS.Client.ViewModels
             _itemsView = CollectionViewSource.GetDefaultView(_items);
             _itemsView.SortDescriptions.Add(new SortDescription("MediaName", ListSortDirection.Ascending));
             _itemsView.Filter += _itemsFilter;
+            
             _window = new MediaSearchView();
             _window.Owner = App.Current.MainWindow;
             _window.DataContext = this;
@@ -220,10 +221,10 @@ namespace TAS.Client.ViewModels
                     {
                         var s = _previewViewmodel.SelectedSegment;
                         if (s != null)
-                            return s.TCOut-s.TCIn;
+                            return s.Duration;
                         else
                             if (_previewViewmodel.TCIn != pvlm.TCPlay || _previewViewmodel.TCOut != pvlm.TCPlay + pvlm.DurationPlay)
-                                return _previewViewmodel.TCOut - _previewViewmodel.TCIn;
+                                return _previewViewmodel.DurationSelection;
                     }
                 }
                 var mediaVm = SelectedItem;
@@ -299,7 +300,7 @@ namespace TAS.Client.ViewModels
             var be = _baseEvent;
             var previewVM = _previewViewmodel;
             return (sm != null)
-                && (MediaType != TMediaType.Movie || previewVM == null || previewVM.LoadedMedia == null || previewVM.LoadedMedia.Equals(sm)) 
+                && (MediaType != TMediaType.Movie || previewVM == null || previewVM.LoadedMedia == null || previewVM.LoadedMedia.MediaGuid == sm.MediaGuid) 
                 && (be == null
                     || ((be.EventType == TEventType.Movie || be.EventType == TEventType.Live || be.EventType == TEventType.Rundown)
                         && MediaType == TMediaType.Movie 
