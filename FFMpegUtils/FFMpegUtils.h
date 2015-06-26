@@ -27,6 +27,24 @@ namespace TAS {
 		int Den;
 	};
 
+	public enum class StreamType {
+		UNKNOWN = -1,  ///< Usually treated as AVMEDIA_TYPE_DATA
+		VIDEO,
+		AUDIO,
+		DATA,          ///< Opaque data information usually continuous
+		SUBTITLE,
+		ATTACHMENT,    ///< Opaque data information usually sparse
+		NB
+	};
+
+	public ref struct StreamInfo
+	{
+		int Id;
+		int Index;
+		int ChannelCount;
+		StreamType StreamType;
+	};
+
 	// native code
 	class _FFMpegWrapper
 	{
@@ -40,6 +58,8 @@ namespace TAS {
 		int64_t getAudioDuration();
 		int getHeight();
 		int getWidth();
+		int getStreamCount();
+		StreamInfo ^ getStreamInfo(unsigned int streamIndex);
 		AVFieldOrder getFieldOrder();
 		AVRational getAspectRatio();
 		AVRational getFrameRate();
@@ -61,6 +81,7 @@ namespace TAS {
 			Rational^ GetAspectRatio();
 			Rational^ GetFrameRate();
 			bool GetFrame(TimeSpan fromTime, Bitmap^ destBitmap);
+			array<StreamInfo^>^ GetStreamInfo();
 		};
 	}
 }

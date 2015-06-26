@@ -12,6 +12,7 @@ using System.Runtime.Remoting.Messaging;
 using System.Globalization;
 using System.Text;
 using System.ComponentModel;
+using TAS.FFMpegUtils;
 
 namespace TAS.Server
 {
@@ -21,7 +22,7 @@ namespace TAS.Server
 
         #region Properties
 
-        int _audioStreamCount;
+        StreamInfo[] inputFileStreams;
         TimeSpan _duration;
 
         static string _ffExe = "ffmpeg.exe";
@@ -43,13 +44,16 @@ namespace TAS.Server
         #region CheckFile
         private void CheckInputFile(Media mf)
         {
+            using (FFMpegWrapper ff = new FFMpegWrapper(mf.FullPath))
+            {
+                inputFileStreams = ff.GetStreamInfo();
+            }
+
             MediaInfo mi = new MediaInfo();
             try
             {
                 mi.Open(mf.FullPath);
                 mi.Option("Complete");
-                _audioStreamCount = mi.Count_Get(StreamKind.Audio);
-               
                 string miOutput = mi.Inform();
 
                 Regex format_lxf = new Regex("Format\\s*:\\s*LXF");
@@ -257,14 +261,15 @@ namespace TAS.Server
                 vf.Add("crop=720:576:0:32");
                 vf.Add("setdar=dar=16/9");
             }
-            if (_audioStreamCount > 8)
+            if (inputFileStreams.Count(s => s.StreamType == StreamType.AUDIO) > 8)
                 af.Add("aformat=channel_layouts=0xFFFF");
             _addConversion(AspectConversion, ep, vf, af);
             _addConversion(SourceFieldOrderEnforceConversion, ep, vf, af);
-            if (_audioStreamCount >= 4 && !AudioChannelMappingConversion.OutputFormat.Equals(TAudioChannelMapping.Unknown)) 
+            if (inputFileStreams.Count(s => s.StreamType == StreamType.AUDIO) >= 2 && !AudioChannelMappingConversion.OutputFormat.Equals(TAudioChannelMapping.Unknown)) 
             {
-                for (int i = 1; i <= _audioStreamCount; i++)
-                    ep.AppendFormat(" -map_channel 0.{0}.0", i);
+                foreach (StreamInfo stream in inputFileStreams.Where(s => s.StreamType == StreamType.AUDIO))
+                    for (int i = 0; i < stream.ChannelCount; i++)
+                        ep.AppendFormat(" -map_channel 0.{0}.{1}", stream.Index, i);
             }
             _addConversion(AudioChannelMappingConversion, ep, vf, af);
             if (AudioVolume != decimal.Zero)

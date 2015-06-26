@@ -134,6 +134,26 @@ namespace TAS {
 			return av_make_q(0, 0);
 		}
 
+		int _FFMpegWrapper::getStreamCount()
+		{
+			if (pFormatCtx)
+				return pFormatCtx->nb_streams;
+			return 0;
+		}
+
+		StreamInfo ^ _FFMpegWrapper::getStreamInfo(unsigned int streamIndex) 
+		{
+			StreamInfo ^ ret = gcnew StreamInfo();
+			if (pFormatCtx && pFormatCtx->nb_streams > streamIndex)
+			{
+				ret->StreamType = (StreamType)pFormatCtx->streams[streamIndex]->codec->codec_type;
+				ret->Id = pFormatCtx->streams[streamIndex]->id;
+				ret->Index = pFormatCtx->streams[streamIndex]->index;
+				ret->ChannelCount = pFormatCtx->streams[streamIndex]->codec->channels;
+			}
+			return ret;
+		}
+
 		// managed object
 
 		FFMpegWrapper::FFMpegWrapper(String^ fileName)
@@ -185,6 +205,14 @@ namespace TAS {
 		Rational^ FFMpegWrapper::GetFrameRate()
 		{
 			return gcnew Rational();
+		}
+
+		array<StreamInfo^>^ FFMpegWrapper::GetStreamInfo()
+		{
+			auto ret = gcnew array<StreamInfo^>(wrapper->getStreamCount());
+			for (int i = 0; i < ret->Length; i++)
+				ret[i] = wrapper->getStreamInfo(i);
+			return ret;
 		}
 
 		bool FFMpegWrapper::GetFrame(TimeSpan fromTime, Bitmap^ destBitmap)
