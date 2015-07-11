@@ -8,15 +8,6 @@ using TAS.Common;
 
 namespace TAS.Server
 {
-    public enum VideoMode
-    {
-        PAL = 0,
-        NTSC = 1,
-        SD576p2500 = 2,
-        HD720p5000 = 3,
-        HD1080i5000 = 4,
-        Unknown = 5,
-    }
 
     public enum VideoLayer : sbyte
     {
@@ -52,17 +43,44 @@ namespace TAS.Server
     [TypeConverter(typeof(TVideoFormatEnumConverter))]
     public enum TVideoFormat : byte
     {
-        PAL_FHA = 0,
-        PAL_43 = 1,
-        HD1080i50 = 10,
-        HD1080p25 = 11,
-        Other = 255,
+        PAL_FHA    = 0x0,
+        PAL        = 0x1,
+        NTSC       = 0x3,
+        HD720p2500 = 0x8,
+        HD720p5000 = 0x9,
+        HD720p5994 = 0xA,
+        HD720p6000 = 0xB,
+        HD1080p2398 = 0x10,
+        HD1080p2400 = 0x11,
+        HD1080p2500 = 0x12,
+        HD1080p2997 = 0x13,
+        HD1080p3000 = 0x14,
+        HD1080p5000	= 0x15,
+        HD1080i5000	= 0x16,
+        HD1080p5994	= 0x17,
+        HD1080i5994	= 0x18,
+        HD1080p6000	= 0x19,
+        HD1080i6000	= 0x1A,
+        HD2160p2398	= 0x20,
+        HD2160p2400	= 0x21,
+        HD2160p2500	= 0x22,
+        HD2160p2997	= 0x23,
+        HD2160p3000 = 0x24,
+        Other = 0xFF
     }
     class TVideoFormatEnumConverter : ResourceEnumConverter
     {
         public TVideoFormatEnumConverter()
             : base(typeof(TVideoFormat), TAS.Client.Properties.Resources.ResourceManager)
         { }
+        protected override string GetValueText(System.Globalization.CultureInfo culture, object value)
+        {
+            string resourceName = GetResourceName(value);
+            string result = _resourceManager.GetString(resourceName, culture);
+            if (result == null)
+                result = value.ToString();
+            return result;
+        }
     }
 
     [TypeConverter(typeof(TMediaCategoryEnumConverter))]

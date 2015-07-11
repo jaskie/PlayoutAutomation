@@ -103,8 +103,8 @@ namespace TAS.Server
         public static MediaConversion NoConversion { get { return new MediaConversion() { Description = "Bez konwersji",         OutputFormat = TVideoFormat.PAL_FHA }; } }
         public static MediaConversion PillarBox { get { return new MediaConversion() { Description = "PillarBox (4:3->16:9)", OutputFormat = TVideoFormat.PAL_FHA, FFMpegVideoFilter = "scale=iw*3/4:ih:-1, pad=iw*4/3:0:(ow-iw)/2:0:black, setdar=dar=16/9" }; } }
         public static MediaConversion TiltScan { get { return new MediaConversion() { Description = "Tilt&Scan(4:3->16:9)", OutputFormat = TVideoFormat.PAL_FHA, FFMpegVideoFilter = "crop=iw:ih*3/4, scale=iw:ih*4/3:-1, setdar=dar=16/9" }; } }
-        public static MediaConversion Letterbox { get { return new MediaConversion() { Description = "Letterbox (16:9->4:3)", OutputFormat = TVideoFormat.PAL_43, FFMpegVideoFilter = "scale=iw:ih*3/4:-1, pad=0:ih*4/3:0:(oh-ih)/2:black, setdar=dar=4/3" }; } }
-        public static MediaConversion PanScan { get { return new MediaConversion() { Description = "Pan&Scan(16:9->4:3)", OutputFormat = TVideoFormat.PAL_43, FFMpegVideoFilter = "crop=iw*3/4, scale=iw*4/3:ih:-1, setdar=dar=4/3" }; } }
+        public static MediaConversion Letterbox { get { return new MediaConversion() { Description = "Letterbox (16:9->4:3)", OutputFormat = TVideoFormat.PAL, FFMpegVideoFilter = "scale=iw:ih*3/4:-1, pad=0:ih*4/3:0:(oh-ih)/2:black, setdar=dar=4/3" }; } }
+        public static MediaConversion PanScan { get { return new MediaConversion() { Description = "Pan&Scan(16:9->4:3)", OutputFormat = TVideoFormat.PAL, FFMpegVideoFilter = "crop=iw*3/4, scale=iw*4/3:ih:-1, setdar=dar=4/3" }; } }
     }
 
     public sealed class AudioChannelMappingConversions

@@ -118,12 +118,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="_aspectRatioControl" xml:space="preserve">
-    <value>Korekta formatu obrazu</value>
+    <value>Sterowanie formatem obrazu</value>
   </data>
   <data name="_clockCorrection" xml:space="preserve">
     <value>Korekta zegara</value>
   </data>
   <data name="_name" xml:space="preserve">
     <value>Nazwa</value>
+  </data>
+  <data name="_videoFormat" xml:space="preserve">
+    <value>Format video</value>
   </data>
 </root>

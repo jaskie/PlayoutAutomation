@@ -32,21 +32,26 @@ namespace TAS.Server
             return false;
         }
 
-        protected override VideoMode _getMode()
+        protected override TVideoFormat _getFormat()
         {
             var channel = _casparChannel;
             if (_checkConnected() && channel != null)
-                return (VideoMode)channel.VideoMode;
-            else
-                return VideoMode.PAL;
+                switch (channel.VideoMode)
+                {
+                    case VideoMode.PAL:
+                        return TVideoFormat.PAL_FHA;
+                    case VideoMode.NTSC:
+                        return TVideoFormat.NTSC;
+                    case VideoMode.HD720p5000:
+                        return TVideoFormat.HD720p5000;
+                    case VideoMode.HD1080i5000:
+                        return TVideoFormat.HD1080i5000;
+                    default:
+                        return TVideoFormat.Other;
+                }
+            return TVideoFormat.Other;
         }
 
-        protected override void _setMode(VideoMode value)
-        {
-            var channel = _casparChannel;
-            if (_checkConnected() && channel != null)
-                channel.SetMode((Svt.Caspar.VideoMode)value);
-        }
 
         internal override void Initialize()
         {
@@ -78,7 +83,7 @@ namespace TAS.Server
                     item.Clipname = LiveDevice ?? "BLACK";
                 item.VideoLayer = (int)aEvent.Layer;
                 item.Loop = false;
-                item.Transition.Duration = (int)(aEvent.TransitionTime.Ticks / Engine.FrameDuration);
+                item.Transition.Duration = (int)(aEvent.TransitionTime.Ticks / Engine.FrameTicks);
                 item.Seek = (int)aEvent.SeekPGM;
                 item.Transition.Type = (Svt.Caspar.TransitionType)aEvent.TransitionType;
                 return item;
@@ -321,7 +326,7 @@ namespace TAS.Server
                 if (item != null)
                 {
                     if (ev.EventType == TEventType.Movie && ev.Media != null)
-                        item.Seek = (int)ev.Position + (int)((ev.ScheduledTC.Ticks - ev.Media.TCPlay.Ticks) / Engine.FrameDuration);
+                        item.Seek = (int)ev.Position + (int)((ev.ScheduledTC.Ticks - ev.Media.TCPlay.Ticks) / Engine.FrameTicks);
                     item.Transition.Duration = 3;
                     item.Transition.Type = TransitionType.MIX;
                     channel.LoadBG(item);

@@ -116,14 +116,14 @@ namespace TAS.Client.ViewModels
             get
             {
                 Event ev = _playingEvent;
-                return (ev == null) ? TimeSpan.Zero : ev.ScheduledTC + TimeSpan.FromTicks(ev.Position * _engine.FrameDuration);
+                return (ev == null) ? TimeSpan.Zero : ev.ScheduledTC + TimeSpan.FromTicks(ev.Position * _engine.FrameTicks);
             }
             set
             {
                 Event ev = _playingEvent;
-                if (!value.Equals(ev.ScheduledTC + TimeSpan.FromTicks(ev.Position * _engine.FrameDuration)))
+                if (!value.Equals(ev.ScheduledTC + TimeSpan.FromTicks(ev.Position * _engine.FrameTicks)))
                 {
-                    ev.Position = (value - ev.ScheduledTC).Ticks / _engine.FrameDuration;
+                    ev.Position = (value - ev.ScheduledTC).Ticks / _engine.FrameTicks;
                     _engine.Seek(ev, ev.Position);
                 }
             }

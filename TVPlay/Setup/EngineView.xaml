@@ -42,6 +42,8 @@
         <StackPanel>
             <Label Content="{Resx _name}"/>
             <TextBox Text="{Binding EngineName}"/>
+            <Label Content="{Resx _videoFormat}"/>
+            <ComboBox ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding VideoFormat}" />
             <Label Content="{Resx _clockCorrection}"/>
             <TextBox Text="{Binding TimeCorrection}"/>
             <Label Content="{Resx _aspectRatioControl}"/>

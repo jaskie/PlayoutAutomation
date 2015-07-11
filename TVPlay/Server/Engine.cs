@@ -130,26 +130,53 @@ namespace TAS.Server
             }
         }
 
-        internal long FrameDuration;
-        
-        public VideoMode VideoMode;
+        long _frameDuration;
+        long _frameTicks;
+        public long FrameTicks { get { return _frameTicks; } }
+        public TVideoFormat VideoFormat;
 
         public void Initialize()
         {
             Debug.WriteLine(this, "Begin initializing");
 
-            switch (VideoMode)
+            switch (VideoFormat)
             {
-                case Server.VideoMode.HD720p5000:
-                    FrameDuration = 200000L;
+                case TVideoFormat.HD1080p5000:
+                case TVideoFormat.HD720p5000:
+                    _frameDuration = 20000000L;
                     break;
-                case Server.VideoMode.NTSC:
-                    FrameDuration = 333000;
+                case TVideoFormat.NTSC:
+                case TVideoFormat.HD1080p3000:
+                case TVideoFormat.HD1080i6000:
+                case TVideoFormat.HD2160p3000:
+                    _frameDuration = 33300000L;
+                    break;
+                case TVideoFormat.HD1080p6000:
+                case TVideoFormat.HD720p6000:
+                    _frameDuration = 16650000L;
+                    break;
+                case TVideoFormat.HD1080i5994:
+                case TVideoFormat.HD1080p2997:
+                case TVideoFormat.HD2160p2997:
+                    _frameDuration = 33366700L;
+                    break;
+                case TVideoFormat.HD1080p5994:
+                case TVideoFormat.HD720p5994:
+                    _frameDuration = 16683350L; 
+                    break;
+                case TVideoFormat.HD1080p2398:
+                case TVideoFormat.HD2160p2398:
+                    _frameDuration = 41701418L;
+                    break;
+                case TVideoFormat.HD2160p2400:
+                case TVideoFormat.HD1080p2400:
+                    _frameDuration = 41666667L;
                     break;
                 default:
-                    FrameDuration = 400000L; //ticks, PAL
+                    _frameDuration = 40000000L; //ns, PAL
                     break;
             }
+            _frameTicks = _frameDuration / 100L;
 
             var ch = PlayoutChannelPGM;
             Debug.WriteLine(ch, "About to initialize");
@@ -176,7 +203,7 @@ namespace TAS.Server
                     try
                     {
                         CurrentTime = AlignDateTime(DateTime.UtcNow+_timeCorrection);
-                        long nFrames = (CurrentTime.Ticks - CurrentTicks) / FrameDuration;
+                        long nFrames = (CurrentTime.Ticks - CurrentTicks) * 100L / _frameDuration;
                         CurrentTicks = CurrentTime.Ticks;
                         Debug.WriteLineIf(nFrames > 1, this, string.Format("Frame delay - {0}", nFrames));
                         _tick(nFrames);
@@ -188,7 +215,7 @@ namespace TAS.Server
                     {
                         Debug.WriteLine(e, "Exception in engine tick");
                     }
-                    long timeToWait = (FrameDuration - (DateTime.UtcNow.Ticks + _timeCorrection.Ticks - CurrentTicks)) / TimeSpan.TicksPerMillisecond;
+                    long timeToWait = (_frameDuration - 100L * (DateTime.UtcNow.Ticks + _timeCorrection.Ticks - CurrentTicks)) / 1000000L;
                     if (timeToWait > 0)
                        Thread.Sleep((int)timeToWait);
                 }
@@ -267,12 +294,12 @@ namespace TAS.Server
 
         public DateTime AlignDateTime(DateTime dt)
         {
-            return new DateTime((dt.Ticks / FrameDuration) * FrameDuration, dt.Kind);
+            return new DateTime((dt.Ticks / _frameTicks) * _frameTicks, dt.Kind);
         }
         
         public TimeSpan AlignTimeSpan(TimeSpan ts)
         {
-            return new TimeSpan((ts.Ticks / FrameDuration) * FrameDuration);
+            return new TimeSpan((ts.Ticks / _frameTicks) * _frameTicks);
         }
 
         public override string ToString()
@@ -578,7 +605,7 @@ namespace TAS.Server
             }
             _run(aEvent);
             foreach (Event e in aEvent.SubEvents.ToList())
-                if (e.ScheduledDelay.Ticks < FrameDuration)
+                if (e.ScheduledDelay.Ticks  < _frameTicks)
                     _loadNext(e);
             return true;
         }
@@ -627,7 +654,7 @@ namespace TAS.Server
             aEvent.PlayState = TPlayState.Playing;
 
             foreach (Event e in aEvent.SubEvents.ToList())
-                if (e.ScheduledDelay.Ticks < FrameDuration)
+                if (e.ScheduledDelay.Ticks < _frameTicks)
                     _play(e, fromBeginning);
 
             aEvent.Save();
@@ -660,7 +687,7 @@ namespace TAS.Server
             if (aEvent == null || !(aEvent.Layer == VideoLayer.Program || aEvent.Layer == VideoLayer.Preset))
                 return;
             Media media = aEvent.Media;
-            bool narrow = !(media == null || media.VideoFormat != TVideoFormat.PAL_43);
+            bool narrow = !(media == null || media.VideoFormat != TVideoFormat.PAL);
             if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
             {
                 if (PlayoutChannelPGM != null)
@@ -696,7 +723,7 @@ namespace TAS.Server
                     foreach (Event e in oldEvents)
                         if (_visibleEvents[e.Layer] == null)
                         {
-                            Thread.Sleep((int)(FrameDuration / TimeSpan.TicksPerMillisecond)); // delay one frame due to Caspar's bug
+                            Thread.Sleep((int)(FrameTicks / TimeSpan.TicksPerMillisecond)); // delay one frame due to Caspar's bug
                             Clear(e.Layer);
                         }
                 }
@@ -778,7 +805,7 @@ namespace TAS.Server
                     foreach (Event e in oldEvents)
                         if (_visibleEvents[e.Layer] == null)
                         {
-                            Thread.Sleep((int)(FrameDuration / TimeSpan.TicksPerMillisecond)); // delay one frame due to Caspar's bug
+                            Thread.Sleep((int)(_frameTicks / TimeSpan.TicksPerMillisecond)); // delay one frame due to Caspar's bug
                             Clear(e.Layer);
                         }
                 }
@@ -823,8 +850,8 @@ namespace TAS.Server
                 {
                     var le = _loadedNextEvents[aEvent.Layer];
                     if (aEvent.EventType != TEventType.Live
-                        && (le == null 
-                        || (le.ScheduledTime.Ticks >= CurrentTicks + FrameDuration )))
+                        && (le == null
+                        || (le.ScheduledTime.Ticks - CurrentTicks >= _frameTicks)))
                     {
                         Debug.WriteLine(aEvent, "Stop");
                         if (PlayoutChannelPGM != null)
@@ -971,7 +998,7 @@ namespace TAS.Server
             {
                 if (CurrentTicks >= ev.ScheduledTime.Ticks && CurrentTicks < ev.ScheduledTime.Ticks + ev.Duration.Ticks)
                 {
-                    ev.Position = (CurrentTicks - ev.ScheduledTime.Ticks) / FrameDuration;
+                    ev.Position = (CurrentTicks - ev.ScheduledTime.Ticks) / FrameTicks;
                     var st = ev.StartTime;
                     ev.PlayState = TPlayState.Playing;
                     if (st != ev.StartTime)
@@ -1013,7 +1040,7 @@ namespace TAS.Server
                                 if (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading)
                                 {
                                     e.Position += nFrames;             //increase position in playing files
-                                    if (e.Position * FrameDuration >= e.Length.Ticks)
+                                    if (e.Position * _frameTicks >= e.Length.Ticks)
                                     {
                                         Debug.WriteLine(e, "Hold: Played");
                                         _pause(e, true);
@@ -1026,7 +1053,7 @@ namespace TAS.Server
                     {
                         foreach (Event e in runningEvents.Where(e => e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading))
                             e.Position += nFrames;
-                        bool isEndOfRundown = !runningEvents.Any(e => e.Position * FrameDuration < e.Length.Ticks);
+                        bool isEndOfRundown = !runningEvents.Any(e => e.Position * _frameTicks < e.Length.Ticks);
                         if (isEndOfRundown)
                             EngineState = TEngineState.Hold;
                         foreach (Event ev in runningEvents)
@@ -1040,7 +1067,7 @@ namespace TAS.Server
                             // first: check if some events should finish
                             if (ev.PlayState == TPlayState.Playing || ev.PlayState == TPlayState.Fading)
                             {
-                                if (ev.Position * FrameDuration >= ev.Length.Ticks)
+                                if (ev.Position * _frameTicks >= ev.Length.Ticks)
                                 {
                                     Debug.WriteLine(ev, "Tick: Played");
                                     if (isEndOfRundown)
@@ -1049,7 +1076,7 @@ namespace TAS.Server
                                         _stop(ev);
                                 }
                                 if (succ != null
-                                    && ev.Position * FrameDuration >= ev.Length.Ticks + succ.ScheduledDelay.Ticks - succ.TransitionTime.Ticks)
+                                    && ev.Position * _frameTicks >= (ev.Length.Ticks + succ.ScheduledDelay.Ticks - succ.TransitionTime.Ticks))
                                 {
                                     if (ev.PlayState == TPlayState.Playing)
                                     {
@@ -1215,7 +1242,7 @@ namespace TAS.Server
                         result = result + pe.LengthInFrames;
                         pe = pe.Successor;
                     }
-                    return new TimeSpan(result * FrameDuration);
+                    return new TimeSpan(result * _frameTicks);
                 }
                 return TimeSpan.Zero;
             }

@@ -41,12 +41,10 @@ namespace TAS.Server
 
         public abstract void SetVolume(VideoLayer videolayer, decimal volume);
 
-        protected abstract VideoMode _getMode();
-        protected abstract void _setMode(VideoMode value);
-        public VideoMode Mode
+        protected abstract TVideoFormat _getFormat();
+        public TVideoFormat Format
         {
-            get { return _getMode(); }
-            set { _setMode(value); }
+            get { return _getFormat(); }
         }
         public abstract void SetAspect(bool narrow);
 

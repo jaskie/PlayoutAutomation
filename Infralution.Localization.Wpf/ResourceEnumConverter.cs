@@ -50,7 +50,7 @@ namespace Infralution.Localization.Wpf
     {
         private class LookupTable : Dictionary<string, object> { }
         private Dictionary<CultureInfo, LookupTable> _lookupTables = new Dictionary<CultureInfo, LookupTable>();
-        private ResourceManager _resourceManager;
+        protected ResourceManager _resourceManager;
         private bool _isFlagEnum = false;
         private Array _flagValues;
 
@@ -98,7 +98,7 @@ namespace Infralution.Localization.Wpf
         /// <param name="culture">The culture to get the text for</param>
         /// <param name="value">The enum value to get the text for</param>
         /// <returns>The localized text</returns>
-        private string GetValueText(CultureInfo culture, object value)
+        protected virtual string GetValueText(CultureInfo culture, object value)
         {
              string resourceName = GetResourceName(value);
             string result = _resourceManager.GetString(resourceName, culture);

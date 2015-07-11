@@ -14,6 +14,12 @@ namespace TAS.Client.Setup
         private string _engineName;
         public string EngineName { get { return _engineName; } set { SetField(ref _engineName, value, "EngineName"); } }
 
+        readonly Array _videoFormats = Enum.GetValues(typeof(Server.TVideoFormat));
+        public Array VideoFormats { get { return _videoFormats; } }
+
+        private Server.TVideoFormat _videoFormat;
+        public Server.TVideoFormat VideoFormat { get { return _videoFormat; } set { SetField(ref _videoFormat, value, "VideoFormat"); } }
+
         private int _timeCorrection;
         public int TimeCorrection { get { return _timeCorrection; } set { SetField(ref _timeCorrection, value, "TimeCorrection"); } }
 

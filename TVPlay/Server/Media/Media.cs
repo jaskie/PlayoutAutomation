@@ -387,11 +387,11 @@ namespace TAS.Server
             if (width == 1920
                 && height == 1080 
                 && fieldOrder != FieldOrder.PROGRESSIVE)
-                return TVideoFormat.HD1080i50;
+                return TVideoFormat.HD1080i5000;
             if (width == 1920
                 && height == 1080
                 && fieldOrder == FieldOrder.PROGRESSIVE)
-                return TVideoFormat.HD1080p25;
+                return TVideoFormat.HD1080p2500;
             return TVideoFormat.Other;
         }
 

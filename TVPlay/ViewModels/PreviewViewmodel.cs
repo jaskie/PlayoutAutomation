@@ -106,22 +106,22 @@ namespace TAS.Client.ViewModels
             }
 
             if (media != null
-                && duration.Ticks >= _engine.FrameDuration)
+                && duration.Ticks >= _engine.FrameTicks)
             {
                 LoadedMedia = media;
                 TCIn = tcIn;
-                TCOut = tcIn + duration - TimeSpan.FromTicks(_engine.FrameDuration);
+                TCOut = tcIn + duration - TimeSpan.FromTicks(_engine.FrameTicks);
                 if (reloadSegments)
                 {
                     MediaSegments.Clear();
                     foreach (MediaSegment ms in media.MediaSegments.ToList())
                         MediaSegments.Add(new MediaSegmentViewmodel(media, ms));
                 }
-                _loadedSeek = (tcIn.Ticks - media.TCStart.Ticks) / _engine.FrameDuration;
+                _loadedSeek = (tcIn.Ticks - media.TCStart.Ticks) / _engine.FrameTicks;
                 long newPosition = _engine.PreviewLoaded ? _engine.PreviewSeek + _engine.PreviewPosition - _loadedSeek : 0;
                 if (newPosition < 0)
                     newPosition = 0;
-                _loadedDuration = duration.Ticks / _engine.FrameDuration;
+                _loadedDuration = duration.Ticks / _engine.FrameTicks;
                 _engine.PreviewLoad(media, _loadedSeek, _loadedDuration, newPosition);
             }
             NotifyPropertyChanged(null);
@@ -163,17 +163,17 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public TimeSpan DurationSelection { get { return new TimeSpan(TCOut.Ticks - TCIn.Ticks + _engine.FrameDuration); } }
+        public TimeSpan DurationSelection { get { return new TimeSpan(TCOut.Ticks - TCIn.Ticks); } }
 
         public TimeSpan Position
         {
             get
             {
-                return TimeSpan.FromTicks((long)(_engine.PreviewPosition+_engine.PreviewSeek) * _engine.FrameDuration + StartTC.Ticks);
+                return TimeSpan.FromTicks((long)(_engine.PreviewPosition+_engine.PreviewSeek) * (_engine.FrameTicks) + StartTC.Ticks);
             }
             set
             {
-                _engine.PreviewPosition = (value.Ticks -StartTC.Ticks) / _engine.FrameDuration - _loadedSeek;
+                _engine.PreviewPosition = (value.Ticks -StartTC.Ticks) / _engine.FrameTicks - _loadedSeek;
                 NotifyPropertyChanged("SliderPosition");
             }
         }
@@ -207,7 +207,7 @@ namespace TAS.Client.ViewModels
             set 
             {
                 long newPos = _loadedSeek + (value * (_loadedDuration -1)) / _sliderMaximum;
-                Position = TimeSpan.FromTicks(newPos * _engine.FrameDuration + StartTC.Ticks) ;
+                Position = TimeSpan.FromTicks(newPos * _engine.FrameTicks + StartTC.Ticks);
                 NotifyPropertyChanged("Position");
             }
         }
@@ -298,9 +298,9 @@ namespace TAS.Client.ViewModels
             if (loadedMedia != null)
             {
                 if (_playWholeClip)
-                    return loadedMedia.TCStart + loadedMedia.Duration - TimeSpan.FromTicks(_engine.FrameDuration);
+                    return loadedMedia.TCStart + loadedMedia.Duration;
                 else
-                    return TCOut - TimeSpan.FromTicks(_engine.FrameDuration);
+                    return TCOut;
             }
             return TimeSpan.Zero;
         }
@@ -490,7 +490,7 @@ namespace TAS.Client.ViewModels
             if (media == null) 
                 return false;
             TimeSpan duration = PlayWholeClip ? media.Duration : (segment == null ? media.Duration : segment.Duration);
-            return duration.Ticks >= _engine.FrameDuration;
+            return duration.Ticks >= _engine.FrameTicks;
         }
 
         private void SegmentPropertyChanged(object sender, PropertyChangedEventArgs e)

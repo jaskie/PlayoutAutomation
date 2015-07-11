@@ -199,7 +199,7 @@ namespace TAS.Server
                                 newMedia._duration = TimeSpan.FromTicks(SMPTETimecode.FramesToTicks(clip.dur));
                                 newMedia._durationPlay = newMedia.Duration;
                                 if (clip.aspectRatio == "4:3")
-                                    newMedia._videoFormat = TVideoFormat.PAL_43;
+                                    newMedia._videoFormat = TVideoFormat.PAL;
                                 if (clip.aspectRatio == "16:9")
                                     newMedia._videoFormat = TVideoFormat.PAL_FHA;
                                 XDCAM.Index.Meta xmlClipFileNameMeta = clip.meta.FirstOrDefault(m => m.type == "PD-Meta");
@@ -256,7 +256,7 @@ namespace TAS.Server
                                     newMedia._duration = TimeSpan.FromTicks(SMPTETimecode.FramesToTicks(edl.dur));
                                     newMedia._durationPlay = newMedia.Duration;
                                     if (edl.aspectRatio == "4:3")
-                                        newMedia._videoFormat = TVideoFormat.PAL_43;
+                                        newMedia._videoFormat = TVideoFormat.PAL;
                                     if (edl.aspectRatio == "16:9")
                                         newMedia._videoFormat = TVideoFormat.PAL_FHA;
                                     XDCAM.Index.Meta xmlClipFileNameMeta = edl.meta.FirstOrDefault(m => m.type == "PD-Meta");

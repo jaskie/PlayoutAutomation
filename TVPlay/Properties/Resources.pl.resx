@@ -324,16 +324,10 @@
   <data name="TStartType_With" xml:space="preserve">
     <value>Wraz z rozpoczęciem</value>
   </data>
-  <data name="TVideoFormat_HD1080i50" xml:space="preserve">
-    <value>1080i50</value>
-  </data>
-  <data name="TVideoFormat_HD1080p25" xml:space="preserve">
-    <value>1080p25</value>
-  </data>
   <data name="TVideoFormat_Other" xml:space="preserve">
     <value>Inny</value>
   </data>
-  <data name="TVideoFormat_PAL_43" xml:space="preserve">
+  <data name="TVideoFormat_PAL" xml:space="preserve">
     <value>PAL (4:3)</value>
   </data>
   <data name="TVideoFormat_PAL_FHA" xml:space="preserve">

@@ -125,13 +125,13 @@
                                         <DataTrigger Binding="{Binding VideoFormat}" Value="Other">
                                             <Setter Property="Source" Value="../Glyphs/Empty.png" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding VideoFormat}" Value="HD1080i50">
+                                        <DataTrigger Binding="{Binding VideoFormat}" Value="HD1080i5000">
                                             <Setter Property="Source" Value="../Glyphs/VideoFormats/HD.png" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding VideoFormat}" Value="HD1080p25">
+                                        <DataTrigger Binding="{Binding VideoFormat}" Value="HD1080p2500">
                                             <Setter Property="Source" Value="../Glyphs/VideoFormats/HD.png" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding VideoFormat}" Value="PAL_43">
+                                        <DataTrigger Binding="{Binding VideoFormat}" Value="PAL">
                                             <Setter Property="Source" Value="../Glyphs/VideoFormats/4-3.png" />
                                         </DataTrigger>
                                     </Style.Triggers>

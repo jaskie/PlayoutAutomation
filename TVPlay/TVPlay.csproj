@@ -137,7 +137,7 @@
     </Reference>
     <Reference Include="Automation.BDaq, Version=1.0.1.0, Culture=neutral, PublicKeyToken=463f5928d60183a0, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\Automation.BDaq.dll</HintPath>
+      <HintPath>x64\Automation.BDaq.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Expression.Interactions">
       <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
@@ -149,11 +149,11 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="Svt.Caspar, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\casparcg\framework\csharp\trunk\Svt.Caspar\bin\Release\Svt.Caspar.dll</HintPath>
+      <HintPath>x64\Svt.Caspar.dll</HintPath>
     </Reference>
     <Reference Include="Svt.Network, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\casparcg\framework\csharp\trunk\Svt.Caspar\bin\Release\Svt.Network.dll</HintPath>
+      <HintPath>x64\Svt.Network.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -634,7 +634,9 @@
     <Resource Include="Glyphs\Parentals\7.png" />
     <Resource Include="Glyphs\Parentals\BO.png" />
     <Resource Include="Glyphs\ExportDelete.png" />
-    <Content Include="x64\MediaInfo.dll" />
+    <Content Include="x64\MediaInfo.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\DataSources\" />
@@ -656,8 +658,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(SolutionDir)\ffmpeg56\bin\*" "$(TargetDir)"
-copy "$(ProjectDir)\x64\*" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(SolutionDir)\ffmpeg56\bin\*" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

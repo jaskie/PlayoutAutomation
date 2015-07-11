@@ -116,7 +116,7 @@ namespace TAS.Server
                             if (value == TPlayState.Playing)
                             {
                                 StartTime = Engine.CurrentTime;
-                                StartTC = ScheduledTC + TimeSpan.FromTicks(_position * Engine.FrameDuration);
+                                StartTC = ScheduledTC + TimeSpan.FromTicks(_position * Engine.FrameTicks);
                             }
                             if (value == TPlayState.Scheduled)
                             {
@@ -386,7 +386,7 @@ namespace TAS.Server
         {
             get
             {
-                return _duration - TimeSpan.FromTicks(_engine.FrameDuration * _position);
+                return _duration - TimeSpan.FromTicks(_engine.FrameTicks * _position);
             }
         }
 
@@ -496,7 +496,7 @@ namespace TAS.Server
                         if (len > maxlen)
                             maxlen = len;
                     }
-                    return new TimeSpan((long)(maxlen / Engine.FrameDuration) * Engine.FrameDuration);
+                    return Engine.AlignTimeSpan(TimeSpan.FromTicks(maxlen));
                 }
                 else
                     return _duration;
@@ -563,7 +563,7 @@ namespace TAS.Server
 
         public long LengthInFrames
         {
-            get { return Length.Ticks / Engine.FrameDuration; }
+            get { return Length.Ticks / Engine.FrameTicks; }
         }
 
         internal TimeSpan _transitionTime;
@@ -709,7 +709,7 @@ namespace TAS.Server
             {
                 if (ServerMediaPGM != null)
                 {
-                    long seek = (this.ScheduledTC.Ticks - ServerMediaPGM.TCStart.Ticks) / Engine.FrameDuration;
+                    long seek = (this.ScheduledTC.Ticks - ServerMediaPGM.TCStart.Ticks) / Engine.FrameTicks;
                     return (seek < 0) ? 0 : seek;
                 }
                 return 0;
