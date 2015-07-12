@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using TAS.Common;
 
 namespace TAS.Server
 {
@@ -75,7 +76,7 @@ namespace TAS.Server
 
         public override string ToString()
         {
-            return string.Format("Server {0} channel {1}", OwnerServer.idServer, ChannelNumber);
+            return string.Format("{0}->{1}", OwnerServer, ChannelNumber);
         }
     }
 }

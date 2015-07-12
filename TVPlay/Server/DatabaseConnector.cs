@@ -21,7 +21,7 @@ namespace TAS.Server
         private enum TEventFlags : uint { Enabled = 1, Hold = 2 };
         private static MySqlConnection connection;
         private static Timer IdleTimeTimer;
-        public static bool Connect()
+        static bool Connect()
         {
             bool _connectionResult = connection.State == ConnectionState.Open;
             if (!_connectionResult)
@@ -278,14 +278,13 @@ namespace TAS.Server
             cmd.Parameters.AddWithValue("@flagsEvent", flags);
             lock (connection)
             {
-               cmd.ExecuteNonQuery();
+               return cmd.ExecuteNonQuery() == 1;
             }
-            return true;
         }
 
         internal static Boolean EventInsert(Event aEvent)
         {
-            Boolean Success = false;
+            Boolean success = false;
             if (Connect())
             {
                 string query =
@@ -294,15 +293,14 @@ namespace TAS.Server
 VALUES 
 (@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent);";
                 MySqlCommand cmd = new MySqlCommand(query, connection);
-                Success = _EventFillParamsAndExecute(cmd, aEvent);
+                success = _EventFillParamsAndExecute(cmd, aEvent);
                 aEvent.IdRundownEvent = (UInt64) cmd.LastInsertedId;
             }
-            return Success;
+            return success;
         }
 
         internal static Boolean EventUpdate(Event aEvent)
         {
-            Boolean Success = false;
             if (Connect())
             {
                 Debug.WriteLine(aEvent, "Update table");
@@ -332,14 +330,14 @@ flagsEvent=@flagsEvent
 WHERE idRundownEvent=@idRundownEvent;"; 
                 MySqlCommand cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.IdRundownEvent);
-                Success = _EventFillParamsAndExecute(cmd, aEvent);
+                return _EventFillParamsAndExecute(cmd, aEvent);
             }
-            return Success;
+            return false;
         }
 
         internal static Boolean EventDelete(Event aEvent)
         {
-            Boolean Success = false;
+            Boolean success = false;
             if (Connect())
             {
                 string query = "DELETE FROM tas.RundownEvent WHERE idRundownEvent=@idRundownEvent;";
@@ -349,10 +347,10 @@ WHERE idRundownEvent=@idRundownEvent;";
                 {
                     cmd.ExecuteNonQuery();
                 }
-                Success = true;
+                success = true;
                 Debug.WriteLine(aEvent, "Deleted");
             }
-            return Success;
+            return success;
         }
 
         private static Boolean _MediaFillParamsAndExecute(MySqlCommand cmd, PersistentMedia media)
@@ -501,7 +499,7 @@ WHERE idRundownEvent=@idRundownEvent;";
 
         internal static Boolean ServerMediaInsert(ServerMedia AServerMedia)
         {
-            Boolean Success = false;
+            Boolean success = false;
             if (Connect())
             {
                 string query = 
@@ -512,15 +510,15 @@ VALUES
                 MySqlCommand cmd = new MySqlCommand(query, connection);
                 _MediaFillParamsAndExecute(cmd, AServerMedia);
                 AServerMedia.idPersistentMedia = (UInt64)cmd.LastInsertedId;
-                Success = true;
-                Debug.WriteLineIf(Success, AServerMedia, "ServerMediaInserte-d");
+                success = true;
+                Debug.WriteLineIf(success, AServerMedia, "ServerMediaInserte-d");
             }
-            return Success;
+            return success;
         }
         
         internal static Boolean ArchiveMediaInsert(ArchiveMedia archiveMedia)
         {
-            Boolean Success = false;
+            Boolean success = false;
             if (Connect())
             {
                 string query =
@@ -531,14 +529,13 @@ VALUES
                 MySqlCommand cmd = new MySqlCommand(query, connection);
                 _MediaFillParamsAndExecute(cmd, archiveMedia);
                 archiveMedia.idPersistentMedia = (UInt64)cmd.LastInsertedId;
-                Success = true;
+                success = true;
             }
-            return Success;
+            return success;
         }
 
         internal static Boolean ServerMediaDelete(ServerMedia AServerMedia)
         {
-            Boolean Success = false;
             if (Connect())
             {
                 string query = "DELETE FROM tas.ServerMedia WHERE idServerMedia=@idServerMedia;";
@@ -546,16 +543,15 @@ VALUES
                 cmd.Parameters.AddWithValue("@idServerMedia", AServerMedia.idPersistentMedia);
                 lock (connection)
                 {
-                    cmd.ExecuteNonQuery();
+                    return cmd.ExecuteNonQuery() == 1;
                 }
-                Success = true;
             }
-            return Success;
+            return false;
         }
 
         internal static Boolean ArchiveMediaDelete(ArchiveMedia archiveMedia)
         {
-            Boolean Success = false;
+            Boolean success = false;
             if (Connect())
             {
                 string query = "DELETE FROM tas.archivemedia WHERE idArchiveMedia=@idArchiveMedia;";
@@ -563,16 +559,15 @@ VALUES
                 cmd.Parameters.AddWithValue("@idArchiveMedia", archiveMedia.idPersistentMedia);
                 lock (connection)
                 {
-                    cmd.ExecuteNonQuery();
+                    return cmd.ExecuteNonQuery() == 1;
                 }
-                Success = true;
             }
-            return Success;
+            return false;
         }
         
         internal static Boolean ServerMediaUpdate(ServerMedia AServerMedia)
         {
-            Boolean Success = false;
+            Boolean success = false;
             if (Connect())
             {
                 string query =
@@ -603,15 +598,15 @@ flags=@flags
 WHERE idServerMedia=@idServerMedia;";
                 MySqlCommand cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@idServerMedia", AServerMedia.idPersistentMedia);
-                Success = _MediaFillParamsAndExecute(cmd, AServerMedia);
-                Debug.WriteLineIf(Success, AServerMedia, "ServerMediaUpdate-d");
+                success = _MediaFillParamsAndExecute(cmd, AServerMedia);
+                Debug.WriteLineIf(success, AServerMedia, "ServerMediaUpdate-d");
             }
-            return Success;
+            return success;
         }
 
         internal static Boolean ArchiveMediaUpdate(ArchiveMedia archiveMedia)
         {
-            Boolean Success = false;
+            Boolean success = false;
             if (Connect())
             {
                 string query =
@@ -642,10 +637,10 @@ flags=@flags
 WHERE idArchiveMedia=@idArchiveMedia;";
                 MySqlCommand cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@idArchiveMedia", archiveMedia.idPersistentMedia);
-                Success = _MediaFillParamsAndExecute(cmd, archiveMedia);
-                Debug.WriteLineIf(Success, archiveMedia, "ArchiveMediaUpdate-d");
+                success = _MediaFillParamsAndExecute(cmd, archiveMedia);
+                Debug.WriteLineIf(success, archiveMedia, "ArchiveMediaUpdate-d");
             }
-            return Success;
+            return success;
         }
 
         internal static bool ServerMediaInUse(ServerMedia serverMedia)
@@ -890,6 +885,7 @@ VALUES
                                 sPRV.MediaDirectory.DirectoryName = "PRV";
                             Engine newEngine = SerializationHelper.Deserialize<Engine>(dataReader.GetString("Config"));
                             newEngine.idEngine = dataReader.GetUInt64("idEngine");
+                            newEngine.Instance = dataReader.GetUInt64("Instance");
                             newEngine.PlayoutChannelPGM = cPGM;
                             newEngine.PlayoutChannelPRV = cPRV;
                             newEngine.idArchive = dataReader.GetUInt64("idArchive");
@@ -900,6 +896,40 @@ VALUES
                 }
             } 
             return Engines;
+        }
+
+        internal static bool EngineSaveEngine(Engine engine)
+        {
+            if (Connect())
+            {
+                MySqlCommand cmd = new MySqlCommand(
+@"UPDATE tas.Engine set 
+Instance=@Instance, 
+idServerPGM=@idServerPGM, 
+ServerChannelPGM=@ServerChannelPGM, 
+idServerPRV=@idServerPRV, 
+ServerChannelPRV=@ServerChannelPRV,
+idArchive=@idArchive, 
+Config=@Config
+where
+idEngine=@idEngine", connection);
+                cmd.Parameters.AddWithValue("@idEngine", engine.idEngine);
+                cmd.Parameters.AddWithValue("@Instance", engine.Instance);
+                cmd.Parameters.AddWithValue("@idServerPGM", engine.PlayoutChannelPGM == null ? DBNull.Value : (object)engine.PlayoutChannelPGM.OwnerServer.idServer);
+                cmd.Parameters.AddWithValue("@ServerChannelPGM", engine.PlayoutChannelPGM == null ? DBNull.Value : (object)engine.PlayoutChannelPGM.ChannelNumber);
+                cmd.Parameters.AddWithValue("@idServerPRV", engine.PlayoutChannelPRV == null ? DBNull.Value : (object)engine.PlayoutChannelPRV.OwnerServer.idServer);
+                cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.PlayoutChannelPRV == null ? DBNull.Value : (object)engine.PlayoutChannelPRV.ChannelNumber);
+                cmd.Parameters.AddWithValue("@idArchive", engine.idArchive);
+                cmd.Parameters.AddWithValue("@Config", SerializationHelper.Serialize<Engine>(engine));
+                
+                lock (connection)
+                    if (cmd.ExecuteNonQuery() == 1)
+                    {
+                        Debug.WriteLine(engine, "Saved");
+                        return true;
+                    }
+            }
+            return false;
         }
 
         internal static List<PlayoutServer> ServerLoadServers()

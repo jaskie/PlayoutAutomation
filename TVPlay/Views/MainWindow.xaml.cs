@@ -50,12 +50,10 @@ namespace TAS.Client.Views
             }
         }
 
-        private EngineController engineController;
-
+        
         private void AppMainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            engineController = new EngineController();
-            foreach (Engine engine in engineController.Engines)
+            foreach (Engine engine in App.EngineController.Engines)
             {
                 TabItem newtab = new TabItem();
                 newtab.Header = engine.EngineName;
@@ -91,9 +89,6 @@ namespace TAS.Client.Views
 
         private void AppMainWindow_Closed(object sender, EventArgs e)
         {
-            var ec = engineController;
-            if (ec != null)
-                ec.Dispose();
         }
 
         private void AppMainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)

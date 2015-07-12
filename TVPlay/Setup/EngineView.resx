@@ -120,8 +120,14 @@
   <data name="_aspectRatioControl" xml:space="preserve">
     <value>Sterowanie formatem obrazu</value>
   </data>
+  <data name="_channels" xml:space="preserve">
+    <value>Kanały</value>
+  </data>
   <data name="_clockCorrection" xml:space="preserve">
     <value>Korekta zegara</value>
+  </data>
+  <data name="_general" xml:space="preserve">
+    <value>Ogólne</value>
   </data>
   <data name="_name" xml:space="preserve">
     <value>Nazwa</value>

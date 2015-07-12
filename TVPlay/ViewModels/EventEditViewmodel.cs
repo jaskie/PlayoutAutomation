@@ -241,9 +241,9 @@ namespace TAS.Client.ViewModels
                 if (ev.EventType == TEventType.Movie && media != null)
                 {
                     if (_scheduledTC > media.Duration + media.TCStart)
-                        validationResult = string.Format(Properties.Resources._validate_StartTCAfterFile, SMPTETimecode.TimeSpanToTimeCode(media.Duration + media.TCStart));
+                        validationResult = string.Format(Properties.Resources._validate_StartTCAfterFile, (media.Duration + media.TCStart).ToSMPTETimecodeString());
                     if (_scheduledTC < media.TCStart)
-                        validationResult = string.Format(Properties.Resources._validate_StartTCBeforeFile, SMPTETimecode.TimeSpanToTimeCode(media.TCStart));
+                        validationResult = string.Format(Properties.Resources._validate_StartTCBeforeFile, media.TCStart.ToSMPTETimecodeString());
                 }
             }
             return validationResult;
@@ -551,7 +551,7 @@ namespace TAS.Client.ViewModels
                             if (m != null)
                             {
                                 Event newEvent = new Event(ev.Engine);
-                                newEvent.EventType = Server.TEventType.StillImage;
+                                newEvent.EventType = TEventType.StillImage;
                                 newEvent.Media = m;
                                 newEvent.EventName = m.MediaName;
                                 newEvent.Duration = ev.Duration;

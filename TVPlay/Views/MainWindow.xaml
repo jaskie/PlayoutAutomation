@@ -5,6 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         Name="AppMainWindow" Title="{Resx Window.Title}" Height="864" Width="1152"
         Loaded="AppMainWindow_Loaded" Closed="AppMainWindow_Closed" Closing="AppMainWindow_Closing">
-    <TabControl Name="tcChannels" TabStripPlacement="Bottom">
+    <TabControl Name="tcChannels" ItemsSource="{Binding Tabs}" TabStripPlacement="Bottom">
     </TabControl>
 </Window>

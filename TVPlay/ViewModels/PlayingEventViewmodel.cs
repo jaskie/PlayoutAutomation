@@ -5,6 +5,7 @@ using System.Text;
 using TAS.Server;
 using System.Windows.Threading;
 using System.ComponentModel;
+using TAS.Common;
 
 namespace TAS.Client.ViewModels
 {

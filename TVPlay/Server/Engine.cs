@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using System.Collections.Specialized;
 using System.Xml;
 using System.Xml.Serialization;
+using TAS.Common;
 
 namespace TAS.Server
 {
@@ -18,14 +19,28 @@ namespace TAS.Server
     {
         [XmlIgnore]
         public UInt64 idEngine { get; internal set; }
+        [XmlIgnore]
+        public UInt64 Instance { get; internal set; }
 
-        public string EngineName { get; set; }
+        string _engineName;
+        public string EngineName
+        {
+            get { return _engineName; }
+            set
+            {
+                if (value != _engineName)
+                {
+                    _engineName = value;
+                    NotifyPropertyChanged("EngineName");
+                }
+            }
+        }
 #region Fields
         internal UInt64 idArchive;
 
         [XmlIgnore]
         public readonly MediaManager MediaManager;
-        private Thread _engineThread;
+        Thread _engineThread;
         internal long CurrentTicks;
         
         private TimeSpan PreloadTime = new TimeSpan(0, 0, 2); // time to preload event
@@ -38,7 +53,7 @@ namespace TAS.Server
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
         public event EventHandler<PropertyChangedEventArgs> ServerPropertyChanged;
         public GPINotifier GPI;
-        public TAspectRatioControl AspectRatioControl { get; set; }
+        public TAspectRatioControl AspectRatioControl;
 
         public int TimeCorrection { get { return (int)_timeCorrection.TotalMilliseconds; } set { _timeCorrection = TimeSpan.FromMilliseconds(value); } }
         protected TimeSpan _timeCorrection;
@@ -130,7 +145,7 @@ namespace TAS.Server
             }
         }
 
-        long _frameDuration;
+        long _frameDuration; // in nanoseconds
         long _frameTicks;
         public long FrameTicks { get { return _frameTicks; } }
         public TVideoFormat VideoFormat;
@@ -249,30 +264,35 @@ namespace TAS.Server
         }
 
         private bool _gPIEnabled = true;
+        [XmlIgnore]
         public bool GPIEnabled
         {
             get { return _gPIEnabled; }
             set { SetField(ref _gPIEnabled, value, "GPIEnabled"); }
         }
 
+        [XmlIgnore]
         public bool GPIAspectNarrow
         {
             get { return GPI != null && GPI.AspectNarrow; }
             set { if (GPI != null && _gPIEnabled) GPI.AspectNarrow = value; }
         }
 
+        [XmlIgnore]
         public TCrawl GPICrawl
         {
             get { return GPI == null ? TCrawl.NoCrawl : GPI.Crawl; }
             set { if (GPI != null && _gPIEnabled) GPI.Crawl = value; }
         }
 
+        [XmlIgnore]
         public TLogo GPILogo
         {
             get { return GPI == null ? TLogo.NoLogo : GPI.Logo; }
             set { if (GPI != null && _gPIEnabled) GPI.Logo = value; }
         }
 
+        [XmlIgnore]
         public TParental GPIParental
         {
             get { return GPI == null ? TParental.None : GPI.Parental; }
@@ -628,7 +648,7 @@ namespace TAS.Server
             }
             if (aEvent == null)
                 return false;
-            Debug.WriteLine("Play {1}: {0}", aEvent, TAS.Common.SMPTETimecode.TimeSpanToTimeCode(CurrentTime.TimeOfDay));
+            Debug.WriteLine("Play {1}: {0}", aEvent, CurrentTime.TimeOfDay);
             _run(aEvent);
             if (fromBeginning)
                 aEvent.Position = 0;

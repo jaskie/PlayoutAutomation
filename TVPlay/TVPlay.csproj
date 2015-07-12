@@ -208,6 +208,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Common\SimpleCommand.cs" />
+    <Compile Include="Common\SMPTETimecodeExtensions.cs" />
     <Compile Include="Common\TreeViewExtensions.cs" />
     <Compile Include="Common\ObservableSynchronizedCollection.cs" />
     <Compile Include="Common\StatusIndicator.xaml.cs">
@@ -246,6 +247,9 @@
     <Compile Include="Setup\GPINotifierView.xaml.cs">
       <DependentUpon>GPINotifierView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Setup\OkCancelView.xaml.cs">
+      <DependentUpon>OkCancelView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Setup\OkCancelViewmodelBase.cs" />
     <Compile Include="Setup\EngineView.xaml.cs">
       <DependentUpon>EngineView.xaml</DependentUpon>
@@ -258,6 +262,7 @@
     <Compile Include="ViewModels\FileOperationViewmodel.cs" />
     <Compile Include="ViewModels\IngestTrimmerViewmodel.cs" />
     <Compile Include="ViewModels\IngestEditViewmodel.cs" />
+    <Compile Include="ViewModels\MainViewmodel.cs" />
     <Compile Include="ViewModels\MediaSearchViewmodel.cs" />
     <Compile Include="ViewModels\MediaSegmentViewmodel.cs" />
     <Compile Include="ViewModels\PlayingEventViewmodel.cs" />
@@ -267,7 +272,6 @@
     <Compile Include="Common\BindableSelectedItems.cs" />
     <Compile Include="Common\MediaSeekSlider.cs" />
     <Compile Include="Common\EmphasisedButton.cs" />
-    <Compile Include="Common\SMPTETimecode.cs" />
     <Compile Include="Common\TreeViewItemBringIntoViewWhenSelected.cs" />
     <Compile Include="Server\Media\ArchiveMedia.cs" />
     <Compile Include="Server\Media\ArchiveDirectory.cs" />
@@ -338,6 +342,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Setup\GPINotifierView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Setup\OkCancelView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

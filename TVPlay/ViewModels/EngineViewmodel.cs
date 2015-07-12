@@ -22,6 +22,7 @@ namespace TAS.Client.ViewModels
         private readonly EngineView _engineView;
         private Event _selectedEvent;
         public Engine Engine { get { return _engine; } }
+
         public ICommand CommandClearAll { get; private set; }
         public ICommand CommandClearLayer { get; private set; }
         public ICommand CommandRestartLayer { get; private set; }
@@ -44,7 +45,17 @@ namespace TAS.Client.ViewModels
         public ICommand CommandPause { get; private set; }
         public ICommand CommandDeleteSelected { get; private set; }
         public ICommand CommandEngineSettings { get; private set; }
-        
+
+        public ICommand CommandAddNewMovie { get { return _eventEditViewmodel.CommandAddNextMovie; } }
+        public ICommand CommandAddNewRundown { get { return _eventEditViewmodel.CommandAddNextRundown; } }
+        public ICommand CommandAddNewLive { get { return _eventEditViewmodel.CommandAddNextLive; } }
+        public ICommand CommandAddSubMovie { get { return _eventEditViewmodel.CommandAddSubMovie; } }
+        public ICommand CommandAddSubRundown { get { return _eventEditViewmodel.CommandAddSubRundown; } }
+        public ICommand CommandAddSubLive { get { return _eventEditViewmodel.CommandAddSubLive; } }
+        public ICommand CommandToggleEnabled { get { return _eventEditViewmodel.CommandToggleEnabled; } }
+        public ICommand CommandToggleHold { get { return _eventEditViewmodel.CommandToggleHold; } }
+        public ICommand CommandSaveEdit { get { return _eventEditViewmodel.CommandSaveEdit; } }
+
         public EngineViewmodel(Server.Engine engine)
         {
             _engine = engine;
@@ -133,19 +144,10 @@ namespace TAS.Client.ViewModels
             CommandStartLoaded = new SimpleCommand() { ExecuteDelegate = o => _engine.Resume(), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Hold};
             CommandPause = new SimpleCommand() { ExecuteDelegate = o => _engine.Pause() };
             CommandDeleteSelected = new SimpleCommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
-            CommandEngineSettings = new SimpleCommand() { ExecuteDelegate = o => new Client.Setup.EngineViewmodel(this.Engine), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
+            CommandEngineSettings = new SimpleCommand() { ExecuteDelegate = o => new Client.Setup.EngineViewmodel(this.Engine, App.EngineController), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
         }
 
-        public ICommand CommandAddNewMovie { get { return _eventEditViewmodel.CommandAddNextMovie; } }
-        public ICommand CommandAddNewRundown { get { return _eventEditViewmodel.CommandAddNextRundown; } }
-        public ICommand CommandAddNewLive { get { return _eventEditViewmodel.CommandAddNextLive; } }
-        public ICommand CommandAddSubMovie { get { return _eventEditViewmodel.CommandAddSubMovie; } }
-        public ICommand CommandAddSubRundown { get { return _eventEditViewmodel.CommandAddSubRundown; } }
-        public ICommand CommandAddSubLive { get { return _eventEditViewmodel.CommandAddSubLive; } }
-        public ICommand CommandToggleEnabled { get { return _eventEditViewmodel.CommandToggleEnabled; } }
-        public ICommand CommandToggleHold { get { return _eventEditViewmodel.CommandToggleHold; } }
-        public ICommand CommandSaveEdit { get { return _eventEditViewmodel.CommandSaveEdit; } }
-
+       
         private bool _canStartSelected(object o)
         {
             Event ev = _selectedEvent;
@@ -194,7 +196,7 @@ namespace TAS.Client.ViewModels
         private void _newRootRundown(object o)
         {
             Event newEvent = new Event(_engine);
-            newEvent.EventType = Server.TEventType.Rundown;
+            newEvent.EventType = TEventType.Rundown;
             newEvent.EventName = "Playlista";
             newEvent.Duration = TimeSpan.Zero;
             newEvent.StartType = TStartType.Manual;
@@ -206,7 +208,7 @@ namespace TAS.Client.ViewModels
         private void _newContainer(object o)
         {
             Event newEvent = new Event(_engine);
-            newEvent.EventType = Server.TEventType.Container;
+            newEvent.EventType = TEventType.Container;
             newEvent.EventName = "Kontener";
             newEvent.StartType = TStartType.None;
             _engine.RootEvents.Add(newEvent);

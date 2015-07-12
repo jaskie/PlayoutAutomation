@@ -16,8 +16,11 @@ namespace TAS.Client
     /// </summary>
     public partial class App : Application
     {
+
+        public static EngineController EngineController;
+
         private static string volumeReferenceLoudnessKey = "VolumeReferenceLoudness";
-            
+        
         public App()
         {
             decimal referenceLoudness = -23;
@@ -25,7 +28,13 @@ namespace TAS.Client
                 decimal.TryParse(ConfigurationManager.AppSettings[volumeReferenceLoudnessKey], out referenceLoudness);
             App.Current.Properties["VolumeReferenceLoudness"] = referenceLoudness;
             CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
-            //CultureManager.UICulture = new System.Globalization.CultureInfo("en");
+            EngineController = new EngineController();
+        //CultureManager.UICulture = new System.Globalization.CultureInfo("en");
+        }
+        protected override void OnExit(ExitEventArgs e)
+        {
+            EngineController.Dispose();
+            base.OnExit(e);
         }
     }
 }

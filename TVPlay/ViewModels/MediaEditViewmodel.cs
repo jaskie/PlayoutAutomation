@@ -310,7 +310,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        readonly Array _mediaEmphasises = Enum.GetValues(typeof(TAS.Server.TMediaEmphasis)); 
+        readonly Array _mediaEmphasises = Enum.GetValues(typeof(TMediaEmphasis)); 
         public Array MediaEmphasises { get { return _mediaEmphasises;} }
         private TMediaEmphasis _mediaEmphasis;
         public TMediaEmphasis MediaEmphasis

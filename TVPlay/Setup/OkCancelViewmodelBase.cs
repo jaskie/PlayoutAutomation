@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Windows.Controls;
 using System.Windows.Input;
 using TAS.Common;
 
 namespace TAS.Client.Setup
 {
-    public abstract class OkCancelViewmodelBase<M, V> : ViewModels.ViewmodelBase where V : System.Windows.FrameworkElement, new()
+    public abstract class OkCancelViewmodelBase<M> : ViewModels.ViewmodelBase
     {
         public readonly M Model;
-        public readonly V View;
+        public readonly OkCancelView View;
+        public readonly UserControl _editor;
 
-        public OkCancelViewmodelBase(M model)
+        public OkCancelViewmodelBase(M model, UserControl editor, string windowTitle, int initialWidth, int initialHeight)
         {
             Model = model;
+            _editor = editor;
             PropertyInfo[] copiedProperties = this.GetType().GetProperties();
             foreach (PropertyInfo copyPi in copiedProperties)
             {
@@ -27,8 +30,10 @@ namespace TAS.Client.Setup
             CommandClose = new SimpleCommand() { CanExecuteDelegate = CanClose, ExecuteDelegate = Close };
             CommandApply = new SimpleCommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = Apply };
             CommandOK = new SimpleCommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = o => { Apply(o); Close(o); } };
-            View = new V() { DataContext = this };
+            View = new OkCancelView() { DataContext = this, Width=initialWidth, Height=initialHeight, Title=windowTitle };
         }
+        
+        public UserControl Editor { get { return _editor; } }
 
         public virtual void Ok()
         {
@@ -89,5 +94,6 @@ namespace TAS.Client.Setup
         public ICommand CommandApply { get; protected set; }
         public ICommand CommandOK { get; protected set; }
 
+       
     }
 }

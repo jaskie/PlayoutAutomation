@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using System.ComponentModel;
 using System.Net;
 using System.Runtime.InteropServices;
+using TAS.Common;
 
 namespace TAS.Server
 {

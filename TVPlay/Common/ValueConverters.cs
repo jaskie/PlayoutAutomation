@@ -57,32 +57,32 @@ namespace TAS.Client
                     && (string)parameter == "HIDE_ZERO_VALUE"
                     && (TimeSpan)value == TimeSpan.Zero)
                     return string.Empty;
-                return SMPTETimecode.TimeSpanToTimeCode((TimeSpan)value);
+                return ((TimeSpan)value).ToSMPTETimecodeString();
             }
             else
                 return null;
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is string && SMPTETimecode.ValidateSMPTETimecode((string)value))
-                return SMPTETimecode.TimecodeToTimeSpan((string)value);
+            if (value is string && ((string)value).IsValidSMPTETimecode())
+                return ((string)value).SMPTETimecodeToTimeSpan();
             else
                 return null;
         }
     }
 
-    [ValueConversion(typeof(TimeSpan), typeof(string))]
+    [ValueConversion(typeof(TimeSpan), typeof(long))]
     public class TimeSpanToFramesConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return SMPTETimecode.TicksToFrames(((TimeSpan)value).Ticks).ToString();
+            return ((TimeSpan)value).ToSMPTEFrames();
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             long val;
             if (long.TryParse((string)value, out val))
-                return TimeSpan.FromTicks(SMPTETimecode.FramesToTicks(val));
+                return val.SMPTEFramesToTimeSpan();
             else
                 return null;
         }
@@ -111,18 +111,18 @@ namespace TAS.Client
             if ((DateTime)value == default(DateTime))
                 return string.Empty;
             if ((string)parameter == "TC")
-                return SMPTETimecode.TimeSpanToTimeCode(((DateTime)value).ToLocalTime().TimeOfDay);
-            return ((DateTime)value).ToLocalTime().Date.ToString("d") + " " + SMPTETimecode.TimeSpanToTimeCode(((DateTime)value).ToLocalTime().TimeOfDay);
+                return ((DateTime)value).ToLocalTime().TimeOfDay.ToSMPTETimecodeString();
+            return ((DateTime)value).ToLocalTime().Date.ToString("d") + " " + ((DateTime)value).ToLocalTime().TimeOfDay.ToSMPTETimecodeString();
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             string[] v = (value as string).Split(' ');
             {
-                if (v.Length == 2 && SMPTETimecode.ValidateSMPTETimecode(v[1]))
+                if (v.Length == 2 && v[1].IsValidSMPTETimecode())
                 {
                     try
                     {
-                        return (DateTime.Parse(v[0]) + SMPTETimecode.TimecodeToTimeSpan(v[1])).ToUniversalTime();
+                        return (DateTime.Parse(v[0]) + v[1].SMPTETimecodeToTimeSpan()).ToUniversalTime();
                     }
                     catch (FormatException)
                     {

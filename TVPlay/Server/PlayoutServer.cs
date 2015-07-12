@@ -5,6 +5,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Xml.Serialization;
 using System.ComponentModel;
+using TAS.Common;
 
 namespace TAS.Server
 {
@@ -98,7 +99,7 @@ namespace TAS.Server
 
         public override string ToString()
         {
-            return string.Format("PlayoutServer {0}", ServerAddress);
+            return string.Format("{0} {1}", this.GetType().Name, ServerAddress);
         }
 
     }

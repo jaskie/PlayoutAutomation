@@ -13,6 +13,7 @@ using System.Globalization;
 using System.Text;
 using System.ComponentModel;
 using TAS.FFMpegUtils;
+using TAS.Common;
 
 namespace TAS.Server
 {
@@ -73,7 +74,7 @@ namespace TAS.Server
                                 Match m_tc = reg_tc.Match(m_tcs.Value);
                                 if (m_tc.Success)
                                 {
-                                    DestMedia.TCStart = Common.SMPTETimecode.TimecodeToTimeSpan(reg_tc.Match(m_tc.Value).Value);
+                                    DestMedia.TCStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan();
                                     if (DestMedia.TCPlay == TimeSpan.Zero)
                                         DestMedia.TCPlay = DestMedia.TCStart;
                                     break;
@@ -98,7 +99,7 @@ namespace TAS.Server
                             Match m_tc = re.Match(miOutputLines[i + 1]);
                             if (m_tc.Success)
                             {
-                                DestMedia.TCStart = Common.SMPTETimecode.TimecodeToTimeSpan(reg_tc.Match(m_tc.Value).Value);
+                                DestMedia.TCStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan();
                                 if (DestMedia.TCPlay == TimeSpan.Zero)
                                     DestMedia.TCPlay = DestMedia.TCStart;
                                 break;
@@ -291,7 +292,7 @@ namespace TAS.Server
             string Params = string.Format("-i \"{0}\" -y {1} -timecode {2} \"{3}\"",
                     inputMedia.FullPath,
                     encodeParams,
-                    Common.SMPTETimecode.TimeSpanToTimeCode(DestMedia.TCStart),
+                    DestMedia.TCStart.ToSMPTETimecodeString(),
                     DestMedia.FullPath);
 
             if (DestMedia is ArchiveMedia && !Directory.Exists(Path.GetDirectoryName(DestMedia.FullPath)))

@@ -14,11 +14,11 @@ using System.Windows.Shapes;
 namespace TAS.Client.Setup
 {
     /// <summary>
-    /// Interaction logic for EngineView.xaml
+    /// Interaction logic for OkCancelView.xaml
     /// </summary>
-    public partial class EngineView : UserControl
+    public partial class OkCancelView : Window
     {
-        public EngineView()
+        public OkCancelView()
         {
             InitializeComponent();
         }

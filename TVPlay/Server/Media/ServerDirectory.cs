@@ -6,6 +6,7 @@ using System.IO;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Runtime.Remoting.Messaging;
+using TAS.Common;
 
 namespace TAS.Server
 {

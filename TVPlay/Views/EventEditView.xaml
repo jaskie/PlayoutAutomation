@@ -5,8 +5,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:client="clr-namespace:TAS.Client"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
+             d:DataContext="{x:Type vm:EventEditViewmodel}"
              d:DesignHeight="400" d:DesignWidth="360"
              >
     <UserControl.Resources>
@@ -120,7 +122,7 @@
                     <Setter Property="HorizontalContentAlignment" Value="Right"/>
                 </Style>
                 <Style TargetType="ComboBox">
-                    <Setter Property="Width" Value="98"/>
+                    <Setter Property="Width" Value="97"/>
                     <Setter Property="Margin" Value="1"/>
                     <Setter Property="Padding" Value="2,1"/>
                 </Style>
@@ -173,7 +175,7 @@
                         </Button>
                         <client:DelayedBindingTextBox Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsDurationEnabled}" />
                     </DockPanel>
-                    <DockPanel>
+                    <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _scheduledTC}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                         <client:DelayedBindingTextBox Text="{Binding ScheduledTC, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
                     </DockPanel>

@@ -196,7 +196,7 @@ namespace TAS.Server
                             if (newMedia != null)
                             {
                                 newMedia._folder = "Clip";
-                                newMedia._duration = TimeSpan.FromTicks(SMPTETimecode.FramesToTicks(clip.dur));
+                                newMedia._duration =  ((long)clip.dur).SMPTEFramesToTimeSpan((TSMPTEFrameRate)int.Parse(clip.fps));
                                 newMedia._durationPlay = newMedia.Duration;
                                 if (clip.aspectRatio == "4:3")
                                     newMedia._videoFormat = TVideoFormat.PAL;
@@ -211,23 +211,11 @@ namespace TAS.Server
                                     {
                                         newMedia._lastUpdated = clip.ClipMeta.lastUpdate == default(DateTime) ? clip.ClipMeta.CreationDate.Value : clip.ClipMeta.lastUpdate;
                                         newMedia.MediaGuid = new Guid(clip.ClipMeta.TargetMaterial.umidRef.Substring(32, 32));
-                                        SMPTEFrameRate rate;
-                                        switch (clip.ClipMeta.LtcChangeTable.tcFps)
-                                        {
-                                            case 30:
-                                                rate = SMPTEFrameRate.SMPTERate30fps;
-                                                break;
-                                            case 24:
-                                                rate = SMPTEFrameRate.SMPTERate24fps;
-                                                break;
-                                            default:
-                                                rate = SMPTEFrameRate.SMPTERate25fps;
-                                                break;
-                                        }
+                                        TSMPTEFrameRate rate = (TSMPTEFrameRate)clip.ClipMeta.LtcChangeTable.tcFps;
                                         XDCAM.NonRealTimeMeta.LtcChange start = clip.ClipMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
                                         if (start != null)
                                         {
-                                            TimeSpan tcStart = SMPTETimecode.LTCToTimeSpan(start.value, rate);
+                                            TimeSpan tcStart = start.value.LTCTimecodeToTimeSpan(rate);
                                             if (tcStart >= TimeSpan.FromHours(40)) // TC 40:00:00:00 and greater
                                                 tcStart -= TimeSpan.FromHours(40);
                                             newMedia.TCStart = tcStart;
@@ -253,7 +241,7 @@ namespace TAS.Server
                                 if (newMedia != null)
                                 {
                                     newMedia._folder = "Clip";
-                                    newMedia._duration = TimeSpan.FromTicks(SMPTETimecode.FramesToTicks(edl.dur));
+                                    newMedia._duration = ((long)edl.dur).SMPTEFramesToTimeSpan((TSMPTEFrameRate)int.Parse(edl.fps));
                                     newMedia._durationPlay = newMedia.Duration;
                                     if (edl.aspectRatio == "4:3")
                                         newMedia._videoFormat = TVideoFormat.PAL;
@@ -270,23 +258,10 @@ namespace TAS.Server
                                         {
                                             newMedia._lastUpdated = edl.EdlMeta.lastUpdate == default(DateTime) ? edl.EdlMeta.CreationDate.Value : edl.EdlMeta.lastUpdate;
                                             newMedia.MediaGuid = new Guid(edl.EdlMeta.TargetMaterial.umidRef.Substring(32, 32));
-                                            SMPTEFrameRate rate;
-                                            switch (edl.EdlMeta.LtcChangeTable.tcFps)
-                                            {
-                                                case 30:
-                                                    rate = SMPTEFrameRate.SMPTERate30fps;
-                                                    break;
-                                                case 24:
-                                                    rate = SMPTEFrameRate.SMPTERate24fps;
-                                                    break;
-                                                default:
-                                                    rate = SMPTEFrameRate.SMPTERate25fps;
-                                                    break;
-                                            }
                                             XDCAM.NonRealTimeMeta.LtcChange start = edl.EdlMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
                                             if (start != null)
                                             {
-                                                TimeSpan tcStart = SMPTETimecode.LTCToTimeSpan(start.value, rate);
+                                                TimeSpan tcStart = start.value.LTCTimecodeToTimeSpan((TSMPTEFrameRate) edl.EdlMeta.LtcChangeTable.tcFps);
                                                 if (tcStart >= TimeSpan.FromHours(40)) // TC 40:00:00:00 and greater
                                                     tcStart -= TimeSpan.FromHours(40);
                                                 newMedia.TCStart = tcStart;
@@ -480,9 +455,9 @@ namespace TAS.Server
                         }
                         if (m != null)
                         {
-                            m.TCStart = SMPTETimecode.TimecodeToTimeSpan(clip.SelectSingleNode(@"file/timecode/string").InnerText);
+                            m.TCStart = clip.SelectSingleNode(@"file/timecode/string").InnerText.SMPTETimecodeToTimeSpan();
                             m.TCPlay = m.TCStart;
-                            m.Duration = TimeSpan.FromTicks(SMPTETimecode.FramesToTicks(Int64.Parse(clip.SelectSingleNode(@"duration").InnerText)));
+                            m.Duration = Int64.Parse(clip.SelectSingleNode(@"duration").InnerText).SMPTEFramesToTimeSpan();
                             m.DurationPlay = m.Duration;
                             m.XmlFile = xmlFileName;
                         }
