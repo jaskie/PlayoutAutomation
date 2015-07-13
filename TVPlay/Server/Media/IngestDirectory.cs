@@ -196,7 +196,7 @@ namespace TAS.Server
                             if (newMedia != null)
                             {
                                 newMedia._folder = "Clip";
-                                newMedia._duration =  ((long)clip.dur).SMPTEFramesToTimeSpan((TSMPTEFrameRate)int.Parse(clip.fps));
+                                newMedia._duration =  ((long)clip.dur).SMPTEFramesToTimeSpan(clip.fps);
                                 newMedia._durationPlay = newMedia.Duration;
                                 if (clip.aspectRatio == "4:3")
                                     newMedia._videoFormat = TVideoFormat.PAL;
@@ -241,7 +241,7 @@ namespace TAS.Server
                                 if (newMedia != null)
                                 {
                                     newMedia._folder = "Clip";
-                                    newMedia._duration = ((long)edl.dur).SMPTEFramesToTimeSpan((TSMPTEFrameRate)int.Parse(edl.fps));
+                                    newMedia._duration = ((long)edl.dur).SMPTEFramesToTimeSpan(edl.fps);
                                     newMedia._durationPlay = newMedia.Duration;
                                     if (edl.aspectRatio == "4:3")
                                         newMedia._videoFormat = TVideoFormat.PAL;

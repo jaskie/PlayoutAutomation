@@ -745,7 +745,9 @@ namespace TAS.Client.ViewModels
         }
 
         private bool _modified;
-        public bool Modified { get {return _modified;}
+        public bool Modified
+        {
+            get { return _modified; }
             private set
             {
                 if (_modified != value)

@@ -61,7 +61,7 @@ namespace TAS {
 		int getStreamCount();
 		StreamInfo ^ getStreamInfo(unsigned int streamIndex);
 		AVFieldOrder getFieldOrder();
-		AVRational getAspectRatio();
+		AVRational getSAR();
 		AVRational getFrameRate();
 	};
 
@@ -78,8 +78,8 @@ namespace TAS {
 			int GetWidth();
 			TimeSpan^ GetAudioDuration();
 			FieldOrder GetFieldOrder();
-			Rational^ GetAspectRatio();
 			Rational^ GetFrameRate();
+			Rational^ GetSAR();
 			bool GetFrame(TimeSpan fromTime, Bitmap^ destBitmap);
 			array<StreamInfo^>^ GetStreamInfo();
 		};

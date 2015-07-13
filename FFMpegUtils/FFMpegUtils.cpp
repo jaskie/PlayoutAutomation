@@ -116,7 +116,7 @@ namespace TAS {
 			return AV_FIELD_UNKNOWN;
 		}
 
-		AVRational _FFMpegWrapper::getAspectRatio()
+		AVRational _FFMpegWrapper::getSAR()
 		{
 			if (pFormatCtx)
 			{
@@ -131,6 +131,14 @@ namespace TAS {
 
 		AVRational _FFMpegWrapper::getFrameRate()
 		{
+			if (pFormatCtx)
+			{
+				for (unsigned int i = 0; i<pFormatCtx->nb_streams; i++)
+				{
+					if (pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO)
+						return pFormatCtx->streams[i]->codec->framerate;
+				}
+			}
 			return av_make_q(0, 0);
 		}
 
@@ -193,9 +201,9 @@ namespace TAS {
 			return (FieldOrder)(wrapper->getFieldOrder());
 		}
 
-		Rational^ FFMpegWrapper::GetAspectRatio()
+		Rational^ FFMpegWrapper::GetSAR()
 		{
-			AVRational val = wrapper->getAspectRatio();
+			AVRational val = wrapper->getSAR();
 			Rational ^ ret = gcnew Rational();
 			ret->Num = val.num;
 			ret->Den = val.den;
@@ -204,7 +212,11 @@ namespace TAS {
 
 		Rational^ FFMpegWrapper::GetFrameRate()
 		{
-			return gcnew Rational();
+			AVRational val = wrapper->getFrameRate();
+			Rational ^ ret = gcnew Rational();
+			ret->Num = val.num;
+			ret->Den = val.den;
+			return ret;
 		}
 
 		array<StreamInfo^>^ FFMpegWrapper::GetStreamInfo()

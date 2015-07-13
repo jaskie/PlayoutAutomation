@@ -378,23 +378,6 @@ namespace TAS.Server
             Directory = null;
         }
 
-        private static TVideoFormat _determineVideoFormat(int width, int height, FieldOrder fieldOrder, Rational aspect)
-        {
-            if ((width == 720 || width == 704 || width == 540)
-                && ( height == 576 || height == 608)
-                && fieldOrder != FieldOrder.PROGRESSIVE)
-                return TVideoFormat.PAL_FHA;
-            if (width == 1920
-                && height == 1080 
-                && fieldOrder != FieldOrder.PROGRESSIVE)
-                return TVideoFormat.HD1080i5000;
-            if (width == 1920
-                && height == 1080
-                && fieldOrder == FieldOrder.PROGRESSIVE)
-                return TVideoFormat.HD1080p2500;
-            return TVideoFormat.Other;
-        }
-
         private bool _verified = false;
         public bool Verified
         {
@@ -472,12 +455,21 @@ namespace TAS.Server
                         int w = ffmpeg.GetWidth();
                         int h = ffmpeg.GetHeight();
                         FieldOrder order = ffmpeg.GetFieldOrder();
-                        Rational aspect = ffmpeg.GetAspectRatio();
-                        VideoFormat = Media._determineVideoFormat(w, h, order, aspect);
-                        if (h == 608 &&  w == 720)
+                        Rational frameRate = ffmpeg.GetFrameRate();
+                        Rational sar = ffmpeg.GetSAR();
+                        if (h == 608 && w == 720)
+                        {
                             HasExtraLines = true;
+                            h = 576;
+                        }
                         else
                             HasExtraLines = false;
+
+                        RationalNumber sAR = (sar.Num == 608 && sar.Den == 405) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL_FHA].SAR 
+                            : (sar.Num == 152 && sar.Den == 135) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL].SAR 
+                            : new RationalNumber(sar.Num, sar.Den);
+                        
+                        VideoFormat = VideoFormatDescription.Match(new RationalNumber(w, h), new RationalNumber(frameRate.Num, frameRate.Den), sAR, order != FieldOrder.PROGRESSIVE).Format;
                         if (videoDuration > TimeSpan.Zero)
                         {
                             MediaType = TMediaType.Movie;

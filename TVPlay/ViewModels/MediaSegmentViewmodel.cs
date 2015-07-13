@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TAS.Server;
+using TAS.Common;
 using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
@@ -56,7 +57,7 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan Duration
         {
-            get { return TCOut - TCIn; }
+            get { return TCOut - TCIn + VideoFormatDescription.Descriptions[_media.VideoFormat].FrameDuration; }
         }
 
         public MediaSegment MediaSegment { get { return _mediaSegment; } }

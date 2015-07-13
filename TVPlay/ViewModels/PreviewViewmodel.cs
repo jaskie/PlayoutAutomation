@@ -163,7 +163,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public TimeSpan DurationSelection { get { return new TimeSpan(TCOut.Ticks - TCIn.Ticks); } }
+        public TimeSpan DurationSelection { get { return new TimeSpan(TCOut.Ticks - TCIn.Ticks + _engine.FrameTicks); } }
 
         public TimeSpan Position
         {

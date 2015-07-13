@@ -42,6 +42,30 @@ namespace TAS.Common
             return TimeSpan.FromTicks(totalFrames * TimeSpan.TicksPerSecond / (long)rate);
         }
 
+        public static TimeSpan SMPTEFramesToTimeSpan(this long totalFrames, string frameRate)
+        {
+            long rate = 25;
+            if (frameRate.Length > 0)
+            {
+                switch (frameRate[frameRate.Length - 1])
+                {
+                    case 'i':
+                    case 'I':
+                        if (long.TryParse(frameRate.Substring(0, frameRate.Length - 1), out rate))
+                            rate = rate / 2;
+                        break;
+                    case 'p':
+                    case 'P':
+                        long.TryParse(frameRate.Substring(0, frameRate.Length - 1), out rate);
+                        break;
+                    default:
+                        long.TryParse(frameRate, out rate);
+                        break;
+                }
+            }
+            return TimeSpan.FromTicks(totalFrames * TimeSpan.TicksPerSecond / rate);
+        }
+
         public static bool IsValidSMPTETimecode(this string timeCode, TSMPTEFrameRate rate = TSMPTEFrameRate.SMPTERate25fps)
         {
             string[] times = timeCode.Split(':');

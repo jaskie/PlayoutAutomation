@@ -207,6 +207,7 @@
     <Compile Include="Common\MouseDoubleClick.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Common\RationalNumber.cs" />
     <Compile Include="Common\SimpleCommand.cs" />
     <Compile Include="Common\SMPTETimecodeExtensions.cs" />
     <Compile Include="Common\TreeViewExtensions.cs" />
@@ -218,6 +219,7 @@
     <Compile Include="Common\SimpleDictionary.cs" />
     <Compile Include="Common\UIServices.cs" />
     <Compile Include="Common\ValueConverters.cs" />
+    <Compile Include="Common\VideoFormatDescription.cs" />
     <Compile Include="MediaInfoDLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.pl.Designer.cs">
@@ -235,7 +237,7 @@
     <Compile Include="Server\Media\PInvokeWindowsNetworking.cs" />
     <Compile Include="Server\PlayoutServerChannel.cs" />
     <Compile Include="Server\Media\TempDirectory.cs" />
-    <Compile Include="Server\Enums.cs" />
+    <Compile Include="Common\Enums.cs" />
     <Compile Include="Server\Template.cs" />
     <Compile Include="Server\Media\TempMedia.cs" />
     <Compile Include="Server\XDCAM\Index.cs" />
@@ -329,10 +331,6 @@
     <Compile Include="Views\TemplatesView.xaml.cs">
       <DependentUpon>TemplatesView.xaml</DependentUpon>
     </Compile>
-    <Page Include="Changes.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Common\StatusIndicator.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -628,12 +626,9 @@
     <Resource Include="Glyphs\tick_circle.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CaspaServer.xml">
-    </None>
     <None Include="IngestFolders.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Resource Include="Changes.txt" />
     <Resource Include="film.ico" />
     <Resource Include="Glyphs\OnAir.png" />
     <Resource Include="Glyphs\Parentals\12.png" />
