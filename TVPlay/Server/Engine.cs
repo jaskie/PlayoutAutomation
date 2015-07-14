@@ -53,7 +53,7 @@ namespace TAS.Server
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
         public event EventHandler<PropertyChangedEventArgs> ServerPropertyChanged;
         public GPINotifier GPI;
-        public TAspectRatioControl AspectRatioControl;
+        public TAspectRatioControl AspectRatioControl { get; set; }
 
         public int TimeCorrection { get { return (int)_timeCorrection.TotalMilliseconds; } set { _timeCorrection = TimeSpan.FromMilliseconds(value); } }
         protected TimeSpan _timeCorrection;
@@ -148,7 +148,7 @@ namespace TAS.Server
         long _frameDuration; // in nanoseconds
         long _frameTicks;
         public long FrameTicks { get { return _frameTicks; } }
-        public TVideoFormat VideoFormat;
+        public TVideoFormat VideoFormat { get; set; }
 
         public void Initialize()
         {
@@ -708,7 +708,7 @@ namespace TAS.Server
             if (aEvent == null || !(aEvent.Layer == VideoLayer.Program || aEvent.Layer == VideoLayer.Preset))
                 return;
             Media media = aEvent.Media;
-            bool narrow = !(media == null || media.VideoFormat != TVideoFormat.PAL);
+            bool narrow = media != null && (media.VideoFormat == TVideoFormat.PAL || media.VideoFormat == TVideoFormat.NTSC);
             if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
             {
                 if (PlayoutChannelPGM != null)
