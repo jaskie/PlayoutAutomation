@@ -183,8 +183,10 @@ namespace TAS.Common
     [TypeConverter(typeof(TFieldOrderEnumConverter))]
     public enum TFieldOrder
     {
+        AutoDetect,
         TFF,
         BFF,
+        Progressive
     }
     class TFieldOrderEnumConverter : ResourceEnumConverter
     {

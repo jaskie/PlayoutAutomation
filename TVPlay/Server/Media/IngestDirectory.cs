@@ -67,6 +67,10 @@ namespace TAS.Server
 
         public TMediaCategory? MediaCategory { get; set; }
 
+        public double AudioVolume { get; set; }
+
+        public TFieldOrder SourceFieldOrder { get; set; }
+
         private bool _ftpDirectoryList()
         {
             bool exists = true;

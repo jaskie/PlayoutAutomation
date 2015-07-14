@@ -396,103 +396,110 @@ namespace TAS.Server
                 return; // in case that no file was found, and directory exists
             }
             FileInfo fi = new FileInfo(FullPath);
-            if (fi.Length == 0L)
-                return;
-            lock (SyncRoot)
+            try
             {
-                if (_isVeryfying) 
+                if (fi.Length == 0L)
                     return;
-                _isVeryfying = true;
-            }
-            if ((this.MediaType != TMediaType.AnimationFlash)
-                &&
-                (this._mediaStatus == TMediaStatus.Unknown
-                || this._mediaStatus == TMediaStatus.Deleted
-                || this._mediaStatus == TMediaStatus.Copied
-                || (this.MediaType != TMediaType.Still && this.Duration == TimeSpan.Zero)
-                || this.FileSize != (UInt64)fi.Length
-                || !LastUpdated.DateTimeEqualToDays(fi.LastWriteTimeUtc)
-                ))
-            {
-                this.FileSize = (UInt64)fi.Length;
-                this.LastUpdated = DateTimeExtensions.FromFileTime(fi.LastWriteTimeUtc, DateTimeKind.Utc);
-                //this.LastAccess = DateTimeExtensions.FromFileTime(fi.LastAccessTimeUtc, DateTimeKind.Utc);
-                if (MediaGuid == Guid.Empty)
-                    MediaGuid = Guid.NewGuid();
-                if (this.MediaType == TMediaType.Movie || MediaType == TMediaType.Unknown)
+                lock (SyncRoot)
                 {
-                    TimeSpan videoDuration;
-                    TimeSpan audioDuration;
-                    int startTickCunt = Environment.TickCount;
-                    using (FFMpegWrapper ffmpeg = new FFMpegWrapper(fi.FullName))
-                    {
-                        videoDuration = ffmpeg.GetFrameCount().SMPTEFramesToTimeSpan();
-                        audioDuration = (TimeSpan)ffmpeg.GetAudioDuration();
-                        if (videoDuration == TimeSpan.Zero)
-                        {
-                            MediaInfoLib.MediaInfo mi = new MediaInfoLib.MediaInfo();
-                            try
-                            {
-                                mi.Open(fi.FullName);
-                                long frameCount;
-                                if (long.TryParse(mi.Get(MediaInfoLib.StreamKind.Video, 0, "FrameCount"), out frameCount))
-                                    videoDuration = frameCount.SMPTEFramesToTimeSpan();
-                                long audioMilliseconds;
-                                if (long.TryParse(mi.Get(MediaInfoLib.StreamKind.Audio, 0, "Duration"), out audioMilliseconds))
-                                    audioDuration = TimeSpan.FromMilliseconds(audioMilliseconds);
-                                //mi.Option("Complete");
-                                //Debug.WriteLine(mi.Inform());
-                            }
-                            finally
-                            {
-                                mi.Close();
-                            }
-                        }
-
-                        this.Duration = videoDuration;
-                        if (DurationPlay == TimeSpan.Zero || DurationPlay > videoDuration)
-                            this.DurationPlay = videoDuration;
-                        int w = ffmpeg.GetWidth();
-                        int h = ffmpeg.GetHeight();
-                        FieldOrder order = ffmpeg.GetFieldOrder();
-                        Rational frameRate = ffmpeg.GetFrameRate();
-                        Rational sar = ffmpeg.GetSAR();
-                        if (h == 608 && w == 720)
-                        {
-                            HasExtraLines = true;
-                            h = 576;
-                        }
-                        else
-                            HasExtraLines = false;
-
-                        RationalNumber sAR = (sar.Num == 608 && sar.Den == 405) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL_FHA].SAR 
-                            : (sar.Num == 152 && sar.Den == 135) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL].SAR 
-                            : new RationalNumber(sar.Num, sar.Den);
-                        
-                        VideoFormat = VideoFormatDescription.Match(new RationalNumber(w, h), new RationalNumber(frameRate.Num, frameRate.Den), sAR, order != FieldOrder.PROGRESSIVE).Format;
-                        if (videoDuration > TimeSpan.Zero)
-                        {
-                            MediaType = TMediaType.Movie;
-                            if (Math.Abs(videoDuration.Ticks - audioDuration.Ticks) >= TimeSpan.TicksPerSecond / 2
-                                && audioDuration != TimeSpan.Zero)
-                                // when more than 0.5 sec difference
-                                MediaStatus = TMediaStatus.ValidationError;
-                            else
-                                MediaStatus = TMediaStatus.Available;
-                        }
-                        else
-                            MediaStatus = TMediaStatus.ValidationError;
-                    }
-                    Debug.WriteLine("Verify of {0} finished with status {1}. It took {2} milliseconds", this.FullPath, this.MediaStatus, Environment.TickCount - startTickCunt);
+                    if (_isVeryfying)
+                        return;
+                    _isVeryfying = true;
                 }
-                else
-                    this.MediaStatus = TMediaStatus.Available;
-                if (MediaStatus == TMediaStatus.Available)
-                    Directory.OnMediaVerified(this);
+                if ((this.MediaType != TMediaType.AnimationFlash)
+                    &&
+                    (this._mediaStatus == TMediaStatus.Unknown
+                    || this._mediaStatus == TMediaStatus.Deleted
+                    || this._mediaStatus == TMediaStatus.Copied
+                    || (this.MediaType != TMediaType.Still && this.Duration == TimeSpan.Zero)
+                    || this.FileSize != (UInt64)fi.Length
+                    || !LastUpdated.DateTimeEqualToDays(fi.LastWriteTimeUtc)
+                    ))
+                {
+                    this.FileSize = (UInt64)fi.Length;
+                    this.LastUpdated = DateTimeExtensions.FromFileTime(fi.LastWriteTimeUtc, DateTimeKind.Utc);
+                    //this.LastAccess = DateTimeExtensions.FromFileTime(fi.LastAccessTimeUtc, DateTimeKind.Utc);
+                    if (MediaGuid == Guid.Empty)
+                        MediaGuid = Guid.NewGuid();
+                    if (this.MediaType == TMediaType.Movie || MediaType == TMediaType.Unknown)
+                    {
+                        TimeSpan videoDuration;
+                        TimeSpan audioDuration;
+                        int startTickCunt = Environment.TickCount;
+                        using (FFMpegWrapper ffmpeg = new FFMpegWrapper(fi.FullName))
+                        {
+                            videoDuration = ffmpeg.GetFrameCount().SMPTEFramesToTimeSpan();
+                            audioDuration = (TimeSpan)ffmpeg.GetAudioDuration();
+                            if (videoDuration == TimeSpan.Zero)
+                            {
+                                MediaInfoLib.MediaInfo mi = new MediaInfoLib.MediaInfo();
+                                try
+                                {
+                                    mi.Open(fi.FullName);
+                                    long frameCount;
+                                    if (long.TryParse(mi.Get(MediaInfoLib.StreamKind.Video, 0, "FrameCount"), out frameCount))
+                                        videoDuration = frameCount.SMPTEFramesToTimeSpan();
+                                    long audioMilliseconds;
+                                    if (long.TryParse(mi.Get(MediaInfoLib.StreamKind.Audio, 0, "Duration"), out audioMilliseconds))
+                                        audioDuration = TimeSpan.FromMilliseconds(audioMilliseconds);
+                                    //mi.Option("Complete");
+                                    //Debug.WriteLine(mi.Inform());
+                                }
+                                finally
+                                {
+                                    mi.Close();
+                                }
+                            }
+
+                            this.Duration = videoDuration;
+                            if (DurationPlay == TimeSpan.Zero || DurationPlay > videoDuration)
+                                this.DurationPlay = videoDuration;
+                            int w = ffmpeg.GetWidth();
+                            int h = ffmpeg.GetHeight();
+                            FieldOrder order = ffmpeg.GetFieldOrder();
+                            Rational frameRate = ffmpeg.GetFrameRate();
+                            Rational sar = ffmpeg.GetSAR();
+                            if (h == 608 && w == 720)
+                            {
+                                HasExtraLines = true;
+                                h = 576;
+                            }
+                            else
+                                HasExtraLines = false;
+
+                            RationalNumber sAR = ((sar.Num == 608 && sar.Den == 405) || (sar.Num == 1 && sar.Den == 1)) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL_FHA].SAR
+                                : (sar.Num == 152 && sar.Den == 135) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL].SAR
+                                : new RationalNumber(sar.Num, sar.Den);
+
+                            VideoFormat = VideoFormatDescription.Match(new System.Drawing.Size(w, h), new RationalNumber(frameRate.Num, frameRate.Den), sAR, order != FieldOrder.PROGRESSIVE).Format;
+                            if (videoDuration > TimeSpan.Zero)
+                            {
+                                MediaType = TMediaType.Movie;
+                                if (Math.Abs(videoDuration.Ticks - audioDuration.Ticks) >= TimeSpan.TicksPerSecond / 2
+                                    && audioDuration != TimeSpan.Zero)
+                                    // when more than 0.5 sec difference
+                                    MediaStatus = TMediaStatus.ValidationError;
+                                else
+                                    MediaStatus = TMediaStatus.Available;
+                            }
+                            else
+                                MediaStatus = TMediaStatus.ValidationError;
+                        }
+                        Debug.WriteLine("Verify of {0} finished with status {1}. It took {2} milliseconds", this.FullPath, this.MediaStatus, Environment.TickCount - startTickCunt);
+                    }
+                    else
+                        this.MediaStatus = TMediaStatus.Available;
+                    if (MediaStatus == TMediaStatus.Available)
+                        Directory.OnMediaVerified(this);
+                }
+                lock (SyncRoot)
+                    _isVeryfying = false;
+                Verified = true;
             }
-            lock(SyncRoot)
-                _isVeryfying = false;
-            Verified = true;
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
         }
 
         private delegate void VerifyMediaDelegate();

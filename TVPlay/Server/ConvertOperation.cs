@@ -38,6 +38,7 @@ namespace TAS.Server
             AspectConversion = AspectConversions.NoConversion;
             SourceFieldOrderEnforceConversion = SourceFieldOrderEnforceConversions.Detect;
             AudioChannelMappingConversion = AudioChannelMappingConversions.FirstTwoChannels;
+            OutputFormat = TVideoFormat.PAL_FHA;
         }
 
         #endregion // properties
@@ -123,8 +124,8 @@ namespace TAS.Server
         private MediaConversion _audioChannelMappingConversion;
         public MediaConversion AudioChannelMappingConversion { get { return _audioChannelMappingConversion; } set { SetField(ref _audioChannelMappingConversion, value, "AudioChannelMappingConversion"); } }
 
-        private decimal _audioVolume;
-        public decimal AudioVolume
+        private double _audioVolume;
+        public double AudioVolume
         {
             get { return _audioVolume; }
             set { SetField(ref _audioVolume, value, "AudioVolume");}
@@ -133,6 +134,8 @@ namespace TAS.Server
         private MediaConversion _sourceFieldOrderEnforceConversion;
         public MediaConversion SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { SetField(ref _sourceFieldOrderEnforceConversion, value, "SourceFieldOrderEnforceConversion"); } }
 
+        private TVideoFormat _outputFormat;
+        public TVideoFormat OutputFormat { get { return _outputFormat; } set { SetField(ref _outputFormat, value, "OutputFormat"); } }
         
         private bool RunProcess(string parameters)
         {
@@ -273,8 +276,13 @@ namespace TAS.Server
                         ep.AppendFormat(" -map_channel 0.{0}.{1}", stream.Index, i);
             }
             _addConversion(AudioChannelMappingConversion, ep, vf, af);
-            if (AudioVolume != decimal.Zero)
+            if (AudioVolume == 0)
                 _addConversion(new MediaConversionAudioVolume(AudioVolume), ep, vf, af);
+            _addConversion(SourceFieldOrderEnforceConversion, ep, vf, af);
+            VideoFormatDescription outputFormatDescription = VideoFormatDescription.Descriptions[OutputFormat];
+            VideoFormatDescription inputFormatDescription = VideoFormatDescription.Descriptions[inputMedia.VideoFormat];
+            if (outputFormatDescription.ImageSize != inputFormatDescription.ImageSize)
+                vf.Add(string.Format("scale={0}:{1}", outputFormatDescription.ImageSize.Width, outputFormatDescription.ImageSize.Height));
             if (vf.Any())
                 ep.AppendFormat(" -filter:v \"{0}\"", string.Join(", ", vf));
             if (af.Any())

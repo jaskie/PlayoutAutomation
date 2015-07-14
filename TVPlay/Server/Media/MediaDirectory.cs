@@ -200,7 +200,7 @@ namespace TAS.Server
                 {
                     _files.Lock.ExitReadLock();
                 }
-                if ((media.MediaStatus == TMediaStatus.Available || media.MediaStatus == TMediaStatus.ValidationError)
+                if ((media.MediaStatus == TMediaStatus.Available || media.MediaStatus == TMediaStatus.ValidationError || media.MediaStatus == TMediaStatus.Copying)
                     && (isLastWithTheName)
                     && media.FileExists())
                 {

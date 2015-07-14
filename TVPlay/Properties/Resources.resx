@@ -466,4 +466,10 @@ Really delete?</value>
   <data name="_query_DeleteSelected" xml:space="preserve">
     <value>Delete selected items ({0})?</value>
   </data>
+  <data name="TFieldOrder_AutoDetect" xml:space="preserve">
+    <value>Detect automatically</value>
+  </data>
+  <data name="TFieldOrder_Progressive" xml:space="preserve">
+    <value>Progressive scan</value>
+  </data>
 </root>

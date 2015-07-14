@@ -258,7 +258,7 @@ namespace TAS.Server
                 ArchiveMedia destMedia;
                 destMedia = ArchiveDirectory.GetArchiveMedia(media);
                 if (!destMedia.FileExists())
-                    FileManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = destMedia }, toTop);
+                    FileManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = destMedia, OutputFormat = Engine.VideoFormat }, toTop);
             }
         }
 
@@ -270,7 +270,7 @@ namespace TAS.Server
             if (sourceMedia == null || !(sourceMedia is IngestMedia))
                 return;
             if (!media.FileExists() && sourceMedia.FileExists())
-                FileManager.Queue(new ConvertOperation { SourceMedia = sourceMedia, DestMedia = media }, toTop);
+                FileManager.Queue(new ConvertOperation { SourceMedia = sourceMedia, DestMedia = media, OutputFormat = Engine.VideoFormat }, toTop);
         }
 
         public void IngestMediaToArchive(IEnumerable<IngestMedia> mediaList, bool ToTop = false)
@@ -317,7 +317,7 @@ namespace TAS.Server
             if (ArchiveDirectory == null)
                 return;
             if (media is ServerMedia)
-                ArchiveDirectory.ArchiveSave(media, deleteAfter);
+                ArchiveDirectory.ArchiveSave(media, Engine.VideoFormat, deleteAfter);
             if (media is IngestMedia)
                 IngestMediaToArchive((IngestMedia)media, false);
             if (media is ArchiveMedia)

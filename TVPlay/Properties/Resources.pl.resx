@@ -466,4 +466,10 @@ Naprawdę usunąć?</value>
   <data name="_query_DeleteSelected" xml:space="preserve">
     <value>Usunąć wybrane elementy ({0})?</value>
   </data>
+  <data name="TFieldOrder_AutoDetect" xml:space="preserve">
+    <value>Wykryj automatycznie</value>
+  </data>
+  <data name="TFieldOrder_Progressive" xml:space="preserve">
+    <value>Progresywny</value>
+  </data>
 </root>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 
@@ -8,7 +9,7 @@ namespace TAS.Common
     public class VideoFormatDescription
     {
         public readonly TVideoFormat Format;
-        public readonly RationalNumber ImageSize;
+        public readonly Size ImageSize;
         public readonly RationalNumber FrameRate;
         public readonly bool Interlaced;
         public readonly RationalNumber SAR;
@@ -20,162 +21,172 @@ namespace TAS.Common
             {
                 case TVideoFormat.PAL_FHA:
                     Interlaced = true;
-                    ImageSize = new RationalNumber(720, 576);
+                    ImageSize = new Size(720, 576);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(64, 45);
                     break;
                 case TVideoFormat.PAL:
                     Interlaced = true;
-                    ImageSize = new RationalNumber(720, 576);
+                    ImageSize = new Size(720, 576);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(16, 15);
                     break;
                 case TVideoFormat.PAL_FHA_P:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(720, 576);
+                    ImageSize = new Size(720, 576);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(64, 45);
                     break;
                 case TVideoFormat.PAL_P:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(720, 576);
+                    ImageSize = new Size(720, 576);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(16, 15);
                     break;
                 case TVideoFormat.NTSC_FHA:
                     Interlaced = true;
-                    ImageSize = new RationalNumber(640, 486);
+                    ImageSize = new Size(640, 486);
                     FrameRate = new RationalNumber(30, 1);
                     SAR = new RationalNumber(40, 33);
                     break;
                 case TVideoFormat.NTSC:
                     Interlaced = true;
-                    ImageSize = new RationalNumber(640, 486);
+                    ImageSize = new Size(640, 486);
                     FrameRate = new RationalNumber(30, 1);
                     SAR = new RationalNumber(10, 11);
                     break;
                 case TVideoFormat.HD1080i5000:
                     Interlaced = true;
-                    ImageSize = new RationalNumber(1920, 1080);
+                    ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD1080i5994:
                     Interlaced = true;
-                    ImageSize = new RationalNumber(1920, 1080);
+                    ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(2997, 100);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD1080i6000:
                     Interlaced = true;
-                    ImageSize = new RationalNumber(1920, 1080);
+                    ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(30, 1);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD1080p2398:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(1920, 1080);
+                    ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(2398, 100);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD1080p2400:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(1920, 1080);
+                    ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(24, 1);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD1080p2500:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(1920, 1080);
+                    ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD1080p2997:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(1920, 1080);
+                    ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(2997, 100);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD1080p3000:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(1920, 1080);
+                    ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(30, 1);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD1080p5000:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(1920, 1080);
+                    ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(50, 1);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD1080p5994:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(1920, 1080);
+                    ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(5994, 100);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD1080p6000:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(1920, 1080);
+                    ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(60, 1);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD2160p2398:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(3840, 2160);
+                    ImageSize = new Size(3840, 2160);
                     FrameRate = new RationalNumber(2398, 100);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD2160p2400:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(3840, 2160);
+                    ImageSize = new Size(3840, 2160);
                     FrameRate = new RationalNumber(24, 1);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD2160p2500:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(3840, 2160);
+                    ImageSize = new Size(3840, 2160);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD2160p2997:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(3840, 2160);
+                    ImageSize = new Size(3840, 2160);
                     FrameRate = new RationalNumber(2997, 100);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD2160p3000:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(3840, 2160);
+                    ImageSize = new Size(3840, 2160);
                     FrameRate = new RationalNumber(30, 1);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD720p2500:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(1440, 720);
+                    ImageSize = new Size(1440, 720);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD720p5000:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(1440, 720);
+                    ImageSize = new Size(1440, 720);
                     FrameRate = new RationalNumber(50, 1);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD720p5994:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(1440, 720);
+                    ImageSize = new Size(1440, 720);
                     FrameRate = new RationalNumber(5994, 100);
                     SAR = new RationalNumber(1, 1);
                     break;
                 case TVideoFormat.HD720p6000:
                     Interlaced = false;
-                    ImageSize = new RationalNumber(1440, 720);
+                    ImageSize = new Size(1440, 720);
                     FrameRate = new RationalNumber(60, 1);
                     SAR = new RationalNumber(1, 1);
                     break;
             }
         }
+
+        private VideoFormatDescription(Size imageSize, RationalNumber frameRate, RationalNumber sar, bool interlaced)
+        {
+            Format = TVideoFormat.Other;
+            Interlaced = interlaced;
+            ImageSize = imageSize;
+            FrameRate = frameRate;
+            SAR = sar;
+        }
+
 
         public static Dictionary<TVideoFormat, VideoFormatDescription> Descriptions = new Dictionary<TVideoFormat, VideoFormatDescription>()
         {
@@ -208,13 +219,13 @@ namespace TAS.Common
             {TVideoFormat.Other, new VideoFormatDescription(TVideoFormat.Other)},
         };
         
-        public static VideoFormatDescription Match(RationalNumber imageSize, RationalNumber frameRate, RationalNumber sar, bool interlaced)
+        public static VideoFormatDescription Match(Size imageSize, RationalNumber frameRate, RationalNumber sar, bool interlaced)
         {
             var result = Descriptions.Values.FirstOrDefault((v) => v.ImageSize.Equals(imageSize) 
                                                                 && (v.FrameRate.Equals(frameRate) || frameRate.Equals(RationalNumber.Zero))
                                                                 && (v.SAR.Equals(sar) || sar.Equals(RationalNumber.Zero))
                                                                 && v.Interlaced == interlaced);
-            return result == null ? Descriptions[TVideoFormat.Other] : result;
+            return result != null ? result : new VideoFormatDescription(imageSize, frameRate, sar, interlaced);
         }
 
 

@@ -299,6 +299,7 @@ namespace TAS.Server
             set { if (GPI != null && _gPIEnabled) GPI.Parental = value; }
         }
 
+        [XmlIgnore]
         public bool GPIIsMaster
         {
             get { return GPI != null && GPI.IsMaster; }

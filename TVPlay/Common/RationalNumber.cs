@@ -35,7 +35,7 @@ namespace TAS.Common
                 return true;
             if (r.IsInvalid && IsInvalid)
                 return true;
-            return _den == r._den && _num == r._num;
+            return _num * r._den == _den * r._num;
         }
 
         public override bool Equals(object o)

@@ -176,6 +176,9 @@ namespace TAS.Client.ViewModels
                         ingestList.Add(new ConvertOperation() {
                             SourceMedia = sourceMedia,
                             DestMedia = destMedia,
+                            OutputFormat = _mediaManager.Engine.VideoFormat,
+                            AudioVolume = (sourceMedia.Directory is IngestDirectory)? ((IngestDirectory)sourceMedia.Directory).AudioVolume : 0,
+                            SourceFieldOrderEnforceConversion = (sourceMedia.Directory is IngestDirectory) ? SourceFieldOrderEnforceConversions.All().FirstOrDefault( c => (TFieldOrder)c.OutputFormat == ((IngestDirectory)sourceMedia.Directory).SourceFieldOrder) : null,
                         });
                     }
                 }

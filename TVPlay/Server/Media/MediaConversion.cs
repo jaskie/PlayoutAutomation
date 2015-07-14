@@ -67,21 +67,21 @@ namespace TAS.Server
 
     public class MediaConversionAudioVolume : MediaConversion
     {
-        public MediaConversionAudioVolume(decimal value)
+        public MediaConversionAudioVolume(double value)
         {
             AudioVolume = value;
         }
-        public decimal AudioVolume {get; set;}
+        public double AudioVolume {get; set;}
         protected override string getFFMpegAudioFilter()
         {
-            if (AudioVolume == decimal.Zero)
+            if (AudioVolume == 0)
                 return null;
             else
                 return string.Format(System.Globalization.CultureInfo.InvariantCulture, "volume={0:F3}dB", AudioVolume);
         }
         protected override string getDescription()
         {
-            if (AudioVolume == decimal.Zero)
+            if (AudioVolume == 0)
                 return "Brak korekcji";
             else
                 return string.Format("Korekcja o {0:F3} dB", AudioVolume);
@@ -90,9 +90,8 @@ namespace TAS.Server
 
     public sealed class AspectConversions
     {
-        public static List<MediaConversion> All()
-        {
-            return new List<MediaConversion>()
+
+        static List<MediaConversion> _all = new List<MediaConversion>()
             {
                 NoConversion,
                 PillarBox,
@@ -100,6 +99,10 @@ namespace TAS.Server
                 Letterbox, 
                 PanScan
             };
+
+        public static List<MediaConversion> All()
+        {
+            return _all;
         }
         public static MediaConversion NoConversion { get { return new MediaConversion() { Description = "Bez konwersji",         OutputFormat = TVideoFormat.PAL_FHA }; } }
         public static MediaConversion PillarBox { get { return new MediaConversion() { Description = "PillarBox (4:3->16:9)", OutputFormat = TVideoFormat.PAL_FHA, FFMpegVideoFilter = "scale=iw*3/4:ih:-1, pad=iw*4/3:0:(ow-iw)/2:0:black, setdar=dar=16/9" }; } }
@@ -110,9 +113,7 @@ namespace TAS.Server
 
     public sealed class AudioChannelMappingConversions
     {
-        public static List<MediaConversion> All()
-        {
-            return new List<MediaConversion>()
+        static List<MediaConversion> _all = new List<MediaConversion>()
             {
                 Default,
                 FirstTwoChannels,
@@ -122,6 +123,9 @@ namespace TAS.Server
                 Combine1plus2,
                 Combine3plus4
             };
+        public static List<MediaConversion> All()
+        {
+            return _all;
         }
         public static MediaConversion Default           { get { return new MediaConversion() { Description = "Domyślnie",               OutputFormat = TAudioChannelMapping.Unknown }; } }
         public static MediaConversion FirstTwoChannels  { get { return new MediaConversion() { Description = "Ścieżki 1 i 2 -> Stereo", OutputFormat = TAudioChannelMapping.Stereo, FFMpegParameter = "ac 2", FFMpegAudioFilter = "pan=stereo|c0=c0|c1=c1" }; } }
@@ -132,20 +136,22 @@ namespace TAS.Server
         public static MediaConversion Combine3plus4     { get { return new MediaConversion() { Description = "Ścieżki 3 i 4 -> Mono",   OutputFormat = TAudioChannelMapping.Mono, FFMpegParameter = "ac 1", FFMpegAudioFilter = "pan=mono|c0=0.5*c2+0.5*c3" }; } }
     }
 
+    
     public sealed class SourceFieldOrderEnforceConversions
     {
-        public static List<MediaConversion> All()
-        {
-            return new List<MediaConversion>()
+        static List<MediaConversion> _all = new List<MediaConversion>()
             {
                 Detect,
                 ForceTopFieldFirst,
                 ForceBottomFieldFirst,
             };
+        public static List<MediaConversion> All()
+        {
+            return _all;
         }
-        public static MediaConversion Detect                { get { return new MediaConversion() { Description = "Wykryj automatycznie",        OutputFormat = TFieldOrder.TFF }; } }
-        public static MediaConversion ForceTopFieldFirst    { get { return new MediaConversion() { Description = "Wymuś górne pole pierwsze",   OutputFormat = TFieldOrder.TFF, FFMpegParameter = "top 1" }; } }
-        public static MediaConversion ForceBottomFieldFirst { get { return new MediaConversion() { Description = "Wymuś dolne pole pierwsze",   OutputFormat = TFieldOrder.TFF, FFMpegParameter = "top 0" }; } }
+        public static MediaConversion Detect                { get { return new MediaConversion() { Description = "Wykryj automatycznie",        OutputFormat = TFieldOrder.AutoDetect, }; } }
+        public static MediaConversion ForceTopFieldFirst    { get { return new MediaConversion() { Description = "Wymuś górne pole pierwsze",   OutputFormat = TFieldOrder.TFF, FFMpegVideoFilter="setfield=tff" }; } }
+        public static MediaConversion ForceBottomFieldFirst { get { return new MediaConversion() { Description = "Wymuś dolne pole pierwsze", OutputFormat = TFieldOrder.BFF, FFMpegParameter = "setfield=bff" }; } }
     }
 
 }

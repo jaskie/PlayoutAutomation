@@ -395,6 +395,7 @@ namespace TAS.Server
             }
         }
 
+        [XmlIgnore]
         public bool AspectNarrow
         {
             get { return CrawlState.AspectNarrow; }
@@ -413,6 +414,7 @@ namespace TAS.Server
             }
         }
 
+        [XmlIgnore]
         public bool CrawlVisible
         {
             get { return CrawlState.CrawlVisible; }
@@ -426,6 +428,7 @@ namespace TAS.Server
             }
         }
 
+        [XmlIgnore]
         public TCrawl Crawl
         {
             get { return CrawlState.CrawlVisible ? (TCrawl)(CrawlState.ConfigNr) : TCrawl.NoCrawl; }
@@ -442,6 +445,7 @@ namespace TAS.Server
             }
         }
 
+        [XmlIgnore]
         public TLogo Logo
         {
             get
@@ -466,6 +470,7 @@ namespace TAS.Server
             }
         }
 
+        [XmlIgnore]
         public TParental Parental
         {
             get

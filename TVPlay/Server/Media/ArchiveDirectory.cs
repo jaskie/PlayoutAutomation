@@ -152,7 +152,7 @@ namespace TAS.Server
             return result;
         }
 
-        public void ArchiveSave(Media media, bool deleteAfterSuccess)
+        public void ArchiveSave(Media media, TVideoFormat outputFormat, bool deleteAfterSuccess)
         {
             ArchiveMedia toMedia = GetArchiveMedia(media);
             if (media is ServerMedia)
@@ -161,7 +161,7 @@ namespace TAS.Server
             }
             if (media is IngestMedia)
             {
-                FileManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = toMedia, SuccessCallback = _getVolumeInfo});
+                FileManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = toMedia, SuccessCallback = _getVolumeInfo, OutputFormat = outputFormat});
             }
         }
 
