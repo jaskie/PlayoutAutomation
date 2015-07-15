@@ -20,7 +20,6 @@ namespace TAS.Common
     }
     public enum TEngineOperation { Start, Play, Pause, Stop, Clear, Load, Schedule }
     public enum TEngineState { NotInitialized, Idle, Running, Hold }
-
     public enum GPIType { Advantech, Remote };
 
     [Flags]
@@ -36,6 +35,40 @@ namespace TAS.Common
     {
         public TAspectRatioControlEnumConverter()
             : base(typeof(TAspectRatioControl), TAS.Client.Properties.Resources.ResourceManager)
+        { }
+    }
+
+    [TypeConverter(typeof(TAspectConversionEnumConverter))]
+    public enum TAspectConversion : byte
+    {
+        NoConversion,
+        PillarBox,
+        TiltScan,
+        Letterbox,
+        PanScan
+    }
+    class TAspectConversionEnumConverter : ResourceEnumConverter
+    {
+        public TAspectConversionEnumConverter()
+            : base(typeof(TAspectConversion), TAS.Client.Properties.Resources.ResourceManager)
+        { }
+    }
+
+    [TypeConverter(typeof(TAudioChannelMappingConversionEnumConverter))]
+    public enum TAudioChannelMappingConversion : byte
+    {
+        Default,
+        FirstTwoChannels,
+        SecondTwoChannels,
+        FirstChannelOnly, 
+        SecondChannelOnly,
+        Combine1plus2,
+        Combine3plus4
+    }
+    class TAudioChannelMappingConversionEnumConverter : ResourceEnumConverter
+    {
+        public TAudioChannelMappingConversionEnumConverter()
+            : base(typeof(TAudioChannelMappingConversion), TAS.Client.Properties.Resources.ResourceManager)
         { }
     }
 
@@ -183,7 +216,7 @@ namespace TAS.Common
     [TypeConverter(typeof(TFieldOrderEnumConverter))]
     public enum TFieldOrder
     {
-        AutoDetect,
+        Unknown,
         TFF,
         BFF,
         Progressive

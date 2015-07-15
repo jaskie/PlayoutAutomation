@@ -231,7 +231,7 @@
     <Compile Include="Server\Media\AnimationDirectory.cs" />
     <Compile Include="Server\CasparServerChannel.cs" />
     <Compile Include="Server\GPINotifier.cs" />
-    <Compile Include="Server\Media\MediaConversion.cs" />
+    <Compile Include="Common\MediaConversion.cs" />
     <Compile Include="Server\Media\MediaSegment.cs" />
     <Compile Include="Server\Media\FtpMediaStream.cs" />
     <Compile Include="Server\Media\PInvokeWindowsNetworking.cs" />
@@ -628,6 +628,7 @@
   <ItemGroup>
     <None Include="IngestFolders.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
     <Resource Include="film.ico" />
     <Resource Include="Glyphs\OnAir.png" />

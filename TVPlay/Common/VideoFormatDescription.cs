@@ -6,14 +6,13 @@ using System.Text;
 
 namespace TAS.Common
 {
-    public class VideoFormatDescription
+    public sealed class VideoFormatDescription
     {
         public readonly TVideoFormat Format;
         public readonly Size ImageSize;
         public readonly RationalNumber FrameRate;
         public readonly bool Interlaced;
         public readonly RationalNumber SAR;
-
         private VideoFormatDescription(TVideoFormat format)
         {
             this.Format = format;

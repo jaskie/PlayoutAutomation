@@ -27,30 +27,32 @@ namespace TAS.Client.ViewModels
             _convertOperation.DestMedia.PropertyChanged -= OnDestMediaPropertyChanged;
         }
 
-        readonly Array _categories = Enum.GetValues(typeof(TMediaCategory)); 
+        static readonly Array _categories = Enum.GetValues(typeof(TMediaCategory)); 
         public Array Categories { get { return _categories; } }
         public TMediaCategory DestCategory { get { return _convertOperation.DestMedia.MediaCategory; } set { _convertOperation.DestMedia.MediaCategory = value; } }
 
-        readonly Array _parentals = Enum.GetValues(typeof(TParental));
+        static readonly Array _parentals = Enum.GetValues(typeof(TParental));
         public Array Parentals{ get { return _parentals; } }
         public TParental DestParental { get { return _convertOperation.DestMedia.Parental; } set { _convertOperation.DestMedia.Parental = value; } }
 
-        readonly Array _mediaEmphasises = Enum.GetValues(typeof(TMediaEmphasis));
+        static readonly Array _mediaEmphasises = Enum.GetValues(typeof(TMediaEmphasis));
         public Array MediaEmphasises { get { return _mediaEmphasises; } }
         public TMediaEmphasis DestMediaEmphasis { 
             get { return _convertOperation.DestMedia is PersistentMedia ? ((PersistentMedia)_convertOperation.DestMedia).MediaEmphasis : TMediaEmphasis.None; }
             set { if (_convertOperation.DestMedia is PersistentMedia) ((PersistentMedia)_convertOperation.DestMedia).MediaEmphasis = value; }
         }
-        
-        public IEnumerable<MediaConversion> AspectConversions { get { return Server.AspectConversions.All(); } }
-        public MediaConversion AspectConversion
+
+        static readonly Array _aspectConversions = Enum.GetValues(typeof(TAspectConversion));
+        public Array AspectConversions { get { return _aspectConversions; } }
+        public TAspectConversion AspectConversion
         {
             get { return _convertOperation.AspectConversion; }
             set { _convertOperation.AspectConversion = value; }
         }
 
-        public IEnumerable<MediaConversion> AudioChannelMappingConversions { get { return Server.AudioChannelMappingConversions.All(); } }
-        public MediaConversion AudioChannelMappingConversion
+        static readonly Array _audioChannelMappingConversions = Enum.GetValues(typeof(TAudioChannelMappingConversion));
+        public Array AudioChannelMappingConversions { get { return _audioChannelMappingConversions; } }
+        public TAudioChannelMappingConversion AudioChannelMappingConversion
         {
             get { return _convertOperation.AudioChannelMappingConversion; }
             set { _convertOperation.AudioChannelMappingConversion = value; }
@@ -61,8 +63,9 @@ namespace TAS.Client.ViewModels
             set { _convertOperation.AudioVolume = value; }
         }
 
-        public IEnumerable<MediaConversion> SourceFieldOrderEnforceConversions { get { return Server.SourceFieldOrderEnforceConversions.All(); } }
-        public MediaConversion SourceFieldOrderEnforceConversion
+        static readonly Array _sourceFieldOrderEnforceConversions = Enum.GetValues(typeof(TFieldOrder));
+        public Array SourceFieldOrderEnforceConversions { get { return _sourceFieldOrderEnforceConversions; } }
+        public TFieldOrder SourceFieldOrderEnforceConversion
         {
             get { return _convertOperation.SourceFieldOrderEnforceConversion; }
             set { _convertOperation.SourceFieldOrderEnforceConversion = value; }

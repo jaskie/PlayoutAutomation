@@ -35,9 +35,10 @@ namespace TAS.Server
         public ConvertOperation()
         {
             Kind = TFileOperationKind.Convert;
-            AspectConversion = AspectConversions.NoConversion;
-            SourceFieldOrderEnforceConversion = SourceFieldOrderEnforceConversions.Detect;
-            AudioChannelMappingConversion = AudioChannelMappingConversions.FirstTwoChannels;
+            AspectConversion = TAspectConversion.NoConversion;
+            SourceFieldOrderEnforceConversion = TFieldOrder.Unknown;
+            AudioChannelMappingConversion = TAudioChannelMappingConversion.FirstTwoChannels;
+            
             OutputFormat = TVideoFormat.PAL_FHA;
         }
 
@@ -118,11 +119,11 @@ namespace TAS.Server
 
         #endregion // Checkfile
 
-        private MediaConversion _aspectConversion;
-        public MediaConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value, "AspectConversion"); } }
+        private TAspectConversion _aspectConversion;
+        public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value, "AspectConversion"); } }
 
-        private MediaConversion _audioChannelMappingConversion;
-        public MediaConversion AudioChannelMappingConversion { get { return _audioChannelMappingConversion; } set { SetField(ref _audioChannelMappingConversion, value, "AudioChannelMappingConversion"); } }
+        private TAudioChannelMappingConversion _audioChannelMappingConversion;
+        public TAudioChannelMappingConversion AudioChannelMappingConversion { get { return _audioChannelMappingConversion; } set { SetField(ref _audioChannelMappingConversion, value, "AudioChannelMappingConversion"); } }
 
         private double _audioVolume;
         public double AudioVolume
@@ -131,8 +132,8 @@ namespace TAS.Server
             set { SetField(ref _audioVolume, value, "AudioVolume");}
         }
 
-        private MediaConversion _sourceFieldOrderEnforceConversion;
-        public MediaConversion SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { SetField(ref _sourceFieldOrderEnforceConversion, value, "SourceFieldOrderEnforceConversion"); } }
+        private TFieldOrder _sourceFieldOrderEnforceConversion;
+        public TFieldOrder SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { SetField(ref _sourceFieldOrderEnforceConversion, value, "SourceFieldOrderEnforceConversion"); } }
 
         private TVideoFormat _outputFormat;
         public TVideoFormat OutputFormat { get { return _outputFormat; } set { SetField(ref _outputFormat, value, "OutputFormat"); } }
@@ -267,18 +268,18 @@ namespace TAS.Server
             }
             if (inputFileStreams.Count(s => s.StreamType == StreamType.AUDIO) > 8)
                 af.Add("aformat=channel_layouts=0xFFFF");
-            _addConversion(AspectConversion, ep, vf, af);
-            _addConversion(SourceFieldOrderEnforceConversion, ep, vf, af);
-            if (inputFileStreams.Count(s => s.StreamType == StreamType.AUDIO) >= 2 && !AudioChannelMappingConversion.OutputFormat.Equals(TAudioChannelMapping.Unknown)) 
+            _addConversion(MediaConversion.AspectConversions[AspectConversion], ep, vf, af);
+            _addConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], ep, vf, af);
+            MediaConversion audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
+            if (inputFileStreams.Count(s => s.StreamType == StreamType.AUDIO) >= 2 && !audiChannelMappingConversion.OutputFormat.Equals(TAudioChannelMapping.Unknown)) 
             {
                 foreach (StreamInfo stream in inputFileStreams.Where(s => s.StreamType == StreamType.AUDIO))
                     for (int i = 0; i < stream.ChannelCount; i++)
                         ep.AppendFormat(" -map_channel 0.{0}.{1}", stream.Index, i);
             }
-            _addConversion(AudioChannelMappingConversion, ep, vf, af);
+            _addConversion(audiChannelMappingConversion, ep, vf, af);
             if (AudioVolume == 0)
-                _addConversion(new MediaConversionAudioVolume(AudioVolume), ep, vf, af);
-            _addConversion(SourceFieldOrderEnforceConversion, ep, vf, af);
+                _addConversion(new MediaConversion(AudioVolume), ep, vf, af);
             VideoFormatDescription outputFormatDescription = VideoFormatDescription.Descriptions[OutputFormat];
             VideoFormatDescription inputFormatDescription = VideoFormatDescription.Descriptions[inputMedia.VideoFormat];
             if (outputFormatDescription.ImageSize != inputFormatDescription.ImageSize)
@@ -305,10 +306,7 @@ namespace TAS.Server
 
             if (DestMedia is ArchiveMedia && !Directory.Exists(Path.GetDirectoryName(DestMedia.FullPath)))
                 Directory.CreateDirectory(Path.GetDirectoryName(DestMedia.FullPath));
-            if (AspectConversion != null)
-                DestMedia.VideoFormat = (TVideoFormat)AspectConversion.OutputFormat;
-            if (AudioChannelMappingConversion != null)
-                DestMedia.AudioChannelMapping = (TAudioChannelMapping)AudioChannelMappingConversion.OutputFormat;
+            DestMedia.AudioChannelMapping = (TAudioChannelMapping)MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion].OutputFormat;
             if (RunProcess(Params)  // FFmpeg 
                 && DestMedia.FileExists())
             {

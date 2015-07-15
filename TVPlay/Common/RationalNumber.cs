@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
 namespace TAS.Common
 {
+    [DebuggerDisplay("{Num}/{Den}")]
     public struct RationalNumber : IEquatable<RationalNumber>
     {
         private readonly long _num;

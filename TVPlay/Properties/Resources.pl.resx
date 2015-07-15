@@ -466,7 +466,7 @@ Naprawdę usunąć?</value>
   <data name="_query_DeleteSelected" xml:space="preserve">
     <value>Usunąć wybrane elementy ({0})?</value>
   </data>
-  <data name="TFieldOrder_AutoDetect" xml:space="preserve">
+  <data name="TFieldOrder_Unknown" xml:space="preserve">
     <value>Wykryj automatycznie</value>
   </data>
   <data name="TFieldOrder_Progressive" xml:space="preserve">
@@ -474,5 +474,41 @@ Naprawdę usunąć?</value>
   </data>
   <data name="_all_" xml:space="preserve">
     <value>Wszystkie</value>
+  </data>
+  <data name="TAspectConversion_Letterbox" xml:space="preserve">
+    <value>Letterbox (16:9-&gt;4:3)</value>
+  </data>
+  <data name="TAspectConversion_NoConversion" xml:space="preserve">
+    <value>Bez konwersji</value>
+  </data>
+  <data name="TAspectConversion_PanScan" xml:space="preserve">
+    <value>Pan&amp;Scan(16:9-&gt;4:3)</value>
+  </data>
+  <data name="TAspectConversion_PillarBox" xml:space="preserve">
+    <value>PillarBox (4:3-&gt;16:9)</value>
+  </data>
+  <data name="TAspectConversion_TiltScan" xml:space="preserve">
+    <value>Tilt&amp;Scan(4:3-&gt;16:9)</value>
+  </data>
+  <data name="TAudioChannelMappingConversion_Combine1plus2" xml:space="preserve">
+    <value>Ścieżki 1 i 2 -&gt; Mono</value>
+  </data>
+  <data name="TAudioChannelMappingConversion_Combine3plus4" xml:space="preserve">
+    <value>Ścieżki 3 i 4 -&gt; Mono</value>
+  </data>
+  <data name="TAudioChannelMappingConversion_Default" xml:space="preserve">
+    <value>Domyślnie</value>
+  </data>
+  <data name="TAudioChannelMappingConversion_FirstChannelOnly" xml:space="preserve">
+    <value>Ścieżka 1 -&gt; Mono</value>
+  </data>
+  <data name="TAudioChannelMappingConversion_FirstTwoChannels" xml:space="preserve">
+    <value>Ścieżki 1 i 2 -&gt; Stereo</value>
+  </data>
+  <data name="TAudioChannelMappingConversion_SecondChannelOnly" xml:space="preserve">
+    <value>Ścieżka 2 -&gt; Mono</value>
+  </data>
+  <data name="TAudioChannelMappingConversion_SecondTwoChannels" xml:space="preserve">
+    <value>Ścieżki 3 i 4 -&gt; Stereo</value>
   </data>
 </root>

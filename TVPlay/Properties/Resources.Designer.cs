@@ -413,6 +413,51 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Letterbox (16:9-&gt;4:3).
+        /// </summary>
+        internal static string TAspectConversion_Letterbox {
+            get {
+                return ResourceManager.GetString("TAspectConversion_Letterbox", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No conversion.
+        /// </summary>
+        internal static string TAspectConversion_NoConversion {
+            get {
+                return ResourceManager.GetString("TAspectConversion_NoConversion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pan&amp;Scan(16:9-&gt;4:3).
+        /// </summary>
+        internal static string TAspectConversion_PanScan {
+            get {
+                return ResourceManager.GetString("TAspectConversion_PanScan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to PillarBox (4:3-&gt;16:9).
+        /// </summary>
+        internal static string TAspectConversion_PillarBox {
+            get {
+                return ResourceManager.GetString("TAspectConversion_PillarBox", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tilt&amp;Scan(4:3-&gt;16:9).
+        /// </summary>
+        internal static string TAspectConversion_TiltScan {
+            get {
+                return ResourceManager.GetString("TAspectConversion_TiltScan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to GPI trigger.
         /// </summary>
         internal static string TAspectRatioControl_GPI {
@@ -512,6 +557,69 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tracks 1 i 2 -&gt; Mono.
+        /// </summary>
+        internal static string TAudioChannelMappingConversion_Combine1plus2 {
+            get {
+                return ResourceManager.GetString("TAudioChannelMappingConversion_Combine1plus2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tracks 3 i 4 -&gt; Mono.
+        /// </summary>
+        internal static string TAudioChannelMappingConversion_Combine3plus4 {
+            get {
+                return ResourceManager.GetString("TAudioChannelMappingConversion_Combine3plus4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Default.
+        /// </summary>
+        internal static string TAudioChannelMappingConversion_Default {
+            get {
+                return ResourceManager.GetString("TAudioChannelMappingConversion_Default", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Track 1 -&gt; Mono.
+        /// </summary>
+        internal static string TAudioChannelMappingConversion_FirstChannelOnly {
+            get {
+                return ResourceManager.GetString("TAudioChannelMappingConversion_FirstChannelOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tracks 1 i 2 -&gt; Stereo.
+        /// </summary>
+        internal static string TAudioChannelMappingConversion_FirstTwoChannels {
+            get {
+                return ResourceManager.GetString("TAudioChannelMappingConversion_FirstTwoChannels", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Track 2 -&gt; Mono.
+        /// </summary>
+        internal static string TAudioChannelMappingConversion_SecondChannelOnly {
+            get {
+                return ResourceManager.GetString("TAudioChannelMappingConversion_SecondChannelOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tracks 3 i 4 -&gt; Stereo.
+        /// </summary>
+        internal static string TAudioChannelMappingConversion_SecondTwoChannels {
+            get {
+                return ResourceManager.GetString("TAudioChannelMappingConversion_SecondTwoChannels", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No crawl.
         /// </summary>
         internal static string TCrawl_NoCrawl {
@@ -602,15 +710,6 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Detect automatically.
-        /// </summary>
-        internal static string TFieldOrder_AutoDetect {
-            get {
-                return ResourceManager.GetString("TFieldOrder_AutoDetect", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Bottom field first.
         /// </summary>
         internal static string TFieldOrder_BFF {
@@ -634,6 +733,15 @@ namespace TAS.Client.Properties {
         internal static string TFieldOrder_TFF {
             get {
                 return ResourceManager.GetString("TFieldOrder_TFF", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detect automatically.
+        /// </summary>
+        internal static string TFieldOrder_Unknown {
+            get {
+                return ResourceManager.GetString("TFieldOrder_Unknown", resourceCulture);
             }
         }
         
