@@ -448,9 +448,6 @@ Really start new one?</value>
 
 Really delete?</value>
   </data>
-  <data name="String" xml:space="preserve">
-    <value />
-  </data>
   <data name="_message_CopyFailed" xml:space="preserve">
     <value>Copy failed. Following error occurred:
 {0}</value>
@@ -471,5 +468,8 @@ Really delete?</value>
   </data>
   <data name="TFieldOrder_Progressive" xml:space="preserve">
     <value>Progressive scan</value>
+  </data>
+  <data name="_all_" xml:space="preserve">
+    <value>All</value>
   </data>
 </root>

@@ -472,4 +472,7 @@ Naprawdę usunąć?</value>
   <data name="TFieldOrder_Progressive" xml:space="preserve">
     <value>Progresywny</value>
   </data>
+  <data name="_all_" xml:space="preserve">
+    <value>Wszystkie</value>
+  </data>
 </root>

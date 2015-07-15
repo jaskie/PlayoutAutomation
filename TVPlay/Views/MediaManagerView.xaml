@@ -29,7 +29,7 @@
             <Setter Property="Margin" Value="10, 3" />
             <Setter Property="Width" Value="150" />
         </Style>
-        <ObjectDataProvider x:Key="VideoFormatEnum" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+        <!--<ObjectDataProvider x:Key="VideoFormatEnum" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="server:TVideoFormat"/>
             </ObjectDataProvider.MethodParameters>
@@ -38,7 +38,7 @@
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="server:TAudioChannelMapping"/>
             </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
+        </ObjectDataProvider>-->
         <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
         <ControlTemplate x:Key="toggleButtonTemplate" TargetType="ToggleButton">
             <Grid
@@ -88,7 +88,7 @@
             <Label Grid.Column="0" Content="{Resx _search}"  Margin="10, 0" VerticalAlignment="Center" />
             <TextBox Grid.Column="1" VerticalAlignment="Center" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
             <ComboBox Grid.Column="2" Margin="5, 3" ItemsSource="{Binding MediaDirectories}" SelectedValue="{Binding MediaDirectory}" />
-            <ComboBox Grid.Column="3" Margin="5, 3" ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" />
+            <ComboBox Grid.Column="3" Margin="5, 3" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" />
             <Button Grid.Column="4"  HorizontalAlignment="Left" ToolTip="{Resx _refresh}" Command="{Binding CommandRefresh}">
                 <client:AutoGreyableImage Source="../Glyphs/Refresh.png" />
             </Button>

@@ -39,6 +39,7 @@ namespace TAS.Client.ViewModels
             _mediaManager = MediaManager;
             _previewViewModel = PreviewVm;
             _createCommands();
+            _mediaCategory = _mediaCategories.FirstOrDefault();
             MediaDirectory = MediaManager.MediaDirectoryPGM;
             EditMedia = new MediaEditViewmodel(PreviewVm);
         }
@@ -227,7 +228,7 @@ namespace TAS.Client.ViewModels
         {
             if (_mediaDirectory is ArchiveDirectory)
             {
-                (_mediaDirectory as ArchiveDirectory).SearchMediaCategory = _mediaCategory;
+                (_mediaDirectory as ArchiveDirectory).SearchMediaCategory = _mediaCategory as TMediaCategory?;
                 (_mediaDirectory as ArchiveDirectory).SearchString = _searchText;
                 (_mediaDirectory as ArchiveDirectory).Search();
             }
@@ -282,14 +283,14 @@ namespace TAS.Client.ViewModels
             var m = item as MediaViewViewmodel;
             var searchText = SearchText;
             return ((string.IsNullOrEmpty(searchText) || m.MediaName.ToLower().Contains(searchText)) || m.FileName.ToLower().Contains(_searchText))
-               && (_mediaCategory == null || m.MediaCategory == _mediaCategory);
+               && (_mediaCategory as TMediaCategory? == null || m.MediaCategory == (TMediaCategory)_mediaCategory);
         }
 
-        readonly Array _mediaCategories = Enum.GetValues(typeof(TMediaCategory));
-        public Array MediaCategories { get { return _mediaCategories; } }
+        readonly IEnumerable<object> _mediaCategories = (new List<object>(){Properties.Resources._all_}).Concat(Enum.GetValues(typeof(TMediaCategory)).Cast<object>());
+        public IEnumerable<object> MediaCategories { get { return _mediaCategories; } }
 
-        private TMediaCategory? _mediaCategory = null;
-        public TMediaCategory? MediaCategory
+        private object _mediaCategory;
+        public object MediaCategory
         {
             get { return _mediaCategory; }
             set

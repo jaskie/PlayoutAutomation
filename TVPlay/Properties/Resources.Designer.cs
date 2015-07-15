@@ -61,6 +61,15 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to All.
+        /// </summary>
+        internal static string _all_ {
+            get {
+                return ResourceManager.GetString("_all_", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add.
         /// </summary>
         internal static string _button_Add {
@@ -400,15 +409,6 @@ namespace TAS.Client.Properties {
         internal static string _validateStartPlayMustBeInsideFile {
             get {
                 return ResourceManager.GetString("_validateStartPlayMustBeInsideFile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to .
-        /// </summary>
-        internal static string String {
-            get {
-                return ResourceManager.GetString("String", resourceCulture);
             }
         }
         

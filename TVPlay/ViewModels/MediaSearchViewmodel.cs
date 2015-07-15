@@ -41,6 +41,7 @@ namespace TAS.Client.ViewModels
 
             _videoFormat = videoFormat;
             _closeAfterAdd = closeAfterAdd;
+            _mediaCategory = MediaCategories.FirstOrDefault();
             NewEventStartType = TStartType.After;
             if (!closeAfterAdd)
                 OkButtonText = Properties.Resources._button_Add;
@@ -123,7 +124,7 @@ namespace TAS.Client.ViewModels
             if (mvm == null || mvm.Media == null)
                 return false;
             return mvm.MediaStatus == TMediaStatus.Available
-                && (MediaCategory == null || MediaCategory == mvm.MediaCategory)
+                && (!(MediaCategory is TMediaCategory) || (MediaCategory as TMediaCategory?) == mvm.MediaCategory)
                 && (string.IsNullOrWhiteSpace(SearchText) || mvm.MediaName.ToLower().Contains(SearchText.ToLower()));
         }
 
@@ -150,13 +151,13 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        readonly Array _mediaCategories = Enum.GetValues(typeof(TMediaCategory));
-        public Array MediaCategories { get { return _mediaCategories; } }
-
         public TMediaType MediaType { get { return _mediaType; } } 
-        
-        private TMediaCategory? _mediaCategory = null;
-        public TMediaCategory? MediaCategory
+
+        readonly IEnumerable<object> _mediaCategories = (new List<object>() { Properties.Resources._all_ }).Concat(Enum.GetValues(typeof(TMediaCategory)).Cast<object>());
+        public IEnumerable<object> MediaCategories { get { return _mediaCategories; } }
+
+        private object _mediaCategory = null;
+        public object MediaCategory
         {
             get { return _mediaCategory; }
             set {
