@@ -28,8 +28,8 @@ namespace TAS.Client
                 decimal.TryParse(ConfigurationManager.AppSettings[volumeReferenceLoudnessKey], out referenceLoudness);
             App.Current.Properties["VolumeReferenceLoudness"] = referenceLoudness;
             CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
+            //CultureManager.UICulture = new System.Globalization.CultureInfo("en");
             EngineController = new EngineController();
-        //CultureManager.UICulture = new System.Globalization.CultureInfo("en");
         }
         protected override void OnExit(ExitEventArgs e)
         {

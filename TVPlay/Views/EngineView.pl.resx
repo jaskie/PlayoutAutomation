@@ -186,8 +186,8 @@
   <data name="_statusbar.Gpi.Parental" xml:space="preserve">
     <value>Kategoria wiekowa:</value>
   </data>
-  <data name="_statusbar.Gpi.Selected" xml:space="preserve">
-    <value>Wybrane </value>
+  <data name="_statusbar.Selected" xml:space="preserve">
+    <value>Wybrane {0}, </value>
   </data>
   <data name="_toolbar.ClearAll" xml:space="preserve">
     <value>Stop wszystko (Shift+Pause/Break)</value>
@@ -208,7 +208,7 @@
     <value>Załaduj (F2)</value>
   </data>
   <data name="_toolbar.NextEvent.ToolTip" xml:space="preserve">
-    <value>Następny: </value>
+    <value>Następny: {0}</value>
   </data>
   <data name="_toolbar.NowPlaying" xml:space="preserve">
     <value>Teraz odtwarza</value>
@@ -231,10 +231,13 @@
   <data name="_toolbar.Track" xml:space="preserve">
     <value>Śledź</value>
   </data>
-  <data name="_statusbar.Gpi.Selected.Total" xml:space="preserve">
-    <value>, łącznie </value>
+  <data name="_statusbar.Total" xml:space="preserve">
+    <value>łącznie </value>
   </data>
   <data name="_menu.Tools" xml:space="preserve">
     <value>Narzędzia</value>
+  </data>
+  <data name="_toolbar.clockWidth" xml:space="preserve">
+    <value>120</value>
   </data>
 </root>

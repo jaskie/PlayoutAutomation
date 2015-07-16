@@ -186,8 +186,8 @@
   <data name="_statusbar.Gpi.Parental" xml:space="preserve">
     <value>Parental:</value>
   </data>
-  <data name="_statusbar.Gpi.Selected" xml:space="preserve">
-    <value>Selected </value>
+  <data name="_statusbar.Selected" xml:space="preserve">
+    <value>Selected {0}, </value>
   </data>
   <data name="_toolbar.ClearAll" xml:space="preserve">
     <value>Clear all (Shift+Pause/Break)</value>
@@ -208,7 +208,7 @@
     <value>Load (F2)</value>
   </data>
   <data name="_toolbar.NextEvent.ToolTip" xml:space="preserve">
-    <value>Next: </value>
+    <value>Next: {0}</value>
   </data>
   <data name="_toolbar.NowPlaying" xml:space="preserve">
     <value>Now playing</value>
@@ -231,10 +231,13 @@
   <data name="_toolbar.Track" xml:space="preserve">
     <value>Track</value>
   </data>
-  <data name="_statusbar.Gpi.Selected.Total" xml:space="preserve">
-    <value>, total </value>
+  <data name="_statusbar.Total" xml:space="preserve">
+    <value>total </value>
   </data>
   <data name="_menu.Tools" xml:space="preserve">
     <value>Tools</value>
+  </data>
+  <data name="_toolbar.clockWidth" xml:space="preserve">
+    <value>160</value>
   </data>
 </root>

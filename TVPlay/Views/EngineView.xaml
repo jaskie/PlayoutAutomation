@@ -189,12 +189,28 @@
             </MenuItem>
         </Menu>
         <Grid Name="gToolbox" Grid.Column="2" Grid.Row="1">
+            <Grid.Resources>
+                <Style TargetType="Label">
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Margin" Value="5, 0"/>
+                </Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Margin" Value="5, 0"/>
+                    <Setter Property="FontSize" Value="28" />
+                    <Setter Property="HorizontalAlignment" Value="Left"/>
+                </Style>
+                <Style TargetType="Button">
+                    <Setter Property="Width" Value="40"/>
+                    <Setter Property="Margin" Value="8"/>
+                </Style>
+            </Grid.Resources>
             <Grid.RowDefinitions>
                 <RowDefinition Height="19"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="125"/>
+                <ColumnDefinition Width="{Resx Key=_toolbar.clockWidth, DefaultValue='160'}"/>
                 <ColumnDefinition Width="230"/>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="170"/>
@@ -203,19 +219,19 @@
                 <ColumnDefinition Width="40"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal" FocusManager.IsFocusScope="True">
-                <Button Command="{Binding CommandStartSelected}" Width="40" Margin="8" ToolTip="{Resx _toolbar.StartSelected}">
+                <Button Command="{Binding CommandStartSelected}" ToolTip="{Resx _toolbar.StartSelected}">
                     <c:AutoGreyableImage Source="../Glyphs/play.png" Stretch="None" />
                 </Button>
-                <Button Command="{Binding CommandLoadSelected}" Width="40" Margin="8" ToolTip="{Resx _toolbar.Load}">
+                <Button Command="{Binding CommandLoadSelected}" ToolTip="{Resx _toolbar.Load}">
                     <c:AutoGreyableImage Source="../Glyphs/pause.png" Stretch="None" />
                 </Button>
-                <Button Command="{Binding CommandStartLoaded}" Width="40" Margin="8" ToolTip="{Resx _toolbar.StartLoaded}">
+                <Button Command="{Binding CommandStartLoaded}" ToolTip="{Resx _toolbar.StartLoaded}">
                     <c:AutoGreyableImage Source="../Glyphs/playpause.png" Stretch="None" />
                 </Button>
-                <Button Command="{Binding CommandRescheduleSelected}" Width="40" Margin="8" ToolTip="{Resx _toolbar.Reschedule}">
+                <Button Command="{Binding CommandRescheduleSelected}" ToolTip="{Resx _toolbar.Reschedule}">
                     <c:AutoGreyableImage Source="../Glyphs/undo.png" Stretch="None" />
                 </Button>
-                <!--<Button Command="{Binding CommandScheduleSelected}" Width="40" Margin="8" ToolTip="Uruchom start o zadanym czasie">
+                <!--<Button Command="{Binding CommandScheduleSelected}" ToolTip="Uruchom start o zadanym czasie">
                     <c:AutoGreyableImage Source="../Glyphs/timer24_h.png" Stretch="None" />
                 </Button>-->
             </StackPanel>
@@ -251,32 +267,29 @@
                     <ToggleButton Margin="2" Height="22" IsChecked="{Binding TrackPlayingEvent}" Background="{Binding TrackPlayingEvent, Converter={StaticResource BoolToBrush}, ConverterParameter=LightCoral}" HorizontalContentAlignment="Left" >
                         <StackPanel Orientation="Horizontal">
                             <Image Source="../Glyphs/go-bottom.png" />
-                            <Label Content="{Resx _toolbar.Track}" Padding="10, 0"/>
+                            <Label Content="{Resx _toolbar.Track}" />
                         </StackPanel>
                     </ToggleButton> 
                 </StackPanel>
             </Grid>
-            <Label Content="{Resx _toolbar.EngineTime}" Grid.Row="0" Grid.Column="0" Padding="0" Margin="10, 0" />
-            <Label Content="{Resx _toolbar.TimeToPause}" Grid.Row="0" Grid.Column="3" Padding="10, 0" />
-            <Label Content="{Resx _toolbar.NowPlaying}" Grid.Column="4" Padding="0"/>
-            <Label Grid.Column="0" Grid.Row="1" Content="{Binding CurrentTime, Converter={StaticResource DateTimeFormat}, ConverterParameter=T}"  Padding="5, 0" FontSize="28" VerticalAlignment="Center" HorizontalAlignment="Center" />
-            <TextBlock Text="{Binding TimeToPause, Converter={StaticResource TimeSpanToSMPTE}, ConverterParameter=HIDE_ZERO_VALUE}" Background="{Binding EngineState, Converter={StaticResource EngineStateToBrush}}" Grid.Row="1" Grid.Column="3" Padding="0" FontSize="28" Margin="5,0"  HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <TextBlock Text="{Binding PlayingEvent.EventName}" Grid.Row="1" Grid.Column="4" Padding="0" FontSize="28" VerticalAlignment="Center">
+            <Label Content="{Resx _toolbar.EngineTime}" />
+            <TextBlock Grid.Row="1" Text="{Binding CurrentTime, Converter={StaticResource DateTimeFormat}, ConverterParameter=T}" />
+            <Label Content="{Resx _toolbar.TimeToPause}" Grid.Column="3" />
+            <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding TimeToPause, Converter={StaticResource TimeSpanToSMPTE}, ConverterParameter=HIDE_ZERO_VALUE}" Background="{Binding EngineState, Converter={StaticResource EngineStateToBrush}}"/>
+            <Label Content="{Resx _toolbar.NowPlaying}" Grid.Column="4" />
+            <TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding PlayingEvent.EventName}">
                 <TextBlock.ToolTip>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Resx _toolbar.NextEvent.ToolTip}" />
-                        <TextBlock Text="{Binding PlayingEvent.NextEventName}" />
-                    </StackPanel>
+                    <TextBlock FontSize="12" Text="{Binding PlayingEvent.NextEventName, StringFormat={Resx _toolbar.NextEvent.ToolTip, ResxName=TAS.Client.Views.EngineView}}" />
                 </TextBlock.ToolTip>
                 <TextBlock.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="{Resx _toolbar.playingEventName.Menu.Restart}" Command="{Binding CommandRestartLayer}" CommandParameter="0"/>
+                        <MenuItem Header="{Resx _toolbar.playingEventName.Menu.Restart, ResxName=TAS.Client.Views.EngineView}" Command="{Binding CommandRestartLayer}" CommandParameter="0"/>
                     </ContextMenu>
                 </TextBlock.ContextMenu>
             </TextBlock>
             <!--<c:PlayingEventUC Grid.Column="4" Grid.RowSpan="2" DataContext="{Binding PlayingEvent}"/>-->
             <Slider Grid.Column="5" Grid.RowSpan="2" Orientation="Vertical" Value="{Binding AudioVolume}" Minimum="-15" Maximum="15"/>
-            <Label Grid.Column="6" Content="dB" Padding="0" HorizontalAlignment="Center"/>
+            <Label Grid.Column="6" Content="dB" HorizontalAlignment="Center"/>
             <TextBox Grid.Column="6" Grid.Row="1" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" Margin="4, 8"/>
         </Grid>
         <StatusBar Name="sbChannelStatus" VerticalAlignment="Bottom" Grid.Row="3" >
@@ -348,9 +361,8 @@
             </StatusBarItem>
             <StatusBarItem HorizontalAlignment="Right" Panel.ZIndex="1" Background="{Binding Path=Background, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StatusBar}}}">
                 <StackPanel Orientation="Horizontal" >
-                    <TextBlock Text="{Resx _statusbar.Gpi.Selected}"/>
-                    <TextBlock Text="{Binding Path=SelectedCount, StringFormat='\{0:D\}'}" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Resx _statusbar.Gpi.Selected.Total}"/>
+                    <TextBlock Text="{Binding Path=SelectedCount, StringFormat={Resx _statusbar.Selected, ResxName=TAS.Client.Views.EngineView}}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Resx _statusbar.Total}"/>
                     <TextBlock Text="{Binding SelectedTime, Converter={StaticResource TimeSpanToSMPTE}}" VerticalAlignment="Center" />
                 </StackPanel>
             </StatusBarItem>
