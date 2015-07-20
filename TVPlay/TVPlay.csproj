@@ -227,6 +227,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="Server\LocalSettings.cs" />
     <Compile Include="Server\LoudnessOperation.cs" />
     <Compile Include="Server\Media\AnimationDirectory.cs" />
     <Compile Include="Server\CasparServerChannel.cs" />

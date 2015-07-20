@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Configuration;
-using Automation.BDaq;
 using System.Xml.Serialization;
 using System.Diagnostics;
 using System.ComponentModel;
@@ -28,17 +27,12 @@ namespace TAS.Server
         public string Address { get; set; }
         [XmlAttribute]
         public string Name {get; set;}
-        public InputPin InputPinStart { get; set; }
-        public InputPin InputPinPause { get; set; }
         public event Action StartPressed;
         CrawlState CrawlState = new CrawlState();
 
         [XmlAttribute]
         public int GraphicsStartDelay { get; set; } // may be negative, does not affect aspect ratio switching.
 
-
-
-        InstantDiCtrl _instantDiCtrlStart;
         TcpClient _remoteClient;
         NetworkStream _remoteClientStream;
         Timer _heartbeatTimer;
@@ -50,32 +44,6 @@ namespace TAS.Server
             Debug.WriteLine(this, "Initializing");
             try
             {
-                if (Type == GPIType.Advantech)
-                {
-                    if (InputPinStart != null)
-                    {
-                        Debug.WriteLine(this, "StartPin new InstantDiCtrl()");
-                        _instantDiCtrlStart = new InstantDiCtrl();
-                        Debug.WriteLine(this, "StartPin new DeviceInformation()");
-                        _instantDiCtrlStart.Interrupt += new EventHandler<DiSnapEventArgs>(instantDiCtrlStart_Interrupt);
-                        _instantDiCtrlStart.SelectedDevice = new DeviceInformation(InputPinStart.DeviceId);
-                        DiintChannel[] diintChannels = _instantDiCtrlStart.DiintChannels;
-                        if (diintChannels != null)
-                        {
-                            diintChannels[0].Enabled = true;
-                            Debug.WriteLine(this, "Channel 0 enabled");
-                        }
-                        Debug.WriteLine(this, "StartPin SnapStart");
-                        ErrorCode err = _instantDiCtrlStart.SnapStart();
-                        if (err != ErrorCode.Success)
-                            Debug.WriteLine(err, "Error starting GPI device");
-                        else
-                        {
-                            Connected = true;
-                            Debug.WriteLine(this, "StartPin SnapStart OK");
-                        }
-                    }
-                }
                 if (Type == GPIType.Remote)
                 {
                     _heartbeatTimer = new Timer(new TimerCallback(_heartbeatTick), null, 0, 5000);
@@ -317,14 +285,6 @@ namespace TAS.Server
             if (!disposed)
             {
                 disposed = true;
-                if (Type == GPIType.Advantech)
-                {
-                    if (_instantDiCtrlStart != null)
-                    {
-                        _instantDiCtrlStart.SnapStop();
-                        _instantDiCtrlStart.Interrupt -= new EventHandler<DiSnapEventArgs>(instantDiCtrlStart_Interrupt);
-                    }
-                }
                 if (Type == GPIType.Remote)
                 {
                     var client = _remoteClient;
@@ -342,24 +302,6 @@ namespace TAS.Server
                 handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
-
-        void instantDiCtrlStart_Interrupt(object sender, DiSnapEventArgs e)
-        {
-            lock (InputPinStart)
-            {
-
-                bool newState = (e.PortData[InputPinStart.PortNumber] & InputPinStart.PinDecimal) > 0;
-                if (newState)
-                {
-                    var handler = StartPressed;
-                    if (handler != null)
-                    {
-                        Debug.WriteLine(this, "Starting");
-                        handler();
-                    }
-                }
-            }
-        }
 
         private bool _connected = false;
         [XmlIgnore]
@@ -509,19 +451,4 @@ namespace TAS.Server
 
     }
 
-    public class InputPin
-    {
-        [XmlAttribute]
-        public int DeviceId;
-        internal byte PinDecimal { get; private set; }
-        [XmlAttribute]
-        public byte PinNumber 
-        {
-            get { return 0; }
-            set { PinDecimal = (byte) (1 << value); } 
-        }
-        [XmlAttribute]
-        public byte PortNumber;
-    }
-    
 }

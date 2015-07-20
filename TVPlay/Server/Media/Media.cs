@@ -502,13 +502,11 @@ namespace TAS.Server
             }
         }
 
-        private delegate void VerifyMediaDelegate();
-
         internal void InvokeVerify()
         {
             lock (SyncRoot)
                 if (!Verified)
-                    new VerifyMediaDelegate(Verify).BeginInvoke(ar => ((VerifyMediaDelegate)((AsyncResult)ar).AsyncDelegate).EndInvoke(ar), null);
+                    new Action(Verify).BeginInvoke(ar => ((Action)((AsyncResult)ar).AsyncDelegate).EndInvoke(ar), null);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

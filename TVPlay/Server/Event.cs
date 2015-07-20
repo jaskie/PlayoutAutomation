@@ -12,8 +12,6 @@ using TAS.Common;
 namespace TAS.Server
 {
  
-    public delegate void MediaChangedEventHandler(object sender, MediaChangedEventArgs e);
-    
     public class Event : IComparable, INotifyPropertyChanged, IDisposable
     {
 
@@ -1195,7 +1193,7 @@ namespace TAS.Server
                 handler(this, EventArgs.Empty);
         }
 
-        public event CollectionChangedEventHandler SubEventChanged;
+        public event EventHandler<CollectionOperationEventArgs<Event>> SubEventChanged;
         protected virtual void NotifySubEventChanged(Event e, TCollectionOperation operation)
         {
             var handler = SubEventChanged;
@@ -1212,18 +1210,6 @@ namespace TAS.Server
                 handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
-    }
-
-    public class MediaChangedEventArgs : EventArgs
-    {
-        public MediaChangedEventArgs(Media oldValue, Media newValue, bool onPGM)
-        {
-            OldValue = oldValue;
-            NewValue = newValue;
-        }
-        public readonly bool OnPGM;
-        public readonly Media OldValue;
-        public readonly Media NewValue;
     }
 
     public class EventCollectionChangedEventArgs : EventArgs

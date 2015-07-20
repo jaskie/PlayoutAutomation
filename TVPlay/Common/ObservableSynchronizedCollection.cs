@@ -77,7 +77,4 @@ namespace TAS.Server
         public T Item { get; private set; }
     }
 
-    public delegate void CollectionChangedEventHandler(object sender, CollectionOperationEventArgs<Event> e);
-
-
 }
