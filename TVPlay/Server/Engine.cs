@@ -18,7 +18,7 @@ namespace TAS.Server
     public partial class Engine : INotifyPropertyChanged, IDisposable
     {
         [XmlIgnore]
-        public UInt64 idEngine { get; internal set; }
+        public UInt64 IdEngine { get; internal set; }
         [XmlIgnore]
         public UInt64 Instance { get; internal set; }
 
@@ -53,6 +53,7 @@ namespace TAS.Server
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
         public event EventHandler<PropertyChangedEventArgs> ServerPropertyChanged;
         public GPINotifier GPI;
+        EngineSettings _engineLocalSettings;
         public TAspectRatioControl AspectRatioControl { get; set; }
 
         public int TimeCorrection { get { return (int)_timeCorrection.TotalMilliseconds; } set { _timeCorrection = TimeSpan.FromMilliseconds(value); } }
@@ -150,10 +151,10 @@ namespace TAS.Server
         public long FrameTicks { get { return _frameTicks; } }
         public TVideoFormat VideoFormat { get; set; }
 
-        public void Initialize()
+        public void Initialize(EngineSettings localSettings)
         {
             Debug.WriteLine(this, "Begin initializing");
-
+            _engineLocalSettings = localSettings;
             switch (VideoFormat)
             {
                 case TVideoFormat.HD1080p5000:
@@ -249,6 +250,9 @@ namespace TAS.Server
                 GPI.Initialize();
                 GPI.PropertyChanged += new PropertyChangedEventHandler(GPI_PropertyChanged);
             }
+
+            if (localSettings != null)
+                localSettings.StartPressed += Resume;
 
             Debug.WriteLine(this, "Engine initialized");
         }
@@ -755,6 +759,7 @@ namespace TAS.Server
 
         public void Resume()
         {
+            Debug.WriteLine("Resume executed");
             lock (_tickLock)
                 if (EngineState == TEngineState.Hold)
                 {
@@ -1155,12 +1160,13 @@ namespace TAS.Server
 
         private void _triggerGPIGraphics(Event ev) // aspect is triggered on _play
         {
-            if (GPI == null || !this.GPIEnabled) 
+            if (!this.GPIEnabled
+                || ev == null
+                || !ev.GPI.CanTrigger
+                || !(ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused)) 
                 return;
-            if (ev != null 
-                && ev.GPI.CanTrigger
-                && ev.GPITrigerred == false
-                && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused)
+            if (GPI != null
+                && !ev.GPITrigerred
                 && CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks + GPI.GraphicsStartDelay*10000L
                 )
             {
@@ -1169,6 +1175,16 @@ namespace TAS.Server
                 GPI.Logo = ev.GPI.Logo;
                 GPI.Parental = ev.GPI.Parental;
             }
+            if (_engineLocalSettings != null
+                && !ev.LocalGPITriggered 
+                && CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks )
+            {
+                ev.LocalGPITriggered = true;
+                _engineLocalSettings.Crawl = ev.GPI.Crawl;
+                _engineLocalSettings.Logo = ev.GPI.Logo;
+                _engineLocalSettings.Parental = ev.GPI.Parental;
+            }
+
         }
 
         private bool _checkCanDeleteMedia(Event ev, ServerMedia media)

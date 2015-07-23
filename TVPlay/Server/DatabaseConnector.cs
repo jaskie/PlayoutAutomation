@@ -69,7 +69,7 @@ namespace TAS.Server
             if (Connect())
             {
                 MySqlCommand cmd = new MySqlCommand("SELECT * FROM RundownEvent where typStart in (@StartTypeManual, @StartTypeOnFixedTime, @StartTypeNone) and idEventBinding=0 and idEngine=@idEngine order by ScheduledTime, EventName", connection);
-                cmd.Parameters.AddWithValue("@idEngine", engine.idEngine);
+                cmd.Parameters.AddWithValue("@idEngine", engine.IdEngine);
                 cmd.Parameters.AddWithValue("@StartTypeManual", (byte)TStartType.Manual);
                 cmd.Parameters.AddWithValue("@StartTypeOnFixedTime", (byte) TStartType.OnFixedTime);
                 cmd.Parameters.AddWithValue("@StartTypeNone", (byte)TStartType.None);
@@ -95,7 +95,7 @@ namespace TAS.Server
             if (Connect())
             {
                 MySqlCommand cmd = new MySqlCommand("SELECT * FROM tas.rundownevent m WHERE m.idEngine=@idEngine and (SELECT s.idRundownEvent FROM tas.rundownevent s WHERE m.idEventBinding = s.idRundownEvent) IS NULL", connection);
-                cmd.Parameters.AddWithValue("@idEngine", engine.idEngine);
+                cmd.Parameters.AddWithValue("@idEngine", engine.IdEngine);
                 Event newEvent;
                 List<Event> foundEvents = new List<Event>();
                 lock (connection)
@@ -231,7 +231,7 @@ namespace TAS.Server
         {
            
             Debug.WriteLineIf(aEvent._duration.Days > 1, aEvent, "Duration extremely long");
-            cmd.Parameters.AddWithValue("@idEngine", aEvent.Engine.idEngine);
+            cmd.Parameters.AddWithValue("@idEngine", aEvent.Engine.IdEngine);
             cmd.Parameters.AddWithValue("@idEventBinding", aEvent.idEventBinding);
             cmd.Parameters.AddWithValue("@Layer", (sbyte)aEvent._layer);
             cmd.Parameters.AddWithValue("@typEvent", aEvent._eventType);
@@ -884,7 +884,7 @@ VALUES
                             if (cPRV != null)
                                 sPRV.MediaDirectory.DirectoryName = "PRV";
                             Engine newEngine = SerializationHelper.Deserialize<Engine>(dataReader.GetString("Config"));
-                            newEngine.idEngine = dataReader.GetUInt64("idEngine");
+                            newEngine.IdEngine = dataReader.GetUInt64("idEngine");
                             newEngine.Instance = dataReader.GetUInt64("Instance");
                             newEngine.PlayoutChannelPGM = cPGM;
                             newEngine.PlayoutChannelPRV = cPRV;
@@ -913,7 +913,7 @@ idArchive=@idArchive,
 Config=@Config
 where
 idEngine=@idEngine", connection);
-                cmd.Parameters.AddWithValue("@idEngine", engine.idEngine);
+                cmd.Parameters.AddWithValue("@idEngine", engine.IdEngine);
                 cmd.Parameters.AddWithValue("@Instance", engine.Instance);
                 cmd.Parameters.AddWithValue("@idServerPGM", engine.PlayoutChannelPGM == null ? DBNull.Value : (object)engine.PlayoutChannelPGM.OwnerServer.idServer);
                 cmd.Parameters.AddWithValue("@ServerChannelPGM", engine.PlayoutChannelPGM == null ? DBNull.Value : (object)engine.PlayoutChannelPGM.ChannelNumber);
@@ -1072,7 +1072,7 @@ idEngine=@idEngine", connection);
 (idEngine, MediaGuid, Layer, TemplateName, TemplateFields) 
 values 
 (@idEngine,@MediaGuid, @Layer, @TemplateName, @TemplateFields)", connection);
-                cmd.Parameters.AddWithValue("@idEngine", template.Engine.idEngine);
+                cmd.Parameters.AddWithValue("@idEngine", template.Engine.IdEngine);
             }
             else
             {
@@ -1119,7 +1119,7 @@ WHERE idTemplate=@idTemplate"
             if (Connect())
             {
                 MySqlCommand cmd = new MySqlCommand("SELECT idTemplate, MediaGuid, Layer, TemplateName, TemplateFields from template where idEngine=@idEngine;", connection);
-                cmd.Parameters.AddWithValue("idEngine", engine.idEngine);
+                cmd.Parameters.AddWithValue("idEngine", engine.IdEngine);
                 lock (connection)
                 {
                     using (MySqlDataReader dataReader = cmd.ExecuteReader())

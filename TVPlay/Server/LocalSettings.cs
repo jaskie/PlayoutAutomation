@@ -5,21 +5,22 @@ using System.Text;
 using Automation.BDaq;
 using System.Xml.Serialization;
 using System.Threading;
+using TAS.Common;
 
 namespace TAS.Server
 {
     public class LocalSettings: IDisposable
     {
-        [XmlArrayItem("Advantech")]
-        public AdvantechDevice[] GPIDevices = new AdvantechDevice[0];
+        [XmlArray]
+        public AdvantechDevice[] AdvantechDevices = new AdvantechDevice[0];
 
-        [XmlArrayItem("Engine")]
+        [XmlArray]
         public EngineSettings[] Engines = new EngineSettings[0];
         public void Initialize()
         {
-            if (GPIDevices.Length > 0)
+            if (AdvantechDevices.Length > 0)
             {
-                foreach (AdvantechDevice device in GPIDevices)
+                foreach (AdvantechDevice device in AdvantechDevices)
                     device.Initialize();
                 Thread poolingThread = new Thread(_advantechPoolingThreadExecute);
                 poolingThread.IsBackground = true;
@@ -27,17 +28,17 @@ namespace TAS.Server
                 poolingThread.Priority = ThreadPriority.AboveNormal;
                 poolingThread.Start();
             }
+            foreach (EngineSettings engine in Engines)
+                engine.Owner = this;
         }
         
-        //public event EventHandler<LocalGPIChangedEventArgs> LocalGPIChanged;
-
         bool disposed = false;
         public void Dispose()
         {
             if (!disposed)
             {
                 disposed = true;
-                foreach (AdvantechDevice device in GPIDevices)
+                foreach (AdvantechDevice device in AdvantechDevices)
                     device.Dispose();
             }
         }
@@ -47,7 +48,7 @@ namespace TAS.Server
             byte newPortState, oldPortState;
             while (!disposed)
             {
-                foreach (AdvantechDevice device in GPIDevices)
+                foreach (AdvantechDevice device in AdvantechDevices)
                 {
                     for (byte port = 0; port < device.InputPortCount; port++)
                     {
@@ -60,21 +61,10 @@ namespace TAS.Server
                                 if ((changedBits & 0x1) > 0)
                                 {
                                     foreach (EngineSettings settings in Engines)
-                                    {
-                                        if (settings.Start.DeviceID == device.Id
-                                            && settings.Start.PortNumber == port
-                                            && settings.Start.PinNumber == bit
-                                            && (newPortState & 0x1) > 0)
-                                            settings.NotifyStarted(this);
-                                    }
-                                    //var h = LocalGPIChanged;
-                                    //if (h != null)
-                                    //{
-                                    //    h(this, new LocalGPIChangedEventArgs(device.Id, port, bit, (newPortState & 0x1) > 0));
-                                    //}
-                                    changedBits = changedBits >> 1;
-                                    newPortState = (byte)(newPortState >> 1);
+                                        settings.NotifyChange(device.DeviceId, port, bit, (newPortState & 0x1) > 0);
                                 }
+                                changedBits = changedBits >> 1;
+                                newPortState = (byte)(newPortState >> 1);
                             }
                         }
                     }
@@ -83,10 +73,18 @@ namespace TAS.Server
             }
         }
 
+        public bool SetPortState(byte deviceId, int port, byte pin, bool value)
+        {
+            AdvantechDevice device = AdvantechDevices.FirstOrDefault(d => d.DeviceId == deviceId);
+            if (device != null)
+                return device.Write(port, pin, value);
+            return false;
+        }
 
         public class AdvantechDevice:IDisposable
         {
-            public byte Id;
+            [XmlAttribute]
+            public byte DeviceId;
             DeviceInformation _deviceInformation;
             InstantDiCtrl _di;
             InstantDoCtrl _do;
@@ -101,7 +99,7 @@ namespace TAS.Server
                         
             public void Initialize()
             {
-                _deviceInformation = new DeviceInformation(Id);
+                _deviceInformation = new DeviceInformation(DeviceId);
                 _di = new InstantDiCtrl();
                 _di.SelectedDevice = _deviceInformation;
                 InputPortCount = _di.Features.PortCount;
@@ -119,6 +117,24 @@ namespace TAS.Server
                 return ret;
             }
 
+            object writeLock = new object();
+            public bool Write(int port, int pin, bool value)
+            {
+                lock (writeLock)
+                {
+                    byte portValue;
+                    if (_do.Read(port, out portValue) == ErrorCode.Success)
+                    {
+                        if (value)
+                            portValue = (byte)(portValue | 0x1 << pin);
+                        else
+                            portValue = (byte)(portValue & ~(0x1 << pin));
+                        return _do.Write(portValue, portValue) == ErrorCode.Success;
+                    }
+                }
+                return false;
+            }
+
             bool disposed = false;
             public void Dispose()
             {
@@ -134,38 +150,99 @@ namespace TAS.Server
         }
     }
 
-    //public class LocalGPIChangedEventArgs: EventArgs
-    //{
-    //    public byte DeviceID { get; private set; }
-    //    public byte PortNumber { get; private set; }
-    //    public byte PinNumber { get; private set; }
-    //    public bool IsSet { get; private set; }
-    //    public LocalGPIChangedEventArgs(byte deviceId, byte portNumber, byte pinNumber, bool isSet)
-    //    {
-    //        DeviceID = deviceId;
-    //        PortNumber = portNumber;
-    //        PinNumber = pinNumber;
-    //        IsSet = isSet;
-    //    }
-    //}
-
-    public struct GPIPin
+    public class GPIPin
     {
-        public byte DeviceID;
-        public byte PortNumber;
+        [XmlAttribute]
+        public int Param;
+        [XmlAttribute]
+        public byte DeviceId;
+        [XmlAttribute]
+        public int PortNumber;
+        [XmlAttribute]
         public byte PinNumber;
     }
 
-    public struct EngineSettings
+    public class EngineSettings
     {
-        public UInt64 EngineID;
+        internal LocalSettings Owner;
+        public event Action StartPressed;
+        
+        [XmlAttribute]
+        public UInt64 IdEngine;
         public GPIPin Start;
-        public event EventHandler<EventArgs> Started;
-        internal void NotifyStarted(object sender)
+        public GPIPin[] Logos;
+        public GPIPin[] Crawls;
+        public GPIPin[] Parentals;
+
+        void _actionCheckAndExecute(Action action, GPIPin pin, byte deviceId, byte port, byte bit)
         {
-            var h = Started;
-            if (h != null)
-                h(sender, new EventArgs());
+            if (action !=null &&  pin != null && deviceId == pin.DeviceId && port == pin.PortNumber && bit == pin.PinNumber)
+                    action();
         }
+
+        internal void NotifyChange(byte deviceId, byte port, byte bit, bool newValue)
+        {
+            var pin = Start;
+            if (newValue)
+                _actionCheckAndExecute(StartPressed, Start, deviceId, port, bit);
+        }
+        
+        TParental _parental;
+        [XmlIgnore]
+        public TParental Parental
+        {
+            get { return _parental; }
+            set
+            {
+                if (_parental != value)
+                {
+                    _parental = value;
+                    _setSinglePin(Parentals, (int)value);
+                }
+            }
+        }
+
+        TLogo _logo;
+        [XmlIgnore]
+        public TLogo Logo
+        {
+            get { return _logo; }
+            set
+            {
+                if (_logo != value)
+                {
+                    _logo = value;
+                    _setSinglePin(Logos, (int)value);
+                }
+            }
+        }
+
+        TCrawl _crawl;
+        [XmlIgnore]
+        public TCrawl Crawl
+        {
+            get { return _crawl; }
+            set
+            {
+                if (_crawl != value)
+                {
+                    _crawl = value;
+                    _setSinglePin(Crawls, (int)value);
+                }
+            }
+        }
+
+
+
+        void _setSinglePin(GPIPin[] pins, int value)
+        {
+            var owner = Owner;
+            if (pins != null && owner != null)
+            {
+                pins.Where(p => p.Param == value).ToList().ForEach(p => owner.SetPortState(p.DeviceId, p.PortNumber, p.PinNumber, true));
+                pins.Where(p => p.Param != value).ToList().ForEach(p => owner.SetPortState(p.DeviceId, p.PortNumber, p.PinNumber, false));
+            }
+        }
+
     }
 }

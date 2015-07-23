@@ -639,6 +639,9 @@
     <Resource Include="Glyphs\Parentals\7.png" />
     <Resource Include="Glyphs\Parentals\BO.png" />
     <Resource Include="Glyphs\ExportDelete.png" />
+    <None Include="LocalSettings.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="x64\MediaInfo.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
