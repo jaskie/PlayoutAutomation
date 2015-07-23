@@ -5,7 +5,7 @@
   </AdvantechDevices>
   <Engines>
     <EngineSettings IdEngine="1">
-      <Start DeviceId="0" PortNumber="0" PinNumber="7"/>
+      <Start DeviceId="0" PortNumber="4" PinNumber="7"/>
     </EngineSettings>
   </Engines>
 </LocalSettings>

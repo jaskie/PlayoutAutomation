@@ -7,7 +7,6 @@ using System.Xml.Serialization;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Net.Sockets;
-using TVP.Crawl.RestServer;
 using System.Threading;
 using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
@@ -28,7 +27,7 @@ namespace TAS.Server
         [XmlAttribute]
         public string Name {get; set;}
         public event Action StartPressed;
-        CrawlState CrawlState = new CrawlState();
+        GPIState CrawlState = new GPIState();
 
         [XmlAttribute]
         public int GraphicsStartDelay { get; set; } // may be negative, does not affect aspect ratio switching.
@@ -80,8 +79,8 @@ namespace TAS.Server
                 if (connectAR.AsyncWaitHandle.WaitOne(10000))
                 {
                     _remoteClientStream = _remoteClient.GetStream();
-                    _remoteClientStream.WriteByte((byte)CrawlCommand.SetIsController);
-                    _remoteClientStream.WriteByte((byte)CrawlCommand.GetInfo);
+                    _remoteClientStream.WriteByte((byte)GPICommand.SetIsController);
+                    _remoteClientStream.WriteByte((byte)GPICommand.GetInfo);
                 }
             }
             catch (Exception e)
@@ -123,12 +122,12 @@ namespace TAS.Server
             while (bufferLength>bufferPos)
                 switch (data[bufferPos])
                 {
-                    case (byte)CrawlCommand.HeartBeat:
+                    case (byte)GPICommand.HeartBeat:
                         _hearbeatFailCount = 0;
                         Connected = true;
                         bufferPos++;
                         break;
-                    case (byte)CrawlCommand.PlayoutStart:
+                    case (byte)GPICommand.PlayoutStart:
                         var handler = StartPressed;
                         bufferPos++;
                         if (handler != null)
@@ -137,23 +136,23 @@ namespace TAS.Server
                             handler();
                         }
                         break;
-                    case (byte)CrawlCommand.ShowCrawl:
+                    case (byte)GPICommand.ShowCrawl:
                         CrawlState.CrawlVisible = true;
                         bufferPos++;
                         NotifyPropertyChanged("Crawl");
                         break;
-                    case (byte)CrawlCommand.HideCrawl:
+                    case (byte)GPICommand.HideCrawl:
                         CrawlState.CrawlVisible = false;
                         bufferPos++;
                         NotifyPropertyChanged("Crawl");
                         break;
-                    case (byte)CrawlCommand.SetCrawl:
-                    case (byte)CrawlCommand.ReloadCrawl:
+                    case (byte)GPICommand.SetCrawl:
+                    case (byte)GPICommand.ReloadCrawl:
                         if (bufferLength - bufferPos >= 2)
                         {
                             CrawlState.ConfigNr = data[bufferPos + 1];
                             NotifyPropertyChanged("Crawl");
-                            if (data[bufferPos] == (byte)CrawlCommand.SetCrawl)
+                            if (data[bufferPos] == (byte)GPICommand.SetCrawl)
                             {
                                 CrawlState.CrawlVisible = true;
                                 NotifyPropertyChanged("Crawl");
@@ -161,67 +160,67 @@ namespace TAS.Server
                         }
                         bufferPos += 2;
                         break;
-                    case (byte)CrawlCommand.ShowLogo0:
-                    case (byte)CrawlCommand.ShowLogo0 + 1:
-                    case (byte)CrawlCommand.ShowLogo0 + 2:
-                    case (byte)CrawlCommand.ShowLogo0 + 3:
-                    case (byte)CrawlCommand.ShowLogo0 + 4:
-                    case (byte)CrawlCommand.ShowLogo0 + 5:
-                    case (byte)CrawlCommand.ShowLogo0 + 6:
-                    case (byte)CrawlCommand.ShowLogo0 + 7:
-                    case (byte)CrawlCommand.ShowLogo0 + 8:
-                    case (byte)CrawlCommand.ShowLogo0 + 9:
+                    case (byte)GPICommand.ShowLogo0:
+                    case (byte)GPICommand.ShowLogo0 + 1:
+                    case (byte)GPICommand.ShowLogo0 + 2:
+                    case (byte)GPICommand.ShowLogo0 + 3:
+                    case (byte)GPICommand.ShowLogo0 + 4:
+                    case (byte)GPICommand.ShowLogo0 + 5:
+                    case (byte)GPICommand.ShowLogo0 + 6:
+                    case (byte)GPICommand.ShowLogo0 + 7:
+                    case (byte)GPICommand.ShowLogo0 + 8:
+                    case (byte)GPICommand.ShowLogo0 + 9:
                         CrawlState.LogoVisible = true;
-                        CrawlState.LogoStyle = (byte)(data[bufferPos] - (byte)CrawlCommand.ShowLogo0);
+                        CrawlState.LogoStyle = (byte)(data[bufferPos] - (byte)GPICommand.ShowLogo0);
                         bufferPos++;
                         NotifyPropertyChanged("Logo");
                         break;
-                    case (byte)CrawlCommand.HideLogo:
+                    case (byte)GPICommand.HideLogo:
                         CrawlState.LogoVisible = false;
                         bufferPos++;
                         NotifyPropertyChanged("Logo");
                         break;
-                    case (byte)CrawlCommand.ShowParental0:
-                    case (byte)CrawlCommand.ShowParental0 + 1:
-                    case (byte)CrawlCommand.ShowParental0 + 2:
-                    case (byte)CrawlCommand.ShowParental0 + 3:
-                    case (byte)CrawlCommand.ShowParental0 + 4:
-                    case (byte)CrawlCommand.ShowParental0 + 5:
-                    case (byte)CrawlCommand.ShowParental0 + 6:
-                    case (byte)CrawlCommand.ShowParental0 + 7:
-                    case (byte)CrawlCommand.ShowParental0 + 8:
-                    case (byte)CrawlCommand.ShowParental0 + 9:
+                    case (byte)GPICommand.ShowParental0:
+                    case (byte)GPICommand.ShowParental0 + 1:
+                    case (byte)GPICommand.ShowParental0 + 2:
+                    case (byte)GPICommand.ShowParental0 + 3:
+                    case (byte)GPICommand.ShowParental0 + 4:
+                    case (byte)GPICommand.ShowParental0 + 5:
+                    case (byte)GPICommand.ShowParental0 + 6:
+                    case (byte)GPICommand.ShowParental0 + 7:
+                    case (byte)GPICommand.ShowParental0 + 8:
+                    case (byte)GPICommand.ShowParental0 + 9:
                         CrawlState.ParentalVisible = true;
-                        CrawlState.ParentalStyle = (byte)(data[bufferPos] - (byte)CrawlCommand.ShowParental0);
+                        CrawlState.ParentalStyle = (byte)(data[bufferPos] - (byte)GPICommand.ShowParental0);
                         bufferPos++;
                         NotifyPropertyChanged("Parental");
                         break;
-                    case (byte)CrawlCommand.HideParental:
+                    case (byte)GPICommand.HideParental:
                         CrawlState.ParentalVisible = false;
                         bufferPos++;
                         NotifyPropertyChanged("Parental");
                         break;
-                    case (byte)CrawlCommand.AspectNarrow:
+                    case (byte)GPICommand.AspectNarrow:
                         CrawlState.AspectNarrow = true;
                         bufferPos++;
                         NotifyPropertyChanged("AspectNarrow");
                         break;
-                    case (byte)CrawlCommand.AspectWide:
+                    case (byte)GPICommand.AspectWide:
                         CrawlState.AspectNarrow = false;
                         bufferPos++;
                         NotifyPropertyChanged("AspectNarrow");
                         break;
-                    case (byte)CrawlCommand.MasterTake:
+                    case (byte)GPICommand.MasterTake:
                         _isMaster = true;
                         bufferPos++;
                         NotifyPropertyChanged("IsMaster");
                         break;
-                    case (byte)CrawlCommand.MasterFree:
+                    case (byte)GPICommand.MasterFree:
                         _isMaster = false;
                         bufferPos++;
                         NotifyPropertyChanged("IsMaster");
                         break;
-                    case (byte)CrawlCommand.GetInfo:
+                    case (byte)GPICommand.GetInfo:
                         if (bufferLength - bufferPos >= 6 && data[bufferPos + 1] >= bufferLength - 2)
                         {
                             lock (CrawlState.SyncRoot)
@@ -265,7 +264,7 @@ namespace TAS.Server
                 try
                 {
                     if (stream != null && stream.CanWrite)
-                        stream.WriteByte((byte)CrawlCommand.HeartBeat);
+                        stream.WriteByte((byte)GPICommand.HeartBeat);
                 }
                 catch (Exception e)
                 {
@@ -348,9 +347,9 @@ namespace TAS.Server
                     if (Type == GPIType.Remote)
                     {
                         if (value)
-                            _sendCommand((byte)CrawlCommand.AspectNarrow);
+                            _sendCommand((byte)GPICommand.AspectNarrow);
                         else
-                            _sendCommand((byte)CrawlCommand.AspectWide);
+                            _sendCommand((byte)GPICommand.AspectWide);
                     }
                 }
             }
@@ -365,7 +364,7 @@ namespace TAS.Server
                 if (CrawlState.CrawlVisible != value)
                 {
                     if (Type == GPIType.Remote)
-                        _sendCommand(value ? (byte)CrawlCommand.ShowCrawl : (byte)CrawlCommand.HideCrawl);
+                        _sendCommand(value ? (byte)GPICommand.ShowCrawl : (byte)GPICommand.HideCrawl);
                 }
             }
         }
@@ -380,9 +379,9 @@ namespace TAS.Server
                 {
                     if (Type == GPIType.Remote)
                         if (value == TCrawl.NoCrawl)
-                            _sendCommand((byte)CrawlCommand.HideCrawl);
+                            _sendCommand((byte)GPICommand.HideCrawl);
                         else
-                            _sendCommand((byte)CrawlCommand.SetCrawl, (byte)value);
+                            _sendCommand((byte)GPICommand.SetCrawl, (byte)value);
                 }
             }
         }
@@ -404,9 +403,9 @@ namespace TAS.Server
                     if (Type == GPIType.Remote)
                     {
                         if (value == TLogo.NoLogo)
-                            _sendCommand((byte)CrawlCommand.HideLogo);
+                            _sendCommand((byte)GPICommand.HideLogo);
                         else
-                            _sendCommand((byte)((byte)CrawlCommand.ShowLogo0 + ((byte)(value) - 1)));
+                            _sendCommand((byte)((byte)GPICommand.ShowLogo0 + ((byte)(value) - 1)));
                     }
                 }
             }
@@ -429,9 +428,9 @@ namespace TAS.Server
                     if (Type == GPIType.Remote)
                     {
                         if (value == TParental.None)
-                            _sendCommand((byte)CrawlCommand.HideParental);
+                            _sendCommand((byte)GPICommand.HideParental);
                         else
-                            _sendCommand((byte)((byte)CrawlCommand.ShowParental0 + ((byte)(value) - 1)));
+                            _sendCommand((byte)((byte)GPICommand.ShowParental0 + ((byte)(value) - 1)));
                     }
                 }
             }

@@ -1163,11 +1163,11 @@ namespace TAS.Server
             if (!this.GPIEnabled
                 || ev == null
                 || !ev.GPI.CanTrigger
-                || !(ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused)) 
+                || !(ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused))
                 return;
             if (GPI != null
                 && !ev.GPITrigerred
-                && CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks + GPI.GraphicsStartDelay*10000L
+                && CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks + GPI.GraphicsStartDelay * 10000L
                 )
             {
                 ev.GPITrigerred = true;
@@ -1176,16 +1176,16 @@ namespace TAS.Server
                 GPI.Parental = ev.GPI.Parental;
             }
             if (_engineLocalSettings != null
-                && !ev.LocalGPITriggered 
-                && CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks )
+                && !ev.LocalGPITriggered
+                && CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks)
             {
                 ev.LocalGPITriggered = true;
                 _engineLocalSettings.Crawl = ev.GPI.Crawl;
                 _engineLocalSettings.Logo = ev.GPI.Logo;
                 _engineLocalSettings.Parental = ev.GPI.Parental;
             }
-
         }
+        
 
         private bool _checkCanDeleteMedia(Event ev, ServerMedia media)
         {

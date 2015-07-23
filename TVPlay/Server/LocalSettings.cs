@@ -231,16 +231,14 @@ namespace TAS.Server
                 }
             }
         }
-
-
-
+        
         void _setSinglePin(GPIPin[] pins, int value)
         {
             var owner = Owner;
             if (pins != null && owner != null)
             {
-                pins.Where(p => p.Param == value).ToList().ForEach(p => owner.SetPortState(p.DeviceId, p.PortNumber, p.PinNumber, true));
                 pins.Where(p => p.Param != value).ToList().ForEach(p => owner.SetPortState(p.DeviceId, p.PortNumber, p.PinNumber, false));
+                pins.Where(p => p.Param == value).ToList().ForEach(p => owner.SetPortState(p.DeviceId, p.PortNumber, p.PinNumber, true));
             }
         }
 

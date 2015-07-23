@@ -188,12 +188,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="..\..\CrawlTVP\CrawlRestServer\CrawlCommand.cs">
-      <Link>TVP\CrawlCommand.cs</Link>
-    </Compile>
-    <Compile Include="..\..\CrawlTVP\CrawlRestServer\CrawlState.cs">
-      <Link>TVP\CrawlState.cs</Link>
-    </Compile>
     <Compile Include="Common\BindableSelectedItem.cs" />
     <Compile Include="Common\ColorAttribute.cs" />
     <Compile Include="Common\ConcurrentHashSet.cs" />
@@ -227,6 +221,8 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="Server\GPICommand.cs" />
+    <Compile Include="Server\GPIState.cs" />
     <Compile Include="Server\LocalSettings.cs" />
     <Compile Include="Server\LoudnessOperation.cs" />
     <Compile Include="Server\Media\AnimationDirectory.cs" />
