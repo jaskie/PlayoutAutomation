@@ -53,6 +53,7 @@ namespace TAS.Server
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
         public event EventHandler<PropertyChangedEventArgs> ServerPropertyChanged;
         public GPINotifier GPI;
+        public Remoting.RemoteHost Remote;
         EngineSettings _engineLocalSettings;
         public TAspectRatioControl AspectRatioControl { get; set; }
 
@@ -249,6 +250,12 @@ namespace TAS.Server
                 GPI.StartPressed += Resume;
                 GPI.Initialize();
                 GPI.PropertyChanged += new PropertyChangedEventHandler(GPI_PropertyChanged);
+            }
+
+            if (Remote != null)
+            {
+                Debug.WriteLine(this, "Initializing Remote interface");
+                Remote.Initialize(this);
             }
 
             if (localSettings != null)

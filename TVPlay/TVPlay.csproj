@@ -235,6 +235,10 @@
     <Compile Include="Server\PlayoutServerChannel.cs" />
     <Compile Include="Server\Media\TempDirectory.cs" />
     <Compile Include="Common\Enums.cs" />
+    <Compile Include="Server\Remoting\Engine.cs" />
+    <Compile Include="Server\Remoting\IEngine.cs" />
+    <Compile Include="Server\Remoting\IMediaManager.cs" />
+    <Compile Include="Server\Remoting\RemoteHost.cs" />
     <Compile Include="Server\Template.cs" />
     <Compile Include="Server\Media\TempMedia.cs" />
     <Compile Include="Server\XDCAM\Index.cs" />
