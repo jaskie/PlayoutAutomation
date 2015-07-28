@@ -145,6 +145,7 @@ namespace TAS.Client.ViewModels
                 if (value != _searchText)
                 {
                     _searchText = value;
+                    SelectedItem = null;
                     NotifyPropertyChanged("SearchText");
                     _itemsView.Refresh();
                 }

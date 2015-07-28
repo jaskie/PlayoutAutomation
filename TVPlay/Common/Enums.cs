@@ -42,6 +42,8 @@ namespace TAS.Common
     public enum TAspectConversion : byte
     {
         NoConversion,
+        Force4_3,
+        Force16_9,
         PillarBox,
         TiltScan,
         Letterbox,

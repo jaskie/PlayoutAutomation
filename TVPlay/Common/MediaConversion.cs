@@ -22,6 +22,12 @@ namespace TAS.Common
             {
                 case TAspectConversion.NoConversion:
                     break;
+                case TAspectConversion.Force4_3:
+                    FFMpegVideoFilter = "setdar=dar=4/3";
+                    break;
+                case TAspectConversion.Force16_9:
+                    FFMpegVideoFilter = "setdar=dar=16/9";
+                    break;
                 case TAspectConversion.Letterbox:
                     FFMpegVideoFilter = "scale=iw:ih*3/4:-1, pad=0:ih*4/3:0:(oh-ih)/2:black, setdar=dar=4/3";
                     break;
@@ -108,6 +114,8 @@ namespace TAS.Common
         public static Dictionary<TAspectConversion, MediaConversion> AspectConversions = new Dictionary<TAspectConversion, MediaConversion>()
         {
             {TAspectConversion.NoConversion, new MediaConversion(TAspectConversion.NoConversion)},
+            {TAspectConversion.Force4_3, new MediaConversion(TAspectConversion.Force4_3)},
+            {TAspectConversion.Force16_9, new MediaConversion(TAspectConversion.Force16_9)},
             {TAspectConversion.PillarBox, new MediaConversion(TAspectConversion.PillarBox)},
             {TAspectConversion.TiltScan, new MediaConversion(TAspectConversion.TiltScan)},
             {TAspectConversion.Letterbox, new MediaConversion(TAspectConversion.Letterbox)},

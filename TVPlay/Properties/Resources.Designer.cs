@@ -413,6 +413,24 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to None, enforce 16:9.
+        /// </summary>
+        internal static string TAspectConversion_Force16_9 {
+            get {
+                return ResourceManager.GetString("TAspectConversion_Force16_9", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to None, enforce 4:3.
+        /// </summary>
+        internal static string TAspectConversion_Force4_3 {
+            get {
+                return ResourceManager.GetString("TAspectConversion_Force4_3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Letterbox (16:9-&gt;4:3).
         /// </summary>
         internal static string TAspectConversion_Letterbox {

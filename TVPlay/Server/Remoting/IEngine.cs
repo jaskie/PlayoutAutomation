@@ -11,7 +11,6 @@ namespace TAS.Server.Remoting
     {
         [OperationContract]
         void OpenSession();
-
     }
 
 

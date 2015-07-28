@@ -180,6 +180,16 @@ namespace TAS.Server
         }
 
         public bool HasExtraLines { get; internal set; }
+
+        private VideoFormatDescription _videoFormatDescription;
+        public VideoFormatDescription VideoFormatDescription
+        {
+            get
+            {
+                var vfd = _videoFormatDescription;
+                return vfd != null ? vfd : VideoFormatDescription.Descriptions[VideoFormat];
+            }
+        }
         
         protected MediaDirectory _directory;
         public MediaDirectory Directory
@@ -471,7 +481,11 @@ namespace TAS.Server
                                 : (sar.Num == 152 && sar.Den == 135) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL].SAR
                                 : new RationalNumber(sar.Num, sar.Den);
 
-                            VideoFormat = VideoFormatDescription.Match(new System.Drawing.Size(w, h), new RationalNumber(frameRate.Num, frameRate.Den), sAR, order != FieldOrder.PROGRESSIVE).Format;
+                            
+                            var vfd = VideoFormatDescription.Match(new System.Drawing.Size(w, h), new RationalNumber(frameRate.Num, frameRate.Den), sAR, order != FieldOrder.PROGRESSIVE);
+                            VideoFormat = vfd.Format;
+                            _videoFormatDescription = vfd;
+
                             if (videoDuration > TimeSpan.Zero)
                             {
                                 MediaType = TMediaType.Movie;

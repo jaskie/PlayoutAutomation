@@ -508,4 +508,10 @@ Really delete?</value>
   <data name="TAudioChannelMappingConversion_SecondTwoChannels" xml:space="preserve">
     <value>Tracks 3 i 4 -&gt; Stereo</value>
   </data>
+  <data name="TAspectConversion_Force16_9" xml:space="preserve">
+    <value>None, enforce 16:9</value>
+  </data>
+  <data name="TAspectConversion_Force4_3" xml:space="preserve">
+    <value>None, enforce 4:3</value>
+  </data>
 </root>

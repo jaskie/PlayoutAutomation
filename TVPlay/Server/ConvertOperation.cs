@@ -38,8 +38,6 @@ namespace TAS.Server
             AspectConversion = TAspectConversion.NoConversion;
             SourceFieldOrderEnforceConversion = TFieldOrder.Unknown;
             AudioChannelMappingConversion = TAudioChannelMappingConversion.FirstTwoChannels;
-            
-            OutputFormat = TVideoFormat.PAL_FHA;
         }
 
         #endregion // properties
@@ -278,16 +276,18 @@ namespace TAS.Server
                         ep.AppendFormat(" -map_channel 0.{0}.{1}", stream.Index, i);
             }
             _addConversion(audiChannelMappingConversion, ep, vf, af);
-            if (AudioVolume == 0)
+            if (AudioVolume != 0)
                 _addConversion(new MediaConversion(AudioVolume), ep, vf, af);
             VideoFormatDescription outputFormatDescription = VideoFormatDescription.Descriptions[OutputFormat];
-            VideoFormatDescription inputFormatDescription = VideoFormatDescription.Descriptions[inputMedia.VideoFormat];
+            VideoFormatDescription inputFormatDescription = SourceMedia.VideoFormatDescription;
             if (outputFormatDescription.ImageSize != inputFormatDescription.ImageSize)
                 vf.Add(string.Format("scale={0}:{1}", outputFormatDescription.ImageSize.Width, outputFormatDescription.ImageSize.Height));
             if (vf.Any())
                 ep.AppendFormat(" -filter:v \"{0}\"", string.Join(", ", vf));
             if (af.Any())
                 ep.AppendFormat(" -filter:a \"{0}\"", string.Join(", ", af));
+            if (outputFormatDescription.Interlaced)
+                ep.Append(" -flags +ildct+ilme -top 1");
             return ep.ToString();
         }
 

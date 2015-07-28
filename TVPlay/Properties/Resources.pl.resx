@@ -511,4 +511,10 @@ Naprawdę usunąć?</value>
   <data name="TAudioChannelMappingConversion_SecondTwoChannels" xml:space="preserve">
     <value>Ścieżki 3 i 4 -&gt; Stereo</value>
   </data>
+  <data name="TAspectConversion_Force16_9" xml:space="preserve">
+    <value>Brak, wymuś 16:9</value>
+  </data>
+  <data name="TAspectConversion_Force4_3" xml:space="preserve">
+    <value>Brak, wymuś 4:3</value>
+  </data>
 </root>
