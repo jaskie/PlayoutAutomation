@@ -870,17 +870,17 @@ VALUES
                     {
                         while (dataReader.Read())
                         {
-                            var idServerPGM = dataReader.GetUInt64("idServerPGM");
-                            var numServerChannelPGM = dataReader.GetInt32("ServerChannelPGM");
-                            var idServerPRV = dataReader.GetUInt64("idServerPRV");
-                            var numServerChannelPRV = dataReader.GetInt32("ServerChannelPRV");
+                            UInt64 idServerPGM = dataReader.IsDBNull(dataReader.GetOrdinal("idServerPGM")) ? 0UL : dataReader.GetUInt64("idServerPGM");
+                            int numServerChannelPGM = dataReader.IsDBNull(dataReader.GetOrdinal("ServerChannelPGM")) ? 0 : dataReader.GetInt32("ServerChannelPGM"); 
+                            UInt64 idServerPRV = dataReader.IsDBNull(dataReader.GetOrdinal("idServerPRV")) ? 0UL : dataReader.GetUInt64("idServerPRV");
+                            int numServerChannelPRV = dataReader.IsDBNull(dataReader.GetOrdinal("ServerChannelPRV")) ? 0 : dataReader.GetInt32("ServerChannelPRV"); 
 
                             var sPGM = servers.Find(S => S.idServer == idServerPGM);
-                            var cPGM = sPGM == null || sPGM.Channels.Count < numServerChannelPGM ? null : sPGM.Channels[numServerChannelPGM-1];
+                            var cPGM = sPGM == null || sPGM.Channels.Count > numServerChannelPGM - 1 ? sPGM.Channels[numServerChannelPGM - 1] : null;
                             if (cPGM != null)
                                 sPGM.MediaDirectory.DirectoryName = "PGM";
                             var sPRV = servers.Find(S => S.idServer == idServerPRV);
-                            var cPRV = sPRV == null || sPRV.Channels.Count < numServerChannelPRV ? null : sPRV.Channels[numServerChannelPRV-1];
+                            var cPRV = sPRV == null || sPRV.Channels.Count > numServerChannelPRV - 1 ? sPRV.Channels[numServerChannelPRV - 1] : null;
                             if (cPRV != null)
                                 sPRV.MediaDirectory.DirectoryName = "PRV";
                             Engine newEngine = SerializationHelper.Deserialize<Engine>(dataReader.GetString("Config"));

@@ -21,8 +21,6 @@ namespace TAS.Server
         private const int port = 1060;
 
         [XmlAttribute]
-        public GPIType Type { get; set; }
-        [XmlAttribute]
         public string Address { get; set; }
         [XmlAttribute]
         public string Name {get; set;}
@@ -41,23 +39,31 @@ namespace TAS.Server
         internal void Initialize()
         {
             Debug.WriteLine(this, "Initializing");
+            _hearbeatFailCount = 0;
             try
             {
-                if (Type == GPIType.Remote)
-                {
-                    _heartbeatTimer = new Timer(new TimerCallback(_heartbeatTick), null, 0, 5000);
-                    _socketWorker = new Thread(new ThreadStart(_socketWorkerThreadProc));
-                    _socketWorker.Name = "GPINotifier socket thread worker";
-                    _socketWorker.Priority = ThreadPriority.AboveNormal;
-                    _socketWorker.IsBackground = true;
-                    _socketWorker.Start();
-                }
+                _heartbeatTimer = new Timer(new TimerCallback(_heartbeatTick), null, 0, 5000);
+                _socketWorker = new Thread(new ThreadStart(_socketWorkerThreadProc));
+                _socketWorker.Name = "GPINotifier socket thread worker";
+                _socketWorker.Priority = ThreadPriority.AboveNormal;
+                _socketWorker.IsBackground = true;
+                _socketWorker.Start();
             }
             catch (Exception e)
             {
                 Debug.WriteLine(this, e.Message);
             }
         }
+
+        internal void UnInitialize()
+        {
+            _heartbeatTimer.Dispose();
+            _heartbeatTimer = null;
+            _socketWorker.Abort();
+            _socketWorker.Join();
+            _socketWorker = null;
+        }
+
 
         private void RemoteConnect()
         {
@@ -92,27 +98,37 @@ namespace TAS.Server
 
         private void _socketWorkerThreadProc()
         {
-            byte[] buffer = new byte[256];
-            while (!disposed)
+            try
             {
-                int received = 0;
-                var stream = _remoteClientStream;
-                try
+                byte[] buffer = new byte[256];
+                while (!disposed)
                 {
-                    if (stream != null && stream.CanRead)
-                        received = stream.Read(buffer, 0, buffer.Length);
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(e.Message, "GPINotifier client receive error");
-                }
-                if (received > 0)
+                    int received = 0;
+                    var stream = _remoteClientStream;
+                    try
+                    {
+                        if (stream != null && stream.CanRead)
+                            received = stream.Read(buffer, 0, buffer.Length);
+                    }
+                    catch (Exception e)
+                    {
+                        if (e is ThreadAbortException)
+                            throw;
+                        Debug.WriteLine(e.Message, "GPINotifier client receive error");
+                    }
+                    if (received > 0)
                         _notificationReceived(buffer, received);
-                else  // client disconnected
-                {
-                    if (!disposed)
-                        RemoteConnect();
+                    else  // client disconnected
+                    {
+                        if (!disposed)
+                            RemoteConnect();
+                    }
                 }
+            }
+            catch (ThreadAbortException e)
+            {
+                Debug.WriteLine("GPINotifier thread aborted");
+                _remoteClient.Close();
             }
         }
 
@@ -284,12 +300,7 @@ namespace TAS.Server
             if (!disposed)
             {
                 disposed = true;
-                if (Type == GPIType.Remote)
-                {
-                    var client = _remoteClient;
-                    if (client != null)
-                        client.Close();
-                }
+                UnInitialize();
             }
         }
         public event PropertyChangedEventHandler PropertyChanged;
@@ -344,13 +355,10 @@ namespace TAS.Server
             {
                 if (CrawlState.AspectNarrow != value)
                 {
-                    if (Type == GPIType.Remote)
-                    {
-                        if (value)
-                            _sendCommand((byte)GPICommand.AspectNarrow);
-                        else
-                            _sendCommand((byte)GPICommand.AspectWide);
-                    }
+                    if (value)
+                        _sendCommand((byte)GPICommand.AspectNarrow);
+                    else
+                        _sendCommand((byte)GPICommand.AspectWide);
                 }
             }
         }
@@ -362,10 +370,7 @@ namespace TAS.Server
             set
             {
                 if (CrawlState.CrawlVisible != value)
-                {
-                    if (Type == GPIType.Remote)
-                        _sendCommand(value ? (byte)GPICommand.ShowCrawl : (byte)GPICommand.HideCrawl);
-                }
+                    _sendCommand(value ? (byte)GPICommand.ShowCrawl : (byte)GPICommand.HideCrawl);
             }
         }
 
@@ -377,11 +382,10 @@ namespace TAS.Server
             {
                 if (Crawl != value)
                 {
-                    if (Type == GPIType.Remote)
-                        if (value == TCrawl.NoCrawl)
-                            _sendCommand((byte)GPICommand.HideCrawl);
-                        else
-                            _sendCommand((byte)GPICommand.SetCrawl, (byte)value);
+                    if (value == TCrawl.NoCrawl)
+                        _sendCommand((byte)GPICommand.HideCrawl);
+                    else
+                        _sendCommand((byte)GPICommand.SetCrawl, (byte)value);
                 }
             }
         }
@@ -400,13 +404,10 @@ namespace TAS.Server
             {
                 if (Logo != value)
                 {
-                    if (Type == GPIType.Remote)
-                    {
-                        if (value == TLogo.NoLogo)
-                            _sendCommand((byte)GPICommand.HideLogo);
-                        else
-                            _sendCommand((byte)((byte)GPICommand.ShowLogo0 + ((byte)(value) - 1)));
-                    }
+                    if (value == TLogo.NoLogo)
+                        _sendCommand((byte)GPICommand.HideLogo);
+                    else
+                        _sendCommand((byte)((byte)GPICommand.ShowLogo0 + ((byte)(value) - 1)));
                 }
             }
         }
@@ -425,13 +426,10 @@ namespace TAS.Server
             {
                 if (Parental != value)
                 {
-                    if (Type == GPIType.Remote)
-                    {
-                        if (value == TParental.None)
-                            _sendCommand((byte)GPICommand.HideParental);
-                        else
-                            _sendCommand((byte)((byte)GPICommand.ShowParental0 + ((byte)(value) - 1)));
-                    }
+                    if (value == TParental.None)
+                        _sendCommand((byte)GPICommand.HideParental);
+                    else
+                        _sendCommand((byte)((byte)GPICommand.ShowParental0 + ((byte)(value) - 1)));
                 }
             }
         }
@@ -447,6 +445,7 @@ namespace TAS.Server
         {
             return string.IsNullOrWhiteSpace(Name) ? base.ToString() : Name;
         }
+
 
     }
 

@@ -181,7 +181,7 @@
             <MenuItem Header="{Resx _menu.Tools}">
                 <MenuItem Header="Find unlinked events" Command="{Binding CommandSearchMissingEvents}" />
                 <MenuItem Header="_Debug window" Command="{Binding CommandDebugToggle}" />
-                <MenuItem Header="_Channel config" Command="{Binding CommandEngineSettings}"/>
+                <MenuItem Header="{Resx _menu.Tools.ChannelConfig}" Command="{Binding CommandEngineSettings}"/>
                 <!--<MenuItem Header="Playout">
                     <MenuItem Header="Wznów" Command="{Binding CommandResume}" />
                     <MenuItem Header="Wstrzymaj" Command="{Binding CommandPause}" />

@@ -517,4 +517,7 @@ Naprawdę usunąć?</value>
   <data name="TAspectConversion_Force4_3" xml:space="preserve">
     <value>Brak, wymuś 4:3</value>
   </data>
+  <data name="_none_" xml:space="preserve">
+    <value>Brak</value>
+  </data>
 </root>

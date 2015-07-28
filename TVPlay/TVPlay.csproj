@@ -246,10 +246,6 @@
     <Compile Include="Server\XDCAM\SerializationHelper.cs" />
     <Compile Include="Server\XDCAM\Smil.cs" />
     <Compile Include="Server\XDCAM\XdcamStream.cs" />
-    <Compile Include="Setup\GPINotifierViewmodel.cs" />
-    <Compile Include="Setup\GPINotifierView.xaml.cs">
-      <DependentUpon>GPINotifierView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Setup\OkCancelView.xaml.cs">
       <DependentUpon>OkCancelView.xaml</DependentUpon>
     </Compile>
@@ -337,10 +333,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Setup\EngineView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Setup\GPINotifierView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -445,7 +437,6 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Setup\EngineView.resx" />
-    <EmbeddedResource Include="Setup\GPINotifierView.resx" />
     <EmbeddedResource Include="Views\ConvertOperationView.pl.resx">
       <DependentUpon>ConvertOperationView.xaml</DependentUpon>
     </EmbeddedResource>

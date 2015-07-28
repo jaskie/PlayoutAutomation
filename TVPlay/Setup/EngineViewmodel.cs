@@ -10,12 +10,20 @@ namespace TAS.Client.Setup
     public class EngineViewmodel : OkCancelViewmodelBase<Server.Engine>
     {
         readonly Server.EngineController _controller;
-        public EngineViewmodel(Server.Engine engine, Server.EngineController controller) : base(engine, new EngineView(), "Channel config", 550, 320) 
+        public EngineViewmodel(Server.Engine engine, Server.EngineController controller) : base(engine, new EngineView(),  "Channel config", 550, 350) 
         {
             _controller = controller;
-            _channels = new List<Server.PlayoutServerChannel>() { null };
+            _channels = new List<object>() { Properties.Resources._none_ };
             controller.Servers.ForEach(s => _channels.AddRange(s.Channels));
-
+            _channelPGM = engine.PlayoutChannelPGM;
+            _channelPRV = engine.PlayoutChannelPRV;
+            var gpi = engine.GPI;
+            _gPIEnabled = gpi != null;
+            if (_gPIEnabled)
+            {
+                _gPIAddress = gpi.Address;
+                _gPIGraphicsAhead = -gpi.GraphicsStartDelay;
+            }
             View.ShowDialog();
         }
         private string _engineName;
@@ -36,14 +44,23 @@ namespace TAS.Client.Setup
         readonly Array _aspectRatioControls = Enum.GetValues(typeof(TAspectRatioControl)); 
         public Array AspectRatioControls { get { return _aspectRatioControls; } }
 
-        readonly List<Server.PlayoutServerChannel> _channels;
-        public List<Server.PlayoutServerChannel> Channels { get { return _channels; } }
+        readonly List<object> _channels;
+        public List<object> Channels { get { return _channels; } }
 
-        
-        public Server.PlayoutServerChannel ChannelPGM { get; set; }
 
-        public UserControl GPIView { get; set; }
-        
+        private object _channelPGM;
+        public object ChannelPGM { get { return _channelPGM; } set { SetField(ref _channelPGM, value, "ChannelPGM"); } }
+        private object _channelPRV;
+        public object ChannelPRV { get { return _channelPRV; } set { SetField(ref _channelPRV, value, "ChannelPRV"); } }
+
+        private bool _gPIEnabled;
+        public bool GPIEnabled { get { return _gPIEnabled; } set { SetField(ref _gPIEnabled, value, "GPIEnabled"); } }
+
+        private string _gPIAddress;
+        public string GPIAddress { get { return _gPIAddress; } set { SetField(ref _gPIAddress, value, "GPIAddress"); } }
+
+        private int _gPIGraphicsAhead;
+        public int GPIGraphicsAhead { get { return _gPIGraphicsAhead; } set { SetField(ref _gPIGraphicsAhead, value, "GPIGraphicsAhead"); } }
 
 
         protected override void Close(object parameter)
@@ -59,6 +76,33 @@ namespace TAS.Client.Setup
         protected override void Apply(object parameter)
         {
             base.Apply(parameter);
+            Model.PlayoutChannelPGM = _channelPGM as Server.PlayoutServerChannel;
+            Model.PlayoutChannelPRV = _channelPRV as Server.PlayoutServerChannel;
+            var gpi = Model.GPI;
+            Model.UnInitialize();
+            if (gpi == null)
+            {
+                if (_gPIEnabled)
+                {
+                    gpi = new Server.GPINotifier();
+                    gpi.Address = _gPIAddress;
+                    gpi.GraphicsStartDelay = -_gPIGraphicsAhead;
+                    Model.GPI = gpi;
+                }
+            }
+            else
+            {
+                if (_gPIEnabled)
+                {
+                    if (gpi.Address != _gPIAddress)
+                        gpi.Address = _gPIAddress;
+                    if (gpi.GraphicsStartDelay != -_gPIGraphicsAhead)
+                        gpi.GraphicsStartDelay = -_gPIGraphicsAhead;
+                }
+                else 
+                    Model.GPI = null;
+            }
+            Model.Initialize(Model.EngineLocalSettings);
             if (!Server.DatabaseConnector.EngineSaveEngine(Model))
                 System.Windows.MessageBox.Show("Unsuccessfull save");
         }

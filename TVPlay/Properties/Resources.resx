@@ -514,4 +514,7 @@ Really delete?</value>
   <data name="TAspectConversion_Force4_3" xml:space="preserve">
     <value>None, enforce 4:3</value>
   </data>
+  <data name="_none_" xml:space="preserve">
+    <value>None</value>
+  </data>
 </root>

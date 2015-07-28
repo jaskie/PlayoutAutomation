@@ -20,7 +20,6 @@ namespace TAS.Common
     }
     public enum TEngineOperation { Start, Play, Pause, Stop, Clear, Load, Schedule }
     public enum TEngineState { NotInitialized, Idle, Running, Hold }
-    public enum GPIType { Advantech, Remote };
 
     [Flags]
     [TypeConverter(typeof(TAspectRatioControlEnumConverter))]

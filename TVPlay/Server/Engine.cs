@@ -40,6 +40,9 @@ namespace TAS.Server
 
         [XmlIgnore]
         public readonly MediaManager MediaManager;
+        [XmlIgnore]
+        public EngineSettings EngineLocalSettings { get; private set; }
+
         Thread _engineThread;
         internal long CurrentTicks;
         
@@ -53,8 +56,8 @@ namespace TAS.Server
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
         public event EventHandler<PropertyChangedEventArgs> ServerPropertyChanged;
         public GPINotifier GPI;
+             
         public Remoting.RemoteHost Remote;
-        EngineSettings _engineLocalSettings;
         public TAspectRatioControl AspectRatioControl { get; set; }
 
         public int TimeCorrection { get { return (int)_timeCorrection.TotalMilliseconds; } set { _timeCorrection = TimeSpan.FromMilliseconds(value); } }
@@ -101,7 +104,7 @@ namespace TAS.Server
             set
             {
                 var old = _playoutChannelPGM;
-                if (_playoutChannelPGM != value)
+                if (old != value)
                 {
                     if (old != null)
                     {
@@ -118,6 +121,7 @@ namespace TAS.Server
                         value.OwnerServer.MediaDirectory.MediaRemoved += _mediaPGMRemoved;
                         value.Engine = this;
                     }
+                    NotifyPropertyChanged("PlayoutChannelPGM");
                 }
             }
         }
@@ -130,7 +134,7 @@ namespace TAS.Server
             set
             {
                 var old = _playoutChannelPRV;
-                if (_playoutChannelPGM != value)
+                if (old != value)
                 {
                     if (old != null)
                     {
@@ -143,6 +147,7 @@ namespace TAS.Server
                         value.OwnerServer.PropertyChanged += _onServerPropertyChanged;
                         value.Engine = this;
                     }
+                    NotifyPropertyChanged("PlayoutChannelPRV");
                 }
             }
         }
@@ -155,7 +160,7 @@ namespace TAS.Server
         public void Initialize(EngineSettings localSettings)
         {
             Debug.WriteLine(this, "Begin initializing");
-            _engineLocalSettings = localSettings;
+            EngineLocalSettings = localSettings;
             switch (VideoFormat)
             {
                 case TVideoFormat.HD1080p5000:
@@ -244,15 +249,16 @@ namespace TAS.Server
             _engineThread.Start();
             EngineState = TEngineState.Idle;
 
-            if (GPI != null)
+            var gpi = GPI;
+            if (gpi != null)
             {
                 Debug.WriteLine(this, "Initializing GPI");
-                GPI.StartPressed += Resume;
-                GPI.Initialize();
-                GPI.PropertyChanged += new PropertyChangedEventHandler(GPI_PropertyChanged);
+                gpi.StartPressed += Resume;
+                gpi.Initialize();
+                gpi.PropertyChanged += GPI_PropertyChanged;
             }
 
-            if (Remote != null)
+                        if (Remote != null)
             {
                 Debug.WriteLine(this, "Initializing Remote interface");
                 Remote.Initialize(this);
@@ -263,6 +269,39 @@ namespace TAS.Server
 
             Debug.WriteLine(this, "Engine initialized");
         }
+
+        internal void UnInitialize()
+        {
+            Debug.WriteLine(this, "Begin uninitializing");
+
+            var ch = PlayoutChannelPGM;
+            Debug.WriteLine(this, "Aborting engine thread");
+            _engineThread.Abort();
+            _engineThread.Join();
+            EngineState = TEngineState.NotInitialized;
+
+            if (Remote != null)
+            {
+                Debug.WriteLine(this, "UnInitializing Remote interface");
+                Remote.UnInitialize(this);
+            }
+            var localSettings = EngineLocalSettings;
+            if (localSettings != null)
+                localSettings.StartPressed -= Resume;
+
+            var gpi = GPI;
+            if (gpi != null)
+            {
+                Debug.WriteLine(this, "Uninitializing GPI");
+                gpi.StartPressed -= Resume;
+                gpi.UnInitialize();
+                gpi.PropertyChanged -= GPI_PropertyChanged;
+            }
+
+            Debug.WriteLine(this, "Engine uninitialized");
+        }
+
+
 
         void GPI_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -1182,14 +1221,14 @@ namespace TAS.Server
                 GPI.Logo = ev.GPI.Logo;
                 GPI.Parental = ev.GPI.Parental;
             }
-            if (_engineLocalSettings != null
+            if (EngineLocalSettings != null
                 && !ev.LocalGPITriggered
                 && CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks)
             {
                 ev.LocalGPITriggered = true;
-                _engineLocalSettings.Crawl = ev.GPI.Crawl;
-                _engineLocalSettings.Logo = ev.GPI.Logo;
-                _engineLocalSettings.Parental = ev.GPI.Parental;
+                EngineLocalSettings.Crawl = ev.GPI.Crawl;
+                EngineLocalSettings.Logo = ev.GPI.Logo;
+                EngineLocalSettings.Parental = ev.GPI.Parental;
             }
         }
         
@@ -1368,6 +1407,7 @@ namespace TAS.Server
                 }
             }
         }
+
     }
 
     public class EngineOperationEventArgs : EventArgs

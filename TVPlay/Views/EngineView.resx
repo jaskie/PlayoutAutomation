@@ -240,4 +240,7 @@
   <data name="_toolbar.clockWidth" xml:space="preserve">
     <value>160</value>
   </data>
+  <data name="_menu.Tools.ChannelConfig" xml:space="preserve">
+    <value>Channel config</value>
+  </data>
 </root>

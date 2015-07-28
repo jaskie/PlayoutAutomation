@@ -129,8 +129,20 @@
   <data name="_general" xml:space="preserve">
     <value>Ogólne</value>
   </data>
+  <data name="_gPIAddress" xml:space="preserve">
+    <value>Adres komputera sterującego</value>
+  </data>
+  <data name="_gPIEnabled" xml:space="preserve">
+    <value>Aktywne</value>
+  </data>
+  <data name="_gpiGraphicsStartAhead" xml:space="preserve">
+    <value>Wyprzedzenie wyzwalania grafiki (ms)</value>
+  </data>
   <data name="_name" xml:space="preserve">
     <value>Nazwa</value>
+  </data>
+  <data name="_remoteGPI" xml:space="preserve">
+    <value>Sterowanie GPI</value>
   </data>
   <data name="_videoFormat" xml:space="preserve">
     <value>Format video</value>

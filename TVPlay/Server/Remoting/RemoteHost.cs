@@ -53,5 +53,10 @@ namespace TAS.Server.Remoting
                 _doDispose(_disposed);
             }
         }
+
+        internal void UnInitialize(Server.Engine engine)
+        {
+            _host.Close();
+        }
     }
 }

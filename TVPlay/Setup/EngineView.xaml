@@ -9,13 +9,17 @@
         d:DataContext="{x:Type setup:EngineViewmodel}"
         d:DesignHeight="300" d:DesignWidth="560"
         >
+    <UserControl.Resources>
+        <Style TargetType="HeaderedContentControl">
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+    </UserControl.Resources>
     <Grid >
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
+            <ColumnDefinition />
+            <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <HeaderedContentControl Header="{Resx _general}" Margin="10">
+        <HeaderedContentControl Header="{Resx _general}" >
             <StackPanel>
                 <Label Content="{Resx _name}"/>
                 <TextBox Text="{Binding EngineName, UpdateSourceTrigger=PropertyChanged}"/>
@@ -27,14 +31,26 @@
                 <ComboBox ItemsSource="{Binding AspectRatioControls}" SelectedValue="{Binding AspectRatioControl}" />
             </StackPanel>
         </HeaderedContentControl>
-        <HeaderedContentControl Grid.Column="1" Header="{Resx _channels}" Margin="10">
-            <StackPanel>
-                <Label Content="PGM"/>
-                <ComboBox ItemsSource="{Binding Channels}" SelectedValue="{Binding ChannelPGM}"/>
-                
-            </StackPanel>
-        </HeaderedContentControl>
-        <HeaderedContentControl Grid.Column="2" Header="GPI" Content="{Binding GPIView}"/>
-        
+        <StackPanel Grid.Column="1" >
+            <HeaderedContentControl Header="{Resx _channels}" >
+                <StackPanel>
+                    <Label Content="PGM"/>
+                    <ComboBox ItemsSource="{Binding Channels}" SelectedValue="{Binding ChannelPGM}"/>
+                    <Label Content="PRV"/>
+                    <ComboBox ItemsSource="{Binding Channels}" SelectedValue="{Binding ChannelPRV}"/>
+                </StackPanel>
+            </HeaderedContentControl>
+            <HeaderedContentControl Header="{Resx _remoteGPI}">
+                <StackPanel>
+                    <CheckBox IsChecked="{Binding GPIEnabled}" Content="{Resx _gPIEnabled}"/>
+                    <StackPanel Visibility="{Binding GPIEnabled, Converter={StaticResource BoolToVis}}">
+                        <Label Content="{Resx _gPIAddress}"/>
+                        <TextBox Text="{Binding GPIAddress}"/>
+                        <Label Content="{Resx _gpiGraphicsStartAhead}"/>
+                        <TextBox Text="{Binding GPIGraphicsAhead}"/>
+                    </StackPanel>
+                </StackPanel>
+            </HeaderedContentControl>
+        </StackPanel>
     </Grid>
 </UserControl>
