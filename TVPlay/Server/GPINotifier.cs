@@ -59,21 +59,16 @@ namespace TAS.Server
         {
             _heartbeatTimer.Dispose();
             _heartbeatTimer = null;
+            _remoteDisconnect();
             _socketWorker.Abort();
             _socketWorker.Join();
             _socketWorker = null;
         }
 
 
-        private void RemoteConnect()
+        private void _remoteConnect()
         {
-            Connected = false;
-            var oldStream = _remoteClientStream;
-            if (oldStream != null)
-                oldStream.Close();
-            var oldClient = _remoteClient;
-            if (oldClient != null)
-                _remoteClient.Close();
+            _remoteDisconnect();
             _remoteClient = new TcpClient();
             _remoteClient.NoDelay = true;
             _remoteClient.SendTimeout = 1000;
@@ -94,6 +89,17 @@ namespace TAS.Server
                 Debug.WriteLine(e, "GPINotifier client connect error");
                 Thread.Sleep(10000);
             }
+        }
+
+        private void _remoteDisconnect()
+        {
+            Connected = false;
+            var oldStream = _remoteClientStream;
+            if (oldStream != null)
+                oldStream.Close();
+            var oldClient = _remoteClient;
+            if (oldClient != null)
+                _remoteClient.Close();
         }
 
         private void _socketWorkerThreadProc()
@@ -121,14 +127,13 @@ namespace TAS.Server
                     else  // client disconnected
                     {
                         if (!disposed)
-                            RemoteConnect();
+                            _remoteConnect();
                     }
                 }
             }
             catch (ThreadAbortException e)
             {
                 Debug.WriteLine("GPINotifier thread aborted");
-                _remoteClient.Close();
             }
         }
 
