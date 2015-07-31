@@ -53,12 +53,9 @@ namespace TAS.Server
         public override void MediaRemove(Media media)
         {
             ServerMedia m = (ServerMedia)media;
-            if (m.MediaStatus != TMediaStatus.Required)
-            {
-                m.MediaStatus = TMediaStatus.Deleted;
-                m.Verified = false;
-                m.Save();
-            }
+            m.MediaStatus = TMediaStatus.Deleted;
+            m.Verified = false;
+            m.Save();
             media.PropertyChanged -= OnMediaPropertyChanged;
             base.MediaRemove(media);
         }

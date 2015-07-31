@@ -258,7 +258,7 @@ namespace TAS.Server
                 gpi.PropertyChanged += GPI_PropertyChanged;
             }
 
-                        if (Remote != null)
+            if (Remote != null)
             {
                 Debug.WriteLine(this, "Initializing Remote interface");
                 Remote.Initialize(this);

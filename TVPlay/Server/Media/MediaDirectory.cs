@@ -194,15 +194,13 @@ namespace TAS.Server
                 _files.Lock.EnterReadLock();
                 try
                 {
-                    isLastWithTheName = !_files.Any(m => m.FullPath == media.FullPath && m != media && m.MediaStatus == TMediaStatus.Available);
+                    isLastWithTheName = !_files.Any(m => m.FullPath == media.FullPath && m != media);
                 }
                 finally
                 {
                     _files.Lock.ExitReadLock();
                 }
-                if ((media.MediaStatus == TMediaStatus.Available || media.MediaStatus == TMediaStatus.ValidationError || media.MediaStatus == TMediaStatus.Copying)
-                    && (isLastWithTheName)
-                    && media.FileExists())
+                if (isLastWithTheName && media.FileExists())
                 {
                     try
                     {
@@ -261,15 +259,19 @@ namespace TAS.Server
         public virtual void MediaAdd(Media media)
         {
             _files.Add(media);
-            if (MediaAdded != null)
-                MediaAdded(this, new MediaEventArgs(media));
+            var h = MediaAdded;
+            if (h != null)
+                h(this, new MediaEventArgs(media));
         }
 
         public virtual void MediaRemove(Media media)
         {
-            if (_files.Remove(media)
-                && MediaRemoved != null)
-                MediaRemoved(this, new MediaEventArgs(media));
+            if (_files.Remove(media))
+            {
+                var h = MediaRemoved;
+                if (h != null)
+                    h(this, new MediaEventArgs(media));
+            }
         }
         
         protected virtual void FileRemoved(string fullPath)
@@ -303,9 +305,9 @@ namespace TAS.Server
 
         internal virtual void OnMediaVerified(Media media)
         {
-            var handler = MediaVerified;
-            if (handler != null)
-                handler(media, new MediaEventArgs(media));
+            var h = MediaVerified;
+            if (h != null)
+                h(media, new MediaEventArgs(media));
         }
 
         protected virtual void EnumerateFiles()
