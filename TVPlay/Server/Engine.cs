@@ -789,16 +789,9 @@ namespace TAS.Server
                         e.PlayState = TPlayState.Aborted;
                 }
                 _load(aEvent);
-                (new Action(() =>
-                {
-                    foreach (Event e in oldEvents)
-                        if (_visibleEvents[e.Layer] == null)
-                        {
-                            Thread.Sleep((int)(FrameTicks / TimeSpan.TicksPerMillisecond)); // delay one frame due to Caspar's bug
-                            Clear(e.Layer);
-                        }
-                }
-                )).BeginInvoke(ar => ((Action)((AsyncResult)ar).AsyncDelegate).EndInvoke(ar), null);
+                foreach (Event e in oldEvents)
+                    if (_visibleEvents[e.Layer] == null)
+                        Clear(e.Layer);
             }
             NotifyEngineOperation(aEvent, TEngineOperation.Load);
         }
@@ -872,19 +865,9 @@ namespace TAS.Server
                 }
 
                 _play(aEvent, true);
-                (new Action(() =>
-                {
-                    foreach (Event e in oldEvents)
-                        if (_visibleEvents[e.Layer] == null)
-                        {
-                            Thread.Sleep((int)(_frameTicks / TimeSpan.TicksPerMillisecond)); // delay one frame due to Caspar's bug
-                            Clear(e.Layer);
-                        }
-                }
-                )).BeginInvoke(ar => ((Action)((AsyncResult)ar).AsyncDelegate).EndInvoke(ar), null);
-                //foreach (Event e in aEvent.VisualRootTrack)
-                //    if (e != aEvent && e.EventType != TEventType.Container)
-                //        e.Position = (e.Duration.Ticks - (e.EndTime.Ticks - CurrentTicks)) / FrameDuration;
+                foreach (Event e in oldEvents)
+                    if (_visibleEvents[e.Layer] == null)
+                        Clear(e.Layer);
             }
             NotifyEngineOperation(aEvent, TEngineOperation.Start);
         }

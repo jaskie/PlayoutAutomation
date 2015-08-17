@@ -13,7 +13,7 @@ namespace TAS.Server
         public readonly string ChannelName;
         public int ChannelNumber;
         public decimal MasterVolume = 1;
-        protected bool outputAspectNarrow;
+        protected bool? outputAspectNarrow;
         internal Engine Engine { get; set; }
 
         internal abstract void Initialize();
