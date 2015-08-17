@@ -353,12 +353,14 @@ namespace TAS.Server
                 Debug.WriteLine(aVideoLayer, "CasparClear");
             }
         }
+
         public override void Clear()
         {
             var channel = _casparChannel;
             if (_checkConnected() && channel != null)
             {
                 channel.Clear();
+                channel.ClearMixer((int)VideoLayer.Program);
                 Debug.WriteLine(this, "CasparClear");
             }
         }
