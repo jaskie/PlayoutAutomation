@@ -29,7 +29,9 @@ namespace TAS.Server
             if (_folder.StartsWith("ftp://"))
                 AccessType = TDirectoryAccessType.FTP;
             else
-                if (!IsXDCAM) //not ftp and not xdcam
+                if (IsXDCAM) 
+                    Refresh();
+                else
                 {
                     if (string.IsNullOrWhiteSpace(Username)
                         || _connectToRemoteDirectory())
@@ -189,7 +191,7 @@ namespace TAS.Server
         {
             try
             {
-                _xDCAMIndex = XDCAM.SerializationHelper<XDCAM.Index>.Deserialize(_readXMLDocument("/INDEX.XML"));
+                _xDCAMIndex = XDCAM.SerializationHelper<XDCAM.Index>.Deserialize(_readXMLDocument("INDEX.XML"));
                 if (_xDCAMIndex != null)
                 {
                     _files.Clear();
@@ -213,7 +215,7 @@ namespace TAS.Server
                                     newMedia.ClipMetadata = clip.ClipMeta;
                                     if (clip.ClipMeta != null)
                                     {
-                                        newMedia._lastUpdated = clip.ClipMeta.lastUpdate == default(DateTime) ? clip.ClipMeta.CreationDate.Value : clip.ClipMeta.lastUpdate;
+                                        newMedia.LastUpdated = clip.ClipMeta.lastUpdate == default(DateTime) ? clip.ClipMeta.CreationDate.Value : clip.ClipMeta.lastUpdate;
                                         newMedia.MediaGuid = new Guid(clip.ClipMeta.TargetMaterial.umidRef.Substring(32, 32));
                                         TSMPTEFrameRate rate = (TSMPTEFrameRate)clip.ClipMeta.LtcChangeTable.tcFps;
                                         XDCAM.NonRealTimeMeta.LtcChange start = clip.ClipMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
