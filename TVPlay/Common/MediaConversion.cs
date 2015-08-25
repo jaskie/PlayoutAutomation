@@ -62,24 +62,38 @@ namespace TAS.Common
                     FFMpegAudioFilter = "pan=stereo|c0=c2|c1=c3";
                     break;
                 case TAudioChannelMappingConversion.FirstChannelOnly:
-                    OutputFormat = TAudioChannelMapping.Mono; 
-                    FFMpegParameter = "ac 1";
-                    FFMpegAudioFilter = "pan=mono|c0=c0";
+                    // Temporary fix due to Caspar's audio distortion in right channlel playing mono file
+
+                    //OutputFormat = TAudioChannelMapping.Mono;    
+                    //FFMpegParameter = "ac 1";
+                    //FFMpegAudioFilter = "pan=mono|c0=c0";
+                    OutputFormat = TAudioChannelMapping.Stereo;
+                    FFMpegParameter = "ac 2";
+                    FFMpegAudioFilter = "pan=stereo|c0=c0|c1=c0";
                     break;
                 case TAudioChannelMappingConversion.SecondChannelOnly:
-                    OutputFormat = TAudioChannelMapping.Mono;
-                    FFMpegParameter = "ac 1";
-                    FFMpegAudioFilter = "pan=mono|c0=c1";
+                    //OutputFormat = TAudioChannelMapping.Mono;
+                    //FFMpegParameter = "ac 1";
+                    //FFMpegAudioFilter = "pan=mono|c0=c1";
+                    OutputFormat = TAudioChannelMapping.Stereo;
+                    FFMpegParameter = "ac 2";
+                    FFMpegAudioFilter = "pan=stereo|c0=c1|c1=c1";
                     break;
                 case TAudioChannelMappingConversion.Combine1plus2:
-                    OutputFormat = TAudioChannelMapping.Mono;
-                    FFMpegParameter = "ac 1";
-                    FFMpegAudioFilter = "pan=mono|c0=0.5*c0+0.5*c1";
+                    //OutputFormat = TAudioChannelMapping.Mono;
+                    //FFMpegParameter = "ac 1";
+                    //FFMpegAudioFilter = "pan=mono|c0=0.5*c0+0.5*c1";
+                    OutputFormat = TAudioChannelMapping.Stereo;
+                    FFMpegParameter = "ac 2";
+                    FFMpegAudioFilter = "pan=stereo|c0=0.5*c0+0.5*c1|c1=0.5*c0+0.5*c1";
                     break;
                 case TAudioChannelMappingConversion.Combine3plus4:
-                    OutputFormat = TAudioChannelMapping.Mono;
-                    FFMpegParameter = "ac 1";
-                    FFMpegAudioFilter = "pan=mono|c0=0.5*c2+0.5*c3";
+                    //OutputFormat = TAudioChannelMapping.Mono;
+                    //FFMpegParameter = "ac 1";
+                    //FFMpegAudioFilter = "pan=mono|c0=0.5*c2+0.5*c3";
+                    OutputFormat = TAudioChannelMapping.Stereo;
+                    FFMpegParameter = "ac 2";
+                    FFMpegAudioFilter = "pan=stereo|c0=0.5*c2+0.5*c3|c1=0.5*c2+0.5*c3";
                     break;
             }
         }

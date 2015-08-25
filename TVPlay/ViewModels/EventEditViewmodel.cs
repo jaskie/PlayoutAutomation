@@ -82,7 +82,7 @@ namespace TAS.Client.ViewModels
                     throw new InvalidOperationException("Edit event engine invalid");
                 if (value != ev)
                 {
-                    if (Modified
+                    if (this.Modified
                     && MessageBox.Show(Properties.Resources._query_SaveChangedData, Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         _save(null);
                     if (ev != null)
@@ -143,29 +143,35 @@ namespace TAS.Client.ViewModels
 
         void _load(object o)
         {
-            Event e2Load = _event;
-            if (e2Load != null)
+            _isLoading = true;
+            try
             {
-                PropertyInfo[] copiedProperties = this.GetType().GetProperties();
-                foreach (PropertyInfo copyPi in copiedProperties)
+                Event e2Load = _event;
+                if (e2Load != null)
                 {
-                    PropertyInfo sourcePi = e2Load.GetType().GetProperty(copyPi.Name);
-                    if (sourcePi != null)
-                        copyPi.SetValue(this, sourcePi.GetValue(e2Load, null), null);
+                    PropertyInfo[] copiedProperties = this.GetType().GetProperties();
+                    foreach (PropertyInfo copyPi in copiedProperties)
+                    {
+                        PropertyInfo sourcePi = e2Load.GetType().GetProperty(copyPi.Name);
+                        if (sourcePi != null && copyPi.Name != "Modified")
+                            copyPi.SetValue(this, sourcePi.GetValue(e2Load, null), null);
+                    }
+                }
+                else // _event is null
+                {
+                    PropertyInfo[] zeroedProperties = this.GetType().GetProperties();
+                    foreach (PropertyInfo zeroPi in zeroedProperties)
+                    {
+                        PropertyInfo sourcePi = typeof(Event).GetProperty(zeroPi.Name);
+                        if (sourcePi != null)
+                            zeroPi.SetValue(this, null, null);
+                    }
                 }
             }
-            else // _event is null
+            finally
             {
-                PropertyInfo[] zeroedProperties = this.GetType().GetProperties();
-                foreach (PropertyInfo zeroPi in zeroedProperties)
-                {
-                    PropertyInfo sourcePi = typeof(Event).GetProperty(zeroPi.Name);
-                    if (sourcePi != null)
-                        zeroPi.SetValue(this, null, null);
-                }
+                _isLoading = false;
             }
-
-            Modified = false;
             NotifyPropertyChanged(null);
         }
 
@@ -183,11 +189,13 @@ namespace TAS.Client.ViewModels
                 writingProperty.SetValue(this, null, null);
         }
 
+        bool _isLoading;
         protected override bool SetField<T>(ref T field, T value, string propertyName)
         {
             if (base.SetField(ref field, value, propertyName))
             {
-                if (propertyName != "ScheduledTime" || IsScheduledTimeEnabled)
+                if (!_isLoading &&
+                    (propertyName != "ScheduledTime" || IsScheduledTimeEnabled))
                     Modified = true;
                 return true;
             }
