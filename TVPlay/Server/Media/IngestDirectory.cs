@@ -99,37 +99,48 @@ namespace TAS.Server
             return exists;
         }
 
+        bool _isRefreshing;
         public override void Refresh()
         {
-            if (IsXDCAM)
+            if (_isRefreshing)
+                return;
+            _isRefreshing = true;
+            try
             {
-                if (Monitor.TryEnter(_xdcamLockObject, 1000))
-                    try
-                    {
-                        if (AccessType == TDirectoryAccessType.FTP)
+                if (IsXDCAM)
+                {
+                    if (Monitor.TryEnter(_xdcamLockObject, 1000))
+                        try
                         {
-                            using (client = new XdcamClient())
+                            if (AccessType == TDirectoryAccessType.FTP)
                             {
-                                Uri uri = new Uri(_folder, UriKind.Absolute);
-                                client.Host = uri.Host;
-                                client.Credentials = NetworkCredential;
-                                client.Connect();
-                                _readXDCAM();
+                                using (client = new XdcamClient())
+                                {
+                                    Uri uri = new Uri(_folder, UriKind.Absolute);
+                                    client.Host = uri.Host;
+                                    client.Credentials = NetworkCredential;
+                                    client.Connect();
+                                    _readXDCAM();
+                                }
                             }
+                            else
+                                _readXDCAM();
                         }
-                        else
-                            _readXDCAM();
-                    }
-                    finally
-                    {
-                        Monitor.Exit(_xdcamLockObject);
-                    }
+                        finally
+                        {
+                            Monitor.Exit(_xdcamLockObject);
+                        }
+                    else
+                        throw new ApplicationException("Nie udało się uzyskać dostępu do XDCAM");
+                }
                 else
-                    throw new ApplicationException("Nie udało się uzyskać dostępu do XDCAM");
+                    if (AccessType == TDirectoryAccessType.FTP)
+                        _ftpDirectoryList();
             }
-            else
-                if (AccessType == TDirectoryAccessType.FTP)
-                    _ftpDirectoryList();
+            finally
+            {
+                _isRefreshing = false;
+            }
         }
 
         private XDCAM.Index _xDCAMIndex;

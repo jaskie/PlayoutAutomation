@@ -237,7 +237,7 @@ namespace TAS.Client.ViewModels
             _mediaView.Refresh();
         }
 
-        private string _searchText;
+        private string _searchText = string.Empty;
         public string SearchText
         {
             get { return _searchText; }
@@ -245,7 +245,7 @@ namespace TAS.Client.ViewModels
             {
                 if (value != _searchText)
                 {
-                    _searchText = value.ToLower();
+                    _searchText = value;
                     NotifyPropertyChanged("SearchText");
                 }
             }
@@ -282,7 +282,7 @@ namespace TAS.Client.ViewModels
         private bool FilterOut(object item)
         {
             var m = item as MediaViewViewmodel;
-            var searchText = SearchText;
+            var searchText = SearchText.ToLower();
             return ((string.IsNullOrEmpty(searchText) || m.MediaName.ToLower().Contains(searchText)) || m.FileName.ToLower().Contains(_searchText))
                && (_mediaCategory as TMediaCategory? == null || m.MediaCategory == (TMediaCategory)_mediaCategory);
         }
