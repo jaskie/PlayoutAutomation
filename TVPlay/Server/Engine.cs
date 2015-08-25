@@ -547,7 +547,7 @@ namespace TAS.Server
                     _previewLoaded = value;
                     decimal vol = (_previewLoaded) ? 0 : _audioVolume;
                     if (PlayoutChannelPRV != null)
-                        PlayoutChannelPRV.SetVolume(VideoLayer.Program, vol);
+                        PlayoutChannelPRV.SetVolume(VideoLayer.Preview, vol);
                     NotifyPropertyChanged("PreviewIsPlaying");
                 }
             }
@@ -579,9 +579,9 @@ namespace TAS.Server
                 {
                     _audioVolume = value;
                     if (PlayoutChannelPGM != null)
-                        PlayoutChannelPGM.SetVolume(0, _audioVolume);
+                        PlayoutChannelPGM.SetVolume(VideoLayer.Program, _audioVolume);
                     if (PlayoutChannelPRV != null && !_previewLoaded)
-                        PlayoutChannelPRV.SetVolume(0, _audioVolume);
+                        PlayoutChannelPRV.SetVolume(VideoLayer.Program, _audioVolume);
                     NotifyPropertyChanged("AudioVolume");
                 }
             }
@@ -1018,6 +1018,8 @@ namespace TAS.Server
             if (PlayoutChannelPRV != null)
                 PlayoutChannelPRV.Clear();
             NotifyEngineOperation(null, TEngineOperation.Clear);
+            _audioVolume = 1.0m;
+            NotifyPropertyChanged("AudioVolume");
             lock (_tickLock)
                 EngineState = TEngineState.Idle;
         }

@@ -180,6 +180,7 @@ namespace TAS.Client.ViewModels
                             OutputFormat = _mediaManager.Engine.VideoFormat,
                             AudioVolume = (sourceMedia.Directory is IngestDirectory)? ((IngestDirectory)sourceMedia.Directory).AudioVolume : 0,
                             SourceFieldOrderEnforceConversion = (sourceMedia.Directory is IngestDirectory) ? ((IngestDirectory)sourceMedia.Directory).SourceFieldOrder : TFieldOrder.Unknown,
+                            AspectConversion = (sourceMedia.Directory is IngestDirectory) ? ((IngestDirectory)sourceMedia.Directory).AspectConversion : TAspectConversion.NoConversion,
                         });
                     }
                 }
@@ -321,7 +322,6 @@ namespace TAS.Client.ViewModels
                         _mediaDirectory.PropertyChanged -= MediaDirectoryPropertyChanged;
                     }
                     _mediaDirectory = value;
-                    _reloadFiles();
                     if (_mediaDirectory != null)
                     {
                         value.MediaAdded += MediaAdded;
@@ -331,6 +331,7 @@ namespace TAS.Client.ViewModels
                             if (!string.IsNullOrEmpty((value as ArchiveDirectory).SearchString))
                                 SearchText = (value as ArchiveDirectory).SearchString;
                     }
+                    _reloadFiles();
                     SelectedMedia = null;
                     NotifyPropertyChanged("MediaDirectory");
                     NotifyPropertyChanged("DisplayDirectoryInfo");
@@ -356,7 +357,6 @@ namespace TAS.Client.ViewModels
         }
         private void _reloadFiles()
         {
-
             _mediaItems = new ObservableCollection<MediaViewViewmodel>();
             IEnumerable<MediaViewViewmodel> itemsToLoad;
             if (_mediaDirectory is ServerDirectory)
@@ -369,6 +369,7 @@ namespace TAS.Client.ViewModels
             _mediaView.SortDescriptions.Add(new SortDescription("MediaName", ListSortDirection.Ascending));
             if (!(_mediaDirectory is ArchiveDirectory))
                 _mediaView.Filter = new Predicate<object>(FilterOut);
+            System.Threading.Tasks.Task.Factory.StartNew(_mediaDirectory.Refresh);
             NotifyPropertyChanged("MediaItems");
         }
 

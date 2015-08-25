@@ -35,6 +35,11 @@ namespace TAS.Server
             }
         }
 
+        public override void Refresh()
+        {
+            Search();
+        }
+
         public void Search()
         {
             DatabaseConnector.ArchiveMediaSearch(this);

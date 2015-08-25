@@ -24,6 +24,11 @@ namespace TAS.Server
         {
             // do not add to _files
         }
+
+        public override void Refresh()
+        {
+            
+        }
         
         public TempMedia Get(Media media)
         {

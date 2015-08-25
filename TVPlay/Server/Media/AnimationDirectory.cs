@@ -28,6 +28,11 @@ namespace TAS.Server
 
         }
 
+        public override void Refresh()
+        {
+            
+        }
+
         protected override Media CreateMedia()
         {
             return new ServerMedia() { MediaType = TMediaType.AnimationFlash, Directory = this, };

@@ -187,7 +187,8 @@ namespace TAS.Client.ViewModels
         {
             if (base.SetField(ref field, value, propertyName))
             {
-                Modified = true;
+                if (propertyName != "ScheduledTime" || IsScheduledTimeEnabled)
+                    Modified = true;
                 return true;
             }
             return false;

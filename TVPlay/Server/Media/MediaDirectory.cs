@@ -94,11 +94,7 @@ namespace TAS.Server
         private UInt64 _volumeTotalSize = 0;
         public virtual UInt64 VolumeTotalSize { get { return _volumeTotalSize; } }
 
-        public virtual void Refresh()
-        {
-            
-        }
-
+        public abstract void Refresh();
         
         [XmlIgnore]
         public virtual IEnumerable<Media> Files

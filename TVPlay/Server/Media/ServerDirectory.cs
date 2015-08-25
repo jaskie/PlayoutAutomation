@@ -26,6 +26,11 @@ namespace TAS.Server
             Debug.WriteLine(this, "Directory initialized");
         }
 
+        public override void Refresh()
+        {
+
+        }
+
         protected override Media CreateMedia()
         {
             ServerMedia newMedia = new ServerMedia() { 

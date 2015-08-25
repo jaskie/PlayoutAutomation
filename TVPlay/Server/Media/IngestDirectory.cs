@@ -73,6 +73,8 @@ namespace TAS.Server
 
         public TFieldOrder SourceFieldOrder { get; set; }
 
+        public TAspectConversion AspectConversion { get; set; }
+
         private bool _ftpDirectoryList()
         {
             bool exists = true;
@@ -128,8 +130,6 @@ namespace TAS.Server
             else
                 if (AccessType == TDirectoryAccessType.FTP)
                     _ftpDirectoryList();
-                else
-                    base.Refresh();
         }
 
         private XDCAM.Index _xDCAMIndex;
