@@ -139,7 +139,7 @@
             <DockPanel>
                 <Label Content="{Resx _audioVolume}" Style="{StaticResource fieldNameLabels}" />
                 <Slider Margin="2" Width="80" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
-                <TextBox Margin="4" Width="35" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
+                <TextBox Margin="4" Width="40" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
                 <Label VerticalContentAlignment="Center" Content="dB" />
             </DockPanel>
             <!--<DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">

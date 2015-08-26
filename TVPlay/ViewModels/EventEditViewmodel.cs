@@ -20,7 +20,6 @@ namespace TAS.Client.ViewModels
         {
             _engineViewModel = engineViewModel;
             _engine = engineViewModel.Engine;
-            Modified = false;
             CommandSaveEdit = new SimpleCommand() { ExecuteDelegate = _save, CanExecuteDelegate = _canSave };
             CommandCancelEdit = new SimpleCommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
             CommandDelete = new SimpleCommand() { ExecuteDelegate = _delete, CanExecuteDelegate = _canDelete };
@@ -171,6 +170,7 @@ namespace TAS.Client.ViewModels
             finally
             {
                 _isLoading = false;
+                Modified = false;
             }
             NotifyPropertyChanged(null);
         }

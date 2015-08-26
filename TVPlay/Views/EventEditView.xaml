@@ -196,7 +196,7 @@
                         <DockPanel>
                             <Label Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                             <Label DockPanel.Dock="Right" VerticalAlignment="Center" Content="dB" Width="25" />
-                            <client:DelayedBindingTextBox DockPanel.Dock="Right" Grid.Column="2" Width="30" Text="{Binding AudioVolume, StringFormat={}{0:0.0}, UpdateSourceTrigger=LostFocus}"/>
+                            <TextBox DockPanel.Dock="Right" Grid.Column="2" Width="40" Text="{Binding AudioVolume, StringFormat={}{0:0.0}, UpdateSourceTrigger=LostFocus}"/>
                             <Slider  VerticalAlignment="Stretch" Margin="5, 0" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
                         </DockPanel>
                         <Grid>

@@ -547,7 +547,7 @@ namespace TAS.Server
                     _previewLoaded = value;
                     decimal vol = (_previewLoaded) ? 0 : _audioVolume;
                     if (PlayoutChannelPRV != null)
-                        PlayoutChannelPRV.SetVolume(VideoLayer.Preview, vol);
+                        PlayoutChannelPRV.SetVolume(VideoLayer.Program, vol);
                     NotifyPropertyChanged("PreviewIsPlaying");
                 }
             }

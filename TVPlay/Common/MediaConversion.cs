@@ -111,11 +111,11 @@ namespace TAS.Common
                     break;
                 case TFieldOrder.BFF:
                     OutputFormat = TFieldOrder.BFF;
-                    FFMpegParameter = "setfield=bff";
+                    FFMpegVideoFilter = "setfield=bff";
                     break;
                 case TFieldOrder.Progressive:
                     OutputFormat = TFieldOrder.Progressive;
-                    FFMpegParameter = "setfield=prog";
+                    FFMpegVideoFilter = "setfield=prog";
                     break;
             }
         }
