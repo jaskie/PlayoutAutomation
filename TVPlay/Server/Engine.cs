@@ -15,7 +15,7 @@ using TAS.Common;
 namespace TAS.Server
 {
     
-    public partial class Engine : INotifyPropertyChanged, IDisposable
+    public class Engine : INotifyPropertyChanged, IDisposable
     {
         [XmlIgnore]
         public UInt64 IdEngine { get; internal set; }

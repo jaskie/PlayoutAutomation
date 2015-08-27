@@ -135,7 +135,7 @@ namespace TAS.Server
 
         private TVideoFormat _outputFormat;
         public TVideoFormat OutputFormat { get { return _outputFormat; } set { SetField(ref _outputFormat, value, "OutputFormat"); } }
-        
+
         private bool RunProcess(string parameters)
         {
             //create a process info
@@ -146,6 +146,7 @@ namespace TAS.Server
 
             //try the process
             Debug.WriteLine(parameters, "Starting ffmpeg with parameters");
+            _addOutputMessage(string.Format("ffmpeg.exe {0}", parameters));
             try
             {
                 using (Process _procFFmpeg = Process.Start(oInfo))
@@ -168,6 +169,7 @@ namespace TAS.Server
             catch (Exception e)
             {
                 Debug.WriteLine(e.Message, "Error running FFmpeg process");
+                _addOutputMessage(e.ToString());
                 return false;
             }
         }
@@ -282,12 +284,19 @@ namespace TAS.Server
             VideoFormatDescription inputFormatDescription = SourceMedia.VideoFormatDescription;
             if (outputFormatDescription.ImageSize != inputFormatDescription.ImageSize)
                 vf.Add(string.Format("scale={0}:{1}", outputFormatDescription.ImageSize.Width, outputFormatDescription.ImageSize.Height));
+            if (outputFormatDescription.Interlaced)
+            {
+                vf.Add("fieldorder=tff");
+                ep.Append(" -flags +ildct+ilme");
+            }
+            else
+            {
+                vf.Add("w3fdif");
+            }
             if (vf.Any())
                 ep.AppendFormat(" -filter:v \"{0}\"", string.Join(", ", vf));
             if (af.Any())
                 ep.AppendFormat(" -filter:a \"{0}\"", string.Join(", ", af));
-            if (outputFormatDescription.Interlaced)
-                ep.Append(" -flags +ildct+ilme -top 1");
             return ep.ToString();
         }
 
@@ -345,11 +354,13 @@ namespace TAS.Server
                     {
                         TimeSpan progressSeconds;
                         long duration = _duration.Ticks;
-                        if (duration>0 
+                        if (duration > 0
                             && TimeSpan.TryParse(mProgressVal.Value.Trim(), CultureInfo.InvariantCulture, out progressSeconds))
                             Progress = (int)((progressSeconds.Ticks * 100) / duration);
                     }
                 }
+                else
+                    _addOutputMessage(outLine.Data);
             }
         }
 

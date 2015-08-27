@@ -61,7 +61,6 @@ namespace TAS.Client.Views
                 Debug.WriteLine(engine, "Creating viewmodel for");
                 var evm = new EngineViewmodel(engine);
                 Debug.WriteLine(engine, "Creating commands for");
-                evm.CreateTVPCommands();
                 evm.PreviewViewmodel = newPreviewViewmodel;
                 newtab.Content = evm.View;
                 tcChannels.Items.Add(newtab);

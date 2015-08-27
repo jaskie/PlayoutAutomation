@@ -14,7 +14,7 @@ using System.Diagnostics;
 
 namespace TAS.Client.ViewModels
 {
-    public partial class EngineViewmodel : ViewmodelBase
+    public class EngineViewmodel : ViewmodelBase
     {
         private readonly Engine _engine;
         private readonly EventEditViewmodel _eventEditViewmodel;

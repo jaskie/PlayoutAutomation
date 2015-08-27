@@ -146,6 +146,7 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == "AudioChannelMappingConversion"
                 || e.PropertyName == "AudioVolume"
                 || e.PropertyName == "SourceFieldOrderEnforceConversion"
+                || e.PropertyName == "OperationOuput"
                 )
                 NotifyPropertyChanged(e.PropertyName);
             else

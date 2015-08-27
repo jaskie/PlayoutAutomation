@@ -52,7 +52,7 @@
                 <DataGridTemplateColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Progress}" Width="80" >
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Grid>
+                            <Grid ToolTip="{Binding OperationOutput}">
                                 <ProgressBar IsIndeterminate="{Binding IsIndeterminate, Mode=OneWay}"  Value="{Binding Progress, Mode=OneWay}" Minimum="0" Maximum="100" />
                                 <Label Content="{Binding Path=Progress}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" Foreground="White" FontWeight="Bold" />
                             </Grid>

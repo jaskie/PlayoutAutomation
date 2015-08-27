@@ -317,7 +317,6 @@
     <Compile Include="Views\EngineView.xaml.cs">
       <DependentUpon>EngineView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TVP\RundownImporterSzarp.cs" />
     <Compile Include="ViewModels\EngineViewmodel.cs" />
     <Compile Include="ViewModels\EventViewmodel.cs" />
     <Compile Include="ViewModels\MediaManagerViewmodel.cs" />

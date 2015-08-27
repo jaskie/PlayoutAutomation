@@ -35,3 +35,4 @@ examples
 help
 *.suo
 *.opensdf
+/TVPlay/TVP

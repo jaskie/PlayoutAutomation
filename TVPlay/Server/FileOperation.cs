@@ -115,7 +115,15 @@ namespace TAS.Server
                 }
             }
         }
-        
+
+        private SynchronizedCollection<string> _operationOutput = new SynchronizedCollection<string>();
+        public IEnumerable<string> OperationOutput { get { return _operationOutput; } }
+        protected void _addOutputMessage(string message)
+        {
+            _operationOutput.Add(message);
+            NotifyPropertyChanged("OperationOutput");
+        }
+
         internal virtual bool Do()
         {
             if (_do())

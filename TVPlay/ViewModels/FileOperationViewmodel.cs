@@ -72,6 +72,7 @@ namespace TAS.Client.ViewModels
         public bool Finished { get { return _fileOperation.OperationStatus != FileOperationStatus.Waiting && _fileOperation.OperationStatus != FileOperationStatus.InProgress; } }
 
         public FileOperationStatus OperationStatus { get { return _fileOperation.OperationStatus; } }
+        public string OperationOutput { get { return string.Join(Environment.NewLine, _fileOperation.OperationOutput); } }
 
         public ICommand CommandAbort { get; private set; }
 
@@ -83,7 +84,9 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == "TryCount" 
                 || e.PropertyName == "IsIndeterminate" 
                 || e.PropertyName == "Progress"
-                || e.PropertyName == "OperationStatus")
+                || e.PropertyName == "OperationStatus"
+                || e.PropertyName == "OperationOutput"
+                )
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == "OperationStatus")
                 NotifyPropertyChanged("CommandAbort");
