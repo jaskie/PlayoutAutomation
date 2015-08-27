@@ -49,12 +49,19 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Progress}" Width="80" >
+                <DataGridTemplateColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Progress}" Width="95" >
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Grid ToolTip="{Binding OperationOutput}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                </Grid.ColumnDefinitions>
                                 <ProgressBar IsIndeterminate="{Binding IsIndeterminate, Mode=OneWay}"  Value="{Binding Progress, Mode=OneWay}" Minimum="0" Maximum="100" />
                                 <Label Content="{Binding Path=Progress}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" Foreground="White" FontWeight="Bold" />
+                                <Button Grid.Column="1" ToolTip="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.OperationOutput}" Command="{Binding CommandShowOutput}">
+                                    <Image Source="../Glyphs/Gearwheel.png"/>
+                                </Button>
                             </Grid>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

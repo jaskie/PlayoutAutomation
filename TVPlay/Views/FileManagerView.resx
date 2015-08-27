@@ -129,6 +129,9 @@
   <data name="_grid.Header.Operation" xml:space="preserve">
     <value>Operation</value>
   </data>
+  <data name="_grid.Header.OperationOutput" xml:space="preserve">
+    <value>Operation diagnostics output</value>
+  </data>
   <data name="_grid.Header.Progress" xml:space="preserve">
     <value>Progress</value>
   </data>

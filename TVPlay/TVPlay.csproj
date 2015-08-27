@@ -293,6 +293,9 @@
     <Compile Include="Views\MediaManagerView.xaml.cs">
       <DependentUpon>MediaManagerView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\OperationOutputView.xaml.cs">
+      <DependentUpon>OperationOutputView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\PlayingEventView.xaml.cs">
       <DependentUpon>PlayingEventView.xaml</DependentUpon>
     </Compile>
@@ -356,6 +359,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MediaEditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\OperationOutputView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

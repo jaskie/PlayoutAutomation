@@ -17,6 +17,14 @@ namespace TAS.Client.ViewModels
             _fileOperation = fileOperation;
             _fileOperation.PropertyChanged += OnPropertyChanged;
             CommandAbort = new SimpleCommand() { ExecuteDelegate = o => _fileOperation.Aborted = true, CanExecuteDelegate = o => _fileOperation.OperationStatus == FileOperationStatus.Waiting || _fileOperation.OperationStatus == FileOperationStatus.InProgress };
+            CommandShowOutput = new SimpleCommand()
+            {
+                ExecuteDelegate = o =>
+                {
+                    Views.OperationOutputView view = new Views.OperationOutputView { DataContext = this };
+                    view.ShowDialog();
+                }
+            };
         }
 
         protected override void OnDispose()
@@ -75,6 +83,7 @@ namespace TAS.Client.ViewModels
         public string OperationOutput { get { return string.Join(Environment.NewLine, _fileOperation.OperationOutput); } }
 
         public ICommand CommandAbort { get; private set; }
+        public ICommand CommandShowOutput { get; private set; }
 
         protected virtual void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {

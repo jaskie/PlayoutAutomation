@@ -120,7 +120,7 @@ namespace TAS.Server
         public IEnumerable<string> OperationOutput { get { return _operationOutput; } }
         protected void _addOutputMessage(string message)
         {
-            _operationOutput.Add(message);
+            _operationOutput.Add(string.Format("{0} {1}", DateTime.Now, message));
             NotifyPropertyChanged("OperationOutput");
         }
 
@@ -138,6 +138,7 @@ namespace TAS.Server
         private bool _do()
         {
             Debug.WriteLine(this, "File operation started");
+            _addOutputMessage("Operation started");
             StartTime = DateTime.UtcNow;
             OperationStatus = FileOperationStatus.InProgress;
             switch (Kind)
@@ -164,11 +165,13 @@ namespace TAS.Server
                             DestMedia.InvokeVerify();
 
                             Debug.WriteLine(this, "File operation succeed");
+                            _addOutputMessage("Copy operation finished");
                             return true;
                         }
                         catch (Exception e)
                         {
-                            Debug.WriteLine("File operation failed {0} with {1}", this, e.Message);
+                            Debug.WriteLine("File operation {0} failed with {1}", this, e.Message);
+                            _addOutputMessage(string.Format("Copy operation failed with {0}", e.Message));
                         }
                     return false;
                 case TFileOperationKind.Delete:
@@ -176,6 +179,7 @@ namespace TAS.Server
                     {
                         if (SourceMedia.Delete())
                         {
+                            _addOutputMessage("Delete operation finished"); 
                             Debug.WriteLine(this, "File operation succeed");
                             return true;
                         }
@@ -183,6 +187,7 @@ namespace TAS.Server
                     catch (Exception e)
                     {
                         Debug.WriteLine("File operation failed {0} with {1}", this, e.Message);
+                        _addOutputMessage(string.Format("Delete operation failed with {0}", e.Message));
                     }
                     return false;
                 case TFileOperationKind.Move:
@@ -193,6 +198,7 @@ namespace TAS.Server
                                 if (!DestMedia.Delete())
                                 {
                                     Debug.WriteLine(this, "File operation failed - dest not deleted");
+                                    _addOutputMessage("Move operation failed - destination media not deleted");
                                     return false;
                                 }
                             IsIndeterminate = true;
@@ -202,12 +208,14 @@ namespace TAS.Server
                             File.SetLastWriteTimeUtc(DestMedia.FullPath, File.GetLastWriteTimeUtc(SourceMedia.FullPath));
                             DestMedia.MediaStatus = TMediaStatus.Copied;
                             DestMedia.InvokeVerify();
+                            _addOutputMessage("Move operation finished");
                             Debug.WriteLine(this, "File operation succeed");
                             return true;
                         }
                         catch (Exception e)
                         {
                             Debug.WriteLine("File operation failed {0} with {1}", this, e.Message);
+                            _addOutputMessage(string.Format("Move operation failed with {0}", e.Message));
                         }
                     return false;
                 default:
