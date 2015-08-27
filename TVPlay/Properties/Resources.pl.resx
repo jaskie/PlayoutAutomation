@@ -464,7 +464,8 @@ Naprawdę usunąć?</value>
 {0}</value>
   </data>
   <data name="_query_DeleteSelected" xml:space="preserve">
-    <value>Usunąć wybrane elementy ({0})?</value>
+    <value>Usunąć wybrane elementy ({0})?
+{1}</value>
   </data>
   <data name="TFieldOrder_Unknown" xml:space="preserve">
     <value>Wykryj automatycznie</value>

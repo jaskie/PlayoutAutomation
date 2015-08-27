@@ -461,7 +461,8 @@ Really delete?</value>
 {0}</value>
   </data>
   <data name="_query_DeleteSelected" xml:space="preserve">
-    <value>Delete selected items ({0})?</value>
+    <value>Delete selected items ({0})?
+{1}</value>
   </data>
   <data name="TFieldOrder_Unknown" xml:space="preserve">
     <value>Detect automatically</value>

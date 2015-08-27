@@ -277,7 +277,7 @@ namespace TAS.Client.ViewModels
             {
                 var evmList = _selectedEvents.ToList();
                 if (evmList.Count() > 0
-                    && MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelected, evmList.Count()), Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    && MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelected, evmList.Count(), string.Join(Environment.NewLine, evmList)), Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
                     UiServices.SetBusyState();
                     (new Action(() =>
