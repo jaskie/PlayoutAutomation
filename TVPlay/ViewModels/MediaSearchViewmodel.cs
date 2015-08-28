@@ -123,9 +123,10 @@ namespace TAS.Client.ViewModels
             MediaViewViewmodel mvm = item as MediaViewViewmodel;
             if (mvm == null || mvm.Media == null)
                 return false;
+            string mediaName = mvm.MediaName.ToLower();
             return mvm.MediaStatus == TMediaStatus.Available
                 && (!(MediaCategory is TMediaCategory) || (MediaCategory as TMediaCategory?) == mvm.MediaCategory)
-                && (string.IsNullOrWhiteSpace(SearchText) || mvm.MediaName.ToLower().Contains(SearchText.ToLower()));
+                && (_searchElements.All(s => mediaName.Contains(s)));
         }
 
         public PreviewViewmodel PreviewViewmodel { get { return _previewViewmodel; } }
@@ -135,6 +136,7 @@ namespace TAS.Client.ViewModels
             CommandAdd = new SimpleCommand() { ExecuteDelegate = _add, CanExecuteDelegate = _allowAdd };
         }
 
+        private string[] _searchElements = new string[0];
         private string _searchText;
         public string SearchText
         {
@@ -145,6 +147,7 @@ namespace TAS.Client.ViewModels
                 if (value != _searchText)
                 {
                     _searchText = value;
+                    _searchElements = value.ToLower().Split(' ');
                     SelectedItem = null;
                     NotifyPropertyChanged("SearchText");
                     _itemsView.Refresh();

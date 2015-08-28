@@ -33,6 +33,7 @@ namespace TAS.Server
         public FileOperation()
         {
             ScheduledTime = DateTime.UtcNow;
+            _addOutputMessage("Operation scheduled");
         }
 
         private int _tryCount = 15;
@@ -276,9 +277,7 @@ namespace TAS.Server
             if (FailureCallback != null)
                 FailureCallback();
             Debug.WriteLine(this, "File simple operation failed - TryCount is zero");
-        }
-
-        
+        }       
 
     }
 }

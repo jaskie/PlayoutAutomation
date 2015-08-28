@@ -43,6 +43,7 @@ namespace TAS.Server
             oInfo.CreateNoWindow = true;
             oInfo.RedirectStandardError = true;
             Debug.WriteLine(parameters, "Starting ffmpeg with parameters");
+            _addOutputMessage(string.Format("ffmpeg.exe {0}", parameters));
             try
             {
                 using (Process _procFFmpeg = Process.Start(oInfo))
@@ -64,6 +65,7 @@ namespace TAS.Server
             catch (Exception e)
             {
                 Debug.WriteLine(e.Message, "Error running FFmpeg process");
+                _addOutputMessage(e.ToString());
                 return false;
             }
 
@@ -177,6 +179,7 @@ namespace TAS.Server
                         if (SourceMedia is PersistentMedia)
                             (SourceMedia as PersistentMedia).Save();
                     }
+                    _addOutputMessage(outLine.Data);
                 }
             }
         }
