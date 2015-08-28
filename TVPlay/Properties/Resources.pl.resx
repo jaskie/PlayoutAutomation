@@ -521,4 +521,9 @@ Naprawdę usunąć?</value>
   <data name="_none_" xml:space="preserve">
     <value>Brak</value>
   </data>
+  <data name="_query_DeleteSelectedContainers" xml:space="preserve">
+    <value>Zamierzasz usunąć {0} kontener(ów):
+{1}
+Naprawdę je usunąć?</value>
+  </data>
 </root>

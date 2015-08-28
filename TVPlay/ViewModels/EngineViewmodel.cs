@@ -276,8 +276,11 @@ namespace TAS.Client.ViewModels
             try
             {
                 var evmList = _selectedEvents.ToList();
+                var containerList = evmList.Where(evm => evm.IsRootContainer);
                 if (evmList.Count() > 0
-                    && MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelected, evmList.Count(), string.Join(Environment.NewLine, evmList)), Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    && MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelected, evmList.Count(), string.Join(Environment.NewLine, evmList)), Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes
+                    && (containerList.Count() == 0
+                        || MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedContainers, containerList.Count(), string.Join(Environment.NewLine, containerList)), Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes))
                 {
                     UiServices.SetBusyState();
                     (new Action(() =>
