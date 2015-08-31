@@ -10,6 +10,7 @@ using System.Windows.Data;
 using System.Diagnostics;
 using TAS.Common;
 using System.Windows.Input;
+using System.Threading;
 
 namespace TAS.Client.ViewModels
 {
@@ -257,8 +258,9 @@ namespace TAS.Client.ViewModels
                     _selectedItem = value;
                     Media media = SelectedMedia;
                     if (media is IngestMedia
-                        && ((IngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct)
-                        media.InvokeVerify();
+                        && ((IngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
+                        && !media.Verified)
+                        ThreadPool.QueueUserWorkItem(o => media.Verify());
                     if (_previewViewmodel != null)
                         _previewViewmodel.Media = media;
                     NotifyPropertyChanged("CommandAdd");

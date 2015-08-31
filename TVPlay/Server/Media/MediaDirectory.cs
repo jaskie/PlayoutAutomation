@@ -29,22 +29,25 @@ namespace TAS.Server
         }
 
         protected string _folder;
-        protected SynchronizedCollection<string> _extensions;
+        protected string[] _extensions;
         private FileSystemWatcher _watcher;
         protected ConcurrentHashSet<Media> _files = new ConcurrentHashSet<Media>();
 
         public event EventHandler<MediaEventArgs> MediaAdded;
         public event EventHandler<MediaEventArgs> MediaRemoved;
         public event EventHandler<MediaEventArgs> MediaVerified;
-        
-        [XmlIgnore]
+
         protected bool _isInitialized = false;
         public virtual void Initialize()
         {
             if (!_isInitialized)
             {
-                ThreadPool.QueueUserWorkItem((o) => BeginWatch());
-                _getVolumeInfo();
+                ThreadPool.QueueUserWorkItem((o) => 
+                    {
+                        BeginWatch();
+                        _getVolumeInfo();
+                        IsInitialized = true;
+                    });
             }
         }
 
@@ -130,7 +133,7 @@ namespace TAS.Server
         public bool IsInitialized
         {
             get { return _isInitialized; }
-            internal set {
+            protected set {
                 if (value != _isInitialized)
                 {
                     _isInitialized = value;
@@ -161,22 +164,8 @@ namespace TAS.Server
         
         [XmlArray]
         [XmlArrayItem(ElementName = "Extension")]
-        public string[] Extensions
-        {
-            get { return (_extensions != null) ? _extensions.ToArray() : null; }
-            set
-            {
-                if (_extensions == null
-                    || value.Except(_extensions.ToList()).Count() > 0)
-                {
-                    _extensions = new SynchronizedCollection<string>();
-                    foreach (string ext in value)
-                        _extensions.Add(ext.ToLower());
-                    Reinitialize();
-                }
-            }
-        }
-
+        public string[] Extensions {get; set;}
+        
         public virtual bool FileExists(string filename, string subfolder = null)
         {
             return File.Exists(Path.Combine(_folder, subfolder ?? string.Empty, filename));
@@ -242,7 +231,7 @@ namespace TAS.Server
                 {
                     newMedia = CreateMedia();
                     newMedia._fileName = Path.GetFileName(fullPath);
-                    newMedia._mediaName = (_extensions == null || _extensions.Count == 0) ? Path.GetFileName(fullPath) : Path.GetFileNameWithoutExtension(fullPath);
+                    newMedia._mediaName = (_extensions == null || _extensions.Length == 0) ? Path.GetFileName(fullPath) : Path.GetFileNameWithoutExtension(fullPath);
                     newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
                     newMedia.MediaType = (StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Still : (VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Movie : TMediaType.Unknown;
                     newMedia.Directory = this;
@@ -295,7 +284,7 @@ namespace TAS.Server
             {
                 media.Verified = false;
                 media.MediaStatus = TMediaStatus.Unknown;
-                media.InvokeVerify();
+                ThreadPool.QueueUserWorkItem(o => media.Verify());
             }
         }
 
@@ -395,7 +384,6 @@ namespace TAS.Server
                 if (!watcherReady)
                     System.Threading.Thread.Sleep(30000); //Wait for retry 30 sec.
             }
-            IsInitialized = true;
             Debug.WriteLine("MediaDirectory: Watcher {0} setup successful.", (object)_folder);
         }
 

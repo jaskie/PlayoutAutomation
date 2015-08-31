@@ -60,6 +60,7 @@ namespace TAS.Server
             AnimationDirectory = new AnimationDirectory(this);
         }
 
+
         protected bool _isInitialized;
         public virtual void Initialize()
         {

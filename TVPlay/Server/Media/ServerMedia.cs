@@ -43,16 +43,16 @@ namespace TAS.Server
                 if (MediaStatus == TMediaStatus.Deleted && !DatabaseConnector.ServerMediaInUse(this))
                 {
                     if (idPersistentMedia != 0)
-                        result = DatabaseConnector.ServerMediaDelete(this);
+                        result = this.DbDelete();
                 }
                 else
                 {
                     if (Modified)
                     {
                         if (idPersistentMedia == 0)
-                            result = DatabaseConnector.ServerMediaInsert(this);
+                            result = this.DbInsert();
                         else
-                            result = DatabaseConnector.ServerMediaUpdate(this);
+                            result = this.DbUpdate();
                     }
                 }
             }

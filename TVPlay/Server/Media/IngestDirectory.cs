@@ -339,7 +339,7 @@ namespace TAS.Server
             {
                 newMedia._folder = "Clip";
             }
-            newMedia._mediaName = (_extensions == null || _extensions.Count == 0) ? fileNameOnly : Path.GetFileNameWithoutExtension(fileNameOnly);
+            newMedia._mediaName = (_extensions == null || _extensions.Length == 0) ? fileNameOnly : Path.GetFileNameWithoutExtension(fileNameOnly);
             newMedia._lastUpdated = DateTime.UtcNow;
             newMedia._mediaGuid = Guid.NewGuid();
             return newMedia;

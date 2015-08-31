@@ -1080,9 +1080,9 @@ namespace TAS.Server
             {
                 //_saveMutex.WaitOne();
                 if (_idRundownEvent == 0)
-                    DatabaseConnector.EventInsert(this);
+                    this.DbInsert();
                 else
-                    DatabaseConnector.EventUpdate(this);
+                    this.DbUpdate();
                 _modified = false;
                 NotifySaved();
             }
@@ -1108,7 +1108,7 @@ namespace TAS.Server
                         se.Delete();
                     }
                     IsDeleted = true;
-                    DatabaseConnector.EventDelete(this);
+                    this.DbDelete();
                     Engine.RemoveEvent(this);
                     NotifyDeleted();
                     _modified = false;

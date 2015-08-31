@@ -5,7 +5,9 @@ using System.Text;
 using System.Runtime.Remoting.Messaging;
 using System.Diagnostics;
 using System.ComponentModel;
+using System.Threading;
 using TAS.Common;
+
 
 namespace TAS.Server
 {
@@ -52,7 +54,7 @@ namespace TAS.Server
                         if (!_isRunningConvertOperation)
                         {
                             _isRunningConvertOperation = true;
-                            (new Action(() => _runOperation(_queueConvertOperation, ref _isRunningConvertOperation))).BeginInvoke(_queueProcessFinishedCallback, null);
+                            ThreadPool.QueueUserWorkItem(o => _runOperation(_queueConvertOperation, ref _isRunningConvertOperation));
                         }
                     }
             }
@@ -68,17 +70,12 @@ namespace TAS.Server
                         if (!_isRunningSimpleOperation)
                         {
                             _isRunningSimpleOperation = true;
-                            (new Action(() => _runOperation(_queueSimpleOperation, ref _isRunningSimpleOperation))).BeginInvoke(_queueProcessFinishedCallback, null);
+                            ThreadPool.QueueUserWorkItem(o => _runOperation(_queueSimpleOperation, ref _isRunningSimpleOperation));
                         }
                     }
             }
             if (OperationAdded != null)
                 OperationAdded(operation);
-        }
-
-        private static void _queueProcessFinishedCallback(IAsyncResult ar)
-        {
-            ((Action)((AsyncResult)ar).AsyncDelegate).EndInvoke(ar);
         }
 
         private static void _runOperation(SynchronizedCollection<FileOperation> queue, ref bool queueRunningIndicator)

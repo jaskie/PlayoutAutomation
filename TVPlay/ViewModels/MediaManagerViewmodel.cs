@@ -15,6 +15,7 @@ using System.Windows.Threading;
 using System.Runtime.Remoting.Messaging;
 using System.Diagnostics;
 using System.Windows.Input;
+using System.Threading;
 
 
 namespace TAS.Client.ViewModels
@@ -58,8 +59,9 @@ namespace TAS.Client.ViewModels
                     Media media = value == null ? null : value.Media;
                     EditMedia.Media = media;
                     if (media is IngestMedia
-                        && ((IngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct)
-                        media.InvokeVerify();
+                        && ((IngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
+                        && !media.Verified)
+                        ThreadPool.QueueUserWorkItem(o => media.Verify());
                     PreviewViewModel.Media = media;
                     _selectedMedia = value;
                 }
@@ -115,10 +117,10 @@ namespace TAS.Client.ViewModels
 
             CommandRefresh = new SimpleCommand()
             {
-                ExecuteDelegate = (o) =>
+                ExecuteDelegate = (ob) =>
                     {
                         _mediaItems.Clear();
-                        (new Action(() => 
+                        ThreadPool.QueueUserWorkItem(o =>
                             {
                                 try
                                 {
@@ -128,7 +130,7 @@ namespace TAS.Client.ViewModels
                                 {
                                     MessageBox.Show(string.Format(Properties.Resources._message_DirectoryRefreshError, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
                                 }
-                            })).BeginInvoke(ar => ((Action)((AsyncResult)ar).AsyncDelegate).EndInvoke(ar), null);
+                            });
                     },
                 CanExecuteDelegate = (o) =>
                 {
@@ -165,8 +167,9 @@ namespace TAS.Client.ViewModels
                 foreach (Media sourceMedia in _getSelections())
                 {
                     if (sourceMedia is IngestMedia
-                        && ((IngestDirectory)sourceMedia.Directory).AccessType == TDirectoryAccessType.Direct)
-                        sourceMedia.InvokeVerify();
+                        && ((IngestDirectory)sourceMedia.Directory).AccessType == TDirectoryAccessType.Direct
+                        && !sourceMedia.Verified)
+                        ThreadPool.QueueUserWorkItem(o => sourceMedia.Verify());
                     Media destMedia = null;
                     if (directory is ServerDirectory)
                         destMedia = (directory as ServerDirectory).GetServerMedia(sourceMedia, false);
@@ -322,7 +325,7 @@ namespace TAS.Client.ViewModels
                         _mediaDirectory.PropertyChanged -= MediaDirectoryPropertyChanged;
                     }
                     _mediaDirectory = value;
-                    if (_mediaDirectory != null)
+                    if (value != null)
                     {
                         value.MediaAdded += MediaAdded;
                         value.MediaRemoved += MediaRemoved;
@@ -349,9 +352,7 @@ namespace TAS.Client.ViewModels
                     SearchText = (sender as ArchiveDirectory).SearchString;
             }
             if (e.PropertyName == "IsInitialized" && (sender as MediaDirectory).IsInitialized)
-            {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate() {_reloadFiles();});
-            }
+                Application.Current.Dispatcher.BeginInvoke((Action)delegate() {_reloadFiles();});
             if (e.PropertyName == "VolumeFreeSize")
                 _notifyDirectoryPropertiesChanged();
         }

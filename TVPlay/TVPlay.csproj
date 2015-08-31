@@ -231,6 +231,7 @@
     <Compile Include="Common\MediaConversion.cs" />
     <Compile Include="Server\Media\MediaSegment.cs" />
     <Compile Include="Server\Media\FtpMediaStream.cs" />
+    <Compile Include="Server\Media\MediaChecker.cs" />
     <Compile Include="Server\Media\PInvokeWindowsNetworking.cs" />
     <Compile Include="Server\PlayoutServerChannel.cs" />
     <Compile Include="Server\Media\TempDirectory.cs" />

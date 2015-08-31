@@ -19,7 +19,7 @@ namespace TAS.Server
         {
             _isInitialized = false; // to avoid subsequent reinitializations
             DirectoryName = "Animacje";
-            DatabaseConnector.ServerLoadMediaDirectory(this, Server);
+            //DatabaseConnector.ServerLoadMediaDirectory(this, Server);
             Debug.WriteLine(Server.MediaFolder, "AnimationDirectory initialized");
         }
 

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using TAS.Common;
+using System.Threading;
 
 namespace TAS.Server
 {
@@ -163,7 +164,7 @@ namespace TAS.Server
                                     return false;
                             }
                             DestMedia.MediaStatus = TMediaStatus.Copied;
-                            DestMedia.InvokeVerify();
+                            ThreadPool.QueueUserWorkItem(o => DestMedia.Verify());
 
                             Debug.WriteLine(this, "File operation succeed");
                             _addOutputMessage("Copy operation finished");
@@ -208,7 +209,7 @@ namespace TAS.Server
                             File.SetCreationTimeUtc(DestMedia.FullPath, File.GetCreationTimeUtc(SourceMedia.FullPath));
                             File.SetLastWriteTimeUtc(DestMedia.FullPath, File.GetLastWriteTimeUtc(SourceMedia.FullPath));
                             DestMedia.MediaStatus = TMediaStatus.Copied;
-                            DestMedia.InvokeVerify();
+                            ThreadPool.QueueUserWorkItem(o => DestMedia.Verify());
                             _addOutputMessage("Move operation finished");
                             Debug.WriteLine(this, "File operation succeed");
                             return true;

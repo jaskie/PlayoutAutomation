@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.ComponentModel;
 using TAS.Server;
 using TAS.Common;
@@ -271,7 +272,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _deleteSelected(object o)
+        private void _deleteSelected(object ob)
         {
             try
             {
@@ -283,7 +284,8 @@ namespace TAS.Client.ViewModels
                         || MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedContainers, containerList.Count(), string.Join(Environment.NewLine, containerList)), Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes))
                 {
                     UiServices.SetBusyState();
-                    (new Action(() =>
+                    ThreadPool.QueueUserWorkItem(
+                        o =>
                         {
                             foreach (var evm in evmList)
                             {
@@ -295,7 +297,7 @@ namespace TAS.Client.ViewModels
                                 }
                             }
                         }
-                    )).BeginInvoke(ar => ((Action)((AsyncResult)ar).AsyncDelegate).EndInvoke(ar), null);
+                    );
                     _selectedEvents.Clear();
                 }
             }

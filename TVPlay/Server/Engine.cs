@@ -200,14 +200,19 @@ namespace TAS.Server
             }
             _frameTicks = _frameDuration / 100L;
 
-            var ch = PlayoutChannelPGM;
-            Debug.WriteLine(ch, "About to initialize");
-            Debug.Assert(ch != null && ch.OwnerServer != null, "Null channel PGM or its server");
-            if (ch != null && ch.OwnerServer != null)
-                ch.OwnerServer.Initialize();
-            ch = PlayoutChannelPRV;
-            if (ch != null && ch.OwnerServer != null)
-                ch.OwnerServer.Initialize();
+            var chPGM = PlayoutChannelPGM;
+            Debug.WriteLine(chPGM, "About to initialize");
+            Debug.Assert(chPGM != null && chPGM.OwnerServer != null, "Null channel PGM or its server");
+            if (chPGM != null 
+                && chPGM.OwnerServer != null)
+                ThreadPool.QueueUserWorkItem(o =>
+                    chPGM.OwnerServer.Initialize());
+            var chPRV = PlayoutChannelPRV;
+            if (chPRV != null 
+                && chPRV != chPGM
+                && chPRV.OwnerServer != null)
+                ThreadPool.QueueUserWorkItem(o =>
+                    chPRV.OwnerServer.Initialize());
 
             MediaManager.Initialize();
 
@@ -589,7 +594,7 @@ namespace TAS.Server
 
         public void ReScheduleAsync(Event aEvent)
         {
-            (new Action(() => ReSchedule(aEvent))).BeginInvoke(ar => ((Action)((AsyncResult)ar).AsyncDelegate).EndInvoke(ar), null);
+            ThreadPool.QueueUserWorkItem(o => ReSchedule(aEvent));
         }
 
         private object _rescheduleLock = new object();
@@ -1237,16 +1242,19 @@ namespace TAS.Server
 
         private void _mediaPGMVerified(object o, MediaEventArgs e)
         {
-            if (PlayoutChannelPRV != null && PlayoutChannelPRV.OwnerServer.MediaDirectory.IsInitialized) 
+            if (PlayoutChannelPRV != null && PlayoutChannelPRV.OwnerServer.MediaDirectory.IsInitialized)
             {
-                Media media = PlayoutChannelPRV.OwnerServer.MediaDirectory.FindMedia(e.Media);
-                if (media == null || !media.FileExists())
-                {
-                    if (media == null) 
-                        media = PlayoutChannelPRV.OwnerServer.MediaDirectory.GetServerMedia(e.Media, true);
-                    if (!media.FileExists())
-                        FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Copy, SourceMedia = e.Media, DestMedia = media });
-                }
+                Media media = PlayoutChannelPRV.OwnerServer.MediaDirectory.GetServerMedia(e.Media, true);
+                if (media.FileSize == e.Media.FileSize
+                    && media.FileName == e.Media.FileName
+                    && media.FileSize == e.Media.FileSize
+                    && !media.Verified)
+                    media.Verify();
+                if (!(media.MediaStatus == TMediaStatus.Available
+                      || media.MediaStatus == TMediaStatus.Copying
+                      || media.MediaStatus == TMediaStatus.CopyPending
+                      || media.MediaStatus == TMediaStatus.Copied))
+                    FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Copy, SourceMedia = e.Media, DestMedia = media });
             }
         }
 
