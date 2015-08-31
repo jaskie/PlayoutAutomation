@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using TAS.Data;
 
 namespace TAS.Server
 {
@@ -43,12 +44,12 @@ namespace TAS.Server
 
         public void Save()
         {
-            DatabaseConnector.MediaSegmentSave(this);
+            this.DbSave();
         }
 
         public void Delete()
         {
-            DatabaseConnector.MediaSegmentDelete(this);
+            this.DbDelete();
         }
 
         protected bool SetField<T>(ref T field, T value, string propertyName)

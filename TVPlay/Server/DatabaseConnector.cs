@@ -11,10 +11,11 @@ using System.Configuration;
 using System.IO;
 using System.Xml.Serialization;
 using System.Xml;
-using TAS.Common;
 using System.Collections;
+using TAS.Common;
+using TAS.Server;
 
-namespace TAS.Server
+namespace TAS.Data
 {
     public static class DatabaseConnector
     {
@@ -64,7 +65,7 @@ namespace TAS.Server
             return result;
         }
 
-        internal static void EventReadRootEvents(Engine engine)
+        internal static void DbReadRootEvents(this Engine engine)
         {
             if (Connect())
             {
@@ -90,7 +91,7 @@ namespace TAS.Server
             }
         }
 
-        internal static void EventSearchMissing(Engine engine)
+        internal static void DbSearchMissing(this Engine engine)
         {
             if (Connect())
             {
@@ -123,17 +124,17 @@ namespace TAS.Server
             }
         }
 
-        internal static SynchronizedCollection<Event> EventReadSubEvents(Event AEventOwner)
+        internal static SynchronizedCollection<Event> DbReadSubEvents(this Event eventOwner)
         {
             if (Connect())
             {
                 var EventList = new SynchronizedCollection<Event>();
                 MySqlCommand cmd;
-                if (AEventOwner != null)
+                if (eventOwner != null)
                 {
                     cmd = new MySqlCommand("SELECT * FROM RundownEvent where idEventBinding = @idEventBinding and typStart=@StartType;", connection);
-                    cmd.Parameters.AddWithValue("@idEventBinding", AEventOwner.IdRundownEvent);
-                    if (AEventOwner.EventType == TEventType.Container)
+                    cmd.Parameters.AddWithValue("@idEventBinding", eventOwner.IdRundownEvent);
+                    if (eventOwner.EventType == TEventType.Container)
                         cmd.Parameters.AddWithValue("@StartType", TStartType.Manual);
                     else
                         cmd.Parameters.AddWithValue("@StartType", TStartType.With);
@@ -146,8 +147,8 @@ namespace TAS.Server
                             {
                                 while (dataReader.Read())
                                 {
-                                    NewEvent = _EventRead(AEventOwner.Engine, dataReader);
-                                    NewEvent._parent = AEventOwner;
+                                    NewEvent = _EventRead(eventOwner.Engine, dataReader);
+                                    NewEvent._parent = eventOwner;
                                     EventList.Add(NewEvent);
                                 }
                             }
@@ -164,12 +165,12 @@ namespace TAS.Server
                 return null;
         }
 
-        internal static Event EventReadNext(Event AEvent)
+        internal static Event DbReadNext(this Event aEvent)
         {
-            if (Connect() && (AEvent != null))
+            if (Connect() && (aEvent != null))
             {
                 MySqlCommand cmd = new MySqlCommand("SELECT * FROM RundownEvent where idEventBinding = @idEventBinding and typStart=@StartType;", connection);
-                cmd.Parameters.AddWithValue("@idEventBinding", AEvent.IdRundownEvent);
+                cmd.Parameters.AddWithValue("@idEventBinding", aEvent.IdRundownEvent);
                 cmd.Parameters.AddWithValue("@StartType", TStartType.After);
                 lock (connection)
                 {
@@ -177,7 +178,7 @@ namespace TAS.Server
                     try
                     {
                         if (reader.Read())
-                            return _EventRead(AEvent.Engine, reader);
+                            return _EventRead(aEvent.Engine, reader);
                     }
                     finally
                     {
@@ -552,7 +553,7 @@ VALUES
             return success;
         }
         
-        internal static Boolean ArchiveMediaInsert(ArchiveMedia archiveMedia)
+        internal static Boolean DbInsert(this ArchiveMedia archiveMedia)
         {
             Boolean success = false;
             if (Connect())
@@ -585,7 +586,7 @@ VALUES
             return false;
         }
 
-        internal static Boolean ArchiveMediaDelete(ArchiveMedia archiveMedia)
+        internal static Boolean DbDelete(this ArchiveMedia archiveMedia)
         {
             Boolean success = false;
             if (Connect())
@@ -640,7 +641,7 @@ WHERE idServerMedia=@idServerMedia;";
             return success;
         }
 
-        internal static Boolean ArchiveMediaUpdate(ArchiveMedia archiveMedia)
+        internal static Boolean DbUpdate(this ArchiveMedia archiveMedia)
         {
             Boolean success = false;
             if (Connect())
@@ -679,7 +680,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             return success;
         }
 
-        internal static bool ServerMediaInUse(ServerMedia serverMedia)
+        internal static bool DbMediaInUse(this ServerMedia serverMedia)
         {
             Boolean IsInUse = true;
             if (Connect())
@@ -706,7 +707,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             return media;
         }
 
-        internal static void ArchiveMediaSearch(ArchiveDirectory dir)
+        internal static void DbSearch(this ArchiveDirectory dir)
         {
             string search = dir.SearchString;
             if (string.IsNullOrWhiteSpace(search))
@@ -736,7 +737,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             }
         }
 
-        internal static void AsRunLogWrite(Event e)
+        internal static void AsRunLogWrite(this Event e)
         {
             try
             {
@@ -801,10 +802,12 @@ VALUES
                 Debug.WriteLine(e, "AsRunLog written for");
             }
             catch (Exception ex)
-            { Debug.WriteLine(ex.Message); };
+            {
+                Debug.WriteLine(ex.Message);
+            }
         }
 
-        internal static IEnumerable<ArchiveMedia> ArchiveMediaFindStaleMedia(ArchiveDirectory dir)
+        internal static IEnumerable<ArchiveMedia> DbFindStaleMedia(this ArchiveDirectory dir)
         {
             List<ArchiveMedia> returnList = new List<ArchiveMedia>();
             if (Connect())
@@ -824,7 +827,7 @@ VALUES
             return returnList;
         }
 
-        internal static ArchiveMedia ArchiveMediaFind(Media media, ArchiveDirectory dir)
+        internal static ArchiveMedia DbMediaFind(this ArchiveDirectory dir, Media media)
         {
             ArchiveMedia result = null;
             if (Connect())
@@ -931,7 +934,7 @@ VALUES
             return Engines;
         }
 
-        internal static bool EngineSaveEngine(Engine engine)
+        internal static bool DbUpdate(this Engine engine)
         {
             if (Connect())
             {
@@ -1006,10 +1009,11 @@ idEngine=@idEngine", connection);
 
         private static Hashtable _mediaSegments;
 
-        internal static ObservableSynchronizedCollection<MediaSegment> MediaSegmentsRead(Guid mediaGuid)
+        internal static ObservableSynchronizedCollection<MediaSegment> DbMediaSegmentsRead(this PersistentMedia media)
         {
             if (Connect())
             {
+                Guid mediaGuid = media.MediaGuid;
                 ObservableSynchronizedCollection<MediaSegment> segments = null;
                 MediaSegment newMediaSegment;
                 MySqlCommand cmd = new MySqlCommand("SELECT * FROM tas.MediaSegments where MediaGuid = @MediaGuid;", connection);
@@ -1046,7 +1050,7 @@ idEngine=@idEngine", connection);
                 return null;
         }
 
-        internal static void MediaSegmentDelete(MediaSegment mediaSegment)
+        internal static void DbDelete(this MediaSegment mediaSegment)
         {
             if (mediaSegment.idMediaSegment != 0)
             {
@@ -1068,7 +1072,7 @@ idEngine=@idEngine", connection);
             }
         }
 
-        internal static void MediaSegmentSave(MediaSegment mediaSegment)
+        internal static void DbSave(this MediaSegment mediaSegment)
         {
             if (Connect())
             {
@@ -1094,7 +1098,7 @@ idEngine=@idEngine", connection);
         }
 
 
-        internal static void TemplateSave(Template template)
+        internal static void DbSave(this Template template)
         {
             MySqlCommand cmd;
             bool isInsert = template.idTemplate == 0;
@@ -1131,7 +1135,7 @@ WHERE idTemplate=@idTemplate"
             }
         }
 
-        internal static void TemplateDelete(Template template)
+        internal static void DbDelete(this Template template)
         {
             if (template.idTemplate == 0)
                 return;
@@ -1147,7 +1151,7 @@ WHERE idTemplate=@idTemplate"
             }
         }
 
-        internal static void TemplateReadTemplates(Engine engine)
+        internal static void DbReadTemplates(this Engine engine)
         {
             if (Connect())
             {

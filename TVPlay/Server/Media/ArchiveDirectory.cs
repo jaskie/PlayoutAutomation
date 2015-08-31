@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.Remoting.Messaging;
 using TAS.Common;
+using TAS.Data;
 
 namespace TAS.Server
 {
@@ -42,7 +43,7 @@ namespace TAS.Server
 
         public void Search()
         {
-            DatabaseConnector.ArchiveMediaSearch(this);
+            this.DbSearch();
         }
 
         public TMediaCategory? SearchMediaCategory { get; set; }
@@ -50,7 +51,7 @@ namespace TAS.Server
         public override void SweepStaleMedia()
         {
             DateTime currentDate = DateTime.UtcNow.Date;
-            DatabaseConnector.ArchiveMediaFindStaleMedia(this);
+            this.DbFindStaleMedia();
             IEnumerable<Media> StaleMediaList;
             _files.Lock.EnterReadLock();
             try
@@ -67,7 +68,7 @@ namespace TAS.Server
 
         public ArchiveMedia Find(Media media)
         {
-            return DatabaseConnector.ArchiveMediaFind(media, this);
+            return this.DbMediaFind(media);
         }
 
         internal void Clear()
@@ -124,7 +125,7 @@ namespace TAS.Server
         {
             ArchiveMedia result = null;
             if (searchExisting)
-                result = DatabaseConnector.ArchiveMediaFind(media, this);
+                result = this.DbMediaFind(media);
             if (result == null)
                 result = new ArchiveMedia()
                 {

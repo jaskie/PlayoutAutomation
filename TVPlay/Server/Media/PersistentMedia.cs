@@ -5,8 +5,9 @@ using System.Text;
 using System.IO;
 using System.ComponentModel;
 using System.Runtime.Remoting.Messaging;
-using TAS.Common;
 using System.Diagnostics;
+using TAS.Common;
+using TAS.Data;
 
 namespace TAS.Server
 {
@@ -51,7 +52,7 @@ namespace TAS.Server
             get
             {
                 if (_mediaSegments == null)
-                    _mediaSegments = DatabaseConnector.MediaSegmentsRead(MediaGuid);
+                    _mediaSegments = this.DbMediaSegmentsRead();
                 return _mediaSegments;
             }
         }

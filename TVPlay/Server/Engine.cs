@@ -11,6 +11,7 @@ using System.Collections.Specialized;
 using System.Xml;
 using System.Xml.Serialization;
 using TAS.Common;
+using TAS.Data;
 
 namespace TAS.Server
 {
@@ -217,8 +218,8 @@ namespace TAS.Server
             MediaManager.Initialize();
 
             Debug.WriteLine(this, "Reading Root Events");
-            DatabaseConnector.EventReadRootEvents(this);
-            DatabaseConnector.TemplateReadTemplates(this);
+            this.DbReadRootEvents();
+            this.DbReadTemplates();
             Debug.WriteLine(this, "Creating engine thread");
             _engineThread = new Thread(() =>
             {
@@ -739,7 +740,7 @@ namespace TAS.Server
             NotifyEngineOperation(aEvent, TEngineOperation.Play);
             if (aEvent.Layer == VideoLayer.Program 
                 && (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.Live))
-                DatabaseConnector.AsRunLogWrite(aEvent);
+                aEvent.AsRunLogWrite();
             return true;
         }
 
@@ -1273,7 +1274,7 @@ namespace TAS.Server
             foreach (Event e in RootEvents.ToList())
                 if (!_checkCanDeleteMedia(e, serverMedia))
                     return false;
-            return !DatabaseConnector.ServerMediaInUse(serverMedia);
+            return !serverMedia.DbMediaInUse();
         }
 
         [XmlIgnore]
@@ -1378,7 +1379,7 @@ namespace TAS.Server
 
         internal void SearchMissingEvents()
         {
-            DatabaseConnector.EventSearchMissing(this);
+            this.DbSearchMissing();
         }
 
         private bool _pst2Prv;

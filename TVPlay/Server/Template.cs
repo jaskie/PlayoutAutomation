@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using TAS.Data;
 
 namespace TAS.Server
 {
@@ -72,12 +73,12 @@ namespace TAS.Server
 
         public void Save()
         {
-            DatabaseConnector.TemplateSave(this);
+            this.DbSave();
         }
 
         public void Delete()
         {
-            DatabaseConnector.TemplateDelete(this);
+            this.DbDelete();
             Engine.MediaManager.Templates.Remove(this);
         }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Controls;
 using TAS.Common;
+using TAS.Data;
 
 namespace TAS.Client.Setup
 {
@@ -103,8 +104,10 @@ namespace TAS.Client.Setup
                     Model.GPI = null;
             }
             Model.Initialize(Model.EngineLocalSettings);
-            if (!Server.DatabaseConnector.EngineSaveEngine(Model))
-                System.Windows.MessageBox.Show("Unsuccessfull save");
+            {
+                if (Model.DbUpdate())
+                    System.Windows.MessageBox.Show("Unsuccessfull save");
+            }
         }
     }
 }

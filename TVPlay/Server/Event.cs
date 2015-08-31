@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Runtime.Remoting.Messaging;
 using System.ComponentModel;
 using TAS.Common;
+using TAS.Data;
 
 namespace TAS.Server
 {
@@ -170,7 +171,7 @@ namespace TAS.Server
                         if (_idRundownEvent == 0)
                             _subEvents = new SynchronizedCollection<Event>();
                         else
-                            _subEvents = DatabaseConnector.EventReadSubEvents(this);
+                            _subEvents = this.DbReadSubEvents();
                     }
                     return _subEvents;
                 }
@@ -758,7 +759,7 @@ namespace TAS.Server
                     {
                         if (next == null)
                         {
-                            next = DatabaseConnector.EventReadNext(this);
+                            next = this.DbReadNext();
                             if (next != null)
                                 next._prior = this;
                             _next = next;
