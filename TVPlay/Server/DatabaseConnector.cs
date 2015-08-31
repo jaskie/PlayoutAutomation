@@ -893,7 +893,7 @@ VALUES
             return true;
         }
 
-        internal static List<Engine> EngineLoadEngines(UInt64 instance, List<PlayoutServer> servers)
+        internal static List<Engine> DbLoadEngines(UInt64 instance, List<PlayoutServer> servers)
         {
             List<Engine> Engines = new List<Engine>();
             if (Connect())
@@ -968,7 +968,7 @@ idEngine=@idEngine", connection);
             return false;
         }
 
-        internal static List<PlayoutServer> ServerLoadServers()
+        internal static List<PlayoutServer> DbLoadServers()
         {
             Debug.WriteLine("Begin loading servers");
             List<PlayoutServer> servers = new List<PlayoutServer>();
