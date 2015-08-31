@@ -240,6 +240,7 @@ namespace TAS.Client.ViewModels
             _mediaView.Refresh();
         }
 
+        private string[] _searchTextSplit = new string[0];
         private string _searchText = string.Empty;
         public string SearchText
         {
@@ -249,6 +250,7 @@ namespace TAS.Client.ViewModels
                 if (value != _searchText)
                 {
                     _searchText = value;
+                    _searchTextSplit = value.ToLower().Split(' ');
                     NotifyPropertyChanged("SearchText");
                 }
             }
@@ -282,12 +284,13 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private bool FilterOut(object item)
+        private bool _filter(object item)
         {
             var m = item as MediaViewViewmodel;
             var searchText = SearchText.ToLower();
-            return ((string.IsNullOrEmpty(searchText) || m.MediaName.ToLower().Contains(searchText)) || m.FileName.ToLower().Contains(_searchText))
-               && (_mediaCategory as TMediaCategory? == null || m.MediaCategory == (TMediaCategory)_mediaCategory);
+            string mediaName = m.MediaName.ToLower();
+            return (_mediaCategory as TMediaCategory? == null || m.MediaCategory == (TMediaCategory)_mediaCategory)
+               && (_searchTextSplit.All(s => mediaName.Contains(s)));;
         }
 
         readonly IEnumerable<object> _mediaCategories = (new List<object>(){Properties.Resources._all_}).Concat(Enum.GetValues(typeof(TMediaCategory)).Cast<object>());
@@ -369,7 +372,7 @@ namespace TAS.Client.ViewModels
             _mediaView = CollectionViewSource.GetDefaultView(_mediaItems);
             _mediaView.SortDescriptions.Add(new SortDescription("MediaName", ListSortDirection.Ascending));
             if (!(_mediaDirectory is ArchiveDirectory))
-                _mediaView.Filter = new Predicate<object>(FilterOut);
+                _mediaView.Filter = new Predicate<object>(_filter);
             System.Threading.Tasks.Task.Factory.StartNew(_mediaDirectory.Refresh);
             NotifyPropertyChanged("MediaItems");
         }

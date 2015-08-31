@@ -127,7 +127,7 @@ namespace TAS.Client.ViewModels
             string mediaName = mvm.MediaName.ToLower();
             return mvm.MediaStatus == TMediaStatus.Available
                 && (!(MediaCategory is TMediaCategory) || (MediaCategory as TMediaCategory?) == mvm.MediaCategory)
-                && (_searchElements.All(s => mediaName.Contains(s)));
+                && (_searchTextSplit.All(s => mediaName.Contains(s)));
         }
 
         public PreviewViewmodel PreviewViewmodel { get { return _previewViewmodel; } }
@@ -137,8 +137,8 @@ namespace TAS.Client.ViewModels
             CommandAdd = new SimpleCommand() { ExecuteDelegate = _add, CanExecuteDelegate = _allowAdd };
         }
 
-        private string[] _searchElements = new string[0];
-        private string _searchText;
+        private string[] _searchTextSplit = new string[0];
+        private string _searchText = string.Empty;
         public string SearchText
         {
             get { return _searchText; }
@@ -148,7 +148,7 @@ namespace TAS.Client.ViewModels
                 if (value != _searchText)
                 {
                     _searchText = value;
-                    _searchElements = value.ToLower().Split(' ');
+                    _searchTextSplit = value.ToLower().Split(' ');
                     SelectedItem = null;
                     NotifyPropertyChanged("SearchText");
                     _itemsView.Refresh();
