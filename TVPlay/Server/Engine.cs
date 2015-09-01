@@ -720,12 +720,12 @@ namespace TAS.Server
                 _loadedNextEvents[aEvent.Layer] = null;
                 _finishedEvents[aEvent.Layer] = null;
                 _visibleEvents[aEvent.Layer] = aEvent;
-                _setAspectRatio(aEvent);
                 if (aEvent.Layer == VideoLayer.Program)
                 {
                     decimal volumeDB = (decimal)Math.Pow(10, (double)aEvent.AudioVolume / 20);
                     AudioVolume = volumeDB;
                 }
+                _setAspectRatio(aEvent);
             }
             _triggerGPIGraphics(aEvent);
             aEvent.PlayState = TPlayState.Playing;

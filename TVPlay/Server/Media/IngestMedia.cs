@@ -20,16 +20,13 @@ namespace TAS.Server
             {
                 try
                 {
-                    if (!forWrite)
-                    {
                         if (_directory is IngestDirectory)
                         {
                             if (((IngestDirectory)_directory).IsXDCAM)
-                                return new XDCAM.XdcamStream(this);
+                                return new XDCAM.XdcamStream(this, forWrite);
                             else
                                 return new FtpMediaStream(this);
                         }
-                    }
                 }
                 catch (Exception we)
                 {

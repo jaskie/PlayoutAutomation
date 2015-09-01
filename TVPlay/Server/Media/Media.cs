@@ -356,7 +356,7 @@ namespace TAS.Server
         
         public override string ToString()
         {
-            return (!string.IsNullOrEmpty(MediaName)) ? MediaName : FileName;
+            return string.Format("{0}:{1}", _directory == null ? "None" : _directory.DirectoryName, string.IsNullOrEmpty(MediaName) ? MediaName : FileName);
         }
 
         protected virtual bool SetField<T>(ref T field, T value, string propertyName)

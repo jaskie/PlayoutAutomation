@@ -35,23 +35,30 @@ namespace System.Net.FtpClient
                 m_lock.WaitOne();
                 Execute("TYPE I");
                 // read in one line of raw file listing for the file - it's the only method to get file size
-                using (FtpDataStream stream = OpenDataStream(string.Format("LIST {0}", path.GetFtpPath()), 0))
+                try
                 {
-                    string buf;
-                    try
+                    using (FtpDataStream stream = OpenDataStream(string.Format("LIST {0}", path.GetFtpPath()), 0))
                     {
-                        buf = stream.ReadLine(Encoding);
-                        if (!string.IsNullOrWhiteSpace(buf))
+                        string buf;
+                        try
                         {
-                            FtpTrace.WriteLine(buf);
-                            FtpListItem itemdata = FtpListItem.ParseUnixList(buf, FtpCapability.NONE);
-                            return itemdata.Size;
+                            buf = stream.ReadLine(Encoding);
+                            if (!string.IsNullOrWhiteSpace(buf))
+                            {
+                                FtpTrace.WriteLine(buf);
+                                FtpListItem itemdata = FtpListItem.ParseUnixList(buf, FtpCapability.NONE);
+                                return itemdata.Size;
+                            }
+                        }
+                        finally
+                        {
+                            stream.Close();
                         }
                     }
-                    finally
-                    {
-                        stream.Close();
-                    }
+                }
+                catch (FtpCommandException)
+                {
+                    return 0;
                 }
             }
             finally

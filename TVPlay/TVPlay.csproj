@@ -221,6 +221,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="Server\FFMpegOperation.cs" />
     <Compile Include="Server\GPICommand.cs" />
     <Compile Include="Server\GPIState.cs" />
     <Compile Include="Server\LocalSettings.cs" />
@@ -242,6 +243,7 @@
     <Compile Include="Server\Remoting\RemoteHost.cs" />
     <Compile Include="Server\Template.cs" />
     <Compile Include="Server\Media\TempMedia.cs" />
+    <Compile Include="Server\XDCAM\ExportOperation.cs" />
     <Compile Include="Server\XDCAM\Index.cs" />
     <Compile Include="Server\XDCAM\NonRealTimeMeta.cs" />
     <Compile Include="Server\XDCAM\SerializationHelper.cs" />

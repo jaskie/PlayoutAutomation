@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace TAS.Server
 {
-    public enum TFileOperationKind { None, Copy, Move, Convert, Delete, Loudness};
+    public enum TFileOperationKind { None, Copy, Move, Convert, Export, Delete, Loudness};
     public enum FileOperationStatus {
         [Description("Czeka")]
         Waiting,
@@ -148,6 +148,7 @@ namespace TAS.Server
                 case TFileOperationKind.None:
                     return true;
                 case TFileOperationKind.Convert:
+                case TFileOperationKind.Export:
                     throw new InvalidOperationException("File operation can't convert");
                 case TFileOperationKind.Copy:
                     if (File.Exists(SourceMedia.FullPath) && Directory.Exists(Path.GetDirectoryName(DestMedia.FullPath)))
@@ -258,7 +259,10 @@ namespace TAS.Server
         
         public override string ToString()
         {
-            return string.Concat(Kind, " ", SourceMedia.FullPath, " ", DestMedia == null ? null : DestMedia.FullPath);
+            return DestMedia == null?
+                string.Format("{0} {1}", Kind, SourceMedia)
+                :
+                string.Format("{0} {1} -> {2}", Kind, SourceMedia, DestMedia);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

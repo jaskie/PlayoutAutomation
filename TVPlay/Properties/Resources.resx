@@ -523,4 +523,7 @@ Really delete?</value>
 {1}
 Are you sure?</value>
   </data>
+  <data name="_title_ExportClip" xml:space="preserve">
+    <value>Export {0} -&gt; {1}</value>
+  </data>
 </root>

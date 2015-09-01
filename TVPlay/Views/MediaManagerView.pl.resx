@@ -165,6 +165,12 @@
   <data name="_toolbar.Delete.ToolTip" xml:space="preserve">
     <value>Usuń wskazane klipy</value>
   </data>
+  <data name="_toolbar.Export" xml:space="preserve">
+    <value>Eksport</value>
+  </data>
+  <data name="_toolbar.Export.ToolTip" xml:space="preserve">
+    <value>Eksportuj na XDCAM</value>
+  </data>
   <data name="_toolbar.GetLoudness" xml:space="preserve">
     <value>Głośność</value>
   </data>

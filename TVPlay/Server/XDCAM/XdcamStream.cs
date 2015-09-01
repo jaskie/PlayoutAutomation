@@ -10,7 +10,7 @@ namespace TAS.Server.XDCAM
 {
     public class XdcamStream: Stream
     {
-        public XdcamStream(IngestMedia media)
+        public XdcamStream(IngestMedia media, bool forWrite)
         {
             
             if (media == null || media.Directory == null)
@@ -19,6 +19,7 @@ namespace TAS.Server.XDCAM
             _client = new XdcamClient();
             _client.Credentials = media.Directory.NetworkCredential;
             _client.Host = uri.Host;
+            _client.UngracefullDisconnection = true;
             try
             {
                 _client.Connect();
@@ -28,7 +29,7 @@ namespace TAS.Server.XDCAM
                 if (_isEditList)
                     _currentStream = _getNextStream();
                 else
-                    _currentStream = _client.OpenRead(uri.LocalPath);
+                    _currentStream = forWrite ? _client.OpenWrite(uri.LocalPath) : _client.OpenRead(uri.LocalPath);
             }
             catch
             {
@@ -49,6 +50,12 @@ namespace TAS.Server.XDCAM
             {
                 try
                 {
+                    var stream = _currentStream;
+                    if (stream != null)
+                    {
+                        stream.Flush();
+                        stream.Dispose();
+                    }
                     _client.Dispose();
                 }
                 catch {}
@@ -58,7 +65,7 @@ namespace TAS.Server.XDCAM
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            throw new NotSupportedException();
+            _currentStream.Write(buffer, offset, count);
         }
 
         public override int Read(byte[] buffer, int offset, int count)

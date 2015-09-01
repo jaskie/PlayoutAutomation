@@ -281,6 +281,15 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Export {0} -&gt; {1}.
+        /// </summary>
+        internal static string _title_ExportClip {
+            get {
+                return ResourceManager.GetString("_title_ExportClip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Measure LUFS: {0}:{1}.
         /// </summary>
         internal static string _title_MeasureVolume {

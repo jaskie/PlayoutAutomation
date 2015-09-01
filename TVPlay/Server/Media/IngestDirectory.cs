@@ -86,7 +86,7 @@ namespace TAS.Server
                     client.Host = uri.Host;
                     client.Credentials = NetworkCredential;
                     client.Connect();
-                    _files.Clear();
+                    ClearFiles();
                     foreach (string file in client.GetNameListing(uri.LocalPath))
                         AddFile(file);
                 }
@@ -205,7 +205,7 @@ namespace TAS.Server
                 _xDCAMIndex = XDCAM.SerializationHelper<XDCAM.Index>.Deserialize(_readXMLDocument("INDEX.XML"));
                 if (_xDCAMIndex != null)
                 {
-                    _files.Clear();
+                    ClearFiles();
                     foreach (XDCAM.Index.Clip clip in _xDCAMIndex.clipTable.clipTable)
                         try
                         {
@@ -213,6 +213,7 @@ namespace TAS.Server
                             if (newMedia != null)
                             {
                                 newMedia._folder = "Clip";
+                                newMedia._mediaName = clip.clipId;
                                 newMedia._duration =  ((long)clip.dur).SMPTEFramesToTimeSpan(clip.fps);
                                 newMedia._durationPlay = newMedia.Duration;
                                 if (clip.aspectRatio == "4:3")

@@ -165,6 +165,12 @@
   <data name="_toolbar.Delete.ToolTip" xml:space="preserve">
     <value>Delete selected files</value>
   </data>
+  <data name="_toolbar.Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="_toolbar.Export.ToolTip" xml:space="preserve">
+    <value>Export to XDCAM device</value>
+  </data>
   <data name="_toolbar.GetLoudness" xml:space="preserve">
     <value>Volume</value>
   </data>

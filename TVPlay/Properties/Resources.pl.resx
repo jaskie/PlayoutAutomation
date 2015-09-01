@@ -526,4 +526,7 @@ Naprawdę usunąć?</value>
 {1}
 Naprawdę je usunąć?</value>
   </data>
+  <data name="_title_ExportClip" xml:space="preserve">
+    <value>Eksport {0} -&gt; {1}</value>
+  </data>
 </root>

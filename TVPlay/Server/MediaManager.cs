@@ -411,6 +411,18 @@ namespace TAS.Server
             return Engine.EngineName + ":MediaManager";
         }
 
+
+        public void Export(List<Media> mediaList)
+        {
+            foreach (Media m in mediaList)
+                Export(m);
+
+        }
+
+        private void Export(Media media)
+        {
+            FileManager.Queue(new XDCAM.ExportOperation() { SourceMedia = media, StartTC = media.TCPlay, Duration = media.DurationPlay, DestDirectory = IngestDirectories.First(d => d.IsXDCAM) });
+        }
     }
 
 

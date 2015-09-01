@@ -71,9 +71,14 @@ namespace TAS.Server
         {
             if (_isInitialized)
             {
-                _files.Clear();
+                ClearFiles();
                 Initialize();
             }
+        }
+
+        protected virtual void ClearFiles()
+        {
+            _files.ToList().ForEach(m => m.Remove());
         }
 
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
@@ -435,7 +440,7 @@ namespace TAS.Server
         protected virtual void OnError(object source, ErrorEventArgs e)
         {
             Debug.WriteLine("IngestDirectory: Watcher {0} returned error: {1}.", _folder, e.GetException());
-            _files.Clear();
+            ClearFiles();
             IsInitialized = false;
             Initialize();
         }

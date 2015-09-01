@@ -33,6 +33,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandCopySelectedToArchive { get; private set; }
         public ICommand CommandSweepStaleMedia { get; private set; }
         public ICommand CommandGetLoudness { get; private set; }
+        public ICommand CommandExport { get; private set; }
         public ICommand CommandRefresh { get; private set; }
 
         public MediaManagerViewmodel(MediaManager MediaManager, PreviewViewmodel PreviewVm)
@@ -82,6 +83,7 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged("CommandMoveSelectedToArchive");
                     NotifyPropertyChanged("CommandCopySelectedToArchive");
                     NotifyPropertyChanged("CommandGetLoudness");
+                    NotifyPropertyChanged("CommandExport");
                 }
             }
         }
@@ -119,7 +121,6 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = (ob) =>
                     {
-                        _mediaItems.Clear();
                         ThreadPool.QueueUserWorkItem(o =>
                             {
                                 try
@@ -142,6 +143,12 @@ namespace TAS.Client.ViewModels
 
             CommandSweepStaleMedia = new SimpleCommand() { ExecuteDelegate = _sweepStaleMedia };
             CommandGetLoudness = new SimpleCommand() { ExecuteDelegate = _getLoudness, CanExecuteDelegate = _isSomethingSelected };
+            CommandExport = new SimpleCommand() { ExecuteDelegate = _export, CanExecuteDelegate = _isSomethingSelected };
+        }
+
+        private void _export(object obj)
+        {
+            _mediaManager.Export(_getSelections());
         }
 
         private void _sweepStaleMedia(object o)
@@ -287,8 +294,7 @@ namespace TAS.Client.ViewModels
         private bool _filter(object item)
         {
             var m = item as MediaViewViewmodel;
-            var searchText = SearchText.ToLower();
-            string mediaName = m.MediaName.ToLower();
+            string mediaName = m.MediaName == null ? string.Empty:  m.MediaName.ToLower();
             return (_mediaCategory as TMediaCategory? == null || m.MediaCategory == (TMediaCategory)_mediaCategory)
                && (_searchTextSplit.All(s => mediaName.Contains(s)));;
         }

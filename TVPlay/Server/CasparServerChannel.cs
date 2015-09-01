@@ -361,6 +361,7 @@ namespace TAS.Server
             {
                 channel.Clear();
                 channel.ClearMixer((int)VideoLayer.Program);
+                outputAspectNarrow = false;
                 if (OnVolumeChanged != null)
                     OnVolumeChanged(this, VideoLayer.Program, 1.0m);
                 Debug.WriteLine(this, "CasparClear");

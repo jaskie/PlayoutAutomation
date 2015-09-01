@@ -39,35 +39,7 @@ namespace TAS.Client.ViewModels
 
         public string OperationDescription
         {
-            get
-            {
-                Media sm = _fileOperation.SourceMedia;
-                Media dm = _fileOperation.DestMedia;
-                MediaDirectory mdsm = sm == null ? null : sm.Directory;
-                MediaDirectory mddm = dm == null ? null : dm.Directory;
-                if (sm != null && mdsm != null)
-                    switch (_fileOperation.Kind)
-                    {
-                        case TFileOperationKind.Delete:
-                            return string.Format(Properties.Resources._title_Delete,  mdsm.DirectoryName, sm.FileName);
-                        case TFileOperationKind.Loudness:
-                            return string.Format(Properties.Resources._title_MeasureVolume, mdsm.DirectoryName, sm.FileName);
-                        default:
-                            if (dm != null && mddm != null)
-                                return string.Format("{0}:{1} -> {2}:{3}", mdsm.DirectoryName, sm.FileName, mddm.DirectoryName, dm.FileName);
-                            else
-                                return string.Empty;
-                    }
-                else
-                    return string.Empty;
-
-                /*
-                if (_fileOperation.Kind == TFileOperationKind.Delete)
-                    return "Usuń:" + _fileOperation.SourceMedia.Directory.DirectoryName + ":" + _fileOperation.SourceMedia.FileName;
-                else
-                    return _fileOperation.SourceMedia.Directory.DirectoryName + ":" + _fileOperation.SourceMedia.FileName + " -> " + _fileOperation.DestMedia.Directory.DirectoryName + ":" + _fileOperation.DestMedia.FileName;
-            */
-            }
+            get { return _fileOperation.ToString(); }
         }
 
         public int Progress { get { return _fileOperation.Progress; } }
@@ -80,7 +52,7 @@ namespace TAS.Client.ViewModels
         public bool Finished { get { return _fileOperation.OperationStatus != FileOperationStatus.Waiting && _fileOperation.OperationStatus != FileOperationStatus.InProgress; } }
 
         public FileOperationStatus OperationStatus { get { return _fileOperation.OperationStatus; } }
-        public string OperationOutput { get { return string.Join(Environment.NewLine, _fileOperation.OperationOutput); } }
+        public string OperationOutput { get { return string.Join(Environment.NewLine, _fileOperation.OperationOutput.ToList()); } }
 
         public ICommand CommandAbort { get; private set; }
         public ICommand CommandShowOutput { get; private set; }

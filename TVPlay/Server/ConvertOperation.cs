@@ -17,20 +17,13 @@ using TAS.Common;
 
 namespace TAS.Server
 {
-    public class ConvertOperation : FileOperation
+    public class ConvertOperation : FFMpegOperation
     {
         
 
         #region Properties
 
         StreamInfo[] inputFileStreams;
-        TimeSpan _duration;
-
-        static string _ffExe = "ffmpeg.exe";
-        static string _lProgressPattern = "time=" + @"\d\d:\d\d:\d\d\.?\d*";
-        static string _progressPattern = @"\d\d:\d\d:\d\d\.?\d*";
-        readonly Regex _regexlProgress = new Regex(_lProgressPattern, RegexOptions.None);
-        readonly Regex _regexProgress = new Regex(_progressPattern, RegexOptions.None);
 
         public ConvertOperation()
         {
@@ -136,43 +129,6 @@ namespace TAS.Server
         private TVideoFormat _outputFormat;
         public TVideoFormat OutputFormat { get { return _outputFormat; } set { SetField(ref _outputFormat, value, "OutputFormat"); } }
 
-        private bool RunProcess(string parameters)
-        {
-            //create a process info
-            ProcessStartInfo oInfo = new ProcessStartInfo(ConvertOperation._ffExe, parameters);
-            oInfo.UseShellExecute = false;
-            oInfo.CreateNoWindow = true;
-            oInfo.RedirectStandardError = true;
-
-            //try the process
-            Debug.WriteLine(parameters, "Starting ffmpeg with parameters");
-            _addOutputMessage(string.Format("ffmpeg.exe {0}", parameters));
-            try
-            {
-                using (Process _procFFmpeg = Process.Start(oInfo))
-                {
-                    _procFFmpeg.ErrorDataReceived += ProcOutputHandler;
-                    _procFFmpeg.BeginErrorReadLine();
-                    bool finished = false;
-                    while (!(Aborted || finished))
-                        finished = _procFFmpeg.WaitForExit(1000);
-                    if (Aborted)
-                    {
-                        _procFFmpeg.Kill();
-                        Thread.Sleep(1000);
-                        DestMedia.Delete();
-                        Debug.WriteLine(this, "Aborted");
-                    }
-                    return finished && (_procFFmpeg.ExitCode == 0);
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e.Message, "Error running FFmpeg process");
-                _addOutputMessage(e.ToString());
-                return false;
-            }
-        }
 
         internal override bool Do()
         {
@@ -194,7 +150,6 @@ namespace TAS.Server
                             if (SourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
                             {
                                 _localSourceMedia.Verify();
-                                _duration = _localSourceMedia._duration;
                                 try
                                 {
                                     success = _do(_localSourceMedia);
@@ -213,7 +168,6 @@ namespace TAS.Server
 
                     else
                     {
-                        _duration = SourceMedia.Duration;
                         success = _do(SourceMedia);
                         if (!success)
                             TryCount--;
@@ -302,15 +256,17 @@ namespace TAS.Server
 
         private bool _do(Media inputMedia)
         {
+            _progressDuration = inputMedia._duration;
             Debug.WriteLine(this, "Convert operation started");
             DestMedia.MediaStatus = TMediaStatus.Copying;
             CheckInputFile(inputMedia);
             string encodeParams = _encodeParameters(inputMedia);
 
-            string Params = string.Format("-i \"{0}\" -y {1} -timecode {2} \"{3}\"",
+            string Params = string.Format("-i \"{0}\" -y {1} -timecode {2} -t {3} \"{4}\"",
                     inputMedia.FullPath,
                     encodeParams,
                     DestMedia.TCStart.ToSMPTETimecodeString(),
+                    inputMedia.Duration,
                     DestMedia.FullPath);
 
             if (DestMedia is ArchiveMedia && !Directory.Exists(Path.GetDirectoryName(DestMedia.FullPath)))
@@ -339,29 +295,6 @@ namespace TAS.Server
             }
             Debug.WriteLine("FFmpeg rewraper Do(): Failed for {0}. Command line was {1}", (object)SourceMedia, Params);
             return false;
-        }
-
-        private void ProcOutputHandler(object sendingProcess,
-            DataReceivedEventArgs outLine)
-        {
-            if (!String.IsNullOrEmpty(outLine.Data))
-            {
-                Match mProgressLine = _regexlProgress.Match(outLine.Data);
-                if (mProgressLine.Success)
-                {
-                    Match mProgressVal = _regexProgress.Match(mProgressLine.Value);
-                    if (mProgressVal.Success)
-                    {
-                        TimeSpan progressSeconds;
-                        long duration = _duration.Ticks;
-                        if (duration > 0
-                            && TimeSpan.TryParse(mProgressVal.Value.Trim(), CultureInfo.InvariantCulture, out progressSeconds))
-                            Progress = (int)((progressSeconds.Ticks * 100) / duration);
-                    }
-                }
-                else
-                    _addOutputMessage(outLine.Data);
-            }
         }
 
     }
