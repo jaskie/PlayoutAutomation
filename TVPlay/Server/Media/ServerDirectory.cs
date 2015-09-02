@@ -24,6 +24,7 @@ namespace TAS.Server
             MediaDirectory.StillFileTypes.CopyTo(Extensions, MediaDirectory.VideoFileTypes.Length);
         }
 
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {
             this.Load();

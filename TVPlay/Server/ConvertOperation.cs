@@ -146,9 +146,11 @@ namespace TAS.Server
                     if (SourceMedia.Directory.AccessType != TDirectoryAccessType.Direct)
                         using (TempMedia _localSourceMedia = FileManager.TempDirectory.Get(SourceMedia))
                         {
+                            _addOutputMessage(string.Format("Copying to local file {0}", _localSourceMedia.FullPath));
                             _localSourceMedia.PropertyChanged += _localSourceMedia_PropertyChanged;
                             if (SourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
                             {
+                                _addOutputMessage("Verifing local file");
                                 _localSourceMedia.Verify();
                                 try
                                 {
@@ -177,6 +179,7 @@ namespace TAS.Server
                 catch (Exception e)
                 {
                     Debug.WriteLine(e.Message);
+                    _addOutputMessage(e.Message);
                     TryCount--;
                     return false;
                 }
@@ -258,15 +261,15 @@ namespace TAS.Server
         {
             _progressDuration = inputMedia._duration;
             Debug.WriteLine(this, "Convert operation started");
+            _addOutputMessage("Starting convert operation:");
             DestMedia.MediaStatus = TMediaStatus.Copying;
             CheckInputFile(inputMedia);
             string encodeParams = _encodeParameters(inputMedia);
 
-            string Params = string.Format("-i \"{0}\" -y {1} -timecode {2} -t {3} \"{4}\"",
+            string Params = string.Format("-i \"{0}\" -vsync passthrough {1} -timecode {2} -y \"{3}\"",
                     inputMedia.FullPath,
                     encodeParams,
                     DestMedia.TCStart.ToSMPTETimecodeString(),
-                    inputMedia.Duration,
                     DestMedia.FullPath);
 
             if (DestMedia is ArchiveMedia && !Directory.Exists(Path.GetDirectoryName(DestMedia.FullPath)))
@@ -282,12 +285,14 @@ namespace TAS.Server
                     DestMedia.MediaStatus = TMediaStatus.CopyError;
                     if (DestMedia is PersistentMedia)
                         (DestMedia as PersistentMedia).Save();
+                    _addOutputMessage(string.Format("Convert operation finished successfully, but durations are diffrent, original: {0}, encoded {1}", inputMedia.Duration.ToSMPTETimecodeString(), DestMedia.Duration.ToSMPTETimecodeString()));
                     Debug.WriteLine(this, "Convert operation succeed, but durations are diffrent");
                 }
                 else
                 {
                     if ((SourceMedia.Directory is IngestDirectory) && ((IngestDirectory)SourceMedia.Directory).DeleteSource)
                         FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = SourceMedia });
+                    _addOutputMessage("Convert operation finished successfully");
                     Debug.WriteLine(this, "Convert operation succeed");
                 }
                 OperationStatus = FileOperationStatus.Finished;

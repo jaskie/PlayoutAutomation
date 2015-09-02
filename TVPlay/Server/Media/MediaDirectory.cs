@@ -38,6 +38,8 @@ namespace TAS.Server
         public event EventHandler<MediaEventArgs> MediaVerified;
 
         protected bool _isInitialized = false;
+
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public virtual void Initialize()
         {
             if (!_isInitialized)

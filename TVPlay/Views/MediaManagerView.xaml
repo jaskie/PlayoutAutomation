@@ -264,6 +264,8 @@
         <StatusBar Grid.Row="4" Grid.ColumnSpan="2" Height="22">
             <StackPanel Orientation="Horizontal" Visibility="{Binding DisplayDirectoryInfo, Converter={StaticResource BoolToVis}}" >
                 <client:StatusIndicator IsGreen="{Binding DirectoryFreeOver20Percent}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,0,0,0"/>
+                <TextBlock Text="{Resx _statusbar.TotalItems}" Margin="5, 0"/>
+                <TextBlock Text="{Binding ItemsCount}" />
                 <TextBlock Text="{Resx _statusbar.VolumeSize}" Margin="5, 0"/>
                 <TextBlock Text="{Binding DirectoryTotalSpace, StringFormat=' \{0:F2\} GB'}" />
                 <TextBlock Text="{Resx _statusbar.VolumeFreeSpace}" Margin="5, 0"/>

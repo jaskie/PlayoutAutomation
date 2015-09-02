@@ -21,6 +21,7 @@ namespace TAS.Client.Views
         public ExportView()
         {
             InitializeComponent();
+            this.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
         }
     }
 }

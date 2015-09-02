@@ -32,6 +32,7 @@ namespace TAS.Server
             Engine = engine;
         }
 
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         internal void Initialize()
         {
             MediaDirectoryPGM = (Engine.PlayoutChannelPGM == null) ? null : Engine.PlayoutChannelPGM.OwnerServer.MediaDirectory;
@@ -49,7 +50,7 @@ namespace TAS.Server
                 sdir.MediaSaved += _onServerDirectoryMediaSaved;
             }
             sdir = MediaDirectoryPRV;
-            if (sdir != null)
+            if (MediaDirectoryPGM != MediaDirectoryPRV && sdir != null)
             {
                 sdir.MediaPropertyChanged += ServerMediaPropertyChanged;
                 sdir.PropertyChanged += _onServerDirectoryPropertyChanged;

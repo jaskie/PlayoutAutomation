@@ -22,7 +22,7 @@ namespace TAS.Client.ViewModels
             SelectedDirectory = Directories.FirstOrDefault();
             CommandExport = new SimpleCommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
             _mediaManager = mediaManager;
-            this._view = new Views.ExportView() { DataContext = this, WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner };
+            this._view = new Views.ExportView() { DataContext = this, Owner = System.Windows.Application.Current.MainWindow };
             _view.ShowDialog();
         }
 

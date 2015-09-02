@@ -21,7 +21,12 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o =>
                 {
-                    Views.OperationOutputView view = new Views.OperationOutputView { DataContext = this };
+                    Views.OperationOutputView view = new Views.OperationOutputView 
+                    { 
+                        DataContext = this, 
+                        Owner = System.Windows.Application.Current.MainWindow, 
+                        WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner 
+                    };
                     view.ShowDialog();
                 }
             };

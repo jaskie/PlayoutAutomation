@@ -97,6 +97,7 @@ namespace TAS.Client.ViewModels
                         ml.Add((mediaVm as MediaViewViewmodel).Media);
             return ml;
         }
+
         bool _isSomethingSelected(object o)
         {
             return _selectedMediaList != null && _selectedMediaList.Count > 0; 
@@ -251,6 +252,7 @@ namespace TAS.Client.ViewModels
             }
             else
             _mediaView.Refresh();
+            NotifyPropertyChanged("ItemsCount");
         }
 
         private string[] _searchTextSplit = new string[0];
@@ -260,12 +262,8 @@ namespace TAS.Client.ViewModels
             get { return _searchText; }
             set
             {
-                if (value != _searchText)
-                {
-                    _searchText = value;
+                if (SetField(ref _searchText, value, "SearchText"))
                     _searchTextSplit = value.ToLower().Split(' ');
-                    NotifyPropertyChanged("SearchText");
-                }
             }
         }
 
@@ -400,6 +398,7 @@ namespace TAS.Client.ViewModels
             {
                 if (!(MediaDirectory is ServerDirectory) || e.Media.MediaType == TMediaType.Movie || e.Media.MediaType == TMediaType.Still)
                 _mediaItems.Add(new MediaViewViewmodel(e.Media));
+                _notifyDirectoryPropertiesChanged();
             }
                 , null);
         }
@@ -411,6 +410,7 @@ namespace TAS.Client.ViewModels
                 var vm = _mediaItems.FirstOrDefault(v => v.Media == e.Media);
                 if (vm != null)
                     _mediaItems.Remove(vm);
+                _notifyDirectoryPropertiesChanged();
             }, null);
         }
 
@@ -420,6 +420,7 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged("DirectoryFreePercentage");
             NotifyPropertyChanged("DirectoryTotalSpace");
             NotifyPropertyChanged("DirectoryFreeSpace");
+            NotifyPropertyChanged("ItemsCount");
         }
 
         public bool DisplayDirectoryInfo { get { return _mediaDirectory != null && _mediaDirectory.AccessType == TDirectoryAccessType.Direct; } }
@@ -434,6 +435,8 @@ namespace TAS.Client.ViewModels
                 return (totalSize == 0) ? 0F : _mediaDirectory.VolumeFreeSize * 100F / _mediaDirectory.VolumeTotalSize;
             }
         }
+
+        public int ItemsCount { get { return _mediaItems.Where(m => _filter(m)).Count(); } }
 
         protected override void OnDispose()
         {

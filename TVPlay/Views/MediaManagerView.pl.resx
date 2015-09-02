@@ -141,6 +141,9 @@
   <data name="_search" xml:space="preserve">
     <value>Wyszukaj</value>
   </data>
+  <data name="_statusbar.TotalItems" xml:space="preserve">
+    <value>Klipów:</value>
+  </data>
   <data name="_statusbar.VolumeFreeSpace" xml:space="preserve">
     <value>Wolne:</value>
   </data>

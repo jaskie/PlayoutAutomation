@@ -141,6 +141,9 @@
   <data name="_search" xml:space="preserve">
     <value>Find</value>
   </data>
+  <data name="_statusbar.TotalItems" xml:space="preserve">
+    <value>Files:</value>
+  </data>
   <data name="_statusbar.VolumeFreeSpace" xml:space="preserve">
     <value>Free:</value>
   </data>

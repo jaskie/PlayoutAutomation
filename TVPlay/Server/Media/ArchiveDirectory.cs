@@ -13,6 +13,7 @@ namespace TAS.Server
 {
     public class ArchiveDirectory : MediaDirectory
     {
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {
             _isInitialized = false; // to avoid subsequent reinitializations
