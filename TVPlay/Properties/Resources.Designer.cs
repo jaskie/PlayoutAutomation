@@ -1260,5 +1260,23 @@ namespace TAS.Client.Properties {
                 return ResourceManager.GetString("TVideoFormat_PAL_FHA", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 4 channels, 16 bits per sample.
+        /// </summary>
+        internal static string TxDCAMAudioExportFormat_Channels4Bits16 {
+            get {
+                return ResourceManager.GetString("TxDCAMAudioExportFormat_Channels4Bits16", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 4 channels, 24 bits per sample.
+        /// </summary>
+        internal static string TxDCAMAudioExportFormat_Channels4Bits24 {
+            get {
+                return ResourceManager.GetString("TxDCAMAudioExportFormat_Channels4Bits24", resourceCulture);
+            }
+        }
     }
 }

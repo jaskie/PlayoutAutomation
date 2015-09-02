@@ -55,6 +55,27 @@ namespace TAS.Common
         { }
     }
 
+    public enum TxDCAMAudioExportFormat: byte
+    {
+        Channels4Bits16,
+        Channels4Bits24,
+    }
+
+    class TxDCAMAudioExportFormatEnumConverter : ResourceEnumConverter
+    {
+        public TxDCAMAudioExportFormatEnumConverter()
+            : base(typeof(TxDCAMAudioExportFormat), TAS.Client.Properties.Resources.ResourceManager)
+        { }
+    }
+
+
+    public enum TxDCAMVideoExportFormat: byte
+    {
+        IMX50,
+        IMX40,
+        IMX30
+    }
+
     [TypeConverter(typeof(TAudioChannelMappingConversionEnumConverter))]
     public enum TAudioChannelMappingConversion : byte
     {

@@ -109,8 +109,10 @@ namespace TAS.Server.XDCAM
             Debug.WriteLine(this, "Export encode started");
             string command = string.Format("-i \"{0}\" {1} {2} -ss {3} -t {4} -timecode {5} -y \"{6}\"",
                 inputFile,
-                D10_IMX50,
-                PCM24LE,
+                DestDirectory.XDCAMVideoExportFormat == TxDCAMVideoExportFormat.IMX30 ? D10_IMX30
+                    : DestDirectory.XDCAMVideoExportFormat == TxDCAMVideoExportFormat.IMX40 ? D10_IMX40
+                    : D10_IMX50,
+                DestDirectory.XDCAMAudioExportFormat == TxDCAMAudioExportFormat.Channels4Bits24 ? PCM24LE : PCM16LE,
                 StartTC - SourceMedia.TCStart,
                 Duration,
                 StartTC.ToSMPTETimecodeString(),

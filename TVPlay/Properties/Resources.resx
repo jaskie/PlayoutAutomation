@@ -526,4 +526,10 @@ Are you sure?</value>
   <data name="_title_ExportClip" xml:space="preserve">
     <value>Export {0} -&gt; {1}</value>
   </data>
+  <data name="TxDCAMAudioExportFormat_Channels4Bits16" xml:space="preserve">
+    <value>4 channels, 16 bits per sample</value>
+  </data>
+  <data name="TxDCAMAudioExportFormat_Channels4Bits24" xml:space="preserve">
+    <value>4 channels, 24 bits per sample</value>
+  </data>
 </root>

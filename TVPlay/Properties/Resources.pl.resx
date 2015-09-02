@@ -529,4 +529,10 @@ Naprawdę je usunąć?</value>
   <data name="_title_ExportClip" xml:space="preserve">
     <value>Eksport {0} -&gt; {1}</value>
   </data>
+  <data name="TxDCAMAudioExportFormat_Channels4Bits16" xml:space="preserve">
+    <value>4 kanały, 16 bitów na próbkę</value>
+  </data>
+  <data name="TxDCAMAudioExportFormat_Channels4Bits24" xml:space="preserve">
+    <value>4 kanały, 24 bity na próbkę</value>
+  </data>
 </root>

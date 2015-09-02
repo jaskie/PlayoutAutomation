@@ -63,6 +63,10 @@ namespace TAS.Server
 
         public bool IsXDCAM { get; set; }
 
+        public TxDCAMAudioExportFormat XDCAMAudioExportFormat { get; set; }
+
+        public TxDCAMVideoExportFormat XDCAMVideoExportFormat { get; set; }
+
         public bool MediaDoNotArchive { get; set; }
 
         public int MediaRetnentionDays { get; set; }
