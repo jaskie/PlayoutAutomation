@@ -307,10 +307,10 @@ namespace TAS.Client.ViewModels
         }
 
         private Media _media;
-        private Media Media
+        public Media Media
         {
             get { return _media; }
-            set
+            private set
             {
                 Media oldMedia = _media;
                 if (oldMedia != value)
@@ -478,6 +478,11 @@ namespace TAS.Client.ViewModels
         public TimeSpan Duration
         {
             get { return (_event == null) ? TimeSpan.Zero : _event.Duration; }
+        }
+
+        public TimeSpan ScheduledTC
+        {
+            get { return (_event == null) ? TimeSpan.Zero : _event.ScheduledTC; }
         }
 
         public TimeSpan StartDelay

@@ -45,6 +45,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandResume { get; private set; }
         public ICommand CommandPause { get; private set; }
         public ICommand CommandDeleteSelected { get; private set; }
+        public ICommand CommandExport { get; private set; }
         public ICommand CommandEngineSettings { get; private set; }
 
         public ICommand CommandAddNewMovie { get { return _eventEditViewmodel.CommandAddNextMovie; } }
@@ -145,7 +146,19 @@ namespace TAS.Client.ViewModels
             CommandStartLoaded = new SimpleCommand() { ExecuteDelegate = o => _engine.Resume(), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Hold};
             CommandPause = new SimpleCommand() { ExecuteDelegate = o => _engine.Pause() };
             CommandDeleteSelected = new SimpleCommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
+            CommandExport = new SimpleCommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
             CommandEngineSettings = new SimpleCommand() { ExecuteDelegate = o => new Client.Setup.EngineViewmodel(this.Engine, App.EngineController), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
+        }
+
+        private bool _canExport(object obj)
+        {
+            return _selectedEvents.Any(e => e.Media != null && e.Media.MediaType == TMediaType.Movie) && _engine.MediaManager.IngestDirectories.Any(d => d.IsXDCAM);
+        }
+
+        private void _export(object obj)
+        {
+            var selections = _selectedEvents.Where(e => e.Media != null && e.Media.MediaType == TMediaType.Movie).Select(e => new MediaExport(e.Media, e.ScheduledTC, e.Duration));
+            using (ExportViewmodel evm = new ExportViewmodel(_engine.MediaManager, selections)) { }
         }
 
        
@@ -645,6 +658,7 @@ namespace TAS.Client.ViewModels
             if (sender is ObservableCollection<EventViewmodel>)
             {
                 NotifyPropertyChanged("CommandDeleteSelected");
+                NotifyPropertyChanged("CommandExport");
                 NotifyPropertyChanged("SelectedCount");
                 NotifyPropertyChanged("SelectedTime");
             }

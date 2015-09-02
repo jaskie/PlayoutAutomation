@@ -179,9 +179,11 @@
                 <MenuItem Header="{Resx _menu.Edit.DeleteSelected}" Command="{Binding CommandDeleteSelected}" />
             </MenuItem>
             <MenuItem Header="{Resx _menu.Tools}">
+                <MenuItem Header="{Resx _menu.Tools.Export}" Command="{Binding CommandExport}"/>
                 <MenuItem Header="Find unlinked events" Command="{Binding CommandSearchMissingEvents}" />
                 <MenuItem Header="_Debug window" Command="{Binding CommandDebugToggle}" />
                 <MenuItem Header="{Resx _menu.Tools.ChannelConfig}" Command="{Binding CommandEngineSettings}"/>
+                
                 <!--<MenuItem Header="Playout">
                     <MenuItem Header="Wznów" Command="{Binding CommandResume}" />
                     <MenuItem Header="Wstrzymaj" Command="{Binding CommandPause}" />

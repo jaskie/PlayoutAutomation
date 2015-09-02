@@ -106,6 +106,11 @@ namespace TAS.Client.ViewModels
         {
             return (_mediaDirectory is IngestDirectory || _mediaDirectory is ArchiveDirectory) && _isSomethingSelected(o);
         }
+
+        bool _canExport(object o)
+        {
+            return (_mediaDirectory is ServerDirectory || _mediaDirectory is ArchiveDirectory) && _isSomethingSelected(o) && _mediaManager.IngestDirectories.Any(d => d.IsXDCAM);
+        }
         
         public MediaEditViewmodel EditMedia { get; private set; }
 
@@ -143,12 +148,13 @@ namespace TAS.Client.ViewModels
 
             CommandSweepStaleMedia = new SimpleCommand() { ExecuteDelegate = _sweepStaleMedia };
             CommandGetLoudness = new SimpleCommand() { ExecuteDelegate = _getLoudness, CanExecuteDelegate = _isSomethingSelected };
-            CommandExport = new SimpleCommand() { ExecuteDelegate = _export, CanExecuteDelegate = _isSomethingSelected };
+            CommandExport = new SimpleCommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
         }
 
         private void _export(object obj)
         {
-            _mediaManager.Export(_getSelections());
+            var selections = _getSelections().Select( m => new MediaExport(m, m.TCPlay, m.DurationPlay));
+            using (ExportViewmodel evm = new ExportViewmodel(this._mediaManager, selections)) { }
         }
 
         private void _sweepStaleMedia(object o)

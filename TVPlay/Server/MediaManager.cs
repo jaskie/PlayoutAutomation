@@ -412,16 +412,16 @@ namespace TAS.Server
         }
 
 
-        public void Export(List<Media> mediaList)
+        public void Export(IEnumerable<MediaExport> exportList, IngestDirectory directory)
         {
-            foreach (Media m in mediaList)
-                Export(m);
+            foreach (MediaExport e in exportList)
+                Export(e, directory);
 
         }
 
-        private void Export(Media media)
+        private void Export(MediaExport export, IngestDirectory directory)
         {
-            FileManager.Queue(new XDCAM.ExportOperation() { SourceMedia = media, StartTC = media.TCPlay, Duration = media.DurationPlay, DestDirectory = IngestDirectories.First(d => d.IsXDCAM) });
+            FileManager.Queue(new XDCAM.ExportOperation() { SourceMedia = export.Media, StartTC = export.StartTC, Duration = export.Duration, DestDirectory = directory });
         }
     }
 
