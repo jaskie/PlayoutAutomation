@@ -864,6 +864,19 @@ namespace TAS.Client.ViewModels
 
         public EventPanelView View { get; set; }
 
+        EventViewmodel _rootOwner
+        {
+            get
+            {
+                var result = this;
+                while (result.Parent != null && result.Parent._event != null)
+                    result = result.Parent;
+                return result;
+            }
+        }
+
+        public string RootOwnerName { get { return _rootOwner.EventName; } }
+
         internal void SetOnTop()
         {
             var p = Parent;
@@ -871,11 +884,12 @@ namespace TAS.Client.ViewModels
                 if (p.IsExpanded)
                 {
                     var v = View;
-                    if (v != null)
+                    if (v != null && _rootOwner.IsVisible)
                         v.SetOnTop();
                 }
                 else
-                    p.SetOnTop();
+                    if (p.Enabled) // container can be disabled
+                        p.SetOnTop();
         }
     }
 }

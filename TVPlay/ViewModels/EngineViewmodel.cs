@@ -57,6 +57,8 @@ namespace TAS.Client.ViewModels
         public ICommand CommandToggleEnabled { get { return _eventEditViewmodel.CommandToggleEnabled; } }
         public ICommand CommandToggleHold { get { return _eventEditViewmodel.CommandToggleHold; } }
         public ICommand CommandSaveEdit { get { return _eventEditViewmodel.CommandSaveEdit; } }
+        public ICommand CommandAddNextMovie { get { return _eventEditViewmodel.CommandAddNextMovie; } }
+        public ICommand CommandAddGraphics { get { return _eventEditViewmodel.CommandAddGraphics; } }
 
         public EngineViewmodel(Server.Engine engine)
         {

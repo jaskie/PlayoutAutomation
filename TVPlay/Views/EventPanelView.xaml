@@ -6,10 +6,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:sys="clr-namespace:System;assembly=System"
              xmlns:c="clr-namespace:TAS.Client"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              mc:Ignorable="d" 
+             d:DataContext="{x:Type vm:EventViewmodel}"
              FontSize="12" 
              DataContextChanged="UserControl_DataContextChanged" 
-             d:DesignWidth="700">
+             d:DesignWidth="700"
+             >
     <UserControl.Resources>
         <Style x:Key="borderStyle" TargetType="{x:Type Border}">
             <Style.Triggers>
@@ -52,7 +55,7 @@
             </Border>
             <StackPanel Opacity="{Binding Enabled, Converter={StaticResource EnabledToOpacity}}" >
             <Border Background="OrangeRed" Height="6" Visibility="{Binding Hold,  Converter={StaticResource BoolToVis}}" />
-                <Grid Height="59" Background="{Binding IsPlaying, Converter={StaticResource BoolToBrush}, ConverterParameter=#2080FF00}">
+                <Grid Height="59" Background="{Binding IsPlaying, Converter={StaticResource BoolToBrush}, ConverterParameter=#4040FF00}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="33" />
                         <ColumnDefinition Width="33" />
@@ -149,7 +152,11 @@
                         <TextBlock Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}}" FontWeight="SemiBold" />
                         <TextBlock Text="{Binding EndTime, Converter={StaticResource DateTimeToSMPTE}, ConverterParameter=TC}"  FontWeight="Bold" />
                     </StackPanel>
-                    <TextBlock Grid.Column="5" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0" />
+                    <TextBlock Grid.Column="5" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0">
+                        <TextBlock.ToolTip>
+                            <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
+                        </TextBlock.ToolTip>
+                    </TextBlock>
                     <!--<TextBlock Grid.Column="3" Grid.Row="1" Text="{Binding NextEventname}" VerticalAlignment="Center"  HorizontalAlignment="Stretch" />-->
 
                     <TextBlock Grid.Column="6" Text="{Binding TimeLeft, Converter={StaticResource TimeSpanToSMPTE}, ConverterParameter=HIDE_ZERO_VALUE}" FontSize="26" VerticalAlignment="Center" Margin="5, 0" />

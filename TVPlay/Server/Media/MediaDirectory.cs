@@ -171,7 +171,7 @@ namespace TAS.Server
         
         [XmlArray]
         [XmlArrayItem(ElementName = "Extension")]
-        public string[] Extensions {get; set;}
+        public string[] Extensions { get { return _extensions; } set { _extensions = value; } }
         
         public virtual bool FileExists(string filename, string subfolder = null)
         {

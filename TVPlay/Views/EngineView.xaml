@@ -131,6 +131,10 @@
         <KeyBinding Command="{Binding CommandPaste}" CommandParameter="after" Gesture="Ctrl+V" />
         <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="F12" />
         <KeyBinding Command="{Binding CommandDeleteSelected}" Gesture="Ctrl+Delete" />
+        <KeyBinding Command="{Binding CommandAddNextMovie}" Gesture="Ctrl+N"/>
+        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="1" Gesture="Ctrl+1"/>
+        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="2" Gesture="Ctrl+2"/>
+        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="3" Gesture="Ctrl+3"/>
     </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
