@@ -107,7 +107,7 @@ namespace TAS.Server
         public abstract void Refresh();
         
         [XmlIgnore]
-        public virtual IEnumerable<Media> Files
+        public virtual List<Media> Files
         {
             get
             {

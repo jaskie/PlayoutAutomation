@@ -494,10 +494,11 @@ namespace TAS.Server
                        
         public bool Contains(string ClipName)
         {
+            string clipNameLowered = ClipName.ToLower();
             _files.Lock.EnterReadLock();
             try
             {
-                return _files.Any(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToUpper() == ClipName.ToUpper());
+                return _files.Any(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToLower() == clipNameLowered);
             }
             finally
             {
@@ -507,11 +508,12 @@ namespace TAS.Server
 
         public string FindFileName(string ClipName)
         {
+            string clipNameLowered = ClipName.ToLower();
             Media m;
             _files.Lock.ExitReadLock();
             try
             {
-                m = _files.FirstOrDefault(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToUpper() == ClipName.ToUpper());
+                m = _files.FirstOrDefault(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToLower() == clipNameLowered);
             }
             finally
             {
@@ -524,10 +526,11 @@ namespace TAS.Server
 
         public IngestMedia FindMedia(string ClipName)
         {
+            string clipNameLowered = ClipName.ToLower();
             _files.Lock.EnterReadLock();
             try
             {
-                return (IngestMedia)_files.FirstOrDefault(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToUpper() == ClipName.ToUpper());
+                return (IngestMedia)_files.FirstOrDefault(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToLower() == clipNameLowered);
             }
             finally
             {

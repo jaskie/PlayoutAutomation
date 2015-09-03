@@ -238,7 +238,6 @@
     <Compile Include="Server\PlayoutServerChannel.cs" />
     <Compile Include="Server\Media\TempDirectory.cs" />
     <Compile Include="Common\Enums.cs" />
-    <Compile Include="Server\Remoting\Engine.cs" />
     <Compile Include="Server\Remoting\IEngine.cs" />
     <Compile Include="Server\Remoting\IMediaManager.cs" />
     <Compile Include="Server\Remoting\RemoteHost.cs" />
@@ -480,10 +479,10 @@
     <EmbeddedResource Include="Views\EventPanelView.resx">
       <DependentUpon>EventPanelView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\ExportView.pl.resx" >
+    <EmbeddedResource Include="Views\ExportView.pl.resx">
       <DependentUpon>ExportView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\ExportView.resx" >
+    <EmbeddedResource Include="Views\ExportView.resx">
       <DependentUpon>ExportView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\FileManagerView.pl.resx">
@@ -516,10 +515,10 @@
     <EmbeddedResource Include="Views\MediaManagerView.resx">
       <DependentUpon>MediaManagerView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\MediaSearchView.pl.resx" >
+    <EmbeddedResource Include="Views\MediaSearchView.pl.resx">
       <DependentUpon>MediaSearchView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\MediaSearchView.resx" >
+    <EmbeddedResource Include="Views\MediaSearchView.resx">
       <DependentUpon>MediaSearchView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\PreviewView.pl.resx">

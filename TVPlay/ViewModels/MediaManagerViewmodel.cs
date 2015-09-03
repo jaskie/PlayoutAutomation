@@ -239,7 +239,7 @@ namespace TAS.Client.ViewModels
             if (_mediaDirectory is IngestDirectory)
                 _ingestSelectionToDir(_mediaManager.MediaDirectoryPGM);
             else
-                _mediaManager.AcquireMediaToPlayout(_getSelections(), true);
+                _mediaManager.IngestMediaToPlayout(_getSelections(), true);
         }
 
         private void _search(object o)
