@@ -7,178 +7,94 @@ using TAS.Server;
 
 namespace TAS.Client.ViewModels
 {
-    internal class EventClipboard
+    internal static class EventClipboard
     {
-        private readonly EngineViewmodel _engineVm;
-        private List<EventViewmodel> _eventVmList = new List<EventViewmodel>();
-        internal EventClipboard(EngineViewmodel engineVm)
-        {
-            _engineVm = engineVm;
-        }
-        private EventViewmodel _cutEventVm;
 
         internal enum TPasteLocation { Under, Before, After };
 
         internal enum ClipboardOperation { Cut, Copy };
 
-        private ClipboardOperation _operation;
-       
-        private bool _singleEvent;
+        static readonly SynchronizedCollection<Event> _clipboard = new SynchronizedCollection<Event>();
+        static ClipboardOperation Operation;
+        public static event Action ClipboardChanged;
 
-        internal void CutSingle(EventViewmodel eventVm)
+        public static bool IsEmpty { get { return _clipboard.Count == 0; } }
+
+        static void _notifyClipboardChanged()
         {
-            _clearList();
-            _singleEvent = true;
-            _cutEventVm = eventVm;
-            _eventVmList.Add(eventVm);
-            _operation = ClipboardOperation.Cut;
-            eventVm.IsCut = true;
+            var h = ClipboardChanged;
+            if (h != null)
+                h();
         }
 
-        internal void CutMultiple(EventViewmodel startEventVm)
+        public static void Copy(IEnumerable<EventViewmodel> items)
         {
-            _clearList();
-            _singleEvent = false;
-            _cutEventVm = startEventVm;
-            _operation = ClipboardOperation.Cut;
-            do
+            lock (_clipboard.SyncRoot)
             {
-                _eventVmList.Add(startEventVm);
-                startEventVm.IsCut = true;
-                startEventVm = startEventVm.Next;
+                _clipboard.Clear();
+                foreach (EventViewmodel e in items)
+                    _clipboard.Add(e.Event);
+                Operation = ClipboardOperation.Copy;
+                _notifyClipboardChanged();
             }
-            while (startEventVm != null);
         }
 
-        internal void CopySingle(EventViewmodel eventVm)
+        public static void Cut(IEnumerable<EventViewmodel> items)
         {
-            _clearList();
-            _singleEvent = true;
-            _cutEventVm = eventVm;
-            _eventVmList.Add(eventVm);
-            _operation = ClipboardOperation.Copy;
-            eventVm.IsCopy = true;
-        }
-
-        internal void CopyMultiple(EventViewmodel startEventVm)
-        {
-            _clearList();
-            _singleEvent = false;
-            _cutEventVm = startEventVm;
-            _operation = ClipboardOperation.Copy;
-            do
+            lock (_clipboard.SyncRoot)
             {
-                _eventVmList.Add(startEventVm);
-                startEventVm.IsCopy = true;
-                startEventVm = startEventVm.Next;
+                _clipboard.Clear();
+                foreach (EventViewmodel e in items)
+                    _clipboard.Add(e.Event);
+                Operation = ClipboardOperation.Cut;
+                _notifyClipboardChanged();
             }
-            while (startEventVm != null);
         }
 
-        internal bool CanPaste(EventViewmodel destEventVm, TPasteLocation location)
+        public static void Paste(EventViewmodel destination, TPasteLocation location)
         {
-            bool canPaste = false;
-            EventViewmodel sourceEventVm = _cutEventVm;
-            if (destEventVm != null && sourceEventVm != null)
+            Event dest = destination.Event;
+            lock(_clipboard.SyncRoot)
             {
-                Event destEvent = destEventVm.Event;
-                Event sourceEvent = sourceEventVm.Event;
-                if (destEvent != null && sourceEvent != null)
+                if (sCanPaste(destination, location))
                 {
-                    if (_operation == ClipboardOperation.Cut)
+                    var operation = Operation;
+                    using (var enumerator = _clipboard.GetEnumerator())
                     {
-
-                        if (destEvent == sourceEvent)
-                            return false;
-                        if (location == TPasteLocation.Under)
-                        {
-                            if (destEvent.EventType == TEventType.StillImage)
-                                return false;
-                            if ((destEvent.EventType == TEventType.Movie || destEvent.EventType == TEventType.Live) && (sourceEvent.EventType != TEventType.StillImage || sourceEvent.EventType != TEventType.AnimationFlash))
-                                return false;
-                            if (destEvent.EventType == TEventType.Rundown && (sourceEvent.EventType == TEventType.StillImage || sourceEvent.EventType == TEventType.AnimationFlash || destEvent.SubEvents.Count > 0))
-                                return false;
-                            if (destEvent.EventType == TEventType.Container && sourceEvent.EventType != TEventType.Rundown)
-                                return false;
-                        }
-                        // checkin for circular references
-                        Event prev = destEvent;
-                        if (_singleEvent)
-                            canPaste = !sourceEvent.VisualRootTrack.Contains(destEvent);
-                        else
-                            while (prev != null)
-                            {
-                                if (prev == sourceEvent)
-                                    return false;
-                                prev = prev.Prior ?? prev.Parent;
-                            }
-                        canPaste = true;
-                        if (location == TPasteLocation.After 
-                            && (destEvent == sourceEvent.Prior || destEvent.EventType == TEventType.Container))
-                            return false;
-                        if (location == TPasteLocation.Before
-                            && (destEvent == sourceEvent || destEvent.StartType == TStartType.Manual || destEvent.EventType == TEventType.Container))
-                            return false;
-                        if (location == TPasteLocation.Under && destEvent == sourceEvent.Parent)
-                            return false;
-                    }
-
-                    if (_operation == ClipboardOperation.Copy)
-                    {
-                        if (location == TPasteLocation.Before || location == TPasteLocation.After)
-                            return destEvent.EventType != TEventType.Container;
-                        if (location == TPasteLocation.Under)
-                        {
-                            if (destEvent.EventType == TEventType.StillImage)
-                                return false;
-                            if ((destEvent.EventType == TEventType.Movie || destEvent.EventType == TEventType.Live) && (sourceEvent.EventType != TEventType.StillImage || sourceEvent.EventType != TEventType.AnimationFlash))
-                                return false;
-                            if (destEvent.EventType == TEventType.Rundown && (sourceEvent.EventType == TEventType.StillImage || sourceEvent.EventType == TEventType.AnimationFlash || destEvent.SubEvents.Count > 0))
-                                return false;
-                            if (destEvent.EventType == TEventType.Container && sourceEvent.EventType == TEventType.Rundown)
-                                return true;
-                        }
+                        if (!enumerator.MoveNext())
+                            return;
+                        dest = _paste(enumerator.Current, dest, location, operation);
+                        while (enumerator.MoveNext())
+                            dest = _paste(enumerator.Current, dest, TPasteLocation.After, operation);
                     }
                 }
+                _clipboard.Clear();
             }
-            return canPaste;
         }
 
-        internal void Paste(EventViewmodel destEventVm, TPasteLocation location)
+        static Event _paste(Event source, Event dest, TPasteLocation location, ClipboardOperation operation)
         {
-            if (!CanPaste(destEventVm, location))
-                return;
-            
-            Event dest = destEventVm.Event;
-            Event cutFirst = _cutEventVm.Event;
-            if (_operation == ClipboardOperation.Cut)
+            if (operation == ClipboardOperation.Cut && source.Engine == dest.Engine)
             {
-                if (_singleEvent)
-                    cutFirst.Remove();
+                source.Remove();
                 switch (location)
                 {
                     case TPasteLocation.After:
-                        dest.InsertAfter(cutFirst);
+                        dest.InsertAfter(source);
                         break;
                     case TPasteLocation.Before:
-                        dest.InsertBefore(cutFirst);
+                        dest.InsertBefore(source);
                         break;
                     case TPasteLocation.Under:
-                        dest.InsertUnder(cutFirst);
+                        dest.InsertUnder(source);
                         break;
                 }
-                cutFirst = cutFirst.Next;
-                while (cutFirst != null)
-                {
-                    cutFirst.Save();
-                    cutFirst = cutFirst.Next;
-                }
-                _clearList();
+                return dest;
             }
-         
-            if (_operation == ClipboardOperation.Copy)
+
+            if (operation == ClipboardOperation.Copy && source.Engine == dest.Engine)
             {
-                Event newEvent = cutFirst.Clone();
+                Event newEvent = source.Clone();
                 switch (location)
                 {
                     case TPasteLocation.After:
@@ -193,29 +109,69 @@ namespace TAS.Client.ViewModels
                         dest.InsertUnder(newEvent);
                         break;
                 }
-                if (!_singleEvent)
+                return newEvent;
+            }
+            throw new ArgumentException("Event engines are different");
+        }
+
+
+        public static bool sCanPaste(EventViewmodel destEventVm, TPasteLocation location)
+        {
+            if (destEventVm == null)
+                return false;
+            Event dest = destEventVm.Event;
+            lock (_clipboard.SyncRoot)
+            {
+                var operation = Operation;
+                using (var enumerator = _clipboard.GetEnumerator())
                 {
-                    cutFirst = cutFirst.Next;
-                    while (cutFirst != null)
+                    if (!enumerator.MoveNext())
+                        return false;
+                    if (!_canPaste(enumerator.Current, dest, location, operation))
+                        return false;
+                    dest = enumerator.Current;
+                    while (enumerator.MoveNext())
                     {
-                        newEvent.InsertAfter(cutFirst.Clone());
-                        cutFirst = cutFirst.Next;
+                        if (!_canPaste(enumerator.Current, dest, TPasteLocation.After, operation))
+                            return false;
+                        dest = enumerator.Current;
                     }
                 }
-                // don't clear copy items list
             }
+            return true;
         }
 
-        private void _clearList()
+
+        private static bool _canPaste(Event sourceEvent, Event destEvent, TPasteLocation location, ClipboardOperation operation)
         {
-            foreach (EventViewmodel evm in _eventVmList)
+            if (sourceEvent.Engine != destEvent.Engine)
+                return false;
+            if (location == TPasteLocation.Under)
             {
-                evm.IsCut = false;
-                evm.IsCopy = false;
+                if (destEvent.EventType == TEventType.StillImage)
+                    return false;
+                if ((destEvent.EventType == TEventType.Movie || destEvent.EventType == TEventType.Live) && !(sourceEvent.EventType == TEventType.StillImage || sourceEvent.EventType == TEventType.AnimationFlash))
+                    return false;
+                if (destEvent.EventType == TEventType.Rundown && (sourceEvent.EventType == TEventType.StillImage || sourceEvent.EventType == TEventType.AnimationFlash || destEvent.SubEvents.Count > 0))
+                    return false;
+                if (destEvent.EventType == TEventType.Container && sourceEvent.EventType != TEventType.Rundown)
+                    return false;
             }
-            _eventVmList.Clear();
-            _cutEventVm = null;
+            if (location == TPasteLocation.After || location == TPasteLocation.Before)
+            {
+                if (!(sourceEvent.EventType == TEventType.Rundown
+                   || sourceEvent.EventType == TEventType.Movie
+                   || sourceEvent.EventType == TEventType.Live)
+                ||
+                    !(destEvent.EventType == TEventType.Rundown
+                   || destEvent.EventType == TEventType.Movie
+                   || destEvent.EventType == TEventType.Live)
+                   )
+                    return false;
+            }
+            if (sourceEvent.VisualRootTrack.Contains(destEvent) || destEvent.VisualRootTrack.Contains(sourceEvent))
+                return false;
+            return true;
         }
-
     }
 }

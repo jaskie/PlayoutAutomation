@@ -787,25 +787,19 @@ namespace TAS.Server
                 if (oldPrior != null)
                     oldPrior.Next = null;
 
-                Event next = Next;
+                Event next = this.Next;
                 if (next == eventToInsert)
                     return;
-                Next = eventToInsert;
+                this.Next = eventToInsert;
                 eventToInsert.StartType = TStartType.After;
                 eventToInsert.Prior = this;
 
-                Event lastToInsert = eventToInsert;
                 // notify about relocation
                 eventToInsert.NotifyRelocated();
-                while (lastToInsert.Next != null)
-                {
-                    lastToInsert.Next.NotifyRelocated();
-                    lastToInsert = lastToInsert.Next;
-                }
-
-                lastToInsert.Next = next;
+                eventToInsert.Next = next;
+                
                 if (next != null)
-                    next.Prior = lastToInsert;
+                    next.Prior = eventToInsert;
 
                 //time calculations
                 if (oldPrior != null)
@@ -815,7 +809,6 @@ namespace TAS.Server
 
                 // save key events
                 eventToInsert.Save();
-                lastToInsert.Save();
                 if (next != null)
                     next.Save();
             }
@@ -825,8 +818,8 @@ namespace TAS.Server
         {
             lock (SyncStatic)
             {
-                Event prior = Prior;
-                Event parent = Parent;
+                Event prior = this.Prior;
+                Event parent = this.Parent;
                 Event oldParent = eventToInsert.Parent;
                 Event oldPrior = eventToInsert.Prior;
                 if (oldParent != null)
@@ -854,26 +847,18 @@ namespace TAS.Server
                 if (prior != null)
                     prior.Next = eventToInsert;
 
-                Event lastToInsert = eventToInsert;
-
                 // notify about relocation
                 eventToInsert.NotifyRelocated();
-                while (lastToInsert.Next != null)
-                {
-                    lastToInsert.Next.NotifyRelocated();
-                    lastToInsert = lastToInsert.Next;
-                }
-
-                Prior = lastToInsert;
-                lastToInsert.Next = this;
-                StartType = TStartType.After;
+                this.Prior = eventToInsert;
+                eventToInsert.Next = this;
+                this.StartType = TStartType.After;
 
                 // time calculations
                 eventToInsert.UpdateScheduledTime(false);
                 eventToInsert.DurationChanged();
 
                 eventToInsert.Save();
-                Save();
+                this.Save();
             }
         }
 

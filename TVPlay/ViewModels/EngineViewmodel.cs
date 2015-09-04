@@ -19,11 +19,9 @@ namespace TAS.Client.ViewModels
     {
         private readonly Engine _engine;
         private readonly EventEditViewmodel _eventEditViewmodel;
-        private readonly EventClipboard _clipboard;
         private readonly EngineView _engineView;
         private Event _selectedEvent;
         public Engine Engine { get { return _engine; } }
-
         public ICommand CommandClearAll { get; private set; }
         public ICommand CommandClearLayer { get; private set; }
         public ICommand CommandRestartLayer { get; private set; }
@@ -36,15 +34,14 @@ namespace TAS.Client.ViewModels
         public ICommand CommandRestartRundown { get; private set; }
         public ICommand CommandNewRootRundown { get; private set; }
         public ICommand CommandNewContainer { get; private set; }
-        public ICommand CommandCutSingle { get; private set; }
-        public ICommand CommandCutMultiple { get; private set; }
-        public ICommand CommandCopySingle { get; private set; }
-        public ICommand CommandPaste { get; private set; }
         public ICommand CommandDebugToggle { get; private set; }
         public ICommand CommandSearchMissingEvents { get; private set; }
         public ICommand CommandResume { get; private set; }
         public ICommand CommandPause { get; private set; }
         public ICommand CommandDeleteSelected { get; private set; }
+        public ICommand CommandCopySelected { get; private set; }
+        public ICommand CommandPasteSelected { get; private set; }
+        public ICommand CommandCutSelected { get; private set; }
         public ICommand CommandExport { get; private set; }
         public ICommand CommandEngineSettings { get; private set; }
 
@@ -79,7 +76,6 @@ namespace TAS.Client.ViewModels
             _eventEditViewmodel = new EventEditViewmodel(this);
             
             Debug.WriteLine(this, "Creating EventClipboard");
-            _clipboard = new EventClipboard(this);
             
             Debug.WriteLine(this, "Creating PlayingEventViewmodel");
             _playingEventViewmodel = new PlayingEventViewmodel(_engine);
@@ -91,8 +87,14 @@ namespace TAS.Client.ViewModels
 
             _selectedEvents = new ObservableCollection<EventViewmodel>();
             _selectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
+            EventClipboard.ClipboardChanged += EngineViewmodel_ClipboardChanged;
         }
 
+        void EngineViewmodel_ClipboardChanged()
+        {
+            NotifyPropertyChanged("CommandPasteSelected");
+        }
+        
         protected override void OnDispose()
         {
             _engine.EngineTick -= this.OnEngineTick;
@@ -100,6 +102,7 @@ namespace TAS.Client.ViewModels
             _engine.ServerPropertyChanged -= this.OnServerPropertyChanged;
             _engine.PropertyChanged -= this.OnEnginePropertyChanged;
             _selectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
+            EventClipboard.ClipboardChanged -= EngineViewmodel_ClipboardChanged;
         }
 
         public EngineView View { get { return _engineView; } }
@@ -139,18 +142,57 @@ namespace TAS.Client.ViewModels
             CommandRestartRundown = new SimpleCommand() { ExecuteDelegate = _restartRundown };
             CommandNewRootRundown = new SimpleCommand() { ExecuteDelegate = _newRootRundown };
             CommandNewContainer = new SimpleCommand() { ExecuteDelegate = _newContainer };
-            CommandCutSingle = new SimpleCommand() { ExecuteDelegate = o => _cut(false), CanExecuteDelegate = _canCut };
-            CommandCutMultiple = new SimpleCommand() { ExecuteDelegate = o => _cut(true), CanExecuteDelegate = _canCut };
-            CommandCopySingle = new SimpleCommand() { ExecuteDelegate = o => _copy(false), CanExecuteDelegate =_canCopySingle };
-            CommandPaste = new SimpleCommand() { ExecuteDelegate = pos => _paste(pos as string) };
             CommandSearchMissingEvents = new SimpleCommand() { ExecuteDelegate = _searchMissingEvents };
             CommandResume = new SimpleCommand() { ExecuteDelegate = o => _engine.Resume() };
             CommandStartLoaded = new SimpleCommand() { ExecuteDelegate = o => _engine.Resume(), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Hold};
             CommandPause = new SimpleCommand() { ExecuteDelegate = o => _engine.Pause() };
             CommandDeleteSelected = new SimpleCommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
+            CommandCopySelected = new SimpleCommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _selectedEvents.Any() };
+            CommandCutSelected = new SimpleCommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
+            CommandPasteSelected = new SimpleCommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.sCanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
             CommandExport = new SimpleCommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
             CommandEngineSettings = new SimpleCommand() { ExecuteDelegate = o => new Client.Setup.EngineViewmodel(this.Engine, App.EngineController), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
         }
+
+        private void _pasteSelected(object obj)
+        {
+            UiServices.SetBusyState();
+            try
+            {
+                EventClipboard.Paste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), (string)obj, true));
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(string.Format(Properties.Resources._message_PasteFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void _copySelected(object obj)
+        {
+            UiServices.SetBusyState();
+            try
+            {
+                EventClipboard.Copy(_selectedEvents);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(string.Format(Properties.Resources._message_CopyFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void _cutSelected(object obj)
+        {
+            UiServices.SetBusyState();
+            try
+            {
+                EventClipboard.Cut(_selectedEvents);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(string.Format(Properties.Resources._message_CutFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
 
         private bool _canExport(object obj)
         {
@@ -213,7 +255,7 @@ namespace TAS.Client.ViewModels
         {
             Event newEvent = new Event(_engine);
             newEvent.EventType = TEventType.Rundown;
-            newEvent.EventName = "Playlista";
+            newEvent.EventName = Properties.Resources._title_NewRundown;
             newEvent.Duration = TimeSpan.Zero;
             newEvent.StartType = TStartType.Manual;
             newEvent.ScheduledTime = _engine.CurrentTime;
@@ -225,66 +267,10 @@ namespace TAS.Client.ViewModels
         {
             Event newEvent = new Event(_engine);
             newEvent.EventType = TEventType.Container;
-            newEvent.EventName = "Kontener";
+            newEvent.EventName = Properties.Resources.TEventType_Container;
             newEvent.StartType = TStartType.None;
             _engine.RootEvents.Add(newEvent);
             newEvent.Save();
-        }
-
-        private void _cut(bool multipleElements)
-        {
-            try
-            {
-                if (multipleElements)
-                    _clipboard.CutMultiple(Selected);
-                else
-                    _clipboard.CutSingle(Selected);
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(string.Format(Properties.Resources._message_CutFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void _copy(bool multipleElements)
-        {
-            try
-            {
-                if (multipleElements)
-                    _clipboard.CopyMultiple(Selected);
-                else
-                    _clipboard.CopySingle(Selected);
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(string.Format(Properties.Resources._message_CopyFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-
-        private void _paste(string position)
-        {
-            try
-            {
-                switch (position)
-                {
-                    case "before":
-                        _clipboard.Paste(Selected, EventClipboard.TPasteLocation.Before);
-                        break;
-                    case "after":
-                        _clipboard.Paste(Selected, EventClipboard.TPasteLocation.After);
-                        break;
-                    case "under":
-                        _clipboard.Paste(Selected, EventClipboard.TPasteLocation.Under);
-                        break;
-                    default:
-                        throw new InvalidOperationException(string.Format("Invalid paste string: {0}", position));
-                }
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(string.Format(Properties.Resources._message_PasteFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
-            }
         }
 
         private void _deleteSelected(object ob)
@@ -338,10 +324,6 @@ namespace TAS.Client.ViewModels
 
         private EventViewmodel _rootEventViewModel;
         public EventViewmodel RootEventViewModel { get { return _rootEventViewModel; } }
-
-        public bool CanPasteBefore { get { return _clipboard.CanPaste(Selected, EventClipboard.TPasteLocation.Before); } }
-        public bool CanPasteAfter { get { return _clipboard.CanPaste(Selected, EventClipboard.TPasteLocation.After); } }
-        public bool CanPasteUnder { get { return _clipboard.CanPaste(Selected, EventClipboard.TPasteLocation.Under); } }
 
         private EventViewmodel _selected;
         public EventViewmodel Selected

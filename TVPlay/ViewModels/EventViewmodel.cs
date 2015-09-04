@@ -27,10 +27,9 @@ namespace TAS.Client.ViewModels
         ObservableCollection<EventViewmodel> _childrens = new ObservableCollection<EventViewmodel>();
         static readonly EventViewmodel DummyChild = new EventViewmodel((Event) null, null);
 
-        public ICommand CommandCutSingle { get { return _engineViewmodel.CommandCutSingle; } }
-        public ICommand CommandCutMultiple { get { return _engineViewmodel.CommandCutMultiple; } }
-        public ICommand CommandCopySingle { get { return _engineViewmodel.CommandCopySingle; } }
-        public ICommand CommandPaste { get { return _engineViewmodel.CommandPaste; } }
+        public ICommand CommandCut { get { return _engineViewmodel.CommandCutSelected; } }
+        public ICommand CommandCopy { get { return _engineViewmodel.CommandCopySelected; } }
+        public ICommand CommandPaste { get { return _engineViewmodel.CommandPasteSelected; } }
         public ICommand CommandToggleHold { get; private set; }
         public ICommand CommandToggleEnabled { get; private set; }
         
@@ -393,11 +392,9 @@ namespace TAS.Client.ViewModels
                         _engineViewmodel.Selected = this;
 
                     NotifyPropertyChanged("IsSelected");
-                    NotifyPropertyChanged("CommandCutSingle");
-                    NotifyPropertyChanged("CommandCutMultiple");
-                    NotifyPropertyChanged("CanPasteBefore");
-                    NotifyPropertyChanged("CanPasteAfter");
-                    NotifyPropertyChanged("CanPasteUnder");
+                    NotifyPropertyChanged("CommandCut");
+                    NotifyPropertyChanged("CommandCopy");
+                    NotifyPropertyChanged("CommandPaste");
                 }
             }
         }
@@ -414,39 +411,6 @@ namespace TAS.Client.ViewModels
                 }
             }
         }
-        
-        public bool CanPasteBefore { get { return _engineViewmodel.CanPasteBefore; } }
-        public bool CanPasteAfter { get { return _engineViewmodel.CanPasteAfter; } }
-        public bool CanPasteUnder { get { return _engineViewmodel.CanPasteUnder; } }
-
-        private bool _isCut;
-        public bool IsCut
-        {
-            get { return _isCut; }
-            set
-            {
-                if (_isCut != value)
-                {
-                    _isCut = value;
-                    NotifyPropertyChanged("IsCut");
-                }
-            }
-        }
-
-        private bool _isCopy;
-        public bool IsCopy
-        {
-            get { return _isCopy; }
-            set
-            {
-                if (_isCopy != value)
-                {
-                    _isCopy = value;
-                    NotifyPropertyChanged("IsCopy");
-                }
-            }
-        }
-
 
         public EventViewmodel Parent
         {

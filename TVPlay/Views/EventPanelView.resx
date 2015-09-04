@@ -127,19 +127,10 @@
     <value>This item is selected</value>
   </data>
   <data name="_popupMenu.Copy" xml:space="preserve">
-    <value>_Copy...</value>
-  </data>
-  <data name="_popupMenu.Copy.OnlyThis" xml:space="preserve">
-    <value>_Only this item (Ctrl+C)</value>
+    <value>_Copy (Ctrl+C)</value>
   </data>
   <data name="_popupMenu.Cut" xml:space="preserve">
-    <value>C_ut...</value>
-  </data>
-  <data name="_popupmenu.Cut.FromThis" xml:space="preserve">
-    <value>_From this item (Ctrl+Shift+X)</value>
-  </data>
-  <data name="_popupMenu.Cut.OnlyThis" xml:space="preserve">
-    <value>_Only this item (Ctrl+X)</value>
+    <value>C_ut (Ctrl+X)</value>
   </data>
   <data name="_popupMenu.Hide" xml:space="preserve">
     <value>Hide</value>

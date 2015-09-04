@@ -12,6 +12,7 @@
              FontSize="12" 
              DataContextChanged="UserControl_DataContextChanged" 
              d:DesignWidth="700"
+             
              >
     <UserControl.Resources>
         <Style x:Key="borderStyle" TargetType="{x:Type Border}">
@@ -31,18 +32,12 @@
     </UserControl.Resources>
     <UserControl.ContextMenu>
         <ContextMenu>
-            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Copy}">
-                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Copy.OnlyThis}" Command="{Binding CommandCopySingle}"/>
-                <!--<MenuItem Header="_Od tego elementu (Ctrl+Shift+X)" Command="{Binding CommandCopyMultiple}"/>-->
-            </MenuItem>
-            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Cut}">
-                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Cut.OnlyThis}" Command="{Binding CommandCutSingle}"/>
-                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupmenu.Cut.FromThis}" Command="{Binding CommandCutMultiple}"/>
-            </MenuItem>
+            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Copy}" Command="{Binding CommandCopy}" />
+            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Cut}" Command="{Binding CommandCut}"/>
             <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste}">
-                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Before}" Command="{Binding CommandPaste}" CommandParameter="before" IsEnabled="{Binding CanPasteBefore}"/>
-                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.After}" Command="{Binding CommandPaste}" CommandParameter="after" IsEnabled="{Binding CanPasteAfter}"/>
-                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Under}" Command="{Binding CommandPaste}" CommandParameter="under" IsEnabled="{Binding CanPasteUnder}"/>
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Before}" Command="{Binding CommandPaste}" CommandParameter="Before" />
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.After}" Command="{Binding CommandPaste}" CommandParameter="After" />
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Under}" Command="{Binding CommandPaste}" CommandParameter="Under" />
             </MenuItem>
             <Separator/>
             <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Hide}" Command="{Binding CommandToggleEnabled}" Visibility="{Binding IsRootContainer, Converter={StaticResource BoolToVis}}"/>
@@ -69,8 +64,8 @@
                         <RowDefinition Height="7*" />
                         <RowDefinition Height="4*" />
                     </Grid.RowDefinitions>
-                    <Border Grid.RowSpan="2" Grid.ColumnSpan="9" BorderThickness="1" BorderBrush="Red" Visibility="{Binding IsCut, Converter={StaticResource BoolToVis}}" SnapsToDevicePixels="True"/>
-                    <Border Grid.RowSpan="2" Grid.ColumnSpan="9" BorderThickness="1" BorderBrush="Green" Visibility="{Binding IsCopy, Converter={StaticResource BoolToVis}}" SnapsToDevicePixels="True"/>
+                    <!--<Border Grid.RowSpan="2" Grid.ColumnSpan="9" BorderThickness="1" BorderBrush="Red" Visibility="{Binding IsCut, Converter={StaticResource BoolToVis}}" SnapsToDevicePixels="True"/>
+                    <Border Grid.RowSpan="2" Grid.ColumnSpan="9" BorderThickness="1" BorderBrush="Green" Visibility="{Binding IsCopy, Converter={StaticResource BoolToVis}}" SnapsToDevicePixels="True"/>-->
                     <Grid Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="3" >
                         <Grid.Style>
                             <Style TargetType="Grid">

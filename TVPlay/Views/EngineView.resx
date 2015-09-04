@@ -246,4 +246,7 @@
   <data name="_menu.Tools.Export" xml:space="preserve">
     <value>E_xport selected</value>
   </data>
+  <data name="_menu.Edit.Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
 </root>

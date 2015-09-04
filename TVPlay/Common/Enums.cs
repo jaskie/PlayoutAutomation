@@ -250,7 +250,7 @@ namespace TAS.Common
         { }
     }
 
-    [TypeConverter(typeof(TEventTyperEnumConverter))]
+    [TypeConverter(typeof(TEventTypeEnumConverter))]
     public enum TEventType
     {
         Rundown,
@@ -260,9 +260,9 @@ namespace TAS.Common
         Live,
         Container,
     };
-    class TEventTyperEnumConverter : ResourceEnumConverter
+    class TEventTypeEnumConverter : ResourceEnumConverter
     {
-        public TEventTyperEnumConverter()
+        public TEventTypeEnumConverter()
             : base(typeof(TEventType), TAS.Client.Properties.Resources.ResourceManager)
         { }
     }
