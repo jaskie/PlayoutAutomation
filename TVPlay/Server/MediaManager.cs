@@ -410,11 +410,12 @@ namespace TAS.Server
             FileManager.Queue(new XDCAM.ExportOperation() { SourceMedia = export.Media, StartTC = export.StartTC, Duration = export.Duration, DestDirectory = directory });
         }
 
-        public bool IngestFile(string fileName)
+        public Guid IngestFile(string fileName)
         {
             var nameLowered = fileName.ToLower();
-            if (MediaDirectoryPGM.FindMedia(m => Path.GetFileNameWithoutExtension(m.FileName).ToLower() == nameLowered).Any())
-                return true;
+            ServerMedia dest;
+            if ((dest  = (ServerMedia)(MediaDirectoryPGM.FindMedia(m => Path.GetFileNameWithoutExtension(m.FileName).ToLower() == nameLowered).FirstOrDefault())) != null)
+                return dest.MediaGuid;
             foreach (IngestDirectory dir in IngestDirectories)
             {
                 Media source = dir.FindMedia(fileName);
@@ -423,7 +424,7 @@ namespace TAS.Server
                     source.Verify();
                     if (source.MediaStatus == TMediaStatus.Available)
                     {
-                        ServerMedia dest = MediaDirectoryPGM.GetServerMedia(source, false);
+                        dest = MediaDirectoryPGM.GetServerMedia(source, false);
                         FileManager.Queue(new ConvertOperation()
                         {
                             SourceMedia = source,
@@ -433,11 +434,11 @@ namespace TAS.Server
                             SourceFieldOrderEnforceConversion = dir.SourceFieldOrder,
                             AspectConversion = dir.AspectConversion,
                         });
-                        return true;
+                        return dest.MediaGuid;
                     }
                 }
             }
-            return false;            
+            return Guid.Empty;            
         }
 
 

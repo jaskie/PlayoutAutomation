@@ -49,6 +49,7 @@ namespace TAS.Common
             switch (type)
             {
                 case TAudioChannelMappingConversion.Default:
+                    FFMpegParameter = "ac 2";
                     OutputFormat = TAudioChannelMapping.Unknown;
                     break;
                 case TAudioChannelMappingConversion.FirstTwoChannels:
@@ -62,6 +63,7 @@ namespace TAS.Common
                     FFMpegAudioFilter = "pan=stereo|c0=c2|c1=c3";
                     break;
                 case TAudioChannelMappingConversion.FirstChannelOnly:
+                    
                     // Temporary fix due to Caspar's audio distortion in right channlel playing mono file
 
                     //OutputFormat = TAudioChannelMapping.Mono;    

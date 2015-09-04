@@ -538,17 +538,14 @@ namespace TAS.Server
             }
         }
 
+        protected override void OnError(object source, ErrorEventArgs e)
+        {
+            base.OnError(source, e);
+            IsInitialized = false;
+            ClearFiles();
+            Initialize();
+        }
 
-        //internal void IngestGet(IngestMedia media, ServerMedia serverMediaPGM, bool toTop)
-        //{
-        //    FileManager.Queue(
-        //        new ConvertOperation
-        //        {
-        //            SourceMedia = media,
-        //            DestMedia = serverMediaPGM,
-        //        }, toTop);
-
-        //}
     }
 
 }

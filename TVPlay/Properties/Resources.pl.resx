@@ -498,7 +498,7 @@ Naprawdę usunąć?</value>
     <value>Ścieżki 3 i 4 -&gt; Mono</value>
   </data>
   <data name="TAudioChannelMappingConversion_Default" xml:space="preserve">
-    <value>Domyślnie</value>
+    <value>Domyślnie (możliwy downmix)</value>
   </data>
   <data name="TAudioChannelMappingConversion_FirstChannelOnly" xml:space="preserve">
     <value>Ścieżka 1 -&gt; Mono</value>

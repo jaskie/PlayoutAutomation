@@ -46,8 +46,7 @@ namespace TAS.Server
             {
                 ThreadPool.QueueUserWorkItem((o) => 
                     {
-                        BeginWatch();
-                        _getVolumeInfo();
+                        _beginWatch();
                         IsInitialized = true;
                     });
             }
@@ -361,7 +360,7 @@ namespace TAS.Server
             }
         }
 
-        private void BeginWatch()
+        private void _beginWatch()
         {
             bool watcherReady = false;
             while (!watcherReady)
@@ -391,6 +390,7 @@ namespace TAS.Server
                 if (!watcherReady)
                     System.Threading.Thread.Sleep(30000); //Wait for retry 30 sec.
             }
+            _getVolumeInfo();
             Debug.WriteLine("MediaDirectory: Watcher {0} setup successful.", (object)_folder);
         }
 
@@ -441,10 +441,8 @@ namespace TAS.Server
 
         protected virtual void OnError(object source, ErrorEventArgs e)
         {
-            Debug.WriteLine("IngestDirectory: Watcher {0} returned error: {1}.", _folder, e.GetException());
-            ClearFiles();
-            IsInitialized = false;
-            Initialize();
+            Debug.WriteLine("MediaDirectory: Watcher {0} returned error: {1}.", _folder, e.GetException());
+            _beginWatch();
         }
 
         public override string ToString()

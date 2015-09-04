@@ -623,7 +623,7 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Default.
+        ///   Looks up a localized string similar to Default (possible downmix).
         /// </summary>
         internal static string TAudioChannelMappingConversion_Default {
             get {

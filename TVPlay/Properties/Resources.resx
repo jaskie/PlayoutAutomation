@@ -495,7 +495,7 @@ Really delete?</value>
     <value>Tracks 3 i 4 -&gt; Mono</value>
   </data>
   <data name="TAudioChannelMappingConversion_Default" xml:space="preserve">
-    <value>Default</value>
+    <value>Default (possible downmix)</value>
   </data>
   <data name="TAudioChannelMappingConversion_FirstChannelOnly" xml:space="preserve">
     <value>Track 1 -&gt; Mono</value>

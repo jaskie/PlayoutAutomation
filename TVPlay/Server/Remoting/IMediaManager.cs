@@ -13,7 +13,7 @@ namespace TAS.Server.Remoting
         void OpenSession();
 
         [OperationContract]
-        bool IngestFile(string fileName);
+        Guid IngestFile(string fileName);
     }
 
     public interface IMediaManagerCallback
