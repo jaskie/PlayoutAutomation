@@ -725,6 +725,7 @@ namespace TAS.Client.ViewModels
             {
                 Event prior = _event.Prior;
                 Event parent = _event.Parent;
+                Event next = _event.Next;
                 Event visualParent = _event.VisualParent;
                 if (prior != null)
                 {
@@ -750,6 +751,36 @@ namespace TAS.Client.ViewModels
                                 _parent._childrens.Remove(this);
                                 if (!newParent.HasDummyChild)
                                     newParent._childrens.Insert(newParent._childrens.IndexOf(priorVm) + 1, this);
+                                _parent = newParent;
+                            }
+                        }
+                    }
+                    return;
+                }
+                if (parent == null && next != null)
+                {
+                    int index = _parent._childrens.IndexOf(this);
+                    if (visualParent != _parent._event
+                        || index <= 0
+                        || _parent._childrens[index]._event != next)
+                    {
+                        EventViewmodel nextVm = _root.Find(next);
+                        if (nextVm != null)
+                        {
+                            EventViewmodel newParent = nextVm._parent;
+                            if (_parent == newParent)
+                            {
+                                int nextIndex = newParent._childrens.IndexOf(nextVm);
+                                if (index >= nextIndex)
+                                    newParent._childrens.Move(index, nextIndex);
+                                else
+                                    newParent._childrens.Move(index, nextIndex -1);
+                            }
+                            else
+                            {
+                                _parent._childrens.Remove(this);
+                                if (!newParent.HasDummyChild)
+                                    newParent._childrens.Insert(newParent._childrens.IndexOf(nextVm), this);
                                 _parent = newParent;
                             }
                         }

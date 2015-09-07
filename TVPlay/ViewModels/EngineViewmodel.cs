@@ -149,7 +149,7 @@ namespace TAS.Client.ViewModels
             CommandDeleteSelected = new SimpleCommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
             CommandCopySelected = new SimpleCommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _selectedEvents.Any() };
             CommandCutSelected = new SimpleCommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
-            CommandPasteSelected = new SimpleCommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.sCanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
+            CommandPasteSelected = new SimpleCommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
             CommandExport = new SimpleCommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
             CommandEngineSettings = new SimpleCommand() { ExecuteDelegate = o => new Client.Setup.EngineViewmodel(this.Engine, App.EngineController), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
         }

@@ -33,7 +33,6 @@ namespace TAS.Client
         public EngineView()
         {
             InitializeComponent();
-            Debug.WriteLine(this, "Created");
         }
        
     }

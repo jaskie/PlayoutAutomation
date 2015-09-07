@@ -56,7 +56,7 @@ namespace TAS.Client.ViewModels
             Event dest = destination.Event;
             lock(_clipboard.SyncRoot)
             {
-                if (sCanPaste(destination, location))
+                if (CanPaste(destination, location))
                 {
                     var operation = Operation;
                     using (var enumerator = _clipboard.GetEnumerator())
@@ -89,7 +89,7 @@ namespace TAS.Client.ViewModels
                         dest.InsertUnder(source);
                         break;
                 }
-                return dest;
+                return source;
             }
 
             if (operation == ClipboardOperation.Copy && source.Engine == dest.Engine)
@@ -115,7 +115,7 @@ namespace TAS.Client.ViewModels
         }
 
 
-        public static bool sCanPaste(EventViewmodel destEventVm, TPasteLocation location)
+        public static bool CanPaste(EventViewmodel destEventVm, TPasteLocation location)
         {
             if (destEventVm == null)
                 return false;
@@ -169,8 +169,12 @@ namespace TAS.Client.ViewModels
                    )
                     return false;
             }
-            if (sourceEvent.VisualRootTrack.Contains(destEvent) || destEvent.VisualRootTrack.Contains(sourceEvent))
+            if (destEvent.IsContainedIn(sourceEvent))
+            {
+                if (sourceEvent == destEvent && location != TPasteLocation.Under && operation == ClipboardOperation.Copy)
+                    return true;
                 return false;
+            }
             return true;
         }
     }

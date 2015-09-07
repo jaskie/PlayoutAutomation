@@ -235,6 +235,21 @@ namespace TAS.Common
         { }
     }
 
+    [TypeConverter(typeof(TMediaErrorInfoEnumConverter))]
+    public enum TMediaErrorInfo
+    {
+        NoError,
+        Missing,
+        TooShort,
+    }
+    class TMediaErrorInfoEnumConverter : ResourceEnumConverter
+    {
+        public TMediaErrorInfoEnumConverter()
+            : base(typeof(TMediaStatus), TAS.Client.Properties.Resources.ResourceManager)
+        { }
+    }
+
+
     [TypeConverter(typeof(TFieldOrderEnumConverter))]
     public enum TFieldOrder
     {

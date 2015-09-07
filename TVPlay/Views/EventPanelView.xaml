@@ -138,7 +138,7 @@
                         </Image>
                         <Border Grid.Column="0" Grid.RowSpan="3" Background="Red" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isInvalidInSchedule}" />
                         <Image Grid.Column="0" Grid.Row="0" Source="..\Glyphs\tick_circle.png" HorizontalAlignment="Left" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected}" />
-                        <Image Style="{StaticResource bigImage}" Grid.Column="0" Grid.Row="1" Source="{Binding MediaErrorInfo, Converter={StaticResource MediaErrorInfoToUri}}" ToolTip="{Binding MediaErrorInfo}" />
+                        <Image Style="{StaticResource bigImage}" Grid.Column="0" Grid.Row="1" Source="{Binding MediaErrorInfo, Converter={StaticResource MediaErrorInfoToUri}}" ToolTip="{Binding MediaErrorInfo}" HorizontalAlignment="Left" Margin="3,1,0,0" />
                         <Image Style="{StaticResource bigImage}" Grid.Column="2" Grid.Row="1" Source="{Binding PlayState, Converter={StaticResource PlayStateToUri}}" ToolTip="{Binding PlayState}"/>
                     </Grid>
                     <StackPanel Grid.Column="4" Grid.RowSpan="2" Visibility="{Binding IsNotContainer, Converter={StaticResource BoolToVis}}">

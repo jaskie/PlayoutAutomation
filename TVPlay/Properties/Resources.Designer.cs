@@ -965,6 +965,33 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to File missing.
+        /// </summary>
+        internal static string TMediaErrorInfo_Missing {
+            get {
+                return ResourceManager.GetString("TMediaErrorInfo_Missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string TMediaErrorInfo_NoError {
+            get {
+                return ResourceManager.GetString("TMediaErrorInfo_NoError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clip too short.
+        /// </summary>
+        internal static string TMediaErrorInfo_TooShort {
+            get {
+                return ResourceManager.GetString("TMediaErrorInfo_TooShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Available.
         /// </summary>
         internal static string TMediaStatus_Available {

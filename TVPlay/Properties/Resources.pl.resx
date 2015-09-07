@@ -535,4 +535,13 @@ Naprawdę je usunąć?</value>
   <data name="TxDCAMAudioExportFormat_Channels4Bits24" xml:space="preserve">
     <value>4 kanały, 24 bity na próbkę</value>
   </data>
+  <data name="TMediaErrorInfo_Missing" xml:space="preserve">
+    <value>Brak pliku</value>
+  </data>
+  <data name="TMediaErrorInfo_NoError" xml:space="preserve">
+    <value />
+  </data>
+  <data name="TMediaErrorInfo_TooShort" xml:space="preserve">
+    <value>Klip za krótki</value>
+  </data>
 </root>

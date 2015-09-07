@@ -23,16 +23,6 @@ namespace TAS.Client
     /// </summary>
     /// 
 
-    public enum TMediaErrorInfo
-    {
-        [Description(null)]
-        NoError,
-        [Description("Brak pliku")]
-        Missing,
-        [Description("Klip nie gotowy lub za krótki")]
-        TooShort,
-    }
-
     public partial class EventPanelView : UserControl
     {
         public EventPanelView()
