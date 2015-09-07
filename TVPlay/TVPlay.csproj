@@ -230,6 +230,7 @@
     <Compile Include="Server\CasparServerChannel.cs" />
     <Compile Include="Server\GPINotifier.cs" />
     <Compile Include="Common\MediaConversion.cs" />
+    <Compile Include="Server\Interfaces\IIngestDirectory.cs" />
     <Compile Include="Server\Media\MediaExport.cs" />
     <Compile Include="Server\Media\MediaSegment.cs" />
     <Compile Include="Server\Media\FtpMediaStream.cs" />
@@ -249,6 +250,14 @@
     <Compile Include="Server\XDCAM\SerializationHelper.cs" />
     <Compile Include="Server\XDCAM\Smil.cs" />
     <Compile Include="Server\XDCAM\XdcamStream.cs" />
+    <Compile Include="Setup\IngestDirectoryView.xaml.cs">
+      <DependentUpon>IngestDirectoryView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Setup\IngestDirectoryViewmodel.cs" />
+    <Compile Include="Setup\IngestDirectoriesView.xaml.cs">
+      <DependentUpon>IngestDirectoriesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Setup\IngestDirectoriesViewmodel.cs" />
     <Compile Include="Setup\OkCancelView.xaml.cs">
       <DependentUpon>OkCancelView.xaml</DependentUpon>
     </Compile>
@@ -342,6 +351,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Setup\EngineView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Setup\IngestDirectoriesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Setup\IngestDirectoryView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -666,7 +683,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\DataSources\" />
-    <Folder Include="ViewModels\Interfaces\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FFMpegUtils\FFMpegUtils.vcxproj">

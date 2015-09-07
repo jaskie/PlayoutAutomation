@@ -13,7 +13,7 @@ using System.Net.FtpClient;
 
 namespace TAS.Server
 {
-    public class IngestDirectory : MediaDirectory
+    public class IngestDirectory : MediaDirectory, TAS.Server.Interfaces.IIngestDirectory
     {
         public string EncodeParams = string.Empty;
         
@@ -72,7 +72,7 @@ namespace TAS.Server
 
         public int MediaRetnentionDays { get; set; }
 
-        public TMediaCategory? MediaCategory { get; set; }
+        public TMediaCategory MediaCategory { get; set; }
 
         public double AudioVolume { get; set; }
 
@@ -356,7 +356,7 @@ namespace TAS.Server
             return new IngestMedia()
             {
                 _mediaStatus = TMediaStatus.Unknown,
-                _mediaCategory = this.MediaCategory ?? TMediaCategory.Uncategorized,
+                _mediaCategory = this.MediaCategory,
             };
         }
 

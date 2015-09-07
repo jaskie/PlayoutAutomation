@@ -60,7 +60,10 @@ namespace TAS.Client.Setup
             }
         }
 
-        protected abstract void Close(object parameter);
+        protected virtual void Close(object parameter)
+        {
+            View.Close();
+        }
         
         protected virtual bool CanClose(object parameter)
         {

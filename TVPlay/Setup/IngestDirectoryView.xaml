@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="TAS.Client.Setup.IngestDirectoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:TAS.Client.Setup"
+             d:DataContext="{x:Type vm:IngestDirectoryViewmodel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <StackPanel>
+        <Label Content="Directory name"/>
+        <TextBox Text="{Binding DirectoryName}"/>
+        <Label Content="Target directory"/>
+        <TextBox Text="{Binding Folder}"/>
+        <Label Content="Default aspect conversion"/>
+        <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}"/>
+        <Label Content="Default source field order"/>
+        <ComboBox ItemsSource="{Binding SourceFieldOrders}" SelectedItem="{Binding SourceFieldOrder}"/>
+        <Label Content="Default media category"/>
+        <ComboBox ItemsSource="{Binding MediaCategories}" SelectedItem="{Binding MediaCategory}"/>
+
+    </StackPanel>
+</UserControl>

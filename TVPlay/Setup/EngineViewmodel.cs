@@ -64,11 +64,6 @@ namespace TAS.Client.Setup
         public int GPIGraphicsAhead { get { return _gPIGraphicsAhead; } set { SetField(ref _gPIGraphicsAhead, value, "GPIGraphicsAhead"); } }
 
 
-        protected override void Close(object parameter)
-        {
-            View.Close();
-        }
-
         protected override void OnDispose()
         {
             
