@@ -394,12 +394,6 @@
                             <Trigger Property="c:TreeViewExtensions.IsSelected"  Value="True" >
                                 <Setter Property="Background" Value="LightSkyBlue"></Setter>
                             </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="common:TreeViewItemBringIntoViewWhenSelected.BringIntoViewWhenSelected" Value="True" />
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="False">
-                                <Setter Property="common:TreeViewItemBringIntoViewWhenSelected.BringIntoViewWhenSelected" Value="False" />
-                            </Trigger>
                         </Style.Triggers>
                     </Style>
                 </TreeView.ItemContainerStyle>

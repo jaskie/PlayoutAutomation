@@ -755,8 +755,8 @@ namespace TAS.Client.ViewModels
                             }
                         }
                     }
-                    return;
                 }
+                else
                 if (parent == null && next != null)
                 {
                     int index = _parent._childrens.IndexOf(this);
@@ -785,9 +785,8 @@ namespace TAS.Client.ViewModels
                             }
                         }
                     }
-                    return;
                 }
-
+                else
                 if (parent == null)
                 {
                     _parent._childrens.Remove(this);
@@ -808,6 +807,7 @@ namespace TAS.Client.ViewModels
                             Parent = parentVm;
                     }
                 }
+                this._bringIntoView();
             }
         }
         
@@ -885,6 +885,21 @@ namespace TAS.Client.ViewModels
                 else
                     if (p.Enabled) // container can be disabled
                         p.SetOnTop();
+        }
+
+        protected void _bringIntoView()
+        {
+            var p = Parent;
+            if (p != null)
+                if (p.IsExpanded)
+                {
+                    var v = View;
+                    if (v != null && _rootOwner.IsVisible)
+                        v.BringIntoView();
+                }
+                else
+                    if (p.Enabled) // container can be disabled
+                        p._bringIntoView();
         }
     }
 }

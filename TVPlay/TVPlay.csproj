@@ -276,7 +276,6 @@
     <Compile Include="Common\BindableSelectedItems.cs" />
     <Compile Include="Common\MediaSeekSlider.cs" />
     <Compile Include="Common\EmphasisedButton.cs" />
-    <Compile Include="Common\TreeViewItemBringIntoViewWhenSelected.cs" />
     <Compile Include="Server\Media\ArchiveMedia.cs" />
     <Compile Include="Server\Media\ArchiveDirectory.cs" />
     <Compile Include="Server\ConvertOperation.cs" />
