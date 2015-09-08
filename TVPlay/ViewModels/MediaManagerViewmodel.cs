@@ -154,7 +154,7 @@ namespace TAS.Client.ViewModels
 
         private void _export(object obj)
         {
-            var selections = _getSelections().Select( m => new MediaExport(m, m.TCPlay, m.DurationPlay));
+            var selections = _getSelections().Select( m => new MediaExport(m, m.TCPlay, m.DurationPlay, m.AudioVolume));
             using (ExportViewmodel evm = new ExportViewmodel(this._mediaManager, selections)) { }
         }
 

@@ -7,7 +7,7 @@ namespace TAS.Server
 {
     public class MediaExport
     {
-        public MediaExport(Media media, TimeSpan startTC, TimeSpan duration)
+        public MediaExport(Media media, TimeSpan startTC, TimeSpan duration, decimal audioVolume)
         {
             this.Media = media;
             this.StartTC = startTC;
@@ -16,5 +16,6 @@ namespace TAS.Server
         public Media Media { get; private set; }
         public TimeSpan Duration; 
         public TimeSpan StartTC;
+        public decimal AudioVolume;             
     }
 }

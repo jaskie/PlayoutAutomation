@@ -29,6 +29,8 @@ namespace TAS.Server.XDCAM
         
         public TimeSpan Duration { get; set; }
 
+        public decimal AudioVolume { get; set; }
+
         public IngestDirectory DestDirectory { get; set; }
 
         internal override bool Do()
@@ -59,7 +61,6 @@ namespace TAS.Server.XDCAM
 
         private bool _do(Media inputMedia)
         {
-            string encodeFileName;
             _progressDuration = SourceMedia.Duration;
             _addOutputMessage("Refreshing XDCAM content");
             DestDirectory.Refresh();
@@ -111,13 +112,15 @@ namespace TAS.Server.XDCAM
         {
             Debug.WriteLine(this, "Export encode started");
             _addOutputMessage(string.Format("Encode started to file {0}", outFile));
-            string command = string.Format("-i \"{0}\" {1} {2} -ss {3} -timecode {4} -y \"{5}\"",
+            string command = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                "-i \"{0}\" {1} {2} -ss {3} -filter:a \"volume={4:F3}dB\" -timecode {5} -y \"{6}\"",
                 inputFile,
                 DestDirectory.XDCAMVideoExportFormat == TxDCAMVideoExportFormat.IMX30 ? D10_IMX30
                     : DestDirectory.XDCAMVideoExportFormat == TxDCAMVideoExportFormat.IMX40 ? D10_IMX40
                     : D10_IMX50,
                 DestDirectory.XDCAMAudioExportFormat == TxDCAMAudioExportFormat.Channels4Bits24 ? PCM24LE : PCM16LE,
                 StartTC - SourceMedia.TCStart,
+                AudioVolume,
                 StartTC.ToSMPTETimecodeString(),
                 outFile);
             if (RunProcess(command))

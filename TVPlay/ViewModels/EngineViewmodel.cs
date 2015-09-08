@@ -201,7 +201,7 @@ namespace TAS.Client.ViewModels
 
         private void _export(object obj)
         {
-            var selections = _selectedEvents.Where(e => e.Media != null && e.Media.MediaType == TMediaType.Movie).Select(e => new MediaExport(e.Media, e.ScheduledTC, e.Duration));
+            var selections = _selectedEvents.Where(e => e.Media != null && e.Media.MediaType == TMediaType.Movie).Select(e => new MediaExport(e.Media, e.ScheduledTC, e.Duration, e.AudioVolume));
             using (ExportViewmodel evm = new ExportViewmodel(_engine.MediaManager, selections)) { }
         }
 
