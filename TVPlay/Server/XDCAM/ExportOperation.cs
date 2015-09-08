@@ -11,12 +11,12 @@ namespace TAS.Server.XDCAM
 {
     public class ExportOperation: FFMpegOperation
     {
-        const string D10_IMX50 = "-vsync passthrough -pix_fmt yuv422p -vcodec mpeg2video -minrate 50000k -maxrate 50000k -b:v 50000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 3 -bufsize 2000000 -rc_init_occupancy 2000000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx5p -vf \"scale=720:576, pad=720:608:0:32\" -f mxf_d10";
-        const string D10_IMX40 = "-vsync passthrough -pix_fmt yuv422p -vcodec mpeg2video -minrate 40000k -maxrate 40000k -b:v 40000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 3 -bufsize 1600000 -rc_init_occupancy 1600000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx4p -vf \"scale=720:576, pad=720:608:0:32\" -f mxf_d10";
-        const string D10_IMX30 = "-vsync passthrough -pix_fmt yuv422p -vcodec mpeg2video -minrate 30000k -maxrate 30000k -b:v 30000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 8 -bufsize 1200000 -rc_init_occupancy 1200000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx3p -vf \"scale=720:576, pad=720:608:0:32\" -f mxf_d10";
+        const string D10_PAL_IMX50 = "-vsync cfr -pix_fmt yuv422p -vcodec mpeg2video -minrate 50000k -maxrate 50000k -b:v 50000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 3 -bufsize 2000000 -rc_init_occupancy 2000000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx5p -vf \"scale=720:576, pad=720:608:0:32\" -f mxf_d10";
+        const string D10_PAL_IMX40 = "-vsync cfr -pix_fmt yuv422p -vcodec mpeg2video -minrate 40000k -maxrate 40000k -b:v 40000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 3 -bufsize 1600000 -rc_init_occupancy 1600000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx4p -vf \"scale=720:576, pad=720:608:0:32\" -f mxf_d10";
+        const string D10_PAL_IMX30 = "-vsync cfr -pix_fmt yuv422p -vcodec mpeg2video -minrate 30000k -maxrate 30000k -b:v 30000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 8 -bufsize 1200000 -rc_init_occupancy 1200000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx3p -vf \"scale=720:576, pad=720:608:0:32\" -f mxf_d10";
         const string PCM24LE = "-acodec pcm_s24le -ar 48000 -ac 2 -d10_channelcount 4";
         const string PCM16LE = "-acodec pcm_s16le -ar 48000 -ac 2 -d10_channelcount 4";
-        
+
         UInt64 _progressFileSize;
 
         public ExportOperation()
@@ -113,14 +113,15 @@ namespace TAS.Server.XDCAM
             Debug.WriteLine(this, "Export encode started");
             _addOutputMessage(string.Format("Encode started to file {0}", outFile));
             string command = string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                "-i \"{0}\" {1} {2} -ss {3} -filter:a \"volume={4:F3}dB\" -timecode {5} -y \"{6}\"",
+                "-i \"{0}\" {1} {2} -filter:a \"volume={3:F3}dB\" -ss {4} -t {5} -timecode {6} -y \"{7}\"",
                 inputFile,
-                DestDirectory.XDCAMVideoExportFormat == TxDCAMVideoExportFormat.IMX30 ? D10_IMX30
-                    : DestDirectory.XDCAMVideoExportFormat == TxDCAMVideoExportFormat.IMX40 ? D10_IMX40
-                    : D10_IMX50,
+                DestDirectory.XDCAMVideoExportFormat == TxDCAMVideoExportFormat.IMX30 ? D10_PAL_IMX30
+                    : DestDirectory.XDCAMVideoExportFormat == TxDCAMVideoExportFormat.IMX40 ? D10_PAL_IMX40
+                    : D10_PAL_IMX50,
                 DestDirectory.XDCAMAudioExportFormat == TxDCAMAudioExportFormat.Channels4Bits24 ? PCM24LE : PCM16LE,
-                StartTC - SourceMedia.TCStart,
                 AudioVolume,
+                StartTC - SourceMedia.TCStart,
+                Duration,
                 StartTC.ToSMPTETimecodeString(),
                 outFile);
             if (RunProcess(command))

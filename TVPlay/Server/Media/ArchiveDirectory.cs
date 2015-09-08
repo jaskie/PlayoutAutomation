@@ -18,7 +18,7 @@ namespace TAS.Server
         {
             _isInitialized = false; // to avoid subsequent reinitializations
             DirectoryName = "Archiwum";
-            _getVolumeInfo();
+            GetVolumeInfo();
             Debug.WriteLine("ArchiveDirectory {0} initialized", Folder, null);
         }
         public UInt64 IdArchive { get; internal set; }
@@ -168,7 +168,7 @@ namespace TAS.Server
             }
             if (media is IngestMedia)
             {
-                FileManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = toMedia, SuccessCallback = _getVolumeInfo, OutputFormat = outputFormat});
+                FileManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = toMedia, SuccessCallback = GetVolumeInfo, OutputFormat = outputFormat});
             }
         }
 
@@ -188,13 +188,13 @@ namespace TAS.Server
             if (fromMedia.MediaGuid == toMedia.MediaGuid && fromMedia.MediaFileEqual(toMedia))
             {
                 if (deleteAfterSuccess)
-                    FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = fromMedia, SuccessCallback = _getVolumeInfo}, toTop);
+                    FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = fromMedia, SuccessCallback = GetVolumeInfo}, toTop);
             }
             else
             {
                 if (!Directory.Exists(Path.GetDirectoryName(toMedia.FullPath)))
                     Directory.CreateDirectory(Path.GetDirectoryName(toMedia.FullPath));
-                FileManager.Queue(new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestMedia = toMedia, SuccessCallback = _getVolumeInfo }, toTop);
+                FileManager.Queue(new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestMedia = toMedia, SuccessCallback = GetVolumeInfo }, toTop);
             }
         }    
 

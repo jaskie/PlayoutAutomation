@@ -86,7 +86,7 @@ namespace TAS.Server
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool GetDiskFreeSpaceEx(string lpDirectoryName, out UInt64 lpFreeBytesAvailable, out UInt64 lpTotalNumberOfBytes, out UInt64 lpTotalNumberOfFreeBytes);
 
-        protected void _getVolumeInfo()
+        protected virtual void GetVolumeInfo()
         {
             _volumeTotalSize = 0;
             if (AccessType == TDirectoryAccessType.Direct)
@@ -98,7 +98,20 @@ namespace TAS.Server
         }
 
         private UInt64 _volumeFreeSize = 0;
-        public virtual UInt64 VolumeFreeSize { get { return _volumeFreeSize; } }
+        
+        [XmlIgnore]
+        public virtual UInt64 VolumeFreeSize
+        {
+            get { return _volumeFreeSize; }
+            protected set
+            {
+                if (_volumeFreeSize != value)
+                {
+                    _volumeFreeSize = value;
+                    NotifyPropertyChanged("VolumeFreeSize");
+                }
+            }
+        }
 
         private UInt64 _volumeTotalSize = 0;
         public virtual UInt64 VolumeTotalSize { get { return _volumeTotalSize; } }
@@ -390,7 +403,7 @@ namespace TAS.Server
                 if (!watcherReady)
                     System.Threading.Thread.Sleep(30000); //Wait for retry 30 sec.
             }
-            _getVolumeInfo();
+            GetVolumeInfo();
             Debug.WriteLine("MediaDirectory: Watcher {0} setup successful.", (object)_folder);
         }
 
@@ -403,7 +416,7 @@ namespace TAS.Server
         private void OnFileDeleted(object source, FileSystemEventArgs e)
         {
             FileRemoved(e.FullPath);
-            _getVolumeInfo();
+            GetVolumeInfo();
         }
 
         protected virtual void OnFileRenamed(object source, RenamedEventArgs e)
@@ -436,7 +449,7 @@ namespace TAS.Server
             }
             if (m != null)
                 OnMediaChanged(m);
-            _getVolumeInfo();
+            GetVolumeInfo();
         }
 
         protected virtual void OnError(object source, ErrorEventArgs e)

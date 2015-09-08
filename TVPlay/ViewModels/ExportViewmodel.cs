@@ -43,13 +43,25 @@ namespace TAS.Client.ViewModels
 
         void _export (object o)
         {
+            _checking = true;
+            NotifyPropertyChanged("CommandExport");
+            try
+            {
+                //TODO: check if exporting files fit in device free space
+            }
+            finally
+            {
+                _checking = false;
+                NotifyPropertyChanged("CommandExport");
+            }
             _mediaManager.Export(Items.Select(mevm => mevm.MediaExport), SelectedDirectory);
             _view.Close();
         }
 
+        bool _checking;
         bool _canExport(object o)
         {
-            return Items.Count > 0 && SelectedDirectory != null;
+            return !_checking && Items.Count > 0 && SelectedDirectory != null;
         }
 
         protected override void OnDispose()

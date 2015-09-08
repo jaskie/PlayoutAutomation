@@ -266,7 +266,7 @@ namespace TAS.Server
             CheckInputFile(inputMedia);
             string encodeParams = _encodeParameters(inputMedia);
 
-            string Params = string.Format("-i \"{0}\" -vsync passthrough {1} -timecode {2} -y \"{3}\"",
+            string Params = string.Format("-i \"{0}\" -vsync cfr {1} -timecode {2} -y \"{3}\"",
                     inputMedia.FullPath,
                     encodeParams,
                     DestMedia.TCStart.ToSMPTETimecodeString(),
