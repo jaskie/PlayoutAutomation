@@ -126,6 +126,9 @@
   <data name="_export" xml:space="preserve">
     <value>Export</value>
   </data>
+  <data name="_grid.Header.AudioVolume" xml:space="preserve">
+    <value>Audio</value>
+  </data>
   <data name="_grid.Header.ClipName" xml:space="preserve">
     <value>Clip name</value>
   </data>

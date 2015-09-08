@@ -25,7 +25,8 @@ namespace TAS.Client.ViewModels
                     { 
                         DataContext = this, 
                         Owner = System.Windows.Application.Current.MainWindow, 
-                        WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner 
+                        WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner,
+                        ShowInTaskbar = false,
                     };
                     view.ShowDialog();
                 }

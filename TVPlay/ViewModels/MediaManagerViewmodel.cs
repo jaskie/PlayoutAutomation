@@ -205,9 +205,12 @@ namespace TAS.Client.ViewModels
                 {
                     using (IngestEditViewmodel ievm = new IngestEditViewmodel(ingestList))
                     {
-                        IngestEditorView iewnd = new IngestEditorView();
-                        iewnd.DataContext = ievm;
-                        iewnd.Owner = App.Current.MainWindow;
+                        IngestEditorView iewnd = new IngestEditorView()
+                        {
+                            DataContext = ievm,
+                            Owner = App.Current.MainWindow,
+                            ShowInTaskbar = false
+                        };
                         if (iewnd.ShowDialog() == true)
                         {
                             foreach (ConvertOperation operation in ingestList)

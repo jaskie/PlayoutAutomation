@@ -12,6 +12,7 @@ namespace TAS.Server
             this.Media = media;
             this.StartTC = startTC;
             this.Duration = duration;
+            this.AudioVolume = audioVolume;
         }
         public Media Media { get; private set; }
         public TimeSpan Duration; 
