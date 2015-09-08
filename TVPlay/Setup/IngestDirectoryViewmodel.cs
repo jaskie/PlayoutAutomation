@@ -10,10 +10,12 @@ namespace TAS.Client.Setup
     public class IngestDirectoryViewmodel: ViewModels.ViewmodelBase
     {
         readonly IIngestDirectory _directory;
+        readonly System.Windows.Controls.UserControl _view;
         public IngestDirectoryViewmodel(IIngestDirectory directory)
         {
-
+            _view = new IngestDirectoryView() { DataContext = this };
         }
+        
         #region Enumerations
         Array _aspectConversions = Enum.GetValues(typeof(TAspectConversion));
         public Array AspectConversions { get { return _aspectConversions; } }
@@ -42,6 +44,7 @@ namespace TAS.Client.Setup
         public TxDCAMVideoExportFormat XDCAMVideoExportFormat { get; set; }
         #endregion // IIngestDirectory
 
+        public System.Windows.Controls.UserControl View { get { return _view; } }
 
         protected override void OnDispose()
         {
