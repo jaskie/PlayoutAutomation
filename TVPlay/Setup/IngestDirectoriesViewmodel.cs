@@ -14,15 +14,16 @@ namespace TAS.Client.Setup
         public ICommand CommandAdd { get; private set; }
         public ICommand CommandDelete { get; private set; }
         private readonly ObservableCollection<IngestDirectoryViewmodel> _directories;
-        public IngestDirectoriesViewmodel(IEnumerable<IIngestDirectory> directories): base(directories, new IngestFoldersView(), "Ingest directories", 500, 300)
+        public IngestDirectoriesViewmodel(IEnumerable<IIngestDirectory> directories): base(directories, new IngestFoldersView(), "Ingest directories", 600, 500)
         {
             _directories = new ObservableCollection<IngestDirectoryViewmodel>(directories.Select(d => new IngestDirectoryViewmodel(d)));
             _createCommands();
+            View.ShowDialog();
         }
 
         private void _createCommands()
         {
-            CommandAdd = new SimpleCommand() { ExecuteDelegate = _add, CanExecuteDelegate = _canAdd };
+            CommandAdd = new SimpleCommand() { ExecuteDelegate = _add };
             CommandDelete = new SimpleCommand() { ExecuteDelegate = _delete, CanExecuteDelegate = _canDelete };
         }
 
@@ -33,12 +34,7 @@ namespace TAS.Client.Setup
 
         private bool _canDelete(object obj)
         {
-            throw new NotImplementedException();
-        }
-
-        private bool _canAdd(object obj)
-        {
-            throw new NotImplementedException();
+            return SelectedDirectory != null;
         }
 
         private void _add(object obj)
@@ -47,7 +43,8 @@ namespace TAS.Client.Setup
         }
 
         public ObservableCollection<IngestDirectoryViewmodel> Directories { get { return _directories; } }
-        public IngestDirectoryViewmodel SelectedDirectory { get; set; }
+        IngestDirectoryViewmodel _selectedDirectory;
+        public IngestDirectoryViewmodel SelectedDirectory { get { return _selectedDirectory; } set { SetField(ref _selectedDirectory, value, "SelectedDirectory"); } }
 
         
         protected override void OnDispose()

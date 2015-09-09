@@ -19,6 +19,5 @@ namespace TAS.Server.Interfaces
         TFieldOrder SourceFieldOrder { get; set; }
         TxDCAMAudioExportFormat XDCAMAudioExportFormat { get; set; }
         TxDCAMVideoExportFormat XDCAMVideoExportFormat { get; set; }
-        void Initialize();
     }
 }

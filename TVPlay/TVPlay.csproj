@@ -198,6 +198,7 @@
     <Compile Include="Common\EnumHelper.cs" />
     <Compile Include="Common\FileUtils.cs" />
     <Compile Include="Common\FocusExtension.cs" />
+    <Compile Include="Common\EnumerableExtensions.cs" />
     <Compile Include="Common\MouseDoubleClick.cs">
       <SubType>Code</SubType>
     </Compile>

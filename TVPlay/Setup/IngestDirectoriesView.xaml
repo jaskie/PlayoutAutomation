@@ -24,14 +24,15 @@
                     <Setter Property="Padding" Value="3"/>
                 </Style>
             </StackPanel.Resources>
-            <Button>
+            <Button Command="{Binding CommandAdd}">
                 <client:AutoGreyableImage Source="..\Glyphs\document_add.png"/>
             </Button>
-            <Button>
+            <Button Command="{Binding CommandDelete}">
                 <client:AutoGreyableImage Source="..\Glyphs\document_delete.png"/>
             </Button>
         </StackPanel>
+        <ListView Grid.Row="1" ItemsSource="{Binding Directories}" SelectedItem="{Binding SelectedDirectory}"/>
 
-        <ContentControl Grid.Column="1" Grid.RowSpan="2" Content="{Binding Path=SelectedDirectory.View}" />
+        <ContentControl Grid.Column="1" Grid.RowSpan="2" Margin="5" Content="{Binding SelectedDirectory.View}" />
     </Grid>
 </UserControl>

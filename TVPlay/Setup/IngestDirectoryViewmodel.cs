@@ -1,19 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using TAS.Common;
 using TAS.Server.Interfaces;
 
 namespace TAS.Client.Setup
 {
-    public class IngestDirectoryViewmodel: ViewModels.ViewmodelBase
+    public class IngestDirectoryViewmodel: ViewModels.ViewmodelBase, IIngestDirectory
     {
-        readonly IIngestDirectory _directory;
         readonly System.Windows.Controls.UserControl _view;
         public IngestDirectoryViewmodel(IIngestDirectory directory)
         {
+            _copyProperties(directory);
             _view = new IngestDirectoryView() { DataContext = this };
+        }
+
+        void _copyProperties(IIngestDirectory source)
+        {
+            PropertyInfo[] copiedProperties = this.GetType().GetProperties();
+            foreach (PropertyInfo copyPi in copiedProperties)
+            {
+                PropertyInfo sourcePi = source.GetType().GetProperty(copyPi.Name);
+                if (sourcePi != null)
+                    copyPi.SetValue(this, sourcePi.GetValue(source, null), null);
+            }
         }
         
         #region Enumerations
@@ -26,12 +38,15 @@ namespace TAS.Client.Setup
         Array _xDCAMAudioExportFormats = Enum.GetValues(typeof(TxDCAMAudioExportFormat));
         public Array XDCAMAudioExportFormats { get { return _xDCAMAudioExportFormats; } }
         Array _xDCAMVideoExportFormats = Enum.GetValues(typeof(TxDCAMVideoExportFormat));
-        public Array XDCAMVideoExportFormats { get { return XDCAMVideoExportFormats; } }
+        public Array XDCAMVideoExportFormats { get { return _xDCAMVideoExportFormats; } }
         #endregion // Enumerations
 
 
         #region IIngestDirectory
         public string DirectoryName { get; set; }
+        public string Folder { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
         public TAspectConversion AspectConversion { get; set; }
         public double AudioVolume { get; set; }
         public bool DeleteSource { get; set; }
@@ -49,6 +64,11 @@ namespace TAS.Client.Setup
         protected override void OnDispose()
         {
             
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} ({1})", DirectoryName, Folder);
         }
     }
 }

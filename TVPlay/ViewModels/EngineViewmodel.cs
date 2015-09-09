@@ -44,6 +44,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandCutSelected { get; private set; }
         public ICommand CommandExport { get; private set; }
         public ICommand CommandEngineSettings { get; private set; }
+        public ICommand CommandIngestDirectoriesSettings { get; private set; }
 
         public ICommand CommandAddNewMovie { get { return _eventEditViewmodel.CommandAddNextMovie; } }
         public ICommand CommandAddNewRundown { get { return _eventEditViewmodel.CommandAddNextRundown; } }
@@ -152,6 +153,7 @@ namespace TAS.Client.ViewModels
             CommandPasteSelected = new SimpleCommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
             CommandExport = new SimpleCommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
             CommandEngineSettings = new SimpleCommand() { ExecuteDelegate = o => new Client.Setup.EngineViewmodel(this.Engine, App.EngineController), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
+            CommandIngestDirectoriesSettings = new SimpleCommand() { ExecuteDelegate = o => new Client.Setup.IngestDirectoriesViewmodel(_engine.MediaManager.IngestDirectories), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
         }
 
         private void _pasteSelected(object obj)
@@ -280,9 +282,9 @@ namespace TAS.Client.ViewModels
                 var evmList = _selectedEvents.ToList();
                 var containerList = evmList.Where(evm => evm.IsRootContainer);
                 if (evmList.Count() > 0
-                    && MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelected, evmList.Count(), string.Join(Environment.NewLine, evmList)), Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes
+                    && MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelected, evmList.Count(), evmList.AsString(Environment.NewLine, 20)), Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
                     && (containerList.Count() == 0
-                        || MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedContainers, containerList.Count(), string.Join(Environment.NewLine, containerList)), Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes))
+                        || MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedContainers, containerList.Count(), containerList.AsString(Environment.NewLine, 20)), Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
                 {
                     UiServices.SetBusyState();
                     ThreadPool.QueueUserWorkItem(
@@ -664,7 +666,10 @@ namespace TAS.Client.ViewModels
             if (e.PropertyName == "GPIIsMaster")
                 NotifyPropertyChanged("GPIEnabled");
             if (e.PropertyName == "EngineState")
+            {
                 NotifyPropertyChanged("CommandEngineSettings");
+                NotifyPropertyChanged("CommandIngestDirectoriesSettings");
+            }
         }
 
         private bool _trackPlayingEvent = true;

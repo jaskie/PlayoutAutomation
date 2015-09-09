@@ -541,4 +541,7 @@ Are you sure?</value>
   <data name="TMediaErrorInfo_TooShort" xml:space="preserve">
     <value>Clip too short</value>
   </data>
+  <data name="_moreItems" xml:space="preserve">
+    <value>and {0} items more</value>
+  </data>
 </root>

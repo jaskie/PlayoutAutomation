@@ -273,7 +273,7 @@ namespace TAS.Client.ViewModels
         private void _deleteSelected(object o)
         {
             List<Media> selection = _getSelections();
-            if (MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedFiles, string.Join("\n", selection)), Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo)== MessageBoxResult.Yes)
+            if (MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedFiles, selection.AsString(Environment.NewLine, 20)), Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel)== MessageBoxResult.OK)
                 _mediaManager.DeleteMedia(selection);
         }
 

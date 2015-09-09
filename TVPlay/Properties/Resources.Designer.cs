@@ -157,6 +157,15 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to and {0} items more.
+        /// </summary>
+        internal static string _moreItems {
+            get {
+                return ResourceManager.GetString("_moreItems", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to None.
         /// </summary>
         internal static string _none_ {

@@ -33,9 +33,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandToggleHold { get; private set; }
         public ICommand CommandToggleEnabled { get; private set; }
         
-        bool _isExpanded;
-        bool _isSelected;
-
+        
         
         public EventViewmodel(Server.Engine engine, EngineViewmodel engineViewmodel)
         {
@@ -185,7 +183,9 @@ namespace TAS.Client.ViewModels
                         if (onUIThread
                             && newVm != null
                             && !((o as Event).EventType == TEventType.AnimationFlash || (o as Event).EventType == TEventType.StillImage))
+                        {
                             newVm.IsSelected = true;
+                        }
                     }, System.Windows.Threading.Dispatcher.FromThread(System.Threading.Thread.CurrentThread) != null); // current thread is uiThread
         }
 
@@ -348,6 +348,7 @@ namespace TAS.Client.ViewModels
         }
         public int Level { get { return _level; } }
 
+        bool _isExpanded;
         public bool IsExpanded
         {
             get { return _isExpanded; }
@@ -380,6 +381,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        bool _isSelected;
         public bool IsSelected
         {
             get { return _isSelected; }
@@ -399,7 +401,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private bool _isMultiSelected;
+        bool _isMultiSelected;
         public bool IsMultiSelected
         {
             get { return _isMultiSelected; }

@@ -68,7 +68,8 @@ namespace TAS.Client.ViewModels
                             dest = _paste(enumerator.Current, dest, TPasteLocation.After, operation);
                     }
                 }
-                _clipboard.Clear();
+                if (Operation == ClipboardOperation.Cut)
+                    _clipboard.Clear();
             }
         }
 

@@ -135,6 +135,9 @@
         <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="1" Gesture="Ctrl+1"/>
         <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="2" Gesture="Ctrl+2"/>
         <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="3" Gesture="Ctrl+3"/>
+        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="1" Gesture="Ctrl+NumPad1"/>
+        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="2" Gesture="Ctrl+NumPad2"/>
+        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="3" Gesture="Ctrl+NumPad3"/>
     </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -182,9 +185,11 @@
             </MenuItem>
             <MenuItem Header="{Resx _menu.Tools}">
                 <MenuItem Header="{Resx _menu.Tools.Export}" Command="{Binding CommandExport}"/>
+                <Separator/>
                 <MenuItem Header="Find unlinked events" Command="{Binding CommandSearchMissingEvents}" />
                 <MenuItem Header="_Debug window" Command="{Binding CommandDebugToggle}" />
                 <MenuItem Header="{Resx _menu.Tools.ChannelConfig}" Command="{Binding CommandEngineSettings}"/>
+                <MenuItem Header="_Ingest directories setup" Command="{Binding CommandIngestDirectoriesSettings}"/>
                 
                 <!--<MenuItem Header="Playout">
                     <MenuItem Header="Wznów" Command="{Binding CommandResume}" />
