@@ -247,15 +247,22 @@ namespace TAS.Client.ViewModels
 
         private void _search(object o)
         {
-            if (_mediaDirectory is ArchiveDirectory)
+            try
             {
-                (_mediaDirectory as ArchiveDirectory).SearchMediaCategory = _mediaCategory as TMediaCategory?;
-                (_mediaDirectory as ArchiveDirectory).SearchString = _searchText;
-                (_mediaDirectory as ArchiveDirectory).Search();
+                if (_mediaDirectory is ArchiveDirectory)
+                {
+                    (_mediaDirectory as ArchiveDirectory).SearchMediaCategory = _mediaCategory as TMediaCategory?;
+                    (_mediaDirectory as ArchiveDirectory).SearchString = _searchText;
+                    (_mediaDirectory as ArchiveDirectory).Search();
+                }
+                else
+                    _mediaView.Refresh();
+                NotifyPropertyChanged("ItemsCount");
             }
-            else
-            _mediaView.Refresh();
-            NotifyPropertyChanged("ItemsCount");
+            catch (Exception e)
+            {
+                MessageBox.Show(string.Format(Properties.Resources._message_DirectoryRefreshError, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
+            }
         }
 
         private string[] _searchTextSplit = new string[0];

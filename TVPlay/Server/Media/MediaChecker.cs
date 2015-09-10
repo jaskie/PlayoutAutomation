@@ -82,7 +82,7 @@ namespace TAS.Server
                     else
                         media.MediaStatus = TMediaStatus.ValidationError;
                 }
-                Debug.WriteLine("Verify of {0} finished with status {1}. It took {2} milliseconds", media.FullPath, media.MediaStatus, Environment.TickCount - startTickCunt);
+                Debug.WriteLine("Check of {0} finished with status {1}. It took {2} milliseconds", media.FullPath, media.MediaStatus, Environment.TickCount - startTickCunt);
             }
             else
                 media.MediaStatus = TMediaStatus.Available;

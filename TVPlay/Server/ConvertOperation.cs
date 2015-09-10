@@ -251,9 +251,9 @@ namespace TAS.Server
                 vf.Add("w3fdif");
             }
             if (vf.Any())
-                ep.AppendFormat(" -filter:v \"{0}\"", string.Join(", ", vf));
+                ep.AppendFormat(" -filter:v \"{0}\"", string.Join(",", vf));
             if (af.Any())
-                ep.AppendFormat(" -filter:a \"{0}\"", string.Join(", ", af));
+                ep.AppendFormat(" -filter:a \"{0}\"", string.Join(",", af));
             return ep.ToString();
         }
 
@@ -266,7 +266,7 @@ namespace TAS.Server
             CheckInputFile(inputMedia);
             string encodeParams = _encodeParameters(inputMedia);
 
-            string Params = string.Format("-i \"{0}\" -vsync cfr {1} -timecode {2} -y \"{3}\"",
+            string Params = string.Format("-i \"{0}\" -vsync cfr {1} -ar 48000 -timecode {2} -y \"{3}\"",
                     inputMedia.FullPath,
                     encodeParams,
                     DestMedia.TCStart.ToSMPTETimecodeString(),

@@ -1243,7 +1243,9 @@ namespace TAS.Server
 
         private void _mediaPGMVerified(object o, MediaEventArgs e)
         {
-            if (PlayoutChannelPRV != null && PlayoutChannelPRV.OwnerServer.MediaDirectory.IsInitialized)
+            if (PlayoutChannelPRV != null
+                && PlayoutChannelPRV.OwnerServer != PlayoutChannelPGM.OwnerServer
+                && PlayoutChannelPRV.OwnerServer.MediaDirectory.IsInitialized)
             {
                 Media media = PlayoutChannelPRV.OwnerServer.MediaDirectory.GetServerMedia(e.Media, true);
                 if (media.FileSize == e.Media.FileSize
