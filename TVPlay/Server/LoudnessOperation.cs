@@ -11,10 +11,9 @@ using TAS.Server;
 
 namespace TAS.Server
 {
-    class LoudnessOperation : FileOperation
+    class LoudnessOperation : FFMpegOperation
     {
 
-        private static readonly string _ffExe = "ffmpeg.exe";
         private static readonly string lLufsPattern = @"    I:\s*-?\d*\.?\d* LUFS";
         private static readonly string lPeakPattern = @"    Peak:\s*-?\d*\.?\d* dBFS";
         private static readonly string LufsPattern = @"-?\d+\.\d";
@@ -22,8 +21,8 @@ namespace TAS.Server
         private static readonly string ProgressPattern = @"\d+\.?\d*";
         private static readonly Regex _regexlLufs = new Regex(lLufsPattern, RegexOptions.None);
         private static readonly Regex _regexlPeak = new Regex(lPeakPattern, RegexOptions.None);
-        private static readonly Regex _regexlProgress = new Regex(lProgressPattern, RegexOptions.None);
-        private static readonly Regex _regexProgress = new Regex(ProgressPattern, RegexOptions.None);
+        private static readonly Regex _regexLoudnesslProgress = new Regex(lProgressPattern, RegexOptions.None);
+        private static readonly Regex _regexLoudnessProgress = new Regex(ProgressPattern, RegexOptions.None);
 
         private decimal _loudness = 0;
         private decimal _samplePeak = decimal.MinValue;
@@ -35,40 +34,6 @@ namespace TAS.Server
             Kind = TFileOperationKind.Loudness;
         }
         
-
-        private bool RunProcess(string parameters)
-        {
-            ProcessStartInfo oInfo = new ProcessStartInfo(LoudnessOperation._ffExe, parameters);
-            oInfo.UseShellExecute = false;
-            oInfo.CreateNoWindow = true;
-            oInfo.RedirectStandardError = true;
-            Debug.WriteLine(parameters, "Starting ffmpeg with parameters");
-            try
-            {
-                using (Process _procFFmpeg = Process.Start(oInfo))
-                {
-                    _procFFmpeg.ErrorDataReceived += ProcOutputHandler;
-                    _procFFmpeg.BeginErrorReadLine();
-                    bool finished = false;
-                    while (!(Aborted || finished))
-                        finished = _procFFmpeg.WaitForExit(1000);
-                    if (Aborted)
-                    {
-                        _procFFmpeg.Kill();
-                        Thread.Sleep(1000);
-                        Debug.WriteLine(this, "Aborted");
-                    }
-                    return finished && (_procFFmpeg.ExitCode == 0);
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e.Message, "Error running FFmpeg process");
-                return false;
-            }
-
-        }
-
         internal override bool Do()
         {
             if (Kind == TFileOperationKind.Loudness)
@@ -126,15 +91,15 @@ namespace TAS.Server
             return false;
         }
 
-        private void ProcOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
+        protected override void ProcOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             // Collect the process command output. 
             if (!String.IsNullOrEmpty(outLine.Data))
             {
-                Match lineMatch = _regexlProgress.Match(outLine.Data);
+                Match lineMatch = _regexLoudnesslProgress.Match(outLine.Data);
                 if (lineMatch.Success)
                 {
-                    Match valueMatch = _regexProgress.Match(lineMatch.Value);
+                    Match valueMatch = _regexLoudnessProgress.Match(lineMatch.Value);
                     if (valueMatch.Success)
                     {
                         double totalSeconds = SourceMedia.Duration.TotalSeconds;
@@ -177,6 +142,7 @@ namespace TAS.Server
                         if (SourceMedia is PersistentMedia)
                             (SourceMedia as PersistentMedia).Save();
                     }
+                    _addOutputMessage(outLine.Data);
                 }
             }
         }

@@ -15,11 +15,12 @@ namespace TAS.Server
             Server = server;
         }
 
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {
             _isInitialized = false; // to avoid subsequent reinitializations
             DirectoryName = "Animacje";
-            DatabaseConnector.ServerLoadMediaDirectory(this, Server);
+            //DatabaseConnector.ServerLoadMediaDirectory(this, Server);
             Debug.WriteLine(Server.MediaFolder, "AnimationDirectory initialized");
         }
 

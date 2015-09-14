@@ -157,6 +157,15 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to and {0} items more.
+        /// </summary>
+        internal static string _moreItems {
+            get {
+                return ResourceManager.GetString("_moreItems", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to None.
         /// </summary>
         internal static string _none_ {
@@ -277,6 +286,15 @@ namespace TAS.Client.Properties {
         internal static string _title_EmptyMovie {
             get {
                 return ResourceManager.GetString("_title_EmptyMovie", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export {0} -&gt; {1}.
+        /// </summary>
+        internal static string _title_ExportClip {
+            get {
+                return ResourceManager.GetString("_title_ExportClip", resourceCulture);
             }
         }
         
@@ -614,7 +632,7 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Default.
+        ///   Looks up a localized string similar to Default (possible downmix).
         /// </summary>
         internal static string TAudioChannelMappingConversion_Default {
             get {
@@ -956,6 +974,33 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to File missing.
+        /// </summary>
+        internal static string TMediaErrorInfo_Missing {
+            get {
+                return ResourceManager.GetString("TMediaErrorInfo_Missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string TMediaErrorInfo_NoError {
+            get {
+                return ResourceManager.GetString("TMediaErrorInfo_NoError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clip too short.
+        /// </summary>
+        internal static string TMediaErrorInfo_TooShort {
+            get {
+                return ResourceManager.GetString("TMediaErrorInfo_TooShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Available.
         /// </summary>
         internal static string TMediaStatus_Available {
@@ -1249,6 +1294,24 @@ namespace TAS.Client.Properties {
         internal static string TVideoFormat_PAL_FHA {
             get {
                 return ResourceManager.GetString("TVideoFormat_PAL_FHA", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 4 channels, 16 bits per sample.
+        /// </summary>
+        internal static string TxDCAMAudioExportFormat_Channels4Bits16 {
+            get {
+                return ResourceManager.GetString("TxDCAMAudioExportFormat_Channels4Bits16", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 4 channels, 24 bits per sample.
+        /// </summary>
+        internal static string TxDCAMAudioExportFormat_Channels4Bits24 {
+            get {
+                return ResourceManager.GetString("TxDCAMAudioExportFormat_Channels4Bits24", resourceCulture);
             }
         }
     }

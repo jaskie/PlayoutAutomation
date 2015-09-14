@@ -115,6 +115,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+       
     </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding Command="{Binding CommandStartSelected}" Gesture="Ctrl+F3"/>
@@ -125,12 +126,18 @@
         <KeyBinding Command="{Binding CommandRescheduleSelected}" Gesture="F4" />
         <KeyBinding Command="{Binding CommandToggleHold}" Gesture="F6" />
         <KeyBinding Command="{Binding CommandToggleEnabled}" Gesture="F7" />
-        <KeyBinding Command="{Binding CommandCutSingle}" Gesture="Ctrl+X" />
-        <KeyBinding Command="{Binding CommandCutMultiple}" Gesture="Ctrl+Shift+X" />
-        <KeyBinding Command="{Binding CommandCopySingle}" Gesture="Ctrl+C" />
-        <KeyBinding Command="{Binding CommandPaste}" CommandParameter="after" Gesture="Ctrl+V" />
+        <KeyBinding Command="{Binding CommandCutSelected}" Gesture="Ctrl+X" />
+        <KeyBinding Command="{Binding CommandCopySelected}" Gesture="Ctrl+C" />
+        <KeyBinding Command="{Binding CommandPasteSelected}" CommandParameter="After" Gesture="Ctrl+V" />
         <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="F12" />
         <KeyBinding Command="{Binding CommandDeleteSelected}" Gesture="Ctrl+Delete" />
+        <KeyBinding Command="{Binding CommandAddNextMovie}" Gesture="Ctrl+N"/>
+        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="1" Gesture="Ctrl+1"/>
+        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="2" Gesture="Ctrl+2"/>
+        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="3" Gesture="Ctrl+3"/>
+        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="1" Gesture="Ctrl+NumPad1"/>
+        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="2" Gesture="Ctrl+NumPad2"/>
+        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="3" Gesture="Ctrl+NumPad3"/>
     </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -155,14 +162,12 @@
                 <MenuItem Header="{Resx _menu.Rundown.Restart}" Command="{Binding CommandRestartRundown}"/>
             </MenuItem>
             <MenuItem Header="{Resx _menu.Edit}">
-                <MenuItem Header="{Resx _menu.Edit.Cut}">
-                    <MenuItem Header="{Resx _menu.Edit.Cut.OnlyThis}" Command="{Binding CommandCutSingle}"/>
-                    <MenuItem Header="{Resx _menu.Edit.Cut.FromThis}" Command="{Binding CommandCutMultiple}"/>
-                </MenuItem>
+                <MenuItem Header="{Resx _menu.Edit.Copy}" Command="{Binding CommandCopySelected}"/>
+                <MenuItem Header="{Resx _menu.Edit.Cut}" Command="{Binding CommandCutSelected}"/>
                 <MenuItem Header="{Resx _menu.Edit.Paste}">
-                    <MenuItem Header="{Resx _menu.Edit.Paste.Before}" Command="{Binding CommandPaste}" CommandParameter="before" IsEnabled="{Binding CanPasteBefore}"/>
-                    <MenuItem Header="{Resx _menu.Edit.Paste.After}" Command="{Binding CommandPaste}" CommandParameter="after" IsEnabled="{Binding CanPasteAfter}"/>
-                    <MenuItem Header="{Resx _menu.Edit.Paste.Under}" Command="{Binding CommandPaste}" CommandParameter="under" IsEnabled="{Binding CanPasteUnder}"/>
+                    <MenuItem Header="{Resx _menu.Edit.Paste.Before}" Command="{Binding CommandPasteSelected}" CommandParameter="Before"/>
+                    <MenuItem Header="{Resx _menu.Edit.Paste.After}" Command="{Binding CommandPasteSelected}" CommandParameter="After"/>
+                    <MenuItem Header="{Resx _menu.Edit.Paste.Under}" Command="{Binding CommandPasteSelected}" CommandParameter="Under"/>
                 </MenuItem>
                 <Separator />
                 <MenuItem Header="{Resx _menu.Edit.AddNext}" >
@@ -179,9 +184,13 @@
                 <MenuItem Header="{Resx _menu.Edit.DeleteSelected}" Command="{Binding CommandDeleteSelected}" />
             </MenuItem>
             <MenuItem Header="{Resx _menu.Tools}">
+                <MenuItem Header="{Resx _menu.Tools.Export}" Command="{Binding CommandExport}"/>
+                <Separator/>
                 <MenuItem Header="Find unlinked events" Command="{Binding CommandSearchMissingEvents}" />
                 <MenuItem Header="_Debug window" Command="{Binding CommandDebugToggle}" />
                 <MenuItem Header="{Resx _menu.Tools.ChannelConfig}" Command="{Binding CommandEngineSettings}"/>
+                <MenuItem Header="_Ingest directories setup" Command="{Binding CommandIngestDirectoriesSettings}"/>
+                
                 <!--<MenuItem Header="Playout">
                     <MenuItem Header="Wznów" Command="{Binding CommandResume}" />
                     <MenuItem Header="Wstrzymaj" Command="{Binding CommandPause}" />
@@ -389,12 +398,6 @@
                         <Style.Triggers>
                             <Trigger Property="c:TreeViewExtensions.IsSelected"  Value="True" >
                                 <Setter Property="Background" Value="LightSkyBlue"></Setter>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="common:TreeViewItemBringIntoViewWhenSelected.BringIntoViewWhenSelected" Value="True" />
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="False">
-                                <Setter Property="common:TreeViewItemBringIntoViewWhenSelected.BringIntoViewWhenSelected" Value="False" />
                             </Trigger>
                         </Style.Triggers>
                     </Style>

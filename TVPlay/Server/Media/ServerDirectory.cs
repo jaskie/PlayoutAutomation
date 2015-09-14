@@ -6,23 +6,30 @@ using System.IO;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Runtime.Remoting.Messaging;
+using System.Threading;
 using TAS.Common;
+using TAS.Data;
 
 namespace TAS.Server
 {
     public class ServerDirectory : MediaDirectory
     {
         public readonly PlayoutServer Server;
-        public ServerDirectory(PlayoutServer server): base()
+        public ServerDirectory(PlayoutServer server)
+            : base()
         {
             Server = server;
+            Extensions = new string[MediaDirectory.VideoFileTypes.Length + MediaDirectory.StillFileTypes.Length];
+            MediaDirectory.VideoFileTypes.CopyTo(Extensions, 0);
+            MediaDirectory.StillFileTypes.CopyTo(Extensions, MediaDirectory.VideoFileTypes.Length);
         }
 
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {
-            DatabaseConnector.ServerLoadMediaDirectory(this, Server);
+            this.Load();
+            VerifyMedia();
             base.Initialize();
-            InvokeVerifyMedia();
             Debug.WriteLine(this, "Directory initialized");
         }
 
@@ -33,7 +40,8 @@ namespace TAS.Server
 
         protected override Media CreateMedia()
         {
-            ServerMedia newMedia = new ServerMedia() { 
+            ServerMedia newMedia = new ServerMedia()
+            {
                 Directory = this,
             };
             return newMedia;
@@ -51,8 +59,8 @@ namespace TAS.Server
         {
             base.MediaAdd(media);
             media.PropertyChanged += OnMediaPropertyChanged;
-            if (media.MediaStatus != TMediaStatus.Required)
-                media.InvokeVerify();
+            if (media.MediaStatus != TMediaStatus.Required && File.Exists(media.FullPath))
+                ThreadPool.QueueUserWorkItem(o => media.Verify());
         }
 
         public override void MediaRemove(Media media)
@@ -167,79 +175,25 @@ namespace TAS.Server
                 _files.Lock.ExitReadLock();
             }
         }
-        
+
         protected override void OnMediaRenamed(Media media, string newName)
         {
             base.OnMediaRenamed(media, newName);
             ((ServerMedia)media).Save();
         }
-        
-        public void InvokeVerifyMedia()
+
+        public void VerifyMedia()
         {
-            VerifyMediaDelegate worker = new VerifyMediaDelegate(VerifyMediaWorker);
-            IEnumerable<Media> unverifiedFiles;
             _files.Lock.EnterReadLock();
             try
             {
-                unverifiedFiles = _files.Where(mf => ((ServerMedia)mf).Verified == false).ToList();
+                var unverifiedFiles = _files.Where(mf => ((ServerMedia)mf).Verified == false).ToList();
+                unverifiedFiles.ForEach(media => media.Verify());
             }
             finally
             {
                 _files.Lock.ExitReadLock();
             }
-            lock (_VerifyWorkerSyncObject)
-            {
-                if (_IsVerificationRunning)
-                {
-                    _RepeatVerificationAfterFinish = true;
-                    return;
-                }
-                AsyncOperation verificationAsyncOperation = AsyncOperationManager.CreateOperation(null);
-                worker.BeginInvoke(unverifiedFiles, VerifyMediaCompletedCallback, verificationAsyncOperation);
-                _IsVerificationRunning = true;
-            }
-        }
-        private bool _IsVerificationRunning = false;
-        private bool _RepeatVerificationAfterFinish = false;
-        private readonly object _VerifyWorkerSyncObject = new object();
-        private delegate void VerifyMediaDelegate(IEnumerable<Media> MediaFiles);
-        private void VerifyMediaWorker(IEnumerable<Media> unverifiedFiles)
-        {
-            foreach (ServerMedia mf in unverifiedFiles)
-                mf.Verify();
-        }
-        private void VerifyMediaCompletedCallback(IAsyncResult ar)
-        {
-            // get the original worker delegate and the AsyncOperation instance
-            VerifyMediaDelegate worker = (VerifyMediaDelegate)((AsyncResult)ar).AsyncDelegate;
-            AsyncOperation asyncState = (AsyncOperation)ar.AsyncState;
-            // finish the asynchronous operation
-            worker.EndInvoke(ar);
-
-            // clear the running task flag
-            lock (_VerifyWorkerSyncObject)
-            {
-                _IsVerificationRunning = false;
-            }
-
-            if (_RepeatVerificationAfterFinish)
-                InvokeVerifyMedia();
-            else
-            {
-                // raise the completed event
-                AsyncCompletedEventArgs completedArgs = new AsyncCompletedEventArgs(null,
-                  false, null);
-                asyncState.PostOperationCompleted(
-                  delegate(object e) { OnVerificationTaskCompleted((AsyncCompletedEventArgs)e); },
-                  completedArgs);
-            }
-        }
-
-        public event AsyncCompletedEventHandler VerificationTaskCompleted;
-        protected virtual void OnVerificationTaskCompleted(AsyncCompletedEventArgs e)
-        {
-            if (VerificationTaskCompleted != null)
-                VerificationTaskCompleted(this, e);
         }
 
     }

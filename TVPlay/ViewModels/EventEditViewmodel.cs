@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using TAS.Server;
 using System.Windows;
 using System.Reflection;
@@ -313,7 +314,7 @@ namespace TAS.Client.ViewModels
             _searchViewmodel = null;
         }        
 
-        private void _delete(object o)
+        private void _delete(object ob)
         {
             Event ev = _event;
             if (ev != null
@@ -322,7 +323,8 @@ namespace TAS.Client.ViewModels
 
                 Modified = false;
                 UiServices.SetBusyState();
-                (new Action(() =>
+                ThreadPool.QueueUserWorkItem(
+                o =>
                 {
                     try
                     {
@@ -332,8 +334,7 @@ namespace TAS.Client.ViewModels
                     {
                         MessageBox.Show(string.Format(Properties.Resources._message_DeleteError, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
                     }
-                }
-            )).BeginInvoke(ar => ((Action)((AsyncResult)ar).AsyncDelegate).EndInvoke(ar), null);
+                });
             }
         }
 

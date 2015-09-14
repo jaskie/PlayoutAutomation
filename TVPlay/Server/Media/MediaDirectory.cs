@@ -29,22 +29,26 @@ namespace TAS.Server
         }
 
         protected string _folder;
-        protected SynchronizedCollection<string> _extensions;
+        protected string[] _extensions;
         private FileSystemWatcher _watcher;
         protected ConcurrentHashSet<Media> _files = new ConcurrentHashSet<Media>();
 
         public event EventHandler<MediaEventArgs> MediaAdded;
         public event EventHandler<MediaEventArgs> MediaRemoved;
         public event EventHandler<MediaEventArgs> MediaVerified;
-        
-        [XmlIgnore]
+
         protected bool _isInitialized = false;
+
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public virtual void Initialize()
         {
             if (!_isInitialized)
             {
-                ThreadPool.QueueUserWorkItem((o) => BeginWatch());
-                _getVolumeInfo();
+                ThreadPool.QueueUserWorkItem((o) => 
+                    {
+                        _beginWatch();
+                        IsInitialized = true;
+                    });
             }
         }
 
@@ -68,16 +72,21 @@ namespace TAS.Server
         {
             if (_isInitialized)
             {
-                _files.Clear();
+                ClearFiles();
                 Initialize();
             }
+        }
+
+        protected virtual void ClearFiles()
+        {
+            _files.ToList().ForEach(m => m.Remove());
         }
 
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool GetDiskFreeSpaceEx(string lpDirectoryName, out UInt64 lpFreeBytesAvailable, out UInt64 lpTotalNumberOfBytes, out UInt64 lpTotalNumberOfFreeBytes);
 
-        protected void _getVolumeInfo()
+        protected virtual void GetVolumeInfo()
         {
             _volumeTotalSize = 0;
             if (AccessType == TDirectoryAccessType.Direct)
@@ -89,7 +98,20 @@ namespace TAS.Server
         }
 
         private UInt64 _volumeFreeSize = 0;
-        public virtual UInt64 VolumeFreeSize { get { return _volumeFreeSize; } }
+        
+        [XmlIgnore]
+        public virtual UInt64 VolumeFreeSize
+        {
+            get { return _volumeFreeSize; }
+            protected set
+            {
+                if (_volumeFreeSize != value)
+                {
+                    _volumeFreeSize = value;
+                    NotifyPropertyChanged("VolumeFreeSize");
+                }
+            }
+        }
 
         private UInt64 _volumeTotalSize = 0;
         public virtual UInt64 VolumeTotalSize { get { return _volumeTotalSize; } }
@@ -97,7 +119,7 @@ namespace TAS.Server
         public abstract void Refresh();
         
         [XmlIgnore]
-        public virtual IEnumerable<Media> Files
+        public virtual List<Media> Files
         {
             get
             {
@@ -130,7 +152,7 @@ namespace TAS.Server
         public bool IsInitialized
         {
             get { return _isInitialized; }
-            internal set {
+            protected set {
                 if (value != _isInitialized)
                 {
                     _isInitialized = value;
@@ -161,22 +183,8 @@ namespace TAS.Server
         
         [XmlArray]
         [XmlArrayItem(ElementName = "Extension")]
-        public string[] Extensions
-        {
-            get { return (_extensions != null) ? _extensions.ToArray() : null; }
-            set
-            {
-                if (_extensions == null
-                    || value.Except(_extensions.ToList()).Count() > 0)
-                {
-                    _extensions = new SynchronizedCollection<string>();
-                    foreach (string ext in value)
-                        _extensions.Add(ext.ToLower());
-                    Reinitialize();
-                }
-            }
-        }
-
+        public string[] Extensions { get { return _extensions; } set { _extensions = value; } }
+        
         public virtual bool FileExists(string filename, string subfolder = null)
         {
             return File.Exists(Path.Combine(_folder, subfolder ?? string.Empty, filename));
@@ -242,7 +250,7 @@ namespace TAS.Server
                 {
                     newMedia = CreateMedia();
                     newMedia._fileName = Path.GetFileName(fullPath);
-                    newMedia._mediaName = (_extensions == null || _extensions.Count == 0) ? Path.GetFileName(fullPath) : Path.GetFileNameWithoutExtension(fullPath);
+                    newMedia._mediaName = (_extensions == null || _extensions.Length == 0) ? Path.GetFileName(fullPath) : Path.GetFileNameWithoutExtension(fullPath);
                     newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
                     newMedia.MediaType = (StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Still : (VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Movie : TMediaType.Unknown;
                     newMedia.Directory = this;
@@ -295,7 +303,7 @@ namespace TAS.Server
             {
                 media.Verified = false;
                 media.MediaStatus = TMediaStatus.Unknown;
-                media.InvokeVerify();
+                ThreadPool.QueueUserWorkItem(o => media.Verify());
             }
         }
 
@@ -365,7 +373,7 @@ namespace TAS.Server
             }
         }
 
-        private void BeginWatch()
+        private void _beginWatch()
         {
             bool watcherReady = false;
             while (!watcherReady)
@@ -395,7 +403,7 @@ namespace TAS.Server
                 if (!watcherReady)
                     System.Threading.Thread.Sleep(30000); //Wait for retry 30 sec.
             }
-            IsInitialized = true;
+            GetVolumeInfo();
             Debug.WriteLine("MediaDirectory: Watcher {0} setup successful.", (object)_folder);
         }
 
@@ -408,7 +416,7 @@ namespace TAS.Server
         private void OnFileDeleted(object source, FileSystemEventArgs e)
         {
             FileRemoved(e.FullPath);
-            _getVolumeInfo();
+            GetVolumeInfo();
         }
 
         protected virtual void OnFileRenamed(object source, RenamedEventArgs e)
@@ -441,15 +449,13 @@ namespace TAS.Server
             }
             if (m != null)
                 OnMediaChanged(m);
-            _getVolumeInfo();
+            GetVolumeInfo();
         }
 
         protected virtual void OnError(object source, ErrorEventArgs e)
         {
-            Debug.WriteLine("IngestDirectory: Watcher {0} returned error: {1}.", _folder, e.GetException());
-            _files.Clear();
-            IsInitialized = false;
-            Initialize();
+            Debug.WriteLine("MediaDirectory: Watcher {0} returned error: {1}.", _folder, e.GetException());
+            _beginWatch();
         }
 
         public override string ToString()

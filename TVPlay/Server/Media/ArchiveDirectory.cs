@@ -7,16 +7,18 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.Remoting.Messaging;
 using TAS.Common;
+using TAS.Data;
 
 namespace TAS.Server
 {
     public class ArchiveDirectory : MediaDirectory
     {
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {
             _isInitialized = false; // to avoid subsequent reinitializations
             DirectoryName = "Archiwum";
-            _getVolumeInfo();
+            GetVolumeInfo();
             Debug.WriteLine("ArchiveDirectory {0} initialized", Folder, null);
         }
         public UInt64 IdArchive { get; internal set; }
@@ -42,7 +44,7 @@ namespace TAS.Server
 
         public void Search()
         {
-            DatabaseConnector.ArchiveMediaSearch(this);
+            this.DbSearch();
         }
 
         public TMediaCategory? SearchMediaCategory { get; set; }
@@ -50,7 +52,7 @@ namespace TAS.Server
         public override void SweepStaleMedia()
         {
             DateTime currentDate = DateTime.UtcNow.Date;
-            DatabaseConnector.ArchiveMediaFindStaleMedia(this);
+            this.DbFindStaleMedia();
             IEnumerable<Media> StaleMediaList;
             _files.Lock.EnterReadLock();
             try
@@ -67,7 +69,7 @@ namespace TAS.Server
 
         public ArchiveMedia Find(Media media)
         {
-            return DatabaseConnector.ArchiveMediaFind(media, this);
+            return this.DbMediaFind(media);
         }
 
         internal void Clear()
@@ -124,7 +126,7 @@ namespace TAS.Server
         {
             ArchiveMedia result = null;
             if (searchExisting)
-                result = DatabaseConnector.ArchiveMediaFind(media, this);
+                result = this.DbMediaFind(media);
             if (result == null)
                 result = new ArchiveMedia()
                 {
@@ -166,7 +168,7 @@ namespace TAS.Server
             }
             if (media is IngestMedia)
             {
-                FileManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = toMedia, SuccessCallback = _getVolumeInfo, OutputFormat = outputFormat});
+                FileManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = toMedia, SuccessCallback = GetVolumeInfo, OutputFormat = outputFormat});
             }
         }
 
@@ -186,13 +188,13 @@ namespace TAS.Server
             if (fromMedia.MediaGuid == toMedia.MediaGuid && fromMedia.MediaFileEqual(toMedia))
             {
                 if (deleteAfterSuccess)
-                    FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = fromMedia, SuccessCallback = _getVolumeInfo}, toTop);
+                    FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = fromMedia, SuccessCallback = GetVolumeInfo}, toTop);
             }
             else
             {
                 if (!Directory.Exists(Path.GetDirectoryName(toMedia.FullPath)))
                     Directory.CreateDirectory(Path.GetDirectoryName(toMedia.FullPath));
-                FileManager.Queue(new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestMedia = toMedia, SuccessCallback = _getVolumeInfo }, toTop);
+                FileManager.Queue(new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestMedia = toMedia, SuccessCallback = GetVolumeInfo }, toTop);
             }
         }    
 

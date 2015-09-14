@@ -17,7 +17,7 @@ namespace TAS.Server
 
         protected override Media CreateMedia()
         {
-            return new TempMedia() { Directory = this };
+            return new TempMedia() { };
         }
 
         public override void MediaAdd(Media media)
@@ -30,9 +30,9 @@ namespace TAS.Server
             
         }
         
-        public TempMedia Get(Media media)
+        public TempMedia Get(Media media, string fileExtension = null)
         {
-            return new TempMedia() { Directory = this, OriginalMedia = media, _fileName = media.MediaGuid.ToString() + Path.GetExtension(media.FileName), };
+            return new TempMedia() { MediaName = media.MediaName, OriginalMedia = media, _fileName = string.Format("{0}{1}", Guid.NewGuid().ToString(), fileExtension == null ? Path.GetExtension(media.FileName): fileExtension), Directory = this};
         }
 
         public override void SweepStaleMedia()

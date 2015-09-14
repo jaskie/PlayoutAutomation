@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Runtime.Remoting.Messaging;
 using System.ComponentModel;
 using TAS.Common;
+using TAS.Data;
 
 namespace TAS.Server
 {
@@ -170,7 +171,7 @@ namespace TAS.Server
                         if (_idRundownEvent == 0)
                             _subEvents = new SynchronizedCollection<Event>();
                         else
-                            _subEvents = DatabaseConnector.EventReadSubEvents(this);
+                            _subEvents = this.DbReadSubEvents();
                     }
                     return _subEvents;
                 }
@@ -758,7 +759,7 @@ namespace TAS.Server
                     {
                         if (next == null)
                         {
-                            next = DatabaseConnector.EventReadNext(this);
+                            next = this.DbReadNext();
                             if (next != null)
                                 next._prior = this;
                             _next = next;
@@ -786,25 +787,19 @@ namespace TAS.Server
                 if (oldPrior != null)
                     oldPrior.Next = null;
 
-                Event next = Next;
+                Event next = this.Next;
                 if (next == eventToInsert)
                     return;
-                Next = eventToInsert;
+                this.Next = eventToInsert;
                 eventToInsert.StartType = TStartType.After;
                 eventToInsert.Prior = this;
 
-                Event lastToInsert = eventToInsert;
                 // notify about relocation
                 eventToInsert.NotifyRelocated();
-                while (lastToInsert.Next != null)
-                {
-                    lastToInsert.Next.NotifyRelocated();
-                    lastToInsert = lastToInsert.Next;
-                }
-
-                lastToInsert.Next = next;
+                eventToInsert.Next = next;
+                
                 if (next != null)
-                    next.Prior = lastToInsert;
+                    next.Prior = eventToInsert;
 
                 //time calculations
                 if (oldPrior != null)
@@ -814,7 +809,6 @@ namespace TAS.Server
 
                 // save key events
                 eventToInsert.Save();
-                lastToInsert.Save();
                 if (next != null)
                     next.Save();
             }
@@ -824,8 +818,8 @@ namespace TAS.Server
         {
             lock (SyncStatic)
             {
-                Event prior = Prior;
-                Event parent = Parent;
+                Event prior = this.Prior;
+                Event parent = this.Parent;
                 Event oldParent = eventToInsert.Parent;
                 Event oldPrior = eventToInsert.Prior;
                 if (oldParent != null)
@@ -853,26 +847,18 @@ namespace TAS.Server
                 if (prior != null)
                     prior.Next = eventToInsert;
 
-                Event lastToInsert = eventToInsert;
-
                 // notify about relocation
                 eventToInsert.NotifyRelocated();
-                while (lastToInsert.Next != null)
-                {
-                    lastToInsert.Next.NotifyRelocated();
-                    lastToInsert = lastToInsert.Next;
-                }
-
-                Prior = lastToInsert;
-                lastToInsert.Next = this;
-                StartType = TStartType.After;
+                this.Prior = eventToInsert;
+                eventToInsert.Next = this;
+                this.StartType = TStartType.After;
 
                 // time calculations
                 eventToInsert.UpdateScheduledTime(false);
                 eventToInsert.DurationChanged();
 
                 eventToInsert.Save();
-                Save();
+                this.Save();
             }
         }
 
@@ -1080,9 +1066,9 @@ namespace TAS.Server
             {
                 //_saveMutex.WaitOne();
                 if (_idRundownEvent == 0)
-                    DatabaseConnector.EventInsert(this);
+                    this.DbInsert();
                 else
-                    DatabaseConnector.EventUpdate(this);
+                    this.DbUpdate();
                 _modified = false;
                 NotifySaved();
             }
@@ -1108,7 +1094,7 @@ namespace TAS.Server
                         se.Delete();
                     }
                     IsDeleted = true;
-                    DatabaseConnector.EventDelete(this);
+                    this.DbDelete();
                     Engine.RemoveEvent(this);
                     NotifyDeleted();
                     _modified = false;

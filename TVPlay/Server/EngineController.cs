@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Configuration;
 using System.IO;
 using System.Xml.Serialization;
+using TAS.Data;
 
 namespace TAS.Server
 {
@@ -39,8 +40,8 @@ namespace TAS.Server
 
             Debug.WriteLine(this, "Initializing database connector");
             DatabaseConnector.Initialize();
-            Servers = DatabaseConnector.ServerLoadServers();
-            Engines = DatabaseConnector.EngineLoadEngines(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]), Servers);
+            Servers = DatabaseConnector.DbLoadServers();
+            Engines = DatabaseConnector.DbLoadEngines(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]), Servers);
             foreach (Engine E in Engines)
             {
                 

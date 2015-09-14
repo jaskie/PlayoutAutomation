@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TAS.Common;
+using TAS.Data;
 
 namespace TAS.Server
 {
@@ -15,15 +16,15 @@ namespace TAS.Server
                 if (Modified)
                 {
                     if (idPersistentMedia == 0)
-                        return DatabaseConnector.ArchiveMediaInsert(this);
+                        return this.DbInsert();
                     else
-                        return DatabaseConnector.ArchiveMediaUpdate(this);
+                        return this.DbUpdate();
                 }
             }
             if (MediaStatus == TMediaStatus.Deleted)
             {
                 if (idPersistentMedia != 0)
-                    return DatabaseConnector.ArchiveMediaDelete(this);
+                    return this.DbDelete();
             }
         return false;
         }

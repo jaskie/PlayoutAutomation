@@ -10,6 +10,7 @@ using System.Windows.Data;
 using System.Diagnostics;
 using TAS.Common;
 using System.Windows.Input;
+using System.Threading;
 
 namespace TAS.Client.ViewModels
 {
@@ -123,9 +124,10 @@ namespace TAS.Client.ViewModels
             MediaViewViewmodel mvm = item as MediaViewViewmodel;
             if (mvm == null || mvm.Media == null)
                 return false;
+            string mediaName = mvm.MediaName.ToLower();
             return mvm.MediaStatus == TMediaStatus.Available
                 && (!(MediaCategory is TMediaCategory) || (MediaCategory as TMediaCategory?) == mvm.MediaCategory)
-                && (string.IsNullOrWhiteSpace(SearchText) || mvm.MediaName.ToLower().Contains(SearchText.ToLower()));
+                && (_searchTextSplit.All(s => mediaName.Contains(s)));
         }
 
         public PreviewViewmodel PreviewViewmodel { get { return _previewViewmodel; } }
@@ -135,7 +137,8 @@ namespace TAS.Client.ViewModels
             CommandAdd = new SimpleCommand() { ExecuteDelegate = _add, CanExecuteDelegate = _allowAdd };
         }
 
-        private string _searchText;
+        private string[] _searchTextSplit = new string[0];
+        private string _searchText = string.Empty;
         public string SearchText
         {
             get { return _searchText; }
@@ -145,6 +148,7 @@ namespace TAS.Client.ViewModels
                 if (value != _searchText)
                 {
                     _searchText = value;
+                    _searchTextSplit = value.ToLower().Split(' ');
                     SelectedItem = null;
                     NotifyPropertyChanged("SearchText");
                     _itemsView.Refresh();
@@ -254,8 +258,9 @@ namespace TAS.Client.ViewModels
                     _selectedItem = value;
                     Media media = SelectedMedia;
                     if (media is IngestMedia
-                        && ((IngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct)
-                        media.InvokeVerify();
+                        && ((IngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
+                        && !media.Verified)
+                        ThreadPool.QueueUserWorkItem(o => media.Verify());
                     if (_previewViewmodel != null)
                         _previewViewmodel.Media = media;
                     NotifyPropertyChanged("CommandAdd");

@@ -127,19 +127,10 @@
     <value>Element jest zaznaczony</value>
   </data>
   <data name="_popupMenu.Copy" xml:space="preserve">
-    <value>_Kopiuj...</value>
-  </data>
-  <data name="_popupMenu.Copy.OnlyThis" xml:space="preserve">
-    <value>_Tylko ten element (Ctrl+C)</value>
+    <value>_Kopiuj (Ctrl+C)</value>
   </data>
   <data name="_popupMenu.Cut" xml:space="preserve">
-    <value>_Wytnij...</value>
-  </data>
-  <data name="_popupmenu.Cut.FromThis" xml:space="preserve">
-    <value>_Od tego elementu (Ctrl+Shift+X)</value>
-  </data>
-  <data name="_popupMenu.Cut.OnlyThis" xml:space="preserve">
-    <value>_Tylko ten element (Ctrl+X)</value>
+    <value>_Wytnij (Ctrl+X)</value>
   </data>
   <data name="_popupMenu.Hide" xml:space="preserve">
     <value>Ukryj</value>
@@ -155,5 +146,9 @@
   </data>
   <data name="_popupMenu.Paste.Under" xml:space="preserve">
     <value>Po_d</value>
+  </data>
+  <data name="_eventName.ToolTip" xml:space="preserve">
+    <value>Należy do:
+{0}</value>
   </data>
 </root>

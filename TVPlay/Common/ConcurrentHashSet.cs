@@ -149,14 +149,14 @@ namespace TAS.Server
 
         public void SymmetricExceptWith(IEnumerable<T> other)
         {
-            _lock.EnterWriteLock();
+            _lock.EnterReadLock();
             try
             {
                 _hashSet.SymmetricExceptWith(other);
             }
             finally
             {
-                if (_lock.IsWriteLockHeld) _lock.ExitWriteLock();
+                if (_lock.IsReadLockHeld) _lock.ExitReadLock();
             }
         }
 
@@ -175,27 +175,27 @@ namespace TAS.Server
 
         public bool IsSupersetOf(IEnumerable<T> other)
         {
-            _lock.EnterWriteLock();
+            _lock.EnterReadLock();
             try
             {
                 return _hashSet.IsSupersetOf(other);
             }
             finally
             {
-                if (_lock.IsWriteLockHeld) _lock.ExitWriteLock();
+                if (_lock.IsReadLockHeld) _lock.ExitReadLock();
             }
         }
 
         public bool IsProperSupersetOf(IEnumerable<T> other)
         {
-            _lock.EnterWriteLock();
+            _lock.EnterReadLock();
             try
             {
                 return _hashSet.IsProperSupersetOf(other);
             }
             finally
             {
-                if (_lock.IsWriteLockHeld) _lock.ExitWriteLock();
+                if (_lock.IsReadLockHeld) _lock.ExitReadLock();
             }
         }
 
@@ -214,14 +214,14 @@ namespace TAS.Server
 
         public bool Overlaps(IEnumerable<T> other)
         {
-            _lock.EnterWriteLock();
+            _lock.EnterReadLock();
             try
             {
                 return _hashSet.Overlaps(other);
             }
             finally
             {
-                if (_lock.IsWriteLockHeld) _lock.ExitWriteLock();
+                if (_lock.IsReadLockHeld) _lock.ExitReadLock();
             }
         }
 
@@ -266,27 +266,27 @@ namespace TAS.Server
 
         public bool Contains(T item)
         {
-            _lock.EnterWriteLock();
+            _lock.EnterReadLock();
             try
             {
                 return _hashSet.Contains(item);
             }
             finally
             {
-                if (_lock.IsWriteLockHeld) _lock.ExitWriteLock();
+                if (_lock.IsReadLockHeld) _lock.ExitReadLock();
             }
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            _lock.EnterWriteLock();
+            _lock.EnterReadLock();
             try
             {
                 _hashSet.CopyTo(array, arrayIndex);
             }
             finally
             {
-                if (_lock.IsWriteLockHeld) _lock.ExitWriteLock();
+                if (_lock.IsReadLockHeld) _lock.ExitReadLock();
             }
         }
 
@@ -307,14 +307,14 @@ namespace TAS.Server
         {
             get
             {
-                _lock.EnterWriteLock();
+                _lock.EnterReadLock();
                 try
                 {
                     return _hashSet.Count;
                 }
                 finally
                 {
-                    if (_lock.IsWriteLockHeld) _lock.ExitWriteLock();
+                    if (_lock.IsReadLockHeld) _lock.ExitReadLock();
                 }
 
             }

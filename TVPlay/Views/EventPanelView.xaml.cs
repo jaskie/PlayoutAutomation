@@ -23,16 +23,6 @@ namespace TAS.Client
     /// </summary>
     /// 
 
-    public enum TMediaErrorInfo
-    {
-        [Description(null)]
-        NoError,
-        [Description("Brak pliku")]
-        Missing,
-        [Description("Klip nie gotowy lub za krótki")]
-        TooShort,
-    }
-
     public partial class EventPanelView : UserControl
     {
         public EventPanelView()
@@ -42,8 +32,13 @@ namespace TAS.Client
 
         private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (e.NewValue is EventViewmodel)
-                (e.NewValue as EventViewmodel).View = (EventPanelView)sender;
+            EventViewmodel vm = e.NewValue as EventViewmodel;
+            if (vm != null)
+            {
+                vm.View = (EventPanelView)sender;
+                if (vm.IsSelected)
+                    this.BringIntoView();
+            }
         }
 
 

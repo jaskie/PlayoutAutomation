@@ -13,7 +13,7 @@ using System.Net.FtpClient;
 
 namespace TAS.Server
 {
-    public class IngestDirectory : MediaDirectory
+    public class IngestDirectory : MediaDirectory, TAS.Server.Interfaces.IIngestDirectory
     {
         public string EncodeParams = string.Empty;
         
@@ -24,6 +24,7 @@ namespace TAS.Server
             set { _deleteSource = value; }
         }
 
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {
             if (_folder.StartsWith("ftp://"))
@@ -63,11 +64,15 @@ namespace TAS.Server
 
         public bool IsXDCAM { get; set; }
 
+        public TxDCAMAudioExportFormat XDCAMAudioExportFormat { get; set; }
+
+        public TxDCAMVideoExportFormat XDCAMVideoExportFormat { get; set; }
+
         public bool MediaDoNotArchive { get; set; }
 
         public int MediaRetnentionDays { get; set; }
 
-        public TMediaCategory? MediaCategory { get; set; }
+        public TMediaCategory MediaCategory { get; set; }
 
         public double AudioVolume { get; set; }
 
@@ -80,14 +85,14 @@ namespace TAS.Server
             bool exists = true;
             try
             {
-                using (client = new FtpClient())
+                using (FtpClient _ftpClient = new FtpClient())
                 {
                     Uri uri = new Uri(_folder, UriKind.Absolute);
-                    client.Host = uri.Host;
-                    client.Credentials = NetworkCredential;
-                    client.Connect();
-                    _files.Clear();
-                    foreach (string file in client.GetNameListing(uri.LocalPath))
+                    _ftpClient.Host = uri.Host;
+                    _ftpClient.Credentials = NetworkCredential;
+                    _ftpClient.Connect();
+                    ClearFiles();
+                    foreach (string file in _ftpClient.GetNameListing(uri.LocalPath))
                         AddFile(file);
                 }
             }
@@ -114,17 +119,19 @@ namespace TAS.Server
                         {
                             if (AccessType == TDirectoryAccessType.FTP)
                             {
-                                using (client = new XdcamClient())
+                                using (XdcamClient client = new XdcamClient())
                                 {
                                     Uri uri = new Uri(_folder, UriKind.Absolute);
                                     client.Host = uri.Host;
                                     client.Credentials = NetworkCredential;
                                     client.Connect();
-                                    _readXDCAM();
+                                    VolumeFreeSize = client.GetFreeDiscSpace();
+                                    _readXDCAM(client);
+                                    client.Disconnect();
                                 }
                             }
                             else
-                                _readXDCAM();
+                                _readXDCAM(null);
                         }
                         finally
                         {
@@ -180,7 +187,7 @@ namespace TAS.Server
                 m.Delete();
         }
         
-        private XmlDocument _readXMLDocument(string documentName)
+        private XmlDocument _readXMLDocument(string documentName, FtpClient client)
         {
             XmlDocument xMLDoc = new XmlDocument();
             if (AccessType == TDirectoryAccessType.Direct)
@@ -196,16 +203,14 @@ namespace TAS.Server
             return xMLDoc;
         }
 
-        FtpClient client;
-
-        private void _readXDCAM()
+        private void _readXDCAM(XdcamClient client)
         {
             try
             {
-                _xDCAMIndex = XDCAM.SerializationHelper<XDCAM.Index>.Deserialize(_readXMLDocument("INDEX.XML"));
+                _xDCAMIndex = XDCAM.SerializationHelper<XDCAM.Index>.Deserialize(_readXMLDocument("INDEX.XML", client));
                 if (_xDCAMIndex != null)
                 {
-                    _files.Clear();
+                    ClearFiles();
                     foreach (XDCAM.Index.Clip clip in _xDCAMIndex.clipTable.clipTable)
                         try
                         {
@@ -213,6 +218,7 @@ namespace TAS.Server
                             if (newMedia != null)
                             {
                                 newMedia._folder = "Clip";
+                                newMedia._mediaName = clip.clipId;
                                 newMedia._duration =  ((long)clip.dur).SMPTEFramesToTimeSpan(clip.fps);
                                 newMedia._durationPlay = newMedia.Duration;
                                 if (clip.aspectRatio == "4:3")
@@ -222,7 +228,7 @@ namespace TAS.Server
                                 XDCAM.Index.Meta xmlClipFileNameMeta = clip.meta.FirstOrDefault(m => m.type == "PD-Meta");
                                 if (xmlClipFileNameMeta != null && !string.IsNullOrWhiteSpace(xmlClipFileNameMeta.file))
                                 {
-                                    clip.ClipMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument(@"Clip/" + xmlClipFileNameMeta.file));
+                                    clip.ClipMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument(@"Clip/" + xmlClipFileNameMeta.file, client));
                                     newMedia.ClipMetadata = clip.ClipMeta;
                                     if (clip.ClipMeta != null)
                                     {
@@ -267,8 +273,8 @@ namespace TAS.Server
                                     XDCAM.Index.Meta xmlClipFileNameMeta = edl.meta.FirstOrDefault(m => m.type == "PD-Meta");
                                     if (xmlClipFileNameMeta != null && !string.IsNullOrWhiteSpace(xmlClipFileNameMeta.file))
                                     {
-                                        edl.EdlMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument(@"Edit/" + xmlClipFileNameMeta.file));
-                                        edl.smil = XDCAM.SerializationHelper<XDCAM.Smil>.Deserialize(_readXMLDocument(@"Edit/" + edl.file));
+                                        edl.EdlMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument(@"Edit/" + xmlClipFileNameMeta.file, client));
+                                        edl.smil = XDCAM.SerializationHelper<XDCAM.Smil>.Deserialize(_readXMLDocument(@"Edit/" + edl.file, client));
                                         newMedia.ClipMetadata = edl.EdlMeta;
                                         newMedia.SmilMetadata = edl.smil;
                                         if (edl.EdlMeta != null)
@@ -339,7 +345,7 @@ namespace TAS.Server
             {
                 newMedia._folder = "Clip";
             }
-            newMedia._mediaName = (_extensions == null || _extensions.Count == 0) ? fileNameOnly : Path.GetFileNameWithoutExtension(fileNameOnly);
+            newMedia._mediaName = (_extensions == null || _extensions.Length == 0) ? fileNameOnly : Path.GetFileNameWithoutExtension(fileNameOnly);
             newMedia._lastUpdated = DateTime.UtcNow;
             newMedia._mediaGuid = Guid.NewGuid();
             return newMedia;
@@ -350,7 +356,7 @@ namespace TAS.Server
             return new IngestMedia()
             {
                 _mediaStatus = TMediaStatus.Unknown,
-                _mediaCategory = this.MediaCategory ?? TMediaCategory.Uncategorized,
+                _mediaCategory = this.MediaCategory,
             };
         }
 
@@ -488,10 +494,11 @@ namespace TAS.Server
                        
         public bool Contains(string ClipName)
         {
+            string clipNameLowered = ClipName.ToLower();
             _files.Lock.EnterReadLock();
             try
             {
-                return _files.Any(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToUpper() == ClipName.ToUpper());
+                return _files.Any(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToLower() == clipNameLowered);
             }
             finally
             {
@@ -501,11 +508,12 @@ namespace TAS.Server
 
         public string FindFileName(string ClipName)
         {
+            string clipNameLowered = ClipName.ToLower();
             Media m;
             _files.Lock.ExitReadLock();
             try
             {
-                m = _files.FirstOrDefault(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToUpper() == ClipName.ToUpper());
+                m = _files.FirstOrDefault(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToLower() == clipNameLowered);
             }
             finally
             {
@@ -518,10 +526,11 @@ namespace TAS.Server
 
         public IngestMedia FindMedia(string ClipName)
         {
+            string clipNameLowered = ClipName.ToLower();
             _files.Lock.EnterReadLock();
             try
             {
-                return (IngestMedia)_files.FirstOrDefault(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToUpper() == ClipName.ToUpper());
+                return (IngestMedia)_files.FirstOrDefault(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToLower() == clipNameLowered);
             }
             finally
             {
@@ -529,17 +538,30 @@ namespace TAS.Server
             }
         }
 
+        protected override void OnError(object source, ErrorEventArgs e)
+        {
+            base.OnError(source, e);
+            IsInitialized = false;
+            ClearFiles();
+            Initialize();
+        }
 
-        //internal void IngestGet(IngestMedia media, ServerMedia serverMediaPGM, bool toTop)
-        //{
-        //    FileManager.Queue(
-        //        new ConvertOperation
-        //        {
-        //            SourceMedia = media,
-        //            DestMedia = serverMediaPGM,
-        //        }, toTop);
+        protected override void GetVolumeInfo()
+        {
+            if (IsXDCAM && AccessType == TDirectoryAccessType.FTP)
+                using (XdcamClient client = new XdcamClient())
+                {
+                    Uri uri = new Uri(_folder, UriKind.Absolute);
+                    client.Host = uri.Host;
+                    client.Credentials = NetworkCredential;
+                    client.Connect();
+                    VolumeFreeSize = client.GetFreeDiscSpace();
+                    client.Disconnect();
+                }
+            else
+                base.GetVolumeInfo();
+        }
 
-        //}
     }
 
 }

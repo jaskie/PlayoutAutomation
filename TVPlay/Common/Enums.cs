@@ -54,6 +54,27 @@ namespace TAS.Common
             : base(typeof(TAspectConversion), TAS.Client.Properties.Resources.ResourceManager)
         { }
     }
+    [TypeConverter(typeof(TxDCAMAudioExportFormatEnumConverter))]
+    public enum TxDCAMAudioExportFormat: byte
+    {
+        Channels4Bits16,
+        Channels4Bits24,
+    }
+
+    class TxDCAMAudioExportFormatEnumConverter : ResourceEnumConverter
+    {
+        public TxDCAMAudioExportFormatEnumConverter()
+            : base(typeof(TxDCAMAudioExportFormat), TAS.Client.Properties.Resources.ResourceManager)
+        { }
+    }
+
+
+    public enum TxDCAMVideoExportFormat: byte
+    {
+        IMX50,
+        IMX40,
+        IMX30
+    }
 
     [TypeConverter(typeof(TAudioChannelMappingConversionEnumConverter))]
     public enum TAudioChannelMappingConversion : byte
@@ -214,6 +235,21 @@ namespace TAS.Common
         { }
     }
 
+    [TypeConverter(typeof(TMediaErrorInfoEnumConverter))]
+    public enum TMediaErrorInfo
+    {
+        NoError,
+        Missing,
+        TooShort,
+    }
+    class TMediaErrorInfoEnumConverter : ResourceEnumConverter
+    {
+        public TMediaErrorInfoEnumConverter()
+            : base(typeof(TMediaStatus), TAS.Client.Properties.Resources.ResourceManager)
+        { }
+    }
+
+
     [TypeConverter(typeof(TFieldOrderEnumConverter))]
     public enum TFieldOrder
     {
@@ -229,7 +265,7 @@ namespace TAS.Common
         { }
     }
 
-    [TypeConverter(typeof(TEventTyperEnumConverter))]
+    [TypeConverter(typeof(TEventTypeEnumConverter))]
     public enum TEventType
     {
         Rundown,
@@ -239,9 +275,9 @@ namespace TAS.Common
         Live,
         Container,
     };
-    class TEventTyperEnumConverter : ResourceEnumConverter
+    class TEventTypeEnumConverter : ResourceEnumConverter
     {
-        public TEventTyperEnumConverter()
+        public TEventTypeEnumConverter()
             : base(typeof(TEventType), TAS.Client.Properties.Resources.ResourceManager)
         { }
     }

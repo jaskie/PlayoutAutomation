@@ -154,7 +154,7 @@
     <value>_Za (Ctrl+V)</value>
   </data>
   <data name="_menu.Edit.Paste.Before" xml:space="preserve">
-    <value>_Before</value>
+    <value>_Przed</value>
   </data>
   <data name="_menu.Edit.Paste.Under" xml:space="preserve">
     <value>Po_d</value>
@@ -242,5 +242,11 @@
   </data>
   <data name="_menu.Tools.ChannelConfig" xml:space="preserve">
     <value>Konfiguracja kanału</value>
+  </data>
+  <data name="_menu.Tools.Export" xml:space="preserve">
+    <value>E_ksportuj zaznaczone</value>
+  </data>
+  <data name="_menu.Edit.Copy" xml:space="preserve">
+    <value>Kopiuj</value>
   </data>
 </root>

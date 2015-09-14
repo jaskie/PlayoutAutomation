@@ -133,7 +133,7 @@ namespace TAS.Server
             }
             catch (ThreadAbortException e)
             {
-                Debug.WriteLine("GPINotifier thread aborted");
+                Debug.WriteLine(e, "GPINotifier thread aborted");
             }
         }
 

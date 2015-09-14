@@ -198,6 +198,7 @@
     <Compile Include="Common\EnumHelper.cs" />
     <Compile Include="Common\FileUtils.cs" />
     <Compile Include="Common\FocusExtension.cs" />
+    <Compile Include="Common\EnumerableExtensions.cs" />
     <Compile Include="Common\MouseDoubleClick.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -221,6 +222,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="Server\FFMpegOperation.cs" />
     <Compile Include="Server\GPICommand.cs" />
     <Compile Include="Server\GPIState.cs" />
     <Compile Include="Server\LocalSettings.cs" />
@@ -229,23 +231,34 @@
     <Compile Include="Server\CasparServerChannel.cs" />
     <Compile Include="Server\GPINotifier.cs" />
     <Compile Include="Common\MediaConversion.cs" />
+    <Compile Include="Server\Interfaces\IIngestDirectory.cs" />
+    <Compile Include="Server\Media\MediaExport.cs" />
     <Compile Include="Server\Media\MediaSegment.cs" />
     <Compile Include="Server\Media\FtpMediaStream.cs" />
+    <Compile Include="Server\Media\MediaChecker.cs" />
     <Compile Include="Server\Media\PInvokeWindowsNetworking.cs" />
     <Compile Include="Server\PlayoutServerChannel.cs" />
     <Compile Include="Server\Media\TempDirectory.cs" />
     <Compile Include="Common\Enums.cs" />
-    <Compile Include="Server\Remoting\Engine.cs" />
     <Compile Include="Server\Remoting\IEngine.cs" />
     <Compile Include="Server\Remoting\IMediaManager.cs" />
     <Compile Include="Server\Remoting\RemoteHost.cs" />
     <Compile Include="Server\Template.cs" />
     <Compile Include="Server\Media\TempMedia.cs" />
+    <Compile Include="Server\XDCAM\ExportOperation.cs" />
     <Compile Include="Server\XDCAM\Index.cs" />
     <Compile Include="Server\XDCAM\NonRealTimeMeta.cs" />
     <Compile Include="Server\XDCAM\SerializationHelper.cs" />
     <Compile Include="Server\XDCAM\Smil.cs" />
     <Compile Include="Server\XDCAM\XdcamStream.cs" />
+    <Compile Include="Setup\IngestDirectoryView.xaml.cs">
+      <DependentUpon>IngestDirectoryView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Setup\IngestDirectoryViewmodel.cs" />
+    <Compile Include="Setup\IngestDirectoriesView.xaml.cs">
+      <DependentUpon>IngestDirectoriesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Setup\IngestDirectoriesViewmodel.cs" />
     <Compile Include="Setup\OkCancelView.xaml.cs">
       <DependentUpon>OkCancelView.xaml</DependentUpon>
     </Compile>
@@ -257,11 +270,13 @@
     <Compile Include="ViewModels\ConvertOperationViewModel.cs" />
     <Compile Include="ViewModels\EventClipboard.cs" />
     <Compile Include="ViewModels\EventEditViewmodel.cs" />
+    <Compile Include="ViewModels\ExportViewmodel.cs" />
     <Compile Include="ViewModels\FileManagerViewmodel.cs" />
     <Compile Include="ViewModels\FileOperationViewmodel.cs" />
     <Compile Include="ViewModels\IngestTrimmerViewmodel.cs" />
     <Compile Include="ViewModels\IngestEditViewmodel.cs" />
     <Compile Include="ViewModels\MainViewmodel.cs" />
+    <Compile Include="ViewModels\MediaExportViewmodel.cs" />
     <Compile Include="ViewModels\MediaSearchViewmodel.cs" />
     <Compile Include="ViewModels\MediaSegmentViewmodel.cs" />
     <Compile Include="ViewModels\PlayingEventViewmodel.cs" />
@@ -271,7 +286,6 @@
     <Compile Include="Common\BindableSelectedItems.cs" />
     <Compile Include="Common\MediaSeekSlider.cs" />
     <Compile Include="Common\EmphasisedButton.cs" />
-    <Compile Include="Common\TreeViewItemBringIntoViewWhenSelected.cs" />
     <Compile Include="Server\Media\ArchiveMedia.cs" />
     <Compile Include="Server\Media\ArchiveDirectory.cs" />
     <Compile Include="Server\ConvertOperation.cs" />
@@ -280,6 +294,9 @@
     </Compile>
     <Compile Include="Views\EngineStateView.xaml.cs">
       <DependentUpon>EngineStateView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExportView.xaml.cs">
+      <DependentUpon>ExportView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FileManagerView.xaml.cs">
       <DependentUpon>FileManagerView.xaml</DependentUpon>
@@ -338,6 +355,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Setup\IngestDirectoriesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Setup\IngestDirectoryView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Setup\OkCancelView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -347,6 +372,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\EngineStateView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ExportView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -467,6 +496,12 @@
     <EmbeddedResource Include="Views\EventPanelView.resx">
       <DependentUpon>EventPanelView.xaml</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\ExportView.pl.resx">
+      <DependentUpon>ExportView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ExportView.resx">
+      <DependentUpon>ExportView.xaml</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\FileManagerView.pl.resx">
       <DependentUpon>FileManagerView.xaml</DependentUpon>
     </EmbeddedResource>
@@ -497,8 +532,12 @@
     <EmbeddedResource Include="Views\MediaManagerView.resx">
       <DependentUpon>MediaManagerView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\MediaSearchView.pl.resx" />
-    <EmbeddedResource Include="Views\MediaSearchView.resx" />
+    <EmbeddedResource Include="Views\MediaSearchView.pl.resx">
+      <DependentUpon>MediaSearchView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MediaSearchView.resx">
+      <DependentUpon>MediaSearchView.xaml</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\PreviewView.pl.resx">
       <DependentUpon>PreviewView.xaml</DependentUpon>
     </EmbeddedResource>
@@ -645,7 +684,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\DataSources\" />
-    <Folder Include="ViewModels\Interfaces\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FFMpegUtils\FFMpegUtils.vcxproj">

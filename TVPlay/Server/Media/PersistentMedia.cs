@@ -5,8 +5,9 @@ using System.Text;
 using System.IO;
 using System.ComponentModel;
 using System.Runtime.Remoting.Messaging;
-using TAS.Common;
 using System.Diagnostics;
+using TAS.Common;
+using TAS.Data;
 
 namespace TAS.Server
 {
@@ -45,13 +46,13 @@ namespace TAS.Server
         public Media OriginalMedia { get; set; }
 
         private ObservableSynchronizedCollection<MediaSegment> _mediaSegments;
+
         public ObservableSynchronizedCollection<MediaSegment> MediaSegments
         {
             get
             {
-                lock (SyncRoot)
-                    if (_mediaSegments == null)
-                        _mediaSegments = DatabaseConnector.MediaSegmentsRead(MediaGuid);
+                if (_mediaSegments == null)
+                    _mediaSegments = this.DbMediaSegmentsRead();
                 return _mediaSegments;
             }
         }

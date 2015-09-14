@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Controls;
 using TAS.Common;
+using TAS.Data;
 
 namespace TAS.Client.Setup
 {
@@ -63,11 +64,6 @@ namespace TAS.Client.Setup
         public int GPIGraphicsAhead { get { return _gPIGraphicsAhead; } set { SetField(ref _gPIGraphicsAhead, value, "GPIGraphicsAhead"); } }
 
 
-        protected override void Close(object parameter)
-        {
-            View.Close();
-        }
-
         protected override void OnDispose()
         {
             
@@ -103,8 +99,10 @@ namespace TAS.Client.Setup
                     Model.GPI = null;
             }
             Model.Initialize(Model.EngineLocalSettings);
-            if (!Server.DatabaseConnector.EngineSaveEngine(Model))
-                System.Windows.MessageBox.Show("Unsuccessfull save");
+            {
+                if (Model.DbUpdate())
+                    System.Windows.MessageBox.Show("Unsuccessfull save");
+            }
         }
     }
 }

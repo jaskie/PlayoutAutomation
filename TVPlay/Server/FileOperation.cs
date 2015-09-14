@@ -7,10 +7,11 @@ using System.Diagnostics;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using TAS.Common;
+using System.Threading;
 
 namespace TAS.Server
 {
-    public enum TFileOperationKind { None, Copy, Move, Convert, Delete, Loudness};
+    public enum TFileOperationKind { None, Copy, Move, Convert, Export, Delete, Loudness};
     public enum FileOperationStatus {
         [Description("Czeka")]
         Waiting,
@@ -33,6 +34,7 @@ namespace TAS.Server
         public FileOperation()
         {
             ScheduledTime = DateTime.UtcNow;
+            _addOutputMessage("Operation scheduled");
         }
 
         private int _tryCount = 15;
@@ -146,6 +148,7 @@ namespace TAS.Server
                 case TFileOperationKind.None:
                     return true;
                 case TFileOperationKind.Convert:
+                case TFileOperationKind.Export:
                     throw new InvalidOperationException("File operation can't convert");
                 case TFileOperationKind.Copy:
                     if (File.Exists(SourceMedia.FullPath) && Directory.Exists(Path.GetDirectoryName(DestMedia.FullPath)))
@@ -162,7 +165,7 @@ namespace TAS.Server
                                     return false;
                             }
                             DestMedia.MediaStatus = TMediaStatus.Copied;
-                            DestMedia.InvokeVerify();
+                            ThreadPool.QueueUserWorkItem(o => DestMedia.Verify());
 
                             Debug.WriteLine(this, "File operation succeed");
                             _addOutputMessage("Copy operation finished");
@@ -207,7 +210,7 @@ namespace TAS.Server
                             File.SetCreationTimeUtc(DestMedia.FullPath, File.GetCreationTimeUtc(SourceMedia.FullPath));
                             File.SetLastWriteTimeUtc(DestMedia.FullPath, File.GetLastWriteTimeUtc(SourceMedia.FullPath));
                             DestMedia.MediaStatus = TMediaStatus.Copied;
-                            DestMedia.InvokeVerify();
+                            ThreadPool.QueueUserWorkItem(o => DestMedia.Verify());
                             _addOutputMessage("Move operation finished");
                             Debug.WriteLine(this, "File operation succeed");
                             return true;
@@ -256,7 +259,10 @@ namespace TAS.Server
         
         public override string ToString()
         {
-            return string.Concat(Kind, " ", SourceMedia.FullPath, " ", DestMedia == null ? null : DestMedia.FullPath);
+            return DestMedia == null?
+                string.Format("{0} {1}", Kind, SourceMedia)
+                :
+                string.Format("{0} {1} -> {2}", Kind, SourceMedia, DestMedia);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -276,9 +282,7 @@ namespace TAS.Server
             if (FailureCallback != null)
                 FailureCallback();
             Debug.WriteLine(this, "File simple operation failed - TryCount is zero");
-        }
-
-        
+        }       
 
     }
 }

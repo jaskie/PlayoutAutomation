@@ -11,6 +11,9 @@ namespace TAS.Server.Remoting
     {
         [OperationContract]
         void OpenSession();
+
+        [OperationContract]
+        Guid IngestFile(string fileName);
     }
 
     public interface IMediaManagerCallback

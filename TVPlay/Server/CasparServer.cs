@@ -134,7 +134,6 @@ namespace TAS.Server
                 if (i == null)
                     AnimationDirectory.MediaRemove(media);
             }
-            AnimationDirectory.IsInitialized = true;
         }
 
         protected override void DoDispose()

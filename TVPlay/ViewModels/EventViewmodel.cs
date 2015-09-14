@@ -27,16 +27,13 @@ namespace TAS.Client.ViewModels
         ObservableCollection<EventViewmodel> _childrens = new ObservableCollection<EventViewmodel>();
         static readonly EventViewmodel DummyChild = new EventViewmodel((Event) null, null);
 
-        public ICommand CommandCutSingle { get { return _engineViewmodel.CommandCutSingle; } }
-        public ICommand CommandCutMultiple { get { return _engineViewmodel.CommandCutMultiple; } }
-        public ICommand CommandCopySingle { get { return _engineViewmodel.CommandCopySingle; } }
-        public ICommand CommandPaste { get { return _engineViewmodel.CommandPaste; } }
+        public ICommand CommandCut { get { return _engineViewmodel.CommandCutSelected; } }
+        public ICommand CommandCopy { get { return _engineViewmodel.CommandCopySelected; } }
+        public ICommand CommandPaste { get { return _engineViewmodel.CommandPasteSelected; } }
         public ICommand CommandToggleHold { get; private set; }
         public ICommand CommandToggleEnabled { get; private set; }
         
-        bool _isExpanded;
-        bool _isSelected;
-
+        
         
         public EventViewmodel(Server.Engine engine, EngineViewmodel engineViewmodel)
         {
@@ -186,7 +183,9 @@ namespace TAS.Client.ViewModels
                         if (onUIThread
                             && newVm != null
                             && !((o as Event).EventType == TEventType.AnimationFlash || (o as Event).EventType == TEventType.StillImage))
+                        {
                             newVm.IsSelected = true;
+                        }
                     }, System.Windows.Threading.Dispatcher.FromThread(System.Threading.Thread.CurrentThread) != null); // current thread is uiThread
         }
 
@@ -307,10 +306,10 @@ namespace TAS.Client.ViewModels
         }
 
         private Media _media;
-        private Media Media
+        public Media Media
         {
             get { return _media; }
-            set
+            private set
             {
                 Media oldMedia = _media;
                 if (oldMedia != value)
@@ -349,6 +348,7 @@ namespace TAS.Client.ViewModels
         }
         public int Level { get { return _level; } }
 
+        bool _isExpanded;
         public bool IsExpanded
         {
             get { return _isExpanded; }
@@ -381,6 +381,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        bool _isSelected;
         public bool IsSelected
         {
             get { return _isSelected; }
@@ -393,16 +394,14 @@ namespace TAS.Client.ViewModels
                         _engineViewmodel.Selected = this;
 
                     NotifyPropertyChanged("IsSelected");
-                    NotifyPropertyChanged("CommandCutSingle");
-                    NotifyPropertyChanged("CommandCutMultiple");
-                    NotifyPropertyChanged("CanPasteBefore");
-                    NotifyPropertyChanged("CanPasteAfter");
-                    NotifyPropertyChanged("CanPasteUnder");
+                    NotifyPropertyChanged("CommandCut");
+                    NotifyPropertyChanged("CommandCopy");
+                    NotifyPropertyChanged("CommandPaste");
                 }
             }
         }
 
-        private bool _isMultiSelected;
+        bool _isMultiSelected;
         public bool IsMultiSelected
         {
             get { return _isMultiSelected; }
@@ -414,39 +413,6 @@ namespace TAS.Client.ViewModels
                 }
             }
         }
-        
-        public bool CanPasteBefore { get { return _engineViewmodel.CanPasteBefore; } }
-        public bool CanPasteAfter { get { return _engineViewmodel.CanPasteAfter; } }
-        public bool CanPasteUnder { get { return _engineViewmodel.CanPasteUnder; } }
-
-        private bool _isCut;
-        public bool IsCut
-        {
-            get { return _isCut; }
-            set
-            {
-                if (_isCut != value)
-                {
-                    _isCut = value;
-                    NotifyPropertyChanged("IsCut");
-                }
-            }
-        }
-
-        private bool _isCopy;
-        public bool IsCopy
-        {
-            get { return _isCopy; }
-            set
-            {
-                if (_isCopy != value)
-                {
-                    _isCopy = value;
-                    NotifyPropertyChanged("IsCopy");
-                }
-            }
-        }
-
 
         public EventViewmodel Parent
         {
@@ -480,6 +446,11 @@ namespace TAS.Client.ViewModels
             get { return (_event == null) ? TimeSpan.Zero : _event.Duration; }
         }
 
+        public TimeSpan ScheduledTC
+        {
+            get { return (_event == null) ? TimeSpan.Zero : _event.ScheduledTC; }
+        }
+
         public TimeSpan StartDelay
         {
             get { return (_event == null) ? TimeSpan.Zero : _event.ScheduledDelay; }
@@ -511,6 +482,8 @@ namespace TAS.Client.ViewModels
         {
             get { return (_event == null) ? string.Empty : _event.Layer.ToString(); }
         }
+
+        public decimal AudioVolume { get { return (_event == null) ? 0m : _event.AudioVolume; } }
 
         public TMediaCategory MediaCategory
         {
@@ -756,6 +729,7 @@ namespace TAS.Client.ViewModels
             {
                 Event prior = _event.Prior;
                 Event parent = _event.Parent;
+                Event next = _event.Next;
                 Event visualParent = _event.VisualParent;
                 if (prior != null)
                 {
@@ -785,9 +759,38 @@ namespace TAS.Client.ViewModels
                             }
                         }
                     }
-                    return;
                 }
-
+                else
+                if (parent == null && next != null)
+                {
+                    int index = _parent._childrens.IndexOf(this);
+                    if (visualParent != _parent._event
+                        || index <= 0
+                        || _parent._childrens[index]._event != next)
+                    {
+                        EventViewmodel nextVm = _root.Find(next);
+                        if (nextVm != null)
+                        {
+                            EventViewmodel newParent = nextVm._parent;
+                            if (_parent == newParent)
+                            {
+                                int nextIndex = newParent._childrens.IndexOf(nextVm);
+                                if (index >= nextIndex)
+                                    newParent._childrens.Move(index, nextIndex);
+                                else
+                                    newParent._childrens.Move(index, nextIndex -1);
+                            }
+                            else
+                            {
+                                _parent._childrens.Remove(this);
+                                if (!newParent.HasDummyChild)
+                                    newParent._childrens.Insert(newParent._childrens.IndexOf(nextVm), this);
+                                _parent = newParent;
+                            }
+                        }
+                    }
+                }
+                else
                 if (parent == null)
                 {
                     _parent._childrens.Remove(this);
@@ -808,6 +811,7 @@ namespace TAS.Client.ViewModels
                             Parent = parentVm;
                     }
                 }
+                this._bringIntoView();
             }
         }
         
@@ -859,6 +863,19 @@ namespace TAS.Client.ViewModels
 
         public EventPanelView View { get; set; }
 
+        EventViewmodel _rootOwner
+        {
+            get
+            {
+                var result = this;
+                while (result.Parent != null && result.Parent._event != null)
+                    result = result.Parent;
+                return result;
+            }
+        }
+
+        public string RootOwnerName { get { return _rootOwner.EventName; } }
+
         internal void SetOnTop()
         {
             var p = Parent;
@@ -866,11 +883,27 @@ namespace TAS.Client.ViewModels
                 if (p.IsExpanded)
                 {
                     var v = View;
-                    if (v != null)
+                    if (v != null && _rootOwner.IsVisible)
                         v.SetOnTop();
                 }
                 else
-                    p.SetOnTop();
+                    if (p.Enabled) // container can be disabled
+                        p.SetOnTop();
+        }
+
+        protected void _bringIntoView()
+        {
+            var p = Parent;
+            if (p != null)
+                if (p.IsExpanded)
+                {
+                    var v = View;
+                    if (v != null && _rootOwner.IsVisible)
+                        v.BringIntoView();
+                }
+                else
+                    if (p.Enabled) // container can be disabled
+                        p._bringIntoView();
         }
     }
 }

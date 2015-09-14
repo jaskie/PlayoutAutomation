@@ -30,7 +30,14 @@ namespace TAS.Client.Setup
             CommandClose = new SimpleCommand() { CanExecuteDelegate = CanClose, ExecuteDelegate = Close };
             CommandApply = new SimpleCommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = Apply };
             CommandOK = new SimpleCommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = o => { Apply(o); Close(o); } };
-            View = new OkCancelView() { DataContext = this, Width=initialWidth, Height=initialHeight, Title=windowTitle };
+            View = new OkCancelView() { 
+                DataContext = this, 
+                Width = initialWidth, 
+                Height = initialHeight, 
+                Title = windowTitle, 
+                Owner = App.Current.MainWindow, 
+                WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner, 
+                ShowInTaskbar = false };
         }
         
         public UserControl Editor { get { return _editor; } }
@@ -60,7 +67,10 @@ namespace TAS.Client.Setup
             }
         }
 
-        protected abstract void Close(object parameter);
+        protected virtual void Close(object parameter)
+        {
+            View.Close();
+        }
         
         protected virtual bool CanClose(object parameter)
         {

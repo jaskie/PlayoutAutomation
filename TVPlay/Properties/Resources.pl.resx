@@ -498,7 +498,7 @@ Naprawdę usunąć?</value>
     <value>Ścieżki 3 i 4 -&gt; Mono</value>
   </data>
   <data name="TAudioChannelMappingConversion_Default" xml:space="preserve">
-    <value>Domyślnie</value>
+    <value>Domyślnie (możliwy downmix)</value>
   </data>
   <data name="TAudioChannelMappingConversion_FirstChannelOnly" xml:space="preserve">
     <value>Ścieżka 1 -&gt; Mono</value>
@@ -525,5 +525,26 @@ Naprawdę usunąć?</value>
     <value>Zamierzasz usunąć {0} kontener(ów):
 {1}
 Naprawdę je usunąć?</value>
+  </data>
+  <data name="_title_ExportClip" xml:space="preserve">
+    <value>Eksport {0} -&gt; {1}</value>
+  </data>
+  <data name="TxDCAMAudioExportFormat_Channels4Bits16" xml:space="preserve">
+    <value>4 kanały, 16 bitów na próbkę</value>
+  </data>
+  <data name="TxDCAMAudioExportFormat_Channels4Bits24" xml:space="preserve">
+    <value>4 kanały, 24 bity na próbkę</value>
+  </data>
+  <data name="TMediaErrorInfo_Missing" xml:space="preserve">
+    <value>Brak pliku</value>
+  </data>
+  <data name="TMediaErrorInfo_NoError" xml:space="preserve">
+    <value />
+  </data>
+  <data name="TMediaErrorInfo_TooShort" xml:space="preserve">
+    <value>Klip za krótki</value>
+  </data>
+  <data name="_moreItems" xml:space="preserve">
+    <value>i jeszcze {0} elementów</value>
   </data>
 </root>

@@ -150,8 +150,7 @@ namespace TAS.Server
             NETRESOURCE nr = new NETRESOURCE();
             nr.dwType = RESOURCETYPE_DISK;
             nr.lpRemoteName = remoteUNC;
-            //			nr.lpLocalName = "F:";
-
+            
             int ret;
             if (promptUser)
                 ret = WNetUseConnection(IntPtr.Zero, nr, "", "", CONNECT_INTERACTIVE | CONNECT_PROMPT, null, null, null);

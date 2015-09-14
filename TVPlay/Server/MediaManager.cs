@@ -10,12 +10,15 @@ using System.Xml.Serialization;
 using System.Reflection;
 using System.Threading;
 using System.Diagnostics;
+using System.ServiceModel;
 using TAS.Common;
+using TAS.Data;
 
 namespace TAS.Server
 {
 
-    public class MediaManager
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, IncludeExceptionDetailInFaults = true), CallbackBehavior]
+    public class MediaManager: Remoting.IMediaManager
     {
         public readonly Engine Engine;
         public ServerDirectory MediaDirectoryPGM { get; private set; }
@@ -31,6 +34,7 @@ namespace TAS.Server
             Engine = engine;
         }
 
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         internal void Initialize()
         {
             MediaDirectoryPGM = (Engine.PlayoutChannelPGM == null) ? null : Engine.PlayoutChannelPGM.OwnerServer.MediaDirectory;
@@ -48,7 +52,7 @@ namespace TAS.Server
                 sdir.MediaSaved += _onServerDirectoryMediaSaved;
             }
             sdir = MediaDirectoryPRV;
-            if (sdir != null)
+            if (MediaDirectoryPGM != MediaDirectoryPRV && sdir != null)
             {
                 sdir.MediaPropertyChanged += ServerMediaPropertyChanged;
                 sdir.PropertyChanged += _onServerDirectoryPropertyChanged;
@@ -186,24 +190,7 @@ namespace TAS.Server
             return dl;
         }
 
-        private IngestMedia FindIngestMedia(Media media)
-        {
-            if (media is PersistentMedia && (media as PersistentMedia).OriginalMedia is IngestMedia)
-                return (media as PersistentMedia).OriginalMedia as IngestMedia;
-
-            lock (_ingestDirsSyncObject)
-            {
-                if (_ingestDirectoriesLoaded)
-                {
-                    var dir = _ingestDirectories.FirstOrDefault(d => d.Contains(Path.GetFileNameWithoutExtension(media.FileName)));
-                    if (dir != null)
-                        return dir.FindMedia(Path.GetFileNameWithoutExtension(media.FileName));
-                }
-            }
-            return null;
-        }
-
-        public void AcquireMediaToPlayout(Media media, bool toTop = false)
+        public void IngestMediaToPlayout(Media media, bool toTop = false)
         {
             if (media != null)
             {
@@ -243,10 +230,10 @@ namespace TAS.Server
             }
         }
 
-        public void AcquireMediaToPlayout(IEnumerable<Media> mediaList, bool ToTop = false)
+        public void IngestMediaToPlayout(IEnumerable<Media> mediaList, bool ToTop = false)
         {
             foreach (Media m in mediaList)
-                AcquireMediaToPlayout(m, ToTop);
+                IngestMediaToPlayout(m, ToTop);
         }
 
         public void IngestMediaToArchive(IngestMedia media, bool toTop = false)
@@ -410,6 +397,60 @@ namespace TAS.Server
             return Engine.EngineName + ":MediaManager";
         }
 
+
+        public void Export(IEnumerable<MediaExport> exportList, IngestDirectory directory)
+        {
+            foreach (MediaExport e in exportList)
+                Export(e, directory);
+
+        }
+
+        public void Export(MediaExport export, IngestDirectory directory)
+        {
+            FileManager.Queue(new XDCAM.ExportOperation() { SourceMedia = export.Media, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory });
+        }
+
+        public Guid IngestFile(string fileName)
+        {
+            var nameLowered = fileName.ToLower();
+            ServerMedia dest;
+            if ((dest  = (ServerMedia)(MediaDirectoryPGM.FindMedia(m => Path.GetFileNameWithoutExtension(m.FileName).ToLower() == nameLowered).FirstOrDefault())) != null)
+                return dest.MediaGuid;
+            foreach (IngestDirectory dir in IngestDirectories)
+            {
+                Media source = dir.FindMedia(fileName);
+                if (source != null)
+                {
+                    source.Verify();
+                    if (source.MediaStatus == TMediaStatus.Available)
+                    {
+                        dest = MediaDirectoryPGM.GetServerMedia(source, false);
+                        FileManager.Queue(new ConvertOperation()
+                        {
+                            SourceMedia = source,
+                            DestMedia = dest,
+                            OutputFormat = Engine.VideoFormat,
+                            AudioVolume = dir.AudioVolume,
+                            SourceFieldOrderEnforceConversion = dir.SourceFieldOrder,
+                            AspectConversion = dir.AspectConversion,
+                        });
+                        return dest.MediaGuid;
+                    }
+                }
+            }
+            return Guid.Empty;            
+        }
+
+
+        #region Remote interface
+        public Remoting.IMediaManagerCallback MediaManagerCallback;
+        
+        public void OpenSession()
+        {
+            MediaManagerCallback = OperationContext.Current.GetCallbackChannel<Remoting.IMediaManagerCallback>();
+            Debug.WriteLine("Remote interface connected");
+        }
+        #endregion // Remote interface
     }
 
 

@@ -5,7 +5,9 @@ using System.Text;
 using System.Runtime.Remoting.Messaging;
 using System.Diagnostics;
 using System.ComponentModel;
+using System.Threading;
 using TAS.Common;
+
 
 namespace TAS.Server
 {
@@ -15,8 +17,10 @@ namespace TAS.Server
     {
         private static SynchronizedCollection<FileOperation> _queueSimpleOperation = new SynchronizedCollection<FileOperation>();
         private static SynchronizedCollection<FileOperation> _queueConvertOperation = new SynchronizedCollection<FileOperation>();
+        private static SynchronizedCollection<FileOperation> _queueExportOperation = new SynchronizedCollection<FileOperation>();
         private static bool _isRunningSimpleOperation = false;
         private static bool _isRunningConvertOperation = false;
+        private static bool _isRunningExportOperation = false;
 
         public static event FileOperationEventHandler OperationAdded;
         public static event FileOperationEventHandler OperationCompleted;
@@ -31,6 +35,8 @@ namespace TAS.Server
                     retList = new List<FileOperation>(_queueSimpleOperation);
                 lock (_queueConvertOperation.SyncRoot)
                     retList = retList.Concat(_queueConvertOperation);
+                lock (_queueExportOperation.SyncRoot)
+                    retList = retList.Concat(_queueExportOperation);
                 return retList;
             }
         }
@@ -52,11 +58,31 @@ namespace TAS.Server
                         if (!_isRunningConvertOperation)
                         {
                             _isRunningConvertOperation = true;
-                            (new Action(() => _runOperation(_queueConvertOperation, ref _isRunningConvertOperation))).BeginInvoke(_queueProcessFinishedCallback, null);
+                            ThreadPool.QueueUserWorkItem(o => _runOperation(_queueConvertOperation, ref _isRunningConvertOperation));
                         }
                     }
             }
-            else
+            if (operation.Kind == TFileOperationKind.Export)
+            {
+                lock (_queueExportOperation.SyncRoot)
+                    if (!_queueExportOperation.Any(fe => fe.Equals(operation)))
+                    {
+                        if (toTop)
+                            _queueExportOperation.Insert(0, operation);
+                        else
+                            _queueExportOperation.Add(operation);
+                        if (!_isRunningExportOperation)
+                        {
+                            _isRunningExportOperation = true;
+                            ThreadPool.QueueUserWorkItem(o => _runOperation(_queueExportOperation, ref _isRunningExportOperation));
+                        }
+                    }
+
+            }
+            if (operation.Kind == TFileOperationKind.Copy
+                || operation.Kind == TFileOperationKind.Delete
+                || operation.Kind == TFileOperationKind.Loudness
+                || operation.Kind == TFileOperationKind.Move)
             {
                 lock (_queueSimpleOperation.SyncRoot)
                     if (!_queueSimpleOperation.Any(fe => fe.Equals(operation)))
@@ -68,17 +94,12 @@ namespace TAS.Server
                         if (!_isRunningSimpleOperation)
                         {
                             _isRunningSimpleOperation = true;
-                            (new Action(() => _runOperation(_queueSimpleOperation, ref _isRunningSimpleOperation))).BeginInvoke(_queueProcessFinishedCallback, null);
+                            ThreadPool.QueueUserWorkItem(o => _runOperation(_queueSimpleOperation, ref _isRunningSimpleOperation));
                         }
                     }
             }
             if (OperationAdded != null)
                 OperationAdded(operation);
-        }
-
-        private static void _queueProcessFinishedCallback(IAsyncResult ar)
-        {
-            ((Action)((AsyncResult)ar).AsyncDelegate).EndInvoke(ar);
         }
 
         private static void _runOperation(SynchronizedCollection<FileOperation> queue, ref bool queueRunningIndicator)
