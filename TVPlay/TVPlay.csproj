@@ -203,7 +203,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Common\RationalNumber.cs" />
-    <Compile Include="Common\SimpleCommand.cs" />
+    <Compile Include="Common\UICommand.cs" />
     <Compile Include="Common\SMPTETimecodeExtensions.cs" />
     <Compile Include="Common\TreeViewExtensions.cs" />
     <Compile Include="Common\ObservableSynchronizedCollection.cs" />

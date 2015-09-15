@@ -153,7 +153,7 @@ namespace TAS.Client.ViewModels
             CommandPasteSelected = new UICommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
             CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
             CommandEngineSettings = new UICommand() { ExecuteDelegate = o => new Client.Setup.EngineViewmodel(this.Engine, App.EngineController), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
-            CommandIngestDirectoriesSettings = new UICommand() { ExecuteDelegate = o => new Client.Setup.IngestDirectoriesViewmodel(_engine.MediaManager.IngestDirectories), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
+            CommandIngestDirectoriesSettings = new UICommand() { ExecuteDelegate =_ingestDirectoriesSettings, CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
         }
 
         private void _pasteSelected(object obj)
@@ -283,7 +283,7 @@ namespace TAS.Client.ViewModels
         }
     
 
-        public void _debugToggle(object o)
+        private void _debugToggle(object o)
         {
             if (_debugWindow == null)
             {
@@ -291,6 +291,13 @@ namespace TAS.Client.ViewModels
                 _debugWindow.DataContext = this;
                 _debugWindow.Show();
             }
+        }
+
+        private void _ingestDirectoriesSettings(object o)
+        {
+            var setup = new Client.Setup.IngestDirectoriesViewmodel(_engine.MediaManager.IngestDirectories);
+            if (setup.Show() == true)
+                _engine.MediaManager.ReloadIngestDirs();
         }
 
 

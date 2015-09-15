@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
+using System.Xml.Serialization;
 using TAS.Common;
 using TAS.Server.Interfaces;
 
@@ -18,7 +20,6 @@ namespace TAS.Client.Setup
         {
             _directories = new ObservableCollection<IngestDirectoryViewmodel>(directories.Select(d => new IngestDirectoryViewmodel(d)));
             _createCommands();
-            View.ShowDialog();
         }
 
         private void _createCommands()
@@ -29,7 +30,9 @@ namespace TAS.Client.Setup
 
         private void _delete(object obj)
         {
-            throw new NotImplementedException();
+            Directories.Remove(SelectedDirectory);
+            _deleted = true;
+            SelectedDirectory = null;
         }
 
         private bool _canDelete(object obj)
@@ -39,11 +42,18 @@ namespace TAS.Client.Setup
 
         private void _add(object obj)
         {
-            throw new NotImplementedException();
+            var newDir = new IngestDirectoryViewmodel() { DirectoryName = Properties.Resources._title_NewDirectory };
+            _directories.Add(newDir);
+            _added = true;
+            SelectedDirectory = newDir;
         }
 
         public ObservableCollection<IngestDirectoryViewmodel> Directories { get { return _directories; } }
         IngestDirectoryViewmodel _selectedDirectory;
+        
+        private bool _added;
+        private bool _deleted;
+
         public IngestDirectoryViewmodel SelectedDirectory { get { return _selectedDirectory; } set { SetField(ref _selectedDirectory, value, "SelectedDirectory"); } }
 
         
@@ -51,5 +61,17 @@ namespace TAS.Client.Setup
         {
             
         }
+        
+        public override bool Modified { get { return _added || _deleted || _directories.Any(d => d.Modified); } }
+
+        protected override void Apply(object parameter)
+        {
+            XmlSerializer writer = new XmlSerializer(typeof(List<IngestDirectoryViewmodel>), new XmlRootAttribute("IngestDirectories"));
+            System.IO.StreamWriter file = new System.IO.StreamWriter(ConfigurationManager.AppSettings["IngestFolders"]);
+            writer.Serialize(file, _directories.ToList());
+            file.Close();
+            base.Apply(parameter);
+        }
+
     }
 }

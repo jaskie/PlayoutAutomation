@@ -527,4 +527,7 @@ Naprawdę je usunąć?</value>
   <data name="_moreItems" xml:space="preserve">
     <value>i jeszcze {0} elementów</value>
   </data>
+  <data name="_title_NewDirectory" xml:space="preserve">
+    <value>Nowy folder</value>
+  </data>
 </root>

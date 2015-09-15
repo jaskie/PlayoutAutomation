@@ -524,4 +524,7 @@ Are you sure?</value>
   <data name="_moreItems" xml:space="preserve">
     <value>and {0} items more</value>
   </data>
+  <data name="_title_NewDirectory" xml:space="preserve">
+    <value>New directory</value>
+  </data>
 </root>

@@ -258,6 +258,15 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to New directory.
+        /// </summary>
+        internal static string _title_NewDirectory {
+            get {
+                return ResourceManager.GetString("_title_NewDirectory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to New live.
         /// </summary>
         internal static string _title_NewLive {

@@ -25,7 +25,7 @@ namespace TAS.Client.Setup
                 _gPIAddress = gpi.Address;
                 _gPIGraphicsAhead = -gpi.GraphicsStartDelay;
             }
-            View.ShowDialog();
+            Show();
         }
         private string _engineName;
         public string EngineName { get { return _engineName; } set { SetField(ref _engineName, value, "EngineName"); } }

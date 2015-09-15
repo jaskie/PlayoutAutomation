@@ -20,9 +20,9 @@
             </Style>
         </StackPanel.Resources>
         <Label Content="Directory name"/>
-        <TextBox Text="{Binding DirectoryName}"/>
+        <TextBox Text="{Binding DirectoryName, UpdateSourceTrigger=PropertyChanged}"/>
         <Label Content="Target directory"/>
-        <TextBox Text="{Binding Folder}"/>
+        <TextBox Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}"/>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
@@ -33,9 +33,9 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Label Content="Username"/>
-            <TextBox Grid.Row="1" Text="{Binding Username}"/>
+            <TextBox Grid.Row="1" Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Grid.Column="1" Content="Password"/>
-            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Password}"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"/>
         </Grid>
         <Label Content="Default aspect conversion"/>
         <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}"/>

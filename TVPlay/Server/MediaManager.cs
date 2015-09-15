@@ -75,16 +75,16 @@ namespace TAS.Server
             }
         }
 
-        public void SaveIngestDirs(string fileName)
-        {
-            XmlSerializer writer = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
-            System.IO.StreamWriter file = new System.IO.StreamWriter(fileName);
-            writer.Serialize(file, _ingestDirectories.ToList());
-            file.Close();
-        }
-
         private bool _ingestDirectoriesLoaded = false;
         private object _ingestDirsSyncObject = new object();
+
+        internal void ReloadIngestDirs()
+        {
+            foreach (IngestDirectory d in _ingestDirectories)
+                d.Dispose();
+            LoadIngestDirs(ConfigurationManager.AppSettings["IngestFolders"]);
+            Debug.WriteLine(this, "IngestDirectories reloaded");
+        }
 
         public void LoadIngestDirs(string fileName)
         {
@@ -451,6 +451,7 @@ namespace TAS.Server
             Debug.WriteLine("Remote interface connected");
         }
         #endregion // Remote interface
+
     }
 
 

@@ -15,6 +15,8 @@ namespace TAS.Client.Setup
         public readonly OkCancelView View;
         public readonly UserControl _editor;
 
+        public event Action Applied;
+
         public OkCancelViewmodelBase(M model, UserControl editor, string windowTitle, int initialWidth, int initialHeight)
         {
             Model = model;
@@ -29,7 +31,7 @@ namespace TAS.Client.Setup
             _modified = false;
             CommandClose = new UICommand() { CanExecuteDelegate = CanClose, ExecuteDelegate = Close };
             CommandApply = new UICommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = Apply };
-            CommandOK = new UICommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = o => { Apply(o); Close(o); } };
+            CommandOK = new UICommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = Ok };
             View = new OkCancelView() { 
                 DataContext = this, 
                 Width = initialWidth, 
@@ -42,10 +44,15 @@ namespace TAS.Client.Setup
         
         public UserControl Editor { get { return _editor; } }
 
-        public virtual void Ok()
+        protected virtual void Ok(object o)
         {
             Apply(null);
-            Close(null);
+            View.DialogResult = true;
+        }
+
+        public virtual bool? Show()
+        {
+            return View.ShowDialog();
         }
 
         protected virtual void Apply(object parameter)
@@ -64,12 +71,14 @@ namespace TAS.Client.Setup
                     }
                 }
                 Modified = false;
+                if (Applied != null)
+                    Applied();
             }
         }
 
         protected virtual void Close(object parameter)
         {
-            View.Close();
+            View.DialogResult = false;
         }
         
         protected virtual bool CanClose(object parameter)
@@ -86,7 +95,7 @@ namespace TAS.Client.Setup
 
         protected bool _modified;
 
-        public bool Modified
+        public virtual bool Modified
         {
             get { return _modified; }
             protected set
