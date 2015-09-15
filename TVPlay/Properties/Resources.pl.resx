@@ -342,18 +342,6 @@
   <data name="_caption_Error" xml:space="preserve">
     <value>Błąd</value>
   </data>
-  <data name="_message_DeleteError" xml:space="preserve">
-    <value>Usunięcie nie powiodło się. Błąd, który wystąpił:
-{0}</value>
-  </data>
-  <data name="_message_DirectoryRefreshError" xml:space="preserve">
-    <value>Nie udało się odświeżyć zawartości katalogu z powodu błędu:
-{0}</value>
-  </data>
-  <data name="_message_SaveError" xml:space="preserve">
-    <value>Zapis nie powiódł się. Błąd, który wystąpił:
-{0}</value>
-  </data>
   <data name="_or_" xml:space="preserve">
     <value> lub </value>
   </data>
@@ -451,16 +439,8 @@ Jeśli jego poprzednia kopia nie odpowiada i chcesz uruchomić nową, naciśnij 
 
 Naprawdę usunąć?</value>
   </data>
-  <data name="_message_CopyFailed" xml:space="preserve">
-    <value>Kopiowanie powiodło się. Błąd, który wystąpił:
-{0}</value>
-  </data>
-  <data name="_message_CutFailed" xml:space="preserve">
-    <value>Wycięcie nie powiodło się. Błąd, który wystąpił:
-{0}</value>
-  </data>
-  <data name="_message_PasteFailed" xml:space="preserve">
-    <value>Wklejenie nie powiodło się. Błąd, który wystąpił:
+  <data name="_message_CommandFailed" xml:space="preserve">
+    <value>Wykonanie polecenia nie powiodło się. Błąd, który wystąpił:
 {0}</value>
   </data>
   <data name="_query_DeleteSelected" xml:space="preserve">

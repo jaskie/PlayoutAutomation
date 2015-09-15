@@ -27,9 +27,9 @@ namespace TAS.Client.Setup
                     copyPi.SetValue(this, sourcePi.GetValue(Model, null), null);
             }
             _modified = false;
-            CommandClose = new SimpleCommand() { CanExecuteDelegate = CanClose, ExecuteDelegate = Close };
-            CommandApply = new SimpleCommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = Apply };
-            CommandOK = new SimpleCommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = o => { Apply(o); Close(o); } };
+            CommandClose = new UICommand() { CanExecuteDelegate = CanClose, ExecuteDelegate = Close };
+            CommandApply = new UICommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = Apply };
+            CommandOK = new UICommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = o => { Apply(o); Close(o); } };
             View = new OkCancelView() { 
                 DataContext = this, 
                 Width = initialWidth, 

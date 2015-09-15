@@ -134,7 +134,7 @@ namespace TAS.Client.ViewModels
 
         private void _createCommands()
         {
-            CommandAdd = new SimpleCommand() { ExecuteDelegate = _add, CanExecuteDelegate = _allowAdd };
+            CommandAdd = new UICommand() { ExecuteDelegate = _add, CanExecuteDelegate = _allowAdd };
         }
 
         private string[] _searchTextSplit = new string[0];

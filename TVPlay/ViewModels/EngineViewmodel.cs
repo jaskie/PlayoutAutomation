@@ -112,11 +112,11 @@ namespace TAS.Client.ViewModels
 
         private void _createCommands()
         {
-            CommandClearAll = new SimpleCommand() { ExecuteDelegate = o => _engine.Clear() };
-            CommandClearLayer = new SimpleCommand() { ExecuteDelegate = layer => _engine.Clear((VideoLayer)int.Parse((string)layer)) };
-            CommandRestartLayer = new SimpleCommand() { ExecuteDelegate = layer => _engine.RestartLayer((VideoLayer)int.Parse((string)layer)) };
-            CommandStartSelected = new SimpleCommand() { ExecuteDelegate = o => _engine.Start(_selected.Event), CanExecuteDelegate = _canStartSelected };
-            CommandLoadSelected = new SimpleCommand()
+            CommandClearAll = new UICommand() { ExecuteDelegate = o => _engine.Clear() };
+            CommandClearLayer = new UICommand() { ExecuteDelegate = layer => _engine.Clear((VideoLayer)int.Parse((string)layer)) };
+            CommandRestartLayer = new UICommand() { ExecuteDelegate = layer => _engine.RestartLayer((VideoLayer)int.Parse((string)layer)) };
+            CommandStartSelected = new UICommand() { ExecuteDelegate = o => _engine.Start(_selected.Event), CanExecuteDelegate = _canStartSelected };
+            CommandLoadSelected = new UICommand()
             {
                 ExecuteDelegate = o =>
                     {
@@ -127,7 +127,7 @@ namespace TAS.Client.ViewModels
                 CanExecuteDelegate = _canLoadSelected
             };
 
-            CommandScheduleSelected = new SimpleCommand()
+            CommandScheduleSelected = new UICommand()
             {
                 ExecuteDelegate = o =>
                     {
@@ -137,62 +137,41 @@ namespace TAS.Client.ViewModels
                     },
                 CanExecuteDelegate = _canScheduleSelected
             };
-            CommandRescheduleSelected = new SimpleCommand() { ExecuteDelegate = o => _engine.ReScheduleAsync(_selectedEvent), CanExecuteDelegate = _canRescheduleSelected };
-            CommandTrackingToggle = new SimpleCommand() { ExecuteDelegate = o => TrackPlayingEvent = !TrackPlayingEvent };
-            CommandDebugToggle = new SimpleCommand() { ExecuteDelegate = _debugToggle };
-            CommandRestartRundown = new SimpleCommand() { ExecuteDelegate = _restartRundown };
-            CommandNewRootRundown = new SimpleCommand() { ExecuteDelegate = _newRootRundown };
-            CommandNewContainer = new SimpleCommand() { ExecuteDelegate = _newContainer };
-            CommandSearchMissingEvents = new SimpleCommand() { ExecuteDelegate = _searchMissingEvents };
-            CommandResume = new SimpleCommand() { ExecuteDelegate = o => _engine.Resume() };
-            CommandStartLoaded = new SimpleCommand() { ExecuteDelegate = o => _engine.Resume(), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Hold};
-            CommandPause = new SimpleCommand() { ExecuteDelegate = o => _engine.Pause() };
-            CommandDeleteSelected = new SimpleCommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
-            CommandCopySelected = new SimpleCommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _selectedEvents.Any() };
-            CommandCutSelected = new SimpleCommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
-            CommandPasteSelected = new SimpleCommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
-            CommandExport = new SimpleCommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
-            CommandEngineSettings = new SimpleCommand() { ExecuteDelegate = o => new Client.Setup.EngineViewmodel(this.Engine, App.EngineController), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
-            CommandIngestDirectoriesSettings = new SimpleCommand() { ExecuteDelegate = o => new Client.Setup.IngestDirectoriesViewmodel(_engine.MediaManager.IngestDirectories), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
+            CommandRescheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.ReScheduleAsync(_selectedEvent), CanExecuteDelegate = _canRescheduleSelected };
+            CommandTrackingToggle = new UICommand() { ExecuteDelegate = o => TrackPlayingEvent = !TrackPlayingEvent };
+            CommandDebugToggle = new UICommand() { ExecuteDelegate = _debugToggle };
+            CommandRestartRundown = new UICommand() { ExecuteDelegate = _restartRundown };
+            CommandNewRootRundown = new UICommand() { ExecuteDelegate = _newRootRundown };
+            CommandNewContainer = new UICommand() { ExecuteDelegate = _newContainer };
+            CommandSearchMissingEvents = new UICommand() { ExecuteDelegate = _searchMissingEvents };
+            CommandResume = new UICommand() { ExecuteDelegate = o => _engine.Resume() };
+            CommandStartLoaded = new UICommand() { ExecuteDelegate = o => _engine.Resume(), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Hold};
+            CommandPause = new UICommand() { ExecuteDelegate = o => _engine.Pause() };
+            CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
+            CommandCopySelected = new UICommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _selectedEvents.Any() };
+            CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
+            CommandPasteSelected = new UICommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
+            CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
+            CommandEngineSettings = new UICommand() { ExecuteDelegate = o => new Client.Setup.EngineViewmodel(this.Engine, App.EngineController), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
+            CommandIngestDirectoriesSettings = new UICommand() { ExecuteDelegate = o => new Client.Setup.IngestDirectoriesViewmodel(_engine.MediaManager.IngestDirectories), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
         }
 
         private void _pasteSelected(object obj)
         {
             UiServices.SetBusyState();
-            try
-            {
-                EventClipboard.Paste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), (string)obj, true));
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(string.Format(Properties.Resources._message_PasteFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            EventClipboard.Paste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), (string)obj, true));
         }
 
         private void _copySelected(object obj)
         {
             UiServices.SetBusyState();
-            try
-            {
-                EventClipboard.Copy(_selectedEvents);
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(string.Format(Properties.Resources._message_CopyFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            EventClipboard.Copy(_selectedEvents);
         }
 
         private void _cutSelected(object obj)
         {
             UiServices.SetBusyState();
-            try
-            {
-                EventClipboard.Cut(_selectedEvents);
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(string.Format(Properties.Resources._message_CutFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            EventClipboard.Cut(_selectedEvents);
         }
 
 
@@ -277,38 +256,32 @@ namespace TAS.Client.ViewModels
 
         private void _deleteSelected(object ob)
         {
-            try
+            var evmList = _selectedEvents.ToList();
+            var containerList = evmList.Where(evm => evm.IsRootContainer);
+            if (evmList.Count() > 0
+                && MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelected, evmList.Count(), evmList.AsString(Environment.NewLine, 20)), Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
+                && (containerList.Count() == 0
+                    || MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedContainers, containerList.Count(), containerList.AsString(Environment.NewLine, 20)), Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
             {
-                var evmList = _selectedEvents.ToList();
-                var containerList = evmList.Where(evm => evm.IsRootContainer);
-                if (evmList.Count() > 0
-                    && MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelected, evmList.Count(), evmList.AsString(Environment.NewLine, 20)), Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
-                    && (containerList.Count() == 0
-                        || MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedContainers, containerList.Count(), containerList.AsString(Environment.NewLine, 20)), Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
-                {
-                    UiServices.SetBusyState();
-                    ThreadPool.QueueUserWorkItem(
-                        o =>
+                UiServices.SetBusyState();
+                ThreadPool.QueueUserWorkItem(
+                    o =>
+                    {
+                        foreach (var evm in evmList)
                         {
-                            foreach (var evm in evmList)
+                            if (evm.Event != null
+                                && (evm.Event.PlayState == TPlayState.Scheduled || evm.Event.PlayState == TPlayState.Played || evm.Event.PlayState == TPlayState.Aborted))
                             {
-                                if (evm.Event != null
-                                    && (evm.Event.PlayState == TPlayState.Scheduled || evm.Event.PlayState == TPlayState.Played || evm.Event.PlayState == TPlayState.Aborted))
-                                {
-                                    evm.Event.Delete();
-                                    evm.IsMultiSelected = false;
-                                }
+                                evm.Event.Delete();
+                                evm.IsMultiSelected = false;
                             }
                         }
-                    );
-                    _selectedEvents.Clear();
-                }
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(string.Format(Properties.Resources._message_DeleteError, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                );
+                _selectedEvents.Clear();
             }
         }
+    
 
         public void _debugToggle(object o)
         {

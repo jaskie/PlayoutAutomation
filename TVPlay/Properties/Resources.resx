@@ -339,18 +339,6 @@
   <data name="_caption_Error" xml:space="preserve">
     <value>Error</value>
   </data>
-  <data name="_message_DeleteError" xml:space="preserve">
-    <value>Delete failed. Following error occurred:
-{0}</value>
-  </data>
-  <data name="_message_DirectoryRefreshError" xml:space="preserve">
-    <value>Directory refresh failed because of error:
-{0}</value>
-  </data>
-  <data name="_message_SaveError" xml:space="preserve">
-    <value>Save failed. Following error occurred:
-{0}</value>
-  </data>
   <data name="_or_" xml:space="preserve">
     <value> or </value>
   </data>
@@ -448,16 +436,8 @@ Really start new one?</value>
 
 Really delete?</value>
   </data>
-  <data name="_message_CopyFailed" xml:space="preserve">
-    <value>Copy failed. Following error occurred:
-{0}</value>
-  </data>
-  <data name="_message_CutFailed" xml:space="preserve">
-    <value>Cut failed. Following error occurred:
-{0}</value>
-  </data>
-  <data name="_message_PasteFailed" xml:space="preserve">
-    <value>Paste failed. Following error occurred:
+  <data name="_message_CommandFailed" xml:space="preserve">
+    <value>Command failed. Following error occurred:
 {0}</value>
   </data>
   <data name="_query_DeleteSelected" xml:space="preserve">

@@ -23,8 +23,8 @@ namespace TAS.Client.Setup
 
         private void _createCommands()
         {
-            CommandAdd = new SimpleCommand() { ExecuteDelegate = _add };
-            CommandDelete = new SimpleCommand() { ExecuteDelegate = _delete, CanExecuteDelegate = _canDelete };
+            CommandAdd = new UICommand() { ExecuteDelegate = _add };
+            CommandDelete = new UICommand() { ExecuteDelegate = _delete, CanExecuteDelegate = _canDelete };
         }
 
         private void _delete(object obj)

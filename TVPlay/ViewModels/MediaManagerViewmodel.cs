@@ -117,13 +117,13 @@ namespace TAS.Client.ViewModels
 
         private void _createCommands()
         {
-            CommandSearch = new SimpleCommand() { ExecuteDelegate = _search };
-            CommandDeleteSelected = new SimpleCommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = _isSomethingSelected };
-            CommandMoveSelectedToArchive = new SimpleCommand() { ExecuteDelegate = _moveSelectedToArchive, CanExecuteDelegate = o => _mediaDirectory is ServerDirectory && _isSomethingSelected() };
-            CommandCopySelectedToArchive = new SimpleCommand() { ExecuteDelegate = _copySelectedToArchive, CanExecuteDelegate = _isSomethingSelected };
-            CommandIngestSelectedToServer = new SimpleCommand() { ExecuteDelegate = _ingestSelectedToServer, CanExecuteDelegate = _canIngestSelectedToServer };
+            CommandSearch = new UICommand() { ExecuteDelegate = _search };
+            CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = _isSomethingSelected };
+            CommandMoveSelectedToArchive = new UICommand() { ExecuteDelegate = _moveSelectedToArchive, CanExecuteDelegate = o => _mediaDirectory is ServerDirectory && _isSomethingSelected() };
+            CommandCopySelectedToArchive = new UICommand() { ExecuteDelegate = _copySelectedToArchive, CanExecuteDelegate = _isSomethingSelected };
+            CommandIngestSelectedToServer = new UICommand() { ExecuteDelegate = _ingestSelectedToServer, CanExecuteDelegate = _canIngestSelectedToServer };
 
-            CommandRefresh = new SimpleCommand()
+            CommandRefresh = new UICommand()
             {
                 ExecuteDelegate = (ob) =>
                     {
@@ -135,7 +135,7 @@ namespace TAS.Client.ViewModels
                                 }
                                 catch (Exception e)
                                 {
-                                    MessageBox.Show(string.Format(Properties.Resources._message_DirectoryRefreshError, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
+                                    MessageBox.Show(string.Format(Properties.Resources._message_CommandFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
                                 }
                             });
                     },
@@ -147,9 +147,9 @@ namespace TAS.Client.ViewModels
                 }
             };
 
-            CommandSweepStaleMedia = new SimpleCommand() { ExecuteDelegate = _sweepStaleMedia };
-            CommandGetLoudness = new SimpleCommand() { ExecuteDelegate = _getLoudness, CanExecuteDelegate = _isSomethingSelected };
-            CommandExport = new SimpleCommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
+            CommandSweepStaleMedia = new UICommand() { ExecuteDelegate = _sweepStaleMedia };
+            CommandGetLoudness = new UICommand() { ExecuteDelegate = _getLoudness, CanExecuteDelegate = _isSomethingSelected };
+            CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
         }
 
         private void _export(object obj)
@@ -247,22 +247,15 @@ namespace TAS.Client.ViewModels
 
         private void _search(object o)
         {
-            try
+            if (_mediaDirectory is ArchiveDirectory)
             {
-                if (_mediaDirectory is ArchiveDirectory)
-                {
-                    (_mediaDirectory as ArchiveDirectory).SearchMediaCategory = _mediaCategory as TMediaCategory?;
-                    (_mediaDirectory as ArchiveDirectory).SearchString = _searchText;
-                    (_mediaDirectory as ArchiveDirectory).Search();
-                }
-                else
-                    _mediaView.Refresh();
-                NotifyPropertyChanged("ItemsCount");
+                (_mediaDirectory as ArchiveDirectory).SearchMediaCategory = _mediaCategory as TMediaCategory?;
+                (_mediaDirectory as ArchiveDirectory).SearchString = _searchText;
+                (_mediaDirectory as ArchiveDirectory).Search();
             }
-            catch (Exception e)
-            {
-                MessageBox.Show(string.Format(Properties.Resources._message_DirectoryRefreshError, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
-            }
+            else
+                _mediaView.Refresh();
+            NotifyPropertyChanged("ItemsCount");
         }
 
         private string[] _searchTextSplit = new string[0];

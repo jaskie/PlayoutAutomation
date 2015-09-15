@@ -54,8 +54,8 @@ namespace TAS.Client.ViewModels
 
         private void _createCommands()
         {
-            CommandAddTemplate = new SimpleCommand() { ExecuteDelegate = _addTemplate };
-            CommandDeleteSelected = new SimpleCommand()
+            CommandAddTemplate = new UICommand() { ExecuteDelegate = _addTemplate };
+            CommandDeleteSelected = new UICommand()
             {
                 ExecuteDelegate = o =>
                     {

@@ -83,7 +83,7 @@ namespace TAS.Client.ViewModels
 
         protected void _createCommands()
         {
-            CommandToggleEnabled = new SimpleCommand()
+            CommandToggleEnabled = new UICommand()
             {
                 ExecuteDelegate = o =>
                 {

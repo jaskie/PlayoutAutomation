@@ -17,10 +17,10 @@ namespace TAS.Client.ViewModels
         private readonly PreviewViewmodel _previewVm;
         public MediaEditViewmodel(PreviewViewmodel previewVm)
         {
-            CommandSaveEdit = new SimpleCommand() { ExecuteDelegate = _save, CanExecuteDelegate = o => Modified && IsValid };
-            CommandCancelEdit = new SimpleCommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
-            CommandRefreshStatus = new SimpleCommand() { ExecuteDelegate = _refreshStatus, CanExecuteDelegate = o => _media != null };
-            CommandGetTCFromPreview = new SimpleCommand() { ExecuteDelegate = _getTCFromPreview, CanExecuteDelegate = _canGetTCFormPreview };
+            CommandSaveEdit = new UICommand() { ExecuteDelegate = _save, CanExecuteDelegate = o => Modified && IsValid };
+            CommandCancelEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
+            CommandRefreshStatus = new UICommand() { ExecuteDelegate = _refreshStatus, CanExecuteDelegate = o => _media != null };
+            CommandGetTCFromPreview = new UICommand() { ExecuteDelegate = _getTCFromPreview, CanExecuteDelegate = _canGetTCFormPreview };
             _previewVm = previewVm;
             if (previewVm != null)
                 previewVm.PropertyChanged += _onPreviewPropertyChanged;

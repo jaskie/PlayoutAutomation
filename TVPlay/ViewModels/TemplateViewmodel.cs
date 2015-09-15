@@ -20,8 +20,8 @@ namespace TAS.Client.ViewModels
             Template = template;
             _owner = owner;
             template.PropertyChanged += _onTemplatePropertyChanged;
-            CommandSaveEdit = new SimpleCommand() { ExecuteDelegate = Save, CanExecuteDelegate = o => Modified && IsValid };
-            CommandCancelEdit = new SimpleCommand() { ExecuteDelegate = Load, CanExecuteDelegate = o => Modified };
+            CommandSaveEdit = new UICommand() { ExecuteDelegate = Save, CanExecuteDelegate = o => Modified && IsValid };
+            CommandCancelEdit = new UICommand() { ExecuteDelegate = Load, CanExecuteDelegate = o => Modified };
             Load(null);
             Modified = false;
         }

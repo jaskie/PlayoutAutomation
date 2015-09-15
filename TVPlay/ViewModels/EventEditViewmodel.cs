@@ -21,26 +21,26 @@ namespace TAS.Client.ViewModels
         {
             _engineViewModel = engineViewModel;
             _engine = engineViewModel.Engine;
-            CommandSaveEdit = new SimpleCommand() { ExecuteDelegate = _save, CanExecuteDelegate = _canSave };
-            CommandCancelEdit = new SimpleCommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
-            CommandDelete = new SimpleCommand() { ExecuteDelegate = _delete, CanExecuteDelegate = _canDelete };
-            CommandReschedule = new SimpleCommand() { ExecuteDelegate = _reschedule, CanExecuteDelegate = _canReschedule };
-            CommandAddGraphics = new SimpleCommand() { ExecuteDelegate = _addGraphics, CanExecuteDelegate = _canAddGraphics };
-            CommandRemoveSubItems = new SimpleCommand() { ExecuteDelegate = _removeSubItems, CanExecuteDelegate = _canRemoveSubitems };
-            CommandAddAnimation = new SimpleCommand() { ExecuteDelegate = _addAnimation, CanExecuteDelegate = _canAddGraphics };
-            CommandAddNextMovie = new SimpleCommand() { ExecuteDelegate = _addNextMovie, CanExecuteDelegate = _canAddNextEvent };
-            CommandAddNextEmptyMovie = new SimpleCommand() { ExecuteDelegate = _addNextEmptyMovie, CanExecuteDelegate = _canAddNextEvent };
-            CommandAddNextRundown = new SimpleCommand() { ExecuteDelegate = _addNextRundown, CanExecuteDelegate = _canAddNextEvent };
-            CommandAddNextLive = new SimpleCommand() { ExecuteDelegate = _addNextLive, CanExecuteDelegate = _canAddNextEvent };
-            CommandAddSubMovie = new SimpleCommand() { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = _canAddSubMovie };
-            CommandAddSubRundown = new SimpleCommand() { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = _canAddSubRundown };
-            CommandAddSubLive = new SimpleCommand() { ExecuteDelegate = _addSubLive, CanExecuteDelegate = _canAddSubMovie };
-            CommandChangeMovie = new SimpleCommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _canChangeMovie };
-            CommandGetTCInTCOut = new SimpleCommand() { ExecuteDelegate =_getTCInTCOut, CanExecuteDelegate = _canGetTcInTcOut};
-            CommandToggleEnabled = new SimpleCommand() { ExecuteDelegate = _toggleEnabled, CanExecuteDelegate = o => !_canReschedule(o) };
-            CommandToggleHold = new SimpleCommand() { ExecuteDelegate = _toggleHold, CanExecuteDelegate = o => !_canReschedule(o) };
-            CommandMoveUp = new SimpleCommand() { ExecuteDelegate = _moveUp, CanExecuteDelegate = _canMoveUp };
-            CommandMoveDown = new SimpleCommand() { ExecuteDelegate = _moveDown, CanExecuteDelegate = _canMoveDown };
+            CommandSaveEdit = new UICommand() { ExecuteDelegate = _save, CanExecuteDelegate = _canSave };
+            CommandCancelEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
+            CommandDelete = new UICommand() { ExecuteDelegate = _delete, CanExecuteDelegate = _canDelete };
+            CommandReschedule = new UICommand() { ExecuteDelegate = _reschedule, CanExecuteDelegate = _canReschedule };
+            CommandAddGraphics = new UICommand() { ExecuteDelegate = _addGraphics, CanExecuteDelegate = _canAddGraphics };
+            CommandRemoveSubItems = new UICommand() { ExecuteDelegate = _removeSubItems, CanExecuteDelegate = _canRemoveSubitems };
+            CommandAddAnimation = new UICommand() { ExecuteDelegate = _addAnimation, CanExecuteDelegate = _canAddGraphics };
+            CommandAddNextMovie = new UICommand() { ExecuteDelegate = _addNextMovie, CanExecuteDelegate = _canAddNextEvent };
+            CommandAddNextEmptyMovie = new UICommand() { ExecuteDelegate = _addNextEmptyMovie, CanExecuteDelegate = _canAddNextEvent };
+            CommandAddNextRundown = new UICommand() { ExecuteDelegate = _addNextRundown, CanExecuteDelegate = _canAddNextEvent };
+            CommandAddNextLive = new UICommand() { ExecuteDelegate = _addNextLive, CanExecuteDelegate = _canAddNextEvent };
+            CommandAddSubMovie = new UICommand() { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = _canAddSubMovie };
+            CommandAddSubRundown = new UICommand() { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = _canAddSubRundown };
+            CommandAddSubLive = new UICommand() { ExecuteDelegate = _addSubLive, CanExecuteDelegate = _canAddSubMovie };
+            CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _canChangeMovie };
+            CommandGetTCInTCOut = new UICommand() { ExecuteDelegate =_getTCInTCOut, CanExecuteDelegate = _canGetTcInTcOut};
+            CommandToggleEnabled = new UICommand() { ExecuteDelegate = _toggleEnabled, CanExecuteDelegate = o => !_canReschedule(o) };
+            CommandToggleHold = new UICommand() { ExecuteDelegate = _toggleHold, CanExecuteDelegate = o => !_canReschedule(o) };
+            CommandMoveUp = new UICommand() { ExecuteDelegate = _moveUp, CanExecuteDelegate = _canMoveUp };
+            CommandMoveDown = new UICommand() { ExecuteDelegate = _moveDown, CanExecuteDelegate = _canMoveDown };
         }
 
         protected override void OnDispose()
@@ -112,32 +112,25 @@ namespace TAS.Client.ViewModels
         void _save(object o)
         {
             Event e2Save = Event;
-            try
+            if (Modified && e2Save != null)
             {
-                if (Modified && e2Save != null)
+                PropertyInfo[] copiedProperties = this.GetType().GetProperties();
+                foreach (PropertyInfo copyPi in copiedProperties)
                 {
-                    PropertyInfo[] copiedProperties = this.GetType().GetProperties();
-                    foreach (PropertyInfo copyPi in copiedProperties)
+                    PropertyInfo destPi = e2Save.GetType().GetProperty(copyPi.Name);
+                    if (destPi != null)
                     {
-                        PropertyInfo destPi = e2Save.GetType().GetProperty(copyPi.Name);
-                        if (destPi != null)
-                        {
-                            if (destPi.GetValue(e2Save, null) != copyPi.GetValue(this, null)
-                                && destPi.CanWrite)
-                                destPi.SetValue(e2Save, copyPi.GetValue(this, null), null);
-                        }
+                        if (destPi.GetValue(e2Save, null) != copyPi.GetValue(this, null)
+                            && destPi.CanWrite)
+                            destPi.SetValue(e2Save, copyPi.GetValue(this, null), null);
                     }
-                    Modified = false;
                 }
-                if (e2Save != null && e2Save.Modified)
-                {
-                    e2Save.Save();
-                    _load(null);
-                }
+                Modified = false;
             }
-            catch (Exception e)
+            if (e2Save != null && e2Save.Modified)
             {
-                MessageBox.Show(string.Format(Properties.Resources._message_SaveError, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                e2Save.Save();
+                _load(null);
             }
         }
 
@@ -320,7 +313,6 @@ namespace TAS.Client.ViewModels
             if (ev != null
                 && MessageBox.Show(Properties.Resources._query_DeleteItem, Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-
                 Modified = false;
                 UiServices.SetBusyState();
                 ThreadPool.QueueUserWorkItem(
@@ -332,7 +324,7 @@ namespace TAS.Client.ViewModels
                     }
                     catch (Exception e)
                     {
-                        MessageBox.Show(string.Format(Properties.Resources._message_DeleteError, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(string.Format(Properties.Resources._message_CommandFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 });
             }

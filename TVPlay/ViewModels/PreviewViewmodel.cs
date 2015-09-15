@@ -332,7 +332,7 @@ namespace TAS.Client.ViewModels
 
         private void CreateCommands()
         {
-            CommandPause = new SimpleCommand()
+            CommandPause = new UICommand()
             {
                 ExecuteDelegate = o =>
                     {
@@ -355,7 +355,7 @@ namespace TAS.Client.ViewModels
                             || (media != null && media.MediaStatus == TMediaStatus.Available);
                     }
             };
-            CommandPlay = new SimpleCommand()
+            CommandPlay = new UICommand()
             {
                 ExecuteDelegate = o =>
                     {
@@ -381,12 +381,12 @@ namespace TAS.Client.ViewModels
                             || (media != null && media.MediaStatus == TMediaStatus.Available);
                     }
             };
-            CommandStop = new SimpleCommand()
+            CommandStop = new UICommand()
             {
                 ExecuteDelegate = o => { _mediaUnload(); },
                 CanExecuteDelegate = _canStop                   
             };
-            CommandSeek = new SimpleCommand()
+            CommandSeek = new UICommand()
             {
                 ExecuteDelegate = param =>
                     {
@@ -399,7 +399,7 @@ namespace TAS.Client.ViewModels
                 CanExecuteDelegate = _canStop
             };
 
-            CommandCopyToTCIn = new SimpleCommand()
+            CommandCopyToTCIn = new UICommand()
             {
                 ExecuteDelegate = o =>
                     {
@@ -408,7 +408,7 @@ namespace TAS.Client.ViewModels
                 CanExecuteDelegate = _canStop
             };
 
-            CommandCopyToTCOut = new SimpleCommand()
+            CommandCopyToTCOut = new UICommand()
             {
                 ExecuteDelegate = o =>
                     {
@@ -417,7 +417,7 @@ namespace TAS.Client.ViewModels
                 CanExecuteDelegate = _canStop
             };
 
-            CommandSaveSegment = new SimpleCommand()
+            CommandSaveSegment = new UICommand()
             {
                 ExecuteDelegate = o =>
                     {
@@ -446,7 +446,7 @@ namespace TAS.Client.ViewModels
                                 || (ss != null && (ss.Modified || SelectedSegmentName != ss.SegmentName || TCIn != ss.TCIn || TCOut != ss.TCOut))));
                     }
             };
-            CommandDeleteSegment = new SimpleCommand()
+            CommandDeleteSegment = new UICommand()
             {
                 ExecuteDelegate = o =>
                     {
@@ -460,7 +460,7 @@ namespace TAS.Client.ViewModels
                     },
                 CanExecuteDelegate = o => _selectedSegment != null
             };
-            CommandNewSegment = new SimpleCommand()
+            CommandNewSegment = new UICommand()
             {
                 ExecuteDelegate = o =>
                     {
@@ -473,7 +473,7 @@ namespace TAS.Client.ViewModels
                         IsSegmentNameFocused = true;
                     },
             };
-            CommandSetSegmentNameFocus = new SimpleCommand()
+            CommandSetSegmentNameFocus = new UICommand()
             {
                 ExecuteDelegate = o =>
                     {
