@@ -209,6 +209,7 @@
                     <Setter Property="Margin" Value="5, 0"/>
                     <Setter Property="FontSize" Value="28" />
                     <Setter Property="HorizontalAlignment" Value="Left"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
                 </Style>
                 <Style TargetType="Button">
                     <Setter Property="Width" Value="40"/>
@@ -282,7 +283,7 @@
                     </ToggleButton> 
                 </StackPanel>
             </Grid>
-            <Label Content="{Resx _toolbar.EngineTime}" />
+            <TextBlock FontSize="13" HorizontalAlignment="Right" VerticalAlignment="Center" Text="{Binding CurrentTime, Converter={StaticResource DateTimeFormat}, ConverterParameter=d}" />
             <TextBlock Grid.Row="1" Text="{Binding CurrentTime, Converter={StaticResource DateTimeFormat}, ConverterParameter=T}" />
             <Label Content="{Resx _toolbar.TimeToPause}" Grid.Column="3" />
             <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding TimeToPause, Converter={StaticResource TimeSpanToSMPTE}, ConverterParameter=HIDE_ZERO_VALUE}" Background="{Binding EngineState, Converter={StaticResource EngineStateToBrush}}"/>

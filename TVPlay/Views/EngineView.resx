@@ -201,9 +201,6 @@
   <data name="_toolbar.ClearCG3" xml:space="preserve">
     <value>Clear image 3</value>
   </data>
-  <data name="_toolbar.EngineTime" xml:space="preserve">
-    <value>Channel time</value>
-  </data>
   <data name="_toolbar.Load" xml:space="preserve">
     <value>Load (F2)</value>
   </data>
