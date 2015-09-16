@@ -8,11 +8,10 @@
              xmlns:c="clr-namespace:TAS.Client"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              mc:Ignorable="d" 
-             d:DataContext="{x:Type vm:EventViewmodel}"
+             d:DataContext="{x:Type vm:EventPanelViewmodel}"
              FontSize="12" 
              DataContextChanged="UserControl_DataContextChanged" 
              d:DesignWidth="700"
-             
              >
     <UserControl.Resources>
         <Style x:Key="borderStyle" TargetType="{x:Type Border}">
@@ -40,7 +39,7 @@
                 <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Under}" Command="{Binding CommandPaste}" CommandParameter="Under" />
             </MenuItem>
             <Separator/>
-            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Hide}" Command="{Binding CommandToggleEnabled}" Visibility="{Binding IsRootContainer, Converter={StaticResource BoolToVis}}"/>
+            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Hide}" Command="{Binding CommandHide}" InputGestureText="F9" Visibility="{Binding IsRootContainer, Converter={StaticResource BoolToVis}}"/>
         </ContextMenu>
     </UserControl.ContextMenu>
     <Border x:Name="border" Style="{StaticResource borderStyle}" BorderThickness="0, 0, 0, 1" Margin="0" BorderBrush="Gray" >

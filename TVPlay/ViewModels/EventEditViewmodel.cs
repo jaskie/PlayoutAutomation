@@ -37,8 +37,8 @@ namespace TAS.Client.ViewModels
             CommandAddSubLive = new UICommand() { ExecuteDelegate = _addSubLive, CanExecuteDelegate = _canAddSubMovie };
             CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _canChangeMovie };
             CommandGetTCInTCOut = new UICommand() { ExecuteDelegate =_getTCInTCOut, CanExecuteDelegate = _canGetTcInTcOut};
-            CommandToggleEnabled = new UICommand() { ExecuteDelegate = _toggleEnabled, CanExecuteDelegate = o => !_canReschedule(o) };
-            CommandToggleHold = new UICommand() { ExecuteDelegate = _toggleHold, CanExecuteDelegate = o => !_canReschedule(o) };
+            CommandToggleEnabled = new UICommand() { ExecuteDelegate = _toggleEnabled, CanExecuteDelegate = _canToggleEnabled };
+            CommandToggleHold = new UICommand() { ExecuteDelegate = _toggleHold, CanExecuteDelegate = _canToggleEnabled };
             CommandMoveUp = new UICommand() { ExecuteDelegate = _moveUp, CanExecuteDelegate = _canMoveUp };
             CommandMoveDown = new UICommand() { ExecuteDelegate = _moveDown, CanExecuteDelegate = _canMoveDown };
         }
@@ -628,7 +628,7 @@ namespace TAS.Client.ViewModels
         void _toggleEnabled(object o)
         {
             Event ev = Event;
-            if (ev != null)
+            if (ev != null && ev.EventType != TEventType.Container)
             {
                 ev.Enabled = !ev.Enabled;
                 ev.Save();
@@ -699,7 +699,6 @@ namespace TAS.Client.ViewModels
                 && ev.PlayState == TPlayState.Scheduled
                 && ev.SubEvents.Any(e => e.EventType == TEventType.StillImage);
         }
-
         bool _canReschedule(object o)
         {
             Event ev = _event;
@@ -711,6 +710,12 @@ namespace TAS.Client.ViewModels
             Event ev = _event;
             return ev != null
                 && (ev.PlayState == TPlayState.Played || ev.PlayState == TPlayState.Aborted || ev.PlayState == TPlayState.Scheduled);
+        }
+        bool _canToggleEnabled(object o)
+        {
+            Event ev = _event;
+            return ev != null
+                && (ev.PlayState == TPlayState.Scheduled);
         }
         bool _canChangeMovie(object o)
         {

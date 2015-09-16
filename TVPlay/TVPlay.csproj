@@ -338,7 +338,7 @@
       <DependentUpon>EngineView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\EngineViewmodel.cs" />
-    <Compile Include="ViewModels\EventViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelViewmodel.cs" />
     <Compile Include="ViewModels\MediaManagerViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditViewmodel.cs" />
     <Compile Include="ViewModels\PreviewViewmodel.cs" />

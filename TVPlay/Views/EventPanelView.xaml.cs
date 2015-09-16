@@ -32,7 +32,7 @@ namespace TAS.Client
 
         private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            EventViewmodel vm = e.NewValue as EventViewmodel;
+            EventPanelViewmodel vm = e.NewValue as EventPanelViewmodel;
             if (vm != null)
             {
                 vm.View = (EventPanelView)sender;

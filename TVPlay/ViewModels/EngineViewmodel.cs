@@ -57,6 +57,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandSaveEdit { get { return _eventEditViewmodel.CommandSaveEdit; } }
         public ICommand CommandAddNextMovie { get { return _eventEditViewmodel.CommandAddNextMovie; } }
         public ICommand CommandAddGraphics { get { return _eventEditViewmodel.CommandAddGraphics; } }
+        public ICommand CommandHide { get { return Selected == null? null : Selected.CommandHide; } }
 
         public EngineViewmodel(Server.Engine engine)
         {
@@ -71,7 +72,7 @@ namespace TAS.Client.ViewModels
             _engine.RunningEventsOperation += OnEngineRunningEventsOperation;
 
             Debug.WriteLine(this, "Creating root EventViewmodel");
-            _rootEventViewModel = new EventViewmodel(_engine, this);
+            _rootEventViewModel = new EventPanelViewmodel(_engine, this);
 
             Debug.WriteLine(this, "Creating EventEditViewmodel");
             _eventEditViewmodel = new EventEditViewmodel(this);
@@ -86,7 +87,7 @@ namespace TAS.Client.ViewModels
             _engineView = new EngineView();
             _engineView.DataContext = this;
 
-            _selectedEvents = new ObservableCollection<EventViewmodel>();
+            _selectedEvents = new ObservableCollection<EventPanelViewmodel>();
             _selectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged += EngineViewmodel_ClipboardChanged;
         }
@@ -304,11 +305,11 @@ namespace TAS.Client.ViewModels
         #endregion // Commands
 
 
-        private EventViewmodel _rootEventViewModel;
-        public EventViewmodel RootEventViewModel { get { return _rootEventViewModel; } }
+        private EventPanelViewmodel _rootEventViewModel;
+        public EventPanelViewmodel RootEventViewModel { get { return _rootEventViewModel; } }
 
-        private EventViewmodel _selected;
-        public EventViewmodel Selected
+        private EventPanelViewmodel _selected;
+        public EventPanelViewmodel Selected
         {
             get { return _selected; }
             set
@@ -356,10 +357,10 @@ namespace TAS.Client.ViewModels
         }
         public EventEditViewmodel EventEditViewmodel { get { return _eventEditViewmodel; } }
 
-        private EventViewmodel _GetEventViewModel(Event aEvent)
+        private EventPanelViewmodel _GetEventViewModel(Event aEvent)
         {
             IEnumerable<Event> rt = aEvent.VisualRootTrack;
-            EventViewmodel evm = _rootEventViewModel;
+            EventPanelViewmodel evm = _rootEventViewModel;
             foreach (Event ev in rt)
             {
                 if (evm != null)
@@ -491,8 +492,8 @@ namespace TAS.Client.ViewModels
         private ObservableCollection<Event> _runningEvents = new ObservableCollection<Event>();
         public IEnumerable<Event> RunningEvents { get { return _runningEvents; } }
 
-        private ObservableCollection<EventViewmodel> _selectedEvents;
-        public ObservableCollection<EventViewmodel> SelectedEvents { get { return _selectedEvents; } }
+        private ObservableCollection<EventPanelViewmodel> _selectedEvents;
+        public ObservableCollection<EventPanelViewmodel> SelectedEvents { get { return _selectedEvents; } }
 
         private EngineStateView _debugWindow;
         public void _searchMissingEvents(object o)
@@ -547,12 +548,9 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged("CommandLoadSelected");
             NotifyPropertyChanged("CommandScheduleSelected");
             NotifyPropertyChanged("CommandRescheduleSelected");
-            NotifyPropertyChanged("CommandCutSingle");
-            NotifyPropertyChanged("CommandCutMultiple");
-            NotifyPropertyChanged("CommandCopySingle");
-            NotifyPropertyChanged("CanPasteBefore");
-            NotifyPropertyChanged("CanPasteAfter");
-            NotifyPropertyChanged("CanPasteUnder");
+            NotifyPropertyChanged("CommandCutSelected");
+            NotifyPropertyChanged("CommandCopySelected");
+            NotifyPropertyChanged("CommandHide");
         }
 
         public void OnEngineTick(object sender, EventArgs a)
@@ -621,7 +619,7 @@ namespace TAS.Client.ViewModels
 
         private void _selectedEvents_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (sender is ObservableCollection<EventViewmodel>)
+            if (sender is ObservableCollection<EventPanelViewmodel>)
             {
                 NotifyPropertyChanged("CommandDeleteSelected");
                 NotifyPropertyChanged("CommandExport");

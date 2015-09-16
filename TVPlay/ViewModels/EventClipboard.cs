@@ -27,31 +27,31 @@ namespace TAS.Client.ViewModels
                 h();
         }
 
-        public static void Copy(IEnumerable<EventViewmodel> items)
+        public static void Copy(IEnumerable<EventPanelViewmodel> items)
         {
             lock (_clipboard.SyncRoot)
             {
                 _clipboard.Clear();
-                foreach (EventViewmodel e in items)
+                foreach (EventPanelViewmodel e in items)
                     _clipboard.Add(e.Event);
                 Operation = ClipboardOperation.Copy;
                 _notifyClipboardChanged();
             }
         }
 
-        public static void Cut(IEnumerable<EventViewmodel> items)
+        public static void Cut(IEnumerable<EventPanelViewmodel> items)
         {
             lock (_clipboard.SyncRoot)
             {
                 _clipboard.Clear();
-                foreach (EventViewmodel e in items)
+                foreach (EventPanelViewmodel e in items)
                     _clipboard.Add(e.Event);
                 Operation = ClipboardOperation.Cut;
                 _notifyClipboardChanged();
             }
         }
 
-        public static void Paste(EventViewmodel destination, TPasteLocation location)
+        public static void Paste(EventPanelViewmodel destination, TPasteLocation location)
         {
             Event dest = destination.Event;
             lock(_clipboard.SyncRoot)
@@ -116,7 +116,7 @@ namespace TAS.Client.ViewModels
         }
 
 
-        public static bool CanPaste(EventViewmodel destEventVm, TPasteLocation location)
+        public static bool CanPaste(EventPanelViewmodel destEventVm, TPasteLocation location)
         {
             if (destEventVm == null)
                 return false;
