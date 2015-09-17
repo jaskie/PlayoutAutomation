@@ -727,7 +727,7 @@ namespace TAS.Server
                 }
                 _setAspectRatio(aEvent);
             }
-            _triggerGPIGraphics(aEvent);
+            _triggerGPIGraphics(aEvent, true);
             aEvent.PlayState = TPlayState.Playing;
 
             foreach (Event e in aEvent.SubEvents.ToList())
@@ -1125,7 +1125,7 @@ namespace TAS.Server
                             while (succ != null && (!succ.Enabled || succ.Length == TimeSpan.Zero))
                                 succ = succ.Successor;
                             
-                            _triggerGPIGraphics(succ);
+                            _triggerGPIGraphics(succ, false);
 
                             // first: check if some events should finish
                             if (ev.PlayState == TPlayState.Playing || ev.PlayState == TPlayState.Fading)
@@ -1195,7 +1195,7 @@ namespace TAS.Server
             }
         }
 
-        private void _triggerGPIGraphics(Event ev) // aspect is triggered on _play
+        private void _triggerGPIGraphics(Event ev, bool ignoreScheduledTime) // aspect is triggered on _play
         {
             if (!this.GPIEnabled
                 || ev == null
@@ -1204,8 +1204,7 @@ namespace TAS.Server
                 return;
             if (GPI != null
                 && !ev.GPITrigerred
-                && CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks + GPI.GraphicsStartDelay * 10000L
-                )
+                && (ignoreScheduledTime || CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks + GPI.GraphicsStartDelay * 10000L))
             {
                 ev.GPITrigerred = true;
                 GPI.Crawl = ev.GPI.Crawl;
@@ -1214,7 +1213,7 @@ namespace TAS.Server
             }
             if (EngineLocalSettings != null
                 && !ev.LocalGPITriggered
-                && CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks)
+                && (ignoreScheduledTime || CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks))
             {
                 ev.LocalGPITriggered = true;
                 EngineLocalSettings.Crawl = ev.GPI.Crawl;
