@@ -135,26 +135,6 @@ namespace TAS.Client
         }
     }
 
-    [ValueConversion(typeof(DateTime), typeof(string))]
-    public class DateTimeFormatConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if ((DateTime)value == default(DateTime))
-                return string.Empty;
-            else
-                return ((DateTime)value).ToLocalTime().ToString((string)parameter);
-        }
-
-        public object ConvertBack(object value, System.Type targetType, object parameter, CultureInfo culture)
-        {
-            if ((string)value == string.Empty)
-                return default(DateTime);
-            else
-                return DateTime.Parse((string)value).ToUniversalTime();
-        }
-    }
-
     [ValueConversion(typeof(bool), typeof(double))]
     public class EnabledBoolToOpacityConverter : IValueConverter
     {

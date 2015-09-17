@@ -66,7 +66,7 @@
             </DockPanel>
             <DockPanel Visibility="{Binding IsIngestDataShown, Converter={StaticResource BoolToVis}}" >
                 <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _ingestTime}" />
-                <TextBox Style="{StaticResource fieldsDetail}" IsReadOnly="True" Text="{Binding LastUpdated, Mode=OneWay, Converter={StaticResource DateTimeFormat}, ConverterParameter=g}" />
+                <TextBox Style="{StaticResource fieldsDetail}" IsReadOnly="True" Text="{Binding LastUpdated, Mode=OneWay, StringFormat=g}" />
             </DockPanel>
             <DockPanel>
                 <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _times}"/>

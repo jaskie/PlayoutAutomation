@@ -40,7 +40,6 @@
                     <client:EventTypeToIntConverter x:Key="EventToInt" />
                     <client:DateTimeToSMPTEConverter x:Key="DateTimeToSMPTE" />
                     <client:TimeSpanToFramesConverter x:Key="TimeSpanToFrames" />
-                    <client:DateTimeFormatConverter x:Key="DateTimeFormat"/>
                     <client:ColorToBrushConverter x:Key="ColorToBrush" />
                     <client:EnabledBoolToOpacityConverter x:Key="EnabledToOpacity" />
                     <client:PlayStateToUriConverter x:Key="PlayStateToUri" />

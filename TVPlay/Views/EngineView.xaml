@@ -283,8 +283,9 @@
                     </ToggleButton> 
                 </StackPanel>
             </Grid>
-            <TextBlock FontSize="13" HorizontalAlignment="Right" VerticalAlignment="Center" Text="{Binding CurrentTime, Converter={StaticResource DateTimeFormat}, ConverterParameter=d}" />
-            <TextBlock Grid.Row="1" Text="{Binding CurrentTime, Converter={StaticResource DateTimeFormat}, ConverterParameter=T}" />
+            <TextBlock FontSize="13" Text="{Binding CurrentTime, StringFormat=d}" />
+            <TextBlock FontSize="13" HorizontalAlignment="Right" Text="{Binding CurrentTime, StringFormat=(ddd)}" />
+            <TextBlock Grid.Row="1" Text="{Binding CurrentTime, StringFormat=T}" />
             <Label Content="{Resx _toolbar.TimeToPause}" Grid.Column="3" />
             <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding TimeToPause, Converter={StaticResource TimeSpanToSMPTE}, ConverterParameter=HIDE_ZERO_VALUE}" Background="{Binding EngineState, Converter={StaticResource EngineStateToBrush}}"/>
             <Label Content="{Resx _toolbar.NowPlaying}" Grid.Column="4" />
