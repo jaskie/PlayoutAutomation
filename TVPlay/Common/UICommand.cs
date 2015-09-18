@@ -9,11 +9,12 @@ namespace TAS.Common
 {
     public class UICommand : ICommand
     {
-        private bool _handleExceptions = true;
         public Predicate<object> CanExecuteDelegate { get; set; }
         public Action<object> ExecuteDelegate { get; set; }
+        private bool _handleExceptions = true;
         public bool HandleExceptions { get { return _handleExceptions; } set { _handleExceptions = value; } }
-
+        private bool _chcekBeforeExecute = true;
+        public bool CheckBeforeExecute { get { return _chcekBeforeExecute; } set { _chcekBeforeExecute = value; } }
         #region ICommand Members
 
         public bool CanExecute(object parameter)
@@ -45,6 +46,8 @@ namespace TAS.Common
 
         public void Execute(object parameter)
         {
+            if (CheckBeforeExecute && !CanExecute(parameter))
+                return;
             if (ExecuteDelegate != null)
             {
                 if (HandleExceptions)
