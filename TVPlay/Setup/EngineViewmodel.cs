@@ -100,7 +100,7 @@ namespace TAS.Client.Setup
             }
             Model.Initialize(Model.EngineLocalSettings);
             {
-                if (Model.DbUpdate())
+                if (!Model.DbUpdate())
                     System.Windows.MessageBox.Show("Unsuccessfull save");
             }
         }
