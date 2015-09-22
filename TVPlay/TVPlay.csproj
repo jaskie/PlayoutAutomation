@@ -147,14 +147,6 @@
       <HintPath>bin\Debug\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework" />
-    <Reference Include="Svt.Caspar, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>x64\Svt.Caspar.dll</HintPath>
-    </Reference>
-    <Reference Include="Svt.Network, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>x64\Svt.Network.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
@@ -693,6 +685,14 @@
     <ProjectReference Include="..\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
       <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>
       <Name>Infralution.Localization.Wpf</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Svt\Svt.Caspar\Svt.Caspar.csproj">
+      <Project>{9b56a150-ece3-4099-aea1-0f8e115dc374}</Project>
+      <Name>Svt.Caspar</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Svt\Svt.Network\Svt.Network.csproj">
+      <Project>{941ed6a5-c8df-459d-bfce-5c6ed9ac0492}</Project>
+      <Name>Svt.Network</Name>
     </ProjectReference>
     <ProjectReference Include="..\System.Net.FtpClient\source\System.Net.FtpClient.csproj">
       <Project>{e963b766-56bf-4966-8917-88c1ee69d61a}</Project>
