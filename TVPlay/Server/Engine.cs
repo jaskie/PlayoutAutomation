@@ -42,12 +42,12 @@ namespace TAS.Server
         [XmlIgnore]
         public readonly MediaManager MediaManager;
         [XmlIgnore]
-        public EngineSettings EngineLocalSettings { get; private set; }
+        public LocalGpiDeviceBinding EngineLocalSettings { get; private set; }
 
         Thread _engineThread;
         internal long CurrentTicks;
         
-        private TimeSpan PreloadTime = new TimeSpan(0, 0, 2); // time to preload event
+        private TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
         internal SimpleDictionary<VideoLayer, Event> _visibleEvents = new SimpleDictionary<VideoLayer, Event>(); // list of visible events
         internal ObservableSynchronizedCollection<Event> _runningEvents = new ObservableSynchronizedCollection<Event>(); // list of events loaded and playing 
         internal SimpleDictionary<VideoLayer, Event> _loadedNextEvents = new SimpleDictionary<VideoLayer, Event>(); // events loaded in backgroud
@@ -158,7 +158,7 @@ namespace TAS.Server
         public long FrameTicks { get { return _frameTicks; } }
         public TVideoFormat VideoFormat { get; set; }
 
-        public void Initialize(EngineSettings localSettings)
+        public void Initialize(LocalGpiDeviceBinding localSettings)
         {
             Debug.WriteLine(this, "Begin initializing");
             EngineLocalSettings = localSettings;
@@ -259,7 +259,7 @@ namespace TAS.Server
             if (gpi != null)
             {
                 Debug.WriteLine(this, "Initializing GPI");
-                gpi.StartPressed += Resume;
+                gpi.Started += Resume;
                 gpi.Initialize();
                 gpi.PropertyChanged += GPI_PropertyChanged;
             }
@@ -271,7 +271,7 @@ namespace TAS.Server
             }
 
             if (localSettings != null)
-                localSettings.StartPressed += Resume;
+                localSettings.Started += Resume;
 
             Debug.WriteLine(this, "Engine initialized");
         }
@@ -293,13 +293,13 @@ namespace TAS.Server
             }
             var localSettings = EngineLocalSettings;
             if (localSettings != null)
-                localSettings.StartPressed -= Resume;
+                localSettings.Started -= Resume;
 
             var gpi = GPI;
             if (gpi != null)
             {
                 Debug.WriteLine(this, "Uninitializing GPI");
-                gpi.StartPressed -= Resume;
+                gpi.Started -= Resume;
                 gpi.UnInitialize();
                 gpi.PropertyChanged -= GPI_PropertyChanged;
             }
@@ -337,22 +337,22 @@ namespace TAS.Server
         [XmlIgnore]
         public TCrawl GPICrawl
         {
-            get { return GPI == null ? TCrawl.NoCrawl : GPI.Crawl; }
-            set { if (GPI != null && _gPIEnabled) GPI.Crawl = value; }
+            get { return GPI == null ? TCrawl.NoCrawl : (TCrawl)GPI.Crawl; }
+            set { if (GPI != null && _gPIEnabled) GPI.Crawl = (int)value; }
         }
 
         [XmlIgnore]
         public TLogo GPILogo
         {
-            get { return GPI == null ? TLogo.NoLogo : GPI.Logo; }
-            set { if (GPI != null && _gPIEnabled) GPI.Logo = value; }
+            get { return GPI == null ? TLogo.NoLogo : (TLogo)GPI.Logo; }
+            set { if (GPI != null && _gPIEnabled) GPI.Logo = (int)value; }
         }
 
         [XmlIgnore]
         public TParental GPIParental
         {
-            get { return GPI == null ? TParental.None : GPI.Parental; }
-            set { if (GPI != null && _gPIEnabled) GPI.Parental = value; }
+            get { return GPI == null ? TParental.None : (TParental)GPI.Parental; }
+            set { if (GPI != null && _gPIEnabled) GPI.Parental = (int)value; }
         }
 
         [XmlIgnore]
@@ -1124,7 +1124,8 @@ namespace TAS.Server
                             Event succ = ev.Successor;
                             while (succ != null && (!succ.Enabled || succ.Length == TimeSpan.Zero))
                                 succ = succ.Successor;
-                            
+
+                            _triggerGPIGraphics(ev, false);
                             _triggerGPIGraphics(succ, false);
 
                             // first: check if some events should finish
@@ -1147,13 +1148,13 @@ namespace TAS.Server
                                         Debug.WriteLine(ev, "Tick: Fading");
                                     }
                                 }
-                                if (CurrentTicks >= ev.EndTime.Ticks - PreloadTime.Ticks)
+                                if (CurrentTicks >= ev.EndTime.Ticks - _preloadTime.Ticks)
                                 {
                                     // second: preload next scheduled events
                                     if (succ != null)
                                     {
                                         if (!_runningEvents.Contains(succ)
-                                        && CurrentTicks >= succ.ScheduledTime.Ticks - PreloadTime.Ticks)
+                                        && CurrentTicks >= succ.ScheduledTime.Ticks - _preloadTime.Ticks)
                                         {
                                             Debug.WriteLine(succ, "Tick: LoadNext Running");
                                             succ.Position = 0;
@@ -1199,26 +1200,25 @@ namespace TAS.Server
         {
             if (!this.GPIEnabled
                 || ev == null
-                || !ev.GPI.CanTrigger
-                || !(ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused))
+                || !ev.GPI.CanTrigger)
                 return;
             if (GPI != null
                 && !ev.GPITrigerred
                 && (ignoreScheduledTime || CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks + GPI.GraphicsStartDelay * 10000L))
             {
                 ev.GPITrigerred = true;
-                GPI.Crawl = ev.GPI.Crawl;
-                GPI.Logo = ev.GPI.Logo;
-                GPI.Parental = ev.GPI.Parental;
+                GPI.Crawl = (int)ev.GPI.Crawl;
+                GPI.Logo = (int)ev.GPI.Logo;
+                GPI.Parental = (int)ev.GPI.Parental;
             }
             if (EngineLocalSettings != null
                 && !ev.LocalGPITriggered
                 && (ignoreScheduledTime || CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks))
             {
                 ev.LocalGPITriggered = true;
-                EngineLocalSettings.Crawl = ev.GPI.Crawl;
-                EngineLocalSettings.Logo = ev.GPI.Logo;
-                EngineLocalSettings.Parental = ev.GPI.Parental;
+                EngineLocalSettings.Crawl = (int)ev.GPI.Crawl;
+                EngineLocalSettings.Logo = (int)ev.GPI.Logo;
+                EngineLocalSettings.Parental = (int)ev.GPI.Parental;
             }
         }
         

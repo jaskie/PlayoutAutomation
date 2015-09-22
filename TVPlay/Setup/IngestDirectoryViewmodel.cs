@@ -97,6 +97,7 @@ namespace TAS.Client.Setup
         TxDCAMVideoExportFormat _xDCAMVideoExportFormat;
         [DefaultValue(default(TxDCAMVideoExportFormat))]
         public TxDCAMVideoExportFormat XDCAMVideoExportFormat { get { return _xDCAMVideoExportFormat; } set { SetField(ref _xDCAMVideoExportFormat, value, "XDCAMVideoExportFormat"); } }
+        
         #endregion // IIngestDirectory
         
         [XmlIgnore]
@@ -125,5 +126,7 @@ namespace TAS.Client.Setup
         bool _modified;
         [XmlIgnore]
         public bool Modified { get { return _modified; } }
+
+
     }
 }

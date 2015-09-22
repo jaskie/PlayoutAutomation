@@ -52,6 +52,14 @@ namespace TAS.Server
             }
         }
 
+        public virtual void UnInitialize()
+        {
+            if (_isInitialized)
+            {
+                ClearFiles();
+            }
+        }
+
         private bool _disposed = false;
         public void Dispose()
         {
@@ -72,7 +80,7 @@ namespace TAS.Server
         {
             if (_isInitialized)
             {
-                ClearFiles();
+                UnInitialize();
                 Initialize();
             }
         }

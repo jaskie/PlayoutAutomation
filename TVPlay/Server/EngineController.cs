@@ -16,7 +16,7 @@ namespace TAS.Server
     {
         public readonly List<PlayoutServer> Servers;
         public readonly List<Engine> Engines;
-        readonly LocalSettings localSettings;
+        readonly LocalDevices localSettings;
         public EngineController()
         {
             Debug.WriteLine(this, "Creating LocalSettings");
@@ -25,9 +25,9 @@ namespace TAS.Server
                 string settingsFileName = ConfigurationManager.AppSettings["LocalSettings"];
                 if (!string.IsNullOrEmpty(settingsFileName) && File.Exists(settingsFileName))
                 {
-                    XmlSerializer reader = new XmlSerializer(typeof(LocalSettings));
+                    XmlSerializer reader = new XmlSerializer(typeof(LocalDevices));
                     StreamReader file = new System.IO.StreamReader(settingsFileName);
-                    localSettings = (LocalSettings)reader.Deserialize(file);
+                    localSettings = (LocalDevices)reader.Deserialize(file);
                     file.Close();
                     if (localSettings != null)
                     {
@@ -45,7 +45,7 @@ namespace TAS.Server
             foreach (Engine E in Engines)
             {
                 
-                EngineSettings engineSettings = (localSettings != null) ? localSettings.Engines.FirstOrDefault(e => e.IdEngine == E.IdEngine): default(EngineSettings);
+                LocalGpiDeviceBinding engineSettings = (localSettings != null) ? localSettings.EngineBindings.FirstOrDefault(e => e.IdEngine == E.IdEngine): default(LocalGpiDeviceBinding);
                 E.Initialize(engineSettings);
             }
             Debug.WriteLine(this, "Created");

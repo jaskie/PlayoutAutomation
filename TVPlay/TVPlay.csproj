@@ -135,10 +135,6 @@
     <Reference Include="Accessibility">
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
-    <Reference Include="Automation.BDaq, Version=1.0.1.0, Culture=neutral, PublicKeyToken=463f5928d60183a0, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>x64\Automation.BDaq.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Expression.Interactions">
       <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
     </Reference>
@@ -217,7 +213,8 @@
     <Compile Include="Server\FFMpegOperation.cs" />
     <Compile Include="Server\GPICommand.cs" />
     <Compile Include="Server\GPIState.cs" />
-    <Compile Include="Server\LocalSettings.cs" />
+    <Compile Include="Server\Interfaces\IGpi.cs" />
+    <Compile Include="Server\Interfaces\IInitializable.cs" />
     <Compile Include="Server\LoudnessOperation.cs" />
     <Compile Include="Server\Media\AnimationDirectory.cs" />
     <Compile Include="Server\CasparServerChannel.cs" />
@@ -669,6 +666,7 @@
     <Resource Include="Glyphs\ExportDelete.png" />
     <None Include="LocalSettings.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
     <Content Include="x64\MediaInfo.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -697,6 +695,10 @@
     <ProjectReference Include="..\System.Net.FtpClient\source\System.Net.FtpClient.csproj">
       <Project>{e963b766-56bf-4966-8917-88c1ee69d61a}</Project>
       <Name>System.Net.FtpClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TAS.Server.LocalSettings\TAS.Server.LocalDevices.csproj">
+      <Project>{08504aa1-0378-4f07-94ae-f1a40911e1ad}</Project>
+      <Name>TAS.Server.LocalDevices</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

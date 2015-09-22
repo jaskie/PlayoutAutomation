@@ -15,7 +15,7 @@ using TAS.Common;
 namespace TAS.Server
 {
     [Serializable]
-    public class GPINotifier : INotifyPropertyChanged, IDisposable
+    public class GPINotifier : INotifyPropertyChanged, IDisposable, IGpi
     {
 
         private const int port = 1060;
@@ -24,7 +24,8 @@ namespace TAS.Server
         public string Address { get; set; }
         [XmlAttribute]
         public string Name {get; set;}
-        public event Action StartPressed;
+        
+        public event Action Started;
         GPIState CrawlState = new GPIState();
 
         [XmlAttribute]
@@ -149,7 +150,7 @@ namespace TAS.Server
                         bufferPos++;
                         break;
                     case (byte)GPICommand.PlayoutStart:
-                        var handler = StartPressed;
+                        var handler = Started;
                         bufferPos++;
                         if (handler != null)
                         {
@@ -380,14 +381,14 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
-        public TCrawl Crawl
+        public int Crawl
         {
-            get { return CrawlState.CrawlVisible ? (TCrawl)(CrawlState.ConfigNr) : TCrawl.NoCrawl; }
+            get { return CrawlState.CrawlVisible ? CrawlState.ConfigNr : 0; }
             set
             {
                 if (Crawl != value)
                 {
-                    if (value == TCrawl.NoCrawl)
+                    if (value == 0)
                         _sendCommand((byte)GPICommand.HideCrawl);
                     else
                         _sendCommand((byte)GPICommand.SetCrawl, (byte)value);
@@ -396,45 +397,45 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
-        public TLogo Logo
+        public int Logo
         {
             get
             {
                 if (!CrawlState.LogoVisible)
-                    return TLogo.NoLogo;
+                    return 0;
                 else
-                    return (TLogo)(CrawlState.LogoStyle + 1);
+                    return CrawlState.LogoStyle + 1;
             }
             set
             {
                 if (Logo != value)
                 {
-                    if (value == TLogo.NoLogo)
+                    if (value == 0)
                         _sendCommand((byte)GPICommand.HideLogo);
                     else
-                        _sendCommand((byte)((byte)GPICommand.ShowLogo0 + ((byte)(value) - 1)));
+                        _sendCommand((byte)((byte)GPICommand.ShowLogo0 + (value - 1)));
                 }
             }
         }
 
         [XmlIgnore]
-        public TParental Parental
+        public int Parental
         {
             get
             {
                 if (!CrawlState.ParentalVisible)
-                    return TParental.None;
+                    return 0;
                 else
-                    return (TParental)(CrawlState.ParentalStyle + 1);
+                    return (CrawlState.ParentalStyle + 1);
             }
             set
             {
                 if (Parental != value)
                 {
-                    if (value == TParental.None)
+                    if (value == 0)
                         _sendCommand((byte)GPICommand.HideParental);
                     else
-                        _sendCommand((byte)((byte)GPICommand.ShowParental0 + ((byte)(value) - 1)));
+                        _sendCommand((byte)((byte)GPICommand.ShowParental0 + (value - 1)));
                 }
             }
         }
@@ -450,8 +451,6 @@ namespace TAS.Server
         {
             return string.IsNullOrWhiteSpace(Name) ? base.ToString() : Name;
         }
-
-
     }
 
 }

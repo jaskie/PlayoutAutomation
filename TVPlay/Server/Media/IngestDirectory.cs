@@ -10,10 +10,11 @@ using System.Diagnostics;
 using System.Collections;
 using System.Threading;
 using System.Net.FtpClient;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class IngestDirectory : MediaDirectory, TAS.Server.Interfaces.IIngestDirectory
+    public class IngestDirectory : MediaDirectory, IIngestDirectory
     {
         public string EncodeParams = string.Empty;
         
