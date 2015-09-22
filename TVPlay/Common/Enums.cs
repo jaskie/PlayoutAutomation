@@ -7,7 +7,11 @@ using System.Text;
 
 namespace TAS.Common
 {
-
+    public enum TServerType
+    {
+        Caspar = 0
+    }
+    
     public enum VideoLayer : sbyte
     {
         None = -1,

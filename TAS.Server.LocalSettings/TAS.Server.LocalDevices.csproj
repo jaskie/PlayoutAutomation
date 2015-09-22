@@ -51,7 +51,7 @@
       <Link>Interfaces\IInitializable.cs</Link>
     </Compile>
     <Compile Include="AdvantechDevice.cs" />
-    <Compile Include="LocalGpiDevice.cs" />
+    <Compile Include="LocalGpiDeviceBinding.cs" />
     <Compile Include="LocalDevices.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

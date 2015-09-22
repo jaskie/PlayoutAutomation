@@ -8,7 +8,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class LocalDevices : IDisposable
+    public class LocalDevices : IDisposable, IInitializable
     {
         [XmlArray]
         public AdvantechDevice[] Devices = new AdvantechDevice[0];
@@ -28,8 +28,8 @@ namespace TAS.Server
                 poolingThread.Priority = ThreadPriority.AboveNormal;
                 poolingThread.Start();
             }
-            foreach (LocalGpiDeviceBinding engine in EngineBindings)
-                engine.Owner = this;
+            foreach (LocalGpiDeviceBinding binding in EngineBindings)
+                binding.Owner = this;
         }
 
         bool disposed = false;

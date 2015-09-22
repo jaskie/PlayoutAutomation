@@ -11,7 +11,6 @@ using TAS.Data;
 
 namespace TAS.Server
 {
-    public enum TServerType { Caspar = 0 };
     public class EngineController: IDisposable
     {
         public readonly List<PlayoutServer> Servers;
