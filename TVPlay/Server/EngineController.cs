@@ -19,7 +19,7 @@ namespace TAS.Server
         public readonly List<PlayoutServer> Servers;
         public readonly List<Engine> Engines;
         [Import]
-        ILocalDevices _localGPIDevices;
+        ILocalDevices _localGPIDevices = null;
         public readonly CompositionContainer ServerContainer;
 
         public EngineController()
@@ -44,7 +44,7 @@ namespace TAS.Server
             Engines = DatabaseConnector.DbLoadEngines(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]), Servers);
             foreach (Engine E in Engines)
             {
-                IGpi engineGpi = _localGPIDevices == null ? null : ((ILocalDevices)_localGPIDevices).Select(E.IdEngine); // (localSettings != null) ? localSettings.EngineBindings.FirstOrDefault(e => e.IdEngine == E.IdEngine) : null;
+                IGpi engineGpi = _localGPIDevices == null ? null : _localGPIDevices.Select(E.IdEngine); 
                 E.Initialize(engineGpi);
             }
             Debug.WriteLine(this, "Created");
