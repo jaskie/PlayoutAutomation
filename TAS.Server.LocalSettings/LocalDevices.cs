@@ -38,14 +38,6 @@ namespace TAS.Server
                     XmlSerializer bindingSerializer = new XmlSerializer(typeof(LocalGpiDeviceBinding), new XmlRootAttribute("EngineBinding"));
                     foreach (XmlNode bindingXml in engineBindingsXml.SelectNodes("EngineBinding"))
                         EngineBindings.Add((LocalGpiDeviceBinding)bindingSerializer.Deserialize(new StringReader(bindingXml.OuterXml)));
-
-                    //Devices = (AdvantechDevice[])devicesReader.Deserialize(new StringReader(devicesXml.InnerXml));
-                    //using (XmlTextReader reader = new XmlTextReader(settingsFileName))
-                    //{
-                    //    reader.Read();
-                        
-                    //    XmlSerializer gpiBindingReader = new XmlSerializer(typeof(LocalGpiDeviceBinding[]));
-                    //}
                 }
             }
             catch (Exception e) { Debug.WriteLine(e); }

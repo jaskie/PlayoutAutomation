@@ -249,7 +249,7 @@ namespace TAS.Client.ViewModels
         {
             Event newEvent = new Event(_engine);
             newEvent.EventType = TEventType.Container;
-            newEvent.EventName = Properties.Resources.TEventType_Container;
+            newEvent.EventName = Properties.Resources._title_NewContainer;
             newEvent.StartType = TStartType.None;
             _engine.RootEvents.Add(newEvent);
             newEvent.Save();

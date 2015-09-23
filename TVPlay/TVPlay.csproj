@@ -178,14 +178,12 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Common\BindableSelectedItem.cs" />
-    <Compile Include="Common\ColorAttribute.cs" />
     <Compile Include="Common\ConcurrentHashSet.cs" />
     <Compile Include="Common\DelayedBindingTextBox.cs" />
     <Compile Include="Common\DispatcherHelper.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Common\EnumHelper.cs" />
-    <Compile Include="Common\Enums.cs" />
     <Compile Include="Common\FileUtils.cs" />
     <Compile Include="Common\FocusExtension.cs" />
     <Compile Include="Common\EnumerableExtensions.cs" />

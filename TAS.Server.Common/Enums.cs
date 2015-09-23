@@ -37,7 +37,7 @@ namespace TAS.Common
     class TAspectRatioControlEnumConverter : ResourceEnumConverter
     {
         public TAspectRatioControlEnumConverter()
-            : base(typeof(TAspectRatioControl), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TAspectRatioControl), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
@@ -55,7 +55,7 @@ namespace TAS.Common
     class TAspectConversionEnumConverter : ResourceEnumConverter
     {
         public TAspectConversionEnumConverter()
-            : base(typeof(TAspectConversion), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TAspectConversion), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
     [TypeConverter(typeof(TxDCAMAudioExportFormatEnumConverter))]
@@ -68,7 +68,7 @@ namespace TAS.Common
     class TxDCAMAudioExportFormatEnumConverter : ResourceEnumConverter
     {
         public TxDCAMAudioExportFormatEnumConverter()
-            : base(typeof(TxDCAMAudioExportFormat), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TxDCAMAudioExportFormat), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
@@ -94,7 +94,7 @@ namespace TAS.Common
     class TAudioChannelMappingConversionEnumConverter : ResourceEnumConverter
     {
         public TAudioChannelMappingConversionEnumConverter()
-            : base(typeof(TAudioChannelMappingConversion), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TAudioChannelMappingConversion), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
@@ -132,7 +132,7 @@ namespace TAS.Common
     class TVideoFormatEnumConverter : ResourceEnumConverter
     {
         public TVideoFormatEnumConverter()
-            : base(typeof(TVideoFormat), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TVideoFormat), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
         protected override string GetValueText(System.Globalization.CultureInfo culture, object value)
         {
@@ -156,7 +156,7 @@ namespace TAS.Common
     class TSMPTEFrameRateEnumConverter : ResourceEnumConverter
     {
         public TSMPTEFrameRateEnumConverter()
-            : base(typeof(TVideoFormat), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TVideoFormat), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
         protected override string GetValueText(System.Globalization.CultureInfo culture, object value)
         {
@@ -183,7 +183,7 @@ namespace TAS.Common
     class TMediaCategoryEnumConverter : ResourceEnumConverter
     {
         public TMediaCategoryEnumConverter()
-            : base(typeof(TMediaCategory), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TMediaCategory), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
@@ -201,7 +201,7 @@ namespace TAS.Common
     class TAudioChannelMappingEnumConverter : ResourceEnumConverter
     {
         public TAudioChannelMappingEnumConverter()
-            : base(typeof(TAudioChannelMapping), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TAudioChannelMapping), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
     [TypeConverter(typeof(TMediaTypeEnumConverter))]
@@ -216,7 +216,7 @@ namespace TAS.Common
     class TMediaTypeEnumConverter : ResourceEnumConverter
     {
         public TMediaTypeEnumConverter()
-            : base(typeof(TMediaType), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TMediaType), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
     [TypeConverter(typeof(TMediaStatusEnumConverter))]
@@ -235,7 +235,7 @@ namespace TAS.Common
     class TMediaStatusEnumConverter : ResourceEnumConverter
     {
         public TMediaStatusEnumConverter()
-            : base(typeof(TMediaStatus), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TMediaStatus), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
@@ -249,7 +249,7 @@ namespace TAS.Common
     class TMediaErrorInfoEnumConverter : ResourceEnumConverter
     {
         public TMediaErrorInfoEnumConverter()
-            : base(typeof(TMediaStatus), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TMediaStatus), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
@@ -265,7 +265,7 @@ namespace TAS.Common
     class TFieldOrderEnumConverter : ResourceEnumConverter
     {
         public TFieldOrderEnumConverter()
-            : base(typeof(TFieldOrder), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TFieldOrder), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
@@ -282,7 +282,7 @@ namespace TAS.Common
     class TEventTypeEnumConverter : ResourceEnumConverter
     {
         public TEventTypeEnumConverter()
-            : base(typeof(TEventType), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TEventType), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
@@ -298,7 +298,7 @@ namespace TAS.Common
     class TStartTypeEnumConverter : ResourceEnumConverter
     {
         public TStartTypeEnumConverter()
-            : base(typeof(TStartType), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TStartType), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
@@ -315,7 +315,7 @@ namespace TAS.Common
     class TPlayStateEnumConverter : ResourceEnumConverter
     {
         public TPlayStateEnumConverter()
-            : base(typeof(TPlayState), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TPlayState), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
@@ -331,7 +331,7 @@ namespace TAS.Common
     class TLogoEnumConverter : ResourceEnumConverter
     {
         public TLogoEnumConverter()
-            : base(typeof(TLogo), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TLogo), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
@@ -346,7 +346,7 @@ namespace TAS.Common
     class TCrawlEnumConverter : ResourceEnumConverter
     {
         public TCrawlEnumConverter()
-            : base(typeof(TCrawl), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TCrawl), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
@@ -366,7 +366,7 @@ namespace TAS.Common
     class TParentalEnumConverter:ResourceEnumConverter
     {
         public TParentalEnumConverter()
-            : base(typeof(TParental), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TParental), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
@@ -393,7 +393,7 @@ namespace TAS.Common
     class TMediaEmphasisEnumConverter : ResourceEnumConverter
     {
         public TMediaEmphasisEnumConverter()
-            : base(typeof(TMediaEmphasis), TAS.Client.Properties.Resources.ResourceManager)
+            : base(typeof(TMediaEmphasis), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
