@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <LocalDevices>
   <Devices>
-    <AdvantechDevice DeviceId="0"/>
+    <!--<AdvantechDevice DeviceId="0"/>-->
   </Devices>
   <EngineBindings>
-    <EngineBinding IdEngine="1">
+    <!--<EngineBinding IdEngine="1">
       <Start DeviceId="0" PortNumber="4" PinNumber="7"/>
-    </EngineBinding>
+    </EngineBinding>-->
   </EngineBindings>
 </LocalDevices>
