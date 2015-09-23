@@ -4,21 +4,64 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using System.Threading;
+using System.Diagnostics;
+using System.IO;
+using System.ComponentModel.Composition;
+using System.Xml;
 using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class LocalDevices : IDisposable, IInitializable
+    [Export(typeof(ILocalDevices))]
+    public class LocalDevices : IDisposable, ILocalDevices
     {
-        [XmlArray]
-        public AdvantechDevice[] Devices = new AdvantechDevice[0];
+        [ImportingConstructor]
+        public LocalDevices([Import("LocalDevicesConfigurationFile")] string settingsFileName)
+        {
+            DeserializeElements(settingsFileName);
+        }
 
-        [XmlArray]
-        [XmlArrayItem("Binding")]
-        public LocalGpiDeviceBinding[] EngineBindings = new LocalGpiDeviceBinding[0];
+        public void DeserializeElements(string settingsFileName)
+        {
+            Debug.WriteLine("Deserializing LocalDevices from {0}", settingsFileName, null);
+            try
+            {
+                if (!string.IsNullOrEmpty(settingsFileName) && File.Exists(settingsFileName))
+                {
+                    XmlDocument settings = new XmlDocument();
+                    settings.Load(settingsFileName);
+                    var devicesXml = settings.DocumentElement.SelectSingleNode("Devices");
+                    XmlSerializer deviceSerializer = new XmlSerializer(typeof(AdvantechDevice));
+                    foreach (XmlNode deviceXml in devicesXml.SelectNodes("AdvantechDevice"))
+                        Devices.Add((AdvantechDevice)deviceSerializer.Deserialize(new StringReader(deviceXml.OuterXml)));
+                    var engineBindingsXml = settings.DocumentElement.SelectSingleNode("EngineBindings");
+                    XmlSerializer bindingSerializer = new XmlSerializer(typeof(LocalGpiDeviceBinding), new XmlRootAttribute("EngineBinding"));
+                    foreach (XmlNode bindingXml in engineBindingsXml.SelectNodes("EngineBinding"))
+                        EngineBindings.Add((LocalGpiDeviceBinding)bindingSerializer.Deserialize(new StringReader(bindingXml.OuterXml)));
+
+                    //Devices = (AdvantechDevice[])devicesReader.Deserialize(new StringReader(devicesXml.InnerXml));
+                    //using (XmlTextReader reader = new XmlTextReader(settingsFileName))
+                    //{
+                    //    reader.Read();
+                        
+                    //    XmlSerializer gpiBindingReader = new XmlSerializer(typeof(LocalGpiDeviceBinding[]));
+                    //}
+                }
+            }
+            catch (Exception e) { Debug.WriteLine(e); }
+        }
+
+        public IGpi Select(UInt64 idEngine)
+        {
+            return EngineBindings.FirstOrDefault(b => b.IdEngine == idEngine);
+        }
+
+        public List<AdvantechDevice> Devices = new List<AdvantechDevice>();
+        public List<LocalGpiDeviceBinding> EngineBindings = new List<LocalGpiDeviceBinding>();
+
         public void Initialize()
         {
-            if (Devices.Length > 0)
+            if (Devices.Count > 0)
             {
                 foreach (AdvantechDevice device in Devices)
                     device.Initialize();
@@ -79,10 +122,5 @@ namespace TAS.Server
                 return device.Write(port, pin, value);
             return false;
         }
-
-
     }
-
-  
-
 }

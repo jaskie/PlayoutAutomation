@@ -11,6 +11,7 @@ using System.Threading;
 using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using TAS.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
@@ -58,11 +59,17 @@ namespace TAS.Server
 
         internal void UnInitialize()
         {
-            _heartbeatTimer.Dispose();
+            var ht = _heartbeatTimer;
+            if (ht != null)
+                ht.Dispose();
             _heartbeatTimer = null;
             _remoteDisconnect();
-            _socketWorker.Abort();
-            _socketWorker.Join();
+            var sw = _socketWorker;
+            if (sw != null)
+            {
+                _socketWorker.Abort();
+                _socketWorker.Join();
+            }
             _socketWorker = null;
         }
 

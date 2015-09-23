@@ -439,7 +439,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public int ItemsCount { get { return _mediaItems.Where(m => _filter(m)).Count(); } }
+        public int ItemsCount { get { return _mediaItems == null ? 0 : _mediaItems.Where(m => _filter(m)).Count(); } }
 
         protected override void OnDispose()
         {

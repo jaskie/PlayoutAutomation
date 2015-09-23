@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace TAS.Server
+namespace TAS.Server.Interfaces
 {
-    interface IGpi
+    public interface IGpi
     {
         int Crawl { get; set; }
         bool CrawlVisible { get; set; }

@@ -98,7 +98,7 @@ namespace TAS.Client.Setup
                 else 
                     Model.GPI = null;
             }
-            Model.Initialize(Model.EngineLocalSettings);
+            Model.Initialize(Model.LocalGpi);
             {
                 if (!Model.DbUpdate())
                     System.Windows.MessageBox.Show("Unsuccessfull save");

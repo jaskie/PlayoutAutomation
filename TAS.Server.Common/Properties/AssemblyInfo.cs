@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TAS.Server.LocalDevices")]
+[assembly: AssemblyTitle("TAS.Server.Common")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TVPlay - Open play-out automation")]
+[assembly: AssemblyProduct("TVPlay - Open source play-out automation")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("8bb54772-0229-430c-842c-180060f5d661")]
+[assembly: Guid("6f8d9047-b3ff-47b2-ab0a-c3f15fd9acfa")]
 
 // Version information for an assembly consists of the following four values:
 //

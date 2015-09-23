@@ -144,6 +144,7 @@
     </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Data" />
@@ -184,6 +185,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Common\EnumHelper.cs" />
+    <Compile Include="Common\Enums.cs" />
     <Compile Include="Common\FileUtils.cs" />
     <Compile Include="Common\FocusExtension.cs" />
     <Compile Include="Common\EnumerableExtensions.cs" />
@@ -213,14 +215,12 @@
     <Compile Include="Server\FFMpegOperation.cs" />
     <Compile Include="Server\GPICommand.cs" />
     <Compile Include="Server\GPIState.cs" />
-    <Compile Include="Server\Interfaces\IGpi.cs" />
-    <Compile Include="Server\Interfaces\IInitializable.cs" />
+    <Compile Include="Server\Interfaces\IIngestDirectory.cs" />
     <Compile Include="Server\LoudnessOperation.cs" />
     <Compile Include="Server\Media\AnimationDirectory.cs" />
     <Compile Include="Server\CasparServerChannel.cs" />
     <Compile Include="Server\GPINotifier.cs" />
     <Compile Include="Common\MediaConversion.cs" />
-    <Compile Include="Server\Interfaces\IIngestDirectory.cs" />
     <Compile Include="Server\Media\MediaExport.cs" />
     <Compile Include="Server\Media\MediaSegment.cs" />
     <Compile Include="Server\Media\FtpMediaStream.cs" />
@@ -228,7 +228,6 @@
     <Compile Include="Server\Media\PInvokeWindowsNetworking.cs" />
     <Compile Include="Server\PlayoutServerChannel.cs" />
     <Compile Include="Server\Media\TempDirectory.cs" />
-    <Compile Include="Common\Enums.cs" />
     <Compile Include="Server\Remoting\IEngine.cs" />
     <Compile Include="Server\Remoting\IMediaManager.cs" />
     <Compile Include="Server\Remoting\RemoteHost.cs" />
@@ -664,10 +663,6 @@
     <Resource Include="Glyphs\Parentals\7.png" />
     <Resource Include="Glyphs\Parentals\BO.png" />
     <Resource Include="Glyphs\ExportDelete.png" />
-    <None Include="LocalSettings.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="x64\MediaInfo.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -696,9 +691,9 @@
       <Project>{e963b766-56bf-4966-8917-88c1ee69d61a}</Project>
       <Name>System.Net.FtpClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TAS.Server.LocalSettings\TAS.Server.LocalDevices.csproj">
-      <Project>{08504aa1-0378-4f07-94ae-f1a40911e1ad}</Project>
-      <Name>TAS.Server.LocalDevices</Name>
+    <ProjectReference Include="..\TAS.Server.Common\TAS.Server.Common.csproj">
+      <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
+      <Name>TAS.Server.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

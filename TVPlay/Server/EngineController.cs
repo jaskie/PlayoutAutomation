@@ -8,6 +8,9 @@ using System.Configuration;
 using System.IO;
 using System.Xml.Serialization;
 using TAS.Data;
+using TAS.Server.Interfaces;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 
 namespace TAS.Server
 {
@@ -15,27 +18,25 @@ namespace TAS.Server
     {
         public readonly List<PlayoutServer> Servers;
         public readonly List<Engine> Engines;
-        readonly LocalDevices localSettings;
+        [Import]
+        ILocalDevices _localGPIDevices;
+        public readonly CompositionContainer ServerContainer;
+
         public EngineController()
         {
-            Debug.WriteLine(this, "Creating LocalSettings");
             try
             {
-                string settingsFileName = ConfigurationManager.AppSettings["LocalSettings"];
-                if (!string.IsNullOrEmpty(settingsFileName) && File.Exists(settingsFileName))
-                {
-                    XmlSerializer reader = new XmlSerializer(typeof(LocalDevices));
-                    StreamReader file = new System.IO.StreamReader(settingsFileName);
-                    localSettings = (LocalDevices)reader.Deserialize(file);
-                    file.Close();
-                    if (localSettings != null)
-                    {
-                        Debug.WriteLine(this, "Initializing local settings");
-                        localSettings.Initialize();
-                    }
-                }
+                DirectoryCatalog catalog = new DirectoryCatalog(".", "TAS.Server.*.dll");
+                ServerContainer = new CompositionContainer(catalog);
+                ServerContainer.ComposeExportedValue("LocalDevicesConfigurationFile", ConfigurationManager.AppSettings["LocalSettings"]);
+                ServerContainer.SatisfyImportsOnce(this);
             }
-            catch (Exception e) { Debug.WriteLine(e); }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
+            if (_localGPIDevices != null)
+                _localGPIDevices.Initialize();
 
             Debug.WriteLine(this, "Initializing database connector");
             DatabaseConnector.Initialize();
@@ -43,9 +44,8 @@ namespace TAS.Server
             Engines = DatabaseConnector.DbLoadEngines(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]), Servers);
             foreach (Engine E in Engines)
             {
-                
-                LocalGpiDeviceBinding engineSettings = (localSettings != null) ? localSettings.EngineBindings.FirstOrDefault(e => e.IdEngine == E.IdEngine): default(LocalGpiDeviceBinding);
-                E.Initialize(engineSettings);
+                IGpi engineGpi = _localGPIDevices == null ? null : ((ILocalDevices)_localGPIDevices).Select(E.IdEngine); // (localSettings != null) ? localSettings.EngineBindings.FirstOrDefault(e => e.IdEngine == E.IdEngine) : null;
+                E.Initialize(engineGpi);
             }
             Debug.WriteLine(this, "Created");
         }
@@ -64,8 +64,8 @@ namespace TAS.Server
                 E.SaveAllEvents();
                 E.Dispose();
             }
-            if (localSettings != null)
-                localSettings.Dispose();
+            //if (localSettings != null)
+            //    localSettings.Dispose();
         }
     }
 }

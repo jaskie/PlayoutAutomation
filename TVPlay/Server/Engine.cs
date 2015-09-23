@@ -12,6 +12,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using TAS.Common;
 using TAS.Data;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
@@ -42,7 +43,7 @@ namespace TAS.Server
         [XmlIgnore]
         public readonly MediaManager MediaManager;
         [XmlIgnore]
-        public LocalGpiDeviceBinding EngineLocalSettings { get; private set; }
+        public IGpi LocalGpi { get; private set; }
 
         Thread _engineThread;
         internal long CurrentTicks;
@@ -158,10 +159,10 @@ namespace TAS.Server
         public long FrameTicks { get { return _frameTicks; } }
         public TVideoFormat VideoFormat { get; set; }
 
-        public void Initialize(LocalGpiDeviceBinding localSettings)
+        public void Initialize(IGpi localGpi)
         {
             Debug.WriteLine(this, "Begin initializing");
-            EngineLocalSettings = localSettings;
+            LocalGpi = localGpi;
             switch (VideoFormat)
             {
                 case TVideoFormat.HD1080p5000:
@@ -270,8 +271,8 @@ namespace TAS.Server
                 Remote.Initialize(this);
             }
 
-            if (localSettings != null)
-                localSettings.Started += Resume;
+            if (localGpi != null)
+                localGpi.Started += Resume;
 
             Debug.WriteLine(this, "Engine initialized");
         }
@@ -291,9 +292,9 @@ namespace TAS.Server
                 Debug.WriteLine(this, "UnInitializing Remote interface");
                 Remote.UnInitialize(this);
             }
-            var localSettings = EngineLocalSettings;
-            if (localSettings != null)
-                localSettings.Started -= Resume;
+            var localGpi = LocalGpi;
+            if (localGpi != null)
+                localGpi.Started -= Resume;
 
             var gpi = GPI;
             if (gpi != null)
@@ -1211,14 +1212,14 @@ namespace TAS.Server
                 GPI.Logo = (int)ev.GPI.Logo;
                 GPI.Parental = (int)ev.GPI.Parental;
             }
-            if (EngineLocalSettings != null
+            if (LocalGpi != null
                 && !ev.LocalGPITriggered
                 && (ignoreScheduledTime || CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks))
             {
                 ev.LocalGPITriggered = true;
-                EngineLocalSettings.Crawl = (int)ev.GPI.Crawl;
-                EngineLocalSettings.Logo = (int)ev.GPI.Logo;
-                EngineLocalSettings.Parental = (int)ev.GPI.Parental;
+                LocalGpi.Crawl = (int)ev.GPI.Crawl;
+                LocalGpi.Logo = (int)ev.GPI.Logo;
+                LocalGpi.Parental = (int)ev.GPI.Parental;
             }
         }
         
