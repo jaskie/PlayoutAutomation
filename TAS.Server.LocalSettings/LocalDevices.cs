@@ -13,7 +13,7 @@ using TAS.Server.Interfaces;
 namespace TAS.Server
 {
     [Export(typeof(ILocalDevices))]
-    public class LocalDevices : IDisposable, ILocalDevices
+    public class LocalDevices : ILocalDevices
     {
         [ImportingConstructor]
         public LocalDevices([Import("LocalDevicesConfigurationFile")] string settingsFileName)

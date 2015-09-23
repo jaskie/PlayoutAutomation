@@ -64,8 +64,8 @@ namespace TAS.Server
                 E.SaveAllEvents();
                 E.Dispose();
             }
-            //if (localSettings != null)
-            //    localSettings.Dispose();
+            if (_localGPIDevices != null)
+                _localGPIDevices.Dispose();
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TAS.Server.Interfaces
 {
-    public interface ILocalDevices: IInitializable
+    public interface ILocalDevices: IInitializable, IDisposable
     {
         IGpi Select(UInt64 engineId);
     }
