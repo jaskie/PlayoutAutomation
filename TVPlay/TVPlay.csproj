@@ -179,30 +179,22 @@
     </ApplicationDefinition>
     <Compile Include="Common\BindableSelectedItem.cs" />
     <Compile Include="Common\ConcurrentHashSet.cs" />
-    <Compile Include="Common\DelayedBindingTextBox.cs" />
     <Compile Include="Common\DispatcherHelper.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Common\EnumHelper.cs" />
     <Compile Include="Common\FileUtils.cs" />
     <Compile Include="Common\FocusExtension.cs" />
     <Compile Include="Common\EnumerableExtensions.cs" />
     <Compile Include="Common\MouseDoubleClick.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Common\RationalNumber.cs" />
-    <Compile Include="Common\UICommand.cs" />
     <Compile Include="Common\SMPTETimecodeExtensions.cs" />
     <Compile Include="Common\TreeViewExtensions.cs" />
     <Compile Include="Common\ObservableSynchronizedCollection.cs" />
-    <Compile Include="Common\StatusIndicator.xaml.cs">
-      <DependentUpon>StatusIndicator.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Common\SerializationHelper.cs" />
     <Compile Include="Common\SimpleDictionary.cs" />
     <Compile Include="Common\UIServices.cs" />
     <Compile Include="Common\ValueConverters.cs" />
-    <Compile Include="Common\VideoFormatDescription.cs" />
     <Compile Include="MediaInfoDLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.pl.Designer.cs">
@@ -213,12 +205,10 @@
     <Compile Include="Server\FFMpegOperation.cs" />
     <Compile Include="Server\GPICommand.cs" />
     <Compile Include="Server\GPIState.cs" />
-    <Compile Include="Server\Interfaces\IIngestDirectory.cs" />
     <Compile Include="Server\LoudnessOperation.cs" />
     <Compile Include="Server\Media\AnimationDirectory.cs" />
     <Compile Include="Server\CasparServerChannel.cs" />
     <Compile Include="Server\GPINotifier.cs" />
-    <Compile Include="Common\MediaConversion.cs" />
     <Compile Include="Server\Media\MediaExport.cs" />
     <Compile Include="Server\Media\MediaSegment.cs" />
     <Compile Include="Server\Media\FtpMediaStream.cs" />
@@ -268,10 +258,7 @@
     <Compile Include="ViewModels\PlayingEventViewmodel.cs" />
     <Compile Include="ViewModels\TemplateViewmodel.cs" />
     <Compile Include="ViewModels\TemplatesViewmodel.cs" />
-    <Compile Include="Common\AutoGreyableImage.cs" />
     <Compile Include="Common\BindableSelectedItems.cs" />
-    <Compile Include="Common\MediaSeekSlider.cs" />
-    <Compile Include="Common\EmphasisedButton.cs" />
     <Compile Include="Server\Media\ArchiveMedia.cs" />
     <Compile Include="Server\Media\ArchiveDirectory.cs" />
     <Compile Include="Server\ConvertOperation.cs" />
@@ -333,10 +320,6 @@
     <Compile Include="Views\TemplatesView.xaml.cs">
       <DependentUpon>TemplatesView.xaml</DependentUpon>
     </Compile>
-    <Page Include="Common\StatusIndicator.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Setup\EngineView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -688,6 +671,10 @@
     <ProjectReference Include="..\System.Net.FtpClient\source\System.Net.FtpClient.csproj">
       <Project>{e963b766-56bf-4966-8917-88c1ee69d61a}</Project>
       <Name>System.Net.FtpClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TAS.Client.Common\TAS.Client.Common.csproj">
+      <Project>{bccaca68-8bb6-4d9c-b546-795a2a8dee93}</Project>
+      <Name>TAS.Client.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Server.Common\TAS.Server.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>

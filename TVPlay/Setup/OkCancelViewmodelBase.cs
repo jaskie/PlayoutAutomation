@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Windows.Controls;
 using System.Windows.Input;
-using TAS.Common;
+using TAS.Client.Common;
 
 namespace TAS.Client.Setup
 {

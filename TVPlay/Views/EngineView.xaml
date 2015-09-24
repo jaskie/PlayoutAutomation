@@ -6,8 +6,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vievmodels="clr-namespace:TAS.Client.ViewModels" 
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             xmlns:c="clr-namespace:TAS.Client" 
-             xmlns:common="clr-namespace:TAS.Common" 
+             xmlns:client="clr-namespace:TAS.Client" 
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DesignHeight="850" d:DesignWidth="1150" Focusable="True" 
              FontSize="13"
@@ -18,7 +18,7 @@
             <Setter Property="Width" Value="40" />
             <Setter Property="Height" Value="40" />
         </Style>
-        <c:EngineStateToBrushConverter x:Key="EngineStateToBrush" />
+        <client:EngineStateToBrushConverter x:Key="EngineStateToBrush" />
         <Style x:Key="tvItemStyle" TargetType="TreeViewItem">
             <Setter Property="Template">
                 <Setter.Value>
@@ -231,16 +231,16 @@
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal" FocusManager.IsFocusScope="True">
                 <Button Command="{Binding CommandStartSelected}" ToolTip="{Resx _toolbar.StartSelected}">
-                    <c:AutoGreyableImage Source="../Glyphs/play.png" Stretch="None" />
+                    <common:AutoGreyableImage Source="../Glyphs/play.png" Stretch="None" />
                 </Button>
                 <Button Command="{Binding CommandLoadSelected}" ToolTip="{Resx _toolbar.Load}">
-                    <c:AutoGreyableImage Source="../Glyphs/pause.png" Stretch="None" />
+                    <common:AutoGreyableImage Source="../Glyphs/pause.png" Stretch="None" />
                 </Button>
                 <Button Command="{Binding CommandStartLoaded}" ToolTip="{Resx _toolbar.StartLoaded}">
-                    <c:AutoGreyableImage Source="../Glyphs/playpause.png" Stretch="None" />
+                    <common:AutoGreyableImage Source="../Glyphs/playpause.png" Stretch="None" />
                 </Button>
                 <Button Command="{Binding CommandRescheduleSelected}" ToolTip="{Resx _toolbar.Reschedule}">
-                    <c:AutoGreyableImage Source="../Glyphs/undo.png" Stretch="None" />
+                    <common:AutoGreyableImage Source="../Glyphs/undo.png" Stretch="None" />
                 </Button>
                 <!--<Button Command="{Binding CommandScheduleSelected}" ToolTip="Uruchom start o zadanym czasie">
                     <c:AutoGreyableImage Source="../Glyphs/timer24_h.png" Stretch="None" />
@@ -306,7 +306,7 @@
         </Grid>
         <StatusBar Name="sbChannelStatus" VerticalAlignment="Bottom" Grid.Row="3" >
             <StatusBar.Resources>
-                <Style TargetType="c:StatusIndicator">
+                <Style TargetType="common:StatusIndicator">
                     <Setter Property="Height" Value="12"/>
                 </Style>
                 <Style TargetType="CheckBox">
@@ -318,17 +318,17 @@
             </StatusBar.Resources>
             <StatusBarItem>
              <StackPanel Orientation="Horizontal" >
-                <c:AutoGreyableImage Source="../Glyphs/OnAir.png" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding GPIIsMaster}" />
+                <common:AutoGreyableImage Source="../Glyphs/OnAir.png" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding GPIIsMaster}" />
                 <StackPanel Orientation="Horizontal">
-                    <c:StatusIndicator IsGreen="{Binding ServerConnectedPGM}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
+                    <common:StatusIndicator IsGreen="{Binding ServerConnectedPGM}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
                     <Label Content="PGM" Padding="5, 0" />
-                    <c:StatusIndicator IsGreen="{Binding ServerConnectedPRV}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
+                    <common:StatusIndicator IsGreen="{Binding ServerConnectedPRV}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
                     <Label Content="PRV" Padding="5, 0" />
                     <CheckBox Content="PST" Margin="5, 0" IsChecked="{Binding Pst2Prv}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}">
                     <Separator Width="5"  Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
-                    <c:StatusIndicator IsGreen="{Binding GPIConnected}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
+                    <common:StatusIndicator IsGreen="{Binding GPIConnected}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
                     <Label Content="GPI" Padding="5, 0, 0, 0"/>
                     <StackPanel Orientation="Horizontal" Visibility="{Binding GPIConnected, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding GPIIsMaster}">
                             <CheckBox Margin="10, 0" Content="{Resx _statusbar.Gpi.Active}" IsChecked="{Binding GPIEnabled}"/>
@@ -385,21 +385,21 @@
                 <ColumnDefinition Width="350" />
             </Grid.ColumnDefinitions>
             <TreeView Grid.RowSpan="2" 
-                      c:TreeViewExtensions.EnableMultiSelect="True" 
-                      c:TreeViewExtensions.SelectedItems="{Binding SelectedEvents}" 
+                      client:TreeViewExtensions.EnableMultiSelect="True" 
+                      client:TreeViewExtensions.SelectedItems="{Binding SelectedEvents}" 
                       ItemsSource="{Binding RootEventViewModel.Childrens}" 
                       Background="{x:Null}" 
-                      c:TreeViewExtensions.CursorWaitOnGeneratingItems="True"
+                      client:TreeViewExtensions.CursorWaitOnGeneratingItems="True"
                       >
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource tvItemStyle}">
                         <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
                         <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVis}}"/>
-                        <Setter Property="c:TreeViewExtensions.IsSelected" Value="{Binding IsMultiSelected, Mode=TwoWay}" />
+                        <Setter Property="client:TreeViewExtensions.IsSelected" Value="{Binding IsMultiSelected, Mode=TwoWay}" />
                         <Setter Property="Margin" Value="0"/>
                         <Style.Triggers>
-                            <Trigger Property="c:TreeViewExtensions.IsSelected"  Value="True" >
+                            <Trigger Property="client:TreeViewExtensions.IsSelected"  Value="True" >
                                 <Setter Property="Background" Value="LightSkyBlue"></Setter>
                             </Trigger>
                         </Style.Triggers>
@@ -407,7 +407,7 @@
                 </TreeView.ItemContainerStyle>
                 <TreeView.ItemTemplate >
                     <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" >
-                        <c:EventPanelView />
+                        <client:EventPanelView />
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
             </TreeView>
@@ -417,9 +417,9 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="290"/>
                 </Grid.RowDefinitions>
-                <c:EventEditView Grid.Row="0" FocusManager.IsFocusScope="True" DataContext="{Binding EventEditViewmodel}"/>
+                <client:EventEditView Grid.Row="0" FocusManager.IsFocusScope="True" DataContext="{Binding EventEditViewmodel}"/>
                 <GridSplitter Grid.Row="0" ResizeDirection="Rows" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-                <c:PreviewView Grid.Row="1" DataContext="{Binding PreviewViewmodel}" />
+                <client:PreviewView Grid.Row="1" DataContext="{Binding PreviewViewmodel}" />
             </Grid>
         </Grid>
     </Grid>     

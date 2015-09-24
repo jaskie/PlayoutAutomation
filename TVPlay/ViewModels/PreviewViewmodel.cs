@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using TAS.Common;
+using TAS.Client.Common;
 
 namespace TAS.Client.ViewModels
 {

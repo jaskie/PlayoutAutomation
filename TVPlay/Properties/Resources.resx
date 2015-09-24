@@ -120,12 +120,6 @@
   <data name="_button_Add" xml:space="preserve">
     <value>Add</value>
   </data>
-  <data name="_caption_Confirmation" xml:space="preserve">
-    <value>Confirmation</value>
-  </data>
-  <data name="_caption_Error" xml:space="preserve">
-    <value>Error</value>
-  </data>
   <data name="_or_" xml:space="preserve">
     <value> or </value>
   </data>
@@ -210,10 +204,6 @@ Really start new one?</value>
 {0}
 
 Really delete?</value>
-  </data>
-  <data name="_message_CommandFailed" xml:space="preserve">
-    <value>Command failed. Following error occurred:
-{0}</value>
   </data>
   <data name="_query_DeleteSelected" xml:space="preserve">
     <value>Delete selected items ({0})?

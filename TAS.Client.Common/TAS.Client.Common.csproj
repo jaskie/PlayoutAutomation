@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9ACA6AE7-49ED-4599-91AC-927680CF9623}</ProjectGuid>
+    <ProjectGuid>{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TAS.Server.Common</RootNamespace>
-    <AssemblyName>TAS.Server.Common</AssemblyName>
+    <RootNamespace>TAS.Client.Common</RootNamespace>
+    <AssemblyName>TAS.Client.Common</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -34,21 +34,18 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ColorAttribute.cs" />
-    <Compile Include="Enums.cs" />
-    <Compile Include="Interfaces\IGpi.cs" />
-    <Compile Include="Interfaces\IIngestDirectory.cs" />
-    <Compile Include="Interfaces\IInitializable.cs" />
-    <Compile Include="Interfaces\ILocalDevices.cs" />
-    <Compile Include="MediaConversion.cs" />
+    <Compile Include="AutoGreyableImage.cs" />
+    <Compile Include="DelayedBindingTextBox.cs" />
+    <Compile Include="MediaSeekSlider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <DependentUpon>Resources.resx</DependentUpon>
@@ -60,26 +57,34 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="RationalNumber.cs" />
-    <Compile Include="VideoFormatDescription.cs" />
+    <Compile Include="StatusIndicator.xaml.cs">
+      <DependentUpon>StatusIndicator.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UICommand.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TAS.Server.Common\TAS.Server.Common.csproj">
+      <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
+      <Name>TAS.Server.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="StatusIndicator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.pl.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.pl.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
-      <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>
-      <Name>Infralution.Localization.Wpf</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -6,7 +6,7 @@ using System.Text;
 using TAS.Server;
 using System.Windows;
 using System.Windows.Input;
-using TAS.Common;
+using TAS.Client.Common;
 
 namespace TAS.Client.ViewModels
 {
@@ -83,7 +83,7 @@ namespace TAS.Client.ViewModels
                 var oldTemplate = _selectedTemplate;
                 if (oldTemplate != null && oldTemplate.Modified)
                 {
-                    if (MessageBox.Show(Properties.Resources._query_SaveChangedData, Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    if (MessageBox.Show(Properties.Resources._query_SaveChangedData, Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         oldTemplate.Save(null);
                     else
                         oldTemplate.Load(null);

@@ -120,12 +120,6 @@
   <data name="_button_Add" xml:space="preserve">
     <value>Dodaj</value>
   </data>
-  <data name="_caption_Confirmation" xml:space="preserve">
-    <value>Potwierdzenie</value>
-  </data>
-  <data name="_caption_Error" xml:space="preserve">
-    <value>Błąd</value>
-  </data>
   <data name="_or_" xml:space="preserve">
     <value> lub </value>
   </data>
@@ -210,10 +204,6 @@ Jeśli jego poprzednia kopia nie odpowiada i chcesz uruchomić nową, naciśnij 
 {0}
 
 Naprawdę usunąć?</value>
-  </data>
-  <data name="_message_CommandFailed" xml:space="preserve">
-    <value>Wykonanie polecenia nie powiodło się. Błąd, który wystąpił:
-{0}</value>
   </data>
   <data name="_query_DeleteSelected" xml:space="preserve">
     <value>Usunąć wybrane elementy ({0})?

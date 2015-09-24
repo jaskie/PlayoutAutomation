@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
-using TAS.Common;
+using TAS.Client.Common;
 using TAS.Server;
 
 namespace TAS.Client.ViewModels

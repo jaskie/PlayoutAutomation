@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Input;
 using System.Xml.Serialization;
-using TAS.Common;
+using TAS.Client.Common;
 using TAS.Server.Interfaces;
 
 namespace TAS.Client.Setup

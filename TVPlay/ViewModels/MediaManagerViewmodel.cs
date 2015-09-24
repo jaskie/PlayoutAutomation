@@ -5,8 +5,6 @@ using System.Text;
 using System.ComponentModel;
 using System.Windows.Data;
 using System.Globalization;
-using TAS.Common;
-using TAS.Server;
 using System.Windows.Controls;
 using System.Windows;
 using System.Collections;
@@ -16,6 +14,9 @@ using System.Runtime.Remoting.Messaging;
 using System.Diagnostics;
 using System.Windows.Input;
 using System.Threading;
+using TAS.Common;
+using TAS.Client.Common;
+using TAS.Server;
 
 
 namespace TAS.Client.ViewModels
@@ -135,7 +136,7 @@ namespace TAS.Client.ViewModels
                                 }
                                 catch (Exception e)
                                 {
-                                    MessageBox.Show(string.Format(Properties.Resources._message_CommandFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
+                                    MessageBox.Show(string.Format(Common.Properties.Resources._message_CommandFailed, e.Message), Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
                                 }
                             });
                     },
@@ -228,7 +229,7 @@ namespace TAS.Client.ViewModels
         {
 
             if (EditMedia.Modified)
-                switch (MessageBox.Show(Properties.Resources._query_SaveChangedData, Properties.Resources._caption_Confirmation, MessageBoxButton.YesNoCancel))
+                switch (MessageBox.Show(Properties.Resources._query_SaveChangedData, Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNoCancel))
                 {
                     case MessageBoxResult.Cancel:
                         return;
@@ -273,7 +274,7 @@ namespace TAS.Client.ViewModels
         private void _deleteSelected(object o)
         {
             List<Media> selection = _getSelections();
-            if (MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedFiles, selection.AsString(Environment.NewLine, 20)), Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel)== MessageBoxResult.OK)
+            if (MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedFiles, selection.AsString(Environment.NewLine, 20)), Common.Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
                 _mediaManager.DeleteMedia(selection);
         }
 

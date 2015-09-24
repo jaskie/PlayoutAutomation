@@ -79,34 +79,6 @@ namespace TAS.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Confirmation.
-        /// </summary>
-        internal static string _caption_Confirmation {
-            get {
-                return ResourceManager.GetString("_caption_Confirmation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Error.
-        /// </summary>
-        internal static string _caption_Error {
-            get {
-                return ResourceManager.GetString("_caption_Error", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Command failed. Following error occurred:
-        ///{0}.
-        /// </summary>
-        internal static string _message_CommandFailed {
-            get {
-                return ResourceManager.GetString("_message_CommandFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to and {0} items more.
         /// </summary>
         internal static string _moreItems {

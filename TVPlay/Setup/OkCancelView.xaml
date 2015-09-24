@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-        xmlns:client="clr-namespace:TAS.Client"
+        xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
         xmlns:setup="clr-namespace:TAS.Client.Setup"
         d:DataContext="{x:Type setup:OkCancelViewmodelBase`1}"
         mc:Ignorable="d"
@@ -34,7 +34,7 @@
             </Button>
             <Button IsDefault="True" Command="{Binding CommandOK}">
                 <DockPanel>
-                    <client:AutoGreyableImage Source="..\Glyphs\Check.png"></client:AutoGreyableImage>
+                    <common:AutoGreyableImage Source="..\Glyphs\Check.png"></common:AutoGreyableImage>
                     <Label Content="OK" />
                 </DockPanel>
             </Button>

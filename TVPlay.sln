@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPlay", "TVPlay\TVPlay.csproj", "{B2FD5EA3-CB51-470B-A58B-E2400983DD79}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B56A150-ECE3-4099-AEA1-0F8E115DC374} = {9B56A150-ECE3-4099-AEA1-0F8E115DC374}
+		{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93} = {BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}
 		{941ED6A5-C8DF-459D-BFCE-5C6ED9AC0492} = {941ED6A5-C8DF-459D-BFCE-5C6ED9AC0492}
 		{9ACA6AE7-49ED-4599-91AC-927680CF9623} = {9ACA6AE7-49ED-4599-91AC-927680CF9623}
 	EndProjectSection
@@ -30,6 +31,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.LocalDevices", "TAS.Server.LocalSettings\TAS.Server.LocalDevices.csproj", "{08504AA1-0378-4F07-94AE-F1A40911E1AD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.Common", "TAS.Server.Common\TAS.Server.Common.csproj", "{9ACA6AE7-49ED-4599-91AC-927680CF9623}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.Common", "TAS.Client.Common\TAS.Client.Common.csproj", "{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9ACA6AE7-49ED-4599-91AC-927680CF9623} = {9ACA6AE7-49ED-4599-91AC-927680CF9623}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -133,6 +139,15 @@ Global
 		{9ACA6AE7-49ED-4599-91AC-927680CF9623}.Release|x64.ActiveCfg = Release|Any CPU
 		{9ACA6AE7-49ED-4599-91AC-927680CF9623}.Release|x64.Build.0 = Release|Any CPU
 		{9ACA6AE7-49ED-4599-91AC-927680CF9623}.Release|x86.ActiveCfg = Release|Any CPU
+		{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}.Debug|x64.Build.0 = Debug|Any CPU
+		{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}.Release|x64.ActiveCfg = Release|Any CPU
+		{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

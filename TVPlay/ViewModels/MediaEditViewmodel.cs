@@ -9,6 +9,7 @@ using System.Windows;
 using System.IO;
 using System.Windows.Input;
 using TAS.Common;
+using TAS.Client.Common;
 
 namespace TAS.Client.ViewModels
 {
@@ -52,7 +53,7 @@ namespace TAS.Client.ViewModels
                 if (value != _media)
                 {
                     if (Modified
-                        && (IsAutoSave || MessageBox.Show(Properties.Resources._query_SaveChangedData, Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes))
+                        && (IsAutoSave || MessageBox.Show(Properties.Resources._query_SaveChangedData, Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes))
                         Save();
                     if (_media != null)
                         _media.PropertyChanged -= OnMediaPropertyChanged;

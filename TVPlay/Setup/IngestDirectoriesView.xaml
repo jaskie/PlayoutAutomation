@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:client="clr-namespace:TAS.Client"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"  
              xmlns:vm="clr-namespace:TAS.Client.Setup"
              d:DataContext="{x:Type vm:IngestDirectoriesViewmodel}"
              mc:Ignorable="d" 
@@ -25,10 +25,10 @@
                 </Style>
             </StackPanel.Resources>
             <Button Command="{Binding CommandAdd}">
-                <client:AutoGreyableImage Source="..\Glyphs\document_add.png"/>
+                <common:AutoGreyableImage Source="..\Glyphs\document_add.png"/>
             </Button>
             <Button Command="{Binding CommandDelete}">
-                <client:AutoGreyableImage Source="..\Glyphs\document_delete.png"/>
+                <common:AutoGreyableImage Source="..\Glyphs\document_delete.png"/>
             </Button>
         </StackPanel>
         <ListView Grid.Row="1" ItemsSource="{Binding Directories}" SelectedItem="{Binding SelectedDirectory}"/>

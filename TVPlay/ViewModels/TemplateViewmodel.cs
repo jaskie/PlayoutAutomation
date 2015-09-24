@@ -6,7 +6,7 @@ using System.ComponentModel;
 using TAS.Server;
 using System.Reflection;
 using System.Collections.ObjectModel;
-using TAS.Common;
+using TAS.Client.Common;
 using System.Windows.Input;
 
 namespace TAS.Client.ViewModels

@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TAS.Server;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.ComponentModel;
 using System.Windows.Data;
 using System.Diagnostics;
-using TAS.Common;
 using System.Windows.Input;
 using System.Threading;
+using TAS.Common;
+using TAS.Server;
+using TAS.Client.Common;
 
 namespace TAS.Client.ViewModels
 {

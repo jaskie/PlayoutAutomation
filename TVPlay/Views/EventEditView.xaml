@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:client="clr-namespace:TAS.Client"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
@@ -46,31 +47,31 @@
                 </Style>
             </StackPanel.Resources>
             <Button ToolTip="{Resx _toolbar.AddNextMovie}" Command="{Binding CommandAddNextMovie}">
-                <client:AutoGreyableImage Source="../Glyphs/NewMovie.png" />
+                <common:AutoGreyableImage Source="../Glyphs/NewMovie.png" />
             </Button>
             <Button ToolTip="{Resx _toolbar.AddNextEmptyMovie}" Command="{Binding CommandAddNextEmptyMovie}">
-                <client:AutoGreyableImage Source="../Glyphs/NewEmptyMovie.png" />
+                <common:AutoGreyableImage Source="../Glyphs/NewEmptyMovie.png" />
             </Button>
             <Button ToolTip="{Resx _toolbar.AddNextRundown}" Command="{Binding CommandAddNextRundown}">
-                <client:AutoGreyableImage Source="../Glyphs/NewRundown.png" />
+                <common:AutoGreyableImage Source="../Glyphs/NewRundown.png" />
             </Button>
             <Button ToolTip="{Resx _toolbar.AddNextLive}" Command="{Binding CommandAddNextLive}">
-                <client:AutoGreyableImage Source="../Glyphs/NewNextLive.png" />
+                <common:AutoGreyableImage Source="../Glyphs/NewNextLive.png" />
             </Button>
             <Button ToolTip="{Resx _toolbar.AddSubMovie}" Command="{Binding CommandAddSubMovie}">
-                <client:AutoGreyableImage Source="../Glyphs/NewSubMovie.png" />
+                <common:AutoGreyableImage Source="../Glyphs/NewSubMovie.png" />
             </Button>
             <Button ToolTip="{Resx _toolbar.AddSubRundown}" Command="{Binding CommandAddSubRundown}">
-                <client:AutoGreyableImage Source="../Glyphs/NewSubRundown.png" />
+                <common:AutoGreyableImage Source="../Glyphs/NewSubRundown.png" />
             </Button>
             <Button ToolTip="_toolbar.AddSubLive" Command="{Binding CommandAddSubLive}">
-                <client:AutoGreyableImage Source="../Glyphs/NewSubLive.png" />
+                <common:AutoGreyableImage Source="../Glyphs/NewSubLive.png" />
             </Button>
             <Button ToolTip="{Resx _toolbar.MoveUp}" Command="{Binding CommandMoveUp}">
-                <client:AutoGreyableImage Source="../Glyphs/go-up.png" />
+                <common:AutoGreyableImage Source="../Glyphs/go-up.png" />
             </Button>
             <Button ToolTip="{Resx _toolbar.MoveDown}" Command="{Binding CommandMoveDown}">
-                <client:AutoGreyableImage Source="../Glyphs/go-bottom.png" />
+                <common:AutoGreyableImage Source="../Glyphs/go-bottom.png" />
             </Button>
         </StackPanel>
         <Grid Grid.Row="1" >
@@ -82,34 +83,34 @@
             <StackPanel Orientation="Horizontal" >
                 <Button ToolTip="{Resx _toolbar.AddGraphics1}" 
                         Command="{Binding CommandAddGraphics}" CommandParameter="1" >
-                    <client:AutoGreyableImage Source="../Glyphs/Circle_1.png" IsEnabled="{Binding HasSubItemOnLayer1}" />
+                    <common:AutoGreyableImage Source="../Glyphs/Circle_1.png" IsEnabled="{Binding HasSubItemOnLayer1}" />
                 </Button>
                 <Button ToolTip="{Resx _toolbar.AddGraphics2}" 
                         Command="{Binding CommandAddGraphics}" CommandParameter="2" >
-                    <client:AutoGreyableImage Source="../Glyphs/Circle_2.png"  IsEnabled="{Binding HasSubItemOnLayer2}" />
+                    <common:AutoGreyableImage Source="../Glyphs/Circle_2.png"  IsEnabled="{Binding HasSubItemOnLayer2}" />
                 </Button>
                 <Button ToolTip="{Resx _toolbar.AddGraphics3}" 
                         Command="{Binding CommandAddGraphics}" CommandParameter="3" >
-                    <client:AutoGreyableImage Source="../Glyphs/Circle_3.png"  IsEnabled="{Binding HasSubItemOnLayer3}"/>
+                    <common:AutoGreyableImage Source="../Glyphs/Circle_3.png"  IsEnabled="{Binding HasSubItemOnLayer3}"/>
                 </Button>
                 <!--<Button Margin="10,5" ToolTip="Dodaj/usuń animację" 
                         Command="{Binding CommandAddAnimation}" CommandParameter="0" >
-                    <client:AutoGreyableImage Source="../Glyphs/Circle_A.png"  IsEnabled="{Binding HasAnimation}"/>
+                    <common:AutoGreyableImage Source="../Glyphs/Circle_A.png"  IsEnabled="{Binding HasAnimation}"/>
                 </Button>-->
                 <Button ToolTip="{Resx _toolbar.RemoveSubItems}" 
                         Command="{Binding CommandRemoveSubItems}" >
-                    <client:AutoGreyableImage Source="../Glyphs/trash.png" />
+                    <common:AutoGreyableImage Source="../Glyphs/trash.png" />
                 </Button>
             </StackPanel>
             <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft">
                 <Button ToolTip="{Resx _toolbar.Save}" Command="{Binding CommandSaveEdit}">
-                    <client:AutoGreyableImage Source="../Glyphs/Check.png" />
+                    <common:AutoGreyableImage Source="../Glyphs/Check.png" />
                 </Button>
                 <Button ToolTip="{Resx _toolbar.CancelEdit}" Command="{Binding CommandCancelEdit}">
-                    <client:AutoGreyableImage Source="../Glyphs/Undo.png" />
+                    <common:AutoGreyableImage Source="../Glyphs/Undo.png" />
                 </Button>
                 <Button ToolTip="{Resx _toolbar.Delete}" Command="{Binding CommandDelete}" >
-                    <client:AutoGreyableImage Source="../Glyphs/Delete.png"  />
+                    <common:AutoGreyableImage Source="../Glyphs/Delete.png"  />
                 </Button>
             </StackPanel>
         </Grid>
@@ -129,7 +130,7 @@
                 <Style TargetType="Button">
                     <Setter Property="Height" Value="20"/>
                 </Style>
-                <Style TargetType="client:DelayedBindingTextBox" >
+                <Style TargetType="common:DelayedBindingTextBox" >
                     <Setter Property="Margin" Value="1"/>
                 </Style>
                 <Style TargetType="TextBox" >
@@ -162,27 +163,27 @@
                     </DockPanel>
                     <DockPanel>
                         <Label Content="{Resx _scheduledTime}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                        <client:DelayedBindingTextBox Text="{Binding ScheduledTime, Converter={StaticResource DateTimeToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsScheduledTimeEnabled}" />
+                        <common:DelayedBindingTextBox Text="{Binding ScheduledTime, Converter={StaticResource DateTimeToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsScheduledTimeEnabled}" />
                     </DockPanel>
                     <DockPanel>
                         <Label Content="{Resx _requiredAt}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                        <client:DelayedBindingTextBox Text="{Binding RequestedStartTime, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" ToolTip="{Resx _requiredAt.ToolTip}"/>
+                        <common:DelayedBindingTextBox Text="{Binding RequestedStartTime, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" ToolTip="{Resx _requiredAt.ToolTip}"/>
                     </DockPanel>
                     <DockPanel>
                         <Label Content="{Resx _duration}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                         <Button DockPanel.Dock="Right" HorizontalAlignment="Right" ToolTip="{Resx _duration.GetTcInTcOut.ToolTip}" Command="{Binding CommandGetTCInTCOut}" >
-                            <client:AutoGreyableImage Source="../Glyphs/Copy_small.png" />
+                            <common:AutoGreyableImage Source="../Glyphs/Copy_small.png" />
                         </Button>
-                        <client:DelayedBindingTextBox Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsDurationEnabled}" />
+                        <common:DelayedBindingTextBox Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsDurationEnabled}" />
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _scheduledTC}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                        <client:DelayedBindingTextBox Text="{Binding ScheduledTC, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
+                        <common:DelayedBindingTextBox Text="{Binding ScheduledTC, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
                     </DockPanel>
                     <DockPanel>
                         <Label Content="{Resx _clip}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                         <Button DockPanel.Dock="Right" ToolTip="{Resx _changeMovie.ToolTip}" Command="{Binding CommandChangeMovie}">
-                            <client:AutoGreyableImage Source="../Glyphs/Drawer.png" />
+                            <common:AutoGreyableImage Source="../Glyphs/Drawer.png" />
                         </Button>
                         <TextBox Text="{Binding Media.FileName, Mode=OneWay}" IsReadOnly="True" VerticalContentAlignment="Center" Background="#F0F0F0" />
                     </DockPanel>
@@ -191,7 +192,7 @@
                             <Label Content="{Resx _transitionType}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                             <ComboBox ItemsSource="{Binding TransitionTypes}" SelectedValue="{Binding TransitionType}" />
                             <Label Content="{Resx _transitionLength}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                            <client:DelayedBindingTextBox Text="{Binding TransitionTime, Converter={StaticResource TimeSpanToFrames}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" />
+                            <common:DelayedBindingTextBox Text="{Binding TransitionTime, Converter={StaticResource TimeSpanToFrames}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" />
                         </DockPanel>
                         <DockPanel>
                             <Label Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />

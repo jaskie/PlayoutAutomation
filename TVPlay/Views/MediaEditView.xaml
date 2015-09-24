@@ -8,6 +8,7 @@
              xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:client="clr-namespace:TAS.Client"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:server="clr-namespace:TAS.Server"
              mc:Ignorable="d" 
              SnapsToDevicePixels="True">
@@ -50,10 +51,10 @@
         <StackPanel>
             <Grid Height="50" Visibility="{Binding IsNoAutoSave, Converter={StaticResource BoolToVis}}" >
                 <Button Width="40" Height="40" HorizontalAlignment="Right" Margin="10, 5" ToolTip="{Resx _buttonSave.ToolTip}" Command="{Binding CommandSaveEdit}" >
-                    <client:AutoGreyableImage Source="../Glyphs/Check.png" />
+                    <common:AutoGreyableImage Source="../Glyphs/Check.png" />
                 </Button>
                 <Button Width="40" Height="40" HorizontalAlignment="Right" Margin="120, 5" ToolTip="{Resx _buttonCancel.ToolTip}" Command="{Binding CommandCancelEdit}">
-                    <client:AutoGreyableImage Source="../Glyphs/Undo.png" />
+                    <common:AutoGreyableImage Source="../Glyphs/Undo.png" />
                 </Button>
             </Grid>
             <DockPanel>
@@ -78,7 +79,7 @@
                     <Label Grid.Column="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Resx _clip}"/>
                     <DockPanel Grid.Column="1">
                         <Button DockPanel.Dock="Right" Height="21" HorizontalContentAlignment="Center" Command="{Binding CommandGetTCFromPreview}" Margin="5, 0" Padding="0" ToolTip="{Resx _buttonGetTC.ToolTip}">
-                            <client:AutoGreyableImage Source="../Glyphs/Copy_small.png"/>
+                            <common:AutoGreyableImage Source="../Glyphs/Copy_small.png"/>
                         </Button>
                         <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" Content="{Resx _play}" />
                     </DockPanel>
@@ -91,8 +92,8 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <client:DelayedBindingTextBox Style="{StaticResource fieldsDetail}" Text="{Binding TCStart, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus}" />
-                    <client:DelayedBindingTextBox Grid.Column="1" Style="{StaticResource fieldsDetail}" Text="{Binding TCPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}" />
+                    <common:DelayedBindingTextBox Style="{StaticResource fieldsDetail}" Text="{Binding TCStart, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus}" />
+                    <common:DelayedBindingTextBox Grid.Column="1" Style="{StaticResource fieldsDetail}" Text="{Binding TCPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}" />
                 </Grid>
             </DockPanel>
             <DockPanel>
@@ -102,8 +103,8 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <client:DelayedBindingTextBox Style="{StaticResource fieldsDetail}" Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus}" />
-                    <client:DelayedBindingTextBox Grid.Column="1" Style="{StaticResource fieldsDetail}" Text="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}" />
+                    <common:DelayedBindingTextBox Style="{StaticResource fieldsDetail}" Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus}" />
+                    <common:DelayedBindingTextBox Grid.Column="1" Style="{StaticResource fieldsDetail}" Text="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}" />
                 </Grid>
             </DockPanel>
             <!--<DockPanel Visibility="{Binding IsIngestDataShown, Converter={StaticResource BoolToVis}}">
@@ -161,7 +162,7 @@
                 <Label Style="{StaticResource fieldNameLabels}" Content="{Resx _status}" />
                 <DockPanel >
                     <Button DockPanel.Dock="Right" Margin="5, 0" Padding="0" Height="21" Command="{Binding CommandRefreshStatus}" ToolTip="{Resx _checkStatus.ToolTip}" >
-                        <client:AutoGreyableImage Source="../Glyphs/Refresh.png" />
+                        <common:AutoGreyableImage Source="../Glyphs/Refresh.png" />
                     </Button>
                     <TextBox FlowDirection="LeftToRight" Style="{StaticResource fieldsDetail}" Background="#F0F0F0" Text="{Binding MediaStatus, Mode=OneWay}" IsReadOnly="True" />
                 </DockPanel>

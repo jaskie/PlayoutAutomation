@@ -4,14 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.ComponentModel;
-using TAS.Server;
-using TAS.Common;
 using System.Windows;
 using System.Runtime.Remoting.Messaging;
 using System.Windows.Input;
 using System.Collections.ObjectModel;
 using System.Windows.Media;
 using System.Diagnostics;
+using TAS.Common;
+using TAS.Server;
+using TAS.Client.Common;
 
 namespace TAS.Client.ViewModels
 {
@@ -260,9 +261,9 @@ namespace TAS.Client.ViewModels
             var evmList = _selectedEvents.ToList();
             var containerList = evmList.Where(evm => evm.IsRootContainer);
             if (evmList.Count() > 0
-                && MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelected, evmList.Count(), evmList.AsString(Environment.NewLine, 20)), Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
+                && MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelected, evmList.Count(), evmList.AsString(Environment.NewLine, 20)), Common.Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
                 && (containerList.Count() == 0
-                    || MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedContainers, containerList.Count(), containerList.AsString(Environment.NewLine, 20)), Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
+                    || MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedContainers, containerList.Count(), containerList.AsString(Environment.NewLine, 20)), Common.Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
             {
                 UiServices.SetBusyState();
                 ThreadPool.QueueUserWorkItem(

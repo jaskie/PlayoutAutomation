@@ -6,10 +6,11 @@ using System.Threading;
 using TAS.Server;
 using System.Windows;
 using System.Reflection;
-using TAS.Common;
 using System.ComponentModel;
 using System.Runtime.Remoting.Messaging;
 using System.Windows.Input;
+using TAS.Common;
+using TAS.Client.Common;
 
 namespace TAS.Client.ViewModels
 {
@@ -83,7 +84,7 @@ namespace TAS.Client.ViewModels
                 if (value != ev)
                 {
                     if (this.Modified
-                    && MessageBox.Show(Properties.Resources._query_SaveChangedData, Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    && MessageBox.Show(Properties.Resources._query_SaveChangedData, Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         _save(null);
                     if (ev != null)
                     {
@@ -311,7 +312,7 @@ namespace TAS.Client.ViewModels
         {
             Event ev = _event;
             if (ev != null
-                && MessageBox.Show(Properties.Resources._query_DeleteItem, Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                && MessageBox.Show(Properties.Resources._query_DeleteItem, Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 Modified = false;
                 UiServices.SetBusyState();
@@ -324,7 +325,7 @@ namespace TAS.Client.ViewModels
                     }
                     catch (Exception e)
                     {
-                        MessageBox.Show(string.Format(Properties.Resources._message_CommandFailed, e.Message), Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(string.Format(TAS.Client.Common.Properties.Resources._message_CommandFailed, e.Message), Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 });
             }
@@ -527,7 +528,7 @@ namespace TAS.Client.ViewModels
         {
             Event aEvent = _event;
             if (aEvent != null
-                && MessageBox.Show(Properties.Resources._query_DeleteAllGraphics, Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                && MessageBox.Show(Properties.Resources._query_DeleteAllGraphics, Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 foreach (Event ev in aEvent.SubEvents.ToList().Where(e => e.EventType == TEventType.StillImage || e.EventType == TEventType.AnimationFlash))
                     ev.Delete();

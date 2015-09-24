@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using TAS.Server;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using TAS.Common;
 using System.Windows.Data;
 using System.Collections;
 using System.Diagnostics;
 using System.Windows;
 using System.Runtime.Remoting.Messaging;
+using TAS.Common;
+using TAS.Server;
+using TAS.Client.Common;
 
 
 namespace TAS.Client.ViewModels

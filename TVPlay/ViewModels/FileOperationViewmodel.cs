@@ -5,7 +5,7 @@ using System.Text;
 using TAS.Server;
 using System.ComponentModel;
 using System.Windows.Input;
-using TAS.Common;
+using TAS.Client.Common;
 
 namespace TAS.Client.ViewModels
 {
