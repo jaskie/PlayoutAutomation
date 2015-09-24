@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Controls;
 
-namespace TAS.Client
+namespace TAS.Client.Common
 {
     public static class MouseDoubleClick
     {

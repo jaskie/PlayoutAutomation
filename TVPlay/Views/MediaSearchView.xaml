@@ -7,6 +7,7 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         xmlns:client="clr-namespace:TAS.Client"
+        xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
         xmlns:vm="clr-namespace:TAS.Client.ViewModels"
         Title="{Resx Window.Title}" 
         Height="450" 
@@ -76,7 +77,7 @@
                                 <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="White"/>
                             </Style.Resources>
                             <Setter Property="DetailsVisibility" Value="{Binding IsExpanded, Converter={StaticResource BoolToVis}}" />
-                            <Setter Property="client:MouseDoubleClick.Command" Value="{Binding ElementName=gSearch, Path=DataContext.CommandAdd}" />
+                            <Setter Property="common:MouseDoubleClick.Command" Value="{Binding ElementName=gSearch, Path=DataContext.CommandAdd}" />
                             <Setter Property="Background" Value="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}" />
                         </Style>
                     </DataGrid.RowStyle>

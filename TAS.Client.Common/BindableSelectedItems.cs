@@ -8,7 +8,7 @@ using System.Windows;
 using System.Collections;
 
 
-namespace TAS.Client
+namespace TAS.Client.Common
 {
     public class BindableSelectedItems : Behavior<DataGrid>
     {

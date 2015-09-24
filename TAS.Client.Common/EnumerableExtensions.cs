@@ -13,7 +13,7 @@ namespace TAS.Client.ViewModels
             if (collection.Count() > maxItems)
             {
                 sb.AppendLine("...")
-                  .AppendFormat(Properties.Resources._moreItems, collection.Count() - maxItems);
+                  .AppendFormat(TAS.Client.Common.Properties.Resources._moreItems, collection.Count() - maxItems);
             }
             return sb.ToString();
         }

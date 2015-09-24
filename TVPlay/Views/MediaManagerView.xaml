@@ -98,7 +98,7 @@
         </Grid>
         <DataGrid Name="fileList" Grid.Row="2" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItems}" SelectedItem="{Binding Path=SelectedMedia, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
             <i:Interaction.Behaviors>
-                <client:BindableSelectedItems SelectedItems="{Binding SelectedMediaList, Mode=OneWayToSource}"/>
+                <common:BindableSelectedItems SelectedItems="{Binding SelectedMediaList, Mode=OneWayToSource}"/>
             </i:Interaction.Behaviors>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">

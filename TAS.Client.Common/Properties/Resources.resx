@@ -127,6 +127,9 @@
     <value>Command failed. Following error occurred:
 {0}</value>
   </data>
+  <data name="_moreItems" xml:space="preserve">
+    <value>and {0} items more</value>
+  </data>
   <data name="_title_Delete" xml:space="preserve">
     <value>Delete: {0}:{1}</value>
   </data>

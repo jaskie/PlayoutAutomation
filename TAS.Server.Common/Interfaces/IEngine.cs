@@ -8,7 +8,7 @@ namespace TAS.Server.Interfaces
         TAspectRatioControl AspectRatioControl { get; set; }
         decimal AudioVolume { get; set; }
         string EngineName { get; set; }
-        ulong IdEngine { get; }
+        ulong Id { get; set; }
         int TimeCorrection { get; set; }
         TVideoFormat VideoFormat { get; set; }
     }

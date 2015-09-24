@@ -20,7 +20,7 @@ namespace TAS.Server
     public class Engine : INotifyPropertyChanged, IDisposable, IEngine
     {
         [XmlIgnore]
-        public UInt64 IdEngine { get; internal set; }
+        public UInt64 Id { get; set; }
         [XmlIgnore]
         public UInt64 Instance { get; internal set; }
 

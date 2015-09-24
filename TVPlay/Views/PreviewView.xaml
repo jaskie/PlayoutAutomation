@@ -122,7 +122,7 @@
             </Grid>
             <StackPanel Grid.Row="3" Orientation="Horizontal">
                 <Label Content="{Resx _name}" Padding="2" VerticalContentAlignment="Center" Margin="4,0"/>
-                <TextBox Text="{Binding SelectedSegmentName, UpdateSourceTrigger=PropertyChanged}" Width="150" client:FocusExtension.IsFocused="{Binding IsSegmentNameFocused}" ToolTip="_name.ToolTip"/>
+                <TextBox Text="{Binding SelectedSegmentName, UpdateSourceTrigger=PropertyChanged}" Width="150" common:FocusExtension.IsFocused="{Binding IsSegmentNameFocused}" ToolTip="_name.ToolTip"/>
             </StackPanel>
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Style="{StaticResource smallButton}" ToolTip="{Resx _addSegment.ToolTip}" Command="{Binding CommandNewSegment}" Margin="5,0" Padding ="1">

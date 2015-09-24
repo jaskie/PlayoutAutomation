@@ -11,7 +11,7 @@ using System.Windows.Media;
 using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 
-namespace TAS.Client
+namespace TAS.Client.Common
 {
 	public class TreeViewExtensions : DependencyObject
 	{

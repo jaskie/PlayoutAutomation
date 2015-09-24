@@ -6,7 +6,7 @@ using System.Windows.Interactivity;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace TAS.Client
+namespace TAS.Client.Common
 {
     public class BindableSelectedItem : Behavior<TreeView>
     {

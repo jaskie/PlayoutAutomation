@@ -187,7 +187,4 @@ Naprawdę usunąć?</value>
 {1}
 Naprawdę je usunąć?</value>
   </data>
-  <data name="_moreItems" xml:space="preserve">
-    <value>i jeszcze {0} elementów</value>
-  </data>
 </root>

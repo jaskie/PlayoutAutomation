@@ -44,7 +44,7 @@ namespace TAS.Server
             Engines = DatabaseConnector.DbLoadEngines(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]), Servers);
             foreach (Engine E in Engines)
             {
-                IGpi engineGpi = _localGPIDevices == null ? null : _localGPIDevices.Select(E.IdEngine); 
+                IGpi engineGpi = _localGPIDevices == null ? null : _localGPIDevices.Select(E.Id); 
                 E.Initialize(engineGpi);
             }
             Debug.WriteLine(this, "Created");

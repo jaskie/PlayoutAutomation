@@ -127,6 +127,9 @@
     <value>Wykonanie polecenia nie powiodło się. Błąd, który wystąpił:
 {0}</value>
   </data>
+  <data name="_moreItems" xml:space="preserve">
+    <value>i jeszcze {0} elementów</value>
+  </data>
   <data name="_title_Delete" xml:space="preserve">
     <value>Usuń: {0}:{1}</value>
   </data>
