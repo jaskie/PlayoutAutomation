@@ -18,7 +18,6 @@
         Name="MediaSearchWindow"
         >
     <Window.Resources>
-        <client:MediaEmphasisToBrushConverter x:Key="MediaEmphasisToBrush" />
         <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
         <ControlTemplate x:Key="toggleButtonTemplate" TargetType="ToggleButton">
             <Grid

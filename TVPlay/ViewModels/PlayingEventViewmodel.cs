@@ -173,7 +173,7 @@ namespace TAS.Client.ViewModels
                     if (su != null)
                         return su.EventName;
                 }
-                return Properties.Resources._title_RundownEnd;
+                return Common.Properties.Resources._title_RundownEnd;
             }
         }
 

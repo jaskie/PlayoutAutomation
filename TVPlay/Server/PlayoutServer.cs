@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Xml.Serialization;
 using System.ComponentModel;
 using TAS.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
@@ -16,11 +17,11 @@ namespace TAS.Server
     public abstract class PlayoutServer : IDisposable, INotifyPropertyChanged
     {
         [XmlIgnore]
-        public UInt64 idServer { get; internal set; }
+        public UInt64 idServer { get; set; }
         public string ServerAddress { get; set; }
         public string MediaFolder { get; set; }
         [XmlIgnore]
-        public ServerDirectory MediaDirectory;
+        public ServerDirectory MediaDirectory { get; set; }
         [XmlIgnore]
         public AnimationDirectory AnimationDirectory;
         [XmlIgnore]

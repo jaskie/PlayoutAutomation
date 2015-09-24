@@ -87,5 +87,131 @@ namespace TAS.Client.Common.Properties {
                 return ResourceManager.GetString("_message_CommandFailed", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete: {0}:{1}.
+        /// </summary>
+        public static string _title_Delete {
+            get {
+                return ResourceManager.GetString("_title_Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duration.
+        /// </summary>
+        public static string _title_Duration {
+            get {
+                return ResourceManager.GetString("_title_Duration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Empty clip.
+        /// </summary>
+        public static string _title_EmptyMovie {
+            get {
+                return ResourceManager.GetString("_title_EmptyMovie", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export {0} -&gt; {1}.
+        /// </summary>
+        public static string _title_ExportClip {
+            get {
+                return ResourceManager.GetString("_title_ExportClip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Measure LUFS: {0}:{1}.
+        /// </summary>
+        public static string _title_MeasureVolume {
+            get {
+                return ResourceManager.GetString("_title_MeasureVolume", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Container.
+        /// </summary>
+        public static string _title_NewContainer {
+            get {
+                return ResourceManager.GetString("_title_NewContainer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New directory.
+        /// </summary>
+        public static string _title_NewDirectory {
+            get {
+                return ResourceManager.GetString("_title_NewDirectory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New live.
+        /// </summary>
+        public static string _title_NewLive {
+            get {
+                return ResourceManager.GetString("_title_NewLive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New rundown.
+        /// </summary>
+        public static string _title_NewRundown {
+            get {
+                return ResourceManager.GetString("_title_NewRundown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New.
+        /// </summary>
+        public static string _title_NewSegment {
+            get {
+                return ResourceManager.GetString("_title_NewSegment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to End of rundown.
+        /// </summary>
+        public static string _title_RundownEnd {
+            get {
+                return ResourceManager.GetString("_title_RundownEnd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Segment name.
+        /// </summary>
+        public static string _title_SegmentName {
+            get {
+                return ResourceManager.GetString("_title_SegmentName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TC In.
+        /// </summary>
+        public static string _title_TCIn {
+            get {
+                return ResourceManager.GetString("_title_TCIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TC Out.
+        /// </summary>
+        public static string _title_TCOut {
+            get {
+                return ResourceManager.GetString("_title_TCOut", resourceCulture);
+            }
+        }
     }
 }

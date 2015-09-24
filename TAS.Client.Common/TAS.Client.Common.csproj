@@ -34,6 +34,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -46,6 +47,10 @@
     <Compile Include="AutoGreyableImage.cs" />
     <Compile Include="DelayedBindingTextBox.cs" />
     <Compile Include="MediaSeekSlider.cs" />
+    <Compile Include="OkCancelView.xaml.cs">
+      <DependentUpon>OkCancelView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OkCancelViewmodelBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <DependentUpon>Resources.resx</DependentUpon>
@@ -61,6 +66,8 @@
       <DependentUpon>StatusIndicator.xaml</DependentUpon>
     </Compile>
     <Compile Include="UICommand.cs" />
+    <Compile Include="ValueConverters.cs" />
+    <Compile Include="ViewmodelBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TAS.Server.Common\TAS.Server.Common.csproj">
@@ -69,6 +76,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="OkCancelView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="StatusIndicator.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -85,6 +96,36 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Check.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\PlayStates\Played.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\PlayStates\Playing.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\PlayStates\Paused.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\PlayStates\Aborted.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\PlayStates\Fading.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\MediaErrorInfo\Missing.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\MediaErrorInfo\TooShort.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\FileOpen.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

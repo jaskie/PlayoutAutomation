@@ -132,39 +132,6 @@
   <data name="_query_SaveChangedData" xml:space="preserve">
     <value>Zapisać zmienione dane?</value>
   </data>
-  <data name="_title_Delete" xml:space="preserve">
-    <value>Usuń: {0}:{1}</value>
-  </data>
-  <data name="_title_Duration" xml:space="preserve">
-    <value>Czas trwania</value>
-  </data>
-  <data name="_title_EmptyMovie" xml:space="preserve">
-    <value>Pusty klip</value>
-  </data>
-  <data name="_title_MeasureVolume" xml:space="preserve">
-    <value>Pomiar LUFS: {0}:{1}</value>
-  </data>
-  <data name="_title_NewLive" xml:space="preserve">
-    <value>Nowy live</value>
-  </data>
-  <data name="_title_NewRundown" xml:space="preserve">
-    <value>Nowa playlista</value>
-  </data>
-  <data name="_title_NewSegment" xml:space="preserve">
-    <value>Nowy</value>
-  </data>
-  <data name="_title_RundownEnd" xml:space="preserve">
-    <value>Koniec playlisty</value>
-  </data>
-  <data name="_title_SegmentName" xml:space="preserve">
-    <value>Nazwa segmentu</value>
-  </data>
-  <data name="_title_TCIn" xml:space="preserve">
-    <value>TC In</value>
-  </data>
-  <data name="_title_TCOut" xml:space="preserve">
-    <value>TC Out</value>
-  </data>
   <data name="_validateStartPlayMustBeInsideFile" xml:space="preserve">
     <value>Rozpoczęcie odtwarzania musi się zawierać pomiędzy TC początkowym i końcowym klipu</value>
   </data>
@@ -220,16 +187,7 @@ Naprawdę usunąć?</value>
 {1}
 Naprawdę je usunąć?</value>
   </data>
-  <data name="_title_ExportClip" xml:space="preserve">
-    <value>Eksport {0} -&gt; {1}</value>
-  </data>
   <data name="_moreItems" xml:space="preserve">
     <value>i jeszcze {0} elementów</value>
-  </data>
-  <data name="_title_NewDirectory" xml:space="preserve">
-    <value>Nowy folder</value>
-  </data>
-  <data name="_title_NewContainer" xml:space="preserve">
-    <value>Kontener</value>
   </data>
 </root>

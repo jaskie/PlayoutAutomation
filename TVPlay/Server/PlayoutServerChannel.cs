@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using TAS.Server.Interfaces;
 using TAS.Common;
 
 namespace TAS.Server
 {
-    public abstract class PlayoutServerChannel : INotifyPropertyChanged, IDisposable
+    public abstract class PlayoutServerChannel : IDisposable, INotifyPropertyChanged
     {
-        internal PlayoutServer OwnerServer;
+        public PlayoutServer OwnerServer { get; set; }
         public readonly string ChannelName;
         public int ChannelNumber;
         public decimal MasterVolume = 1;
         protected bool? outputAspectNarrow;
-        internal Engine Engine { get; set; }
+        public Engine Engine { get; set; }
 
         internal abstract void Initialize();
 

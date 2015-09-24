@@ -127,4 +127,46 @@
     <value>Command failed. Following error occurred:
 {0}</value>
   </data>
+  <data name="_title_Delete" xml:space="preserve">
+    <value>Delete: {0}:{1}</value>
+  </data>
+  <data name="_title_Duration" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+  <data name="_title_EmptyMovie" xml:space="preserve">
+    <value>Empty clip</value>
+  </data>
+  <data name="_title_ExportClip" xml:space="preserve">
+    <value>Export {0} -&gt; {1}</value>
+  </data>
+  <data name="_title_MeasureVolume" xml:space="preserve">
+    <value>Measure LUFS: {0}:{1}</value>
+  </data>
+  <data name="_title_NewContainer" xml:space="preserve">
+    <value>Container</value>
+  </data>
+  <data name="_title_NewDirectory" xml:space="preserve">
+    <value>New directory</value>
+  </data>
+  <data name="_title_NewLive" xml:space="preserve">
+    <value>New live</value>
+  </data>
+  <data name="_title_NewRundown" xml:space="preserve">
+    <value>New rundown</value>
+  </data>
+  <data name="_title_NewSegment" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="_title_RundownEnd" xml:space="preserve">
+    <value>End of rundown</value>
+  </data>
+  <data name="_title_SegmentName" xml:space="preserve">
+    <value>Segment name</value>
+  </data>
+  <data name="_title_TCIn" xml:space="preserve">
+    <value>TC In</value>
+  </data>
+  <data name="_title_TCOut" xml:space="preserve">
+    <value>TC Out</value>
+  </data>
 </root>

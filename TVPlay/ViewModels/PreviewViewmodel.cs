@@ -466,7 +466,7 @@ namespace TAS.Client.ViewModels
                 ExecuteDelegate = o =>
                     {
                         var media = LoadedMedia;
-                        var msVm = new MediaSegmentViewmodel(media) { TCIn = this.TCIn, TCOut = this.TCOut, SegmentName = Properties.Resources._title_NewSegment };
+                        var msVm = new MediaSegmentViewmodel(media) { TCIn = this.TCIn, TCOut = this.TCOut, SegmentName = Common.Properties.Resources._title_NewSegment };
                         msVm.Save();
                         media.MediaSegments.Add(msVm.MediaSegment);
                         MediaSegments.Add(msVm);

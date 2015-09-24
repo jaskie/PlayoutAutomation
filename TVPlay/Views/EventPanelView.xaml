@@ -137,8 +137,50 @@
                         </Image>
                         <Border Grid.Column="0" Grid.RowSpan="3" Background="Red" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isInvalidInSchedule}" />
                         <Image Grid.Column="0" Grid.Row="0" Source="..\Glyphs\tick_circle.png" HorizontalAlignment="Left" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected}" />
-                        <Image Style="{StaticResource bigImage}" Grid.Column="0" Grid.Row="1" Source="{Binding MediaErrorInfo, Converter={StaticResource MediaErrorInfoToUri}}" ToolTip="{Binding MediaErrorInfo}" HorizontalAlignment="Left" Margin="3,1,0,0" />
-                        <Image Style="{StaticResource bigImage}" Grid.Column="2" Grid.Row="1" Source="{Binding PlayState, Converter={StaticResource PlayStateToUri}}" ToolTip="{Binding PlayState}"/>
+                        <Image Grid.Column="0" Grid.Row="1" ToolTip="{Binding MediaErrorInfo}" HorizontalAlignment="Left" Margin="3,1,0,0" >
+                            <Image.Style>
+                                <Style TargetType="Image" BasedOn="{StaticResource bigImage}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding MediaErrorInfo}" Value="Missing">
+                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaErrorInfo/Missing.png"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding MediaErrorInfo}" Value="TooShort">
+                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaErrorInfo/TooShort.png"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding MediaErrorInfo}" Value="NoError">
+                                            <Setter Property="Source" Value="{x:Null}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                        <Image Grid.Column="2" Grid.Row="1" ToolTip="{Binding PlayState}">
+                            <Image.Style>
+                                <Style TargetType="Image" BasedOn="{StaticResource bigImage}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding PlayState}" Value="Played">
+                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Played.png"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding PlayState}" Value="Playing">
+                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Playing.png"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding PlayState}" Value="Paused">
+                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Paused.png"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding PlayState}" Value="Aborted">
+                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Aborted.png"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding PlayState}" Value="Fading">
+                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Fading.png"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding PlayState}" Value="Scheduled">
+                                            <Setter Property="Source" Value="{x:Null}"/>
+                                        </DataTrigger>
+
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
                     </Grid>
                     <StackPanel Grid.Column="4" Grid.RowSpan="2" Visibility="{Binding IsNotContainer, Converter={StaticResource BoolToVis}}">
                         <TextBlock Text="{Binding ScheduledTime, Converter={StaticResource DateTimeToSMPTE}, ConverterParameter=TC}" FontWeight="SemiBold" />

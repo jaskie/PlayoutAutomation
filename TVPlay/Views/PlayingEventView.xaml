@@ -4,11 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             xmlns:client="clr-namespace:TAS.Client"
              d:DesignHeight="60" d:DesignWidth="300">
-    <UserControl.Resources>
-        <client:TimeSpanToSMPTEConverter x:Key="TimeSpanToTC" />
-    </UserControl.Resources>
     <Grid>
         <TabControl BorderThickness="0" FontSize="12">
             <TabItem Header="Teraz odtwarza" Padding="2, 0" >
@@ -27,7 +23,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <Label Grid.Column="0" Grid.Row="0" Content="TC" Padding="5, 0" VerticalContentAlignment="Center"/>
-                        <Label Grid.Row="1" Margin="5,0" Padding="0" HorizontalContentAlignment="Left" Content="{Binding Position, Converter={StaticResource TimeSpanToTC}}"/>
+                        <Label Grid.Row="1" Margin="5,0" Padding="0" HorizontalContentAlignment="Left" Content="{Binding Position, Converter={StaticResource TimeSpanToSMPTE}}"/>
                         <Label Grid.Column="2" Content="{Binding FileName}" Padding="0" VerticalContentAlignment="Center" />
                         <Slider Grid.Column="2" Grid.Row="1" Maximum="{Binding LengthInFrames}" Value="{Binding SliderPosition}" />
                     </Grid>

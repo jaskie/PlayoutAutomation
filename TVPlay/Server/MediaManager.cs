@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.ServiceModel;
 using TAS.Common;
 using TAS.Data;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
@@ -44,14 +45,14 @@ namespace TAS.Server
 
             ArchiveDirectory = DatabaseConnector.LoadArchiveDirectory(Engine.idArchive);
             Debug.WriteLine(this, "Begin initializing");
-            ServerDirectory sdir = MediaDirectoryPGM;
+            ServerDirectory sdir = MediaDirectoryPGM as ServerDirectory;
             if (sdir != null)
             {
                 sdir.MediaPropertyChanged += ServerMediaPropertyChanged;
                 sdir.PropertyChanged += _onServerDirectoryPropertyChanged;
                 sdir.MediaSaved += _onServerDirectoryMediaSaved;
             }
-            sdir = MediaDirectoryPRV;
+            sdir = MediaDirectoryPRV as ServerDirectory;
             if (MediaDirectoryPGM != MediaDirectoryPRV && sdir != null)
             {
                 sdir.MediaPropertyChanged += ServerMediaPropertyChanged;

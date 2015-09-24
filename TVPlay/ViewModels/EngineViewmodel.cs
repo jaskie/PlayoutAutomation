@@ -13,6 +13,7 @@ using System.Diagnostics;
 using TAS.Common;
 using TAS.Server;
 using TAS.Client.Common;
+using System.Configuration;
 
 namespace TAS.Client.ViewModels
 {
@@ -238,7 +239,7 @@ namespace TAS.Client.ViewModels
         {
             Event newEvent = new Event(_engine);
             newEvent.EventType = TEventType.Rundown;
-            newEvent.EventName = Properties.Resources._title_NewRundown;
+            newEvent.EventName = Common.Properties.Resources._title_NewRundown;
             newEvent.Duration = TimeSpan.Zero;
             newEvent.StartType = TStartType.Manual;
             newEvent.ScheduledTime = _engine.CurrentTime;
@@ -250,7 +251,7 @@ namespace TAS.Client.ViewModels
         {
             Event newEvent = new Event(_engine);
             newEvent.EventType = TEventType.Container;
-            newEvent.EventName = Properties.Resources._title_NewContainer;
+            newEvent.EventName = Common.Properties.Resources._title_NewContainer;
             newEvent.StartType = TStartType.None;
             _engine.RootEvents.Add(newEvent);
             newEvent.Save();
@@ -297,7 +298,7 @@ namespace TAS.Client.ViewModels
 
         private void _ingestDirectoriesSettings(object o)
         {
-            var setup = new Client.Setup.IngestDirectoriesViewmodel(_engine.MediaManager.IngestDirectories);
+            var setup = new Client.Setup.IngestDirectoriesViewmodel(_engine.MediaManager.IngestDirectories, ConfigurationManager.AppSettings["IngestFolders"]);
             if (setup.Show() == true)
                 _engine.MediaManager.ReloadIngestDirs();
         }

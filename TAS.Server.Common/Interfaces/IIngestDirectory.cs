@@ -3,12 +3,8 @@ using TAS.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IIngestDirectory
+    public interface IIngestDirectory: IMediaDirectory
     {
-        string DirectoryName { get; set; }
-        string Folder { get; set; }
-        string Username { get; set; }
-        string Password { get; set; }
         TAspectConversion AspectConversion { get; set; }
         double AudioVolume { get; set; }
         bool DeleteSource { get; set; }

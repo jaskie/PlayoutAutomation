@@ -188,13 +188,11 @@
     <Compile Include="Common\MouseDoubleClick.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Common\SMPTETimecodeExtensions.cs" />
     <Compile Include="Common\TreeViewExtensions.cs" />
     <Compile Include="Common\ObservableSynchronizedCollection.cs" />
     <Compile Include="Common\SerializationHelper.cs" />
     <Compile Include="Common\SimpleDictionary.cs" />
     <Compile Include="Common\UIServices.cs" />
-    <Compile Include="Common\ValueConverters.cs" />
     <Compile Include="MediaInfoDLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.pl.Designer.cs">
@@ -227,18 +225,6 @@
     <Compile Include="Server\XDCAM\SerializationHelper.cs" />
     <Compile Include="Server\XDCAM\Smil.cs" />
     <Compile Include="Server\XDCAM\XdcamStream.cs" />
-    <Compile Include="Setup\IngestDirectoryView.xaml.cs">
-      <DependentUpon>IngestDirectoryView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Setup\IngestDirectoryViewmodel.cs" />
-    <Compile Include="Setup\IngestDirectoriesView.xaml.cs">
-      <DependentUpon>IngestDirectoriesView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Setup\IngestDirectoriesViewmodel.cs" />
-    <Compile Include="Setup\OkCancelView.xaml.cs">
-      <DependentUpon>OkCancelView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Setup\OkCancelViewmodelBase.cs" />
     <Compile Include="Setup\EngineView.xaml.cs">
       <DependentUpon>EngineView.xaml</DependentUpon>
     </Compile>
@@ -251,7 +237,6 @@
     <Compile Include="ViewModels\FileOperationViewmodel.cs" />
     <Compile Include="ViewModels\IngestTrimmerViewmodel.cs" />
     <Compile Include="ViewModels\IngestEditViewmodel.cs" />
-    <Compile Include="ViewModels\MainViewmodel.cs" />
     <Compile Include="ViewModels\MediaExportViewmodel.cs" />
     <Compile Include="ViewModels\MediaSearchViewmodel.cs" />
     <Compile Include="ViewModels\MediaSegmentViewmodel.cs" />
@@ -316,23 +301,10 @@
     <Compile Include="ViewModels\MediaEditViewmodel.cs" />
     <Compile Include="ViewModels\PreviewViewmodel.cs" />
     <Compile Include="ViewModels\MediaViewViewmodel.cs" />
-    <Compile Include="ViewModels\ViewmodelBase.cs" />
     <Compile Include="Views\TemplatesView.xaml.cs">
       <DependentUpon>TemplatesView.xaml</DependentUpon>
     </Compile>
     <Page Include="Setup\EngineView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Setup\IngestDirectoriesView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Setup\IngestDirectoryView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Setup\OkCancelView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -559,15 +531,12 @@
     <Resource Include="Glyphs\Stop.png" />
     <Resource Include="Glyphs\timer24_h.png" />
     <Resource Include="Glyphs\volume24b.png" />
-    <Resource Include="Glyphs\Delete.png" />
-    <Resource Include="Glyphs\Check.png" />
     <Resource Include="Glyphs\Undo.png" />
     <Resource Include="Glyphs\ArrowLeftUpRed.gif" />
     <Resource Include="Glyphs\ArrowUpRed.gif" />
     <Resource Include="Glyphs\VCRPark.gif" />
     <Resource Include="Glyphs\Empty.png" />
     <Resource Include="Glyphs\play.png" />
-    <Resource Include="Glyphs\WarningRed.png" />
     <Resource Include="Glyphs\pause.png" />
     <Resource Include="Glyphs\Circle_1.png" />
     <Resource Include="Glyphs\Circle_2.png" />
@@ -582,7 +551,6 @@
     <Resource Include="Glyphs\NewSubRundown.png" />
     <Resource Include="Glyphs\NewNextLive.png" />
     <Resource Include="Glyphs\NewSubLive.png" />
-    <Resource Include="Glyphs\WarningYellow.png" />
     <Resource Include="Glyphs\Drawer.png" />
     <Resource Include="Glyphs\Import.png" />
     <Resource Include="Glyphs\Export.png" />
@@ -675,6 +643,10 @@
     <ProjectReference Include="..\TAS.Client.Common\TAS.Client.Common.csproj">
       <Project>{bccaca68-8bb6-4d9c-b546-795a2a8dee93}</Project>
       <Name>TAS.Client.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TAS.Client.Setup\TAS.Client.Setup.csproj">
+      <Project>{86071de4-1a5d-4889-b54a-08da101b2b51}</Project>
+      <Name>TAS.Client.Setup</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Server.Common\TAS.Server.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>

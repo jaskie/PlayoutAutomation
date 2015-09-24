@@ -15,7 +15,7 @@
              FontSize="13" >
     <UserControl.Resources>
 
-        <client:IntToStringNoZeroConverter x:Key="IntToStringNoZero" />
+        <common:IntToStringNoZeroConverter x:Key="IntToStringNoZero" />
         <Style x:Key="fieldNameLabels" TargetType="Label" >
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Right" />

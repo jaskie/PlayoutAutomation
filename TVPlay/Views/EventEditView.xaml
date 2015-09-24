@@ -104,13 +104,13 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft">
                 <Button ToolTip="{Resx _toolbar.Save}" Command="{Binding CommandSaveEdit}">
-                    <common:AutoGreyableImage Source="../Glyphs/Check.png" />
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Check.png" />
                 </Button>
                 <Button ToolTip="{Resx _toolbar.CancelEdit}" Command="{Binding CommandCancelEdit}">
                     <common:AutoGreyableImage Source="../Glyphs/Undo.png" />
                 </Button>
                 <Button ToolTip="{Resx _toolbar.Delete}" Command="{Binding CommandDelete}" >
-                    <common:AutoGreyableImage Source="../Glyphs/Delete.png"  />
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Delete.png"  />
                 </Button>
             </StackPanel>
         </Grid>

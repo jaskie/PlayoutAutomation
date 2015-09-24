@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:client="clr-namespace:TAS.Client"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              StartupUri="Views/MainWindow.xaml">
         
     <Application.Resources>
@@ -33,21 +34,19 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary>
-                    <client:BoolToBrushButtonConverter x:Key="BoolToBrushButton" />
-                    <client:BoolToBrushConverter x:Key="BoolToBrush"/>
+                    <common:BoolToBrushButtonConverter x:Key="BoolToBrushButton" />
+                    <common:BoolToBrushConverter x:Key="BoolToBrush"/>
                     <BooleanToVisibilityConverter x:Key="BoolToVis" />
-                    <client:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
-                    <client:EventTypeToIntConverter x:Key="EventToInt" />
-                    <client:DateTimeToSMPTEConverter x:Key="DateTimeToSMPTE" />
-                    <client:TimeSpanToFramesConverter x:Key="TimeSpanToFrames" />
-                    <client:ColorToBrushConverter x:Key="ColorToBrush" />
-                    <client:EnabledBoolToOpacityConverter x:Key="EnabledToOpacity" />
-                    <client:PlayStateToUriConverter x:Key="PlayStateToUri" />
-                    <client:MediaErrorInfoToUriConverter x:Key="MediaErrorInfoToUri" />
-                    <client:TimeSpanToSignedStringConverter x:Key="TimeSpanToSignedString" />
-                    <client:MediaEmphasisToBrushConverter x:Key="MediaEmphasisToBrush" />
-                    <client:BoolToStringConverter x:Key="BooleanToAspectDescriptionConverter" FalseValue="16:9" TrueValue="4:3" />
-                    <client:NegativeBooleanToVisibilityConverter x:Key="NegativeBoolToVis" />
+                    <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
+                    <common:EventTypeToIntConverter x:Key="EventToInt" />
+                    <common:DateTimeToSMPTEConverter x:Key="DateTimeToSMPTE" />
+                    <common:TimeSpanToFramesConverter x:Key="TimeSpanToFrames" />
+                    <common:ColorToBrushConverter x:Key="ColorToBrush" />
+                    <common:EnabledBoolToOpacityConverter x:Key="EnabledToOpacity" />
+                    <common:TimeSpanToSignedStringConverter x:Key="TimeSpanToSignedString" />
+                    <common:MediaEmphasisToBrushConverter x:Key="MediaEmphasisToBrush" />
+                    <common:BoolToStringConverter x:Key="BooleanToAspectDescriptionConverter" FalseValue="16:9" TrueValue="4:3" />
+                    <common:NegativeBooleanToVisibilityConverter x:Key="NegativeBoolToVis" />
 
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>

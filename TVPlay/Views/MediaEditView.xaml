@@ -51,7 +51,7 @@
         <StackPanel>
             <Grid Height="50" Visibility="{Binding IsNoAutoSave, Converter={StaticResource BoolToVis}}" >
                 <Button Width="40" Height="40" HorizontalAlignment="Right" Margin="10, 5" ToolTip="{Resx _buttonSave.ToolTip}" Command="{Binding CommandSaveEdit}" >
-                    <common:AutoGreyableImage Source="../Glyphs/Check.png" />
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Check.png" />
                 </Button>
                 <Button Width="40" Height="40" HorizontalAlignment="Right" Margin="120, 5" ToolTip="{Resx _buttonCancel.ToolTip}" Command="{Binding CommandCancelEdit}">
                     <common:AutoGreyableImage Source="../Glyphs/Undo.png" />

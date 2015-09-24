@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Controls;
 using TAS.Common;
+using TAS.Client.Common;
 using TAS.Data;
 
 namespace TAS.Client.Setup

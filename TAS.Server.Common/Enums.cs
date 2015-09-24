@@ -249,7 +249,7 @@ namespace TAS.Common
     class TMediaErrorInfoEnumConverter : ResourceEnumConverter
     {
         public TMediaErrorInfoEnumConverter()
-            : base(typeof(TMediaStatus), TAS.Server.Common.Properties.Resources.ResourceManager)
+            : base(typeof(TMediaErrorInfo), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 

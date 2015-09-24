@@ -376,7 +376,7 @@ namespace TAS.Client.ViewModels
             {
                 Event newEvent = new Event(ev.Engine);
                 newEvent.EventType = TEventType.Live;
-                newEvent.EventName = Properties.Resources._title_NewLive;
+                newEvent.EventName = Common.Properties.Resources._title_NewLive;
                 newEvent.Duration = new TimeSpan(1, 0, 0);
                 //newEvent.Save();
                 ev.InsertUnder(newEvent);
@@ -390,7 +390,7 @@ namespace TAS.Client.ViewModels
             {
                 Event newEvent = new Event(ev.Engine);
                 newEvent.EventType = TEventType.Rundown;
-                newEvent.EventName = Properties.Resources._title_NewRundown;
+                newEvent.EventName = Common.Properties.Resources._title_NewRundown;
                 if (ev.EventType == TEventType.Container)
                 {
                     newEvent.StartType = TStartType.Manual;
@@ -456,7 +456,7 @@ namespace TAS.Client.ViewModels
             {
                 Event newEvent = new Event(ev.Engine);
                 newEvent.EventType = TEventType.Live;
-                newEvent.EventName = Properties.Resources._title_NewLive;
+                newEvent.EventName = Common.Properties.Resources._title_NewLive;
                 newEvent.Duration = new TimeSpan(1, 0, 0);
                 //newEvent.Save();
                 ev.InsertAfter(newEvent);
@@ -470,7 +470,7 @@ namespace TAS.Client.ViewModels
             {
                 Event newEvent = new Event(ev.Engine);
                 newEvent.EventType = TEventType.Rundown;
-                newEvent.EventName = Properties.Resources._title_NewRundown;
+                newEvent.EventName = Common.Properties.Resources._title_NewRundown;
                 //newEvent.Save();
                 ev.InsertAfter(newEvent);
             }
@@ -483,7 +483,7 @@ namespace TAS.Client.ViewModels
             {
                 Event newEvent = new Event(ev.Engine);
                 newEvent.EventType = TEventType.Movie;
-                newEvent.EventName = Properties.Resources._title_EmptyMovie;
+                newEvent.EventName = Common.Properties.Resources._title_EmptyMovie;
                 ev.InsertAfter(newEvent);
             }
         }
