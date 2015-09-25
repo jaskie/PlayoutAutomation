@@ -5,11 +5,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary>
-                    <BooleanToVisibilityConverter x:Key="BoolToVis" />
-                </ResourceDictionary>
+                <ResourceDictionary Source="/TAS.Client.Common;component/Converters.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-
     </Application.Resources>
 </Application>
