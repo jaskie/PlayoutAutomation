@@ -21,5 +21,6 @@ namespace TAS.Client.Setup.Model
         public string Folder { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
+        public string EncodeParams { get; set; }
     }
 }

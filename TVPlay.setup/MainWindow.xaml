@@ -13,13 +13,13 @@
         <setup:MainWindowViewmodel x:Key="MainWindowViewmodel"/>
     </Window.Resources>
     <StackPanel DataContext="{StaticResource MainWindowViewmodel}">
-        <StackPanel Orientation="Horizontal">
-            <Label VerticalAlignment="Center" Content="Application file"/>
-            <TextBox IsReadOnly="True" VerticalAlignment="Center" MinWidth="200" Text="{Binding ConfigFile.FileName, Mode=OneWay}" />
-            <Button Command="{Binding CommandConfigFileSelect}">
-                <Image Height="12" Source="/TAS.Client.Common;component/Images/FileOpen.png" />
+        <DockPanel>
+            <Label VerticalAlignment="Center" Content="Application config file"/>
+            <Button DockPanel.Dock="Right" Height="18" Command="{Binding CommandConfigFileSelect}" Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}">
+                <Image Source="/TAS.Client.Common;component/Images/FileOpen.png" />
             </Button>
-        </StackPanel>
+            <TextBox IsReadOnly="True" VerticalAlignment="Center" MinWidth="200" HorizontalAlignment="Stretch" Text="{Binding ConfigFile.FileName, Mode=OneWay}" />
+        </DockPanel>
         <ToolBar>
             <Button Command="{Binding CommandConfigFileEdit}">
                 <StackPanel>

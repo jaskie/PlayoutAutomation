@@ -77,6 +77,9 @@
     <Compile Include="DispatcherHelper.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="FocusExtension.cs" />
+    <Compile Include="FilenameEntry.xaml.cs">
+      <DependentUpon>FilenameEntry.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MediaSeekSlider.cs" />
     <Compile Include="MouseDoubleClick.cs" />
     <Compile Include="OkCancelView.xaml.cs">
@@ -113,6 +116,10 @@
     <Page Include="Converters.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="FilenameEntry.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="OkCancelView.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -16,8 +16,6 @@ namespace TAS.Server
 {
     public class IngestDirectory : MediaDirectory, IIngestDirectory
     {
-        public string EncodeParams = string.Empty;
-        
         private bool _deleteSource;
         public bool DeleteSource
         {
@@ -62,7 +60,9 @@ namespace TAS.Server
         }
 
         private object _xdcamLockObject = new object();
-
+        
+        public string EncodeParams {get; set;}
+        
         public bool IsXDCAM { get; set; }
 
         public TxDCAMAudioExportFormat XDCAMAudioExportFormat { get; set; }

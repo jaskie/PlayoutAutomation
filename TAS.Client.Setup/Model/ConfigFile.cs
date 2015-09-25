@@ -31,7 +31,7 @@ namespace TAS.Client.Setup.Model
                 _configuration.ConnectionStrings.ConnectionStrings[cs.Name].ConnectionString = (string)cs.GetValue(connectionStrings, null);
             PropertyInfo[] asl = appSettings.GetType().GetProperties();
             foreach (PropertyInfo setting in asl)
-                setting.SetValue(appSettings, _configuration.AppSettings.Settings[setting.Name].Value, null);
+                _configuration.AppSettings.Settings[setting.Name].Value = setting.GetValue(appSettings, null).ToString();
             _configuration.Save();
         }
 
@@ -45,7 +45,7 @@ namespace TAS.Client.Setup.Model
         public class AppSettings
         {
             public string IngestFolders { get; set; }
-            public string LocalSettings { get; set; }
+            public string LocalDevices { get; set; }
             public string TempDirectory { get; set; }
             public int Instance { get; set; }
             public double VolumeReferenceLoudness { get; set; }

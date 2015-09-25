@@ -21,13 +21,7 @@ namespace TAS.Client.Common
         {
             Model = model;
             _editor = editor;
-            PropertyInfo[] copiedProperties = this.GetType().GetProperties();
-            foreach (PropertyInfo copyPi in copiedProperties)
-            {
-                PropertyInfo sourcePi = Model.GetType().GetProperty(copyPi.Name);
-                if (sourcePi != null)
-                    copyPi.SetValue(this, sourcePi.GetValue(Model, null), null);
-            }
+            Load(model);
             _modified = false;
             CommandClose = new UICommand() { CanExecuteDelegate = CanClose, ExecuteDelegate = Close };
             CommandApply = new UICommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = Apply };
@@ -53,19 +47,30 @@ namespace TAS.Client.Common
             return View.ShowDialog();
         }
 
-        protected virtual void Apply(object parameter)
+        protected virtual void Load(object source)
+        {
+            PropertyInfo[] copiedProperties = this.GetType().GetProperties();
+            foreach (PropertyInfo copyPi in copiedProperties)
+            {
+                PropertyInfo sourcePi = source.GetType().GetProperty(copyPi.Name);
+                if (sourcePi != null)
+                    copyPi.SetValue(this, sourcePi.GetValue(source, null), null);
+            }
+        }
+
+        protected virtual void Apply(object destObject)
         {
             if (Modified && Model != null)
             {
                 PropertyInfo[] copiedProperties = this.GetType().GetProperties();
                 foreach (PropertyInfo copyPi in copiedProperties)
                 {
-                    PropertyInfo destPi = Model.GetType().GetProperty(copyPi.Name);
+                    PropertyInfo destPi = (destObject??Model).GetType().GetProperty(copyPi.Name);
                     if (destPi != null)
                     {
-                        if (destPi.GetValue(Model, null) != copyPi.GetValue(this, null)
+                        if (destPi.GetValue(destObject??Model, null) != copyPi.GetValue(this, null)
                             && destPi.CanWrite)
-                            destPi.SetValue(Model, copyPi.GetValue(this, null), null);
+                            destPi.SetValue(destObject??Model, copyPi.GetValue(this, null), null);
                     }
                 }
                 Modified = false;

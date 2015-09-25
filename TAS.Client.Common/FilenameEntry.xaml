@@ -1,0 +1,11 @@
+﻿<UserControl x:Class="TAS.Client.FilenameEntry"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel>
+        <Button DockPanel.Dock="Right" Click="BrowseFolder">
+            <Image Source="/TAS.Client.Common;component/Images/FileOpen.png" Width="{Binding ElementName=textBox, Path=ActualHeight}"/>
+        </Button>
+        <TextBox x:Name="textBox" Height="Auto" HorizontalAlignment="Stretch" DockPanel.Dock="Right" VerticalAlignment="Center" 
+           Text="{Binding Text, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}" />
+    </DockPanel>
+</UserControl>

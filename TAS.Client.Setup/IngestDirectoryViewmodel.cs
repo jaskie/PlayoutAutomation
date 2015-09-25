@@ -4,7 +4,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Windows.Input;
 using System.Xml.Serialization;
+using TAS.Client.Common;
 using TAS.Common;
 using TAS.Server.Interfaces;
 
@@ -18,8 +20,14 @@ namespace TAS.Client.Setup
         {
             _view = new IngestDirectoryView() { DataContext = this };
         }
+
+        private void _directorySelect(object obj)
+        {
+            
+        }
         
         readonly System.Windows.Controls.UserControl _view;
+        
         public IngestDirectoryViewmodel(IIngestDirectory directory): this()
         {
             _copyProperties(directory);
@@ -97,16 +105,16 @@ namespace TAS.Client.Setup
         TxDCAMVideoExportFormat _xDCAMVideoExportFormat;
         [DefaultValue(default(TxDCAMVideoExportFormat))]
         public TxDCAMVideoExportFormat XDCAMVideoExportFormat { get { return _xDCAMVideoExportFormat; } set { SetField(ref _xDCAMVideoExportFormat, value, "XDCAMVideoExportFormat"); } }
-        
+        string _encodeParams;
+        [DefaultValue(default(string))]
+        public string EncodeParams { get { return _encodeParams; } set { SetField(ref _encodeParams, value, "EncodeParams"); } }
+
         #endregion // IIngestDirectory
         
         [XmlIgnore]
         public System.Windows.Controls.UserControl View { get { return _view; } }
 
-        protected override void OnDispose()
-        {
-            
-        }
+        protected override void OnDispose() { }
 
         public override string ToString()
         {
@@ -126,7 +134,5 @@ namespace TAS.Client.Setup
         bool _modified;
         [XmlIgnore]
         public bool Modified { get { return _modified; } }
-
-
     }
 }

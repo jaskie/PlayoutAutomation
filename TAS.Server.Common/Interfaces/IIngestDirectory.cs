@@ -8,6 +8,7 @@ namespace TAS.Server.Interfaces
         TAspectConversion AspectConversion { get; set; }
         double AudioVolume { get; set; }
         bool DeleteSource { get; set; }
+        string EncodeParams { get; set; }
         bool IsXDCAM { get; set; }
         TMediaCategory MediaCategory { get; set; }
         bool MediaDoNotArchive { get; set; }

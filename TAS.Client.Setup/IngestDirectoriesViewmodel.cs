@@ -18,7 +18,7 @@ namespace TAS.Client.Setup
         public ICommand CommandDelete { get; private set; }
         private readonly ObservableCollection<IngestDirectoryViewmodel> _directories;
         private readonly string _fileName;
-        public IngestDirectoriesViewmodel(IEnumerable<IIngestDirectory> directories, string fileName): base(directories, new IngestFoldersView(), "Ingest directories")
+        public IngestDirectoriesViewmodel(IEnumerable<IIngestDirectory> directories, string fileName): base(directories, new IngestFoldersView(), string.Format("Ingest directories ({0})", fileName))
         {
             _directories = new ObservableCollection<IngestDirectoryViewmodel>(directories.Select(d => new IngestDirectoryViewmodel(d)));
             _fileName = fileName;
@@ -34,16 +34,23 @@ namespace TAS.Client.Setup
 
         private static IEnumerable<IIngestDirectory> Deserialize(string fileName)
         {
-            XmlSerializer reader = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
-            System.IO.StreamReader file = null;
             try
             {
-                file = new System.IO.StreamReader(fileName);
-                return (IEnumerable<IIngestDirectory>)reader.Deserialize(file);
+                XmlSerializer reader = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
+                System.IO.StreamReader file = null;
+                try
+                {
+                    file = new System.IO.StreamReader(fileName);
+                    return (IEnumerable<IIngestDirectory>)reader.Deserialize(file);
+                }
+                finally
+                {
+                    file.Close();
+                }
             }
-            finally
+            catch (NullReferenceException)
             {
-                file.Close();
+                return new List<IngestDirectory>();
             }
         }
 
