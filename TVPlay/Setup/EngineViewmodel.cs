@@ -12,7 +12,7 @@ namespace TAS.Client.Setup
     public class EngineViewmodel : OkCancelViewmodelBase<Server.Engine>
     {
         readonly Server.EngineController _controller;
-        public EngineViewmodel(Server.Engine engine, Server.EngineController controller) : base(engine, new EngineView(),  "Channel config", 550, 350) 
+        public EngineViewmodel(Server.Engine engine, Server.EngineController controller) : base(engine, new EngineView(),  "Channel config") 
         {
             _controller = controller;
             _channels = new List<object>() { Properties.Resources._none_ };

@@ -6,7 +6,8 @@
              xmlns:vm="clr-namespace:TAS.Client.Setup"
              d:DataContext="{x:Type vm:IngestDirectoryViewmodel}"
              mc:Ignorable="d" 
-             d:DesignHeight="500" d:DesignWidth="300">
+             MinWidth="150"
+             >
     <StackPanel>
         <StackPanel.Resources>
             <Style TargetType="TextBox">

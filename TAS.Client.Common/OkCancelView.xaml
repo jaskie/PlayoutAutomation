@@ -5,6 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:common="clr-namespace:TAS.Client.Common"
         mc:Ignorable="d"
+        MinHeight="100"
+        MinWidth="180"
+        SizeToContent="WidthAndHeight"
         >
     <DockPanel>
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" FlowDirection="RightToLeft" Height="37">

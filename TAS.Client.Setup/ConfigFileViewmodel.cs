@@ -6,10 +6,10 @@ using TAS.Client.Common;
 
 namespace TAS.Client.Setup
 {
-    public class ConfigFileViewmodel:OkCancelViewmodelBase<ConfigFile>
+    public class ConfigFileViewmodel:OkCancelViewmodelBase<Model.ConfigFile>
     {
         protected override void OnDispose() { }
-        public ConfigFileViewmodel(string fileName):base(new ConfigFile(fileName), new ConfigFileView(), fileName, 500, 300)
+        public ConfigFileViewmodel(Model.ConfigFile configFile):base(configFile, new ConfigFileView(), configFile.ToString())
         {
 
         }

@@ -549,8 +549,6 @@
     <Resource Include="Glyphs\save.png" />
     <Resource Include="Glyphs\add.png" />
     <Resource Include="Glyphs\Circle_A.png" />
-    <Resource Include="Glyphs\document_add.png" />
-    <Resource Include="Glyphs\document_edit.png" />
     <Resource Include="Glyphs\file_delete.png" />
     <Resource Include="Glyphs\MediaStates\Unknown.png" />
     <Resource Include="Glyphs\MediaStates\Copying.png" />
@@ -565,10 +563,6 @@
     <Resource Include="Glyphs\FileOperationStates\Waiting.png" />
     <Resource Include="Glyphs\FileOperationStates\Aborted.png" />
     <Resource Include="Glyphs\FileOperationStates\Failed.png" />
-    <Resource Include="Glyphs\document_save.png" />
-    <Resource Include="Glyphs\document_done.png" />
-    <Resource Include="Glyphs\document_delete.png" />
-    <Resource Include="Glyphs\document_cancel.png" />
     <Resource Include="Glyphs\Volume.png" />
     <Resource Include="Glyphs\go-up.png" />
     <Resource Include="Glyphs\MediaStates\ValidationError.png" />

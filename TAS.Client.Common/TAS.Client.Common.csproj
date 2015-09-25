@@ -164,6 +164,24 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\document_add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\document_delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\document_cancel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\document_done.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\document_edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\document_save.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

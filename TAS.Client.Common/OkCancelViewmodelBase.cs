@@ -17,7 +17,7 @@ namespace TAS.Client.Common
 
         public event Action Applied;
 
-        public OkCancelViewmodelBase(M model, UserControl editor, string windowTitle, int initialWidth, int initialHeight)
+        public OkCancelViewmodelBase(M model, UserControl editor, string windowTitle)
         {
             Model = model;
             _editor = editor;
@@ -34,8 +34,6 @@ namespace TAS.Client.Common
             CommandOK = new UICommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = Ok };
             View = new OkCancelView() { 
                 DataContext = this, 
-                Width = initialWidth, 
-                Height = initialHeight, 
                 Title = windowTitle, 
                 Owner = System.Windows.Application.Current.MainWindow, 
                 WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner, 

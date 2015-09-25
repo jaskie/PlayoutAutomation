@@ -7,7 +7,8 @@
              xmlns:vm="clr-namespace:TAS.Client.Setup"
              d:DataContext="{x:Type vm:IngestDirectoriesViewmodel}"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             MinHeight="400"
+             >
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
@@ -15,7 +16,7 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
-            <RowDefinition/>
+            <RowDefinition />
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
             <StackPanel.Resources>
@@ -25,14 +26,14 @@
                 </Style>
             </StackPanel.Resources>
             <Button Command="{Binding CommandAdd}">
-                <common:AutoGreyableImage Source="..\Glyphs\document_add.png"/>
+                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_add.png"/>
             </Button>
             <Button Command="{Binding CommandDelete}">
-                <common:AutoGreyableImage Source="..\Glyphs\document_delete.png"/>
+                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_delete.png"/>
             </Button>
         </StackPanel>
-        <ListView Grid.Row="1" ItemsSource="{Binding Directories}" SelectedItem="{Binding SelectedDirectory}"/>
+        <ListView Grid.Row="1" ItemsSource="{Binding Directories}" SelectedItem="{Binding SelectedDirectory}" MinWidth="200"/>
 
-        <ContentControl Grid.Column="1" Grid.RowSpan="2" Margin="5" Content="{Binding SelectedDirectory.View}" />
+        <ContentControl Grid.Column="1" Grid.RowSpan="2" Margin="5" Content="{Binding SelectedDirectory.View}" MinWidth="250" />
     </Grid>
 </UserControl>

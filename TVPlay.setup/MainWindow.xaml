@@ -8,16 +8,16 @@
         d:DataContext="{x:Type setup:MainWindowViewmodel}"
         Title="TV Automation Setup" 
         SizeToContent="WidthAndHeight"
-        DataContext="{DynamicResource MainWindowViewmodel}" >
+        >
     <Window.Resources>
         <setup:MainWindowViewmodel x:Key="MainWindowViewmodel"/>
     </Window.Resources>
-    <StackPanel >
+    <StackPanel DataContext="{StaticResource MainWindowViewmodel}">
         <StackPanel Orientation="Horizontal">
-            <Label VerticalAlignment="Center" Content="Config file"/>
-            <TextBox IsReadOnly="True" VerticalAlignment="Center" Width="200" />
-            <Button >
-                <Image Source="/TAS.Client.Common;component/Images/FileOpen.png"/>
+            <Label VerticalAlignment="Center" Content="Application file"/>
+            <TextBox IsReadOnly="True" VerticalAlignment="Center" MinWidth="200" Text="{Binding ConfigFile.FileName, Mode=OneWay}" />
+            <Button Command="{Binding CommandConfigFileSelect}">
+                <Image Height="12" Source="/TAS.Client.Common;component/Images/FileOpen.png" />
             </Button>
         </StackPanel>
         <ToolBar>

@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Input;
 using System.Xml.Serialization;
 using TAS.Client.Common;
+using TAS.Client.Setup.Model;
 using TAS.Server.Interfaces;
 
 namespace TAS.Client.Setup
@@ -17,11 +18,33 @@ namespace TAS.Client.Setup
         public ICommand CommandDelete { get; private set; }
         private readonly ObservableCollection<IngestDirectoryViewmodel> _directories;
         private readonly string _fileName;
-        public IngestDirectoriesViewmodel(IEnumerable<IIngestDirectory> directories, string fileName): base(directories, new IngestFoldersView(), "Ingest directories", 600, 500)
+        public IngestDirectoriesViewmodel(IEnumerable<IIngestDirectory> directories, string fileName): base(directories, new IngestFoldersView(), "Ingest directories")
         {
             _directories = new ObservableCollection<IngestDirectoryViewmodel>(directories.Select(d => new IngestDirectoryViewmodel(d)));
             _fileName = fileName;
             _createCommands();
+        }
+
+        public IngestDirectoriesViewmodel(string fileName) : base(Deserialize(fileName), new IngestFoldersView(), "Ingest directories") 
+        {
+            _directories = new ObservableCollection<IngestDirectoryViewmodel>(Model.Select(d => new IngestDirectoryViewmodel(d)));
+            _fileName = fileName;
+            _createCommands();
+        }
+
+        private static IEnumerable<IIngestDirectory> Deserialize(string fileName)
+        {
+            XmlSerializer reader = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
+            System.IO.StreamReader file = null;
+            try
+            {
+                file = new System.IO.StreamReader(fileName);
+                return (IEnumerable<IIngestDirectory>)reader.Deserialize(file);
+            }
+            finally
+            {
+                file.Close();
+            }
         }
 
         private void _createCommands()
