@@ -17,9 +17,8 @@ using TAS.Server;
 
 namespace TAS.Data
 {
-    public static class DatabaseConnector
+    public static partial class DatabaseConnector
     {
-        private enum TEventFlags : uint { Enabled = 1, Hold = 2 };
         private static MySqlConnection connection;
         private static Timer IdleTimeTimer;
         static bool Connect()
@@ -34,9 +33,9 @@ namespace TAS.Data
             return _connectionResult;
         }
 
-        public static void Initialize()
+        public static void Initialize(string connectionString)
         {
-            connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["tasConnectionString"].ConnectionString);
+            connection = new MySqlConnection(connectionString);
             IdleTimeTimer = new Timer(_idleTimeTimerCallback, null, TimeSpan.FromHours(1), TimeSpan.FromHours(1));
             Debug.WriteLine(connection, "Created");
         }

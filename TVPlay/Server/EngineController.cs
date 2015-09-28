@@ -39,7 +39,7 @@ namespace TAS.Server
                 _localGPIDevices.Initialize();
 
             Debug.WriteLine(this, "Initializing database connector");
-            DatabaseConnector.Initialize();
+            DatabaseConnector.Initialize(ConfigurationManager.ConnectionStrings["tasConnectionString"].ConnectionString);
             Servers = DatabaseConnector.DbLoadServers();
             Engines = DatabaseConnector.DbLoadEngines(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]), Servers);
             foreach (Engine E in Engines)

@@ -3,22 +3,60 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:common="clr-namespace:TAS.Client;assembly=TAS.Client.Common"
              xmlns:setup ="clr-namespace:TAS.Client.Setup"
              mc:Ignorable="d" 
              d:DataContext="{x:Type setup:ConfigFileViewmodel}"
             >
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="5" MinWidth="250" MinHeight="230">
+        <StackPanel Margin="5" MinWidth="250" MinHeight="330">
+            <Label Content="Initialization properties" FontWeight="Bold" HorizontalAlignment="Center"/>
             <Label Content="Ingest folders definition file"/>
-            <TextBox Text="{Binding IngestFolders, UpdateSourceTrigger=PropertyChanged}"/>
+            <common:FilenameEntry 
+                DialogTitle="Ingest folders definition file" 
+                CheckFileExists="False" 
+                DialogFilter="XML files |*.xml" 
+                FileName="{Binding IngestFolders, UpdateSourceTrigger=PropertyChanged}" 
+                ButtonToolTip="Select file..."
+                InitialDirectory="{Binding ExeDirectory}"/>
             <Label Content="Local devices configuration file"/>
-            <TextBox Text="{Binding LocalDevices, UpdateSourceTrigger=PropertyChanged}"/>
+            <common:FilenameEntry 
+                DialogTitle="Local devices configuration file" 
+                CheckFileExists="False" 
+                DialogFilter="XML files |*.xml" 
+                FileName="{Binding LocalDevices, UpdateSourceTrigger=PropertyChanged}" 
+                ButtonToolTip="Select file..."
+                InitialDirectory="{Binding ExeDirectory}"/>
             <Label Content="Temp directory"/>
             <TextBox Text="{Binding TempDirectory, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Instance binding"/>
             <TextBox Text="{Binding Instance, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Volume reference loudness"/>
             <TextBox Text="{Binding VolumeReferenceLoudness, UpdateSourceTrigger=PropertyChanged}"/>
+            <Separator Margin="10"/>
+            <Label Content="Database" FontWeight="Bold" HorizontalAlignment="Center"/>
+            <Label Content="Connection string"/>
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Height="{Binding ElementName=edConnectionString, Path=ActualHeight}" Command="{Binding CommandEditConnectionString}" ToolTip="Edit...">
+                    <Image Source="/TAS.Client.Common;component/Images/Edit.png"/>
+                </Button>
+                <TextBox x:Name="edConnectionString" VerticalAlignment="Center" Text="{Binding tasConnectionString}" IsReadOnly="True"/>
+            </DockPanel>
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" HorizontalAlignment="Center" ToolTip="Test connectivity" Command="{Binding CommandTestConnectivity}">
+                    <Image Source="/TAS.Client.Common;component/Images/Connect.png"/>                    
+                </Button>
+                <Button Grid.Column="1" HorizontalAlignment="Center" ToolTip="Create new, empty database" Command="{Binding CommandCreateDatabase}">
+                    <Image Source="/TAS.Client.Common;component/Images/NewDatabase.png"/>
+                </Button>
+            </Grid>
+            
         </StackPanel>
     </ScrollViewer>
 </UserControl>

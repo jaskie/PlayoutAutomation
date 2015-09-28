@@ -172,4 +172,7 @@
   <data name="_title_TCOut" xml:space="preserve">
     <value>TC Out</value>
   </data>
+  <data name="_tooltip_SelectFile" xml:space="preserve">
+    <value>Select file...</value>
+  </data>
 </root>

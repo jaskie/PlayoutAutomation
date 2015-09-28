@@ -60,7 +60,7 @@
                                 <ProgressBar IsIndeterminate="{Binding IsIndeterminate, Mode=OneWay}"  Value="{Binding Progress, Mode=OneWay}" Minimum="0" Maximum="100" />
                                 <Label Content="{Binding Path=Progress}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" Foreground="White" FontWeight="Bold" />
                                 <Button Grid.Column="1" ToolTip="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.OperationOutput}" Command="{Binding CommandShowOutput}">
-                                    <Image Source="../Glyphs/Gearwheel.png"/>
+                                    <Image Source="/TAS.Client.Common;component/Images/Gearwheel.png"/>
                                 </Button>
                             </Grid>
                         </DataTemplate>

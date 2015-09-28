@@ -142,7 +142,7 @@
     </Reference>
     <Reference Include="MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\MySql.Data.dll</HintPath>
+      <HintPath>..\..\..\Windows\assembly\GAC_MSIL\MySql.Data\6.8.3.0__c5687fc88969c44d\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -186,6 +186,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="Server\DatabaseConnector.cs" />
     <Compile Include="Server\FFMpegOperation.cs" />
     <Compile Include="Server\GPICommand.cs" />
     <Compile Include="Server\GPIState.cs" />
@@ -262,7 +263,6 @@
     <Compile Include="Views\PreviewView.xaml.cs">
       <DependentUpon>PreviewView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Server\DatabaseConnector.cs" />
     <Compile Include="Server\EngineController.cs" />
     <Compile Include="Server\FileManager.cs" />
     <Compile Include="Server\FileOperation.cs" />
@@ -515,7 +515,6 @@
   <ItemGroup>
     <Resource Include="Glyphs\Stop.png" />
     <Resource Include="Glyphs\timer24_h.png" />
-    <Resource Include="Glyphs\volume24b.png" />
     <Resource Include="Glyphs\Undo.png" />
     <Resource Include="Glyphs\ArrowLeftUpRed.gif" />
     <Resource Include="Glyphs\ArrowUpRed.gif" />
@@ -526,7 +525,6 @@
     <Resource Include="Glyphs\Circle_1.png" />
     <Resource Include="Glyphs\Circle_2.png" />
     <Resource Include="Glyphs\Circle_3.png" />
-    <Resource Include="Glyphs\Gearwheel.png" />
     <Resource Include="Glyphs\Down.png" />
     <Resource Include="Glyphs\trash.png" />
     <Resource Include="Glyphs\EventTypes\StillImage.png" />

@@ -21,7 +21,8 @@ namespace TAS.Client.Setup.Model
             appSettings = new AppSettings();
             PropertyInfo[] asl = appSettings.GetType().GetProperties();
             foreach (PropertyInfo setting in asl)
-                setting.SetValue(appSettings, Convert.ChangeType(_configuration.AppSettings.Settings[setting.Name].Value, setting.PropertyType), null);
+                if (_configuration.AppSettings.Settings[setting.Name]!= null)
+                    setting.SetValue(appSettings,  Convert.ChangeType(_configuration.AppSettings.Settings[setting.Name].Value, setting.PropertyType), null);
         }
 
         public void Save()
@@ -31,7 +32,10 @@ namespace TAS.Client.Setup.Model
                 _configuration.ConnectionStrings.ConnectionStrings[cs.Name].ConnectionString = (string)cs.GetValue(connectionStrings, null);
             PropertyInfo[] asl = appSettings.GetType().GetProperties();
             foreach (PropertyInfo setting in asl)
-                _configuration.AppSettings.Settings[setting.Name].Value = setting.GetValue(appSettings, null).ToString();
+                if (_configuration.AppSettings.Settings[setting.Name] == null)
+                    _configuration.AppSettings.Settings.Add(setting.Name, setting.GetValue(appSettings, null).ToString());
+                else
+                    _configuration.AppSettings.Settings[setting.Name].Value = setting.GetValue(appSettings, null).ToString();
             _configuration.Save();
         }
 

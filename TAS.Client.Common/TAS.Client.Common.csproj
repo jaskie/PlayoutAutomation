@@ -193,6 +193,18 @@
   <ItemGroup>
     <Resource Include="Images\document_save.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Gearwheel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Connect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\NewDatabase.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

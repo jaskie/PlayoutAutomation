@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -49,7 +50,7 @@ namespace TAS.Client.Common
 
         protected virtual void Load(object source)
         {
-            PropertyInfo[] copiedProperties = this.GetType().GetProperties();
+            IEnumerable<PropertyInfo> copiedProperties = this.GetType().GetProperties().Where(p => p.CanWrite);
             foreach (PropertyInfo copyPi in copiedProperties)
             {
                 PropertyInfo sourcePi = source.GetType().GetProperty(copyPi.Name);
@@ -60,7 +61,8 @@ namespace TAS.Client.Common
 
         protected virtual void Apply(object destObject)
         {
-            if (Modified && Model != null)
+            if (Modified && Model != null
+                || destObject != null)
             {
                 PropertyInfo[] copiedProperties = this.GetType().GetProperties();
                 foreach (PropertyInfo copyPi in copiedProperties)
