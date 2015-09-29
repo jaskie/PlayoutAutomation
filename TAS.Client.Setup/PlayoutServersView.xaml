@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="TAS.Client.Setup.PlayoutServersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"  
+             xmlns:vm="clr-namespace:TAS.Client.Setup"
+             d:DataContext="{x:Type vm:PlayoutServersViewmodel}"
+             mc:Ignorable="d" 
+             MinHeight="400"
+             >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Margin" Value="3"/>
+                    <Setter Property="Padding" Value="3"/>
+                </Style>
+            </StackPanel.Resources>
+            <Button Command="{Binding CommandAdd}">
+                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_add.png"/>
+            </Button>
+            <Button Command="{Binding CommandDelete}">
+                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_delete.png"/>
+            </Button>
+        </StackPanel>
+        <ListView Grid.Row="1" ItemsSource="{Binding PlayoutServers}" SelectedItem="{Binding SelectedServer}" DisplayMemberPath="ServerAddress" MinWidth="200"/>
+
+        <ContentControl Grid.Column="1" Grid.RowSpan="2" Margin="5" Content="{Binding SelectedServer.View}" MinWidth="250" />
+    </Grid>
+</UserControl>
+

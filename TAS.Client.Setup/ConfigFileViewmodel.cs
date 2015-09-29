@@ -24,8 +24,14 @@ namespace TAS.Client.Setup
 
         private void _createDatabase(object obj)
         {
-            if (Database.CreateEmptyDatabase(tasConnectionString))
-                MessageBox.Show(Window.GetWindow(View), "Database created successfully", "Create database", MessageBoxButton.OK, MessageBoxImage.Information);
+            var vm = new CreateDatabaseViewmodel();
+            vm.ConnectionString = this.tasConnectionString;
+            if (vm.Show() == true)
+                if (vm.ConnectionString == this.tasConnectionString)
+                    MessageBox.Show(Window.GetWindow(View), "Database created successfully", "Create database", MessageBoxButton.OK, MessageBoxImage.Information);
+                else
+                    if (MessageBox.Show(Window.GetWindow(View), "Database created successfully. Use the new database?", "Create database", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                        this.tasConnectionString = vm.ConnectionString;
         }
 
         protected override void Load(object source)

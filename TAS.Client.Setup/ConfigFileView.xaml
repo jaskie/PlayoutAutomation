@@ -9,7 +9,7 @@
              d:DataContext="{x:Type setup:ConfigFileViewmodel}"
             >
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="5" MinWidth="250" MinHeight="330">
+        <StackPanel Margin="5" Width="250" MinHeight="330">
             <Label Content="Initialization properties" FontWeight="Bold" HorizontalAlignment="Center"/>
             <Label Content="Ingest folders definition file"/>
             <common:FilenameEntry 
@@ -31,16 +31,16 @@
             <TextBox Text="{Binding TempDirectory, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Instance binding"/>
             <TextBox Text="{Binding Instance, UpdateSourceTrigger=PropertyChanged}"/>
-            <Label Content="Volume reference loudness"/>
+            <Label Content="Volume reference loudness [dBFS]"/>
             <TextBox Text="{Binding VolumeReferenceLoudness, UpdateSourceTrigger=PropertyChanged}"/>
             <Separator Margin="10"/>
             <Label Content="Database" FontWeight="Bold" HorizontalAlignment="Center"/>
             <Label Content="Connection string"/>
             <DockPanel>
-                <Button DockPanel.Dock="Right" Height="{Binding ElementName=edConnectionString, Path=ActualHeight}" Command="{Binding CommandEditConnectionString}" ToolTip="Edit...">
+                <Button DockPanel.Dock="Right" MaxHeight="31" VerticalAlignment="Top" Height="{Binding ElementName=edConnectionString, Path=ActualHeight}" Command="{Binding CommandEditConnectionString}" ToolTip="Edit...">
                     <Image Source="/TAS.Client.Common;component/Images/Edit.png"/>
                 </Button>
-                <TextBox x:Name="edConnectionString" VerticalAlignment="Center" Text="{Binding tasConnectionString}" IsReadOnly="True"/>
+                <TextBox x:Name="edConnectionString" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding tasConnectionString}" IsReadOnly="True"/>
             </DockPanel>
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
@@ -50,10 +50,10 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0" HorizontalAlignment="Center" ToolTip="Test connectivity" Command="{Binding CommandTestConnectivity}">
-                    <Image Source="/TAS.Client.Common;component/Images/Connect.png"/>                    
+                    <Image Source="/TAS.Client.Common;component/Images/Connect.png" Stretch="None"/>                    
                 </Button>
                 <Button Grid.Column="1" HorizontalAlignment="Center" ToolTip="Create new, empty database" Command="{Binding CommandCreateDatabase}">
-                    <Image Source="/TAS.Client.Common;component/Images/NewDatabase.png"/>
+                    <Image Source="/TAS.Client.Common;component/Images/NewDatabase.png" Stretch="None"/>
                 </Button>
             </Grid>
             

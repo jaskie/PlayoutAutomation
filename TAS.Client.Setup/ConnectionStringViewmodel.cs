@@ -15,6 +15,7 @@ namespace TAS.Client.Setup
         private string _userId;
         private string _password;
         private string _characterSet;
+        private IEnumerable<string> _characterSets = new List<string>() { "utf8" };
         public ConnectionStringViewmodel(string connectionString) : base(new MySqlConnectionStringBuilder() { ConnectionString = connectionString }, new ConnectionStringView(), "Edit connection parameters") { }
 
         protected override void OnDispose() { }
@@ -26,5 +27,6 @@ namespace TAS.Client.Setup
         public string UserID { get { return _userId; } set { SetField (ref _userId, value, "UserID");} }
         public string Password { get { return _password; } set { SetField(ref _password, value, "Password"); } }
         public string CharacterSet { get { return _characterSet; } set { SetField(ref _characterSet, value, "CharacterSet"); } }
+        public IEnumerable<string> CharacterSets { get { return _characterSets; } }
     }
 }

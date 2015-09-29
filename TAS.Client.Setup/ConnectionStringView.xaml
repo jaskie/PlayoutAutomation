@@ -52,7 +52,7 @@
                 <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
             <Label Content="Charset"/>
-            <TextBox Text="{Binding CharacterSet, UpdateSourceTrigger=PropertyChanged}"/>
+            <ComboBox ItemsSource="{Binding CharacterSets}" SelectedItem="{Binding CharacterSet}"/>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

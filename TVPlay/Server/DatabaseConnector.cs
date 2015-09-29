@@ -856,11 +856,11 @@ VALUES
                 if (Connect())
                 {
                     string query = "SELECT Folder FROM archive WHERE idArchive=@idArchive;";
-                    MySqlCommand cmd = new MySqlCommand(query, connection);
-                    cmd.Parameters.AddWithValue("@idArchive", idArchive);
                     string folder = null;
                     lock (connection)
                     {
+                        MySqlCommand cmd = new MySqlCommand(query, connection);
+                        cmd.Parameters.AddWithValue("@idArchive", idArchive);
                         folder = (string)cmd.ExecuteScalar();
                     }
                     if (!string.IsNullOrEmpty(folder))
@@ -882,12 +882,14 @@ VALUES
             if (Connect())
             {
                 string query = "SELECT COUNT(*) FROM tas.archivemedia WHERE idArchive=@idArchive AND FileName=@FileName AND Folder=@Folder;";
-                MySqlCommand cmd = new MySqlCommand(query, connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
-                cmd.Parameters.AddWithValue("@FileName", fileName);
-                cmd.Parameters.AddWithValue("@Folder", dir.GetCurrentFolder());
                 lock (connection)
+                {
+                    MySqlCommand cmd = new MySqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
+                    cmd.Parameters.AddWithValue("@FileName", fileName);
+                    cmd.Parameters.AddWithValue("@Folder", dir.GetCurrentFolder());
                     return (long)cmd.ExecuteScalar() != 0;
+                }
             }
             return true;
         }

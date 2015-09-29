@@ -57,6 +57,11 @@
       <DependentUpon>ConnectionStringView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ConnectionStringViewmodel.cs" />
+    <Compile Include="CreateDatabaseView.xaml.cs">
+      <DependentUpon>CreateDatabaseView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CreateDatabase.cs" />
+    <Compile Include="CreateDatabaseViewmodel.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="IngestDirectoriesView.xaml.cs">
       <DependentUpon>IngestDirectoriesView.xaml</DependentUpon>
@@ -68,7 +73,18 @@
     <Compile Include="IngestDirectoryViewmodel.cs" />
     <Compile Include="Model\ConfigFile.cs" />
     <Compile Include="Model\IngestDirectory.cs" />
+    <Compile Include="Model\PlayoutServer.cs" />
+    <Compile Include="Model\PlayoutServerChannel.cs" />
+    <Compile Include="Model\PlayoutServers.cs" />
+    <Compile Include="PlayoutServerView.xaml.cs">
+      <DependentUpon>PlayoutServerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PlayoutServerViewmodel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PlayoutServersView.xaml.cs">
+      <DependentUpon>PlayoutServersView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PlayoutServersViewmodel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="ConfigFileView.xaml">
@@ -76,6 +92,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ConnectionStringView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CreateDatabaseView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -87,6 +107,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="PlayoutServersView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PlayoutServerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TAS.Client.Common\TAS.Client.Common.csproj">
@@ -97,6 +125,9 @@
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
       <Name>TAS.Server.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="database.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
