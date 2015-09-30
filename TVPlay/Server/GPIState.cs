@@ -6,7 +6,6 @@ using System.Xml.Serialization;
 
 namespace TAS.Server
 {
-    [Serializable]
     public class GPIState  
     {
         [XmlIgnore]

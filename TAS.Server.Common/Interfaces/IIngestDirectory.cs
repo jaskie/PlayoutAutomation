@@ -6,7 +6,7 @@ namespace TAS.Server.Interfaces
     public interface IIngestDirectory: IMediaDirectory
     {
         TAspectConversion AspectConversion { get; set; }
-        double AudioVolume { get; set; }
+        decimal AudioVolume { get; set; }
         bool DeleteSource { get; set; }
         string EncodeParams { get; set; }
         bool IsXDCAM { get; set; }

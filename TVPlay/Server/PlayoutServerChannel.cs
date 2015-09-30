@@ -8,12 +8,16 @@ using TAS.Common;
 
 namespace TAS.Server
 {
-    public abstract class PlayoutServerChannel : IDisposable, INotifyPropertyChanged
+    public abstract class PlayoutServerChannel : IDisposable, INotifyPropertyChanged, IPlayoutServerChannel
     {
         public PlayoutServer OwnerServer { get; set; }
-        public readonly string ChannelName;
-        public int ChannelNumber;
-        public decimal MasterVolume = 1;
+        #region IPlayoutServerChannel
+        public string ChannelName { get; set; }
+        public int ChannelNumber {get; set;}
+        [DefaultValue(1.0d)]
+        public decimal MasterVolume { get; set; }
+        public string LiveDevice { get; set; }
+        #endregion // IPlayoutServerChannel
         protected bool? outputAspectNarrow;
         public Engine Engine { get; set; }
 

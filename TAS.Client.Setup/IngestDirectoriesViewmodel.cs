@@ -12,27 +12,21 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.Setup
 {
-    public class IngestDirectoriesViewmodel: OkCancelViewmodelBase<IEnumerable<IIngestDirectory>>
+    public class IngestDirectoriesViewmodel: OkCancelViewmodelBase<IEnumerable<IngestDirectory>>
     {
         public ICommand CommandAdd { get; private set; }
         public ICommand CommandDelete { get; private set; }
         private readonly ObservableCollection<IngestDirectoryViewmodel> _directories;
         private readonly string _fileName;
-        public IngestDirectoriesViewmodel(IEnumerable<IIngestDirectory> directories, string fileName): base(directories, new IngestFoldersView(), string.Format("Ingest directories ({0})", fileName))
-        {
-            _directories = new ObservableCollection<IngestDirectoryViewmodel>(directories.Select(d => new IngestDirectoryViewmodel(d)));
-            _fileName = fileName;
-            _createCommands();
-        }
 
-        public IngestDirectoriesViewmodel(string fileName) : base(Deserialize(fileName), new IngestFoldersView(), "Ingest directories") 
+        public IngestDirectoriesViewmodel(string fileName) : base(Deserialize(fileName), new IngestFoldersView(), string.Format("Ingest directories ({0})", fileName)) 
         {
             _directories = new ObservableCollection<IngestDirectoryViewmodel>(Model.Select(d => new IngestDirectoryViewmodel(d)));
             _fileName = fileName;
             _createCommands();
         }
 
-        private static IEnumerable<IIngestDirectory> Deserialize(string fileName)
+        private static IEnumerable<IngestDirectory> Deserialize(string fileName)
         {
             try
             {
@@ -41,7 +35,7 @@ namespace TAS.Client.Setup
                 try
                 {
                     file = new System.IO.StreamReader(fileName);
-                    return (IEnumerable<IIngestDirectory>)reader.Deserialize(file);
+                    return (IEnumerable<IngestDirectory>)reader.Deserialize(file);
                 }
                 finally
                 {
@@ -74,7 +68,7 @@ namespace TAS.Client.Setup
 
         private void _add(object obj)
         {
-            var newDir = new IngestDirectoryViewmodel() { DirectoryName = Common.Properties.Resources._title_NewDirectory };
+            var newDir = new IngestDirectoryViewmodel( new IngestDirectory()) { DirectoryName = Common.Properties.Resources._title_NewDirectory };
             _directories.Add(newDir);
             _added = true;
             SelectedDirectory = newDir;
@@ -96,13 +90,19 @@ namespace TAS.Client.Setup
         
         public override bool Modified { get { return _added || _deleted || _directories.Any(d => d.Modified); } }
 
-        protected override void Apply(object parameter)
+        public override void Save(object parameter)
         {
-            XmlSerializer writer = new XmlSerializer(typeof(List<IngestDirectoryViewmodel>), new XmlRootAttribute("IngestDirectories"));
-            System.IO.StreamWriter file = new System.IO.StreamWriter(_fileName);
-            writer.Serialize(file, _directories.ToList());
-            file.Close();
-            base.Apply(parameter);
+            _directories.Where(d => d.Modified).All(d =>
+            {
+                d.Save();
+                return true;
+            });
+            XmlSerializer writer = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(_fileName))
+            {
+                writer.Serialize(file, _directories.Select(d => d.Model).ToList());
+                file.Close();
+            }
         }
 
     }

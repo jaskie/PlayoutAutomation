@@ -8,7 +8,7 @@ namespace TAS.Client.Setup.Model
     public class IngestDirectory: TAS.Server.Interfaces.IIngestDirectory
     {
         public TAS.Common.TAspectConversion AspectConversion { get; set; }
-        public double AudioVolume { get; set; }
+        public decimal AudioVolume { get; set; }
         public bool DeleteSource { get; set; }
         public bool IsXDCAM { get; set; }
         public TAS.Common.TMediaCategory MediaCategory { get; set; }

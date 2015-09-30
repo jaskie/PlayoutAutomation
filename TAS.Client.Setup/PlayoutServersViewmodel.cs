@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
@@ -13,23 +14,47 @@ namespace TAS.Client.Setup
     {
         private UICommand _commandAdd;
         private UICommand _commandDelete;
-        protected override void OnDispose() { }
+        protected override void OnDispose()
+        {
+            _playoutServers.CollectionChanged -= _playoutServers_CollectionChanged;
+        }
         public PlayoutServersViewmodel(string connectionString): base(new Model.PlayoutServers(connectionString), new PlayoutServersView(), "Playout servers")
         {
             _commandAdd = new UICommand() { ExecuteDelegate = _add };
-            _commandDelete = new UICommand() { ExecuteDelegate = _delete };
-            _playoutServers = new ObservableCollection<PlayoutServerViewmodel>(Model.PlayoutServerList.Select(s => new PlayoutServerViewmodel(s)));
+            _commandDelete = new UICommand() { ExecuteDelegate = o => _playoutServers.Remove(_selectedServer), CanExecuteDelegate = o => _selectedServer != null };
+            _playoutServers = new ObservableCollection<PlayoutServerViewmodel>(Model.Servers.Select(s => new PlayoutServerViewmodel(s)));
+            _playoutServers.CollectionChanged += _playoutServers_CollectionChanged;
         }
 
-        private void _delete(object obj)
+        void _playoutServers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            throw new NotImplementedException();
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                Model.Servers.Add(((PlayoutServerViewmodel)e.NewItems[0]).Model);
+            }
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                Model.Servers.Remove(((PlayoutServerViewmodel)e.OldItems[0]).Model);
+                Model.DeletedServers.Add(((PlayoutServerViewmodel)e.OldItems[0]).Model);
+            }
         }
 
         private void _add(object obj)
         {
-            throw new NotImplementedException();
+            var newPlayoutServer = new Model.CasparServer();
+            Model.Servers.Add(newPlayoutServer);
+            var newPlayoutServerViewmodel = new PlayoutServerViewmodel(newPlayoutServer);
+            _playoutServers.Add(newPlayoutServerViewmodel);
+            SelectedServer = newPlayoutServerViewmodel;            
         }
+        public override void Save(object destObject = null)
+        {
+            foreach (PlayoutServerViewmodel s in _playoutServers)
+                s.Save();
+            Model.Save();
+            base.Save(destObject);
+        }
+
 
         public ICommand CommandAdd { get { return _commandAdd; } }
         public ICommand CommandDelete { get { return _commandDelete; } }

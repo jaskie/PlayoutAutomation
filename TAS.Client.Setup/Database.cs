@@ -37,7 +37,7 @@ namespace TAS.Server.Common
             Debug.WriteLine(_connection, "Created");
         }
 
-        internal static void Uninitize()
+        internal static void Uninitialize()
         {
             lock (_connection)
             {
@@ -109,33 +109,20 @@ namespace TAS.Server.Common
         internal static List<T> DbLoadServers<T>() where T: IPlayoutServer
         {
             List<T> servers = new List<T>();
-            if (_connect())
+            lock (_connection)
             {
-                MySqlCommand cmd = new MySqlCommand("SELECT * FROM Server;", _connection);
-                lock (_connection)
+                if (_connect())
                 {
+
+                    MySqlCommand cmd = new MySqlCommand("SELECT * FROM server;", _connection);
                     using (MySqlDataReader dataReader = cmd.ExecuteReader())
                     {
                         while (dataReader.Read())
                         {
-                            XmlRootAttribute rootAttribute;
-                            switch ((TServerType)dataReader.GetInt32("typServer"))
-                            {
-                                case TServerType.Caspar:
-                                    rootAttribute = new XmlRootAttribute("CasparServer");
-                                    break;
-                                default:
-                                    throw new NotImplementedException("Server type out of range");
-                            }
                             StringReader reader = new StringReader(dataReader.GetString("Config"));
-                            XmlSerializer serializer = new XmlSerializer(typeof(T), rootAttribute);
+                            XmlSerializer serializer = new XmlSerializer(typeof(T));
                             T server = (T)serializer.Deserialize(reader);
                             server.Id = dataReader.GetUInt64("idServer");
-                            server.ServerType = (TServerType)dataReader.GetInt32("typServer");
-                            
-                            //XmlNode channelsNode = configXml.SelectSingleNode(@"CasparServer/Channels");
-                            //Debug.WriteLine("Adding Caspar channels");
-                            //newServer.Channels = SerializationHelper.Deserialize<List<CasparServerChannel>>(channelsNode.OuterXml, "Channels").ConvertAll<PlayoutServerChannel>(pc => (PlayoutServerChannel)pc);
                             servers.Add(server);
                         }
                         dataReader.Close();
@@ -145,6 +132,62 @@ namespace TAS.Server.Common
             return servers;
         }
 
+        internal static void DbInsert<T>(this T server) where T: IPlayoutServer
+        {
+            lock (_connection)
+            {
+                if (_connect())
+                {
+                    {
+                        MySqlCommand cmd = new MySqlCommand(@"INSERT INTO server set typServer=0, Config=@Config", _connection);
+                        XmlSerializer serializer = new XmlSerializer(typeof(T));
+                        using (var writer = new StringWriter())
+                        {
+                            serializer.Serialize(writer, server);
+                            cmd.Parameters.AddWithValue("@Config", writer.ToString());
+                        }
+                        cmd.ExecuteNonQuery();
+                        server.Id = (ulong)cmd.LastInsertedId;
+                    }
+                }
+            }
+
+        }
+
+        internal static void DbUpdate<T>(this T server) where T : IPlayoutServer
+        {
+            lock (_connection)
+            {
+                if (_connect())
+                {
+
+                    MySqlCommand cmd = new MySqlCommand("UPDATE server SET Config=@Config WHERE idServer=@idServer;", _connection);
+                    XmlSerializer serializer = new XmlSerializer(typeof(T));
+                    using (var writer = new StringWriter())
+                    {
+                        serializer.Serialize(writer, server);
+                        cmd.Parameters.AddWithValue("@Config", writer.ToString());
+                    }
+                    cmd.Parameters.AddWithValue("@idServer", server.Id);
+                    cmd.ExecuteNonQuery();
+
+                }
+            }
+        }
+
+        internal static void DbDelete<T>(this T server) where T : IPlayoutServer
+        {
+            lock (_connection)
+            {
+                if (_connect())
+                {
+
+                    MySqlCommand cmd = new MySqlCommand("DELETE FROM server WHERE idServer=@idServer;", _connection);
+                    cmd.Parameters.AddWithValue("@idServer", server.Id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
 
     }
 }

@@ -22,8 +22,6 @@ namespace TAS.Server
             }
         }
 
-        public string LiveDevice { get; set; }
-
         private bool _checkConnected()
         {
             var server = OwnerServer;

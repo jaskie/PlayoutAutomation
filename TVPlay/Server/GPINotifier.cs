@@ -15,7 +15,6 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    [Serializable]
     public class GPINotifier : INotifyPropertyChanged, IDisposable, IGpi
     {
 

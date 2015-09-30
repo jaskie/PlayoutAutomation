@@ -116,8 +116,8 @@ namespace TAS.Server
         private TAudioChannelMappingConversion _audioChannelMappingConversion;
         public TAudioChannelMappingConversion AudioChannelMappingConversion { get { return _audioChannelMappingConversion; } set { SetField(ref _audioChannelMappingConversion, value, "AudioChannelMappingConversion"); } }
 
-        private double _audioVolume;
-        public double AudioVolume
+        private decimal _audioVolume;
+        public decimal AudioVolume
         {
             get { return _audioVolume; }
             set { SetField(ref _audioVolume, value, "AudioVolume");}

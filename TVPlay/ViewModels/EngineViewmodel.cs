@@ -298,7 +298,7 @@ namespace TAS.Client.ViewModels
 
         private void _ingestDirectoriesSettings(object o)
         {
-            var setup = new Client.Setup.IngestDirectoriesViewmodel(_engine.MediaManager.IngestDirectories, ConfigurationManager.AppSettings["IngestFolders"]);
+            var setup = new Client.Setup.IngestDirectoriesViewmodel(ConfigurationManager.AppSettings["IngestFolders"]);
             if (setup.Show() == true)
                 _engine.MediaManager.ReloadIngestDirs();
         }

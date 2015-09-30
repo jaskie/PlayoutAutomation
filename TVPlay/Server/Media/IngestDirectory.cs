@@ -75,7 +75,7 @@ namespace TAS.Server
 
         public TMediaCategory MediaCategory { get; set; }
 
-        public double AudioVolume { get; set; }
+        public decimal AudioVolume { get; set; }
 
         public TFieldOrder SourceFieldOrder { get; set; }
 

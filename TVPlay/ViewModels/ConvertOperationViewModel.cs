@@ -57,7 +57,7 @@ namespace TAS.Client.ViewModels
             get { return _convertOperation.AudioChannelMappingConversion; }
             set { _convertOperation.AudioChannelMappingConversion = value; }
         }
-        public double AudioVolume
+        public decimal AudioVolume
         {
             get { return _convertOperation.AudioVolume; }
             set { _convertOperation.AudioVolume = value; }

@@ -10,7 +10,6 @@ namespace TAS.Server.Interfaces
     {
         string ServerAddress { get; set; }
         string MediaFolder { get; set; }
-        TServerType ServerType { get; set; }
-        IEnumerable<IPlayoutServerChannel> Channels { get; }
+        //IEnumerable<IPlayoutServerChannel> Channels { get; }
     }
 }

@@ -14,10 +14,10 @@ namespace TAS.Server
     public delegate void CommandNotifier(DateTime When, string Command, Event sender);
     public delegate void VolumeChangeNotifier(PlayoutServerChannel channel, VideoLayer layer, decimal newvalue);
 
-    public abstract class PlayoutServer : IDisposable, INotifyPropertyChanged
+    public abstract class PlayoutServer : IDisposable, INotifyPropertyChanged, IPlayoutServer
     {
         [XmlIgnore]
-        public UInt64 idServer { get; set; }
+        public UInt64 Id { get; set; }
         public string ServerAddress { get; set; }
         public string MediaFolder { get; set; }
         [XmlIgnore]
@@ -55,7 +55,7 @@ namespace TAS.Server
             }
         }
 
-        public PlayoutServer()
+        protected PlayoutServer()
         {
             MediaDirectory = new ServerDirectory(this);
             AnimationDirectory = new AnimationDirectory(this);

@@ -12,7 +12,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
@@ -32,9 +32,13 @@
                 <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_delete.png"/>
             </Button>
         </StackPanel>
-        <ListView Grid.Row="1" ItemsSource="{Binding PlayoutServers}" SelectedItem="{Binding SelectedServer}" DisplayMemberPath="ServerAddress" MinWidth="200"/>
-
-        <ContentControl Grid.Column="1" Grid.RowSpan="2" Margin="5" Content="{Binding SelectedServer.View}" MinWidth="250" />
+        <DataGrid Grid.Row="1" ItemsSource="{Binding PlayoutServers}" SelectedItem="{Binding SelectedServer}" AutoGenerateColumns="False" IsReadOnly="True" MinWidth="200">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Id" Binding="{Binding Id}"/>
+                <DataGridTextColumn Header="Address" Binding="{Binding ServerAddress}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <ContentControl Grid.Column="1" Grid.RowSpan="2" Content="{Binding SelectedServer.Editor}"/>
     </Grid>
 </UserControl>
 

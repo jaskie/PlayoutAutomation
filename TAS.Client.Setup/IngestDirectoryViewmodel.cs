@@ -7,42 +7,19 @@ using System.Text;
 using System.Windows.Input;
 using System.Xml.Serialization;
 using TAS.Client.Common;
+using TAS.Client.Setup.Model;
 using TAS.Common;
 using TAS.Server.Interfaces;
 
 namespace TAS.Client.Setup
 {
     [XmlType("IngestDirectory")]
-    public class IngestDirectoryViewmodel: ViewModels.ViewmodelBase, IIngestDirectory
+    public class IngestDirectoryViewmodel: EditViewModelBase<IngestDirectory>, IIngestDirectory
     {
         // only required by serializer
-        public IngestDirectoryViewmodel()
+        public IngestDirectoryViewmodel(IngestDirectory model):base(model, new IngestDirectoryView())
         {
-            _view = new IngestDirectoryView() { DataContext = this };
-        }
 
-        private void _directorySelect(object obj)
-        {
-            
-        }
-        
-        readonly System.Windows.Controls.UserControl _view;
-        
-        public IngestDirectoryViewmodel(IIngestDirectory directory): this()
-        {
-            _copyProperties(directory);
-        }
-
-        void _copyProperties(IIngestDirectory source)
-        {
-            PropertyInfo[] copiedProperties = this.GetType().GetProperties();
-            foreach (PropertyInfo copyPi in copiedProperties)
-            {
-                PropertyInfo sourcePi = source.GetType().GetProperty(copyPi.Name);
-                if (sourcePi != null)
-                    copyPi.SetValue(this, sourcePi.GetValue(source, null), null);
-            }
-            _modified = false;
         }
         
         #region Enumerations
@@ -78,9 +55,9 @@ namespace TAS.Client.Setup
         TAspectConversion _aspectConversion;
         [DefaultValue(default(TAspectConversion))]
         public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value, "AspectConversion"); } }
-        double _audioVolume;
+        decimal _audioVolume;
         [DefaultValue(default(double))]
-        public double AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value, "AudioVolume"); } }
+        public decimal AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value, "AudioVolume"); } }
         bool _deleteSource;
         [DefaultValue(false)]
         public bool DeleteSource { get { return _deleteSource; } set { SetField(ref _deleteSource, value, "DeleteSource"); } }
@@ -111,28 +88,11 @@ namespace TAS.Client.Setup
 
         #endregion // IIngestDirectory
         
-        [XmlIgnore]
-        public System.Windows.Controls.UserControl View { get { return _view; } }
-
         protected override void OnDispose() { }
 
         public override string ToString()
         {
             return string.Format("{0} ({1})", DirectoryName, Folder);
         }
-
-        protected override bool SetField<T>(ref T field, T value, string propertyName)
-        {
-            if (base.SetField<T>(ref field, value, propertyName))
-            {
-                _modified = true;
-                return true;
-            }
-            return false;
-        }
-
-        bool _modified;
-        [XmlIgnore]
-        public bool Modified { get { return _modified; } }
     }
 }

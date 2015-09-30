@@ -40,10 +40,10 @@ namespace TAS.Client.Setup
             base.Load(Model.connectionStrings);
         }
 
-        protected override void Apply(object parameter)
+        public override void Save(object destObject)
         {
-            base.Apply(Model.appSettings);
-            base.Apply(Model.connectionStrings);
+            base.Save(Model.appSettings);
+            base.Save(Model.connectionStrings);
             Model.Save();
         }
 

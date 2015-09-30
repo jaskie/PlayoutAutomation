@@ -70,9 +70,9 @@ namespace TAS.Client.Setup
             
         }
 
-        protected override void Apply(object parameter)
+        public override void Save(object parameter)
         {
-            base.Apply(parameter);
+            base.Save(parameter);
             Model.PlayoutChannelPGM = _channelPGM as Server.PlayoutServerChannel;
             Model.PlayoutChannelPRV = _channelPRV as Server.PlayoutServerChannel;
             var gpi = Model.GPI;

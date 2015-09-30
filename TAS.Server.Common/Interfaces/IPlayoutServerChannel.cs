@@ -7,5 +7,9 @@ namespace TAS.Server.Interfaces
 {
     public interface IPlayoutServerChannel
     {
+        string ChannelName { get; set; }
+        int ChannelNumber { get; set; }
+        decimal MasterVolume { get; set; }
+        string LiveDevice { get; set; }
     }
 }

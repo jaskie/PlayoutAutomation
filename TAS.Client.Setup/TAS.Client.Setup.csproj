@@ -40,6 +40,7 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -73,9 +74,13 @@
     <Compile Include="IngestDirectoryViewmodel.cs" />
     <Compile Include="Model\ConfigFile.cs" />
     <Compile Include="Model\IngestDirectory.cs" />
-    <Compile Include="Model\PlayoutServer.cs" />
-    <Compile Include="Model\PlayoutServerChannel.cs" />
+    <Compile Include="Model\CasparServer.cs" />
+    <Compile Include="Model\CasparServerChannel.cs" />
     <Compile Include="Model\PlayoutServers.cs" />
+    <Compile Include="PlayoutServerChannelView.xaml.cs">
+      <DependentUpon>PlayoutServerChannelView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PlayoutServerChannelViewmodel.cs" />
     <Compile Include="PlayoutServerView.xaml.cs">
       <DependentUpon>PlayoutServerView.xaml</DependentUpon>
     </Compile>
@@ -106,6 +111,10 @@
     <Page Include="IngestDirectoryView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PlayoutServerChannelView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="PlayoutServersView.xaml">
       <SubType>Designer</SubType>
