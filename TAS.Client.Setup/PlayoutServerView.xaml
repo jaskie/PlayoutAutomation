@@ -34,6 +34,8 @@
                     <Label Content="Server type"/>
                     <ComboBox SelectedItem="{Binding ServerType}" ItemsSource="{Binding ServerTypes}"/>
                 </StackPanel>
+                <Separator DockPanel.Dock="Top" Margin="5"/>
+                <Label DockPanel.Dock="Top" Content="Channels"/>
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="35">
                     <StackPanel.Resources>
                         <Style TargetType="Button">
@@ -41,10 +43,10 @@
                             <Setter Property="Padding" Value="3"/>
                         </Style>
                     </StackPanel.Resources>
-                    <Button Command="{Binding CommandAdd}">
+                    <Button Command="{Binding CommandAdd}" ToolTip="Add new channel">
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_add.png"/>
                     </Button>
-                    <Button Command="{Binding CommandDelete}">
+                    <Button Command="{Binding CommandDelete}" ToolTip="Delete channel">
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_delete.png"/>
                     </Button>
                 </StackPanel>

@@ -25,10 +25,10 @@
                     <Setter Property="Padding" Value="3"/>
                 </Style>
             </StackPanel.Resources>
-            <Button Command="{Binding CommandAdd}">
+            <Button Command="{Binding CommandAdd}" ToolTip="Add new server">
                 <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_add.png"/>
             </Button>
-            <Button Command="{Binding CommandDelete}">
+            <Button Command="{Binding CommandDelete}" ToolTip="Delete selected server">
                 <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_delete.png"/>
             </Button>
         </StackPanel>

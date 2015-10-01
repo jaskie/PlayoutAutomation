@@ -20,7 +20,7 @@
                 <Setter Property="Margin" Value="5"/>
             </Style>
         </ScrollViewer.Resources>
-        <StackPanel MinHeight="450" MinWidth="250">
+        <StackPanel MinHeight="480" MinWidth="250" Margin="0, 0, 0, 5">
             <Label Content="Engine name"/>
             <TextBox Text="{Binding EngineName, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Video format"/>

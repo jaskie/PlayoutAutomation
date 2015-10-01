@@ -67,8 +67,8 @@ namespace TAS.Client.Setup
                     || (_engines!= null && _engines.Any(e => e.Modified));
             }
         }
-
         readonly ObservableCollection<EngineViewmodel> _engines;
+
         public ObservableCollection<EngineViewmodel> Engines { get { return _engines; } }
         EngineViewmodel _selectedEngine;
         public EngineViewmodel SelectedEngine { get { return _selectedEngine; } set { SetField(ref _selectedEngine, value, "SelectedEngine"); } }
