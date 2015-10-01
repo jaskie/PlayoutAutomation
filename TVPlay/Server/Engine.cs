@@ -17,13 +17,15 @@ using TAS.Server.Interfaces;
 namespace TAS.Server
 {
     
-    public class Engine : INotifyPropertyChanged, IDisposable, IEngine
+    public class Engine : INotifyPropertyChanged, IDisposable, IEngineConfig
     {
-        [XmlIgnore]
         public UInt64 Id { get; set; }
-        [XmlIgnore]
-        public UInt64 Instance { get; internal set; }
-
+        public UInt64 Instance { get; set; }
+        public UInt64 IdArchive { get; set; }
+        public ulong IdServerPGM { get; set; }
+        public int ServerChannelPGM { get; set; }
+        public ulong IdServerPRV { get; set; }
+        public int ServerChannelPRV { get; set; }
         string _engineName;
         public string EngineName
         {
@@ -38,7 +40,6 @@ namespace TAS.Server
             }
         }
 #region Fields
-        internal UInt64 idArchive;
 
         [XmlIgnore]
         public readonly MediaManager MediaManager;

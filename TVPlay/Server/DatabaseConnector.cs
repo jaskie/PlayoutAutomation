@@ -942,7 +942,7 @@ VALUES
                             newEngine.Instance = dataReader.GetUInt64("Instance");
                             newEngine.PlayoutChannelPGM = cPGM;
                             newEngine.PlayoutChannelPRV = cPRV;
-                            newEngine.idArchive = dataReader.GetUInt64("idArchive");
+                            newEngine.IdArchive = dataReader.GetUInt64("idArchive");
                             Engines.Add(newEngine);
                         }
                         dataReader.Close();
@@ -975,7 +975,7 @@ idEngine=@idEngine", connection);
                     cmd.Parameters.AddWithValue("@ServerChannelPGM", engine.PlayoutChannelPGM == null ? DBNull.Value : (object)engine.PlayoutChannelPGM.ChannelNumber);
                     cmd.Parameters.AddWithValue("@idServerPRV", engine.PlayoutChannelPRV == null ? DBNull.Value : (object)engine.PlayoutChannelPRV.OwnerServer.Id);
                     cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.PlayoutChannelPRV == null ? DBNull.Value : (object)engine.PlayoutChannelPRV.ChannelNumber);
-                    cmd.Parameters.AddWithValue("@idArchive", engine.idArchive);
+                    cmd.Parameters.AddWithValue("@idArchive", engine.IdArchive);
                     cmd.Parameters.AddWithValue("@Config", SerializationHelper.Serialize<Engine>(engine));
 
                     if (cmd.ExecuteNonQuery() == 1)

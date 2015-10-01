@@ -27,8 +27,6 @@
             </Grid.ColumnDefinitions>
             <DockPanel MinWidth="200" MinHeight="300" >
                 <StackPanel DockPanel.Dock="Top">
-                    <Label Content="Id"/>
-                    <TextBox Text="{Binding Id}"/>
                     <Label Content="Server address [host:port]"/>
                     <TextBox Text="{Binding ServerAddress, UpdateSourceTrigger=PropertyChanged}" />
                     <Label Content="Media folder"/>

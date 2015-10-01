@@ -8,11 +8,11 @@ using System.Xml.Serialization;
 
 namespace TAS.Client.Common
 {
-    public abstract class EditViewModelBase<M> : ViewModels.ViewmodelBase 
+    public abstract class EditViewmodelBase<M> : ViewModels.ViewmodelBase 
     {
         public readonly M Model;
         public readonly UserControl _editor;
-        public EditViewModelBase(M model, UserControl editor)
+        public EditViewmodelBase(M model, UserControl editor)
         {
             Model = model;
             _editor = editor;

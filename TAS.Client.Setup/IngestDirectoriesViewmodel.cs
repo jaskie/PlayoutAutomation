@@ -19,7 +19,7 @@ namespace TAS.Client.Setup
         private readonly ObservableCollection<IngestDirectoryViewmodel> _directories;
         private readonly string _fileName;
 
-        public IngestDirectoriesViewmodel(string fileName) : base(Deserialize(fileName), new IngestFoldersView(), string.Format("Ingest directories ({0})", fileName)) 
+        public IngestDirectoriesViewmodel(string fileName) : base(Deserialize(fileName), new IngestFoldersView(), string.Format("Ingest directories ({0})", System.IO.Path.GetFullPath(fileName))) 
         {
             _directories = new ObservableCollection<IngestDirectoryViewmodel>(Model.Select(d => new IngestDirectoryViewmodel(d)));
             _fileName = fileName;

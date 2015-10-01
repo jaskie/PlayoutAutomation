@@ -29,6 +29,7 @@ namespace TAS.Client.Setup
         public static string[] Collations { get { return TAS.Client.Setup.Model.CreateDatabase.Collations; } }
         protected override void Ok(object o)
         {
+            UiServices.SetBusyState();
             Save(null);
             View.DialogResult = Model.CreateEmptyDatabase();
         }

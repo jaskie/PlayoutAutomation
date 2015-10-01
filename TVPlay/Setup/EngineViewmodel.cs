@@ -12,10 +12,10 @@ namespace TAS.Client.Setup
     public class EngineViewmodel : OkCancelViewmodelBase<Server.Engine>
     {
         readonly Server.EngineController _controller;
-        public EngineViewmodel(Server.Engine engine, Server.EngineController controller) : base(engine, new EngineView(),  "Channel config") 
+        public EngineViewmodel(Server.Engine engine, Server.EngineController controller) : base(engine, new Setup.EngineView(),  "Channel config") 
         {
             _controller = controller;
-            _channels = new List<object>() { Properties.Resources._none_ };
+            _channels = new List<object>() { TAS.Client.Common.Properties.Resources._none_ };
             controller.Servers.ForEach(s => _channels.AddRange(s.Channels));
             _channelPGM = engine.PlayoutChannelPGM;
             _channelPRV = engine.PlayoutChannelPRV;

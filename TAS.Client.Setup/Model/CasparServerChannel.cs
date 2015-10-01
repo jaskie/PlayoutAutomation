@@ -7,7 +7,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.Setup.Model
 {
-    public class CasparServerChannel: IPlayoutServerChannel
+    public class CasparServerChannel: IPlayoutServerChannelConfig
     {
         public CasparServerChannel()
         {
@@ -17,5 +17,11 @@ namespace TAS.Client.Setup.Model
         public int ChannelNumber { get; set; }
         public decimal MasterVolume { get; set; } 
         public string LiveDevice { get; set; }
+        
+        internal object Owner;
+        public override string ToString()
+        {
+            return string.Format("{0} - {1}", Owner, ChannelName);
+        }
     }
 }

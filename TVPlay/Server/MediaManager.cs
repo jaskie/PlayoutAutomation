@@ -43,7 +43,7 @@ namespace TAS.Server
             AnimationDirectoryPGM = (Engine.PlayoutChannelPGM == null) ? null : Engine.PlayoutChannelPGM.OwnerServer.AnimationDirectory;
             AnimationDirectoryPRV = (Engine.PlayoutChannelPRV == null) ? null : Engine.PlayoutChannelPRV.OwnerServer.AnimationDirectory;
 
-            ArchiveDirectory = DatabaseConnector.LoadArchiveDirectory(Engine.idArchive);
+            ArchiveDirectory = DatabaseConnector.LoadArchiveDirectory(Engine.IdArchive);
             Debug.WriteLine(this, "Begin initializing");
             ServerDirectory sdir = MediaDirectoryPGM as ServerDirectory;
             if (sdir != null)

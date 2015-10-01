@@ -179,9 +179,6 @@ Really delete?</value>
   <data name="_all_" xml:space="preserve">
     <value>All</value>
   </data>
-  <data name="_none_" xml:space="preserve">
-    <value>None</value>
-  </data>
   <data name="_query_DeleteSelectedContainers" xml:space="preserve">
     <value>You are deleting following {0} container(s):
 {1}

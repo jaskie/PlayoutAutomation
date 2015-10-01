@@ -14,7 +14,7 @@ using TAS.Server.Interfaces;
 namespace TAS.Client.Setup
 {
     [XmlType("IngestDirectory")]
-    public class IngestDirectoryViewmodel: EditViewModelBase<IngestDirectory>, IIngestDirectory
+    public class IngestDirectoryViewmodel: EditViewmodelBase<IngestDirectory>, IIngestDirectoryConfig
     {
         // only required by serializer
         public IngestDirectoryViewmodel(IngestDirectory model):base(model, new IngestDirectoryView())

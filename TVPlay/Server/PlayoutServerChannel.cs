@@ -8,7 +8,7 @@ using TAS.Common;
 
 namespace TAS.Server
 {
-    public abstract class PlayoutServerChannel : IDisposable, INotifyPropertyChanged, IPlayoutServerChannel
+    public abstract class PlayoutServerChannel : IDisposable, INotifyPropertyChanged, IPlayoutServerChannelConfig
     {
         public PlayoutServer OwnerServer { get; set; }
         #region IPlayoutServerChannel

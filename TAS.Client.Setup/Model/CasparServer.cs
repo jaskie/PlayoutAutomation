@@ -10,7 +10,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.Setup.Model
 {
-    public class CasparServer: IPlayoutServer
+    public class CasparServer: IPlayoutServerConfig
     {
         public CasparServer()
         {
@@ -24,6 +24,10 @@ namespace TAS.Client.Setup.Model
         public ulong Id { get; set; }
         public TServerType ServerType { get; set; }
         public List<CasparServerChannel> Channels { get; set; }
+        public override string ToString()
+        {
+            return ServerAddress;
+        }
     }
 
 }

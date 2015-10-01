@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TAS.Client.Setup.Model
 {
-    public class IngestDirectory: TAS.Server.Interfaces.IIngestDirectory
+    public class IngestDirectory: TAS.Server.Interfaces.IIngestDirectoryConfig
     {
         public TAS.Common.TAspectConversion AspectConversion { get; set; }
         public decimal AudioVolume { get; set; }

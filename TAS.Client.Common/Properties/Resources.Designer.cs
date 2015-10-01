@@ -98,6 +98,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to None.
+        /// </summary>
+        public static string _none_ {
+            get {
+                return ResourceManager.GetString("_none_", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete: {0}:{1}.
         /// </summary>
         public static string _title_Delete {

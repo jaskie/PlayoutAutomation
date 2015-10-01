@@ -25,7 +25,8 @@ namespace TAS.Client.Setup
         
         private void _enginesSetup(object obj)
         {
-            
+            EnginesViewmodel vm = new EnginesViewmodel(_configFile.connectionStrings.tasConnectionString);
+            vm.Show();
         }
         
         private void _serversSetup(object obj)
@@ -33,8 +34,7 @@ namespace TAS.Client.Setup
             PlayoutServersViewmodel vm = new PlayoutServersViewmodel( _configFile.connectionStrings.tasConnectionString);
             vm.Show();
         }
-
-        
+                
         private void _configFileSelect(object obj)
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog() { Filter = "Executables (*.exe)|*.exe" };

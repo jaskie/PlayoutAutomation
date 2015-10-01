@@ -15,7 +15,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class GPINotifier : INotifyPropertyChanged, IDisposable, IGpi
+    public class GPINotifier : INotifyPropertyChanged, IDisposable, IGpi, IGpiConfig
     {
 
         private const int port = 1060;

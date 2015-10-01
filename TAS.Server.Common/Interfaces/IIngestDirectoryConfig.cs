@@ -3,7 +3,7 @@ using TAS.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IIngestDirectory: IMediaDirectory
+    public interface IIngestDirectoryConfig: IMediaDirectoryConfig
     {
         TAspectConversion AspectConversion { get; set; }
         decimal AudioVolume { get; set; }

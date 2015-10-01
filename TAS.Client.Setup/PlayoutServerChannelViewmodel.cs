@@ -7,7 +7,7 @@ using TAS.Client.Setup.Model;
 
 namespace TAS.Client.Setup
 {
-    public class PlayoutServerChannelViewmodel:EditViewModelBase<CasparServerChannel>
+    public class PlayoutServerChannelViewmodel:EditViewmodelBase<CasparServerChannel>
     {
         private string _channelName;
         private int _channelNumber;

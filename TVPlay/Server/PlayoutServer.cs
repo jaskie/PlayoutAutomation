@@ -14,7 +14,7 @@ namespace TAS.Server
     public delegate void CommandNotifier(DateTime When, string Command, Event sender);
     public delegate void VolumeChangeNotifier(PlayoutServerChannel channel, VideoLayer layer, decimal newvalue);
 
-    public abstract class PlayoutServer : IDisposable, INotifyPropertyChanged, IPlayoutServer
+    public abstract class PlayoutServer : IDisposable, INotifyPropertyChanged, IPlayoutServerConfig
     {
         [XmlIgnore]
         public UInt64 Id { get; set; }

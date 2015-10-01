@@ -18,7 +18,11 @@ namespace TAS.Client.Setup.Model
             {
                 Database.Initialize(connectionString);
                 _servers = Database.DbLoadServers<CasparServer>();
-                _servers.ForEach(s => s.IsNew = false);
+                _servers.ForEach(s =>
+                    {
+                        s.IsNew = false;
+                        s.Channels.ForEach(c => c.Owner = s);
+                    });
             }
             finally
             {
@@ -34,11 +38,11 @@ namespace TAS.Client.Setup.Model
                 _servers.ForEach(s =>
                 {
                     if (s.Id == 0)
-                        s.DbInsert();
+                        s.DbInsertServer();
                     else
-                        s.DbUpdate();
+                        s.DbUpdateServer();
                 });
-                DeletedServers.ForEach(s => { if (s.Id > 0) s.DbDelete(); });
+                DeletedServers.ForEach(s => { if (s.Id > 0) s.DbDeleteServer(); });
             }
             finally
             {

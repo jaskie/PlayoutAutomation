@@ -61,6 +61,14 @@
     <Compile Include="CreateDatabaseView.xaml.cs">
       <DependentUpon>CreateDatabaseView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="EnginesView.xaml.cs">
+      <DependentUpon>EnginesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EnginesViewmodel.cs" />
+    <Compile Include="EngineView.xaml.cs">
+      <DependentUpon>EngineView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EngineViewmodel.cs" />
     <Compile Include="Model\CreateDatabase.cs" />
     <Compile Include="CreateDatabaseViewmodel.cs" />
     <Compile Include="Database.cs" />
@@ -73,6 +81,9 @@
     </Compile>
     <Compile Include="IngestDirectoryViewmodel.cs" />
     <Compile Include="Model\ConfigFile.cs" />
+    <Compile Include="Model\Engine.cs" />
+    <Compile Include="Model\Engines.cs" />
+    <Compile Include="Model\Gpi.cs" />
     <Compile Include="Model\IngestDirectory.cs" />
     <Compile Include="Model\CasparServer.cs" />
     <Compile Include="Model\CasparServerChannel.cs" />
@@ -101,6 +112,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CreateDatabaseView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EnginesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EngineView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

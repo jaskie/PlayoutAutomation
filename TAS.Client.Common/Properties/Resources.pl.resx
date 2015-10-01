@@ -130,6 +130,9 @@
   <data name="_moreItems" xml:space="preserve">
     <value>i jeszcze {0} elementów</value>
   </data>
+  <data name="_none_" xml:space="preserve">
+    <value>Brak</value>
+  </data>
   <data name="_title_Delete" xml:space="preserve">
     <value>Usuń: {0}:{1}</value>
   </data>

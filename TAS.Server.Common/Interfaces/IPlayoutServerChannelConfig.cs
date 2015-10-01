@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IPlayoutServerChannel
+    public interface IPlayoutServerChannelConfig
     {
         string ChannelName { get; set; }
         int ChannelNumber { get; set; }

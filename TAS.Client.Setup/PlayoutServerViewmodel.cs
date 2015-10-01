@@ -10,7 +10,7 @@ using TAS.Common;
 
 namespace TAS.Client.Setup
 {
-    public class PlayoutServerViewmodel:EditViewModelBase<Model.CasparServer>
+    public class PlayoutServerViewmodel:EditViewmodelBase<Model.CasparServer>
     {
         protected override void OnDispose()
         {
@@ -25,6 +25,7 @@ namespace TAS.Client.Setup
         private readonly ObservableCollection<PlayoutServerChannelViewmodel> _playoutServerChannels;
         private readonly UICommand _commandAdd;
         private readonly UICommand _commandDelete;
+        private bool _isCollectionChanged;
         public PlayoutServerViewmodel(Model.CasparServer playoutServer): base(playoutServer, new PlayoutServerView())
         {
             _playoutServerChannels = new ObservableCollection<PlayoutServerChannelViewmodel>(playoutServer.Channels.Select(p => new PlayoutServerChannelViewmodel(p)));
@@ -43,6 +44,7 @@ namespace TAS.Client.Setup
             {
                 Model.Channels.Remove(((PlayoutServerChannelViewmodel)e.OldItems[0]).Model);
             }
+            _isCollectionChanged = true;
         }
 
         private void _addChannel(object o)
@@ -64,9 +66,11 @@ namespace TAS.Client.Setup
             base.Save(destObject);
         }
 
+        public override bool Modified { get { return _isCollectionChanged || _playoutServerChannels.Any(c => c.Modified); } }
+
         public string ServerAddress { get { return _serverAddress; } set { SetField(ref _serverAddress, value, "ServerAddress"); } }
         public string MediaFolder { get { return _mediaFolder; } set { SetField(ref _mediaFolder, value, "MediaFolder"); } }
-        public ulong Id { get { return _id; } set { SetField(ref _id, value, "Id"); } }
+        public ulong Id { get { return _id; }}
         public TServerType ServerType { get { return _serverType; } set { SetField(ref _serverType, value, "ServerType"); } }
         public Array ServerTypes { get { return _serverTypes; } }
 

@@ -10,7 +10,7 @@ using TAS.Client.Common;
 
 namespace TAS.Client.Common
 {
-    public abstract class OkCancelViewmodelBase<M> : EditViewModelBase<M>
+    public abstract class OkCancelViewmodelBase<M> : EditViewmodelBase<M>
     {
         public readonly OkCancelView View;
 

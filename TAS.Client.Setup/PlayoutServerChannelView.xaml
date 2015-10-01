@@ -28,7 +28,7 @@
             <Label Content="Master volume"/>
             <TextBox Text="{Binding MasterVolume}"/>
             <Label Content="Live device name"/>
-            <TextBox Text="{Binding LiveDevice}"/>
+            <TextBox Text="{Binding LiveDevice, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

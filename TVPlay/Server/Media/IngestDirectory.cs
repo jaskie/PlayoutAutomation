@@ -14,7 +14,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class IngestDirectory : MediaDirectory, IIngestDirectory
+    public class IngestDirectory : MediaDirectory, IIngestDirectoryConfig
     {
         private bool _deleteSource;
         public bool DeleteSource

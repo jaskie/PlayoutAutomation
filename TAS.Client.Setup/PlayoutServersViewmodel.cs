@@ -12,13 +12,14 @@ namespace TAS.Client.Setup
 {
     public class PlayoutServersViewmodel: OkCancelViewmodelBase<Model.PlayoutServers>
     {
-        private UICommand _commandAdd;
-        private UICommand _commandDelete;
+        readonly UICommand _commandAdd;
+        readonly UICommand _commandDelete;
         protected override void OnDispose()
         {
             _playoutServers.CollectionChanged -= _playoutServers_CollectionChanged;
         }
-        public PlayoutServersViewmodel(string connectionString): base(new Model.PlayoutServers(connectionString), new PlayoutServersView(), "Playout servers")
+        public PlayoutServersViewmodel(string connectionString)
+            : base(new Model.PlayoutServers(connectionString), new PlayoutServersView(), "Playout servers")
         {
             _commandAdd = new UICommand() { ExecuteDelegate = _add };
             _commandDelete = new UICommand() { ExecuteDelegate = o => _playoutServers.Remove(_selectedServer), CanExecuteDelegate = o => _selectedServer != null };
@@ -37,6 +38,7 @@ namespace TAS.Client.Setup
                 Model.Servers.Remove(((PlayoutServerViewmodel)e.OldItems[0]).Model);
                 Model.DeletedServers.Add(((PlayoutServerViewmodel)e.OldItems[0]).Model);
             }
+            _isCollectionChanged = true;
         }
 
         private void _add(object obj)
@@ -54,6 +56,9 @@ namespace TAS.Client.Setup
             Model.Save();
             base.Save(destObject);
         }
+
+        private bool _isCollectionChanged;
+        public override bool Modified { get { return _isCollectionChanged || _playoutServers.Any(s => s.Modified); } }
 
 
         public ICommand CommandAdd { get { return _commandAdd; } }

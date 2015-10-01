@@ -2,7 +2,7 @@
 
 namespace TAS.Server.Interfaces
 {
-    public interface IMediaDirectory
+    public interface IMediaDirectoryConfig
     {
         string DirectoryName { get; set; }
         string Folder { get; set; }

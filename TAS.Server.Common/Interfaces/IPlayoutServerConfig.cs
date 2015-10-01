@@ -6,7 +6,7 @@ using TAS.Common;
 
 namespace TAS.Server.Interfaces 
 {
-    public interface IPlayoutServer : IPersistent
+    public interface IPlayoutServerConfig : IPersistent
     {
         string ServerAddress { get; set; }
         string MediaFolder { get; set; }
