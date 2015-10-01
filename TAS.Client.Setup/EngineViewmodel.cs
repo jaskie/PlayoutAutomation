@@ -66,7 +66,7 @@ namespace TAS.Client.Setup
             base.Save(destObject);
         }
 
-        public int IdArchive { get; set; }
+        public ulong IdArchive { get; set; }
 
     }
 }

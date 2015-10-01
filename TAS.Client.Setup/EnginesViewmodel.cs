@@ -16,10 +16,10 @@ namespace TAS.Client.Setup
         public EnginesViewmodel(string connectionString)
             : base(new Model.Engines(connectionString), new EnginesView(), "Engines")
         {
-            _commandAdd = new UICommand() { ExecuteDelegate = _add };
-            _commandDelete = new UICommand() { ExecuteDelegate = o => _engines.Remove(_selectedEngine), CanExecuteDelegate = o => _selectedEngine != null };
             _engines = new ObservableCollection<EngineViewmodel>(Model.EngineList.Select(e => new EngineViewmodel(e)));
             _engines.CollectionChanged += _engines_CollectionChanged;
+            _commandAdd = new UICommand() { ExecuteDelegate = _add };
+            _commandDelete = new UICommand() { ExecuteDelegate = o => _engines.Remove(_selectedEngine), CanExecuteDelegate = o => _selectedEngine != null };
         }
 
         private void _engines_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -63,7 +63,8 @@ namespace TAS.Client.Setup
         {
             get
             {
-                return _isCollectionCanged || _engines.Any(e => e.Modified);
+                return _isCollectionCanged 
+                    || (_engines!= null && _engines.Any(e => e.Modified));
             }
         }
 
