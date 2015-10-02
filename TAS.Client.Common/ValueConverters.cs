@@ -49,6 +49,7 @@ namespace TAS.Client.Common
     [ValueConversion(typeof(TimeSpan), typeof(string))]
     public class TimeSpanToSMPTEConverter : IValueConverter
     {
+        private static RationalNumber _frameRate = new RationalNumber(25, 1);
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is TimeSpan)
@@ -57,35 +58,38 @@ namespace TAS.Client.Common
                     && (string)parameter == "HIDE_ZERO_VALUE"
                     && (TimeSpan)value == TimeSpan.Zero)
                     return string.Empty;
-                return ((TimeSpan)value).ToSMPTETimecodeString();
+                return ((TimeSpan)value).ToSMPTETimecodeString(_frameRate);
             }
             else
                 return null;
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is string && ((string)value).IsValidSMPTETimecode())
-                return ((string)value).SMPTETimecodeToTimeSpan();
+            if (value is string && ((string)value).IsValidSMPTETimecode(_frameRate))
+                return ((string)value).SMPTETimecodeToTimeSpan(_frameRate);
             else
                 return null;
         }
+        public RationalNumber FrameRate { get { return _frameRate; } set { _frameRate = value; } }
     }
 
     [ValueConversion(typeof(TimeSpan), typeof(long))]
     public class TimeSpanToFramesConverter : IValueConverter
     {
+        private RationalNumber _frameRate = new RationalNumber(25, 1);
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return ((TimeSpan)value).ToSMPTEFrames();
+            return ((TimeSpan)value).ToSMPTEFrames(_frameRate);
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             long val;
             if (long.TryParse((string)value, out val))
-                return val.SMPTEFramesToTimeSpan();
+                return val.SMPTEFramesToTimeSpan(_frameRate);
             else
                 return null;
         }
+        public RationalNumber FrameRate { get { return _frameRate; } set { _frameRate = value; } }
     }
 
     [ValueConversion(typeof(TimeSpan), typeof(string))]
@@ -106,23 +110,24 @@ namespace TAS.Client.Common
     [ValueConversion(typeof(DateTime), typeof(string))]
     public class DateTimeToSMPTEConverter : IValueConverter
     {
+        private RationalNumber _frameRate = new RationalNumber(25, 1);
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if ((DateTime)value == default(DateTime))
                 return string.Empty;
             if ((string)parameter == "TC")
-                return ((DateTime)value).ToLocalTime().TimeOfDay.ToSMPTETimecodeString();
-            return ((DateTime)value).ToLocalTime().Date.ToString("d") + " " + ((DateTime)value).ToLocalTime().TimeOfDay.ToSMPTETimecodeString();
+                return ((DateTime)value).ToLocalTime().TimeOfDay.ToSMPTETimecodeString(_frameRate);
+            return ((DateTime)value).ToLocalTime().Date.ToString("d") + " " + ((DateTime)value).ToLocalTime().TimeOfDay.ToSMPTETimecodeString(_frameRate);
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             string[] v = (value as string).Split(' ');
             {
-                if (v.Length == 2 && v[1].IsValidSMPTETimecode())
+                if (v.Length == 2 && v[1].IsValidSMPTETimecode(_frameRate))
                 {
                     try
                     {
-                        return (DateTime.Parse(v[0]) + v[1].SMPTETimecodeToTimeSpan()).ToUniversalTime();
+                        return (DateTime.Parse(v[0]) + v[1].SMPTETimecodeToTimeSpan(_frameRate)).ToUniversalTime();
                     }
                     catch (FormatException)
                     {
@@ -133,6 +138,7 @@ namespace TAS.Client.Common
                     return null;
             }
         }
+        public RationalNumber FrameRate { get { return _frameRate; } set { _frameRate = value; } }
     }
 
     [ValueConversion(typeof(bool), typeof(double))]
@@ -283,6 +289,23 @@ namespace TAS.Client.Common
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    [ValueConversion(typeof(string[]), typeof(string))]
+    public class StringArrayToDelimitedStringConverter: IValueConverter
+    {
+        private static string[] separators = new string[] { ";" };
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value is string[])
+                return string.Join(separators[0], (string[])value);
+            else
+                return null;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return value.ToString().Split(separators, StringSplitOptions.RemoveEmptyEntries);
         }
     }
 

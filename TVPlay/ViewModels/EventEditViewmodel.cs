@@ -245,9 +245,9 @@ namespace TAS.Client.ViewModels
                 if (ev.EventType == TEventType.Movie && media != null)
                 {
                     if (_scheduledTC > media.Duration + media.TCStart)
-                        validationResult = string.Format(Properties.Resources._validate_StartTCAfterFile, (media.Duration + media.TCStart).ToSMPTETimecodeString());
+                        validationResult = string.Format(Properties.Resources._validate_StartTCAfterFile, (media.Duration + media.TCStart).ToSMPTETimecodeString(_engine.VideoFormat));
                     if (_scheduledTC < media.TCStart)
-                        validationResult = string.Format(Properties.Resources._validate_StartTCBeforeFile, media.TCStart.ToSMPTETimecodeString());
+                        validationResult = string.Format(Properties.Resources._validate_StartTCBeforeFile, media.TCStart.ToSMPTETimecodeString(_engine.VideoFormat));
                 }
             }
             return validationResult;

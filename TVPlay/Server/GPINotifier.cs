@@ -20,16 +20,16 @@ namespace TAS.Server
 
         private const int port = 1060;
 
+        #region IGpiConfig
         [XmlAttribute]
         public string Address { get; set; }
         [XmlAttribute]
-        public string Name {get; set;}
-        
+        public int GraphicsStartDelay { get; set; } // may be negative, does not affect aspect ratio switching.
+        #endregion //IGpiCofig
+
         public event Action Started;
         GPIState CrawlState = new GPIState();
 
-        [XmlAttribute]
-        public int GraphicsStartDelay { get; set; } // may be negative, does not affect aspect ratio switching.
 
         TcpClient _remoteClient;
         NetworkStream _remoteClientStream;
@@ -455,7 +455,7 @@ namespace TAS.Server
 
         public override string ToString()
         {
-            return string.IsNullOrWhiteSpace(Name) ? base.ToString() : Name;
+            return Address;
         }
     }
 

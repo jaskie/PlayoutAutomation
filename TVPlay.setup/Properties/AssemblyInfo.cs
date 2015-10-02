@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("TVPlay.setup")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("TVP")]
 [assembly: AssemblyProduct("TVPlay.setup")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

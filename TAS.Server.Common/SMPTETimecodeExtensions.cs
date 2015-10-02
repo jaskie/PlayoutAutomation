@@ -16,30 +16,34 @@ namespace TAS.Common
 
         static readonly Regex validateLTC = new Regex(LTCREGEXSTRING, RegexOptions.ECMAScript);
 
-        public static string ToSMPTETimecodeString(this TimeSpan t, TSMPTEFrameRate rate = TSMPTEFrameRate.SMPTERate25fps)
+        public static string ToSMPTETimecodeString(this TimeSpan t, TVideoFormat format)
         {
-            int framesPerSecond = (int) rate;
+            return t.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[format].FrameRate);
+        }
+
+        public static string ToSMPTETimecodeString(this TimeSpan t, RationalNumber rate)
+        {
             bool minus = t < TimeSpan.Zero;
             TimeSpan value = minus ? -t : t;
             int days = value.Days;
             int hours = value.Hours;
             int minutes = value.Minutes;
             int seconds = value.Seconds;
-            int frames = value.Milliseconds * framesPerSecond / 1000;
+            long frames = value.Milliseconds * rate.Num / (1000 * rate.Den);
             if (days > 0)
                 return string.Format("{0}{1}:{2:D2}:{3:D2}:{4:D2}:{5:D2}", minus ? "-" : "", days, hours, minutes, seconds, frames);
             else
                 return string.Format("{0}{1:D2}:{2:D2}:{3:D2}:{4:D2}", minus ? "-" : "", hours, minutes, seconds, frames);
         }
 
-        public static long ToSMPTEFrames(this TimeSpan t, TSMPTEFrameRate rate = TSMPTEFrameRate.SMPTERate25fps)
+        public static long ToSMPTEFrames(this TimeSpan t, RationalNumber rate)
         {
-            return t.Ticks * (long)rate / TimeSpan.TicksPerSecond;
+            return t.Ticks * rate.Num / (TimeSpan.TicksPerSecond * rate.Den);
         }
 
-        public static TimeSpan SMPTEFramesToTimeSpan(this long totalFrames, TSMPTEFrameRate rate = TSMPTEFrameRate.SMPTERate25fps)
+        public static TimeSpan SMPTEFramesToTimeSpan(this long totalFrames, RationalNumber rate)
         {
-            return TimeSpan.FromTicks(totalFrames * TimeSpan.TicksPerSecond / (long)rate);
+            return TimeSpan.FromTicks(totalFrames * TimeSpan.TicksPerSecond * rate.Den / rate.Num);
         }
 
         public static TimeSpan SMPTEFramesToTimeSpan(this long totalFrames, string frameRate)
@@ -66,7 +70,7 @@ namespace TAS.Common
             return TimeSpan.FromTicks(totalFrames * TimeSpan.TicksPerSecond / rate);
         }
 
-        public static bool IsValidSMPTETimecode(this string timeCode, TSMPTEFrameRate rate = TSMPTEFrameRate.SMPTERate25fps)
+        public static bool IsValidSMPTETimecode(this string timeCode, RationalNumber rate)
         {
             string[] times = timeCode.Split(':');
             if (times.Length < 4 || times.Length > 5)
@@ -84,13 +88,13 @@ namespace TAS.Common
 
             if ((days != 0 && hours < 0)
                 || (Math.Abs(hours) >= 24) 
-                || minutes >= 60  || minutes < 0 || seconds >= 60 || seconds < 0 || frames >= (int)rate || frames < 0)
+                || minutes >= 60  || minutes < 0 || seconds >= 60 || seconds < 0 || frames >= (int)(rate.Num/rate.Den) || frames < 0)
                 return false;
 
             return true;
         }
 
-        public static TimeSpan SMPTETimecodeToTimeSpan(this string timeCode, TSMPTEFrameRate rate = TSMPTEFrameRate.SMPTERate25fps)
+        public static TimeSpan SMPTETimecodeToTimeSpan(this string timeCode, RationalNumber rate)
         {
          
             string[] times = timeCode.Split(':');
@@ -109,17 +113,17 @@ namespace TAS.Common
 
             if ((days != 0 && hours < 0)
                 || (Math.Abs(hours) >= 24)
-                || minutes >= 60 || minutes < 0 || seconds >= 60 || seconds < 0 || frames >= (int)rate || frames < 0)
+                || minutes >= 60 || minutes < 0 || seconds >= 60 || seconds < 0 || frames >= (int)(rate.Num / rate.Den) || frames < 0)
                 throw new FormatException("SMPTE Timecode out of range");
             
             if (days < 0)
-                return - new TimeSpan(Math.Abs(days), hours, minutes, seconds, frames * 1000 / (int)rate);
+                return - new TimeSpan(Math.Abs(days), hours, minutes, seconds, frames * (int)rate.Den * 1000 / (int)rate.Num);
             if (hours < 0) // was raised exception if days <> 0 and hours < 0
-                return - new TimeSpan(0, Math.Abs(hours), minutes, seconds, frames * 1000 / (int)rate);
-            return new TimeSpan(days, hours, minutes, seconds, frames * 1000 / (int)rate);
+                return -new TimeSpan(0, Math.Abs(hours), minutes, seconds, frames * (int)rate.Den * 1000 / (int)rate.Num);
+            return new TimeSpan(days, hours, minutes, seconds, frames * (int)rate.Den * 1000 / (int)rate.Num);
         }
 
-        public static TimeSpan LTCTimecodeToTimeSpan(this string timeCode, TSMPTEFrameRate rate = TSMPTEFrameRate.SMPTERate25fps)
+        public static TimeSpan LTCTimecodeToTimeSpan(this string timeCode, RationalNumber rate)
         {
             if (!validateLTC.IsMatch(timeCode))
                 throw new FormatException("Bad LTC timecode format");
@@ -131,10 +135,10 @@ namespace TAS.Common
             int days = hours / 24;
             hours = hours % 24;
 
-            if ((hours > 24) || (minutes >= 60) || (seconds >= 60) || (frames >= (int)rate))
+            if ((hours > 24) || (minutes >= 60) || (seconds >= 60) || (frames >= (int)(rate.Num / rate.Den)))
                 throw new FormatException("LTC Timecode out of range");
-            
-            return new TimeSpan(days, hours, minutes, seconds, frames * 1000 / (int)rate);
+
+            return new TimeSpan(days, hours, minutes, seconds, frames * (int)rate.Den * 1000 / (int)rate.Num);
         }
     }
 

@@ -94,7 +94,7 @@ namespace TAS.Client.Views
         private void AppMainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
 #if DEBUG == false
-            e.Cancel = !_systemShutdown && MessageBox.Show(Properties.Resources._query_ExitApplication, Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.No;
+            e.Cancel = !_systemShutdown && MessageBox.Show(Properties.Resources._query_ExitApplication, TAS.Client.Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.No;
 #endif // DEBUG
         }
     }

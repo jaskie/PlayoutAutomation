@@ -188,9 +188,8 @@ namespace TAS.Server
                 return _networkCredential;
             }
         }
-        
         [XmlArray]
-        [XmlArrayItem(ElementName = "Extension")]
+        [XmlArrayItem("Extension")]
         public string[] Extensions { get { return _extensions; } set { _extensions = value; } }
         
         public virtual bool FileExists(string filename, string subfolder = null)

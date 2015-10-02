@@ -11,8 +11,6 @@ namespace TAS.Server.Interfaces
         [XmlAttribute]
         string Address { get; set; }
         [XmlAttribute]
-        string Name { get; set; }
-        [XmlAttribute]
         int GraphicsStartDelay { get; set; } // ms, may be negative, does not affect aspect ratio switching.
     }
 }

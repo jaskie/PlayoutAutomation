@@ -8,5 +8,6 @@ namespace TAS.Server.Interfaces
         string Folder { get; set; }
         string Username { get; set; }
         string Password { get; set; }
+        string[] Extensions { get; set; }
     }
 }

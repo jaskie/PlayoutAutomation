@@ -21,7 +21,7 @@ namespace TAS.Server
                 int startTickCunt = Environment.TickCount;
                 using (FFMpegWrapper ffmpeg = new FFMpegWrapper(media.FullPath))
                 {
-                    videoDuration = ffmpeg.GetFrameCount().SMPTEFramesToTimeSpan();
+                    videoDuration = ffmpeg.GetFrameCount().SMPTEFramesToTimeSpan(media.VideoFormatDescription.FrameRate);
                     audioDuration = (TimeSpan)ffmpeg.GetAudioDuration();
                     if (videoDuration == TimeSpan.Zero)
                     {
@@ -31,7 +31,7 @@ namespace TAS.Server
                             mi.Open(media.FullPath);
                             long frameCount;
                             if (long.TryParse(mi.Get(MediaInfoLib.StreamKind.Video, 0, "FrameCount"), out frameCount))
-                                videoDuration = frameCount.SMPTEFramesToTimeSpan();
+                                videoDuration = frameCount.SMPTEFramesToTimeSpan(media.VideoFormatDescription.FrameRate);
                             long audioMilliseconds;
                             if (long.TryParse(mi.Get(MediaInfoLib.StreamKind.Audio, 0, "Duration"), out audioMilliseconds))
                                 audioDuration = TimeSpan.FromMilliseconds(audioMilliseconds);

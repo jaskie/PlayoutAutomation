@@ -64,6 +64,7 @@ namespace TAS.Client.ViewModels
         public EngineViewmodel(Server.Engine engine)
         {
             _engine = engine;
+            _frameRate = VideoFormatDescription.Descriptions[_engine.VideoFormat].FrameRate;
             
             _engine.EngineTick += this.OnEngineTick;
             _engine.EngineOperation += this._engineOperation;
@@ -155,7 +156,7 @@ namespace TAS.Client.ViewModels
             CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
             CommandPasteSelected = new UICommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
             CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
-            CommandEngineSettings = new UICommand() { ExecuteDelegate = o => new Client.Setup.EngineViewmodel(this.Engine, App.EngineController), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
+            CommandEngineSettings = new UICommand() { CanExecuteDelegate = o => /*_engine.EngineState == TEngineState.Idle*/ false };
             CommandIngestDirectoriesSettings = new UICommand() { ExecuteDelegate =_ingestDirectoriesSettings, CanExecuteDelegate = o => _engine.EngineState == TEngineState.Idle };
         }
 
@@ -386,6 +387,9 @@ namespace TAS.Client.ViewModels
         {
             get { return _engine.CurrentTime; }
         }
+
+        private RationalNumber _frameRate;
+        public RationalNumber FrameRate { get { return _frameRate; } }
 
         public TimeSpan TimeToPause { get { return _engine.TimeToPause; } }
 

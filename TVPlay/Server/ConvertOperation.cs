@@ -67,7 +67,7 @@ namespace TAS.Server
                                 Match m_tc = reg_tc.Match(m_tcs.Value);
                                 if (m_tc.Success)
                                 {
-                                    DestMedia.TCStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan();
+                                    DestMedia.TCStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan(mf.VideoFormatDescription.FrameRate);
                                     if (DestMedia.TCPlay == TimeSpan.Zero)
                                         DestMedia.TCPlay = DestMedia.TCStart;
                                     break;
@@ -92,7 +92,7 @@ namespace TAS.Server
                             Match m_tc = re.Match(miOutputLines[i + 1]);
                             if (m_tc.Success)
                             {
-                                DestMedia.TCStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan();
+                                DestMedia.TCStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan(mf.VideoFormatDescription.FrameRate);
                                 if (DestMedia.TCPlay == TimeSpan.Zero)
                                     DestMedia.TCPlay = DestMedia.TCStart;
                                 break;
@@ -269,7 +269,7 @@ namespace TAS.Server
             string Params = string.Format("-i \"{0}\" -vsync cfr {1} -ar 48000 -timecode {2} -y \"{3}\"",
                     inputMedia.FullPath,
                     encodeParams,
-                    DestMedia.TCStart.ToSMPTETimecodeString(),
+                    DestMedia.TCStart.ToSMPTETimecodeString(DestMedia.VideoFormatDescription.FrameRate),
                     DestMedia.FullPath);
 
             if (DestMedia is ArchiveMedia && !Directory.Exists(Path.GetDirectoryName(DestMedia.FullPath)))
@@ -285,7 +285,7 @@ namespace TAS.Server
                     DestMedia.MediaStatus = TMediaStatus.CopyError;
                     if (DestMedia is PersistentMedia)
                         (DestMedia as PersistentMedia).Save();
-                    _addOutputMessage(string.Format("Convert operation finished successfully, but durations are diffrent, original: {0}, encoded {1}", inputMedia.Duration.ToSMPTETimecodeString(), DestMedia.Duration.ToSMPTETimecodeString()));
+                    _addOutputMessage(string.Format("Convert operation finished successfully, but durations are diffrent, original: {0}, encoded {1}", inputMedia.Duration.ToSMPTETimecodeString(inputMedia.VideoFormatDescription.FrameRate), DestMedia.Duration.ToSMPTETimecodeString(DestMedia.VideoFormatDescription.FrameRate)));
                     Debug.WriteLine(this, "Convert operation succeed, but durations are diffrent");
                 }
                 else

@@ -41,12 +41,12 @@
                     <Label Content="Network GPI"/>
                 </HeaderedContentControl.Header>
                 <StackPanel>
-                    <CheckBox IsChecked="{Binding GPIEnabled}" Content="Enabled"/>
-                    <StackPanel Visibility="{Binding GPIEnabled, Converter={StaticResource BoolToVis}}">
+                    <CheckBox IsChecked="{Binding GpiEnabled}" Content="Enabled"/>
+                    <StackPanel Visibility="{Binding GpiEnabled, Converter={StaticResource BoolToVis}}">
                         <Label Content="Address or name of GPI host"/>
-                        <TextBox Text="{Binding GPIAddress}"/>
-                        <Label Content="Graphics start delay (may be negative)"/>
-                        <TextBox Text="{Binding GPIGraphicsAhead}"/>
+                        <TextBox Text="{Binding GpiAddress}"/>
+                        <Label Content="Graphics start delay (negative if ahead)"/>
+                        <TextBox Text="{Binding GpiGraphicsStartDelay}"/>
                     </StackPanel>
                 </StackPanel>
             </HeaderedContentControl>

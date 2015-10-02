@@ -14,4 +14,5 @@
     <common:MediaEmphasisToBrushConverter x:Key="MediaEmphasisToBrush" />
     <common:BoolToStringConverter x:Key="BooleanToAspectDescriptionConverter" FalseValue="16:9" TrueValue="4:3" />
     <common:NegativeBooleanToVisibilityConverter x:Key="NegativeBoolToVis" />
+    <common:StringArrayToDelimitedStringConverter x:Key="StringArrayToDelimitedString"/>
 </ResourceDictionary>

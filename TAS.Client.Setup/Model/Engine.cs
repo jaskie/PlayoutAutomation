@@ -12,6 +12,7 @@ namespace TAS.Client.Setup.Model
     {
         [XmlIgnore]
         public bool IsNew = true;
+        public bool Modified = false;
         public TAspectRatioControl AspectRatioControl { get; set; }
         public string EngineName { get; set; }
         public int TimeCorrection { get; set; }

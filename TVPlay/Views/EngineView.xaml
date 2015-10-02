@@ -13,12 +13,13 @@
              FontSize="13"
              >
     <UserControl.Resources>
+        <common:EngineStateToBrushConverter x:Key="EngineStateToBrush" />
+        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToTC" />
         <Style x:Key="controlPanelButtons" TargetType="Button" >
             <Setter Property="Padding" Value="4" />
             <Setter Property="Width" Value="40" />
             <Setter Property="Height" Value="40" />
         </Style>
-        <common:EngineStateToBrushConverter x:Key="EngineStateToBrush" />
         <Style x:Key="tvItemStyle" TargetType="TreeViewItem">
             <Setter Property="Template">
                 <Setter.Value>
@@ -115,7 +116,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-       
     </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding Command="{Binding CommandStartSelected}" Gesture="Ctrl+F3"/>

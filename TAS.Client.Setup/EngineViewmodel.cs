@@ -29,6 +29,12 @@ namespace TAS.Client.Setup
                                                         && ((Model.CasparServerChannel)c).Owner is Model.CasparServer
                                                         && ((Model.CasparServer)(((Model.CasparServerChannel)c).Owner)).Id == Model.IdServerPRV);
             if (_channelPRV == null) _channelPRV = _channels.First();
+            if (Model.Gpi != null)
+            {
+                _gpiEnabled = true;
+                _gpiAddress = Model.Gpi.Address;
+                _gpiGraphicsStartDelay = Model.Gpi.GraphicsStartDelay;
+            }
         }
 
         protected override void OnDispose() { }
@@ -44,7 +50,6 @@ namespace TAS.Client.Setup
         public int TimeCorrection { get { return _timeCorrection; } set { SetField(ref _timeCorrection, value, "TimeCorrection"); } }
         public TVideoFormat VideoFormat { get { return _videoFormat; } set { SetField(ref _videoFormat, value, "VideoFormat"); } }
         public ulong Instance { get { return _instance; } set { SetField(ref _instance, value, "Instance"); } }
-        public Model.Gpi Gpi { get; set; }
 
         readonly List<object> _channels;
         public List<object> Channels { get { return _channels; } }
@@ -52,6 +57,13 @@ namespace TAS.Client.Setup
         public object ChannelPGM { get { return _channelPGM; } set { SetField(ref _channelPGM, value, "ChannelPGM"); } }
         private object _channelPRV;
         public object ChannelPRV { get { return _channelPRV; } set { SetField(ref _channelPRV, value, "ChannelPRV"); } }
+        private bool _gpiEnabled;
+        public bool GpiEnabled { get { return _gpiEnabled; } set { SetField(ref _gpiEnabled, value, "GpiEnabled"); } }
+        private string _gpiAddress;
+        public string GpiAddress { get { return _gpiAddress; } set { SetField(ref _gpiAddress, value, "GpiAddress"); } }
+        private int _gpiGraphicsStartDelay;
+        public int GpiGraphicsStartDelay { get { return _gpiGraphicsStartDelay; } set { SetField(ref _gpiGraphicsStartDelay, value, "GpiGraphicsStartDelay"); } }
+
         public override void Save(object destObject = null)
         {
             if (Modified)
@@ -62,6 +74,8 @@ namespace TAS.Client.Setup
                 var playoutServerChannelPRV = _channelPRV as Model.CasparServerChannel;
                 Model.IdServerPRV = playoutServerChannelPRV == null ? 0 : ((Model.CasparServer)playoutServerChannelPRV.Owner).Id;
                 Model.ServerChannelPRV = playoutServerChannelPRV == null ? 0 : playoutServerChannelPRV.ChannelNumber;
+                Model.Gpi = _gpiEnabled ? new Model.Gpi() { Address = this.GpiAddress, GraphicsStartDelay = this.GpiGraphicsStartDelay } : null;
+                Model.Modified = true;
             }
             base.Save(destObject);
         }

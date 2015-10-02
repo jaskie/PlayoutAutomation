@@ -38,12 +38,15 @@ namespace TAS.Client.Setup.Model
             try
             {
                 Database.Initialize(_connectionString);
-                _engines.ForEach(s =>
+                _engines.ForEach(e =>
                 {
-                    if (s.Id == 0)
-                        s.DbInsertEngine();
-                    else
-                        s.DbUpdateEngine();
+                    if (e.Modified)
+                    {
+                        if (e.Id == 0)
+                            e.DbInsertEngine();
+                        else
+                            e.DbUpdateEngine();
+                    }
                 });
                 DeletedEngines.ForEach(s => { if (s.Id > 0) s.DbDeleteEngine(); });
             }

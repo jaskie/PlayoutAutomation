@@ -144,32 +144,6 @@ namespace TAS.Common
         }
     }
 
-    [TypeConverter(typeof(TSMPTEFrameRateEnumConverter))]
-    public enum TSMPTEFrameRate
-    {
-        SMPTERate24fps = 24,
-        SMPTERate25fps = 25,
-        SMPTERate30fps = 30,
-        Unknown = 99
-    }
-
-    class TSMPTEFrameRateEnumConverter : ResourceEnumConverter
-    {
-        public TSMPTEFrameRateEnumConverter()
-            : base(typeof(TVideoFormat), TAS.Server.Common.Properties.Resources.ResourceManager)
-        { }
-        protected override string GetValueText(System.Globalization.CultureInfo culture, object value)
-        {
-            string resourceName = GetResourceName(value);
-            string result = _resourceManager.GetString(resourceName, culture);
-            if (result == null)
-                result = value.ToString();
-            return result;
-        }
-    }
-
-
-
     [TypeConverter(typeof(TMediaCategoryEnumConverter))]
     public enum TMediaCategory
     {

@@ -9,9 +9,12 @@
              mc:Ignorable="d" 
              >
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-        <StackPanel Width="300" MinHeight="455">
+        <StackPanel Width="300" MinHeight="475">
             <StackPanel.Resources>
                 <Style TargetType="TextBox">
+                    <Setter Property="Margin" Value="5, 0"/>
+                </Style>
+                <Style TargetType="TextBlock">
                     <Setter Property="Margin" Value="5, 0"/>
                 </Style>
                 <Style TargetType="ComboBox">
@@ -39,6 +42,11 @@
                 <Label Grid.Column="1" Content="Password"/>
                 <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
+            <TextBlock TextWrapping="WrapWithOverflow">
+                Monitored filename extensions (e.g.: .mov;.mxf), <LineBreak/>
+                empty if not filtered, use ";" as separator
+            </TextBlock>
+            <TextBox Text="{Binding Extensions, Converter={StaticResource StringArrayToDelimitedString}, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
             <Label Content="Encode parameters (FFmpeg)"/>
             <TextBox Text="{Binding EncodeParams, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
             <Label Content="Default aspect conversion"/>

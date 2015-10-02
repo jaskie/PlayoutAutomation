@@ -58,6 +58,7 @@ namespace TAS.Server
         public event EventHandler<EventArgs> EngineTick;
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
         public event EventHandler<PropertyChangedEventArgs> ServerPropertyChanged;
+        [XmlElement("Gpi")]
         public GPINotifier GPI;
              
         public Remoting.RemoteHost Remote;

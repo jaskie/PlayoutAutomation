@@ -122,7 +122,7 @@ namespace TAS.Server.XDCAM
                 AudioVolume,
                 StartTC - SourceMedia.TCStart,
                 Duration,
-                StartTC.ToSMPTETimecodeString(),
+                StartTC.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[TVideoFormat.PAL_FHA].FrameRate),
                 outFile);
             if (RunProcess(command))
             {

@@ -41,7 +41,7 @@ namespace TAS.Client.Setup
         #endregion // Enumerations
 
 
-        #region IIngestDirectory
+        #region IIngestDirectoryConfig
         string _directoryName;
         public string DirectoryName { get { return _directoryName; } set { SetField(ref _directoryName, value, "DirectoryName"); } }
         string _folder;
@@ -85,6 +85,8 @@ namespace TAS.Client.Setup
         string _encodeParams;
         [DefaultValue(default(string))]
         public string EncodeParams { get { return _encodeParams; } set { SetField(ref _encodeParams, value, "EncodeParams"); } }
+        string[] _extensions;
+        public string[] Extensions { get { return _extensions; } set { SetField(ref _extensions, value, "Extensions"); } }
 
         #endregion // IIngestDirectory
         
