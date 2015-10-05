@@ -235,10 +235,11 @@ namespace TAS.Client.ViewModels
                     || e.PropertyName == "Hold"
                     || e.PropertyName == "EventName")
                     NotifyPropertyChanged(e.PropertyName);
-                if (e.PropertyName == "Duration")
+                if (e.PropertyName == "ScheduledTC" || e.PropertyName == "Duration")
                 {
                     NotifyPropertyChanged("Enabled");
                     NotifyPropertyChanged("EndTime");
+                    NotifyPropertyChanged("MediaErrorInfo");
                 }
                 if (e.PropertyName == "PlayState")
                 {
@@ -552,7 +553,7 @@ namespace TAS.Client.ViewModels
                         if (media.MediaStatus == TMediaStatus.Available)
                             if (   media.MediaType == TMediaType.Still
                                 || media.MediaType == TMediaType.AnimationFlash
-                                || _event.Duration <= media.Duration
+                                || _event.ScheduledTC + _event.Duration <= media.TCStart + media.Duration
                                 )
                                 return TMediaErrorInfo.NoError;
                     return TMediaErrorInfo.TooShort;

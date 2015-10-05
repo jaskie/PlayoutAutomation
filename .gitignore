@@ -36,3 +36,4 @@ help
 *.suo
 *.opensdf
 /TVPlay/TVP
+/ReleasePackage
