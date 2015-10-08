@@ -278,12 +278,12 @@ namespace TAS.Client.ViewModels
 
         private MediaSearchViewmodel _searchViewmodel;
 
-        private void _chooseMedia(TMediaType mediaType, Event baseEvent, TStartType startType, Action<MediaSearchEventArgs> executeOnChoose, TVideoFormat? videoFormat = null)
+        private void _chooseMedia(TMediaType mediaType, Event baseEvent, TStartType startType, Action<MediaSearchEventArgs> executeOnChoose, VideoFormatDescription videoFormatDescription = null)
         {
             var svm = _searchViewmodel;
             if (svm == null)
             {
-                svm = new MediaSearchViewmodel(_engineViewModel, mediaType, true, videoFormat);
+                svm = new MediaSearchViewmodel(_engineViewModel, mediaType, true, videoFormatDescription);
                 svm.BaseEvent = baseEvent;
                 svm.NewEventStartType = startType;
                 svm.MediaChoosen += _searchMediaChoosen;
@@ -547,7 +547,7 @@ namespace TAS.Client.ViewModels
                 if (sle == null)
                 {
                     Media media = ev.Media;
-                    TVideoFormat? format = media == null ? null : (TVideoFormat?)media.VideoFormat;
+                    VideoFormatDescription format = media == null ? null : media.VideoFormatDescription;
                     _chooseMedia(TMediaType.Still, this.Event, TStartType.With, new Action<MediaSearchEventArgs>((e) =>
                         {
                             var m = e.Media;

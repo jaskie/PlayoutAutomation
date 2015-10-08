@@ -20,13 +20,12 @@ namespace TAS.Client.ViewModels
         private readonly MediaManager _manager;
         private readonly PreviewViewmodel _previewViewmodel;
         private readonly TMediaType _mediaType;
-        private readonly TVideoFormat? _videoFormat;
         private readonly Window _window;
         private readonly bool _closeAfterAdd;
         private MediaDirectory _searchDirectory;
 
 
-        public MediaSearchViewmodel(EngineViewmodel engineVM, TMediaType mediaType, bool closeAfterAdd, TVideoFormat? videoFormat)
+        public MediaSearchViewmodel(EngineViewmodel engineVM, TMediaType mediaType, bool closeAfterAdd, VideoFormatDescription videoFormatDescription)
         {
             _manager = engineVM.Engine.MediaManager;
             _previewViewmodel = engineVM.PreviewViewmodel;
@@ -41,7 +40,6 @@ namespace TAS.Client.ViewModels
             _searchDirectory.MediaRemoved += new EventHandler<MediaEventArgs>(_searchDirectory_MediaRemoved);
             _searchDirectory.MediaVerified += new EventHandler<MediaEventArgs>(_searchDirectory_MediaVerified);
 
-            _videoFormat = videoFormat;
             _closeAfterAdd = closeAfterAdd;
             _mediaCategory = MediaCategories.FirstOrDefault();
             NewEventStartType = TStartType.After;
@@ -49,7 +47,8 @@ namespace TAS.Client.ViewModels
                 OkButtonText = Properties.Resources._button_Add;
             _createCommands();
             _items = new ObservableCollection<MediaViewViewmodel>(_searchDirectory.Files
-                .Where(m=> m.MediaType == mediaType && (videoFormat == null || m.VideoFormat == videoFormat))
+                .Where(m=> m.MediaType == mediaType && 
+                    (videoFormatDescription == null || (m.VideoFormatDescription.ImageSize == videoFormatDescription.ImageSize && m.VideoFormatDescription.SAR.Equals(videoFormatDescription.SAR))))
                 .Select(m => new MediaViewViewmodel(m)));
             _itemsView = CollectionViewSource.GetDefaultView(_items);
             _itemsView.SortDescriptions.Add(new SortDescription("MediaName", ListSortDirection.Ascending));
