@@ -577,17 +577,14 @@
     <Resource Include="Glyphs\Parentals\7.png" />
     <Resource Include="Glyphs\Parentals\BO.png" />
     <Resource Include="Glyphs\ExportDelete.png" />
-    <Content Include="x64\MediaInfo.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\DataSources\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FFMpegUtils\FFMpegUtils.vcxproj">
-      <Project>{AAA90FDF-4E13-490E-A4A4-9B83F522F6C4}</Project>
-      <Name>FFMpegUtils</Name>
+    <ProjectReference Include="..\TAS.FFMpegUtils\FFMpegUtils.vcxproj">
+      <Project>{aaa90fdf-4e13-490e-a4a4-9b83f522f6c4}</Project>
+      <Name>TAS.FFMpegUtils</Name>
     </ProjectReference>
     <ProjectReference Include="..\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
       <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>
@@ -620,7 +617,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(SolutionDir)\ffmpeg56\bin\*" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(SolutionDir)\ffmpeg56\bin\x86\*" "$(TargetDir)"
+copy "$(SolutionDir)\MediaInfo\x86\*" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

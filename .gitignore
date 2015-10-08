@@ -5,14 +5,10 @@ Service References
 packages
 ffmpeg
 Debug
+Release
 *.bak
 *.mwb
-/ffmpeg54
-/ffmpeg55
 /ipch
-
-Release
-
 /Crawl/assets
 /CrawlCommander/lib/*.jar
 /CrawlCommander/src/*.class
@@ -23,7 +19,7 @@ Scripts
 /TVPlay.sdf
 /TVPlay.suo
 x64
-/ffmpeg56
+/ffmpeg*
 /Templates/Zegar/assets
 /Templates/Zegar/lib
 /TVPlay/*.opensdf
@@ -37,3 +33,4 @@ help
 *.opensdf
 /TVPlay/TVP
 /ReleasePackage
+/MediaInfo
