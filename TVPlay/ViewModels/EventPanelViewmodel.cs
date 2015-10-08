@@ -496,7 +496,7 @@ namespace TAS.Client.ViewModels
             get { return (_event == null) ? string.Empty : _event.Layer.ToString(); }
         }
 
-        public decimal AudioVolume { get { return (_event == null) ? 0m : _event.AudioVolume; } }
+        public decimal AudioVolume { get { return (_event == null || _event.AudioVolume == null) ? 0m : (decimal)_event.AudioVolume; } }
 
         public TMediaCategory MediaCategory
         {

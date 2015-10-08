@@ -29,6 +29,7 @@ namespace TAS.Server
                 _disposed = true;
                 if (Modified && Engine != null)
                     Save();
+                Media = null;
             }
         }
 
@@ -614,34 +615,30 @@ namespace TAS.Server
         {
             get 
             {
-                return ServerMediaPGM;
+                return _serverMediaPGM;
             }
             set
             {
-                if (value != null)
+                var newMedia = value as ServerMedia;
+                var oldMedia = _serverMediaPGM;
+                if (SetField(ref _serverMediaPGM, newMedia, "Media"))
                 {
-                    _serverMediaPGM = null;
-                    _serverMediaPRV = null;
-                    if (value.MediaGuid != _mediaGuid)
-                    {
-                        _audioVolume = value._audioVolume;
-                        _mediaGuid = value.MediaGuid;
-                        if (value is ServerMedia
-                            && (value.Directory == _engine.MediaManager.MediaDirectoryPGM || value.Directory == _engine.MediaManager.AnimationDirectoryPGM))
-                            SetField(ref _serverMediaPGM, (ServerMedia)value, "Media");
-                        else
-                            NotifyPropertyChanged("Media");
-                    }
-                }
-                else
-                {
-                    _mediaGuid = Guid.Empty;
-                    NotifyPropertyChanged("Media");
+                    _mediaGuid = newMedia == null ? Guid.Empty : newMedia.MediaGuid;
+                    if (newMedia != null)
+                        newMedia.PropertyChanged += _serverMediaPGM_PropertyChanged;
+                    if (oldMedia != null)
+                        oldMedia.PropertyChanged -= _serverMediaPGM_PropertyChanged;
                 }
 
             }
         }
 
+        private void _serverMediaPGM_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "AudioVolume" && this.AudioVolume == null)
+                NotifyPropertyChanged("AudioVolume");
+        }
+        
         private ServerMedia _serverMediaPRV;
         private ServerMedia _serverMediaPGM;
         internal ServerMedia ServerMediaPGM
@@ -661,12 +658,13 @@ namespace TAS.Server
                     {
                         var newMedia = dir.FindMedia(mediaGuid);
                         if (newMedia is ServerMedia)
-                            _serverMediaPGM = (ServerMedia)newMedia;
+                            Media = newMedia;
                     }
                 }
                 return _serverMediaPGM;
             }
         }
+        
         
 
         internal ServerMedia ServerMediaPRV
@@ -1122,8 +1120,8 @@ namespace TAS.Server
             set { SetField(ref _idAux, value, "IdAux"); }
         }
 
-        internal decimal _audioVolume;
-        public decimal AudioVolume
+        internal decimal? _audioVolume;
+        public decimal? AudioVolume
         {
             get
             {

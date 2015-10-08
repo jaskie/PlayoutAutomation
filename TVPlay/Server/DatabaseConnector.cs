@@ -215,7 +215,7 @@ namespace TAS.Data
             aEvent._requestedStartTime = dataReader.IsDBNull(dataReader.GetOrdinal("RequestedStartTime")) ? null : (TimeSpan?)dataReader.GetTimeSpan("RequestedStartTime");
             aEvent._transitionTime = dataReader.IsDBNull(dataReader.GetOrdinal("TransitionTime")) ? default(TimeSpan) : dataReader.GetTimeSpan("TransitionTime");
             aEvent._transitionType = (TTransitionType)dataReader.GetByte("typTransition");
-            aEvent._audioVolume = dataReader.IsDBNull(dataReader.GetOrdinal("AudioVolume")) ? 0m : dataReader.GetDecimal("AudioVolume");
+            aEvent._audioVolume = dataReader.IsDBNull(dataReader.GetOrdinal("AudioVolume")) ? null : (decimal?)dataReader.GetDecimal("AudioVolume");
             aEvent._idProgramme = dataReader.IsDBNull(dataReader.GetOrdinal("idProgramme")) ? 0 : dataReader.GetUInt64("idProgramme");
             aEvent._idAux = dataReader.IsDBNull(dataReader.GetOrdinal("IdAux")) ? default(string) : dataReader.GetString("IdAux");
             aEvent._enabled = (flags & (1 << 0)) != 0;
@@ -271,7 +271,10 @@ namespace TAS.Data
             cmd.Parameters.AddWithValue("@TransitionTime", aEvent._transitionTime);
             cmd.Parameters.AddWithValue("@typTransition", aEvent._transitionType);
             cmd.Parameters.AddWithValue("@idProgramme", aEvent._idProgramme);
-            cmd.Parameters.AddWithValue("@AudioVolume", aEvent._audioVolume);
+            if (aEvent._audioVolume == null)
+                cmd.Parameters.AddWithValue("@AudioVolume", DBNull.Value);
+            else
+                cmd.Parameters.AddWithValue("@AudioVolume", aEvent._audioVolume);
             UInt64 flags = Convert.ToUInt64(aEvent._enabled) << 0
                          | Convert.ToUInt64(aEvent._hold) << 1
                          | aEvent.GPI.ToUInt64() << 4 // of size EventGPI.Size

@@ -122,10 +122,12 @@ namespace TAS.Client.ViewModels
                     if (destPi != null)
                     {
                         if (destPi.GetValue(e2Save, null) != copyPi.GetValue(this, null)
-                            && destPi.CanWrite)
+                            && destPi.CanWrite
+                            && destPi.PropertyType.Equals(copyPi.PropertyType))
                             destPi.SetValue(e2Save, copyPi.GetValue(this, null), null);
                     }
                 }
+                e2Save.AudioVolume = _audioVolume;
                 Modified = false;
             }
             if (e2Save != null && e2Save.Modified)
@@ -147,9 +149,12 @@ namespace TAS.Client.ViewModels
                     foreach (PropertyInfo copyPi in copiedProperties)
                     {
                         PropertyInfo sourcePi = e2Load.GetType().GetProperty(copyPi.Name);
-                        if (sourcePi != null && copyPi.Name != "Modified")
+                        if (sourcePi != null 
+                            && copyPi.Name != "Modified"
+                            && sourcePi.PropertyType.Equals(copyPi.PropertyType))
                             copyPi.SetValue(this, sourcePi.GetValue(e2Load, null), null);
                     }
+                    _audioVolume = e2Load.AudioVolume;
                 }
                 else // _event is null
                 {
@@ -177,7 +182,9 @@ namespace TAS.Client.ViewModels
             if (e2Read != null)
             {
                 PropertyInfo sourcePi = e2Read.GetType().GetProperty(propertyName);
-                if (sourcePi != null)
+                if (sourcePi != null
+                    && writingProperty.Name != "Modified"
+                    && sourcePi.PropertyType.Equals(writingProperty.PropertyType))
                     writingProperty.SetValue(this, sourcePi.GetValue(e2Read, null), null);
             }
             else
@@ -890,11 +897,32 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _transitionTime, value, "TransitionTime"); }
         }
 
-        private decimal _audioVolume;
+        private decimal? _audioVolume;
         public decimal AudioVolume
         {
-            get { return _audioVolume; }
-            set { SetField(ref _audioVolume, value, "AudioVolume"); }
+            get { return _audioVolume != null ? (decimal)_audioVolume: _media != null? _media.AudioVolume: 0m ; }
+            set
+            {
+                if (SetField(ref _audioVolume, value, "AudioVolume"))
+                    NotifyPropertyChanged("HasAudioVolume");
+            }
+        }
+        
+        public bool HasAudioVolume
+        {
+            get { return _audioVolume != null; }
+            set
+            {
+                if (value && _audioVolume == null)
+                    AudioVolume = _media != null ? _media.AudioVolume : 0m;
+                if (!value && _audioVolume != null)
+                {
+                    _audioVolume = null;
+                    Modified = true;
+                    NotifyPropertyChanged("AudioVolume");
+                    NotifyPropertyChanged("HasAudioVolume");
+                }
+            }
         }
 
         private DateTime _scheduledTime;
@@ -1046,7 +1074,8 @@ namespace TAS.Client.ViewModels
                         bool oldModified = _modified;
                         PropertyInfo sourcePi = sender.GetType().GetProperty(e.PropertyName);
                         PropertyInfo destPi = this.GetType().GetProperty(e.PropertyName);
-                        if (sourcePi != null && destPi != null)
+                        if (sourcePi != null && destPi != null
+                            && sourcePi.PropertyType.Equals(destPi.PropertyType))
                             destPi.SetValue(this, sourcePi.GetValue(sender, null), null);
                         _modified = oldModified;
                 });
@@ -1080,6 +1109,8 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("CommandMoveDown");
                 NotifyPropertyChanged("CommandMoveUp");
             }
+            if (e.PropertyName == "AudioVolume")
+                NotifyPropertyChanged(e.PropertyName);
         }
 
         private void _onSubeventChanged(object o, CollectionOperationEventArgs<Event> e)
