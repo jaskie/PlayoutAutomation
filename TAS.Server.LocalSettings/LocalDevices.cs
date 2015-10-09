@@ -83,25 +83,32 @@ namespace TAS.Server
             byte newPortState, oldPortState;
             while (!disposed)
             {
-                foreach (AdvantechDevice device in Devices)
+                try
                 {
-                    for (byte port = 0; port < device.InputPortCount; port++)
+                    foreach (AdvantechDevice device in Devices)
                     {
-                        if (device.Read(port, out newPortState, out oldPortState))
+                        for (byte port = 0; port < device.InputPortCount; port++)
                         {
-                            int changedBits = newPortState ^ oldPortState;
-                            for (byte bit = 0; bit < 8; bit++)
+                            if (device.Read(port, out newPortState, out oldPortState))
                             {
-                                if ((changedBits & 0x1) > 0)
+                                int changedBits = newPortState ^ oldPortState;
+                                for (byte bit = 0; bit < 8; bit++)
                                 {
-                                    foreach (LocalGpiDeviceBinding settings in EngineBindings)
-                                        settings.NotifyChange(device.DeviceId, port, bit, (newPortState & 0x1) > 0);
+                                    if ((changedBits & 0x1) > 0)
+                                    {
+                                        foreach (LocalGpiDeviceBinding binding in EngineBindings)
+                                            binding.NotifyChange(device.DeviceId, port, bit, (newPortState & 0x1) > 0);
+                                    }
+                                    changedBits = changedBits >> 1;
+                                    newPortState = (byte)(newPortState >> 1);
                                 }
-                                changedBits = changedBits >> 1;
-                                newPortState = (byte)(newPortState >> 1);
                             }
                         }
                     }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e);
                 }
                 Thread.Sleep(5);
             }
