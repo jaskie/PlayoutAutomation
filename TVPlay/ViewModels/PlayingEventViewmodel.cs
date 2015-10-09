@@ -107,8 +107,8 @@ namespace TAS.Client.ViewModels
         private void SliderPositionDelayedUpdate(object o, EventArgs e)
         {
             Event ev = _playingEvent;
-            if (ev == _engine.PlayingEvent())
-                _engine.Seek(ev, _sliderPosition);
+            //if (ev == _engine.PlayingEvent())
+            //    _engine.Seek(ev, _sliderPosition);
             _sliderTimer.Stop();
         }
 
@@ -125,7 +125,7 @@ namespace TAS.Client.ViewModels
                 if (!value.Equals(ev.ScheduledTC + TimeSpan.FromTicks(ev.Position * _engine.FrameTicks)))
                 {
                     ev.Position = (value - ev.ScheduledTC).Ticks / _engine.FrameTicks;
-                    _engine.Seek(ev, ev.Position);
+//                    _engine.Seek(ev, ev.Position);
                 }
             }
         }

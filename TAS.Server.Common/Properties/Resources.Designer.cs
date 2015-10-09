@@ -907,6 +907,24 @@ namespace TAS.Server.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to PAL (16:9) progressive.
+        /// </summary>
+        internal static string TVideoFormat_PAL_FHA_P {
+            get {
+                return ResourceManager.GetString("TVideoFormat_PAL_FHA_P", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to PAL (4:3) progressive.
+        /// </summary>
+        internal static string TVideoFormat_PAL_P {
+            get {
+                return ResourceManager.GetString("TVideoFormat_PAL_P", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 4 channels, 16 bits per sample.
         /// </summary>
         internal static string TxDCAMAudioExportFormat_Channels4Bits16 {

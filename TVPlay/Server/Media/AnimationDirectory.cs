@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using TAS.Common;
+using TAS.Data;
 
 namespace TAS.Server
 {
@@ -20,7 +21,7 @@ namespace TAS.Server
         {
             _isInitialized = false; // to avoid subsequent reinitializations
             DirectoryName = "Animacje";
-            //DatabaseConnector.ServerLoadMediaDirectory(this, Server);
+            this.Load();
             Debug.WriteLine(Server.MediaFolder, "AnimationDirectory initialized");
         }
 

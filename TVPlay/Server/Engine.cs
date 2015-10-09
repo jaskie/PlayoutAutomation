@@ -223,6 +223,26 @@ namespace TAS.Server
             Debug.WriteLine(this, "Reading Root Events");
             this.DbReadRootEvents();
             this.DbReadTemplates();
+
+            EngineState = TEngineState.Idle;
+            var gpi = GPI;
+            if (gpi != null)
+            {
+                Debug.WriteLine(this, "Initializing GPI");
+                gpi.Started += StartLoaded;
+                gpi.Initialize();
+                gpi.PropertyChanged += GPI_PropertyChanged;
+            }
+
+            if (Remote != null)
+            {
+                Debug.WriteLine(this, "Initializing Remote interface");
+                Remote.Initialize(this);
+            }
+
+            if (localGpi != null)
+                localGpi.Started += StartLoaded;
+
             Debug.WriteLine(this, "Creating engine thread");
             _engineThread = new Thread(() =>
             {
@@ -256,26 +276,6 @@ namespace TAS.Server
             _engineThread.Name = string.Format("Engine main thread for {0}", EngineName);
             _engineThread.IsBackground = true;
             _engineThread.Start();
-            EngineState = TEngineState.Idle;
-
-            var gpi = GPI;
-            if (gpi != null)
-            {
-                Debug.WriteLine(this, "Initializing GPI");
-                gpi.Started += Resume;
-                gpi.Initialize();
-                gpi.PropertyChanged += GPI_PropertyChanged;
-            }
-
-            if (Remote != null)
-            {
-                Debug.WriteLine(this, "Initializing Remote interface");
-                Remote.Initialize(this);
-            }
-
-            if (localGpi != null)
-                localGpi.Started += Resume;
-
             Debug.WriteLine(this, "Engine initialized");
         }
 
@@ -296,13 +296,13 @@ namespace TAS.Server
             }
             var localGpi = LocalGpi;
             if (localGpi != null)
-                localGpi.Started -= Resume;
+                localGpi.Started -= StartLoaded;
 
             var gpi = GPI;
             if (gpi != null)
             {
                 Debug.WriteLine(this, "Uninitializing GPI");
-                gpi.Started -= Resume;
+                gpi.Started -= StartLoaded;
                 gpi.UnInitialize();
                 gpi.PropertyChanged -= GPI_PropertyChanged;
             }
@@ -556,7 +556,7 @@ namespace TAS.Server
                 if (value != _previewLoaded)
                 {
                     _previewLoaded = value;
-                    decimal vol = (_previewLoaded) ? 0 : _audioVolume;
+                    decimal vol = (_previewLoaded) ? 0 : _programAudioVolume;
                     if (PlayoutChannelPRV != null)
                         PlayoutChannelPRV.SetVolume(VideoLayer.Program, vol);
                 }
@@ -570,30 +570,47 @@ namespace TAS.Server
         #endregion // Preview Routines
 
         private TEngineState _engineState;
-        
         [XmlIgnore]
         public TEngineState EngineState
         {
             get { return _engineState; }
-            private set { SetField(ref _engineState, value, "EngineState"); }
+            private set
+            {
+                if (SetField(ref _engineState, value, "EngineState"))
+                {
+                    if (value == TEngineState.Hold)
+                        foreach (Event ev in _runningEvents.Where(e => e.PlayState == TPlayState.Playing && e.Finished).ToList())
+                        {
+                            _pause(ev, true);
+                            Debug.WriteLine(ev, "Hold: Played");
+                        }
+                    if (value == TEngineState.Idle && _runningEvents.Count>0)
+                    {
+                        foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.Finished).ToList())
+                            {
+                                _pause(ev, true);
+                                Debug.WriteLine(ev, "Idle: Played");
+                            }
+                    }
+                }
+            }
         }
 
-        private decimal _audioVolume = 1;
-        
+        private decimal _programAudioVolume = 1;
         [XmlIgnore]
-        public decimal AudioVolume
+        public decimal ProgramAudioVolume
         {
-            get { return _audioVolume; }
+            get { return _programAudioVolume; }
             set 
             {
-                if (value != _audioVolume)
+                if (value != _programAudioVolume)
                 {
-                    _audioVolume = value;
+                    _programAudioVolume = value;
                     if (PlayoutChannelPGM != null)
-                        PlayoutChannelPGM.SetVolume(VideoLayer.Program, _audioVolume);
+                        PlayoutChannelPGM.SetVolume(VideoLayer.Program, _programAudioVolume);
                     if (PlayoutChannelPRV != null && !_previewLoaded)
-                        PlayoutChannelPRV.SetVolume(VideoLayer.Program, _audioVolume);
-                    NotifyPropertyChanged("AudioVolume");
+                        PlayoutChannelPRV.SetVolume(VideoLayer.Program, _programAudioVolume);
+                    NotifyPropertyChanged("ProgramAudioVolume");
                 }
             }
         }
@@ -634,20 +651,8 @@ namespace TAS.Server
 
         private bool _load(Event aEvent)
         {
-            while (aEvent != null && (!aEvent.Enabled || aEvent.Length == TimeSpan.Zero))
-            {
-                if (!aEvent.Enabled)
-                {
-                    _runningEvents.Remove(aEvent);
-                    aEvent = aEvent.Successor;
-                }
-                if (aEvent.Length == TimeSpan.Zero)
-                {
-                    _runningEvents.Remove(aEvent);
-                    aEvent.PlayState = TPlayState.Played;
-                    aEvent = aEvent.Successor;
-                }
-            }
+            if (aEvent != null && (!aEvent.Enabled || aEvent.Length == TimeSpan.Zero))
+                aEvent = aEvent.Successor;
             if (aEvent == null)
                 return false;
             Debug.WriteLine(aEvent, "Load");
@@ -671,7 +676,7 @@ namespace TAS.Server
 
         private bool _loadNext(Event aEvent)
         {
-            while (aEvent != null && (!aEvent.Enabled || aEvent.Length == TimeSpan.Zero))
+            if (aEvent != null && (!aEvent.Enabled || aEvent.Length == TimeSpan.Zero))
                 aEvent = aEvent.Successor;
             if (aEvent == null)
                 return false;
@@ -694,20 +699,8 @@ namespace TAS.Server
 
         private bool _play(Event aEvent, bool fromBeginning)
         {
-            while (aEvent != null && (!aEvent.Enabled || aEvent.Length == TimeSpan.Zero))
-            {
-                if (!aEvent.Enabled)
-                {
-                    _runningEvents.Remove(aEvent);
-                    aEvent = aEvent.Successor;
-                }
-                if (aEvent.Length == TimeSpan.Zero)
-                {
-                    _runningEvents.Remove(aEvent);
-                    aEvent.PlayState = TPlayState.Played;
-                    aEvent = aEvent.Successor;
-                }
-            }
+            if (aEvent != null && (!aEvent.Enabled || aEvent.Length == TimeSpan.Zero))
+                aEvent = aEvent.Successor;
             if (aEvent == null)
                 return false;
             Debug.WriteLine("Play {1}: {0}", aEvent, CurrentTime.TimeOfDay);
@@ -728,7 +721,7 @@ namespace TAS.Server
                 if (aEvent.Layer == VideoLayer.Program)
                 {
                     decimal volumeDB = (decimal)Math.Pow(10, (double)aEvent.GetAudioVolume() / 20);
-                    AudioVolume = volumeDB;
+                    ProgramAudioVolume = volumeDB;
                 }
                 _setAspectRatio(aEvent);
             }
@@ -807,56 +800,23 @@ namespace TAS.Server
             NotifyEngineOperation(aEvent, TEngineOperation.Load);
         }
 
-        public void Resume()
+        public void StartLoaded()
         {
-            Debug.WriteLine("Resume executed");
+            Debug.WriteLine("StartLoaded executed");
             lock (_tickLock)
                 if (EngineState == TEngineState.Hold)
                 {
-                    foreach (Event e in _visibleEvents.Values.ToList())
+                    foreach (Event e in _loadedNextEvents.Values.ToList())
                     {
                         _play(e, false);
                         Event s = e.Successor;
                         if (s != null)
                             s.UpdateScheduledTime(true);
                     }
-                    foreach (Event e in _runningEvents.ToList())
-                        e.PlayState = TPlayState.Playing;
                     EngineState = TEngineState.Running;
                 }
         }
 
-        public void Pause()
-        {
-            lock (_tickLock)
-                if (EngineState == TEngineState.Running)
-                {
-                    EngineState = TEngineState.Hold;
-                    foreach (Event e in _visibleEvents.Values.ToList())
-                    {
-                        _pause(e, false);
-                    }
-                }
-        }
-        
-
-        public void Seek(Event aEvent, long position)
-        {
-            if (aEvent != null && aEvent.Media != null && _visibleEvents[aEvent.Layer] == aEvent)
-            {
-                Debug.WriteLine(aEvent, "Stop");
-                if (PlayoutChannelPGM != null)
-                    PlayoutChannelPGM.Load(aEvent.ServerMediaPGM, aEvent.Layer, position, -1);
-                if (PlayoutChannelPRV != null)
-                    PlayoutChannelPRV.Load(aEvent.ServerMediaPRV, aEvent.Layer, position, -1);
-                long dif = position - aEvent.Position;
-                aEvent.Position = position;
-                foreach (Event e in aEvent.SubEvents.ToList())
-                    e.Position += dif;
-            }
-        }
-
-        
         public void Start(Event aEvent)
         {
             Debug.WriteLine(aEvent, "Start");
@@ -1029,8 +989,8 @@ namespace TAS.Server
             if (PlayoutChannelPRV != null)
                 PlayoutChannelPRV.Clear();
             NotifyEngineOperation(null, TEngineOperation.Clear);
-            _audioVolume = 1.0m;
-            NotifyPropertyChanged("AudioVolume");
+            _programAudioVolume = 1.0m;
+            NotifyPropertyChanged("ProgramAudioVolume");
             lock (_tickLock)
                 EngineState = TEngineState.Idle;
         }
@@ -1085,100 +1045,73 @@ namespace TAS.Server
         }
 
         private object _tickLock = new object();
-
         private void _tick(long nFrames)
         {
             lock (_tickLock)
             {
-                IEnumerable<Event> runningEvents = null;
-                lock (_runningEvents.SyncRoot)
-                    runningEvents = _runningEvents.ToList();
-                if (EngineState == TEngineState.Running && runningEvents != null)
+                if (EngineState == TEngineState.Running)
                 {
-                    if (runningEvents.Count() == 0)
-                        EngineState = TEngineState.Idle;
-                    foreach (Event ev in runningEvents)
-                        if (CurrentTicks >= ev.ScheduledTime.Ticks
-                            && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused)
-                            && ev.Hold)
+                    IEnumerable<Event> runningEvents = null;
+                    lock (_runningEvents.SyncRoot)
+                        runningEvents = _runningEvents.ToList();
+                    foreach (Event e in runningEvents.Where(e => e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading))
+                        e.Position += nFrames;
+
+                    if (runningEvents.Any(e => CurrentTicks >= e.ScheduledTime.Ticks
+                                                && e.PlayState == TPlayState.Scheduled
+                                                && e.Hold))
+                    {
+                        EngineState = TEngineState.Hold;
+                        return;
+                    }
+
+                    lock(_runningEvents.SyncRoot)
+                        if (!_runningEvents.Any(e => !e.Finished))
                         {
-                            EngineState = TEngineState.Hold;
-                            foreach (Event e in runningEvents)
+                            EngineState = TEngineState.Idle;
+                            return;
+                        }
+
+                    foreach (Event ev in runningEvents)
+                    {
+                        Event succ = ev.Successor;
+                        _triggerGPIGraphics(ev, false);
+                        _triggerGPIGraphics(succ, false);
+
+                        // first: check if some events should finish
+                        if (ev.PlayState == TPlayState.Playing || ev.PlayState == TPlayState.Fading)
+                        {
+                            if (ev.Finished)
+                                _stop(ev);
+                            if (succ != null
+                                && ev.Position * _frameTicks >= (ev.Length.Ticks + succ.ScheduledDelay.Ticks - succ.TransitionTime.Ticks))
                             {
-                                if (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading)
+                                if (ev.PlayState == TPlayState.Playing)
                                 {
-                                    e.Position += nFrames;             //increase position in playing files
-                                    if (e.Position * _frameTicks >= e.Length.Ticks)
-                                    {
-                                        Debug.WriteLine(e, "Hold: Played");
-                                        _pause(e, true);
-                                    }
+                                    ev.PlayState = TPlayState.Fading;
+                                    Debug.WriteLine(ev, "Tick: Fading");
                                 }
+                            }
+                            if (succ != null
+                                && CurrentTicks >= succ.ScheduledTime.Ticks - _preloadTime.Ticks
+                                && !_runningEvents.Contains(succ))
+                            {
+                                // second: preload next scheduled events
+                                Debug.WriteLine(succ, "Tick: LoadNext Running");
+                                succ.Position = 0;
+                                _loadNext(succ);
                             }
                         }
 
-                    if (EngineState != TEngineState.Hold)
-                    {
-                        foreach (Event e in runningEvents.Where(e => e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading))
-                            e.Position += nFrames;
-                        bool isEndOfRundown = !runningEvents.Any(e => e.Position * _frameTicks < e.Length.Ticks);
-                        if (isEndOfRundown)
-                            EngineState = TEngineState.Hold;
-                        foreach (Event ev in runningEvents)
+                        // third: start 
+                        if (!ev.Hold
+                            && CurrentTicks >= ev.ScheduledTime.Ticks
+                            && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused))
                         {
-                            Event succ = ev.Successor;
-                            while (succ != null && (!succ.Enabled || succ.Length == TimeSpan.Zero))
-                                succ = succ.Successor;
-
-                            _triggerGPIGraphics(ev, false);
-                            _triggerGPIGraphics(succ, false);
-
-                            // first: check if some events should finish
-                            if (ev.PlayState == TPlayState.Playing || ev.PlayState == TPlayState.Fading)
+                            if (CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks)
                             {
-                                if (ev.Position * _frameTicks >= ev.Length.Ticks)
-                                {
-                                    Debug.WriteLine(ev, "Tick: Played");
-                                    if (isEndOfRundown)
-                                        _pause(ev, true);
-                                    else
-                                        _stop(ev);
-                                }
-                                if (succ != null
-                                    && ev.Position * _frameTicks >= (ev.Length.Ticks + succ.ScheduledDelay.Ticks - succ.TransitionTime.Ticks))
-                                {
-                                    if (ev.PlayState == TPlayState.Playing)
-                                    {
-                                        ev.PlayState = TPlayState.Fading;
-                                        Debug.WriteLine(ev, "Tick: Fading");
-                                    }
-                                }
-                                if (CurrentTicks >= ev.EndTime.Ticks - _preloadTime.Ticks)
-                                {
-                                    // second: preload next scheduled events
-                                    if (succ != null)
-                                    {
-                                        if (!_runningEvents.Contains(succ)
-                                        && CurrentTicks >= succ.ScheduledTime.Ticks - _preloadTime.Ticks)
-                                        {
-                                            Debug.WriteLine(succ, "Tick: LoadNext Running");
-                                            succ.Position = 0;
-                                            _loadNext(succ);
-                                        }
-                                    }
-                                }
-                            }
-
-                            // third: start 
-                            if (!ev.Hold
-                                && CurrentTicks >= ev.ScheduledTime.Ticks
-                                && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused))
-                            {
-                                if (CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks)
-                                {
-                                    Debug.WriteLine(ev, string.Format("Tick: Play current time: {0} scheduled time: {1}", CurrentTime, ev.ScheduledTime + ev.ScheduledDelay));
-                                    _play(ev, true);
-                                }
+                                Debug.WriteLine(ev, string.Format("Tick: Play current time: {0} scheduled time: {1}", CurrentTime, ev.ScheduledTime + ev.ScheduledDelay));
+                                _play(ev, true);
                             }
                         }
                     }
@@ -1209,7 +1142,7 @@ namespace TAS.Server
                 return;
             if (GPI != null
                 && !ev.GPITrigerred
-                && (ignoreScheduledTime || CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks + GPI.GraphicsStartDelay * 10000L))
+                && (ignoreScheduledTime ||( !ev.Hold && CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks + GPI.GraphicsStartDelay * 10000L )))
             {
                 ev.GPITrigerred = true;
                 GPI.Crawl = (int)ev.GPI.Crawl;
@@ -1218,7 +1151,7 @@ namespace TAS.Server
             }
             if (LocalGpi != null
                 && !ev.LocalGPITriggered
-                && (ignoreScheduledTime || CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks))
+                && (ignoreScheduledTime || ( !ev.Hold && CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks )))
             {
                 ev.LocalGPITriggered = true;
                 LocalGpi.Crawl = (int)ev.GPI.Crawl;
@@ -1318,11 +1251,11 @@ namespace TAS.Server
                 Event pe = PlayingEvent();
                 if (pe != null)
                 {
-                    long result = -pe.Position+pe.LengthInFrames;
+                    long result = pe.LengthInFrames - pe.Position;
                     pe = pe.Successor;
                     while (pe != null && !pe.Hold && !(pe.EventType==TEventType.Live))
                     {
-                        result = result + pe.LengthInFrames;
+                        result = result + pe.LengthInFrames - pe.TransitionFrames;
                         pe = pe.Successor;
                     }
                     return new TimeSpan(result * _frameTicks);

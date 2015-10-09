@@ -9,6 +9,7 @@
              xmlns:client="clr-namespace:TAS.Client" 
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
+             d:DataContext="{x:Type vievmodels:EngineViewmodel}"
              d:DesignHeight="850" d:DesignWidth="1150" Focusable="True" 
              FontSize="13"
              >
@@ -300,9 +301,9 @@
                 </TextBlock.ContextMenu>
             </TextBlock>
             <!--<c:PlayingEventUC Grid.Column="4" Grid.RowSpan="2" DataContext="{Binding PlayingEvent}"/>-->
-            <Slider Grid.Column="5" Grid.RowSpan="2" Orientation="Vertical" Value="{Binding AudioVolume}" Minimum="-15" Maximum="15"/>
+            <Slider Grid.Column="5" Grid.RowSpan="2" Orientation="Vertical" Value="{Binding ProgramAudioVolume}" Minimum="-15" Maximum="15"/>
             <Label Grid.Column="6" Content="dB" HorizontalAlignment="Center"/>
-            <TextBox Grid.Column="6" Grid.Row="1" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" Margin="4, 8"/>
+            <TextBox Grid.Column="6" Grid.Row="1" Text="{Binding ProgramAudioVolume, StringFormat={}{0:0.0}}" Margin="4, 8"/>
         </Grid>
         <StatusBar Name="sbChannelStatus" VerticalAlignment="Bottom" Grid.Row="3" >
             <StatusBar.Resources>

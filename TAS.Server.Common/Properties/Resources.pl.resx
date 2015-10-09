@@ -408,4 +408,10 @@
   <data name="TMediaErrorInfo_TooShort" xml:space="preserve">
     <value>Klip za krótki</value>
   </data>
+  <data name="TVideoFormat_PAL_FHA_P" xml:space="preserve">
+    <value>PAL (16:9) progresywny</value>
+  </data>
+  <data name="TVideoFormat_PAL_P" xml:space="preserve">
+    <value>PAL (4:3) progresywny</value>
+  </data>
 </root>
