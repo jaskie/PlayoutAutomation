@@ -141,6 +141,8 @@ namespace TAS.Server
             set { SetField(ref _position, value, "Position"); }
         }
 
+        public bool Finished { get { return _position >= LengthInFrames; } }
+
         internal UInt64 idEventBinding
         {
             get
@@ -568,6 +570,10 @@ namespace TAS.Server
         {
             get { return Length.Ticks / Engine.FrameTicks; }
         }
+        public long TransitionFrames
+        {
+            get { return TransitionTime.Ticks / Engine.FrameTicks; }
+        }
 
         internal TimeSpan _transitionTime;
         public TimeSpan TransitionTime
@@ -615,7 +621,7 @@ namespace TAS.Server
         {
             get 
             {
-                return _serverMediaPGM;
+                return ServerMediaPGM;
             }
             set
             {
@@ -645,8 +651,10 @@ namespace TAS.Server
         {
             get
             {
-                Guid mediaGuid = _mediaGuid;
                 var media = _serverMediaPGM;
+                if (media != null)
+                    return media;
+                Guid mediaGuid = _mediaGuid;
                 if ((media == null || media.MediaStatus == TMediaStatus.Deleted) && mediaGuid != Guid.Empty)
                 {
                     MediaDirectory dir;
@@ -1040,7 +1048,7 @@ namespace TAS.Server
                     if (nev != null)
                     {
                         Event n = nev.Next;
-                        while (nev != null && n != null && !(nev.Enabled))
+                        while (nev != null && n != null && nev.Length.Equals(TimeSpan.Zero))
                         {
                             nev = nev.Next;
                             n = nev.Next;

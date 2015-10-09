@@ -456,7 +456,7 @@ WHERE idRundownEvent=@idRundownEvent;";
 
         }
 
-        internal static void ServerLoadMediaDirectory(AnimationDirectory directory, PlayoutServer server)
+        internal static void Load(this AnimationDirectory directory)
         {
             Debug.WriteLine(directory, "ServerLoadMediaDirectory animation started");
             lock (connection)
@@ -464,7 +464,7 @@ WHERE idRundownEvent=@idRundownEvent;";
                 if (Connect())
                 {
                     MySqlCommand cmd = new MySqlCommand("SELECT * FROM serverMedia WHERE idServer=@idServer and typMedia = @typMedia", connection);
-                    cmd.Parameters.AddWithValue("@idServer", server.Id);
+                    cmd.Parameters.AddWithValue("@idServer", directory.Server.Id);
                     cmd.Parameters.AddWithValue("@typMedia", TMediaType.AnimationFlash);
                     try
                     {

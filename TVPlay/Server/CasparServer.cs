@@ -113,7 +113,6 @@ namespace TAS.Server
                             LastUpdated = DateTimeExtensions.FromFileTime(template.LastUpdated.ToUniversalTime(), DateTimeKind.Utc),
                             MediaGuid = Guid.NewGuid(),
                             Directory = AnimationDirectory,
-
                         };
                     media.Save();
                 }

@@ -38,8 +38,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandNewContainer { get; private set; }
         public ICommand CommandDebugToggle { get; private set; }
         public ICommand CommandSearchMissingEvents { get; private set; }
-        public ICommand CommandResume { get; private set; }
-        public ICommand CommandPause { get; private set; }
         public ICommand CommandDeleteSelected { get; private set; }
         public ICommand CommandCopySelected { get; private set; }
         public ICommand CommandPasteSelected { get; private set; }
@@ -143,14 +141,12 @@ namespace TAS.Client.ViewModels
             };
             CommandRescheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.ReScheduleAsync(_selectedEvent), CanExecuteDelegate = _canRescheduleSelected };
             CommandTrackingToggle = new UICommand() { ExecuteDelegate = o => TrackPlayingEvent = !TrackPlayingEvent };
-            CommandDebugToggle = new UICommand() { ExecuteDelegate = _debugToggle };
+            CommandDebugToggle = new UICommand() { ExecuteDelegate = _debugShow };
             CommandRestartRundown = new UICommand() { ExecuteDelegate = _restartRundown };
             CommandNewRootRundown = new UICommand() { ExecuteDelegate = _newRootRundown };
             CommandNewContainer = new UICommand() { ExecuteDelegate = _newContainer };
             CommandSearchMissingEvents = new UICommand() { ExecuteDelegate = _searchMissingEvents };
-            CommandResume = new UICommand() { ExecuteDelegate = o => _engine.Resume() };
-            CommandStartLoaded = new UICommand() { ExecuteDelegate = o => _engine.Resume(), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Hold};
-            CommandPause = new UICommand() { ExecuteDelegate = o => _engine.Pause() };
+            CommandStartLoaded = new UICommand() { ExecuteDelegate = o => _engine.StartLoaded(), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Hold};
             CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
             CommandCopySelected = new UICommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _selectedEvents.Any() };
             CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
@@ -287,14 +283,21 @@ namespace TAS.Client.ViewModels
         }
     
 
-        private void _debugToggle(object o)
+        private void _debugShow(object o)
         {
             if (_debugWindow == null)
             {
                 _debugWindow = new EngineStateView();
                 _debugWindow.DataContext = this;
-                _debugWindow.Show();
+                _debugWindow.Closed += (w, e) =>
+                {
+                    var window = w as EngineStateView;
+                    if (window != null)
+                        window.DataContext = null;
+                    _debugWindow = null;
+                };
             }
+            _debugWindow.Show();
         }
 
         private void _ingestDirectoriesSettings(object o)
@@ -554,9 +557,6 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged("CommandLoadSelected");
             NotifyPropertyChanged("CommandScheduleSelected");
             NotifyPropertyChanged("CommandRescheduleSelected");
-            NotifyPropertyChanged("CommandCutSelected");
-            NotifyPropertyChanged("CommandCopySelected");
-            NotifyPropertyChanged("CommandHide");
         }
 
         public void OnEngineTick(object sender, EventArgs a)
@@ -575,16 +575,16 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("ServerConnectedPRV");
         }
 
-        public decimal AudioVolume //decibels
+        public decimal ProgramAudioVolume //decibels
         {
-            get { return (decimal)(20 * Math.Log10((double)_engine.AudioVolume)); }
+            get { return (decimal)(20 * Math.Log10((double)_engine.ProgramAudioVolume)); }
             set
             {
                 decimal volumeDB = (decimal)Math.Pow(10, (double)value / 20);
                 if (value != volumeDB)
                 {
-                    _engine.AudioVolume = volumeDB;
-                    NotifyPropertyChanged("AudioVolume");
+                    _engine.ProgramAudioVolume = volumeDB;
+                    NotifyPropertyChanged("ProgramAudioVolume");
                 }
             }
         }
@@ -636,7 +636,7 @@ namespace TAS.Client.ViewModels
 
         private void OnEnginePropertyChanged(object o, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "AudioVolume"
+            if (e.PropertyName == "ProgramAudioVolume"
                 || e.PropertyName == "EngineState"
                 || e.PropertyName == "GPIConnected"
                 || e.PropertyName == "GPIAspectNarrow"
@@ -653,6 +653,10 @@ namespace TAS.Client.ViewModels
             {
                 NotifyPropertyChanged("CommandEngineSettings");
                 NotifyPropertyChanged("CommandIngestDirectoriesSettings");
+                NotifyPropertyChanged("CommandStartSelected");
+                NotifyPropertyChanged("CommandLoadSelected");
+                NotifyPropertyChanged("CommandScheduleSelected");
+                NotifyPropertyChanged("CommandRescheduleSelected");
             }
         }
 
