@@ -1048,7 +1048,7 @@ namespace TAS.Server
                     if (nev != null)
                     {
                         Event n = nev.Next;
-                        while (nev != null && n != null && !(nev.Length.Equals(TimeSpan.Zero)))
+                        while (nev != null && n != null && nev.Length.Equals(TimeSpan.Zero))
                         {
                             nev = nev.Next;
                             n = nev.Next;
