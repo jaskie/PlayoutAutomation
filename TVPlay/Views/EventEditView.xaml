@@ -197,8 +197,8 @@
                         <DockPanel>
                             <CheckBox Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" IsChecked="{Binding HasAudioVolume}" />
                             <Label DockPanel.Dock="Right" VerticalAlignment="Center" Content="dB" Width="25" />
-                            <TextBox DockPanel.Dock="Right" Grid.Column="2" Width="40" Text="{Binding AudioVolume, StringFormat={}{0:0.0}, UpdateSourceTrigger=LostFocus}"/>
-                            <Slider  VerticalAlignment="Stretch" Margin="5, 0" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
+                            <TextBox DockPanel.Dock="Right" Grid.Column="2" Width="40" Text="{Binding AudioVolumeLevel, StringFormat={}{0:0.0}, UpdateSourceTrigger=LostFocus}"/>
+                            <Slider  VerticalAlignment="Stretch" Margin="5, 0" Minimum="-15" Maximum="15" Value="{Binding AudioVolumeLevel}"/>
                         </DockPanel>
                         <Grid>
                             <CheckBox Content="GPI" IsChecked="{Binding GPICanTrigger}" Panel.ZIndex="1" />

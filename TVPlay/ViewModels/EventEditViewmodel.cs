@@ -127,7 +127,6 @@ namespace TAS.Client.ViewModels
                             destPi.SetValue(e2Save, copyPi.GetValue(this, null), null);
                     }
                 }
-                e2Save.AudioVolume = _audioVolume;
                 Modified = false;
             }
             if (e2Save != null && e2Save.Modified)
@@ -154,7 +153,6 @@ namespace TAS.Client.ViewModels
                             && sourcePi.PropertyType.Equals(copyPi.PropertyType))
                             copyPi.SetValue(this, sourcePi.GetValue(e2Load, null), null);
                     }
-                    _audioVolume = e2Load.AudioVolume;
                 }
                 else // _event is null
                 {
@@ -363,7 +361,7 @@ namespace TAS.Client.ViewModels
                                 Media = e.Media;
                                 Duration = e.Duration;
                                 ScheduledTC = e.TCIn;
-                                AudioVolume = e.Media.AudioVolume;
+                                AudioVolume = null;
                                 EventName = e.MediaName;
                                 _gpi = _setGPI(e.Media);
                                 NotifyPropertyChanged("GPICanTrigger");
@@ -898,29 +896,41 @@ namespace TAS.Client.ViewModels
         }
 
         private decimal? _audioVolume;
-        public decimal AudioVolume
+        public decimal? AudioVolume
         {
-            get { return _audioVolume != null ? (decimal)_audioVolume: _media != null? _media.AudioVolume: 0m ; }
+            get { return _audioVolume; }
             set
             {
                 if (SetField(ref _audioVolume, value, "AudioVolume"))
+                {
                     NotifyPropertyChanged("HasAudioVolume");
+                    NotifyPropertyChanged("AudioVolumeLevel");
+                }
             }
         }
         
+        public decimal AudioVolumeLevel
+        {
+            get { return _audioVolume != null ? (decimal)_audioVolume : _media != null ? _media.AudioVolume : 0m; }
+            set
+            {
+                if (SetField(ref _audioVolume, value, "AudioVolumeLevel"))
+                {
+                    NotifyPropertyChanged("HasAudioVolume");
+                    NotifyPropertyChanged("AudioVolume");
+                }
+            }
+        }
+
         public bool HasAudioVolume
         {
             get { return _audioVolume != null; }
             set
             {
-                if (value && _audioVolume == null)
-                    AudioVolume = _media != null ? _media.AudioVolume : 0m;
-                if (!value && _audioVolume != null)
+                if (SetField(ref _audioVolume, value? (_media != null ? (decimal?)_media.AudioVolume : 0m) : null, "HasAudioVolume"))
                 {
-                    _audioVolume = null;
-                    Modified = true;
                     NotifyPropertyChanged("AudioVolume");
-                    NotifyPropertyChanged("HasAudioVolume");
+                    NotifyPropertyChanged("AudioVolumeLevel");
                 }
             }
         }
@@ -1110,7 +1120,11 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("CommandMoveUp");
             }
             if (e.PropertyName == "AudioVolume")
-                NotifyPropertyChanged(e.PropertyName);
+            {
+                NotifyPropertyChanged("AudioVolumeLevel");
+                NotifyPropertyChanged("HasAudioVolume");
+                NotifyPropertyChanged("AudioVolume");
+            }
         }
 
         private void _onSubeventChanged(object o, CollectionOperationEventArgs<Event> e)

@@ -1137,6 +1137,21 @@ namespace TAS.Server
             set { SetField(ref _gPI, value, "GPI"); }
         }
 
+        public decimal GetAudioVolume()
+        {
+            var volume = _audioVolume;
+            if (volume != null)
+                return (decimal)volume;
+            else
+                if (_eventType == TEventType.Movie)
+                {
+                    var m = Media;
+                    if (m != null)
+                        return m.AudioVolume;
+                }
+            return 0m;
+        }
+
         public override string ToString()
         {
             return EventName;

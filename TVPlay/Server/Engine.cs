@@ -523,8 +523,10 @@ namespace TAS.Server
         public bool PreviewPlay()
         {
             var channel = PlayoutChannelPRV;
-            if (channel != null && channel.Play(VideoLayer.Preview))
+            var media = PreviewMedia;
+            if (channel != null && channel.Play(VideoLayer.Preview) && media != null)
             {
+                channel.SetVolume(VideoLayer.Preview, (decimal)Math.Pow(10, (double)media.AudioVolume / 20));
                 PreviewIsPlaying = true;
                 return true;
             }
@@ -557,13 +559,13 @@ namespace TAS.Server
                     decimal vol = (_previewLoaded) ? 0 : _audioVolume;
                     if (PlayoutChannelPRV != null)
                         PlayoutChannelPRV.SetVolume(VideoLayer.Program, vol);
-                    NotifyPropertyChanged("PreviewIsPlaying");
                 }
             }
         }
 
+        private bool _previewIsPlaying;
         [XmlIgnore]
-        public bool PreviewIsPlaying { get; private set; }
+        public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value, "PreviewIsPlaying"); } }
 
         #endregion // Preview Routines
 
@@ -725,7 +727,7 @@ namespace TAS.Server
                 _visibleEvents[aEvent.Layer] = aEvent;
                 if (aEvent.Layer == VideoLayer.Program)
                 {
-                    decimal volumeDB = (decimal)Math.Pow(10, (double)aEvent.AudioVolume / 20);
+                    decimal volumeDB = (decimal)Math.Pow(10, (double)aEvent.GetAudioVolume() / 20);
                     AudioVolume = volumeDB;
                 }
                 _setAspectRatio(aEvent);

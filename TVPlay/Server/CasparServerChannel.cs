@@ -168,6 +168,7 @@ namespace TAS.Server
                     if (template != null && media != null)
                     {
                         channel.CG.Add((int)aEvent.Layer, template.Layer, media.FileName, false, GetContainerData(template));
+                        return true;
                     }
                 }
             }

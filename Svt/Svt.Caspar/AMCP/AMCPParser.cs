@@ -33,6 +33,7 @@ namespace Svt.Caspar.AMCP
         ADD,
         SWAP,
         STATUS,
+        PAUSE,
         Undefined
 	}
 	internal enum AMCPError
