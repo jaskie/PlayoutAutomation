@@ -12,6 +12,7 @@
              xmlns:server="clr-namespace:TAS.Server"
              xmlns:client="clr-namespace:TAS.Client"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             d:DataContext="{x:Type vm:MediaManagerViewmodel}"
              FontSize="13" >
     <UserControl.Resources>
 
@@ -210,7 +211,7 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="300" />
             </Grid.RowDefinitions>
-            <client:MediaEditView DataContext="{Binding EditMedia}" />
+            <ContentControl Content="{Binding EditMedia.Editor}" />
             <GridSplitter Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>
             <client:PreviewView DataContext="{Binding PreviewViewModel}" Grid.Row="1" />
         </Grid>

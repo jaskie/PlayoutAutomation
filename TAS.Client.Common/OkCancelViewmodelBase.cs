@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text;
 using System.Windows.Controls;
 using System.Windows.Input;
-using TAS.Client.Common;
 
 namespace TAS.Client.Common
 {
@@ -26,14 +25,14 @@ namespace TAS.Client.Common
                 WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner, 
                 ShowInTaskbar = false };
         }
-        
+
         protected virtual void Ok(object o)
         {
             Save();
             View.DialogResult = true;
         }
 
-        public virtual bool? Show()
+        public virtual bool? ShowDialog()
         {
             return View.ShowDialog();
         }

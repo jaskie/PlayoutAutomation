@@ -33,7 +33,9 @@ namespace TAS.Server
         {
             Kind = TFileOperationKind.Loudness;
         }
-        
+
+        public EventHandler<AudioVolumeMeasuredEventArgs> AudioVolumeMeasured; // will not save to Media object if not null
+
         internal override bool Do()
         {
             if (Kind == TFileOperationKind.Loudness)
@@ -111,16 +113,13 @@ namespace TAS.Server
                 }
                 else
                 {
-                    if (!_loudnessMeasured)
+                    Match luFSLineMatch = _regexlLufs.Match(outLine.Data);
+                    if (luFSLineMatch.Success)
                     {
-                        Match luFSLineMatch = _regexlLufs.Match(outLine.Data);
-                        if (luFSLineMatch.Success)
-                        {
-                            Regex _regexLufs = new Regex(LufsPattern, RegexOptions.None);
-                            Match valueMatch = _regexLufs.Match(luFSLineMatch.Value);
-                            if (valueMatch.Success)
-                                _loudnessMeasured = (decimal.TryParse(valueMatch.Value.Trim(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out _loudness));
-                        }
+                        Regex _regexLufs = new Regex(LufsPattern, RegexOptions.None);
+                        Match valueMatch = _regexLufs.Match(luFSLineMatch.Value);
+                        if (valueMatch.Success)
+                            _loudnessMeasured = (decimal.TryParse(valueMatch.Value.Trim(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out _loudness));
                     }
                     if (!_samplePeakMeasured)
                     {
@@ -131,20 +130,38 @@ namespace TAS.Server
                             Match valueMatch = _regexLufs.Match(truePeakLineMatch.Value);
                             if (valueMatch.Success)
                                 _samplePeakMeasured = (decimal.TryParse(valueMatch.Value.Trim(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out _samplePeak));
+                            else
+                                _loudnessMeasured = false;
                         }
                     }
                     if (_samplePeakMeasured && _loudnessMeasured)
                     {
                         var refLoudness = System.Windows.Application.Current.Properties["VolumeReferenceLoudness"];
-                        SourceMedia.AudioLevelIntegrated = _loudness;
-                        SourceMedia.AudioLevelPeak = _samplePeak;
-                        SourceMedia.AudioVolume = -Math.Max(_loudness - ((refLoudness is decimal) ? (decimal)refLoudness : -23.0m), _samplePeak); // prevents automatic amplification over 0dBFS
-                        if (SourceMedia is PersistentMedia)
-                            (SourceMedia as PersistentMedia).Save();
+                        decimal volume = -Math.Max(_loudness - ((refLoudness is decimal) ? (decimal)refLoudness : -23.0m), _samplePeak); // prevents automatic amplification over 0dBFS
+                        var h = AudioVolumeMeasured;
+                        if (h == null)
+                        {
+                            SourceMedia.AudioLevelIntegrated = _loudness;
+                            SourceMedia.AudioLevelPeak = _samplePeak;
+                            SourceMedia.AudioVolume = volume;
+                            if (SourceMedia is PersistentMedia)
+                                (SourceMedia as PersistentMedia).Save();
+                        }
+                        else
+                            h(this, new AudioVolumeMeasuredEventArgs(volume));
                     }
                     _addOutputMessage(outLine.Data);
                 }
             }
         }
+    }
+
+    public class AudioVolumeMeasuredEventArgs: EventArgs
+    {
+        public AudioVolumeMeasuredEventArgs(decimal volume)
+        {
+            AudioVolume = volume;
+        }
+        public decimal AudioVolume { get; private set; }
     }
 }

@@ -303,7 +303,7 @@ namespace TAS.Client.ViewModels
         private void _ingestDirectoriesSettings(object o)
         {
             var setup = new Client.Setup.IngestDirectoriesViewmodel(ConfigurationManager.AppSettings["IngestFolders"]);
-            if (setup.Show() == true)
+            if (setup.ShowDialog() == true)
                 _engine.MediaManager.ReloadIngestDirs();
         }
 

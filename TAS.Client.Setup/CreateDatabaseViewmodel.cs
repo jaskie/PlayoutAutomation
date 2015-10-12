@@ -16,7 +16,7 @@ namespace TAS.Client.Setup
         private void _editConnectionString(object obj)
         {
             var vm = new ConnectionStringViewmodel(ConnectionString);
-            if (vm.Show() == true)
+            if (vm.ShowDialog() == true)
                 ConnectionString = vm.ConnectionString;
         }
         protected override void OnDispose() { }

@@ -26,13 +26,13 @@ namespace TAS.Client.Setup
         private void _enginesSetup(object obj)
         {
             EnginesViewmodel vm = new EnginesViewmodel(_configFile.connectionStrings.tasConnectionString);
-            vm.Show();
+            vm.ShowDialog();
         }
         
         private void _serversSetup(object obj)
         {
             PlayoutServersViewmodel vm = new PlayoutServersViewmodel( _configFile.connectionStrings.tasConnectionString);
-            vm.Show();
+            vm.ShowDialog();
         }
                 
         private void _configFileSelect(object obj)
@@ -45,13 +45,13 @@ namespace TAS.Client.Setup
         private void _configFileEdit(object obj)
         {
             ConfigFileViewmodel vm = new ConfigFileViewmodel(_configFile);
-            vm.Show();
+            vm.ShowDialog();
         }
 
         private void _ingestFoldersSetup(object obj)
         {
             IngestDirectoriesViewmodel vm = new IngestDirectoriesViewmodel(_configFile.appSettings.IngestFolders);
-            vm.Show();
+            vm.ShowDialog();
         }
 
         readonly UICommand _commandIngestFoldersSetup;

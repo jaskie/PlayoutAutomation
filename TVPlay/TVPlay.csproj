@@ -219,6 +219,7 @@
     <Compile Include="ViewModels\FileOperationViewmodel.cs" />
     <Compile Include="ViewModels\IngestTrimmerViewmodel.cs" />
     <Compile Include="ViewModels\IngestEditViewmodel.cs" />
+    <Compile Include="ViewModels\MediaEditWindowViewmodel.cs" />
     <Compile Include="ViewModels\MediaExportViewmodel.cs" />
     <Compile Include="ViewModels\MediaSearchViewmodel.cs" />
     <Compile Include="ViewModels\MediaSegmentViewmodel.cs" />

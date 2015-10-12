@@ -736,9 +736,9 @@ namespace TAS.Server
             if (_pst2Prv)
                 _loadPST();
             NotifyEngineOperation(aEvent, TEngineOperation.Play);
-            if (aEvent.Layer == VideoLayer.Program 
+            if (aEvent.Layer == VideoLayer.Program
                 && (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.Live))
-                aEvent.AsRunLogWrite();
+                ThreadPool.QueueUserWorkItem(new WaitCallback(o => aEvent.AsRunLogWrite()));
             return true;
         }
 
@@ -1065,16 +1065,10 @@ namespace TAS.Server
                         return;
                     }
 
-                    lock(_runningEvents.SyncRoot)
-                        if (!_runningEvents.Any(e => !e.Finished))
-                        {
-                            EngineState = TEngineState.Idle;
-                            return;
-                        }
-
                     foreach (Event ev in runningEvents)
                     {
                         Event succ = ev.Successor;
+
                         _triggerGPIGraphics(ev, false);
                         _triggerGPIGraphics(succ, false);
 
@@ -1114,6 +1108,13 @@ namespace TAS.Server
                                 _play(ev, true);
                             }
                         }
+
+                        lock (_runningEvents.SyncRoot)
+                            if (!_runningEvents.Any(e => !e.Finished))
+                            {
+                                EngineState = TEngineState.Idle;
+                                return;
+                            }
                     }
                 }
                 

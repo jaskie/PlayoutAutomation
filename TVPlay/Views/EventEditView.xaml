@@ -121,6 +121,7 @@
                     <Setter Property="Width" Value="88"/>
                     <Setter Property="Padding" Value="3"/>
                     <Setter Property="HorizontalContentAlignment" Value="Right"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
                 </Style>
                 <Style TargetType="ComboBox">
                     <Setter Property="Width" Value="97"/>
@@ -145,11 +146,11 @@
 
             <StackPanel Grid.Row="2" IsEnabled="{Binding IsEditEnabled}">
                 <DockPanel>
-                    <Label Content="{Resx _eventType}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                    <Label Content="{Resx _eventType}"/>
                     <TextBox Name="EventType"  Text="{Binding EventType}" IsEnabled="False" />
                 </DockPanel>
                 <DockPanel>
-                    <Label Content="{Resx _name}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center"/>
+                    <Label Content="{Resx _name}"/>
                     <TextBox Name="EventName" Text="{Binding EventName, UpdateSourceTrigger=PropertyChanged}" />
                 </DockPanel>
                 <StackPanel Visibility="{Binding IsNotContainer, Converter={StaticResource BoolToVis}}">
@@ -162,40 +163,46 @@
                         <TextBox Text="{Binding BoundEventName, Mode=OneWay}" IsReadOnly="True" Background="#F0F0F0"/>
                     </DockPanel>
                     <DockPanel>
-                        <Label Content="{Resx _scheduledTime}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <Label Content="{Resx _scheduledTime}" />
                         <common:DelayedBindingTextBox Text="{Binding ScheduledTime, Converter={StaticResource DateTimeToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsScheduledTimeEnabled}" />
                     </DockPanel>
                     <DockPanel>
-                        <Label Content="{Resx _requiredAt}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <Label Content="{Resx _requiredAt}" />
                         <common:DelayedBindingTextBox Text="{Binding RequestedStartTime, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" ToolTip="{Resx _requiredAt.ToolTip}"/>
                     </DockPanel>
                     <DockPanel>
-                        <Label Content="{Resx _duration}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <Label Content="{Resx _duration}" />
                         <Button DockPanel.Dock="Right" HorizontalAlignment="Right" ToolTip="{Resx _duration.GetTcInTcOut.ToolTip}" Command="{Binding CommandGetTCInTCOut}" >
                             <common:AutoGreyableImage Source="../Glyphs/Copy_small.png" />
                         </Button>
                         <common:DelayedBindingTextBox Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsDurationEnabled}" />
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
-                        <Label Content="{Resx _scheduledTC}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <Label Content="{Resx _scheduledTC}" />
                         <common:DelayedBindingTextBox Text="{Binding ScheduledTC, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
                     </DockPanel>
                     <DockPanel>
-                        <Label Content="{Resx _clip}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <Label Content="{Resx _clip}" />
                         <Button DockPanel.Dock="Right" ToolTip="{Resx _changeMovie.ToolTip}" Command="{Binding CommandChangeMovie}">
                             <common:AutoGreyableImage Source="../Glyphs/Drawer.png" />
+                        </Button>
+                        <Button DockPanel.Dock="Right" ToolTip="{Resx _editMovie.ToolTip}" Command="{Binding CommandEditMovie}">
+                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Edit.png" />
                         </Button>
                         <TextBox Text="{Binding Media.FileName, Mode=OneWay}" IsReadOnly="True" VerticalContentAlignment="Center" Background="#F0F0F0" />
                     </DockPanel>
                     <StackPanel Visibility="{Binding IsMovieOrLive, Converter={StaticResource BoolToVis}}" >
                         <DockPanel>
-                            <Label Content="{Resx _transitionType}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Label Content="{Resx _transitionType}" />
                             <ComboBox ItemsSource="{Binding TransitionTypes}" SelectedValue="{Binding TransitionType}" />
-                            <Label Content="{Resx _transitionLength}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Label Content="{Resx _transitionLength}" />
                             <common:DelayedBindingTextBox Text="{Binding TransitionTime, Converter={StaticResource TimeSpanToFrames}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" />
                         </DockPanel>
                         <DockPanel>
                             <CheckBox Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" IsChecked="{Binding HasAudioVolume}" />
+                            <Button DockPanel.Dock="Right" ToolTip="{Resx _checkVolume.ToolTip}" Command="{Binding CommandCheckVolume}">
+                                <common:AutoGreyableImage Source="../Glyphs/Volume.png" />
+                            </Button>
                             <Label DockPanel.Dock="Right" VerticalAlignment="Center" Content="dB" Width="25" />
                             <TextBox DockPanel.Dock="Right" Grid.Column="2" Width="40" Text="{Binding AudioVolumeLevel, StringFormat={}{0:0.0}, UpdateSourceTrigger=LostFocus}"/>
                             <Slider  VerticalAlignment="Stretch" Margin="5, 0" Minimum="-15" Maximum="15" Value="{Binding AudioVolumeLevel}"/>

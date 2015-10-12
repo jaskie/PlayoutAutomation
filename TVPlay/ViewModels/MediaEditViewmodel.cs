@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Reflection;
-using TAS.Server;
 using System.Windows;
 using System.IO;
 using System.Windows.Input;
@@ -13,25 +12,26 @@ using TAS.Client.Common;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditViewmodel : ViewmodelBase, IDataErrorInfo
+    public class MediaEditViewmodel : EditViewmodelBase<Server.Media>, IDataErrorInfo
     {
         private readonly PreviewViewmodel _previewVm;
-        public MediaEditViewmodel(PreviewViewmodel previewVm)
+        private readonly bool _showButtons;
+        public MediaEditViewmodel(Server.Media media, PreviewViewmodel previewVm, bool showButtons):base(media, new MediaEditView())
         {
-            CommandSaveEdit = new UICommand() { ExecuteDelegate = _save, CanExecuteDelegate = o => Modified && IsValid };
-            CommandCancelEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
-            CommandRefreshStatus = new UICommand() { ExecuteDelegate = _refreshStatus, CanExecuteDelegate = o => _media != null };
+            CommandSaveEdit = new UICommand() { ExecuteDelegate = Save, CanExecuteDelegate = o => Modified && IsValid };
+            CommandCancelEdit = new UICommand() { ExecuteDelegate = Load, CanExecuteDelegate = o => Modified };
+            CommandRefreshStatus = new UICommand() { ExecuteDelegate = _refreshStatus };
             CommandGetTCFromPreview = new UICommand() { ExecuteDelegate = _getTCFromPreview, CanExecuteDelegate = _canGetTCFormPreview };
             _previewVm = previewVm;
+            _showButtons = showButtons;
             if (previewVm != null)
                 previewVm.PropertyChanged += _onPreviewPropertyChanged;
-            Modified = false;
+            media.PropertyChanged += OnMediaPropertyChanged;
         }
 
         protected override void OnDispose()
         {
-            if (_media != null)
-                Media = null;
+            Model.PropertyChanged -= OnMediaPropertyChanged;
             if (_previewVm != null)
                 _previewVm.PropertyChanged -= _onPreviewPropertyChanged;
         }
@@ -41,138 +41,67 @@ namespace TAS.Client.ViewModels
         public ICommand CommandRefreshStatus { get; private set; }
         public ICommand CommandGetTCFromPreview { get; private set; }
 
-        private Media _media;
-        internal Media Media
+        public override void Save(object destObject = null)
         {
-            get
-            {
-                return _media;
-            }
-            set
-            {
-                if (value != _media)
-                {
-                    if (Modified
-                        && (IsAutoSave || MessageBox.Show(Properties.Resources._query_SaveChangedData, Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes))
-                        Save();
-                    if (_media != null)
-                        _media.PropertyChanged -= OnMediaPropertyChanged;
-
-                    _media = value;
-
-                    if (_media != null)
-                        _media.PropertyChanged += OnMediaPropertyChanged;
-                    Load();
-                }
-            }
+            base.Save(destObject);
+            if (Model is Server.PersistentMedia)
+                ((Server.PersistentMedia)Model).Save();
         }
 
-        public void Save() { _save(null); }
-
-        void _save(object o)
+        public void Revert(object source = null)
         {
-            if (Modified && _media != null)
-            {
-                PropertyInfo[] copiedProperties = this.GetType().GetProperties();
-                foreach (PropertyInfo copyPi in copiedProperties)
-                {
-                    PropertyInfo destPi = _media.GetType().GetProperty(copyPi.Name);
-                    if (destPi != null)
-                    {
-                        var destVal = destPi.GetValue(_media, null);
-                        if (destVal != null && !destVal.Equals(copyPi.GetValue(this, null)))
-                            destPi.SetValue(_media, copyPi.GetValue(this, null), null);
-                    }
-                }
-                if (_media is PersistentMedia)
-                    ((PersistentMedia)_media).Save();
-                Modified = false;
-                Load();
-            }
+            Load(source);
         }
-
-        void _load(object o)
-        {
-            if (_media != null)
-            {
-                IEnumerable<PropertyInfo> copiedProperties = this.GetType().GetProperties().Where(pi => pi.CanWrite);
-                foreach (PropertyInfo copyPi in copiedProperties)
-                {
-                    PropertyInfo sourcePi = _media.GetType().GetProperty(copyPi.Name);
-                    if (sourcePi != null)
-                        copyPi.SetValue(this, sourcePi.GetValue(_media, null), null);
-                }
-            }
-            else // _media is null
-            {
-                IEnumerable<PropertyInfo> zeroedProperties = this.GetType().GetProperties().Where(pi => pi.CanWrite);
-                foreach (PropertyInfo zeroPi in zeroedProperties)
-                {
-                    PropertyInfo sourcePi = typeof(Media).GetProperty(zeroPi.Name);
-                    if (sourcePi != null)
-                        zeroPi.SetValue(this, null, null);
-                }
-            }
-            Modified = false;
-            NotifyPropertyChanged(null);
-        }
-
-
-        public void Load() { _load(null); }
 
         void _refreshStatus(object o)
         {
-            Media m = _media;
-            if (m != null)
-            {
-                m.MediaStatus = TMediaStatus.Unknown;
-                m.Verified = false;
-                m.Verify();
-            }
+            Model.MediaStatus = TMediaStatus.Unknown;
+            Model.Verified = false;
+            Model.Verify();
         }
 
 
         void _getTCFromPreview(object o)
         {
-            Media media = _media;
-            if (_previewVm != null && media != null)
+            if (_previewVm != null)
             {
-                Media previewMedia = _previewVm.LoadedMedia;
+                Server.Media previewMedia = _previewVm.LoadedMedia;
                 TCPlay = _previewVm.TCIn;
                 DurationPlay = _previewVm.DurationSelection;
             }
         }
-        
+
         private void OnMediaPropertyChanged(object media, PropertyChangedEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action) (() =>
+            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
                 {
-                    if (media == _media && !string.IsNullOrEmpty(e.PropertyName))
+                    if (!string.IsNullOrEmpty(e.PropertyName))
                     {
-                        PropertyInfo sourcePi = _media.GetType().GetProperty(e.PropertyName);
+                        PropertyInfo sourcePi = Model.GetType().GetProperty(e.PropertyName);
                         PropertyInfo destPi = this.GetType().GetProperty(e.PropertyName);
-                        if (sourcePi != null 
+                        if (sourcePi != null
                             && destPi != null
                             && sourcePi.CanRead
                             && destPi.CanWrite)
                         {
                             bool oldModified = Modified;
-                            destPi.SetValue(this, sourcePi.GetValue(_media, null), null);
+                            destPi.SetValue(this, sourcePi.GetValue(Model, null), null);
                             Modified = oldModified;
                             NotifyPropertyChanged(e.PropertyName);
-                        }
-                        if (e.PropertyName == "MediaStatus")
-                        {
-                            NotifyPropertyChanged("IsIngestDataShown");
-                            NotifyPropertyChanged("MediaStatus");
-                        }
-                        if (e.PropertyName == "MediaGuid")
-                        {
-                            NotifyPropertyChanged("MediaGuid");
                         }
                     }
                 }),
             null);
+
+            if (e.PropertyName == "MediaStatus")
+            {
+                NotifyPropertyChanged(e.PropertyName);
+                NotifyPropertyChanged("IsIngestDataShown");
+            }
+            if (e.PropertyName == "MediaGuid")
+            {
+                NotifyPropertyChanged(e.PropertyName);
+            }
         }
 
         private void _onPreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -183,36 +112,15 @@ namespace TAS.Client.ViewModels
 
         public void Delete()
         {
-            if (_media != null)
-                _media.Delete();
+            if (Model != null)
+                Model.Delete();
         }
 
-        private bool _modified;
-        public bool Modified { get {return _modified;}
-            private set
-            {
-                if (_modified != value)
-                {
-                    _modified = value;
+        public bool ShowButtons { get { return _showButtons; } }
 
-                }
-                NotifyPropertyChanged("CommandCancelEdit");
-                NotifyPropertyChanged("CommandSaveEdit");
-            }
-        }
         private string _folder;
-        public string Folder
-        {
-            get { return _folder; }
-            set
-            {
-                if (value != _folder)
-                {
-                    _folder = value;
-                    Modified = true;
-                }
-            }
-        }
+        public string Folder { get { return _folder; } set { SetField(ref _folder, value, "Folder"); } }
+        
         private string _fileName;
         public string FileName 
         {
@@ -306,7 +214,7 @@ namespace TAS.Client.ViewModels
                 if (SetField(ref _mediaName, value, "MediaName"))
                 {
                     if (MediaStatus == TMediaStatus.Required)
-                        FileName = FileUtils.SanitizeFileName(value) + MediaDirectory.DefaultFileExtension(MediaType);
+                        FileName = Server.FileUtils.SanitizeFileName(value) + Server.MediaDirectory.DefaultFileExtension(MediaType);
                 };
             }
         }
@@ -357,8 +265,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public TMediaStatus MediaStatus { get { return (_media == null) ? TMediaStatus.Unknown : _media.MediaStatus; }}
-        public Guid MediaGuid { get { return (_media == null) ? Guid.Empty : _media.MediaGuid; }}
+        public TMediaStatus MediaStatus { get { return Model.MediaStatus; }}
+        public Guid MediaGuid { get { return Model.MediaGuid; }}
 
 
         private bool _doNotArchive;
@@ -411,28 +319,27 @@ namespace TAS.Client.ViewModels
 
         public bool IsPersistentMedia
         {
-            get { return _media is PersistentMedia; }
+            get { return Model is Server.PersistentMedia; }
         }
 
         public bool IsServerMedia
         {
-            get { return _media is ServerMedia; }
+            get { return Model is Server.ServerMedia; }
         }
 
         public bool IsIngestDataShown
         {
             get
             {
-                return (_media is PersistentMedia && _media.MediaStatus != TMediaStatus.Required);
+                return (Model is Server.PersistentMedia && Model.MediaStatus != TMediaStatus.Required);
             }
         }
 
         private bool _canGetTCFormPreview(object o)
         {
             return _previewVm != null
-                && _media != null
                 && _previewVm.LoadedMedia != null
-                && _media.MediaGuid.Equals(_previewVm.LoadedMedia.MediaGuid);
+                && Model.MediaGuid.Equals(_previewVm.LoadedMedia.MediaGuid);
         }
 
         public string Error
@@ -464,10 +371,7 @@ namespace TAS.Client.ViewModels
         private string _validateFileName()
         {
             string validationResult = string.Empty;
-            Media media = _media;
-            if (media != null)
-            {
-                MediaDirectory dir = media.Directory;
+                var dir = Model.Directory;
                 string newName = _fileName;
                 if (dir != null && _fileName != null)
                 {
@@ -476,18 +380,18 @@ namespace TAS.Client.ViewModels
                     else
                     {
                         newName = newName.ToLowerInvariant();
-                        if ((media.MediaStatus == TMediaStatus.Required || newName != media.FileName.ToLowerInvariant())
-                            && dir.FileExists(newName, media.Folder))
+                        if ((Model.MediaStatus == TMediaStatus.Required || newName != Model.FileName.ToLowerInvariant())
+                            && dir.FileExists(newName, Model.Folder))
                             validationResult = Properties.Resources._validate_FileAlreadyExists;
                         else
-                            if (media is PersistentMedia)
+                            if (Model is Server.PersistentMedia)
                             {
-                                if (media.MediaType == TMediaType.Movie
-                                    && !MediaDirectory.VideoFileTypes.Contains(Path.GetExtension(newName).ToLower()))
-                                    validationResult = string.Format(Properties.Resources._validate_FileMustHaveExtension, string.Join(Properties.Resources._or_, MediaDirectory.VideoFileTypes));
-                                if (media.MediaType == TMediaType.Still
-                                    && !MediaDirectory.StillFileTypes.Contains(Path.GetExtension(newName).ToLower()))
-                                    validationResult = string.Format(Properties.Resources._validate_FileMustHaveExtension, string.Join(Properties.Resources._or_, MediaDirectory.StillFileTypes));
+                                if (Model.MediaType == TMediaType.Movie
+                                    && !Server.MediaDirectory.VideoFileTypes.Contains(Path.GetExtension(newName).ToLower()))
+                                    validationResult = string.Format(Properties.Resources._validate_FileMustHaveExtension, string.Join(Properties.Resources._or_, Server.MediaDirectory.VideoFileTypes));
+                                if (Model.MediaType == TMediaType.Still
+                                    && !Server.MediaDirectory.StillFileTypes.Contains(Path.GetExtension(newName).ToLower()))
+                                    validationResult = string.Format(Properties.Resources._validate_FileMustHaveExtension, string.Join(Properties.Resources._or_, Server.MediaDirectory.StillFileTypes));
                             }
                     }
                     //if (dir is ArchiveDirectory)
@@ -499,32 +403,23 @@ namespace TAS.Client.ViewModels
                     //    if (dir.Files.Where(m => m != media && m.FileName == _fileName).Count() > 0)
                     //        validationResult = "Plik o takiej nazwie już istnieje";
                 }
-            }
             return validationResult;
         }
 
         private string _validateTCPlay()
         {
             string validationResult = string.Empty;
-            Media media = _media;
-            if (media != null)
-            {
-                if (TCPlay < TCStart
-                    || TCPlay > TCStart + Duration)
-                    validationResult = Properties.Resources._validateStartPlayMustBeInsideFile;
-            }
+            if (TCPlay < TCStart
+                || TCPlay > TCStart + Duration)
+                validationResult = Properties.Resources._validateStartPlayMustBeInsideFile;
             return validationResult;
         }
 
         private string _validateDurationPlay()
         {
             string validationResult = string.Empty;
-            Media media = _media;
-            if (media != null)
-            {
-                if (DurationPlay + TCPlay  > Duration + TCStart)
-                    validationResult = Properties.Resources._validate_DurationInvalid;
-            }
+            if (DurationPlay + TCPlay > Duration + TCStart)
+                validationResult = Properties.Resources._validate_DurationInvalid;
             return validationResult;
         }
 
@@ -532,17 +427,7 @@ namespace TAS.Client.ViewModels
         {
             get { return (from pi in this.GetType().GetProperties() select this[pi.Name]).Where(s => !string.IsNullOrEmpty(s)).Count() == 0; }
         }
-
-        protected override bool SetField<T>(ref T field, T value, string propertyName)
-        {
-            if (base.SetField(ref field, value, propertyName))
-            {
-                Modified = true;
-                return true;
-            }
-            return false;
-        }
-
-
     }
+
+
 }

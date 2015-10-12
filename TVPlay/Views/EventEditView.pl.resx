@@ -123,6 +123,9 @@
   <data name="_changeMovie.ToolTip" xml:space="preserve">
     <value>Zmień</value>
   </data>
+  <data name="_checkVolume.ToolTip" xml:space="preserve">
+    <value>Ustaw poziom dźwięku tego fragmentu</value>
+  </data>
   <data name="_clip" xml:space="preserve">
     <value>Klip</value>
   </data>
@@ -131,6 +134,9 @@
   </data>
   <data name="_duration.GetTcInTcOut.ToolTip" xml:space="preserve">
     <value>Pobierz TC i czas trwania z okienka podglądu</value>
+  </data>
+  <data name="_editMovie.ToolTip" xml:space="preserve">
+    <value>Właściwości</value>
   </data>
   <data name="_eventType" xml:space="preserve">
     <value>Rodzaj</value>

@@ -5,7 +5,6 @@ using System.Text;
 using System.ComponentModel;
 using System.Windows.Data;
 using System.Globalization;
-using System.Windows.Controls;
 using System.Windows;
 using System.Collections;
 using System.Collections.ObjectModel;
@@ -44,7 +43,6 @@ namespace TAS.Client.ViewModels
             _createCommands();
             _mediaCategory = _mediaCategories.FirstOrDefault();
             MediaDirectory = MediaManager.MediaDirectoryPGM;
-            EditMedia = new MediaEditViewmodel(PreviewVm);
         }
 
         private readonly PreviewViewmodel _previewViewModel;
@@ -56,20 +54,45 @@ namespace TAS.Client.ViewModels
             get { return _selectedMedia; }
             set
             {
-                if (value != _selectedMedia)
+                var oldEditMedia = _editMedia;
+                if (oldEditMedia != null
+                    && oldEditMedia.Modified)
+                {
+                    switch (MessageBox.Show(Properties.Resources._query_SaveChangedData, TAS.Client.Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo))
+                    {
+                        case MessageBoxResult.Yes:
+                            oldEditMedia.Save();
+                            break;
+                        case MessageBoxResult.No:
+                            oldEditMedia.Revert();
+                            break;
+                    }
+                }
+                if (SetField(ref _selectedMedia, value, "SelectedMedia"))
                 {
                     Media media = value == null ? null : value.Media;
-                    EditMedia.Media = media;
                     if (media is IngestMedia
                         && ((IngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
                         && !media.Verified)
-                        ThreadPool.QueueUserWorkItem(o => media.Verify());
+                        ThreadPool.QueueUserWorkItem(new WaitCallback( o => media.Verify()));
                     PreviewViewModel.Media = media;
-                    _selectedMedia = value;
+                    EditMedia = _selectedMedia == null ? null : new MediaEditViewmodel(_selectedMedia.Media, _previewViewModel, true);
                 }
             }
         }
-        
+
+        private MediaEditViewmodel _editMedia;
+        public MediaEditViewmodel EditMedia
+        {
+            get { return _editMedia; }
+            set
+            {
+                var _oldMedia = _editMedia;
+                if (SetField(ref _editMedia, value, "EditMedia") && _oldMedia != null)
+                    _oldMedia.Dispose();
+            }
+        }
+
         private IList _selectedMediaList;
         public IList SelectedMediaList
         {
@@ -114,8 +137,6 @@ namespace TAS.Client.ViewModels
             return (_mediaDirectory is ServerDirectory || _mediaDirectory is ArchiveDirectory) && _isSomethingSelected(o) && _mediaManager.IngestDirectories.Any(d => d.IsXDCAM);
         }
         
-        public MediaEditViewmodel EditMedia { get; private set; }
-
         private void _createCommands()
         {
             CommandSearch = new UICommand() { ExecuteDelegate = _search };
@@ -237,7 +258,7 @@ namespace TAS.Client.ViewModels
                         EditMedia.Save();
                         break;
                     case MessageBoxResult.No:
-                        EditMedia.Load();
+                        EditMedia.Revert();
                         break;
                 }
             if (_mediaDirectory is IngestDirectory)
@@ -375,6 +396,11 @@ namespace TAS.Client.ViewModels
         }
         private void _reloadFiles()
         {
+            if (_mediaItems != null)
+            {
+                foreach (var m in _mediaItems)
+                    m.Dispose();
+            }
             _mediaItems = new ObservableCollection<MediaViewViewmodel>();
             IEnumerable<MediaViewViewmodel> itemsToLoad;
             if (_mediaDirectory is ServerDirectory)

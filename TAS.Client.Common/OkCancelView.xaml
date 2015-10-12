@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:common="clr-namespace:TAS.Client.Common"
         mc:Ignorable="d"
+        d:DataContext="{x:Type common:OkCancelViewmodelBase`1}"
         MinHeight="100"
         MinWidth="180"
         SizeToContent="WidthAndHeight"
@@ -27,16 +28,16 @@
                     <Setter Property="Margin" Value="5, 0"/>
                 </Style>
             </StackPanel.Resources>
-            <Button IsCancel="True">
-                <DockPanel>
-                    <Image Source="/TAS.Client.Common;component/Images/delete.png"></Image>
-                    <Label Content="Anuluj" />
-                </DockPanel>
-            </Button>
             <Button IsDefault="True" Command="{Binding CommandOK}">
                 <DockPanel>
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Check.png"></common:AutoGreyableImage>
                     <Label Content="OK" />
+                </DockPanel>
+            </Button>
+            <Button IsCancel="True">
+                <DockPanel>
+                    <Image Source="/TAS.Client.Common;component/Images/delete.png"></Image>
+                    <Label Content="Anuluj" />
                 </DockPanel>
             </Button>
         </StackPanel>

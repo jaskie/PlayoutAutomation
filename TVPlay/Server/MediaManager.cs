@@ -282,7 +282,12 @@ namespace TAS.Server
         public void GetLoudness(Media media)
         {
             if (media.Directory.AccessType == TDirectoryAccessType.Direct)
-                FileManager.Queue(new LoudnessOperation() { Kind = TFileOperationKind.Loudness, SourceMedia = media });
+                FileManager.Queue(new LoudnessOperation() { SourceMedia = media });
+        }
+
+        public void GetLoudness(Media media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
+        {
+            FileManager.Queue(new LoudnessOperation() { SourceMedia = media, AudioVolumeMeasured = audioVolumeMeasuredCallback, FailureCallback = finishCallback, SuccessCallback = finishCallback }, true);
         }
 
         public void GetLoudness(IEnumerable<Media> mediaList)

@@ -22,7 +22,6 @@ namespace TAS.Client
         public MediaEditView()
         {
             InitializeComponent();
-//            edKillDate.DisplayDateStart = DateTime.Today;
         }
     }
 }

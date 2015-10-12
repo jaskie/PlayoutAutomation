@@ -16,7 +16,7 @@ namespace TAS.Client.Common
         {
             Model = model;
             _editor = editor;
-            Load(model);
+            Load();
             _modified = false;
             editor.DataContext = this;
         }
@@ -42,15 +42,16 @@ namespace TAS.Client.Common
             return modified;
         }
 
-        protected virtual void Load(object source)
+        protected virtual void Load(object source = null)
         {
             IEnumerable<PropertyInfo> copiedProperties = this.GetType().GetProperties().Where(p => p.CanWrite);
             foreach (PropertyInfo copyPi in copiedProperties)
             {
-                PropertyInfo sourcePi = source.GetType().GetProperty(copyPi.Name);
+                PropertyInfo sourcePi = (source ?? Model).GetType().GetProperty(copyPi.Name);
                 if (sourcePi != null)
-                    copyPi.SetValue(this, sourcePi.GetValue(source, null), null);
+                    copyPi.SetValue(this, sourcePi.GetValue((source ?? Model), null), null);
             }
+            Modified = false;
         }
 
         public virtual void Save(object destObject = null)

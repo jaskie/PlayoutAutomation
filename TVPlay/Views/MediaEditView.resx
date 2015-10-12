@@ -129,6 +129,12 @@
   <data name="_buttonGetTC.ToolTip" xml:space="preserve">
     <value>Get play times ftom preview window</value>
   </data>
+  <data name="_buttonRevert.Caption" xml:space="preserve">
+    <value>Revert</value>
+  </data>
+  <data name="_buttonSave.Caption" xml:space="preserve">
+    <value>OK</value>
+  </data>
   <data name="_buttonSave.ToolTip" xml:space="preserve">
     <value>Save changes (Ctrl+S)</value>
   </data>
@@ -169,7 +175,7 @@
     <value>Parental control</value>
   </data>
   <data name="_play" xml:space="preserve">
-    <value>Playout</value>
+    <value>Play-out</value>
   </data>
   <data name="_status" xml:space="preserve">
     <value>File status</value>

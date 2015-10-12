@@ -129,6 +129,12 @@
   <data name="_buttonGetTC.ToolTip" xml:space="preserve">
     <value>Pobierz czasy z okienka podglądu</value>
   </data>
+  <data name="_buttonRevert.Caption" xml:space="preserve">
+    <value>Cofnij</value>
+  </data>
+  <data name="_buttonSave.Caption" xml:space="preserve">
+    <value>OK</value>
+  </data>
   <data name="_buttonSave.ToolTip" xml:space="preserve">
     <value>Zapisz zmiany (Ctrl+S)</value>
   </data>

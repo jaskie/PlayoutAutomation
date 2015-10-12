@@ -36,8 +36,10 @@ namespace TAS.Client.ViewModels
             CommandAddSubMovie = new UICommand() { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = _canAddSubMovie };
             CommandAddSubRundown = new UICommand() { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = _canAddSubRundown };
             CommandAddSubLive = new UICommand() { ExecuteDelegate = _addSubLive, CanExecuteDelegate = _canAddSubMovie };
-            CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _canChangeMovie };
+            CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _isEditableMovie };
+            CommandEditMovie = new UICommand() { ExecuteDelegate = _editMovie, CanExecuteDelegate = _isEditableMovie };
             CommandGetTCInTCOut = new UICommand() { ExecuteDelegate =_getTCInTCOut, CanExecuteDelegate = _canGetTcInTcOut};
+            CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume };
             CommandToggleEnabled = new UICommand() { ExecuteDelegate = _toggleEnabled, CanExecuteDelegate = _canToggleEnabled };
             CommandToggleHold = new UICommand() { ExecuteDelegate = _toggleHold, CanExecuteDelegate = _canToggleEnabled };
             CommandMoveUp = new UICommand() { ExecuteDelegate = _moveUp, CanExecuteDelegate = _canMoveUp };
@@ -65,7 +67,9 @@ namespace TAS.Client.ViewModels
         public ICommand CommandAddSubRundown { get; private set; }
         public ICommand CommandAddSubLive { get; private set; }
         public ICommand CommandChangeMovie { get; private set; }
+        public ICommand CommandEditMovie { get; private set; }
         public ICommand CommandGetTCInTCOut { get; private set; }
+        public ICommand CommandCheckVolume { get; private set; }
         public ICommand CommandToggleEnabled { get; private set; }
         public ICommand CommandToggleHold { get; private set; }
         public ICommand CommandMoveUp { get; private set; }
@@ -374,6 +378,14 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        private void _editMovie(object obj)
+        {
+            using (var evm = new MediaEditWindowViewmodel(_event.Media))
+            {
+                evm.ShowDialog();
+            }
+        }
+
         void _addSubLive(object o)
         {
             Event ev = _event;
@@ -631,6 +643,23 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        private void _checkVolume(object obj)
+        {
+            if (_media == null)
+                return;
+            IsVolumeChecking = true;
+            _engine.MediaManager.GetLoudness(_event.Media, 
+                _event.StartTC - _media._tCStart, 
+                _event.Duration,
+                (o, e) =>
+                {
+                    if (((LoudnessOperation)o).SourceMedia == _event.Media)
+                        AudioVolume = e.AudioVolume;
+                },
+            () => IsVolumeChecking = false // finishCallback
+            );
+        }
+
         void _toggleEnabled(object o)
         {
             Event ev = Event;
@@ -723,11 +752,16 @@ namespace TAS.Client.ViewModels
             return ev != null
                 && (ev.PlayState == TPlayState.Scheduled);
         }
-        bool _canChangeMovie(object o)
+        bool _isEditableMovie(object o)
         {
             Event ev = _event;
             return ev != null
-                && ev.PlayState == TPlayState.Scheduled && ev.EventType == TEventType.Movie;
+                && ev.PlayState == TPlayState.Scheduled 
+                && ev.EventType == TEventType.Movie;
+        }
+        bool _canCheckVolume(object o)
+        {
+            return !_isVolumeChecking && _isEditableMovie(o);
         }
         bool _canSave(object o)
         {
@@ -756,6 +790,18 @@ namespace TAS.Client.ViewModels
             Event next = ev == null ? null : ev.Next;
             return next != null && next.PlayState == TPlayState.Scheduled && ev.PlayState == TPlayState.Scheduled;
         }
+
+        private bool _isVolumeChecking;
+        public bool IsVolumeChecking { get { return _isVolumeChecking; }
+            set
+            {
+                if (SetField(ref _isVolumeChecking, value, "IsVolumeChecking"))
+                {
+                    NotifyPropertyChanged("CommandCheckVolume");
+                }
+            }
+        }
+
 
         private bool _modified;
         public bool Modified
