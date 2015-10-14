@@ -35,6 +35,8 @@ namespace TAS.Server
         }
 
         public EventHandler<AudioVolumeMeasuredEventArgs> AudioVolumeMeasured; // will not save to Media object if not null
+        public TimeSpan MeasureStart;
+        public TimeSpan MeasureDuration;
 
         internal override bool Do()
         {
@@ -81,7 +83,7 @@ namespace TAS.Server
         private bool _do(Media inputMedia)
         {
             Debug.WriteLine(this, "Loudness operation started");
-            string Params = string.Format("-nostats -i \"{0}\" -ss {1} -t {2} -filter_complex ebur128=peak=sample -f null -", inputMedia.FullPath, inputMedia.TCPlay-inputMedia.TCStart, inputMedia.DurationPlay);
+            string Params = string.Format("-nostats -i \"{0}\" -ss {1} -t {2} -filter_complex ebur128=peak=sample -f null -", inputMedia.FullPath, MeasureStart, MeasureDuration);
 
             if (RunProcess(Params))
             {

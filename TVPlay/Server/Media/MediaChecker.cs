@@ -21,7 +21,8 @@ namespace TAS.Server
                 int startTickCunt = Environment.TickCount;
                 using (FFMpegWrapper ffmpeg = new FFMpegWrapper(media.FullPath))
                 {
-                    videoDuration = ffmpeg.GetFrameCount().SMPTEFramesToTimeSpan(media.VideoFormatDescription.FrameRate);
+                    Rational frameRate = ffmpeg.GetFrameRate();
+                    videoDuration = ffmpeg.GetFrameCount().SMPTEFramesToTimeSpan(new RationalNumber(frameRate.Num, frameRate.Den));
                     audioDuration = (TimeSpan)ffmpeg.GetAudioDuration();
                     if (videoDuration == TimeSpan.Zero)
                     {
@@ -50,7 +51,6 @@ namespace TAS.Server
                     int w = ffmpeg.GetWidth();
                     int h = ffmpeg.GetHeight();
                     FieldOrder order = ffmpeg.GetFieldOrder();
-                    Rational frameRate = ffmpeg.GetFrameRate();
                     Rational sar = ffmpeg.GetSAR();
                     if (h == 608 && w == 720)
                     {

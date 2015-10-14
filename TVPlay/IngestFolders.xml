@@ -4,7 +4,7 @@
     <Folder>E:\lxf</Folder>
     <DirectoryName>LXF</DirectoryName>
     <Extensions />
-    <EncodeParams>-acodec libvo_aacenc -b:a 256k -c:v mpeg2video -flags -b:v 20M -pix_fmt yuv420p  -g 18 -bf 2 -b_strategy 1</EncodeParams>
+    <EncodeParams>-acodec libvo_aacenc -b:a 256k -c:v mpeg2video -b:v 20M -pix_fmt yuv420p  -g 18 -bf 2 -b_strategy 1</EncodeParams>
     <DeleteSource>false</DeleteSource>
     <Username></Username>
     <Password></Password>
