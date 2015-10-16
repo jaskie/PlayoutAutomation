@@ -156,7 +156,7 @@
                         <Setter Property="Command" Value="{Binding CommandShow}"/>
                     </Style>
                 </MenuItem.ItemContainerStyle>
-            </MenuItem>           
+            </MenuItem>
             <MenuItem Header="{Resx _menu.Rundown}">
                 <MenuItem Header="{Resx _menu.Rundown.AddEmpty}" Command="{Binding CommandNewRootRundown}"/>
                 <MenuItem Header="{Resx _menu.Rundown.AddContainer}" Command="{Binding CommandNewContainer}"/>
@@ -192,14 +192,14 @@
                 <MenuItem Header="_Debug window" Command="{Binding CommandDebugToggle}" />
                 <MenuItem Header="{Resx _menu.Tools.ChannelConfig}" Command="{Binding CommandEngineSettings}"/>
                 <MenuItem Header="_Ingest directories setup" Command="{Binding CommandIngestDirectoriesSettings}"/>
-                
+
                 <!--<MenuItem Header="Playout">
                     <MenuItem Header="Wznów" Command="{Binding CommandResume}" />
                     <MenuItem Header="Wstrzymaj" Command="{Binding CommandPause}" />
                 </MenuItem>-->
             </MenuItem>
         </Menu>
-        <Grid Name="gToolbox" Grid.Column="2" Grid.Row="1">
+        <Grid Name="gToolbox" Grid.Row="1">
             <Grid.Resources>
                 <Style TargetType="Label">
                     <Setter Property="Padding" Value="0"/>
@@ -281,7 +281,7 @@
                             <Image Source="../Glyphs/go-bottom.png" />
                             <Label Content="{Resx _toolbar.Track}" />
                         </StackPanel>
-                    </ToggleButton> 
+                    </ToggleButton>
                 </StackPanel>
             </Grid>
             <TextBlock FontSize="13" Text="{Binding CurrentTime, StringFormat=d}" />
@@ -318,59 +318,59 @@
                 </Style>
             </StatusBar.Resources>
             <StatusBarItem>
-             <StackPanel Orientation="Horizontal" >
-                <common:AutoGreyableImage Source="../Glyphs/OnAir.png" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding GPIIsMaster}" />
-                <StackPanel Orientation="Horizontal">
-                    <common:StatusIndicator IsGreen="{Binding ServerConnectedPGM}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
-                    <Label Content="PGM" Padding="5, 0" />
-                    <common:StatusIndicator IsGreen="{Binding ServerConnectedPRV}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
-                    <Label Content="PRV" Padding="5, 0" />
-                    <CheckBox Content="PST" Margin="5, 0" IsChecked="{Binding Pst2Prv}"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}">
-                    <Separator Width="5"  Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
-                    <common:StatusIndicator IsGreen="{Binding GPIConnected}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
-                    <Label Content="GPI" Padding="5, 0, 0, 0"/>
-                    <StackPanel Orientation="Horizontal" Visibility="{Binding GPIConnected, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding GPIIsMaster}">
+                <StackPanel Orientation="Horizontal" >
+                    <common:AutoGreyableImage Source="../Glyphs/OnAir.png" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding GPIIsMaster}" />
+                    <StackPanel Orientation="Horizontal">
+                        <common:StatusIndicator IsGreen="{Binding ServerConnectedPGM}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
+                        <Label Content="PGM" Padding="5, 0" />
+                        <common:StatusIndicator IsGreen="{Binding ServerConnectedPRV}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
+                        <Label Content="PRV" Padding="5, 0" />
+                        <CheckBox Content="PST" Margin="5, 0" IsChecked="{Binding Pst2Prv}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}">
+                        <Separator Width="5"  Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+                        <common:StatusIndicator IsGreen="{Binding GPIConnected}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
+                        <Label Content="GPI" Padding="5, 0, 0, 0"/>
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding GPIConnected, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding GPIIsMaster}">
                             <CheckBox Margin="10, 0" Content="{Resx _statusbar.Gpi.Active}" IsChecked="{Binding GPIEnabled}"/>
-                        <StackPanel Orientation="Horizontal" IsEnabled="{Binding GPIEnabled}">
-                            <StackPanel.Resources>
-                                <Style TargetType="CheckBox">
-                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsEnabled" Value="false">
-                                            <Setter Property="Foreground" Value="Black"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                                <Style TargetType="ComboBox">
-                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsEnabled" Value="false">
-                                            <Setter Property="Foreground" Value="Black"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                                <Style TargetType="Label">
-                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsEnabled" Value="false">
-                                            <Setter Property="Foreground" Value="Black"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </StackPanel.Resources>
-                            <CheckBox IsChecked="{Binding GPIAspectNarrow}" Content="{Binding GPIAspectNarrow, Converter={StaticResource BooleanToAspectDescriptionConverter}}" Padding="5, 0" Width="50"/>
+                            <StackPanel Orientation="Horizontal" IsEnabled="{Binding GPIEnabled}">
+                                <StackPanel.Resources>
+                                    <Style TargetType="CheckBox">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="false">
+                                                <Setter Property="Foreground" Value="Black"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="false">
+                                                <Setter Property="Foreground" Value="Black"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                    <Style TargetType="Label">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="false">
+                                                <Setter Property="Foreground" Value="Black"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Resources>
+                                <CheckBox IsChecked="{Binding GPIAspectNarrow}" Content="{Binding GPIAspectNarrow, Converter={StaticResource BooleanToAspectDescriptionConverter}}" Padding="5, 0" Width="50"/>
                                 <Label Padding="5, 0" Content="{Resx _statusbar.Gpi.Crawl}"/>
-                            <ComboBox Width="90" ItemsSource="{Binding GPICrawls}" SelectedValue="{Binding GPICrawl}" />
+                                <ComboBox Width="90" ItemsSource="{Binding GPICrawls}" SelectedValue="{Binding GPICrawl}" />
                                 <Label Padding="5, 0" Content="{Resx _statusbar.Gpi.Logo}"/>
-                            <ComboBox Width="90" ItemsSource="{Binding GPILogos}" SelectedValue="{Binding GPILogo}" />
+                                <ComboBox Width="90" ItemsSource="{Binding GPILogos}" SelectedValue="{Binding GPILogo}" />
                                 <Label Padding="5, 0" Content="{Resx _statusbar.Gpi.Parental}"/>
-                            <ComboBox Width="90" ItemsSource="{Binding GPIParentals}" SelectedValue="{Binding GPIParental}" />
+                                <ComboBox Width="90" ItemsSource="{Binding GPIParentals}" SelectedValue="{Binding GPIParental}" />
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
-            </StackPanel>
             </StatusBarItem>
             <StatusBarItem HorizontalAlignment="Right" Panel.ZIndex="1" Background="{Binding Path=Background, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StatusBar}}}">
                 <StackPanel Orientation="Horizontal" >
@@ -423,6 +423,6 @@
                 <client:PreviewView Grid.Row="1" DataContext="{Binding PreviewViewmodel}" />
             </Grid>
         </Grid>
-    </Grid>     
-    
+    </Grid>
+
 </UserControl>

@@ -388,7 +388,7 @@ namespace TAS.Client.ViewModels
 
         public DateTime CurrentTime
         {
-            get { return _engine.CurrentTime; }
+            get { return _engine.CurrentTime.ToLocalTime(); }
         }
 
         private RationalNumber _frameRate;
