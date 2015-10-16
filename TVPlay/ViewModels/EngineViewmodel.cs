@@ -394,7 +394,7 @@ namespace TAS.Client.ViewModels
         private RationalNumber _frameRate;
         public RationalNumber FrameRate { get { return _frameRate; } }
 
-        public TimeSpan TimeToPause { get { return _engine.TimeToPause; } }
+        public TimeSpan TimeToPause { get { return _engine.GetTimeToPause(); } }
 
         private readonly PlayingEventViewmodel _playingEventViewmodel;
         public PlayingEventViewmodel PlayingEvent { get { return _playingEventViewmodel; } }

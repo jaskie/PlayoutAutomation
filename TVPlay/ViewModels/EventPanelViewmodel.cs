@@ -579,12 +579,12 @@ namespace TAS.Client.ViewModels
 
         public DateTime EndTime
         {
-            get { return (_event == null || _event.Successor != null) ? default(DateTime) : _event.EndTime; }
+            get { return (_event == null || _event.GetSuccessor() != null) ? default(DateTime) : _event.EndTime; }
         }
 
         public bool IsLastEvent
         {
-            get { return (_event != null && _event.Successor == null); }
+            get { return (_event != null && _event.GetSuccessor() == null); }
         }
 
         public bool IsStartEvent

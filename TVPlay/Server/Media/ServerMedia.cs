@@ -31,7 +31,6 @@ namespace TAS.Server
             base.CloneMediaProperties(fromMedia);
             if (fromMedia is ServerMedia)
             {
-                HasExtraLines = (fromMedia as ServerMedia).HasExtraLines;
                 DoNotArchive = (fromMedia as ServerMedia).DoNotArchive;
             }
         }

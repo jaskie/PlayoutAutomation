@@ -637,7 +637,7 @@ namespace TAS.Server
                         aEvent.PlayState = TPlayState.Scheduled;
                         foreach (Event se in aEvent.SubEvents)
                             ReSchedule(se);
-                        ReSchedule(aEvent.Successor);
+                        ReSchedule(aEvent.GetSuccessor());
                     }
                     else
                         aEvent.UpdateScheduledTime(true);
@@ -652,7 +652,7 @@ namespace TAS.Server
         private bool _load(Event aEvent)
         {
             if (aEvent != null && (!aEvent.Enabled || aEvent.Length == TimeSpan.Zero))
-                aEvent = aEvent.Successor;
+                aEvent = aEvent.GetSuccessor();
             if (aEvent == null)
                 return false;
             Debug.WriteLine(aEvent, "Load");
@@ -677,7 +677,7 @@ namespace TAS.Server
         private bool _loadNext(Event aEvent)
         {
             if (aEvent != null && (!aEvent.Enabled || aEvent.Length == TimeSpan.Zero))
-                aEvent = aEvent.Successor;
+                aEvent = aEvent.GetSuccessor();
             if (aEvent == null)
                 return false;
             Debug.WriteLine(aEvent, "LoadNext");
@@ -700,7 +700,7 @@ namespace TAS.Server
         private bool _play(Event aEvent, bool fromBeginning)
         {
             if (aEvent != null && (!aEvent.Enabled || aEvent.Length == TimeSpan.Zero))
-                aEvent = aEvent.Successor;
+                aEvent = aEvent.GetSuccessor();
             if (aEvent == null)
                 return false;
             Debug.WriteLine("Play {1}: {0}", aEvent, CurrentTime.TimeOfDay);
@@ -806,10 +806,10 @@ namespace TAS.Server
             lock (_tickLock)
                 if (EngineState == TEngineState.Hold)
                 {
-                    foreach (Event e in _loadedNextEvents.Values.ToList())
+                    foreach (Event e in _visibleEvents.Values.Concat(_loadedNextEvents.Values).ToList())
                     {
                         _play(e, false);
-                        Event s = e.Successor;
+                        Event s = e.GetSuccessor();
                         if (s != null)
                             s.UpdateScheduledTime(true);
                     }
@@ -929,7 +929,7 @@ namespace TAS.Server
             if (PlayoutChannelPRV != null)
                 if (currEvent != null)
                 {
-                    var nextEvent = currEvent.Successor;
+                    var nextEvent = currEvent.GetSuccessor();
                     if (nextEvent != null)
                     {
                         var media = nextEvent.ServerMediaPRV;
@@ -1037,7 +1037,7 @@ namespace TAS.Server
                     break;
                 }
                 else
-                    ev = ev.Successor;
+                    ev = ev.GetSuccessor();
             }
             lock (_tickLock)
                 EngineState = TEngineState.Running;
@@ -1067,7 +1067,7 @@ namespace TAS.Server
 
                     foreach (Event ev in runningEvents)
                     {
-                        Event succ = ev.Successor;
+                        Event succ = ev.GetSuccessor();
 
                         _triggerGPIGraphics(ev, false);
                         _triggerGPIGraphics(succ, false);
@@ -1100,7 +1100,7 @@ namespace TAS.Server
                         // third: start 
                         if (!ev.Hold
                             && CurrentTicks >= ev.ScheduledTime.Ticks
-                            && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused))
+                            && ev.PlayState == TPlayState.Scheduled)
                         {
                             if (CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks)
                             {
@@ -1238,31 +1238,30 @@ namespace TAS.Server
             {
                 lock (_tickLock)
                 {
-                    e.Item.Position = ((Event)sender).Position;
-                    _play(e.Item, false);
+                    if (((Event)sender).PlayState == TPlayState.Playing)
+                    {
+                        e.Item.Position = ((Event)sender).Position;
+                        _play(e.Item, false);
+                    }
                 }
             }
         }
 
-        [XmlIgnore]
-        public TimeSpan TimeToPause
+        public TimeSpan GetTimeToPause()
         {
-            get
+            Event pe = PlayingEvent();
+            if (pe != null)
             {
-                Event pe = PlayingEvent();
-                if (pe != null)
+                long result = pe.LengthInFrames - pe.Position;
+                pe = pe.GetSuccessor();
+                while (pe != null && !pe.Hold && !(pe.EventType == TEventType.Live))
                 {
-                    long result = pe.LengthInFrames - pe.Position;
-                    pe = pe.Successor;
-                    while (pe != null && !pe.Hold && !(pe.EventType==TEventType.Live))
-                    {
-                        result = result + pe.LengthInFrames - pe.TransitionFrames;
-                        pe = pe.Successor;
-                    }
-                    return new TimeSpan(result * _frameTicks);
+                    result = result + pe.LengthInFrames - pe.TransitionFrames;
+                    pe = pe.GetSuccessor();
                 }
-                return TimeSpan.Zero;
+                return new TimeSpan(result * _frameTicks);
             }
+            return TimeSpan.Zero;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

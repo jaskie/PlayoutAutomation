@@ -169,7 +169,7 @@ namespace TAS.Client.ViewModels
                 Event pe = _playingEvent;
                 if (pe != null)
                 {
-                    Event su = pe.Successor;
+                    Event su = pe.GetSuccessor();
                     if (su != null)
                         return su.EventName;
                 }

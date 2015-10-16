@@ -383,7 +383,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             if (media is ServerMedia && media.Directory is ServerDirectory)
             {
                 cmd.Parameters.AddWithValue("@idServer", ((media as ServerMedia).Directory as ServerDirectory).Server.Id);
-                cmd.Parameters.AddWithValue("@typVideo", ((byte)media.VideoFormat) | (media.HasExtraLines ? (byte)0x80 : (byte)0x0));
+                cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
             }
             if (media is ServerMedia && media.Directory is AnimationDirectory)
             {
@@ -425,7 +425,6 @@ WHERE idRundownEvent=@idRundownEvent;";
         private static void _mediaReadFields(MySqlDataReader dataReader, PersistentMedia media)
         {
             uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flags")) ? (uint)0 : dataReader.GetUInt32("flags");
-            byte typVideo = dataReader.IsDBNull(dataReader.GetOrdinal("typVideo")) ? (byte)0 : dataReader.GetByte("typVideo");
             media._mediaName = dataReader.IsDBNull(dataReader.GetOrdinal("MediaName")) ? string.Empty : dataReader.GetString("MediaName");
             media._duration = dataReader.IsDBNull(dataReader.GetOrdinal("Duration")) ? default(TimeSpan) : dataReader.GetTimeSpan("Duration");
             media._durationPlay = dataReader.IsDBNull(dataReader.GetOrdinal("DurationPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("DurationPlay");
@@ -443,8 +442,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             media._audioLevelIntegrated = dataReader.IsDBNull(dataReader.GetOrdinal("AudioLevelIntegrated")) ? 0 : dataReader.GetDecimal("AudioLevelIntegrated");
             media._audioLevelPeak = dataReader.IsDBNull(dataReader.GetOrdinal("AudioLevelPeak")) ? 0 : dataReader.GetDecimal("AudioLevelPeak");
             media._audioChannelMapping = dataReader.IsDBNull(dataReader.GetOrdinal("typAudio")) ? TAudioChannelMapping.Stereo : (TAudioChannelMapping)dataReader.GetByte("typAudio");
-            media.HasExtraLines = (typVideo & (byte)0x80) > 0;
-            media._videoFormat = (TVideoFormat)(typVideo & 0x7F);
+            media._videoFormat = (TVideoFormat)(dataReader.IsDBNull(dataReader.GetOrdinal("typVideo")) ? (byte)0 : dataReader.GetByte("typVideo"));
             media._idAux = dataReader.IsDBNull(dataReader.GetOrdinal("idAux")) ? string.Empty : dataReader.GetString("idAux");
             media._killDate = _readDateTimeField(dataReader, "KillDate");
             media._mediaGuid = dataReader.IsDBNull(dataReader.GetOrdinal("MediaGuid")) ? Guid.Empty : dataReader.GetGuid("MediaGuid");

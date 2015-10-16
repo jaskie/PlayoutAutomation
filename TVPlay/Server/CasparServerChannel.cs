@@ -76,7 +76,6 @@ namespace TAS.Server
                 if (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
                 {
                     item.Clipname = "\"" + Path.GetFileNameWithoutExtension(media.FileName) + "\"" +
-                        ((media.MediaType == TMediaType.Movie && media.HasExtraLines) ? " FILTER CROP=720:576:0:32" : string.Empty) +
                         (media.MediaType == TMediaType.Movie ? " CHANNEL_LAYOUT STEREO" : string.Empty);
                 }
                 if (aEvent.EventType == TEventType.Live)
@@ -99,8 +98,7 @@ namespace TAS.Server
                 CasparItem item = new CasparItem(string.Empty);
                 if (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Movie)
                     item.Clipname = "\"" + Path.GetFileNameWithoutExtension(media.FileName) + "\"" +
-                        ((media.MediaType == TMediaType.Movie && media.HasExtraLines) ? " FILTER CROP=720:576:0:32" : string.Empty) +
-                        ((media.MediaType == TMediaType.Movie) ? " CHANNEL_LAYOUT STEREO" : string.Empty);
+                        ((media.MediaType == TMediaType.Movie && media.HasExtraLines) ? " FILTER CROP=720:576:0:32" : string.Empty);
                 item.VideoLayer = (int)videolayer;
                 item.Seek = (int)seek;
                 return item;

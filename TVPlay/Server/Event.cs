@@ -341,7 +341,7 @@ namespace TAS.Server
                     ev.UpdateScheduledTime(true);
                 if (updateSuccessors)
                 {
-                    Event succ = Successor;
+                    Event succ = GetSuccessor();
                     if (succ != null)
                         succ.UpdateScheduledTime(true);
                 }
@@ -439,7 +439,7 @@ namespace TAS.Server
                     if (value != default(DateTime))
                     {
                         ScheduledTime = value;
-                        Event succ = Successor;
+                        Event succ = GetSuccessor();
                         if (succ != null)
                             succ.UpdateScheduledTime(true);
                     }
@@ -1038,33 +1038,31 @@ namespace TAS.Server
             }
         }
 
-        public Event Successor
+        public Event GetSuccessor()
         {
-            get
+            if (_eventType == TEventType.Movie || _eventType == TEventType.Live || _eventType == TEventType.Rundown)
             {
-                if (_eventType == TEventType.Movie || _eventType == TEventType.Live || _eventType == TEventType.Rundown)
+                Event nev = Next;
+                if (nev != null)
                 {
-                    Event nev = Next;
-                    if (nev != null)
+                    Event n = nev.Next;
+                    while (nev != null && n != null && nev.Length.Equals(TimeSpan.Zero))
                     {
-                        Event n = nev.Next;
-                        while (nev != null && n != null && nev.Length.Equals(TimeSpan.Zero))
-                        {
-                            nev = nev.Next;
-                            n = nev.Next;
-                        }
+                        nev = nev.Next;
+                        n = nev.Next;
                     }
-                    if (nev == null)
-                    {
-                        nev = VisualParent;
-                        if (nev != null)
-                            nev = nev.Successor;
-                    }
-                    return nev;
                 }
-                return null;
+                if (nev == null)
+                {
+                    nev = VisualParent;
+                    if (nev != null)
+                        nev = nev.GetSuccessor();
+                }
+                return nev;
             }
+            return null;
         }
+
 
         public void Save()
         {

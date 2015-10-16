@@ -131,7 +131,6 @@ namespace TAS.Server
                             KillDate = (media is PersistentMedia) ? (media as PersistentMedia).KillDate : ((media is IngestMedia && (media.Directory as IngestDirectory).MediaRetnentionDays > 0) ? DateTime.Today + TimeSpan.FromDays(((IngestDirectory)media.Directory).MediaRetnentionDays) : default(DateTime)),
                             DoNotArchive = (media is ServerMedia && (media as ServerMedia).DoNotArchive)
                                          || media is IngestMedia && ((media as IngestMedia).Directory as IngestDirectory).MediaDoNotArchive,
-                            HasExtraLines = media is ServerMedia && (media as ServerMedia).HasExtraLines,
                             _mediaCategory = media.MediaCategory,
                             _parental = media.Parental,
                             idAux = (media is PersistentMedia) ? (media as PersistentMedia).idAux : string.Empty,
