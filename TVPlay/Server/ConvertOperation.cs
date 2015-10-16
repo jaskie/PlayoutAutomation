@@ -269,7 +269,7 @@ namespace TAS.Server
             string Params = string.Format("-i \"{0}\" -vsync cfr {1} -ar 48000 -timecode {2} -y \"{3}\"",
                     inputMedia.FullPath,
                     encodeParams,
-                    DestMedia.TCStart.ToSMPTETimecodeString(DestMedia.VideoFormatDescription.FrameRate),
+                    DestMedia.TCStart.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[OutputFormat].FrameRate),
                     DestMedia.FullPath);
 
             if (DestMedia is ArchiveMedia && !Directory.Exists(Path.GetDirectoryName(DestMedia.FullPath)))

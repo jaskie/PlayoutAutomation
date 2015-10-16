@@ -454,7 +454,7 @@ namespace TAS.Client.ViewModels
         }
 
         public bool DisplayDirectoryInfo { get { return _mediaDirectory != null && _mediaDirectory.AccessType == TDirectoryAccessType.Direct; } }
-        public bool DirectoryFreeOver20Percent { get { return (DirectoryFreeSpace >= 80); } }
+        public bool DirectoryFreeOver20Percent { get { return (DirectoryFreePercentage >= 20); } }
         public float DirectoryTotalSpace { get { return _mediaDirectory == null ? 0F : _mediaDirectory.VolumeTotalSize / (1073741824F); } }
         public float DirectoryFreeSpace { get { return _mediaDirectory == null ? 0F : _mediaDirectory.VolumeFreeSize / (1073741824F); } }
         public float DirectoryFreePercentage

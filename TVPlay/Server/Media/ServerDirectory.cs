@@ -134,7 +134,6 @@ namespace TAS.Server
                             _mediaCategory = media.MediaCategory,
                             _parental = media.Parental,
                             idAux = (media is PersistentMedia) ? (media as PersistentMedia).idAux : string.Empty,
-                            idFormat = (media is PersistentMedia) ? (media as PersistentMedia).idFormat : 0L,
                             idProgramme = (media is PersistentMedia) ? (media as PersistentMedia).idProgramme : 0L,
                             _mediaGuid = fm == null ? media.MediaGuid : Guid.NewGuid(), // in case file with the same GUID already exists and we need to get new one
                             OriginalMedia = media,

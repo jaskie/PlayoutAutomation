@@ -393,7 +393,9 @@ namespace TAS.Server
                     if (!_files.Any(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == (media as IngestMedia).XmlFile))
                         try
                         {
-                            File.Delete((media as IngestMedia).XmlFile);
+                            string fn = (media as IngestMedia).XmlFile;
+                            if (!string.IsNullOrWhiteSpace(fn) && File.Exists(fn))
+                                File.Delete(fn);
                         }
                         catch { };
                 }

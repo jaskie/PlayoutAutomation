@@ -18,7 +18,6 @@ namespace TAS.Server
 
         // media properties
 
-        public UInt64 idFormat { get; internal set; }
         internal DateTime _killDate;
         public DateTime KillDate
         {
@@ -63,7 +62,6 @@ namespace TAS.Server
             if (fromMedia is PersistentMedia)
             {
                 idAux = (fromMedia as PersistentMedia).idAux;
-                idFormat = (fromMedia as PersistentMedia).idFormat;
                 idProgramme = (fromMedia as PersistentMedia).idProgramme;
                 OriginalMedia = (fromMedia as PersistentMedia).OriginalMedia;
                 MediaEmphasis = (fromMedia as PersistentMedia).MediaEmphasis;

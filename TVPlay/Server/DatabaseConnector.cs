@@ -364,7 +364,6 @@ WHERE idRundownEvent=@idRundownEvent;";
         private static Boolean _mediaFillParamsAndExecute(MySqlCommand cmd, PersistentMedia media)
         {
             cmd.Parameters.AddWithValue("@idProgramme", media.idProgramme);
-            cmd.Parameters.AddWithValue("@idFormat", media.idFormat);
             cmd.Parameters.AddWithValue("@idAux", media.idAux);
             if (media.MediaGuid == Guid.Empty)
                 cmd.Parameters.AddWithValue("@MediaGuid", DBNull.Value);
@@ -431,7 +430,6 @@ WHERE idRundownEvent=@idRundownEvent;";
             media._folder = dataReader.IsDBNull(dataReader.GetOrdinal("Folder")) ? string.Empty : dataReader.GetString("Folder");
             media._fileName = dataReader.IsDBNull(dataReader.GetOrdinal("FileName")) ? string.Empty : dataReader.GetString("FileName");
             media._fileSize = dataReader.IsDBNull(dataReader.GetOrdinal("FileSize")) ? 0 : dataReader.GetUInt64("FileSize");
-            media.idFormat = dataReader.IsDBNull(dataReader.GetOrdinal("idFormat")) ? 0 : dataReader.GetUInt64("idFormat");
             media._lastUpdated = _readDateTimeField(dataReader, "LastUpdated");
             media._mediaStatus = (TMediaStatus)(dataReader.IsDBNull(dataReader.GetOrdinal("statusMedia")) ? 0 : dataReader.GetInt32("statusMedia"));
             media._mediaType = (TMediaType)(dataReader.IsDBNull(dataReader.GetOrdinal("typMedia")) ? 0 : dataReader.GetInt32("typMedia"));
@@ -544,9 +542,9 @@ WHERE idRundownEvent=@idRundownEvent;";
                 {
                     string query =
     @"INSERT INTO servermedia 
-(idServer, MediaName, Folder, FileName, FileSize, LastUpdated, Duration, DurationPlay, idProgramme, statusMedia, typMedia, idFormat, typAudio, typVideo, TCStart, TCPlay, AudioVolume, AudioLevelIntegrated, AudioLevelPeak, idAux, KillDate, MediaGuid, flags) 
+(idServer, MediaName, Folder, FileName, FileSize, LastUpdated, Duration, DurationPlay, idProgramme, statusMedia, typMedia, typAudio, typVideo, TCStart, TCPlay, AudioVolume, AudioLevelIntegrated, AudioLevelPeak, idAux, KillDate, MediaGuid, flags) 
 VALUES 
-(@idServer, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @idFormat, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);";
+(@idServer, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);";
                     MySqlCommand cmd = new MySqlCommand(query, connection);
                     _mediaFillParamsAndExecute(cmd, serverMedia);
                     serverMedia.idPersistentMedia = (UInt64)cmd.LastInsertedId;
@@ -566,9 +564,9 @@ VALUES
                 {
                     string query =
     @"INSERT INTO archivemedia 
-(idArchive, MediaName, Folder, FileName, FileSize, LastUpdated, Duration, DurationPlay, idProgramme, statusMedia, typMedia, idFormat, typAudio, typVideo, TCStart, TCPlay, AudioVolume, AudioLevelIntegrated, AudioLevelPeak, idAux, KillDate, MediaGuid, flags) 
+(idArchive, MediaName, Folder, FileName, FileSize, LastUpdated, Duration, DurationPlay, idProgramme, statusMedia, typMedia, typAudio, typVideo, TCStart, TCPlay, AudioVolume, AudioLevelIntegrated, AudioLevelPeak, idAux, KillDate, MediaGuid, flags) 
 VALUES 
-(@idArchive, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @idFormat, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);";
+(@idArchive, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);";
                     MySqlCommand cmd = new MySqlCommand(query, connection);
                     _mediaFillParamsAndExecute(cmd, archiveMedia);
                     archiveMedia.idPersistentMedia = (UInt64)cmd.LastInsertedId;

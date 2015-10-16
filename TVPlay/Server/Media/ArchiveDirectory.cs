@@ -147,7 +147,6 @@ namespace TAS.Server
                     _videoFormat = media.VideoFormat,
                     KillDate = (media is PersistentMedia) ? (media as PersistentMedia).KillDate : (media is IngestMedia ? media.LastUpdated + TimeSpan.FromDays(((IngestDirectory)media.Directory).MediaRetnentionDays) : default(DateTime)),
                     idAux = (media is PersistentMedia) ? (media as PersistentMedia).idAux : string.Empty,
-                    idFormat = (media is PersistentMedia) ? (media as PersistentMedia).idFormat : 0L,
                     idProgramme = (media is PersistentMedia) ? (media as PersistentMedia).idProgramme : 0L,
                     MediaType = (media.MediaType == TMediaType.Unknown) ? (StillFileTypes.Any(ve => ve == Path.GetExtension(media.FullPath).ToLowerInvariant()) ? TMediaType.Still : TMediaType.Movie) : media.MediaType,
                     _mediaCategory = media.MediaCategory,
