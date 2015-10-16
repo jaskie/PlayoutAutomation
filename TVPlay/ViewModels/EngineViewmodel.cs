@@ -394,7 +394,7 @@ namespace TAS.Client.ViewModels
         private RationalNumber _frameRate;
         public RationalNumber FrameRate { get { return _frameRate; } }
 
-        public TimeSpan TimeToPause { get { return _engine.GetTimeToPause(); } }
+        public TimeSpan TimeToAttention { get { return _engine.GetTimeToAttention(); } }
 
         private readonly PlayingEventViewmodel _playingEventViewmodel;
         public PlayingEventViewmodel PlayingEvent { get { return _playingEventViewmodel; } }
@@ -562,7 +562,7 @@ namespace TAS.Client.ViewModels
         public void OnEngineTick(object sender, EventArgs a)
         {
             NotifyPropertyChanged("CurrentTime");
-            NotifyPropertyChanged("TimeToPause");
+            NotifyPropertyChanged("TimeToAttention");
         }
 
         public void OnServerPropertyChanged(object sender, PropertyChangedEventArgs e)

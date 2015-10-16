@@ -806,12 +806,15 @@ namespace TAS.Server
             lock (_tickLock)
                 if (EngineState == TEngineState.Hold)
                 {
-                    foreach (Event e in _visibleEvents.Values.Concat(_loadedNextEvents.Values).ToList())
+                    foreach (Event e in _runningEvents.ToList())
                     {
-                        _play(e, false);
-                        Event s = e.GetSuccessor();
-                        if (s != null)
-                            s.UpdateScheduledTime(true);
+                        if (e.PlayState == TPlayState.Paused || _loadedNextEvents.Values.Contains(e))
+                        {
+                            _play(e, false);
+                            Event s = e.GetSuccessor();
+                            if (s != null)
+                                s.UpdateScheduledTime(true);
+                        }
                     }
                     EngineState = TEngineState.Running;
                 }
@@ -1238,7 +1241,8 @@ namespace TAS.Server
             {
                 lock (_tickLock)
                 {
-                    if (((Event)sender).PlayState == TPlayState.Playing)
+                    TPlayState ps = ((Event)sender).PlayState;
+                    if (ps == TPlayState.Playing || ps == TPlayState.Paused)
                     {
                         e.Item.Position = ((Event)sender).Position;
                         _play(e.Item, false);
@@ -1247,19 +1251,22 @@ namespace TAS.Server
             }
         }
 
-        public TimeSpan GetTimeToPause()
+        public TimeSpan GetTimeToAttention()
         {
             Event pe = PlayingEvent();
             if (pe != null)
             {
-                long result = pe.LengthInFrames - pe.Position;
+                TimeSpan result = pe.Length - TimeSpan.FromTicks(pe.Position * _frameTicks);
                 pe = pe.GetSuccessor();
-                while (pe != null && !pe.Hold && !(pe.EventType == TEventType.Live))
+                while (pe != null)
                 {
-                    result = result + pe.LengthInFrames - pe.TransitionFrames;
+                    TimeSpan? pauseTime = pe.GetAttentionTime();
+                    if (pauseTime != null)
+                        return result + pauseTime.Value - pe.TransitionTime;
+                    result = result + pe.Length - pe.TransitionTime;
                     pe = pe.GetSuccessor();
                 }
-                return new TimeSpan(result * _frameTicks);
+                return result;
             }
             return TimeSpan.Zero;
         }

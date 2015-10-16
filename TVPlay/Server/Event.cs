@@ -570,10 +570,6 @@ namespace TAS.Server
         {
             get { return Length.Ticks / Engine.FrameTicks; }
         }
-        public long TransitionFrames
-        {
-            get { return TransitionTime.Ticks / Engine.FrameTicks; }
-        }
 
         internal TimeSpan _transitionTime;
         public TimeSpan TransitionTime
@@ -1037,7 +1033,10 @@ namespace TAS.Server
                 NotifyRelocated();
             }
         }
-
+        /// <summary>
+        /// Gets subsequent event that will play after this
+        /// </summary>
+        /// <returns></returns>
         public Event GetSuccessor()
         {
             if (_eventType == TEventType.Movie || _eventType == TEventType.Live || _eventType == TEventType.Rundown)
@@ -1059,6 +1058,39 @@ namespace TAS.Server
                         nev = nev.GetSuccessor();
                 }
                 return nev;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Gets time of event that requires attention event, or null if event does not contain such an element
+        /// </summary>
+        /// <returns></returns> 
+        public Nullable<TimeSpan> GetAttentionTime()
+        {
+            if (_hold || _eventType == TEventType.Live)
+                return TimeSpan.Zero;
+            if (_eventType == TEventType.Movie)
+            {
+                Media m = Media;
+                if (m == null 
+                    || m.MediaStatus != TMediaStatus.Available
+                    || _scheduledTC<m.TCStart 
+                    || _duration+_scheduledTC > m.Duration+m.TCStart)
+                    return TimeSpan.Zero;
+            }
+            if (_eventType == TEventType.Rundown)
+            {
+                TimeSpan pauseTime = TimeSpan.Zero;
+                Event ev = SubEvents.FirstOrDefault(e => e.EventType == TEventType.Movie || e.EventType == TEventType.Live || e.EventType == TEventType.Rundown);
+                while (ev != null)
+                {
+                    TimeSpan? pt = ev.GetAttentionTime();
+                    if (pt.HasValue)
+                        return pauseTime + pt.Value;
+                    pauseTime += ev.Length - ev.TransitionTime;
+                    ev = ev.Next;
+                }
             }
             return null;
         }

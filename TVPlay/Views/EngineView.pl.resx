@@ -222,8 +222,8 @@
   <data name="_toolbar.StartSelected" xml:space="preserve">
     <value>Start zaznaczonego (Ctrl+F3)</value>
   </data>
-  <data name="_toolbar.TimeToPause" xml:space="preserve">
-    <value>Do pauzy</value>
+  <data name="_toolbar.TimeToAttention" xml:space="preserve">
+    <value>Uwaga za</value>
   </data>
   <data name="_toolbar.Track" xml:space="preserve">
     <value>Śledź</value>
