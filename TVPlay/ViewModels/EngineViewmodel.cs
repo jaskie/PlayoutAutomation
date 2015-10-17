@@ -657,6 +657,8 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("CommandLoadSelected");
                 NotifyPropertyChanged("CommandScheduleSelected");
                 NotifyPropertyChanged("CommandRescheduleSelected");
+                NotifyPropertyChanged("CommandStartLoaded");
+                Application.Current.Dispatcher.BeginInvoke((Action)(() => CommandManager.InvalidateRequerySuggested()));
             }
         }
 

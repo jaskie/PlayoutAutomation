@@ -120,7 +120,7 @@
                                             <Setter Property="Source" Value="../Glyphs/VideoFormats/FHA.png" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding VideoFormat}" Value="Other">
-                                            <Setter Property="Source" Value="../Glyphs/Empty.png" />
+                                            <Setter Property="Source" Value="{x:Null}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding VideoFormat}" Value="HD1080i5000">
                                             <Setter Property="Source" Value="../Glyphs/VideoFormats/HD.png" />

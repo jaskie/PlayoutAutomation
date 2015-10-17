@@ -510,7 +510,6 @@
     <Resource Include="Glyphs\ArrowLeftUpRed.gif" />
     <Resource Include="Glyphs\ArrowUpRed.gif" />
     <Resource Include="Glyphs\VCRPark.gif" />
-    <Resource Include="Glyphs\Empty.png" />
     <Resource Include="Glyphs\play.png" />
     <Resource Include="Glyphs\pause.png" />
     <Resource Include="Glyphs\Circle_1.png" />
@@ -526,8 +525,6 @@
     <Resource Include="Glyphs\NewNextLive.png" />
     <Resource Include="Glyphs\NewSubLive.png" />
     <Resource Include="Glyphs\Drawer.png" />
-    <Resource Include="Glyphs\Import.png" />
-    <Resource Include="Glyphs\Export.png" />
     <Resource Include="Glyphs\go-bottom.png" />
     <Resource Include="Glyphs\Refresh.png" />
     <Resource Include="Glyphs\OneFrameBack.png" />
@@ -552,7 +549,6 @@
     <Resource Include="Glyphs\FileOperationStates\Waiting.png" />
     <Resource Include="Glyphs\FileOperationStates\Aborted.png" />
     <Resource Include="Glyphs\FileOperationStates\Failed.png" />
-    <Resource Include="Glyphs\Volume.png" />
     <Resource Include="Glyphs\go-up.png" />
     <Resource Include="Glyphs\MediaStates\ValidationError.png" />
     <Resource Include="Glyphs\playpause.png" />
@@ -579,7 +575,6 @@
     <Resource Include="Glyphs\Parentals\18.png" />
     <Resource Include="Glyphs\Parentals\7.png" />
     <Resource Include="Glyphs\Parentals\BO.png" />
-    <Resource Include="Glyphs\ExportDelete.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\DataSources\" />
@@ -620,7 +615,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /d "$(SolutionDir)ffmpeg56\x64\bin\*" "$(TargetDir)"
+    <PostBuildEvent>xcopy /d "$(SolutionDir)ffmpeg57\x64\bin\*" "$(TargetDir)"
 xcopy /d "$(SolutionDir)MediaInfo\x64\*" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

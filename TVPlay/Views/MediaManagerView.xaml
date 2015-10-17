@@ -128,7 +128,7 @@
                                     <Setter Property="Source" TargetName="trimmedImage" Value="../Glyphs/Scizors.png" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsTrimmed}" Value="False">
-                                    <Setter Property="Source" TargetName="trimmedImage" Value="../Glyphs/Empty.png" />
+                                    <Setter Property="Source" TargetName="trimmedImage" Value="{x:Null}" />
                                 </DataTrigger>
                             </DataTemplate.Triggers>
                         </DataTemplate>
@@ -223,37 +223,37 @@
             </ToolBar.Resources>
             <Button ToolTip="{Resx _toolbar.Ingest.ToolTip}" Margin="10, 0" Command="{Binding CommandIngestSelectedToServer}">
                 <StackPanel  Orientation="Horizontal" >
-                    <common:AutoGreyableImage Source="../Glyphs/Import.png" />
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-ingest.png" />
                     <Label Content="{Resx _toolbar.Ingest}"/>
                 </StackPanel>
             </Button>
             <Button ToolTip="{Resx _toolbar.ArchiveDelete.ToolTip}" Margin="10,0" Command="{Binding CommandMoveSelectedToArchive}">
                 <StackPanel Orientation="Horizontal">
-                    <common:AutoGreyableImage Source="../Glyphs/ExportDelete.png" />
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/archive-export-delete.png" />
                     <Label Content="{Resx _toolbar.ArchiveDelete}"/>
                 </StackPanel>
             </Button>
             <Button ToolTip="{Resx _toolbar.ArchiveLeft.ToolTip}" Margin="10,0" Command="{Binding CommandCopySelectedToArchive}">
                 <StackPanel Orientation="Horizontal">
-                    <common:AutoGreyableImage Source="../Glyphs/Export.png" />
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/archive-export.png" />
                     <Label Content="{Resx _toolbar.ArchiveLeft}"/>
                 </StackPanel>
             </Button>
             <Button ToolTip="{Resx _toolbar.GetLoudness.ToolTip}" Margin="10,0" Command="{Binding CommandGetLoudness}">
                 <StackPanel Orientation="Horizontal">
-                    <common:AutoGreyableImage Source="../Glyphs/Volume.png"/>
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png"/>
                     <Label Content="{Resx _toolbar.GetLoudness}"/>
                 </StackPanel>
             </Button>
             <Button ToolTip="{Resx _toolbar.Export.ToolTip}" Margin="10,0" Command="{Binding CommandExport}">
                 <StackPanel Orientation="Horizontal">
-                    <common:AutoGreyableImage Source="../Glyphs/Export.png"/>
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/xdcam-export.png"/>
                     <Label Content="{Resx _toolbar.Export}"/>
                 </StackPanel>
             </Button>
             <Button ToolTip="{Resx _toolbar.Delete.ToolTip}" Margin="30,0" Command="{Binding CommandDeleteSelected}">
                 <StackPanel Orientation="Horizontal">
-                    <common:AutoGreyableImage Source="../Glyphs/Trash.png" />
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
                     <Label Content="{Resx _toolbar.Delete}"/>
                 </StackPanel>
             </Button>

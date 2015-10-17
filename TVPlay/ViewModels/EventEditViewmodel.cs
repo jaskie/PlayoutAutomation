@@ -52,28 +52,28 @@ namespace TAS.Client.ViewModels
                 Event = null;
         }
 
-        public ICommand CommandCancelEdit { get; private set; }
-        public ICommand CommandSaveEdit { get; private set; }
-        public ICommand CommandDelete { get; private set; } 
-        public ICommand CommandReschedule { get; private set; }
-        public ICommand CommandAddGraphics { get; private set; }
-        public ICommand CommandAddAnimation { get; private set; }
-        public ICommand CommandRemoveSubItems { get; private set; }
-        public ICommand CommandAddNextMovie { get; private set; }
-        public ICommand CommandAddNextEmptyMovie { get; private set; }
-        public ICommand CommandAddNextRundown { get; private set; }
-        public ICommand CommandAddNextLive { get; private set; }
-        public ICommand CommandAddSubMovie { get; private set; }
-        public ICommand CommandAddSubRundown { get; private set; }
-        public ICommand CommandAddSubLive { get; private set; }
-        public ICommand CommandChangeMovie { get; private set; }
-        public ICommand CommandEditMovie { get; private set; }
-        public ICommand CommandGetTCInTCOut { get; private set; }
-        public ICommand CommandCheckVolume { get; private set; }
-        public ICommand CommandToggleEnabled { get; private set; }
-        public ICommand CommandToggleHold { get; private set; }
-        public ICommand CommandMoveUp { get; private set; }
-        public ICommand CommandMoveDown { get; private set; }
+        public UICommand CommandCancelEdit { get; private set; }
+        public UICommand CommandSaveEdit { get; private set; }
+        public UICommand CommandDelete { get; private set; } 
+        public UICommand CommandReschedule { get; private set; }
+        public UICommand CommandAddGraphics { get; private set; }
+        public UICommand CommandAddAnimation { get; private set; }
+        public UICommand CommandRemoveSubItems { get; private set; }
+        public UICommand CommandAddNextMovie { get; private set; }
+        public UICommand CommandAddNextEmptyMovie { get; private set; }
+        public UICommand CommandAddNextRundown { get; private set; }
+        public UICommand CommandAddNextLive { get; private set; }
+        public UICommand CommandAddSubMovie { get; private set; }
+        public UICommand CommandAddSubRundown { get; private set; }
+        public UICommand CommandAddSubLive { get; private set; }
+        public UICommand CommandChangeMovie { get; private set; }
+        public UICommand CommandEditMovie { get; private set; }
+        public UICommand CommandGetTCInTCOut { get; private set; }
+        public UICommand CommandCheckVolume { get; private set; }
+        public UICommand CommandToggleEnabled { get; private set; }
+        public UICommand CommandToggleHold { get; private set; }
+        public UICommand CommandMoveUp { get; private set; }
+        public UICommand CommandMoveDown { get; private set; }
 
         
         private Event _event;
@@ -648,16 +648,18 @@ namespace TAS.Client.ViewModels
             if (_media == null)
                 return;
             IsVolumeChecking = true;
-            _engine.MediaManager.GetLoudness(_event.Media, 
-                _event.StartTC - _media._tCStart, 
+            _engine.MediaManager.GetLoudness(_event.Media,
+                _event.StartTC - _media._tCStart,
                 _event.Duration,
                 (o, e) =>
                 {
                     if (((LoudnessOperation)o).SourceMedia == _event.Media)
                         AudioVolume = e.AudioVolume;
                 },
-            () => IsVolumeChecking = false // finishCallback
-            );
+                () =>
+                {
+                    IsVolumeChecking = false; // finishCallback
+                });
         }
 
         void _toggleEnabled(object o)
@@ -798,6 +800,7 @@ namespace TAS.Client.ViewModels
                 if (SetField(ref _isVolumeChecking, value, "IsVolumeChecking"))
                 {
                     NotifyPropertyChanged("CommandCheckVolume");
+                    Application.Current.Dispatcher.BeginInvoke((Action)(() => CommandManager.InvalidateRequerySuggested()));
                 }
             }
         }

@@ -222,6 +222,23 @@
   <ItemGroup>
     <Resource Include="Images\database_config.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\media-ingest.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\xdcam-export.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\archive-export-delete.png" />
+    <Resource Include="Images\Actions\archive-export.png" />
+    <Resource Include="Images\Actions\volume-measure.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\media-delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\Actions\view-refresh.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

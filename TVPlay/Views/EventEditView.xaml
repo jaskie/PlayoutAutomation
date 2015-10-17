@@ -201,7 +201,7 @@
                         <DockPanel>
                             <CheckBox Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" IsChecked="{Binding HasAudioVolume}" />
                             <Button DockPanel.Dock="Right" ToolTip="{Resx _checkVolume.ToolTip}" Command="{Binding CommandCheckVolume}">
-                                <common:AutoGreyableImage Source="../Glyphs/Volume.png" />
+                                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png" />
                             </Button>
                             <Label DockPanel.Dock="Right" VerticalAlignment="Center" Content="dB" Width="25" />
                             <TextBox DockPanel.Dock="Right" Grid.Column="2" Width="40" Text="{Binding AudioVolumeLevel, StringFormat={}{0:0.0}, UpdateSourceTrigger=LostFocus}"/>

@@ -241,7 +241,7 @@ namespace TAS.Server
         {
             if (_extensions == null
                 || _extensions.Count() == 0
-                || _extensions.Any(ext => ext.ToLowerInvariant() == Path.GetExtension(fullPath).ToLower()))
+                || _extensions.Any(ext => ext.ToLowerInvariant() == Path.GetExtension(fullPath).ToLowerInvariant()))
             {
                 Media newMedia;
                 _files.Lock.EnterReadLock();
