@@ -29,13 +29,19 @@ namespace TAS.Server
             if (_folder.StartsWith("ftp://"))
                 AccessType = TDirectoryAccessType.FTP;
             else
-                if (IsXDCAM) 
+                if (IsXDCAM)
+                {
                     Refresh();
+                    IsInitialized = true;
+                }
                 else
                 {
                     if (string.IsNullOrWhiteSpace(Username)
                         || _connectToRemoteDirectory())
-                        base.Initialize();
+                        if (!IsWAN)
+                            base.Initialize();
+                        else
+                            IsInitialized = true;
                 }
         }
 
@@ -83,6 +89,19 @@ namespace TAS.Server
 
         public TAspectConversion AspectConversion { get; set; }
 
+        public string Filter
+        {
+            get { return _filter; }
+            set
+            {
+                if (!value.Equals(_filter))
+                {
+                    ClearFiles();
+                    ThreadPool.QueueUserWorkItem((o) => _beginWatch(value));
+                }
+            }
+        }
+
         private bool _ftpDirectoryList()
         {
             bool exists = true;
@@ -106,6 +125,7 @@ namespace TAS.Server
             }
             return exists;
         }
+
 
         bool _isRefreshing;
         public override void Refresh()
@@ -441,9 +461,9 @@ namespace TAS.Server
             }
         }
 
-        protected override void EnumerateFiles()
+        protected override void EnumerateFiles(string filter)
         {
-            base.EnumerateFiles();
+            base.EnumerateFiles(filter);
             foreach (string xml in _bMDXmlFiles)
                 _scanXML(xml);
         }

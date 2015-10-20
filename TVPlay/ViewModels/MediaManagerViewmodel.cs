@@ -277,7 +277,10 @@ namespace TAS.Client.ViewModels
                 (_mediaDirectory as ArchiveDirectory).Search();
             }
             else
-                _mediaView.Refresh();
+                if (_mediaDirectory is IngestDirectory && ((IngestDirectory)_mediaDirectory).IsWAN)
+                    ((IngestDirectory)_mediaDirectory).Filter = _searchText;
+                else
+                    _mediaView.Refresh();
             NotifyPropertyChanged("ItemsCount");
         }
 

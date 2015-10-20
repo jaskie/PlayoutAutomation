@@ -46,7 +46,7 @@ namespace TAS.Server
             {
                 ThreadPool.QueueUserWorkItem((o) => 
                     {
-                        _beginWatch();
+                        _beginWatch(null);
                         IsInitialized = true;
                     });
             }
@@ -321,9 +321,9 @@ namespace TAS.Server
                 h(media, new MediaEventArgs(media));
         }
 
-        protected virtual void EnumerateFiles()
+        protected virtual void EnumerateFiles(string filter)
         {
-            IEnumerable<FileSystemInfo> list = (new DirectoryInfo(_folder)).EnumerateFiles();
+            IEnumerable<FileSystemInfo> list = (new DirectoryInfo(_folder)).EnumerateFiles(string.IsNullOrWhiteSpace(filter)? "*": string.Format("*{0}*", filter));
             foreach (FileSystemInfo f in list)
             {
                 _files.Lock.EnterUpgradeableReadLock();
@@ -380,13 +380,16 @@ namespace TAS.Server
             }
         }
 
-        private void _beginWatch()
+        protected string _filter;
+        protected void _beginWatch(string filter)
         {
+            _filter = filter;
             bool watcherReady = false;
             while (!watcherReady)
             {
                 try
                 {
+                    GetVolumeInfo();
                     if (_watcher != null)
                     {
                         _watcher.Dispose();
@@ -394,15 +397,18 @@ namespace TAS.Server
                     }
                     if (Directory.Exists(_folder))
                     {
-                        EnumerateFiles();
-                        _watcher = new FileSystemWatcher(_folder);
-                        _watcher.IncludeSubdirectories = false;
+                        EnumerateFiles(filter);
+                        _watcher = new FileSystemWatcher(_folder)
+                        {
+                            Filter = string.IsNullOrWhiteSpace(filter) ? string.Empty : string.Format("*{0}*", filter),
+                            IncludeSubdirectories = false,
+                            EnableRaisingEvents = true
+                        };
                         _watcher.Created += OnFileCreated;
                         _watcher.Deleted += OnFileDeleted;
                         _watcher.Renamed += OnFileRenamed;
                         _watcher.Changed += OnFileChanged;
                         _watcher.Error += OnError;
-                        _watcher.EnableRaisingEvents = true;
                         watcherReady = _watcher.EnableRaisingEvents;
                     }
                 }
@@ -410,7 +416,6 @@ namespace TAS.Server
                 if (!watcherReady)
                     System.Threading.Thread.Sleep(30000); //Wait for retry 30 sec.
             }
-            GetVolumeInfo();
             Debug.WriteLine("MediaDirectory: Watcher {0} setup successful.", (object)_folder);
         }
 
@@ -462,7 +467,7 @@ namespace TAS.Server
         protected virtual void OnError(object source, ErrorEventArgs e)
         {
             Debug.WriteLine("MediaDirectory: Watcher {0} returned error: {1}.", _folder, e.GetException());
-            _beginWatch();
+            _beginWatch(_filter);
         }
 
         public override string ToString()
