@@ -24,7 +24,7 @@ namespace TAS.Client.ViewModels
                 {
                     Views.OperationOutputView view = new Views.OperationOutputView 
                     { 
-                        DataContext = this.OperationOutput, 
+                        DataContext = this, 
                         Owner = System.Windows.Application.Current.MainWindow, 
                         WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner,
                         ShowInTaskbar = false,

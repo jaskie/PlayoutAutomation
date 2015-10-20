@@ -57,5 +57,10 @@ namespace TAS.Common
         }
         public static RationalNumber Zero = new RationalNumber(0, 1);
 
+        public override string ToString()
+        {
+            return string.Format("{0}/{1}", _num, _den);
+        }
+
     }   
 }

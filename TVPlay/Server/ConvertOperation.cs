@@ -263,14 +263,15 @@ namespace TAS.Server
             _progressDuration = inputMedia._duration;
             Debug.WriteLine(this, "Convert operation started");
             _addOutputMessage("Starting convert operation:");
+            VideoFormatDescription formatDescription = VideoFormatDescription.Descriptions[OutputFormat];
             DestMedia.MediaStatus = TMediaStatus.Copying;
             CheckInputFile(inputMedia);
             string encodeParams = _encodeParameters(inputMedia);
-
-            string Params = string.Format("-i \"{0}\" -vsync cfr {1} -ar 48000 -timecode {2} -y \"{3}\"",
+            string Params = string.Format("-i \"{0}\" -vsync cfr {1} -ar 48000 -timecode {2} -r {3} -y \"{4}\"",
                     inputMedia.FullPath,
                     encodeParams,
-                    DestMedia.TCStart.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[OutputFormat].FrameRate),
+                    DestMedia.TCStart.ToSMPTETimecodeString(formatDescription.FrameRate),
+                    formatDescription.FrameRate,
                     DestMedia.FullPath);
 
             if (DestMedia is ArchiveMedia && !Directory.Exists(Path.GetDirectoryName(DestMedia.FullPath)))

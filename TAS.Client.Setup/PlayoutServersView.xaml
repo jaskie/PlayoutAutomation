@@ -34,7 +34,6 @@
         </StackPanel>
         <DataGrid Grid.Row="1" ItemsSource="{Binding PlayoutServers}" SelectedItem="{Binding SelectedServer}" AutoGenerateColumns="False" IsReadOnly="True" MinWidth="200">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Id" Binding="{Binding Id}"/>
                 <DataGridTextColumn Header="Address" Binding="{Binding ServerAddress}"/>
             </DataGrid.Columns>
         </DataGrid>
