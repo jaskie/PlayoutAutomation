@@ -10,6 +10,7 @@ namespace TAS.Server.Interfaces
         bool DeleteSource { get; set; }
         string EncodeParams { get; set; }
         bool IsXDCAM { get; set; }
+        bool IsWAN { get; set; }
         TMediaCategory MediaCategory { get; set; }
         bool MediaDoNotArchive { get; set; }
         int MediaRetnentionDays { get; set; }

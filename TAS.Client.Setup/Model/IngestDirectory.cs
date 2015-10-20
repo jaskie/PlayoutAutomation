@@ -13,6 +13,7 @@ namespace TAS.Client.Setup.Model
         public decimal AudioVolume { get; set; }
         public bool DeleteSource { get; set; }
         public bool IsXDCAM { get; set; }
+        public bool IsWAN { get; set; }
         public TMediaCategory MediaCategory { get; set; }
         public bool MediaDoNotArchive { get; set; }
         public int MediaRetnentionDays { get; set; }

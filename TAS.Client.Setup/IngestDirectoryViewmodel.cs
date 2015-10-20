@@ -64,6 +64,8 @@ namespace TAS.Client.Setup
         bool _isXDCAM;
         [DefaultValue(false)]
         public bool IsXDCAM { get { return _isXDCAM; } set { SetField(ref _isXDCAM, value, "IsXDCAM"); } }
+        bool _isWAN;
+        public bool IsWAN { get { return _isWAN; } set { SetField(ref _isWAN, value, "IsWAN"); } }
         TMediaCategory _mediaCategory;
         [DefaultValue(default(TMediaCategory))]
         public TMediaCategory MediaCategory { get { return _mediaCategory; } set { SetField(ref _mediaCategory, value, "MediaCategory"); } }

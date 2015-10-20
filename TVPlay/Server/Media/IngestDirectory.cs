@@ -65,6 +65,8 @@ namespace TAS.Server
         
         public bool IsXDCAM { get; set; }
 
+        public bool IsWAN { get; set; }
+
         public TxDCAMAudioExportFormat XDCAMAudioExportFormat { get; set; }
 
         public TxDCAMVideoExportFormat XDCAMVideoExportFormat { get; set; }

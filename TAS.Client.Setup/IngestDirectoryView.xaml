@@ -55,6 +55,7 @@
             <ComboBox ItemsSource="{Binding SourceFieldOrders}" SelectedItem="{Binding SourceFieldOrder}"/>
             <Label Content="Default media category"/>
             <ComboBox ItemsSource="{Binding MediaCategories}" SelectedItem="{Binding MediaCategory}"/>
+            <CheckBox Content="On slow link (WAN connection)" IsChecked="{Binding IsWAN}"/>
             <CheckBox Content="Is XDCAM" IsChecked="{Binding IsXDCAM}"/>
             <StackPanel Visibility="{Binding IsXDCAM, Converter={StaticResource BoolToVis}}">
                 <Label Content="Export video format"/>
