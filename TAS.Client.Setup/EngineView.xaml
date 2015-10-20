@@ -44,9 +44,9 @@
                     <CheckBox IsChecked="{Binding GpiEnabled}" Content="Enabled"/>
                     <StackPanel Visibility="{Binding GpiEnabled, Converter={StaticResource BoolToVis}}">
                         <Label Content="Address or name of GPI host"/>
-                        <TextBox Text="{Binding GpiAddress}"/>
+                        <TextBox Text="{Binding GpiAddress, UpdateSourceTrigger=PropertyChanged}"/>
                         <Label Content="Graphics start delay (negative if ahead)"/>
-                        <TextBox Text="{Binding GpiGraphicsStartDelay}"/>
+                        <TextBox Text="{Binding GpiGraphicsStartDelay, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </StackPanel>
             </HeaderedContentControl>
