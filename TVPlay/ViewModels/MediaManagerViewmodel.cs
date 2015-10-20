@@ -16,6 +16,7 @@ using System.Threading;
 using TAS.Common;
 using TAS.Client.Common;
 using TAS.Server;
+using resources = TAS.Client.Common.Properties.Resources;
 
 
 namespace TAS.Client.ViewModels
@@ -58,7 +59,7 @@ namespace TAS.Client.ViewModels
                 if (oldEditMedia != null
                     && oldEditMedia.Modified)
                 {
-                    switch (MessageBox.Show(Properties.Resources._query_SaveChangedData, TAS.Client.Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo))
+                    switch (MessageBox.Show(Properties.Resources._query_SaveChangedData, resources._caption_Confirmation, MessageBoxButton.YesNo))
                     {
                         case MessageBoxResult.Yes:
                             oldEditMedia.Save();
@@ -157,7 +158,7 @@ namespace TAS.Client.ViewModels
                                 }
                                 catch (Exception e)
                                 {
-                                    MessageBox.Show(string.Format(Common.Properties.Resources._message_CommandFailed, e.Message), Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
+                                    MessageBox.Show(string.Format(resources._message_CommandFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
                                 }
                             });
                     },
@@ -250,7 +251,7 @@ namespace TAS.Client.ViewModels
         {
 
             if (EditMedia.Modified)
-                switch (MessageBox.Show(Properties.Resources._query_SaveChangedData, Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNoCancel))
+                switch (MessageBox.Show(Properties.Resources._query_SaveChangedData, resources._caption_Confirmation, MessageBoxButton.YesNoCancel))
                 {
                     case MessageBoxResult.Cancel:
                         return;
@@ -295,8 +296,19 @@ namespace TAS.Client.ViewModels
         private void _deleteSelected(object o)
         {
             List<Media> selection = _getSelections();
-            if (MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedFiles, selection.AsString(Environment.NewLine, 20)), Common.Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-                _mediaManager.DeleteMedia(selection);
+            if (MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedFiles, selection.AsString(Environment.NewLine, 20)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+            {
+                var reasons = _mediaManager.DeleteMedia(selection).Where(r => r.Reason != MediaDeleteDeny.MediaDeleteDenyReason.NoDeny);
+                if (reasons.Any())
+                {
+                    foreach (var reason in reasons)
+                    {
+                        string reasonMsg = reason.Reason == MediaDeleteDeny.MediaDeleteDenyReason.MediaInFutureSchedule ? string.Format(resources._message_MediaDeleteDenyReason_Scheduled, reason.Event == null ? resources._unknown_ : reason.Event.EventName, reason.Event == null ? resources._unknown_ : reason.Event.ScheduledTime.ToString())
+                            : resources._message_MediaDeleteDenyReason_Unknown;
+                        MessageBox.Show(string.Format(resources._message_MediaDeleteNotAllowed, reason.Media.MediaName, reasonMsg), resources._caption_Error, MessageBoxButton.OK);
+                    }
+                }
+            }
         }
 
         private void _moveSelectedToArchive(object o)

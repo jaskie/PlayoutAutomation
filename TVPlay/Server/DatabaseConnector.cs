@@ -691,9 +691,9 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             return success;
         }
 
-        internal static bool DbMediaInUse(this ServerMedia serverMedia)
+        internal static MediaDeleteDeny DbMediaInUse(this ServerMedia serverMedia)
         {
-            Boolean IsInUse = true;
+            MediaDeleteDeny reason = MediaDeleteDeny.NoDeny;
             lock (connection)
             {
                 if (Connect())
@@ -701,10 +701,11 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                     string query = "select count(*) from rundownevent where MediaGuid=@MediaGuid and ADDTIME(ScheduledTime, Duration) > UTC_TIMESTAMP();";
                     MySqlCommand cmd = new MySqlCommand(query, connection);
                     cmd.Parameters.Add("@MediaGuid", MySqlDbType.Binary).Value = serverMedia.MediaGuid.ToByteArray();
-                    IsInUse = (long)cmd.ExecuteScalar() > 0;
+                    if ((long)cmd.ExecuteScalar() > 0)
+                        return new MediaDeleteDeny() { Reason = MediaDeleteDeny.MediaDeleteDenyReason.MediaInFutureSchedule, Media = serverMedia };
                 }
             }
-            return IsInUse;
+            return reason;
         }
 
         private static ArchiveMedia _readArchiveMedia(MySqlDataReader dataReader, ArchiveDirectory dir)

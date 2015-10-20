@@ -136,7 +136,7 @@ namespace TAS {
 				for (unsigned int i = 0; i<pFormatCtx->nb_streams; i++)
 				{
 					if (pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO)
-						return pFormatCtx->streams[i]->codec->framerate;
+						return pFormatCtx->streams[i]->r_frame_rate;
 				}
 			}
 			return av_make_q(0, 0);

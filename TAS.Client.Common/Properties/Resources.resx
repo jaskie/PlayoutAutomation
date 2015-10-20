@@ -127,6 +127,16 @@
     <value>Command failed. Following error occurred:
 {0}</value>
   </data>
+  <data name="_message_MediaDeleteDenyReason_Scheduled" xml:space="preserve">
+    <value>Item is scheduled in {0} at {1}</value>
+  </data>
+  <data name="_message_MediaDeleteDenyReason_Unknown" xml:space="preserve">
+    <value>Unknown reason</value>
+  </data>
+  <data name="_message_MediaDeleteNotAllowed" xml:space="preserve">
+    <value>Delete of {0} not allowed due to following reason:
+{1}</value>
+  </data>
   <data name="_moreItems" xml:space="preserve">
     <value>and {0} items more</value>
   </data>
@@ -177,5 +187,8 @@
   </data>
   <data name="_tooltip_SelectFile" xml:space="preserve">
     <value>Select file...</value>
+  </data>
+  <data name="_unknown_" xml:space="preserve">
+    <value>Unknown</value>
   </data>
 </root>

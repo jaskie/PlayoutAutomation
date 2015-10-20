@@ -421,7 +421,7 @@ namespace TAS.Server
                 && media.MediaType == TMediaType.Movie 
                 && ArchivePolicy == Engine.ArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
                 && MediaManager.ArchiveDirectory != null
-                && CanDeleteMedia(media))
+                && CanDeleteMedia(media).Reason == MediaDeleteDeny.MediaDeleteDenyReason.NoDeny)
                 ThreadPool.QueueUserWorkItem(o => MediaManager.ArchiveMedia(media, true));
             if (_allEvents.Remove(aEvent))
             {
@@ -1165,7 +1165,7 @@ namespace TAS.Server
         }
         
 
-        private bool _checkCanDeleteMedia(Event ev, ServerMedia media)
+        private MediaDeleteDeny _checkCanDeleteMedia(Event ev, ServerMedia media)
         {
             Event nev = ev;
             while (nev != null)
@@ -1173,13 +1173,16 @@ namespace TAS.Server
                 if (nev.EventType == TEventType.Movie 
                     && nev.Media == media 
                     && nev.ScheduledTime >= CurrentTime)
-                    return false;
+                    return new MediaDeleteDeny() { Reason = MediaDeleteDeny.MediaDeleteDenyReason.MediaInFutureSchedule, Event = nev, Media = media };
                 foreach (Event se in nev.SubEvents)
-                    if (!_checkCanDeleteMedia(se, media))
-                        return false;
+                {
+                    MediaDeleteDeny reason = _checkCanDeleteMedia(se, media);
+                    if (reason.Reason != MediaDeleteDeny.MediaDeleteDenyReason.NoDeny)
+                        return reason;
+                }
                 nev = nev.Next;
             }
-            return true;
+            return MediaDeleteDeny.NoDeny;
         }
 
         private void _mediaPGMVerified(object o, MediaEventArgs e)
@@ -1212,12 +1215,16 @@ namespace TAS.Server
             }
         }
 
-        internal bool CanDeleteMedia(ServerMedia serverMedia)
+        internal MediaDeleteDeny CanDeleteMedia(ServerMedia serverMedia)
         {
+            MediaDeleteDeny reason = MediaDeleteDeny.NoDeny;
             foreach (Event e in RootEvents.ToList())
-                if (!_checkCanDeleteMedia(e, serverMedia))
-                    return false;
-            return !serverMedia.DbMediaInUse();
+            {
+                reason = _checkCanDeleteMedia(e, serverMedia);
+                if (reason.Reason != MediaDeleteDeny.MediaDeleteDenyReason.NoDeny)
+                    return reason;
+            }
+            return serverMedia.DbMediaInUse();
         }
 
         [XmlIgnore]

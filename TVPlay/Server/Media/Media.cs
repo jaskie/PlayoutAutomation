@@ -11,11 +11,12 @@ using System.Net.FtpClient;
 using System.Diagnostics;
 using System.Runtime.Remoting.Messaging;
 using TAS.FFMpegUtils;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
 
-    public abstract class Media : INotifyPropertyChanged
+    public abstract class Media : INotifyPropertyChanged, IMediaProperties
     {
 
 #if DEBUG

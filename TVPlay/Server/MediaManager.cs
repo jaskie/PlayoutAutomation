@@ -267,16 +267,17 @@ namespace TAS.Server
                 IngestMediaToArchive(m);
         }
 
-        public void DeleteMedia(Media media)
+        public MediaDeleteDeny DeleteMedia(Media media)
         {
-            if (!(media is ServerMedia) || Engine.CanDeleteMedia(media as ServerMedia))
+            MediaDeleteDeny reason = (media is ServerMedia) ? Engine.CanDeleteMedia(media as ServerMedia) : MediaDeleteDeny.NoDeny;
+            if (reason.Reason == MediaDeleteDeny.MediaDeleteDenyReason.NoDeny)
                 FileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = media });
+            return reason;
         }
 
-        public void DeleteMedia(IEnumerable<Media> mediaList)
+        public IEnumerable<MediaDeleteDeny> DeleteMedia(IEnumerable<Media> mediaList)
         {
-            foreach (Media m in mediaList)
-                DeleteMedia(m);
+            return mediaList.Select(m => DeleteMedia(m));
         }
 
         public void GetLoudness(Media media)
@@ -296,15 +297,6 @@ namespace TAS.Server
                 GetLoudness(m);
         }
 
-
-        public bool CanDeleteMedia(Media mediaList)
-        {
-            if (mediaList is ServerMedia)
-                return Engine.CanDeleteMedia(mediaList as ServerMedia);
-            else
-                return true;
-        }
-        
         public void ArchiveMedia(Media media, bool deleteAfter)
         {
             if (ArchiveDirectory == null)

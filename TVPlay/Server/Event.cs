@@ -9,11 +9,12 @@ using System.Runtime.Remoting.Messaging;
 using System.ComponentModel;
 using TAS.Common;
 using TAS.Data;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
  
-    public class Event : IComparable, INotifyPropertyChanged, IDisposable
+    public class Event : IComparable, INotifyPropertyChanged, IDisposable, IEventProperties
     {
 
         public Event(Engine AEngine)
@@ -54,6 +55,7 @@ namespace TAS.Server
         {
             get { return _modified; }
         }
+
         public int CompareTo(object obj)
         {
             if (object.Equals(obj, this))

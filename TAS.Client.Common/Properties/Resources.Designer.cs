@@ -89,6 +89,34 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Item is scheduled in {0} at {1}.
+        /// </summary>
+        public static string _message_MediaDeleteDenyReason_Scheduled {
+            get {
+                return ResourceManager.GetString("_message_MediaDeleteDenyReason_Scheduled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown reason.
+        /// </summary>
+        public static string _message_MediaDeleteDenyReason_Unknown {
+            get {
+                return ResourceManager.GetString("_message_MediaDeleteDenyReason_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete of {0} not allowed due to following reason:
+        ///{1}.
+        /// </summary>
+        public static string _message_MediaDeleteNotAllowed {
+            get {
+                return ResourceManager.GetString("_message_MediaDeleteNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to and {0} items more.
         /// </summary>
         public static string _moreItems {
@@ -238,6 +266,15 @@ namespace TAS.Client.Common.Properties {
         public static string _tooltip_SelectFile {
             get {
                 return ResourceManager.GetString("_tooltip_SelectFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown.
+        /// </summary>
+        public static string _unknown_ {
+            get {
+                return ResourceManager.GetString("_unknown_", resourceCulture);
             }
         }
     }

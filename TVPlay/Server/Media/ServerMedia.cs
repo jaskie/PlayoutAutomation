@@ -41,7 +41,7 @@ namespace TAS.Server
             bool result = false;
             if (MediaStatus != TMediaStatus.Unknown)
             {
-                if (MediaStatus == TMediaStatus.Deleted && !this.DbMediaInUse())
+                if (MediaStatus == TMediaStatus.Deleted && this.DbMediaInUse().Reason == MediaDeleteDeny.MediaDeleteDenyReason.NoDeny)
                 {
                     if (idPersistentMedia != 0)
                         result = this.DbDelete();

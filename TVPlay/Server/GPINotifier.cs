@@ -86,9 +86,14 @@ namespace TAS.Server
                 var connectAR = _remoteClient.BeginConnect(Address, port, null, null);
                 if (connectAR.AsyncWaitHandle.WaitOne(10000))
                 {
-                    _remoteClientStream = _remoteClient.GetStream();
-                    _remoteClientStream.WriteByte((byte)GPICommand.SetIsController);
-                    _remoteClientStream.WriteByte((byte)GPICommand.GetInfo);
+                    if (_remoteClient.Connected)
+                    {
+                        _remoteClientStream = _remoteClient.GetStream();
+                        _remoteClientStream.WriteByte((byte)GPICommand.SetIsController);
+                        _remoteClientStream.WriteByte((byte)GPICommand.GetInfo);
+                    }
+                    else
+                        Thread.Sleep(10000);
                 }
             }
             catch (Exception e)

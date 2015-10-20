@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Xml.Serialization;
 
 namespace TAS.Client.Common
@@ -31,7 +33,10 @@ namespace TAS.Client.Common
             protected set
             {
                 if (base.SetField(ref _modified, value, "Modified"))
+                {
                     OnModified();
+                    Application.Current.Dispatcher.BeginInvoke((Action)(() => CommandManager.InvalidateRequerySuggested()));
+                }
             }
         }
 
