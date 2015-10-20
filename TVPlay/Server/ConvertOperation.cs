@@ -14,6 +14,7 @@ using System.Text;
 using System.ComponentModel;
 using TAS.FFMpegUtils;
 using TAS.Common;
+using resources = TAS.Client.Properties.Resources;
 
 namespace TAS.Server
 {
@@ -285,7 +286,7 @@ namespace TAS.Server
                     DestMedia.MediaStatus = TMediaStatus.CopyError;
                     if (DestMedia is PersistentMedia)
                         (DestMedia as PersistentMedia).Save();
-                    _addOutputMessage(string.Format("Convert operation finished successfully, but durations are diffrent, original: {0}, encoded {1}", inputMedia.Duration.ToSMPTETimecodeString(inputMedia.VideoFormatDescription.FrameRate), DestMedia.Duration.ToSMPTETimecodeString(DestMedia.VideoFormatDescription.FrameRate)));
+                    _addWarningMessage(string.Format(resources._encodeWarningDifferentDurations, inputMedia.Duration.ToSMPTETimecodeString(inputMedia.VideoFormatDescription.FrameRate), DestMedia.Duration.ToSMPTETimecodeString(DestMedia.VideoFormatDescription.FrameRate)));
                     Debug.WriteLine(this, "Convert operation succeed, but durations are diffrent");
                 }
                 else
@@ -300,6 +301,14 @@ namespace TAS.Server
             }
             Debug.WriteLine("FFmpeg rewraper Do(): Failed for {0}. Command line was {1}", (object)SourceMedia, Params);
             return false;
+        }
+
+        protected override void ProcOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
+        {
+            base.ProcOutputHandler(sendingProcess, outLine);
+            if (!string.IsNullOrEmpty(outLine.Data) 
+                && outLine.Data.Contains("error")) 
+                _addWarningMessage(string.Format(resources._encodeWarningFFmpeg, outLine.Data));
         }
 
     }

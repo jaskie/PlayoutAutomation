@@ -22,7 +22,7 @@ namespace TAS.Server.Common.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace TAS.Server.Common.Properties {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TAS.Server.Common.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace TAS.Server.Common.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,9 +61,54 @@ namespace TAS.Server.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Aborted.
+        /// </summary>
+        public static string FileOperationStatus_Aborted {
+            get {
+                return ResourceManager.GetString("FileOperationStatus_Aborted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed.
+        /// </summary>
+        public static string FileOperationStatus_Failed {
+            get {
+                return ResourceManager.GetString("FileOperationStatus_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Finished.
+        /// </summary>
+        public static string FileOperationStatus_Finished {
+            get {
+                return ResourceManager.GetString("FileOperationStatus_Finished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to In progress.
+        /// </summary>
+        public static string FileOperationStatus_InProgress {
+            get {
+                return ResourceManager.GetString("FileOperationStatus_InProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Waiting.
+        /// </summary>
+        public static string FileOperationStatus_Waiting {
+            get {
+                return ResourceManager.GetString("FileOperationStatus_Waiting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to None, enforce 16:9.
         /// </summary>
-        internal static string TAspectConversion_Force16_9 {
+        public static string TAspectConversion_Force16_9 {
             get {
                 return ResourceManager.GetString("TAspectConversion_Force16_9", resourceCulture);
             }
@@ -72,7 +117,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to None, enforce 4:3.
         /// </summary>
-        internal static string TAspectConversion_Force4_3 {
+        public static string TAspectConversion_Force4_3 {
             get {
                 return ResourceManager.GetString("TAspectConversion_Force4_3", resourceCulture);
             }
@@ -81,7 +126,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Letterbox (16:9-&gt;4:3).
         /// </summary>
-        internal static string TAspectConversion_Letterbox {
+        public static string TAspectConversion_Letterbox {
             get {
                 return ResourceManager.GetString("TAspectConversion_Letterbox", resourceCulture);
             }
@@ -90,7 +135,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to No conversion.
         /// </summary>
-        internal static string TAspectConversion_NoConversion {
+        public static string TAspectConversion_NoConversion {
             get {
                 return ResourceManager.GetString("TAspectConversion_NoConversion", resourceCulture);
             }
@@ -99,7 +144,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Pan&amp;Scan(16:9-&gt;4:3).
         /// </summary>
-        internal static string TAspectConversion_PanScan {
+        public static string TAspectConversion_PanScan {
             get {
                 return ResourceManager.GetString("TAspectConversion_PanScan", resourceCulture);
             }
@@ -108,7 +153,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to PillarBox (4:3-&gt;16:9).
         /// </summary>
-        internal static string TAspectConversion_PillarBox {
+        public static string TAspectConversion_PillarBox {
             get {
                 return ResourceManager.GetString("TAspectConversion_PillarBox", resourceCulture);
             }
@@ -117,7 +162,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Tilt&amp;Scan(4:3-&gt;16:9).
         /// </summary>
-        internal static string TAspectConversion_TiltScan {
+        public static string TAspectConversion_TiltScan {
             get {
                 return ResourceManager.GetString("TAspectConversion_TiltScan", resourceCulture);
             }
@@ -126,7 +171,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to GPI trigger.
         /// </summary>
-        internal static string TAspectRatioControl_GPI {
+        public static string TAspectRatioControl_GPI {
             get {
                 return ResourceManager.GetString("TAspectRatioControl_GPI", resourceCulture);
             }
@@ -135,7 +180,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Image resize and GPI.
         /// </summary>
-        internal static string TAspectRatioControl_GPIandImageResize {
+        public static string TAspectRatioControl_GPIandImageResize {
             get {
                 return ResourceManager.GetString("TAspectRatioControl_GPIandImageResize", resourceCulture);
             }
@@ -144,7 +189,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Image resize.
         /// </summary>
-        internal static string TAspectRatioControl_ImageResize {
+        public static string TAspectRatioControl_ImageResize {
             get {
                 return ResourceManager.GetString("TAspectRatioControl_ImageResize", resourceCulture);
             }
@@ -153,7 +198,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to None.
         /// </summary>
-        internal static string TAspectRatioControl_None {
+        public static string TAspectRatioControl_None {
             get {
                 return ResourceManager.GetString("TAspectRatioControl_None", resourceCulture);
             }
@@ -162,7 +207,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Dolby Digital.
         /// </summary>
-        internal static string TAudioChannelMapping_DolbyDigital {
+        public static string TAudioChannelMapping_DolbyDigital {
             get {
                 return ResourceManager.GetString("TAudioChannelMapping_DolbyDigital", resourceCulture);
             }
@@ -171,7 +216,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Dolby E.
         /// </summary>
-        internal static string TAudioChannelMapping_DolbyE {
+        public static string TAudioChannelMapping_DolbyE {
             get {
                 return ResourceManager.GetString("TAudioChannelMapping_DolbyE", resourceCulture);
             }
@@ -180,7 +225,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to DTS.
         /// </summary>
-        internal static string TAudioChannelMapping_Dts {
+        public static string TAudioChannelMapping_Dts {
             get {
                 return ResourceManager.GetString("TAudioChannelMapping_Dts", resourceCulture);
             }
@@ -189,7 +234,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Mono.
         /// </summary>
-        internal static string TAudioChannelMapping_Mono {
+        public static string TAudioChannelMapping_Mono {
             get {
                 return ResourceManager.GetString("TAudioChannelMapping_Mono", resourceCulture);
             }
@@ -198,7 +243,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to SMPTE.
         /// </summary>
-        internal static string TAudioChannelMapping_Smpte {
+        public static string TAudioChannelMapping_Smpte {
             get {
                 return ResourceManager.GetString("TAudioChannelMapping_Smpte", resourceCulture);
             }
@@ -207,7 +252,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Stereo.
         /// </summary>
-        internal static string TAudioChannelMapping_Stereo {
+        public static string TAudioChannelMapping_Stereo {
             get {
                 return ResourceManager.GetString("TAudioChannelMapping_Stereo", resourceCulture);
             }
@@ -216,7 +261,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Unknown.
         /// </summary>
-        internal static string TAudioChannelMapping_Unknown {
+        public static string TAudioChannelMapping_Unknown {
             get {
                 return ResourceManager.GetString("TAudioChannelMapping_Unknown", resourceCulture);
             }
@@ -225,7 +270,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Tracks 1 i 2 -&gt; Mono.
         /// </summary>
-        internal static string TAudioChannelMappingConversion_Combine1plus2 {
+        public static string TAudioChannelMappingConversion_Combine1plus2 {
             get {
                 return ResourceManager.GetString("TAudioChannelMappingConversion_Combine1plus2", resourceCulture);
             }
@@ -234,7 +279,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Tracks 3 i 4 -&gt; Mono.
         /// </summary>
-        internal static string TAudioChannelMappingConversion_Combine3plus4 {
+        public static string TAudioChannelMappingConversion_Combine3plus4 {
             get {
                 return ResourceManager.GetString("TAudioChannelMappingConversion_Combine3plus4", resourceCulture);
             }
@@ -243,7 +288,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Default (possible downmix).
         /// </summary>
-        internal static string TAudioChannelMappingConversion_Default {
+        public static string TAudioChannelMappingConversion_Default {
             get {
                 return ResourceManager.GetString("TAudioChannelMappingConversion_Default", resourceCulture);
             }
@@ -252,7 +297,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Track 1 -&gt; Mono.
         /// </summary>
-        internal static string TAudioChannelMappingConversion_FirstChannelOnly {
+        public static string TAudioChannelMappingConversion_FirstChannelOnly {
             get {
                 return ResourceManager.GetString("TAudioChannelMappingConversion_FirstChannelOnly", resourceCulture);
             }
@@ -261,7 +306,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Tracks 1 i 2 -&gt; Stereo.
         /// </summary>
-        internal static string TAudioChannelMappingConversion_FirstTwoChannels {
+        public static string TAudioChannelMappingConversion_FirstTwoChannels {
             get {
                 return ResourceManager.GetString("TAudioChannelMappingConversion_FirstTwoChannels", resourceCulture);
             }
@@ -270,7 +315,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Track 2 -&gt; Mono.
         /// </summary>
-        internal static string TAudioChannelMappingConversion_SecondChannelOnly {
+        public static string TAudioChannelMappingConversion_SecondChannelOnly {
             get {
                 return ResourceManager.GetString("TAudioChannelMappingConversion_SecondChannelOnly", resourceCulture);
             }
@@ -279,7 +324,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Tracks 3 i 4 -&gt; Stereo.
         /// </summary>
-        internal static string TAudioChannelMappingConversion_SecondTwoChannels {
+        public static string TAudioChannelMappingConversion_SecondTwoChannels {
             get {
                 return ResourceManager.GetString("TAudioChannelMappingConversion_SecondTwoChannels", resourceCulture);
             }
@@ -288,7 +333,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to No crawl.
         /// </summary>
-        internal static string TCrawl_NoCrawl {
+        public static string TCrawl_NoCrawl {
             get {
                 return ResourceManager.GetString("TCrawl_NoCrawl", resourceCulture);
             }
@@ -297,7 +342,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Normal.
         /// </summary>
-        internal static string TCrawl_Normal {
+        public static string TCrawl_Normal {
             get {
                 return ResourceManager.GetString("TCrawl_Normal", resourceCulture);
             }
@@ -306,7 +351,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Sport.
         /// </summary>
-        internal static string TCrawl_Sport {
+        public static string TCrawl_Sport {
             get {
                 return ResourceManager.GetString("TCrawl_Sport", resourceCulture);
             }
@@ -315,7 +360,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Urgent.
         /// </summary>
-        internal static string TCrawl_Urgent {
+        public static string TCrawl_Urgent {
             get {
                 return ResourceManager.GetString("TCrawl_Urgent", resourceCulture);
             }
@@ -324,7 +369,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Animation.
         /// </summary>
-        internal static string TEventType_AnimationFlash {
+        public static string TEventType_AnimationFlash {
             get {
                 return ResourceManager.GetString("TEventType_AnimationFlash", resourceCulture);
             }
@@ -333,7 +378,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Container.
         /// </summary>
-        internal static string TEventType_Container {
+        public static string TEventType_Container {
             get {
                 return ResourceManager.GetString("TEventType_Container", resourceCulture);
             }
@@ -342,7 +387,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Live.
         /// </summary>
-        internal static string TEventType_Live {
+        public static string TEventType_Live {
             get {
                 return ResourceManager.GetString("TEventType_Live", resourceCulture);
             }
@@ -351,7 +396,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Clip.
         /// </summary>
-        internal static string TEventType_Movie {
+        public static string TEventType_Movie {
             get {
                 return ResourceManager.GetString("TEventType_Movie", resourceCulture);
             }
@@ -360,7 +405,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Rundown.
         /// </summary>
-        internal static string TEventType_Rundown {
+        public static string TEventType_Rundown {
             get {
                 return ResourceManager.GetString("TEventType_Rundown", resourceCulture);
             }
@@ -369,7 +414,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Graphics.
         /// </summary>
-        internal static string TEventType_StillImage {
+        public static string TEventType_StillImage {
             get {
                 return ResourceManager.GetString("TEventType_StillImage", resourceCulture);
             }
@@ -378,7 +423,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Bottom field first.
         /// </summary>
-        internal static string TFieldOrder_BFF {
+        public static string TFieldOrder_BFF {
             get {
                 return ResourceManager.GetString("TFieldOrder_BFF", resourceCulture);
             }
@@ -387,7 +432,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Progressive scan.
         /// </summary>
-        internal static string TFieldOrder_Progressive {
+        public static string TFieldOrder_Progressive {
             get {
                 return ResourceManager.GetString("TFieldOrder_Progressive", resourceCulture);
             }
@@ -396,7 +441,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Top field first.
         /// </summary>
-        internal static string TFieldOrder_TFF {
+        public static string TFieldOrder_TFF {
             get {
                 return ResourceManager.GetString("TFieldOrder_TFF", resourceCulture);
             }
@@ -405,7 +450,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Detect automatically.
         /// </summary>
-        internal static string TFieldOrder_Unknown {
+        public static string TFieldOrder_Unknown {
             get {
                 return ResourceManager.GetString("TFieldOrder_Unknown", resourceCulture);
             }
@@ -414,7 +459,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Live.
         /// </summary>
-        internal static string TLogo_Live {
+        public static string TLogo_Live {
             get {
                 return ResourceManager.GetString("TLogo_Live", resourceCulture);
             }
@@ -423,7 +468,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to No logo.
         /// </summary>
-        internal static string TLogo_NoLogo {
+        public static string TLogo_NoLogo {
             get {
                 return ResourceManager.GetString("TLogo_NoLogo", resourceCulture);
             }
@@ -432,7 +477,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Normal.
         /// </summary>
-        internal static string TLogo_Normal {
+        public static string TLogo_Normal {
             get {
                 return ResourceManager.GetString("TLogo_Normal", resourceCulture);
             }
@@ -441,7 +486,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Premiere.
         /// </summary>
-        internal static string TLogo_Premiere {
+        public static string TLogo_Premiere {
             get {
                 return ResourceManager.GetString("TLogo_Premiere", resourceCulture);
             }
@@ -450,7 +495,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Replay.
         /// </summary>
-        internal static string TLogo_Replay {
+        public static string TLogo_Replay {
             get {
                 return ResourceManager.GetString("TLogo_Replay", resourceCulture);
             }
@@ -459,7 +504,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Commercial.
         /// </summary>
-        internal static string TMediaCategory_Commercial {
+        public static string TMediaCategory_Commercial {
             get {
                 return ResourceManager.GetString("TMediaCategory_Commercial", resourceCulture);
             }
@@ -468,7 +513,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Fill.
         /// </summary>
-        internal static string TMediaCategory_Fill {
+        public static string TMediaCategory_Fill {
             get {
                 return ResourceManager.GetString("TMediaCategory_Fill", resourceCulture);
             }
@@ -477,7 +522,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Promo.
         /// </summary>
-        internal static string TMediaCategory_Promo {
+        public static string TMediaCategory_Promo {
             get {
                 return ResourceManager.GetString("TMediaCategory_Promo", resourceCulture);
             }
@@ -486,7 +531,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Show.
         /// </summary>
-        internal static string TMediaCategory_Show {
+        public static string TMediaCategory_Show {
             get {
                 return ResourceManager.GetString("TMediaCategory_Show", resourceCulture);
             }
@@ -495,7 +540,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Sponsored.
         /// </summary>
-        internal static string TMediaCategory_Sponsored {
+        public static string TMediaCategory_Sponsored {
             get {
                 return ResourceManager.GetString("TMediaCategory_Sponsored", resourceCulture);
             }
@@ -504,7 +549,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Uncategorized.
         /// </summary>
-        internal static string TMediaCategory_Uncategorized {
+        public static string TMediaCategory_Uncategorized {
             get {
                 return ResourceManager.GetString("TMediaCategory_Uncategorized", resourceCulture);
             }
@@ -513,7 +558,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Beige.
         /// </summary>
-        internal static string TMediaEmphasis_Beige {
+        public static string TMediaEmphasis_Beige {
             get {
                 return ResourceManager.GetString("TMediaEmphasis_Beige", resourceCulture);
             }
@@ -522,7 +567,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to According to category.
         /// </summary>
-        internal static string TMediaEmphasis_None {
+        public static string TMediaEmphasis_None {
             get {
                 return ResourceManager.GetString("TMediaEmphasis_None", resourceCulture);
             }
@@ -531,7 +576,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Olive.
         /// </summary>
-        internal static string TMediaEmphasis_Olive {
+        public static string TMediaEmphasis_Olive {
             get {
                 return ResourceManager.GetString("TMediaEmphasis_Olive", resourceCulture);
             }
@@ -540,7 +585,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Orange.
         /// </summary>
-        internal static string TMediaEmphasis_Orange {
+        public static string TMediaEmphasis_Orange {
             get {
                 return ResourceManager.GetString("TMediaEmphasis_Orange", resourceCulture);
             }
@@ -549,7 +594,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Pink.
         /// </summary>
-        internal static string TMediaEmphasis_Pink {
+        public static string TMediaEmphasis_Pink {
             get {
                 return ResourceManager.GetString("TMediaEmphasis_Pink", resourceCulture);
             }
@@ -558,7 +603,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Blue.
         /// </summary>
-        internal static string TMediaEmphasis_SkyBlue {
+        public static string TMediaEmphasis_SkyBlue {
             get {
                 return ResourceManager.GetString("TMediaEmphasis_SkyBlue", resourceCulture);
             }
@@ -567,7 +612,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Violet.
         /// </summary>
-        internal static string TMediaEmphasis_Violet {
+        public static string TMediaEmphasis_Violet {
             get {
                 return ResourceManager.GetString("TMediaEmphasis_Violet", resourceCulture);
             }
@@ -576,7 +621,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Yellow.
         /// </summary>
-        internal static string TMediaEmphasis_Yellow {
+        public static string TMediaEmphasis_Yellow {
             get {
                 return ResourceManager.GetString("TMediaEmphasis_Yellow", resourceCulture);
             }
@@ -585,7 +630,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to File missing.
         /// </summary>
-        internal static string TMediaErrorInfo_Missing {
+        public static string TMediaErrorInfo_Missing {
             get {
                 return ResourceManager.GetString("TMediaErrorInfo_Missing", resourceCulture);
             }
@@ -594,7 +639,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
-        internal static string TMediaErrorInfo_NoError {
+        public static string TMediaErrorInfo_NoError {
             get {
                 return ResourceManager.GetString("TMediaErrorInfo_NoError", resourceCulture);
             }
@@ -603,7 +648,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Clip too short.
         /// </summary>
-        internal static string TMediaErrorInfo_TooShort {
+        public static string TMediaErrorInfo_TooShort {
             get {
                 return ResourceManager.GetString("TMediaErrorInfo_TooShort", resourceCulture);
             }
@@ -612,7 +657,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Available.
         /// </summary>
-        internal static string TMediaStatus_Available {
+        public static string TMediaStatus_Available {
             get {
                 return ResourceManager.GetString("TMediaStatus_Available", resourceCulture);
             }
@@ -621,7 +666,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Copy finished.
         /// </summary>
-        internal static string TMediaStatus_Copied {
+        public static string TMediaStatus_Copied {
             get {
                 return ResourceManager.GetString("TMediaStatus_Copied", resourceCulture);
             }
@@ -630,7 +675,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Copy error.
         /// </summary>
-        internal static string TMediaStatus_CopyError {
+        public static string TMediaStatus_CopyError {
             get {
                 return ResourceManager.GetString("TMediaStatus_CopyError", resourceCulture);
             }
@@ -639,7 +684,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Copying.
         /// </summary>
-        internal static string TMediaStatus_Copying {
+        public static string TMediaStatus_Copying {
             get {
                 return ResourceManager.GetString("TMediaStatus_Copying", resourceCulture);
             }
@@ -648,7 +693,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Copy pending.
         /// </summary>
-        internal static string TMediaStatus_CopyPending {
+        public static string TMediaStatus_CopyPending {
             get {
                 return ResourceManager.GetString("TMediaStatus_CopyPending", resourceCulture);
             }
@@ -657,7 +702,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Deleted.
         /// </summary>
-        internal static string TMediaStatus_Deleted {
+        public static string TMediaStatus_Deleted {
             get {
                 return ResourceManager.GetString("TMediaStatus_Deleted", resourceCulture);
             }
@@ -666,7 +711,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Required.
         /// </summary>
-        internal static string TMediaStatus_Required {
+        public static string TMediaStatus_Required {
             get {
                 return ResourceManager.GetString("TMediaStatus_Required", resourceCulture);
             }
@@ -675,7 +720,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Unknown.
         /// </summary>
-        internal static string TMediaStatus_Unknown {
+        public static string TMediaStatus_Unknown {
             get {
                 return ResourceManager.GetString("TMediaStatus_Unknown", resourceCulture);
             }
@@ -684,7 +729,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Validation error.
         /// </summary>
-        internal static string TMediaStatus_ValidationError {
+        public static string TMediaStatus_ValidationError {
             get {
                 return ResourceManager.GetString("TMediaStatus_ValidationError", resourceCulture);
             }
@@ -693,7 +738,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Flash animation.
         /// </summary>
-        internal static string TMediaType_AnimationFlash {
+        public static string TMediaType_AnimationFlash {
             get {
                 return ResourceManager.GetString("TMediaType_AnimationFlash", resourceCulture);
             }
@@ -702,7 +747,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Audio.
         /// </summary>
-        internal static string TMediaType_Audio {
+        public static string TMediaType_Audio {
             get {
                 return ResourceManager.GetString("TMediaType_Audio", resourceCulture);
             }
@@ -711,7 +756,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Clip.
         /// </summary>
-        internal static string TMediaType_Movie {
+        public static string TMediaType_Movie {
             get {
                 return ResourceManager.GetString("TMediaType_Movie", resourceCulture);
             }
@@ -720,7 +765,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Graphics.
         /// </summary>
-        internal static string TMediaType_Still {
+        public static string TMediaType_Still {
             get {
                 return ResourceManager.GetString("TMediaType_Still", resourceCulture);
             }
@@ -729,7 +774,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Unknown.
         /// </summary>
-        internal static string TMediaType_Unknown {
+        public static string TMediaType_Unknown {
             get {
                 return ResourceManager.GetString("TMediaType_Unknown", resourceCulture);
             }
@@ -738,7 +783,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to 7.
         /// </summary>
-        internal static string TParental_Limit07 {
+        public static string TParental_Limit07 {
             get {
                 return ResourceManager.GetString("TParental_Limit07", resourceCulture);
             }
@@ -747,7 +792,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to 12.
         /// </summary>
-        internal static string TParental_Limit12 {
+        public static string TParental_Limit12 {
             get {
                 return ResourceManager.GetString("TParental_Limit12", resourceCulture);
             }
@@ -756,7 +801,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to 16.
         /// </summary>
-        internal static string TParental_Limit16 {
+        public static string TParental_Limit16 {
             get {
                 return ResourceManager.GetString("TParental_Limit16", resourceCulture);
             }
@@ -765,7 +810,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to 18.
         /// </summary>
-        internal static string TParental_Limit18 {
+        public static string TParental_Limit18 {
             get {
                 return ResourceManager.GetString("TParental_Limit18", resourceCulture);
             }
@@ -774,7 +819,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to No limit.
         /// </summary>
-        internal static string TParental_NoLimit {
+        public static string TParental_NoLimit {
             get {
                 return ResourceManager.GetString("TParental_NoLimit", resourceCulture);
             }
@@ -783,7 +828,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to None.
         /// </summary>
-        internal static string TParental_None {
+        public static string TParental_None {
             get {
                 return ResourceManager.GetString("TParental_None", resourceCulture);
             }
@@ -792,7 +837,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Aborted.
         /// </summary>
-        internal static string TPlayState_Aborted {
+        public static string TPlayState_Aborted {
             get {
                 return ResourceManager.GetString("TPlayState_Aborted", resourceCulture);
             }
@@ -801,7 +846,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Fading.
         /// </summary>
-        internal static string TPlayState_Fading {
+        public static string TPlayState_Fading {
             get {
                 return ResourceManager.GetString("TPlayState_Fading", resourceCulture);
             }
@@ -810,7 +855,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Paused.
         /// </summary>
-        internal static string TPlayState_Paused {
+        public static string TPlayState_Paused {
             get {
                 return ResourceManager.GetString("TPlayState_Paused", resourceCulture);
             }
@@ -819,7 +864,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Played.
         /// </summary>
-        internal static string TPlayState_Played {
+        public static string TPlayState_Played {
             get {
                 return ResourceManager.GetString("TPlayState_Played", resourceCulture);
             }
@@ -828,7 +873,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Playing.
         /// </summary>
-        internal static string TPlayState_Playing {
+        public static string TPlayState_Playing {
             get {
                 return ResourceManager.GetString("TPlayState_Playing", resourceCulture);
             }
@@ -837,7 +882,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
-        internal static string TPlayState_Scheduled {
+        public static string TPlayState_Scheduled {
             get {
                 return ResourceManager.GetString("TPlayState_Scheduled", resourceCulture);
             }
@@ -846,7 +891,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to After finish.
         /// </summary>
-        internal static string TStartType_After {
+        public static string TStartType_After {
             get {
                 return ResourceManager.GetString("TStartType_After", resourceCulture);
             }
@@ -855,7 +900,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Manual.
         /// </summary>
-        internal static string TStartType_Manual {
+        public static string TStartType_Manual {
             get {
                 return ResourceManager.GetString("TStartType_Manual", resourceCulture);
             }
@@ -864,7 +909,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Can&apos;t start.
         /// </summary>
-        internal static string TStartType_None {
+        public static string TStartType_None {
             get {
                 return ResourceManager.GetString("TStartType_None", resourceCulture);
             }
@@ -873,7 +918,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to At fixed time.
         /// </summary>
-        internal static string TStartType_OnFixedTime {
+        public static string TStartType_OnFixedTime {
             get {
                 return ResourceManager.GetString("TStartType_OnFixedTime", resourceCulture);
             }
@@ -882,7 +927,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to With start of.
         /// </summary>
-        internal static string TStartType_With {
+        public static string TStartType_With {
             get {
                 return ResourceManager.GetString("TStartType_With", resourceCulture);
             }
@@ -891,7 +936,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to PAL (4:3).
         /// </summary>
-        internal static string TVideoFormat_PAL {
+        public static string TVideoFormat_PAL {
             get {
                 return ResourceManager.GetString("TVideoFormat_PAL", resourceCulture);
             }
@@ -900,7 +945,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to PAL (16:9).
         /// </summary>
-        internal static string TVideoFormat_PAL_FHA {
+        public static string TVideoFormat_PAL_FHA {
             get {
                 return ResourceManager.GetString("TVideoFormat_PAL_FHA", resourceCulture);
             }
@@ -909,7 +954,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to PAL (16:9) progressive.
         /// </summary>
-        internal static string TVideoFormat_PAL_FHA_P {
+        public static string TVideoFormat_PAL_FHA_P {
             get {
                 return ResourceManager.GetString("TVideoFormat_PAL_FHA_P", resourceCulture);
             }
@@ -918,7 +963,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to PAL (4:3) progressive.
         /// </summary>
-        internal static string TVideoFormat_PAL_P {
+        public static string TVideoFormat_PAL_P {
             get {
                 return ResourceManager.GetString("TVideoFormat_PAL_P", resourceCulture);
             }
@@ -927,7 +972,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to 4 channels, 16 bits per sample.
         /// </summary>
-        internal static string TxDCAMAudioExportFormat_Channels4Bits16 {
+        public static string TxDCAMAudioExportFormat_Channels4Bits16 {
             get {
                 return ResourceManager.GetString("TxDCAMAudioExportFormat_Channels4Bits16", resourceCulture);
             }
@@ -936,7 +981,7 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to 4 channels, 24 bits per sample.
         /// </summary>
-        internal static string TxDCAMAudioExportFormat_Channels4Bits24 {
+        public static string TxDCAMAudioExportFormat_Channels4Bits24 {
             get {
                 return ResourceManager.GetString("TxDCAMAudioExportFormat_Channels4Bits24", resourceCulture);
             }

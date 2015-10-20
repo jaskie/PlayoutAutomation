@@ -79,6 +79,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Warning.
+        /// </summary>
+        public static string _caption_Warning {
+            get {
+                return ResourceManager.GetString("_caption_Warning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Command failed. Following error occurred:
         ///{0}.
         /// </summary>

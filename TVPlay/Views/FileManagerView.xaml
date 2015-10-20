@@ -6,8 +6,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
-             xmlns:client="clr-namespace:TAS.Client"
+             xmlns:components="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
+             d:DataContext="{x:Type vm:FileManagerViewmodel}"
              d:DesignHeight="300" d:DesignWidth="800"
              >
     <UserControl.Resources>
@@ -49,25 +50,28 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Progress}" Width="95" >
+                <DataGridTemplateColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Progress}" Width="105" >
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <ProgressBar IsIndeterminate="{Binding IsIndeterminate, Mode=OneWay}"  Value="{Binding Progress, Mode=OneWay}" Minimum="0" Maximum="100" />
                                 <Label Content="{Binding Path=Progress}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" Foreground="White" FontWeight="Bold" />
-                                <Button Grid.Column="1" ToolTip="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.OperationOutput}" Command="{Binding CommandShowOutput}">
-                                    <Image Source="/TAS.Client.Common;component/Images/Gearwheel.png"/>
+                                <Button Width="16" Padding="0" Grid.Column="1" ToolTip="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.OperationOutput}" Command="{Binding CommandShowOutput}">
+                                    <components:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Gearwheel.png"/>
+                                </Button>
+                                <Button Width="16" Padding="0" Grid.Column="2" Visibility="{Binding IsWarning, Converter={StaticResource BoolToVis}}" Command="{Binding CommandShowWarning}">
+                                    <Image Source="/TAS.Client.Common;component/Images/warning.png"/>
                                 </Button>
                             </Grid>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Operation}" Binding="{Binding OperationDescription, Mode=OneWay}" Width="*" />
-
                 <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Scheduled}" Width="100"  Binding="{Binding ScheduledTime, StringFormat=T, Mode=OneWay}" />
                 <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Started}" Width="100" Binding="{Binding StartTime, StringFormat=T, Mode=OneWay}" />
                 <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Finished}" Width="100" Binding="{Binding FinishedTime, StringFormat=T, Mode=OneWay}" />

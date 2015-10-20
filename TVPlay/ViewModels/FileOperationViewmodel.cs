@@ -6,6 +6,7 @@ using TAS.Server;
 using System.ComponentModel;
 using System.Windows.Input;
 using TAS.Client.Common;
+using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
@@ -23,13 +24,18 @@ namespace TAS.Client.ViewModels
                 {
                     Views.OperationOutputView view = new Views.OperationOutputView 
                     { 
-                        DataContext = this, 
+                        DataContext = this.OperationOutput, 
                         Owner = System.Windows.Application.Current.MainWindow, 
                         WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner,
                         ShowInTaskbar = false,
                     };
                     view.ShowDialog();
                 }
+            };
+            CommandShowWarning = new UICommand()
+            {
+                ExecuteDelegate = o =>
+                    System.Windows.MessageBox.Show(OperationWarning, resources._caption_Warning, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation)
             };
         }
 
@@ -47,7 +53,7 @@ namespace TAS.Client.ViewModels
         {
             get { return _fileOperation.ToString(); }
         }
-
+               
         public int Progress { get { return _fileOperation.Progress; } }
         public DateTime ScheduledTime { get { return _fileOperation.ScheduledTime; } }
         public DateTime StartTime { get { return _fileOperation.StartTime; } }
@@ -58,10 +64,14 @@ namespace TAS.Client.ViewModels
         public bool Finished { get { return _fileOperation.OperationStatus != FileOperationStatus.Waiting && _fileOperation.OperationStatus != FileOperationStatus.InProgress; } }
 
         public FileOperationStatus OperationStatus { get { return _fileOperation.OperationStatus; } }
-        public string OperationOutput { get { return string.Join(Environment.NewLine, _fileOperation.OperationOutput.ToList()); } }
+        public string OperationOutput { get { return string.Join(Environment.NewLine, _fileOperation.OperationOutput); } }
+        public string OperationWarning { get { return string.Join(Environment.NewLine, _fileOperation.OperationWarning); } }
+        private bool _isWarning;
+        public bool IsWarning { get { return _isWarning; } set { SetField(ref _isWarning, value, "IsWarning"); } }
 
         public ICommand CommandAbort { get; private set; }
         public ICommand CommandShowOutput { get; private set; }
+        public ICommand CommandShowWarning { get; private set; }
 
         protected virtual void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -73,10 +83,13 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == "Progress"
                 || e.PropertyName == "OperationStatus"
                 || e.PropertyName == "OperationOutput"
+                || e.PropertyName == "OperationWarning"
                 )
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == "OperationStatus")
                 NotifyPropertyChanged("CommandAbort");
+            if (e.PropertyName == "OperationWarning")
+                IsWarning = true;
         }
 
 

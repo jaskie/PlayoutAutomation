@@ -12,21 +12,26 @@ using System.Threading;
 namespace TAS.Server
 {
     public enum TFileOperationKind { None, Copy, Move, Convert, Export, Delete, Loudness};
+
+    [TypeConverter(typeof(FileOperationStatusEnumConverter))]
     public enum FileOperationStatus {
-        [Description("Czeka")]
         Waiting,
-        [Description("W trakcie")]
         InProgress,
-        [Description("Zakończona")]
         Finished,
-        [Description("Nieudana")]
         Failed,
-        [Description("Przerawna")]
         Aborted
     };
+
+    class FileOperationStatusEnumConverter : Infralution.Localization.Wpf.ResourceEnumConverter
+    {
+        public FileOperationStatusEnumConverter()
+            : base(typeof(FileOperationStatus), TAS.Server.Common.Properties.Resources.ResourceManager)
+        { }
+    }
+
     public class FileOperation : IComparable, INotifyPropertyChanged
     {
-        public TFileOperationKind Kind = TFileOperationKind.None;
+        public TFileOperationKind Kind;
         public Media SourceMedia;
         public Media DestMedia;
         public Action SuccessCallback;
@@ -119,13 +124,21 @@ namespace TAS.Server
         }
 
         private SynchronizedCollection<string> _operationOutput = new SynchronizedCollection<string>();
-        public IEnumerable<string> OperationOutput { get { return _operationOutput; } }
+        public List<string> OperationOutput { get { lock (_operationOutput.SyncRoot) return _operationOutput.ToList(); } }
         protected void _addOutputMessage(string message)
         {
             _operationOutput.Add(string.Format("{0} {1}", DateTime.Now, message));
             NotifyPropertyChanged("OperationOutput");
         }
 
+        private SynchronizedCollection<string> _operationWarning = new SynchronizedCollection<string>();
+        public List<string> OperationWarning { get { lock (_operationWarning.SyncRoot) return _operationWarning.ToList(); } }
+        protected void _addWarningMessage(string message)
+        {
+            _operationWarning.Add(message);
+            NotifyPropertyChanged("OperationWarning");
+        }
+        
         internal virtual bool Do()
         {
             if (_do())

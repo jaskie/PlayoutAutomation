@@ -36,7 +36,10 @@ namespace TAS.Client.ViewModels
                 {
                     foreach (FileOperationViewmodel vm in _operationList.ToList())
                         if (vm.IsFileOperation(operation))
+                        {
                             _operationList.Remove(vm);
+                            vm.Dispose();
+                        }
                 }
             }), null);
         }
@@ -52,7 +55,10 @@ namespace TAS.Client.ViewModels
                     _clearFinished = value;
                     foreach (FileOperationViewmodel vm in _operationList.ToList())
                         if (vm.Finished)
+                        {
                             _operationList.Remove(vm);
+                            vm.Dispose();
+                        }
                     NotifyPropertyChanged("ClearFinished");
                 }
             }

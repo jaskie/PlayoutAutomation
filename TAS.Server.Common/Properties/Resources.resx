@@ -411,4 +411,19 @@
   <data name="TVideoFormat_PAL_P" xml:space="preserve">
     <value>PAL (4:3) progressive</value>
   </data>
+  <data name="FileOperationStatus_Aborted" xml:space="preserve">
+    <value>Aborted</value>
+  </data>
+  <data name="FileOperationStatus_Failed" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="FileOperationStatus_Finished" xml:space="preserve">
+    <value>Finished</value>
+  </data>
+  <data name="FileOperationStatus_InProgress" xml:space="preserve">
+    <value>In progress</value>
+  </data>
+  <data name="FileOperationStatus_Waiting" xml:space="preserve">
+    <value>Waiting</value>
+  </data>
 </root>

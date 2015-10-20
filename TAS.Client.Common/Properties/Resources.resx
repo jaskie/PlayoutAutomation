@@ -123,6 +123,9 @@
   <data name="_caption_Error" xml:space="preserve">
     <value>Error</value>
   </data>
+  <data name="_caption_Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
   <data name="_message_CommandFailed" xml:space="preserve">
     <value>Command failed. Following error occurred:
 {0}</value>

@@ -184,4 +184,10 @@ Really delete?</value>
 {1}
 Are you sure?</value>
   </data>
+  <data name="_encodeWarningDifferentDurations" xml:space="preserve">
+    <value>Convert operation finished successfully, but durations are diffrent, original: {0}, encoded {1}</value>
+  </data>
+  <data name="_encodeWarningFFmpeg" xml:space="preserve">
+    <value>Following error was announced by FFmpeg: {0}</value>
+  </data>
 </root>

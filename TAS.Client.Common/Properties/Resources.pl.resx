@@ -123,6 +123,9 @@
   <data name="_caption_Error" xml:space="preserve">
     <value>Błąd</value>
   </data>
+  <data name="_caption_Warning" xml:space="preserve">
+    <value>Ostrzeżenie</value>
+  </data>
   <data name="_message_CommandFailed" xml:space="preserve">
     <value>Wykonanie polecenia nie powiodło się. Błąd, który wystąpił:
 {0}</value>
