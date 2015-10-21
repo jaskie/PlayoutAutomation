@@ -12,6 +12,7 @@
              xmlns:server="clr-namespace:TAS.Server"
              mc:Ignorable="d"
              d:DataContext="{x:Type vm:MediaEditViewmodel}"
+             d:DesignWidth="300"
              >
     <UserControl.InputBindings>
         <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="Ctrl+S" />
@@ -161,10 +162,13 @@
                 <ComboBox Style="{StaticResource combosDetail}" ItemsSource="{Binding Parentals}" SelectedValue="{Binding Parental}" />
             </DockPanel>
             <DockPanel>
-                <Label Content="{Resx _audioVolume}" Style="{StaticResource fieldNameLabels}" />
-                <Slider Margin="2" Width="80" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
-                <TextBox Margin="4" Width="40" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
-                <Label VerticalContentAlignment="Center" Content="dB" />
+                <Label  Content="{Resx _audioVolume}" Style="{StaticResource fieldNameLabels}" />
+                <Button Height="21" Margin="0, 0, 5, 0" DockPanel.Dock="Right" ToolTip="{Resx _checkVolume.ToolTip}" Command="{Binding CommandCheckVolume}">
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png" />
+                </Button>
+                <Label DockPanel.Dock="Right" VerticalContentAlignment="Center" Content="dB" />
+                <TextBox DockPanel.Dock="Right" Margin="4" Width="40" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
+                <Slider  Margin="2" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
             </DockPanel>
             <!--<DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
                 <Label Style="{StaticResource fieldNameLabels}" Content="Usuń po" Target="{Binding ElementName=edKillDate}" />

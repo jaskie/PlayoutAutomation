@@ -384,7 +384,7 @@ namespace TAS.Server
 
         public void Remove()
         {
-            Directory = null;
+            Directory.MediaRemove(this);
         }
 
         private bool _verified = false;

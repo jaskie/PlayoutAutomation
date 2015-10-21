@@ -144,6 +144,9 @@
   <data name="_checkStatus.ToolTip" xml:space="preserve">
     <value>Check again</value>
   </data>
+  <data name="_checkVolume.ToolTip" xml:space="preserve">
+    <value>Check volume using current fragment</value>
+  </data>
   <data name="_clip" xml:space="preserve">
     <value>Clip</value>
   </data>

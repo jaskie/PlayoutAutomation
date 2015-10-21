@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Windows;
 using System.IO;
 using System.Windows.Input;
+using TAS.Server;
 using TAS.Common;
 using TAS.Client.Common;
 
@@ -22,6 +23,7 @@ namespace TAS.Client.ViewModels
             CommandCancelEdit = new UICommand() { ExecuteDelegate = Load, CanExecuteDelegate = o => Modified };
             CommandRefreshStatus = new UICommand() { ExecuteDelegate = _refreshStatus };
             CommandGetTCFromPreview = new UICommand() { ExecuteDelegate = _getTCFromPreview, CanExecuteDelegate = _canGetTCFormPreview };
+            CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = (o) => !_isVolumeChecking };
             _previewVm = previewVm;
             _showButtons = showButtons;
             if (previewVm != null)
@@ -40,6 +42,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandCancelEdit { get; private set; }
         public ICommand CommandRefreshStatus { get; private set; }
         public ICommand CommandGetTCFromPreview { get; private set; }
+        public ICommand CommandCheckVolume { get; private set; }
 
         public override void Save(object destObject = null)
         {
@@ -69,6 +72,25 @@ namespace TAS.Client.ViewModels
                 TCPlay = _previewVm.TCIn;
                 DurationPlay = _previewVm.DurationSelection;
             }
+        }
+
+        void _checkVolume(object o)
+        {
+            if (_isVolumeChecking)
+                return;
+            IsVolumeChecking = true;
+            Model.GetLoudness(
+                this.TCPlay - this.TCStart,
+                this.DurationPlay,
+                (obj, e) =>
+                {
+                    if (((LoudnessOperation)obj).SourceMedia == Model)
+                        AudioVolume = e.AudioVolume;
+                },
+                () =>
+                {
+                    IsVolumeChecking = false; // finishCallback
+                });
         }
 
         private void OnMediaPropertyChanged(object media, PropertyChangedEventArgs e)
@@ -108,6 +130,21 @@ namespace TAS.Client.ViewModels
         {
             if (e.PropertyName == "LoadedMedia")
                 NotifyPropertyChanged("CommandGetTCFromPreview");
+        }
+
+        private bool _isVolumeChecking;
+        public bool IsVolumeChecking
+        {
+            get { return _isVolumeChecking; }
+            set
+            {
+                if (_isVolumeChecking != value)
+                {
+                    _isVolumeChecking = value;
+                    NotifyPropertyChanged("IsVolumeChecking");
+                    NotifyPropertyChanged("CommandCheckVolume");
+                }
+            }
         }
 
         public void Delete()

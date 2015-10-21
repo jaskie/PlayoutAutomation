@@ -648,7 +648,7 @@ namespace TAS.Client.ViewModels
             if (_media == null)
                 return;
             IsVolumeChecking = true;
-            _engine.MediaManager.GetLoudness(_event.Media,
+            _event.Media.GetLoudness(
                 _event.StartTC - _media._tCStart,
                 _event.Duration,
                 (o, e) =>
@@ -797,8 +797,10 @@ namespace TAS.Client.ViewModels
         public bool IsVolumeChecking { get { return _isVolumeChecking; }
             set
             {
-                if (SetField(ref _isVolumeChecking, value, "IsVolumeChecking"))
+                if (_isVolumeChecking != value)
                 {
+                    _isVolumeChecking = value;
+                    NotifyPropertyChanged("IsVolumeChecking");
                     NotifyPropertyChanged("CommandCheckVolume");
                 }
             }
