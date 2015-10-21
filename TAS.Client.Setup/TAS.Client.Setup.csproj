@@ -88,6 +88,7 @@
     <Compile Include="Model\CasparServer.cs" />
     <Compile Include="Model\CasparServerChannel.cs" />
     <Compile Include="Model\PlayoutServers.cs" />
+    <Compile Include="Model\RemoteHost.cs" />
     <Compile Include="PlayoutServerChannelView.xaml.cs">
       <DependentUpon>PlayoutServerChannelView.xaml</DependentUpon>
     </Compile>

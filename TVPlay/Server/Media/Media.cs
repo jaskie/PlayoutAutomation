@@ -19,6 +19,12 @@ namespace TAS.Server
     public abstract class Media : INotifyPropertyChanged, IMediaProperties
     {
 
+        public Media(MediaDirectory directory)
+        {
+            _directory = directory;
+            directory.MediaAdd(this);
+        }
+
 #if DEBUG
         ~Media()
         {
@@ -197,17 +203,6 @@ namespace TAS.Server
         public MediaDirectory Directory
         {
             get { return _directory; }
-            internal set 
-            {
-                if (value != _directory)
-                {
-                    if (_directory != null)
-                        _directory.MediaRemove(this);
-                    _directory = value;
-                    if (_directory != null)
-                        _directory.MediaAdd(this);
-                }
-            }
         }
 
         public string FullPath

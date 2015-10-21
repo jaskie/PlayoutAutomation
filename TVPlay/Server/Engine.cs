@@ -60,8 +60,8 @@ namespace TAS.Server
         public event EventHandler<PropertyChangedEventArgs> ServerPropertyChanged;
         [XmlElement("Gpi")]
         public GPINotifier GPI;
-             
-        public Remoting.RemoteHost Remote;
+
+        public Remoting.RemoteHost Remote { get; set; }
         public TAspectRatioControl AspectRatioControl { get; set; }
 
         public int TimeCorrection { get { return (int)_timeCorrection.TotalMilliseconds; } set { _timeCorrection = TimeSpan.FromMilliseconds(value); } }

@@ -25,6 +25,7 @@ namespace TAS.Client.Setup.Model
         public int ServerChannelPRV { get; set; }
         public ulong IdArchive { get; set; }
         public Gpi Gpi { get; set; }
+        public RemoteHost Remote { get; set; }
 
         internal List<CasparServer> Servers;
     }

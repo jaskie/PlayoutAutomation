@@ -58,6 +58,7 @@
     <Compile Include="Interfaces\IPersistent.cs" />
     <Compile Include="Interfaces\IPlayoutServerConfig.cs" />
     <Compile Include="Interfaces\IPlayoutServerChannelConfig.cs" />
+    <Compile Include="Interfaces\IRemoteHostConfig.cs" />
     <Compile Include="Interfaces\IServerDirectoryConfig.cs" />
     <Compile Include="Interfaces\IIngestDirectoryConfig.cs" />
     <Compile Include="Interfaces\IInitializable.cs" />

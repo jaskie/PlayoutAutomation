@@ -35,6 +35,11 @@ namespace TAS.Client.Setup
                 _gpiAddress = Model.Gpi.Address;
                 _gpiGraphicsStartDelay = Model.Gpi.GraphicsStartDelay;
             }
+            if (Model.Remote != null)
+            {
+                _remoteHostEnabled = true;
+                _remoteHostEndpointAddress = Model.Remote.EndpointAddress;
+            }
         }
 
         protected override void OnDispose() { }
@@ -63,6 +68,10 @@ namespace TAS.Client.Setup
         public string GpiAddress { get { return _gpiAddress; } set { SetField(ref _gpiAddress, value, "GpiAddress"); } }
         private int _gpiGraphicsStartDelay;
         public int GpiGraphicsStartDelay { get { return _gpiGraphicsStartDelay; } set { SetField(ref _gpiGraphicsStartDelay, value, "GpiGraphicsStartDelay"); } }
+        private bool _remoteHostEnabled;
+        public bool RemoteHostEnabled { get { return _remoteHostEnabled; } set { SetField(ref _remoteHostEnabled, value, "RemoteHostEnabled"); } }
+        private string _remoteHostEndpointAddress;
+        public string RemoteHostEndpointAddress { get { return _remoteHostEndpointAddress; } set { SetField(ref _remoteHostEndpointAddress, value, "RemoteHostEndpointAddress"); } }
 
         public override void Save(object destObject = null)
         {
@@ -75,6 +84,7 @@ namespace TAS.Client.Setup
                 Model.IdServerPRV = playoutServerChannelPRV == null ? 0 : ((Model.CasparServer)playoutServerChannelPRV.Owner).Id;
                 Model.ServerChannelPRV = playoutServerChannelPRV == null ? 0 : playoutServerChannelPRV.ChannelNumber;
                 Model.Gpi = _gpiEnabled ? new Model.Gpi() { Address = this.GpiAddress, GraphicsStartDelay = this.GpiGraphicsStartDelay } : null;
+                Model.Remote = _remoteHostEnabled ? new Model.RemoteHost() { EndpointAddress = RemoteHostEndpointAddress } : null;
                 Model.Modified = true;
             }
             base.Save(destObject);

@@ -38,11 +38,11 @@ namespace TAS.Server
 
         }
 
-        protected override Media CreateMedia()
+        protected override Media CreateMedia(string fileNameOnly)
         {
-            ServerMedia newMedia = new ServerMedia()
+            ServerMedia newMedia = new ServerMedia(this)
             {
-                Directory = this,
+                FileName = fileNameOnly,
             };
             return newMedia;
         }
@@ -112,32 +112,30 @@ namespace TAS.Server
                     _files.Lock.EnterWriteLock();
                     try
                     {
-                        fm = (new ServerMedia()
+                        fm = (new ServerMedia(this)
                         {
-                            _mediaName = media.MediaName,
-                            _folder = string.Empty,
-                            _fileName = (media is IngestMedia) ? (VideoFileTypes.Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + DefaultFileExtension(media.MediaType) : media.FileName,
+                            MediaName = media.MediaName,
+                            Folder = string.Empty,
+                            FileName = (media is IngestMedia) ? (VideoFileTypes.Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + DefaultFileExtension(media.MediaType) : media.FileName,
                             MediaType = (media.MediaType == TMediaType.Unknown) ? (StillFileTypes.Any(ve => ve == Path.GetExtension(media.FullPath).ToLowerInvariant()) ? TMediaType.Still : TMediaType.Movie) : media.MediaType,
-                            _mediaStatus = TMediaStatus.Required,
-                            _tCStart = media.TCStart,
-                            _tCPlay = media.TCPlay,
-                            _duration = media.Duration,
-                            _durationPlay = media.DurationPlay,
-                            _videoFormat = media.VideoFormat,
-                            _audioChannelMapping = media.AudioChannelMapping,
-                            _audioVolume = media.AudioVolume,
-                            _audioLevelIntegrated = media.AudioLevelIntegrated,
-                            _audioLevelPeak = media.AudioLevelPeak,
-                            KillDate = (media is PersistentMedia) ? (media as PersistentMedia).KillDate : ((media is IngestMedia && (media.Directory as IngestDirectory).MediaRetnentionDays > 0) ? DateTime.Today + TimeSpan.FromDays(((IngestDirectory)media.Directory).MediaRetnentionDays) : default(DateTime)),
-                            DoNotArchive = (media is ServerMedia && (media as ServerMedia).DoNotArchive)
-                                         || media is IngestMedia && ((media as IngestMedia).Directory as IngestDirectory).MediaDoNotArchive,
-                            _mediaCategory = media.MediaCategory,
-                            _parental = media.Parental,
+                            MediaStatus = TMediaStatus.Required,
+                            TCStart = media.TCStart,
+                            TCPlay = media.TCPlay,
+                            Duration = media.Duration,
+                            DurationPlay = media.DurationPlay,
+                            VideoFormat = media.VideoFormat,
+                            AudioChannelMapping = media.AudioChannelMapping,
+                            AudioVolume = media.AudioVolume,
+                            AudioLevelIntegrated = media.AudioLevelIntegrated,
+                            AudioLevelPeak = media.AudioLevelPeak,
+                            KillDate = default(DateTime),
+                            DoNotArchive = (media is ServerMedia && (media as ServerMedia).DoNotArchive),
+                            MediaCategory = media.MediaCategory,
+                            Parental = media.Parental,
                             idAux = (media is PersistentMedia) ? (media as PersistentMedia).idAux : string.Empty,
                             idProgramme = (media is PersistentMedia) ? (media as PersistentMedia).idProgramme : 0L,
-                            _mediaGuid = fm == null ? media.MediaGuid : Guid.NewGuid(), // in case file with the same GUID already exists and we need to get new one
+                            MediaGuid = fm == null ? media.MediaGuid : Guid.NewGuid(), // in case file with the same GUID already exists and we need to get new one
                             OriginalMedia = media,
-                            Directory = this,
                         });
                     }
                     finally

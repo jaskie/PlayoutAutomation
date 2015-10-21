@@ -5,10 +5,11 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Xml.Serialization;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server.Remoting
 {
-    public class RemoteHost : IDisposable
+    public class RemoteHost : IDisposable, IRemoteHostConfig
     {
         [XmlAttribute]
         public string EndpointAddress { get; set; }

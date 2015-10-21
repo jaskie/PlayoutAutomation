@@ -355,10 +355,7 @@ namespace TAS.Server
                 else
                 {
                     if (AccessType == TDirectoryAccessType.FTP)
-                    {
                         m = _addFileFromFTP(fullPath);
-                        m.Directory = this;
-                    }
                     else
                         m = base.AddFile(fullPath, created, lastWriteTime);
                 }
@@ -368,24 +365,24 @@ namespace TAS.Server
 
         private Media _addFileFromFTP(string fileNameOnly)
         {
-            Media newMedia = CreateMedia();
-            newMedia._fileName = fileNameOnly;
+            Media newMedia = CreateMedia(fileNameOnly);
             if (IsXDCAM)
             {
                 newMedia._folder = "Clip";
             }
-            newMedia._mediaName = (_extensions == null || _extensions.Length == 0) ? fileNameOnly : Path.GetFileNameWithoutExtension(fileNameOnly);
-            newMedia._lastUpdated = DateTime.UtcNow;
-            newMedia._mediaGuid = Guid.NewGuid();
+            newMedia.MediaName = (_extensions == null || _extensions.Length == 0) ? fileNameOnly : Path.GetFileNameWithoutExtension(fileNameOnly);
+            newMedia.LastUpdated = DateTime.UtcNow;
+            newMedia.MediaGuid = Guid.NewGuid();
             return newMedia;
         }
         
-        protected override Media CreateMedia()
+        protected override Media CreateMedia(string fileNameOnly)
         {
-            return new IngestMedia()
+            return new IngestMedia(this)
             {
-                _mediaStatus = TMediaStatus.Unknown,
-                _mediaCategory = this.MediaCategory,
+                FileName = fileNameOnly,
+                MediaStatus = TMediaStatus.Unknown,
+                MediaCategory = this.MediaCategory,
             };
         }
 
@@ -555,18 +552,29 @@ namespace TAS.Server
             return string.Empty;
         }
 
-        public IngestMedia FindMedia(string ClipName)
+        public IngestMedia FindMedia(string clipName)
         {
-            string clipNameLowered = ClipName.ToLower();
+            string clipNameLowered = clipName.ToLower();
             _files.Lock.EnterReadLock();
+            IngestMedia result = null;
             try
             {
-                return (IngestMedia)_files.FirstOrDefault(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToLower() == clipNameLowered);
+                result = (IngestMedia)_files.FirstOrDefault(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToLower() == clipNameLowered);
             }
             finally
             {
                 _files.Lock.ExitReadLock();
             }
+            if (result == null & IsWAN)
+                {
+                    string[] files = Directory.GetFiles(this.Folder, string.Format("{0}.*", clipName));
+                    if (files.Length > 0)
+                    {
+                        string fileName = files[0];
+                        result = (IngestMedia)this.CreateMedia(fileName);
+                    }
+                }
+            return result;
         }
 
         protected override void OnError(object source, ErrorEventArgs e)

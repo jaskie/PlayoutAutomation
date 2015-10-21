@@ -87,9 +87,9 @@ namespace TAS.Server
                  
         }
 
-        protected override Media CreateMedia()
+        protected override Media CreateMedia(string fileNameOnly)
         {
-            return new ArchiveMedia() { Directory = this, };
+            return new ArchiveMedia(this) { FileName = fileNameOnly };
         }
 
         //public override void MediaAdd(Media media)
@@ -128,7 +128,7 @@ namespace TAS.Server
             if (searchExisting)
                 result = this.DbMediaFind(media);
             if (result == null)
-                result = new ArchiveMedia()
+                result = new ArchiveMedia(this)
                 {
                     _audioChannelMapping = media.AudioChannelMapping,
                     _audioVolume = media.AudioVolume,
@@ -153,7 +153,6 @@ namespace TAS.Server
                     _parental = media.Parental,
                     _mediaGuid = media.MediaGuid,
                     OriginalMedia = media,
-                    Directory = this,
                 };
             return result;
         }

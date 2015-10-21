@@ -16,6 +16,9 @@ namespace TAS.Server
     public class ServerMedia: PersistentMedia
     {
 
+        public ServerMedia(ServerDirectory directory) : base(directory) { }
+        public ServerMedia(AnimationDirectory directory) : base(directory) { }
+
         // media properties
         private bool _isPGM;
         public bool IsPGM { get { return _isPGM; } set { if (value) _isPGM = true; } } //one way to true only possible

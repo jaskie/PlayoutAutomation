@@ -15,9 +15,9 @@ namespace TAS.Server
             _folder = ConfigurationManager.AppSettings["TempDirectory"];
         }
 
-        protected override Media CreateMedia()
+        protected override Media CreateMedia(string fileNameOnly)
         {
-            return new TempMedia() { };
+            return new TempMedia(this) { FileName = fileNameOnly };
         }
 
         public override void MediaAdd(Media media)
@@ -32,7 +32,7 @@ namespace TAS.Server
         
         public TempMedia Get(Media media, string fileExtension = null)
         {
-            return new TempMedia() { MediaName = media.MediaName, OriginalMedia = media, _fileName = string.Format("{0}{1}", Guid.NewGuid().ToString(), fileExtension == null ? Path.GetExtension(media.FileName): fileExtension), Directory = this};
+            return new TempMedia(this) { MediaName = media.MediaName, OriginalMedia = media, _fileName = string.Format("{0}{1}", Guid.NewGuid().ToString(), fileExtension == null ? Path.GetExtension(media.FileName): fileExtension)};
         }
 
         public override void SweepStaleMedia()

@@ -50,7 +50,19 @@
                     </StackPanel>
                 </StackPanel>
             </HeaderedContentControl>
-
+            <Separator/>
+            <HeaderedContentControl>
+                <HeaderedContentControl.Header>
+                    <Label Content="Remote control interface"/>
+                </HeaderedContentControl.Header>
+                <StackPanel>
+                    <CheckBox IsChecked="{Binding RemoteHostEnabled}" Content="Enabled"/>
+                    <StackPanel Visibility="{Binding RemoteHostEnabled, Converter={StaticResource BoolToVis}}">
+                        <Label Content="Endpoint address [local address:port]"/>
+                        <TextBox Text="{Binding RemoteHostEndpointAddress, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </StackPanel>
+            </HeaderedContentControl>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

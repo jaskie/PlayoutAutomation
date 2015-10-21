@@ -231,7 +231,7 @@ namespace TAS.Server
             return false;
         }
 
-        protected abstract Media CreateMedia();
+        protected abstract Media CreateMedia(string fileNameOnly);
 
         public abstract void SweepStaleMedia();
 
@@ -253,12 +253,10 @@ namespace TAS.Server
                 }
                 if (newMedia == null)
                 {
-                    newMedia = CreateMedia();
-                    newMedia._fileName = Path.GetFileName(fullPath);
+                    newMedia = CreateMedia(Path.GetFileName(fullPath));
                     newMedia._mediaName = (_extensions == null || _extensions.Length == 0) ? Path.GetFileName(fullPath) : Path.GetFileNameWithoutExtension(fullPath);
                     newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
                     newMedia.MediaType = (StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Still : (VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Movie : TMediaType.Unknown;
-                    newMedia.Directory = this;
                 }
                 return newMedia;
             }

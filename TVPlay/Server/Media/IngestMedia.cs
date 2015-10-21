@@ -9,6 +9,7 @@ namespace TAS.Server
 {
     public class IngestMedia : Media
     {
+        public IngestMedia(IngestDirectory directory) : base(directory) { }
         internal XDCAM.NonRealTimeMeta ClipMetadata;
         internal XDCAM.Smil SmilMetadata;
         internal string XmlFile;

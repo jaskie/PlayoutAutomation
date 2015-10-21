@@ -13,7 +13,7 @@ namespace TAS.Server
 {
     public abstract class PersistentMedia: Media
     {
-
+        public PersistentMedia(MediaDirectory directory) : base(directory) { }
         public UInt64 idPersistentMedia;
 
         // media properties

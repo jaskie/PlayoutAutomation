@@ -468,10 +468,9 @@ WHERE idRundownEvent=@idRundownEvent;";
                         {
                             while (dataReader.Read())
                             {
-                                ServerMedia nm = new ServerMedia()
+                                ServerMedia nm = new ServerMedia(directory)
                                 {
                                     idPersistentMedia = dataReader.GetUInt64("idServerMedia"),
-                                    Directory = directory,
                                 };
                                 _mediaReadFields(dataReader, nm);
                                 if (nm.MediaStatus != TMediaStatus.Available)
@@ -509,10 +508,9 @@ WHERE idRundownEvent=@idRundownEvent;";
                         {
                             while (dataReader.Read())
                             {
-                                ServerMedia nm = new ServerMedia()
+                                ServerMedia nm = new ServerMedia(directory)
                                 {
                                     idPersistentMedia = dataReader.GetUInt64("idServerMedia"),
-                                    Directory = directory,
                                 };
                                 _mediaReadFields(dataReader, nm);
                                 if (nm.MediaStatus != TMediaStatus.Available)
@@ -709,10 +707,9 @@ WHERE idArchiveMedia=@idArchiveMedia;";
         private static ArchiveMedia _readArchiveMedia(MySqlDataReader dataReader, ArchiveDirectory dir)
         {
             byte typVideo = dataReader.IsDBNull(dataReader.GetOrdinal("typVideo")) ? (byte)0 : dataReader.GetByte("typVideo");
-            ArchiveMedia media = new ArchiveMedia()
+            ArchiveMedia media = new ArchiveMedia(dir)
                 {
                     idPersistentMedia = dataReader.GetUInt64("idArchiveMedia"),
-                    Directory = dir,
                 };
             _mediaReadFields(dataReader, media);
             ThreadPool.QueueUserWorkItem(o => media.Verify());

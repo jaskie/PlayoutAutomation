@@ -67,7 +67,7 @@ namespace TAS.Server.XDCAM
             bool result = false;
             var existingFiles = DestDirectory.Files.Where(f => f.FileName.StartsWith("C", true, System.Globalization.CultureInfo.InvariantCulture));
             int maxFile = existingFiles.Count() == 0 ? 1 : existingFiles.Max(m => int.Parse(m.FileName.Substring(1, 4))) + 1;
-            DestMedia = new IngestMedia() {MediaName = string.Format("C{0:D4}", maxFile), FileName = string.Format("C{0:D4}.MXF", maxFile), Folder = "Clip", MediaStatus = TMediaStatus.Copying, Directory = DestDirectory};
+            DestMedia = new IngestMedia(DestDirectory) { MediaName = string.Format("C{0:D4}", maxFile), FileName = string.Format("C{0:D4}.MXF", maxFile), Folder = "Clip", MediaStatus = TMediaStatus.Copying };
             if (DestDirectory.AccessType == TDirectoryAccessType.FTP)
             {
                 using (TempMedia localDestMedia = FileManager.TempDirectory.Get(inputMedia, ".MXF"))

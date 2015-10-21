@@ -102,7 +102,7 @@ namespace TAS.Server
                     && f.Folder == template.Folder);
                 if (media == null)
                 {
-                    media = new ServerMedia()
+                    media = new ServerMedia(AnimationDirectory)
                         {
                             MediaType = TMediaType.AnimationFlash,
                             MediaName = template.Name,
@@ -112,7 +112,6 @@ namespace TAS.Server
                             MediaStatus = TMediaStatus.Available,
                             LastUpdated = DateTimeExtensions.FromFileTime(template.LastUpdated.ToUniversalTime(), DateTimeKind.Utc),
                             MediaGuid = Guid.NewGuid(),
-                            Directory = AnimationDirectory,
                         };
                     media.Save();
                 }

@@ -8,6 +8,7 @@ namespace TAS.Server
 {
     public class TempMedia: Media, IDisposable
     {
+        public TempMedia(TempDirectory directory) : base(directory) { }
         internal Media OriginalMedia;
         public override string MediaName
         {
