@@ -71,7 +71,7 @@ namespace TAS.Common
                     //FFMpegAudioFilter = "pan=mono|c0=c0";
                     OutputFormat = TAudioChannelMapping.Stereo;
                     FFMpegParameter = "ac 2";
-                    FFMpegAudioFilter = "pan=stereo|c0=c0|c1=c0";
+                    FFMpegAudioFilter = "pan=stereo|c0=c0*0.5|c1=c0*0.5";
                     break;
                 case TAudioChannelMappingConversion.SecondChannelOnly:
                     //OutputFormat = TAudioChannelMapping.Mono;
@@ -79,7 +79,7 @@ namespace TAS.Common
                     //FFMpegAudioFilter = "pan=mono|c0=c1";
                     OutputFormat = TAudioChannelMapping.Stereo;
                     FFMpegParameter = "ac 2";
-                    FFMpegAudioFilter = "pan=stereo|c0=c1|c1=c1";
+                    FFMpegAudioFilter = "pan=stereo|c0=c1*0.5|c1=c1*0.5";
                     break;
                 case TAudioChannelMappingConversion.Combine1plus2:
                     //OutputFormat = TAudioChannelMapping.Mono;

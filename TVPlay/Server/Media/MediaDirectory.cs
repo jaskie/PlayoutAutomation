@@ -44,11 +44,7 @@ namespace TAS.Server
         {
             if (!_isInitialized)
             {
-                ThreadPool.QueueUserWorkItem((o) => 
-                    {
-                        _beginWatch(null);
-                        IsInitialized = true;
-                    });
+                BeginWatch(null, true);
             }
         }
 
@@ -56,7 +52,9 @@ namespace TAS.Server
         {
             if (_isInitialized)
             {
+                CancelBeginWatch();
                 ClearFiles();
+                IsInitialized = false;
             }
         }
 
@@ -321,7 +319,7 @@ namespace TAS.Server
                 h(media, new MediaEventArgs(media));
         }
 
-        protected virtual void EnumerateFiles(string filter)
+        protected virtual void EnumerateFiles(string filter, CancellationToken cancelationToken)
         {
             IEnumerable<FileSystemInfo> list = (new DirectoryInfo(_folder)).EnumerateFiles(string.IsNullOrWhiteSpace(filter)? "*": string.Format("*{0}*", filter));
             foreach (FileSystemInfo f in list)
@@ -329,6 +327,8 @@ namespace TAS.Server
                 _files.Lock.EnterUpgradeableReadLock();
                 try
                 {
+                    if (cancelationToken.IsCancellationRequested)
+                        return;
                     AddFile(f.FullName, f.CreationTimeUtc, f.LastWriteTimeUtc);
                 }
                 finally
@@ -381,43 +381,74 @@ namespace TAS.Server
         }
 
         protected string _filter;
-        protected void _beginWatch(string filter)
+        protected CancellationTokenSource _watcherTaskCancelationTokenSource;
+        protected System.Threading.Tasks.Task _watcherTask;
+        protected void BeginWatch(string filter, bool setIsInitalized)
         {
-            _filter = filter;
-            bool watcherReady = false;
-            while (!watcherReady)
-            {
-                try
+            var oldTask = _watcherTask;
+            if (oldTask != null && oldTask.Status == System.Threading.Tasks.TaskStatus.Running)
+                return;
+
+            var watcherTaskCancelationTokenSource = new CancellationTokenSource();
+            var watcherCancelationToken = watcherTaskCancelationTokenSource.Token;
+            _watcherTaskCancelationTokenSource = watcherTaskCancelationTokenSource;
+            _watcherTask = System.Threading.Tasks.Task.Factory.StartNew(
+                () =>
                 {
-                    GetVolumeInfo();
-                    if (_watcher != null)
+                    _filter = filter;
+                    bool watcherReady = false;
+                    while (!watcherReady)
                     {
-                        _watcher.Dispose();
-                        _watcher = null;
-                    }
-                    if (Directory.Exists(_folder))
-                    {
-                        EnumerateFiles(filter);
-                        _watcher = new FileSystemWatcher(_folder)
+                        if (watcherCancelationToken.IsCancellationRequested)
                         {
-                            Filter = string.IsNullOrWhiteSpace(filter) ? string.Empty : string.Format("*{0}*", filter),
-                            IncludeSubdirectories = false,
-                            EnableRaisingEvents = true
-                        };
-                        _watcher.Created += OnFileCreated;
-                        _watcher.Deleted += OnFileDeleted;
-                        _watcher.Renamed += OnFileRenamed;
-                        _watcher.Changed += OnFileChanged;
-                        _watcher.Error += OnError;
-                        watcherReady = _watcher.EnableRaisingEvents;
+                            Debug.WriteLine("Watcher setup canceled");
+                            return;
+                        }
+                        try
+                        {
+                            GetVolumeInfo();
+                            if (_watcher != null)
+                            {
+                                _watcher.Dispose();
+                                _watcher = null;
+                            }
+                            if (Directory.Exists(_folder))
+                            {
+                                EnumerateFiles(filter, watcherCancelationToken);
+                                _watcher = new FileSystemWatcher(_folder)
+                                {
+                                    Filter = string.IsNullOrWhiteSpace(filter) ? string.Empty : string.Format("*{0}*", filter),
+                                    IncludeSubdirectories = false,
+                                    EnableRaisingEvents = true
+                                };
+                                _watcher.Created += OnFileCreated;
+                                _watcher.Deleted += OnFileDeleted;
+                                _watcher.Renamed += OnFileRenamed;
+                                _watcher.Changed += OnFileChanged;
+                                _watcher.Error += OnError;
+                                watcherReady = _watcher.EnableRaisingEvents;
+                            }
+                        }
+                        catch { };
+                        if (!watcherReady)
+                            System.Threading.Thread.Sleep(30000); //Wait for retry 30 sec.
                     }
-                }
-                catch { };
-                if (!watcherReady)
-                    System.Threading.Thread.Sleep(30000); //Wait for retry 30 sec.
-            }
-            Debug.WriteLine("MediaDirectory: Watcher {0} setup successful.", (object)_folder);
+                    Debug.WriteLine("MediaDirectory: Watcher {0} setup successful.", (object)_folder);
+                    if (setIsInitalized)
+                        IsInitialized = true;
+                }, watcherCancelationToken);
         }
+
+        protected virtual void CancelBeginWatch()
+        {
+            var watcherTask = _watcherTask;
+            if (watcherTask != null && watcherTask.Status == System.Threading.Tasks.TaskStatus.Running)
+            {
+                _watcherTaskCancelationTokenSource.Cancel();
+                watcherTask.Wait();
+            }
+        }
+
 
 
         private void OnFileCreated(object source, FileSystemEventArgs e)
@@ -467,7 +498,7 @@ namespace TAS.Server
         protected virtual void OnError(object source, ErrorEventArgs e)
         {
             Debug.WriteLine("MediaDirectory: Watcher {0} returned error: {1}.", _folder, e.GetException());
-            _beginWatch(_filter);
+            BeginWatch(_filter, false);
         }
 
         public override string ToString()

@@ -96,8 +96,14 @@ namespace TAS.Server
             {
                 if (!value.Equals(_filter))
                 {
-                    ClearFiles();
-                    ThreadPool.QueueUserWorkItem((o) => _beginWatch(value));
+                    if (IsWAN)
+                    {
+                        CancelBeginWatch();
+                        ClearFiles();
+                        BeginWatch(value, false);
+                    }
+                    else
+                        _filter = value;
                 }
             }
         }
@@ -461,9 +467,9 @@ namespace TAS.Server
             }
         }
 
-        protected override void EnumerateFiles(string filter)
+        protected override void EnumerateFiles(string filter, CancellationToken cancelationToken)
         {
-            base.EnumerateFiles(filter);
+            base.EnumerateFiles(filter, cancelationToken);
             foreach (string xml in _bMDXmlFiles)
                 _scanXML(xml);
         }

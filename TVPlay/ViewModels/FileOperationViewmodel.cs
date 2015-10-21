@@ -65,7 +65,7 @@ namespace TAS.Client.ViewModels
 
         public FileOperationStatus OperationStatus { get { return _fileOperation.OperationStatus; } }
         public string OperationOutput { get { return string.Join(Environment.NewLine, _fileOperation.OperationOutput); } }
-        public string OperationWarning { get { return string.Join(Environment.NewLine, _fileOperation.OperationWarning); } }
+        public string OperationWarning { get { return _fileOperation.OperationWarning.AsString(Environment.NewLine); } }
         private bool _isWarning;
         public bool IsWarning { get { return _isWarning; } set { SetField(ref _isWarning, value, "IsWarning"); } }
 

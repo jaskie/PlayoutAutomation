@@ -7,7 +7,7 @@ namespace TAS.Client.ViewModels
 {
     public static class EnumerableExtensions
     {
-        public static string AsString<TSource>(this IEnumerable<TSource> collection, string separator, int maxItems)
+        public static string AsString<TSource>(this IEnumerable<TSource> collection, string separator, int maxItems = 20)
         {
             StringBuilder sb = new StringBuilder(string.Join(separator, collection.Take(maxItems)));
             if (collection.Count() > maxItems)

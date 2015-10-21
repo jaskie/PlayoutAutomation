@@ -337,6 +337,9 @@ namespace TAS.Client.ViewModels
 
         private bool _filter(object item)
         {
+            if (_mediaDirectory is ArchiveDirectory
+                || (_mediaDirectory is IngestDirectory && ((IngestDirectory)_mediaDirectory).IsWAN))
+                return true;
             var m = item as MediaViewViewmodel;
             string mediaName = m.MediaName == null ? string.Empty:  m.MediaName.ToLower();
             return (_mediaCategory as TMediaCategory? == null || m.MediaCategory == (TMediaCategory)_mediaCategory)

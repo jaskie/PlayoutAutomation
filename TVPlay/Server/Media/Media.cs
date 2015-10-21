@@ -427,7 +427,11 @@ namespace TAS.Server
                     MediaChecker.Check(this);
                 }
                 if (MediaStatus == TMediaStatus.Available)
-                    Directory.OnMediaVerified(this);
+                {
+                    var dir = _directory;
+                    if (dir != null)
+                        dir.OnMediaVerified(this);
+                }
                 Verified = true;
             }
             catch (Exception e)
