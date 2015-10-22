@@ -444,7 +444,7 @@ namespace TAS.Client.ViewModels
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                if ((MediaDirectory is ServerDirectory) || e.Media.MediaType == TMediaType.Movie || e.Media.MediaType == TMediaType.Still)
+                if (!(MediaDirectory is ServerDirectory) || (e.Media.MediaType == TMediaType.Movie || e.Media.MediaType == TMediaType.Still))
                 {
                     _mediaItems.Add(new MediaViewViewmodel(e.Media));
                     _mediaView.Refresh();

@@ -8,11 +8,20 @@ namespace TAS.Server
 {
     public class TempMedia: Media, IDisposable
     {
-        public TempMedia(TempDirectory directory) : base(directory) { }
-        public TempMedia(TempDirectory directory, Guid guid) : base(directory, guid) { }
+        public TempMedia(TempDirectory directory)
+            : base(directory)
+        {
+            _fileName = this._mediaGuid.ToString();
+        }
+        public TempMedia(TempDirectory directory, Guid guid)
+            : base(directory, guid)
+        {
+            _fileName = this._mediaGuid.ToString();
+        }
         public TempMedia(TempDirectory directory, Media originalMedia): base(directory, originalMedia.MediaGuid)
         {
             OriginalMedia = originalMedia;
+            _fileName = this._mediaGuid.ToString();
         }
 
         internal Media OriginalMedia;
