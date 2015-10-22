@@ -260,7 +260,7 @@ namespace TAS.Server
 
         private bool _do(Media inputMedia)
         {
-            _progressDuration = inputMedia._duration;
+            _progressDuration = inputMedia.Duration;
             Debug.WriteLine(this, "Convert operation started");
             _addOutputMessage("Starting convert operation:");
             VideoFormatDescription formatDescription = VideoFormatDescription.Descriptions[OutputFormat];

@@ -17,7 +17,9 @@ namespace TAS.Server
     {
 
         public ServerMedia(ServerDirectory directory) : base(directory) { }
+        public ServerMedia(ServerDirectory directory, Guid guid) : base(directory, guid) { }
         public ServerMedia(AnimationDirectory directory) : base(directory) { }
+        public ServerMedia(AnimationDirectory directory, Guid guid) : base(directory, guid) { }
 
         // media properties
         private bool _isPGM;

@@ -243,17 +243,17 @@ namespace TAS.Server
                     foreach (XDCAM.Index.Clip clip in _xDCAMIndex.clipTable.clipTable)
                         try
                         {
-                            IngestMedia newMedia = AddFile(clip.clipId + ".MXF") as IngestMedia;
+                            IngestMedia newMedia = AddFile(clip.clipId + ".MXF", clip.ClipMeta.CreationDate.Value, clip.ClipMeta.lastUpdate, new Guid(clip.ClipMeta.TargetMaterial.umidRef.Substring(32, 32))) as IngestMedia;
                             if (newMedia != null)
                             {
-                                newMedia._folder = "Clip";
-                                newMedia._mediaName = clip.clipId;
-                                newMedia._duration =  ((long)clip.dur).SMPTEFramesToTimeSpan(clip.fps);
-                                newMedia._durationPlay = newMedia.Duration;
+                                newMedia.Folder = "Clip";
+                                newMedia.MediaName = clip.clipId;
+                                newMedia.Duration =  ((long)clip.dur).SMPTEFramesToTimeSpan(clip.fps);
+                                newMedia.DurationPlay = newMedia.Duration;
                                 if (clip.aspectRatio == "4:3")
-                                    newMedia._videoFormat = TVideoFormat.PAL;
+                                    newMedia.VideoFormat = TVideoFormat.PAL;
                                 if (clip.aspectRatio == "16:9")
-                                    newMedia._videoFormat = TVideoFormat.PAL_FHA;
+                                    newMedia.VideoFormat = TVideoFormat.PAL_FHA;
                                 XDCAM.Index.Meta xmlClipFileNameMeta = clip.meta.FirstOrDefault(m => m.type == "PD-Meta");
                                 if (xmlClipFileNameMeta != null && !string.IsNullOrWhiteSpace(xmlClipFileNameMeta.file))
                                 {
@@ -261,8 +261,6 @@ namespace TAS.Server
                                     newMedia.ClipMetadata = clip.ClipMeta;
                                     if (clip.ClipMeta != null)
                                     {
-                                        newMedia.LastUpdated = clip.ClipMeta.lastUpdate == default(DateTime) ? clip.ClipMeta.CreationDate.Value : clip.ClipMeta.lastUpdate;
-                                        newMedia.MediaGuid = new Guid(clip.ClipMeta.TargetMaterial.umidRef.Substring(32, 32));
                                         RationalNumber rate = new RationalNumber(clip.ClipMeta.LtcChangeTable.tcFps, 1);
                                         XDCAM.NonRealTimeMeta.LtcChange start = clip.ClipMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
                                         if (start != null)
@@ -288,17 +286,17 @@ namespace TAS.Server
                         {
                             try
                             {
-
-                                IngestMedia newMedia = AddFile(edl.file) as IngestMedia;
+                                DateTime ts = edl.EdlMeta.lastUpdate == default(DateTime) ? edl.EdlMeta.CreationDate.Value : edl.EdlMeta.lastUpdate;
+                                IngestMedia newMedia = AddFile(edl.file, ts, ts, new Guid(edl.EdlMeta.TargetMaterial.umidRef.Substring(32, 32))) as IngestMedia;
                                 if (newMedia != null)
                                 {
-                                    newMedia._folder = "Clip";
-                                    newMedia._duration = ((long)edl.dur).SMPTEFramesToTimeSpan(edl.fps);
-                                    newMedia._durationPlay = newMedia.Duration;
+                                    newMedia.Folder = "Clip";
+                                    newMedia.Duration = ((long)edl.dur).SMPTEFramesToTimeSpan(edl.fps);
+                                    newMedia.DurationPlay = newMedia.Duration;
                                     if (edl.aspectRatio == "4:3")
-                                        newMedia._videoFormat = TVideoFormat.PAL;
+                                        newMedia.VideoFormat = TVideoFormat.PAL;
                                     if (edl.aspectRatio == "16:9")
-                                        newMedia._videoFormat = TVideoFormat.PAL_FHA;
+                                        newMedia.VideoFormat = TVideoFormat.PAL_FHA;
                                     XDCAM.Index.Meta xmlClipFileNameMeta = edl.meta.FirstOrDefault(m => m.type == "PD-Meta");
                                     if (xmlClipFileNameMeta != null && !string.IsNullOrWhiteSpace(xmlClipFileNameMeta.file))
                                     {
@@ -308,8 +306,6 @@ namespace TAS.Server
                                         newMedia.SmilMetadata = edl.smil;
                                         if (edl.EdlMeta != null)
                                         {
-                                            newMedia._lastUpdated = edl.EdlMeta.lastUpdate == default(DateTime) ? edl.EdlMeta.CreationDate.Value : edl.EdlMeta.lastUpdate;
-                                            newMedia.MediaGuid = new Guid(edl.EdlMeta.TargetMaterial.umidRef.Substring(32, 32));
                                             XDCAM.NonRealTimeMeta.LtcChange start = edl.EdlMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
                                             if (start != null)
                                             {
@@ -341,7 +337,7 @@ namespace TAS.Server
 
         private SynchronizedCollection<string> _bMDXmlFiles = new SynchronizedCollection<string>();
         
-        protected override Media AddFile(string fullPath, DateTime created = default(DateTime), DateTime lastWriteTime = default(DateTime))
+        protected override Media AddFile(string fullPath, DateTime created = default(DateTime), DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
             Media m = null;
             if (_extensions == null 
@@ -357,7 +353,7 @@ namespace TAS.Server
                     if (AccessType == TDirectoryAccessType.FTP)
                         m = _addFileFromFTP(fullPath);
                     else
-                        m = base.AddFile(fullPath, created, lastWriteTime);
+                        m = base.AddFile(fullPath, created, lastWriteTime, guid);
                 }
             }
             return m;
@@ -368,17 +364,27 @@ namespace TAS.Server
             Media newMedia = CreateMedia(fileNameOnly);
             if (IsXDCAM)
             {
-                newMedia._folder = "Clip";
+                newMedia.Folder = "Clip";
             }
             newMedia.MediaName = (_extensions == null || _extensions.Length == 0) ? fileNameOnly : Path.GetFileNameWithoutExtension(fileNameOnly);
             newMedia.LastUpdated = DateTime.UtcNow;
-            newMedia.MediaGuid = Guid.NewGuid();
+            NotifyMediaAdded(newMedia);
             return newMedia;
         }
         
         protected override Media CreateMedia(string fileNameOnly)
         {
             return new IngestMedia(this)
+            {
+                FileName = fileNameOnly,
+                MediaStatus = TMediaStatus.Unknown,
+                MediaCategory = this.MediaCategory,
+            };
+        }
+
+        protected override Media CreateMedia(string fileNameOnly, Guid guid)
+        {
+            return new IngestMedia(this, guid)
             {
                 FileName = fileNameOnly,
                 MediaStatus = TMediaStatus.Unknown,
@@ -520,38 +526,6 @@ namespace TAS.Server
             catch (Exception) { }
         }
                        
-        public bool Contains(string ClipName)
-        {
-            string clipNameLowered = ClipName.ToLower();
-            _files.Lock.EnterReadLock();
-            try
-            {
-                return _files.Any(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToLower() == clipNameLowered);
-            }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
-        }
-
-        public string FindFileName(string ClipName)
-        {
-            string clipNameLowered = ClipName.ToLower();
-            Media m;
-            _files.Lock.ExitReadLock();
-            try
-            {
-                m = _files.FirstOrDefault(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToLower() == clipNameLowered);
-            }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
-            if (m != null)
-                return m.FullPath;
-            return string.Empty;
-        }
-
         public IngestMedia FindMedia(string clipName)
         {
             string clipNameLowered = clipName.ToLower();
@@ -572,6 +546,7 @@ namespace TAS.Server
                     {
                         string fileName = files[0];
                         result = (IngestMedia)this.CreateMedia(fileName);
+                        result.MediaName = Path.GetFileNameWithoutExtension(fileName);
                     }
                 }
             return result;

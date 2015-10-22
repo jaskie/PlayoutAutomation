@@ -92,6 +92,11 @@ namespace TAS.Server
             return new ArchiveMedia(this) { FileName = fileNameOnly };
         }
 
+        protected override Media CreateMedia(string fileNameOnly, Guid guid)
+        {
+            return new ArchiveMedia(this, guid) { FileName = fileNameOnly };
+        }
+
         //public override void MediaAdd(Media media)
         //{
         //    // do not add to _files
@@ -128,30 +133,29 @@ namespace TAS.Server
             if (searchExisting)
                 result = this.DbMediaFind(media);
             if (result == null)
-                result = new ArchiveMedia(this)
+                result = new ArchiveMedia(this, media.MediaGuid)
                 {
-                    _audioChannelMapping = media.AudioChannelMapping,
-                    _audioVolume = media.AudioVolume,
-                    _audioLevelIntegrated = media.AudioLevelIntegrated,
-                    _audioLevelPeak = media.AudioLevelPeak,
-                    _duration = media.Duration,
-                    _durationPlay = media.DurationPlay,
-                    _fileName = (media is IngestMedia) ? Path.GetFileNameWithoutExtension(media.FileName) + DefaultFileExtension(media.MediaType) : media.FileName,
-                    _fileSize = media.FileSize,
-                    _folder = GetCurrentFolder(),
-                    _lastUpdated = media.LastUpdated,
-                    _mediaName = media.MediaName,
-                    _mediaStatus = TMediaStatus.Required,
-                    _tCStart = media.TCStart,
-                    _tCPlay = media.TCPlay,
-                    _videoFormat = media.VideoFormat,
+                    AudioChannelMapping = media.AudioChannelMapping,
+                    AudioVolume = media.AudioVolume,
+                    AudioLevelIntegrated = media.AudioLevelIntegrated,
+                    AudioLevelPeak = media.AudioLevelPeak,
+                    Duration = media.Duration,
+                    DurationPlay = media.DurationPlay,
+                    FileName = (media is IngestMedia) ? Path.GetFileNameWithoutExtension(media.FileName) + DefaultFileExtension(media.MediaType) : media.FileName,
+                    FileSize = media.FileSize,
+                    Folder = GetCurrentFolder(),
+                    LastUpdated = media.LastUpdated,
+                    MediaName = media.MediaName,
+                    MediaStatus = TMediaStatus.Required,
+                    TCStart = media.TCStart,
+                    TCPlay = media.TCPlay,
+                    VideoFormat = media.VideoFormat,
                     KillDate = (media is PersistentMedia) ? (media as PersistentMedia).KillDate : (media is IngestMedia ? media.LastUpdated + TimeSpan.FromDays(((IngestDirectory)media.Directory).MediaRetnentionDays) : default(DateTime)),
-                    idAux = (media is PersistentMedia) ? (media as PersistentMedia).idAux : string.Empty,
+                    IdAux = (media is PersistentMedia) ? (media as PersistentMedia).IdAux : string.Empty,
                     idProgramme = (media is PersistentMedia) ? (media as PersistentMedia).idProgramme : 0L,
                     MediaType = (media.MediaType == TMediaType.Unknown) ? (StillFileTypes.Any(ve => ve == Path.GetExtension(media.FullPath).ToLowerInvariant()) ? TMediaType.Still : TMediaType.Movie) : media.MediaType,
-                    _mediaCategory = media.MediaCategory,
-                    _parental = media.Parental,
-                    _mediaGuid = media.MediaGuid,
+                    MediaCategory = media.MediaCategory,
+                    Parental = media.Parental,
                     OriginalMedia = media,
                 };
             return result;

@@ -9,10 +9,16 @@ namespace TAS.Server
     public class TempMedia: Media, IDisposable
     {
         public TempMedia(TempDirectory directory) : base(directory) { }
+        public TempMedia(TempDirectory directory, Guid guid) : base(directory, guid) { }
+        public TempMedia(TempDirectory directory, Media originalMedia): base(directory, originalMedia.MediaGuid)
+        {
+            OriginalMedia = originalMedia;
+        }
+
         internal Media OriginalMedia;
         public override string MediaName
         {
-            get { return OriginalMedia._mediaName; }
+            get { return OriginalMedia.MediaName; }
         }
 
         public override TMediaType MediaType 
@@ -22,35 +28,35 @@ namespace TAS.Server
 
         public override TimeSpan Duration
         {
-            get { return OriginalMedia._duration != TimeSpan.Zero? OriginalMedia._duration : _duration; }
+            get { return OriginalMedia.Duration; }
         }
         public override TimeSpan DurationPlay
         {
-            get { return OriginalMedia._durationPlay != TimeSpan.Zero ? OriginalMedia._durationPlay : _durationPlay; }
+            get { return OriginalMedia.DurationPlay; }
         }
         public override TimeSpan TCStart
         {
-            get { return OriginalMedia._tCStart != TimeSpan.Zero ? OriginalMedia._tCStart: _tCStart; }
+            get { return OriginalMedia.TCStart; }
         }
         public override TimeSpan TCPlay
         {
-            get { return OriginalMedia._tCPlay != TimeSpan.Zero ? OriginalMedia._tCPlay : _tCPlay; }
+            get { return OriginalMedia.TCPlay; }
         }
         public override TVideoFormat VideoFormat
         {
-            get { return OriginalMedia._videoFormat; }
+            get { return OriginalMedia.VideoFormat; }
         }
         public override TAudioChannelMapping AudioChannelMapping
         {
-            get { return OriginalMedia._audioChannelMapping; }
+            get { return OriginalMedia.AudioChannelMapping; }
         }
         public override decimal AudioVolume
         {
-            get { return OriginalMedia._audioVolume; }
+            get { return OriginalMedia.AudioVolume; }
         }
         public override Guid MediaGuid
         {
-            get { return OriginalMedia._mediaGuid; }
+            get { return OriginalMedia.MediaGuid; }
         }
         private bool _disposed = false;
         public void Dispose()

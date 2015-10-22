@@ -22,6 +22,14 @@ namespace TAS.Server
         public Media(MediaDirectory directory)
         {
             _directory = directory;
+            _mediaGuid = Guid.NewGuid();
+            directory.MediaAdd(this);
+        }
+
+        public Media(MediaDirectory directory, Guid guid)
+        {
+            _directory = directory;
+            _mediaGuid = guid;
             directory.MediaAdd(this);
         }
 
@@ -33,17 +41,13 @@ namespace TAS.Server
 #endif // DEBUG
 
         // file properties
-        internal string _folder;
-        protected virtual string GetFolder()
-        {
-            return _folder == null ? string.Empty : _folder;
-        }
+        protected string _folder = string.Empty;
         public string Folder
         {
-            get { return GetFolder(); }
+            get { return _folder; }
             internal set { SetField(ref _folder, value, "Folder"); }
         }
-        internal string _fileName;
+        protected string _fileName = string.Empty;
         public string FileName
         {
             get { return _fileName; }
@@ -59,19 +63,20 @@ namespace TAS.Server
                 }
             }
         }
+
         internal void Renamed(string newName)
         {
             SetField(ref _fileName, newName, "FileName");
         }
 
-        internal UInt64 _fileSize;
+        protected UInt64 _fileSize;
         public UInt64 FileSize 
         {
             get { return _fileSize; }
             internal set { SetField(ref _fileSize, value, "FileSize"); }
         }
 
-        internal DateTime _lastUpdated;
+        protected DateTime _lastUpdated;
         public DateTime LastUpdated
         {
             get { return _lastUpdated; }
@@ -79,7 +84,7 @@ namespace TAS.Server
         }
         //// to enable LastAccess: "FSUTIL behavior set disablelastaccess 0" on NTFS volume
         //// not stored in datebase
-        //private DateTime _lastAccess;
+        //protected DateTime _lastAccess;
         //public DateTime LastAccess
         //{
         //    get { return _lastAccess; }
@@ -94,101 +99,100 @@ namespace TAS.Server
         //}
 
         // media parameters
-        internal string _mediaName;
+        protected string _mediaName;
         public virtual string MediaName
         {
             get { return _mediaName; }
             set { SetField(ref _mediaName, value, "MediaName"); }
         }
 
-        internal TMediaType _mediaType;
+        protected TMediaType _mediaType;
         public virtual TMediaType MediaType
         {
             get { return _mediaType; }
             set { SetField(ref _mediaType, value, "MediaType"); }
         }
 
-        internal TimeSpan _duration;
+        protected TimeSpan _duration;
         public virtual TimeSpan Duration
         {
             get { return _duration; }
             set { SetField(ref _duration, value, "Duration"); }
         }
-        internal TimeSpan _durationPlay;
+        protected TimeSpan _durationPlay;
         public virtual TimeSpan DurationPlay
         {
             get { return _durationPlay; }
             set { SetField(ref _durationPlay, value, "DurationPlay"); }
         }
-        internal TimeSpan _tCStart;
+        protected TimeSpan _tCStart;
         public virtual TimeSpan TCStart 
         {
             get { return _tCStart; }
             set { SetField(ref _tCStart, value, "TCStart"); }
         }
-        internal TimeSpan _tCPlay;
+        protected TimeSpan _tCPlay;
         public virtual TimeSpan TCPlay
         {
             get { return _tCPlay; }
             set { SetField(ref _tCPlay, value, "TCPlay"); }
         }
-        internal TVideoFormat _videoFormat;
+        protected TVideoFormat _videoFormat;
         public virtual TVideoFormat VideoFormat 
         {
             get { return _videoFormat; }
             set { SetField(ref _videoFormat, value, "VideoFormat"); }
         }
-        internal TAudioChannelMapping _audioChannelMapping;
+        protected TAudioChannelMapping _audioChannelMapping;
         public virtual TAudioChannelMapping AudioChannelMapping 
         {
             get { return _audioChannelMapping; }
             set { SetField(ref _audioChannelMapping, value, "AudioChannelMapping"); }
         }
-        internal decimal _audioVolume;
+        protected decimal _audioVolume;
         public virtual decimal AudioVolume // correction amount on play
         {
             get { return _audioVolume; }
             set { SetField(ref _audioVolume, value, "AudioVolume"); }
         }
 
-        internal decimal _audioLevelIntegrated;
+        protected decimal _audioLevelIntegrated;
         public virtual decimal AudioLevelIntegrated //measured
         {
             get { return _audioLevelIntegrated; }
             set { SetField(ref _audioLevelIntegrated, value, "AudioLevelIntegrated"); }
         }
 
-        internal decimal _audioLevelPeak;
+        protected decimal _audioLevelPeak;
         public virtual decimal AudioLevelPeak //measured
         {
             get { return _audioLevelPeak; }
             set { SetField(ref _audioLevelPeak, value, "AudioLevelPeak"); }
         }
 
-        internal TMediaCategory _mediaCategory;
+        protected TMediaCategory _mediaCategory;
         public virtual TMediaCategory MediaCategory
         {
             get { return _mediaCategory; }
             set { SetField(ref _mediaCategory, value, "MediaCategory"); }
         }
 
-        internal TParental _parental;
+        protected TParental _parental;
         public virtual TParental Parental
         {
             get { return _parental; }
             set { SetField(ref _parental, value, "Parental"); }
         }
 
-        internal Guid _mediaGuid;
+        protected readonly Guid _mediaGuid;
         public virtual Guid MediaGuid
         {
             get { return _mediaGuid; }
-            internal set { SetField(ref _mediaGuid, value, "MediaGuid"); }
         }
 
         public bool HasExtraLines { get; internal set; }
 
-        private VideoFormatDescription _videoFormatDescription;
+        protected VideoFormatDescription _videoFormatDescription;
         public VideoFormatDescription VideoFormatDescription
         {
             get
@@ -199,7 +203,7 @@ namespace TAS.Server
             internal set { _videoFormatDescription = value; }
         }
         
-        protected MediaDirectory _directory;
+        protected readonly MediaDirectory _directory;
         public MediaDirectory Directory
         {
             get { return _directory; }
@@ -209,18 +213,8 @@ namespace TAS.Server
         {
             get
             {
-                var dir = _directory;
-                var df = dir == null ? string.Empty : dir.Folder;
-                if (df == null)
-                    df = string.Empty;
-                var folder = _folder;
-                if (folder == null)
-                    folder = string.Empty;
-                var fn = _fileName;
-                if (fn == null)
-                    fn = string.Empty;
-                string fullPath = Path.Combine(df, folder, fn);
-                if (dir != null && dir.AccessType == TDirectoryAccessType.FTP)
+                string fullPath = Path.Combine(_directory.Folder, _folder, _fileName);
+                if (_directory.AccessType == TDirectoryAccessType.FTP)
                 {
                     return fullPath.Replace('\\', '/');
                 }
@@ -238,28 +232,19 @@ namespace TAS.Server
 
         internal virtual bool Delete()
         {
-            MediaDirectory d = this.Directory;
-            if (d != null)
-                return Directory.DeleteMedia(this);
-            else
-                throw new ApplicationException(string.Format("Cannot delete {1}. Directory unknown.", this));
+            return Directory.DeleteMedia(this);
         }
 
         protected virtual bool RenameTo(string NewFileName)
         {
             try
             {
-                MediaDirectory d = this.Directory;
-                if (d != null)
+                if (_directory.AccessType == TDirectoryAccessType.Direct)
                 {
-                    if (d.AccessType == TDirectoryAccessType.Direct)
-                    {
-                        File.Move(FullPath, Path.Combine(d.Folder, this.Folder, NewFileName));
-                        return true;
-                    }
-                    else throw new NotImplementedException("Cannot rename on remote directories");
+                    File.Move(FullPath, Path.Combine(_directory.Folder, this.Folder, NewFileName));
+                    return true;
                 }
-                else throw new ApplicationException(string.Format("Cannot rename {1}. Directory unknown.", this));
+                else throw new NotImplementedException("Cannot rename on remote directories");
             }
             catch { }
             return false;
@@ -270,7 +255,7 @@ namespace TAS.Server
         //    SetField(ref _mediaStatus, newStatus, "MediaStatus");
         //}
 
-        internal TMediaStatus _mediaStatus;
+        protected TMediaStatus _mediaStatus;
         public TMediaStatus MediaStatus
         {
             get { return _mediaStatus; }
@@ -280,7 +265,6 @@ namespace TAS.Server
 
         public virtual void CloneMediaProperties(Media fromMedia)
         {
-            MediaGuid = fromMedia.MediaGuid;
             MediaName = fromMedia.MediaName;
             AudioChannelMapping = fromMedia.AudioChannelMapping;
             AudioVolume = fromMedia.AudioVolume;
@@ -352,7 +336,7 @@ namespace TAS.Server
         
         public override string ToString()
         {
-            return string.Format("{0}:{1}", _directory == null ? "None" : _directory.DirectoryName, string.IsNullOrEmpty(MediaName) ? MediaName : FileName);
+            return string.Format("{0}:{1}", _directory.DirectoryName, MediaName);
         }
 
         protected virtual bool SetField<T>(ref T field, T value, string propertyName)
@@ -417,8 +401,6 @@ namespace TAS.Server
                     FileSize = (UInt64)fi.Length;
                     LastUpdated = DateTimeExtensions.FromFileTime(fi.LastWriteTimeUtc, DateTimeKind.Utc);
                     //this.LastAccess = DateTimeExtensions.FromFileTime(fi.LastAccessTimeUtc, DateTimeKind.Utc);
-                    if (MediaGuid == Guid.Empty)
-                        MediaGuid = Guid.NewGuid();
                     MediaChecker.Check(this);
                 }
                 if (MediaStatus == TMediaStatus.Available)

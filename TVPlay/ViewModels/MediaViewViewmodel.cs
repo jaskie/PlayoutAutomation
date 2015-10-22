@@ -43,7 +43,7 @@ namespace TAS.Client.ViewModels
         public TimeSpan DurationPlay { get { return Media.DurationPlay; } }
         public DateTime LastUpdated { get { return Media.LastUpdated; } }
         public TMediaCategory MediaCategory { get { return Media.MediaCategory; } }
-        public TMediaStatus MediaStatus { get { return Media._mediaStatus; } }
+        public TMediaStatus MediaStatus { get { return Media.MediaStatus; } }
         public TMediaEmphasis MediaEmphasis { get { return (Media is PersistentMedia) ? (Media as PersistentMedia).MediaEmphasis : TMediaEmphasis.None; } }
         public int SegmentCount { get { return (Media is PersistentMedia) ? (Media as PersistentMedia).MediaSegments.Count : 0; } }
         public bool HasSegments { get { return SegmentCount != 0; } }

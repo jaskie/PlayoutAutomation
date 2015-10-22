@@ -232,10 +232,11 @@ namespace TAS.Server
         }
 
         protected abstract Media CreateMedia(string fileNameOnly);
+        protected abstract Media CreateMedia(string fileNameOnly, Guid guid);
 
         public abstract void SweepStaleMedia();
 
-        protected virtual Media AddFile(string fullPath, DateTime created = default(DateTime), DateTime lastWriteTime = default(DateTime))
+        protected virtual Media AddFile(string fullPath, DateTime created = default(DateTime), DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
             if (_extensions == null
                 || _extensions.Count() == 0
@@ -253,10 +254,14 @@ namespace TAS.Server
                 }
                 if (newMedia == null)
                 {
-                    newMedia = CreateMedia(Path.GetFileName(fullPath));
-                    newMedia._mediaName = (_extensions == null || _extensions.Length == 0) ? Path.GetFileName(fullPath) : Path.GetFileNameWithoutExtension(fullPath);
+                    if (guid == default(Guid))
+                        newMedia = CreateMedia(Path.GetFileName(fullPath));
+                    else
+                        newMedia = CreateMedia(Path.GetFileName(fullPath), guid);
+                    newMedia.MediaName = (_extensions == null || _extensions.Length == 0) ? Path.GetFileName(fullPath) : Path.GetFileNameWithoutExtension(fullPath);
                     newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
                     newMedia.MediaType = (StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Still : (VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Movie : TMediaType.Unknown;
+                    NotifyMediaAdded(newMedia);
                 }
                 return newMedia;
             }
@@ -266,9 +271,6 @@ namespace TAS.Server
         public virtual void MediaAdd(Media media)
         {
             _files.Add(media);
-            var h = MediaAdded;
-            if (h != null)
-                h(this, new MediaEventArgs(media));
         }
 
         public virtual void MediaRemove(Media media)
@@ -511,6 +513,13 @@ namespace TAS.Server
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
                 handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        internal virtual void NotifyMediaAdded (Media media)
+        {
+            var h = MediaAdded;
+            if (h != null)
+                h(this, new MediaEventArgs(media));
         }
     }
 

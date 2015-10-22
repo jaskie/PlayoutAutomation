@@ -37,7 +37,12 @@ namespace TAS.Server
 
         protected override Media CreateMedia(string fileNameOnly)
         {
-            return new ServerMedia(this) { MediaType = TMediaType.AnimationFlash, _fileName = fileNameOnly, };
+            return new ServerMedia(this) { MediaType = TMediaType.AnimationFlash, FileName = fileNameOnly, };
+        }
+
+        protected override Media CreateMedia(string fileNameOnly, Guid guid)
+        {
+            return new ServerMedia(this, guid) { MediaType = TMediaType.AnimationFlash, FileName = fileNameOnly, };
         }
 
         public override void MediaRemove(Media media)

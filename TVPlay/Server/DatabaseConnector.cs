@@ -364,7 +364,7 @@ WHERE idRundownEvent=@idRundownEvent;";
         private static Boolean _mediaFillParamsAndExecute(MySqlCommand cmd, PersistentMedia media)
         {
             cmd.Parameters.AddWithValue("@idProgramme", media.idProgramme);
-            cmd.Parameters.AddWithValue("@idAux", media.idAux);
+            cmd.Parameters.AddWithValue("@idAux", media.IdAux);
             if (media.MediaGuid == Guid.Empty)
                 cmd.Parameters.AddWithValue("@MediaGuid", DBNull.Value);
             else
@@ -421,35 +421,34 @@ WHERE idRundownEvent=@idRundownEvent;";
             return true;
         }
 
-        private static void _mediaReadFields(MySqlDataReader dataReader, PersistentMedia media)
+        private static void _mediaReadFields(this PersistentMedia media, MySqlDataReader dataReader)
         {
             uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flags")) ? (uint)0 : dataReader.GetUInt32("flags");
-            media._mediaName = dataReader.IsDBNull(dataReader.GetOrdinal("MediaName")) ? string.Empty : dataReader.GetString("MediaName");
-            media._duration = dataReader.IsDBNull(dataReader.GetOrdinal("Duration")) ? default(TimeSpan) : dataReader.GetTimeSpan("Duration");
-            media._durationPlay = dataReader.IsDBNull(dataReader.GetOrdinal("DurationPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("DurationPlay");
-            media._folder = dataReader.IsDBNull(dataReader.GetOrdinal("Folder")) ? string.Empty : dataReader.GetString("Folder");
-            media._fileName = dataReader.IsDBNull(dataReader.GetOrdinal("FileName")) ? string.Empty : dataReader.GetString("FileName");
-            media._fileSize = dataReader.IsDBNull(dataReader.GetOrdinal("FileSize")) ? 0 : dataReader.GetUInt64("FileSize");
-            media._lastUpdated = _readDateTimeField(dataReader, "LastUpdated");
-            media._mediaStatus = (TMediaStatus)(dataReader.IsDBNull(dataReader.GetOrdinal("statusMedia")) ? 0 : dataReader.GetInt32("statusMedia"));
-            media._mediaType = (TMediaType)(dataReader.IsDBNull(dataReader.GetOrdinal("typMedia")) ? 0 : dataReader.GetInt32("typMedia"));
-            media._tCStart = dataReader.IsDBNull(dataReader.GetOrdinal("TCStart")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCStart");
-            media._tCPlay = dataReader.IsDBNull(dataReader.GetOrdinal("TCPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCPlay");
+            media.MediaName = dataReader.IsDBNull(dataReader.GetOrdinal("MediaName")) ? string.Empty : dataReader.GetString("MediaName");
+            media.Duration = dataReader.IsDBNull(dataReader.GetOrdinal("Duration")) ? default(TimeSpan) : dataReader.GetTimeSpan("Duration");
+            media.DurationPlay = dataReader.IsDBNull(dataReader.GetOrdinal("DurationPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("DurationPlay");
+            media.Folder = dataReader.IsDBNull(dataReader.GetOrdinal("Folder")) ? string.Empty : dataReader.GetString("Folder");
+            media.FileName = dataReader.IsDBNull(dataReader.GetOrdinal("FileName")) ? string.Empty : dataReader.GetString("FileName");
+            media.FileSize = dataReader.IsDBNull(dataReader.GetOrdinal("FileSize")) ? 0 : dataReader.GetUInt64("FileSize");
+            media.LastUpdated = _readDateTimeField(dataReader, "LastUpdated");
+            media.MediaStatus = (TMediaStatus)(dataReader.IsDBNull(dataReader.GetOrdinal("statusMedia")) ? 0 : dataReader.GetInt32("statusMedia"));
+            media.MediaType = (TMediaType)(dataReader.IsDBNull(dataReader.GetOrdinal("typMedia")) ? 0 : dataReader.GetInt32("typMedia"));
+            media.TCStart = dataReader.IsDBNull(dataReader.GetOrdinal("TCStart")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCStart");
+            media.TCPlay = dataReader.IsDBNull(dataReader.GetOrdinal("TCPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCPlay");
             media.idProgramme = dataReader.IsDBNull(dataReader.GetOrdinal("idProgramme")) ? 0 : dataReader.GetUInt64("idProgramme");
-            media._audioVolume = dataReader.IsDBNull(dataReader.GetOrdinal("AudioVolume")) ? 0 : dataReader.GetDecimal("AudioVolume");
-            media._audioLevelIntegrated = dataReader.IsDBNull(dataReader.GetOrdinal("AudioLevelIntegrated")) ? 0 : dataReader.GetDecimal("AudioLevelIntegrated");
-            media._audioLevelPeak = dataReader.IsDBNull(dataReader.GetOrdinal("AudioLevelPeak")) ? 0 : dataReader.GetDecimal("AudioLevelPeak");
-            media._audioChannelMapping = dataReader.IsDBNull(dataReader.GetOrdinal("typAudio")) ? TAudioChannelMapping.Stereo : (TAudioChannelMapping)dataReader.GetByte("typAudio");
-            media._videoFormat = (TVideoFormat)(dataReader.IsDBNull(dataReader.GetOrdinal("typVideo")) ? (byte)0 : dataReader.GetByte("typVideo"));
+            media.AudioVolume = dataReader.IsDBNull(dataReader.GetOrdinal("AudioVolume")) ? 0 : dataReader.GetDecimal("AudioVolume");
+            media.AudioLevelIntegrated = dataReader.IsDBNull(dataReader.GetOrdinal("AudioLevelIntegrated")) ? 0 : dataReader.GetDecimal("AudioLevelIntegrated");
+            media.AudioLevelPeak = dataReader.IsDBNull(dataReader.GetOrdinal("AudioLevelPeak")) ? 0 : dataReader.GetDecimal("AudioLevelPeak");
+            media.AudioChannelMapping = dataReader.IsDBNull(dataReader.GetOrdinal("typAudio")) ? TAudioChannelMapping.Stereo : (TAudioChannelMapping)dataReader.GetByte("typAudio");
+            media.VideoFormat = (TVideoFormat)(dataReader.IsDBNull(dataReader.GetOrdinal("typVideo")) ? (byte)0 : dataReader.GetByte("typVideo"));
             media._idAux = dataReader.IsDBNull(dataReader.GetOrdinal("idAux")) ? string.Empty : dataReader.GetString("idAux");
-            media._killDate = _readDateTimeField(dataReader, "KillDate");
-            media._mediaGuid = dataReader.IsDBNull(dataReader.GetOrdinal("MediaGuid")) ? Guid.Empty : dataReader.GetGuid("MediaGuid");
-            media._mediaEmphasis = (TMediaEmphasis)((flags >> 8) & 0xF);
-            media._parental = (TParental)((flags >> 12) & 0xF);
+            media.KillDate = _readDateTimeField(dataReader, "KillDate");
+            media.MediaEmphasis = (TMediaEmphasis)((flags >> 8) & 0xF);
+            media.Parental = (TParental)((flags >> 12) & 0xF);
             if (media is ServerMedia)
                 ((ServerMedia)media)._doNotArchive = (flags & 0x1) != 0;
-            media._mediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
-
+            media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
+            media.Modified = false;
         }
 
         internal static void Load(this AnimationDirectory directory)
@@ -468,16 +467,17 @@ WHERE idRundownEvent=@idRundownEvent;";
                         {
                             while (dataReader.Read())
                             {
-                                ServerMedia nm = new ServerMedia(directory)
+                                ServerMedia nm = new ServerMedia(directory, dataReader.GetGuid("MediaGuid"))
                                 {
                                     idPersistentMedia = dataReader.GetUInt64("idServerMedia"),
                                 };
-                                _mediaReadFields(dataReader, nm);
+                                nm._mediaReadFields(dataReader);
                                 if (nm.MediaStatus != TMediaStatus.Available)
                                 {
                                     nm.MediaStatus = TMediaStatus.Unknown;
                                     ThreadPool.QueueUserWorkItem(o => nm.Verify());
                                 }
+                                directory.NotifyMediaAdded(nm);
                             }
                             dataReader.Close();
                         }
@@ -508,16 +508,17 @@ WHERE idRundownEvent=@idRundownEvent;";
                         {
                             while (dataReader.Read())
                             {
-                                ServerMedia nm = new ServerMedia(directory)
+                                ServerMedia nm = new ServerMedia(directory, dataReader.GetGuid("MediaGuid"))
                                 {
                                     idPersistentMedia = dataReader.GetUInt64("idServerMedia"),
                                 };
-                                _mediaReadFields(dataReader, nm);
+                                nm._mediaReadFields(dataReader);
                                 if (nm.MediaStatus != TMediaStatus.Available)
                                 {
                                     nm.MediaStatus = TMediaStatus.Unknown;
                                     ThreadPool.QueueUserWorkItem(o => nm.Verify());
                                 }
+                                directory.NotifyMediaAdded(nm);
                             }
                             dataReader.Close();
                         }
@@ -707,11 +708,12 @@ WHERE idArchiveMedia=@idArchiveMedia;";
         private static ArchiveMedia _readArchiveMedia(MySqlDataReader dataReader, ArchiveDirectory dir)
         {
             byte typVideo = dataReader.IsDBNull(dataReader.GetOrdinal("typVideo")) ? (byte)0 : dataReader.GetByte("typVideo");
-            ArchiveMedia media = new ArchiveMedia(dir)
+            ArchiveMedia media = new ArchiveMedia(dir, dataReader.GetGuid("MediaGuid"))
                 {
                     idPersistentMedia = dataReader.GetUInt64("idArchiveMedia"),
                 };
-            _mediaReadFields(dataReader, media);
+            media._mediaReadFields(dataReader);
+            dir.NotifyMediaAdded(media);
             ThreadPool.QueueUserWorkItem(o => media.Verify());
             return media;
         }
@@ -786,7 +788,7 @@ VALUES
                         {
                             cmd.Parameters.AddWithValue("@MediaName", media.MediaName);
                             if (media is PersistentMedia)
-                                cmd.Parameters.AddWithValue("@idAuxMedia", (media as PersistentMedia).idAux);
+                                cmd.Parameters.AddWithValue("@idAuxMedia", (media as PersistentMedia).IdAux);
                             else
                                 cmd.Parameters.AddWithValue("@idAuxMedia", DBNull.Value);
                             cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);

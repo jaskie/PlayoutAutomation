@@ -14,6 +14,7 @@ namespace TAS.Server
     public abstract class PersistentMedia: Media
     {
         public PersistentMedia(MediaDirectory directory) : base(directory) { }
+        public PersistentMedia(MediaDirectory directory, Guid guid) : base(directory, guid) { }
         public UInt64 idPersistentMedia;
 
         // media properties
@@ -28,10 +29,10 @@ namespace TAS.Server
         // content properties
         public UInt64 idProgramme { get; set; }
         internal string _idAux;
-        public string idAux
+        public string IdAux
         {
             get { return _idAux; }
-            set { SetField(ref _idAux, value, "idAux"); }
+            set { SetField(ref _idAux, value, "IdAux"); }
         } // auxiliary Id from external system
 
         internal TMediaEmphasis _mediaEmphasis;
@@ -61,7 +62,7 @@ namespace TAS.Server
             base.CloneMediaProperties(fromMedia);
             if (fromMedia is PersistentMedia)
             {
-                idAux = (fromMedia as PersistentMedia).idAux;
+                IdAux = (fromMedia as PersistentMedia).IdAux;
                 idProgramme = (fromMedia as PersistentMedia).idProgramme;
                 OriginalMedia = (fromMedia as PersistentMedia).OriginalMedia;
                 MediaEmphasis = (fromMedia as PersistentMedia).MediaEmphasis;

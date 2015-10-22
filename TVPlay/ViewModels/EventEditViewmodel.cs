@@ -649,7 +649,7 @@ namespace TAS.Client.ViewModels
                 return;
             IsVolumeChecking = true;
             _event.Media.GetLoudness(
-                _event.StartTC - _media._tCStart,
+                _event.StartTC - _media.TCStart,
                 _event.Duration,
                 (o, e) =>
                 {

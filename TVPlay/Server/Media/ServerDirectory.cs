@@ -40,11 +40,17 @@ namespace TAS.Server
 
         protected override Media CreateMedia(string fileNameOnly)
         {
-            ServerMedia newMedia = new ServerMedia(this)
+            return new ServerMedia(this)
             {
                 FileName = fileNameOnly,
             };
-            return newMedia;
+        }
+        protected override Media CreateMedia(string fileNameOnly, Guid guid)
+        {
+            return new ServerMedia(this, guid)
+            {
+                FileName = fileNameOnly,
+            };
         }
 
         public event EventHandler<MediaEventArgs> MediaSaved;
@@ -112,7 +118,7 @@ namespace TAS.Server
                     _files.Lock.EnterWriteLock();
                     try
                     {
-                        fm = (new ServerMedia(this)
+                        fm = (new ServerMedia(this, fm == null ? media.MediaGuid : Guid.NewGuid()) // in case file with the same GUID already exists and we need to get new one
                         {
                             MediaName = media.MediaName,
                             Folder = string.Empty,
@@ -132,11 +138,11 @@ namespace TAS.Server
                             DoNotArchive = (media is ServerMedia && (media as ServerMedia).DoNotArchive),
                             MediaCategory = media.MediaCategory,
                             Parental = media.Parental,
-                            idAux = (media is PersistentMedia) ? (media as PersistentMedia).idAux : string.Empty,
+                            IdAux = (media is PersistentMedia) ? (media as PersistentMedia).IdAux : string.Empty,
                             idProgramme = (media is PersistentMedia) ? (media as PersistentMedia).idProgramme : 0L,
-                            MediaGuid = fm == null ? media.MediaGuid : Guid.NewGuid(), // in case file with the same GUID already exists and we need to get new one
                             OriginalMedia = media,
                         });
+                        NotifyMediaAdded(fm);
                     }
                     finally
                     {

@@ -111,7 +111,6 @@ namespace TAS.Server
                             FileSize = (UInt64)template.Size,
                             MediaStatus = TMediaStatus.Available,
                             LastUpdated = DateTimeExtensions.FromFileTime(template.LastUpdated.ToUniversalTime(), DateTimeKind.Utc),
-                            MediaGuid = Guid.NewGuid(),
                         };
                     media.Save();
                 }

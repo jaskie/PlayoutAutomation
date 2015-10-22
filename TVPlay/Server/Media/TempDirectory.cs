@@ -20,6 +20,11 @@ namespace TAS.Server
             return new TempMedia(this) { FileName = fileNameOnly };
         }
 
+        protected override Media CreateMedia(string fileNameOnly, Guid guid)
+        {
+            return new TempMedia(this, guid) { FileName = fileNameOnly };
+        }
+
         public override void MediaAdd(Media media)
         {
             // do not add to _files
@@ -32,7 +37,7 @@ namespace TAS.Server
         
         public TempMedia Get(Media media, string fileExtension = null)
         {
-            return new TempMedia(this) { MediaName = media.MediaName, OriginalMedia = media, _fileName = string.Format("{0}{1}", Guid.NewGuid().ToString(), fileExtension == null ? Path.GetExtension(media.FileName): fileExtension)};
+            return new TempMedia(this, media);
         }
 
         public override void SweepStaleMedia()

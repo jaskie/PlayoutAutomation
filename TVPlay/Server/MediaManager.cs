@@ -113,7 +113,7 @@ namespace TAS.Server
                 && !string.IsNullOrEmpty(e.PropertyName)
                    && (e.PropertyName == "DoNotArchive"
                     || e.PropertyName == "HasExtraLines"
-                    || e.PropertyName == "idAux"
+                    || e.PropertyName == "IdAux"
                     || e.PropertyName == "idFormat"
                     || e.PropertyName == "idProgramme"
                     || e.PropertyName == "KillDate"
