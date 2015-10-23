@@ -49,7 +49,7 @@ namespace TAS.Server
 
                     bool success = false;
                     if (SourceMedia.Directory.AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia _localSourceMedia = FileManager.TempDirectory.Get(SourceMedia))
+                        using (TempMedia _localSourceMedia = FileManager.TempDirectory.CreateMedia(SourceMedia))
                         {
                             if (SourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
                             {

@@ -243,21 +243,22 @@ namespace TAS.Server
                     foreach (XDCAM.Index.Clip clip in _xDCAMIndex.clipTable.clipTable)
                         try
                         {
-                            IngestMedia newMedia = AddFile(clip.clipId + ".MXF", clip.ClipMeta.CreationDate.Value, clip.ClipMeta.lastUpdate, new Guid(clip.ClipMeta.TargetMaterial.umidRef.Substring(32, 32))) as IngestMedia;
-                            if (newMedia != null)
+                            XDCAM.Index.Meta xmlClipFileNameMeta = clip.meta.FirstOrDefault(m => m.type == "PD-Meta");
+                            if (xmlClipFileNameMeta != null && !string.IsNullOrWhiteSpace(xmlClipFileNameMeta.file))
+                                clip.ClipMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument(@"Clip/" + xmlClipFileNameMeta.file, client));
+                            if (clip.ClipMeta != null)
                             {
-                                newMedia.Folder = "Clip";
-                                newMedia.MediaName = clip.clipId;
-                                newMedia.Duration =  ((long)clip.dur).SMPTEFramesToTimeSpan(clip.fps);
-                                newMedia.DurationPlay = newMedia.Duration;
-                                if (clip.aspectRatio == "4:3")
-                                    newMedia.VideoFormat = TVideoFormat.PAL;
-                                if (clip.aspectRatio == "16:9")
-                                    newMedia.VideoFormat = TVideoFormat.PAL_FHA;
-                                XDCAM.Index.Meta xmlClipFileNameMeta = clip.meta.FirstOrDefault(m => m.type == "PD-Meta");
-                                if (xmlClipFileNameMeta != null && !string.IsNullOrWhiteSpace(xmlClipFileNameMeta.file))
+                                IngestMedia newMedia = AddFile(clip.clipId + ".MXF", clip.ClipMeta.CreationDate.Value, clip.ClipMeta.lastUpdate, new Guid(clip.ClipMeta.TargetMaterial.umidRef.Substring(32, 32))) as IngestMedia;
+                                if (newMedia != null)
                                 {
-                                    clip.ClipMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument(@"Clip/" + xmlClipFileNameMeta.file, client));
+                                    newMedia.Folder = "Clip";
+                                    newMedia.MediaName = clip.clipId;
+                                    newMedia.Duration = ((long)clip.dur).SMPTEFramesToTimeSpan(clip.fps);
+                                    newMedia.DurationPlay = newMedia.Duration;
+                                    if (clip.aspectRatio == "4:3")
+                                        newMedia.VideoFormat = TVideoFormat.PAL;
+                                    if (clip.aspectRatio == "16:9")
+                                        newMedia.VideoFormat = TVideoFormat.PAL_FHA;
                                     newMedia.ClipMetadata = clip.ClipMeta;
                                     if (clip.ClipMeta != null)
                                     {
@@ -286,22 +287,22 @@ namespace TAS.Server
                         {
                             try
                             {
-                                DateTime ts = edl.EdlMeta.lastUpdate == default(DateTime) ? edl.EdlMeta.CreationDate.Value : edl.EdlMeta.lastUpdate;
-                                IngestMedia newMedia = AddFile(edl.file, ts, ts, new Guid(edl.EdlMeta.TargetMaterial.umidRef.Substring(32, 32))) as IngestMedia;
-                                if (newMedia != null)
+                                XDCAM.Index.Meta xmlClipFileNameMeta = edl.meta.FirstOrDefault(m => m.type == "PD-Meta");
+                                if (xmlClipFileNameMeta != null && !string.IsNullOrWhiteSpace(xmlClipFileNameMeta.file))
                                 {
-                                    newMedia.Folder = "Clip";
-                                    newMedia.Duration = ((long)edl.dur).SMPTEFramesToTimeSpan(edl.fps);
-                                    newMedia.DurationPlay = newMedia.Duration;
-                                    if (edl.aspectRatio == "4:3")
-                                        newMedia.VideoFormat = TVideoFormat.PAL;
-                                    if (edl.aspectRatio == "16:9")
-                                        newMedia.VideoFormat = TVideoFormat.PAL_FHA;
-                                    XDCAM.Index.Meta xmlClipFileNameMeta = edl.meta.FirstOrDefault(m => m.type == "PD-Meta");
-                                    if (xmlClipFileNameMeta != null && !string.IsNullOrWhiteSpace(xmlClipFileNameMeta.file))
+                                    edl.EdlMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument(@"Edit/" + xmlClipFileNameMeta.file, client));
+                                    edl.smil = XDCAM.SerializationHelper<XDCAM.Smil>.Deserialize(_readXMLDocument(@"Edit/" + edl.file, client));
+                                    DateTime ts = edl.EdlMeta.lastUpdate == default(DateTime) ? edl.EdlMeta.CreationDate.Value : edl.EdlMeta.lastUpdate;
+                                    IngestMedia newMedia = AddFile(edl.file, ts, ts, new Guid(edl.EdlMeta.TargetMaterial.umidRef.Substring(32, 32))) as IngestMedia;
+                                    if (newMedia != null)
                                     {
-                                        edl.EdlMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument(@"Edit/" + xmlClipFileNameMeta.file, client));
-                                        edl.smil = XDCAM.SerializationHelper<XDCAM.Smil>.Deserialize(_readXMLDocument(@"Edit/" + edl.file, client));
+                                        newMedia.Folder = "Clip";
+                                        newMedia.Duration = ((long)edl.dur).SMPTEFramesToTimeSpan(edl.fps);
+                                        newMedia.DurationPlay = newMedia.Duration;
+                                        if (edl.aspectRatio == "4:3")
+                                            newMedia.VideoFormat = TVideoFormat.PAL;
+                                        if (edl.aspectRatio == "16:9")
+                                            newMedia.VideoFormat = TVideoFormat.PAL_FHA;
                                         newMedia.ClipMetadata = edl.EdlMeta;
                                         newMedia.SmilMetadata = edl.smil;
                                         if (edl.EdlMeta != null)
@@ -321,6 +322,7 @@ namespace TAS.Server
                                     }
                                 }
                             }
+
                             catch (Exception e)
                             {
                                 Debug.WriteLine(e);

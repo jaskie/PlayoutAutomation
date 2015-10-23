@@ -17,12 +17,12 @@ namespace TAS.Server
 
         protected override Media CreateMedia(string fileNameOnly)
         {
-            return new TempMedia(this) { FileName = fileNameOnly };
+            throw new InvalidOperationException("Temp media must have OriginalMedia property. Use Get() to acquire one.");
         }
 
         protected override Media CreateMedia(string fileNameOnly, Guid guid)
         {
-            return new TempMedia(this, guid) { FileName = fileNameOnly };
+            throw new InvalidOperationException("Temp media must have OriginalMedia property. Use Get() to acquire one.");
         }
 
         public override void MediaAdd(Media media)
@@ -35,9 +35,9 @@ namespace TAS.Server
             
         }
         
-        public TempMedia Get(Media media, string fileExtension = null)
+        public TempMedia CreateMedia(Media media, string fileExtension = null)
         {
-            return new TempMedia(this, media);
+            return new TempMedia(this, media, fileExtension);
         }
 
         public override void SweepStaleMedia()

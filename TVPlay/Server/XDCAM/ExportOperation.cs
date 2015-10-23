@@ -70,7 +70,7 @@ namespace TAS.Server.XDCAM
             DestMedia = new IngestMedia(DestDirectory) { MediaName = string.Format("C{0:D4}", maxFile), FileName = string.Format("C{0:D4}.MXF", maxFile), Folder = "Clip", MediaStatus = TMediaStatus.Copying };
             if (DestDirectory.AccessType == TDirectoryAccessType.FTP)
             {
-                using (TempMedia localDestMedia = FileManager.TempDirectory.Get(inputMedia, ".MXF"))
+                using (TempMedia localDestMedia = FileManager.TempDirectory.CreateMedia(inputMedia, ".MXF"))
                 {
                     DestMedia.PropertyChanged += DestMedia_PropertyChanged;
                     try

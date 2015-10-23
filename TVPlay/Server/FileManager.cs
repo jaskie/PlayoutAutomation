@@ -98,8 +98,7 @@ namespace TAS.Server
                         }
                     }
             }
-            if (OperationAdded != null)
-                OperationAdded(operation);
+            NotifyOperation(OperationAdded, operation);
         }
 
         private static void _runOperation(SynchronizedCollection<FileOperation> queue, ref bool queueRunningIndicator)
@@ -114,8 +113,7 @@ namespace TAS.Server
                 {
                     if (op.Do())
                     {
-                        if (OperationCompleted != null)
-                            OperationCompleted(op);
+                        NotifyOperation(OperationCompleted, op);
                         if (op.SuccessCallback != null)
                             op.SuccessCallback();
                     }
@@ -129,8 +127,9 @@ namespace TAS.Server
                         else
                         {
                             op.Fail();
-                            if (OperationCompleted != null)
-                                OperationCompleted(op);
+                            NotifyOperation(OperationCompleted, op);
+                            if (op.DestMedia != null)
+                                op.DestMedia.Delete();
                         }
                     }
                 }
@@ -140,5 +139,12 @@ namespace TAS.Server
             lock (queue.SyncRoot)
                 queueRunningIndicator = false;
         }
+
+        private static void NotifyOperation(FileOperationEventHandler handler, FileOperation operation)
+        {
+            if (handler != null)
+                handler(operation);
+        }
+
     }
 }

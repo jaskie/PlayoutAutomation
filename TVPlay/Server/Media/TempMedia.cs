@@ -8,20 +8,10 @@ namespace TAS.Server
 {
     public class TempMedia: Media, IDisposable
     {
-        public TempMedia(TempDirectory directory)
-            : base(directory)
-        {
-            _fileName = this._mediaGuid.ToString();
-        }
-        public TempMedia(TempDirectory directory, Guid guid)
-            : base(directory, guid)
-        {
-            _fileName = this._mediaGuid.ToString();
-        }
-        public TempMedia(TempDirectory directory, Media originalMedia): base(directory, originalMedia.MediaGuid)
+        public TempMedia(TempDirectory directory, Media originalMedia, string fileExtension): base(directory, originalMedia.MediaGuid)
         {
             OriginalMedia = originalMedia;
-            _fileName = this._mediaGuid.ToString();
+            _fileName = string.Format("{0}.{1}", _mediaGuid, fileExtension);
         }
 
         internal Media OriginalMedia;
@@ -29,35 +19,25 @@ namespace TAS.Server
         {
             get { return OriginalMedia.MediaName; }
         }
-
         public override TMediaType MediaType 
         { 
             get { return OriginalMedia.MediaType; }
         }
-
         public override TimeSpan Duration
         {
-            get { return OriginalMedia.Duration; }
+            get { return OriginalMedia.Duration == TimeSpan.Zero ? _duration : OriginalMedia.Duration; }
         }
         public override TimeSpan DurationPlay
         {
-            get { return OriginalMedia.DurationPlay; }
+            get { return OriginalMedia.DurationPlay == TimeSpan.Zero ? _durationPlay : OriginalMedia.DurationPlay; }
         }
         public override TimeSpan TCStart
         {
-            get { return OriginalMedia.TCStart; }
+            get { return OriginalMedia.TCStart == TimeSpan.Zero ? _tCStart : OriginalMedia.TCStart; }
         }
         public override TimeSpan TCPlay
         {
-            get { return OriginalMedia.TCPlay; }
-        }
-        public override TVideoFormat VideoFormat
-        {
-            get { return OriginalMedia.VideoFormat; }
-        }
-        public override TAudioChannelMapping AudioChannelMapping
-        {
-            get { return OriginalMedia.AudioChannelMapping; }
+            get { return OriginalMedia.TCPlay == TimeSpan.Zero ? _tCPlay : OriginalMedia.TCPlay; }
         }
         public override decimal AudioVolume
         {
