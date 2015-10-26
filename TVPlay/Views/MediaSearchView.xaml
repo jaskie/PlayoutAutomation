@@ -19,6 +19,7 @@
         Name="MediaSearchWindow"
         >
     <Window.Resources>
+        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
         <ControlTemplate x:Key="toggleButtonTemplate" TargetType="ToggleButton">
             <Grid

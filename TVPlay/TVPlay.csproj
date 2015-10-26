@@ -223,7 +223,6 @@
     <Compile Include="ViewModels\MediaExportViewmodel.cs" />
     <Compile Include="ViewModels\MediaSearchViewmodel.cs" />
     <Compile Include="ViewModels\MediaSegmentViewmodel.cs" />
-    <Compile Include="ViewModels\PlayingEventViewmodel.cs" />
     <Compile Include="ViewModels\TemplateViewmodel.cs" />
     <Compile Include="ViewModels\TemplatesViewmodel.cs" />
     <Compile Include="Server\Media\ArchiveMedia.cs" />
@@ -252,9 +251,6 @@
     </Compile>
     <Compile Include="Views\OperationOutputView.xaml.cs">
       <DependentUpon>OperationOutputView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PlayingEventView.xaml.cs">
-      <DependentUpon>PlayingEventView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PreviewView.xaml.cs">
       <DependentUpon>PreviewView.xaml</DependentUpon>
@@ -310,10 +306,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\OperationOutputView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\PlayingEventView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

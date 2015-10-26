@@ -50,6 +50,9 @@ namespace Infralution.Localization.Wpf
     {
         private class LookupTable : Dictionary<string, object> { }
         private Dictionary<CultureInfo, LookupTable> _lookupTables = new Dictionary<CultureInfo, LookupTable>();
+        /// <summary>
+        /// Resource manager instance
+        /// </summary>
         protected ResourceManager _resourceManager;
         private bool _isFlagEnum = false;
         private Array _flagValues;

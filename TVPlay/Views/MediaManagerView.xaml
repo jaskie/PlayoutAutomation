@@ -15,7 +15,7 @@
              d:DataContext="{x:Type vm:MediaManagerViewmodel}"
              FontSize="13" >
     <UserControl.Resources>
-
+        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <common:IntToStringNoZeroConverter x:Key="IntToStringNoZero" />
         <Style x:Key="fieldNameLabels" TargetType="Label" >
             <Setter Property="VerticalContentAlignment" Value="Center" />

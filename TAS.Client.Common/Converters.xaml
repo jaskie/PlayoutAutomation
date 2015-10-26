@@ -4,7 +4,6 @@
     <common:BoolToBrushButtonConverter x:Key="BoolToBrushButton" />
     <common:BoolToBrushConverter x:Key="BoolToBrush"/>
     <BooleanToVisibilityConverter x:Key="BoolToVis" />
-    <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
     <common:EventTypeToIntConverter x:Key="EventToInt" />
     <common:DateTimeToSMPTEConverter x:Key="DateTimeToSMPTE" />
     <common:TimeSpanToFramesConverter x:Key="TimeSpanToFrames" />

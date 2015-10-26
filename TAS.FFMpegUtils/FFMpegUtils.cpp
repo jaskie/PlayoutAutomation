@@ -84,7 +84,7 @@ namespace TAS {
 				for (unsigned int i=0; i<pFormatCtx->nb_streams; i++)
 				{
 					if(pFormatCtx->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO) 
-						return pFormatCtx->streams[i]->codec->coded_height;
+						return pFormatCtx->streams[i]->codec->height;
 				} 
 			}
 			return 0; 
@@ -97,7 +97,7 @@ namespace TAS {
 				for (unsigned int i=0; i<pFormatCtx->nb_streams; i++)
 				{
 					if(pFormatCtx->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO) 
-						return pFormatCtx->streams[i]->codec->coded_width;
+						return pFormatCtx->streams[i]->codec->width;
 				} 
 			}
 			return 0; 

@@ -17,7 +17,7 @@ namespace TAS.Client.ViewModels
     {
         private readonly PreviewViewmodel _previewVm;
         private readonly bool _showButtons;
-        public MediaEditViewmodel(Server.Media media, PreviewViewmodel previewVm, bool showButtons):base(media, new MediaEditView())
+        public MediaEditViewmodel(Server.Media media, PreviewViewmodel previewVm, bool showButtons):base(media, new MediaEditView(media.FrameRate))
         {
             CommandSaveEdit = new UICommand() { ExecuteDelegate = Save, CanExecuteDelegate = o => Modified && IsValid };
             CommandCancelEdit = new UICommand() { ExecuteDelegate = Load, CanExecuteDelegate = o => Modified };

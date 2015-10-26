@@ -62,7 +62,7 @@ namespace TAS.Client.ViewModels
         public EngineViewmodel(Server.Engine engine)
         {
             _engine = engine;
-            _frameRate = VideoFormatDescription.Descriptions[_engine.VideoFormat].FrameRate;
+            _frameRate = engine.FormatDescription.FrameRate;
             
             _engine.EngineTick += this.OnEngineTick;
             _engine.EngineOperation += this._engineOperation;
@@ -80,12 +80,10 @@ namespace TAS.Client.ViewModels
             
             Debug.WriteLine(this, "Creating EventClipboard");
             
-            Debug.WriteLine(this, "Creating PlayingEventViewmodel");
-            _playingEventViewmodel = new PlayingEventViewmodel(_engine);
             _createCommands();
 
             Debug.WriteLine(this, "Creating EngineView");
-            _engineView = new EngineView();
+            _engineView = new EngineView(this._frameRate);
             _engineView.DataContext = this;
 
             _selectedEvents = new ObservableCollection<EventPanelViewmodel>();
@@ -396,9 +394,6 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan TimeToAttention { get { return _engine.GetTimeToAttention(); } }
 
-        private readonly PlayingEventViewmodel _playingEventViewmodel;
-        public PlayingEventViewmodel PlayingEvent { get { return _playingEventViewmodel; } }
-        
         public bool ServerConnectedPGM
         {
             get

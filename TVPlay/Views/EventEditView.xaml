@@ -13,6 +13,7 @@
              d:DesignHeight="400" d:DesignWidth="360"
              >
     <UserControl.Resources>
+        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <Style TargetType="{x:Type TextBox}">
             <Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="true">

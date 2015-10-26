@@ -11,6 +11,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TAS.Client.Common;
+using TAS.Common;
 
 namespace TAS.Client
 {
@@ -19,9 +21,10 @@ namespace TAS.Client
     /// </summary>
     public partial class MediaEditView : UserControl
     {
-        public MediaEditView()
+        public MediaEditView(RationalNumber frameRate)
         {
             InitializeComponent();
+            ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
         }
     }
 }

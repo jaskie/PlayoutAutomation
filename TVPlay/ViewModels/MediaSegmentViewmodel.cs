@@ -57,7 +57,7 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan Duration
         {
-            get { return TCOut - TCIn + VideoFormatDescription.Descriptions[_media.VideoFormat].FrameDuration; }
+            get { return TCOut - TCIn + _media.VideoFormatDescription.FrameDuration; }
         }
 
         public MediaSegment MediaSegment { get { return _mediaSegment; } }

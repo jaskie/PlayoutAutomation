@@ -18,6 +18,7 @@
         <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="Ctrl+S" />
     </UserControl.InputBindings>
     <UserControl.Resources>
+        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <Style x:Key="fieldNameLabels" TargetType="Label" >
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Right" />

@@ -49,7 +49,7 @@ namespace TAS.Client.Common
     [ValueConversion(typeof(TimeSpan), typeof(string))]
     public class TimeSpanToSMPTEConverter : IValueConverter
     {
-        private static RationalNumber _frameRate = new RationalNumber(25, 1);
+        private RationalNumber _frameRate = new RationalNumber(25, 1);
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is TimeSpan)

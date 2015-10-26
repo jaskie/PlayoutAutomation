@@ -7,6 +7,7 @@
              xmlns:sys="clr-namespace:System;assembly=System"
              xmlns:c="clr-namespace:TAS.Client"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DataContext="{x:Type vm:EventPanelViewmodel}"
              FontSize="12" 
@@ -14,6 +15,7 @@
              d:DesignWidth="700"
              >
     <UserControl.Resources>
+        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <Style x:Key="borderStyle" TargetType="{x:Type Border}">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsSelected}" Value="True">

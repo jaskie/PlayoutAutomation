@@ -138,10 +138,14 @@ namespace TAS.Server
             set { SetField(ref _tCPlay, value, "TCPlay"); }
         }
         protected TVideoFormat _videoFormat;
-        public virtual TVideoFormat VideoFormat 
+        public virtual TVideoFormat VideoFormat
         {
             get { return _videoFormat; }
-            set { SetField(ref _videoFormat, value, "VideoFormat"); }
+            set
+            {
+                if (SetField(ref _videoFormat, value, "VideoFormat"))
+                    _videoFormatDescription = null;
+            }
         }
         protected TAudioChannelMapping _audioChannelMapping;
         public virtual TAudioChannelMapping AudioChannelMapping 
@@ -197,8 +201,10 @@ namespace TAS.Server
         {
             get
             {
-                var vfd = _videoFormatDescription;
-                return vfd != null ? vfd : VideoFormatDescription.Descriptions[VideoFormat];
+                if (_videoFormatDescription == null) 
+                    if (!VideoFormatDescription.Descriptions.TryGetValue(VideoFormat, out _videoFormatDescription))
+                        _videoFormatDescription = VideoFormatDescription.Descriptions[TVideoFormat.Other];
+                return _videoFormatDescription;
             }
             internal set { _videoFormatDescription = value; }
         }
@@ -372,6 +378,8 @@ namespace TAS.Server
             get { return _verified; }
             internal set { _verified = value; }
         }
+
+        public RationalNumber FrameRate { get { return VideoFormatDescription.FrameRate; } }
 
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         internal virtual void Verify()

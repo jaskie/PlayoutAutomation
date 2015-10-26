@@ -127,7 +127,9 @@ namespace System.Net.FtpClient {
                 m_ipVersions = value;
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         protected int m_socketPollInterval = 15000;
         /// <summary>
         /// Gets or sets the length of time in miliseconds
@@ -284,6 +286,9 @@ namespace System.Net.FtpClient {
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         protected NetworkCredential m_credentials = null;
         /// <summary>
         /// Credentials used for authentication
@@ -366,7 +371,9 @@ namespace System.Net.FtpClient {
                 m_ungracefullDisconnect = value;
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         protected int m_connectTimeout = 15000;
         /// <summary>
         /// Gets or sets the length of time in miliseconds to wait for a connection 
@@ -427,7 +434,9 @@ namespace System.Net.FtpClient {
                 m_dataConnectionReadTimeout = value;
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         protected bool m_keepAlive = false;
         /// <summary>
         /// Gets or sets a value indicating if SocketOption.KeepAlive should be set on 
@@ -467,6 +476,9 @@ namespace System.Net.FtpClient {
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         protected FtpHashAlgorithm m_hashAlgorithms = FtpHashAlgorithm.NONE;
         /// <summary>
         /// Get the hash types supported by the server, if any. This

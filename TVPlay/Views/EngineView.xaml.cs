@@ -21,6 +21,7 @@ using System.Threading;
 using TAS.Common;
 using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
+using TAS.Client.Common;
 
 namespace TAS.Client
 {
@@ -30,10 +31,10 @@ namespace TAS.Client
     /// 
     public partial class EngineView : UserControl
     {
-        public EngineView()
+        public EngineView(RationalNumber frameRate)
         {
             InitializeComponent();
+            ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
         }
-       
     }
 }

@@ -156,54 +156,19 @@ namespace TAS.Server
             }
         }
 
-        long _frameDuration; // in nanoseconds
         long _frameTicks;
         public long FrameTicks { get { return _frameTicks; } }
         public TVideoFormat VideoFormat { get; set; }
+
+        [XmlIgnore]
+        public VideoFormatDescription FormatDescription { get; private set; }
 
         public void Initialize(IGpi localGpi)
         {
             Debug.WriteLine(this, "Begin initializing");
             LocalGpi = localGpi;
-            switch (VideoFormat)
-            {
-                case TVideoFormat.HD1080p5000:
-                case TVideoFormat.HD720p5000:
-                    _frameDuration = 20000000L;
-                    break;
-                case TVideoFormat.NTSC:
-                case TVideoFormat.HD1080p3000:
-                case TVideoFormat.HD1080i6000:
-                case TVideoFormat.HD2160p3000:
-                    _frameDuration = 33300000L;
-                    break;
-                case TVideoFormat.HD1080p6000:
-                case TVideoFormat.HD720p6000:
-                    _frameDuration = 16650000L;
-                    break;
-                case TVideoFormat.HD1080i5994:
-                case TVideoFormat.HD1080p2997:
-                case TVideoFormat.HD2160p2997:
-                    _frameDuration = 33366700L;
-                    break;
-                case TVideoFormat.HD1080p5994:
-                case TVideoFormat.HD720p5994:
-                    _frameDuration = 16683350L; 
-                    break;
-                case TVideoFormat.HD1080p2398:
-                case TVideoFormat.HD2160p2398:
-                    _frameDuration = 41701418L;
-                    break;
-                case TVideoFormat.HD2160p2400:
-                case TVideoFormat.HD1080p2400:
-                    _frameDuration = 41666667L;
-                    break;
-                default:
-                    _frameDuration = 40000000L; //ns, PAL
-                    break;
-            }
-            _frameTicks = _frameDuration / 100L;
-
+            FormatDescription = VideoFormatDescription.Descriptions[VideoFormat];
+            _frameTicks = FormatDescription.FrameTicks;
             var chPGM = PlayoutChannelPGM;
             Debug.WriteLine(chPGM, "About to initialize");
             Debug.Assert(chPGM != null && chPGM.OwnerServer != null, "Null channel PGM or its server");
@@ -254,7 +219,7 @@ namespace TAS.Server
                     try
                     {
                         CurrentTime = AlignDateTime(DateTime.UtcNow+_timeCorrection);
-                        long nFrames = (CurrentTime.Ticks - CurrentTicks) * 100L / _frameDuration;
+                        long nFrames = (CurrentTime.Ticks - CurrentTicks) / _frameTicks;
                         CurrentTicks = CurrentTime.Ticks;
                         Debug.WriteLineIf(nFrames > 1, this, string.Format("Frame delay - {0}", nFrames));
                         _tick(nFrames);
@@ -266,7 +231,7 @@ namespace TAS.Server
                     {
                         Debug.WriteLine(e, "Exception in engine tick");
                     }
-                    long timeToWait = (_frameDuration - 100L * (DateTime.UtcNow.Ticks + _timeCorrection.Ticks - CurrentTicks)) / 1000000L;
+                    long timeToWait = (_frameTicks - (DateTime.UtcNow.Ticks + _timeCorrection.Ticks - CurrentTicks)) / TimeSpan.TicksPerMillisecond;
                     if (timeToWait > 0)
                        Thread.Sleep((int)timeToWait);
                 }

@@ -23,17 +23,24 @@ namespace TAS.Common
 
         public static string ToSMPTETimecodeString(this TimeSpan t, RationalNumber rate)
         {
-            bool minus = t < TimeSpan.Zero;
-            TimeSpan value = minus ? -t : t;
-            int days = value.Days;
-            int hours = value.Hours;
-            int minutes = value.Minutes;
-            int seconds = value.Seconds;
-            long frames = value.Milliseconds * rate.Num / (1000 * rate.Den);
-            if (days > 0)
-                return string.Format("{0}{1}:{2:D2}:{3:D2}:{4:D2}:{5:D2}", minus ? "-" : "", days, hours, minutes, seconds, frames);
+            if (rate.IsZero)
+            {
+                return t.ToString();
+            }
             else
-                return string.Format("{0}{1:D2}:{2:D2}:{3:D2}:{4:D2}", minus ? "-" : "", hours, minutes, seconds, frames);
+            {
+                bool minus = t < TimeSpan.Zero;
+                TimeSpan value = minus ? -t : t;
+                int days = value.Days;
+                int hours = value.Hours;
+                int minutes = value.Minutes;
+                int seconds = value.Seconds;
+                long frames = value.Milliseconds * rate.Num / (1000 * rate.Den);
+                if (days > 0)
+                    return string.Format("{0}{1}:{2:D2}:{3:D2}:{4:D2}:{5:D2}", minus ? "-" : "", days, hours, minutes, seconds, frames);
+                else
+                    return string.Format("{0}{1:D2}:{2:D2}:{3:D2}:{4:D2}", minus ? "-" : "", hours, minutes, seconds, frames);
+            }
         }
 
         public static long ToSMPTEFrames(this TimeSpan t, RationalNumber rate)
@@ -72,55 +79,68 @@ namespace TAS.Common
 
         public static bool IsValidSMPTETimecode(this string timeCode, RationalNumber rate)
         {
-            string[] times = timeCode.Split(':');
-            if (times.Length < 4 || times.Length > 5)
-                return false;
-            
-            int index = -1;
-            int days = 0;
-            int hours, minutes, seconds, frames;
-            if (!((times.Length == 5 && int.TryParse(times[++index], out days) || times.Length == 4)
-                && int.TryParse(times[++index], out hours)
-                && int.TryParse(times[++index], out minutes)
-                && int.TryParse(times[++index], out seconds)
-                && int.TryParse(times[++index], out frames)))
-                return false;
+            if (rate.IsZero)
+            {
+                TimeSpan t;
+                return TimeSpan.TryParse(timeCode, out t);
+            }
+            else
+            {
+                string[] times = timeCode.Split(':');
+                if (times.Length < 4 || times.Length > 5)
+                    return false;
 
-            if ((days != 0 && hours < 0)
-                || (Math.Abs(hours) >= 24) 
-                || minutes >= 60  || minutes < 0 || seconds >= 60 || seconds < 0 || frames >= (int)(rate.Num/rate.Den) || frames < 0)
-                return false;
+                int index = -1;
+                int days = 0;
+                int hours, minutes, seconds, frames;
+                if (!((times.Length == 5 && int.TryParse(times[++index], out days) || times.Length == 4)
+                    && int.TryParse(times[++index], out hours)
+                    && int.TryParse(times[++index], out minutes)
+                    && int.TryParse(times[++index], out seconds)
+                    && int.TryParse(times[++index], out frames)))
+                    return false;
 
+                if ((days != 0 && hours < 0)
+                    || (Math.Abs(hours) >= 24)
+                    || minutes >= 60 || minutes < 0 || seconds >= 60 || seconds < 0 || frames >= (int)(rate.Num / rate.Den) || frames < 0)
+                    return false;
+            }
             return true;
         }
 
         public static TimeSpan SMPTETimecodeToTimeSpan(this string timeCode, RationalNumber rate)
         {
-         
-            string[] times = timeCode.Split(':');
-            if (times.Length < 4 || times.Length > 5)
-                throw new FormatException("Bad SMPTE timecode format");
+            if (rate.IsZero)
+            {
+                return TimeSpan.Parse(timeCode);
+            }
+            else
+            {
+                string[] times = timeCode.Split(':');
+                if (times.Length < 4 || times.Length > 5)
+                    throw new FormatException("Bad SMPTE timecode format");
 
-            int index = -1;
-            int days = 0;
-            int hours, minutes, seconds, frames;
-            if (!((times.Length == 5 && int.TryParse(times[++index], out days) || times.Length == 4)
-                && int.TryParse(times[++index], out hours)
-                && int.TryParse(times[++index], out minutes)
-                && int.TryParse(times[++index], out seconds)
-                && int.TryParse(times[++index], out frames)))
-                throw new FormatException("Bad SMPTE timecode content");
+                int index = -1;
+                int days = 0;
+                int hours, minutes, seconds, frames;
+                if (!((times.Length == 5 && int.TryParse(times[++index], out days) || times.Length == 4)
+                    && int.TryParse(times[++index], out hours)
+                    && int.TryParse(times[++index], out minutes)
+                    && int.TryParse(times[++index], out seconds)
+                    && int.TryParse(times[++index], out frames)))
+                    throw new FormatException("Bad SMPTE timecode content");
 
-            if ((days != 0 && hours < 0)
-                || (Math.Abs(hours) >= 24)
-                || minutes >= 60 || minutes < 0 || seconds >= 60 || seconds < 0 || frames >= (int)(rate.Num / rate.Den) || frames < 0)
-                throw new FormatException("SMPTE Timecode out of range");
-            
-            if (days < 0)
-                return - new TimeSpan(Math.Abs(days), hours, minutes, seconds, frames * (int)rate.Den * 1000 / (int)rate.Num);
-            if (hours < 0) // was raised exception if days <> 0 and hours < 0
-                return -new TimeSpan(0, Math.Abs(hours), minutes, seconds, frames * (int)rate.Den * 1000 / (int)rate.Num);
-            return new TimeSpan(days, hours, minutes, seconds, frames * (int)rate.Den * 1000 / (int)rate.Num);
+                if ((days != 0 && hours < 0)
+                    || (Math.Abs(hours) >= 24)
+                    || minutes >= 60 || minutes < 0 || seconds >= 60 || seconds < 0 || frames >= (int)(rate.Num / rate.Den) || frames < 0)
+                    throw new FormatException("SMPTE Timecode out of range");
+
+                if (days < 0)
+                    return -new TimeSpan(Math.Abs(days), hours, minutes, seconds, frames * (int)rate.Den * 1000 / (int)rate.Num);
+                if (hours < 0) // was raised exception if days <> 0 and hours < 0
+                    return -new TimeSpan(0, Math.Abs(hours), minutes, seconds, frames * (int)rate.Den * 1000 / (int)rate.Num);
+                return new TimeSpan(days, hours, minutes, seconds, frames * (int)rate.Den * 1000 / (int)rate.Num);
+            }
         }
 
         public static TimeSpan LTCTimecodeToTimeSpan(this string timeCode, RationalNumber rate)

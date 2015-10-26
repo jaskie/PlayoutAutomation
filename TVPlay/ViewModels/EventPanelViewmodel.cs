@@ -25,6 +25,7 @@ namespace TAS.Client.ViewModels
         EventPanelViewmodel _parent;
         readonly EventPanelViewmodel _root;
         readonly EngineViewmodel _engineViewmodel;
+        public readonly RationalNumber FrameRate;
         ObservableCollection<EventPanelViewmodel> _childrens = new ObservableCollection<EventPanelViewmodel>();
         static readonly EventPanelViewmodel DummyChild = new EventPanelViewmodel((Event) null, null);
 
@@ -45,6 +46,7 @@ namespace TAS.Client.ViewModels
             _root = this;
             _level = 0;
             _isExpanded = true;
+            FrameRate = engine.FormatDescription.FrameRate;
             foreach (Event se in engine.RootEvents.ToList())
                 _addRootEvent(se);
         }
@@ -53,6 +55,7 @@ namespace TAS.Client.ViewModels
         {
             if (aEvent == null) // dummy child
                 return;
+            FrameRate = aEvent.Engine.FormatDescription.FrameRate;
             _event = aEvent;
             _parent = parent;
             _root = parent._root;

@@ -60,11 +60,10 @@ namespace TAS.Server
                     else
                         media.HasExtraLines = false;
 
-                    RationalNumber sAR = ((sar.Num == 608 && sar.Den == 405) || (sar.Num == 1 && sar.Den == 1)) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL_FHA].SAR
+                    RationalNumber sAR = (h == 576 && ((sar.Num == 608 && sar.Den == 405) || (sar.Num == 1 && sar.Den == 1))) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL_FHA].SAR
                         : (sar.Num == 152 && sar.Den == 135) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL].SAR
                         : new RationalNumber(sar.Num, sar.Den);
-
-
+                    
                     var vfd = VideoFormatDescription.Match(new System.Drawing.Size(w, h), new RationalNumber(frameRate.Num, frameRate.Den), sAR, order != FieldOrder.PROGRESSIVE);
                     media.VideoFormat = vfd.Format;
                     media.VideoFormatDescription = vfd;

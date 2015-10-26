@@ -10,7 +10,7 @@ namespace TAS.Client.ViewModels
     {
         public readonly MediaEditViewmodel editViewModel;
         public MediaEditWindowViewmodel(Server.Media media)
-            : base(media, new MediaEditView(), media.MediaName)
+            : base(media, new MediaEditView(media.FrameRate), media.MediaName)
         {
             editViewModel = new MediaEditViewmodel(media, null, false);
             Editor.DataContext = editViewModel;

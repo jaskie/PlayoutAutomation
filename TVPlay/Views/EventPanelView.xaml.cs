@@ -15,6 +15,7 @@ using TAS.Client.ViewModels;
 using TAS.Server;
 using System.Globalization;
 using System.ComponentModel;
+using TAS.Client.Common;
 
 namespace TAS.Client
 {
@@ -35,6 +36,7 @@ namespace TAS.Client
             EventPanelViewmodel vm = e.NewValue as EventPanelViewmodel;
             if (vm != null)
             {
+                ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = vm.FrameRate;
                 vm.View = (EventPanelView)sender;
                 if (vm.IsSelected)
                     this.BringIntoView();

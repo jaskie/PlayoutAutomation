@@ -13,6 +13,7 @@
              KeyboardNavigation.DirectionalNavigation="Cycle"
              >
     <UserControl.Resources>
+        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <Style x:Key="controlButtonProperties" TargetType="Button" >
             <Setter Property="Width" Value="40" />
             <Setter Property="Margin" Value="8" />
