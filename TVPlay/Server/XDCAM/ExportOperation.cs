@@ -47,11 +47,13 @@ namespace TAS.Server.XDCAM
                     success = _do(SourceMedia);
                     if (!success)
                         TryCount--;
+                    else
+                        _addOutputMessage("Operation completed successfully.");
                     return success;
                 }
                 catch (Exception e)
                 {
-                    _addOutputMessage(e.Message);
+                    _addOutputMessage(string.Format("Error: {0}", e.Message));
                     TryCount--;
                     return false;
                 }
@@ -70,7 +72,7 @@ namespace TAS.Server.XDCAM
             DestMedia = new IngestMedia(DestDirectory) { MediaName = string.Format("C{0:D4}", maxFile), FileName = string.Format("C{0:D4}.MXF", maxFile), Folder = "Clip", MediaStatus = TMediaStatus.Copying };
             if (DestDirectory.AccessType == TDirectoryAccessType.FTP)
             {
-                using (TempMedia localDestMedia = FileManager.TempDirectory.CreateMedia(inputMedia, ".MXF"))
+                using (TempMedia localDestMedia = FileManager.TempDirectory.CreateMedia(inputMedia, "MXF"))
                 {
                     DestMedia.PropertyChanged += DestMedia_PropertyChanged;
                     try
@@ -113,7 +115,7 @@ namespace TAS.Server.XDCAM
             Debug.WriteLine(this, "Export encode started");
             _addOutputMessage(string.Format("Encode started to file {0}", outFile));
             string command = string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                "-i \"{0}\" {1} {2} -filter:a \"volume={3:F3}dB\" -ss {4} -t {5} -timecode {6} -y \"{7}\"",
+                "-i \"{0}\" {1} {2} -filter:a \"volume={3:F3}dB\" -ss {4} -t {5} -timecode {6} -r 25 -y \"{7}\"",
                 inputFile,
                 DestDirectory.XDCAMVideoExportFormat == TxDCAMVideoExportFormat.IMX30 ? D10_PAL_IMX30
                     : DestDirectory.XDCAMVideoExportFormat == TxDCAMVideoExportFormat.IMX40 ? D10_PAL_IMX40
@@ -121,7 +123,7 @@ namespace TAS.Server.XDCAM
                 DestDirectory.XDCAMAudioExportFormat == TxDCAMAudioExportFormat.Channels4Bits24 ? PCM24LE : PCM16LE,
                 AudioVolume,
                 StartTC - SourceMedia.TCStart,
-                Duration,
+                TimeSpan.FromTicks((Duration.Ticks/(40*TimeSpan.TicksPerMillisecond))*(40*TimeSpan.TicksPerMillisecond)), // rounding down to nearest PAL frame time
                 StartTC.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[TVideoFormat.PAL_FHA].FrameRate),
                 outFile);
             if (RunProcess(command))

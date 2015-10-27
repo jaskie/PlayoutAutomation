@@ -46,9 +46,9 @@ namespace TAS.Server.XDCAM
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
+            try
             {
-                try
+                if (disposing)
                 {
                     var stream = _currentStream;
                     if (stream != null)
@@ -58,9 +58,11 @@ namespace TAS.Server.XDCAM
                     }
                     _client.Dispose();
                 }
-                catch {}
             }
-            base.Dispose(disposing);
+            finally
+            {
+                base.Dispose(disposing);
+            }
         }
 
         public override void Write(byte[] buffer, int offset, int count)
