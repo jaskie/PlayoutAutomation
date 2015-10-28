@@ -25,7 +25,7 @@ namespace TAS.Client.ViewModels
         EventPanelViewmodel _parent;
         readonly EventPanelViewmodel _root;
         readonly EngineViewmodel _engineViewmodel;
-        public readonly RationalNumber FrameRate;
+        private readonly RationalNumber _frameRate;
         ObservableCollection<EventPanelViewmodel> _childrens = new ObservableCollection<EventPanelViewmodel>();
         static readonly EventPanelViewmodel DummyChild = new EventPanelViewmodel((Event) null, null);
 
@@ -46,7 +46,7 @@ namespace TAS.Client.ViewModels
             _root = this;
             _level = 0;
             _isExpanded = true;
-            FrameRate = engine.FormatDescription.FrameRate;
+            _frameRate = engine.FrameRate;
             foreach (Event se in engine.RootEvents.ToList())
                 _addRootEvent(se);
         }
@@ -55,7 +55,7 @@ namespace TAS.Client.ViewModels
         {
             if (aEvent == null) // dummy child
                 return;
-            FrameRate = aEvent.Engine.FormatDescription.FrameRate;
+            _frameRate = aEvent.Engine.FormatDescription.FrameRate;
             _event = aEvent;
             _parent = parent;
             _root = parent._root;
@@ -452,29 +452,14 @@ namespace TAS.Client.ViewModels
             get { return (_event == null) ? string.Empty : _event.EventName; }
         }
 
-        public DateTime ScheduledTime
+        public string ScheduledTime
         {
-            get { return (_event == null) ? default(DateTime) : _event.ScheduledTime; }
+            get { return (_event == null) ? string.Empty : _event.ScheduledTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(_frameRate); }
         }
 
-        public TimeSpan Duration
+        public string Duration
         {
-            get { return (_event == null) ? TimeSpan.Zero : _event.Duration; }
-        }
-
-        public TimeSpan ScheduledTC
-        {
-            get { return (_event == null) ? TimeSpan.Zero : _event.ScheduledTC; }
-        }
-
-        public TimeSpan StartDelay
-        {
-            get { return (_event == null) ? TimeSpan.Zero : _event.ScheduledDelay; }
-        }
-
-        public TimeSpan Length
-        {
-            get { return (_event == null) ? TimeSpan.Zero: _event.Length; }
+            get { return (_event == null || _event.Duration == TimeSpan.Zero) ? string.Empty: _event.Duration.ToSMPTETimecodeString(_frameRate); }
         }
 
         public bool Enabled
@@ -575,14 +560,14 @@ namespace TAS.Client.ViewModels
                 return (media == null) ? ((_event.EventType == TEventType.Movie || _event.EventType == TEventType.StillImage)? _event.MediaGuid.ToString() :string.Empty) : media.FileName; }
         }
         
-        public TimeSpan TimeLeft
+        public string TimeLeft
         {
-            get { return (_event == null || _event.Position == 0) ? TimeSpan.Zero : _event.TimeLeft; }
+            get { return (_event == null || _event.Position == 0 || _event.TimeLeft == TimeSpan.Zero) ? string.Empty : _event.TimeLeft.ToSMPTETimecodeString(_frameRate); }
         }
 
-        public DateTime EndTime
+        public string EndTime
         {
-            get { return (_event == null || _event.GetSuccessor() != null) ? default(DateTime) : _event.EndTime; }
+            get { return (_event == null || _event.GetSuccessor() != null) ? string.Empty : _event.EndTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(_frameRate); }
         }
 
         public bool IsLastEvent

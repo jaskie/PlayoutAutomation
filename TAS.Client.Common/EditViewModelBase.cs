@@ -35,7 +35,7 @@ namespace TAS.Client.Common
                 if (base.SetField(ref _modified, value, "Modified"))
                 {
                     OnModified();
-                    Application.Current.Dispatcher.BeginInvoke((Action)(() => CommandManager.InvalidateRequerySuggested()));
+                    InvalidateRequerySuggested();
                 }
             }
         }

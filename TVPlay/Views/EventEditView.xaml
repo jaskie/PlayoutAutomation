@@ -14,6 +14,8 @@
              >
     <UserControl.Resources>
         <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
+        <common:DateTimeToSMPTEConverter x:Key="DateTimeToSMPTE" />
+        <common:TimeSpanToFramesConverter x:Key="TimeSpanToFrames"/>
         <Style TargetType="{x:Type TextBox}">
             <Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="true">

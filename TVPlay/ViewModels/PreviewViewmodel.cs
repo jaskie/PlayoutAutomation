@@ -36,6 +36,8 @@ namespace TAS.Client.ViewModels
             SelectedSegment = null;
         }
 
+        public RationalNumber FrameRate { get { return _engine.FormatDescription.FrameRate; } }
+
         public Media Media
         {
             get { return _media; }
@@ -170,11 +172,11 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                return TimeSpan.FromTicks((long)(_engine.PreviewPosition+_engine.PreviewSeek) * (_engine.FrameTicks) + StartTC.Ticks);
+                return TimeSpan.FromTicks((long)((_engine.PreviewPosition + _engine.PreviewSeek) * TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num) + StartTC.Ticks);
             }
             set
             {
-                _engine.PreviewPosition = (value.Ticks -StartTC.Ticks) / _engine.FrameTicks - _loadedSeek;
+                _engine.PreviewPosition = (value.Ticks - StartTC.Ticks) / _engine.FrameTicks - _loadedSeek;
                 NotifyPropertyChanged("SliderPosition");
             }
         }
@@ -351,9 +353,9 @@ namespace TAS.Client.ViewModels
                     },
                 CanExecuteDelegate = o =>
                     {
-                        Media media = Media != null ? Media : (Event != null ? Event.Media : null);
+                        Media media = Media ?? (Event != null ? Event.Media : null);
                         return (LoadedMedia != null && LoadedMedia.MediaStatus == TMediaStatus.Available)
-                            || (media != null && media.MediaStatus == TMediaStatus.Available);
+                            || (media != null && media.MediaStatus == TMediaStatus.Available && _canLoad(media));
                     }
             };
             CommandPlay = new UICommand()
@@ -377,9 +379,9 @@ namespace TAS.Client.ViewModels
                     },
                 CanExecuteDelegate = o =>
                     {
-                        Media media = Media != null ? Media : (Event != null ? Event.Media : null);
+                        Media media = Media ?? (Event != null ? Event.Media : null);
                         return (LoadedMedia != null && LoadedMedia.MediaStatus == TMediaStatus.Available)
-                            || (media != null && media.MediaStatus == TMediaStatus.Available);
+                            || (media != null && media.MediaStatus == TMediaStatus.Available && _canLoad(media));
                     }
             };
             CommandStop = new UICommand()
@@ -393,7 +395,20 @@ namespace TAS.Client.ViewModels
                     {
                         if (_engine.PreviewIsPlaying)
                             _engine.PreviewPause();
-                        _engine.PreviewPosition = _engine.PreviewPosition + int.Parse((string)param);
+                        int seekFrames = 0;
+                        switch ((string)param)
+                        {
+                            case "fframe": seekFrames = 1;
+                                break;
+                            case "rframe": seekFrames = -1;
+                                break;
+                            case "fsecond": seekFrames = (int)(FrameRate.Num / FrameRate.Den);
+                                break;
+                            case "rsecond":
+                                seekFrames = -(int)(FrameRate.Num / FrameRate.Den);
+                                break;
+                        }
+                        _engine.PreviewPosition = _engine.PreviewPosition + seekFrames;
                         NotifyPropertyChanged("Position");
                         NotifyPropertyChanged("SliderPosition");
                     },
@@ -492,6 +507,11 @@ namespace TAS.Client.ViewModels
                 return false;
             TimeSpan duration = PlayWholeClip ? media.Duration : (segment == null ? media.Duration : segment.Duration);
             return duration.Ticks >= _engine.FrameTicks;
+        }
+
+        bool _canLoad(Media media)
+        {
+            return media.FrameRate.Equals(_engine.FormatDescription.FrameRate);
         }
 
         private void SegmentPropertyChanged(object sender, PropertyChangedEventArgs e)

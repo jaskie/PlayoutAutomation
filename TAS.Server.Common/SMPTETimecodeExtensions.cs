@@ -35,7 +35,7 @@ namespace TAS.Common
                 int hours = value.Hours;
                 int minutes = value.Minutes;
                 int seconds = value.Seconds;
-                long frames = value.Milliseconds * rate.Num / (1000 * rate.Den);
+                long frames = ((value.Ticks % TimeSpan.TicksPerSecond) * rate.Num + (rate.Den * TimeSpan.TicksPerSecond / 2)) / (rate.Den * TimeSpan.TicksPerSecond); // rounding
                 if (days > 0)
                     return string.Format("{0}{1}:{2:D2}:{3:D2}:{4:D2}:{5:D2}", minus ? "-" : "", days, hours, minutes, seconds, frames);
                 else

@@ -141,9 +141,7 @@
                     </DataGrid.RowDetailsTemplate>
                 </DataGrid>
             </Border>
-            <Grid Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" Width="320">
-                <client:PreviewView DataContext="{Binding PreviewViewmodel}" />
-            </Grid>
+            <ContentControl Content="{Binding PreviewView}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" Width="300"/>
         </StackPanel>
     </Grid>
 </Window>

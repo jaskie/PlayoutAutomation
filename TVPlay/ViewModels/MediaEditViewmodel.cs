@@ -10,6 +10,7 @@ using System.Windows.Input;
 using TAS.Server;
 using TAS.Common;
 using TAS.Client.Common;
+using System.Threading;
 
 namespace TAS.Client.ViewModels
 {
@@ -58,9 +59,12 @@ namespace TAS.Client.ViewModels
 
         void _refreshStatus(object o)
         {
-            Model.MediaStatus = TMediaStatus.Unknown;
-            Model.Verified = false;
-            Model.Verify();
+            ThreadPool.QueueUserWorkItem(obj =>
+            {
+                Model.MediaStatus = TMediaStatus.Unknown;
+                Model.Verified = false;
+                Model.Verify();
+            });
         }
 
 

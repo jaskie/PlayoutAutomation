@@ -158,6 +158,10 @@ namespace TAS.Server
 
         long _frameTicks;
         public long FrameTicks { get { return _frameTicks; } }
+        RationalNumber _frameRate;
+        [XmlIgnore]
+        public RationalNumber FrameRate { get { return _frameRate; } }
+
         public TVideoFormat VideoFormat { get; set; }
 
         [XmlIgnore]
@@ -169,6 +173,7 @@ namespace TAS.Server
             LocalGpi = localGpi;
             FormatDescription = VideoFormatDescription.Descriptions[VideoFormat];
             _frameTicks = FormatDescription.FrameTicks;
+            _frameRate = FormatDescription.FrameRate;
             var chPGM = PlayoutChannelPGM;
             Debug.WriteLine(chPGM, "About to initialize");
             Debug.Assert(chPGM != null && chPGM.OwnerServer != null, "Null channel PGM or its server");

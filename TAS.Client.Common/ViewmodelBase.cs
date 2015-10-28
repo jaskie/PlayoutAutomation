@@ -4,6 +4,8 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Input;
 
 namespace TAS.Client.ViewModels
 {
@@ -116,6 +118,11 @@ namespace TAS.Client.ViewModels
             field = value;
             NotifyPropertyChanged(propertyName);
             return true;
+        }
+
+        protected virtual void InvalidateRequerySuggested()
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)(() => CommandManager.InvalidateRequerySuggested()));
         }
     }
 }

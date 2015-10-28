@@ -12,6 +12,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using TAS.Client.ViewModels;
+using TAS.Client.Common;
+using TAS.Common;
 
 namespace TAS.Client
 {
@@ -20,9 +22,10 @@ namespace TAS.Client
     /// </summary>
     public partial class MediaSearchView : Window
     {
-        public MediaSearchView()
+        public MediaSearchView(RationalNumber frameRate)
         {
             InitializeComponent();
+            ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
         }
 
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)

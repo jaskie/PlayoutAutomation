@@ -58,21 +58,18 @@ namespace TAS.Client.Views
             {
                 TabItem newtab = new TabItem();
                 newtab.Header = engine.EngineName;
-                PreviewViewmodel newPreviewViewmodel = new PreviewViewmodel(engine);
+                PreviewViewmodel previewViewmodel = new PreviewViewmodel(engine);
                 Debug.WriteLine(engine, "Creating viewmodel for");
-                var evm = new EngineViewmodel(engine);
+                var engineViewModel = new EngineViewmodel(engine, previewViewmodel);
                 Debug.WriteLine(engine, "Creating commands for");
-                evm.PreviewViewmodel = newPreviewViewmodel;
-                newtab.Content = evm.View;
+                newtab.Content = engineViewModel.View;
                 tcChannels.Items.Add(newtab);
 
                 Debug.WriteLine(engine.MediaManager, "Creating tab for");
                 TabItem tabIngest = new TabItem();
                 tabIngest.Header = engine.EngineName + " - Media";
-                MediaManagerView newMediaManagerView = new MediaManagerView();
-                MediaManagerViewmodel newMediaManagerViewmodel = new MediaManagerViewmodel(engine.MediaManager, newPreviewViewmodel);
-                newMediaManagerView.DataContext = newMediaManagerViewmodel;
-                tabIngest.Content = newMediaManagerView;
+                MediaManagerViewmodel newMediaManagerViewmodel = new MediaManagerViewmodel(engine.MediaManager, previewViewmodel);
+                tabIngest.Content = newMediaManagerViewmodel.View;
                 tcChannels.Items.Add(tabIngest);
 
                 //Debug.WriteLine(engine.Templates, "Creating tab for");

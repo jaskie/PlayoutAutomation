@@ -15,7 +15,6 @@
              d:DesignWidth="700"
              >
     <UserControl.Resources>
-        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <Style x:Key="borderStyle" TargetType="{x:Type Border}">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
@@ -185,10 +184,10 @@
                         </Image>
                     </Grid>
                     <StackPanel Grid.Column="4" Grid.RowSpan="2" Visibility="{Binding IsNotContainer, Converter={StaticResource BoolToVis}}">
-                        <TextBlock Text="{Binding ScheduledTime, Converter={StaticResource DateTimeToSMPTE}, ConverterParameter=TC}" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding ScheduledTime}" FontWeight="SemiBold" />
                         <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" FontWeight="SemiBold" Foreground="DarkGreen" Visibility="{Binding OffsetVisible, Converter={StaticResource BoolToVis}}" />
-                        <TextBlock Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}}" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding EndTime, Converter={StaticResource DateTimeToSMPTE}, ConverterParameter=TC}"  FontWeight="Bold" />
+                        <TextBlock Text="{Binding Duration}" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding EndTime}"  FontWeight="Bold" />
                     </StackPanel>
                     <TextBlock Grid.Column="5" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0">
                         <TextBlock.ToolTip>
@@ -197,7 +196,7 @@
                     </TextBlock>
                     <!--<TextBlock Grid.Column="3" Grid.Row="1" Text="{Binding NextEventname}" VerticalAlignment="Center"  HorizontalAlignment="Stretch" />-->
 
-                    <TextBlock Grid.Column="6" Text="{Binding TimeLeft, Converter={StaticResource TimeSpanToSMPTE}, ConverterParameter=HIDE_ZERO_VALUE}" FontSize="26" VerticalAlignment="Center" Margin="5, 0" />
+                    <TextBlock Grid.Column="6" Text="{Binding TimeLeft}" FontSize="26" VerticalAlignment="Center" Margin="5, 0" />
                     <DockPanel Grid.Column="5" Grid.Row="1" Grid.ColumnSpan="2" FlowDirection="RightToLeft" Margin="5, 0" >
                         <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Visibility="{Binding GPICanTrigger, Converter={StaticResource BoolToVis}}">
                             <Image Width="20" Margin="1">

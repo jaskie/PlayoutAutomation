@@ -14,14 +14,19 @@ using System.Windows.Shapes;
 using System.Runtime.InteropServices;
 using TAS.Server;
 using System.Globalization;
+using TAS.Common;
+using TAS.Client.Common;
 
 namespace TAS.Client
 {
     public partial class EventEditView : UserControl
     {
-        public EventEditView()
+        public EventEditView(RationalNumber frameRate)
         {
             InitializeComponent();
+            ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
+            ((DateTimeToSMPTEConverter)Resources["DateTimeToSMPTE"]).FrameRate = frameRate;
+            ((TimeSpanToFramesConverter)Resources["TimeSpanToFrames"]).FrameRate = frameRate;
         }
     }
 }

@@ -24,6 +24,7 @@ namespace TAS.Client.ViewModels
     public class MediaManagerViewmodel : ViewmodelBase
     {
         private readonly MediaManager _mediaManager;
+        private readonly MediaManagerView _view;
         private ICollectionView _mediaView;
 
         public ICommand CommandSearch { get; private set; }
@@ -37,17 +38,23 @@ namespace TAS.Client.ViewModels
         public ICommand CommandExport { get; private set; }
         public ICommand CommandRefresh { get; private set; }
 
-        public MediaManagerViewmodel(MediaManager MediaManager, PreviewViewmodel PreviewVm)
+        public MediaManagerViewmodel(MediaManager MediaManager, PreviewViewmodel previewVm)
         {
             _mediaManager = MediaManager;
-            _previewViewModel = PreviewVm;
+            _previewViewModel = previewVm;
+            _previewView = new PreviewView(previewVm.FrameRate) { DataContext = previewVm };
             _createCommands();
             _mediaCategory = _mediaCategories.FirstOrDefault();
             MediaDirectory = MediaManager.MediaDirectoryPGM;
+            _view = new MediaManagerView() { DataContext = this };
         }
 
+
         private readonly PreviewViewmodel _previewViewModel;
-        public PreviewViewmodel PreviewViewModel { get { return _previewViewModel; } }
+        private readonly PreviewView _previewView;
+        public PreviewView PreviewView { get { return _previewView; } }
+
+        public MediaManagerView View { get { return _view; } }
 
         private MediaViewViewmodel _selectedMedia;
         public MediaViewViewmodel SelectedMedia 
@@ -76,7 +83,7 @@ namespace TAS.Client.ViewModels
                         && ((IngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
                         && !media.Verified)
                         ThreadPool.QueueUserWorkItem(new WaitCallback( o => media.Verify()));
-                    PreviewViewModel.Media = media;
+                    _previewViewModel.Media = media;
                     EditMedia = _selectedMedia == null ? null : new MediaEditViewmodel(_selectedMedia.Media, _previewViewModel, true);
                 }
             }
@@ -306,7 +313,7 @@ namespace TAS.Client.ViewModels
                 {
                     foreach (var reason in reasons)
                     {
-                        string reasonMsg = reason.Reason == MediaDeleteDeny.MediaDeleteDenyReason.MediaInFutureSchedule ? string.Format(resources._message_MediaDeleteDenyReason_Scheduled, reason.Event == null ? resources._unknown_ : reason.Event.EventName, reason.Event == null ? resources._unknown_ : reason.Event.ScheduledTime.ToString())
+                        string reasonMsg = reason.Reason == MediaDeleteDeny.MediaDeleteDenyReason.MediaInFutureSchedule ? string.Format(resources._message_MediaDeleteDenyReason_Scheduled, reason.Event == null ? resources._unknown_ : reason.Event.EventName, reason.Event == null ? resources._unknown_ : reason.Event.ScheduledTime.ToLocalTime().ToString())
                             : resources._message_MediaDeleteDenyReason_Unknown;
                         MessageBox.Show(string.Format(resources._message_MediaDeleteNotAllowed, reason.Media.MediaName, reasonMsg), resources._caption_Error, MessageBoxButton.OK);
                     }

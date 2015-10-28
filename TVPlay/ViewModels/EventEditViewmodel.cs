@@ -802,6 +802,7 @@ namespace TAS.Client.ViewModels
                     _isVolumeChecking = value;
                     NotifyPropertyChanged("IsVolumeChecking");
                     NotifyPropertyChanged("CommandCheckVolume");
+                    InvalidateRequerySuggested();
                 }
             }
         }
@@ -816,7 +817,7 @@ namespace TAS.Client.ViewModels
                 if (_modified != value)
                     _modified = value;
                 if (value)
-                    Application.Current.Dispatcher.BeginInvoke((Action)(() => CommandManager.InvalidateRequerySuggested()));
+                    InvalidateRequerySuggested();
             }
         }
 

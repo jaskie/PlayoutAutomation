@@ -12,6 +12,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.ComponentModel;
+using TAS.Common;
+using TAS.Client.Common;
 
 namespace TAS.Client
 {
@@ -20,9 +22,10 @@ namespace TAS.Client
     /// </summary>
     public partial class PreviewView : UserControl
     {
-        public PreviewView()
+        public PreviewView(RationalNumber frameRate)
         {
             InitializeComponent();
+            ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
         }
 
         //private void DataGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)

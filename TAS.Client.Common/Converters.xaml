@@ -5,8 +5,6 @@
     <common:BoolToBrushConverter x:Key="BoolToBrush"/>
     <BooleanToVisibilityConverter x:Key="BoolToVis" />
     <common:EventTypeToIntConverter x:Key="EventToInt" />
-    <common:DateTimeToSMPTEConverter x:Key="DateTimeToSMPTE" />
-    <common:TimeSpanToFramesConverter x:Key="TimeSpanToFrames" />
     <common:ColorToBrushConverter x:Key="ColorToBrush" />
     <common:EnabledBoolToOpacityConverter x:Key="EnabledToOpacity" />
     <common:TimeSpanToSignedStringConverter x:Key="TimeSpanToSignedString" />

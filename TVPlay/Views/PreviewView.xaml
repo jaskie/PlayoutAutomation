@@ -77,10 +77,10 @@
                 <TextBox Text="{Binding StartTC, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" IsReadOnly="True"/>
             </StackPanel>
             <StackPanel Grid.Column="1">
-                <Button Height="24" Margin="1" Padding="0" ToolTip="{Resx _secondBack.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="-25" >
+                <Button Height="24" Margin="1" Padding="0" ToolTip="{Resx _secondBack.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="rsecond" >
                     <common:AutoGreyableImage Source="../Glyphs/FFBack.png" Stretch="None" />
                 </Button>
-                    <Button Height="24" Margin="1" Padding="0" ToolTip="{Resx _frameBack.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="-1">
+                    <Button Height="24" Margin="1" Padding="0" ToolTip="{Resx _frameBack.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="rframe">
                     <common:AutoGreyableImage Source="../Glyphs/OneFrameBack.png" Stretch="None" />
                 </Button>
             </StackPanel>
@@ -89,10 +89,10 @@
                     <TextBox Text="{Binding Position, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
             <StackPanel Grid.Column="3">
-                    <Button Height="24" Margin="1" Padding="0" ToolTip="{Resx _secondForward.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="25">
+                    <Button Height="24" Margin="1" Padding="0" ToolTip="{Resx _secondForward.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="fsecond">
                     <common:AutoGreyableImage Source="../Glyphs/FFForward.png" Stretch="None" />
                 </Button>
-                    <Button Height="24" Margin="1" Padding="0" ToolTip="{Resx _frameForward.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="1">
+                    <Button Height="24" Margin="1" Padding="0" ToolTip="{Resx _frameForward.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="fframe">
                     <common:AutoGreyableImage Source="../Glyphs/OneFrameForward.png" Stretch="None" />
                 </Button>
             </StackPanel>

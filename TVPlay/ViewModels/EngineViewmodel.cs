@@ -20,8 +20,12 @@ namespace TAS.Client.ViewModels
     public class EngineViewmodel : ViewmodelBase
     {
         private readonly Engine _engine;
-        private readonly EventEditViewmodel _eventEditViewmodel;
         private readonly EngineView _engineView;
+        private readonly PreviewViewmodel _previewViewmodel;
+        private readonly PreviewView _previewView;
+        private readonly EventEditViewmodel _eventEditViewmodel;
+        private readonly EventEditView _eventEditView;
+
         private Event _selectedEvent;
         public Engine Engine { get { return _engine; } }
         public ICommand CommandClearAll { get; private set; }
@@ -59,10 +63,10 @@ namespace TAS.Client.ViewModels
         public ICommand CommandAddGraphics { get { return _eventEditViewmodel.CommandAddGraphics; } }
         public ICommand CommandHide { get { return Selected == null? null : Selected.CommandHide; } }
 
-        public EngineViewmodel(Server.Engine engine)
+        public EngineViewmodel(Server.Engine engine, PreviewViewmodel preview)
         {
             _engine = engine;
-            _frameRate = engine.FormatDescription.FrameRate;
+            _frameRate = engine.FrameRate;
             
             _engine.EngineTick += this.OnEngineTick;
             _engine.EngineOperation += this._engineOperation;
@@ -77,18 +81,22 @@ namespace TAS.Client.ViewModels
 
             Debug.WriteLine(this, "Creating EventEditViewmodel");
             _eventEditViewmodel = new EventEditViewmodel(this);
+            _eventEditView = new EventEditView(_frameRate) { DataContext = _eventEditViewmodel };
             
             Debug.WriteLine(this, "Creating EventClipboard");
             
-            _createCommands();
-
             Debug.WriteLine(this, "Creating EngineView");
             _engineView = new EngineView(this._frameRate);
             _engineView.DataContext = this;
 
+            _previewViewmodel = preview;
+            _previewView = new PreviewView(this._frameRate) { DataContext = preview };
+
             _selectedEvents = new ObservableCollection<EventPanelViewmodel>();
             _selectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged += EngineViewmodel_ClipboardChanged;
+
+            _createCommands();
         }
 
         void EngineViewmodel_ClipboardChanged()
@@ -107,6 +115,10 @@ namespace TAS.Client.ViewModels
         }
 
         public EngineView View { get { return _engineView; } }
+        public PreviewView PreviewView { get { return _previewView; } }
+        public PreviewViewmodel PreviewViewmodel { get { return _previewViewmodel; } }
+        public EventEditView EventEditView { get { return _eventEditView; } }
+
 
         #region Commands
 
@@ -180,7 +192,7 @@ namespace TAS.Client.ViewModels
 
         private void _export(object obj)
         {
-            var selections = _selectedEvents.Where(e => e.Media != null && e.Media.MediaType == TMediaType.Movie).Select(e => new MediaExport(e.Media, e.ScheduledTC, e.Duration, e.AudioVolume));
+            var selections = _selectedEvents.Where(e => e.Event != null && e.Event.Media != null && e.Event.Media.MediaType == TMediaType.Movie).Select(e => new MediaExport(e.Event.Media, e.Event.ScheduledTC, e.Event.Duration, e.Event.GetAudioVolume()));
             using (ExportViewmodel evm = new ExportViewmodel(_engine.MediaManager, selections)) { }
         }
 
@@ -335,30 +347,13 @@ namespace TAS.Client.ViewModels
                     else
                         selectedEvent = null;
                     _selectedEvent = selectedEvent;
-                    PreviewViewmodel.Event = selectedEvent;
+                    _previewViewmodel.Event = selectedEvent;
                     _eventEditViewmodel.Event = selectedEvent;
                     _onSelectedChanged();
                 }
             }
         }
 
-        public PreviewViewmodel _previewViewmodel;
-        public PreviewViewmodel PreviewViewmodel
-        {
-            get { return _previewViewmodel; } 
-            set
-            {
-                var pvm = _previewViewmodel;
-                if (pvm != value)
-                {
-                    if (pvm != null)
-                        pvm.PropertyChanged -= _eventEditViewmodel._previewPropertyChanged;
-                    _previewViewmodel = value;
-                    if (value != null)
-                        value.PropertyChanged += _eventEditViewmodel._previewPropertyChanged;
-                }
-            }
-        }
         public EventEditViewmodel EventEditViewmodel { get { return _eventEditViewmodel; } }
 
         private EventPanelViewmodel _GetEventViewModel(Event aEvent)
@@ -431,7 +426,7 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan SelectedTime
         {
-            get { return TimeSpan.FromTicks(_selectedEvents.Sum(e => e.Duration.Ticks)); }
+            get { return TimeSpan.FromTicks(_selectedEvents.Sum(e => e.Event.Duration.Ticks)); }
         }
 
         #region GPI
@@ -653,7 +648,7 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("CommandScheduleSelected");
                 NotifyPropertyChanged("CommandRescheduleSelected");
                 NotifyPropertyChanged("CommandStartLoaded");
-                Application.Current.Dispatcher.BeginInvoke((Action)(() => CommandManager.InvalidateRequerySuggested()));
+                InvalidateRequerySuggested();
             }
         }
 
