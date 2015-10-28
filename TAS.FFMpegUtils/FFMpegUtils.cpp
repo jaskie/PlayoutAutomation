@@ -109,8 +109,53 @@ namespace TAS {
 			{
 				for (unsigned int i=0; i<pFormatCtx->nb_streams; i++)
 				{
-					if(pFormatCtx->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO) 
-						return pFormatCtx->streams[i]->codec->field_order;
+					AVCodecContext *codecCtx = pFormatCtx->streams[i]->codec;
+					if (codecCtx->codec_type == AVMEDIA_TYPE_VIDEO)
+					{
+						if (codecCtx->field_order == AV_FIELD_UNKNOWN)
+						{
+							AVFrame *picture = av_frame_alloc();
+							AVPacket *packet = (AVPacket *)av_malloc(sizeof(AVPacket));
+							AVCodec *pCodec = avcodec_find_decoder(codecCtx->codec_id);
+							try
+							{
+								if (avcodec_open2(codecCtx, pCodec, NULL) < 0)
+									return AV_FIELD_UNKNOWN; // unable to open coden
+								bool readSuccess = true;
+								int frameFinished = 0;
+								int bytesDecoded = 0;
+								do
+								{
+									readSuccess = (av_read_frame(pFormatCtx, packet) == 0);
+									if (readSuccess
+										&& packet->stream_index == i
+										&& packet->size > 0
+										&& (bytesDecoded = avcodec_decode_video2(codecCtx, picture, &frameFinished, packet)) > 0)
+									{
+										if (frameFinished)
+										{
+											if (picture->interlaced_frame)
+												if (picture->top_field_first)
+													return AV_FIELD_TT;
+												else
+													return AV_FIELD_BB;
+											else
+												return AV_FIELD_PROGRESSIVE;
+										}
+									}
+								} while (!frameFinished && readSuccess);
+								return AV_FIELD_UNKNOWN;
+							}
+							finally
+							{
+								avcodec_close(codecCtx);
+								av_frame_free(&picture);
+								av_free_packet(packet);
+							}
+						}
+						else
+						return codecCtx->field_order;
+					}
 				} 
 			}
 			return AV_FIELD_UNKNOWN;
