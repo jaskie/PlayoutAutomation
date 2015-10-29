@@ -36,7 +36,7 @@ namespace TAS.Server
 #if DEBUG
         ~Media()
         {
-            Debug.WriteLine(this, "Finalized");
+            Debug.WriteLine(this, "Media Finalized");
         }
 #endif // DEBUG
 

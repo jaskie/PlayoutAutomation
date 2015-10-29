@@ -14,25 +14,21 @@ using TAS.Server.Interfaces;
 namespace TAS.Server
 {
  
-    public class Event : IComparable, INotifyPropertyChanged, IDisposable, IEventProperties
+    public class Event : IComparable, INotifyPropertyChanged, IEventProperties
     {
 
         public Event(Engine AEngine)
         {
             Engine = AEngine;
+            AEngine.AddEvent(this);
         }
 
-        private bool _disposed = false;
-        public void Dispose()
+#if DEBUG
+        ~Event()
         {
-            if (!_disposed)
-            {
-                _disposed = true;
-                if (Modified && Engine != null)
-                    Save();
-                Media = null;
-            }
+            Debug.WriteLine(this, "Event Finalized");
         }
+#endif // DEBUG
 
         private static object SyncStatic = new object();
 
@@ -231,22 +227,8 @@ namespace TAS.Server
             return (Prior == null) ? false : (Prior == aEvent)? true : Prior.IsBefore(aEvent);
         }
 
-        private Engine _engine;
-        public Engine Engine 
-        { 
-            get {return _engine;}
-            set
-            {
-                if (_engine != value)
-                {
-                    if (_engine != null)
-                        _engine.RemoveEvent(this);
-                    if (value != null)
-                        value.AddEvent(this);
-                    _engine = value;
-                }
-            }
-        }
+        public Engine Engine { get; private set; }
+
         internal VideoLayer _layer = VideoLayer.None;
         public VideoLayer Layer
         {
@@ -315,7 +297,7 @@ namespace TAS.Server
                         return default(DateTime);
                 }
                 // playstate playing, fading
-                return _engine.CurrentTime + TimeLeft;
+                return Engine.CurrentTime + TimeLeft;
             }
         }
 
@@ -393,7 +375,7 @@ namespace TAS.Server
         {
             get
             {
-                return _duration - TimeSpan.FromTicks(_engine.FrameTicks * _position);
+                return _duration - TimeSpan.FromTicks(Engine.FrameTicks * _position);
             }
         }
 
@@ -453,7 +435,7 @@ namespace TAS.Server
         public TimeSpan ScheduledDelay
         {
             get { return _scheduledDelay; }
-            set { SetField(ref _scheduledDelay, _engine.AlignTimeSpan(value), "ScheduledDelay"); }
+            set { SetField(ref _scheduledDelay, Engine.AlignTimeSpan(value), "ScheduledDelay"); }
         }
 
         internal TimeSpan _duration;
@@ -465,7 +447,7 @@ namespace TAS.Server
             }
             set
             {
-                TimeSpan newDuration = _engine.AlignTimeSpan(value);
+                TimeSpan newDuration = Engine.AlignTimeSpan(value);
                 if (newDuration != _duration)
                 {
                     if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
@@ -653,18 +635,21 @@ namespace TAS.Server
                 if (media != null)
                     return media;
                 Guid mediaGuid = _mediaGuid;
-                if ((media == null || media.MediaStatus == TMediaStatus.Deleted) && mediaGuid != Guid.Empty)
+                if (media == null && mediaGuid != Guid.Empty)
                 {
                     MediaDirectory dir;
                     if (_eventType == TEventType.AnimationFlash)
-                        dir = _engine.MediaManager.AnimationDirectoryPGM;
+                        dir = Engine.MediaManager.AnimationDirectoryPGM;
                     else
-                        dir = _engine.MediaManager.MediaDirectoryPGM;
+                        dir = Engine.MediaManager.MediaDirectoryPGM;
                     if (dir != null)
                     {
                         var newMedia = dir.FindMedia(mediaGuid);
                         if (newMedia is ServerMedia)
-                            Media = newMedia;
+                        {
+                            _serverMediaPGM = (ServerMedia)newMedia;
+                            newMedia.PropertyChanged += _serverMediaPGM_PropertyChanged;
+                        }
                     }
                 }
                 return _serverMediaPGM;
@@ -683,9 +668,9 @@ namespace TAS.Server
                 {
                     MediaDirectory dir;
                     if (_eventType == TEventType.AnimationFlash)
-                        dir = _engine.MediaManager.AnimationDirectoryPRV;
+                        dir = Engine.MediaManager.AnimationDirectoryPRV;
                     else
-                        dir = _engine.MediaManager.MediaDirectoryPRV;
+                        dir = Engine.MediaManager.MediaDirectoryPRV;
                     if (dir != null)
                     {
                         var newMedia = dir.FindMedia(mediaGuid);
@@ -704,7 +689,7 @@ namespace TAS.Server
             {
                 Guid mediaGuid = _mediaGuid;
                 if (_template == null)
-                    _template = _engine.MediaManager.Templates.ToList().FirstOrDefault(t => t.MediaGuid == this.MediaGuid);
+                    _template = Engine.MediaManager.Templates.ToList().FirstOrDefault(t => t.MediaGuid == this.MediaGuid);
                 return _template;
             }
         }
@@ -1112,6 +1097,27 @@ namespace TAS.Server
             }
         }
 
+        public void SaveLoadedTree()
+        {
+            if (Modified && Engine != null)
+                Save();
+            Media = null;
+            var se = _subEvents;
+            if (se != null)
+            {
+                foreach (Event e in se)
+                {
+                    Event ce = e;
+                    do
+                    {
+                        ce.SaveLoadedTree();
+                        Event ne = ce._next;
+                        ce = ne;
+                    } while (ce != null);
+                }
+            }
+        }
+
         public bool IsDeleted = false;
         public void Delete()
         {
@@ -1125,8 +1131,8 @@ namespace TAS.Server
                         Event ne = se.Next;
                         while (ne != null)
                         {
-                            var next = ne.Next;
                             ne.Delete();
+                            var next = ne.Next;
                             ne = next;
                         }
                         se.Delete();
@@ -1139,6 +1145,30 @@ namespace TAS.Server
                 }
             }
         }
+
+        public MediaDeleteDeny CheckCanDeleteMedia(ServerMedia media)
+        {
+            Event nev = this;
+            while (nev != null)
+            {
+                if (nev.EventType == TEventType.Movie
+                    && nev.Media == media
+                    && nev.ScheduledTime >= Engine.CurrentTime)
+                    return new MediaDeleteDeny() { Reason = MediaDeleteDeny.MediaDeleteDenyReason.MediaInFutureSchedule, Event = nev, Media = media };
+                if (nev._subEvents != null)
+                {
+                    foreach (Event se in nev._subEvents.ToList())
+                    {
+                        MediaDeleteDeny reason = se.CheckCanDeleteMedia(media);
+                        if (reason.Reason != MediaDeleteDeny.MediaDeleteDenyReason.NoDeny)
+                            return reason;
+                    }
+                }
+                nev = nev._next;
+            }
+            return MediaDeleteDeny.NoDeny;
+        }
+
 
         internal UInt64 _idProgramme;
         public UInt64 idProgramme

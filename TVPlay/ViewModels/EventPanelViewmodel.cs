@@ -71,10 +71,23 @@ namespace TAS.Client.ViewModels
             _engine = _event.Engine;
             _createCommands();
         }
+#if DEBUG
+        ~EventPanelViewmodel ()
+        {
+            Debug.WriteLine(this, "EventPanelViewmodel Finalized");
+        }
+#endif // DEBUG
 
         protected override void OnDispose()
         {
-            if (_event == null)
+            IsMultiSelected = false;
+            ClearChildrens();
+            if (_parent != null)
+            {
+                _parent._childrens.Remove(this);
+                _parent = null;
+            }
+            if (_event != null)
             {
                 _engine.EventSaved -= _onEventSaved;
                 _event.PropertyChanged -= _onPropertyChanged;
@@ -83,7 +96,7 @@ namespace TAS.Client.ViewModels
                 _event.Relocated -= _onRelocated;
                 Media = null; // unregister media propertychanged event
             }
-            Debug.WriteLine(this, "Disposed");
+            Debug.WriteLine(this, "EventPanelViewmodel Disposed");
         }
 
         protected void _createCommands()
@@ -216,14 +229,7 @@ namespace TAS.Client.ViewModels
             {
                 IsMultiSelected = false;
                 IsSelected = false;
-                var parent = _parent;
-                if (parent != null)
-                {
-                    var index = parent.Childrens.IndexOf(this);
-                    if (index >= 1)
-                        parent.Childrens[index - 1].IsSelected = true;
-                    parent.Childrens.Remove(this);
-                }
+                Dispose();
             }, null);
         }
 
@@ -346,7 +352,7 @@ namespace TAS.Client.ViewModels
 
         public bool HasDummyChild
         {
-            get { return this.Childrens.Count == 1 && this.Childrens[0] == DummyChild; }
+            get { return _childrens.Contains(DummyChild); }
         }
 
         protected void LoadChildrens()
@@ -362,6 +368,21 @@ namespace TAS.Client.ViewModels
                 }
             }
         }
+        protected void ClearChildrens()
+        {
+            if (this._childrens.Count() > 0)
+            {
+                if (!HasDummyChild)
+                {
+                    foreach (var c in _childrens.ToList())
+                        c.Dispose();
+                    if (Event.SubEvents.Count() > 0)
+                        _childrens.Add(DummyChild);
+                }
+            }
+        }
+
+
         public int Level { get { return _level; } }
 
         bool _isExpanded;
@@ -386,12 +407,8 @@ namespace TAS.Client.ViewModels
                         this.LoadChildrens();
                     }
 
-                    //if (!value && this.Childrens.Count() > 0)
-                    //{
-                    //    _childrens.Clear();
-                    //    if (Event.SubEvents.Count() > 0)
-                    //        _childrens.Add(DummyChild);
-                    //}
+                    if (!value)
+                        ClearChildrens();
                     NotifyPropertyChanged("IsExpanded");
                 }
             }
@@ -439,6 +456,7 @@ namespace TAS.Client.ViewModels
                 {
                     _parent._childrens.Remove(this);
                     _parent = value;
+                    if (_parent != null)
                     if (_event.Prior != null)
                         _parent.Childrens.Insert(_parent._childrens.IndexOf(_parent._childrens.FirstOrDefault(evm => evm._event == _event.Prior))+1, this);
                     else
@@ -459,7 +477,7 @@ namespace TAS.Client.ViewModels
 
         public string Duration
         {
-            get { return (_event == null || _event.Duration == TimeSpan.Zero) ? string.Empty: _event.Duration.ToSMPTETimecodeString(_frameRate); }
+            get { return (_event == null) ? string.Empty: _event.Duration.ToSMPTETimecodeString(_frameRate); }
         }
 
         public bool Enabled

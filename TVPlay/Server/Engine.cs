@@ -94,6 +94,8 @@ namespace TAS.Server
                 _runningEvents.CollectionOperation -= _runningEventsOperation;
                 if (GPI != null)
                     GPI.Dispose();
+                foreach (Event e in RootEvents)
+                    e.SaveLoadedTree();
             }
         }
 
@@ -357,32 +359,19 @@ namespace TAS.Server
             return EngineName;
         }
 
-        private readonly SynchronizedCollection<Event> _allEvents = new SynchronizedCollection<Event>(); // list of all events loaded in engine
-
         [XmlIgnore]
         public readonly SynchronizedCollection<Event> RootEvents = new SynchronizedCollection<Event>();
 
-        
-        public bool AddEvent(Event aEvent)
+        public void AddEvent(Event aEvent)
         {
-            lock (_allEvents.SyncRoot)
-            {
-                if (_allEvents.Contains(aEvent))
-                    return false;
-                else
-                {
-                    _allEvents.Add(aEvent);
-                    aEvent.Saved += _eventSaved;
-                    return true;
-                }
-            }
+            aEvent.Saved += _eventSaved;
         }
 
         public enum ArchivePolicyType { NoArchive, ArchivePlayedAndNotUsedWhenDeleteEvent };
 
         public ArchivePolicyType ArchivePolicy;
 
-        public bool RemoveEvent(Event aEvent)
+        public void RemoveEvent(Event aEvent)
         {
             RootEvents.Remove(aEvent);
             ServerMedia media = (ServerMedia)aEvent.Media;
@@ -393,21 +382,9 @@ namespace TAS.Server
                 && MediaManager.ArchiveDirectory != null
                 && CanDeleteMedia(media).Reason == MediaDeleteDeny.MediaDeleteDenyReason.NoDeny)
                 ThreadPool.QueueUserWorkItem(o => MediaManager.ArchiveMedia(media, true));
-            if (_allEvents.Remove(aEvent))
-            {
                 aEvent.Saved -= _eventSaved;
-                return true;
-            };
-            return false;
         }
 
-        public void SaveAllEvents()
-        {
-            lock (_allEvents.SyncRoot)
-                foreach (Event e in _allEvents)
-                    e.Save();
-        }
- 
         private void _onServerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var handler = ServerPropertyChanged;
@@ -605,7 +582,7 @@ namespace TAS.Server
                         || !aEvent.Enabled)
                     {
                         aEvent.PlayState = TPlayState.Scheduled;
-                        foreach (Event se in aEvent.SubEvents)
+                        foreach (Event se in aEvent.SubEvents.ToList())
                             ReSchedule(se);
                         ReSchedule(aEvent.GetSuccessor());
                     }
@@ -1134,27 +1111,6 @@ namespace TAS.Server
             }
         }
         
-
-        private MediaDeleteDeny _checkCanDeleteMedia(Event ev, ServerMedia media)
-        {
-            Event nev = ev;
-            while (nev != null)
-            {
-                if (nev.EventType == TEventType.Movie 
-                    && nev.Media == media 
-                    && nev.ScheduledTime >= CurrentTime)
-                    return new MediaDeleteDeny() { Reason = MediaDeleteDeny.MediaDeleteDenyReason.MediaInFutureSchedule, Event = nev, Media = media };
-                foreach (Event se in nev.SubEvents)
-                {
-                    MediaDeleteDeny reason = _checkCanDeleteMedia(se, media);
-                    if (reason.Reason != MediaDeleteDeny.MediaDeleteDenyReason.NoDeny)
-                        return reason;
-                }
-                nev = nev.Next;
-            }
-            return MediaDeleteDeny.NoDeny;
-        }
-
         private void _mediaPGMVerified(object o, MediaEventArgs e)
         {
             if (PlayoutChannelPRV != null
@@ -1190,7 +1146,7 @@ namespace TAS.Server
             MediaDeleteDeny reason = MediaDeleteDeny.NoDeny;
             foreach (Event e in RootEvents.ToList())
             {
-                reason = _checkCanDeleteMedia(e, serverMedia);
+                reason = e.CheckCanDeleteMedia(serverMedia);
                 if (reason.Reason != MediaDeleteDeny.MediaDeleteDenyReason.NoDeny)
                     return reason;
             }

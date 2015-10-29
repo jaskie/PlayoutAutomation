@@ -60,10 +60,7 @@ namespace TAS.Server
         protected void DoDispose()
         {
             foreach (Engine E in Engines)
-            {
-                E.SaveAllEvents();
                 E.Dispose();
-            }
             if (_localGPIDevices != null)
                 _localGPIDevices.Dispose();
         }

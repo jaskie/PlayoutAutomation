@@ -290,7 +290,6 @@ namespace TAS.Data
             {
                 if (Connect())
                 {
-                    Debug.WriteLine(aEvent, "Event table insert");
                     string query =
     @"INSERT INTO RundownEvent 
 (idEngine, idEventBinding, Layer, typEvent, typStart, ScheduledTime, ScheduledDelay, Duration, ScheduledTC, MediaGuid, EventName, PlayState, StartTime, StartTC, RequestedStartTime, TransitionTime, typTransition, AudioVolume, idProgramme, flagsEvent) 
@@ -299,6 +298,7 @@ VALUES
                     MySqlCommand cmd = new MySqlCommand(query, connection);
                     success = _EventFillParamsAndExecute(cmd, aEvent);
                     aEvent.IdRundownEvent = (UInt64)cmd.LastInsertedId;
+                    Debug.WriteLineIf(success, aEvent, "Event DbInsert");
                 }
             }
             return success;
@@ -310,7 +310,6 @@ VALUES
             {
                 if (Connect())
                 {
-                    Debug.WriteLine(aEvent, "Event table update");
                     string query =
     @"UPDATE RundownEvent 
 SET 
@@ -337,7 +336,11 @@ flagsEvent=@flagsEvent
 WHERE idRundownEvent=@idRundownEvent;";
                     MySqlCommand cmd = new MySqlCommand(query, connection);
                     cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.IdRundownEvent);
-                    return _EventFillParamsAndExecute(cmd, aEvent);
+                    if (_EventFillParamsAndExecute(cmd, aEvent))
+                    {
+                        Debug.WriteLine(aEvent, "Event DbUpdate");
+                        return true;
+                    }
                 }
             }
             return false;
@@ -355,7 +358,7 @@ WHERE idRundownEvent=@idRundownEvent;";
                     cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.IdRundownEvent);
                     cmd.ExecuteNonQuery();
                     success = true;
-                    Debug.WriteLine(aEvent, "Deleted");
+                    Debug.WriteLine(aEvent, "Event DbDelete");
                 }
             }
             return success;
