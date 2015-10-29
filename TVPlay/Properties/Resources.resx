@@ -136,7 +136,7 @@
     <value>Start of play must be between start and end clip timecode</value>
   </data>
   <data name="_validate_DurationInvalid" xml:space="preserve">
-    <value>Duration (considring start TC) is longer than clip</value>
+    <value>Duration (considering start TC) is longer than clip</value>
   </data>
   <data name="_validate_FileAlreadyExists" xml:space="preserve">
     <value>File of this name already exists</value>
