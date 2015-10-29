@@ -4,7 +4,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         Name="AppMainWindow" Title="{Resx Window.Title}" Height="864" Width="1152"
-        Loaded="AppMainWindow_Loaded" Closed="AppMainWindow_Closed" Closing="AppMainWindow_Closing">
+        Loaded="AppMainWindow_Loaded"
+        Closed="AppMainWindow_Closed" 
+        Closing="AppMainWindow_Closing" 
+        KeyDown="AppMainWindow_KeyDown">
     <TabControl Name="tcChannels" TabStripPlacement="Bottom">
     </TabControl>
 </Window>

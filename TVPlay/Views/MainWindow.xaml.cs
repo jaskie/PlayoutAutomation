@@ -94,5 +94,17 @@ namespace TAS.Client.Views
             e.Cancel = !_systemShutdown && MessageBox.Show(Properties.Resources._query_ExitApplication, TAS.Client.Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.No;
 #endif // DEBUG
         }
+
+        private void AppMainWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+#if DEBUG
+            if (e.Key == Key.G && e.KeyboardDevice.Modifiers == (ModifierKeys.Alt | ModifierKeys.Control))
+            {
+                GC.Collect(GC.MaxGeneration);
+                Debug.WriteLine("CG enforced");
+                e.Handled = true;
+            }
+#endif // DEBUG
+        }
     }
 }
