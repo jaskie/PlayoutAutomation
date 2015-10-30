@@ -868,7 +868,7 @@ namespace TAS.Client.ViewModels
 
         public override string ToString()
         {
-            return (_event == null) ? "null event" : _event.ToString();
+            return _event == null ? "null" : _event.ToString();
         }
 
         public EventPanelViewmodel Next

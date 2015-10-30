@@ -31,6 +31,14 @@ namespace TAS.Client
             InitializeComponent();
         }
 
+#if DEBUG
+        ~EventPanelView()
+        {
+            if (Application.Current != null)
+                Application.Current.Dispatcher.BeginInvoke((Action)(() => System.Diagnostics.Debug.WriteLine(this.DataContext, "View finalized")));
+        }
+#endif // DEBUG
+
         private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             EventPanelViewmodel vm = e.NewValue as EventPanelViewmodel;

@@ -82,5 +82,10 @@ namespace TAS.Client.Common
         [XmlIgnore]
         public UserControl Editor { get { return _editor; } }
 
+        public override string ToString()
+        {
+            return Model.ToString();
+        }
+
     }
 }

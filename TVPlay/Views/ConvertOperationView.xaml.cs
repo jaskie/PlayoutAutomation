@@ -23,5 +23,14 @@ namespace TAS.Client
         {
             InitializeComponent();
         }
+
+#if DEBUG
+        ~ConvertOperationView()
+        {
+            if (Application.Current != null)
+                Application.Current.Dispatcher.BeginInvoke((Action)(() => System.Diagnostics.Debug.WriteLine(this.DataContext, "View finalized")));
+        }
+#endif // DEBUG
+
     }
 }
