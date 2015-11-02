@@ -537,7 +537,11 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("VisibleEvents");
             }
 
-            NotifyPropertyChanged("CommandStartLoaded");
+            if (a.Operation == TEngineOperation.Load)
+                NotifyPropertyChanged("CommandStartLoaded");
+
+            if (a.Operation == TEngineOperation.Stop || a.Operation == TEngineOperation.Clear)
+                NotifyPropertyChanged("PlayingEventName");
 
             if (a.Event != null
                 && _selected != null
@@ -549,9 +553,7 @@ namespace TAS.Client.ViewModels
         {
             var evm = _GetEventViewModel(pe);
             if (evm != null)
-            {
                 evm.SetOnTop();
-            }
         }
 
         
