@@ -1088,6 +1088,16 @@ namespace TAS.Client.ViewModels
         }
 
         #region GPI
+
+        public bool IsGPIEnabled
+        {
+            get
+            {
+                Event ev = Event;
+                return (ev != null && (ev.Engine.GPI != null || ev.Engine.LocalGpi != null));
+            }
+        }
+
         private EventGPI _gpi;
         public EventGPI GPI { get { return _gpi; } set { _gpi = value; } }
 

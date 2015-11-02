@@ -120,6 +120,9 @@
   <data name="_audioVolume" xml:space="preserve">
     <value>Volume</value>
   </data>
+  <data name="_audioVolume.ToolTip" xml:space="preserve">
+    <value>If not checked, will get volume from clip properties</value>
+  </data>
   <data name="_changeMovie.ToolTip" xml:space="preserve">
     <value>Change clip</value>
   </data>

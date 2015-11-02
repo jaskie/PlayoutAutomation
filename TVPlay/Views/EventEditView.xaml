@@ -143,6 +143,7 @@
                 <Style TargetType="CheckBox">
                     <Setter Property="Width" Value="75"/>
                     <Setter Property="HorizontalAlignment" Value="Left"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
                     <Setter Property="Margin" Value="10, 3, 3, 0"/>
                 </Style>
             </ScrollViewer.Resources>
@@ -202,7 +203,7 @@
                             <common:DelayedBindingTextBox Text="{Binding TransitionTime, Converter={StaticResource TimeSpanToFrames}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" />
                         </DockPanel>
                         <DockPanel>
-                            <CheckBox Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" IsChecked="{Binding HasAudioVolume}" />
+                            <CheckBox Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" IsChecked="{Binding HasAudioVolume}" ToolTip="{Resx _audioVolume.ToolTip}" />
                             <Button DockPanel.Dock="Right" ToolTip="{Resx _checkVolume.ToolTip}" Command="{Binding CommandCheckVolume}">
                                 <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png" />
                             </Button>
@@ -210,8 +211,8 @@
                             <TextBox DockPanel.Dock="Right" Grid.Column="2" Width="40" Text="{Binding AudioVolumeLevel, StringFormat={}{0:0.0}, UpdateSourceTrigger=LostFocus}"/>
                             <Slider  VerticalAlignment="Stretch" Margin="5, 0" Minimum="-15" Maximum="15" Value="{Binding AudioVolumeLevel}"/>
                         </DockPanel>
-                        <Grid>
-                            <CheckBox Content="GPI" IsChecked="{Binding GPICanTrigger}" Panel.ZIndex="1" />
+                        <Grid Visibility="{Binding IsGPIEnabled, Converter={StaticResource BoolToVis}}" >
+                            <CheckBox Content="GPI" IsChecked="{Binding GPICanTrigger}" VerticalAlignment="Top" Margin="10, 5" />
                             <StackPanel Visibility="{Binding GPICanTrigger, Converter={StaticResource BoolToVis}}">
                                 <StackPanel Orientation="Horizontal">
                                     <Label Content="{Resx _gpiLogo}" />

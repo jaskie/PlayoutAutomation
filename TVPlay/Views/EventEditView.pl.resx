@@ -120,6 +120,9 @@
   <data name="_audioVolume" xml:space="preserve">
     <value>Dźwięk</value>
   </data>
+  <data name="_audioVolume.ToolTip" xml:space="preserve">
+    <value>Jeśli nie zaznaczone, pobierze głośność z właściwości klipu</value>
+  </data>
   <data name="_changeMovie.ToolTip" xml:space="preserve">
     <value>Zmień</value>
   </data>

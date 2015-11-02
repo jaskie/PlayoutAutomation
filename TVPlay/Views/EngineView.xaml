@@ -290,7 +290,7 @@
             <Label Content="{Resx _toolbar.TimeToAttention}" Grid.Column="3" />
             <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding TimeToAttention, Converter={StaticResource TimeSpanToSMPTE}, ConverterParameter=HIDE_ZERO_VALUE}" Background="{Binding EngineState, Converter={StaticResource EngineStateToBrush}}"/>
             <Label Content="{Resx _toolbar.NowPlaying}" Grid.Column="4" />
-            <TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding PlayingEvent.EventName}">
+            <TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding PlayingEventName}">
                 <TextBlock.ToolTip>
                     <TextBlock FontSize="12" Text="{Binding PlayingEvent.NextEventName, StringFormat={Resx _toolbar.NextEvent.ToolTip, ResxName=TAS.Client.Views.EngineView}}" />
                 </TextBlock.ToolTip>
