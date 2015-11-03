@@ -103,10 +103,10 @@ namespace TAS.Common
     {
         PAL_FHA    = 0x0,
         PAL        = 0x1,
+        NTSC       = 0x2,
         PAL_FHA_P  = 0x3,
         PAL_P      = 0x4,
         NTSC_FHA   = 0x5,
-        NTSC       = 0x6,
         HD720p2500 = 0x8,
         HD720p5000 = 0x9,
         HD720p5994 = 0xA,

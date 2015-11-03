@@ -410,7 +410,11 @@ namespace TAS.Server
                 _previewSeek = seek;
                 _previewPosition = position;
                 _previewMedia = media;
-                PlayoutChannelPRV.Load(_previewMedia, VideoLayer.Preview, seek+position, duration-position);
+                if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
+                    PlayoutChannelPRV.SetAspect(VideoLayer.Preview, media.VideoFormat == TVideoFormat.NTSC
+                                            || media.VideoFormat == TVideoFormat.PAL
+                                            || media.VideoFormat == TVideoFormat.PAL_P);
+                PlayoutChannelPRV.Load(media, VideoLayer.Preview, seek+position, duration-position);
                 PreviewLoaded = true;
                 PreviewIsPlaying = false;
                 NotifyPropertyChanged("PreviewMedia");
@@ -709,13 +713,13 @@ namespace TAS.Server
             if (aEvent == null || !(aEvent.Layer == VideoLayer.Program || aEvent.Layer == VideoLayer.Preset))
                 return;
             Media media = aEvent.Media;
-            bool narrow = media != null && (media.VideoFormat == TVideoFormat.PAL || media.VideoFormat == TVideoFormat.NTSC);
+            bool narrow = media != null && (media.VideoFormat == TVideoFormat.PAL || media.VideoFormat == TVideoFormat.NTSC || media.VideoFormat == TVideoFormat.PAL_P);
             if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
             {
                 if (PlayoutChannelPGM != null)
-                    PlayoutChannelPGM.SetAspect(narrow);
+                    PlayoutChannelPGM.SetAspect(VideoLayer.Program, narrow);
                 if (PlayoutChannelPRV != null)
-                    PlayoutChannelPRV.SetAspect(narrow);
+                    PlayoutChannelPRV.SetAspect(VideoLayer.Program, narrow);
             }
             if (AspectRatioControl == TAspectRatioControl.GPI || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
                 if (GPI != null)

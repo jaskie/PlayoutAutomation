@@ -103,6 +103,54 @@ namespace TAS {
 			return 0; 
 		}
 
+		AVFrame* _FFMpegWrapper::decodeFirstFrame()
+		{
+			if (pFormatCtx)
+			{
+				for (unsigned int i = 0; i < pFormatCtx->nb_streams; i++)
+				{
+					AVCodecContext *codecCtx = pFormatCtx->streams[i]->codec;
+					if (codecCtx->codec_type == AVMEDIA_TYPE_VIDEO)
+					{
+						AVFrame *picture = av_frame_alloc();
+						AVPacket *packet = (AVPacket *)av_malloc(sizeof(AVPacket));
+						AVCodec *pCodec = avcodec_find_decoder(codecCtx->codec_id);
+						try
+						{
+							if (avcodec_open2(codecCtx, pCodec, NULL) < 0)
+							{
+								av_frame_free(&picture);
+								return NULL; // unable to open coden
+							}
+							bool readSuccess = true;
+							int frameFinished = 0;
+							int bytesDecoded = 0;
+							do
+							{
+								readSuccess = (av_read_frame(pFormatCtx, packet) == 0);
+								if (readSuccess
+									&& packet->stream_index == i
+									&& packet->size > 0
+									&& (bytesDecoded = avcodec_decode_video2(codecCtx, picture, &frameFinished, packet)) > 0)
+								{
+									if (frameFinished)
+										return picture;
+								}
+							} while (!frameFinished && readSuccess);
+							av_frame_free(&picture);
+							return NULL;
+						}
+						finally
+						{
+							avcodec_close(codecCtx);
+							av_free_packet(packet);
+						}
+					}
+				}
+			}
+			return NULL;
+		}
+
 		AVFieldOrder _FFMpegWrapper::getFieldOrder()
 		{
 			if (pFormatCtx)
@@ -165,11 +213,11 @@ namespace TAS {
 		{
 			if (pFormatCtx)
 			{
-				for (unsigned int i=0; i<pFormatCtx->nb_streams; i++)
+				for (unsigned int i = 0; i<pFormatCtx->nb_streams; i++)
 				{
-					if(pFormatCtx->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO) 
-						return pFormatCtx->streams[i]->codec->sample_aspect_ratio;
-				} 
+					if (pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO)
+						return pFormatCtx->streams[i]->sample_aspect_ratio;
+				}
 			}
 			return av_make_q(0, 0);
 		}

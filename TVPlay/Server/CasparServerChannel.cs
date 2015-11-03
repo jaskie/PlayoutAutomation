@@ -377,7 +377,7 @@ namespace TAS.Server
             }
         }
 
-        public override void SetAspect(bool narrow)
+        public override void SetAspect(VideoLayer layer, bool narrow)
         {
             var channel = _casparChannel;
             var oldAspectNarrow = outputAspectNarrow;
@@ -387,9 +387,9 @@ namespace TAS.Server
             {
                 outputAspectNarrow = narrow;
                 if (narrow)
-                    channel.CustomCommand(string.Format("MIXER {0}-{1} FILL 0.125 0 0.75 1 10", ChannelNumber, (int)VideoLayer.Program));
+                    channel.CustomCommand(string.Format("MIXER {0}-{1} FILL 0.125 0 0.75 1 10", ChannelNumber, (int)layer));
                 else
-                    channel.CustomCommand(string.Format("MIXER {0}-{1} FILL 0 0 1 1 10", ChannelNumber, (int)VideoLayer.Program));
+                    channel.CustomCommand(string.Format("MIXER {0}-{1} FILL 0 0 1 1 10", ChannelNumber, (int)layer));
                 Debug.WriteLine("SetAspect narrow: {0}", narrow);
             }
         }

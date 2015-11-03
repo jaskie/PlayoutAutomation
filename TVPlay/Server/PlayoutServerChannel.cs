@@ -52,7 +52,7 @@ namespace TAS.Server
         {
             get { return _getFormat(); }
         }
-        public abstract void SetAspect(bool narrow);
+        public abstract void SetAspect(VideoLayer layer, bool narrow);
 
         public abstract void Clear();
 

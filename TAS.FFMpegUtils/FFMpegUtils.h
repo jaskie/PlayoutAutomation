@@ -50,6 +50,7 @@ namespace TAS {
 	private:
 		AVFormatContext	*pFormatCtx;
 		int64_t countFrames(unsigned int streamIndex);
+		AVFrame *decodeFirstFrame();
 	public:
 		_FFMpegWrapper(char* fileName);
 		~_FFMpegWrapper();
