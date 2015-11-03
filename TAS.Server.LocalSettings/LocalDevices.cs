@@ -56,7 +56,10 @@ namespace TAS.Server
             if (Devices.Count > 0)
             {
                 foreach (AdvantechDevice device in Devices)
+                {
+                    Debug.WriteLine("Initializing AdvantechDevice {0}", device.DeviceId, null);
                     device.Initialize();
+                }
                 Thread poolingThread = new Thread(_advantechPoolingThreadExecute);
                 poolingThread.IsBackground = true;
                 poolingThread.Name = string.Format("Thread for Advantech devices pooling");
@@ -81,6 +84,7 @@ namespace TAS.Server
         void _advantechPoolingThreadExecute()
         {
             byte newPortState, oldPortState;
+            Debug.WriteLine("Startting AdvantechPoolingThread thread");
             while (!disposed)
             {
                 try
@@ -97,7 +101,10 @@ namespace TAS.Server
                                     if ((changedBits & 0x1) > 0)
                                     {
                                         foreach (LocalGpiDeviceBinding binding in EngineBindings)
+                                        {
                                             binding.NotifyChange(device.DeviceId, port, bit, (newPortState & 0x1) > 0);
+                                            Debug.WriteLine("Advantech device {0} port {1} state changed to {2}", device.DeviceId, port, (newPortState & 0x1) > 0);
+                                        }
                                     }
                                     changedBits = changedBits >> 1;
                                     newPortState = (byte)(newPortState >> 1);

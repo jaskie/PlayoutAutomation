@@ -28,7 +28,7 @@ namespace TAS.Server
             {
                 DirectoryCatalog catalog = new DirectoryCatalog(".", "TAS.Server.*.dll");
                 ServerContainer = new CompositionContainer(catalog);
-                ServerContainer.ComposeExportedValue("LocalDevicesConfigurationFile", ConfigurationManager.AppSettings["LocalSettings"]);
+                ServerContainer.ComposeExportedValue("LocalDevicesConfigurationFile", ConfigurationManager.AppSettings["LocalDevices"]);
                 ServerContainer.SatisfyImportsOnce(this);
             }
             catch (Exception e)
