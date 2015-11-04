@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using TAS.Common;
 using TAS.FFMpegUtils;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
@@ -54,11 +55,11 @@ namespace TAS.Server
                     Rational sar = ffmpeg.GetSAR();
                     if (h == 608 && w == 720)
                     {
-                        media.HasExtraLines = true;
+                        media._hasExtraLines = true;
                         h = 576;
                     }
                     else
-                        media.HasExtraLines = false;
+                        media._hasExtraLines = false;
 
                     RationalNumber sAR = (h == 576 && ((sar.Num == 608 && sar.Den == 405) || (sar.Num == 1 && sar.Den == 1))) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL_FHA].SAR
                         : (sar.Num == 152 && sar.Den == 135) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL].SAR
@@ -87,12 +88,12 @@ namespace TAS.Server
                 media.MediaStatus = TMediaStatus.Available;
         }
 
-        public static void GetLoudness(this Media media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
+        public static void GetLoudness(this IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
         {
             FileManager.Queue(new LoudnessOperation() { SourceMedia = media, AudioVolumeMeasured = audioVolumeMeasuredCallback, MeasureStart = startTime, MeasureDuration = duration, FailureCallback = finishCallback, SuccessCallback = finishCallback }, true);
         }
 
-        public static void GetLoudness(this Media media)
+        public static void GetLoudness(this IMedia media)
         {
             FileManager.Queue(new LoudnessOperation() { SourceMedia = media, MeasureStart = media.TCPlay - media.TCStart, MeasureDuration = media.DurationPlay });
         }

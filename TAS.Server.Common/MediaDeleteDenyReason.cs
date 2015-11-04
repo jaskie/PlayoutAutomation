@@ -19,7 +19,7 @@ namespace TAS.Common
         }
         public MediaDeleteDenyReason Reason;
         public IEventProperties Event;
-        public IMediaProperties Media;
+        public IMedia Media;
     }
 
 

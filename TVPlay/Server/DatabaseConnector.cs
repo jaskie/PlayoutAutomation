@@ -14,6 +14,7 @@ using System.Xml;
 using System.Collections;
 using TAS.Common;
 using TAS.Server;
+using TAS.Server.Interfaces;
 
 namespace TAS.Data
 {
@@ -708,7 +709,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             return reason;
         }
 
-        private static ArchiveMedia _readArchiveMedia(MySqlDataReader dataReader, ArchiveDirectory dir)
+        private static ArchiveMedia _readArchiveMedia(MySqlDataReader dataReader, IArchiveDirectory dir)
         {
             byte typVideo = dataReader.IsDBNull(dataReader.GetOrdinal("typVideo")) ? (byte)0 : dataReader.GetByte("typVideo");
             ArchiveMedia media = new ArchiveMedia(dir, dataReader.GetGuid("MediaGuid"))
@@ -716,7 +717,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                     idPersistentMedia = dataReader.GetUInt64("idArchiveMedia"),
                 };
             media._mediaReadFields(dataReader);
-            dir.NotifyMediaAdded(media);
+            ((ArchiveDirectory)dir).NotifyMediaAdded(media);
             ThreadPool.QueueUserWorkItem(o => media.Verify());
             return media;
         }
@@ -786,7 +787,7 @@ VALUES
 @typAudio
 );", connection);
                         cmd.Parameters.AddWithValue("@ExecuteTime", e.StartTime);
-                        Media media = e.Media;
+                        IMedia media = e.Media;
                         if (media != null)
                         {
                             cmd.Parameters.AddWithValue("@MediaName", media.MediaName);
@@ -843,9 +844,9 @@ VALUES
             return returnList;
         }
 
-        internal static ArchiveMedia DbMediaFind(this ArchiveDirectory dir, Media media)
+        internal static IArchiveMedia DbMediaFind(this ArchiveDirectory dir, IMedia media)
         {
-            ArchiveMedia result = null;
+            IArchiveMedia result = null;
             lock (connection)
             {
                 if (Connect())
@@ -1029,23 +1030,23 @@ idEngine=@idEngine", connection);
 
         private static Hashtable _mediaSegments;
 
-        internal static ObservableSynchronizedCollection<MediaSegment> DbMediaSegmentsRead(this PersistentMedia media)
+        internal static ObservableSynchronizedCollection<IMediaSegment> DbMediaSegmentsRead(this PersistentMedia media)
         {
             lock (connection)
             {
                 if (Connect())
                 {
                     Guid mediaGuid = media.MediaGuid;
-                    ObservableSynchronizedCollection<MediaSegment> segments = null;
+                    ObservableSynchronizedCollection<IMediaSegment> segments = null;
                     MediaSegment newMediaSegment;
                     MySqlCommand cmd = new MySqlCommand("SELECT * FROM MediaSegments where MediaGuid = @MediaGuid;", connection);
                     cmd.Parameters.Add("@MediaGuid", MySqlDbType.Binary).Value = mediaGuid.ToByteArray();
                     if (_mediaSegments == null)
                         _mediaSegments = new Hashtable();
-                    segments = (ObservableSynchronizedCollection<MediaSegment>)_mediaSegments[mediaGuid];
+                    segments = (ObservableSynchronizedCollection<IMediaSegment>)_mediaSegments[mediaGuid];
                     if (segments == null)
                     {
-                        segments = new ObservableSynchronizedCollection<MediaSegment>();
+                        segments = new ObservableSynchronizedCollection<IMediaSegment>();
                         using (MySqlDataReader dataReader = cmd.ExecuteReader())
                         {
                             while (dataReader.Read())

@@ -6,6 +6,7 @@ using System.Text;
 using TAS.Server;
 using TAS.Common;
 using System.IO;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server.XDCAM
 {
@@ -61,7 +62,7 @@ namespace TAS.Server.XDCAM
             return false;
         }
 
-        private bool _do(Media inputMedia)
+        private bool _do(IMedia inputMedia)
         {
             _progressDuration = SourceMedia.Duration;
             _addOutputMessage("Refreshing XDCAM content");

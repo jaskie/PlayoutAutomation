@@ -16,17 +16,17 @@ using TAS.Server.Interfaces;
 namespace TAS.Server
 {
 
-    public abstract class Media : INotifyPropertyChanged, IMediaProperties
+    public abstract class Media : IMedia
     {
 
-        public Media(MediaDirectory directory)
+        public Media(IMediaDirectory directory)
         {
             _directory = directory;
             _mediaGuid = Guid.NewGuid();
             directory.MediaAdd(this);
         }
 
-        public Media(MediaDirectory directory, Guid guid)
+        public Media(IMediaDirectory directory, Guid guid)
         {
             _directory = directory;
             _mediaGuid = guid;
@@ -45,7 +45,7 @@ namespace TAS.Server
         public string Folder
         {
             get { return _folder; }
-            internal set { SetField(ref _folder, value, "Folder"); }
+            set { SetField(ref _folder, value, "Folder"); }
         }
         protected string _fileName = string.Empty;
         public string FileName
@@ -64,23 +64,18 @@ namespace TAS.Server
             }
         }
 
-        internal void Renamed(string newName)
-        {
-            SetField(ref _fileName, newName, "FileName");
-        }
-
         protected UInt64 _fileSize;
         public UInt64 FileSize 
         {
             get { return _fileSize; }
-            internal set { SetField(ref _fileSize, value, "FileSize"); }
+            set { SetField(ref _fileSize, value, "FileSize"); }
         }
 
         protected DateTime _lastUpdated;
         public DateTime LastUpdated
         {
             get { return _lastUpdated; }
-            internal set { SetField(ref _lastUpdated, value, "LastUpdated"); }
+            set { SetField(ref _lastUpdated, value, "LastUpdated"); }
         }
         //// to enable LastAccess: "FSUTIL behavior set disablelastaccess 0" on NTFS volume
         //// not stored in datebase
@@ -194,7 +189,8 @@ namespace TAS.Server
             get { return _mediaGuid; }
         }
 
-        public bool HasExtraLines { get; internal set; }
+        internal bool _hasExtraLines; // IMX extral VBI lines
+        public bool HasExtraLines { get { return _hasExtraLines; } }
 
         protected VideoFormatDescription _videoFormatDescription;
         public VideoFormatDescription VideoFormatDescription
@@ -209,8 +205,8 @@ namespace TAS.Server
             internal set { _videoFormatDescription = value; }
         }
         
-        protected readonly MediaDirectory _directory;
-        public MediaDirectory Directory
+        protected readonly IMediaDirectory _directory;
+        public IMediaDirectory Directory
         {
             get { return _directory; }
         }
@@ -236,7 +232,7 @@ namespace TAS.Server
             }
         }
 
-        internal virtual bool Delete()
+        public virtual bool Delete()
         {
             return Directory.DeleteMedia(this);
         }
@@ -256,20 +252,14 @@ namespace TAS.Server
             return false;
         }
 
-        //protected virtual void setMediaStatus(TMediaStatus newStatus)
-        //{
-        //    SetField(ref _mediaStatus, newStatus, "MediaStatus");
-        //}
-
         protected TMediaStatus _mediaStatus;
         public TMediaStatus MediaStatus
         {
             get { return _mediaStatus; }
-            internal set { SetField(ref _mediaStatus, value, "MediaStatus"); }
-                //setMediaStatus(value); }
+            set { SetField(ref _mediaStatus, value, "MediaStatus"); }
         }
 
-        public virtual void CloneMediaProperties(Media fromMedia)
+        public virtual void CloneMediaProperties(IMedia fromMedia)
         {
             MediaName = fromMedia.MediaName;
             AudioChannelMapping = fromMedia.AudioChannelMapping;
@@ -285,17 +275,15 @@ namespace TAS.Server
             Parental = fromMedia.Parental;
         }
 
-        protected virtual Stream _getFileStream(bool forWrite)
+        public virtual Stream GetFileStream(bool forWrite)
         {
             return new FileStream(FullPath, forWrite ? FileMode.Create : FileMode.Open);
         }
 
-       
-
-        public virtual bool CopyMediaTo(Media destMedia, ref bool abortCopy)
+        public virtual bool CopyMediaTo(IMedia destMedia, ref bool abortCopy)
         {
             bool copyResult = true;
-            if (_directory.AccessType == TDirectoryAccessType.Direct && destMedia._directory.AccessType == TDirectoryAccessType.Direct)
+            if (_directory.AccessType == TDirectoryAccessType.Direct && destMedia.Directory.AccessType == TDirectoryAccessType.Direct)
             {
                 File.Copy(FullPath, destMedia.FullPath, true);
                 File.SetCreationTimeUtc(destMedia.FullPath, File.GetCreationTimeUtc(FullPath));
@@ -307,10 +295,10 @@ namespace TAS.Server
                 {
                     if (_directory is IngestDirectory)
                         (_directory as IngestDirectory).LockXDCAM(true);
-                    if (destMedia._directory is IngestDirectory)
-                        (destMedia._directory as IngestDirectory).LockXDCAM(true);
-                    using (Stream source = _getFileStream(false),
-                                    dest = destMedia._getFileStream(true))
+                    if (destMedia.Directory is IngestDirectory)
+                        (destMedia.Directory as IngestDirectory).LockXDCAM(true);
+                    using (Stream source = GetFileStream(false),
+                                    dest = destMedia.GetFileStream(true))
                     {
                         var buffer = new byte[1024 * 1024];
                         ulong totalReadBytesCount = 0;
@@ -333,8 +321,8 @@ namespace TAS.Server
                 {
                     if (_directory is IngestDirectory)
                         (_directory as IngestDirectory).LockXDCAM(false);
-                    if (destMedia._directory is IngestDirectory)
-                        (destMedia._directory as IngestDirectory).LockXDCAM(false);
+                    if (destMedia.Directory is IngestDirectory)
+                        (destMedia.Directory as IngestDirectory).LockXDCAM(false);
                 }
             }
             return copyResult;
@@ -358,7 +346,7 @@ namespace TAS.Server
             return File.Exists(FullPath);
         }
 
-        public bool MediaFileEqual(Media m)
+        public bool FilePropertiesEqual(IMedia m)
         {
             return m.FileExists() 
                 && this.FileExists()
@@ -376,13 +364,13 @@ namespace TAS.Server
         public bool Verified
         {
             get { return _verified; }
-            internal set { _verified = value; }
+            set { _verified = value; }
         }
 
         public RationalNumber FrameRate { get { return VideoFormatDescription.FrameRate; } }
 
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
-        internal virtual void Verify()
+        public virtual void Verify()
         {
             if (Verified || (_mediaStatus == TMediaStatus.Copying) || (_mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required))
                 return;
@@ -447,12 +435,4 @@ namespace TAS.Server
         public TMediaStatus oldStatus { get; private set; }
     }
 
-    public class MediaEventArgs : EventArgs
-    {
-        public MediaEventArgs(Media media)
-        {
-            Media = media;
-        }
-        public Media Media { get; private set; }
-    }
 }

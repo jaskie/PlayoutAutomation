@@ -14,7 +14,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class IngestDirectory : MediaDirectory, IIngestDirectoryConfig
+    public class IngestDirectory : MediaDirectory, IIngestDirectory
     {
         private bool _deleteSource;
         public bool DeleteSource
@@ -202,7 +202,7 @@ namespace TAS.Server
         public override void SweepStaleMedia()
         {
             DateTime currentDateTime = DateTime.UtcNow.Date;
-            IEnumerable<Media> StaleMediaList;
+            IEnumerable<IMedia> StaleMediaList;
             _files.Lock.EnterReadLock();
             try
             {
@@ -212,7 +212,7 @@ namespace TAS.Server
             {
                 _files.Lock.ExitReadLock();
             }
-            foreach (Media m in StaleMediaList)
+            foreach (IMedia m in StaleMediaList)
                 m.Delete();
         }
         
@@ -339,9 +339,9 @@ namespace TAS.Server
 
         private SynchronizedCollection<string> _bMDXmlFiles = new SynchronizedCollection<string>();
         
-        protected override Media AddFile(string fullPath, DateTime created = default(DateTime), DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
+        protected override IMedia AddFile(string fullPath, DateTime created = default(DateTime), DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
-            Media m = null;
+            IMedia m = null;
             if (_extensions == null 
              || _extensions.Count() == 0
              || _extensions.Any(ext => ext == Path.GetExtension(fullPath).ToLowerInvariant())
@@ -361,9 +361,9 @@ namespace TAS.Server
             return m;
         }
 
-        private Media _addFileFromFTP(string fileNameOnly)
+        private IMedia _addFileFromFTP(string fileNameOnly)
         {
-            Media newMedia = CreateMedia(fileNameOnly);
+            IMedia newMedia = CreateMedia(fileNameOnly);
             if (IsXDCAM)
             {
                 newMedia.Folder = "Clip";
@@ -374,7 +374,7 @@ namespace TAS.Server
             return newMedia;
         }
         
-        protected override Media CreateMedia(string fileNameOnly)
+        protected override IMedia CreateMedia(string fileNameOnly)
         {
             return new IngestMedia(this)
             {
@@ -384,7 +384,7 @@ namespace TAS.Server
             };
         }
 
-        protected override Media CreateMedia(string fileNameOnly, Guid guid)
+        protected override IMedia CreateMedia(string fileNameOnly, Guid guid)
         {
             return new IngestMedia(this, guid)
             {
@@ -414,7 +414,7 @@ namespace TAS.Server
                 base.FileRemoved(fullPath);
         }
 
-        public override void MediaRemove(Media media)
+        public override void MediaRemove(IMedia media)
         {
             base.MediaRemove(media);
             // remove xmlfile if it was last media file

@@ -8,18 +8,18 @@ using System.Runtime.Remoting.Messaging;
 using System.Diagnostics;
 using TAS.Common;
 using TAS.Data;
-
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
     
-    public class ServerMedia: PersistentMedia
+    public class ServerMedia: PersistentMedia, IServerMedia
     {
 
-        public ServerMedia(ServerDirectory directory) : base(directory) { }
-        public ServerMedia(ServerDirectory directory, Guid guid) : base(directory, guid) { }
-        public ServerMedia(AnimationDirectory directory) : base(directory) { }
-        public ServerMedia(AnimationDirectory directory, Guid guid) : base(directory, guid) { }
+        public ServerMedia(IServerDirectory directory) : base(directory) { }
+        public ServerMedia(IServerDirectory directory, Guid guid) : base(directory, guid) { }
+        public ServerMedia(IAnimationDirectory directory) : base(directory) { }
+        public ServerMedia(IAnimationDirectory directory, Guid guid) : base(directory, guid) { }
 
         // media properties
         private bool _isPGM;
@@ -31,7 +31,7 @@ namespace TAS.Server
             set { SetField(ref _doNotArchive, value, "DoNotArchive"); }
         }
 
-        public override void CloneMediaProperties(Media fromMedia)
+        public override void CloneMediaProperties(IMedia fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
             if (fromMedia is ServerMedia)

@@ -28,7 +28,7 @@ namespace TAS.Server
         public abstract void ReStart(VideoLayer aVideoLayer);
 
         public abstract bool Load(Event aEvent);
-        public abstract bool Load(ServerMedia media, VideoLayer videolayer, long seek, long duration);
+        public abstract bool Load(IServerMedia media, VideoLayer videolayer, long seek, long duration);
         public abstract bool Load(System.Drawing.Color color, VideoLayer layer);
         public abstract bool Seek(VideoLayer videolayer, long position);
 

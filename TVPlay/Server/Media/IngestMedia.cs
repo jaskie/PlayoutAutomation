@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Diagnostics;
+using TAS.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class IngestMedia : Media
+    public class IngestMedia : Media, IIngestMedia
     {
         public IngestMedia(IngestDirectory directory) : base(directory) { }
         public IngestMedia(IngestDirectory directory, Guid guid) : base(directory, guid) { }
@@ -15,10 +17,10 @@ namespace TAS.Server
         internal XDCAM.NonRealTimeMeta ClipMetadata;
         internal XDCAM.Smil SmilMetadata;
         internal string XmlFile;
-        protected override Stream _getFileStream(bool forWrite)
+        public override Stream GetFileStream(bool forWrite)
         {
             if (_directory.AccessType == TDirectoryAccessType.Direct)
-                return base._getFileStream(forWrite);
+                return base.GetFileStream(forWrite);
             if (_directory.AccessType == TDirectoryAccessType.FTP)
             {
                 try

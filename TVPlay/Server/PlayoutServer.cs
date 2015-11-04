@@ -21,9 +21,9 @@ namespace TAS.Server
         public string ServerAddress { get; set; }
         public string MediaFolder { get; set; }
         [XmlIgnore]
-        public ServerDirectory MediaDirectory { get; set; }
+        public IServerDirectory MediaDirectory { get; set; }
         [XmlIgnore]
-        public AnimationDirectory AnimationDirectory;
+        public IAnimationDirectory AnimationDirectory;
         [XmlIgnore]
         private List<PlayoutServerChannel> _channels;
         public List<PlayoutServerChannel> Channels

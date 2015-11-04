@@ -12,19 +12,21 @@ namespace TAS.Server.Interfaces
         TimeSpan Duration { get; set; }
         TimeSpan DurationPlay { get; set; }
         string FileName { get; set; }
-        ulong FileSize { get; }
-        string Folder { get; }
+        ulong FileSize { get; set; }
+        string Folder { get; set; }
         string FullPath { get; set; }
-        DateTime LastUpdated { get; }
+        DateTime LastUpdated { get; set; }
         TMediaCategory MediaCategory { get; set; }
+        TParental Parental { get; set; }
         Guid MediaGuid { get; }
         string MediaName { get; set; }
-        TMediaStatus MediaStatus { get; }
+        TMediaStatus MediaStatus { get; set; }
         TMediaType MediaType { get; set; }
         TimeSpan TCPlay { get; set; }
         TimeSpan TCStart { get; set; }
-        bool Verified { get; }
+        bool Verified { get; set; }
         TVideoFormat VideoFormat { get; set; }
         VideoFormatDescription VideoFormatDescription { get; }
+        bool HasExtraLines { get; }
     }
 }

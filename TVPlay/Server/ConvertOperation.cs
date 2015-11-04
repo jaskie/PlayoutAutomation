@@ -15,6 +15,7 @@ using System.ComponentModel;
 using TAS.FFMpegUtils;
 using TAS.Common;
 using resources = TAS.Client.Properties.Resources;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
@@ -37,7 +38,7 @@ namespace TAS.Server
         #endregion // properties
 
         #region CheckFile
-        private void CheckInputFile(Media mf)
+        private void CheckInputFile(IMedia mf)
         {
             using (FFMpegWrapper ff = new FFMpegWrapper(mf.FullPath))
             {
@@ -213,7 +214,7 @@ namespace TAS.Server
             }
         }
 
-        private string _encodeParameters(Media inputMedia)
+        private string _encodeParameters(IMedia inputMedia)
         {
             List<string> vf = new List<string>();
             List<string> af = new List<string>();
@@ -258,7 +259,7 @@ namespace TAS.Server
             return ep.ToString();
         }
 
-        private bool _do(Media inputMedia)
+        private bool _do(IMedia inputMedia)
         {
             _progressDuration = inputMedia.Duration;
             Debug.WriteLine(this, "Convert operation started");

@@ -8,13 +8,14 @@ using System.Runtime.Remoting.Messaging;
 using System.Diagnostics;
 using TAS.Common;
 using TAS.Data;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public abstract class PersistentMedia: Media
+    public abstract class PersistentMedia: Media, IPersistentMedia
     {
-        public PersistentMedia(MediaDirectory directory) : base(directory) { }
-        public PersistentMedia(MediaDirectory directory, Guid guid) : base(directory, guid) { }
+        public PersistentMedia(IMediaDirectory directory) : base(directory) { }
+        public PersistentMedia(IMediaDirectory directory, Guid guid) : base(directory, guid) { }
         public UInt64 idPersistentMedia;
 
         // media properties
@@ -43,11 +44,11 @@ namespace TAS.Server
         }
 
         
-        public Media OriginalMedia { get; set; }
+        public IMedia OriginalMedia { get; set; }
 
-        private ObservableSynchronizedCollection<MediaSegment> _mediaSegments;
+        private ObservableSynchronizedCollection<IMediaSegment> _mediaSegments;
 
-        public ObservableSynchronizedCollection<MediaSegment> MediaSegments
+        public ObservableSynchronizedCollection<IMediaSegment> MediaSegments
         {
             get
             {
@@ -57,7 +58,7 @@ namespace TAS.Server
             }
         }
 
-        public override void CloneMediaProperties(Media fromMedia)
+        public override void CloneMediaProperties(IMedia fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
             if (fromMedia is PersistentMedia)
@@ -82,7 +83,7 @@ namespace TAS.Server
             return modified;
         }
 
-        internal override void Verify()
+        public override void Verify()
         {
             base.Verify();
             Save();

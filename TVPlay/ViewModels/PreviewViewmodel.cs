@@ -10,12 +10,13 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using TAS.Common;
 using TAS.Client.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
     public class PreviewViewmodel : ViewmodelBase
     {
-        private Media _media;
+        private IMedia _media;
         private Event _event;
         private readonly Server.Engine _engine;
         private readonly PlayoutServerChannel _channelPRV;
@@ -38,14 +39,14 @@ namespace TAS.Client.ViewModels
 
         public RationalNumber FrameRate { get { return _engine.FormatDescription.FrameRate; } }
 
-        public Media Media
+        public IMedia Media
         {
             get { return _media; }
             set
             {
                 if (_channelPRV != null)
                 {
-                    Media newVal = _channelPRV.OwnerServer.MediaDirectory.FindMedia(value);
+                    IMedia newVal = _channelPRV.OwnerServer.MediaDirectory.FindMedia(value);
                     if (SetField(ref _media, newVal, "Media"))
                     {
                         _event = null;
@@ -72,8 +73,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private ServerMedia _loadedMedia;
-        public ServerMedia LoadedMedia
+        private IServerMedia _loadedMedia;
+        public IServerMedia LoadedMedia
         {
             get { return _loadedMedia; }
             set { SetField(ref _loadedMedia, value, "LoadedMedia"); }
@@ -84,8 +85,8 @@ namespace TAS.Client.ViewModels
 
         private void MediaLoad(bool reloadSegments)
         {
-            Media pm = Media;
-            ServerMedia media = null;
+            IMedia pm = Media;
+            IServerMedia media = null;
             TimeSpan tcIn = TimeSpan.Zero;
             TimeSpan duration = TimeSpan.Zero;
             MediaSegmentViewmodel segment = reloadSegments ? null : SelectedSegment;
@@ -188,7 +189,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                ServerMedia loadedMedia = LoadedMedia;
+                IServerMedia loadedMedia = LoadedMedia;
                 return (loadedMedia == null) ? string.Empty : loadedMedia.MediaName;
             }
         }
@@ -196,7 +197,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                ServerMedia loadedMedia = LoadedMedia;
+                IServerMedia loadedMedia = LoadedMedia;
                 return (loadedMedia == null) ? string.Empty : loadedMedia.FileName;
             }
         }
@@ -290,14 +291,14 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                ServerMedia loadedMedia = LoadedMedia;
+                IServerMedia loadedMedia = LoadedMedia;
                 return (loadedMedia == null) ? TimeSpan.Zero : loadedMedia.Duration;
             }
         }
 
         protected TimeSpan MaxPos()
         {
-            ServerMedia loadedMedia = LoadedMedia;
+            IServerMedia loadedMedia = LoadedMedia;
             if (loadedMedia != null)
             {
                 if (_playWholeClip)
@@ -353,7 +354,7 @@ namespace TAS.Client.ViewModels
                     },
                 CanExecuteDelegate = o =>
                     {
-                        Media media = Media ?? (Event != null ? Event.Media : null);
+                        IMedia media = Media ?? (Event != null ? Event.Media : null);
                         return (LoadedMedia != null && LoadedMedia.MediaStatus == TMediaStatus.Available)
                             || (media != null && media.MediaStatus == TMediaStatus.Available && _canLoad(media));
                     }
@@ -362,7 +363,7 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o =>
                     {
-                        ServerMedia loadedMedia = LoadedMedia;
+                        IServerMedia loadedMedia = LoadedMedia;
                         if (loadedMedia != null)
                         {
                             if (_engine.PreviewIsPlaying)
@@ -379,7 +380,7 @@ namespace TAS.Client.ViewModels
                     },
                 CanExecuteDelegate = o =>
                     {
-                        Media media = Media ?? (Event != null ? Event.Media : null);
+                        IMedia media = Media ?? (Event != null ? Event.Media : null);
                         return (LoadedMedia != null && LoadedMedia.MediaStatus == TMediaStatus.Available)
                             || (media != null && media.MediaStatus == TMediaStatus.Available && _canLoad(media));
                     }
@@ -438,7 +439,7 @@ namespace TAS.Client.ViewModels
                 ExecuteDelegate = o =>
                     {
                         MediaSegmentViewmodel msVm = _selectedSegment;
-                        PersistentMedia media = LoadedMedia;
+                        IServerMedia media = LoadedMedia;
                         if (msVm == null)
                         {
                             msVm = new MediaSegmentViewmodel(media) { TCIn = this.TCIn, TCOut = this.TCOut, SegmentName = this.SelectedSegmentName };
@@ -502,14 +503,14 @@ namespace TAS.Client.ViewModels
         bool _canStop(object o)
         {
             MediaSegmentViewmodel segment = PlayWholeClip ? SelectedSegment : null;
-            Media media = LoadedMedia;
+            IMedia media = LoadedMedia;
             if (media == null) 
                 return false;
             TimeSpan duration = PlayWholeClip ? media.Duration : (segment == null ? media.Duration : segment.Duration);
             return duration.Ticks >= _engine.FrameTicks;
         }
 
-        bool _canLoad(Media media)
+        bool _canLoad(IMedia media)
         {
             return media.FrameRate.Equals(_engine.FormatDescription.FrameRate);
         }

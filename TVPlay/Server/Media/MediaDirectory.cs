@@ -10,12 +10,13 @@ using System.ComponentModel;
 using System.Net;
 using System.Runtime.InteropServices;
 using TAS.Common;
+using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace TAS.Server
 {
-    public enum TDirectoryAccessType { Direct, FTP };
-    public abstract class MediaDirectory : IDisposable, INotifyPropertyChanged
-    {
+    public abstract class MediaDirectory : IMediaDirectory
+    { 
         public readonly static string[] VideoFileTypes = { ".mov", ".mxf", ".mkv", ".mp4", ".wmv", ".avi", ".lxf" };
         public readonly static string[] StillFileTypes = { ".tif", ".tga", ".png", ".tiff", ".jpg", ".gif", ".bmp" };
         
@@ -31,7 +32,7 @@ namespace TAS.Server
         protected string _folder;
         protected string[] _extensions;
         private FileSystemWatcher _watcher;
-        protected ConcurrentHashSet<Media> _files = new ConcurrentHashSet<Media>();
+        protected ConcurrentHashSet<IMedia> _files = new ConcurrentHashSet<IMedia>();
 
         public event EventHandler<MediaEventArgs> MediaAdded;
         public event EventHandler<MediaEventArgs> MediaRemoved;
@@ -125,7 +126,7 @@ namespace TAS.Server
         public abstract void Refresh();
         
         [XmlIgnore]
-        public virtual List<Media> Files
+        public virtual List<IMedia> Files
         {
             get
             {
@@ -177,7 +178,7 @@ namespace TAS.Server
         public string Password { get; set; }
 
         private NetworkCredential _networkCredential;
-        internal NetworkCredential NetworkCredential
+        public NetworkCredential NetworkCredential
         {
             get
             {
@@ -195,7 +196,7 @@ namespace TAS.Server
             return File.Exists(Path.Combine(_folder, subfolder ?? string.Empty, filename));
         }
 
-        public virtual bool DeleteMedia(Media media)
+        public virtual bool DeleteMedia(IMedia media)
         {
             if (media.Directory == this)
             {
@@ -231,18 +232,18 @@ namespace TAS.Server
             return false;
         }
 
-        protected abstract Media CreateMedia(string fileNameOnly);
-        protected abstract Media CreateMedia(string fileNameOnly, Guid guid);
+        protected abstract IMedia CreateMedia(string fileNameOnly);
+        protected abstract IMedia CreateMedia(string fileNameOnly, Guid guid);
 
         public abstract void SweepStaleMedia();
 
-        protected virtual Media AddFile(string fullPath, DateTime created = default(DateTime), DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
+        protected virtual IMedia AddFile(string fullPath, DateTime created = default(DateTime), DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
             if (_extensions == null
                 || _extensions.Count() == 0
                 || _extensions.Any(ext => ext.ToLowerInvariant() == Path.GetExtension(fullPath).ToLowerInvariant()))
             {
-                Media newMedia;
+                IMedia newMedia;
                 _files.Lock.EnterReadLock();
                 try
                 {
@@ -268,12 +269,12 @@ namespace TAS.Server
             return null;
         }
 
-        public virtual void MediaAdd(Media media)
+        public virtual void MediaAdd(IMedia media)
         {
             _files.Add(media);
         }
 
-        public virtual void MediaRemove(Media media)
+        public virtual void MediaRemove(IMedia media)
         {
             if (_files.Remove(media))
             {
@@ -297,22 +298,22 @@ namespace TAS.Server
             }
         }
 
-        protected virtual void OnMediaRenamed(Media media, string newName)
+        protected virtual void OnMediaRenamed(IMedia media, string newName)
         {
-            media.Renamed(newName);
+            media.FileName = newName;
         }
 
-        protected virtual void OnMediaChanged(Media media)
+        protected virtual void OnMediaChanged(IMedia media)
         {
             if (media.Verified)
             {
-                media.Verified = false;
+                ((Media)media).Verified = false;
                 media.MediaStatus = TMediaStatus.Unknown;
                 ThreadPool.QueueUserWorkItem(o => media.Verify());
             }
         }
 
-        internal virtual void OnMediaVerified(Media media)
+        public virtual void OnMediaVerified(IMedia media)
         {
             var h = MediaVerified;
             if (h != null)
@@ -340,7 +341,7 @@ namespace TAS.Server
 
         public bool Exists { get { return Directory.Exists(_folder); } }
 
-        public virtual Media FindMedia(Media media)
+        public virtual IMedia FindMedia(IMedia media)
         {
             _files.Lock.EnterReadLock();
             try
@@ -353,7 +354,7 @@ namespace TAS.Server
             }
         }
 
-        public virtual Media FindMedia(Guid mediaGuid)
+        public virtual IMedia FindMedia(Guid mediaGuid)
         {
             
             _files.Lock.EnterReadLock();
@@ -367,7 +368,7 @@ namespace TAS.Server
             }
         }
 
-        public virtual List<Media> FindMedia(Func<Media, bool> condition)
+        public virtual List<IMedia> FindMedia(Func<IMedia, bool> condition)
         {
             _files.Lock.EnterReadLock();
             try
@@ -464,7 +465,7 @@ namespace TAS.Server
 
         protected virtual void OnFileRenamed(object source, RenamedEventArgs e)
         {
-            Media m;
+            IMedia m;
             _files.Lock.EnterReadLock();
             try
             {
@@ -480,7 +481,7 @@ namespace TAS.Server
 
         protected virtual void OnFileChanged(object source, FileSystemEventArgs e)
         {
-            Media m;
+            IMedia m;
             _files.Lock.EnterReadLock();
             try
             {
@@ -515,7 +516,7 @@ namespace TAS.Server
                 handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        internal virtual void NotifyMediaAdded (Media media)
+        internal virtual void NotifyMediaAdded (IMedia media)
         {
             var h = MediaAdded;
             if (h != null)

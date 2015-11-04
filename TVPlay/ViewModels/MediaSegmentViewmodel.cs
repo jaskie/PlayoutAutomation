@@ -7,14 +7,15 @@ using TAS.Common;
 using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
     public class MediaSegmentViewmodel: ViewmodelBase
     {
-        private readonly MediaSegment _mediaSegment;
-        private readonly PersistentMedia _media;
-        public MediaSegmentViewmodel(PersistentMedia media, MediaSegment mediaSegment)
+        private readonly IMediaSegment _mediaSegment;
+        private readonly IPersistentMedia _media;
+        public MediaSegmentViewmodel(IPersistentMedia media, IMediaSegment mediaSegment)
         {
             _mediaSegment = mediaSegment;
             _media = media;
@@ -22,7 +23,7 @@ namespace TAS.Client.ViewModels
             Load();
         }
 
-        public MediaSegmentViewmodel(PersistentMedia media)
+        public MediaSegmentViewmodel(IPersistentMedia media)
         {
             _media = media;
             _mediaSegment = new MediaSegment(_media.MediaGuid);
@@ -60,9 +61,9 @@ namespace TAS.Client.ViewModels
             get { return TCOut - TCIn + _media.VideoFormatDescription.FrameDuration; }
         }
 
-        public MediaSegment MediaSegment { get { return _mediaSegment; } }
+        public IMediaSegment MediaSegment { get { return _mediaSegment; } }
         
-        public PersistentMedia Media { get { return _media; } }
+        public IPersistentMedia Media { get { return _media; } }
 
         public void Load()
         {

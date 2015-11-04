@@ -6,6 +6,7 @@ using TAS.Server;
 using System.IO;
 using System.ComponentModel;
 using TAS.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
@@ -109,10 +110,10 @@ namespace TAS.Client.ViewModels
         private string _validateDestFileName()
         {
             string validationResult = string.Empty;
-            Media media = _convertOperation.DestMedia;
+            IMedia media = _convertOperation.DestMedia;
             if (media != null)
             {
-                MediaDirectory dir = media.Directory;
+                IMediaDirectory dir = media.Directory;
                 string newName = media.FileName;
                 if (dir != null && media.FileName != null)
                 {

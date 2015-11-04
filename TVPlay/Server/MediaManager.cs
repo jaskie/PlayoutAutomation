@@ -14,6 +14,7 @@ using System.ServiceModel;
 using TAS.Common;
 using TAS.Data;
 using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace TAS.Server
 {
@@ -22,13 +23,12 @@ namespace TAS.Server
     public class MediaManager: Remoting.IMediaManager
     {
         public readonly Engine Engine;
-        public ServerDirectory MediaDirectoryPGM { get; private set; }
-        public ServerDirectory MediaDirectoryPRV { get; private set; }
-        public AnimationDirectory AnimationDirectoryPGM { get; private set; }
-        public AnimationDirectory AnimationDirectoryPRV { get; private set; }
+        public IServerDirectory MediaDirectoryPGM { get; private set; }
+        public IServerDirectory MediaDirectoryPRV { get; private set; }
+        public IAnimationDirectory AnimationDirectoryPGM { get; private set; }
+        public IAnimationDirectory AnimationDirectoryPRV { get; private set; }
         public ArchiveDirectory ArchiveDirectory { get; private set; }
         public readonly ObservableSynchronizedCollection<Template> Templates = new ObservableSynchronizedCollection<Template>();
-
 
         public MediaManager(Engine engine)
         {
@@ -58,7 +58,7 @@ namespace TAS.Server
                 sdir.MediaPropertyChanged += ServerMediaPropertyChanged;
                 sdir.PropertyChanged += _onServerDirectoryPropertyChanged;
             }
-            AnimationDirectory adir = AnimationDirectoryPGM;
+            IAnimationDirectory adir = AnimationDirectoryPGM;
             if (adir != null)
                 adir.PropertyChanged += _onAnimationDirectoryPropertyChanged;
 
@@ -175,9 +175,9 @@ namespace TAS.Server
             }
         }
 
-        public List<MediaDirectory> Directories()
+        public List<IMediaDirectory> Directories()
         {
-            List<MediaDirectory> dl = new List<MediaDirectory>();
+            List<IMediaDirectory> dl = new List<IMediaDirectory>();
             lock (_ingestDirsSyncObject)
                 if (_ingestDirectoriesLoaded)
                     foreach (IngestDirectory d in _ingestDirectories)
@@ -191,7 +191,7 @@ namespace TAS.Server
             return dl;
         }
 
-        public void IngestMediaToPlayout(Media media, bool toTop = false)
+        public void IngestMediaToPlayout(IMedia media, bool toTop = false)
         {
             if (media != null)
             {
@@ -201,7 +201,7 @@ namespace TAS.Server
                     {
                         if (ArchiveDirectory != null)
                         {
-                            ArchiveMedia fromArchive = ArchiveDirectory.Find(media);
+                            IArchiveMedia fromArchive = ArchiveDirectory.Find(media);
                             if (fromArchive != null)
                             {
                                 ArchiveDirectory.ArchiveRestore(fromArchive, media as ServerMedia, toTop);
@@ -214,7 +214,7 @@ namespace TAS.Server
                     }
                     return;
                 }
-                ServerMedia sm = null;
+                IServerMedia sm = null;
                 if (MediaDirectoryPGM != null)
                     sm = MediaDirectoryPGM.GetServerMedia(media, true);
                 if (sm != null
@@ -231,30 +231,30 @@ namespace TAS.Server
             }
         }
 
-        public void IngestMediaToPlayout(IEnumerable<Media> mediaList, bool ToTop = false)
+        public void IngestMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false)
         {
-            foreach (Media m in mediaList)
+            foreach (IMedia m in mediaList)
                 IngestMediaToPlayout(m, ToTop);
         }
 
-        public void IngestMediaToArchive(IngestMedia media, bool toTop = false)
+        public void IngestMediaToArchive(IIngestMedia media, bool toTop = false)
         {
             if (media == null)
                 return;
             if (ArchiveDirectory != null)
             {
-                ArchiveMedia destMedia;
+                IArchiveMedia destMedia;
                 destMedia = ArchiveDirectory.GetArchiveMedia(media);
                 if (!destMedia.FileExists())
                     FileManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = destMedia, OutputFormat = Engine.VideoFormat }, toTop);
             }
         }
 
-        public void IngestMediaToArchive(ArchiveMedia media, bool toTop = false)
+        public void IngestMediaToArchive(IArchiveMedia media, bool toTop = false)
         {
             if (media == null || ArchiveDirectory == null)
                 return;
-            Media sourceMedia = media.OriginalMedia;
+            IMedia sourceMedia = media.OriginalMedia;
             if (sourceMedia == null || !(sourceMedia is IngestMedia))
                 return;
             if (!media.FileExists() && sourceMedia.FileExists())
@@ -267,7 +267,7 @@ namespace TAS.Server
                 IngestMediaToArchive(m);
         }
 
-        public MediaDeleteDeny DeleteMedia(Media media)
+        public MediaDeleteDeny DeleteMedia(IMedia media)
         {
             MediaDeleteDeny reason = (media is ServerMedia) ? Engine.CanDeleteMedia(media as ServerMedia) : MediaDeleteDeny.NoDeny;
             if (reason.Reason == MediaDeleteDeny.MediaDeleteDenyReason.NoDeny)
@@ -275,25 +275,25 @@ namespace TAS.Server
             return reason;
         }
 
-        public IEnumerable<MediaDeleteDeny> DeleteMedia(IEnumerable<Media> mediaList)
+        public IEnumerable<MediaDeleteDeny> DeleteMedia(IEnumerable<IMedia> mediaList)
         {
             return mediaList.Select(m => DeleteMedia(m));
         }
 
-        public void GetLoudness(Media media)
+        public void GetLoudness(IMedia media)
         {
             media.GetLoudness();
         }
 
-        public void GetLoudness(Media media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
+        public void GetLoudness(IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
         {
             media.GetLoudness(startTime, duration, audioVolumeMeasuredCallback, finishCallback);
         }
 
-        public void GetLoudness(IEnumerable<Media> mediaList)
+        public void GetLoudness(IEnumerable<IMedia> mediaList)
         {
-            foreach (Media m in mediaList)
-                GetLoudness(m);
+            foreach (IMedia m in mediaList)
+                m.GetLoudness();
         }
 
         public void ArchiveMedia(Media media, bool deleteAfter)
@@ -345,13 +345,13 @@ namespace TAS.Server
                 {
                     if (pGMmedia.MediaStatus == TMediaStatus.Available && pGMmedia.FileExists())
                     {
-                        ServerMedia pRVmedia = (ServerMedia)MediaDirectoryPRV.FindMedia(pGMmedia);
+                        IServerMedia pRVmedia = (ServerMedia)MediaDirectoryPRV.FindMedia(pGMmedia);
                         if (pRVmedia == null)
                         {
                             pRVmedia = (ServerMedia)MediaDirectoryPRV.Files.FirstOrDefault((m) => m.FileExists() && m.FileSize == pGMmedia.FileSize && m.FileName == pGMmedia.FileName && m.LastUpdated.DateTimeEqualToDays(pGMmedia.LastUpdated)); 
                             if (pRVmedia != null)
                             {
-                                pRVmedia.CloneMediaProperties(pGMmedia);;
+                                pRVmedia.CloneMediaProperties(pGMmedia);
                                 pRVmedia.Save();
                             }
                             else
@@ -410,7 +410,7 @@ namespace TAS.Server
         public Guid IngestFile(string fileName)
         {
             var nameLowered = fileName.ToLower();
-            ServerMedia dest;
+            IServerMedia dest;
             if ((dest  = (ServerMedia)(MediaDirectoryPGM.FindMedia(m => Path.GetFileNameWithoutExtension(m.FileName).ToLower() == nameLowered).FirstOrDefault())) != null)
                 return dest.MediaGuid;
             foreach (IngestDirectory dir in IngestDirectories)

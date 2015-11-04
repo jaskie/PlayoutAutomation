@@ -11,7 +11,9 @@ namespace TAS.Common
     {
         Caspar = 0
     }
-    
+
+    public enum TDirectoryAccessType { Direct, FTP };
+
     public enum VideoLayer : sbyte
     {
         None = -1,

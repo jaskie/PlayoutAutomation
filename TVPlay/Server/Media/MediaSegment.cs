@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using TAS.Data;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class MediaSegment : INotifyPropertyChanged
+    public class MediaSegment : IMediaSegment
     {
         internal UInt64 idMediaSegment;
         protected readonly Guid _mediaGuid;

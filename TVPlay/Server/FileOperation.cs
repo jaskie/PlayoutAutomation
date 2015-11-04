@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Text.RegularExpressions;
 using TAS.Common;
 using System.Threading;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
@@ -32,8 +33,8 @@ namespace TAS.Server
     public class FileOperation : IComparable, INotifyPropertyChanged
     {
         public TFileOperationKind Kind;
-        public Media SourceMedia;
-        public Media DestMedia;
+        public IMedia SourceMedia;
+        public IMedia DestMedia;
         public Action SuccessCallback;
         public Action FailureCallback;
         public FileOperation()

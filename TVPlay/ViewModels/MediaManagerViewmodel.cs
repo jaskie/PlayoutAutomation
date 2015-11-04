@@ -17,7 +17,8 @@ using TAS.Common;
 using TAS.Client.Common;
 using TAS.Server;
 using resources = TAS.Client.Common.Properties.Resources;
-
+using TAS.Server.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
@@ -78,7 +79,7 @@ namespace TAS.Client.ViewModels
                 }
                 if (SetField(ref _selectedMedia, value, "SelectedMedia"))
                 {
-                    Media media = value == null ? null : value.Media;
+                    IMedia media = value == null ? null : value.Media;
                     if (media is IngestMedia
                         && ((IngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
                         && !media.Verified)
@@ -120,9 +121,9 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private List<Media> _getSelections()
+        private List<IMedia> _getSelections()
         {
-            List<Media> ml = new List<Media>();
+            List<IMedia> ml = new List<IMedia>();
             if (_selectedMediaList != null)
                 foreach (var mediaVm in _selectedMediaList)
                     if (mediaVm is MediaViewViewmodel)
@@ -171,7 +172,7 @@ namespace TAS.Client.ViewModels
                     },
                 CanExecuteDelegate = (o) =>
                 {
-                    MediaDirectory dir = _mediaDirectory;
+                    IMediaDirectory dir = _mediaDirectory;
                     return dir is IngestDirectory
                       && ((dir as IngestDirectory).IsXDCAM || (dir as IngestDirectory).AccessType != TDirectoryAccessType.Direct);
                 }
@@ -190,7 +191,7 @@ namespace TAS.Client.ViewModels
 
         private void _sweepStaleMedia(object o)
         {
-            MediaDirectory dir = MediaDirectory;
+            IMediaDirectory dir = MediaDirectory;
             if (dir is ArchiveDirectory)
             {
                 (dir as ArchiveDirectory).SweepStaleMedia();
@@ -202,9 +203,9 @@ namespace TAS.Client.ViewModels
             _mediaManager.GetLoudness(_getSelections());
         }
 
-        private void _ingestSelectionToDir(MediaDirectory directory)
+        private void _ingestSelectionToDir(IMediaDirectory directory)
         {
-            MediaDirectory currentDir = _mediaDirectory;
+            IMediaDirectory currentDir = _mediaDirectory;
             if (currentDir is IngestDirectory)
             {
                 List<ConvertOperation> ingestList = new List<ConvertOperation>();
@@ -214,7 +215,7 @@ namespace TAS.Client.ViewModels
                         && ((IngestDirectory)sourceMedia.Directory).AccessType == TDirectoryAccessType.Direct
                         && !sourceMedia.Verified)
                         ThreadPool.QueueUserWorkItem(o => sourceMedia.Verify());
-                    Media destMedia = null;
+                    IMedia destMedia = null;
                     if (directory is ServerDirectory)
                         destMedia = (directory as ServerDirectory).GetServerMedia(sourceMedia, false);
                     if (directory is ArchiveDirectory)
@@ -305,7 +306,7 @@ namespace TAS.Client.ViewModels
 
         private void _deleteSelected(object o)
         {
-            List<Media> selection = _getSelections();
+            List<IMedia> selection = _getSelections();
             if (MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedFiles, selection.AsString(Environment.NewLine, 20)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
             {
                 var reasons = _mediaManager.DeleteMedia(selection).Where(r => r.Reason != MediaDeleteDeny.MediaDeleteDenyReason.NoDeny);
@@ -370,11 +371,11 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public List<MediaDirectory> MediaDirectories { get { return _mediaManager.Directories(); } }
+        public List<IMediaDirectory> MediaDirectories { get { return _mediaManager.Directories(); } }
 
-        private MediaDirectory _mediaDirectory;
+        private IMediaDirectory _mediaDirectory;
 
-        public MediaDirectory MediaDirectory
+        public IMediaDirectory MediaDirectory
         {
             get { return _mediaDirectory; }
             set 

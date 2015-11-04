@@ -6,10 +6,10 @@ using TAS.Client.Common;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditWindowViewmodel : OkCancelViewmodelBase<Server.Media>
+    public class MediaEditWindowViewmodel : OkCancelViewmodelBase<Server.Interfaces.IMedia>
     {
         public readonly MediaEditViewmodel editViewModel;
-        public MediaEditWindowViewmodel(Server.Media media)
+        public MediaEditWindowViewmodel(Server.Interfaces.IMedia media)
             : base(media, new MediaEditView(media.FrameRate), media.MediaName)
         {
             editViewModel = new MediaEditViewmodel(media, null, false);

@@ -7,7 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using TAS.Common;
 using TAS.Server;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
@@ -80,7 +82,7 @@ namespace TAS.Server
                 return base.Do();
         }
 
-        private bool _do(Media inputMedia)
+        private bool _do(IMedia inputMedia)
         {
             Debug.WriteLine(this, "Loudness operation started");
             string Params = string.Format("-nostats -i \"{0}\" -ss {1} -t {2} -filter_complex ebur128=peak=sample -f null -", inputMedia.FullPath, MeasureStart, MeasureDuration);

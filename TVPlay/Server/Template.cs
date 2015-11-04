@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using TAS.Data;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
@@ -41,8 +42,8 @@ namespace TAS.Server
             internal set { SetField(ref _mediaGuid, value, "MediaGuid"); }
         }
 
-        private Media _mediaFile;
-        public Media MediaFile
+        private IMedia _mediaFile;
+        public IMedia MediaFile
         {
             get
             {

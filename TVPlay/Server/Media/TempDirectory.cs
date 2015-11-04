@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Configuration;
 using System.Diagnostics;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
@@ -15,17 +16,17 @@ namespace TAS.Server
             _folder = ConfigurationManager.AppSettings["TempDirectory"];
         }
 
-        protected override Media CreateMedia(string fileNameOnly)
+        protected override IMedia CreateMedia(string fileNameOnly)
         {
             throw new InvalidOperationException("Temp media must have OriginalMedia property. Use Get() to acquire one.");
         }
 
-        protected override Media CreateMedia(string fileNameOnly, Guid guid)
+        protected override IMedia CreateMedia(string fileNameOnly, Guid guid)
         {
             throw new InvalidOperationException("Temp media must have OriginalMedia property. Use Get() to acquire one.");
         }
 
-        public override void MediaAdd(Media media)
+        public override void MediaAdd(IMedia media)
         {
             // do not add to _files
         }
@@ -35,7 +36,7 @@ namespace TAS.Server
             
         }
         
-        public TempMedia CreateMedia(Media media, string fileExtension = null)
+        public TempMedia CreateMedia(IMedia media, string fileExtension = null)
         {
             return new TempMedia(this, media, fileExtension);
         }

@@ -13,6 +13,7 @@ using System.Xml.Serialization;
 using TAS.Common;
 using TAS.Data;
 using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace TAS.Server
 {
@@ -399,10 +400,10 @@ namespace TAS.Server
              
         #region Preview Routines
 
-        private ServerMedia _previewMedia;
-        protected ServerMedia PreviewMedia { get { return _previewMedia; } }
+        private IServerMedia _previewMedia;
+        protected IServerMedia PreviewMedia { get { return _previewMedia; } }
 
-        public void PreviewLoad(ServerMedia media, long seek, long duration, long position)
+        public void PreviewLoad(IServerMedia media, long seek, long duration, long position)
         {
             if (media != null)
             {
@@ -712,7 +713,7 @@ namespace TAS.Server
         {
             if (aEvent == null || !(aEvent.Layer == VideoLayer.Program || aEvent.Layer == VideoLayer.Preset))
                 return;
-            Media media = aEvent.Media;
+            IMedia media = aEvent.Media;
             bool narrow = media != null && (media.VideoFormat == TVideoFormat.PAL || media.VideoFormat == TVideoFormat.NTSC || media.VideoFormat == TVideoFormat.PAL_P);
             if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
             {
@@ -1121,7 +1122,7 @@ namespace TAS.Server
                 && PlayoutChannelPRV.OwnerServer != PlayoutChannelPGM.OwnerServer
                 && PlayoutChannelPRV.OwnerServer.MediaDirectory.IsInitialized)
             {
-                Media media = PlayoutChannelPRV.OwnerServer.MediaDirectory.GetServerMedia(e.Media, true);
+                IServerMedia media = PlayoutChannelPRV.OwnerServer.MediaDirectory.GetServerMedia(e.Media, true);
                 if (media.FileSize == e.Media.FileSize
                     && media.FileName == e.Media.FileName
                     && media.FileSize == e.Media.FileSize
@@ -1139,7 +1140,7 @@ namespace TAS.Server
         {
             if (PlayoutChannelPRV != null && !e.Media.FileExists())
             {
-                Media media = PlayoutChannelPRV.OwnerServer.MediaDirectory.FindMedia(e.Media);
+                IMedia media = PlayoutChannelPRV.OwnerServer.MediaDirectory.FindMedia(e.Media);
                 if (media != null && media.MediaStatus == TMediaStatus.Available)
                     FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = media });
             }

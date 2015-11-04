@@ -11,14 +11,15 @@ using TAS.Server;
 using TAS.Common;
 using TAS.Client.Common;
 using System.Threading;
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditViewmodel : EditViewmodelBase<Server.Media>, IDataErrorInfo
+    public class MediaEditViewmodel : EditViewmodelBase<IMedia>, IDataErrorInfo
     {
         private readonly PreviewViewmodel _previewVm;
         private readonly bool _showButtons;
-        public MediaEditViewmodel(Server.Media media, PreviewViewmodel previewVm, bool showButtons):base(media, new MediaEditView(media.FrameRate))
+        public MediaEditViewmodel(IMedia media, PreviewViewmodel previewVm, bool showButtons):base(media, new MediaEditView(media.FrameRate))
         {
             CommandSaveEdit = new UICommand() { ExecuteDelegate = Save, CanExecuteDelegate = o => Modified && IsValid };
             CommandCancelEdit = new UICommand() { ExecuteDelegate = Load, CanExecuteDelegate = o => Modified };
@@ -72,7 +73,7 @@ namespace TAS.Client.ViewModels
         {
             if (_previewVm != null)
             {
-                Server.Media previewMedia = _previewVm.LoadedMedia;
+                IMedia previewMedia = _previewVm.LoadedMedia;
                 TCPlay = _previewVm.TCIn;
                 DurationPlay = _previewVm.DurationSelection;
             }

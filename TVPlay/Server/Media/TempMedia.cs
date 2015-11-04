@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TAS.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class TempMedia: Media, IDisposable
+    public class TempMedia: Media, ITempMedia
     {
-        public TempMedia(TempDirectory directory, Media originalMedia, string fileExtension): base(directory, originalMedia.MediaGuid)
+        public TempMedia(TempDirectory directory, IMedia originalMedia, string fileExtension): base(directory, originalMedia.MediaGuid)
         {
             OriginalMedia = originalMedia;
             _fileName = string.Format("{0}.{1}", _mediaGuid, fileExtension);
         }
 
-        internal Media OriginalMedia;
+        internal IMedia OriginalMedia;
         public override string MediaName
         {
             get { return OriginalMedia.MediaName; }

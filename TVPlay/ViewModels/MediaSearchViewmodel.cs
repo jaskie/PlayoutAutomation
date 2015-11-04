@@ -12,6 +12,8 @@ using System.Threading;
 using TAS.Common;
 using TAS.Server;
 using TAS.Client.Common;
+using TAS.Server.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
@@ -25,7 +27,7 @@ namespace TAS.Client.ViewModels
         private readonly bool _closeAfterAdd;
         private readonly RationalNumber _frameRate;
         private readonly VideoFormatDescription _videoFormatDescription;
-        private MediaDirectory _searchDirectory;
+        private IMediaDirectory _searchDirectory;
 
 
         public MediaSearchViewmodel(EngineViewmodel engineVM, TMediaType mediaType, bool closeAfterAdd, VideoFormatDescription videoFormatDescription)
@@ -81,7 +83,7 @@ namespace TAS.Client.ViewModels
 
         public PreviewView PreviewView { get { return _previewView; } }
 
-        bool _canAddMediaToCollection(Media media, TMediaType requiredMediaType, RationalNumber requiredFrameRate, VideoFormatDescription requiredFormatDescription)
+        bool _canAddMediaToCollection(IMedia media, TMediaType requiredMediaType, RationalNumber requiredFrameRate, VideoFormatDescription requiredFormatDescription)
         {
             return 
                 media != null
@@ -196,7 +198,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public Media SelectedMedia
+        public IMedia SelectedMedia
         {
             get
             {
@@ -277,7 +279,7 @@ namespace TAS.Client.ViewModels
                 if (value != _selectedItem)
                 {
                     _selectedItem = value;
-                    Media media = SelectedMedia;
+                    IMedia media = SelectedMedia;
                     if (media is IngestMedia
                         && ((IngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
                         && !media.Verified)
@@ -324,7 +326,7 @@ namespace TAS.Client.ViewModels
 
         private bool _allowAdd(object o)
         {
-            Media sm = SelectedMedia;
+            IMedia sm = SelectedMedia;
             var be = _baseEvent;
             var previewVM = _previewViewmodel;
             return (sm != null)
@@ -392,7 +394,7 @@ namespace TAS.Client.ViewModels
 
     public class MediaSearchEventArgs : EventArgs
     {
-        public MediaSearchEventArgs(Media media, MediaSegment segment, string mediaName, TimeSpan tCIn, TimeSpan duration)
+        public MediaSearchEventArgs(IMedia media, IMediaSegment segment, string mediaName, TimeSpan tCIn, TimeSpan duration)
         {
             Media = media;
             MediaSegment = segment;
@@ -400,8 +402,8 @@ namespace TAS.Client.ViewModels
             TCIn = tCIn;
             Duration = duration;
         }
-        public Media Media { get; private set; }
-        public MediaSegment MediaSegment {get; private set;}
+        public IMedia Media { get; private set; }
+        public IMediaSegment MediaSegment {get; private set;}
         public string MediaName { get; private set; }
         public TimeSpan TCIn { get; private set; }
         public TimeSpan Duration { get; private set; }

@@ -11,6 +11,7 @@ using System.Runtime.Remoting.Messaging;
 using System.Windows.Input;
 using TAS.Common;
 using TAS.Client.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
@@ -250,7 +251,7 @@ namespace TAS.Client.ViewModels
             Event ev = _event;
             if (ev != null)
             {
-                Media media = _event.Media;
+                IMedia media = _event.Media;
                 if (ev.EventType == TEventType.Movie && media != null)
                 {
                     if (_scheduledTC > media.Duration + media.TCStart)
@@ -268,7 +269,7 @@ namespace TAS.Client.ViewModels
             Event ev = _event;
             if (ev != null)
             {
-                Media media = _event.Media;
+                IMedia media = _event.Media;
                 if (ev.EventType == TEventType.Movie && media != null
                     && _duration + _scheduledTC > media.Duration + media.TCStart)
                     validationResult = Properties.Resources._validate_DurationInvalid;
@@ -340,8 +341,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private Media _media;
-        public Media Media
+        private IMedia _media;
+        public IMedia Media
         {
             get { return _media; }
             set
@@ -418,7 +419,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        EventGPI _setGPI(Media media)
+        EventGPI _setGPI(IMedia media)
         {
             EventGPI GPI = new EventGPI();
             GPI.CanTrigger = false;
@@ -563,7 +564,7 @@ namespace TAS.Client.ViewModels
                 Event sle = ev.SubEvents.FirstOrDefault(e => e.Layer == (VideoLayer)int.Parse(layer as string) && e.EventType == TEventType.StillImage);
                 if (sle == null)
                 {
-                    Media media = ev.Media;
+                    IMedia media = ev.Media;
                     VideoFormatDescription format = media == null ? null : media.VideoFormatDescription;
                     _chooseMedia(TMediaType.Still, this.Event, TStartType.With, new Action<MediaSearchEventArgs>((e) =>
                         {

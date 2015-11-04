@@ -9,19 +9,20 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Windows;
 using TAS.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
     public class MediaViewViewmodel: ViewmodelBase
     {
-        public readonly Media Media;
-        public MediaViewViewmodel(Media media)
+        public readonly IMedia Media;
+        public MediaViewViewmodel(IMedia media)
         {
             Media = media;
             Media.PropertyChanged += OnMediaPropertyChanged;
             if (Media is PersistentMedia)
             {
-                (Media as PersistentMedia).MediaSegments.CollectionOperation += new EventHandler<CollectionOperationEventArgs<MediaSegment>>(_mediaSegmentsCollectionOperation);
+                (Media as PersistentMedia).MediaSegments.CollectionOperation += new EventHandler<CollectionOperationEventArgs<IMediaSegment>>(_mediaSegmentsCollectionOperation);
                 foreach (MediaSegment ms in (Media as PersistentMedia).MediaSegments)
                     _mediaSegments.Add(new MediaSegmentViewmodel((Media as PersistentMedia), ms));
             }
@@ -31,7 +32,7 @@ namespace TAS.Client.ViewModels
         {
             Media.PropertyChanged -= OnMediaPropertyChanged;
             if (_mediaSegments != null && Media is PersistentMedia)
-                (Media as PersistentMedia).MediaSegments.CollectionOperation -= new EventHandler<CollectionOperationEventArgs<MediaSegment>>(_mediaSegmentsCollectionOperation);
+                (Media as PersistentMedia).MediaSegments.CollectionOperation -= new EventHandler<CollectionOperationEventArgs<IMediaSegment>>(_mediaSegmentsCollectionOperation);
         }
 
         public string MediaName { get { return Media.MediaName; } }
@@ -68,7 +69,7 @@ namespace TAS.Client.ViewModels
 
         public ObservableCollection<MediaSegmentViewmodel> MediaSegments { get { return _mediaSegments; } }
 
-        private void _mediaSegmentsCollectionOperation(object o, CollectionOperationEventArgs<MediaSegment> e)
+        private void _mediaSegmentsCollectionOperation(object o, CollectionOperationEventArgs<IMediaSegment> e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)(() =>
                 {

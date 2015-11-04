@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using TAS.Common;
 using TAS.Data;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class ArchiveMedia : PersistentMedia
+    public class ArchiveMedia : PersistentMedia, IArchiveMedia
     {
-        public ArchiveMedia(ArchiveDirectory directory) : base(directory) { }
-        public ArchiveMedia(ArchiveDirectory directory, Guid guid) : base(directory, guid) { }
+        public ArchiveMedia(IArchiveDirectory directory) : base(directory) { }
+        public ArchiveMedia(IArchiveDirectory directory, Guid guid) : base(directory, guid) { }
         public override bool Save()
         {
             if (MediaStatus == TMediaStatus.Available)

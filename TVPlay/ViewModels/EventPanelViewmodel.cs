@@ -13,7 +13,7 @@ using System.Runtime.Remoting.Messaging;
 using TAS.Common;
 using TAS.Server;
 using TAS.Client.Common;
-
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
@@ -327,13 +327,13 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        private Media _media;
-        public Media Media
+        private IMedia _media;
+        public IMedia Media
         {
             get { return _media; }
             private set
             {
-                Media oldMedia = _media;
+                IMedia oldMedia = _media;
                 if (oldMedia != value)
                 {
                     if (oldMedia != null)
@@ -508,7 +508,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                Media media = _media;
+                IMedia media = _media;
                 if (media == null)
                     return TMediaCategory.Uncategorized;
                 else
@@ -520,7 +520,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                Media media = _media;
+                IMedia media = _media;
                 if (media == null || !(media is PersistentMedia))
                     return TMediaEmphasis.None;
                 else
@@ -532,7 +532,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                Media media = _media;
+                IMedia media = _media;
                 if (media == null)
                     return TVideoFormat.Other;
                 else
@@ -552,7 +552,7 @@ namespace TAS.Client.ViewModels
                     return TMediaErrorInfo.NoError;
                 else
                 {
-                    Media media = _event.ServerMediaPGM;
+                    IMedia media = _event.ServerMediaPGM;
                     if (media == null || media.MediaStatus == TMediaStatus.Deleted)
                         return TMediaErrorInfo.Missing;
                     else
@@ -574,7 +574,7 @@ namespace TAS.Client.ViewModels
             get {
                 if (_event == null)
                     return string.Empty;
-                Media media = _event.ServerMediaPGM;
+                IMedia media = _event.ServerMediaPGM;
                 return (media == null) ? ((_event.EventType == TEventType.Movie || _event.EventType == TEventType.StillImage)? _event.MediaGuid.ToString() :string.Empty) : media.FileName; }
         }
         
@@ -625,7 +625,7 @@ namespace TAS.Client.ViewModels
                     Event se = _event.SubEvents.ToList().FirstOrDefault(e => e.Layer == VideoLayer.CG1 && e.EventType == TEventType.StillImage);
                     if (se != null)
                     {
-                        Media m = se.Media;
+                        IMedia m = se.Media;
                         if (m != null)
                             return m.MediaName;
                     }
@@ -642,7 +642,7 @@ namespace TAS.Client.ViewModels
                     Event se = _event.SubEvents.ToList().FirstOrDefault(e => e.Layer == VideoLayer.CG2 && e.EventType == TEventType.StillImage);
                     if (se != null)
                     {
-                        Media m = se.Media;
+                        IMedia m = se.Media;
                         if (m != null)
                             return m.MediaName;
                     }
@@ -659,7 +659,7 @@ namespace TAS.Client.ViewModels
                     Event se = _event.SubEvents.ToList().FirstOrDefault(e => e.Layer == VideoLayer.CG3 && e.EventType == TEventType.StillImage);
                     if (se != null)
                     {
-                        Media m = se.Media;
+                        IMedia m = se.Media;
                         if (m != null)
                             return m.MediaName;
                     }

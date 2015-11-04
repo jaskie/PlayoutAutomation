@@ -5,10 +5,11 @@ using System.Text;
 using System.Diagnostics;
 using TAS.Common;
 using TAS.Data;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class AnimationDirectory: MediaDirectory
+    public class AnimationDirectory: MediaDirectory, IAnimationDirectory
     {
         public readonly PlayoutServer Server;
         public AnimationDirectory(PlayoutServer server)
@@ -35,17 +36,17 @@ namespace TAS.Server
             
         }
 
-        protected override Media CreateMedia(string fileNameOnly)
+        protected override IMedia CreateMedia(string fileNameOnly)
         {
             return new ServerMedia(this) { MediaType = TMediaType.AnimationFlash, FileName = fileNameOnly, };
         }
 
-        protected override Media CreateMedia(string fileNameOnly, Guid guid)
+        protected override IMedia CreateMedia(string fileNameOnly, Guid guid)
         {
             return new ServerMedia(this, guid) { MediaType = TMediaType.AnimationFlash, FileName = fileNameOnly, };
         }
 
-        public override void MediaRemove(Media media)
+        public override void MediaRemove(IMedia media)
         {
             if (media is ServerMedia)
             {
@@ -56,7 +57,7 @@ namespace TAS.Server
             base.MediaRemove(media);
         }
 
-        public override bool DeleteMedia(Media media)
+        public override bool DeleteMedia(IMedia media)
         {
             if (base.DeleteMedia(media))
             {

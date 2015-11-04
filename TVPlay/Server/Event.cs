@@ -597,7 +597,7 @@ namespace TAS.Server
             }
         }
 
-        public Media Media
+        public IMedia Media
         {
             get 
             {
@@ -625,9 +625,9 @@ namespace TAS.Server
                 NotifyPropertyChanged("AudioVolume");
         }
         
-        private ServerMedia _serverMediaPRV;
-        private ServerMedia _serverMediaPGM;
-        internal ServerMedia ServerMediaPGM
+        private IServerMedia _serverMediaPRV;
+        private IServerMedia _serverMediaPGM;
+        internal IServerMedia ServerMediaPGM
         {
             get
             {
@@ -637,7 +637,7 @@ namespace TAS.Server
                 Guid mediaGuid = _mediaGuid;
                 if (media == null && mediaGuid != Guid.Empty)
                 {
-                    MediaDirectory dir;
+                    IMediaDirectory dir;
                     if (_eventType == TEventType.AnimationFlash)
                         dir = Engine.MediaManager.AnimationDirectoryPGM;
                     else
@@ -658,7 +658,7 @@ namespace TAS.Server
         
         
 
-        internal ServerMedia ServerMediaPRV
+        internal IServerMedia ServerMediaPRV
         {
             get
             {
@@ -666,7 +666,7 @@ namespace TAS.Server
                 var media = _serverMediaPRV;
                 if ((media == null || media.MediaStatus == TMediaStatus.Deleted) && mediaGuid != Guid.Empty)
                 {
-                    MediaDirectory dir;
+                    IMediaDirectory dir;
                     if (_eventType == TEventType.AnimationFlash)
                         dir = Engine.MediaManager.AnimationDirectoryPRV;
                     else
@@ -1059,7 +1059,7 @@ namespace TAS.Server
                 return TimeSpan.Zero;
             if (_eventType == TEventType.Movie)
             {
-                Media m = Media;
+                IMedia m = Media;
                 if (m == null 
                     || m.MediaStatus != TMediaStatus.Available
                     || _scheduledTC<m.TCStart 

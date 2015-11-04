@@ -8,10 +8,11 @@ using System.IO;
 using System.Runtime.Remoting.Messaging;
 using TAS.Common;
 using TAS.Data;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class ArchiveDirectory : MediaDirectory
+    public class ArchiveDirectory : MediaDirectory, IArchiveDirectory
     {
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
@@ -53,7 +54,7 @@ namespace TAS.Server
         {
             DateTime currentDate = DateTime.UtcNow.Date;
             this.DbFindStaleMedia();
-            IEnumerable<Media> StaleMediaList;
+            IEnumerable<IMedia> StaleMediaList;
             _files.Lock.EnterReadLock();
             try
             {
@@ -67,7 +68,7 @@ namespace TAS.Server
                 m.Delete();
         }
 
-        public ArchiveMedia Find(Media media)
+        public IArchiveMedia Find(IMedia media)
         {
             return this.DbMediaFind(media);
         }
@@ -87,12 +88,12 @@ namespace TAS.Server
                  
         }
 
-        protected override Media CreateMedia(string fileNameOnly)
+        protected override IMedia CreateMedia(string fileNameOnly)
         {
             return new ArchiveMedia(this) { FileName = fileNameOnly };
         }
 
-        protected override Media CreateMedia(string fileNameOnly, Guid guid)
+        protected override IMedia CreateMedia(string fileNameOnly, Guid guid)
         {
             return new ArchiveMedia(this, guid) { FileName = fileNameOnly };
         }
@@ -102,7 +103,7 @@ namespace TAS.Server
         //    // do not add to _files
         //}
 
-        public override bool DeleteMedia(Media media)
+        public override bool DeleteMedia(IMedia media)
         {
             if (base.DeleteMedia(media))
             {
@@ -112,7 +113,7 @@ namespace TAS.Server
             return false;
         }
         
-        public override void MediaRemove(Media media)
+        public override void MediaRemove(IMedia media)
         {
             ArchiveMedia m = (ArchiveMedia)media;
             m.MediaStatus = TMediaStatus.Deleted;
@@ -121,15 +122,15 @@ namespace TAS.Server
             base.MediaRemove(media);
         }
 
-        protected override void OnMediaRenamed(Media media, string newName)
+        protected override void OnMediaRenamed(IMedia media, string newName)
         {
             base.OnMediaRenamed(media, newName);
             ((ArchiveMedia)media).Save();
         }
 
-        public ArchiveMedia GetArchiveMedia(Media media, bool searchExisting = true)
+        public IArchiveMedia GetArchiveMedia(IMedia media, bool searchExisting = true)
         {
-            ArchiveMedia result = null;
+            IArchiveMedia result = null;
             if (searchExisting)
                 result = this.DbMediaFind(media);
             if (result == null)
@@ -161,9 +162,9 @@ namespace TAS.Server
             return result;
         }
 
-        public void ArchiveSave(Media media, TVideoFormat outputFormat, bool deleteAfterSuccess)
+        public void ArchiveSave(IMedia media, TVideoFormat outputFormat, bool deleteAfterSuccess)
         {
-            ArchiveMedia toMedia = GetArchiveMedia(media);
+            IArchiveMedia toMedia = GetArchiveMedia(media);
             if (media is ServerMedia)
             {
                 _archiveCopy(media, toMedia, deleteAfterSuccess, false);
@@ -174,7 +175,7 @@ namespace TAS.Server
             }
         }
 
-        public void ArchiveRestore(ArchiveMedia media, ServerMedia mediaPGM, bool toTop)
+        public void ArchiveRestore(IArchiveMedia media, IServerMedia mediaPGM, bool toTop)
         {
             if (mediaPGM != null)
                 _archiveCopy(media, mediaPGM, false, toTop);
@@ -185,9 +186,9 @@ namespace TAS.Server
             return DateTime.UtcNow.ToString("yyyyMM"); 
         }
 
-        private void _archiveCopy(Media fromMedia, Media toMedia, bool deleteAfterSuccess, bool toTop)
+        private void _archiveCopy(IMedia fromMedia, IMedia toMedia, bool deleteAfterSuccess, bool toTop)
         {
-            if (fromMedia.MediaGuid == toMedia.MediaGuid && fromMedia.MediaFileEqual(toMedia))
+            if (fromMedia.MediaGuid == toMedia.MediaGuid && fromMedia.FilePropertiesEqual(toMedia))
             {
                 if (deleteAfterSuccess)
                     FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = fromMedia, SuccessCallback = GetVolumeInfo}, toTop);

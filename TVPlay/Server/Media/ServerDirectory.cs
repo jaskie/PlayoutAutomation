@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using System.Diagnostics;
 using System.ComponentModel;
-using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using TAS.Common;
 using TAS.Data;
+using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace TAS.Server
 {
-    public class ServerDirectory : MediaDirectory
+    public class ServerDirectory : MediaDirectory, IServerDirectory
     {
         public readonly PlayoutServer Server;
         public ServerDirectory(PlayoutServer server)
@@ -38,14 +38,14 @@ namespace TAS.Server
 
         }
 
-        protected override Media CreateMedia(string fileNameOnly)
+        protected override IMedia CreateMedia(string fileNameOnly)
         {
             return new ServerMedia(this)
             {
                 FileName = fileNameOnly,
             };
         }
-        protected override Media CreateMedia(string fileNameOnly, Guid guid)
+        protected override IMedia CreateMedia(string fileNameOnly, Guid guid)
         {
             return new ServerMedia(this, guid)
             {
@@ -61,7 +61,7 @@ namespace TAS.Server
                 handler(media, new MediaEventArgs(media));
         }
 
-        public override void MediaAdd(Media media)
+        public override void MediaAdd(IMedia media)
         {
             base.MediaAdd(media);
             media.PropertyChanged += OnMediaPropertyChanged;
@@ -69,7 +69,7 @@ namespace TAS.Server
                 ThreadPool.QueueUserWorkItem(o => media.Verify());
         }
 
-        public override void MediaRemove(Media media)
+        public override void MediaRemove(IMedia media)
         {
             ServerMedia m = (ServerMedia)media;
             m.MediaStatus = TMediaStatus.Deleted;
@@ -90,7 +90,7 @@ namespace TAS.Server
         public override void SweepStaleMedia()
         {
             DateTime currentDateTime = DateTime.UtcNow.Date;
-            IEnumerable<Media> StaleMediaList;
+            IEnumerable<IMedia> StaleMediaList;
             _files.Lock.EnterReadLock();
             try
             {
@@ -104,7 +104,7 @@ namespace TAS.Server
                 m.Delete();
         }
 
-        public ServerMedia GetServerMedia(Media media, bool searchExisting = true)
+        public IServerMedia GetServerMedia(IMedia media, bool searchExisting = true)
         {
             if (media == null)
                 return null;
@@ -161,7 +161,7 @@ namespace TAS.Server
             return fm;
         }
 
-        public override Media FindMedia(Media media)
+        public override IMedia FindMedia(IMedia media)
         {
             if (media is ServerMedia && media.Directory == this)
                 return media;
@@ -178,7 +178,7 @@ namespace TAS.Server
             }
         }
 
-        protected override void OnMediaRenamed(Media media, string newName)
+        protected override void OnMediaRenamed(IMedia media, string newName)
         {
             base.OnMediaRenamed(media, newName);
             ((ServerMedia)media).Save();

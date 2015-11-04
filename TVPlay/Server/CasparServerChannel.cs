@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using TAS.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
@@ -70,7 +71,7 @@ namespace TAS.Server
         private CasparItem _getItem(Event aEvent)
         {
             CasparItem item = new CasparItem(string.Empty);
-            ServerMedia media = (aEvent.Engine.PlayoutChannelPGM == this) ? aEvent.ServerMediaPGM : aEvent.ServerMediaPRV;
+            IServerMedia media = (aEvent.Engine.PlayoutChannelPGM == this) ? aEvent.ServerMediaPGM : aEvent.ServerMediaPRV;
             if (aEvent.EventType == TEventType.Live || media != null)
             {
                 if (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
@@ -91,7 +92,7 @@ namespace TAS.Server
                 return null;
         }
 
-        private CasparItem _getItem(ServerMedia media, VideoLayer videolayer, long seek)
+        private CasparItem _getItem(IServerMedia media, VideoLayer videolayer, long seek)
         {
             if (media != null)
             {
@@ -156,7 +157,7 @@ namespace TAS.Server
                     {
                         channel.Load(item);
                         Debug.WriteLine(aEvent, "CasparLoad: ");
-                        Media m = aEvent.Media;
+                        IMedia m = aEvent.Media;
                         return true;
                     }
                 }
@@ -175,7 +176,7 @@ namespace TAS.Server
             return false;
         }
 
-        public override bool Load(ServerMedia media, VideoLayer videolayer, long seek, long duration)
+        public override bool Load(IServerMedia media, VideoLayer videolayer, long seek, long duration)
         {
             var channel = _casparChannel;
             if (_checkConnected() 
@@ -228,7 +229,7 @@ namespace TAS.Server
             {
                 if (aEvent.EventType != TEventType.AnimationFlash)
                 {
-                    Media m = aEvent.Media;
+                    IMedia m = aEvent.Media;
                     if (aEvent.EventType == TEventType.Live || m != null)
                         channel.Play((int)aEvent.Layer);
                 }
