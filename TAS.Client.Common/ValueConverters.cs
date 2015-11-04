@@ -141,6 +141,21 @@ namespace TAS.Client.Common
         public RationalNumber FrameRate { get { return _frameRate; } set { _frameRate = value; } }
     }
 
+    [ValueConversion(typeof(DateTime), typeof(string))]
+    public class UtcToLocalDateTimeStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            DateTime dt = (DateTime)value;
+            return dt == default(DateTime) ? string.Empty : dt.ToLocalTime().ToString((string)parameter, culture);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     [ValueConversion(typeof(bool), typeof(double))]
     public class EnabledBoolToOpacityConverter : IValueConverter
     {

@@ -41,7 +41,7 @@ namespace TAS.Client.ViewModels
         public TimeSpan TCPlay { get { return Media.TCPlay; } }
         public TimeSpan Duration { get { return Media.Duration; } }
         public TimeSpan DurationPlay { get { return Media.DurationPlay; } }
-        public DateTime LastUpdated { get { return Media.LastUpdated.ToLocalTime(); } }
+        public DateTime LastUpdated { get { return Media.LastUpdated; } }
         public TMediaCategory MediaCategory { get { return Media.MediaCategory; } }
         public TMediaStatus MediaStatus { get { return Media.MediaStatus; } }
         public TMediaEmphasis MediaEmphasis { get { return (Media is PersistentMedia) ? (Media as PersistentMedia).MediaEmphasis : TMediaEmphasis.None; } }

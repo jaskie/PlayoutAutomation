@@ -60,9 +60,9 @@ namespace TAS.Client.ViewModels
         }
 
         public int Progress { get { return _fileOperation.Progress; } }
-        public DateTime ScheduledTime { get { return _fileOperation.ScheduledTime.ToLocalTime(); } }
-        public DateTime StartTime { get { return _fileOperation.StartTime.ToLocalTime(); } }
-        public DateTime FinishedTime { get { return _fileOperation.FinishedTime.ToLocalTime(); } }
+        public DateTime ScheduledTime { get { return _fileOperation.ScheduledTime; } }
+        public DateTime StartTime { get { return _fileOperation.ScheduledTime; } }
+        public DateTime FinishedTime { get { return _fileOperation.FinishedTime; } }
         public int TryCount { get { return _fileOperation.TryCount; } }
         public bool IsIndeterminate { get { return _fileOperation.IsIndeterminate; } }
 

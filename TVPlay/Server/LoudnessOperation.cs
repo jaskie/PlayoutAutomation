@@ -139,7 +139,7 @@ namespace TAS.Server
                     if (_samplePeakMeasured && _loudnessMeasured)
                     {
                         var refLoudness = System.Windows.Application.Current.Properties["VolumeReferenceLoudness"];
-                        decimal volume = -Math.Max(_loudness - ((refLoudness is decimal) ? (decimal)refLoudness : -23.0m), _samplePeak); // prevents automatic amplification over 0dBFS
+                        decimal volume = -Math.Max(_loudness - ((refLoudness != null) ? (decimal)refLoudness : -23.0m), _samplePeak); // prevents automatic amplification over 0dBFS
                         var h = AudioVolumeMeasured;
                         if (h == null)
                         {
