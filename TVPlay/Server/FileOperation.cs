@@ -12,31 +12,15 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public enum TFileOperationKind { None, Copy, Move, Convert, Export, Delete, Loudness};
 
-    [TypeConverter(typeof(FileOperationStatusEnumConverter))]
-    public enum FileOperationStatus {
-        Waiting,
-        InProgress,
-        Finished,
-        Failed,
-        Aborted
-    };
-
-    class FileOperationStatusEnumConverter : Infralution.Localization.Wpf.ResourceEnumConverter
+    public class FileOperation : IFileOperation
     {
-        public FileOperationStatusEnumConverter()
-            : base(typeof(FileOperationStatus), TAS.Server.Common.Properties.Resources.ResourceManager)
-        { }
-    }
-
-    public class FileOperation : IComparable, INotifyPropertyChanged
-    {
-        public TFileOperationKind Kind;
-        public IMedia SourceMedia;
-        public IMedia DestMedia;
-        public Action SuccessCallback;
-        public Action FailureCallback;
+        public TFileOperationKind Kind { get; set; }
+        public IMedia SourceMedia { get; set; }
+        public IMedia DestMedia { get; set; }
+        public Action SuccessCallback { get; set; }
+        public Action FailureCallback { get; set; }
+        internal FileManager Owner;
         public FileOperation()
         {
             ScheduledTime = DateTime.UtcNow;
@@ -140,7 +124,7 @@ namespace TAS.Server
             NotifyPropertyChanged("OperationWarning");
         }
         
-        internal virtual bool Do()
+        public virtual bool Do()
         {
             if (_do())
             {
@@ -288,7 +272,7 @@ namespace TAS.Server
                 handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        internal void Fail()
+        public void Fail()
         {
             OperationStatus = FileOperationStatus.Failed;
             if (DestMedia != null)

@@ -16,10 +16,10 @@ namespace TAS.Server
     public class ServerMedia: PersistentMedia, IServerMedia
     {
 
-        public ServerMedia(IServerDirectory directory) : base(directory) { }
-        public ServerMedia(IServerDirectory directory, Guid guid) : base(directory, guid) { }
-        public ServerMedia(IAnimationDirectory directory) : base(directory) { }
-        public ServerMedia(IAnimationDirectory directory, Guid guid) : base(directory, guid) { }
+        public ServerMedia(ServerDirectory directory) : base(directory) { }
+        public ServerMedia(ServerDirectory directory, Guid guid) : base(directory, guid) { }
+        public ServerMedia(AnimationDirectory directory) : base(directory) { }
+        public ServerMedia(AnimationDirectory directory, Guid guid) : base(directory, guid) { }
 
         // media properties
         private bool _isPGM;

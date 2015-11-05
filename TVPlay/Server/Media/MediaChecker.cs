@@ -88,16 +88,6 @@ namespace TAS.Server
             else
                 media.MediaStatus = TMediaStatus.Available;
         }
-
-        public static void GetLoudness(this IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
-        {
-            FileManager.Queue(new LoudnessOperation() { SourceMedia = media, AudioVolumeMeasured = audioVolumeMeasuredCallback, MeasureStart = startTime, MeasureDuration = duration, FailureCallback = finishCallback, SuccessCallback = finishCallback }, true);
-        }
-
-        public static void GetLoudness(this IMedia media)
-        {
-            FileManager.Queue(new LoudnessOperation() { SourceMedia = media, MeasureStart = media.TCPlay - media.TCStart, MeasureDuration = media.DurationPlay });
-        }
     }
 }
 

@@ -120,16 +120,12 @@ namespace TAS.Server
                     if (old != null)
                     {
                         old.OwnerServer.PropertyChanged -= _onServerPropertyChanged;
-                        old.OwnerServer.MediaDirectory.MediaVerified -= _mediaPGMVerified;
-                        old.OwnerServer.MediaDirectory.MediaRemoved -= _mediaPGMRemoved;
                         old.Engine = null;
                     }
                     _playoutChannelPGM = value;
                     if (value != null)
                     {
                         value.OwnerServer.PropertyChanged += _onServerPropertyChanged;
-                        value.OwnerServer.MediaDirectory.MediaVerified += _mediaPGMVerified;
-                        value.OwnerServer.MediaDirectory.MediaRemoved += _mediaPGMRemoved;
                         value.Engine = this;
                     }
                     NotifyPropertyChanged("PlayoutChannelPGM");
@@ -184,16 +180,20 @@ namespace TAS.Server
             var chPGM = PlayoutChannelPGM;
             Debug.WriteLine(chPGM, "About to initialize");
             Debug.Assert(chPGM != null && chPGM.OwnerServer != null, "Null channel PGM or its server");
-            if (chPGM != null 
+            if (chPGM != null
                 && chPGM.OwnerServer != null)
-                ThreadPool.QueueUserWorkItem(o =>
-                    chPGM.OwnerServer.Initialize());
+            {
+                ((CasparServer)chPGM.OwnerServer).MediaManager = this.MediaManager as MediaManager;
+                chPGM.OwnerServer.Initialize();
+            }
             var chPRV = PlayoutChannelPRV;
-            if (chPRV != null 
+            if (chPRV != null
                 && chPRV != chPGM
                 && chPRV.OwnerServer != null)
-                ThreadPool.QueueUserWorkItem(o =>
-                    chPRV.OwnerServer.Initialize());
+            {
+                ((CasparServer)chPRV.OwnerServer).MediaManager = this.MediaManager as MediaManager;
+                chPRV.OwnerServer.Initialize();
+            }
 
             MediaManager.Initialize();
 
@@ -1123,36 +1123,6 @@ namespace TAS.Server
             }
         }
         
-        private void _mediaPGMVerified(object o, MediaEventArgs e)
-        {
-            if (PlayoutChannelPRV != null
-                && PlayoutChannelPRV.OwnerServer != PlayoutChannelPGM.OwnerServer
-                && PlayoutChannelPRV.OwnerServer.MediaDirectory.IsInitialized)
-            {
-                IServerMedia media = PlayoutChannelPRV.OwnerServer.MediaDirectory.GetServerMedia(e.Media, true);
-                if (media.FileSize == e.Media.FileSize
-                    && media.FileName == e.Media.FileName
-                    && media.FileSize == e.Media.FileSize
-                    && !media.Verified)
-                    media.Verify();
-                if (!(media.MediaStatus == TMediaStatus.Available
-                      || media.MediaStatus == TMediaStatus.Copying
-                      || media.MediaStatus == TMediaStatus.CopyPending
-                      || media.MediaStatus == TMediaStatus.Copied))
-                    FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Copy, SourceMedia = e.Media, DestMedia = media });
-            }
-        }
-
-        private void _mediaPGMRemoved(object o, MediaEventArgs e)
-        {
-            if (PlayoutChannelPRV != null && !e.Media.FileExists())
-            {
-                IMedia media = PlayoutChannelPRV.OwnerServer.MediaDirectory.FindMedia(e.Media);
-                if (media != null && media.MediaStatus == TMediaStatus.Available)
-                    FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = media });
-            }
-        }
-
         public MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia)
         {
             MediaDeleteDenyReason reason = MediaDeleteDenyReason.NoDeny;

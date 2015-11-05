@@ -14,7 +14,7 @@ using System.Text;
 using System.ComponentModel;
 using TAS.FFMpegUtils;
 using TAS.Common;
-using resources = TAS.Client.Properties.Resources;
+using resources = TAS.Client.Common.Properties.Resources;
 using TAS.Server.Interfaces;
 
 namespace TAS.Server
@@ -22,7 +22,6 @@ namespace TAS.Server
     public class ConvertOperation : FFMpegOperation
     {
         
-
         #region Properties
 
         StreamInfo[] inputFileStreams;
@@ -132,7 +131,7 @@ namespace TAS.Server
         public TVideoFormat OutputFormat { get { return _outputFormat; } set { SetField(ref _outputFormat, value, "OutputFormat"); } }
 
 
-        internal override bool Do()
+        public override bool Do()
         {
             if (Kind == TFileOperationKind.Convert)
             {
@@ -146,7 +145,7 @@ namespace TAS.Server
                         throw new Exception("ConvertOperation: source media is not of type IngestMedia");
                     bool success = false;
                     if (SourceMedia.Directory.AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia _localSourceMedia = FileManager.TempDirectory.CreateMedia(SourceMedia))
+                        using (TempMedia _localSourceMedia = Owner.TempDirectory.CreateMedia(SourceMedia))
                         {
                             _addOutputMessage(string.Format("Copying to local file {0}", _localSourceMedia.FullPath));
                             _localSourceMedia.PropertyChanged += _localSourceMedia_PropertyChanged;
@@ -294,7 +293,7 @@ namespace TAS.Server
                 else
                 {
                     if ((SourceMedia.Directory is IngestDirectory) && ((IngestDirectory)SourceMedia.Directory).DeleteSource)
-                        FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = SourceMedia });
+                        Owner.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = SourceMedia });
                     _addOutputMessage("Convert operation finished successfully");
                     Debug.WriteLine(this, "Convert operation succeed");
                 }

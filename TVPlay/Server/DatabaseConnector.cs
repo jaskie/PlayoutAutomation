@@ -710,7 +710,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             return reason;
         }
 
-        private static ArchiveMedia _readArchiveMedia(MySqlDataReader dataReader, IArchiveDirectory dir)
+        private static ArchiveMedia _readArchiveMedia(MySqlDataReader dataReader, ArchiveDirectory dir)
         {
             byte typVideo = dataReader.IsDBNull(dataReader.GetOrdinal("typVideo")) ? (byte)0 : dataReader.GetByte("typVideo");
             ArchiveMedia media = new ArchiveMedia(dir, dataReader.GetGuid("MediaGuid"))
@@ -870,7 +870,7 @@ VALUES
             return result;
         }
 
-        internal static ArchiveDirectory LoadArchiveDirectory(UInt64 idArchive)
+        internal static ArchiveDirectory LoadArchiveDirectory(this MediaManager manager, UInt64 idArchive)
         {
             lock (connection)
             {
@@ -883,7 +883,7 @@ VALUES
                     folder = (string)cmd.ExecuteScalar();
                     if (!string.IsNullOrEmpty(folder))
                     {
-                        ArchiveDirectory directory = new ArchiveDirectory()
+                        ArchiveDirectory directory = new ArchiveDirectory(manager)
                         {
                             IdArchive = idArchive,
                             Folder = folder,
@@ -933,12 +933,8 @@ VALUES
 
                             var sPGM = servers.Find(S => S.Id == idServerPGM);
                             var cPGM = sPGM == null || sPGM.Channels.Count > numServerChannelPGM - 1 ? sPGM.Channels[numServerChannelPGM - 1] : null;
-                            if (cPGM != null)
-                                sPGM.MediaDirectory.DirectoryName = "PGM";
                             var sPRV = servers.Find(S => S.Id == idServerPRV);
                             var cPRV = sPRV == null || sPRV.Channels.Count > numServerChannelPRV - 1 ? sPRV.Channels[numServerChannelPRV - 1] : null;
-                            if (cPRV != null)
-                                sPRV.MediaDirectory.DirectoryName = "PRV";
                             Engine newEngine = SerializationHelper.Deserialize<Engine>(dataReader.GetString("Config"));
                             newEngine.Id = dataReader.GetUInt64("idEngine");
                             newEngine.Instance = dataReader.GetUInt64("Instance");

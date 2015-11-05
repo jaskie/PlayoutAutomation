@@ -17,28 +17,23 @@ namespace TAS.Server
 {
     public abstract class MediaDirectory : IMediaDirectory
     { 
-        public readonly static string[] VideoFileTypes = { ".mov", ".mxf", ".mkv", ".mp4", ".wmv", ".avi", ".lxf" };
-        public readonly static string[] StillFileTypes = { ".tif", ".tga", ".png", ".tiff", ".jpg", ".gif", ".bmp" };
-        
-        public static string DefaultFileExtension(TMediaType type)
-        {
-            if (type == TMediaType.Movie || type == TMediaType.Unknown)
-                return VideoFileTypes[0];
-            if (type == TMediaType.Still)
-                return StillFileTypes[0];
-            throw new NotImplementedException(string.Format("MediaDirectory:DefaultFileExtension {0}", type));
-        }
 
         protected string _folder;
         protected string[] _extensions;
         private FileSystemWatcher _watcher;
         protected ConcurrentHashSet<IMedia> _files = new ConcurrentHashSet<IMedia>();
+        internal MediaManager MediaManager;
 
         public event EventHandler<MediaEventArgs> MediaAdded;
         public event EventHandler<MediaEventArgs> MediaRemoved;
         public event EventHandler<MediaEventArgs> MediaVerified;
 
         protected bool _isInitialized = false;
+
+        public MediaDirectory(MediaManager mediaManager)
+        {
+            MediaManager = mediaManager;
+        }
 
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public virtual void Initialize()
@@ -261,7 +256,7 @@ namespace TAS.Server
                         newMedia = CreateMedia(Path.GetFileName(fullPath), guid);
                     newMedia.MediaName = (_extensions == null || _extensions.Length == 0) ? Path.GetFileName(fullPath) : Path.GetFileNameWithoutExtension(fullPath);
                     newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
-                    newMedia.MediaType = (StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Still : (VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Movie : TMediaType.Unknown;
+                    newMedia.MediaType = (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Still : (FileUtils.VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Movie : TMediaType.Unknown;
                     NotifyMediaAdded(newMedia);
                 }
                 return newMedia;

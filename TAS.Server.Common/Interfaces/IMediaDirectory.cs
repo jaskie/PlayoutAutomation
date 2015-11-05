@@ -24,6 +24,7 @@ namespace TAS.Server.Interfaces
         List<IMedia> Files { get; }
         void Initialize();
         void Refresh();
+        void SweepStaleMedia();
         UInt64 VolumeTotalSize { get; }
         UInt64 VolumeFreeSize { get; }
 

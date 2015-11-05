@@ -34,7 +34,7 @@ namespace TAS.Server.XDCAM
 
         public IngestDirectory DestDirectory { get; set; }
 
-        internal override bool Do()
+        public override bool Do()
         {
             if (Kind == TFileOperationKind.Export && SourceMedia.Directory.AccessType == TDirectoryAccessType.Direct)
             {
@@ -73,7 +73,7 @@ namespace TAS.Server.XDCAM
             DestMedia = new IngestMedia(DestDirectory) { MediaName = string.Format("C{0:D4}", maxFile), FileName = string.Format("C{0:D4}.MXF", maxFile), Folder = "Clip", MediaStatus = TMediaStatus.Copying };
             if (DestDirectory.AccessType == TDirectoryAccessType.FTP)
             {
-                using (TempMedia localDestMedia = FileManager.TempDirectory.CreateMedia(inputMedia, "MXF"))
+                using (TempMedia localDestMedia = Owner.TempDirectory.CreateMedia(inputMedia, "MXF"))
                 {
                     DestMedia.PropertyChanged += DestMedia_PropertyChanged;
                     try

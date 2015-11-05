@@ -18,12 +18,14 @@ namespace TAS.Server.Interfaces
         List<IIngestDirectory> IngestDirectories { get; }
         List<IMediaDirectory> Directories { get; }
         ObservableSynchronizedCollection<ITemplate> Templates { get; }
+        IFileManager FileManager { get; }
 
         void IngestMediaToPlayout(IMedia media, bool toTop = false);
         void IngestMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false);
         void IngestMediaToArchive(IIngestMedia media, bool toTop = false);
         void IngestMediaToArchive(IArchiveMedia media, bool toTop = false);
         void IngestMediaToArchive(IEnumerable<IIngestMedia> mediaList, bool ToTop = false);
+        void Queue(IFileOperation operation, bool toTop = false);
         void ArchiveMedia(IMedia media, bool deleteAfter);
         void Export(IEnumerable<MediaExport> exportList, IIngestDirectory directory);
         void Export(MediaExport export, IIngestDirectory directory);

@@ -17,6 +17,8 @@ using TAS.Server;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
 using System.Threading;
+using resources = TAS.Client.Common.Properties.Resources;
+
 
 namespace TAS.Client.Views
 {
@@ -32,7 +34,7 @@ namespace TAS.Client.Views
             try
             {
                 if (!mutex.WaitOne(5000)
-                    && (MessageBox.Show(Properties.Resources._query_StartAnotherInstance,
+                    && (MessageBox.Show(resources._query_StartAnotherInstance,
                                     Common.Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel))
                 {
                     _systemShutdown = true;

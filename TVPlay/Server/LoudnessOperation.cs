@@ -14,7 +14,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    class LoudnessOperation : FFMpegOperation
+    class LoudnessOperation : FFMpegOperation, ILoudnessOperation
     {
 
         private static readonly string lLufsPattern = @"    I:\s*-?\d*\.?\d* LUFS";
@@ -37,11 +37,11 @@ namespace TAS.Server
             Kind = TFileOperationKind.Loudness;
         }
 
-        public EventHandler<AudioVolumeMeasuredEventArgs> AudioVolumeMeasured; // will not save to Media object if not null
-        public TimeSpan MeasureStart;
-        public TimeSpan MeasureDuration;
+        public EventHandler<AudioVolumeMeasuredEventArgs> AudioVolumeMeasured { get; set; } // will not save to Media object if not null
+        public TimeSpan MeasureStart { get; set; }
+        public TimeSpan MeasureDuration { get; set; }
 
-        internal override bool Do()
+        public override bool Do()
         {
             if (Kind == TFileOperationKind.Loudness)
             {
@@ -52,7 +52,7 @@ namespace TAS.Server
 
                     bool success = false;
                     if (SourceMedia.Directory.AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia _localSourceMedia = FileManager.TempDirectory.CreateMedia(SourceMedia))
+                        using (TempMedia _localSourceMedia = Owner.TempDirectory.CreateMedia(SourceMedia))
                         {
                             if (SourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
                             {

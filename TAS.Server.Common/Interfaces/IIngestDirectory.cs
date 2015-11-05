@@ -7,5 +7,6 @@ namespace TAS.Server.Interfaces
 {
     public interface IIngestDirectory: IMediaDirectory, IIngestDirectoryConfig
     {
+        string Filter { get; set; }
     }
 }

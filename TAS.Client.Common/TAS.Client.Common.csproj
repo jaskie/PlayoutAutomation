@@ -238,11 +238,26 @@
     <Resource Include="Images\Actions\media-delete.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\FileOperationStates\Waiting.png" />
+    <Resource Include="Images\FileOperationStates\InProgress.png" />
+    <Resource Include="Images\FileOperationStates\Finished.png" />
+    <Resource Include="Images\FileOperationStates\Failed.png" />
+    <Resource Include="Images\FileOperationStates\Aborted.png" />
+    <Resource Include="Images\MediaStates\validation-error.png" />
+    <Resource Include="Images\MediaStates\unknown.png" />
+    <Resource Include="Images\MediaStates\required.png" />
+    <Resource Include="Images\MediaStates\deleted.png" />
+    <Resource Include="Images\MediaStates\copy-pending.png" />
+    <Resource Include="Images\MediaStates\copying.png" />
+    <Resource Include="Images\MediaStates\copy-error.png" />
+    <Resource Include="Images\MediaStates\copied.png" />
+    <Resource Include="Images\MediaStates\available.png" />
+    <Resource Include="Images\scizors.png" />
     <Resource Include="Images\Actions\copy-small.png" />
     <Resource Include="Images\Actions\add-small.png" />
     <Resource Include="Images\Actions\save-small.png" />
     <Resource Include="Images\Actions\trash-small.png" />
-    <Content Include="Images\Actions\view-refresh.png" />
+    <Resource Include="Images\Actions\view-refresh.png" />
     <Resource Include="Images\MediaNavigation\FFForward.png" />
     <Resource Include="Images\MediaNavigation\FFBack.png" />
     <Resource Include="Images\MediaNavigation\OneFrameForward.png" />

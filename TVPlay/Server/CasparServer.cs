@@ -12,6 +12,7 @@ using System.Xml.Serialization;
 using TAS.Common;
 using TAS.Server.Interfaces;
 using System.ComponentModel;
+using TAS.Server.Common;
 
 namespace TAS.Server
 {
@@ -26,10 +27,12 @@ namespace TAS.Server
         public string ServerAddress { get; set; }
         public string MediaFolder { get; set; }
         [XmlIgnore]
-        public IServerDirectory MediaDirectory { get; set; }
+        public IServerDirectory MediaDirectory { get; private set; }
         [XmlIgnore]
         public IAnimationDirectory AnimationDirectory { get; private set; }
         protected List<IPlayoutServerChannel> _channels;
+        [XmlIgnore]
+        public MediaManager MediaManager;
 
         [XmlIgnore]
         public List<IPlayoutServerChannel> Channels
@@ -46,10 +49,7 @@ namespace TAS.Server
 
         public CasparServer()
         {
-            MediaDirectory = new Server.ServerDirectory(this);
-            AnimationDirectory = new Server.AnimationDirectory(this);
         }
-
 
         protected bool _isInitialized;
         public void Initialize()
@@ -59,6 +59,8 @@ namespace TAS.Server
             {
                 if (!_isInitialized)
                 {
+                    MediaDirectory = new Server.ServerDirectory(this, MediaManager);
+                    AnimationDirectory = new Server.AnimationDirectory(this, MediaManager);
                     MediaDirectory.Folder = MediaFolder;
                     MediaDirectory.Initialize();
                     AnimationDirectory.Initialize();
@@ -165,7 +167,7 @@ namespace TAS.Server
                     && f.Folder == template.Folder);
                 if (media == null)
                 {
-                    media = new ServerMedia(AnimationDirectory)
+                    media = new ServerMedia(AnimationDirectory as AnimationDirectory)
                         {
                             MediaType = TMediaType.AnimationFlash,
                             MediaName = template.Name,

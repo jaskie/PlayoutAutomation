@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using TAS.Common;
+using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
@@ -17,5 +18,7 @@ namespace TAS.Server.Interfaces
         Stream GetFileStream(bool forWrite);
         void CloneMediaProperties(IMedia from);
         RationalNumber FrameRate { get; }
+        void GetLoudness(TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback);
+        void GetLoudness();
     }
 }

@@ -15,6 +15,7 @@ using TAS.Client.Common;
 using System.Configuration;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
@@ -246,7 +247,7 @@ namespace TAS.Client.ViewModels
         {
             IEvent newEvent = new Server.Event(_engine);
             newEvent.EventType = TEventType.Rundown;
-            newEvent.EventName = Common.Properties.Resources._title_NewRundown;
+            newEvent.EventName = resources._title_NewRundown;
             newEvent.Duration = TimeSpan.Zero;
             newEvent.StartType = TStartType.Manual;
             newEvent.ScheduledTime = _engine.CurrentTime;
@@ -258,7 +259,7 @@ namespace TAS.Client.ViewModels
         {
             IEvent newEvent = new Server.Event(_engine);
             newEvent.EventType = TEventType.Container;
-            newEvent.EventName = Common.Properties.Resources._title_NewContainer;
+            newEvent.EventName = resources._title_NewContainer;
             newEvent.StartType = TStartType.None;
             _engine.RootEvents.Add(newEvent);
             newEvent.Save();
@@ -269,9 +270,9 @@ namespace TAS.Client.ViewModels
             var evmList = _selectedEvents.ToList();
             var containerList = evmList.Where(evm => evm.IsRootContainer);
             if (evmList.Count() > 0
-                && MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelected, evmList.Count(), evmList.AsString(Environment.NewLine, 20)), Common.Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
+                && MessageBox.Show(string.Format(resources._query_DeleteSelected, evmList.Count(), evmList.AsString(Environment.NewLine, 20)), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
                 && (containerList.Count() == 0
-                    || MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedContainers, containerList.Count(), containerList.AsString(Environment.NewLine, 20)), Common.Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
+                    || MessageBox.Show(string.Format(resources._query_DeleteSelectedContainers, containerList.Count(), containerList.AsString(Environment.NewLine, 20)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
             {
                 UiServices.SetBusyState();
                 ThreadPool.QueueUserWorkItem(

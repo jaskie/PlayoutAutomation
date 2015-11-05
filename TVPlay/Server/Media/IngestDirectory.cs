@@ -16,6 +16,8 @@ namespace TAS.Server
 {
     public class IngestDirectory : MediaDirectory, IIngestDirectory
     {
+        public IngestDirectory() : base(null) { }
+
         private bool _deleteSource;
         public bool DeleteSource
         {

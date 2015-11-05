@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Runtime.Remoting.Messaging;
 using TAS.FFMpegUtils;
 using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace TAS.Server
 {
@@ -19,14 +20,14 @@ namespace TAS.Server
     public abstract class Media : IMedia
     {
 
-        public Media(IMediaDirectory directory)
+        public Media(MediaDirectory directory)
         {
             _directory = directory;
             _mediaGuid = Guid.NewGuid();
             directory.MediaAdd(this);
         }
 
-        public Media(IMediaDirectory directory, Guid guid)
+        public Media(MediaDirectory directory, Guid guid)
         {
             _directory = directory;
             _mediaGuid = guid;
@@ -205,7 +206,7 @@ namespace TAS.Server
             internal set { _videoFormatDescription = value; }
         }
         
-        protected readonly IMediaDirectory _directory;
+        protected readonly MediaDirectory _directory;
         public IMediaDirectory Directory
         {
             get { return _directory; }
@@ -412,6 +413,17 @@ namespace TAS.Server
                 Debug.WriteLine(e);
             }
         }
+
+        public void GetLoudness(TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
+        {
+            _directory.MediaManager.Queue(new LoudnessOperation() { SourceMedia = this, AudioVolumeMeasured = audioVolumeMeasuredCallback, MeasureStart = startTime, MeasureDuration = duration, FailureCallback = finishCallback, SuccessCallback = finishCallback }, true);
+        }
+
+        public void GetLoudness()
+        {
+            _directory.MediaManager.Queue(new LoudnessOperation() { SourceMedia = this, MeasureStart = this.TCPlay - this.TCStart, MeasureDuration = this.DurationPlay });
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -50,7 +50,7 @@ namespace TAS.Client.Common
         protected override void OnModified()
         {
             NotifyPropertyChanged("CommandApply");
-            NotifyPropertyChanged("CommandOk");
+            NotifyPropertyChanged("CommandOK");
             NotifyPropertyChanged("CommandClose");
         }
 

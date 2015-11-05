@@ -48,7 +48,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FFBD20
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.MediaManager", "TAS.Client.MediaManager\TAS.Client.MediaManager.csproj", "{F6E01E47-5075-42A7-B2A2-BC35BC074F9F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client", "TAS.Client\TAS.Client.csproj", "{F6E01E47-5075-42A7-B2A2-BC35BC074F9F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

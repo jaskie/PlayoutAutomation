@@ -7,32 +7,31 @@ using System.Diagnostics;
 using System.ComponentModel;
 using System.Threading;
 using TAS.Common;
-
+using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace TAS.Server
 {
-    public delegate void FileOperationEventHandler(FileOperation operation);
-
-    public static class FileManager
+    public class FileManager: IFileManager
     {
-        private static SynchronizedCollection<FileOperation> _queueSimpleOperation = new SynchronizedCollection<FileOperation>();
-        private static SynchronizedCollection<FileOperation> _queueConvertOperation = new SynchronizedCollection<FileOperation>();
-        private static SynchronizedCollection<FileOperation> _queueExportOperation = new SynchronizedCollection<FileOperation>();
-        private static bool _isRunningSimpleOperation = false;
-        private static bool _isRunningConvertOperation = false;
-        private static bool _isRunningExportOperation = false;
+        private SynchronizedCollection<IFileOperation> _queueSimpleOperation = new SynchronizedCollection<IFileOperation>();
+        private SynchronizedCollection<IFileOperation> _queueConvertOperation = new SynchronizedCollection<IFileOperation>();
+        private SynchronizedCollection<IFileOperation> _queueExportOperation = new SynchronizedCollection<IFileOperation>();
+        private bool _isRunningSimpleOperation = false;
+        private bool _isRunningConvertOperation = false;
+        private bool _isRunningExportOperation = false;
 
-        public static event FileOperationEventHandler OperationAdded;
-        public static event FileOperationEventHandler OperationCompleted;
+        public event EventHandler<FileOperationEventArgs> OperationAdded;
+        public event EventHandler<FileOperationEventArgs> OperationCompleted;
 
-        public static TempDirectory TempDirectory = new TempDirectory();
-        public static IEnumerable<FileOperation> OperationQueue
+        public TempDirectory TempDirectory;
+        public IEnumerable<IFileOperation> OperationQueue
         {
             get
             {
-                IEnumerable<FileOperation> retList;
+                IEnumerable<IFileOperation> retList;
                 lock (_queueSimpleOperation.SyncRoot)
-                    retList = new List<FileOperation>(_queueSimpleOperation);
+                    retList = new List<IFileOperation>(_queueSimpleOperation);
                 lock (_queueConvertOperation.SyncRoot)
                     retList = retList.Concat(_queueConvertOperation);
                 lock (_queueExportOperation.SyncRoot)
@@ -41,8 +40,9 @@ namespace TAS.Server
             }
         }
 
-        public static void Queue(FileOperation operation, bool toTop = false)
+        public void Queue(FileOperation operation, bool toTop = false)
         {
+            operation.Owner = this;
             if ((operation.Kind == TFileOperationKind.Copy || operation.Kind == TFileOperationKind.Move || operation.Kind == TFileOperationKind.Convert)
                 && operation.DestMedia != null)
                 operation.DestMedia.MediaStatus = TMediaStatus.CopyPending;
@@ -77,7 +77,6 @@ namespace TAS.Server
                             ThreadPool.QueueUserWorkItem(o => _runOperation(_queueExportOperation, ref _isRunningExportOperation));
                         }
                     }
-
             }
             if (operation.Kind == TFileOperationKind.Copy
                 || operation.Kind == TFileOperationKind.Delete
@@ -101,9 +100,9 @@ namespace TAS.Server
             NotifyOperation(OperationAdded, operation);
         }
 
-        private static void _runOperation(SynchronizedCollection<FileOperation> queue, ref bool queueRunningIndicator)
+        private void _runOperation(SynchronizedCollection<IFileOperation> queue, ref bool queueRunningIndicator)
         {
-            FileOperation op;
+            IFileOperation op;
             lock (queue.SyncRoot)
                 op = queue.FirstOrDefault();
             while (op != null)
@@ -140,11 +139,12 @@ namespace TAS.Server
                 queueRunningIndicator = false;
         }
 
-        private static void NotifyOperation(FileOperationEventHandler handler, FileOperation operation)
+        private void NotifyOperation(EventHandler<FileOperationEventArgs> handler, IFileOperation operation)
         {
             if (handler != null)
-                handler(operation);
+                handler(this, new FileOperationEventArgs(operation));
         }
-
     }
+
+
 }

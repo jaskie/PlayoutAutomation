@@ -7,12 +7,28 @@ using System.Text;
 
 namespace TAS.Common
 {
-    public enum TServerType
-    {
-        Caspar = 0
-    }
+    public enum TServerType { Caspar = 0 }
 
     public enum TDirectoryAccessType { Direct, FTP };
+
+    [TypeConverter(typeof(FileOperationStatusEnumConverter))]
+    public enum FileOperationStatus
+    {
+        Waiting,
+        InProgress,
+        Finished,
+        Failed,
+        Aborted
+    };
+
+    public enum TFileOperationKind { None, Copy, Move, Convert, Export, Delete, Loudness };
+
+    class FileOperationStatusEnumConverter : ResourceEnumConverter
+    {
+        public FileOperationStatusEnumConverter()
+            : base(typeof(FileOperationStatus), TAS.Server.Common.Properties.Resources.ResourceManager)
+        { }
+    }
 
     public enum VideoLayer : sbyte
     {

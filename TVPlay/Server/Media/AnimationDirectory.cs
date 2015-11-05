@@ -12,7 +12,7 @@ namespace TAS.Server
     public class AnimationDirectory: MediaDirectory, IAnimationDirectory
     {
         public readonly IPlayoutServer Server;
-        public AnimationDirectory(IPlayoutServer server)
+        public AnimationDirectory(IPlayoutServer server, MediaManager manager): base(manager)
         {
             Server = server;
         }

@@ -180,11 +180,6 @@
     </ApplicationDefinition>
     <Compile Include="MediaInfoDLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.pl.Designer.cs">
-      <DependentUpon>Resources.pl.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <Compile Include="Server\DatabaseConnector.cs" />
     <Compile Include="Server\FFMpegOperation.cs" />
     <Compile Include="Server\GPICommand.cs" />
@@ -209,45 +204,18 @@
     <Compile Include="Server\XDCAM\SerializationHelper.cs" />
     <Compile Include="Server\XDCAM\Smil.cs" />
     <Compile Include="Server\XDCAM\XdcamStream.cs" />
-    <Compile Include="ViewModels\ConvertOperationViewModel.cs" />
     <Compile Include="ViewModels\EventClipboard.cs" />
     <Compile Include="ViewModels\EventEditViewmodel.cs" />
-    <Compile Include="ViewModels\ExportViewmodel.cs" />
-    <Compile Include="ViewModels\FileManagerViewmodel.cs" />
-    <Compile Include="ViewModels\FileOperationViewmodel.cs" />
     <Compile Include="ViewModels\IngestTrimmerViewmodel.cs" />
-    <Compile Include="ViewModels\IngestEditViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditWindowViewmodel.cs" />
-    <Compile Include="ViewModels\MediaExportViewmodel.cs" />
     <Compile Include="ViewModels\MediaSearchViewmodel.cs" />
     <Compile Include="ViewModels\TemplateViewmodel.cs" />
     <Compile Include="ViewModels\TemplatesViewmodel.cs" />
     <Compile Include="Server\Media\ArchiveMedia.cs" />
     <Compile Include="Server\Media\ArchiveDirectory.cs" />
     <Compile Include="Server\ConvertOperation.cs" />
-    <Compile Include="Views\ConvertOperationView.xaml.cs">
-      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\EngineStateView.xaml.cs">
       <DependentUpon>EngineStateView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\ExportView.xaml.cs">
-      <DependentUpon>ExportView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\FileManagerView.xaml.cs">
-      <DependentUpon>FileManagerView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\IngestEditorView.xaml.cs">
-      <DependentUpon>IngestEditorView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\MediaEditView.xaml.cs">
-      <DependentUpon>MediaEditView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\MediaManagerView.xaml.cs">
-      <DependentUpon>MediaManagerView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\OperationOutputView.xaml.cs">
-      <DependentUpon>OperationOutputView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Server\EngineController.cs" />
     <Compile Include="Server\FileManager.cs" />
@@ -268,37 +236,10 @@
     </Compile>
     <Compile Include="ViewModels\EngineViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelViewmodel.cs" />
-    <Compile Include="ViewModels\MediaManagerViewmodel.cs" />
-    <Compile Include="ViewModels\MediaEditViewmodel.cs" />
-    <Compile Include="ViewModels\MediaViewViewmodel.cs" />
     <Compile Include="Views\TemplatesView.xaml.cs">
       <DependentUpon>TemplatesView.xaml</DependentUpon>
     </Compile>
-    <Page Include="Views\ConvertOperationView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\EngineStateView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\ExportView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\FileManagerView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\IngestEditorView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\MediaEditView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\OperationOutputView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -339,37 +280,12 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\MediaManagerView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\TemplatesView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.pl.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.pl.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\ConvertOperationView.pl.resx">
-      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\ConvertOperationView.resx">
-      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Views\EngineView.pl.resx">
       <DependentUpon>EngineView.xaml</DependentUpon>
     </EmbeddedResource>
@@ -388,41 +304,11 @@
     <EmbeddedResource Include="Views\EventPanelView.resx">
       <DependentUpon>EventPanelView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\ExportView.pl.resx">
-      <DependentUpon>ExportView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\ExportView.resx">
-      <DependentUpon>ExportView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\FileManagerView.pl.resx">
-      <DependentUpon>FileManagerView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\FileManagerView.resx">
-      <DependentUpon>FileManagerView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\IngestEditorView.pl.resx">
-      <DependentUpon>IngestEditorView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\IngestEditorView.resx">
-      <DependentUpon>IngestEditorView.xaml</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Views\MainWindow.resx">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\MainWindow.pl.resx">
       <DependentUpon>MainWindow.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\MediaEditView.pl.resx">
-      <DependentUpon>MediaEditView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\MediaEditView.resx">
-      <DependentUpon>MediaEditView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\MediaManagerView.pl.resx">
-      <DependentUpon>MediaManagerView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\MediaManagerView.resx">
-      <DependentUpon>MediaManagerView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\MediaSearchView.pl.resx">
       <DependentUpon>MediaSearchView.xaml</DependentUpon>
@@ -493,23 +379,8 @@
     <Resource Include="Glyphs\Refresh.png" />
     <Resource Include="Glyphs\Circle_A.png" />
     <Resource Include="Glyphs\file_delete.png" />
-    <Resource Include="Glyphs\MediaStates\Unknown.png" />
-    <Resource Include="Glyphs\MediaStates\Copying.png" />
-    <Resource Include="Glyphs\MediaStates\Deleted.png" />
-    <Resource Include="Glyphs\MediaStates\Available.png" />
-    <Resource Include="Glyphs\MediaStates\Copied.png" />
-    <Resource Include="Glyphs\MediaStates\CopyError.png" />
-    <Resource Include="Glyphs\MediaStates\CopyPending.png" />
-    <Resource Include="Glyphs\MediaStates\Required.png" />
-    <Resource Include="Glyphs\FileOperationStates\InProgress.png" />
-    <Resource Include="Glyphs\FileOperationStates\Finished.png" />
-    <Resource Include="Glyphs\FileOperationStates\Waiting.png" />
-    <Resource Include="Glyphs\FileOperationStates\Aborted.png" />
-    <Resource Include="Glyphs\FileOperationStates\Failed.png" />
     <Resource Include="Glyphs\go-up.png" />
-    <Resource Include="Glyphs\MediaStates\ValidationError.png" />
     <Resource Include="Glyphs\playpause.png" />
-    <Resource Include="Glyphs\Scizors.png" />
     <Resource Include="Glyphs\EventTypes\Movie.png" />
     <Resource Include="Glyphs\EventTypes\Rundown.gif" />
     <Resource Include="Glyphs\EventTypes\Live.png" />
@@ -537,9 +408,9 @@
     <Folder Include="Properties\DataSources\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TAS.Client.MediaManager\TAS.Client.MediaManager.csproj">
+    <ProjectReference Include="..\TAS.Client\TAS.Client.csproj">
       <Project>{f6e01e47-5075-42a7-b2a2-bc35bc074f9f}</Project>
-      <Name>TAS.Client.MediaManager</Name>
+      <Name>TAS.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.FFMpegUtils\FFMpegUtils.vcxproj">
       <Project>{aaa90fdf-4e13-490e-a4a4-9b83f522f6c4}</Project>

@@ -9,11 +9,15 @@ using System.Runtime.Remoting.Messaging;
 using TAS.Common;
 using TAS.Data;
 using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace TAS.Server
 {
     public class ArchiveDirectory : MediaDirectory, IArchiveDirectory
     {
+
+        public ArchiveDirectory(MediaManager mediaManager) : base(mediaManager) { }
+
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {
@@ -142,7 +146,7 @@ namespace TAS.Server
                     AudioLevelPeak = media.AudioLevelPeak,
                     Duration = media.Duration,
                     DurationPlay = media.DurationPlay,
-                    FileName = (media is IngestMedia) ? Path.GetFileNameWithoutExtension(media.FileName) + DefaultFileExtension(media.MediaType) : media.FileName,
+                    FileName = (media is IngestMedia) ? Path.GetFileNameWithoutExtension(media.FileName) + FileUtils.DefaultFileExtension(media.MediaType) : media.FileName,
                     FileSize = media.FileSize,
                     Folder = GetCurrentFolder(),
                     LastUpdated = media.LastUpdated,
@@ -154,7 +158,7 @@ namespace TAS.Server
                     KillDate = (media is PersistentMedia) ? (media as PersistentMedia).KillDate : (media is IngestMedia ? media.LastUpdated + TimeSpan.FromDays(((IngestDirectory)media.Directory).MediaRetnentionDays) : default(DateTime)),
                     IdAux = (media is PersistentMedia) ? (media as PersistentMedia).IdAux : string.Empty,
                     idProgramme = (media is PersistentMedia) ? (media as PersistentMedia).idProgramme : 0L,
-                    MediaType = (media.MediaType == TMediaType.Unknown) ? (StillFileTypes.Any(ve => ve == Path.GetExtension(media.FullPath).ToLowerInvariant()) ? TMediaType.Still : TMediaType.Movie) : media.MediaType,
+                    MediaType = (media.MediaType == TMediaType.Unknown) ? (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(media.FullPath).ToLowerInvariant()) ? TMediaType.Still : TMediaType.Movie) : media.MediaType,
                     MediaCategory = media.MediaCategory,
                     Parental = media.Parental,
                     OriginalMedia = media,
@@ -171,7 +175,7 @@ namespace TAS.Server
             }
             if (media is IngestMedia)
             {
-                FileManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = toMedia, SuccessCallback = GetVolumeInfo, OutputFormat = outputFormat});
+                MediaManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = toMedia, SuccessCallback = GetVolumeInfo, OutputFormat = outputFormat});
             }
         }
 
@@ -191,13 +195,13 @@ namespace TAS.Server
             if (fromMedia.MediaGuid == toMedia.MediaGuid && fromMedia.FilePropertiesEqual(toMedia))
             {
                 if (deleteAfterSuccess)
-                    FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = fromMedia, SuccessCallback = GetVolumeInfo}, toTop);
+                    MediaManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = fromMedia, SuccessCallback = GetVolumeInfo}, toTop);
             }
             else
             {
                 if (!Directory.Exists(Path.GetDirectoryName(toMedia.FullPath)))
                     Directory.CreateDirectory(Path.GetDirectoryName(toMedia.FullPath));
-                FileManager.Queue(new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestMedia = toMedia, SuccessCallback = GetVolumeInfo }, toTop);
+                MediaManager.Queue(new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestMedia = toMedia, SuccessCallback = GetVolumeInfo }, toTop);
             }
         }    
 

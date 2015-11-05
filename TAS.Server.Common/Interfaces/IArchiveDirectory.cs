@@ -12,6 +12,8 @@ namespace TAS.Server.Interfaces
         IArchiveMedia GetArchiveMedia(IMedia media, bool searchExisting = true);
         void ArchiveSave(IMedia media, TVideoFormat outputFormat, bool deleteAfterSuccess);
         void ArchiveRestore(IArchiveMedia media, IServerMedia mediaPGM, bool toTop);
-
+        string SearchString { get; set; }
+        TMediaCategory? SearchMediaCategory { get; set; }
+        void Search();
     }
 }

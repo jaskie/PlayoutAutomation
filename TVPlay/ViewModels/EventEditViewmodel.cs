@@ -13,6 +13,7 @@ using TAS.Common;
 using TAS.Client.Common;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
@@ -90,7 +91,7 @@ namespace TAS.Client.ViewModels
                 if (value != ev)
                 {
                     if (this.Modified
-                    && MessageBox.Show(Properties.Resources._query_SaveChangedData, Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    && MessageBox.Show(resources._query_SaveChangedData, resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         _save(null);
                     if (ev != null)
                     {
@@ -241,7 +242,7 @@ namespace TAS.Client.ViewModels
         {
             IEvent ev = _event;
             if (ev != null && (_startType == TStartType.OnFixedTime || _startType == TStartType.Manual) && ev.PlayState == TPlayState.Scheduled && _scheduledTime < ev.Engine.CurrentTime)
-                return Properties.Resources._validate_StartTimePassed;
+                return resources._validate_StartTimePassed;
             else 
                 return string.Empty;
         }
@@ -256,9 +257,9 @@ namespace TAS.Client.ViewModels
                 if (ev.EventType == TEventType.Movie && media != null)
                 {
                     if (_scheduledTC > media.Duration + media.TCStart)
-                        validationResult = string.Format(Properties.Resources._validate_StartTCAfterFile, (media.Duration + media.TCStart).ToSMPTETimecodeString(_engine.VideoFormat));
+                        validationResult = string.Format(resources._validate_StartTCAfterFile, (media.Duration + media.TCStart).ToSMPTETimecodeString(_engine.VideoFormat));
                     if (_scheduledTC < media.TCStart)
-                        validationResult = string.Format(Properties.Resources._validate_StartTCBeforeFile, media.TCStart.ToSMPTETimecodeString(_engine.VideoFormat));
+                        validationResult = string.Format(resources._validate_StartTCBeforeFile, media.TCStart.ToSMPTETimecodeString(_engine.VideoFormat));
                 }
             }
             return validationResult;
@@ -273,7 +274,7 @@ namespace TAS.Client.ViewModels
                 IMedia media = _event.Media;
                 if (ev.EventType == TEventType.Movie && media != null
                     && _duration + _scheduledTC > media.Duration + media.TCStart)
-                    validationResult = Properties.Resources._validate_DurationInvalid;
+                    validationResult = resources._validate_DurationInvalid;
             }
             return validationResult;
         }
@@ -283,7 +284,7 @@ namespace TAS.Client.ViewModels
         {
             string validationResult = string.Empty;
             if (_transitionTime > _duration)
-                    validationResult = Properties.Resources._validate_TransitionTimeInvalid;
+                    validationResult = resources._validate_TransitionTimeInvalid;
             return validationResult;
         }
 
@@ -323,7 +324,7 @@ namespace TAS.Client.ViewModels
         {
             IEvent ev = _event;
             if (ev != null
-                && MessageBox.Show(Properties.Resources._query_DeleteItem, Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                && MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 Modified = false;
                 UiServices.SetBusyState();
@@ -336,7 +337,7 @@ namespace TAS.Client.ViewModels
                     }
                     catch (Exception e)
                     {
-                        MessageBox.Show(string.Format(TAS.Client.Common.Properties.Resources._message_CommandFailed, e.Message), Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(string.Format(resources._message_CommandFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 });
             }
@@ -395,7 +396,7 @@ namespace TAS.Client.ViewModels
             {
                 Event newEvent = new Event(ev.Engine);
                 newEvent.EventType = TEventType.Live;
-                newEvent.EventName = Common.Properties.Resources._title_NewLive;
+                newEvent.EventName = resources._title_NewLive;
                 newEvent.Duration = new TimeSpan(1, 0, 0);
                 //newEvent.Save();
                 ev.InsertUnder(newEvent);
@@ -409,7 +410,7 @@ namespace TAS.Client.ViewModels
             {
                 Event newEvent = new Event(ev.Engine);
                 newEvent.EventType = TEventType.Rundown;
-                newEvent.EventName = Common.Properties.Resources._title_NewRundown;
+                newEvent.EventName = resources._title_NewRundown;
                 if (ev.EventType == TEventType.Container)
                 {
                     newEvent.StartType = TStartType.Manual;
@@ -475,7 +476,7 @@ namespace TAS.Client.ViewModels
             {
                 Event newEvent = new Event(ev.Engine);
                 newEvent.EventType = TEventType.Live;
-                newEvent.EventName = Common.Properties.Resources._title_NewLive;
+                newEvent.EventName = resources._title_NewLive;
                 newEvent.Duration = new TimeSpan(1, 0, 0);
                 //newEvent.Save();
                 ev.InsertAfter(newEvent);
@@ -489,7 +490,7 @@ namespace TAS.Client.ViewModels
             {
                 Event newEvent = new Event(ev.Engine);
                 newEvent.EventType = TEventType.Rundown;
-                newEvent.EventName = Common.Properties.Resources._title_NewRundown;
+                newEvent.EventName = resources._title_NewRundown;
                 //newEvent.Save();
                 ev.InsertAfter(newEvent);
             }
@@ -502,7 +503,7 @@ namespace TAS.Client.ViewModels
             {
                 Event newEvent = new Event(ev.Engine);
                 newEvent.EventType = TEventType.Movie;
-                newEvent.EventName = Common.Properties.Resources._title_EmptyMovie;
+                newEvent.EventName = resources._title_EmptyMovie;
                 ev.InsertAfter(newEvent);
             }
         }
@@ -547,7 +548,7 @@ namespace TAS.Client.ViewModels
         {
             IEvent aEvent = _event;
             if (aEvent != null
-                && MessageBox.Show(Properties.Resources._query_DeleteAllGraphics, Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                && MessageBox.Show(resources._query_DeleteAllGraphics, resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 foreach (IEvent ev in aEvent.SubEvents.ToList().Where(e => e.EventType == TEventType.StillImage || e.EventType == TEventType.AnimationFlash))
                     ev.Delete();

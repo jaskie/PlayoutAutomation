@@ -15,13 +15,13 @@ namespace TAS.Server
     public class ServerDirectory : MediaDirectory, IServerDirectory
     {
         public readonly IPlayoutServer Server;
-        public ServerDirectory(IPlayoutServer server)
-            : base()
+        public ServerDirectory(IPlayoutServer server, MediaManager manager)
+            : base(manager)
         {
             Server = server;
-            Extensions = new string[MediaDirectory.VideoFileTypes.Length + MediaDirectory.StillFileTypes.Length];
-            MediaDirectory.VideoFileTypes.CopyTo(Extensions, 0);
-            MediaDirectory.StillFileTypes.CopyTo(Extensions, MediaDirectory.VideoFileTypes.Length);
+            Extensions = new string[FileUtils.VideoFileTypes.Length + FileUtils.StillFileTypes.Length];
+            FileUtils.VideoFileTypes.CopyTo(Extensions, 0);
+            FileUtils.StillFileTypes.CopyTo(Extensions, FileUtils.VideoFileTypes.Length);
         }
 
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
@@ -122,8 +122,8 @@ namespace TAS.Server
                         {
                             MediaName = media.MediaName,
                             Folder = string.Empty,
-                            FileName = (media is IngestMedia) ? (VideoFileTypes.Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + DefaultFileExtension(media.MediaType) : media.FileName,
-                            MediaType = (media.MediaType == TMediaType.Unknown) ? (StillFileTypes.Any(ve => ve == Path.GetExtension(media.FullPath).ToLowerInvariant()) ? TMediaType.Still : TMediaType.Movie) : media.MediaType,
+                            FileName = (media is IngestMedia) ? (FileUtils.VideoFileTypes.Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + FileUtils.DefaultFileExtension(media.MediaType) : media.FileName,
+                            MediaType = (media.MediaType == TMediaType.Unknown) ? (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(media.FullPath).ToLowerInvariant()) ? TMediaType.Still : TMediaType.Movie) : media.MediaType,
                             MediaStatus = TMediaStatus.Required,
                             TCStart = media.TCStart,
                             TCPlay = media.TCPlay,

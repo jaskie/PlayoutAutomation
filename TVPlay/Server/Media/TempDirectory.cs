@@ -11,7 +11,7 @@ namespace TAS.Server
 {
     public class TempDirectory: MediaDirectory
     {
-        public TempDirectory()
+        public TempDirectory(MediaManager manager): base(manager)
         {
             _folder = ConfigurationManager.AppSettings["TempDirectory"];
         }

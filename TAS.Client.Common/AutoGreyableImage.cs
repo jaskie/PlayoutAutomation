@@ -32,7 +32,7 @@ namespace TAS.Client.Common
         {
             var autoGreyScaleImg = source as AutoGreyableImage;
             var isEnable = Convert.ToBoolean(args.NewValue);
-            if (autoGreyScaleImg != null)
+            if (autoGreyScaleImg != null && autoGreyScaleImg.Source != null)
             {
                 if (!isEnable)
                 {

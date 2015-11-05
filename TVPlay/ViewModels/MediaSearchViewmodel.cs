@@ -13,6 +13,7 @@ using TAS.Common;
 using TAS.Client.Common;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
+using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
@@ -51,7 +52,7 @@ namespace TAS.Client.ViewModels
             _mediaCategory = MediaCategories.FirstOrDefault();
             NewEventStartType = TStartType.After;
             if (!closeAfterAdd)
-                OkButtonText = Properties.Resources._button_Add;
+                OkButtonText = resources._button_Add;
             _createCommands();
             _items = new ObservableCollection<MediaViewViewmodel>(_searchDirectory.Files
                 .Where(m => _canAddMediaToCollection(m, mediaType, _frameRate, videoFormatDescription))
@@ -180,7 +181,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        readonly IEnumerable<object> _mediaCategories = (new List<object>() { Properties.Resources._all_ }).Concat(Enum.GetValues(typeof(TMediaCategory)).Cast<object>());
+        readonly IEnumerable<object> _mediaCategories = (new List<object>() { resources._all_ }).Concat(Enum.GetValues(typeof(TMediaCategory)).Cast<object>());
         public IEnumerable<object> MediaCategories { get { return _mediaCategories; } }
 
         private object _mediaCategory = null;
