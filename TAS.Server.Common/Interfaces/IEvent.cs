@@ -1,31 +1,56 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
 using TAS.Common;
+using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IEventProperties
+    public interface IEvent: IEventProperties, INotifyPropertyChanged
     {
-        decimal? AudioVolume { get; set; }
-        TimeSpan Duration { get; set; }
-        bool Enabled { get; set; }
+        UInt64 IdRundownEvent { get; set; }
+        IServerMedia ServerMediaPGM { get; }
+        IServerMedia ServerMediaPRV { get; }
+        IMedia Media { get; set; }
+        IEngine Engine { get; }
+        long SeekPGM { get; }
+        bool Finished { get; }
+        TimeSpan Length { get; }
+        TimeSpan TimeLeft { get; }
         DateTime EndTime { get; }
-        string EventName { get; set; }
-        TEventType EventType { get; set; }
-        bool Hold { get; set; }
-        string IdAux { get; set; }
-        ulong idProgramme { get; set; }
-        VideoLayer Layer { get; set; }
-        Guid MediaGuid { get; }
-        TPlayState PlayState { get; set; }
-        long Position { get; set; }
-        TimeSpan? RequestedStartTime { get; set; }
-        TimeSpan ScheduledDelay { get; set; }
-        TimeSpan ScheduledTC { get; set; }
-        DateTime ScheduledTime { get; set; }
-        TimeSpan StartTC { get; set; }
-        DateTime StartTime { get; }
-        TStartType StartType { get; set; }
-        TimeSpan TransitionTime { get; set; }
-        TTransitionType TransitionType { get; set; }
+
+        IEvent Next { get; }
+        IEvent Prior { get; }
+        IEvent Parent { get; }
+        IEvent VisualParent { get; }
+        List<IEvent> VisualRootTrack { get; }
+
+        SynchronizedCollection<IEvent> SubEvents { get; }
+        void InsertAfter(IEvent e);
+        void InsertBefore(IEvent e);
+        void InsertUnder(IEvent se);
+        void MoveUp();
+        void MoveDown();
+        void Remove();
+        void Save();
+        void Delete();
+        IEvent Clone();
+
+        bool Modified { get; }
+        bool IsDeleted { get; }
+        MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media);
+        IEvent GetSuccessor();
+        bool IsContainedIn(IEvent parent);
+        bool IsBefore(IEvent aEvent);
+        decimal GetAudioVolume();
+        TimeSpan? GetAttentionTime();
+        void UpdateScheduledTime(bool updateSuccessors);
+
+        event EventHandler Saved;
+        event EventHandler Deleted;
+        event EventHandler Relocated;
+        event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
     }
 }

@@ -7,26 +7,17 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Common
 {
-    public struct MediaDeleteDeny
+    public struct MediaDeleteDenyReason
     {
-        public static MediaDeleteDeny NoDeny = new MediaDeleteDeny() { Reason = MediaDeleteDenyReason.NoDeny };
-
-        public enum MediaDeleteDenyReason
+        public static MediaDeleteDenyReason NoDeny = new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReasonEnum.NoDeny };
+        public enum MediaDeleteDenyReasonEnum
         {
             NoDeny,
             MediaInFutureSchedule,
             Unknown,
         }
-        public MediaDeleteDenyReason Reason;
+        public MediaDeleteDenyReasonEnum Reason;
         public IEventProperties Event;
         public IMedia Media;
-    }
-
-
-    class MediaDeleteDenyReasonEnumConverter : ResourceEnumConverter
-    {
-        public MediaDeleteDenyReasonEnumConverter()
-            : base(typeof(MediaDeleteDeny.MediaDeleteDenyReason), TAS.Server.Common.Properties.Resources.ResourceManager)
-        { }
     }
 }

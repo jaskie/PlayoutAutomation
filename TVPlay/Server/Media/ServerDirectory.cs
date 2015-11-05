@@ -14,8 +14,8 @@ namespace TAS.Server
 {
     public class ServerDirectory : MediaDirectory, IServerDirectory
     {
-        public readonly PlayoutServer Server;
-        public ServerDirectory(PlayoutServer server)
+        public readonly IPlayoutServer Server;
+        public ServerDirectory(IPlayoutServer server)
             : base()
         {
             Server = server;

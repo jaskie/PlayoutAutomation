@@ -24,7 +24,7 @@ namespace TAS.Client.ViewModels
 {
     public class MediaManagerViewmodel : ViewmodelBase
     {
-        private readonly MediaManager _mediaManager;
+        private readonly IMediaManager _mediaManager;
         private readonly MediaManagerView _view;
         private ICollectionView _mediaView;
 
@@ -39,7 +39,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandExport { get; private set; }
         public ICommand CommandRefresh { get; private set; }
 
-        public MediaManagerViewmodel(MediaManager MediaManager, PreviewViewmodel previewVm)
+        public MediaManagerViewmodel(IMediaManager MediaManager, PreviewViewmodel previewVm)
         {
             _mediaManager = MediaManager;
             _previewViewModel = previewVm;
@@ -309,12 +309,12 @@ namespace TAS.Client.ViewModels
             List<IMedia> selection = _getSelections();
             if (MessageBox.Show(string.Format(Properties.Resources._query_DeleteSelectedFiles, selection.AsString(Environment.NewLine, 20)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
             {
-                var reasons = _mediaManager.DeleteMedia(selection).Where(r => r.Reason != MediaDeleteDeny.MediaDeleteDenyReason.NoDeny);
+                var reasons = _mediaManager.DeleteMedia(selection).Where(r => r.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny);
                 if (reasons.Any())
                 {
                     foreach (var reason in reasons)
                     {
-                        string reasonMsg = reason.Reason == MediaDeleteDeny.MediaDeleteDenyReason.MediaInFutureSchedule ? string.Format(resources._message_MediaDeleteDenyReason_Scheduled, reason.Event == null ? resources._unknown_ : reason.Event.EventName, reason.Event == null ? resources._unknown_ : reason.Event.ScheduledTime.ToLocalTime().ToString())
+                        string reasonMsg = reason.Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule ? string.Format(resources._message_MediaDeleteDenyReason_Scheduled, reason.Event == null ? resources._unknown_ : reason.Event.EventName, reason.Event == null ? resources._unknown_ : reason.Event.ScheduledTime.ToLocalTime().ToString())
                             : resources._message_MediaDeleteDenyReason_Unknown;
                         MessageBox.Show(string.Format(resources._message_MediaDeleteNotAllowed, reason.Media.MediaName, reasonMsg), resources._caption_Error, MessageBoxButton.OK);
                     }
@@ -371,7 +371,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public List<IMediaDirectory> MediaDirectories { get { return _mediaManager.Directories(); } }
+        public List<IMediaDirectory> MediaDirectories { get { return _mediaManager.Directories; } }
 
         private IMediaDirectory _mediaDirectory;
 

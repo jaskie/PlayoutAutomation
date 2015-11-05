@@ -16,7 +16,7 @@ namespace TAS.Server
 {
     public class EngineController: IDisposable
     {
-        public readonly List<PlayoutServer> Servers;
+        public readonly List<IPlayoutServer> Servers;
         public readonly List<Engine> Engines;
         [Import]
         ILocalDevices _localGPIDevices = null;

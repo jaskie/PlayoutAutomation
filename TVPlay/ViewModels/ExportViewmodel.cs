@@ -5,7 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Server;
+using TAS.Server.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
@@ -13,9 +14,9 @@ namespace TAS.Client.ViewModels
     {
         public ObservableCollection<MediaExportViewmodel> Items { get; private set; }
         public ICommand CommandExport { get; private set; }
-        readonly MediaManager _mediaManager;
+        readonly IMediaManager _mediaManager;
         Views.ExportView _view;
-        public ExportViewmodel(MediaManager mediaManager, IEnumerable<MediaExport> exportList)
+        public ExportViewmodel(IMediaManager mediaManager, IEnumerable<MediaExport> exportList)
         {
             Items = new ObservableCollection<MediaExportViewmodel>(exportList.Select(m => new MediaExportViewmodel(m)));
             Directories = mediaManager.IngestDirectories.Where(d => d.IsXDCAM).ToList();
@@ -26,10 +27,10 @@ namespace TAS.Client.ViewModels
             _view.ShowDialog();
         }
 
-        public List<IngestDirectory> Directories { get; private set; }
+        public List<IIngestDirectory> Directories { get; private set; }
 
-        IngestDirectory _selectedDirectory;
-        public IngestDirectory SelectedDirectory
+        IIngestDirectory _selectedDirectory;
+        public IIngestDirectory SelectedDirectory
         {
             get { return _selectedDirectory; }
             set

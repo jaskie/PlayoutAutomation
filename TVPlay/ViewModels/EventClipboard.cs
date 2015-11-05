@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TAS.Common;
-using TAS.Server;
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
@@ -14,7 +14,7 @@ namespace TAS.Client.ViewModels
 
         internal enum ClipboardOperation { Cut, Copy };
 
-        static readonly SynchronizedCollection<Event> _clipboard = new SynchronizedCollection<Event>();
+        static readonly SynchronizedCollection<IEvent> _clipboard = new SynchronizedCollection<IEvent>();
         static ClipboardOperation Operation;
         public static event Action ClipboardChanged;
 
@@ -53,7 +53,7 @@ namespace TAS.Client.ViewModels
 
         public static void Paste(EventPanelViewmodel destination, TPasteLocation location)
         {
-            Event dest = destination.Event;
+            IEvent dest = destination.Event;
             lock(_clipboard.SyncRoot)
             {
                 if (CanPaste(destination, location))
@@ -73,7 +73,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        static Event _paste(Event source, Event dest, TPasteLocation location, ClipboardOperation operation)
+        static IEvent _paste(IEvent source, IEvent dest, TPasteLocation location, ClipboardOperation operation)
         {
             if (operation == ClipboardOperation.Cut && source.Engine == dest.Engine)
             {
@@ -95,7 +95,7 @@ namespace TAS.Client.ViewModels
 
             if (operation == ClipboardOperation.Copy && source.Engine == dest.Engine)
             {
-                Event newEvent = source.Clone();
+                IEvent newEvent = source.Clone();
                 switch (location)
                 {
                     case TPasteLocation.After:
@@ -120,7 +120,7 @@ namespace TAS.Client.ViewModels
         {
             if (destEventVm == null)
                 return false;
-            Event dest = destEventVm.Event;
+            IEvent dest = destEventVm.Event;
             lock (_clipboard.SyncRoot)
             {
                 var operation = Operation;
@@ -143,7 +143,7 @@ namespace TAS.Client.ViewModels
         }
 
 
-        private static bool _canPaste(Event sourceEvent, Event destEvent, TPasteLocation location, ClipboardOperation operation)
+        private static bool _canPaste(IEvent sourceEvent, IEvent destEvent, TPasteLocation location, ClipboardOperation operation)
         {
             if (sourceEvent.Engine != destEvent.Engine)
                 return false;

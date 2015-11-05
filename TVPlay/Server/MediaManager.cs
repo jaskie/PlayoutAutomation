@@ -20,23 +20,25 @@ namespace TAS.Server
 {
 
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, IncludeExceptionDetailInFaults = true), CallbackBehavior]
-    public class MediaManager: Remoting.IMediaManager
+    public class MediaManager: IMediaManager, Remoting.IMediaManager
     {
-        public readonly Engine Engine;
+        readonly IEngine _engine;
+        public IEngine Engine { get { return _engine; } }
         public IServerDirectory MediaDirectoryPGM { get; private set; }
         public IServerDirectory MediaDirectoryPRV { get; private set; }
         public IAnimationDirectory AnimationDirectoryPGM { get; private set; }
         public IAnimationDirectory AnimationDirectoryPRV { get; private set; }
-        public ArchiveDirectory ArchiveDirectory { get; private set; }
-        public readonly ObservableSynchronizedCollection<Template> Templates = new ObservableSynchronizedCollection<Template>();
+        public IArchiveDirectory ArchiveDirectory { get; private set; }
+        public readonly ObservableSynchronizedCollection<ITemplate> _templates = new ObservableSynchronizedCollection<ITemplate>();
+        public ObservableSynchronizedCollection<ITemplate> Templates { get { return _templates; } }
 
         public MediaManager(Engine engine)
         {
-            Engine = engine;
+            _engine = engine;
         }
 
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
-        internal void Initialize()
+        public void Initialize()
         {
             MediaDirectoryPGM = (Engine.PlayoutChannelPGM == null) ? null : Engine.PlayoutChannelPGM.OwnerServer.MediaDirectory;
             MediaDirectoryPRV = (Engine.PlayoutChannelPRV == null) ? null : Engine.PlayoutChannelPRV.OwnerServer.MediaDirectory;
@@ -66,8 +68,8 @@ namespace TAS.Server
             Debug.WriteLine(this, "End initializing");
         }
 
-        private List<IngestDirectory> _ingestDirectories;
-        public IEnumerable<IngestDirectory> IngestDirectories
+        private List<IIngestDirectory> _ingestDirectories;
+        public List<IIngestDirectory> IngestDirectories
         {
             get
             {
@@ -79,7 +81,7 @@ namespace TAS.Server
         private bool _ingestDirectoriesLoaded = false;
         private object _ingestDirsSyncObject = new object();
 
-        internal void ReloadIngestDirs()
+        public void ReloadIngestDirs()
         {
             foreach (IngestDirectory d in _ingestDirectories)
                 d.Dispose();
@@ -97,10 +99,10 @@ namespace TAS.Server
                         return;
                     XmlSerializer reader = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
                     System.IO.StreamReader file = new System.IO.StreamReader(fileName);
-                    _ingestDirectories = (List<IngestDirectory>)reader.Deserialize(file);
+                    _ingestDirectories = ((List<IngestDirectory>)reader.Deserialize(file)).Cast<IIngestDirectory>().ToList();
                     file.Close();
                 }
-                else _ingestDirectories = new List<IngestDirectory>();
+                else _ingestDirectories = new List<IIngestDirectory>();
                 _ingestDirectoriesLoaded = true;
                 foreach (IngestDirectory d in _ingestDirectories)
                     d.Initialize();
@@ -175,20 +177,23 @@ namespace TAS.Server
             }
         }
 
-        public List<IMediaDirectory> Directories()
+        public List<IMediaDirectory> Directories
         {
-            List<IMediaDirectory> dl = new List<IMediaDirectory>();
-            lock (_ingestDirsSyncObject)
-                if (_ingestDirectoriesLoaded)
-                    foreach (IngestDirectory d in _ingestDirectories)
-                        dl.Add(d);
-            if (ArchiveDirectory != null)
-                dl.Insert(0, ArchiveDirectory);
-            if (Engine.PlayoutChannelPRV != null && Engine.PlayoutChannelPRV.OwnerServer != Engine.PlayoutChannelPGM.OwnerServer)
-                dl.Insert(0, Engine.PlayoutChannelPRV.OwnerServer.MediaDirectory);
-            if (Engine.PlayoutChannelPGM != null)
-                dl.Insert(0, Engine.PlayoutChannelPGM.OwnerServer.MediaDirectory);
-            return dl;
+            get
+            {
+                List<IMediaDirectory> dl = new List<IMediaDirectory>();
+                lock (_ingestDirsSyncObject)
+                    if (_ingestDirectoriesLoaded)
+                        foreach (IngestDirectory d in _ingestDirectories)
+                            dl.Add(d);
+                if (ArchiveDirectory != null)
+                    dl.Insert(0, ArchiveDirectory);
+                if (Engine.PlayoutChannelPRV != null && Engine.PlayoutChannelPRV.OwnerServer != Engine.PlayoutChannelPGM.OwnerServer)
+                    dl.Insert(0, Engine.PlayoutChannelPRV.OwnerServer.MediaDirectory);
+                if (Engine.PlayoutChannelPGM != null)
+                    dl.Insert(0, Engine.PlayoutChannelPGM.OwnerServer.MediaDirectory);
+                return dl;
+            }
         }
 
         public void IngestMediaToPlayout(IMedia media, bool toTop = false)
@@ -255,27 +260,27 @@ namespace TAS.Server
             if (media == null || ArchiveDirectory == null)
                 return;
             IMedia sourceMedia = media.OriginalMedia;
-            if (sourceMedia == null || !(sourceMedia is IngestMedia))
+            if (sourceMedia == null || !(sourceMedia is IIngestMedia))
                 return;
             if (!media.FileExists() && sourceMedia.FileExists())
                 FileManager.Queue(new ConvertOperation { SourceMedia = sourceMedia, DestMedia = media, OutputFormat = Engine.VideoFormat }, toTop);
         }
 
-        public void IngestMediaToArchive(IEnumerable<IngestMedia> mediaList, bool ToTop = false)
+        public void IngestMediaToArchive(IEnumerable<IIngestMedia> mediaList, bool ToTop = false)
         {
-            foreach (IngestMedia m in mediaList)
+            foreach (IIngestMedia m in mediaList)
                 IngestMediaToArchive(m);
         }
 
-        public MediaDeleteDeny DeleteMedia(IMedia media)
+        public MediaDeleteDenyReason DeleteMedia(IMedia media)
         {
-            MediaDeleteDeny reason = (media is ServerMedia) ? Engine.CanDeleteMedia(media as ServerMedia) : MediaDeleteDeny.NoDeny;
-            if (reason.Reason == MediaDeleteDeny.MediaDeleteDenyReason.NoDeny)
+            MediaDeleteDenyReason reason = (media is ServerMedia) ? Engine.CanDeleteMedia(media as ServerMedia) : MediaDeleteDenyReason.NoDeny;
+            if (reason.Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
                 FileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = media });
             return reason;
         }
 
-        public IEnumerable<MediaDeleteDeny> DeleteMedia(IEnumerable<IMedia> mediaList)
+        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList)
         {
             return mediaList.Select(m => DeleteMedia(m));
         }
@@ -296,7 +301,7 @@ namespace TAS.Server
                 m.GetLoudness();
         }
 
-        public void ArchiveMedia(Media media, bool deleteAfter)
+        public void ArchiveMedia(IMedia media, bool deleteAfter)
         {
             if (ArchiveDirectory == null)
                 return;
@@ -395,16 +400,16 @@ namespace TAS.Server
         }
 
 
-        public void Export(IEnumerable<MediaExport> exportList, IngestDirectory directory)
+        public void Export(IEnumerable<MediaExport> exportList, IIngestDirectory directory)
         {
             foreach (MediaExport e in exportList)
                 Export(e, directory);
 
         }
 
-        public void Export(MediaExport export, IngestDirectory directory)
+        public void Export(MediaExport export, IIngestDirectory directory)
         {
-            FileManager.Queue(new XDCAM.ExportOperation() { SourceMedia = export.Media, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory });
+            FileManager.Queue(new XDCAM.ExportOperation() { SourceMedia = export.Media, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory as IngestDirectory });
         }
 
         public Guid IngestFile(string fileName)

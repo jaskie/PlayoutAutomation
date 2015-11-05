@@ -7,6 +7,8 @@ using TAS.Server;
 using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
+using TAS.Server.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
@@ -37,7 +39,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandAddTemplate { get; private set; }
         public ICommand CommandDeleteSelected { get; private set; }
 
-        private void _onSourceCollectionOperation(object o, CollectionOperationEventArgs<Template> e)
+        private void _onSourceCollectionOperation(object o, CollectionOperationEventArgs<ITemplate> e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {

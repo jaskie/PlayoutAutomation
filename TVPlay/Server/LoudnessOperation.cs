@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using TAS.Common;
 using TAS.Server;
+using TAS.Server.Common;
 using TAS.Server.Interfaces;
 
 namespace TAS.Server
@@ -160,12 +161,4 @@ namespace TAS.Server
         }
     }
 
-    public class AudioVolumeMeasuredEventArgs: EventArgs
-    {
-        public AudioVolumeMeasuredEventArgs(decimal volume)
-        {
-            AudioVolume = volume;
-        }
-        public decimal AudioVolume { get; private set; }
-    }
 }

@@ -12,12 +12,13 @@ using System.Windows.Input;
 using TAS.Common;
 using TAS.Client.Common;
 using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace TAS.Client.ViewModels
 {
     public class EventEditViewmodel : ViewmodelBase, IDataErrorInfo
     {
-        private readonly Engine _engine;
+        private readonly IEngine _engine;
         private readonly EngineViewmodel _engineViewModel;
         public EventEditViewmodel(EngineViewmodel engineViewModel)
         {
@@ -77,13 +78,13 @@ namespace TAS.Client.ViewModels
         public UICommand CommandMoveDown { get; private set; }
 
         
-        private Event _event;
-        public Event Event
+        private IEvent _event;
+        public IEvent Event
         {
             get { return _event; }
             set
             {
-                Event ev = _event;
+                IEvent ev = _event;
                 if (ev != null && ev.Engine != _engine)
                     throw new InvalidOperationException("Edit event engine invalid");
                 if (value != ev)
@@ -117,7 +118,7 @@ namespace TAS.Client.ViewModels
 
         void _save(object o)
         {
-            Event e2Save = Event;
+            IEvent e2Save = Event;
             if (Modified && e2Save != null)
             {
                 PropertyInfo[] copiedProperties = this.GetType().GetProperties();
@@ -146,7 +147,7 @@ namespace TAS.Client.ViewModels
             _isLoading = true;
             try
             {
-                Event e2Load = _event;
+                IEvent e2Load = _event;
                 if (e2Load != null)
                 {
                     PropertyInfo[] copiedProperties = this.GetType().GetProperties();
@@ -180,7 +181,7 @@ namespace TAS.Client.ViewModels
 
         private void _readProperty(string propertyName)
         {
-            Event e2Read = _event;
+            IEvent e2Read = _event;
             PropertyInfo writingProperty = this.GetType().GetProperty(propertyName);
             if (e2Read != null)
             {
@@ -238,7 +239,7 @@ namespace TAS.Client.ViewModels
 
         private string _validateScheduledTime()
         {
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null && (_startType == TStartType.OnFixedTime || _startType == TStartType.Manual) && ev.PlayState == TPlayState.Scheduled && _scheduledTime < ev.Engine.CurrentTime)
                 return Properties.Resources._validate_StartTimePassed;
             else 
@@ -248,7 +249,7 @@ namespace TAS.Client.ViewModels
         private string _validateScheduledTC()
         {
             string validationResult = string.Empty;
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null)
             {
                 IMedia media = _event.Media;
@@ -266,7 +267,7 @@ namespace TAS.Client.ViewModels
         private string _validateDuration()
         {
             string validationResult = string.Empty;
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null)
             {
                 IMedia media = _event.Media;
@@ -288,7 +289,7 @@ namespace TAS.Client.ViewModels
 
         private MediaSearchViewmodel _searchViewmodel;
 
-        private void _chooseMedia(TMediaType mediaType, Event baseEvent, TStartType startType, Action<MediaSearchEventArgs> executeOnChoose, VideoFormatDescription videoFormatDescription = null)
+        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType, Action<MediaSearchEventArgs> executeOnChoose, VideoFormatDescription videoFormatDescription = null)
         {
             var svm = _searchViewmodel;
             if (svm == null)
@@ -320,7 +321,7 @@ namespace TAS.Client.ViewModels
 
         private void _delete(object ob)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null
                 && MessageBox.Show(Properties.Resources._query_DeleteItem, Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
@@ -353,7 +354,7 @@ namespace TAS.Client.ViewModels
 
         void _changeMovie(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null
                 && ev.EventType == TEventType.Movie)
             {
@@ -389,7 +390,7 @@ namespace TAS.Client.ViewModels
 
         void _addSubLive(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null)
             {
                 Event newEvent = new Event(ev.Engine);
@@ -403,7 +404,7 @@ namespace TAS.Client.ViewModels
 
         void _addSubRundown(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null)
             {
                 Event newEvent = new Event(ev.Engine);
@@ -432,7 +433,7 @@ namespace TAS.Client.ViewModels
 
         void _addSubMovie(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             var svm = _searchViewmodel;
             if (ev != null && svm == null)
             {
@@ -469,7 +470,7 @@ namespace TAS.Client.ViewModels
 
         void _addNextLive(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null)
             {
                 Event newEvent = new Event(ev.Engine);
@@ -483,7 +484,7 @@ namespace TAS.Client.ViewModels
 
         void _addNextRundown(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null)
             {
                 Event newEvent = new Event(ev.Engine);
@@ -496,7 +497,7 @@ namespace TAS.Client.ViewModels
 
         void _addNextEmptyMovie(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null)
             {
                 Event newEvent = new Event(ev.Engine);
@@ -508,7 +509,7 @@ namespace TAS.Client.ViewModels
 
         void _addNextMovie(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             var svm = _searchViewmodel;
             if (ev != null && svm == null)
             {
@@ -544,11 +545,11 @@ namespace TAS.Client.ViewModels
 
         void _removeSubItems(object o)
         {
-            Event aEvent = _event;
+            IEvent aEvent = _event;
             if (aEvent != null
                 && MessageBox.Show(Properties.Resources._query_DeleteAllGraphics, Common.Properties.Resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                foreach (Event ev in aEvent.SubEvents.ToList().Where(e => e.EventType == TEventType.StillImage || e.EventType == TEventType.AnimationFlash))
+                foreach (IEvent ev in aEvent.SubEvents.ToList().Where(e => e.EventType == TEventType.StillImage || e.EventType == TEventType.AnimationFlash))
                     ev.Delete();
                 NotifyPropertyChanged("HasSubItemOnLayer1");
                 NotifyPropertyChanged("HasSubItemOnLayer2");
@@ -558,10 +559,10 @@ namespace TAS.Client.ViewModels
 
         private void _addGraphics(object layer)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null)
             {
-                Event sle = ev.SubEvents.FirstOrDefault(e => e.Layer == (VideoLayer)int.Parse(layer as string) && e.EventType == TEventType.StillImage);
+                IEvent sle = ev.SubEvents.FirstOrDefault(e => e.Layer == (VideoLayer)int.Parse(layer as string) && e.EventType == TEventType.StillImage);
                 if (sle == null)
                 {
                     IMedia media = ev.Media;
@@ -595,10 +596,10 @@ namespace TAS.Client.ViewModels
 
         void _addAnimation(object layer)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null)
             {
-                Event sle = ev.SubEvents.FirstOrDefault(e => e.Layer == (VideoLayer)int.Parse(layer as string) && e.EventType == TEventType.AnimationFlash);
+                IEvent sle = ev.SubEvents.FirstOrDefault(e => e.Layer == (VideoLayer)int.Parse(layer as string) && e.EventType == TEventType.AnimationFlash);
                 if (sle == null)
                 {
                     _chooseMedia(TMediaType.AnimationFlash, this.Event, TStartType.With, new Action<MediaSearchEventArgs>((e) =>
@@ -629,7 +630,7 @@ namespace TAS.Client.ViewModels
 
         void _reschedule(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null)
                 _engine.ReSchedule(ev);
         }
@@ -665,7 +666,7 @@ namespace TAS.Client.ViewModels
 
         void _toggleEnabled(object o)
         {
-            Event ev = Event;
+            IEvent ev = Event;
             if (ev != null && ev.EventType != TEventType.Container)
             {
                 ev.Enabled = !ev.Enabled;
@@ -675,8 +676,8 @@ namespace TAS.Client.ViewModels
 
         void _toggleHold(object o)
         {
-            Event ev = Event;
-            if (ev != null && ev._eventType != TEventType.Container)
+            IEvent ev = Event;
+            if (ev != null && ev.EventType != TEventType.Container)
             {
                 ev.Hold = !ev.Hold;
                 ev.Save();
@@ -685,21 +686,21 @@ namespace TAS.Client.ViewModels
 
         void _moveUp(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null)
                 ev.MoveUp();
         }
 
         void _moveDown(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             if (ev != null)
                 ev.MoveDown();
         }
 
         bool _canAddNextEvent(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             return ev != null
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Playing)
                 && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live);
@@ -707,7 +708,7 @@ namespace TAS.Client.ViewModels
         
         bool _canAddSubMovie(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             return ev != null
                 && ev.PlayState == TPlayState.Scheduled
                 && ev.EventType == TEventType.Rundown
@@ -716,7 +717,7 @@ namespace TAS.Client.ViewModels
 
         bool _canAddSubRundown(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             return ev != null
                 && ((ev.PlayState == TPlayState.Scheduled && ev.EventType == TEventType.Rundown && ev.SubEvents.Count == 0) || ev.EventType == TEventType.Container);
         }
@@ -724,7 +725,7 @@ namespace TAS.Client.ViewModels
         
         bool _canAddGraphics(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             return ev != null
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused || ev.PlayState == TPlayState.Playing || ev.PlayState == TPlayState.Fading)
                 && (ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live);
@@ -732,32 +733,32 @@ namespace TAS.Client.ViewModels
 
         bool _canRemoveSubitems(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             return ev != null
                 && ev.PlayState == TPlayState.Scheduled
                 && ev.SubEvents.Any(e => e.EventType == TEventType.StillImage);
         }
         bool _canReschedule(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             return ev != null
                 && (ev.PlayState == TPlayState.Played || ev.PlayState == TPlayState.Aborted);
         }
         bool _canDelete(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             return ev != null
                 && (ev.PlayState == TPlayState.Played || ev.PlayState == TPlayState.Aborted || ev.PlayState == TPlayState.Scheduled);
         }
         bool _canToggleEnabled(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             return ev != null
                 && (ev.PlayState == TPlayState.Scheduled);
         }
         bool _isEditableMovie(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             return ev != null
                 && ev.PlayState == TPlayState.Scheduled 
                 && ev.EventType == TEventType.Movie;
@@ -768,13 +769,13 @@ namespace TAS.Client.ViewModels
         }
         bool _canSave(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             return ev != null
                 && (Modified || ev.Modified);
         }
         bool _canGetTcInTcOut(object o)
         {
-            Event ev = _event;
+            IEvent ev = _event;
             var previewVm = _engineViewModel.PreviewViewmodel;
             var previewMedia = (previewVm != null) ? previewVm.LoadedMedia : null;
             return (ev != null)
@@ -783,14 +784,14 @@ namespace TAS.Client.ViewModels
         }
         bool _canMoveUp(object o)
         {
-            Event ev = _event;
-            Event prior = ev == null ? null : ev.Prior;
+            IEvent ev = _event;
+            IEvent prior = ev == null ? null : ev.Prior;
             return prior != null && prior.PlayState == TPlayState.Scheduled && ev.PlayState == TPlayState.Scheduled;
         }
         bool _canMoveDown(object o)
         {
-            Event ev = _event;
-            Event next = ev == null ? null : ev.Next;
+            IEvent ev = _event;
+            IEvent next = ev == null ? null : ev.Next;
             return next != null && next.PlayState == TPlayState.Scheduled && ev.PlayState == TPlayState.Scheduled;
         }
 
@@ -916,8 +917,8 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                Event ev = Event;
-                Event boundEvent = ev == null ? null : (ev._startType == TStartType.With) ? ev.Parent : (ev._startType == TStartType.After) ? ev.Prior : null;
+                IEvent ev = Event;
+                IEvent boundEvent = ev == null ? null : (ev.StartType == TStartType.With) ? ev.Parent : (ev.StartType == TStartType.After) ? ev.Prior : null;
                 return boundEvent == null ? string.Empty : boundEvent.EventName;
             }
         }
@@ -1032,7 +1033,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                Event ev = Event;
+                IEvent ev = Event;
                 return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG1 : ev.SubEvents.ToList().Any(e => e.Layer == VideoLayer.CG1 && e.EventType == TEventType.StillImage);
             }
         }
@@ -1040,7 +1041,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                Event ev = Event;
+                IEvent ev = Event;
                 return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG2 : ev.SubEvents.ToList().Any(e => e.Layer == VideoLayer.CG2 && e.EventType == TEventType.StillImage);
             }
         }
@@ -1048,7 +1049,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                Event ev = Event;
+                IEvent ev = Event;
                 return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG3 : ev.SubEvents.ToList().Any(e => e.Layer == VideoLayer.CG3 && e.EventType == TEventType.StillImage);
             }
         }
@@ -1057,7 +1058,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                Event ev = Event;
+                IEvent ev = Event;
                 return (ev == null || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie) ? false : ev.SubEvents.ToList().Any(e => e.EventType == TEventType.StillImage);
             }
         }
@@ -1065,7 +1066,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                Event ev = Event;
+                IEvent ev = Event;
                 return (ev == null) ? false : (ev.EventType == TEventType.AnimationFlash) ? ev.Layer == 0 : ev.SubEvents.ToList().Any(e => e.Layer == 0 && e.EventType == TEventType.AnimationFlash);
             }
         }
@@ -1074,7 +1075,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                Event ev = Event;
+                IEvent ev = Event;
                 return !((ev == null) || ev.StartType == TStartType.After || ev.StartType == TStartType.With);
             }
         }
@@ -1083,7 +1084,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                Event ev = Event;
+                IEvent ev = Event;
                 return (ev != null) && ev.EventType != TEventType.Rundown;
             }
         }
@@ -1094,8 +1095,8 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                Event ev = Event;
-                return (ev != null && (ev.Engine.GPI != null || ev.Engine.LocalGpi != null));
+                IEvent ev = Event;
+                return (ev != null && (ev.Engine.Gpi != null || ev.Engine.LocalGpi != null));
             }
         }
 
@@ -1191,7 +1192,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _onSubeventChanged(object o, CollectionOperationEventArgs<Event> e)
+        private void _onSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
             if (((o as Event).EventType == TEventType.Live || (o as Event).EventType == TEventType.Movie)
                 && (e.Item.EventType == TEventType.StillImage || e.Item.EventType == TEventType.AnimationFlash))

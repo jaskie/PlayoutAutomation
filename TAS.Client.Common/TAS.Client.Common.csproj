@@ -217,7 +217,7 @@
     <Resource Include="Images\folder_development.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Images\config.png" />
+    <Resource Include="Images\config.png" />
     <Resource Include="Images\database.png" />
   </ItemGroup>
   <ItemGroup>
@@ -238,7 +238,15 @@
     <Resource Include="Images\Actions\media-delete.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\Actions\copy-small.png" />
+    <Resource Include="Images\Actions\add-small.png" />
+    <Resource Include="Images\Actions\save-small.png" />
+    <Resource Include="Images\Actions\trash-small.png" />
     <Content Include="Images\Actions\view-refresh.png" />
+    <Resource Include="Images\MediaNavigation\FFForward.png" />
+    <Resource Include="Images\MediaNavigation\FFBack.png" />
+    <Resource Include="Images\MediaNavigation\OneFrameForward.png" />
+    <Resource Include="Images\MediaNavigation\OneFrameBack.png" />
     <Resource Include="Images\warning.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

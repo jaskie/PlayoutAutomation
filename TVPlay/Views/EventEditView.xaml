@@ -102,7 +102,7 @@
                 </Button>-->
                 <Button ToolTip="{Resx _toolbar.RemoveSubItems}" 
                         Command="{Binding CommandRemoveSubItems}" >
-                    <common:AutoGreyableImage Source="../Glyphs/trash.png" />
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png" />
                 </Button>
             </StackPanel>
             <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft">
@@ -177,7 +177,7 @@
                     <DockPanel>
                         <Label Content="{Resx _duration}" />
                         <Button DockPanel.Dock="Right" HorizontalAlignment="Right" ToolTip="{Resx _duration.GetTcInTcOut.ToolTip}" Command="{Binding CommandGetTCInTCOut}" >
-                            <common:AutoGreyableImage Source="../Glyphs/Copy_small.png" />
+                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy-small.png" />
                         </Button>
                         <common:DelayedBindingTextBox Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsDurationEnabled}" />
                     </DockPanel>

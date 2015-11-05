@@ -11,23 +11,23 @@ using System.Diagnostics;
 using System.Windows;
 using System.Runtime.Remoting.Messaging;
 using TAS.Common;
-using TAS.Server;
 using TAS.Client.Common;
 using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace TAS.Client.ViewModels
 {
     public class EventPanelViewmodel : ViewmodelBase
     {
-        readonly Event _event;
-        readonly Engine _engine;
+        readonly IEvent _event;
+        readonly IEngine _engine;
         readonly int _level;
         EventPanelViewmodel _parent;
         readonly EventPanelViewmodel _root;
         readonly EngineViewmodel _engineViewmodel;
         private readonly RationalNumber _frameRate;
         ObservableCollection<EventPanelViewmodel> _childrens = new ObservableCollection<EventPanelViewmodel>();
-        static readonly EventPanelViewmodel DummyChild = new EventPanelViewmodel((Event) null, null);
+        static readonly EventPanelViewmodel DummyChild = new EventPanelViewmodel((IEvent)null, null);
 
         public ICommand CommandCut { get { return _engineViewmodel.CommandCutSelected; } }
         public ICommand CommandCopy { get { return _engineViewmodel.CommandCopySelected; } }
@@ -38,7 +38,7 @@ namespace TAS.Client.ViewModels
         
         
         
-        public EventPanelViewmodel(Server.Engine engine, EngineViewmodel engineViewmodel)
+        public EventPanelViewmodel(IEngine engine, EngineViewmodel engineViewmodel)
         {
             _engine = engine;
             engine.EventSaved += _onEventSaved;
@@ -47,11 +47,11 @@ namespace TAS.Client.ViewModels
             _level = 0;
             _isExpanded = true;
             _frameRate = engine.FrameRate;
-            foreach (Event se in engine.RootEvents.ToList())
+            foreach (IEvent se in engine.RootEvents.ToList())
                 _addRootEvent(se);
         }
 
-        private EventPanelViewmodel(Event aEvent, EventPanelViewmodel parent)
+        private EventPanelViewmodel(IEvent aEvent, EventPanelViewmodel parent)
         {
             if (aEvent == null) // dummy child
                 return;
@@ -108,7 +108,7 @@ namespace TAS.Client.ViewModels
                     _event.Enabled = false;
                     _event.Save();
                 },
-                CanExecuteDelegate = o => _event._eventType == TEventType.Container && _event.Enabled == true
+                CanExecuteDelegate = o => _event.EventType == TEventType.Container && _event.Enabled == true
             };
             CommandShow = new UICommand()
             {
@@ -117,18 +117,18 @@ namespace TAS.Client.ViewModels
                         _event.Enabled = true;
                         _event.Save();
                     },
-                CanExecuteDelegate = o => _event._eventType == TEventType.Container && _event.Enabled == false
+                CanExecuteDelegate = o => _event.EventType == TEventType.Container && _event.Enabled == false
             };
         }
 
-        private void _addRootEvent(Event e)
+        private void _addRootEvent(IEvent e)
         {
             if (!e.IsDeleted)
             {
                 EngineViewmodel evm = _engineViewmodel;
                 var newEvm = new EventPanelViewmodel(e, _root);
                 _childrens.Add(newEvm);
-                Event ne = e.Next;
+                IEvent ne = e.Next;
                 while (ne != null)
                 {
                     _childrens.Add(new EventPanelViewmodel(ne, _root));
@@ -142,37 +142,37 @@ namespace TAS.Client.ViewModels
         {
                 Application.Current.Dispatcher.BeginInvoke((Action<bool>)delegate(bool onUIThread)
                     {
-                        var evm = _root.Find(o as Event);
+                        var evm = _root.Find(o as IEvent);
                         EventPanelViewmodel newVm = null;
                         if (evm == null)
                         {
-                            var vp = (o as Event).VisualParent;
+                            var vp = (o as IEvent).VisualParent;
                             if (vp != null)
                             {
                                 var evm_vp = _root.Find(vp);
                                 if (evm_vp != null)
                                 {
-                                    if ((o as Event).EventType == TEventType.Movie || (o as Event).EventType == TEventType.Rundown || (o as Event).EventType == TEventType.Live
+                                    if ((o as IEvent).EventType == TEventType.Movie || (o as IEvent).EventType == TEventType.Rundown || (o as IEvent).EventType == TEventType.Live
                                         || evm_vp.IsExpanded)
                                     {
                                         evm_vp.IsExpanded = true;
-                                        if (evm_vp.Find(o as Event) == null) // find again after expand
+                                        if (evm_vp.Find(o as IEvent) == null) // find again after expand
                                         {
-                                            if ((o as Event).Parent == vp) // StartType = With
+                                            if ((o as IEvent).Parent == vp) // StartType = With
                                             {
-                                                newVm = new EventPanelViewmodel(o as Event, evm_vp);
+                                                newVm = new EventPanelViewmodel(o as IEvent, evm_vp);
                                                 evm_vp._childrens.Insert(0, newVm);
                                             }
                                             else // StartType == After
                                             {
-                                                var prior = (o as Event).Prior;
+                                                var prior = (o as IEvent).Prior;
                                                 if (prior != null)
                                                 {
                                                     var evm_prior = evm_vp.Find(prior);
                                                     if (evm_prior != null)
                                                     {
                                                         var pos = evm_vp._childrens.IndexOf(evm_prior);
-                                                        newVm = new EventPanelViewmodel(o as Event, evm_vp);
+                                                        newVm = new EventPanelViewmodel(o as IEvent, evm_vp);
                                                         evm_vp._childrens.Insert(pos + 1, newVm);
                                                     }
                                                 }
@@ -188,20 +188,20 @@ namespace TAS.Client.ViewModels
                             }
                             else //vp == null
                             {
-                                var prior = (o as Event).Prior;
+                                var prior = (o as IEvent).Prior;
                                 if (prior != null)
                                 {
                                     var evm_prior = _root.Find(prior);
                                     if (evm_prior != null)
                                     {
                                         var pos = _root._childrens.IndexOf(evm_prior);
-                                        newVm = new EventPanelViewmodel(o as Event, _root);
+                                        newVm = new EventPanelViewmodel(o as IEvent, _root);
                                         _root._childrens.Insert(pos + 1, newVm);
                                     }
                                 }
                                 else
-                                    if ((o as Event).Parent == null)
-                                        _addRootEvent(o as Event);
+                                    if ((o as IEvent).Parent == null)
+                                        _addRootEvent(o as IEvent);
                             }
                         }
                         else //evm != null
@@ -210,7 +210,7 @@ namespace TAS.Client.ViewModels
                         }
                         if (onUIThread
                             && newVm != null
-                            && !((o as Event).EventType == TEventType.AnimationFlash || (o as Event).EventType == TEventType.StillImage))
+                            && !((o as IEvent).EventType == TEventType.AnimationFlash || (o as IEvent).EventType == TEventType.StillImage))
                         {
                             newVm.IsSelected = true;
                         }
@@ -298,9 +298,9 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _onSubeventChanged(object o, CollectionOperationEventArgs<Event> e)
+        private void _onSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
-            if (((o as Event).EventType == TEventType.Live || (o as Event).EventType == TEventType.Movie)
+            if (((o as IEvent).EventType == TEventType.Live || (o as IEvent).EventType == TEventType.Movie)
                 && (e.Item.EventType == TEventType.StillImage || e.Item.EventType == TEventType.AnimationFlash))
             {
 
@@ -357,10 +357,10 @@ namespace TAS.Client.ViewModels
 
         protected void LoadChildrens()
         {
-            foreach (Event se in _event.SubEvents)
+            foreach (IEvent se in _event.SubEvents)
             {
                 _childrens.Add(new EventPanelViewmodel(se, this));
-                Event ne = se.Next;
+                IEvent ne = se.Next;
                 while (ne != null)
                 {
                     _childrens.Add(new EventPanelViewmodel(ne, this));
@@ -521,10 +521,10 @@ namespace TAS.Client.ViewModels
             get
             {
                 IMedia media = _media;
-                if (media == null || !(media is PersistentMedia))
+                if (media == null || !(media is IPersistentMedia))
                     return TMediaEmphasis.None;
                 else
-                    return (media as PersistentMedia).MediaEmphasis;
+                    return (media as IPersistentMedia).MediaEmphasis;
             }
         }
         
@@ -622,7 +622,7 @@ namespace TAS.Client.ViewModels
             {
                 if (_event != null)
                 {
-                    Event se = _event.SubEvents.ToList().FirstOrDefault(e => e.Layer == VideoLayer.CG1 && e.EventType == TEventType.StillImage);
+                    IEvent se = _event.SubEvents.ToList().FirstOrDefault(e => e.Layer == VideoLayer.CG1 && e.EventType == TEventType.StillImage);
                     if (se != null)
                     {
                         IMedia m = se.Media;
@@ -639,7 +639,7 @@ namespace TAS.Client.ViewModels
             {
                 if (_event != null)
                 {
-                    Event se = _event.SubEvents.ToList().FirstOrDefault(e => e.Layer == VideoLayer.CG2 && e.EventType == TEventType.StillImage);
+                    IEvent se = _event.SubEvents.ToList().FirstOrDefault(e => e.Layer == VideoLayer.CG2 && e.EventType == TEventType.StillImage);
                     if (se != null)
                     {
                         IMedia m = se.Media;
@@ -656,7 +656,7 @@ namespace TAS.Client.ViewModels
             {
                 if (_event != null)
                 {
-                    Event se = _event.SubEvents.ToList().FirstOrDefault(e => e.Layer == VideoLayer.CG3 && e.EventType == TEventType.StillImage);
+                    IEvent se = _event.SubEvents.ToList().FirstOrDefault(e => e.Layer == VideoLayer.CG3 && e.EventType == TEventType.StillImage);
                     if (se != null)
                     {
                         IMedia m = se.Media;
@@ -695,8 +695,8 @@ namespace TAS.Client.ViewModels
             {
                 if (_event == null)
                     return false;
-                Event ne = _event.Next;
-                Event pe = _event.Prior;
+                IEvent ne = _event.Next;
+                IEvent pe = _event.Prior;
                 return !(
                     (ne == null || ne.Prior == _event)
                     && (pe == null || pe.Next == _event)
@@ -721,14 +721,14 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool GPICanTrigger { get { return _event != null && _event._gPI.CanTrigger; } }
-        public TLogo GPILogo { get { return _event == null ? TLogo.NoLogo : _event._gPI.Logo; } }
-        public TCrawl GPICrawl { get { return _event == null ? TCrawl.NoCrawl : _event._gPI.Crawl; } }
-        public TParental GPIParental { get { return _event == null ? TParental.None : _event._gPI.Parental ; } }
+        public bool GPICanTrigger { get { return _event != null && _event.GPI.CanTrigger; } }
+        public TLogo GPILogo { get { return _event == null ? TLogo.NoLogo : _event.GPI.Logo; } }
+        public TCrawl GPICrawl { get { return _event == null ? TCrawl.NoCrawl : _event.GPI.Crawl; } }
+        public TParental GPIParental { get { return _event == null ? TParental.None : _event.GPI.Parental ; } }
 
         public bool OffsetVisible { get { return _event != null && _event.RequestedStartTime != null; } }
 
-        public EventPanelViewmodel Find(Event aEvent, bool expandParents = false)
+        public EventPanelViewmodel Find(IEvent aEvent, bool expandParents = false)
         {
             if (expandParents && !IsExpanded)
                 IsExpanded = true;
@@ -746,10 +746,10 @@ namespace TAS.Client.ViewModels
         {
             if (_event != null)
             {
-                Event prior = _event.Prior;
-                Event parent = _event.Parent;
-                Event next = _event.Next;
-                Event visualParent = _event.VisualParent;
+                IEvent prior = _event.Prior;
+                IEvent parent = _event.Parent;
+                IEvent next = _event.Next;
+                IEvent visualParent = _event.VisualParent;
                 if (prior != null)
                 {
                     int index = _parent._childrens.IndexOf(this);
@@ -837,7 +837,7 @@ namespace TAS.Client.ViewModels
         private void _onMediaPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if ((_event != null)
-                && (sender is Media))
+                && (sender is IMedia))
             {
                 if (e.PropertyName == "MediaStatus")
                     NotifyPropertyChanged("MediaErrorInfo");
@@ -851,7 +851,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool Contains(Event  aEvent)
+        public bool Contains(IEvent  aEvent)
         {
             foreach (EventPanelViewmodel m in _childrens)
             {
@@ -864,7 +864,7 @@ namespace TAS.Client.ViewModels
         }
 
   
-        public Event Event { get { return _event; } }
+        public IEvent Event { get { return _event; } }
 
         public override string ToString()
         {
@@ -875,7 +875,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                Event ne = _event.Next;
+                IEvent ne = _event.Next;
                 return ne == null ? null : _parent._childrens.FirstOrDefault(evm => evm._event == ne);
             }
         }

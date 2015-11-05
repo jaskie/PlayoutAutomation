@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections.Concurrent;
 
-namespace TAS.Server
+namespace TAS.Server.Common
 {
     public enum TDictionaryOperation {Add, Remove};
     public class SimpleDictionary<TKey, TValue>

@@ -104,7 +104,7 @@
                     <Label Grid.Column="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Resx _clip}"/>
                     <DockPanel Grid.Column="1">
                         <Button DockPanel.Dock="Right" Height="21" HorizontalContentAlignment="Center" Command="{Binding CommandGetTCFromPreview}" Margin="5, 0" Padding="0" ToolTip="{Resx _buttonGetTC.ToolTip}">
-                            <common:AutoGreyableImage Source="../Glyphs/Copy_small.png"/>
+                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy-small.png"/>
                         </Button>
                         <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" Content="{Resx _play}" />
                     </DockPanel>

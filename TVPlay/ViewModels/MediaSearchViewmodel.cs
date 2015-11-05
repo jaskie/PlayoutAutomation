@@ -10,7 +10,6 @@ using System.Diagnostics;
 using System.Windows.Input;
 using System.Threading;
 using TAS.Common;
-using TAS.Server;
 using TAS.Client.Common;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
@@ -19,7 +18,7 @@ namespace TAS.Client.ViewModels
 {
     public class MediaSearchViewmodel: ViewmodelBase
     {
-        private readonly MediaManager _manager;
+        private readonly IMediaManager _manager;
         private readonly PreviewViewmodel _previewViewmodel;
         private readonly PreviewView _previewView;
         private readonly TMediaType _mediaType;
@@ -127,11 +126,11 @@ namespace TAS.Client.ViewModels
         public ObservableCollection<MediaViewViewmodel> Items { get { return _items; } }
         public ICommand CommandAdd { get; private set; }
         
-        private Event _baseEvent;
-        public Event BaseEvent { get { return _baseEvent; }
+        private IEvent _baseEvent;
+        public IEvent BaseEvent { get { return _baseEvent; }
             set
             {
-                Event b = _baseEvent;
+                IEvent b = _baseEvent;
                 if (b != value)
                 {
                     if (b != null)
@@ -280,8 +279,8 @@ namespace TAS.Client.ViewModels
                 {
                     _selectedItem = value;
                     IMedia media = SelectedMedia;
-                    if (media is IngestMedia
-                        && ((IngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
+                    if (media is IIngestMedia
+                        && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
                         && !media.Verified)
                         ThreadPool.QueueUserWorkItem(o => media.Verify());
                     if (_previewViewmodel != null)

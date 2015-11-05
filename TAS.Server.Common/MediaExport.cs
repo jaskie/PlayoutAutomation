@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using TAS.Server.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.Common
 {
     public class MediaExport
     {
@@ -16,8 +16,8 @@ namespace TAS.Server
             this.AudioVolume = audioVolume;
         }
         public IMedia Media { get; private set; }
-        public TimeSpan Duration; 
+        public TimeSpan Duration;
         public TimeSpan StartTC;
-        public decimal AudioVolume;             
+        public decimal AudioVolume;
     }
 }

@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using TAS.Server;
 using System.Reflection;
 using System.Collections.ObjectModel;
 using TAS.Client.Common;
 using System.Windows.Input;
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
     public class TemplateViewmodel: ViewmodelBase, IDataErrorInfo
     {
-        public readonly Template Template;
+        public readonly ITemplate Template;
         private readonly TemplatesViewmodel _owner;
-        public TemplateViewmodel(Template template, TemplatesViewmodel owner)
+        public TemplateViewmodel(ITemplate template, TemplatesViewmodel owner)
         {
             Template = template;
             _owner = owner;
@@ -68,16 +68,9 @@ namespace TAS.Client.ViewModels
         }
 
         private readonly ObservableCollection<KeyValuePair<string, string>> _templateFields = new ObservableCollection<KeyValuePair<string,string>>();
-        public IList<KeyValuePair<string, string>> TemplateFields
+        public ObservableCollection<KeyValuePair<string, string>> TemplateFields
         {
             get { return _templateFields; }
-            set
-            {
-                _templateFields.Clear();
-                foreach (var val in value)
-                    _templateFields.Add(val);
-                NotifyPropertyChanged("TemplateFields");
-            }
         }
 
         protected override bool SetField<T>(ref T field, T value, string propertyName)
@@ -113,7 +106,8 @@ namespace TAS.Client.ViewModels
             TemplateName = Template.TemplateName;
             Layer = Template.Layer;
             MediaFile = _owner.MediaFiles.FirstOrDefault(m => m.Media == Template.MediaFile);
-            TemplateFields = Template.TemplateFields;
+            foreach (var f in Template.TemplateFields)
+                _templateFields.Add(f);
             Modified = false;
             NotifyPropertyChanged(null);
         }
@@ -123,7 +117,6 @@ namespace TAS.Client.ViewModels
             Template.TemplateName = this.TemplateName;
             Template.Layer = this.Layer;
             Template.MediaFile = this.MediaFile == null ? null : MediaFile.Media;
-            Template.TemplateFields = TemplateFields.ToList();
             Template.Save();
             Modified = false;
         }

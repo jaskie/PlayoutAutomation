@@ -46,25 +46,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AudioVolumeMeasuredEventArgs.cs" />
     <Compile Include="ColorAttribute.cs" />
     <Compile Include="ConcurrentHashSet.cs" />
+    <Compile Include="EngineOperationEventArgs.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="EventGPI.cs" />
     <Compile Include="FileUtils.cs" />
     <Compile Include="Interfaces\IAnimationDirectory.cs" />
     <Compile Include="Interfaces\IArchiveDirectory.cs" />
     <Compile Include="Interfaces\IArchiveMedia.cs" />
+    <Compile Include="Interfaces\IEngine.cs" />
     <Compile Include="Interfaces\IEngineConfig.cs" />
     <Compile Include="Interfaces\IEvent.cs" />
+    <Compile Include="Interfaces\IEventProperties.cs" />
     <Compile Include="Interfaces\IGpi.cs" />
     <Compile Include="Interfaces\IGpiConfig.cs" />
     <Compile Include="Interfaces\IIngestDirectory.cs" />
     <Compile Include="Interfaces\IIngestMedia.cs" />
     <Compile Include="Interfaces\IMedia.cs" />
     <Compile Include="Interfaces\IMediaDirectory.cs" />
+    <Compile Include="Interfaces\IMediaManager.cs" />
     <Compile Include="Interfaces\IMediaProperties.cs" />
     <Compile Include="Interfaces\IMediaSegment.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
     <Compile Include="Interfaces\IPersistentMedia.cs" />
+    <Compile Include="Interfaces\IPlayoutServer.cs" />
+    <Compile Include="Interfaces\IPlayoutServerChannel.cs" />
     <Compile Include="Interfaces\IPlayoutServerConfig.cs" />
     <Compile Include="Interfaces\IPlayoutServerChannelConfig.cs" />
     <Compile Include="Interfaces\IRemoteHostConfig.cs" />
@@ -75,10 +83,12 @@
     <Compile Include="Interfaces\ILocalDevices.cs" />
     <Compile Include="Interfaces\IMediaDirectoryConfig.cs" />
     <Compile Include="Interfaces\IServerMedia.cs" />
+    <Compile Include="Interfaces\ITemplate.cs" />
     <Compile Include="Interfaces\ITempMedia.cs" />
     <Compile Include="MediaConversion.cs" />
     <Compile Include="MediaDeleteDenyReason.cs" />
     <Compile Include="MediaEventArgs.cs" />
+    <Compile Include="MediaExport.cs" />
     <Compile Include="ObservableSynchronizedCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

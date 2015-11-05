@@ -9,6 +9,7 @@ using System.Diagnostics;
 using TAS.Common;
 using TAS.Data;
 using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace TAS.Server
 {
@@ -56,6 +57,11 @@ namespace TAS.Server
                     _mediaSegments = this.DbMediaSegmentsRead();
                 return _mediaSegments;
             }
+        }
+
+        public IMediaSegment CreateSegment()
+        {
+            return new MediaSegment(this.MediaGuid);
         }
 
         public override void CloneMediaProperties(IMedia fromMedia)

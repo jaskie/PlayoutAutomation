@@ -193,12 +193,10 @@
     <Compile Include="Server\Media\AnimationDirectory.cs" />
     <Compile Include="Server\CasparServerChannel.cs" />
     <Compile Include="Server\GPINotifier.cs" />
-    <Compile Include="Server\Media\MediaExport.cs" />
     <Compile Include="Server\Media\FtpMediaStream.cs" />
     <Compile Include="Server\Media\MediaChecker.cs" />
     <Compile Include="Server\Media\MediaSegment.cs" />
     <Compile Include="Server\Media\PInvokeWindowsNetworking.cs" />
-    <Compile Include="Server\PlayoutServerChannel.cs" />
     <Compile Include="Server\Media\TempDirectory.cs" />
     <Compile Include="Server\Remoting\IEngine.cs" />
     <Compile Include="Server\Remoting\IMediaManager.cs" />
@@ -222,7 +220,6 @@
     <Compile Include="ViewModels\MediaEditWindowViewmodel.cs" />
     <Compile Include="ViewModels\MediaExportViewmodel.cs" />
     <Compile Include="ViewModels\MediaSearchViewmodel.cs" />
-    <Compile Include="ViewModels\MediaSegmentViewmodel.cs" />
     <Compile Include="ViewModels\TemplateViewmodel.cs" />
     <Compile Include="ViewModels\TemplatesViewmodel.cs" />
     <Compile Include="Server\Media\ArchiveMedia.cs" />
@@ -252,9 +249,6 @@
     <Compile Include="Views\OperationOutputView.xaml.cs">
       <DependentUpon>OperationOutputView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PreviewView.xaml.cs">
-      <DependentUpon>PreviewView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Server\EngineController.cs" />
     <Compile Include="Server\FileManager.cs" />
     <Compile Include="Server\FileOperation.cs" />
@@ -276,7 +270,6 @@
     <Compile Include="ViewModels\EventPanelViewmodel.cs" />
     <Compile Include="ViewModels\MediaManagerViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditViewmodel.cs" />
-    <Compile Include="ViewModels\PreviewViewmodel.cs" />
     <Compile Include="ViewModels\MediaViewViewmodel.cs" />
     <Compile Include="Views\TemplatesView.xaml.cs">
       <DependentUpon>TemplatesView.xaml</DependentUpon>
@@ -309,10 +302,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\PreviewView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\EventPanelView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -330,7 +319,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Server\CasparServer.cs" />
-    <Compile Include="Server\PlayoutServer.cs" />
     <Compile Include="Server\Engine.cs" />
     <Compile Include="Server\Event.cs" />
     <Compile Include="Views\EventPanelView.xaml.cs">
@@ -442,12 +430,6 @@
     <EmbeddedResource Include="Views\MediaSearchView.resx">
       <DependentUpon>MediaSearchView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\PreviewView.pl.resx">
-      <DependentUpon>PreviewView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\PreviewView.resx">
-      <DependentUpon>PreviewView.xaml</DependentUpon>
-    </EmbeddedResource>
     <None Include="app.config">
     </None>
     <None Include="packages.config" />
@@ -499,7 +481,6 @@
     <Resource Include="Glyphs\Circle_2.png" />
     <Resource Include="Glyphs\Circle_3.png" />
     <Resource Include="Glyphs\Down.png" />
-    <Resource Include="Glyphs\trash.png" />
     <Resource Include="Glyphs\EventTypes\StillImage.png" />
     <Resource Include="Glyphs\NewMovie.png" />
     <Resource Include="Glyphs\NewRundown.png" />
@@ -510,13 +491,6 @@
     <Resource Include="Glyphs\Drawer.png" />
     <Resource Include="Glyphs\go-bottom.png" />
     <Resource Include="Glyphs\Refresh.png" />
-    <Resource Include="Glyphs\OneFrameBack.png" />
-    <Resource Include="Glyphs\OneFrameForward.png" />
-    <Resource Include="Glyphs\FFBack.png" />
-    <Resource Include="Glyphs\FFForward.png" />
-    <Resource Include="Glyphs\Copy_small.png" />
-    <Resource Include="Glyphs\save.png" />
-    <Resource Include="Glyphs\add.png" />
     <Resource Include="Glyphs\Circle_A.png" />
     <Resource Include="Glyphs\file_delete.png" />
     <Resource Include="Glyphs\MediaStates\Unknown.png" />
@@ -563,6 +537,10 @@
     <Folder Include="Properties\DataSources\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TAS.Client.MediaManager\TAS.Client.MediaManager.csproj">
+      <Project>{f6e01e47-5075-42a7-b2a2-bc35bc074f9f}</Project>
+      <Name>TAS.Client.MediaManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TAS.FFMpegUtils\FFMpegUtils.vcxproj">
       <Project>{aaa90fdf-4e13-490e-a4a4-9b83f522f6c4}</Project>
       <Name>TAS.FFMpegUtils</Name>

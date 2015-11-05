@@ -15,6 +15,7 @@ using System.Collections;
 using TAS.Common;
 using TAS.Server;
 using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace TAS.Data
 {
@@ -106,7 +107,7 @@ namespace TAS.Data
                         while (dataReader.Read())
                         {
                             lock (engine.RootEvents.SyncRoot)
-                                if (!engine.RootEvents.Any(e => e._idRundownEvent == dataReader.GetUInt64("idRundownEvent")))
+                                if (!engine.RootEvents.Any(e => e.IdRundownEvent == dataReader.GetUInt64("idRundownEvent")))
                                 {
                                     newEvent = _EventRead(engine, dataReader);
                                     foundEvents.Add(newEvent);
@@ -124,13 +125,13 @@ namespace TAS.Data
             }
         }
 
-        internal static SynchronizedCollection<Event> DbReadSubEvents(this Event eventOwner)
+        internal static SynchronizedCollection<IEvent> DbReadSubEvents(this Event eventOwner)
         {
             lock (connection)
             {
                 if (Connect())
                 {
-                    var EventList = new SynchronizedCollection<Event>();
+                    var EventList = new SynchronizedCollection<IEvent>();
                     MySqlCommand cmd;
                     if (eventOwner != null)
                     {
@@ -191,7 +192,7 @@ namespace TAS.Data
         }
 
 
-        private static Event _EventRead(Engine engine, MySqlDataReader dataReader)
+        private static Event _EventRead(IEngine engine, MySqlDataReader dataReader)
         {
             Event aEvent = new Event(engine);
             uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flagsEvent")) ? 0 : dataReader.GetUInt32("flagsEvent");
@@ -692,9 +693,9 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             return success;
         }
 
-        internal static MediaDeleteDeny DbMediaInUse(this ServerMedia serverMedia)
+        internal static MediaDeleteDenyReason DbMediaInUse(this IServerMedia serverMedia)
         {
-            MediaDeleteDeny reason = MediaDeleteDeny.NoDeny;
+            MediaDeleteDenyReason reason = MediaDeleteDenyReason.NoDeny;
             lock (connection)
             {
                 if (Connect())
@@ -703,7 +704,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                     MySqlCommand cmd = new MySqlCommand(query, connection);
                     cmd.Parameters.Add("@MediaGuid", MySqlDbType.Binary).Value = serverMedia.MediaGuid.ToByteArray();
                     if ((long)cmd.ExecuteScalar() > 0)
-                        return new MediaDeleteDeny() { Reason = MediaDeleteDeny.MediaDeleteDenyReason.MediaInFutureSchedule, Media = serverMedia };
+                        return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Media = serverMedia };
                 }
             }
             return reason;
@@ -752,7 +753,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             }
         }
 
-        internal static void AsRunLogWrite(this Event e)
+        internal static void AsRunLogWrite(this IEvent e)
         {
             try
             {
@@ -912,7 +913,7 @@ VALUES
             return true;
         }
 
-        internal static List<Engine> DbLoadEngines(UInt64 instance, List<PlayoutServer> servers)
+        internal static List<Engine> DbLoadEngines(UInt64 instance, List<IPlayoutServer> servers)
         {
             List<Engine> Engines = new List<Engine>();
             lock (connection)
@@ -989,10 +990,10 @@ idEngine=@idEngine", connection);
             return false;
         }
 
-        internal static List<PlayoutServer> DbLoadServers()
+        internal static List<IPlayoutServer> DbLoadServers()
         {
             Debug.WriteLine("Begin loading servers");
-            List<PlayoutServer> servers = new List<PlayoutServer>();
+            List<IPlayoutServer> servers = new List<IPlayoutServer>();
             lock (connection)
             {
                 if (Connect())
@@ -1014,7 +1015,7 @@ idEngine=@idEngine", connection);
                                         newServer.Id = dataReader.GetUInt64("idServer");
                                         XmlNode channelsNode = configXml.SelectSingleNode(@"CasparServer/Channels");
                                         Debug.WriteLine("Adding Caspar channels");
-                                        newServer.Channels = SerializationHelper.Deserialize<List<CasparServerChannel>>(channelsNode.OuterXml, "Channels").ConvertAll<PlayoutServerChannel>(pc => (PlayoutServerChannel)pc);
+                                        newServer.Channels = SerializationHelper.Deserialize<List<CasparServerChannel>>(channelsNode.OuterXml, "Channels").ConvertAll<IPlayoutServerChannel>(pc => (CasparServerChannel)pc);
                                         servers.Add(newServer);
                                         Debug.WriteLine("Caspar server added");
                                         break;
@@ -1150,7 +1151,7 @@ WHERE idTemplate=@idTemplate"
                 cmd.Parameters.Add("@MediaGuid", MySqlDbType.Binary).Value = template.MediaGuid.ToByteArray();
                 cmd.Parameters.AddWithValue("@Layer", template.Layer);
                 cmd.Parameters.AddWithValue("@TemplateName", template.TemplateName);
-                cmd.Parameters.AddWithValue("@TemplateFields", SerializationHelper.Serialize<List<KeyValuePair<string, string>>>(template.TemplateFields));
+                cmd.Parameters.AddWithValue("@TemplateFields", SerializationHelper.Serialize<Dictionary<string, string>>(template.TemplateFields));
                 cmd.ExecuteNonQuery();
                 if (isInsert)
                     template.idTemplate = (UInt64)cmd.LastInsertedId;
@@ -1191,7 +1192,7 @@ WHERE idTemplate=@idTemplate"
                                 MediaGuid = (dataReader.IsDBNull(dataReader.GetOrdinal("MediaGuid"))) ? Guid.Empty : dataReader.GetGuid("MediaGuid"),
                                 Layer = (dataReader.IsDBNull(dataReader.GetOrdinal("Layer"))) ? 0 : dataReader.GetInt32("Layer"),
                                 TemplateName = (dataReader.IsDBNull(dataReader.GetOrdinal("TemplateName"))) ? string.Empty : dataReader.GetString("TemplateName"),
-                                TemplateFields = dataReader.IsDBNull(dataReader.GetOrdinal("TemplateFields")) ? null : SerializationHelper.Deserialize<List<KeyValuePair<string, string>>>(dataReader.GetString("TemplateFields")),
+                                TemplateFields = dataReader.IsDBNull(dataReader.GetOrdinal("TemplateFields")) ? null : SerializationHelper.Deserialize<Dictionary<string, string>>(dataReader.GetString("TemplateFields")),
                             };
                         }
                     }

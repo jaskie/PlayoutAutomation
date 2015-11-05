@@ -8,11 +8,11 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class Template : INotifyPropertyChanged
+    public class Template : ITemplate
     {
 
         public readonly Engine Engine;
-        private readonly List<KeyValuePair<string, string>> _templateFields = new List<KeyValuePair<string, string>>();
+        private readonly Dictionary<string, string> _templateFields = new Dictionary<string, string>();
 
         public Template(Engine engine)
         {
@@ -59,7 +59,7 @@ namespace TAS.Server
             }
         }
 
-        public List<KeyValuePair<string, string>> TemplateFields
+        public Dictionary<string, string> TemplateFields
         {
             get { return _templateFields; }
             set
@@ -67,7 +67,7 @@ namespace TAS.Server
                 _templateFields.Clear();
                 if (value != null)
                     foreach (var item in value)
-                        _templateFields.Add(item);
+                        _templateFields.Add(item.Key, item.Value);
                 NotifyPropertyChanged("TemplateFields");
             }
         }

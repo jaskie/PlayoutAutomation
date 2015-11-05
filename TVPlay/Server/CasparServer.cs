@@ -10,21 +10,58 @@ using System.Globalization;
 using System.Configuration;
 using System.Xml.Serialization;
 using TAS.Common;
+using TAS.Server.Interfaces;
+using System.ComponentModel;
 
 namespace TAS.Server
 {
-    public class CasparServer : PlayoutServer
+
+    public delegate void CommandNotifier(DateTime When, string Command, Event sender);
+    public delegate void VolumeChangeNotifier(IPlayoutServerChannel channel, VideoLayer layer, decimal newvalue);
+
+    public class CasparServer : IPlayoutServer, IDisposable 
     {
+        [XmlIgnore]
+        public UInt64 Id { get; set; }
+        public string ServerAddress { get; set; }
+        public string MediaFolder { get; set; }
+        [XmlIgnore]
+        public IServerDirectory MediaDirectory { get; set; }
+        [XmlIgnore]
+        public IAnimationDirectory AnimationDirectory { get; private set; }
+        protected List<IPlayoutServerChannel> _channels;
+
+        [XmlIgnore]
+        public List<IPlayoutServerChannel> Channels
+        {
+            get { return _channels; }
+            set
+            {
+                foreach (CasparServerChannel c in value)
+                    c.OwnerServer = this;
+                _channels = value;
+            }
+        }
         private Svt.Caspar.CasparDevice _casparDevice;
 
-        public override void Initialize()
+        public CasparServer()
+        {
+            MediaDirectory = new Server.ServerDirectory(this);
+            AnimationDirectory = new Server.AnimationDirectory(this);
+        }
+
+
+        protected bool _isInitialized;
+        public void Initialize()
         {
             Debug.WriteLine(this, "CasparServer initialize");
             lock (this)
             {
                 if (!_isInitialized)
                 {
-                    base.Initialize();
+                    MediaDirectory.Folder = MediaFolder;
+                    MediaDirectory.Initialize();
+                    AnimationDirectory.Initialize();
                     _casparDevice = new Svt.Caspar.CasparDevice();
                     _casparDevice.ConnectionStatusChanged += _casparDevice_ConnectionStatusChanged;
                     _casparDevice.UpdatedChannels += _casparDevice_UpdatedChannels;
@@ -32,11 +69,37 @@ namespace TAS.Server
                     _connect();
                     foreach (CasparServerChannel channel in Channels)
                         channel.OwnerServer = this;
+                    _isInitialized = true;
                 }
             }
         }
 
-        protected override void _connect()
+        [XmlArray("Channels")]
+        public List<CasparServerChannel> _serChannels
+        {
+            get { return null; }
+            set { Channels = value.Cast<IPlayoutServerChannel>().ToList(); }
+        }
+
+        protected bool _isConnected;
+        public bool IsConnected
+        {
+            get { return _isConnected; }
+            set
+            {
+                if (_isConnected != value)
+                {
+                    if (value)
+                        _connect();
+                    else
+                        _disconnect();
+                    NotifyPropertyChanged("IsConnected");
+                }
+            }
+        }
+
+
+        protected void _connect()
         {
             string[] address = ServerAddress.Split(':');
             if (address.Length == 1)
@@ -49,7 +112,7 @@ namespace TAS.Server
             else throw new Exception(string.Format("Invalid server address: {0}", ServerAddress));
         }
 
-        protected override void _disconnect()
+        protected void _disconnect()
         {
             if (_casparDevice != null && _casparDevice.IsConnected)
                 _casparDevice.Disconnect();
@@ -133,13 +196,33 @@ namespace TAS.Server
             }
         }
 
-        protected override void DoDispose()
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void NotifyPropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private bool _disposed = false;
+        public virtual void Dispose()
+        {
+            if (!_disposed)
+                DoDispose();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} {1}", this.GetType().Name, ServerAddress);
+        }
+
+        protected void DoDispose()
         {
             _disconnect();
             _casparDevice.ConnectionStatusChanged -= _casparDevice_ConnectionStatusChanged;
             _casparDevice.UpdatedChannels -= _casparDevice_UpdatedChannels;
-            //_casparDevice.Updateemplates -= _onUpdatedTemplates;
-            base.DoDispose();
+            MediaDirectory.Dispose();
         }
     }
   

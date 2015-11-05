@@ -11,22 +11,23 @@ using System.Collections.ObjectModel;
 using System.Windows.Media;
 using System.Diagnostics;
 using TAS.Common;
-using TAS.Server;
 using TAS.Client.Common;
 using System.Configuration;
+using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace TAS.Client.ViewModels
 {
     public class EngineViewmodel : ViewmodelBase
     {
-        private readonly Engine _engine;
+        private readonly IEngine _engine;
         private readonly EngineView _engineView;
         private readonly PreviewViewmodel _previewViewmodel;
         private readonly PreviewView _previewView;
         private readonly EventEditViewmodel _eventEditViewmodel;
         private readonly EventEditView _eventEditView;
 
-        public Engine Engine { get { return _engine; } }
+        public IEngine Engine { get { return _engine; } }
         public ICommand CommandClearAll { get; private set; }
         public ICommand CommandClearLayer { get; private set; }
         public ICommand CommandRestartLayer { get; private set; }
@@ -131,7 +132,7 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o =>
                     {
-                        Event e = _selected.Event;
+                        IEvent e = _selected.Event;
                         _engine.ReScheduleAsync(e);
                         _engine.Load(e);
                     },
@@ -142,7 +143,7 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o =>
                     {
-                        Event e = _selected.Event;
+                        IEvent e = _selected.Event;
                         _engine.ReScheduleAsync(e);
                         _engine.Schedule(e);
                     },
@@ -198,52 +199,52 @@ namespace TAS.Client.ViewModels
        
         private bool _canStartSelected(object o)
         {
-            Event ev = _selected == null ? null : _selected.Event;
+            IEvent ev = _selected == null ? null : _selected.Event;
             return ev != null
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused || ev.PlayState == TPlayState.Aborted)
                 && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie || ev.EventType == TEventType.AnimationFlash);
         }
         private bool _canLoadSelected(object o)
         {
-            Event ev = _selected == null ? null : _selected.Event;
+            IEvent ev = _selected == null ? null : _selected.Event;
             return ev != null
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Aborted)
                 && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie || ev.EventType == TEventType.AnimationFlash);
         }
         private bool _canScheduleSelected(object o)
         {
-            Event ev = _selected == null ? null : _selected.Event;
+            IEvent ev = _selected == null ? null : _selected.Event;
             return ev != null && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused) && ev.ScheduledTime >= _engine.CurrentTime;
         }
         private bool _canRescheduleSelected(object o)
         {
-            Event ev = _selected == null ? null : _selected.Event;
+            IEvent ev = _selected == null ? null : _selected.Event;
             return ev != null && (ev.PlayState == TPlayState.Aborted || ev.PlayState == TPlayState.Played);
         }
         private bool _canCut(object o)
         {
-            Event ev = _selected == null ? null : _selected.Event;
+            IEvent ev = _selected == null ? null : _selected.Event;
             return ev != null
                 && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live)
                 && ev.PlayState == TPlayState.Scheduled;
         }
         private bool _canCopySingle(object o)
         {
-            Event ev = _selected == null ? null : _selected.Event;
+            IEvent ev = _selected == null ? null : _selected.Event;
             return ev != null
                 && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live);
         }
 
         private void _restartRundown(object o)
         {
-            Event ev = _selected == null ? null : _selected.Event;
+            IEvent ev = _selected == null ? null : _selected.Event;
             if (ev != null)
                 _engine.RestartRundown(ev);
         }
 
         private void _newRootRundown(object o)
         {
-            Event newEvent = new Event(_engine);
+            IEvent newEvent = new Server.Event(_engine);
             newEvent.EventType = TEventType.Rundown;
             newEvent.EventName = Common.Properties.Resources._title_NewRundown;
             newEvent.Duration = TimeSpan.Zero;
@@ -255,7 +256,7 @@ namespace TAS.Client.ViewModels
         
         private void _newContainer(object o)
         {
-            Event newEvent = new Event(_engine);
+            IEvent newEvent = new Server.Event(_engine);
             newEvent.EventType = TEventType.Container;
             newEvent.EventName = Common.Properties.Resources._title_NewContainer;
             newEvent.StartType = TStartType.None;
@@ -331,14 +332,14 @@ namespace TAS.Client.ViewModels
             {
                 if (value != _selected)
                 {
-                    Event oldSelectedEvent = _selected == null ? null : _selected.Event;
+                    IEvent oldSelectedEvent = _selected == null ? null : _selected.Event;
                     if (oldSelectedEvent != null)
                     {
                         oldSelectedEvent.PropertyChanged -= _onSelectedEventPropertyChanged;
                         oldSelectedEvent.Deleted -= _selectedEvent_Deleted;
                     }
                     _selected = value;
-                    Event newSelected = value == null ? null : value.Event;
+                    IEvent newSelected = value == null ? null : value.Event;
                     if (newSelected != null)
                     {
                         newSelected.PropertyChanged += _onSelectedEventPropertyChanged;
@@ -359,11 +360,11 @@ namespace TAS.Client.ViewModels
 
         public EventEditViewmodel EventEditViewmodel { get { return _eventEditViewmodel; } }
 
-        private EventPanelViewmodel _GetEventViewModel(Event aEvent)
+        private EventPanelViewmodel _GetEventViewModel(IEvent aEvent)
         {
-            IEnumerable<Event> rt = aEvent.VisualRootTrack;
+            IEnumerable<IEvent> rt = aEvent.VisualRootTrack;
             EventPanelViewmodel evm = _rootEventViewModel;
-            foreach (Event ev in rt)
+            foreach (IEvent ev in rt)
             {
                 if (evm != null)
                 {
@@ -444,7 +445,7 @@ namespace TAS.Client.ViewModels
         #region GPI
         public bool GPIExists
         {
-            get { return _engine.GPI != null; }
+            get { return _engine.Gpi != null; }
         }
 
         public bool GPIConnected
@@ -496,12 +497,12 @@ namespace TAS.Client.ViewModels
 
         public TEngineState EngineState { get { return _engine.EngineState; } }
 
-        private ObservableCollection<Event> _visibleEvents = new ObservableCollection<Event>();
-        public IEnumerable<Event> VisibleEvents { get { return _visibleEvents; } }
-        private ObservableCollection<Event> _loadedNextEvents = new ObservableCollection<Event>();
-        public IEnumerable<Event> LoadedNextEvents { get { return _loadedNextEvents; } }
-        private ObservableCollection<Event> _runningEvents = new ObservableCollection<Event>();
-        public IEnumerable<Event> RunningEvents { get { return _runningEvents; } }
+        private ObservableCollection<IEvent> _visibleEvents = new ObservableCollection<IEvent>();
+        public IEnumerable<IEvent> VisibleEvents { get { return _visibleEvents; } }
+        private ObservableCollection<IEvent> _loadedNextEvents = new ObservableCollection<IEvent>();
+        public IEnumerable<IEvent> LoadedNextEvents { get { return _loadedNextEvents; } }
+        private ObservableCollection<IEvent> _runningEvents = new ObservableCollection<IEvent>();
+        public IEnumerable<IEvent> RunningEvents { get { return _runningEvents; } }
 
         private ObservableCollection<EventPanelViewmodel> _selectedEvents;
         public ObservableCollection<EventPanelViewmodel> SelectedEvents { get { return _selectedEvents; } }
@@ -549,7 +550,7 @@ namespace TAS.Client.ViewModels
                 Application.Current.Dispatcher.BeginInvoke((Action)_onSelectedChanged, null);
         }
 
-        private void SetOnTopView(Event pe)
+        private void SetOnTopView(IEvent pe)
         {
             var evm = _GetEventViewModel(pe);
             if (evm != null)
@@ -595,7 +596,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void OnEnginePlayingEventsDictionaryOperation(object o, DictionaryOperationEventArgs<VideoLayer, Event> e)
+        private void OnEnginePlayingEventsDictionaryOperation(object o, DictionaryOperationEventArgs<VideoLayer, IEvent> e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
@@ -606,7 +607,7 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        private void OnEngineLoadedEventsDictionaryOperation(object o, DictionaryOperationEventArgs<VideoLayer, Event> e)
+        private void OnEngineLoadedEventsDictionaryOperation(object o, DictionaryOperationEventArgs<VideoLayer, IEvent> e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
@@ -617,7 +618,7 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        private void OnEngineRunningEventsOperation(object o, CollectionOperationEventArgs<Event> e)
+        private void OnEngineRunningEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
@@ -680,7 +681,7 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged("TrackPlayingEvent");
                     if (_trackPlayingEvent)
                     {
-                        Event cp = _engine.PlayingEvent();
+                        IEvent cp = _engine.PlayingEvent();
                         if (cp != null)
                             SetOnTopView(cp);
                     }

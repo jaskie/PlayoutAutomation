@@ -5,7 +5,7 @@ using System.Text;
 using System.ComponentModel;
 
 
-namespace TAS.Server
+namespace TAS.Server.Common
 {
     public enum TCollectionOperation { Insert, Remove };
     public class ObservableSynchronizedCollection<T> : SynchronizedCollection<T> where T: INotifyPropertyChanged

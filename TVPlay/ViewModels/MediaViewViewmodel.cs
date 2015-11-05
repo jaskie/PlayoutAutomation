@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows;
 using TAS.Common;
 using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace TAS.Client.ViewModels
 {

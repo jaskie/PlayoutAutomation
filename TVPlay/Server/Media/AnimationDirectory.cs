@@ -11,8 +11,8 @@ namespace TAS.Server
 {
     public class AnimationDirectory: MediaDirectory, IAnimationDirectory
     {
-        public readonly PlayoutServer Server;
-        public AnimationDirectory(PlayoutServer server)
+        public readonly IPlayoutServer Server;
+        public AnimationDirectory(IPlayoutServer server)
         {
             Server = server;
         }
