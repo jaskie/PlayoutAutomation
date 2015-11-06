@@ -1,24 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel;
 using System.Text;
 using TAS.Common;
 using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
+    [ServiceContract]
     public interface IMediaManager: IInitializable
     {
-        IEngine Engine { get; }
-        IAnimationDirectory AnimationDirectoryPGM { get; }
-        IAnimationDirectory AnimationDirectoryPRV { get; }
-        IServerDirectory MediaDirectoryPGM { get; }
-        IServerDirectory MediaDirectoryPRV { get; }
-        IArchiveDirectory ArchiveDirectory { get; }
-        List<IIngestDirectory> IngestDirectories { get; }
-        List<IMediaDirectory> Directories { get; }
-        ObservableSynchronizedCollection<ITemplate> Templates { get; }
-        IFileManager FileManager { get; }
+        IEngine getEngine();
+        IAnimationDirectory getAnimationDirectoryPGM();
+        IAnimationDirectory getAnimationDirectoryPRV();
+        IServerDirectory getMediaDirectoryPGM();
+        IServerDirectory getMediaDirectoryPRV();
+        IArchiveDirectory getArchiveDirectory();
+        List<IIngestDirectory> getIngestDirectories();
+        ObservableSynchronizedCollection<ITemplate> getTemplates();
+        IFileManager getFileManager();
+        [OperationContract]
+        VideoFormatDescription getFormatDescription();
+        [OperationContract]
+        TVideoFormat getVideoFormat();
 
         void IngestMediaToPlayout(IMedia media, bool toTop = false);
         void IngestMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false);
@@ -37,5 +42,7 @@ namespace TAS.Server.Interfaces
         void GetLoudness(IEnumerable<IMedia> mediaList);
         void GetLoudness(IMedia media);
         void GetLoudness(IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback);
+        List<IMediaDirectory> getDirectories();
+
     }
 }

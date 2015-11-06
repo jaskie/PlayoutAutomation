@@ -22,17 +22,17 @@ namespace TAS.Client.ViewModels
         {
             _engine = engine;
             _items = new ObservableCollection<TemplateViewmodel>();
-            engine.MediaManager.Templates.CollectionOperation += _onSourceCollectionOperation;
+            engine.MediaManager.getTemplates().CollectionOperation += _onSourceCollectionOperation;
             foreach (Media m in _engine.PlayoutChannelPGM.OwnerServer.AnimationDirectory.Files)
                 _mediaFiles.Add(new MediaViewViewmodel(m));
-            foreach (Template t in engine.MediaManager.Templates.ToList())
+            foreach (Template t in engine.MediaManager.getTemplates())
                 _items.Add(new TemplateViewmodel(t, this));
             _createCommands();
         }
 
         protected override void OnDispose()
         {
-            _engine.MediaManager.Templates.CollectionOperation -= _onSourceCollectionOperation;
+            _engine.MediaManager.getTemplates().CollectionOperation -= _onSourceCollectionOperation;
         }
 
         public ObservableCollection<TemplateViewmodel> Items { get { return _items; } }

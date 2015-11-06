@@ -58,7 +58,7 @@
                 <StackPanel>
                     <CheckBox IsChecked="{Binding RemoteHostEnabled}" Content="Enabled"/>
                     <StackPanel Visibility="{Binding RemoteHostEnabled, Converter={StaticResource BoolToVis}}">
-                        <Label Content="Endpoint address [local address:port]"/>
+                        <Label Content="Endpoint address [local address:port/path]"/>
                         <TextBox Text="{Binding RemoteHostEndpointAddress, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </StackPanel>

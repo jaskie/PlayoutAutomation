@@ -25,8 +25,7 @@ namespace TAS.Server.Remoting
                 _host = new ServiceHost(engine.MediaManager);
                 var service = engine.MediaManager;
                 NetTcpBinding binding = new NetTcpBinding(SecurityMode.None, true);
-                //_host.AddServiceEndpoint(typeof(IEngine), binding, string.Format(@"net.tcp://{0}/Engine", EndpointAddress));
-                _host.AddServiceEndpoint(typeof(IMediaManager), binding, string.Format(@"net.tcp://{0}/MediaManager", EndpointAddress));
+                _host.AddServiceEndpoint(typeof(IMediaManagerContract), binding, string.Format(@"net.tcp://{0}/MediaManager", EndpointAddress));
                 _host.Open();
                 return true;
             }

@@ -188,7 +188,7 @@ namespace TAS.Client.ViewModels
 
         private bool _canExport(object obj)
         {
-            return _selectedEvents.Any(e => e.Media != null && e.Media.MediaType == TMediaType.Movie) && _engine.MediaManager.IngestDirectories.Any(d => d.IsXDCAM);
+            return _selectedEvents.Any(e => e.Media != null && e.Media.MediaType == TMediaType.Movie) && _engine.MediaManager.getIngestDirectories().Any(d => d.IsXDCAM);
         }
 
         private void _export(object obj)

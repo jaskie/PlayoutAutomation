@@ -12,10 +12,12 @@ using System.Runtime.InteropServices;
 using TAS.Common;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using System.Runtime.Serialization;
 
 namespace TAS.Server
 {
-    public abstract class MediaDirectory : IMediaDirectory
+    [DataContract]
+    public abstract class MediaDirectory : IMediaDirectory, Remoting.IMediaDirectoryContract
     { 
 
         protected string _folder;

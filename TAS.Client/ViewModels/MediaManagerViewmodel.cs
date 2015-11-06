@@ -39,16 +39,18 @@ namespace TAS.Client.ViewModels
         public ICommand CommandExport { get; private set; }
         public ICommand CommandRefresh { get; private set; }
 
-        public MediaManagerViewmodel(IMediaManager MediaManager, PreviewViewmodel previewVm)
+        public MediaManagerViewmodel(IMediaManager mediaManager, PreviewViewmodel previewVm)
         {
-            _mediaManager = MediaManager;
+            _mediaManager = mediaManager;
             _previewViewModel = previewVm;
-            _previewView = new PreviewView(previewVm.FrameRate) { DataContext = previewVm };
+            if (previewVm != null)
+                _previewView = new PreviewView(previewVm.FrameRate) { DataContext = previewVm };
             _createCommands();
             _mediaCategory = _mediaCategories.FirstOrDefault();
-            MediaDirectory = MediaManager.MediaDirectoryPGM;
+            MediaDirectory = mediaManager.getMediaDirectoryPGM();
             _view = new MediaManagerView() { DataContext = this };
-            _fileManager = new FileManagerViewmodel(MediaManager.FileManager);
+            if (mediaManager.getFileManager() != null)
+                _fileManager = new FileManagerViewmodel(mediaManager.getFileManager());
         }
 
 
@@ -147,7 +149,7 @@ namespace TAS.Client.ViewModels
 
         bool _canExport(object o)
         {
-            return (_mediaDirectory is IServerDirectory || _mediaDirectory is IArchiveDirectory) && _isSomethingSelected(o) && _mediaManager.IngestDirectories.Any(d => d.IsXDCAM);
+            return (_mediaDirectory is IServerDirectory || _mediaDirectory is IArchiveDirectory) && _isSomethingSelected(o) && _mediaManager.getIngestDirectories().Any(d => d.IsXDCAM);
         }
         
         private void _createCommands()
@@ -225,7 +227,7 @@ namespace TAS.Client.ViewModels
                         ingestList.Add(new Model.ConvertOperation() {
                             SourceMedia = sourceMedia,
                             DestMedia = destMedia,
-                            OutputFormat = _mediaManager.Engine.VideoFormat,
+                            OutputFormat = _mediaManager.getEngine().VideoFormat,
                             AudioVolume = (sourceMedia.Directory is IIngestDirectory)? ((IIngestDirectory)sourceMedia.Directory).AudioVolume : 0,
                             SourceFieldOrderEnforceConversion = (sourceMedia.Directory is IIngestDirectory) ? ((IIngestDirectory)sourceMedia.Directory).SourceFieldOrder : TFieldOrder.Unknown,
                             AspectConversion = (sourceMedia.Directory is IIngestDirectory) ? ((IIngestDirectory)sourceMedia.Directory).AspectConversion : TAspectConversion.NoConversion,
@@ -271,7 +273,7 @@ namespace TAS.Client.ViewModels
                         break;
                 }
             if (_mediaDirectory is IIngestDirectory)
-                _ingestSelectionToDir(_mediaManager.MediaDirectoryPGM);
+                _ingestSelectionToDir(_mediaManager.getMediaDirectoryPGM());
             else
                 _mediaManager.IngestMediaToPlayout(_getSelections(), true);
         }
@@ -324,7 +326,7 @@ namespace TAS.Client.ViewModels
 
         private void _moveSelectedToArchive(object o)
         {
-            if (_mediaManager.ArchiveDirectory != null && _mediaDirectory is IServerDirectory)
+            if (_mediaManager.getArchiveDirectory() != null && _mediaDirectory is IServerDirectory)
             {
                     foreach (IMedia m in _getSelections())
                         _mediaManager.ArchiveMedia(m, true);
@@ -333,10 +335,10 @@ namespace TAS.Client.ViewModels
 
         private void _copySelectedToArchive(object o)
         {
-            if (_mediaManager.ArchiveDirectory != null)
+            if (_mediaManager.getArchiveDirectory() != null)
             {
                 if (_mediaDirectory is IIngestDirectory)
-                    _ingestSelectionToDir(_mediaManager.ArchiveDirectory);
+                    _ingestSelectionToDir(_mediaManager.getArchiveDirectory());
                 else
                     foreach (IMedia m in _getSelections())
                         _mediaManager.ArchiveMedia(m, false);
@@ -371,7 +373,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public List<IMediaDirectory> MediaDirectories { get { return _mediaManager.Directories; } }
+        public List<IMediaDirectory> MediaDirectories { get { return _mediaManager.getDirectories(); } }
 
         private IMediaDirectory _mediaDirectory;
 

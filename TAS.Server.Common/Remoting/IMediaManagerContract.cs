@@ -7,7 +7,7 @@ using System.Text;
 namespace TAS.Server.Remoting
 {
     [ServiceContract(CallbackContract = typeof(IMediaManagerCallback))]
-    public interface IMediaManager
+    public interface IMediaManagerContract: Interfaces.IMediaManager
     {
         [OperationContract]
         void OpenSession();

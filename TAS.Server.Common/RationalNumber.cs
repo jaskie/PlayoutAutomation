@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace TAS.Common
 {
     [DebuggerDisplay("{Num}/{Den}")]
+    [DataContract]
     public struct RationalNumber : IEquatable<RationalNumber>
     {
+        [DataMember]
         private readonly long _num;
+        [DataMember]
         private readonly long _den;
 
         public RationalNumber(long numerator, long denominator)
@@ -17,9 +21,8 @@ namespace TAS.Common
             this._num = numerator;
             this._den = denominator;
         }
-
-        public long Num { get { return _num; } }
-        public long Den { get { return _den; } }
+        public long Num { get { return _num; }}
+        public long Den { get { return _den; }}
 
         public bool IsZero
         {

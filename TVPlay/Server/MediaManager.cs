@@ -20,19 +20,26 @@ namespace TAS.Server
 {
 
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, IncludeExceptionDetailInFaults = true), CallbackBehavior]
-    public class MediaManager: IMediaManager, Remoting.IMediaManager
+    public class MediaManager: IMediaManager, Remoting.IMediaManagerContract
     {
         readonly IEngine _engine;
         readonly FileManager _fileManager;
-        public IFileManager FileManager { get { return _fileManager; } }
-        public IEngine Engine { get { return _engine; } }
-        public IServerDirectory MediaDirectoryPGM { get; private set; }
-        public IServerDirectory MediaDirectoryPRV { get; private set; }
-        public IAnimationDirectory AnimationDirectoryPGM { get; private set; }
-        public IAnimationDirectory AnimationDirectoryPRV { get; private set; }
-        public IArchiveDirectory ArchiveDirectory { get; private set; }
+        public IFileManager getFileManager() { return _fileManager;  }
+        public IEngine getEngine() { return _engine; }
+        IServerDirectory MediaDirectoryPGM;
+        public IServerDirectory getMediaDirectoryPGM() { return MediaDirectoryPGM; }
+        IServerDirectory MediaDirectoryPRV;
+        public IServerDirectory getMediaDirectoryPRV() { return MediaDirectoryPRV; }
+        IAnimationDirectory AnimationDirectoryPGM;
+        public IAnimationDirectory getAnimationDirectoryPGM() { return AnimationDirectoryPGM; }
+        IAnimationDirectory AnimationDirectoryPRV;
+        public IAnimationDirectory getAnimationDirectoryPRV() { return AnimationDirectoryPRV; }
+        IArchiveDirectory ArchiveDirectory;
+        public IArchiveDirectory getArchiveDirectory() { return ArchiveDirectory; }
         public readonly ObservableSynchronizedCollection<ITemplate> _templates = new ObservableSynchronizedCollection<ITemplate>();
-        public ObservableSynchronizedCollection<ITemplate> Templates { get { return _templates; } }
+        public ObservableSynchronizedCollection<ITemplate> getTemplates() { return _templates; }
+        public VideoFormatDescription getFormatDescription() { return _engine.FormatDescription; }
+        public TVideoFormat getVideoFormat() { return _engine.VideoFormat; }
 
         public MediaManager(Engine engine)
         {
@@ -43,12 +50,12 @@ namespace TAS.Server
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public void Initialize()
         {
-            MediaDirectoryPGM = (Engine.PlayoutChannelPGM == null) ? null : Engine.PlayoutChannelPGM.OwnerServer.MediaDirectory;
-            MediaDirectoryPRV = (Engine.PlayoutChannelPRV == null) ? null : Engine.PlayoutChannelPRV.OwnerServer.MediaDirectory;
-            AnimationDirectoryPGM = (Engine.PlayoutChannelPGM == null) ? null : Engine.PlayoutChannelPGM.OwnerServer.AnimationDirectory;
-            AnimationDirectoryPRV = (Engine.PlayoutChannelPRV == null) ? null : Engine.PlayoutChannelPRV.OwnerServer.AnimationDirectory;
+            MediaDirectoryPGM = (_engine.PlayoutChannelPGM == null) ? null : _engine.PlayoutChannelPGM.OwnerServer.MediaDirectory;
+            MediaDirectoryPRV = (_engine.PlayoutChannelPRV == null) ? null : _engine.PlayoutChannelPRV.OwnerServer.MediaDirectory;
+            AnimationDirectoryPGM = (_engine.PlayoutChannelPGM == null) ? null : _engine.PlayoutChannelPGM.OwnerServer.AnimationDirectory;
+            AnimationDirectoryPRV = (_engine.PlayoutChannelPRV == null) ? null : _engine.PlayoutChannelPRV.OwnerServer.AnimationDirectory;
 
-            ArchiveDirectory = this.LoadArchiveDirectory(Engine.IdArchive);
+            ArchiveDirectory = this.LoadArchiveDirectory(_engine.IdArchive);
             Debug.WriteLine(this, "Begin initializing");
             ServerDirectory sdir = MediaDirectoryPGM as ServerDirectory;
             if (sdir != null)
@@ -74,13 +81,10 @@ namespace TAS.Server
         }
 
         private List<IIngestDirectory> _ingestDirectories;
-        public List<IIngestDirectory> IngestDirectories
+        public List<IIngestDirectory> getIngestDirectories()
         {
-            get
-            {
-                lock (_ingestDirsSyncObject)
-                    return _ingestDirectories.ToList();
-            }
+            lock (_ingestDirsSyncObject)
+                return _ingestDirectories.ToList();
         }
 
         private bool _ingestDirectoriesLoaded = false;
@@ -185,23 +189,20 @@ namespace TAS.Server
             }
         }
 
-        public List<IMediaDirectory> Directories
+        public List<IMediaDirectory> getDirectories()
         {
-            get
-            {
-                List<IMediaDirectory> dl = new List<IMediaDirectory>();
-                lock (_ingestDirsSyncObject)
-                    if (_ingestDirectoriesLoaded)
-                        foreach (IngestDirectory d in _ingestDirectories)
-                            dl.Add(d);
-                if (ArchiveDirectory != null)
-                    dl.Insert(0, ArchiveDirectory);
-                if (Engine.PlayoutChannelPRV != null && Engine.PlayoutChannelPRV.OwnerServer != Engine.PlayoutChannelPGM.OwnerServer)
-                    dl.Insert(0, Engine.PlayoutChannelPRV.OwnerServer.MediaDirectory);
-                if (Engine.PlayoutChannelPGM != null)
-                    dl.Insert(0, Engine.PlayoutChannelPGM.OwnerServer.MediaDirectory);
-                return dl;
-            }
+            List<IMediaDirectory> dl = new List<IMediaDirectory>();
+            lock (_ingestDirsSyncObject)
+                if (_ingestDirectoriesLoaded)
+                    foreach (IngestDirectory d in _ingestDirectories)
+                        dl.Add(d);
+            if (ArchiveDirectory != null)
+                dl.Insert(0, ArchiveDirectory);
+            if (_engine.PlayoutChannelPRV != null && _engine.PlayoutChannelPRV.OwnerServer != _engine.PlayoutChannelPGM.OwnerServer)
+                dl.Insert(0, _engine.PlayoutChannelPRV.OwnerServer.MediaDirectory);
+            if (_engine.PlayoutChannelPGM != null)
+                dl.Insert(0, _engine.PlayoutChannelPGM.OwnerServer.MediaDirectory);
+            return dl;
         }
 
         public void IngestMediaToPlayout(IMedia media, bool toTop = false)
@@ -259,7 +260,7 @@ namespace TAS.Server
                 IArchiveMedia destMedia;
                 destMedia = ArchiveDirectory.GetArchiveMedia(media);
                 if (!destMedia.FileExists())
-                    _fileManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = destMedia, OutputFormat = Engine.VideoFormat }, toTop);
+                    _fileManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = destMedia, OutputFormat = _engine.VideoFormat }, toTop);
             }
         }
 
@@ -271,7 +272,7 @@ namespace TAS.Server
             if (sourceMedia == null || !(sourceMedia is IIngestMedia))
                 return;
             if (!media.FileExists() && sourceMedia.FileExists())
-                _fileManager.Queue(new ConvertOperation { SourceMedia = sourceMedia, DestMedia = media, OutputFormat = Engine.VideoFormat }, toTop);
+                _fileManager.Queue(new ConvertOperation { SourceMedia = sourceMedia, DestMedia = media, OutputFormat = _engine.VideoFormat }, toTop);
         }
 
         public void IngestMediaToArchive(IEnumerable<IIngestMedia> mediaList, bool ToTop = false)
@@ -282,7 +283,7 @@ namespace TAS.Server
 
         public MediaDeleteDenyReason DeleteMedia(IMedia media)
         {
-            MediaDeleteDenyReason reason = (media is ServerMedia) ? Engine.CanDeleteMedia(media as ServerMedia) : MediaDeleteDenyReason.NoDeny;
+            MediaDeleteDenyReason reason = (media is ServerMedia) ? _engine.CanDeleteMedia(media as ServerMedia) : MediaDeleteDenyReason.NoDeny;
             if (reason.Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
                 _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = media });
             return reason;
@@ -314,7 +315,7 @@ namespace TAS.Server
             if (ArchiveDirectory == null)
                 return;
             if (media is ServerMedia)
-                ArchiveDirectory.ArchiveSave(media, Engine.VideoFormat, deleteAfter);
+                ArchiveDirectory.ArchiveSave(media, _engine.VideoFormat, deleteAfter);
             if (media is IngestMedia)
                 IngestMediaToArchive((IngestMedia)media, false);
             if (media is ArchiveMedia)
@@ -341,24 +342,24 @@ namespace TAS.Server
 
         private ServerMedia _findComplementaryMedia(ServerMedia originalMedia)
         {
-            if (Engine.PlayoutChannelPGM != null && Engine.PlayoutChannelPRV != null && Engine.PlayoutChannelPGM.OwnerServer != Engine.PlayoutChannelPRV.OwnerServer)
+            if (_engine.PlayoutChannelPGM != null && _engine.PlayoutChannelPRV != null && _engine.PlayoutChannelPGM.OwnerServer != _engine.PlayoutChannelPRV.OwnerServer)
             {
-                if ((originalMedia.Directory as ServerDirectory).Server == Engine.PlayoutChannelPGM.OwnerServer && Engine.PlayoutChannelPRV != null)
-                    return (ServerMedia)Engine.PlayoutChannelPRV.OwnerServer.MediaDirectory.FindMedia(originalMedia);
-                if ((originalMedia.Directory as ServerDirectory).Server == Engine.PlayoutChannelPRV.OwnerServer && Engine.PlayoutChannelPGM != null)
-                    return (ServerMedia)Engine.PlayoutChannelPGM.OwnerServer.MediaDirectory.FindMedia(originalMedia);
+                if ((originalMedia.Directory as ServerDirectory).Server == _engine.PlayoutChannelPGM.OwnerServer && _engine.PlayoutChannelPRV != null)
+                    return (ServerMedia)_engine.PlayoutChannelPRV.OwnerServer.MediaDirectory.FindMedia(originalMedia);
+                if ((originalMedia.Directory as ServerDirectory).Server == _engine.PlayoutChannelPRV.OwnerServer && _engine.PlayoutChannelPGM != null)
+                    return (ServerMedia)_engine.PlayoutChannelPGM.OwnerServer.MediaDirectory.FindMedia(originalMedia);
             }
             return null;
         }
 
         private ServerMedia _getComplementaryMedia(ServerMedia originalMedia)
         {
-            if (Engine.PlayoutChannelPGM != null && Engine.PlayoutChannelPRV != null && Engine.PlayoutChannelPGM.OwnerServer != Engine.PlayoutChannelPRV.OwnerServer)
+            if (_engine.PlayoutChannelPGM != null && _engine.PlayoutChannelPRV != null && _engine.PlayoutChannelPGM.OwnerServer != _engine.PlayoutChannelPRV.OwnerServer)
             {
-                if ((originalMedia.Directory as ServerDirectory).Server == Engine.PlayoutChannelPGM.OwnerServer && Engine.PlayoutChannelPRV != null)
-                    return (ServerMedia)Engine.PlayoutChannelPRV.OwnerServer.MediaDirectory.GetServerMedia(originalMedia);
-                if ((originalMedia.Directory as ServerDirectory).Server == Engine.PlayoutChannelPRV.OwnerServer && Engine.PlayoutChannelPGM != null)
-                    return (ServerMedia)Engine.PlayoutChannelPGM.OwnerServer.MediaDirectory.GetServerMedia(originalMedia);
+                if ((originalMedia.Directory as ServerDirectory).Server == _engine.PlayoutChannelPGM.OwnerServer && _engine.PlayoutChannelPRV != null)
+                    return (ServerMedia)_engine.PlayoutChannelPRV.OwnerServer.MediaDirectory.GetServerMedia(originalMedia);
+                if ((originalMedia.Directory as ServerDirectory).Server == _engine.PlayoutChannelPRV.OwnerServer && _engine.PlayoutChannelPGM != null)
+                    return (ServerMedia)_engine.PlayoutChannelPGM.OwnerServer.MediaDirectory.GetServerMedia(originalMedia);
             }
             return null;
         }
@@ -422,7 +423,7 @@ namespace TAS.Server
         
         public override string ToString()
         {
-            return Engine.EngineName + ":MediaManager";
+            return _engine.EngineName + ":MediaManager";
         }
 
 
@@ -444,7 +445,7 @@ namespace TAS.Server
             IServerMedia dest;
             if ((dest  = (ServerMedia)(MediaDirectoryPGM.FindMedia(m => Path.GetFileNameWithoutExtension(m.FileName).ToLower() == nameLowered).FirstOrDefault())) != null)
                 return dest.MediaGuid;
-            foreach (IngestDirectory dir in IngestDirectories)
+            foreach (IngestDirectory dir in _ingestDirectories)
             {
                 Media source = dir.FindMedia(fileName);
                 if (source != null)
@@ -457,7 +458,7 @@ namespace TAS.Server
                         {
                             SourceMedia = source,
                             DestMedia = dest,
-                            OutputFormat = Engine.VideoFormat,
+                            OutputFormat = _engine.VideoFormat,
                             AudioVolume = dir.AudioVolume,
                             SourceFieldOrderEnforceConversion = dir.SourceFieldOrder,
                             AspectConversion = dir.AspectConversion,

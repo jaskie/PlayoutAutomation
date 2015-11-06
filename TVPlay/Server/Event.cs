@@ -31,8 +31,6 @@ namespace TAS.Server
         }
 #endif // DEBUG
 
-        private static object SyncStatic = new object();
-
         internal UInt64 _idRundownEvent = 0;
         public UInt64 IdRundownEvent
         {
@@ -640,9 +638,9 @@ namespace TAS.Server
                 {
                     IMediaDirectory dir;
                     if (_eventType == TEventType.AnimationFlash)
-                        dir = Engine.MediaManager.AnimationDirectoryPGM;
+                        dir = Engine.MediaManager.getAnimationDirectoryPGM();
                     else
-                        dir = Engine.MediaManager.MediaDirectoryPGM;
+                        dir = Engine.MediaManager.getMediaDirectoryPGM();
                     if (dir != null)
                     {
                         var newMedia = dir.FindMedia(mediaGuid);
@@ -669,9 +667,9 @@ namespace TAS.Server
                 {
                     IMediaDirectory dir;
                     if (_eventType == TEventType.AnimationFlash)
-                        dir = Engine.MediaManager.AnimationDirectoryPRV;
+                        dir = Engine.MediaManager.getAnimationDirectoryPRV();
                     else
-                        dir = Engine.MediaManager.MediaDirectoryPRV;
+                        dir = Engine.MediaManager.getMediaDirectoryPRV();
                     if (dir != null)
                     {
                         var newMedia = dir.FindMedia(mediaGuid);
@@ -690,7 +688,7 @@ namespace TAS.Server
             {
                 Guid mediaGuid = _mediaGuid;
                 if (_template == null)
-                    _template = Engine.MediaManager.Templates.ToList().FirstOrDefault(t => t.MediaGuid == this.MediaGuid);
+                    _template = Engine.MediaManager.getTemplates().FirstOrDefault(t => t.MediaGuid == this.MediaGuid);
                 return _template;
             }
         }
@@ -770,7 +768,7 @@ namespace TAS.Server
         {
             Event eventToInsert = e as Event;
             if (eventToInsert != null)
-            lock (SyncStatic)
+            lock ((Engine as Engine).RundownSync)
                 {
                     Event oldParent = eventToInsert.Parent as Event;
                     Event oldPrior = eventToInsert.Prior as Event;
@@ -810,7 +808,7 @@ namespace TAS.Server
         {
             Event eventToInsert = e as Event;
             if (eventToInsert != null)
-            lock (SyncStatic)
+                lock ((Engine as Engine).RundownSync)
                 {
                     Event prior = this.Prior as Event;
                     Event parent = this.Parent as Event;
@@ -860,7 +858,7 @@ namespace TAS.Server
         {
             Event subEventToAdd = se as Event;
             if (subEventToAdd != null)
-            lock (SyncStatic)
+                lock ((Engine as Engine).RundownSync)
                 {
                     Event oldPrior = subEventToAdd.Prior as Event;
                     Event oldParent = subEventToAdd.Parent as Event;
@@ -911,7 +909,7 @@ namespace TAS.Server
 
         public void Remove()
         {
-            lock (SyncStatic)
+            lock ((Engine as Engine).RundownSync)
             {
                 Event parent = Parent as Event;
                 Event next = Next as Event;
@@ -950,7 +948,7 @@ namespace TAS.Server
 
         public void MoveUp()
         {
-            lock (SyncStatic)
+            lock ((Engine as Engine).RundownSync)
             {
                 // this = e3
                 Event e2 = Prior as Event;
@@ -990,7 +988,7 @@ namespace TAS.Server
 
         public void MoveDown()
         {
-            lock (SyncStatic)
+            lock ((Engine as Engine).RundownSync)
             {
                 // this = e2
                 Event e3 = Next as Event; // load if nescessary

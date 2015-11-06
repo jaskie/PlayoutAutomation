@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.ServiceModel;
 using System.Text;
 using TAS.Common;
 using TAS.Server.Common;
@@ -30,6 +31,7 @@ namespace TAS.Server.Interfaces
         void AddEvent(IEvent ev);
         void RemoveEvent(IEvent aEvent);
 
+        [OperationContract]
         void Load(IEvent aEvent);
         void StartLoaded();
         void Start(IEvent aEvent);

@@ -2,16 +2,23 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace TAS.Common
 {
+    [DataContract]
     public sealed class VideoFormatDescription
     {
+        [DataMember]
         public readonly TVideoFormat Format;
+        [DataMember]
         public readonly Size ImageSize;
+        [DataMember]
         public readonly RationalNumber FrameRate;
+        [DataMember]
         public readonly bool Interlaced;
+        [DataMember]
         public readonly RationalNumber SAR;
         private VideoFormatDescription(TVideoFormat format)
         {

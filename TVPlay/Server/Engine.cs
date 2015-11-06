@@ -180,12 +180,6 @@ namespace TAS.Server
             var chPGM = PlayoutChannelPGM;
             Debug.WriteLine(chPGM, "About to initialize");
             Debug.Assert(chPGM != null && chPGM.OwnerServer != null, "Null channel PGM or its server");
-            if (chPGM != null
-                && chPGM.OwnerServer != null)
-            {
-                ((CasparServer)chPGM.OwnerServer).MediaManager = this.MediaManager as MediaManager;
-                chPGM.OwnerServer.Initialize();
-            }
             var chPRV = PlayoutChannelPRV;
             if (chPRV != null
                 && chPRV != chPGM
@@ -193,6 +187,15 @@ namespace TAS.Server
             {
                 ((CasparServer)chPRV.OwnerServer).MediaManager = this.MediaManager as MediaManager;
                 chPRV.OwnerServer.Initialize();
+                chPRV.OwnerServer.MediaDirectory.DirectoryName = chPRV.ChannelName;
+            }
+
+            if (chPGM != null
+                && chPGM.OwnerServer != null)
+            {
+                ((CasparServer)chPGM.OwnerServer).MediaManager = this.MediaManager as MediaManager;
+                chPGM.OwnerServer.Initialize();
+                chPGM.OwnerServer.MediaDirectory.DirectoryName = chPGM.ChannelName;
             }
 
             MediaManager.Initialize();
@@ -388,7 +391,7 @@ namespace TAS.Server
                 && media != null 
                 && media.MediaType == TMediaType.Movie 
                 && ArchivePolicy == Engine.ArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
-                && MediaManager.ArchiveDirectory != null
+                && MediaManager.getArchiveDirectory() != null
                 && CanDeleteMedia(media).Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
                 ThreadPool.QueueUserWorkItem(o => MediaManager.ArchiveMedia(media, true));
                 aEvent.Saved -= _eventSaved;
@@ -580,11 +583,11 @@ namespace TAS.Server
             ThreadPool.QueueUserWorkItem(o => ReSchedule(aEvent));
         }
 
-        private object _rescheduleLock = new object();
+        public object RundownSync = new object();
         
         public void ReSchedule(IEvent aEvent)
         {
-            lock (_rescheduleLock)
+            lock (RundownSync)
             {
                 if (aEvent == null)
                     return;

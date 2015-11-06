@@ -7,7 +7,7 @@ using System.Text;
 namespace TAS.Server.Remoting
 {
     [ServiceContract(CallbackContract = typeof(IEngineCallback))]
-    public interface IEngine
+    public interface IEngine: TAS.Server.Interfaces.IEngine
     {
         [OperationContract]
         void OpenSession();
