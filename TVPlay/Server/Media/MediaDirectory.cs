@@ -16,7 +16,6 @@ using System.Runtime.Serialization;
 
 namespace TAS.Server
 {
-    [DataContract]
     public abstract class MediaDirectory : IMediaDirectory, Remoting.IMediaDirectoryContract
     { 
 
