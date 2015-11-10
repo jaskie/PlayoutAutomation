@@ -6,6 +6,7 @@ using System.ServiceModel;
 using System.Text;
 using System.Xml.Serialization;
 using TAS.Server.Interfaces;
+using WebSocketSharp.Server;
 
 namespace TAS.Server.Remoting
 {
@@ -15,18 +16,16 @@ namespace TAS.Server.Remoting
         public string EndpointAddress { get; set; }
         [XmlIgnore]
         public TAS.Server.Engine Engine { get; private set; }
-        ServiceHost _host;
+        WebSocketServer _server;
         public bool Initialize(TAS.Server.Engine engine)
         {
             if (string.IsNullOrEmpty(EndpointAddress))
                 return false;
             try
             {
-                _host = new ServiceHost(engine.MediaManager);
-                var service = engine.MediaManager;
-                NetTcpBinding binding = new NetTcpBinding(SecurityMode.None, true);
-                _host.AddServiceEndpoint(typeof(IMediaManagerContract), binding, string.Format(@"net.tcp://{0}/MediaManager", EndpointAddress));
-                _host.Open();
+                _server = new WebSocketServer(string.Format("ws://{0}", EndpointAddress));
+                _server.AddWebSocketService<MediaManagerBehavior>("/MediaManager", () => new MediaManagerBehavior(engine.MediaManager as MediaManager));
+                _server.Start();
                 return true;
             }
             catch(Exception e)
@@ -42,13 +41,13 @@ namespace TAS.Server.Remoting
             if (!disposed)
             {
                 _disposed = true;
-                _host.Close();
+                _server.Stop();
             }
         }
 
         public void Dispose()
         {
-            lock (_host)
+            lock (_server)
             {
                 _doDispose(_disposed);
             }
@@ -56,7 +55,7 @@ namespace TAS.Server.Remoting
 
         internal void UnInitialize(Server.Engine engine)
         {
-            _host.Close();
+            _server.Stop();
         }
     }
 }

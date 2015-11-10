@@ -108,9 +108,6 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="RationalNumber.cs" />
-    <Compile Include="Remoting\IEngine.cs" />
-    <Compile Include="Remoting\IMediaDirectoryContract.cs" />
-    <Compile Include="Remoting\IMediaManagerContract.cs" />
     <Compile Include="SerializationHelper.cs" />
     <Compile Include="SimpleDictionary.cs" />
     <Compile Include="SMPTETimecodeExtensions.cs" />
@@ -133,6 +130,9 @@
       <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>
       <Name>Infralution.Localization.Wpf</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Remoting\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

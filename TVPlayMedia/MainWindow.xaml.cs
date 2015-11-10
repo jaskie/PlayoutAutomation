@@ -28,8 +28,7 @@ namespace TAS.Client
             model.Initialize();
             MediaManagerViewmodel vm = new MediaManagerViewmodel(model, null);
             _windowContent.Content = vm.View;
-            var format = model.getFormatDescription();
-            MessageBox.Show(string.Join(Environment.NewLine, format.Format, format.FrameRate));
+
             
         }
     }

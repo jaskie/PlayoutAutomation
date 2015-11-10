@@ -143,6 +143,10 @@
     <Reference Include="MySql.Data, Version=6.8.6.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -220,7 +224,9 @@
     <Compile Include="Server\Media\MediaSegment.cs" />
     <Compile Include="Server\Media\PInvokeWindowsNetworking.cs" />
     <Compile Include="Server\Media\TempDirectory.cs" />
+    <Compile Include="Server\Remoting\MediaManagerBehavior.cs" />
     <Compile Include="Server\Remoting\RemoteHost.cs" />
+    <Compile Include="Server\Remoting\WebsocketMessage.cs" />
     <Compile Include="Server\Template.cs" />
     <Compile Include="Server\Media\TempMedia.cs" />
     <Compile Include="Server\XDCAM\ExportOperation.cs" />

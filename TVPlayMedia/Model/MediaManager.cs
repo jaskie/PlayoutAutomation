@@ -2,32 +2,22 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
 using System.Text;
 using TAS.Common;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
+using WebSocketSharp;
 
 namespace TAS.Client.Model
 {
-    [ServiceKnownType(typeof(Media))]
-    [ServiceKnownType(typeof(ServerMedia))]
-    [ServiceKnownType(typeof(MediaDirectory))]
-    [ServiceKnownType(typeof(ServerDirectory))]
-    [ServiceKnownType(typeof(List<MediaDirectory>))]
-    [DataContract]
     public class MediaManager: IMediaManager
     {
-        readonly EndpointAddress _address;
-        Server.Remoting.IMediaManagerContract _channel;
-        MediaManagerCallback _callback;
-        NetTcpBinding _binding;
-
+        readonly string _address;
+        WebSocket _clientSocket;
         
         public MediaManager(string host)
         {
-            _address = new EndpointAddress(string.Format(@"net.tcp://{0}/MediaManager", host));
+            _address = host;
         }
 
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
@@ -35,30 +25,12 @@ namespace TAS.Client.Model
         {
             try
             {
-                _callback = new MediaManagerCallback();
-                _binding = new NetTcpBinding(SecurityMode.None, true);
-                _channel = DuplexChannelFactory<Server.Remoting.IMediaManagerContract>.CreateChannel(
-                    new InstanceContext(_callback),
-                    _binding,
-                    _address);
-                _channel.OpenSession();
+                _clientSocket = new WebSocket(string.Format("ws://{0}/MediaManager", _address));
+                _clientSocket.Connect();
             }
             catch (Exception e)
             {
                 Debug.WriteLine(e, "Error initializing MediaManager remote interface");
-            }
-        }
-
-        public bool IngestFile(string fileName)
-        {
-            try
-            {
-                return _channel.IngestFile(fileName) != Guid.Empty;
-            }
-            catch
-            {
-                Initialize();
-                return IngestFile(fileName);
             }
         }
 
@@ -189,21 +161,14 @@ namespace TAS.Client.Model
 
         public VideoFormatDescription getFormatDescription()
         {
-            return _channel.getFormatDescription();
+            throw new NotImplementedException();
         }
 
         public TVideoFormat getVideoFormat()
         {
-            return _channel.getVideoFormat();
+            throw new NotImplementedException();
         }
     }
 
-    public class MediaManagerCallback : Server.Remoting.IMediaManagerCallback
-    {
-        public void OnPropertyChange()
-        {
-
-        }
-    }
 
 }

@@ -20,7 +20,7 @@ namespace TAS.Server
 {
 
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, IncludeExceptionDetailInFaults = true), CallbackBehavior]
-    public class MediaManager: IMediaManager, Remoting.IMediaManagerContract
+    public class MediaManager: IMediaManager
     {
         readonly IEngine _engine;
         readonly FileManager _fileManager;
@@ -502,17 +502,6 @@ namespace TAS.Server
                     Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = media });
             }
         }
-        
-        #region Remote interface
-        public Remoting.IMediaManagerCallback MediaManagerCallback;
-        
-        public void OpenSession()
-        {
-            MediaManagerCallback = OperationContext.Current.GetCallbackChannel<Remoting.IMediaManagerCallback>();
-            Debug.WriteLine("Remote interface connected");
-        }
-        #endregion // Remote interface
-
     }
 
 

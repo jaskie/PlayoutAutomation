@@ -16,7 +16,7 @@ using System.Runtime.Serialization;
 
 namespace TAS.Server
 {
-    public abstract class MediaDirectory : IMediaDirectory, Remoting.IMediaDirectoryContract
+    public abstract class MediaDirectory : IMediaDirectory
     { 
 
         protected string _folder;
