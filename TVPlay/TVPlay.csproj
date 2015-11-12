@@ -226,7 +226,6 @@
     <Compile Include="Server\Media\TempDirectory.cs" />
     <Compile Include="Server\Remoting\MediaManagerBehavior.cs" />
     <Compile Include="Server\Remoting\RemoteHost.cs" />
-    <Compile Include="Server\Remoting\WebsocketMessage.cs" />
     <Compile Include="Server\Template.cs" />
     <Compile Include="Server\Media\TempMedia.cs" />
     <Compile Include="Server\XDCAM\ExportOperation.cs" />

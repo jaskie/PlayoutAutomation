@@ -305,11 +305,7 @@ namespace TAS.Server
             DateTime nt = _scheduledTime;
             IEvent pev = null;
             if (StartType == TStartType.After)
-            {
                 pev = Prior;
-                while (pev != null && !(pev.Enabled))
-                    pev = pev.Prior;
-            }
             if (pev != null)
                 nt = Engine.AlignDateTime(pev.EndTime - TransitionTime);
             else
@@ -324,9 +320,15 @@ namespace TAS.Server
                     ev.UpdateScheduledTime(true);
                 if (updateSuccessors)
                 {
-                    IEvent succ = GetSuccessor();
-                    if (succ != null)
-                        succ.UpdateScheduledTime(true);
+                    IEvent ne = Next;
+                    if (ne == null)
+                    {
+                        IEvent vp = VisualParent;
+                        if (vp != null)
+                            ne = vp.Next;
+                    }
+                    if (ne != null)
+                        ne.UpdateScheduledTime(true);
                 }
             }
         }

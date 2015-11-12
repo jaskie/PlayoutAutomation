@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Text;
 using TAS.Common;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
+using TAS.Server.Remoting;
 using WebSocketSharp;
 
 namespace TAS.Client.Model
@@ -126,7 +128,8 @@ namespace TAS.Client.Model
 
         public IServerDirectory getMediaDirectoryPGM()
         {
-            return null;
+            _clientSocket.Send(JsonConvert.SerializeObject(new WebSocketMessage() { }));
+            throw new NotImplementedException();
         }
 
         public IServerDirectory getMediaDirectoryPRV()

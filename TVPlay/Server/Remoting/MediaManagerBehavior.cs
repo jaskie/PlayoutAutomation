@@ -22,5 +22,15 @@ namespace TAS.Server.Remoting
         {
             base.OnMessage(e);
         }
+
+        protected override void OnClose(CloseEventArgs e)
+        {
+            base.OnClose(e);
+        }   
+
+        protected override void OnError(ErrorEventArgs e)
+        {
+            base.OnError(e);
+        }
     }
 }

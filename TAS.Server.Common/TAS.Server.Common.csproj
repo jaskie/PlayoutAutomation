@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -59,6 +63,7 @@
     <Compile Include="Interfaces\IArchiveDirectory.cs" />
     <Compile Include="Interfaces\IArchiveMedia.cs" />
     <Compile Include="Interfaces\IConvertOperation.cs" />
+    <Compile Include="Interfaces\IDto.cs" />
     <Compile Include="Interfaces\IEngine.cs" />
     <Compile Include="Interfaces\IEngineConfig.cs" />
     <Compile Include="Interfaces\IEvent.cs" />
@@ -108,6 +113,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="RationalNumber.cs" />
+    <Compile Include="Remoting\WebSocketMessage.cs" />
     <Compile Include="SerializationHelper.cs" />
     <Compile Include="SimpleDictionary.cs" />
     <Compile Include="SMPTETimecodeExtensions.cs" />
@@ -132,7 +138,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Remoting\" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
