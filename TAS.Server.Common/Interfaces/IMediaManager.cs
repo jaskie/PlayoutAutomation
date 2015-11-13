@@ -9,7 +9,7 @@ using TAS.Server.Common;
 namespace TAS.Server.Interfaces
 {
     [ServiceContract]
-    public interface IMediaManager: IInitializable
+    public interface IMediaManager: IInitializable, IDto
     {
         IEngine getEngine();
         IAnimationDirectory getAnimationDirectoryPGM();

@@ -1,87 +1,17 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using TAS.Common;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
 using TAS.Server.Remoting;
-using WebSocketSharp;
 
 namespace TAS.Client.Model
 {
-    public class MediaManager: IMediaManager
+    public class MediaManager : DtoBase, IMediaManager
     {
-        readonly string _address;
-        WebSocket _clientSocket;
-        
-        public MediaManager(string host)
-        {
-            _address = host;
-        }
-
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
-        public void Initialize()
-        {
-            try
-            {
-                _clientSocket = new WebSocket(string.Format("ws://{0}/MediaManager", _address));
-                _clientSocket.Connect();
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e, "Error initializing MediaManager remote interface");
-            }
-        }
-
-        public void IngestMediaToPlayout(IMedia media, bool toTop = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void IngestMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void IngestMediaToArchive(IIngestMedia media, bool toTop = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void IngestMediaToArchive(IArchiveMedia media, bool toTop = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void IngestMediaToArchive(IEnumerable<IIngestMedia> mediaList, bool ToTop = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Queue(IFileOperation operation, bool toTop = false)
-        {
-            throw new NotImplementedException();
-        }
-
         public void ArchiveMedia(IMedia media, bool deleteAfter)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Export(IEnumerable<MediaExport> exportList, IIngestDirectory directory)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Export(MediaExport export, IIngestDirectory directory)
-        {
-            throw new NotImplementedException();
-        }
-
-        public MediaDeleteDenyReason DeleteMedia(IMedia media)
         {
             throw new NotImplementedException();
         }
@@ -91,27 +21,17 @@ namespace TAS.Client.Model
             throw new NotImplementedException();
         }
 
-        public void ReloadIngestDirs()
+        public MediaDeleteDenyReason DeleteMedia(IMedia media)
         {
             throw new NotImplementedException();
         }
 
-        public void GetLoudness(IEnumerable<IMedia> mediaList)
+        public void Export(MediaExport export, IIngestDirectory directory)
         {
             throw new NotImplementedException();
         }
 
-        public void GetLoudness(IMedia media)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void GetLoudness(IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEngine getEngine()
+        public void Export(IEnumerable<MediaExport> exportList, IIngestDirectory directory)
         {
             throw new NotImplementedException();
         }
@@ -126,18 +46,27 @@ namespace TAS.Client.Model
             throw new NotImplementedException();
         }
 
-        public IServerDirectory getMediaDirectoryPGM()
-        {
-            _clientSocket.Send(JsonConvert.SerializeObject(new WebSocketMessage() { }));
-            throw new NotImplementedException();
-        }
-
-        public IServerDirectory getMediaDirectoryPRV()
-        {
-            throw new NotImplementedException();
-        }
-
         public IArchiveDirectory getArchiveDirectory()
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<IMediaDirectory> getDirectories()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEngine getEngine()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IFileManager getFileManager()
+        {
+            throw new NotImplementedException();
+        }
+
+        public VideoFormatDescription getFormatDescription()
         {
             throw new NotImplementedException();
         }
@@ -147,22 +76,32 @@ namespace TAS.Client.Model
             throw new NotImplementedException();
         }
 
-        public ObservableSynchronizedCollection<ITemplate> getTemplates()
+        public void GetLoudness(IMedia media)
         {
             throw new NotImplementedException();
         }
 
-        public IFileManager getFileManager()
+        public void GetLoudness(IEnumerable<IMedia> mediaList)
         {
-            return null;
+            throw new NotImplementedException();
         }
 
-        public List<IMediaDirectory> getDirectories()
+        public void GetLoudness(IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
         {
-            return null;
+            throw new NotImplementedException();
         }
 
-        public VideoFormatDescription getFormatDescription()
+        public IServerDirectory getMediaDirectoryPGM()
+        {
+            return Client.Query<ServerDirectory>(this);
+        }
+
+        public IServerDirectory getMediaDirectoryPRV()
+        {
+            throw new NotImplementedException();
+        }
+
+        public ObservableSynchronizedCollection<ITemplate> getTemplates()
         {
             throw new NotImplementedException();
         }
@@ -171,7 +110,50 @@ namespace TAS.Client.Model
         {
             throw new NotImplementedException();
         }
+
+        public void IngestMediaToArchive(IEnumerable<IIngestMedia> mediaList, bool ToTop = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void IngestMediaToArchive(IArchiveMedia media, bool toTop = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void IngestMediaToArchive(IIngestMedia media, bool toTop = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void IngestMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void IngestMediaToPlayout(IMedia media, bool toTop = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void OnMessage(object sender, WebSocketMessageEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Queue(IFileOperation operation, bool toTop = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReloadIngestDirs()
+        {
+            throw new NotImplementedException();
+        }
     }
-
-
 }

@@ -13,9 +13,11 @@ using TAS.Common;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public abstract class MediaDirectory : IMediaDirectory
     { 
 
@@ -30,6 +32,7 @@ namespace TAS.Server
         public event EventHandler<MediaEventArgs> MediaVerified;
 
         protected bool _isInitialized = false;
+        private readonly Guid _idDto = Guid.NewGuid();
 
         public MediaDirectory(MediaManager mediaManager)
         {
@@ -41,7 +44,7 @@ namespace TAS.Server
         {
             if (!_isInitialized)
             {
-                BeginWatch(null, true);
+                BeginWatch(null, true); 
             }
         }
 
@@ -80,6 +83,8 @@ namespace TAS.Server
             }
         }
 
+        public Guid GuidDto { get { return _idDto; } }
+
         protected virtual void ClearFiles()
         {
             _files.ToList().ForEach(m => m.Remove());
@@ -103,6 +108,7 @@ namespace TAS.Server
         private UInt64 _volumeFreeSize = 0;
         
         [XmlIgnore]
+        [JsonProperty]
         public virtual UInt64 VolumeFreeSize
         {
             get { return _volumeFreeSize; }
@@ -117,6 +123,8 @@ namespace TAS.Server
         }
 
         private UInt64 _volumeTotalSize = 0;
+        [XmlIgnore]
+        [JsonProperty]
         public virtual UInt64 VolumeTotalSize { get { return _volumeTotalSize; } }
 
         public abstract void Refresh();
@@ -164,9 +172,11 @@ namespace TAS.Server
             }
         }
 
+        [JsonProperty]
         public string DirectoryName { get; set; }
 
         [XmlIgnore]
+        [JsonProperty]
         public TDirectoryAccessType AccessType { get; protected set; }
 
         public string Username { get; set; }

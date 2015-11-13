@@ -8,8 +8,7 @@ using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    [System.ServiceModel.ServiceContract]
-    public interface IMediaDirectory: IMediaDirectoryConfig, INotifyPropertyChanged, IDisposable
+    public interface IMediaDirectory: IMediaDirectoryConfig, IDto, INotifyPropertyChanged, IDisposable
     {
         IMedia FindMedia(IMedia media);
         IMedia FindMedia(Guid mediaGuid);

@@ -8,74 +8,31 @@ using System.Text;
 using TAS.Common;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
+using TAS.Server.Remoting;
+using WebSocketSharp;
 
 namespace TAS.Client.Model
 {
     [DataContract]
-    public class MediaDirectory : IMediaDirectory
+    public class MediaDirectory : DtoBase, IMediaDirectory
     {
-        public TDirectoryAccessType AccessType
+        public MediaDirectory()
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
         }
-
-        public string DirectoryName
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public string[] Extensions
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
+        public TDirectoryAccessType AccessType { get; set; }
+        public string DirectoryName { get; set; }
+        public string[] Extensions { get; set; }
         public List<IMedia> Files
         {
             get
             {
-                throw new NotImplementedException();
+                return Client.Query<List<Media>>(this).Cast<IMedia>().ToList();
             }
         }
 
-        public string Folder
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public string Folder { get; set; }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public bool IsInitialized
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public bool IsInitialized { get; set; }
 
         public NetworkCredential NetworkCredential
         {
@@ -111,21 +68,9 @@ namespace TAS.Client.Model
             }
         }
 
-        public ulong VolumeFreeSize
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public ulong VolumeFreeSize { get; set; }
 
-        public ulong VolumeTotalSize
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public ulong VolumeTotalSize { get; set; }
 
         public event EventHandler<MediaEventArgs> MediaAdded;
         public event EventHandler<MediaEventArgs> MediaRemoved;
@@ -221,5 +166,10 @@ namespace TAS.Client.Model
             // GC.SuppressFinalize(this);
         }
         #endregion
+
+        public override void OnMessage(object sender, WebSocketMessageEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

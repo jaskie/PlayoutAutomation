@@ -7,6 +7,6 @@ namespace TAS.Server.Interfaces
 {
     public interface IDto
     {
-        Guid DtoId { get; }
+        Guid GuidDto { get; }
     }
 }

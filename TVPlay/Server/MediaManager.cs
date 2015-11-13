@@ -22,6 +22,7 @@ namespace TAS.Server
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, IncludeExceptionDetailInFaults = true), CallbackBehavior]
     public class MediaManager: IMediaManager
     {
+        readonly Guid _guidDto = Guid.NewGuid();
         readonly IEngine _engine;
         readonly FileManager _fileManager;
         public IFileManager getFileManager() { return _fileManager;  }
@@ -80,6 +81,8 @@ namespace TAS.Server
             Debug.WriteLine(this, "End initializing");
         }
 
+        public Guid GuidDto { get { return _guidDto; } }
+
         private List<IIngestDirectory> _ingestDirectories;
         public List<IIngestDirectory> getIngestDirectories()
         {
@@ -89,6 +92,7 @@ namespace TAS.Server
 
         private bool _ingestDirectoriesLoaded = false;
         private object _ingestDirsSyncObject = new object();
+
 
         public void ReloadIngestDirs()
         {

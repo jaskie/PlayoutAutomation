@@ -24,9 +24,10 @@ namespace TAS.Client
         {
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en");
             InitializeComponent();
-            Model.MediaManager model = new Model.MediaManager(ConfigurationManager.AppSettings["Host"]);
-            model.Initialize();
-            MediaManagerViewmodel vm = new MediaManagerViewmodel(model, null);
+            Model.RemoteClient client = new Model.RemoteClient(ConfigurationManager.AppSettings["Host"]);
+            client.Initialize();
+            Model.MediaManager mm = client.GetInitalObject<Model.MediaManager>();
+            MediaManagerViewmodel vm = new MediaManagerViewmodel(mm, null);
             _windowContent.Content = vm.View;
 
             
