@@ -13,24 +13,23 @@ using WebSocketSharp;
 
 namespace TAS.Client.Model
 {
-    [DataContract]
-    public class MediaDirectory : DtoBase, IMediaDirectory
+    public class MediaDirectory : ProxyBase, IMediaDirectory
     {
         public MediaDirectory()
         {
         }
         public TDirectoryAccessType AccessType { get; set; }
-        public string DirectoryName { get; set; }
-        public string[] Extensions { get; set; }
+        public string DirectoryName { get { return Get<string>(); } set { } }
+        public string[] Extensions { get { return Get<string[]>(); } set { } }
         public List<IMedia> Files
         {
             get
             {
-                return Client.Query<List<Media>>(this).Cast<IMedia>().ToList();
+                return Get<List<Media>>().Cast<IMedia>().ToList();
             }
         }
 
-        public string Folder { get; set; }
+        public string Folder { get { return Get<string>(); } set { } }
 
         public bool IsInitialized { get; set; }
 
@@ -68,9 +67,9 @@ namespace TAS.Client.Model
             }
         }
 
-        public ulong VolumeFreeSize { get; set; }
+        public ulong VolumeFreeSize { get { return Get<ulong>(); } set { } }
 
-        public ulong VolumeTotalSize { get; set; }
+        public ulong VolumeTotalSize { get { return Get<ulong>(); } set { } }
 
         public event EventHandler<MediaEventArgs> MediaAdded;
         public event EventHandler<MediaEventArgs> MediaRemoved;
@@ -124,7 +123,7 @@ namespace TAS.Client.Model
 
         public void Refresh()
         {
-            throw new NotImplementedException();
+            Invoke();
         }
 
         public void SweepStaleMedia()
@@ -169,7 +168,12 @@ namespace TAS.Client.Model
 
         public override void OnMessage(object sender, WebSocketMessageEventArgs e)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} ({1})", DirectoryName, Folder);
         }
     }
 }

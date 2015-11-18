@@ -9,7 +9,7 @@ using TAS.Server.Remoting;
 
 namespace TAS.Client.Model
 {
-    public class MediaManager : DtoBase, IMediaManager
+    public class MediaManager : ProxyBase, IMediaManager
     {
         public void ArchiveMedia(IMedia media, bool deleteAfter)
         {
@@ -53,7 +53,7 @@ namespace TAS.Client.Model
 
         public List<IMediaDirectory> getDirectories()
         {
-            throw new NotImplementedException();
+            return Query<List<MediaDirectory>>().Cast<IMediaDirectory>().ToList();
         }
 
         public IEngine getEngine()
@@ -63,7 +63,7 @@ namespace TAS.Client.Model
 
         public IFileManager getFileManager()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public VideoFormatDescription getFormatDescription()
@@ -93,12 +93,12 @@ namespace TAS.Client.Model
 
         public IServerDirectory getMediaDirectoryPGM()
         {
-            return Client.Query<ServerDirectory>(this);
+            return Query<ServerDirectory>();
         }
 
         public IServerDirectory getMediaDirectoryPRV()
         {
-            throw new NotImplementedException();
+            return Query<ServerDirectory>();
         }
 
         public ObservableSynchronizedCollection<ITemplate> getTemplates()

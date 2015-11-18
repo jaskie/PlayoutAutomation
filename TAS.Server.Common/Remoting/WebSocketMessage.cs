@@ -6,18 +6,21 @@ using System.Text;
 
 namespace TAS.Server.Remoting
 {
-    [JsonObject(MemberSerialization.Fields)]
+    [JsonObject(MemberSerialization.Fields, ItemTypeNameHandling = TypeNameHandling.None)]
     public class WebSocketMessage
     {
         public WebSocketMessage()
         {
             MessageGuid = Guid.NewGuid();
         }
+
         public enum WebSocketMessageType
         {
-            InitalTransfer,
+            RootQuery,
             Query,
-            Response,
+            Invoke,
+            Get,
+            Set,
             Notification
         }
         public readonly Guid MessageGuid;
@@ -26,11 +29,15 @@ namespace TAS.Server.Remoting
         public string MethodName;
         public object[] Parameters;
         public object Response;
-        public void MakeResponse(object response)
+        public void ConvertToResponse(object response)
         {
             Response = response;
-            MessageType = WebSocketMessageType.Response;
             Parameters = null;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("WebSocketMessage: {0}:{1}:{2}", MessageType, MethodName, MessageGuid);
         }
     }
 

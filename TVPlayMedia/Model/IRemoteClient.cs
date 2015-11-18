@@ -10,6 +10,9 @@ namespace TAS.Client.Model
     public interface IRemoteClient
     {
         event EventHandler<WebSocketMessageEventArgs> OnMessage;
-        T Query<T>(DtoBase dto, [CallerMemberName] string methodName = "", params object[] parameters);
+        T Query<T>(ProxyBase dto, [CallerMemberName] string methodName = "", params object[] parameters);
+        void Invoke(ProxyBase dto, [CallerMemberName] string methodName = "", params object[] parameters);
+        T Get<T>(ProxyBase dto, [CallerMemberName] string propertyName = "");
+        void Set(ProxyBase dto, object value, [CallerMemberName] string propertyName = "");
     }
 }

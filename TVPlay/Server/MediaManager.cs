@@ -15,11 +15,12 @@ using TAS.Common;
 using TAS.Data;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
 
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, IncludeExceptionDetailInFaults = true), CallbackBehavior]
+    [JsonObject(MemberSerialization.OptIn)]
     public class MediaManager: IMediaManager
     {
         readonly Guid _guidDto = Guid.NewGuid();
@@ -80,7 +81,7 @@ namespace TAS.Server
             LoadIngestDirs(ConfigurationManager.AppSettings["IngestFolders"]);
             Debug.WriteLine(this, "End initializing");
         }
-
+        [JsonProperty]
         public Guid GuidDto { get { return _guidDto; } }
 
         private List<IIngestDirectory> _ingestDirectories;

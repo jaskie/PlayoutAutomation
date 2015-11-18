@@ -90,7 +90,8 @@ namespace TAS.Client.ViewModels
                         && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
                         && !media.Verified)
                         ThreadPool.QueueUserWorkItem(new WaitCallback( o => media.Verify()));
-                    _previewViewModel.Media = media;
+                    if (_previewViewModel != null)
+                        _previewViewModel.Media = media;
                     EditMedia = _selectedMedia == null ? null : new MediaEditViewmodel(_selectedMedia.Media, _previewViewModel, true);
                 }
             }

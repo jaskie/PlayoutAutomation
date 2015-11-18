@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -20,17 +21,26 @@ namespace TAS.Client
     /// </summary>
     public partial class MainWindow : Window
     {
+        readonly Model.RemoteClient _client;
         public MainWindow()
         {
+#if DEBUG
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en");
+            System.Threading.Thread.Sleep(5000); // wait for server to set up
+#endif
             InitializeComponent();
-            Model.RemoteClient client = new Model.RemoteClient(ConfigurationManager.AppSettings["Host"]);
-            client.Initialize();
-            Model.MediaManager mm = client.GetInitalObject<Model.MediaManager>();
-            MediaManagerViewmodel vm = new MediaManagerViewmodel(mm, null);
-            _windowContent.Content = vm.View;
-
-            
+            try
+            {
+                _client = new Model.RemoteClient(ConfigurationManager.AppSettings["Host"]);
+                _client.Initialize();
+                Model.MediaManager mm = _client.GetInitalObject<Model.MediaManager>();
+                MediaManagerViewmodel vm = new MediaManagerViewmodel(mm, null);
+                _windowContent.Content = vm.View;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
         }
     }
 }

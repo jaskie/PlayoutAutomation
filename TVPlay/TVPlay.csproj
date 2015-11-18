@@ -224,6 +224,7 @@
     <Compile Include="Server\Media\MediaSegment.cs" />
     <Compile Include="Server\Media\PInvokeWindowsNetworking.cs" />
     <Compile Include="Server\Media\TempDirectory.cs" />
+    <Compile Include="Server\Remoting\EngineBehavior.cs" />
     <Compile Include="Server\Remoting\MediaManagerBehavior.cs" />
     <Compile Include="Server\Remoting\RemoteHost.cs" />
     <Compile Include="Server\Template.cs" />

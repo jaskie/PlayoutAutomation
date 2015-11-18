@@ -12,306 +12,55 @@ namespace TAS.Client.Model
 {
     public class Media : Server.Interfaces.IMedia
     {
-        public TAudioChannelMapping AudioChannelMapping
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public TAudioChannelMapping AudioChannelMapping { get; set; }
+        public decimal AudioLevelIntegrated { get; set; }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public decimal AudioLevelPeak { get; set; }
 
-        public decimal AudioLevelIntegrated
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public decimal AudioVolume { get; set; }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public IMediaDirectory Directory { get; }
 
-        public decimal AudioLevelPeak
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public TimeSpan Duration { get; set; }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public TimeSpan DurationPlay { get; set; }
 
-        public decimal AudioVolume
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public string FileName { get; set; }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public ulong FileSize { get; set; }
 
-        public IMediaDirectory Directory
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public string Folder { get; set; }
 
-        public TimeSpan Duration
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public RationalNumber FrameRate { get; set; }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public string FullPath { get; set; }
 
-        public TimeSpan DurationPlay
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public bool HasExtraLines { get; }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public DateTime LastUpdated { get; set; }
 
-        public string FileName
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public TMediaCategory MediaCategory { get; set; }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public Guid MediaGuid { get; }
 
-        public ulong FileSize
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public string MediaName { get; set; }
+        
+        public TMediaStatus MediaStatus { get; set; }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public TMediaType MediaType { get; set; }
+        
+        public TParental Parental { get; set; }
 
-        public string Folder
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public TimeSpan TCPlay { get; set; }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public TimeSpan TCStart { get; set; }
 
-        public RationalNumber FrameRate
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public bool Verified { get; set; }
 
-        public string FullPath
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public TVideoFormat VideoFormat { get; set; }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public bool HasExtraLines
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public DateTime LastUpdated
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TMediaCategory MediaCategory
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public Guid MediaGuid
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public string MediaName
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TMediaStatus MediaStatus
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TMediaType MediaType
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TParental Parental
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TimeSpan TCPlay
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TimeSpan TCStart
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public bool Verified
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TVideoFormat VideoFormat
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public VideoFormatDescription VideoFormatDescription
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
+        public VideoFormatDescription VideoFormatDescription { get; }
+        
         public event PropertyChangedEventHandler PropertyChanged;
 
         public void CloneMediaProperties(IMedia from)

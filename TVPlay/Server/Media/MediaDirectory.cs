@@ -83,6 +83,7 @@ namespace TAS.Server
             }
         }
 
+        [JsonProperty]
         public Guid GuidDto { get { return _idDto; } }
 
         protected virtual void ClearFiles()
@@ -108,7 +109,6 @@ namespace TAS.Server
         private UInt64 _volumeFreeSize = 0;
         
         [XmlIgnore]
-        [JsonProperty]
         public virtual UInt64 VolumeFreeSize
         {
             get { return _volumeFreeSize; }
@@ -124,7 +124,6 @@ namespace TAS.Server
 
         private UInt64 _volumeTotalSize = 0;
         [XmlIgnore]
-        [JsonProperty]
         public virtual UInt64 VolumeTotalSize { get { return _volumeTotalSize; } }
 
         public abstract void Refresh();
@@ -172,7 +171,6 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
         public string DirectoryName { get; set; }
 
         [XmlIgnore]
@@ -510,7 +508,7 @@ namespace TAS.Server
 
         public override string ToString()
         {
-            return DirectoryName + " (" + _folder + ")";
+            return string.Format("{0} ({1})", DirectoryName, Folder);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
