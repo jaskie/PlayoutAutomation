@@ -17,7 +17,7 @@ namespace TAS.Server.Interfaces
         IServerDirectory getMediaDirectoryPGM();
         IServerDirectory getMediaDirectoryPRV();
         IArchiveDirectory getArchiveDirectory();
-        List<IIngestDirectory> getIngestDirectories();
+        List<IIngestDirectory> IngestDirectories { get; }
         ObservableSynchronizedCollection<ITemplate> getTemplates();
         IFileManager getFileManager();
         [OperationContract]
@@ -35,14 +35,14 @@ namespace TAS.Server.Interfaces
         void Export(IEnumerable<MediaExport> exportList, IIngestDirectory directory);
         void Export(MediaExport export, IIngestDirectory directory);
         MediaDeleteDenyReason DeleteMedia(IMedia media);
-        IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList);
+        List<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList);
 
         void ReloadIngestDirs();
 
         void GetLoudness(IEnumerable<IMedia> mediaList);
-        void GetLoudness(IMedia media);
-        void GetLoudness(IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback);
+        void GetLoudnessWithCallback(IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback);
         List<IMediaDirectory> getDirectories();
+        IMedia GetPRVMedia(IMedia media);
 
     }
 }

@@ -18,10 +18,8 @@ using Newtonsoft.Json;
 namespace TAS.Server
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public abstract class MediaDirectory : IMediaDirectory
+    public abstract class MediaDirectory : IMediaDirectory, IDto
     { 
-
-        protected string _folder;
         protected string[] _extensions;
         private FileSystemWatcher _watcher;
         protected ConcurrentHashSet<IMedia> _files = new ConcurrentHashSet<IMedia>();
@@ -145,6 +143,8 @@ namespace TAS.Server
             }
         }
 
+        protected string _folder;
+        [JsonProperty]
         public string Folder
         {
             get { return _folder; }
@@ -171,6 +171,7 @@ namespace TAS.Server
             }
         }
 
+        [JsonProperty]
         public string DirectoryName { get; set; }
 
         [XmlIgnore]
@@ -247,11 +248,11 @@ namespace TAS.Server
                 || _extensions.Count() == 0
                 || _extensions.Any(ext => ext.ToLowerInvariant() == Path.GetExtension(fullPath).ToLowerInvariant()))
             {
-                IMedia newMedia;
+                Media newMedia;
                 _files.Lock.EnterReadLock();
                 try
                 {
-                    newMedia = _files.FirstOrDefault(m => fullPath.Equals(m.FullPath));
+                    newMedia = (Media)_files.FirstOrDefault(m => fullPath.Equals(m.FullPath));
                 }
                 finally
                 {
@@ -260,9 +261,9 @@ namespace TAS.Server
                 if (newMedia == null)
                 {
                     if (guid == default(Guid))
-                        newMedia = CreateMedia(Path.GetFileName(fullPath));
+                        newMedia = (Media)CreateMedia(Path.GetFileName(fullPath));
                     else
-                        newMedia = CreateMedia(Path.GetFileName(fullPath), guid);
+                        newMedia = (Media)CreateMedia(Path.GetFileName(fullPath), guid);
                     newMedia.MediaName = (_extensions == null || _extensions.Length == 0) ? Path.GetFileName(fullPath) : Path.GetFileNameWithoutExtension(fullPath);
                     newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
                     newMedia.MediaType = (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Still : (FileUtils.VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Movie : TMediaType.Unknown;

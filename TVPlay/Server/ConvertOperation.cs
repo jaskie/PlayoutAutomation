@@ -140,16 +140,16 @@ namespace TAS.Server
                 IsIndeterminate = true;
                 try
                 {
-
-                    if (!(SourceMedia is IngestMedia))
-                        throw new Exception("ConvertOperation: source media is not of type IngestMedia");
+                    Media sourceMedia = SourceMedia as IngestMedia;
+                    if (sourceMedia == null)
+                        throw new ArgumentException("ConvertOperation: SourceMedia is not of type IngestMedia");
                     bool success = false;
-                    if (SourceMedia.Directory.AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia _localSourceMedia = Owner.TempDirectory.CreateMedia(SourceMedia))
+                    if (sourceMedia.Directory.AccessType != TDirectoryAccessType.Direct)
+                        using (TempMedia _localSourceMedia = Owner.TempDirectory.CreateMedia(sourceMedia))
                         {
                             _addOutputMessage(string.Format("Copying to local file {0}", _localSourceMedia.FullPath));
                             _localSourceMedia.PropertyChanged += _localSourceMedia_PropertyChanged;
-                            if (SourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
+                            if (sourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
                             {
                                 _addOutputMessage("Verifing local file");
                                 _localSourceMedia.Verify();
@@ -171,7 +171,7 @@ namespace TAS.Server
 
                     else
                     {
-                        success = _do(SourceMedia);
+                        success = _do(sourceMedia);
                         if (!success)
                             TryCount--;
                         return success;
@@ -258,7 +258,7 @@ namespace TAS.Server
             return ep.ToString();
         }
 
-        private bool _do(IMedia inputMedia)
+        private bool _do(Media inputMedia)
         {
             _progressDuration = inputMedia.Duration;
             Debug.WriteLine(this, "Convert operation started");

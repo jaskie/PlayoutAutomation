@@ -16,6 +16,7 @@ namespace TAS.Client.ViewModels
         private IEvent _event;
         private readonly IEngine _engine;
         private readonly IPlayoutServerChannel _channelPRV;
+        private readonly IMediaManager _mediaManager;
         private static readonly int _sliderMaximum = 100;
         public PreviewViewmodel(IEngine engine)
         {
@@ -23,6 +24,7 @@ namespace TAS.Client.ViewModels
             engine.ServerPropertyChanged += this.OnServerPropertyChanged;
             _channelPRV = engine.PlayoutChannelPRV;
             _engine = engine;
+            _mediaManager = engine.MediaManager;
             CreateCommands();
         }
 
@@ -42,7 +44,7 @@ namespace TAS.Client.ViewModels
             {
                 if (_channelPRV != null)
                 {
-                    IMedia newVal = _channelPRV.OwnerServer.MediaDirectory.FindMedia(value);
+                    IMedia newVal = _mediaManager.GetPRVMedia(value);
                     if (SetField(ref _media, newVal, "Media"))
                     {
                         _event = null;

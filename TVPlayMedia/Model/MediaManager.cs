@@ -13,12 +13,12 @@ namespace TAS.Client.Model
     {
         public void ArchiveMedia(IMedia media, bool deleteAfter)
         {
-            throw new NotImplementedException();
+            Invoke(parameters: new object[] { media, deleteAfter });
         }
 
-        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList)
+        public List<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList)
         {
-            throw new NotImplementedException();
+            return Query<List<MediaDeleteDenyReason>>(parameters: mediaList);
         }
 
         public MediaDeleteDenyReason DeleteMedia(IMedia media)
@@ -28,12 +28,12 @@ namespace TAS.Client.Model
 
         public void Export(MediaExport export, IIngestDirectory directory)
         {
-            throw new NotImplementedException();
+            Invoke(parameters: new object[] { export, directory });
         }
 
         public void Export(IEnumerable<MediaExport> exportList, IIngestDirectory directory)
         {
-            throw new NotImplementedException();
+            Invoke(parameters: new object[] { exportList, directory });
         }
 
         public IAnimationDirectory getAnimationDirectoryPGM()
@@ -71,22 +71,18 @@ namespace TAS.Client.Model
             throw new NotImplementedException();
         }
 
-        public List<IIngestDirectory> getIngestDirectories()
+        public List<IIngestDirectory> IngestDirectories
         {
-            throw new NotImplementedException();
-        }
-
-        public void GetLoudness(IMedia media)
-        {
-            throw new NotImplementedException();
+            get { return Get<List<Model.IngestDirectory>>().Cast<IIngestDirectory>().ToList(); }
+            internal set { Set(value); }
         }
 
         public void GetLoudness(IEnumerable<IMedia> mediaList)
         {
-            throw new NotImplementedException();
+            Invoke(parameters: mediaList);
         }
 
-        public void GetLoudness(IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
+        public void GetLoudnessWithCallback(IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
         {
             throw new NotImplementedException();
         }
@@ -99,6 +95,11 @@ namespace TAS.Client.Model
         public IServerDirectory getMediaDirectoryPRV()
         {
             return Query<ServerDirectory>();
+        }
+
+        public IMedia GetPRVMedia(IMedia media)
+        {
+            return Query<Media>(parameters: media);
         }
 
         public ObservableSynchronizedCollection<ITemplate> getTemplates()

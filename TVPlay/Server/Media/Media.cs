@@ -13,11 +13,12 @@ using System.Runtime.Remoting.Messaging;
 using TAS.FFMpegUtils;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
-
-    public abstract class Media : IMedia
+    [JsonObject(MemberSerialization.OptIn)]
+    public abstract class Media : IMedia, IDto
     {
 
         public Media(MediaDirectory directory)
@@ -27,10 +28,10 @@ namespace TAS.Server
             directory.MediaAdd(this);
         }
 
-        public Media(MediaDirectory directory, Guid guid)
+        public Media(MediaDirectory directory, Guid mediaGuid)
         {
             _directory = directory;
-            _mediaGuid = guid;
+            _mediaGuid = mediaGuid;
             directory.MediaAdd(this);
         }
 
@@ -43,12 +44,14 @@ namespace TAS.Server
 
         // file properties
         protected string _folder = string.Empty;
+        [JsonProperty()]
         public string Folder
         {
             get { return _folder; }
             set { SetField(ref _folder, value, "Folder"); }
         }
         protected string _fileName = string.Empty;
+        [JsonProperty]
         public string FileName
         {
             get { return _fileName; }
@@ -66,6 +69,7 @@ namespace TAS.Server
         }
 
         protected UInt64 _fileSize;
+        [JsonProperty]
         public UInt64 FileSize 
         {
             get { return _fileSize; }
@@ -73,6 +77,7 @@ namespace TAS.Server
         }
 
         protected DateTime _lastUpdated;
+        [JsonProperty]
         public DateTime LastUpdated
         {
             get { return _lastUpdated; }
@@ -96,6 +101,7 @@ namespace TAS.Server
 
         // media parameters
         protected string _mediaName;
+        [JsonProperty]
         public virtual string MediaName
         {
             get { return _mediaName; }
@@ -103,6 +109,7 @@ namespace TAS.Server
         }
 
         protected TMediaType _mediaType;
+        [JsonProperty]
         public virtual TMediaType MediaType
         {
             get { return _mediaType; }
@@ -110,30 +117,35 @@ namespace TAS.Server
         }
 
         protected TimeSpan _duration;
+        [JsonProperty]
         public virtual TimeSpan Duration
         {
             get { return _duration; }
             set { SetField(ref _duration, value, "Duration"); }
         }
         protected TimeSpan _durationPlay;
+        [JsonProperty]
         public virtual TimeSpan DurationPlay
         {
             get { return _durationPlay; }
             set { SetField(ref _durationPlay, value, "DurationPlay"); }
         }
         protected TimeSpan _tCStart;
+        [JsonProperty]
         public virtual TimeSpan TCStart 
         {
             get { return _tCStart; }
             set { SetField(ref _tCStart, value, "TCStart"); }
         }
         protected TimeSpan _tCPlay;
+        [JsonProperty]
         public virtual TimeSpan TCPlay
         {
             get { return _tCPlay; }
             set { SetField(ref _tCPlay, value, "TCPlay"); }
         }
         protected TVideoFormat _videoFormat;
+        [JsonProperty]
         public virtual TVideoFormat VideoFormat
         {
             get { return _videoFormat; }
@@ -144,12 +156,14 @@ namespace TAS.Server
             }
         }
         protected TAudioChannelMapping _audioChannelMapping;
+        [JsonProperty]
         public virtual TAudioChannelMapping AudioChannelMapping 
         {
             get { return _audioChannelMapping; }
             set { SetField(ref _audioChannelMapping, value, "AudioChannelMapping"); }
         }
         protected decimal _audioVolume;
+        [JsonProperty]
         public virtual decimal AudioVolume // correction amount on play
         {
             get { return _audioVolume; }
@@ -157,6 +171,7 @@ namespace TAS.Server
         }
 
         protected decimal _audioLevelIntegrated;
+        [JsonProperty]
         public virtual decimal AudioLevelIntegrated //measured
         {
             get { return _audioLevelIntegrated; }
@@ -164,6 +179,7 @@ namespace TAS.Server
         }
 
         protected decimal _audioLevelPeak;
+        [JsonProperty]
         public virtual decimal AudioLevelPeak //measured
         {
             get { return _audioLevelPeak; }
@@ -171,6 +187,7 @@ namespace TAS.Server
         }
 
         protected TMediaCategory _mediaCategory;
+        [JsonProperty]
         public virtual TMediaCategory MediaCategory
         {
             get { return _mediaCategory; }
@@ -178,6 +195,7 @@ namespace TAS.Server
         }
 
         protected TParental _parental;
+        [JsonProperty]
         public virtual TParental Parental
         {
             get { return _parental; }
@@ -185,6 +203,7 @@ namespace TAS.Server
         }
 
         protected readonly Guid _mediaGuid;
+        [JsonProperty]
         public virtual Guid MediaGuid
         {
             get { return _mediaGuid; }
@@ -194,6 +213,7 @@ namespace TAS.Server
         public bool HasExtraLines { get { return _hasExtraLines; } }
 
         protected VideoFormatDescription _videoFormatDescription;
+        [JsonProperty]
         public VideoFormatDescription VideoFormatDescription
         {
             get
@@ -212,6 +232,7 @@ namespace TAS.Server
             get { return _directory; }
         }
 
+        [JsonProperty]
         public string FullPath
         {
             get
@@ -281,7 +302,7 @@ namespace TAS.Server
             return new FileStream(FullPath, forWrite ? FileMode.Create : FileMode.Open);
         }
 
-        public virtual bool CopyMediaTo(IMedia destMedia, ref bool abortCopy)
+        public virtual bool CopyMediaTo(Media destMedia, ref bool abortCopy)
         {
             bool copyResult = true;
             if (_directory.AccessType == TDirectoryAccessType.Direct && destMedia.Directory.AccessType == TDirectoryAccessType.Direct)
@@ -370,6 +391,11 @@ namespace TAS.Server
 
         public RationalNumber FrameRate { get { return VideoFormatDescription.FrameRate; } }
 
+        private readonly Guid _guidDto = Guid.NewGuid();
+
+        [JsonProperty]
+        public Guid GuidDto { get { return _guidDto; } }
+
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public virtual void Verify()
         {
@@ -414,7 +440,7 @@ namespace TAS.Server
             }
         }
 
-        public void GetLoudness(TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
+        public void GetLoudnessWithCallback(TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
         {
             _directory.MediaManager.Queue(new LoudnessOperation() { SourceMedia = this, AudioVolumeMeasured = audioVolumeMeasuredCallback, MeasureStart = startTime, MeasureDuration = duration, FailureCallback = finishCallback, SuccessCallback = finishCallback }, true);
         }
@@ -434,17 +460,6 @@ namespace TAS.Server
                 handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
-    }
-
-    public class MediaStatusEventArgs : EventArgs
-    {
-        public MediaStatusEventArgs(TMediaStatus NewStatus, TMediaStatus OldStatus)
-        {
-            newStatus = NewStatus;
-            oldStatus = OldStatus;
-        }
-        public TMediaStatus newStatus { get; private set; }
-        public TMediaStatus oldStatus { get; private set; }
     }
 
 }

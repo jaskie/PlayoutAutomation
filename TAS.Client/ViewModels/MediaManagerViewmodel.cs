@@ -150,7 +150,7 @@ namespace TAS.Client.ViewModels
 
         bool _canExport(object o)
         {
-            return (_mediaDirectory is IServerDirectory || _mediaDirectory is IArchiveDirectory) && _isSomethingSelected(o) && _mediaManager.getIngestDirectories().Any(d => d.IsXDCAM);
+            return (_mediaDirectory is IServerDirectory || _mediaDirectory is IArchiveDirectory) && _isSomethingSelected(o) && _mediaManager.IngestDirectories.Any(d => d.IsXDCAM);
         }
         
         private void _createCommands()

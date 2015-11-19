@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using WebSocketSharp.Server;
 
 namespace TAS.Server.Remoting
 {
-    public class MediaManagerBehavior: WebSocketBehavior
+    public class MediaManagerBehavior : WebSocketBehavior
     {
         readonly MediaManager _mediaManager;
         public MediaManagerBehavior(MediaManager mediaManager)
@@ -34,14 +35,15 @@ namespace TAS.Server.Remoting
                 _dtos[_mediaManager.GuidDto] = _mediaManager;
             }
             else // method of particular object
-            { 
+            {
                 if (_dtos.ContainsKey(message.DtoGuid))
                 {
                     object objectToInvoke = _dtos[message.DtoGuid];
                     if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query
                         || message.MessageType == WebSocketMessage.WebSocketMessageType.Invoke)
                     {
-                        MethodInfo methodToInvoke = objectToInvoke.GetType().GetMethod(message.MethodName);
+                        _convertParameters(ref message.Parameters);
+                        MethodInfo methodToInvoke = objectToInvoke.GetType().GetMethod(message.MethodName, message.Parameters.Select(p => p.GetType()).ToArray());
                         if (methodToInvoke != null)
                         {
                             object response = methodToInvoke.Invoke(objectToInvoke, message.Parameters);
@@ -53,7 +55,7 @@ namespace TAS.Server.Remoting
                             }
                         }
                     }
-                    else 
+                    else
                     if (message.MessageType == WebSocketMessage.WebSocketMessageType.Get
                         || message.MessageType == WebSocketMessage.WebSocketMessageType.Set)
                     {
@@ -78,9 +80,20 @@ namespace TAS.Server.Remoting
                         }
                     }
                 }
+                else
+                    throw new JsonSerializationException(string.Format("Unknown DTO: {0}", message.DtoGuid));
             }
         }
-        
+
+        static JsonSerializerSettings deserializeSettings = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore};
+
+        void _convertParameters(ref object[] input)
+        {
+            for (int i = 0; i < input.Length; i++)
+                if (input[i] is JContainer)
+                    input[i] = _dtos[JsonConvert.DeserializeObject<ReceivedDto>((input[i] as JContainer).First.ToString(), deserializeSettings).GuidDto];
+        }
+
         protected override void OnError(ErrorEventArgs e)
         {
             Debug.WriteLine(e.Exception);

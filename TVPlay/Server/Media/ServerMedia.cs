@@ -9,10 +9,11 @@ using System.Diagnostics;
 using TAS.Common;
 using TAS.Data;
 using TAS.Server.Interfaces;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
-    
+    [JsonObject(MemberSerialization.OptIn)]
     public class ServerMedia: PersistentMedia, IServerMedia
     {
 
@@ -25,6 +26,7 @@ namespace TAS.Server
         private bool _isPGM;
         public bool IsPGM { get { return _isPGM; } set { if (value) _isPGM = true; } } //one way to true only possible
         internal bool _doNotArchive;
+        [JsonProperty]
         public bool DoNotArchive
         {
             get { return _doNotArchive; }

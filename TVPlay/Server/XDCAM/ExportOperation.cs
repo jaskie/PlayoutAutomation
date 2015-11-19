@@ -83,7 +83,7 @@ namespace TAS.Server.XDCAM
                         {
                             _progressFileSize = (UInt64)(new FileInfo(localDestMedia.FullPath)).Length;
                             _addOutputMessage(string.Format("Transfering file to device as {0}", DestMedia.FileName));
-                            result = localDestMedia.CopyMediaTo(DestMedia, ref _aborted);
+                            result = localDestMedia.CopyMediaTo((Media)DestMedia, ref _aborted);
                         }
                     }
                     finally

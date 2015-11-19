@@ -1,19 +1,18 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace TAS.Server.Remoting
 {
-    [JsonObject(MemberSerialization.Fields, ItemTypeNameHandling = TypeNameHandling.None)]
+    [DataContract]
     public class WebSocketMessage
     {
         public WebSocketMessage()
         {
             MessageGuid = Guid.NewGuid();
         }
-
         public enum WebSocketMessageType
         {
             RootQuery,
@@ -23,11 +22,17 @@ namespace TAS.Server.Remoting
             Set,
             Notification
         }
+        [DataMember]
         public readonly Guid MessageGuid;
+        [DataMember]
         public Guid DtoGuid;
+        [DataMember]
         public WebSocketMessageType MessageType;
+        [DataMember]
         public string MethodName;
+        [DataMember]
         public object[] Parameters;
+        [DataMember]
         public object Response;
         public void ConvertToResponse(object response)
         {

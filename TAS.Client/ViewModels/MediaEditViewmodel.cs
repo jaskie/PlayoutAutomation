@@ -85,7 +85,7 @@ namespace TAS.Client.ViewModels
             if (_isVolumeChecking)
                 return;
             IsVolumeChecking = true;
-            Model.GetLoudness(
+            Model.GetLoudnessWithCallback(
                 this.TCPlay - this.TCStart,
                 this.DurationPlay,
                 (obj, e) =>

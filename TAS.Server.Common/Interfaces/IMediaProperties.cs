@@ -14,8 +14,8 @@ namespace TAS.Server.Interfaces
         string FileName { get; set; }
         ulong FileSize { get; set; }
         string Folder { get; set; }
-        string FullPath { get; set; }
-        DateTime LastUpdated { get; set; }
+        string FullPath { get; }
+        DateTime LastUpdated { get; }
         TMediaCategory MediaCategory { get; set; }
         TParental Parental { get; set; }
         Guid MediaGuid { get; }

@@ -51,10 +51,13 @@ namespace TAS.Server
                 {
 
                     bool success = false;
-                    if (SourceMedia.Directory.AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia _localSourceMedia = Owner.TempDirectory.CreateMedia(SourceMedia))
+                    Media sourceMedia = SourceMedia as Media;
+                    if (sourceMedia == null)
+                        throw new ArgumentException("LoudnessOperation: SourceMedia is not of type Media");
+                    if (sourceMedia.Directory.AccessType != TDirectoryAccessType.Direct)
+                        using (TempMedia _localSourceMedia = Owner.TempDirectory.CreateMedia(sourceMedia))
                         {
-                            if (SourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
+                            if (sourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
                             {
                                 success = _do(_localSourceMedia);
                                 if (!success)
@@ -67,7 +70,7 @@ namespace TAS.Server
 
                     else
                     {
-                        success = _do(SourceMedia);
+                        success = _do(sourceMedia);
                         if (!success)
                             TryCount--;
                         return success;

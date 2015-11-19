@@ -159,7 +159,7 @@ namespace TAS.Server
                             {
                                 DestMedia.MediaStatus = TMediaStatus.Copying;
                                 IsIndeterminate = true;
-                                if (!SourceMedia.CopyMediaTo(DestMedia, ref _aborted))
+                                if (!((Media)SourceMedia).CopyMediaTo((Media)DestMedia, ref _aborted))
                                     return false;
                             }
                             DestMedia.MediaStatus = TMediaStatus.Copied;

@@ -10,9 +10,11 @@ using TAS.Common;
 using TAS.Data;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public abstract class PersistentMedia: Media, IPersistentMedia
     {
         public PersistentMedia(MediaDirectory directory) : base(directory) { }
@@ -22,6 +24,7 @@ namespace TAS.Server
         // media properties
 
         internal DateTime _killDate;
+        [JsonProperty]
         public DateTime KillDate
         {
             get { return _killDate; }
@@ -29,8 +32,10 @@ namespace TAS.Server
         }
 
         // content properties
+        [JsonProperty]
         public UInt64 idProgramme { get; set; }
         internal string _idAux;
+        [JsonProperty]
         public string IdAux
         {
             get { return _idAux; }
@@ -38,6 +43,7 @@ namespace TAS.Server
         } // auxiliary Id from external system
 
         internal TMediaEmphasis _mediaEmphasis;
+        [JsonProperty]
         public TMediaEmphasis MediaEmphasis
         {
             get { return _mediaEmphasis; }

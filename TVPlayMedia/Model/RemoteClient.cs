@@ -104,7 +104,7 @@ namespace TAS.Client.Model
                    _messageHandler.WaitOne(query_timeout);
                    if (_messages.TryRemove(messageGuid, out response))
                    {
-                       responseObject = (response.Response is Newtonsoft.Json.Linq.JContainer) ?  JsonConvert.DeserializeObject<T>(response.Response.ToString()) : (T)Convert.ChangeType(response.Response, typeof(T));
+                       responseObject = DeserializeObject<T>(response.Response);
                        if (responseObject is ProxyBase)
                            (responseObject as ProxyBase).SetClient(this);
                        if (responseObject is System.Collections.IEnumerable)
@@ -122,6 +122,22 @@ namespace TAS.Client.Model
             return resultFunc.EndInvoke(funcAsyncResult);
         }
 
+        private T DeserializeObject<T>(object o)
+        {
+            if (o is Newtonsoft.Json.Linq.JContainer)
+                return JsonConvert.DeserializeObject<T>(o.ToString());
+            //Type resultType = typeof(T);
+            T result = default(T);
+            if (result is Enum)
+                result = (T)Enum.Parse(typeof(T), o.ToString());
+            else
+            if (result is Guid)
+                result = (T)(object)(new Guid((string)o));
+            else
+                result = (T)Convert.ChangeType(o, typeof(T));
+            return result;
+        }
+
         public T GetInitalObject<T>()
         {
             WebSocketMessage query = new WebSocketMessage() { MessageType = WebSocketMessage.WebSocketMessageType.RootQuery };
@@ -129,7 +145,7 @@ namespace TAS.Client.Model
             return WaitForResponse<T>(query.MessageGuid);
         }
 
-        public T Query<T>(ProxyBase dto, [CallerMemberName] string methodName = "", params object[] parameters)
+        public T Query<T>(ProxyBase dto, string methodName, params object[] parameters)
         {
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.Query, MethodName = methodName, Parameters = parameters };
             Debug.WriteLine(query, "Query");
@@ -137,7 +153,7 @@ namespace TAS.Client.Model
             return WaitForResponse<T>(query.MessageGuid);
         }
 
-        public T Get<T>(ProxyBase dto, [CallerMemberName] string propertyName = "")
+        public T Get<T>(ProxyBase dto, string propertyName)
         {
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.Get, MethodName = propertyName};
             Debug.WriteLine(query, "Get");
@@ -145,16 +161,16 @@ namespace TAS.Client.Model
             return WaitForResponse<T>(query.MessageGuid);
         }
 
-        public void Invoke(ProxyBase dto, [CallerMemberName] string methodName = "", params object[] parameters)
+        public void Invoke(ProxyBase dto, string methodName, params object[] parameters)
         {
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.Invoke, MethodName = methodName, Parameters = parameters };
             Debug.WriteLine(query, "Invoke");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
         }
 
-        public void Set(ProxyBase dto, object value, [CallerMemberName] string propertyName = "")
+        public void Set(ProxyBase dto, object value, string propertyName)
         {
-            WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.Invoke, MethodName = propertyName, Parameters = new object[] { value} };
+            WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.Set, MethodName = propertyName, Parameters = new object[] { value} };
             Debug.WriteLine(query, "Set");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
         }

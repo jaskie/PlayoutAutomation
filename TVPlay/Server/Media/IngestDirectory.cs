@@ -365,7 +365,7 @@ namespace TAS.Server
 
         private IMedia _addFileFromFTP(string fileNameOnly)
         {
-            IMedia newMedia = CreateMedia(fileNameOnly);
+            Media newMedia = (Media)CreateMedia(fileNameOnly);
             if (IsXDCAM)
             {
                 newMedia.Folder = "Clip";

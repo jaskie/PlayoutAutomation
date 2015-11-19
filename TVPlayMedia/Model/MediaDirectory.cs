@@ -19,8 +19,8 @@ namespace TAS.Client.Model
         {
         }
         public TDirectoryAccessType AccessType { get; set; }
-        public string DirectoryName { get { return Get<string>(); } set { } }
-        public string[] Extensions { get { return Get<string[]>(); } set { } }
+        public string DirectoryName { get { return Get<string>(); } set { Set(value); } }
+        public string[] Extensions { get; set; }
         public List<IMedia> Files
         {
             get
@@ -29,76 +29,32 @@ namespace TAS.Client.Model
             }
         }
 
-        public string Folder { get { return Get<string>(); } set { } }
+        public string Folder { get { return Get<string>(); } set { Set(value); } }
 
         public bool IsInitialized { get; set; }
 
-        public NetworkCredential NetworkCredential
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public NetworkCredential NetworkCredential { get { return null; } }
 
-        public string Password
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public string Password { get; set; }
+        
+        public string Username { get; set; }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public ulong VolumeFreeSize { get { return Get<ulong>(); } internal set { Set(value); } }
 
-        public string Username
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public ulong VolumeFreeSize { get { return Get<ulong>(); } set { } }
-
-        public ulong VolumeTotalSize { get { return Get<ulong>(); } set { } }
+        public ulong VolumeTotalSize { get { return Get<ulong>(); } internal set { Set(value); } }
 
         public event EventHandler<MediaEventArgs> MediaAdded;
         public event EventHandler<MediaEventArgs> MediaRemoved;
         public event EventHandler<MediaEventArgs> MediaVerified;
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public bool DeleteMedia(IMedia media)
         {
-            throw new NotImplementedException();
+            return Query<bool>(parameters: new object[] { media });
         }
 
         public bool FileExists(string filename, string subfolder = null)
         {
-            throw new NotImplementedException();
-        }
-
-        public List<IMedia> FindMedia(Func<IMedia, bool> condition)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IMedia FindMedia(Guid mediaGuid)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IMedia FindMedia(IMedia media)
-        {
-            throw new NotImplementedException();
+            return Query<bool>(parameters: new object[] { filename, subfolder });
         }
 
         public void Initialize()

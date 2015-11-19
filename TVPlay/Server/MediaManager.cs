@@ -85,10 +85,13 @@ namespace TAS.Server
         public Guid GuidDto { get { return _guidDto; } }
 
         private List<IIngestDirectory> _ingestDirectories;
-        public List<IIngestDirectory> getIngestDirectories()
+        public List<IIngestDirectory> IngestDirectories
         {
-            lock (_ingestDirsSyncObject)
-                return _ingestDirectories.ToList();
+            get
+            {
+                lock (_ingestDirsSyncObject)
+                    return _ingestDirectories.ToList();
+            }
         }
 
         private bool _ingestDirectoriesLoaded = false;
@@ -294,9 +297,9 @@ namespace TAS.Server
             return reason;
         }
 
-        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList)
+        public List<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList)
         {
-            return mediaList.Select(m => DeleteMedia(m));
+            return mediaList.Select(m => DeleteMedia(m)).ToList();
         }
 
         public void GetLoudness(IMedia media)
@@ -304,9 +307,9 @@ namespace TAS.Server
             media.GetLoudness();
         }
 
-        public void GetLoudness(IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
+        public void GetLoudnessWithCallback(IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
         {
-            media.GetLoudness(startTime, duration, audioVolumeMeasuredCallback, finishCallback);
+            media.GetLoudnessWithCallback(startTime, duration, audioVolumeMeasuredCallback, finishCallback);
         }
 
         public void GetLoudness(IEnumerable<IMedia> mediaList)
@@ -350,9 +353,9 @@ namespace TAS.Server
             if (_engine.PlayoutChannelPGM != null && _engine.PlayoutChannelPRV != null && _engine.PlayoutChannelPGM.OwnerServer != _engine.PlayoutChannelPRV.OwnerServer)
             {
                 if ((originalMedia.Directory as ServerDirectory).Server == _engine.PlayoutChannelPGM.OwnerServer && _engine.PlayoutChannelPRV != null)
-                    return (ServerMedia)_engine.PlayoutChannelPRV.OwnerServer.MediaDirectory.FindMedia(originalMedia);
+                    return (ServerMedia)((MediaDirectory)_engine.PlayoutChannelPRV.OwnerServer.MediaDirectory).FindMedia(originalMedia);
                 if ((originalMedia.Directory as ServerDirectory).Server == _engine.PlayoutChannelPRV.OwnerServer && _engine.PlayoutChannelPGM != null)
-                    return (ServerMedia)_engine.PlayoutChannelPGM.OwnerServer.MediaDirectory.FindMedia(originalMedia);
+                    return (ServerMedia)((MediaDirectory)_engine.PlayoutChannelPGM.OwnerServer.MediaDirectory).FindMedia(originalMedia);
             }
             return null;
         }
@@ -382,7 +385,7 @@ namespace TAS.Server
                 {
                     if (pGMmedia.MediaStatus == TMediaStatus.Available && pGMmedia.FileExists())
                     {
-                        IServerMedia pRVmedia = (ServerMedia)MediaDirectoryPRV.FindMedia(pGMmedia);
+                        ServerMedia pRVmedia = (ServerMedia)((MediaDirectory)MediaDirectoryPRV).FindMedia(pGMmedia);
                         if (pRVmedia == null)
                         {
                             pRVmedia = (ServerMedia)MediaDirectoryPRV.Files.FirstOrDefault((m) => m.FileExists() && m.FileSize == pGMmedia.FileSize && m.FileName == pGMmedia.FileName && m.LastUpdated.DateTimeEqualToDays(pGMmedia.LastUpdated)); 
@@ -393,7 +396,7 @@ namespace TAS.Server
                             }
                             else
                             {
-                                pRVmedia = MediaDirectoryPRV.GetServerMedia(pGMmedia, true);
+                                pRVmedia = (ServerMedia)MediaDirectoryPRV.GetServerMedia(pGMmedia, true);
                                 _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = pGMmedia, DestMedia = pRVmedia });
                             }
                         }
@@ -448,7 +451,7 @@ namespace TAS.Server
         {
             var nameLowered = fileName.ToLower();
             IServerMedia dest;
-            if ((dest  = (ServerMedia)(MediaDirectoryPGM.FindMedia(m => Path.GetFileNameWithoutExtension(m.FileName).ToLower() == nameLowered).FirstOrDefault())) != null)
+            if ((dest  = (ServerMedia)(((MediaDirectory)MediaDirectoryPGM).FindMedia(m => Path.GetFileNameWithoutExtension(m.FileName).ToLower() == nameLowered).FirstOrDefault())) != null)
                 return dest.MediaGuid;
             foreach (IngestDirectory dir in _ingestDirectories)
             {
@@ -502,10 +505,18 @@ namespace TAS.Server
                 && MediaDirectoryPRV.IsInitialized
                 && !e.Media.FileExists())
             {
-                IMedia media = MediaDirectoryPRV.FindMedia(e.Media);
+                IMedia media = ((MediaDirectory)MediaDirectoryPRV).FindMedia(e.Media);
                 if (media != null && media.MediaStatus == TMediaStatus.Available)
                     Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = media });
             }
+        }
+
+        public IMedia GetPRVMedia(IMedia media)
+        {
+            if (MediaDirectoryPRV != null)
+                return ((ServerDirectory)MediaDirectoryPRV).FindMedia(media);
+            else
+                return null;
         }
     }
 

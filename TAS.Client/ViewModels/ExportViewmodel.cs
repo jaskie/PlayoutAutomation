@@ -19,7 +19,7 @@ namespace TAS.Client.ViewModels
         public ExportViewmodel(IMediaManager mediaManager, IEnumerable<MediaExport> exportList)
         {
             Items = new ObservableCollection<MediaExportViewmodel>(exportList.Select(m => new MediaExportViewmodel(m)));
-            Directories = mediaManager.getIngestDirectories().Where(d => d.IsXDCAM).ToList();
+            Directories = mediaManager.IngestDirectories.Where(d => d.IsXDCAM).ToList();
             SelectedDirectory = Directories.FirstOrDefault();
             CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
             _mediaManager = mediaManager;

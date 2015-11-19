@@ -651,7 +651,7 @@ namespace TAS.Client.ViewModels
             if (_media == null)
                 return;
             IsVolumeChecking = true;
-            _event.Media.GetLoudness(
+            _event.Media.GetLoudnessWithCallback(
                 _event.StartTC - _media.TCStart,
                 _event.Duration,
                 (o, e) =>

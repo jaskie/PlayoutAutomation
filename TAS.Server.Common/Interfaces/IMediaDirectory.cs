@@ -10,10 +10,7 @@ namespace TAS.Server.Interfaces
 {
     public interface IMediaDirectory: IMediaDirectoryConfig, IDto, INotifyPropertyChanged, IDisposable
     {
-        IMedia FindMedia(IMedia media);
-        IMedia FindMedia(Guid mediaGuid);
         bool FileExists(string filename, string subfolder = null);
-        List<IMedia> FindMedia(Func<IMedia, bool> condition);
         TDirectoryAccessType AccessType { get; }
         System.Net.NetworkCredential NetworkCredential { get; }
         void MediaAdd(IMedia media);

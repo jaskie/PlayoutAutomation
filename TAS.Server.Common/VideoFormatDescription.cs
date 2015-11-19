@@ -7,6 +7,7 @@ using System.Text;
 
 namespace TAS.Common
 {
+    [DataContract]
     public sealed class VideoFormatDescription
     {
         [DataMember]
@@ -192,6 +193,8 @@ namespace TAS.Common
             SAR = sar;
         }
 
+        private VideoFormatDescription() { }
+
 
         public static Dictionary<TVideoFormat, VideoFormatDescription> Descriptions = new Dictionary<TVideoFormat, VideoFormatDescription>()
         {
@@ -232,7 +235,6 @@ namespace TAS.Common
                                                                 && v.Interlaced == interlaced);
             return result != null ? result : new VideoFormatDescription(imageSize, frameRate, sar, interlaced);
         }
-
 
         public TimeSpan FrameDuration { get { return FrameRate.IsInvalid ? TimeSpan.Zero : new TimeSpan(TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num); } }
         public long FrameTicks { get { return FrameRate.IsInvalid ? 0L : TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num; } }

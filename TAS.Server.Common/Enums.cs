@@ -212,7 +212,7 @@ namespace TAS.Common
         { }
     }
     [TypeConverter(typeof(TMediaStatusEnumConverter))]
-    public enum TMediaStatus
+    public enum TMediaStatus: byte
     {
         Unknown,
         Available,
@@ -230,6 +230,7 @@ namespace TAS.Common
             : base(typeof(TMediaStatus), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
+    
 
     [TypeConverter(typeof(TMediaErrorInfoEnumConverter))]
     public enum TMediaErrorInfo

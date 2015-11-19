@@ -638,11 +638,11 @@ namespace TAS.Server
                 Guid mediaGuid = _mediaGuid;
                 if (media == null && mediaGuid != Guid.Empty)
                 {
-                    IMediaDirectory dir;
+                    MediaDirectory dir;
                     if (_eventType == TEventType.AnimationFlash)
-                        dir = Engine.MediaManager.getAnimationDirectoryPGM();
+                        dir = (MediaDirectory)Engine.MediaManager.getAnimationDirectoryPGM();
                     else
-                        dir = Engine.MediaManager.getMediaDirectoryPGM();
+                        dir = (MediaDirectory)Engine.MediaManager.getMediaDirectoryPGM();
                     if (dir != null)
                     {
                         var newMedia = dir.FindMedia(mediaGuid);
@@ -667,11 +667,11 @@ namespace TAS.Server
                 var media = _serverMediaPRV;
                 if ((media == null || media.MediaStatus == TMediaStatus.Deleted) && mediaGuid != Guid.Empty)
                 {
-                    IMediaDirectory dir;
+                    MediaDirectory dir;
                     if (_eventType == TEventType.AnimationFlash)
-                        dir = Engine.MediaManager.getAnimationDirectoryPRV();
+                        dir = (MediaDirectory)Engine.MediaManager.getAnimationDirectoryPRV();
                     else
-                        dir = Engine.MediaManager.getMediaDirectoryPRV();
+                        dir = (MediaDirectory)Engine.MediaManager.getMediaDirectoryPRV();
                     if (dir != null)
                     {
                         var newMedia = dir.FindMedia(mediaGuid);
