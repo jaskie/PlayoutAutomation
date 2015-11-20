@@ -46,6 +46,19 @@ namespace TAS.Client.ViewModels
             if (previewVm != null)
                 _previewView = new PreviewView(previewVm.FrameRate) { DataContext = previewVm };
             _createCommands();
+
+            _mediaDirectories = new List<IMediaDirectory>();
+            mediaManager.IngestDirectories.ForEach(d => _mediaDirectories.Add(d));
+            IArchiveDirectory archiveDirectory = mediaManager.getArchiveDirectory();
+            if (archiveDirectory != null)
+                _mediaDirectories.Insert(0, archiveDirectory);
+            IServerDirectory serverDirectoryPGM = mediaManager.getMediaDirectoryPGM();
+            if (serverDirectoryPGM != null)
+                _mediaDirectories.Insert(0, serverDirectoryPGM);
+            IServerDirectory serverDirectoryPRV = mediaManager.getMediaDirectoryPRV();
+            if (serverDirectoryPRV.GuidDto!= serverDirectoryPGM.GuidDto)
+                _mediaDirectories.Insert(1, serverDirectoryPRV);
+
             _mediaCategory = _mediaCategories.FirstOrDefault();
             MediaDirectory = mediaManager.getMediaDirectoryPGM();
             _view = new MediaManagerView() { DataContext = this };
@@ -252,7 +265,7 @@ namespace TAS.Client.ViewModels
                         }
                         else
                             foreach (IConvertOperation operation in ingestList)
-                                operation.DestMedia.Remove();
+                                operation.DestMedia.Delete();
                     }
                 }
             }
@@ -374,7 +387,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public List<IMediaDirectory> MediaDirectories { get { return _mediaManager.getDirectories(); } }
+        readonly List<IMediaDirectory> _mediaDirectories;
+        public List<IMediaDirectory> MediaDirectories { get { return _mediaDirectories; } }
 
         private IMediaDirectory _mediaDirectory;
 

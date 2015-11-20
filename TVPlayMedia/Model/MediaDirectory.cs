@@ -21,7 +21,7 @@ namespace TAS.Client.Model
         public TDirectoryAccessType AccessType { get; set; }
         public string DirectoryName { get { return Get<string>(); } set { Set(value); } }
         public string[] Extensions { get; set; }
-        public List<IMedia> Files
+        public virtual List<IMedia> Files
         {
             get
             {
@@ -49,7 +49,7 @@ namespace TAS.Client.Model
 
         public bool DeleteMedia(IMedia media)
         {
-            return Query<bool>(parameters: new object[] { media });
+            return Query<bool>(parameters: media );
         }
 
         public bool FileExists(string filename, string subfolder = null)
@@ -121,11 +121,6 @@ namespace TAS.Client.Model
             // GC.SuppressFinalize(this);
         }
         #endregion
-
-        public override void OnMessage(object sender, WebSocketMessageEventArgs e)
-        {
-            //throw new NotImplementedException();
-        }
 
         public override string ToString()
         {

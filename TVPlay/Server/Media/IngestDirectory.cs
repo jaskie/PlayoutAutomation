@@ -11,6 +11,7 @@ using System.Collections;
 using System.Threading;
 using System.Net.FtpClient;
 using TAS.Server.Interfaces;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
@@ -71,26 +72,36 @@ namespace TAS.Server
         
         public string EncodeParams {get; set;}
         
+        [JsonProperty]
         public bool IsXDCAM { get; set; }
 
+        [JsonProperty]
         public bool IsWAN { get; set; }
 
+        [JsonProperty]
         public TxDCAMAudioExportFormat XDCAMAudioExportFormat { get; set; }
 
+        [JsonProperty]
         public TxDCAMVideoExportFormat XDCAMVideoExportFormat { get; set; }
 
+        [JsonProperty]
         public bool MediaDoNotArchive { get; set; }
 
         public int MediaRetnentionDays { get; set; }
 
+        [JsonProperty]
         public TMediaCategory MediaCategory { get; set; }
 
+        [JsonProperty]
         public decimal AudioVolume { get; set; }
 
+        [JsonProperty]
         public TFieldOrder SourceFieldOrder { get; set; }
 
+        [JsonProperty]
         public TAspectConversion AspectConversion { get; set; }
 
+        [JsonProperty]
         public string Filter
         {
             get { return _filter; }

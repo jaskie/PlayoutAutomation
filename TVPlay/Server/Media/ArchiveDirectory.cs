@@ -171,7 +171,7 @@ namespace TAS.Server
             IArchiveMedia toMedia = GetArchiveMedia(media);
             if (media is ServerMedia)
             {
-                _archiveCopy(media, toMedia, deleteAfterSuccess, false);
+                _archiveCopy((Media)media, (Media)toMedia, deleteAfterSuccess, false);
             }
             if (media is IngestMedia)
             {
@@ -182,7 +182,7 @@ namespace TAS.Server
         public void ArchiveRestore(IArchiveMedia media, IServerMedia mediaPGM, bool toTop)
         {
             if (mediaPGM != null)
-                _archiveCopy(media, mediaPGM, false, toTop);
+                _archiveCopy((Media)media, (Media)mediaPGM, false, toTop);
         }
 
         internal string GetCurrentFolder()
@@ -190,7 +190,7 @@ namespace TAS.Server
             return DateTime.UtcNow.ToString("yyyyMM"); 
         }
 
-        private void _archiveCopy(IMedia fromMedia, IMedia toMedia, bool deleteAfterSuccess, bool toTop)
+        private void _archiveCopy(Media fromMedia, Media toMedia, bool deleteAfterSuccess, bool toTop)
         {
             if (fromMedia.MediaGuid == toMedia.MediaGuid && fromMedia.FilePropertiesEqual(toMedia))
             {

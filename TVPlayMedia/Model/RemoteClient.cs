@@ -20,7 +20,8 @@ namespace TAS.Client.Model
         readonly string _address;
         WebSocket _clientSocket;
         AutoResetEvent _messageHandler = new AutoResetEvent(false);
-        ConcurrentDictionary<Guid, WebSocketMessage> _messages = new ConcurrentDictionary<Guid, WebSocketMessage>();
+        ConcurrentDictionary<Guid, WebSocketMessage> _receivedMessages = new ConcurrentDictionary<Guid, WebSocketMessage>();
+        ConcurrentDictionary<Guid, IDto> _knownObjects = new ConcurrentDictionary<Guid, IDto>();
         const int query_timeout = 5000;
 
         public event EventHandler<WebSocketMessageEventArgs> OnMessage;
@@ -70,8 +71,8 @@ namespace TAS.Client.Model
 
         private void _clientSocket_OnMessage(object sender, MessageEventArgs e)
         {
-            WebSocketMessage message =  JsonConvert.DeserializeObject<WebSocketMessage>(e.Data);
-            if (message.MessageType== WebSocketMessage.WebSocketMessageType.Notification)
+            WebSocketMessage message = JsonConvert.DeserializeObject<WebSocketMessage>(e.Data);
+            if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventNotification)
             {
                 var h = OnMessage;
                 if (h != null)
@@ -79,7 +80,7 @@ namespace TAS.Client.Model
             }
             else
             {
-                _messages[message.MessageGuid] = message;
+                _receivedMessages[message.MessageGuid] = message;
                 _messageHandler.Set();
                 Debug.WriteLine(message, "Received");
             }
@@ -92,6 +93,30 @@ namespace TAS.Client.Model
                 h(this, EventArgs.Empty);
         }
 
+        private void _registerDtos<T>(ref T response)
+        {
+            IDto responseDto = response as IDto;
+            if (responseDto != null)
+            {
+                IDto existingValue;
+                if (_knownObjects.TryGetValue(responseDto.GuidDto, out existingValue))
+                    response = (T)existingValue;
+                else
+                {
+                    _knownObjects.TryAdd(responseDto.GuidDto, responseDto);
+                    if (responseDto is ProxyBase)
+                        (responseDto as ProxyBase).SetClient(this);
+                }
+            }
+            if (response is System.Collections.IEnumerable)
+                foreach (var o in response as System.Collections.IEnumerable)
+                {
+                    responseDto = o as IDto;
+                    if (responseDto is ProxyBase)
+                        (responseDto as ProxyBase).SetClient(this);
+                }
+        }
+
         private T WaitForResponse<T>(Guid messageGuid)
         {
             Func<T> resultFunc = new Func<T>(() =>
@@ -102,15 +127,10 @@ namespace TAS.Client.Model
                do
                {
                    _messageHandler.WaitOne(query_timeout);
-                   if (_messages.TryRemove(messageGuid, out response))
+                   if (_receivedMessages.TryRemove(messageGuid, out response))
                    {
                        responseObject = DeserializeObject<T>(response.Response);
-                       if (responseObject is ProxyBase)
-                           (responseObject as ProxyBase).SetClient(this);
-                       if (responseObject is System.Collections.IEnumerable)
-                           foreach (var o in responseObject as System.Collections.IEnumerable)
-                               if (o is ProxyBase)
-                                   (o as ProxyBase).SetClient(this);
+                       _registerDtos(ref responseObject);
                        return responseObject;
                    }
                }
@@ -134,7 +154,10 @@ namespace TAS.Client.Model
             if (result is Guid)
                 result = (T)(object)(new Guid((string)o));
             else
-                result = (T)Convert.ChangeType(o, typeof(T));
+            if (typeof(T) == typeof(TimeSpan))
+                result = (T)(object)TimeSpan.Parse((string)o, System.Globalization.CultureInfo.InvariantCulture);
+            else
+            result = (T)Convert.ChangeType(o, typeof(T));
             return result;
         }
 
@@ -147,7 +170,7 @@ namespace TAS.Client.Model
 
         public T Query<T>(ProxyBase dto, string methodName, params object[] parameters)
         {
-            WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.Query, MethodName = methodName, Parameters = parameters };
+            WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.Query, MemberName = methodName, Parameters = parameters };
             Debug.WriteLine(query, "Query");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
             return WaitForResponse<T>(query.MessageGuid);
@@ -155,7 +178,7 @@ namespace TAS.Client.Model
 
         public T Get<T>(ProxyBase dto, string propertyName)
         {
-            WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.Get, MethodName = propertyName};
+            WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.Get, MemberName = propertyName};
             Debug.WriteLine(query, "Get");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
             return WaitForResponse<T>(query.MessageGuid);
@@ -163,18 +186,31 @@ namespace TAS.Client.Model
 
         public void Invoke(ProxyBase dto, string methodName, params object[] parameters)
         {
-            WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.Invoke, MethodName = methodName, Parameters = parameters };
+            WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.Invoke, MemberName = methodName, Parameters = parameters };
             Debug.WriteLine(query, "Invoke");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
         }
 
         public void Set(ProxyBase dto, object value, string propertyName)
         {
-            WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.Set, MethodName = propertyName, Parameters = new object[] { value} };
+            WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.Set, MemberName = propertyName, Parameters = new object[] { value} };
             Debug.WriteLine(query, "Set");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
         }
 
+        public void EventAdd(ProxyBase dto, [CallerMemberName] string eventName = "")
+        {
+            WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.EventAdd, MemberName = eventName };
+            Debug.WriteLine(query, "EventAdd");
+            _clientSocket.Send(JsonConvert.SerializeObject(query));
+        }
+
+        public void EventRemove(ProxyBase dto, [CallerMemberName] string eventName = "")
+        {
+            WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.GuidDto, MessageType = WebSocketMessage.WebSocketMessageType.EventRemove, MemberName = eventName };
+            Debug.WriteLine(query, "EventRemove");
+            _clientSocket.Send(JsonConvert.SerializeObject(query));
+        }
 
     }
 

@@ -197,22 +197,6 @@ namespace TAS.Server
             }
         }
 
-        public List<IMediaDirectory> getDirectories()
-        {
-            List<IMediaDirectory> dl = new List<IMediaDirectory>();
-            lock (_ingestDirsSyncObject)
-                if (_ingestDirectoriesLoaded)
-                    foreach (IngestDirectory d in _ingestDirectories)
-                        dl.Add(d);
-            if (ArchiveDirectory != null)
-                dl.Insert(0, ArchiveDirectory);
-            if (_engine.PlayoutChannelPRV != null && _engine.PlayoutChannelPRV.OwnerServer != _engine.PlayoutChannelPGM.OwnerServer)
-                dl.Insert(0, _engine.PlayoutChannelPRV.OwnerServer.MediaDirectory);
-            if (_engine.PlayoutChannelPGM != null)
-                dl.Insert(0, _engine.PlayoutChannelPGM.OwnerServer.MediaDirectory);
-            return dl;
-        }
-
         public void IngestMediaToPlayout(IMedia media, bool toTop = false)
         {
             if (media != null)

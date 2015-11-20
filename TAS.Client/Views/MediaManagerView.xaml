@@ -208,7 +208,7 @@
         <Grid Grid.Column="1" Grid.Row="1" Grid.RowSpan="3" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="300" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <ContentControl Content="{Binding EditMedia.Editor}" />
             <GridSplitter Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>

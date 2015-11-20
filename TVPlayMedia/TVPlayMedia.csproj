@@ -118,6 +118,7 @@
     <Compile Include="Model\ArchiveDirectory.cs" />
     <Compile Include="Model\ArchiveMedia.cs" />
     <Compile Include="Model\IngestDirectory.cs" />
+    <Compile Include="Model\IngestMedia.cs" />
     <Compile Include="Model\PersistentMedia.cs" />
     <Compile Include="Model\ProxyBase.cs" />
     <Compile Include="Model\IRemoteClient.cs" />

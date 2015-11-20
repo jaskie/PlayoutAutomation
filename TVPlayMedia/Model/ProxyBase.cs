@@ -17,10 +17,11 @@ namespace TAS.Client.Model
     {
         [JsonProperty]
         public Guid GuidDto { get; set; }
-        public abstract void OnMessage(object sender, WebSocketMessageEventArgs e);
         IRemoteClient _client;
         internal void SetClient(IRemoteClient client)
         {
+            if (_client != null)
+                return;
             client.OnMessage += OnMessage;
             _client = client;
             Debug.WriteLine(this, "Client assigned");
@@ -34,7 +35,11 @@ namespace TAS.Client.Model
 
             var client = _client;
             if (client != null)
-                return client.Get<T>(this, propertyName);
+            {
+                result = client.Get<T>(this, propertyName);
+                _properties[propertyName] = result;
+                return (T)result;
+            }
             return default(T);
         }
 
@@ -60,10 +65,56 @@ namespace TAS.Client.Model
             return default(T);
         }
 
+        public virtual void OnMessage(object sender, WebSocketMessageEventArgs e)
+        {
+            if (e.Message.DtoGuid == GuidDto)
+            {
+                Debug.WriteLine("OnMessage received {0}:{1}", this, e.Message.MemberName);
+                if (e.Message.MemberName == "PropertyChanged")
+                {
+                    PropertyChangedEventArgs ea = JsonConvert.DeserializeObject<PropertyChangedEventArgs>(e.Message.Response.ToString());
+                    NotifyPropertyChanged(ea.PropertyName);
+                    object o;
+                    _properties.TryRemove(ea.PropertyName, out o);
+                }
+            }
+        }
+
+        void NotifyPropertyChanged(string propertyName)
+        {
+            var h = _propertyChanged;
+            if (h != null)
+                h(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         private ConcurrentDictionary<string, object> _properties = new ConcurrentDictionary<string, object>();
 
         private event PropertyChangedEventHandler _propertyChanged;
-        public event PropertyChangedEventHandler PropertyChanged { add { _propertyChanged += value; } remove { _propertyChanged -= value; } }
+        public event PropertyChangedEventHandler PropertyChanged
+        {
+            add
+            {
+                var h = _propertyChanged;
+                if (h == null || h.GetInvocationList().Length == 0)
+                {
+                    var client = _client;
+                    if (client != null)
+                        client.EventAdd(this);
+                }
+                _propertyChanged += value;
+            }
+            remove
+            {
+                _propertyChanged -= value;
+                var h = _propertyChanged;
+                if (h == null || h.GetInvocationList().Length == 0)
+                {
+                    var client = _client;
+                    if (client != null)
+                        client.EventRemove(this);
+                }
+            }
+        }
 
 
     }

@@ -86,7 +86,7 @@ namespace TAS.Server
 
         protected virtual void ClearFiles()
         {
-            _files.ToList().ForEach(m => m.Remove());
+            _files.ToList().ForEach(m => ((Media)m).Remove());
         }
 
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]

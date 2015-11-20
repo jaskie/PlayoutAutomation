@@ -10,10 +10,8 @@ namespace TAS.Server.Interfaces
     {
         IMediaDirectory Directory { get; }
         bool FileExists();
-        bool FilePropertiesEqual(IMedia m);
         bool Delete();
         void Verify();
-        void Remove();
         RationalNumber FrameRate { get; }
         void GetLoudnessWithCallback(TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback);
         void GetLoudness();

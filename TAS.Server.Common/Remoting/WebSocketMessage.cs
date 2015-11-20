@@ -20,7 +20,9 @@ namespace TAS.Server.Remoting
             Invoke,
             Get,
             Set,
-            Notification
+            EventAdd,
+            EventRemove,
+            EventNotification
         }
         [DataMember]
         public readonly Guid MessageGuid;
@@ -28,8 +30,11 @@ namespace TAS.Server.Remoting
         public Guid DtoGuid;
         [DataMember]
         public WebSocketMessageType MessageType;
+        /// <summary>
+        /// Object member (method, property or event) name
+        /// </summary>
         [DataMember]
-        public string MethodName;
+        public string MemberName;
         [DataMember]
         public object[] Parameters;
         [DataMember]
@@ -42,7 +47,7 @@ namespace TAS.Server.Remoting
 
         public override string ToString()
         {
-            return string.Format("WebSocketMessage: {0}:{1}:{2}", MessageType, MethodName, MessageGuid);
+            return string.Format("WebSocketMessage: {0}:{1}:{2}", MessageType, MemberName, MessageGuid);
         }
     }
 

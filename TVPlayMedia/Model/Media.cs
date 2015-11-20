@@ -12,16 +12,18 @@ using TAS.Server.Remoting;
 
 namespace TAS.Client.Model
 {
+    [JsonObject]
     public class Media : ProxyBase, Server.Interfaces.IMedia
     {
-        public TAudioChannelMapping AudioChannelMapping { get; set; }
+        public TAudioChannelMapping AudioChannelMapping { get { return Get<TAudioChannelMapping>(); } set { Set(value); } }
+
         public decimal AudioLevelIntegrated { get { return Get<decimal>(); } set { Set(value); } }
 
         public decimal AudioLevelPeak { get { return Get<decimal>(); } set { Set(value); } }
 
         public decimal AudioVolume { get { return Get<decimal>(); } set { Set(value); } }
 
-        public IMediaDirectory Directory { get ; }
+        public virtual IMediaDirectory Directory { get { return Get<MediaDirectory>(); }  set { Set(value); } }
 
         public TimeSpan Duration { get { return Get<TimeSpan>(); } set { Set(value); } }
 
@@ -33,17 +35,17 @@ namespace TAS.Client.Model
 
         public string Folder { get { return Get<string>(); } set { Set(value); } }
 
-        public RationalNumber FrameRate { get { return Get<RationalNumber>(); } }
+        public RationalNumber FrameRate { get { return Get<RationalNumber>(); } set { Set(value); } }
 
-        public string FullPath { get { return Get<string>(); } internal set { Set(value); } }
+        public string FullPath { get { return Get<string>(); } set { Set(value); } }
 
-        public bool HasExtraLines { get { return Get<bool>(); } internal set { Set(value); } }
+        public bool HasExtraLines { get { return Get<bool>(); } set { Set(value); } }
 
-        public DateTime LastUpdated { get { return Get<DateTime>(); } internal set { Set(value); } }
+        public DateTime LastUpdated { get { return Get<DateTime>(); } set { Set(value); } }
 
         public TMediaCategory MediaCategory { get { return Get<TMediaCategory>(); } set { Set(value); } }
 
-        public Guid MediaGuid { get { return Get<Guid>(); } internal set { Set(value); } }
+        public Guid MediaGuid { get { return Get<Guid>(); } set { Set(value); } }
 
         public string MediaName { get { return Get<string>(); } set { Set(value); } }
 
@@ -61,36 +63,21 @@ namespace TAS.Client.Model
 
         public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { Set(value); } }
 
-        public VideoFormatDescription VideoFormatDescription { get { return Get<VideoFormatDescription>(); } internal set { Set(value); } }
-
-        public bool CopyMediaTo(IMedia destMedia, ref bool abortCopy)
-        {
-            throw new NotImplementedException();
-        }
+        public VideoFormatDescription VideoFormatDescription { get { return Get<VideoFormatDescription>(); } set { Set(value); } }
 
         public bool Delete()
         {
-            throw new NotImplementedException();
+            return Query<bool>();
         }
 
         public bool FileExists()
         {
-            throw new NotImplementedException();
-        }
-
-        public bool FilePropertiesEqual(IMedia m)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Stream GetFileStream(bool forWrite)
-        {
-            throw new NotImplementedException();
+            return Query<bool>();
         }
 
         public void GetLoudness()
         {
-            throw new NotImplementedException();
+            Invoke();
         }
 
         public void GetLoudnessWithCallback(TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
@@ -98,19 +85,9 @@ namespace TAS.Client.Model
             throw new NotImplementedException();
         }
 
-        public override void OnMessage(object sender, WebSocketMessageEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Remove()
-        {
-            throw new NotImplementedException();
-        }
-
         public void Verify()
         {
-            throw new NotImplementedException();
+            Invoke();
         }
     }
 }

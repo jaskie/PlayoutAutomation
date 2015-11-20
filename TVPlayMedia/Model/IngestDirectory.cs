@@ -177,5 +177,14 @@ namespace TAS.Client.Model
                 Set(value);
             }
         }
+
+        public override List<IMedia> Files
+        {
+            get
+            {
+                return Get<List<IngestMedia>>().Cast<IMedia>().ToList();
+            }
+        }
+
     }
 }

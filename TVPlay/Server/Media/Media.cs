@@ -275,6 +275,7 @@ namespace TAS.Server
         }
 
         protected TMediaStatus _mediaStatus;
+        [JsonProperty]
         public TMediaStatus MediaStatus
         {
             get { return _mediaStatus; }
@@ -389,6 +390,7 @@ namespace TAS.Server
             set { _verified = value; }
         }
 
+        [JsonProperty]
         public RationalNumber FrameRate { get { return VideoFormatDescription.FrameRate; } }
 
         private readonly Guid _guidDto = Guid.NewGuid();

@@ -48,12 +48,7 @@ namespace TAS.Client.Model
 
         public IArchiveDirectory getArchiveDirectory()
         {
-            throw new NotImplementedException();
-        }
-
-        public List<IMediaDirectory> getDirectories()
-        {
-            return Query<List<MediaDirectory>>().Cast<IMediaDirectory>().ToList();
+            return Query<ArchiveDirectory>();
         }
 
         public IEngine getEngine()
@@ -74,7 +69,7 @@ namespace TAS.Client.Model
         public List<IIngestDirectory> IngestDirectories
         {
             get { return Get<List<Model.IngestDirectory>>().Cast<IIngestDirectory>().ToList(); }
-            internal set { Set(value); }
+            set { Set(value); }
         }
 
         public void GetLoudness(IEnumerable<IMedia> mediaList)
@@ -129,7 +124,7 @@ namespace TAS.Client.Model
 
         public void IngestMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false)
         {
-            throw new NotImplementedException();
+            Invoke(parameters: new object[] { mediaList, ToTop });
         }
 
         public void IngestMediaToPlayout(IMedia media, bool toTop = false)
@@ -138,11 +133,6 @@ namespace TAS.Client.Model
         }
 
         public void Initialize()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void OnMessage(object sender, WebSocketMessageEventArgs e)
         {
             throw new NotImplementedException();
         }

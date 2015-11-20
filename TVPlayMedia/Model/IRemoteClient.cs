@@ -14,5 +14,7 @@ namespace TAS.Client.Model
         void Invoke(ProxyBase dto, [CallerMemberName] string methodName = "", params object[] parameters);
         T Get<T>(ProxyBase dto, [CallerMemberName] string propertyName = "");
         void Set(ProxyBase dto, object value, [CallerMemberName] string propertyName = "");
+        void EventAdd(ProxyBase dto, [CallerMemberName] string eventName = "");
+        void EventRemove(ProxyBase dto, [CallerMemberName] string eventName = "");
     }
 }

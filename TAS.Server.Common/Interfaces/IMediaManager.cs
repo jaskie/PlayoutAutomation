@@ -41,7 +41,6 @@ namespace TAS.Server.Interfaces
 
         void GetLoudness(IEnumerable<IMedia> mediaList);
         void GetLoudnessWithCallback(IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback);
-        List<IMediaDirectory> getDirectories();
         IMedia GetPRVMedia(IMedia media);
 
     }

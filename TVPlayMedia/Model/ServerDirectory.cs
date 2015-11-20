@@ -10,7 +10,16 @@ namespace TAS.Client.Model
     {
         public IServerMedia GetServerMedia(IMedia media, bool searchExisting = true)
         {
-            throw new NotImplementedException();
+            return Query<ServerMedia>(parameters: new object[] { media, searchExisting });
         }
+
+        public override List<IMedia> Files
+        {
+            get
+            {
+                return Get<List<ServerMedia>>().Cast<IMedia>().ToList();
+            }
+        }
+
     }
 }

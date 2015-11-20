@@ -59,5 +59,13 @@ namespace TAS.Client.Model
         {
             Invoke();
         }
+
+        public override List<IMedia> Files
+        {
+            get
+            {
+                return Get<List<ArchiveMedia>>().Cast<IMedia>().ToList();
+            }
+        }
     }
 }
