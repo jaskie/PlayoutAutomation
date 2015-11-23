@@ -7,13 +7,11 @@ using TAS.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IFileOperation: IComparable, INotifyPropertyChanged
+    public interface IFileOperation: INotifyPropertyChanged, IDto
     {
         TFileOperationKind Kind { get; set; }
         IMedia SourceMedia { get; set; }
         IMedia DestMedia { get; set; }
-        Action SuccessCallback { get; set; }
-        Action FailureCallback { get; set; }
         DateTime ScheduledTime { get; }
         DateTime StartTime { get; }
         DateTime FinishedTime { get; }
@@ -24,7 +22,6 @@ namespace TAS.Server.Interfaces
         bool Aborted { get; set; }
         List<string> OperationOutput { get; }
         List<string> OperationWarning { get; }
-        bool Do();
         void Fail();
     }
 }

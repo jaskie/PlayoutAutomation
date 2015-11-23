@@ -9,9 +9,11 @@ using System.Threading;
 using TAS.Common;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class FileManager: IFileManager
     {
         private SynchronizedCollection<IFileOperation> _queueSimpleOperation = new SynchronizedCollection<IFileOperation>();
@@ -24,6 +26,14 @@ namespace TAS.Server
         public event EventHandler<FileOperationEventArgs> OperationAdded;
         public event EventHandler<FileOperationEventArgs> OperationCompleted;
 
+        public IConvertOperation CreateConvertOperation() { return new ConvertOperation(); }
+        public ILoudnessOperation CreateLoudnessOperation() { return new LoudnessOperation(); }
+        public IFileOperation CreateFileOperation() { return new FileOperation(); }
+
+        private readonly Guid _guidDto = Guid.NewGuid();
+        [JsonProperty]
+        public Guid GuidDto { get { return _guidDto; } }
+        
         public TempDirectory TempDirectory;
         public IEnumerable<IFileOperation> OperationQueue
         {
@@ -102,9 +112,9 @@ namespace TAS.Server
 
         private void _runOperation(SynchronizedCollection<IFileOperation> queue, ref bool queueRunningIndicator)
         {
-            IFileOperation op;
+            FileOperation op;
             lock (queue.SyncRoot)
-                op = queue.FirstOrDefault();
+                op = queue.FirstOrDefault() as FileOperation;
             while (op != null)
             {
                 queue.Remove(op);
@@ -133,7 +143,7 @@ namespace TAS.Server
                     }
                 }
                 lock (queue.SyncRoot)
-                    op = queue.FirstOrDefault();
+                    op = queue.FirstOrDefault() as FileOperation;
             }
             lock (queue.SyncRoot)
                 queueRunningIndicator = false;

@@ -1,4 +1,4 @@
-﻿//#undef DEBUG
+﻿#undef DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -156,7 +156,9 @@ namespace TAS.Server
             }
         }
         protected TAudioChannelMapping _audioChannelMapping;
+
         [JsonProperty]
+        [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public virtual TAudioChannelMapping AudioChannelMapping 
         {
             get { return _audioChannelMapping; }
@@ -227,6 +229,8 @@ namespace TAS.Server
         }
         
         protected readonly MediaDirectory _directory;
+
+        [JsonIgnore]
         public IMediaDirectory Directory
         {
             get { return _directory; }

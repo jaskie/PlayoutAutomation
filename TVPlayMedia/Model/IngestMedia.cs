@@ -8,6 +8,5 @@ namespace TAS.Client.Model
 {
     public class IngestMedia: Media, IIngestMedia
     {
-        public override IMediaDirectory Directory { get { return Get<IngestDirectory>(); } set { Set(value); } }
     }
 }

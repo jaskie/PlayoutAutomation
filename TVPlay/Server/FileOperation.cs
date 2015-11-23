@@ -9,12 +9,15 @@ using System.Text.RegularExpressions;
 using TAS.Common;
 using System.Threading;
 using TAS.Server.Interfaces;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class FileOperation : IFileOperation
     {
+        [JsonProperty]
         public TFileOperationKind Kind { get; set; }
         public IMedia SourceMedia { get; set; }
         public IMedia DestMedia { get; set; }
@@ -27,7 +30,13 @@ namespace TAS.Server
             _addOutputMessage("Operation scheduled");
         }
 
+        private readonly Guid _guidDto = Guid.NewGuid();
+
+        [JsonProperty]
+        public Guid GuidDto { get { return _guidDto; } }
+
         private int _tryCount = 15;
+        [JsonProperty]
         public int TryCount
         {
             get { return _tryCount; }
@@ -35,6 +44,7 @@ namespace TAS.Server
         }
         
         private int _progress;
+        [JsonProperty]
         public int Progress
         {
             get { return _progress; }
@@ -46,14 +56,17 @@ namespace TAS.Server
             }
         }
 
+        [JsonProperty]
         public DateTime ScheduledTime { get; private set; }
         private DateTime _startTime;
+        [JsonProperty]
         public DateTime StartTime
         {
             get { return _startTime; }
             protected set { SetField(ref _startTime, value, "StartTime"); }
         }
         private DateTime _finishedTime;
+        [JsonProperty]
         public DateTime FinishedTime 
         {
             get { return _finishedTime; }
@@ -61,6 +74,7 @@ namespace TAS.Server
         }
 
         private FileOperationStatus _operationStatus;
+        [JsonProperty]
         public FileOperationStatus OperationStatus
         {
             get { return _operationStatus; }
@@ -86,6 +100,7 @@ namespace TAS.Server
         }
 
         private bool _isIndeterminate;
+        [JsonProperty]
         public bool IsIndeterminate
         {
             get { return _isIndeterminate; }
@@ -94,6 +109,7 @@ namespace TAS.Server
 
 
         protected bool _aborted;
+        [JsonProperty]
         public bool Aborted
         {
             get { return _aborted; }
@@ -109,6 +125,7 @@ namespace TAS.Server
         }
 
         private SynchronizedCollection<string> _operationOutput = new SynchronizedCollection<string>();
+        [JsonProperty]
         public List<string> OperationOutput { get { lock (_operationOutput.SyncRoot) return _operationOutput.ToList(); } }
         protected void _addOutputMessage(string message)
         {
@@ -117,6 +134,7 @@ namespace TAS.Server
         }
 
         private SynchronizedCollection<string> _operationWarning = new SynchronizedCollection<string>();
+        [JsonProperty]
         public List<string> OperationWarning { get { lock (_operationWarning.SyncRoot) return _operationWarning.ToList(); } }
         protected void _addWarningMessage(string message)
         {

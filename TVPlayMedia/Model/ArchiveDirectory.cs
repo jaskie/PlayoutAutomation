@@ -9,31 +9,9 @@ namespace TAS.Client.Model
 {
     public class ArchiveDirectory : MediaDirectory, IArchiveDirectory
     {
-        public TMediaCategory? SearchMediaCategory
-        {
-            get
-            {
-                return Get<TMediaCategory?>();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public string SearchString
-        {
-            get
-            {
-                return Get<string>();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public TMediaCategory? SearchMediaCategory { get { return Get<TMediaCategory?>(); } set { Set(value); } }
+        
+        public string SearchString { get { return Get<string>(); } set { Set(value); } }
 
         public void ArchiveRestore(IArchiveMedia media, IServerMedia mediaPGM, bool toTop)
         {
@@ -47,13 +25,18 @@ namespace TAS.Client.Model
 
         public IArchiveMedia Find(IMedia media)
         {
-            return Query<ArchiveMedia>(parameters: new object[] { media });
+            var ret =  Query<ArchiveMedia>(parameters: new object[] { media });
+            ret.Directory = this;
+            return ret;
         }
 
         public IArchiveMedia GetArchiveMedia(IMedia media, bool searchExisting = true)
         {
-            return Query<ArchiveMedia>(parameters: new object[] { media, searchExisting });
+            var ret = Query<ArchiveMedia>(parameters: new object[] { media, searchExisting });
+            ret.Directory = this;
+            return ret;
         }
+
 
         public void Search()
         {
@@ -64,7 +47,9 @@ namespace TAS.Client.Model
         {
             get
             {
-                return Get<List<ArchiveMedia>>().Cast<IMedia>().ToList();
+                var list = Get<List<ArchiveMedia>>();
+                list.ForEach(m => m.Directory = this);
+                return list.Cast<IMedia>().ToList(); ;
             }
         }
     }

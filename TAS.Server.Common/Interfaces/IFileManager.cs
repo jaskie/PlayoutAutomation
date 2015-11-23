@@ -6,9 +6,12 @@ using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IFileManager
+    public interface IFileManager: IDto
     {
         IEnumerable<IFileOperation> OperationQueue { get; }
+        IConvertOperation CreateConvertOperation();
+        ILoudnessOperation CreateLoudnessOperation();
+        IFileOperation CreateFileOperation();
         event EventHandler<FileOperationEventArgs> OperationAdded;
         event EventHandler<FileOperationEventArgs> OperationCompleted;
     }

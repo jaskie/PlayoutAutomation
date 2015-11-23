@@ -17,7 +17,9 @@ namespace TAS.Client.Model
         {
             get
             {
-                return Get<List<ServerMedia>>().Cast<IMedia>().ToList();
+                var list = Get<List<ServerMedia>>();
+                list.ForEach(m => m.Directory = this);
+                return list.Cast<IMedia>().ToList(); ;
             }
         }
 

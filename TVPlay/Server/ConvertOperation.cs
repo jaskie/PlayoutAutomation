@@ -16,10 +16,12 @@ using TAS.FFMpegUtils;
 using TAS.Common;
 using resources = TAS.Client.Common.Properties.Resources;
 using TAS.Server.Interfaces;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
-    public class ConvertOperation : FFMpegOperation
+    [JsonObject(MemberSerialization.OptIn)]
+    public class ConvertOperation : FFMpegOperation, IConvertOperation
     {
         
         #region Properties
@@ -112,12 +114,15 @@ namespace TAS.Server
         #endregion // Checkfile
 
         private TAspectConversion _aspectConversion;
+        [JsonProperty]
         public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value, "AspectConversion"); } }
 
         private TAudioChannelMappingConversion _audioChannelMappingConversion;
+        [JsonProperty]
         public TAudioChannelMappingConversion AudioChannelMappingConversion { get { return _audioChannelMappingConversion; } set { SetField(ref _audioChannelMappingConversion, value, "AudioChannelMappingConversion"); } }
 
         private decimal _audioVolume;
+        [JsonProperty]
         public decimal AudioVolume
         {
             get { return _audioVolume; }
@@ -125,9 +130,11 @@ namespace TAS.Server
         }
 
         private TFieldOrder _sourceFieldOrderEnforceConversion;
+        [JsonProperty]
         public TFieldOrder SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { SetField(ref _sourceFieldOrderEnforceConversion, value, "SourceFieldOrderEnforceConversion"); } }
 
         private TVideoFormat _outputFormat;
+        [JsonProperty]
         public TVideoFormat OutputFormat { get { return _outputFormat; } set { SetField(ref _outputFormat, value, "OutputFormat"); } }
 
 

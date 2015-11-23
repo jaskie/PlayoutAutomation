@@ -65,6 +65,20 @@ namespace TAS.Client.Model
             return default(T);
         }
 
+        protected void EventAdd([CallerMemberName] string eventName = null)
+        {
+            var client = _client;
+            if (client != null)
+                client.EventAdd(this, eventName);
+        }
+
+        protected void EventRemove([CallerMemberName] string eventName = null)
+        {
+            var client = _client;
+            if (client != null)
+                client.EventRemove(this, eventName);
+        }
+
         public virtual void OnMessage(object sender, WebSocketMessageEventArgs e)
         {
             if (e.Message.DtoGuid == GuidDto)
@@ -96,11 +110,7 @@ namespace TAS.Client.Model
             {
                 var h = _propertyChanged;
                 if (h == null || h.GetInvocationList().Length == 0)
-                {
-                    var client = _client;
-                    if (client != null)
-                        client.EventAdd(this);
-                }
+                    EventAdd();
                 _propertyChanged += value;
             }
             remove
@@ -108,11 +118,7 @@ namespace TAS.Client.Model
                 _propertyChanged -= value;
                 var h = _propertyChanged;
                 if (h == null || h.GetInvocationList().Length == 0)
-                {
-                    var client = _client;
-                    if (client != null)
-                        client.EventRemove(this);
-                }
+                    EventRemove();
             }
         }
 

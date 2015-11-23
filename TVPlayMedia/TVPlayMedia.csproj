@@ -112,13 +112,17 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\ConvertOperation.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Model\ArchiveDirectory.cs" />
     <Compile Include="Model\ArchiveMedia.cs" />
+    <Compile Include="Model\FileManager.cs" />
+    <Compile Include="Model\FileOperation.cs" />
     <Compile Include="Model\IngestDirectory.cs" />
     <Compile Include="Model\IngestMedia.cs" />
+    <Compile Include="Model\LoudnessOperation.cs" />
     <Compile Include="Model\PersistentMedia.cs" />
     <Compile Include="Model\ProxyBase.cs" />
     <Compile Include="Model\IRemoteClient.cs" />

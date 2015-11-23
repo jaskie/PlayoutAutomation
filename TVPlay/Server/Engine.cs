@@ -391,7 +391,7 @@ namespace TAS.Server
                 && media != null 
                 && media.MediaType == TMediaType.Movie 
                 && ArchivePolicy == Engine.ArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
-                && MediaManager.getArchiveDirectory() != null
+                && MediaManager.ArchiveDirectory != null
                 && CanDeleteMedia(media).Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
                 ThreadPool.QueueUserWorkItem(o => MediaManager.ArchiveMedia(media, true));
                 aEvent.Saved -= _eventSaved;

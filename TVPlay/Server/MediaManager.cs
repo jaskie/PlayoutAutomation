@@ -26,22 +26,18 @@ namespace TAS.Server
         readonly Guid _guidDto = Guid.NewGuid();
         readonly IEngine _engine;
         readonly FileManager _fileManager;
-        public IFileManager getFileManager() { return _fileManager;  }
+        public IFileManager FileManager { get { return _fileManager; } }
         public IEngine getEngine() { return _engine; }
-        IServerDirectory MediaDirectoryPGM;
-        public IServerDirectory getMediaDirectoryPGM() { return MediaDirectoryPGM; }
-        IServerDirectory MediaDirectoryPRV;
-        public IServerDirectory getMediaDirectoryPRV() { return MediaDirectoryPRV; }
-        IAnimationDirectory AnimationDirectoryPGM;
-        public IAnimationDirectory getAnimationDirectoryPGM() { return AnimationDirectoryPGM; }
-        IAnimationDirectory AnimationDirectoryPRV;
-        public IAnimationDirectory getAnimationDirectoryPRV() { return AnimationDirectoryPRV; }
-        IArchiveDirectory ArchiveDirectory;
-        public IArchiveDirectory getArchiveDirectory() { return ArchiveDirectory; }
+        public IServerDirectory MediaDirectoryPGM { get; private set; }
+        public IServerDirectory MediaDirectoryPRV { get; private set; }
+        public IAnimationDirectory AnimationDirectoryPGM { get; private set; }
+        public IAnimationDirectory AnimationDirectoryPRV { get; private set; }
+        public IArchiveDirectory ArchiveDirectory { get; private set; }
         public readonly ObservableSynchronizedCollection<ITemplate> _templates = new ObservableSynchronizedCollection<ITemplate>();
-        public ObservableSynchronizedCollection<ITemplate> getTemplates() { return _templates; }
-        public VideoFormatDescription getFormatDescription() { return _engine.FormatDescription; }
-        public TVideoFormat getVideoFormat() { return _engine.VideoFormat; }
+        [JsonProperty]
+        public VideoFormatDescription FormatDescription { get { return _engine.FormatDescription; } }
+        [JsonProperty]
+        public TVideoFormat VideoFormat { get { return _engine.VideoFormat; } }
 
         public MediaManager(Engine engine)
         {
@@ -260,7 +256,7 @@ namespace TAS.Server
         {
             if (media == null || ArchiveDirectory == null)
                 return;
-            IMedia sourceMedia = media.OriginalMedia;
+            Media sourceMedia = ((ArchiveMedia)media).OriginalMedia as Media;
             if (sourceMedia == null || !(sourceMedia is IIngestMedia))
                 return;
             if (!media.FileExists() && sourceMedia.FileExists())
@@ -273,7 +269,7 @@ namespace TAS.Server
                 IngestMediaToArchive(m);
         }
 
-        public MediaDeleteDenyReason DeleteMedia(IMedia media)
+        private MediaDeleteDenyReason DeleteMedia(IMedia media)
         {
             MediaDeleteDenyReason reason = (media is ServerMedia) ? _engine.CanDeleteMedia(media as ServerMedia) : MediaDeleteDenyReason.NoDeny;
             if (reason.Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
@@ -281,9 +277,9 @@ namespace TAS.Server
             return reason;
         }
 
-        public List<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList)
+        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IDto[] mediaList)
         {
-            return mediaList.Select(m => DeleteMedia(m)).ToList();
+            return mediaList.Select(m => DeleteMedia((Media)m));
         }
 
         public void GetLoudness(IMedia media)

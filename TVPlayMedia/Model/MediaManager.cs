@@ -16,14 +16,9 @@ namespace TAS.Client.Model
             Invoke(parameters: new object[] { media, deleteAfter });
         }
 
-        public List<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList)
+        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IDto[] mediaList)
         {
             return Query<List<MediaDeleteDenyReason>>(parameters: mediaList);
-        }
-
-        public MediaDeleteDenyReason DeleteMedia(IMedia media)
-        {
-            throw new NotImplementedException();
         }
 
         public void Export(MediaExport export, IIngestDirectory directory)
@@ -36,35 +31,20 @@ namespace TAS.Client.Model
             Invoke(parameters: new object[] { exportList, directory });
         }
 
-        public IAnimationDirectory getAnimationDirectoryPGM()
-        {
-            throw new NotImplementedException();
-        }
+        public IAnimationDirectory AnimationDirectoryPGM { get; set; }
 
-        public IAnimationDirectory getAnimationDirectoryPRV()
-        {
-            throw new NotImplementedException();
-        }
+        public IAnimationDirectory AnimationDirectoryPRV { get; set; }
 
-        public IArchiveDirectory getArchiveDirectory()
-        {
-            return Query<ArchiveDirectory>();
-        }
+        public IArchiveDirectory ArchiveDirectory { get { return Get<ArchiveDirectory>(); } set { Set(value); } }
 
         public IEngine getEngine()
         {
             throw new NotImplementedException();
         }
 
-        public IFileManager getFileManager()
-        {
-            return null;
-        }
+        public IFileManager FileManager { get { return Get<FileManager>(); }  set { Set(value); } }
 
-        public VideoFormatDescription getFormatDescription()
-        {
-            throw new NotImplementedException();
-        }
+        public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { Set(value); } }
 
         public List<IIngestDirectory> IngestDirectories
         {
@@ -82,30 +62,16 @@ namespace TAS.Client.Model
             throw new NotImplementedException();
         }
 
-        public IServerDirectory getMediaDirectoryPGM()
-        {
-            return Query<ServerDirectory>();
-        }
+        public IServerDirectory MediaDirectoryPGM { get { return Get<ServerDirectory>(); } set { Set(value); } }
 
-        public IServerDirectory getMediaDirectoryPRV()
-        {
-            return Query<ServerDirectory>();
-        }
+        public IServerDirectory MediaDirectoryPRV { get { return Get<ServerDirectory>(); } set { Set(value); } }
 
         public IMedia GetPRVMedia(IMedia media)
         {
             return Query<Media>(parameters: media);
         }
 
-        public ObservableSynchronizedCollection<ITemplate> getTemplates()
-        {
-            throw new NotImplementedException();
-        }
-
-        public TVideoFormat getVideoFormat()
-        {
-            throw new NotImplementedException();
-        }
+        public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { Set(value); } }
 
         public void IngestMediaToArchive(IEnumerable<IIngestMedia> mediaList, bool ToTop = false)
         {
@@ -139,7 +105,7 @@ namespace TAS.Client.Model
 
         public void Queue(IFileOperation operation, bool toTop = false)
         {
-            throw new NotImplementedException();
+            Invoke(parameters: new object[] { operation, toTop });
         }
 
         public void ReloadIngestDirs()

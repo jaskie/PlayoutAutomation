@@ -18,7 +18,7 @@ namespace TAS.Server
         {
             Engine = engine;
             _mediaGuid = Guid.Empty;
-            engine.MediaManager.getTemplates().Add(this);
+            //engine.MediaManager.getTemplates().Add(this);
         }
 
         internal UInt64 idTemplate;
@@ -80,7 +80,7 @@ namespace TAS.Server
         public void Delete()
         {
             this.DbDelete();
-            Engine.MediaManager.getTemplates().Remove(this);
+//            Engine.MediaManager.getTemplates().Remove(this);
         }
 
 

@@ -1,4 +1,5 @@
 ﻿using MediaInfoLib;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +15,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
+    [JsonObject(MemberSerialization.OptIn)]
     class LoudnessOperation : FFMpegOperation, ILoudnessOperation
     {
 
@@ -38,7 +40,9 @@ namespace TAS.Server
         }
 
         public EventHandler<AudioVolumeMeasuredEventArgs> AudioVolumeMeasured { get; set; } // will not save to Media object if not null
+        [JsonProperty]
         public TimeSpan MeasureStart { get; set; }
+        [JsonProperty]
         public TimeSpan MeasureDuration { get; set; }
 
         public override bool Do()

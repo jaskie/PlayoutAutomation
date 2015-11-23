@@ -6,9 +6,11 @@ using System.IO;
 using System.Diagnostics;
 using TAS.Common;
 using TAS.Server.Interfaces;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public class IngestMedia : Media, IIngestMedia
     {
         public IngestMedia(IngestDirectory directory) : base(directory) { }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#undef DEBUG
+
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Collections.Generic;

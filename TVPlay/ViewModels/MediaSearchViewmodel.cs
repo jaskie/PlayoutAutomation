@@ -41,9 +41,9 @@ namespace TAS.Client.ViewModels
                 _previewViewmodel.PropertyChanged += _onPreviewPropertyChanged;
             _mediaType = mediaType;
             if (mediaType == TMediaType.AnimationFlash)
-                _searchDirectory = _manager.getAnimationDirectoryPGM();
+                _searchDirectory = _manager.AnimationDirectoryPGM;
             else
-                _searchDirectory = _manager.getMediaDirectoryPGM();
+                _searchDirectory = _manager.MediaDirectoryPGM;
             _searchDirectory.MediaAdded += _searchDirectory_MediaAdded;
             _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
             _searchDirectory.MediaVerified += _searchDirectory_MediaVerified;
@@ -104,7 +104,7 @@ namespace TAS.Client.ViewModels
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                var mvm = Items.FirstOrDefault(m => m.Media == e.Media);
+                var mvm = Items.FirstOrDefault(m => m.Media.GuidDto == e.Media.GuidDto);
                 if (mvm != null)
                 {
                     Items.Remove(mvm);

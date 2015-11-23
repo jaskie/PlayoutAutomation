@@ -21,7 +21,6 @@ namespace TAS.Server.Remoting
         public MediaManagerBehavior(MediaManager mediaManager)
         {
             _mediaManager = mediaManager;
-            NotifyClientAction = _notifyClient;
             _dtos = new ConcurrentDictionary<Guid, IDto>();
             _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
             Debug.WriteLine("Created MM behavior");
@@ -112,6 +111,18 @@ namespace TAS.Server.Remoting
             }
         }
 
+        protected override void OnClose(CloseEventArgs e)
+        {
+            foreach (delegateKey d in _delegates.Keys)
+            {
+                EventInfo ei = _dtos[d.Item1].GetType().GetEvent(d.Item2);
+                Delegate delegateToRemove;
+                if (_delegates.TryRemove(d, out delegateToRemove))
+                    ei.RemoveEventHandler(_dtos[d.Item1], delegateToRemove);
+            }
+            _dtos.Clear();
+        }
+
         void _addDelegate(IDto objectToInvoke, EventInfo ei)
         {
             delegateKey signature = new delegateKey(objectToInvoke.GuidDto, ei.Name);
@@ -147,7 +158,15 @@ namespace TAS.Server.Remoting
             for (int i = 0; i < input.Length; i++)
             {
                 if (input[i] is JContainer)
-                    input[i] = _dtos[JsonConvert.DeserializeObject<ReceivedDto>((input[i] as JContainer).First.ToString(), deserializeSettings).GuidDto];
+                    if (input[i] is JArray)
+                    {
+                        IDto[] inputParameters = JsonConvert.DeserializeObject<ReceivedDto[]>((input[i] as JContainer).ToString(), deserializeSettings).Cast<IDto>().ToArray();
+                        for (int j = 0; j < inputParameters.Length; j++)
+                            inputParameters[j] = _dtos[inputParameters[j].GuidDto];
+                        input[i] = inputParameters;
+                    }
+                    else
+                        input[i] = _dtos[JsonConvert.DeserializeObject<ReceivedDto>((input[i] as JContainer).ToString(), deserializeSettings).GuidDto];
             }
         }
 
@@ -167,8 +186,6 @@ namespace TAS.Server.Remoting
                     input[i] = Convert.ChangeType(input[i], parameters[i]);
             }
         }
-
-        Action<object, EventArgs, string> NotifyClientAction;
 
         void _notifyClient(object o, EventArgs e, string eventName)
         {

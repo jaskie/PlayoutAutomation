@@ -6,7 +6,7 @@ using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IMedia: IMediaProperties, INotifyPropertyChanged
+    public interface IMedia: IMediaProperties, INotifyPropertyChanged, IDto
     {
         IMediaDirectory Directory { get; }
         bool FileExists();

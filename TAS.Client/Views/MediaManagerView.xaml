@@ -261,7 +261,7 @@
             <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
         </Button>
         <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-        <ContentControl Grid.Row="3" Content="{Binding FileManager.View}" />
+        <ContentControl Grid.Row="3" Content="{Binding FileManagerVm.View}" />
         <StatusBar Grid.Row="4" Grid.ColumnSpan="2" Height="22">
             <StackPanel Orientation="Horizontal" Visibility="{Binding DisplayDirectoryInfo, Converter={StaticResource BoolToVis}}" >
                 <common:StatusIndicator IsGreen="{Binding DirectoryFreeOver20Percent}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,0,0,0"/>

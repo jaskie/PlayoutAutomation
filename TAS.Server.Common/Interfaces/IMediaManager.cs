@@ -8,22 +8,18 @@ using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    [ServiceContract]
     public interface IMediaManager: IInitializable, IDto
     {
         IEngine getEngine();
-        IAnimationDirectory getAnimationDirectoryPGM();
-        IAnimationDirectory getAnimationDirectoryPRV();
-        IServerDirectory getMediaDirectoryPGM();
-        IServerDirectory getMediaDirectoryPRV();
-        IArchiveDirectory getArchiveDirectory();
+        IAnimationDirectory AnimationDirectoryPGM { get; }
+        IAnimationDirectory AnimationDirectoryPRV { get; }
+        IServerDirectory MediaDirectoryPGM { get; }
+        IServerDirectory MediaDirectoryPRV { get; }
+        IArchiveDirectory ArchiveDirectory { get; }
         List<IIngestDirectory> IngestDirectories { get; }
-        ObservableSynchronizedCollection<ITemplate> getTemplates();
-        IFileManager getFileManager();
-        [OperationContract]
-        VideoFormatDescription getFormatDescription();
-        [OperationContract]
-        TVideoFormat getVideoFormat();
+        IFileManager FileManager { get; }
+        VideoFormatDescription FormatDescription { get; }
+        TVideoFormat VideoFormat { get; }
 
         void IngestMediaToPlayout(IMedia media, bool toTop = false);
         void IngestMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false);
@@ -34,8 +30,7 @@ namespace TAS.Server.Interfaces
         void ArchiveMedia(IMedia media, bool deleteAfter);
         void Export(IEnumerable<MediaExport> exportList, IIngestDirectory directory);
         void Export(MediaExport export, IIngestDirectory directory);
-        MediaDeleteDenyReason DeleteMedia(IMedia media);
-        List<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList);
+        IEnumerable<MediaDeleteDenyReason> DeleteMedia(IDto[] mediaList);
 
         void ReloadIngestDirs();
 

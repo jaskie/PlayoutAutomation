@@ -13,7 +13,7 @@ using WebSocketSharp;
 
 namespace TAS.Client.Model
 {
-    public class MediaDirectory : ProxyBase, IMediaDirectory
+    public abstract class MediaDirectory : ProxyBase, IMediaDirectory
     {
         public MediaDirectory()
         {
@@ -21,13 +21,7 @@ namespace TAS.Client.Model
         public TDirectoryAccessType AccessType { get; set; }
         public string DirectoryName { get { return Get<string>(); } set { Set(value); } }
         public string[] Extensions { get; set; }
-        public virtual List<IMedia> Files
-        {
-            get
-            {
-                return Get<List<Media>>().Cast<IMedia>().ToList();
-            }
-        }
+        public abstract List<IMedia> Files { get; }
 
         public string Folder { get { return Get<string>(); } set { Set(value); } }
 
@@ -43,9 +37,61 @@ namespace TAS.Client.Model
 
         public ulong VolumeTotalSize { get { return Get<ulong>(); } internal set { Set(value); } }
 
-        public event EventHandler<MediaEventArgs> MediaAdded;
-        public event EventHandler<MediaEventArgs> MediaRemoved;
-        public event EventHandler<MediaEventArgs> MediaVerified;
+        event EventHandler<MediaEventArgs> _mediaAdded;
+        public event EventHandler<MediaEventArgs> MediaAdded
+        {
+            add
+            {
+                var h = _mediaAdded;
+                if (h == null || h.GetInvocationList().Length == 0)
+                    EventAdd();
+                _mediaAdded += value;
+            }
+            remove
+            {
+                _mediaAdded -= value;
+                var h = _mediaAdded;
+                if (h == null || h.GetInvocationList().Length == 0)
+                    EventRemove();
+            }
+        }
+
+        event EventHandler<MediaEventArgs> _mediaRemoved;
+        public event EventHandler<MediaEventArgs> MediaRemoved
+        {
+            add
+            {
+                var h = _mediaRemoved;
+                if (h == null || h.GetInvocationList().Length == 0)
+                    EventAdd();
+                _mediaRemoved += value;
+            }
+            remove
+            {
+                _mediaRemoved -= value;
+                var h = _mediaRemoved;
+                if (h == null || h.GetInvocationList().Length == 0)
+                    EventRemove();
+            }
+        }
+        event EventHandler<MediaEventArgs> _mediaVerified;
+        public event EventHandler<MediaEventArgs> MediaVerified
+        {
+            add
+            {
+                var h = _mediaVerified;
+                if (h == null || h.GetInvocationList().Length == 0)
+                    EventAdd();
+                _mediaVerified += value;
+            }
+            remove
+            {
+                _mediaVerified -= value;
+                var h = _mediaVerified;
+                if (h == null || h.GetInvocationList().Length == 0)
+                    EventRemove();
+            }
+        }
 
         public bool DeleteMedia(IMedia media)
         {

@@ -640,9 +640,9 @@ namespace TAS.Server
                 {
                     MediaDirectory dir;
                     if (_eventType == TEventType.AnimationFlash)
-                        dir = (MediaDirectory)Engine.MediaManager.getAnimationDirectoryPGM();
+                        dir = (MediaDirectory)Engine.MediaManager.AnimationDirectoryPGM;
                     else
-                        dir = (MediaDirectory)Engine.MediaManager.getMediaDirectoryPGM();
+                        dir = (MediaDirectory)Engine.MediaManager.MediaDirectoryPGM;
                     if (dir != null)
                     {
                         var newMedia = dir.FindMedia(mediaGuid);
@@ -669,9 +669,9 @@ namespace TAS.Server
                 {
                     MediaDirectory dir;
                     if (_eventType == TEventType.AnimationFlash)
-                        dir = (MediaDirectory)Engine.MediaManager.getAnimationDirectoryPRV();
+                        dir = (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRV;
                     else
-                        dir = (MediaDirectory)Engine.MediaManager.getMediaDirectoryPRV();
+                        dir = (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV;
                     if (dir != null)
                     {
                         var newMedia = dir.FindMedia(mediaGuid);
@@ -688,10 +688,11 @@ namespace TAS.Server
         {
             get
             {
-                Guid mediaGuid = _mediaGuid;
-                if (_template == null)
-                    _template = Engine.MediaManager.getTemplates().FirstOrDefault(t => t.MediaGuid == this.MediaGuid);
-                return _template;
+                //Guid mediaGuid = _mediaGuid;
+                //if (_template == null)
+                //    _template = Engine.MediaManager.Templates.FirstOrDefault(t => t.MediaGuid == this.MediaGuid);
+                //return _template;
+                throw new NotImplementedException();
             }
         }
 

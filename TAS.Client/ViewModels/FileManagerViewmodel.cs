@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using TAS.Common;
 
 namespace TAS.Client.ViewModels
 {
@@ -76,5 +77,19 @@ namespace TAS.Client.ViewModels
             _fileManager.OperationAdded -= FileManager_OperationAdded;
             _fileManager.OperationCompleted -= FileManager_OperationCompleted;
         }
+
+        internal IConvertOperation CreateConvertOperation(IMedia sourceMedia, IMedia destMedia, TVideoFormat outputFormat, decimal audioVolume, TFieldOrder sourceFieldOrderEnforceConversion, TAspectConversion aspectConversion)
+        {
+            IConvertOperation result = _fileManager.CreateConvertOperation();
+            result.SourceMedia = sourceMedia;
+            result.DestMedia = destMedia;
+            result.OutputFormat = outputFormat;
+            result.AudioVolume = audioVolume;
+            result.SourceFieldOrderEnforceConversion = sourceFieldOrderEnforceConversion;
+            result.AspectConversion = aspectConversion;
+            return result;
+        }
+
+
     }
 }

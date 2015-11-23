@@ -15,6 +15,7 @@ namespace TAS.Client.Model
     [JsonObject]
     public class Media : ProxyBase, Server.Interfaces.IMedia
     {
+        [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public TAudioChannelMapping AudioChannelMapping { get { return Get<TAudioChannelMapping>(); } set { Set(value); } }
 
         public decimal AudioLevelIntegrated { get { return Get<decimal>(); } set { Set(value); } }
@@ -23,7 +24,8 @@ namespace TAS.Client.Model
 
         public decimal AudioVolume { get { return Get<decimal>(); } set { Set(value); } }
 
-        public virtual IMediaDirectory Directory { get { return Get<MediaDirectory>(); }  set { Set(value); } }
+        [JsonIgnore]
+        public virtual IMediaDirectory Directory { get; set; }
 
         public TimeSpan Duration { get { return Get<TimeSpan>(); } set { Set(value); } }
 
@@ -88,6 +90,11 @@ namespace TAS.Client.Model
         public void Verify()
         {
             Invoke();
+        }
+
+        public override string ToString()
+        {
+            return MediaName;
         }
     }
 }

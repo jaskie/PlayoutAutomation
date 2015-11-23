@@ -10,37 +10,13 @@ namespace TAS.Client.Model
 {
     public class PersistentMedia : Media, IPersistentMedia
     {
-        public TMediaEmphasis MediaEmphasis 
-        {
-            get
-            {
-                return Get<TMediaEmphasis>();
-            }
-
-            set
-            {
-                Set(value);
-            }
-        }
+        public TMediaEmphasis MediaEmphasis { get { return Get<TMediaEmphasis>(); } set { Set(value); } }
 
         public ObservableSynchronizedCollection<IMediaSegment> MediaSegments
         {
             get
             {
                 return new ObservableSynchronizedCollection<IMediaSegment>();
-            }
-        }
-
-        public IMedia OriginalMedia
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
             }
         }
 
