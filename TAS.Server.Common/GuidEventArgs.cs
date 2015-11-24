@@ -6,12 +6,12 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server.Common
 {
-    public class MediaEventArgs : EventArgs
+    public class GuidEventArgs : EventArgs
     {
-        public MediaEventArgs(IMedia media)
+        public GuidEventArgs(Guid guid)
         {
-            Media = media;
+            Guid = guid;
         }
-        public IMedia Media { get; private set; }
+        public Guid Guid { get; private set; }
     }
 }

@@ -22,9 +22,9 @@ namespace TAS.Client.Model
         AutoResetEvent _messageHandler = new AutoResetEvent(false);
         ConcurrentDictionary<Guid, WebSocketMessage> _receivedMessages = new ConcurrentDictionary<Guid, WebSocketMessage>();
         ConcurrentDictionary<Guid, IDto> _knownObjects = new ConcurrentDictionary<Guid, IDto>();
-        const int query_timeout = 5000;
+        const int query_timeout = 15000;
 
-        public event EventHandler<WebSocketMessageEventArgs> OnMessage;
+        public event EventHandler<WebSocketMessageEventArgs> EventNotification;
         public event EventHandler OnOpen;
         public event EventHandler<CloseEventArgs> OnClose;
         
@@ -74,7 +74,7 @@ namespace TAS.Client.Model
             WebSocketMessage message = JsonConvert.DeserializeObject<WebSocketMessage>(e.Data);
             if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventNotification)
             {
-                var h = OnMessage;
+                var h = EventNotification;
                 if (h != null)
                     h(this, new WebSocketMessageEventArgs(message));
             }

@@ -194,7 +194,7 @@ namespace TAS.Server
             {
                 Svt.Caspar.TemplateInfo i = templates.FirstOrDefault(t => media.FileName == t.Name && media.Folder == t.Folder);
                 if (i == null)
-                    AnimationDirectory.MediaRemove(media);
+                    ((AnimationDirectory)AnimationDirectory).MediaRemove(media);
             }
         }
 

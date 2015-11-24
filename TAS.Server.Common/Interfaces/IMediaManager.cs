@@ -21,7 +21,6 @@ namespace TAS.Server.Interfaces
         VideoFormatDescription FormatDescription { get; }
         TVideoFormat VideoFormat { get; }
 
-        void IngestMediaToPlayout(IMedia media, bool toTop = false);
         void IngestMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false);
         void IngestMediaToArchive(IIngestMedia media, bool toTop = false);
         void IngestMediaToArchive(IArchiveMedia media, bool toTop = false);
@@ -30,7 +29,7 @@ namespace TAS.Server.Interfaces
         void ArchiveMedia(IMedia media, bool deleteAfter);
         void Export(IEnumerable<MediaExport> exportList, IIngestDirectory directory);
         void Export(MediaExport export, IIngestDirectory directory);
-        IEnumerable<MediaDeleteDenyReason> DeleteMedia(IDto[] mediaList);
+        IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList);
 
         void ReloadIngestDirs();
 

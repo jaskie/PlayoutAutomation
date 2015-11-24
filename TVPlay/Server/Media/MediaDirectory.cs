@@ -25,9 +25,9 @@ namespace TAS.Server
         protected ConcurrentHashSet<IMedia> _files = new ConcurrentHashSet<IMedia>();
         internal MediaManager MediaManager;
 
-        public event EventHandler<MediaEventArgs> MediaAdded;
-        public event EventHandler<MediaEventArgs> MediaRemoved;
-        public event EventHandler<MediaEventArgs> MediaVerified;
+        public event EventHandler<GuidEventArgs> MediaAdded;
+        public event EventHandler<GuidEventArgs> MediaRemoved;
+        public event EventHandler<GuidEventArgs> MediaVerified;
 
         protected bool _isInitialized = false;
         private readonly Guid _idDto = Guid.NewGuid();
@@ -285,7 +285,7 @@ namespace TAS.Server
             {
                 var h = MediaRemoved;
                 if (h != null)
-                    h(this, new MediaEventArgs(media));
+                    h(this, new GuidEventArgs(media.GuidDto));
             }
         }
         
@@ -322,7 +322,7 @@ namespace TAS.Server
         {
             var h = MediaVerified;
             if (h != null)
-                h(media, new MediaEventArgs(media));
+                h(media, new GuidEventArgs(media.GuidDto));
         }
 
         protected virtual void EnumerateFiles(string filter, CancellationToken cancelationToken)
@@ -361,11 +361,23 @@ namespace TAS.Server
 
         public virtual IMedia FindMedia(Guid mediaGuid)
         {
-            
             _files.Lock.EnterReadLock();
             try
             {
                 return _files.FirstOrDefault(m => m.MediaGuid == mediaGuid);
+            }
+            finally
+            {
+                _files.Lock.ExitReadLock();
+            }
+        }
+
+        public virtual IMedia FindMediaDto(Guid guidDto)
+        {
+            _files.Lock.EnterReadLock();
+            try
+            {
+                return _files.FirstOrDefault(m => m.GuidDto == guidDto);
             }
             finally
             {
@@ -525,7 +537,7 @@ namespace TAS.Server
         {
             var h = MediaAdded;
             if (h != null)
-                h(this, new MediaEventArgs(media));
+                h(this, new GuidEventArgs(media.GuidDto));
         }
     }
 

@@ -46,14 +46,14 @@ namespace TAS.Server.Remoting
                     if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query
                         || message.MessageType == WebSocketMessage.WebSocketMessageType.Invoke)
                     {
-                        _convertParameters(ref message.Parameters);
+                        _deserializeContent(ref message.Parameters);
                         Type objectToInvokeType = objectToInvoke.GetType();
                         MethodInfo methodToInvoke = objectToInvokeType.GetMethod(message.MemberName, message.Parameters.Select(p => p.GetType()).ToArray());
                         if (methodToInvoke == null)
-                            methodToInvoke = objectToInvokeType.GetMethod(message.MemberName);
+                            methodToInvoke = objectToInvokeType.GetMethods(BindingFlags.Instance | BindingFlags.Public).FirstOrDefault(m => m.Name == message.MemberName && m.GetParameters().Length == message.Parameters.Length);
                         if (methodToInvoke != null)
                         {
-                            _alignParameters(ref message.Parameters, methodToInvoke.GetParameters().Select(p => p.ParameterType).ToArray());
+                            MethodParametersAlignment.AlignParameters(ref message.Parameters, methodToInvoke.GetParameters());
                             object response = methodToInvoke.Invoke(objectToInvoke, message.Parameters);
                             if (response != null && message.MessageType == WebSocketMessage.WebSocketMessageType.Query)
                             {
@@ -67,7 +67,7 @@ namespace TAS.Server.Remoting
                     if (message.MessageType == WebSocketMessage.WebSocketMessageType.Get
                         || message.MessageType == WebSocketMessage.WebSocketMessageType.Set)
                     {
-                        _convertParameters(ref message.Parameters);
+                        _deserializeContent(ref message.Parameters);
                         PropertyInfo property = objectToInvoke.GetType().GetProperty(message.MemberName);
                         if (property != null)
                         {
@@ -85,7 +85,7 @@ namespace TAS.Server.Remoting
                             {
                                 if (property.CanWrite)
                                 {
-                                    _alignParameters(ref message.Parameters, property.PropertyType);
+                                    MethodParametersAlignment.AlignType(ref message.Parameters[0], property.PropertyType);
                                     property.SetValue(objectToInvoke, message.Parameters[0], null);
                                 }
                             }
@@ -129,6 +129,7 @@ namespace TAS.Server.Remoting
             if (_delegates.ContainsKey(signature))
                 return;
             Delegate delegateToInvoke = ConvertDelegate((Action<object, EventArgs>)delegate (object o, EventArgs ea) { _notifyClient(o, ea, ei.Name); }, ei.EventHandlerType);
+            Debug.WriteLine(objectToInvoke, string.Format("Delegate {0} added", ei.Name));
             _delegates[signature] = delegateToInvoke;
             ei.AddEventHandler(objectToInvoke, delegateToInvoke);
         }
@@ -151,7 +152,7 @@ namespace TAS.Server.Remoting
 
         static JsonSerializerSettings deserializeSettings = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore };
 
-        void _convertParameters(ref object[] input)
+        void _deserializeContent(ref object[] input)
         {
             if (input == null)
                 return;
@@ -167,23 +168,6 @@ namespace TAS.Server.Remoting
                     }
                     else
                         input[i] = _dtos[JsonConvert.DeserializeObject<ReceivedDto>((input[i] as JContainer).ToString(), deserializeSettings).GuidDto];
-            }
-        }
-
-        void _alignParameters(ref object[] input, params Type[] parameters)
-        {
-            if (input.Length != parameters.Length)
-                throw new ArgumentException(string.Format("{0}:{1} {2}", this, MethodInfo.GetCurrentMethod(), "Invalid number of arguments"));
-            for (int i = 0; i < input.Length; i++)
-            {
-                if (parameters[i].IsEnum)
-                    input[i] = Enum.Parse(parameters[i], input[i].ToString());
-                else
-                if (parameters[i] == typeof(TimeSpan))
-                    input[i] = TimeSpan.Parse((string)input[i], System.Globalization.CultureInfo.InvariantCulture);
-                else
-                if (parameters[i].IsValueType)
-                    input[i] = Convert.ChangeType(input[i], parameters[i]);
             }
         }
 

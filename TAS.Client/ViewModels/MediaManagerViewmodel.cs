@@ -323,7 +323,7 @@ namespace TAS.Client.ViewModels
 
         private void _deleteSelected(object o)
         {
-            IDto[] selection = _getSelections().Cast<IDto>().ToArray();
+            List<IMedia> selection = _getSelections();
             if (MessageBox.Show(string.Format(resources._query_DeleteSelectedFiles, selection.AsString(Environment.NewLine, 20)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
             {
                 var reasons = _mediaManager.DeleteMedia(selection).Where(r => r.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny);
@@ -466,13 +466,16 @@ namespace TAS.Client.ViewModels
             return _selectedMediaList != null && _selectedMediaList.Count > 0;
         }
 
-        private void MediaAdded(object source, MediaEventArgs e)
+        private void MediaAdded(object source, GuidEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                if (!(MediaDirectory is IServerDirectory) || (e.Media.MediaType == TMediaType.Movie || e.Media.MediaType == TMediaType.Still))
+                IMedia media = MediaDirectory.FindMediaDto(e.Guid);
+                if (media == null)
+                    return;
+                if (!(MediaDirectory is IServerDirectory) || (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Still))
                 {
-                    _mediaItems.Add(new MediaViewViewmodel(e.Media));
+                    _mediaItems.Add(new MediaViewViewmodel(media));
                     _mediaView.Refresh();
                     _notifyDirectoryPropertiesChanged();
                 }
@@ -480,11 +483,11 @@ namespace TAS.Client.ViewModels
                 , null);
         }
 
-        private void MediaRemoved(object source, MediaEventArgs e)
+        private void MediaRemoved(object source, GuidEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                var vm = _mediaItems.FirstOrDefault(v => v.Media == e.Media);
+                var vm = _mediaItems.FirstOrDefault(v => v.Media.GuidDto == e.Guid);
                 if (vm != null)
                     _mediaItems.Remove(vm);
                 _notifyDirectoryPropertiesChanged();

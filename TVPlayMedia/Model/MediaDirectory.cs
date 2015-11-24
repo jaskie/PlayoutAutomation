@@ -37,8 +37,8 @@ namespace TAS.Client.Model
 
         public ulong VolumeTotalSize { get { return Get<ulong>(); } internal set { Set(value); } }
 
-        event EventHandler<MediaEventArgs> _mediaAdded;
-        public event EventHandler<MediaEventArgs> MediaAdded
+        event EventHandler<GuidEventArgs> _mediaAdded;
+        public event EventHandler<GuidEventArgs> MediaAdded
         {
             add
             {
@@ -56,8 +56,8 @@ namespace TAS.Client.Model
             }
         }
 
-        event EventHandler<MediaEventArgs> _mediaRemoved;
-        public event EventHandler<MediaEventArgs> MediaRemoved
+        event EventHandler<GuidEventArgs> _mediaRemoved;
+        public event EventHandler<GuidEventArgs> MediaRemoved
         {
             add
             {
@@ -74,8 +74,8 @@ namespace TAS.Client.Model
                     EventRemove();
             }
         }
-        event EventHandler<MediaEventArgs> _mediaVerified;
-        public event EventHandler<MediaEventArgs> MediaVerified
+        event EventHandler<GuidEventArgs> _mediaVerified;
+        public event EventHandler<GuidEventArgs> MediaVerified
         {
             add
             {
@@ -93,6 +93,28 @@ namespace TAS.Client.Model
             }
         }
 
+        protected override void OnEventNotification(WebSocketMessageEventArgs e)
+        {
+            if (e.Message.MemberName == "MediaAdded")
+            {
+                var h = _mediaAdded;
+                if (h != null)
+                    h(this, ConvertEventArgs<GuidEventArgs>(e));
+            }
+            if (e.Message.MemberName == "MediaRemoved")
+            {
+                var h = _mediaRemoved;
+                if (h != null)
+                    h(this, ConvertEventArgs<GuidEventArgs>(e));
+            }
+            if (e.Message.MemberName == "MediaVerified")
+            {
+                var h = _mediaVerified;
+                if (h != null)
+                    h(this, ConvertEventArgs<GuidEventArgs>(e));
+            }
+        }
+
         public bool DeleteMedia(IMedia media)
         {
             return Query<bool>(parameters: media );
@@ -102,23 +124,12 @@ namespace TAS.Client.Model
         {
             return Query<bool>(parameters: new object[] { filename, subfolder });
         }
+        public IMedia FindMediaDto(Guid dtoGuid)
+        {
+            return Files.FirstOrDefault(m => m.GuidDto == dtoGuid);
+        }
 
         public void Initialize()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void MediaAdd(IMedia media)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void MediaRemove(IMedia media)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnMediaVerified(IMedia media)
         {
             throw new NotImplementedException();
         }

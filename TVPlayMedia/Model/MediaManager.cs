@@ -16,7 +16,7 @@ namespace TAS.Client.Model
             Invoke(parameters: new object[] { media, deleteAfter });
         }
 
-        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IDto[] mediaList)
+        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList)
         {
             return Query<List<MediaDeleteDenyReason>>(parameters: mediaList);
         }

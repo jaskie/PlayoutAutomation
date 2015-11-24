@@ -94,7 +94,7 @@
     <Compile Include="Interfaces\ITempMedia.cs" />
     <Compile Include="MediaConversion.cs" />
     <Compile Include="MediaDeleteDenyReason.cs" />
-    <Compile Include="MediaEventArgs.cs" />
+    <Compile Include="GuidEventArgs.cs" />
     <Compile Include="MediaExport.cs" />
     <Compile Include="ObservableSynchronizedCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -109,6 +109,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="RationalNumber.cs" />
+    <Compile Include="Remoting\MethodParametersAlignment.cs" />
     <Compile Include="Remoting\WebSocketMessage.cs" />
     <Compile Include="SerializationHelper.cs" />
     <Compile Include="SimpleDictionary.cs" />

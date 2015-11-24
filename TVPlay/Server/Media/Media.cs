@@ -260,7 +260,7 @@ namespace TAS.Server
 
         public virtual bool Delete()
         {
-            return Directory.DeleteMedia(this);
+            return ((MediaDirectory)Directory).DeleteMedia(this);
         }
 
         protected virtual bool RenameTo(string NewFileName)
@@ -384,7 +384,7 @@ namespace TAS.Server
 
         public void Remove()
         {
-            Directory.MediaRemove(this);
+            ((MediaDirectory)Directory).MediaRemove(this);
         }
 
         private bool _verified = false;

@@ -22,7 +22,7 @@ namespace TAS.Client.Model
         {
             if (_client != null)
                 return;
-            client.OnMessage += OnMessage;
+            client.EventNotification += OnEventNotificationMessage;
             _client = client;
             Debug.WriteLine(this, "Client assigned");
         }
@@ -79,7 +79,7 @@ namespace TAS.Client.Model
                 client.EventRemove(this, eventName);
         }
 
-        public virtual void OnMessage(object sender, WebSocketMessageEventArgs e)
+        void OnEventNotificationMessage(object sender, WebSocketMessageEventArgs e)
         {
             if (e.Message.DtoGuid == GuidDto)
             {
@@ -91,7 +91,19 @@ namespace TAS.Client.Model
                     object o;
                     _properties.TryRemove(ea.PropertyName, out o);
                 }
+                else OnEventNotification(e);
             }
+        }
+
+        protected virtual void OnEventNotification(WebSocketMessageEventArgs e)
+        {
+            Debug.WriteLine(this, e.ToString());
+        }
+
+        protected T ConvertEventArgs<T>(WebSocketMessageEventArgs e) where T : EventArgs
+        {
+            T value = JsonConvert.DeserializeObject<T>(e.Message.Response.ToString());
+            return value;
         }
 
         void NotifyPropertyChanged(string propertyName)

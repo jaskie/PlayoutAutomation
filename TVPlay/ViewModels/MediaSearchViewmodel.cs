@@ -92,7 +92,7 @@ namespace TAS.Client.ViewModels
                 && (media.MediaType != TMediaType.Movie || media.VideoFormatDescription.FrameRate.Equals(requiredFrameRate));
         }
 
-        void _searchDirectory_MediaVerified(object sender, MediaEventArgs e)
+        void _searchDirectory_MediaVerified(object sender, GuidEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
@@ -100,11 +100,11 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        void _searchDirectory_MediaRemoved(object sender, MediaEventArgs e)
+        void _searchDirectory_MediaRemoved(object sender, GuidEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                var mvm = Items.FirstOrDefault(m => m.Media.GuidDto == e.Media.GuidDto);
+                var mvm = Items.FirstOrDefault(m => m.Media.GuidDto == e.Guid);
                 if (mvm != null)
                 {
                     Items.Remove(mvm);
@@ -113,12 +113,14 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        void _searchDirectory_MediaAdded(object sender, MediaEventArgs e)
+        void _searchDirectory_MediaAdded(object sender, GuidEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                if (_canAddMediaToCollection(e.Media, _mediaType, _frameRate, _videoFormatDescription))
-                    Items.Add(new MediaViewViewmodel(e.Media));
+                IMedia media = _searchDirectory.FindMediaDto(e.Guid);
+                if (media != null 
+                    && _canAddMediaToCollection(media, _mediaType, _frameRate, _videoFormatDescription))
+                    Items.Add(new MediaViewViewmodel(media));
             });
         }
 

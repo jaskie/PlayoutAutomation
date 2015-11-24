@@ -62,7 +62,7 @@ namespace TAS.Server
                 sdir.PropertyChanged += _onServerDirectoryPropertyChanged;
                 sdir.MediaSaved += _onServerDirectoryMediaSaved;
                 sdir.MediaVerified += _mediaPGMVerified;
-                sdir.MediaRemoved += _mediaPGMVerified;
+                sdir.MediaRemoved += _mediaPGMRemoved;
             }
             sdir = MediaDirectoryPRV as ServerDirectory;
             if (MediaDirectoryPGM != MediaDirectoryPRV && sdir != null)
@@ -179,7 +179,7 @@ namespace TAS.Server
             }
         }
 
-        private void _onServerDirectoryMediaSaved(object media, MediaEventArgs e)
+        private void _onServerDirectoryMediaSaved(object media, GuidEventArgs e)
         {
             if (media is ServerMedia)
             {
@@ -193,7 +193,7 @@ namespace TAS.Server
             }
         }
 
-        public void IngestMediaToPlayout(IMedia media, bool toTop = false)
+        internal void IngestMediaToPlayout(IMedia media, bool toTop = false)
         {
             if (media != null)
             {
@@ -277,12 +277,12 @@ namespace TAS.Server
             return reason;
         }
 
-        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IDto[] mediaList)
+        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList)
         {
             return mediaList.Select(m => DeleteMedia((Media)m));
         }
 
-        public void GetLoudness(IMedia media)
+        internal void GetLoudness(IMedia media)
         {
             media.GetLoudness();
         }
@@ -458,36 +458,41 @@ namespace TAS.Server
             return Guid.Empty;            
         }
 
-        private void _mediaPGMVerified(object o, MediaEventArgs e)
+        private void _mediaPGMVerified(object o, GuidEventArgs e)
         {
             if (MediaDirectoryPRV != null
                 && MediaDirectoryPRV != MediaDirectoryPGM
                 && MediaDirectoryPRV.IsInitialized)
             {
-                IServerMedia media = MediaDirectoryPRV.GetServerMedia(e.Media, true);
-                if (media.FileSize == e.Media.FileSize
-                    && media.FileName == e.Media.FileName
-                    && media.FileSize == e.Media.FileSize
+                IMedia pgmMedia = MediaDirectoryPGM.FindMediaDto(e.Guid);
+                if (pgmMedia == null)
+                    return;
+                IServerMedia media = MediaDirectoryPRV.GetServerMedia(pgmMedia, true);
+                if (media.FileSize == pgmMedia.FileSize
+                    && media.FileName == pgmMedia.FileName
+                    && media.FileSize == pgmMedia.FileSize
                     && !media.Verified)
                     media.Verify();
                 if (!(media.MediaStatus == TMediaStatus.Available
                       || media.MediaStatus == TMediaStatus.Copying
                       || media.MediaStatus == TMediaStatus.CopyPending
                       || media.MediaStatus == TMediaStatus.Copied))
-                    Queue(new FileOperation { Kind = TFileOperationKind.Copy, SourceMedia = e.Media, DestMedia = media });
+                    Queue(new FileOperation { Kind = TFileOperationKind.Copy, SourceMedia = pgmMedia, DestMedia = media });
             }
         }
 
-        private void _mediaPGMRemoved(object o, MediaEventArgs e)
+        private void _mediaPGMRemoved(object o, GuidEventArgs e)
         {
             if (MediaDirectoryPRV != null
                 && MediaDirectoryPRV != MediaDirectoryPGM
-                && MediaDirectoryPRV.IsInitialized
-                && !e.Media.FileExists())
+                && MediaDirectoryPRV.IsInitialized)
             {
-                IMedia media = ((MediaDirectory)MediaDirectoryPRV).FindMedia(e.Media);
-                if (media != null && media.MediaStatus == TMediaStatus.Available)
-                    Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = media });
+                IMedia pgmMedia = MediaDirectoryPGM.FindMediaDto(e.Guid);
+                if (pgmMedia == null || pgmMedia.FileExists())
+                    return;
+                IMedia mediaToDelete = ((MediaDirectory)MediaDirectoryPRV).FindMedia(pgmMedia.MediaGuid);
+                if (mediaToDelete != null && mediaToDelete.FileExists())
+                    Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = mediaToDelete });
             }
         }
 

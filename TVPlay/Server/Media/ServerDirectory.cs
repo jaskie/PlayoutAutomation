@@ -53,12 +53,12 @@ namespace TAS.Server
             };
         }
 
-        public event EventHandler<MediaEventArgs> MediaSaved;
+        public event EventHandler<GuidEventArgs> MediaSaved;
         internal virtual void OnMediaSaved(Media media)
         {
             var handler = MediaSaved;
             if (handler != null)
-                handler(media, new MediaEventArgs(media));
+                handler(media, new GuidEventArgs(media.GuidDto));
         }
 
         public override void MediaAdd(IMedia media)
