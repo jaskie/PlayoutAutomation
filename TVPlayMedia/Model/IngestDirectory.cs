@@ -178,14 +178,11 @@ namespace TAS.Client.Model
             }
         }
 
-        public override List<IMedia> Files
+        public override IEnumerable<IMedia> GetFiles()
         {
-            get
-            {
-                var list = Get<List<IngestMedia>>();
-                list.ForEach(m => m.Directory = this);
-                return list.Cast<IMedia>().ToList(); ;
-            }
+            var list = Query<List<IngestMedia>>();
+            list.ForEach(m => m.Directory = this);
+            return list.Cast<IMedia>().ToList(); ;
         }
 
     }

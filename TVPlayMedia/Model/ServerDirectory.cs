@@ -13,14 +13,11 @@ namespace TAS.Client.Model
             return Query<ServerMedia>(parameters: new object[] { media, searchExisting });
         }
 
-        public override List<IMedia> Files
+        public override IEnumerable<IMedia> GetFiles()
         {
-            get
-            {
-                var list = Get<List<ServerMedia>>();
-                list.ForEach(m => m.Directory = this);
-                return list.Cast<IMedia>().ToList(); ;
-            }
+            var list = Query<List<ServerMedia>>();
+            list.ForEach(m => m.Directory = this);
+            return list.Cast<IMedia>().ToList(); ;
         }
 
     }

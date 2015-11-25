@@ -33,7 +33,7 @@ namespace TAS.Server
         private readonly Guid _guidDto = Guid.NewGuid();
 
         [JsonProperty]
-        public Guid GuidDto { get { return _guidDto; } }
+        public Guid DtoGuid { get { return _guidDto; } }
 
         private int _tryCount = 15;
         [JsonProperty]

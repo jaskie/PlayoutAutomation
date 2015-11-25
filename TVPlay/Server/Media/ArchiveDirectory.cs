@@ -58,16 +58,7 @@ namespace TAS.Server
         {
             DateTime currentDate = DateTime.UtcNow.Date;
             this.DbFindStaleMedia();
-            IEnumerable<IMedia> StaleMediaList;
-            _files.Lock.EnterReadLock();
-            try
-            {
-                StaleMediaList = _files.Where(m => (m is ArchiveMedia) && currentDate > (m as ArchiveMedia).KillDate);
-            }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
+            List<IMedia> StaleMediaList = FindMediaList(m => (m is ArchiveMedia) && currentDate > (m as ArchiveMedia).KillDate);
             foreach (Media m in StaleMediaList)
                 m.Delete();
         }
@@ -79,17 +70,8 @@ namespace TAS.Server
 
         internal void Clear()
         {
-            _files.Lock.EnterUpgradeableReadLock();
-            try
-            {
-                foreach (Media m in _files.ToList())
-                    base.MediaRemove(m); //base: to not actually delete file and db
-            }
-            finally
-            {
-                _files.Lock.ExitUpgradeableReadLock();
-            }
-                 
+            foreach (Media m in _files.Values.ToList())
+                base.MediaRemove(m); //base: to not actually delete file and db
         }
 
         protected override IMedia CreateMedia(string fileNameOnly)

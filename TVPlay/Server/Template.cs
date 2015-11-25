@@ -49,7 +49,7 @@ namespace TAS.Server
             {
                 var mg = _mediaGuid;
                 if (_mediaFile == null && mg != Guid.Empty)
-                    _mediaFile = ((MediaDirectory)Engine.PlayoutChannelPGM.OwnerServer.AnimationDirectory).FindMedia(_mediaGuid); // lazy loading Media
+                    _mediaFile = ((MediaDirectory)Engine.PlayoutChannelPGM.OwnerServer.AnimationDirectory).FindMediaByMediaGuid(_mediaGuid); // lazy loading Media
                 return _mediaFile;
             }
             set

@@ -14,16 +14,16 @@ namespace TAS.Server.Interfaces
         TDirectoryAccessType AccessType { get; }
         System.Net.NetworkCredential NetworkCredential { get; }
         bool IsInitialized { get; }
-        List<IMedia> Files { get; }
+        IEnumerable<IMedia> GetFiles();
         void Initialize();
         void Refresh();
         void SweepStaleMedia();
-        IMedia FindMediaDto(Guid guidDto);
+        IMedia FindMediaByDto(Guid guidDto);
         UInt64 VolumeTotalSize { get; }
         UInt64 VolumeFreeSize { get; }
 
-        event EventHandler<GuidEventArgs> MediaAdded;
-        event EventHandler<GuidEventArgs> MediaRemoved;
-        event EventHandler<GuidEventArgs> MediaVerified;
+        event EventHandler<MediaDtoEventArgs> MediaAdded;
+        event EventHandler<MediaDtoEventArgs> MediaRemoved;
+        event EventHandler<MediaDtoEventArgs> MediaVerified;
     }
 }

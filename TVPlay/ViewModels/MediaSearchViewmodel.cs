@@ -54,7 +54,7 @@ namespace TAS.Client.ViewModels
             if (!closeAfterAdd)
                 OkButtonText = resources._button_Add;
             _createCommands();
-            _items = new ObservableCollection<MediaViewViewmodel>(_searchDirectory.Files
+            _items = new ObservableCollection<MediaViewViewmodel>(_searchDirectory.GetFiles()
                 .Where(m => _canAddMediaToCollection(m, mediaType, _frameRate, videoFormatDescription))
                 .Select(m => new MediaViewViewmodel(m)));
             _itemsView = CollectionViewSource.GetDefaultView(_items);
@@ -92,7 +92,7 @@ namespace TAS.Client.ViewModels
                 && (media.MediaType != TMediaType.Movie || media.VideoFormatDescription.FrameRate.Equals(requiredFrameRate));
         }
 
-        void _searchDirectory_MediaVerified(object sender, GuidEventArgs e)
+        void _searchDirectory_MediaVerified(object sender, DtoEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
@@ -100,11 +100,11 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        void _searchDirectory_MediaRemoved(object sender, GuidEventArgs e)
+        void _searchDirectory_MediaRemoved(object sender, DtoEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                var mvm = Items.FirstOrDefault(m => m.Media.GuidDto == e.Guid);
+                var mvm = Items.FirstOrDefault(m => m.Media.DtoGuid == e.DtoGuid);
                 if (mvm != null)
                 {
                     Items.Remove(mvm);
@@ -113,11 +113,11 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        void _searchDirectory_MediaAdded(object sender, GuidEventArgs e)
+        void _searchDirectory_MediaAdded(object sender, DtoEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                IMedia media = _searchDirectory.FindMediaDto(e.Guid);
+                IMedia media = _searchDirectory.FindMediaByDto(e.DtoGuid);
                 if (media != null 
                     && _canAddMediaToCollection(media, _mediaType, _frameRate, _videoFormatDescription))
                     Items.Add(new MediaViewViewmodel(media));

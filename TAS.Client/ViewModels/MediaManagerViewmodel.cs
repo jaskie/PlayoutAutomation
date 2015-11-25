@@ -56,7 +56,7 @@ namespace TAS.Client.ViewModels
             if (serverDirectoryPGM != null)
                 _mediaDirectories.Insert(0, serverDirectoryPGM);
             IServerDirectory serverDirectoryPRV = mediaManager.MediaDirectoryPRV;
-            if (serverDirectoryPRV.GuidDto!= serverDirectoryPGM.GuidDto)
+            if (serverDirectoryPRV.DtoGuid!= serverDirectoryPGM.DtoGuid)
                 _mediaDirectories.Insert(1, serverDirectoryPRV);
 
             _mediaCategory = _mediaCategories.FirstOrDefault();
@@ -448,9 +448,9 @@ namespace TAS.Client.ViewModels
             _mediaItems = new ObservableCollection<MediaViewViewmodel>();
             IEnumerable<MediaViewViewmodel> itemsToLoad;
             if (_mediaDirectory is IServerDirectory)
-                itemsToLoad = _mediaDirectory.Files.Where(f => (f.MediaType == TMediaType.Movie || f.MediaType == TMediaType.Still)).Select(f => new MediaViewViewmodel(f));
+                itemsToLoad = _mediaDirectory.GetFiles().Where(f => (f.MediaType == TMediaType.Movie || f.MediaType == TMediaType.Still)).Select(f => new MediaViewViewmodel(f));
             else
-                itemsToLoad = _mediaDirectory.Files.Select(f => new MediaViewViewmodel(f));
+                itemsToLoad = _mediaDirectory.GetFiles().Select(f => new MediaViewViewmodel(f));
             foreach (MediaViewViewmodel mvm in itemsToLoad)
                 _mediaItems.Add(mvm);
             _mediaView = CollectionViewSource.GetDefaultView(_mediaItems);
@@ -466,11 +466,11 @@ namespace TAS.Client.ViewModels
             return _selectedMediaList != null && _selectedMediaList.Count > 0;
         }
 
-        private void MediaAdded(object source, GuidEventArgs e)
+        private void MediaAdded(object source, DtoEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                IMedia media = MediaDirectory.FindMediaDto(e.Guid);
+                IMedia media = MediaDirectory.FindMediaByDto(e.DtoGuid);
                 if (media == null)
                     return;
                 if (!(MediaDirectory is IServerDirectory) || (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Still))
@@ -483,11 +483,11 @@ namespace TAS.Client.ViewModels
                 , null);
         }
 
-        private void MediaRemoved(object source, GuidEventArgs e)
+        private void MediaRemoved(object source, DtoEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                var vm = _mediaItems.FirstOrDefault(v => v.Media.GuidDto == e.Guid);
+                var vm = _mediaItems.FirstOrDefault(v => v.Media.DtoGuid == e.DtoGuid);
                 if (vm != null)
                     _mediaItems.Remove(vm);
                 _notifyDirectoryPropertiesChanged();

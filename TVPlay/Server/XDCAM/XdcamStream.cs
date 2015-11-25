@@ -99,7 +99,7 @@ namespace TAS.Server.XDCAM
                     string umid = r.src.Substring(15);
                     int startFrame = r.clipBegin.SmpteToFrame();
                     int length = r.clipEnd.SmpteToFrame() - startFrame;
-                    IngestMedia media = _media.Directory.Files.Select( m => (IngestMedia)m).FirstOrDefault( m => umid.Equals(m.ClipMetadata.TargetMaterial.umidRef));
+                    IngestMedia media = _media.Directory.GetFiles().Select( m => (IngestMedia)m).FirstOrDefault( m => umid.Equals(m.ClipMetadata.TargetMaterial.umidRef));
                     if (media != null)
                     {
                         Uri uri = new Uri(media.FullPath);

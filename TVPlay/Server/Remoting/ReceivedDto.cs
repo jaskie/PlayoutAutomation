@@ -9,6 +9,6 @@ namespace TAS.Server.Remoting
 {
     internal class ReceivedDto : IDto
     {
-        public Guid GuidDto { get; set; }
+        public Guid DtoGuid { get; set; }
     }
 }

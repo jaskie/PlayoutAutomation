@@ -6,12 +6,12 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server.Common
 {
-    public class GuidEventArgs : EventArgs
+    public class DtoEventArgs : EventArgs
     {
-        public GuidEventArgs(Guid guid)
+        public DtoEventArgs(Guid dtoGuid)
         {
-            Guid = guid;
+            DtoGuid = dtoGuid;
         }
-        public Guid Guid { get; private set; }
+        public Guid DtoGuid { get; private set; }
     }
 }

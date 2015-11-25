@@ -215,16 +215,7 @@ namespace TAS.Server
         public override void SweepStaleMedia()
         {
             DateTime currentDateTime = DateTime.UtcNow.Date;
-            IEnumerable<IMedia> StaleMediaList;
-            _files.Lock.EnterReadLock();
-            try
-            {
-                StaleMediaList = _files.Where(m => currentDateTime > m.LastUpdated.Date + TimeSpan.FromDays(MediaRetnentionDays)).ToList();
-            }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
+            List<IMedia> StaleMediaList = FindMediaList(m => currentDateTime > m.LastUpdated.Date + TimeSpan.FromDays(MediaRetnentionDays));
             foreach (IMedia m in StaleMediaList)
                 m.Delete();
         }
@@ -412,16 +403,8 @@ namespace TAS.Server
             if (Path.GetExtension(fullPath).ToLowerInvariant() == ".xml")
             {
                 _bMDXmlFiles.Remove(fullPath);
-                _files.Lock.EnterReadLock();
-                try
-                {
-                    foreach (Media fd in _files.Where(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == fullPath))
+                    foreach (Media fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == fullPath))
                         ((IngestMedia)fd).XmlFile = string.Empty;
-                }
-                finally
-                {
-                    _files.Lock.ExitReadLock();
-                }
             }
             else
                 base.FileRemoved(fullPath);
@@ -433,22 +416,14 @@ namespace TAS.Server
             // remove xmlfile if it was last media file
             if (media is IngestMedia && (media as IngestMedia).XmlFile != string.Empty)
             {
-                _files.Lock.EnterReadLock();
-                try
-                {
-                    if (!_files.Any(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == (media as IngestMedia).XmlFile))
-                        try
-                        {
-                            string fn = (media as IngestMedia).XmlFile;
-                            if (!string.IsNullOrWhiteSpace(fn) && File.Exists(fn))
-                                File.Delete(fn);
-                        }
-                        catch { };
-                }
-                finally
-                {
-                    _files.Lock.ExitReadLock();
-                }
+                if (!_files.Values.Any(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == (media as IngestMedia).XmlFile))
+                    try
+                    {
+                        string fn = (media as IngestMedia).XmlFile;
+                        if (!string.IsNullOrWhiteSpace(fn) && File.Exists(fn))
+                            File.Delete(fn);
+                    }
+                    catch { };
             }
         }
 
@@ -461,16 +436,8 @@ namespace TAS.Server
                 {
                     _bMDXmlFiles.Remove(xf);
                     _bMDXmlFiles.Add(e.FullPath);
-                    _files.Lock.EnterReadLock();
-                    try
-                    {
-                        foreach (Media fd in _files.Where(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == xf))
-                            ((IngestMedia)fd).XmlFile = e.FullPath;
-                    }
-                    finally
-                    {
-                        _files.Lock.ExitReadLock();
-                    }
+                    foreach (Media fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == xf))
+                        ((IngestMedia)fd).XmlFile = e.FullPath;
                 }
             }
             else
@@ -495,16 +462,8 @@ namespace TAS.Server
         // parse files from BMD's MediaExpress
         private void _scanXML(string xmlFileName)
         {
-            _files.Lock.EnterReadLock();
-            try
-            {
-                foreach (Media fd in _files.Where(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == xmlFileName))
+                foreach (Media fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == xmlFileName))
                     ((IngestMedia)fd).XmlFile = string.Empty;
-            }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
             try
             {
                 XmlDocument doc = new XmlDocument();
@@ -515,16 +474,7 @@ namespace TAS.Server
                     foreach (XmlNode clip in clips)
                     {
                         string fileName = Path.GetFileName((new Uri(Uri.UnescapeDataString(clip.SelectSingleNode(@"file/pathurl").InnerText))).LocalPath);
-                        IngestMedia m;
-                        _files.Lock.EnterReadLock();
-                        try
-                        {
-                            m = (IngestMedia)_files.FirstOrDefault(f => f.FileName == fileName);
-                        }
-                        finally
-                        {
-                            _files.Lock.ExitReadLock();
-                        }
+                        IngestMedia m = (IngestMedia)FindMediaFirst(f => f.FileName == fileName);
                         if (m != null)
                         {
                             m.TCStart = clip.SelectSingleNode(@"file/timecode/string").InnerText.SMPTETimecodeToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
@@ -544,16 +494,7 @@ namespace TAS.Server
         public IngestMedia FindMedia(string clipName)
         {
             string clipNameLowered = clipName.ToLower();
-            _files.Lock.EnterReadLock();
-            IngestMedia result = null;
-            try
-            {
-                result = (IngestMedia)_files.FirstOrDefault(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToLower() == clipNameLowered);
-            }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
+            IngestMedia result = (IngestMedia)FindMediaFirst(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToLower() == clipNameLowered);
             if (result == null & IsWAN)
                 {
                     string[] files = Directory.GetFiles(this.Folder, string.Format("{0}.*", clipName));

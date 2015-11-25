@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -36,7 +37,7 @@ namespace TAS.Server.Remoting
             {
                 message.ConvertToResponse(_mediaManager);
                 Send(JsonConvert.SerializeObject(message));
-                _dtos[_mediaManager.GuidDto] = _mediaManager;
+                _dtos[_mediaManager.DtoGuid] = _mediaManager;
             }
             else // method of particular object
             {
@@ -54,8 +55,9 @@ namespace TAS.Server.Remoting
                         if (methodToInvoke != null)
                         {
                             MethodParametersAlignment.AlignParameters(ref message.Parameters, methodToInvoke.GetParameters());
-                            object response = methodToInvoke.Invoke(objectToInvoke, message.Parameters);
-                            if (response != null && message.MessageType == WebSocketMessage.WebSocketMessageType.Query)
+                            object response = methodToInvoke.Invoke(objectToInvoke, BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.Public, null, message.Parameters, null);
+                            Debug.WriteLine(methodToInvoke.Name, "Invoked");
+                            if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query)
                             {
                                 _registerResponse(response);
                                 message.ConvertToResponse(response);
@@ -125,7 +127,7 @@ namespace TAS.Server.Remoting
 
         void _addDelegate(IDto objectToInvoke, EventInfo ei)
         {
-            delegateKey signature = new delegateKey(objectToInvoke.GuidDto, ei.Name);
+            delegateKey signature = new delegateKey(objectToInvoke.DtoGuid, ei.Name);
             if (_delegates.ContainsKey(signature))
                 return;
             Delegate delegateToInvoke = ConvertDelegate((Action<object, EventArgs>)delegate (object o, EventArgs ea) { _notifyClient(o, ea, ei.Name); }, ei.EventHandlerType);
@@ -136,7 +138,7 @@ namespace TAS.Server.Remoting
 
         void _removeDelegate(IDto objectToInvoke, EventInfo ei)
         {
-            delegateKey signature = new delegateKey(objectToInvoke.GuidDto, ei.Name);
+            delegateKey signature = new delegateKey(objectToInvoke.DtoGuid, ei.Name);
             Delegate delegateToRemove;
             if (_delegates.TryRemove(signature, out delegateToRemove))
                 ei.RemoveEventHandler(objectToInvoke, delegateToRemove);
@@ -163,11 +165,11 @@ namespace TAS.Server.Remoting
                     {
                         IDto[] inputParameters = JsonConvert.DeserializeObject<ReceivedDto[]>((input[i] as JContainer).ToString(), deserializeSettings).Cast<IDto>().ToArray();
                         for (int j = 0; j < inputParameters.Length; j++)
-                            inputParameters[j] = _dtos[inputParameters[j].GuidDto];
+                            inputParameters[j] = _dtos[inputParameters[j].DtoGuid];
                         input[i] = inputParameters;
                     }
                     else
-                        input[i] = _dtos[JsonConvert.DeserializeObject<ReceivedDto>((input[i] as JContainer).ToString(), deserializeSettings).GuidDto];
+                        input[i] = _dtos[JsonConvert.DeserializeObject<ReceivedDto>((input[i] as JContainer).ToString(), deserializeSettings).DtoGuid];
             }
         }
 
@@ -176,7 +178,7 @@ namespace TAS.Server.Remoting
             IDto dto = o as IDto;
             if (dto == null)
                 return;
-            WebSocketMessage message = new WebSocketMessage() { DtoGuid = dto.GuidDto, Response = e, MessageType = WebSocketMessage.WebSocketMessageType.EventNotification, MemberName = eventName };
+            WebSocketMessage message = new WebSocketMessage() { DtoGuid = dto.DtoGuid, Response = e, MessageType = WebSocketMessage.WebSocketMessageType.EventNotification, MemberName = eventName };
             Send(JsonConvert.SerializeObject(message));
             Debug.WriteLine(dto, "_notifyClient executed");
         }
@@ -190,12 +192,12 @@ namespace TAS.Server.Remoting
         protected void _registerResponse(object response)
         {
             IDto responseDto = response as IDto;
-            if (responseDto != null && !_dtos.ContainsKey(responseDto.GuidDto))
-                _dtos[responseDto.GuidDto] = responseDto;
-            if (response is System.Collections.IEnumerable)
-                foreach (object o in response as System.Collections.IEnumerable)
-                    if (o is IDto)
-                        _dtos[(o as IDto).GuidDto] = o as IDto;
+            if (responseDto != null && !_dtos.ContainsKey(responseDto.DtoGuid))
+                _dtos[responseDto.DtoGuid] = responseDto;
+            IEnumerable responseEnum = response as IEnumerable;
+            if (responseEnum != null)
+                foreach (object o in responseEnum)
+                    _registerResponse(o);
         }
     }
 }

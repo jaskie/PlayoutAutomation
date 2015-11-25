@@ -14,6 +14,7 @@ using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
 
 namespace TAS.Server
 {
@@ -22,12 +23,12 @@ namespace TAS.Server
     { 
         protected string[] _extensions;
         private FileSystemWatcher _watcher;
-        protected ConcurrentHashSet<IMedia> _files = new ConcurrentHashSet<IMedia>();
+        protected ConcurrentDictionary<Guid, IMedia> _files = new ConcurrentDictionary<Guid, IMedia>();
         internal MediaManager MediaManager;
 
-        public event EventHandler<GuidEventArgs> MediaAdded;
-        public event EventHandler<GuidEventArgs> MediaRemoved;
-        public event EventHandler<GuidEventArgs> MediaVerified;
+        public event EventHandler<MediaDtoEventArgs> MediaAdded;
+        public event EventHandler<MediaDtoEventArgs> MediaRemoved;
+        public event EventHandler<MediaDtoEventArgs> MediaVerified;
 
         protected bool _isInitialized = false;
         private readonly Guid _idDto = Guid.NewGuid();
@@ -82,11 +83,11 @@ namespace TAS.Server
         }
 
         [JsonProperty]
-        public Guid GuidDto { get { return _idDto; } }
+        public Guid DtoGuid { get { return _idDto; } }
 
         protected virtual void ClearFiles()
         {
-            _files.ToList().ForEach(m => ((Media)m).Remove());
+            _files.Values.ToList().ForEach(m => ((Media)m).Remove());
         }
 
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
@@ -125,22 +126,10 @@ namespace TAS.Server
         public virtual UInt64 VolumeTotalSize { get { return _volumeTotalSize; } }
 
         public abstract void Refresh();
-        
-        [XmlIgnore]
-        public virtual List<IMedia> Files
+
+        public virtual IEnumerable<IMedia> GetFiles()
         {
-            get
-            {
-                _files.Lock.EnterUpgradeableReadLock();
-                try
-                {
-                    return _files.ToList();
-                }
-                finally
-                {
-                    _files.Lock.ExitUpgradeableReadLock();
-                }
-            }
+            return _files.Values;
         }
 
         protected string _folder;
@@ -206,15 +195,7 @@ namespace TAS.Server
             if (media.Directory == this)
             {
                 bool isLastWithTheName = false;
-                _files.Lock.EnterReadLock();
-                try
-                {
-                    isLastWithTheName = !_files.Any(m => m.FullPath == media.FullPath && m != media);
-                }
-                finally
-                {
-                    _files.Lock.ExitReadLock();
-                }
+                    isLastWithTheName = !_files.Values.Any(m => m.FullPath == media.FullPath && m != media);
                 if (isLastWithTheName && media.FileExists())
                 {
                     try
@@ -249,15 +230,7 @@ namespace TAS.Server
                 || _extensions.Any(ext => ext.ToLowerInvariant() == Path.GetExtension(fullPath).ToLowerInvariant()))
             {
                 Media newMedia;
-                _files.Lock.EnterReadLock();
-                try
-                {
-                    newMedia = (Media)_files.FirstOrDefault(m => fullPath.Equals(m.FullPath));
-                }
-                finally
-                {
-                    _files.Lock.ExitReadLock();
-                }
+                    newMedia = (Media)_files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath));
                 if (newMedia == null)
                 {
                     if (guid == default(Guid))
@@ -276,31 +249,24 @@ namespace TAS.Server
 
         public virtual void MediaAdd(IMedia media)
         {
-            _files.Add(media);
+            _files[media.DtoGuid] = media;
         }
 
         public virtual void MediaRemove(IMedia media)
         {
-            if (_files.Remove(media))
+            IMedia removed;
+            if (_files.TryRemove(media.DtoGuid, out removed))
             {
                 var h = MediaRemoved;
                 if (h != null)
-                    h(this, new GuidEventArgs(media.GuidDto));
+                    h(this, new MediaDtoEventArgs(media.DtoGuid, media.MediaGuid));
             }
         }
-        
+
         protected virtual void FileRemoved(string fullPath)
         {
-            _files.Lock.EnterUpgradeableReadLock();
-            try
-            {
-                foreach (Media m in _files.Where(m => fullPath == m.FullPath && m.MediaStatus != TMediaStatus.Required).ToList())
-                    MediaRemove(m);
-            }
-            finally
-            {
-                _files.Lock.ExitUpgradeableReadLock();
-            }
+            foreach (Media m in _files.Values.Where(m => fullPath == m.FullPath && m.MediaStatus != TMediaStatus.Required).ToList())
+                MediaRemove(m);
         }
 
         protected virtual void OnMediaRenamed(IMedia media, string newName)
@@ -322,81 +288,44 @@ namespace TAS.Server
         {
             var h = MediaVerified;
             if (h != null)
-                h(media, new GuidEventArgs(media.GuidDto));
+                h(media, new MediaDtoEventArgs(media.DtoGuid, media.MediaGuid));
         }
 
         protected virtual void EnumerateFiles(string filter, CancellationToken cancelationToken)
         {
-            IEnumerable<FileSystemInfo> list = (new DirectoryInfo(_folder)).EnumerateFiles(string.IsNullOrWhiteSpace(filter)? "*": string.Format("*{0}*", filter));
+            IEnumerable<FileSystemInfo> list = (new DirectoryInfo(_folder)).EnumerateFiles(string.IsNullOrWhiteSpace(filter) ? "*" : string.Format("*{0}*", filter));
             foreach (FileSystemInfo f in list)
             {
-                _files.Lock.EnterUpgradeableReadLock();
-                try
-                {
-                    if (cancelationToken.IsCancellationRequested)
-                        return;
-                    AddFile(f.FullName, f.CreationTimeUtc, f.LastWriteTimeUtc);
-                }
-                finally
-                {
-                    _files.Lock.ExitUpgradeableReadLock();
-                }
+                if (cancelationToken.IsCancellationRequested)
+                    return;
+                AddFile(f.FullName, f.CreationTimeUtc, f.LastWriteTimeUtc);
             }
         }
 
         public bool Exists { get { return Directory.Exists(_folder); } }
 
-        public virtual IMedia FindMedia(IMedia media)
+        public virtual IMedia FindMediaByMediaGuid(Guid mediaGuid)
         {
-            _files.Lock.EnterReadLock();
-            try
-            {
-                return _files.FirstOrDefault(m => m.Equals(media));
-            }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
+            return _files.Values.FirstOrDefault(m => m.MediaGuid == mediaGuid);
         }
 
-        public virtual IMedia FindMedia(Guid mediaGuid)
+        public virtual IMedia FindMediaByDto(Guid guidDto)
         {
-            _files.Lock.EnterReadLock();
-            try
-            {
-                return _files.FirstOrDefault(m => m.MediaGuid == mediaGuid);
-            }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
+            IMedia result;
+            _files.TryGetValue(guidDto, out result);
+            return result;
         }
 
-        public virtual IMedia FindMediaDto(Guid guidDto)
+        public virtual List<IMedia> FindMediaList(Func<IMedia, bool> condition)
         {
-            _files.Lock.EnterReadLock();
-            try
-            {
-                return _files.FirstOrDefault(m => m.GuidDto == guidDto);
-            }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
+            return _files.Values.Where(condition).ToList();
         }
 
-        public virtual List<IMedia> FindMedia(Func<IMedia, bool> condition)
+        public virtual IMedia FindMediaFirst(Func<IMedia, bool> condition)
         {
-            _files.Lock.EnterReadLock();
-            try
-            {
-                return _files.Where(condition).ToList();
-             }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
+            return _files.Values.FirstOrDefault(condition);
         }
+
 
         protected string _filter;
         protected CancellationTokenSource _watcherTaskCancelationTokenSource;
@@ -482,32 +411,14 @@ namespace TAS.Server
 
         protected virtual void OnFileRenamed(object source, RenamedEventArgs e)
         {
-            IMedia m;
-            _files.Lock.EnterReadLock();
-            try
-            {
-                m = _files.FirstOrDefault(f => e.OldFullPath == f.FullPath);
-            }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
+            IMedia m = _files.Values.FirstOrDefault(f => e.OldFullPath == f.FullPath);
             if (m != null)
                 OnMediaRenamed(m, e.Name);
         }
 
         protected virtual void OnFileChanged(object source, FileSystemEventArgs e)
         {
-            IMedia m;
-            _files.Lock.EnterReadLock();
-            try
-            {
-                m = _files.FirstOrDefault(f => e.FullPath == f.FullPath);
-            }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
+            IMedia m = _files.Values.FirstOrDefault(f => e.FullPath == f.FullPath);
             if (m != null)
                 OnMediaChanged(m);
             GetVolumeInfo();
@@ -537,7 +448,7 @@ namespace TAS.Server
         {
             var h = MediaAdded;
             if (h != null)
-                h(this, new GuidEventArgs(media.GuidDto));
+                h(this, new MediaDtoEventArgs(media.DtoGuid, media.MediaGuid));
         }
     }
 

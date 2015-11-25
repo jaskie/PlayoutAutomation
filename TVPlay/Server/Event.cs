@@ -645,7 +645,7 @@ namespace TAS.Server
                         dir = (MediaDirectory)Engine.MediaManager.MediaDirectoryPGM;
                     if (dir != null)
                     {
-                        var newMedia = dir.FindMedia(mediaGuid);
+                        var newMedia = dir.FindMediaByMediaGuid(mediaGuid);
                         if (newMedia is ServerMedia)
                         {
                             _serverMediaPGM = (ServerMedia)newMedia;
@@ -674,7 +674,7 @@ namespace TAS.Server
                         dir = (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV;
                     if (dir != null)
                     {
-                        var newMedia = dir.FindMedia(mediaGuid);
+                        var newMedia = dir.FindMediaByMediaGuid(mediaGuid);
                         if (newMedia is ServerMedia)
                             _serverMediaPRV = (ServerMedia)newMedia;
                     }

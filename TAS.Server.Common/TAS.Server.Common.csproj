@@ -94,7 +94,8 @@
     <Compile Include="Interfaces\ITempMedia.cs" />
     <Compile Include="MediaConversion.cs" />
     <Compile Include="MediaDeleteDenyReason.cs" />
-    <Compile Include="GuidEventArgs.cs" />
+    <Compile Include="DtoEventArgs.cs" />
+    <Compile Include="MediaDtoEventArgs.cs" />
     <Compile Include="MediaExport.cs" />
     <Compile Include="ObservableSynchronizedCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

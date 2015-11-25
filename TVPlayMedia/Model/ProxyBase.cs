@@ -16,7 +16,7 @@ namespace TAS.Client.Model
     public abstract class ProxyBase: IDto, INotifyPropertyChanged
     {
         [JsonProperty]
-        public Guid GuidDto { get; set; }
+        public Guid DtoGuid { get; set; }
         IRemoteClient _client;
         internal void SetClient(IRemoteClient client)
         {
@@ -81,7 +81,7 @@ namespace TAS.Client.Model
 
         void OnEventNotificationMessage(object sender, WebSocketMessageEventArgs e)
         {
-            if (e.Message.DtoGuid == GuidDto)
+            if (e.Message.DtoGuid == DtoGuid)
             {
                 Debug.WriteLine("OnMessage received {0}:{1}", this, e.Message.MemberName);
                 if (e.Message.MemberName == "PropertyChanged")

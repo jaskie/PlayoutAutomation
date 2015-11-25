@@ -53,12 +53,12 @@ namespace TAS.Server
             };
         }
 
-        public event EventHandler<GuidEventArgs> MediaSaved;
+        public event EventHandler<MediaDtoEventArgs> MediaSaved;
         internal virtual void OnMediaSaved(Media media)
         {
             var handler = MediaSaved;
             if (handler != null)
-                handler(media, new GuidEventArgs(media.GuidDto));
+                handler(media, new MediaDtoEventArgs(media.DtoGuid, media.MediaGuid));
         }
 
         public override void MediaAdd(IMedia media)
@@ -90,16 +90,7 @@ namespace TAS.Server
         public override void SweepStaleMedia()
         {
             DateTime currentDateTime = DateTime.UtcNow.Date;
-            IEnumerable<IMedia> StaleMediaList;
-            _files.Lock.EnterReadLock();
-            try
-            {
-                StaleMediaList = _files.Where(m => (m is ServerMedia) && currentDateTime > (m as ServerMedia).KillDate);
-            }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
+            IEnumerable<IMedia> StaleMediaList = FindMediaList(m => (m is ServerMedia) && currentDateTime > (m as ServerMedia).KillDate);
             foreach (Media m in StaleMediaList)
                 m.Delete();
         }
@@ -109,73 +100,41 @@ namespace TAS.Server
             if (media == null)
                 return null;
             ServerMedia fm = null;
-            _files.Lock.EnterUpgradeableReadLock();
-            try
+            if (searchExisting)
+                fm = (ServerMedia)FindMediaByMediaGuid(media.MediaGuid);
+            if (fm == null || !searchExisting)
             {
-                fm = (ServerMedia)FindMedia(media);
-                if (fm == null || !searchExisting)
+                fm = (new ServerMedia(this, fm == null ? media.MediaGuid : Guid.NewGuid()) // in case file with the same GUID already exists and we need to get new one
                 {
-                    _files.Lock.EnterWriteLock();
-                    try
-                    {
-                        fm = (new ServerMedia(this, fm == null ? media.MediaGuid : Guid.NewGuid()) // in case file with the same GUID already exists and we need to get new one
-                        {
-                            MediaName = media.MediaName,
-                            Folder = string.Empty,
-                            FileName = (media is IngestMedia) ? (FileUtils.VideoFileTypes.Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + FileUtils.DefaultFileExtension(media.MediaType) : media.FileName,
-                            MediaType = (media.MediaType == TMediaType.Unknown) ? (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(media.FullPath).ToLowerInvariant()) ? TMediaType.Still : TMediaType.Movie) : media.MediaType,
-                            MediaStatus = TMediaStatus.Required,
-                            TCStart = media.TCStart,
-                            TCPlay = media.TCPlay,
-                            Duration = media.Duration,
-                            DurationPlay = media.DurationPlay,
-                            VideoFormat = media.VideoFormat,
-                            AudioChannelMapping = media.AudioChannelMapping,
-                            AudioVolume = media.AudioVolume,
-                            AudioLevelIntegrated = media.AudioLevelIntegrated,
-                            AudioLevelPeak = media.AudioLevelPeak,
-                            KillDate = default(DateTime),
-                            DoNotArchive = (media is ServerMedia && (media as ServerMedia).DoNotArchive),
-                            MediaCategory = media.MediaCategory,
-                            Parental = media.Parental,
-                            IdAux = (media is PersistentMedia) ? (media as PersistentMedia).IdAux : string.Empty,
-                            idProgramme = (media is PersistentMedia) ? (media as PersistentMedia).idProgramme : 0L,
-                            OriginalMedia = media,
-                        });
-                        NotifyMediaAdded(fm);
-                    }
-                    finally
-                    {
-                        _files.Lock.ExitWriteLock();
-                    }
-                    fm.PropertyChanged += MediaPropertyChanged;
-                }
-                else
-                    if (fm.MediaStatus == TMediaStatus.Deleted)
-                        fm.MediaStatus = TMediaStatus.Required;
+                    MediaName = media.MediaName,
+                    Folder = string.Empty,
+                    FileName = (media is IngestMedia) ? (FileUtils.VideoFileTypes.Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + FileUtils.DefaultFileExtension(media.MediaType) : media.FileName,
+                    MediaType = (media.MediaType == TMediaType.Unknown) ? (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(media.FullPath).ToLowerInvariant()) ? TMediaType.Still : TMediaType.Movie) : media.MediaType,
+                    MediaStatus = TMediaStatus.Required,
+                    TCStart = media.TCStart,
+                    TCPlay = media.TCPlay,
+                    Duration = media.Duration,
+                    DurationPlay = media.DurationPlay,
+                    VideoFormat = media.VideoFormat,
+                    AudioChannelMapping = media.AudioChannelMapping,
+                    AudioVolume = media.AudioVolume,
+                    AudioLevelIntegrated = media.AudioLevelIntegrated,
+                    AudioLevelPeak = media.AudioLevelPeak,
+                    KillDate = default(DateTime),
+                    DoNotArchive = (media is ServerMedia && (media as ServerMedia).DoNotArchive),
+                    MediaCategory = media.MediaCategory,
+                    Parental = media.Parental,
+                    IdAux = (media is PersistentMedia) ? (media as PersistentMedia).IdAux : string.Empty,
+                    idProgramme = (media is PersistentMedia) ? (media as PersistentMedia).idProgramme : 0L,
+                    OriginalMedia = media,
+                });
+                NotifyMediaAdded(fm);
+                fm.PropertyChanged += MediaPropertyChanged;
             }
-            finally
-            {
-                _files.Lock.ExitUpgradeableReadLock();
-            }
+            else
+                if (fm.MediaStatus == TMediaStatus.Deleted)
+                fm.MediaStatus = TMediaStatus.Required;
             return fm;
-        }
-
-        public override IMedia FindMedia(IMedia media)
-        {
-            if (media is ServerMedia && media.Directory == this)
-                return media;
-            if (media == null)
-                return null;
-            _files.Lock.EnterReadLock();
-            try
-            {
-                return _files.FirstOrDefault(m => m.MediaGuid == (media.MediaGuid));
-            }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
         }
 
         protected override void OnMediaRenamed(IMedia media, string newName)
@@ -186,16 +145,8 @@ namespace TAS.Server
 
         public void VerifyMedia()
         {
-            _files.Lock.EnterReadLock();
-            try
-            {
-                var unverifiedFiles = _files.Where(mf => ((ServerMedia)mf).Verified == false).ToList();
+                var unverifiedFiles = _files.Values.Where(mf => ((ServerMedia)mf).Verified == false).ToList();
                 unverifiedFiles.ForEach(media => media.Verify());
-            }
-            finally
-            {
-                _files.Lock.ExitReadLock();
-            }
         }
 
     }

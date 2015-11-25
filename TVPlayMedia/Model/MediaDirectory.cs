@@ -21,7 +21,7 @@ namespace TAS.Client.Model
         public TDirectoryAccessType AccessType { get; set; }
         public string DirectoryName { get { return Get<string>(); } set { Set(value); } }
         public string[] Extensions { get; set; }
-        public abstract List<IMedia> Files { get; }
+        public abstract IEnumerable<IMedia> GetFiles();
 
         public string Folder { get { return Get<string>(); } set { Set(value); } }
 
@@ -37,8 +37,8 @@ namespace TAS.Client.Model
 
         public ulong VolumeTotalSize { get { return Get<ulong>(); } internal set { Set(value); } }
 
-        event EventHandler<GuidEventArgs> _mediaAdded;
-        public event EventHandler<GuidEventArgs> MediaAdded
+        event EventHandler<MediaDtoEventArgs> _mediaAdded;
+        public event EventHandler<MediaDtoEventArgs> MediaAdded
         {
             add
             {
@@ -56,8 +56,8 @@ namespace TAS.Client.Model
             }
         }
 
-        event EventHandler<GuidEventArgs> _mediaRemoved;
-        public event EventHandler<GuidEventArgs> MediaRemoved
+        event EventHandler<MediaDtoEventArgs> _mediaRemoved;
+        public event EventHandler<MediaDtoEventArgs> MediaRemoved
         {
             add
             {
@@ -74,8 +74,8 @@ namespace TAS.Client.Model
                     EventRemove();
             }
         }
-        event EventHandler<GuidEventArgs> _mediaVerified;
-        public event EventHandler<GuidEventArgs> MediaVerified
+        event EventHandler<MediaDtoEventArgs> _mediaVerified;
+        public event EventHandler<MediaDtoEventArgs> MediaVerified
         {
             add
             {
@@ -99,19 +99,19 @@ namespace TAS.Client.Model
             {
                 var h = _mediaAdded;
                 if (h != null)
-                    h(this, ConvertEventArgs<GuidEventArgs>(e));
+                    h(this, ConvertEventArgs<MediaDtoEventArgs>(e));
             }
             if (e.Message.MemberName == "MediaRemoved")
             {
                 var h = _mediaRemoved;
                 if (h != null)
-                    h(this, ConvertEventArgs<GuidEventArgs>(e));
+                    h(this, ConvertEventArgs<MediaDtoEventArgs>(e));
             }
             if (e.Message.MemberName == "MediaVerified")
             {
                 var h = _mediaVerified;
                 if (h != null)
-                    h(this, ConvertEventArgs<GuidEventArgs>(e));
+                    h(this, ConvertEventArgs<MediaDtoEventArgs>(e));
             }
         }
 
@@ -124,9 +124,11 @@ namespace TAS.Client.Model
         {
             return Query<bool>(parameters: new object[] { filename, subfolder });
         }
-        public IMedia FindMediaDto(Guid dtoGuid)
+        public IMedia FindMediaByDto(Guid dtoGuid)
         {
-            return Files.FirstOrDefault(m => m.GuidDto == dtoGuid);
+            Media result = Query<Media>(parameters: new[] { dtoGuid});
+            result.Directory = this;
+            return result;
         }
 
         public void Initialize()

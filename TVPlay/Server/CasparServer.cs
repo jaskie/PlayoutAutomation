@@ -158,7 +158,7 @@ namespace TAS.Server
 
         private void _onUpdatedTemplates(object o, EventArgs e)
         {
-            var files = AnimationDirectory.Files;
+            var files = AnimationDirectory.GetFiles();
             var templates = _casparDevice.Templates.All.ToList();
             foreach (Svt.Caspar.TemplateInfo template in templates)
             {
