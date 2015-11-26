@@ -48,18 +48,13 @@ namespace TAS.Client.Model
 
         public List<IIngestDirectory> IngestDirectories
         {
-            get { return Get<List<Model.IngestDirectory>>().Cast<IIngestDirectory>().ToList(); }
+            get { return Get<List<IIngestDirectory>>(); }
             set { Set(value); }
         }
 
         public void GetLoudness(IEnumerable<IMedia> mediaList)
         {
             Invoke(parameters: mediaList);
-        }
-
-        public void GetLoudnessWithCallback(IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
-        {
-            throw new NotImplementedException();
         }
 
         public IServerDirectory MediaDirectoryPGM { get { return Get<ServerDirectory>(); } set { Set(value); } }

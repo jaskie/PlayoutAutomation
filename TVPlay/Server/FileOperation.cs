@@ -21,8 +21,9 @@ namespace TAS.Server
         public TFileOperationKind Kind { get; set; }
         public IMedia SourceMedia { get; set; }
         public IMedia DestMedia { get; set; }
-        public Action SuccessCallback { get; set; }
-        public Action FailureCallback { get; set; }
+        public event EventHandler Success;
+        public event EventHandler Failure;
+        public event EventHandler Finished;
         internal FileManager Owner;
         public FileOperation()
         {
@@ -30,10 +31,10 @@ namespace TAS.Server
             _addOutputMessage("Operation scheduled");
         }
 
-        private readonly Guid _guidDto = Guid.NewGuid();
+        private readonly Guid _dtoGuid = Guid.NewGuid();
 
         [JsonProperty]
-        public Guid DtoGuid { get { return _guidDto; } }
+        public Guid DtoGuid { get { return _dtoGuid; } }
 
         private int _tryCount = 15;
         [JsonProperty]
@@ -82,18 +83,37 @@ namespace TAS.Server
             {
                 if (SetField(ref _operationStatus, value, "OperationStatus"))
                 {
+                    EventHandler h;
                     if (value == FileOperationStatus.Finished)
                     {
                         Progress = 100;
                         FinishedTime = DateTime.UtcNow;
+                        h = Success;
+                        if (h != null)
+                            h(this, EventArgs.Empty);
+                        h = Finished;
+                        if (h != null)
+                            h(this, EventArgs.Empty);
                     }
                     if (value == FileOperationStatus.Failed)
                     {
                         Progress = 0;
+                        h = Failure;
+                        if (h != null)
+                            h(this, EventArgs.Empty);
+                        h = Finished;
+                        if (h != null)
+                            h(this, EventArgs.Empty);
                     }
                     if (value == FileOperationStatus.Aborted)
                     {
                         IsIndeterminate = false;
+                        h = Failure;
+                        if (h != null)
+                            h(this, EventArgs.Empty);
+                        h = Finished;
+                        if (h != null)
+                            h(this, EventArgs.Empty);
                     }
                 }
             }
@@ -295,8 +315,6 @@ namespace TAS.Server
             OperationStatus = FileOperationStatus.Failed;
             if (DestMedia != null)
                 DestMedia.Delete();
-            if (FailureCallback != null)
-                FailureCallback();
             Debug.WriteLine(this, "File simple operation failed - TryCount is zero");
         }       
 

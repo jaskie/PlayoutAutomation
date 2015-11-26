@@ -39,7 +39,7 @@ namespace TAS.Server
             Kind = TFileOperationKind.Loudness;
         }
 
-        public EventHandler<AudioVolumeMeasuredEventArgs> AudioVolumeMeasured { get; set; } // will not save to Media object if not null
+        public event EventHandler<AudioVolumeEventArgs> AudioVolumeMeasured; // will not save to Media object if not null
         [JsonProperty]
         public TimeSpan MeasureStart { get; set; }
         [JsonProperty]
@@ -160,7 +160,7 @@ namespace TAS.Server
                                 (SourceMedia as PersistentMedia).Save();
                         }
                         else
-                            h(this, new AudioVolumeMeasuredEventArgs(volume));
+                            h(this, new AudioVolumeEventArgs(volume));
                     }
                     _addOutputMessage(outLine.Data);
                 }

@@ -105,7 +105,7 @@ namespace TAS.Client.ViewModels
                         ThreadPool.QueueUserWorkItem(new WaitCallback( o => media.Verify()));
                     if (_previewViewModel != null)
                         _previewViewModel.Media = media;
-                    EditMedia = _selectedMedia == null ? null : new MediaEditViewmodel(_selectedMedia.Media, _previewViewModel, true);
+                    EditMedia = _selectedMedia == null ? null : new MediaEditViewmodel(_selectedMedia.Media, _mediaManager, _previewViewModel, true);
                 }
             }
         }

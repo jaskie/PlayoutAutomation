@@ -20,7 +20,8 @@ namespace TAS.Client.ViewModels
     {
         private readonly PreviewViewmodel _previewVm;
         private readonly bool _showButtons;
-        public MediaEditViewmodel(IMedia media, PreviewViewmodel previewVm, bool showButtons):base(media, new MediaEditView(media.FrameRate))
+        private readonly IMediaManager _mediaManager;
+        public MediaEditViewmodel(IMedia media, IMediaManager mediaManager,  PreviewViewmodel previewVm, bool showButtons):base(media, new MediaEditView(media.FrameRate))
         {
             CommandSaveEdit = new UICommand() { ExecuteDelegate = Save, CanExecuteDelegate = o => Modified && IsValid };
             CommandCancelEdit = new UICommand() { ExecuteDelegate = Load, CanExecuteDelegate = o => Modified };
@@ -28,6 +29,7 @@ namespace TAS.Client.ViewModels
             CommandGetTCFromPreview = new UICommand() { ExecuteDelegate = _getTCFromPreview, CanExecuteDelegate = _canGetTCFormPreview };
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = (o) => !_isVolumeChecking };
             _previewVm = previewVm;
+            _mediaManager = mediaManager;
             _showButtons = showButtons;
             if (previewVm != null)
                 previewVm.PropertyChanged += _onPreviewPropertyChanged;
@@ -85,18 +87,26 @@ namespace TAS.Client.ViewModels
             if (_isVolumeChecking)
                 return;
             IsVolumeChecking = true;
-            Model.GetLoudnessWithCallback(
-                this.TCPlay - this.TCStart,
-                this.DurationPlay,
-                (obj, e) =>
-                {
-                    if (((ILoudnessOperation)obj).SourceMedia == Model)
-                        AudioVolume = e.AudioVolume;
-                },
-                () =>
-                {
-                    IsVolumeChecking = false; // finishCallback
-                });
+            IFileManager fileManager = _mediaManager.FileManager;
+            ILoudnessOperation operation = fileManager.CreateLoudnessOperation();
+            operation.SourceMedia = this.Model;
+            operation.MeasureStart = this.TCPlay - this.TCStart;
+            operation.MeasureDuration = this.DurationPlay;
+            operation.AudioVolumeMeasured += _audioVolumeMeasured;
+            operation.Finished += _audioVolumeFinished;
+            fileManager.Queue(operation, true);
+        }
+
+        private void _audioVolumeFinished(object sender, EventArgs e)
+        {
+            IsVolumeChecking = false; // finishCallback
+            ((ILoudnessOperation)sender).Finished -= _audioVolumeFinished;
+            ((ILoudnessOperation)sender).AudioVolumeMeasured -= _audioVolumeMeasured;
+        }
+
+        private void _audioVolumeMeasured(object sender, AudioVolumeEventArgs e)
+        {
+            this.AudioVolume = e.AudioVolume;
         }
 
         private void OnMediaPropertyChanged(object media, PropertyChangedEventArgs e)

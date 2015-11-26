@@ -157,7 +157,8 @@ namespace TAS.Server
             }
             if (media is IngestMedia)
             {
-                MediaManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = toMedia, SuccessCallback = GetVolumeInfo, OutputFormat = outputFormat});
+                ConvertOperation operation = new ConvertOperation { SourceMedia = media, DestMedia = toMedia, OutputFormat = outputFormat };
+                MediaManager.Queue(operation);
             }
         }
 
@@ -177,13 +178,17 @@ namespace TAS.Server
             if (fromMedia.MediaGuid == toMedia.MediaGuid && fromMedia.FilePropertiesEqual(toMedia))
             {
                 if (deleteAfterSuccess)
-                    MediaManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = fromMedia, SuccessCallback = GetVolumeInfo}, toTop);
+                {
+                    FileOperation operation;
+                    operation = new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = fromMedia };
+                    MediaManager.Queue(operation, toTop);
+                }
             }
             else
             {
                 if (!Directory.Exists(Path.GetDirectoryName(toMedia.FullPath)))
                     Directory.CreateDirectory(Path.GetDirectoryName(toMedia.FullPath));
-                MediaManager.Queue(new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestMedia = toMedia, SuccessCallback = GetVolumeInfo }, toTop);
+                MediaManager.Queue(new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestMedia = toMedia }, toTop);
             }
         }    
 

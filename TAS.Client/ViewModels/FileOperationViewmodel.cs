@@ -14,6 +14,7 @@ namespace TAS.Client.ViewModels
     public class FileOperationViewmodel: ViewmodelBase
     {
         private readonly IFileOperation _fileOperation;
+
         public FileOperationViewmodel(IFileOperation fileOperation)
         {
             _fileOperation = fileOperation;
@@ -40,14 +41,11 @@ namespace TAS.Client.ViewModels
             };
         }
 
+        public IFileOperation FileOperation { get { return _fileOperation; } }
+
         protected override void OnDispose()
         {
             _fileOperation.PropertyChanged -= OnPropertyChanged;
-        }
-
-        public bool IsFileOperation(IFileOperation operation)
-        {
-            return _fileOperation == operation;
         }
 
         public string OperationDescription

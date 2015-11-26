@@ -10,6 +10,6 @@ namespace TAS.Server.Interfaces
     {
         TimeSpan MeasureStart { get; set; }
         TimeSpan MeasureDuration { get; set; }
-        EventHandler<AudioVolumeMeasuredEventArgs> AudioVolumeMeasured { get; set; }
+        event EventHandler<AudioVolumeEventArgs> AudioVolumeMeasured;
     }
 }

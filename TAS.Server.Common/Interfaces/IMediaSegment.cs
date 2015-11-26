@@ -6,7 +6,7 @@ using System.Text;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IMediaSegment: INotifyPropertyChanged
+    public interface IMediaSegment: IDto, INotifyPropertyChanged
     {
         string SegmentName { get; set; }
         TimeSpan TCIn { get; set; }

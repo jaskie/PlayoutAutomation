@@ -13,7 +13,6 @@ namespace TAS.Server.Interfaces
         bool Delete();
         void Verify();
         RationalNumber FrameRate { get; }
-        void GetLoudnessWithCallback(TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback);
         void GetLoudness();
     }
 }

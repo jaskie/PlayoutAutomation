@@ -12,17 +12,11 @@ namespace TAS.Client.Model
     {
         public TMediaEmphasis MediaEmphasis { get { return Get<TMediaEmphasis>(); } set { Set(value); } }
 
-        public ObservableSynchronizedCollection<IMediaSegment> MediaSegments
-        {
-            get
-            {
-                return new ObservableSynchronizedCollection<IMediaSegment>();
-            }
-        }
+        public ObservableSynchronizedCollection<IMediaSegment> MediaSegments { get { return Get<ObservableSynchronizedCollection<IMediaSegment>>(); }  set { Set(value); }  }
 
         public IMediaSegment CreateSegment()
         {
-            throw new NotImplementedException();
+            return Query<IMediaSegment>();
         }
 
         public bool Save()

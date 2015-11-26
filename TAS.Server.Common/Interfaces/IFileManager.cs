@@ -8,11 +8,12 @@ namespace TAS.Server.Interfaces
 {
     public interface IFileManager: IDto
     {
-        IEnumerable<IFileOperation> OperationQueue { get; }
+        IEnumerable<IFileOperation> GetOperationQueue();
         IConvertOperation CreateConvertOperation();
         ILoudnessOperation CreateLoudnessOperation();
         IFileOperation CreateFileOperation();
         event EventHandler<FileOperationEventArgs> OperationAdded;
         event EventHandler<FileOperationEventArgs> OperationCompleted;
+        void Queue(IFileOperation operation, bool toTop);
     }
 }

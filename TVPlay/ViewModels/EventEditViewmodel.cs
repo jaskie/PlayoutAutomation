@@ -383,7 +383,7 @@ namespace TAS.Client.ViewModels
 
         private void _editMovie(object obj)
         {
-            using (var evm = new MediaEditWindowViewmodel(_event.Media))
+            using (var evm = new MediaEditWindowViewmodel(_event.Media, _engine.MediaManager))
             {
                 evm.ShowDialog();
             }
@@ -651,18 +651,26 @@ namespace TAS.Client.ViewModels
             if (_media == null)
                 return;
             IsVolumeChecking = true;
-            _event.Media.GetLoudnessWithCallback(
-                _event.StartTC - _media.TCStart,
-                _event.Duration,
-                (o, e) =>
-                {
-                    if (((LoudnessOperation)o).SourceMedia == _event.Media)
-                        AudioVolume = e.AudioVolume;
-                },
-                () =>
-                {
-                    IsVolumeChecking = false; // finishCallback
-                });
+            var fileManager = _engine.MediaManager.FileManager;
+            var operation = fileManager.CreateLoudnessOperation();
+            operation.SourceMedia = _event.Media;
+            operation.MeasureStart = _event.StartTC - _media.TCStart;
+            operation.MeasureDuration = _event.Duration;
+            operation.AudioVolumeMeasured += _audioVolumeMeasured;
+            operation.Finished += _audioVolumeFinished;
+            fileManager.Queue(operation, true);
+        }
+
+        private void _audioVolumeFinished(object sender, EventArgs e)
+        {
+            IsVolumeChecking = false;
+            ((ILoudnessOperation)sender).Finished -= _audioVolumeFinished;
+            ((ILoudnessOperation)sender).AudioVolumeMeasured -= _audioVolumeFinished;
+        }
+
+        private void _audioVolumeMeasured(object sender, AudioVolumeEventArgs e)
+        {
+            AudioVolume = e.AudioVolume;
         }
 
         void _toggleEnabled(object o)

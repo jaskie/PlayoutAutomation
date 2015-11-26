@@ -446,11 +446,6 @@ namespace TAS.Server
             }
         }
 
-        public void GetLoudnessWithCallback(TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
-        {
-            _directory.MediaManager.Queue(new LoudnessOperation() { SourceMedia = this, AudioVolumeMeasured = audioVolumeMeasuredCallback, MeasureStart = startTime, MeasureDuration = duration, FailureCallback = finishCallback, SuccessCallback = finishCallback }, true);
-        }
-
         public void GetLoudness()
         {
             _directory.MediaManager.Queue(new LoudnessOperation() { SourceMedia = this, MeasureStart = this.TCPlay - this.TCStart, MeasureDuration = this.DurationPlay });

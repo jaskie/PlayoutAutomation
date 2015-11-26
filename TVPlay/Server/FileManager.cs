@@ -35,24 +35,21 @@ namespace TAS.Server
         public Guid DtoGuid { get { return _guidDto; } }
         
         public TempDirectory TempDirectory;
-        public IEnumerable<IFileOperation> OperationQueue
+        public IEnumerable<IFileOperation> GetOperationQueue()
         {
-            get
-            {
-                IEnumerable<IFileOperation> retList;
-                lock (_queueSimpleOperation.SyncRoot)
-                    retList = new List<IFileOperation>(_queueSimpleOperation);
-                lock (_queueConvertOperation.SyncRoot)
-                    retList = retList.Concat(_queueConvertOperation);
-                lock (_queueExportOperation.SyncRoot)
-                    retList = retList.Concat(_queueExportOperation);
-                return retList;
-            }
+            List<IFileOperation> retList;
+            lock (_queueSimpleOperation.SyncRoot)
+                retList = new List<IFileOperation>(_queueSimpleOperation);
+            lock (_queueConvertOperation.SyncRoot)
+                retList.AddRange(_queueConvertOperation);
+            lock (_queueExportOperation.SyncRoot)
+                retList.AddRange(_queueExportOperation);
+            return retList;
         }
 
-        public void Queue(FileOperation operation, bool toTop = false)
+        public void Queue(IFileOperation operation, bool toTop = false)
         {
-            operation.Owner = this;
+            ((FileOperation)operation).Owner = this;
             if ((operation.Kind == TFileOperationKind.Copy || operation.Kind == TFileOperationKind.Move || operation.Kind == TFileOperationKind.Convert)
                 && operation.DestMedia != null)
                 operation.DestMedia.MediaStatus = TMediaStatus.CopyPending;
@@ -121,11 +118,7 @@ namespace TAS.Server
                 if (!op.Aborted)
                 {
                     if (op.Do())
-                    {
                         NotifyOperation(OperationCompleted, op);
-                        if (op.SuccessCallback != null)
-                            op.SuccessCallback();
-                    }
                     else
                     {
                         if (op.TryCount > 0)

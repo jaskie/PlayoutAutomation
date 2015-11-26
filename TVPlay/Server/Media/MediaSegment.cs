@@ -12,10 +12,14 @@ namespace TAS.Server
     {
         internal UInt64 idMediaSegment;
         protected readonly Guid _mediaGuid;
+        private readonly Guid _dtoGuid = Guid.NewGuid();
         public MediaSegment(Guid mediaGuid)
         {
             _mediaGuid = mediaGuid;
         }
+
+        public Guid DtoGuid { get { return _dtoGuid; } }
+
         private string _segmentName;
         public string SegmentName
         {

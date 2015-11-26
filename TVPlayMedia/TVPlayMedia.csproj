@@ -112,6 +112,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converters\DtoCreationConverter.cs" />
+    <Compile Include="Converters\IFileOperationConverter.cs" />
+    <Compile Include="Converters\IMediaConverter.cs" />
+    <Compile Include="Converters\IMediaDirectoryConverter.cs" />
+    <Compile Include="Converters\IMediaSegmentConverter.cs" />
     <Compile Include="Model\ConvertOperation.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -123,6 +128,7 @@
     <Compile Include="Model\IngestDirectory.cs" />
     <Compile Include="Model\IngestMedia.cs" />
     <Compile Include="Model\LoudnessOperation.cs" />
+    <Compile Include="Model\MediaSegment.cs" />
     <Compile Include="Model\PersistentMedia.cs" />
     <Compile Include="Model\ProxyBase.cs" />
     <Compile Include="Model\IRemoteClient.cs" />

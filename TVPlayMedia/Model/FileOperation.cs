@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using TAS.Common;
 using TAS.Server.Interfaces;
+using TAS.Server.Remoting;
 
 namespace TAS.Client.Model
 {
@@ -35,6 +36,31 @@ namespace TAS.Client.Model
         public DateTime StartTime { get { return Get<DateTime>(); } set { Set(value); } }
 
         public int TryCount { get { return Get<int>(); } set { Set(value); } }
+
+        private event EventHandler _finished;
+        public event EventHandler Finished
+        {
+            add
+            {
+                EventAdd(_finished);
+                _finished += value;
+            }
+            remove
+            {
+                _finished -= value;
+                EventRemove(_finished);
+            }
+        }
+
+        protected override void OnEventNotification(WebSocketMessageEventArgs e)
+        {
+            if (e.Message.MemberName == "Finished")
+            {
+                var h = _finished;
+                if (h != null)
+                    h(this, ConvertEventArgs<EventArgs>(e));
+            }
+        }
 
         public void Fail()
         {

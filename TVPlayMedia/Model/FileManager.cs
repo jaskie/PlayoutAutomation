@@ -4,15 +4,42 @@ using System.Linq;
 using System.Text;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
+using TAS.Server.Remoting;
 
 namespace TAS.Client.Model
 {
     public class FileManager : ProxyBase, IFileManager
     {
-        public IEnumerable<IFileOperation> OperationQueue { get { return Get<List<FileOperation>>().Cast<IFileOperation>(); } set { Set(value); } }
+        public IEnumerable<IFileOperation> GetOperationQueue() { return Query<List<IFileOperation>>(); }
+        event EventHandler<FileOperationEventArgs> _operationAdded;
+        public event EventHandler<FileOperationEventArgs> OperationAdded
+        {
+            add
+            {
+                EventAdd(_operationAdded);
+                _operationAdded += value;
+            }
+            remove
+            {
+                _operationAdded -= value;
+                EventRemove(_operationAdded);
+            }
+        }
 
-        public event EventHandler<FileOperationEventArgs> OperationAdded;
-        public event EventHandler<FileOperationEventArgs> OperationCompleted;
+        event EventHandler<FileOperationEventArgs> _operationCompleted;
+        public event EventHandler<FileOperationEventArgs> OperationCompleted
+        {
+            add
+            {
+                EventAdd(_operationCompleted);
+                _operationCompleted += value;
+            }
+            remove
+            {
+                _operationCompleted -= value;
+                EventRemove(_operationCompleted);
+            }
+        }
 
         public IConvertOperation CreateConvertOperation()
         {
@@ -27,6 +54,27 @@ namespace TAS.Client.Model
         public ILoudnessOperation CreateLoudnessOperation()
         {
             return Query<LoudnessOperation>();
+        }
+
+        protected override void OnEventNotification(WebSocketMessageEventArgs e)
+        {
+            if (e.Message.MemberName == "OperationAdded")
+            {
+                var h = _operationAdded;
+                if (h != null)
+                    h(this, ConvertEventArgs<FileOperationEventArgs>(e));
+            }
+            if (e.Message.MemberName == "OperationCompleted")
+            {
+                var h = _operationCompleted;
+                if (h != null)
+                    h(this, ConvertEventArgs<FileOperationEventArgs>(e));
+            }
+        }
+
+        public void Queue(IFileOperation operation, bool toTop)
+        {
+            Invoke(parameters: new object[] { operation, toTop });
         }
     }
 }

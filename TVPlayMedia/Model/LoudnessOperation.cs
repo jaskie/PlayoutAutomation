@@ -4,48 +4,38 @@ using System.Linq;
 using System.Text;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
+using TAS.Server.Remoting;
 
 namespace TAS.Client.Model
 {
     class LoudnessOperation : FileOperation, ILoudnessOperation
     {
-        public EventHandler<AudioVolumeMeasuredEventArgs> AudioVolumeMeasured
+        EventHandler<AudioVolumeEventArgs> _audioVolumeMeasured;
+        public event EventHandler<AudioVolumeEventArgs> AudioVolumeMeasured
         {
-            get
+            add
             {
-                throw new NotImplementedException();
+                EventAdd(_audioVolumeMeasured);
+                _audioVolumeMeasured += value;
             }
 
-            set
+            remove
             {
-                throw new NotImplementedException();
+                _audioVolumeMeasured -= value;
+                EventRemove(_audioVolumeMeasured);
+            }
+        }
+        protected override void OnEventNotification(WebSocketMessageEventArgs e)
+        {
+            if (e.Message.MemberName == "AudioVolumeMeasured")
+            {
+                var h = _audioVolumeMeasured;
+                if (h != null)
+                    h(this, ConvertEventArgs<AudioVolumeEventArgs>(e));
             }
         }
 
-        public TimeSpan MeasureDuration
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TimeSpan MeasureStart
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public TimeSpan MeasureDuration { get { return Get<TimeSpan>(); }  set { Set(value); } }
+        public TimeSpan MeasureStart { get { return Get<TimeSpan>(); } set { Set(value); } }
     }
 }

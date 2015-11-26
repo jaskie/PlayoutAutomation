@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -12,10 +11,8 @@ using TAS.Server.Remoting;
 
 namespace TAS.Client.Model
 {
-    [JsonObject]
     public class Media : ProxyBase, Server.Interfaces.IMedia
     {
-        [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public TAudioChannelMapping AudioChannelMapping { get { return Get<TAudioChannelMapping>(); } set { Set(value); } }
 
         public decimal AudioLevelIntegrated { get { return Get<decimal>(); } set { Set(value); } }
@@ -24,7 +21,6 @@ namespace TAS.Client.Model
 
         public decimal AudioVolume { get { return Get<decimal>(); } set { Set(value); } }
 
-        [JsonIgnore]
         public virtual IMediaDirectory Directory { get; set; }
 
         public TimeSpan Duration { get { return Get<TimeSpan>(); } set { Set(value); } }
@@ -80,11 +76,6 @@ namespace TAS.Client.Model
         public void GetLoudness()
         {
             Invoke();
-        }
-
-        public void GetLoudnessWithCallback(TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
-        {
-            throw new NotImplementedException();
         }
 
         public void Verify()

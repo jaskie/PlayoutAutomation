@@ -47,7 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AudioVolumeMeasuredEventArgs.cs" />
+    <Compile Include="AudioVolumeEventArgs.cs" />
     <Compile Include="ColorAttribute.cs" />
     <Compile Include="ConcurrentHashSet.cs" />
     <Compile Include="EngineOperationEventArgs.cs" />

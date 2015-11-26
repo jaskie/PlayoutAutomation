@@ -22,7 +22,7 @@ namespace TAS.Client.ViewModels
             _fileManager = fileManager;
             fileManager.OperationAdded += FileManager_OperationAdded ;
             fileManager.OperationCompleted += FileManager_OperationCompleted;
-            _operationList = new ObservableCollection<FileOperationViewmodel>(from fo in fileManager.OperationQueue select new FileOperationViewmodel(fo));
+            _operationList = new ObservableCollection<FileOperationViewmodel>(fileManager.GetOperationQueue().Select( fo =>  new FileOperationViewmodel(fo)));
             View = new FileManagerView() { DataContext = this };
         }
 
@@ -32,12 +32,11 @@ namespace TAS.Client.ViewModels
             {
                 if (_clearFinished)
                 {
-                    foreach (FileOperationViewmodel vm in _operationList.ToList())
-                        if (vm.IsFileOperation(e.Operation))
-                        {
-                            _operationList.Remove(vm);
-                            vm.Dispose();
-                        }
+                    _operationList.Where(vm => vm.FileOperation == e.Operation).ToList().ForEach(vm =>
+                    {
+                        _operationList.Remove(vm);
+                        vm.Dispose();
+                    });
                 }
             }), null);
         }
@@ -50,8 +49,7 @@ namespace TAS.Client.ViewModels
         }
 
         public ObservableCollection<FileOperationViewmodel> OperationList { get { return _operationList; } }
-
-
+        
         private bool _clearFinished;
         public bool ClearFinished
         {

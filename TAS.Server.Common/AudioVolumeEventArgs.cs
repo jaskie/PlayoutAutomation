@@ -5,9 +5,9 @@ using System.Text;
 
 namespace TAS.Server.Common
 {
-    public class AudioVolumeMeasuredEventArgs : EventArgs
+    public class AudioVolumeEventArgs : EventArgs
     {
-        public AudioVolumeMeasuredEventArgs(decimal volume)
+        public AudioVolumeEventArgs(decimal volume)
         {
             AudioVolume = volume;
         }

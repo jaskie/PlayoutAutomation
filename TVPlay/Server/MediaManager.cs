@@ -271,7 +271,6 @@ namespace TAS.Server
 
         private MediaDeleteDenyReason deleteMedia(IMedia media)
         {
-            Debug.WriteLine(media, "deleteMedia");
             MediaDeleteDenyReason reason = (media is ServerMedia) ? _engine.CanDeleteMedia(media as ServerMedia) : MediaDeleteDenyReason.NoDeny;
             if (reason.Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
                 _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = media });
@@ -280,17 +279,10 @@ namespace TAS.Server
 
         public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList)
         {
-            return mediaList.Select(m => deleteMedia((Media)m));
-        }
-
-        internal void GetLoudness(IMedia media)
-        {
-            media.GetLoudness();
-        }
-
-        public void GetLoudnessWithCallback(IMedia media, TimeSpan startTime, TimeSpan duration, EventHandler<AudioVolumeMeasuredEventArgs> audioVolumeMeasuredCallback, Action finishCallback)
-        {
-            media.GetLoudnessWithCallback(startTime, duration, audioVolumeMeasuredCallback, finishCallback);
+            List<MediaDeleteDenyReason> result = new List<MediaDeleteDenyReason>();
+            foreach (var media in mediaList)
+                result.Add(deleteMedia(media));
+            return result;
         }
 
         public void GetLoudness(IEnumerable<IMedia> mediaList)

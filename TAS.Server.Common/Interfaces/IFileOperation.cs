@@ -23,5 +23,6 @@ namespace TAS.Server.Interfaces
         List<string> OperationOutput { get; }
         List<string> OperationWarning { get; }
         void Fail();
+        event EventHandler Finished;
     }
 }

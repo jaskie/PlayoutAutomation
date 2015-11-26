@@ -51,7 +51,7 @@ namespace TAS.Server.Remoting
                         Type objectToInvokeType = objectToInvoke.GetType();
                         MethodInfo methodToInvoke = objectToInvokeType.GetMethod(message.MemberName, message.Parameters.Select(p => p.GetType()).ToArray());
                         if (methodToInvoke == null)
-                            methodToInvoke = objectToInvokeType.GetMethods(BindingFlags.Instance | BindingFlags.Public).FirstOrDefault(m => m.Name == message.MemberName && m.GetParameters().Length == message.Parameters.Length);
+                            methodToInvoke = objectToInvokeType.GetMethods().FirstOrDefault(m => m.Name == message.MemberName && m.GetParameters().Length == message.Parameters.Length);
                         if (methodToInvoke != null)
                         {
                             MethodParametersAlignment.AlignParameters(ref message.Parameters, methodToInvoke.GetParameters());

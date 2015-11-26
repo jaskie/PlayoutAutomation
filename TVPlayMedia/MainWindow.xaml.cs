@@ -32,6 +32,12 @@ namespace TAS.Client
             try
             {
                 _client = new Model.RemoteClient(ConfigurationManager.AppSettings["Host"]);
+                    _client.CreationConverters = new Newtonsoft.Json.JsonConverter[] {
+                    new Converters.IMediaConverter(_client),
+                    new Converters.IFileOperationConverter(_client),
+                    new Converters.IMediaSegmentConverter(_client),
+                    new Converters.IMediaDirectoryConverter(_client)
+                    };
                 _client.Initialize();
                 Model.MediaManager mm = _client.GetInitalObject<Model.MediaManager>();
                 MediaManagerViewmodel vm = new MediaManagerViewmodel(mm, null);

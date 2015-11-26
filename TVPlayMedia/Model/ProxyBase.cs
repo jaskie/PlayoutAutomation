@@ -22,7 +22,7 @@ namespace TAS.Client.Model
         {
             if (_client != null)
                 return;
-            client.EventNotification += OnEventNotificationMessage;
+            client.EventNotification += _onEventNotificationMessage;
             _client = client;
             Debug.WriteLine(this, "Client assigned");
         }
@@ -65,28 +65,34 @@ namespace TAS.Client.Model
             return default(T);
         }
 
-        protected void EventAdd([CallerMemberName] string eventName = null)
+        protected void EventAdd<T>(T handler, [CallerMemberName] string eventName = null)
         {
-            var client = _client;
-            if (client != null)
-                client.EventAdd(this, eventName);
+            if (handler == null)
+            {
+                var client = _client;
+                if (client != null)
+                    client.EventAdd(this, eventName);
+            }
         }
 
-        protected void EventRemove([CallerMemberName] string eventName = null)
+        protected void EventRemove<T>(T handler, [CallerMemberName] string eventName = null)
         {
-            var client = _client;
-            if (client != null)
-                client.EventRemove(this, eventName);
+            if (handler == null)
+            {
+                var client = _client;
+                if (client != null)
+                    client.EventRemove(this, eventName);
+            }
         }
 
-        void OnEventNotificationMessage(object sender, WebSocketMessageEventArgs e)
+        void _onEventNotificationMessage(object sender, WebSocketMessageEventArgs e)
         {
             if (e.Message.DtoGuid == DtoGuid)
             {
                 Debug.WriteLine("OnMessage received {0}:{1}", this, e.Message.MemberName);
                 if (e.Message.MemberName == "PropertyChanged")
                 {
-                    PropertyChangedEventArgs ea = JsonConvert.DeserializeObject<PropertyChangedEventArgs>(e.Message.Response.ToString());
+                    PropertyChangedEventArgs ea = (sender as IRemoteClient).DeserializeObject<PropertyChangedEventArgs>(e.Message.Response);
                     NotifyPropertyChanged(ea.PropertyName);
                     object o;
                     _properties.TryRemove(ea.PropertyName, out o);
@@ -102,7 +108,10 @@ namespace TAS.Client.Model
 
         protected T ConvertEventArgs<T>(WebSocketMessageEventArgs e) where T : EventArgs
         {
-            T value = JsonConvert.DeserializeObject<T>(e.Message.Response.ToString());
+            T value = default(T);
+            var client = _client;
+            if (client != null)
+                value = client.DeserializeObject<T>(e.Message.Response);
             return value;
         }
 
@@ -120,17 +129,13 @@ namespace TAS.Client.Model
         {
             add
             {
-                var h = _propertyChanged;
-                if (h == null || h.GetInvocationList().Length == 0)
-                    EventAdd();
+                EventAdd(_propertyChanged);
                 _propertyChanged += value;
             }
             remove
             {
                 _propertyChanged -= value;
-                var h = _propertyChanged;
-                if (h == null || h.GetInvocationList().Length == 0)
-                    EventRemove();
+                EventRemove(_propertyChanged);
             }
         }
 

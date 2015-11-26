@@ -9,7 +9,6 @@ using TAS.Common;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
 using TAS.Server.Remoting;
-using WebSocketSharp;
 
 namespace TAS.Client.Model
 {
@@ -42,17 +41,13 @@ namespace TAS.Client.Model
         {
             add
             {
-                var h = _mediaAdded;
-                if (h == null || h.GetInvocationList().Length == 0)
-                    EventAdd();
+                EventAdd(_mediaAdded);
                 _mediaAdded += value;
             }
             remove
             {
                 _mediaAdded -= value;
-                var h = _mediaAdded;
-                if (h == null || h.GetInvocationList().Length == 0)
-                    EventRemove();
+                EventRemove(_mediaAdded);
             }
         }
 
@@ -61,17 +56,13 @@ namespace TAS.Client.Model
         {
             add
             {
-                var h = _mediaRemoved;
-                if (h == null || h.GetInvocationList().Length == 0)
-                    EventAdd();
+                EventAdd(_mediaRemoved);
                 _mediaRemoved += value;
             }
             remove
             {
                 _mediaRemoved -= value;
-                var h = _mediaRemoved;
-                if (h == null || h.GetInvocationList().Length == 0)
-                    EventRemove();
+                EventRemove(_mediaRemoved);
             }
         }
         event EventHandler<MediaDtoEventArgs> _mediaVerified;
@@ -79,17 +70,13 @@ namespace TAS.Client.Model
         {
             add
             {
-                var h = _mediaVerified;
-                if (h == null || h.GetInvocationList().Length == 0)
-                    EventAdd();
+                EventAdd(_mediaVerified);
                 _mediaVerified += value;
             }
             remove
             {
                 _mediaVerified -= value;
-                var h = _mediaVerified;
-                if (h == null || h.GetInvocationList().Length == 0)
-                    EventRemove();
+                EventRemove(_mediaVerified);
             }
         }
 

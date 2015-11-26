@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -12,6 +12,7 @@ using TAS.Server.Common;
 using TAS.Server.Interfaces;
 using TAS.Server.Remoting;
 using WebSocketSharp;
+using Newtonsoft.Json;
 
 namespace TAS.Client.Model
 {
@@ -20,6 +21,7 @@ namespace TAS.Client.Model
         readonly string _address;
         WebSocket _clientSocket;
         AutoResetEvent _messageHandler = new AutoResetEvent(false);
+        readonly JsonSerializer _serializer;
         ConcurrentDictionary<Guid, WebSocketMessage> _receivedMessages = new ConcurrentDictionary<Guid, WebSocketMessage>();
         ConcurrentDictionary<Guid, IDto> _knownObjects = new ConcurrentDictionary<Guid, IDto>();
         const int query_timeout = 15000;
@@ -31,6 +33,18 @@ namespace TAS.Client.Model
         public RemoteClient(string host)
         {
             _address = host;
+            _serializer = JsonSerializer.CreateDefault();
+        }
+        
+        public JsonConverter[] CreationConverters
+        {
+            set
+            {
+                _serializer.Converters.Clear();
+                foreach (JsonConverter c in value)
+                    _serializer.Converters.Add(c);
+
+            }
         }
 
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
@@ -57,7 +71,7 @@ namespace TAS.Client.Model
             }
         }
 
-        private void _clientSocket_OnError(object sender, ErrorEventArgs e)
+        private void _clientSocket_OnError(object sender, WebSocketSharp.ErrorEventArgs e)
         {
             Debug.WriteLine(e.Exception);
         }
@@ -93,30 +107,6 @@ namespace TAS.Client.Model
                 h(this, EventArgs.Empty);
         }
 
-        private void _registerDtos<T>(ref T response)
-        {
-            IDto responseDto = response as IDto;
-            if (responseDto != null)
-            {
-                IDto existingValue;
-                if (_knownObjects.TryGetValue(responseDto.DtoGuid, out existingValue))
-                    response = (T)existingValue;
-                else
-                {
-                    _knownObjects.TryAdd(responseDto.DtoGuid, responseDto);
-                    if (responseDto is ProxyBase)
-                        (responseDto as ProxyBase).SetClient(this);
-                }
-            }
-            if (response is System.Collections.IEnumerable)
-                foreach (var o in response as System.Collections.IEnumerable)
-                {
-                    responseDto = o as IDto;
-                    if (responseDto is ProxyBase)
-                        (responseDto as ProxyBase).SetClient(this);
-                }
-        }
-
         private T WaitForResponse<T>(Guid messageGuid)
         {
             Func<T> resultFunc = new Func<T>(() =>
@@ -130,7 +120,6 @@ namespace TAS.Client.Model
                    if (_receivedMessages.TryRemove(messageGuid, out response))
                    {
                        responseObject = DeserializeObject<T>(response.Response);
-                       _registerDtos(ref responseObject);
                        return responseObject;
                    }
                }
@@ -142,10 +131,12 @@ namespace TAS.Client.Model
             return resultFunc.EndInvoke(funcAsyncResult);
         }
 
-        private T DeserializeObject<T>(object o)
+        public T DeserializeObject<T>(object o)
         {
             if (o is Newtonsoft.Json.Linq.JContainer)
-                return JsonConvert.DeserializeObject<T>(o.ToString());
+                using (StringReader stringReader = new StringReader(o.ToString()))
+                    using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
+                        return _serializer.Deserialize<T>(jsonReader);
             //Type resultType = typeof(T);
             T result = default(T);
             if (result is Enum)
