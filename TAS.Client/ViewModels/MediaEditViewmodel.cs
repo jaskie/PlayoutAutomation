@@ -135,6 +135,14 @@ namespace TAS.Client.ViewModels
             {
                 NotifyPropertyChanged(e.PropertyName);
             }
+            if (e.PropertyName == "VideoFormat")
+            {
+                ((MediaEditView)Editor).SetFrameRate(Model.FrameRate);
+                NotifyPropertyChanged("TCStart");
+                NotifyPropertyChanged("TCPlay");
+                NotifyPropertyChanged("Duration");
+                NotifyPropertyChanged("DurationPlay");
+            }
         }
 
         private void _onPreviewPropertyChanged(object sender, PropertyChangedEventArgs e)

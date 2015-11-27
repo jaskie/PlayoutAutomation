@@ -86,7 +86,7 @@ namespace TAS.Client.Common
                     if (BindingCanProceed(bindingExpression))
                     {
                         //invoke the delegate to update the binding source on the main (ui) thread
-                        Dispatcher.Invoke(x, new object[] { });
+                        Dispatcher.BeginInvoke(x, new object[] { });
                     }
                     //dispose of the timer so that it wont get called again
                     timer.Dispose();

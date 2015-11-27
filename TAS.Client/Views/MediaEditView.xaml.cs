@@ -27,6 +27,11 @@ namespace TAS.Client
             ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
         }
 
+        public void SetFrameRate(RationalNumber frameRate)
+        {
+            ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
+        }
+
 #if DEBUG
         ~MediaEditView()
         {

@@ -9,7 +9,6 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:client="clr-namespace:TAS.Client"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
-             xmlns:server="clr-namespace:TAS.Server"
              mc:Ignorable="d"
              d:DataContext="{x:Type vm:MediaEditViewmodel}"
              d:DesignWidth="300"
