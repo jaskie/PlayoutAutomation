@@ -46,9 +46,11 @@ namespace TAS.Client.Model
         protected void Set<T>(T value, [CallerMemberName] string propertyName = null)
         {
             var client = _client;
-            if (client != null)
-                client.Set(this, value, propertyName);
-            _properties[propertyName] = value;
+            if (SetField(value, propertyName))
+            {
+                if (client != null)
+                    client.Set(this, value, propertyName);
+            }
         }
 
         protected void Invoke([CallerMemberName] string methodName = null, params object[] parameters)
@@ -71,7 +73,9 @@ namespace TAS.Client.Model
             {
                 var client = _client;
                 if (client != null)
+                {
                     client.EventAdd(this, eventName);
+                }
             }
         }
 
@@ -85,6 +89,18 @@ namespace TAS.Client.Model
             }
         }
 
+        protected bool SetField(object value, string propertyName)
+        {
+            object oldValue;
+            if (!_properties.TryGetValue(propertyName, out oldValue) || !oldValue.Equals(value))
+            {
+                _properties[propertyName] = value;
+                NotifyPropertyChanged(propertyName);
+                return true;
+            }
+            return false; 
+        }
+
         void _onEventNotificationMessage(object sender, WebSocketMessageEventArgs e)
         {
             if (e.Message.DtoGuid == DtoGuid)
@@ -92,7 +108,7 @@ namespace TAS.Client.Model
                 Debug.WriteLine("OnMessage received {0}:{1}", this, e.Message.MemberName);
                 if (e.Message.MemberName == "PropertyChanged")
                 {
-                    PropertyChangedEventArgs ea = (sender as IRemoteClient).DeserializeObject<PropertyChangedEventArgs>(e.Message.Response);
+                    PropertyChangedEventArgs ea = (sender as IRemoteClient).Deserialize<PropertyChangedEventArgs>(e.Message.Response);
                     NotifyPropertyChanged(ea.PropertyName);
                     object o;
                     _properties.TryRemove(ea.PropertyName, out o);
@@ -106,12 +122,18 @@ namespace TAS.Client.Model
             Debug.WriteLine(this, e.ToString());
         }
 
+        protected virtual void OnEventRegistration(WebSocketMessageEventArgs e)
+        {
+
+        }
+
+
         protected T ConvertEventArgs<T>(WebSocketMessageEventArgs e) where T : EventArgs
         {
             T value = default(T);
             var client = _client;
             if (client != null)
-                value = client.DeserializeObject<T>(e.Message.Response);
+                value = client.Deserialize<T>(e.Message.Response);
             return value;
         }
 

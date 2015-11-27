@@ -48,16 +48,6 @@ namespace TAS.Client.ViewModels
             _fileOperation.PropertyChanged -= OnPropertyChanged;
         }
 
-        public string OperationDescription
-        {
-            get { return _fileOperation.ToString(); }
-        }
-
-        public override string ToString()
-        {
-            return _fileOperation.ToString();
-        }
-
         public int Progress { get { return _fileOperation.Progress; } }
         public DateTime ScheduledTime { get { return _fileOperation.ScheduledTime; } }
         public DateTime StartTime { get { return _fileOperation.ScheduledTime; } }
@@ -72,6 +62,7 @@ namespace TAS.Client.ViewModels
         public string OperationWarning { get { return _fileOperation.OperationWarning.AsString(Environment.NewLine); } }
         private bool _isWarning;
         public bool IsWarning { get { return _isWarning; } set { SetField(ref _isWarning, value, "IsWarning"); } }
+        public string Title { get { return _fileOperation.Title; } }
 
         public ICommand CommandAbort { get; private set; }
         public ICommand CommandShowOutput { get; private set; }

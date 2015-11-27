@@ -32,11 +32,11 @@ namespace TAS.Server.Remoting
 
         protected override void OnMessage(MessageEventArgs e)
         {
-            WebSocketMessage message = JsonConvert.DeserializeObject<WebSocketMessage>(e.Data);
+            WebSocketMessage message = Deserialize<WebSocketMessage>(e.Data);
             if (message.MessageType == WebSocketMessage.WebSocketMessageType.RootQuery)
             {
                 message.ConvertToResponse(_mediaManager);
-                Send(JsonConvert.SerializeObject(message));
+                Send(Serialize(message));
                 _dtos[_mediaManager.DtoGuid] = _mediaManager;
             }
             else // method of particular object
@@ -59,9 +59,8 @@ namespace TAS.Server.Remoting
                             Debug.WriteLine(methodToInvoke.Name, "Invoked");
                             if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query)
                             {
-                                _registerResponse(response);
                                 message.ConvertToResponse(response);
-                                Send(JsonConvert.SerializeObject(message));
+                                Send(Serialize(message));
                             }
                         }
                     }
@@ -78,9 +77,8 @@ namespace TAS.Server.Remoting
                                 object response = property.GetValue(objectToInvoke, null);
                                 if (response != null)
                                 {
-                                    _registerResponse(response);
                                     message.ConvertToResponse(response);
-                                    Send(JsonConvert.SerializeObject(message));
+                                    Send(Serialize(message));
                                 }
                             }
                             else // Set
@@ -101,7 +99,11 @@ namespace TAS.Server.Remoting
                         if (ei != null)
                         {
                             if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventAdd)
+                            {
                                 _addDelegate(objectToInvoke, ei);
+                                message.ConvertToResponse(objectToInvoke);
+                                Send(Serialize(message));
+                            }
                             else
                             if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventRemove)
                                 _removeDelegate(objectToInvoke, ei);
@@ -123,6 +125,22 @@ namespace TAS.Server.Remoting
                     ei.RemoveEventHandler(_dtos[d.Item1], delegateToRemove);
             }
             _dtos.Clear();
+        }
+
+        string Serialize(WebSocketMessage message)
+        {
+            if (message.MessageType == WebSocketMessage.WebSocketMessageType.Get ||
+                message.MessageType == WebSocketMessage.WebSocketMessageType.Query)
+                _registerResponse(message.Response);
+            else
+            if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventNotification)
+                _registerNotificationDtos(message.Response);
+            return JsonConvert.SerializeObject(message, serializeSettings);
+        }
+
+        T Deserialize<T>(string s)
+        {
+            return JsonConvert.DeserializeObject<T>(s, deserializeSettings);
         }
 
         void _addDelegate(IDto objectToInvoke, EventInfo ei)
@@ -153,6 +171,7 @@ namespace TAS.Server.Remoting
         }
 
         static JsonSerializerSettings deserializeSettings = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore };
+        static JsonSerializerSettings serializeSettings = new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Include };
 
         void _deserializeContent(ref object[] input)
         {
@@ -163,13 +182,13 @@ namespace TAS.Server.Remoting
                 if (input[i] is JContainer)
                     if (input[i] is JArray)
                     {
-                        IDto[] inputParameters = JsonConvert.DeserializeObject<ReceivedDto[]>((input[i] as JContainer).ToString(), deserializeSettings).Cast<IDto>().ToArray();
+                        IDto[] inputParameters = Deserialize<ReceivedDto[]>((input[i] as JContainer).ToString()).Cast<IDto>().ToArray();
                         for (int j = 0; j < inputParameters.Length; j++)
                             inputParameters[j] = _dtos[inputParameters[j].DtoGuid];
                         input[i] = inputParameters;
                     }
                     else
-                        input[i] = _dtos[JsonConvert.DeserializeObject<ReceivedDto>((input[i] as JContainer).ToString(), deserializeSettings).DtoGuid];
+                        input[i] = _dtos[Deserialize<ReceivedDto>((input[i] as JContainer).ToString()).DtoGuid];
             }
         }
 
@@ -179,8 +198,8 @@ namespace TAS.Server.Remoting
             if (dto == null)
                 return;
             WebSocketMessage message = new WebSocketMessage() { DtoGuid = dto.DtoGuid, Response = e, MessageType = WebSocketMessage.WebSocketMessageType.EventNotification, MemberName = eventName };
-            Send(JsonConvert.SerializeObject(message));
-            Debug.WriteLine(dto, "_notifyClient executed");
+            Send(Serialize(message));
+            Debug.WriteLine("_notifyClient {0} executed on {1}", eventName, dto);
         }
 
         protected override void OnError(ErrorEventArgs e)
@@ -189,15 +208,26 @@ namespace TAS.Server.Remoting
             base.OnError(e);
         }
 
-        protected void _registerResponse(object response)
+        void _registerResponse(object response)
         {
             IDto responseDto = response as IDto;
             if (responseDto != null && !_dtos.ContainsKey(responseDto.DtoGuid))
+            {
                 _dtos[responseDto.DtoGuid] = responseDto;
+            }
             IEnumerable responseEnum = response as IEnumerable;
             if (responseEnum != null)
                 foreach (object o in responseEnum)
                     _registerResponse(o);
+        }
+
+        void _registerNotificationDtos(object response)
+        {
+            if (response is Common.FileOperationEventArgs)
+            {
+                IFileOperation operation = (response as Common.FileOperationEventArgs).Operation;
+                _registerResponse(operation);
+            }
         }
     }
 }

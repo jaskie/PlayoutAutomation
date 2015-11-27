@@ -15,6 +15,7 @@ namespace TAS.Server.Interfaces
         DateTime ScheduledTime { get; }
         DateTime StartTime { get; }
         DateTime FinishedTime { get; }
+        string Title { get; }
         FileOperationStatus OperationStatus { get; }
         bool IsIndeterminate { get; }
         int TryCount { get; }

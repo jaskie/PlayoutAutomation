@@ -1,4 +1,6 @@
-﻿using System;
+﻿#undef DEBUG
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -107,21 +109,17 @@ namespace TAS.Client.Model
                 h(this, EventArgs.Empty);
         }
 
-        private T WaitForResponse<T>(Guid messageGuid)
+        private WebSocketMessage WaitForResponse(WebSocketMessage sendedMessage)
         {
-            Func<T> resultFunc = new Func<T>(() =>
+            Func<WebSocketMessage> resultFunc = new Func<WebSocketMessage>(() =>
            {
                WebSocketMessage response;
-               T responseObject = default(T);
                Stopwatch timeout = Stopwatch.StartNew();
                do
                {
                    _messageHandler.WaitOne(query_timeout);
-                   if (_receivedMessages.TryRemove(messageGuid, out response))
-                   {
-                       responseObject = DeserializeObject<T>(response.Response);
-                       return responseObject;
-                   }
+                   if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out response))
+                       return response;
                }
                while (timeout.ElapsedMilliseconds < query_timeout);
                throw new TimeoutException(string.Format("Didn't received response from server within {0} milliseconds.", query_timeout));
@@ -131,7 +129,7 @@ namespace TAS.Client.Model
             return resultFunc.EndInvoke(funcAsyncResult);
         }
 
-        public T DeserializeObject<T>(object o)
+        public T Deserialize<T>(object o)
         {
             if (o is Newtonsoft.Json.Linq.JContainer)
                 using (StringReader stringReader = new StringReader(o.ToString()))
@@ -152,11 +150,18 @@ namespace TAS.Client.Model
             return result;
         }
 
+        public void Update(object serialized, object target)
+        {
+            if (serialized is Newtonsoft.Json.Linq.JContainer)
+                using (StringReader stringReader = new StringReader(serialized.ToString()))
+                    _serializer.Populate(stringReader, target);
+        }
+
         public T GetInitalObject<T>()
         {
             WebSocketMessage query = new WebSocketMessage() { MessageType = WebSocketMessage.WebSocketMessageType.RootQuery };
             _clientSocket.Send(JsonConvert.SerializeObject(query));
-            return WaitForResponse<T>(query.MessageGuid);
+            return Deserialize<T>(WaitForResponse(query).Response);
         }
 
         public T Query<T>(ProxyBase dto, string methodName, params object[] parameters)
@@ -164,7 +169,7 @@ namespace TAS.Client.Model
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.DtoGuid, MessageType = WebSocketMessage.WebSocketMessageType.Query, MemberName = methodName, Parameters = parameters };
             Debug.WriteLine(query, "Query");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
-            return WaitForResponse<T>(query.MessageGuid);
+            return Deserialize<T>(WaitForResponse(query).Response);
         }
 
         public T Get<T>(ProxyBase dto, string propertyName)
@@ -172,7 +177,7 @@ namespace TAS.Client.Model
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.DtoGuid, MessageType = WebSocketMessage.WebSocketMessageType.Get, MemberName = propertyName};
             Debug.WriteLine(query, "Get");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
-            return WaitForResponse<T>(query.MessageGuid);
+            return Deserialize<T>(WaitForResponse(query).Response);
         }
 
         public void Invoke(ProxyBase dto, string methodName, params object[] parameters)
@@ -194,6 +199,7 @@ namespace TAS.Client.Model
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.DtoGuid, MessageType = WebSocketMessage.WebSocketMessageType.EventAdd, MemberName = eventName };
             Debug.WriteLine(query, "EventAdd");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
+            Update(WaitForResponse(query).Response, dto);
         }
 
         public void EventRemove(ProxyBase dto, [CallerMemberName] string eventName = "")

@@ -37,6 +37,8 @@ namespace TAS.Client.Model
 
         public int TryCount { get { return Get<int>(); } set { Set(value); } }
 
+        public string Title { get { return Get<string>(); } set { Set(value); } }
+
         private event EventHandler _finished;
         public event EventHandler Finished
         {
@@ -66,5 +68,6 @@ namespace TAS.Client.Model
         {
             throw new NotImplementedException();
         }
+
     }
 }

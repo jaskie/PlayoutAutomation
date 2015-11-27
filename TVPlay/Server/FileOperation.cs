@@ -293,12 +293,16 @@ namespace TAS.Server
             return true;
         }
         
-        public override string ToString()
+        [JsonProperty]
+        public string Title
         {
-            return DestMedia == null?
-                string.Format("{0} {1}", Kind, SourceMedia)
-                :
-                string.Format("{0} {1} -> {2}", Kind, SourceMedia, DestMedia);
+            get
+            {
+                return DestMedia == null ?
+                    string.Format("{0} {1}", Kind, SourceMedia)
+                    :
+                    string.Format("{0} {1} -> {2}", Kind, SourceMedia, DestMedia);
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -248,14 +248,6 @@ namespace TAS.Server
                 }
                 return fullPath;
             }
-            set 
-            {
-                FileName = Path.GetFileName(value);
-                if (value.StartsWith(_directory.Folder))
-                    Folder = Path.GetDirectoryName(value).Substring(_directory.Folder.Length);
-                else
-                    Folder = "";
-            }
         }
 
         public virtual bool Delete()

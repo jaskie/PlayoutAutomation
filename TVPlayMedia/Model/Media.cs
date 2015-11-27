@@ -82,10 +82,6 @@ namespace TAS.Client.Model
         {
             Invoke();
         }
-
-        public override string ToString()
-        {
-            return MediaName;
-        }
+        
     }
 }

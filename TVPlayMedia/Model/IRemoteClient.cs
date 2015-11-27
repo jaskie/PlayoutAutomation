@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using TAS.Server.Interfaces;
 using TAS.Server.Remoting;
 
 namespace TAS.Client.Model
 {
     public interface IRemoteClient
     {
-        T DeserializeObject<T>(object o);
+        T Deserialize<T>(object o);
         event EventHandler<WebSocketMessageEventArgs> EventNotification;
         T Query<T>(ProxyBase dto, [CallerMemberName] string methodName = "", params object[] parameters);
         void Invoke(ProxyBase dto, [CallerMemberName] string methodName = "", params object[] parameters);
