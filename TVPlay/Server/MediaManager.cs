@@ -465,7 +465,7 @@ namespace TAS.Server
                     && media.FileName == pgmMedia.FileName
                     && media.FileSize == pgmMedia.FileSize
                     && !media.Verified)
-                    media.Verify();
+                    ((Media)media).Verify();
                 if (!(media.MediaStatus == TMediaStatus.Available
                       || media.MediaStatus == TMediaStatus.Copying
                       || media.MediaStatus == TMediaStatus.CopyPending

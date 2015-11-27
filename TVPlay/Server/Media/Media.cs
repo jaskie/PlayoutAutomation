@@ -14,6 +14,7 @@ using TAS.FFMpegUtils;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace TAS.Server
 {
@@ -394,8 +395,16 @@ namespace TAS.Server
         [JsonProperty]
         public Guid DtoGuid { get { return _guidDto; } }
 
+
+        public void ReVerify()
+        {
+            MediaStatus = TMediaStatus.Unknown;
+            Verified = false;
+            ThreadPool.QueueUserWorkItem((o) => Verify());
+        }
+
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
-        public virtual void Verify()
+        internal virtual void Verify()
         {
             if (Verified || (_mediaStatus == TMediaStatus.Copying) || (_mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required))
                 return;

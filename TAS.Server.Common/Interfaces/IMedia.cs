@@ -11,7 +11,7 @@ namespace TAS.Server.Interfaces
         IMediaDirectory Directory { get; }
         bool FileExists();
         bool Delete();
-        void Verify();
+        void ReVerify();
         RationalNumber FrameRate { get; }
         void GetLoudness();
     }

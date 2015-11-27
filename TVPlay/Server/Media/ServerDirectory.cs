@@ -66,7 +66,7 @@ namespace TAS.Server
             base.MediaAdd(media);
             media.PropertyChanged += OnMediaPropertyChanged;
             if (media.MediaStatus != TMediaStatus.Required && File.Exists(media.FullPath))
-                ThreadPool.QueueUserWorkItem(o => media.Verify());
+                ThreadPool.QueueUserWorkItem(o => ((Media)media).Verify());
         }
 
         public override void MediaRemove(IMedia media)
@@ -145,7 +145,7 @@ namespace TAS.Server
 
         public void VerifyMedia()
         {
-                var unverifiedFiles = _files.Values.Where(mf => ((ServerMedia)mf).Verified == false).ToList();
+                var unverifiedFiles = _files.Values.Where(mf => ((ServerMedia)mf).Verified == false).Cast<Media>().ToList();
                 unverifiedFiles.ForEach(media => media.Verify());
         }
 

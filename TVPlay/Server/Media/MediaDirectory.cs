@@ -278,9 +278,7 @@ namespace TAS.Server
         {
             if (media.Verified)
             {
-                ((Media)media).Verified = false;
-                media.MediaStatus = TMediaStatus.Unknown;
-                ThreadPool.QueueUserWorkItem(o => media.Verify());
+                media.ReVerify();
             }
         }
 

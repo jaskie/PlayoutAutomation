@@ -102,7 +102,7 @@ namespace TAS.Client.ViewModels
                     if (media is IIngestMedia
                         && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
                         && !media.Verified)
-                        ThreadPool.QueueUserWorkItem(new WaitCallback( o => media.Verify()));
+                        media.ReVerify();
                     if (_previewViewModel != null)
                         _previewViewModel.Media = media;
                     EditMedia = _selectedMedia == null ? null : new MediaEditViewmodel(_selectedMedia.Media, _mediaManager, _previewViewModel, true);
@@ -230,7 +230,7 @@ namespace TAS.Client.ViewModels
                     if (sourceMedia is IIngestMedia
                         && ((IIngestDirectory)sourceMedia.Directory).AccessType == TDirectoryAccessType.Direct
                         && !sourceMedia.Verified)
-                        ThreadPool.QueueUserWorkItem(o => sourceMedia.Verify());
+                            sourceMedia.ReVerify();
                     IMedia destMedia = null;
                     if (directory is IServerDirectory)
                         destMedia = (directory as IServerDirectory).GetServerMedia(sourceMedia, false);

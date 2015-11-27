@@ -288,7 +288,7 @@ namespace TAS.Server
                 && DestMedia.FileExists())
             {
                 DestMedia.MediaStatus = TMediaStatus.Copied;
-                DestMedia.Verify();
+                ((Media)DestMedia).Verify();
                 if (Math.Abs(DestMedia.Duration.Ticks - inputMedia.Duration.Ticks) > TimeSpan.TicksPerSecond / 2)
                 {
                     DestMedia.MediaStatus = TMediaStatus.CopyError;

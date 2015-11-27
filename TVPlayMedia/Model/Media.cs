@@ -78,7 +78,7 @@ namespace TAS.Client.Model
             Invoke();
         }
 
-        public void Verify()
+        public void ReVerify()
         {
             Invoke();
         }

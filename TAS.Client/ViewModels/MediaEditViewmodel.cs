@@ -63,12 +63,7 @@ namespace TAS.Client.ViewModels
 
         void _refreshStatus(object o)
         {
-            ThreadPool.QueueUserWorkItem(obj =>
-            {
-                Model.MediaStatus = TMediaStatus.Unknown;
-                Model.Verified = false;
-                Model.Verify();
-            });
+            Model.ReVerify();
         }
 
 

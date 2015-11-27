@@ -95,7 +95,7 @@ namespace TAS.Server
             return modified;
         }
 
-        public override void Verify()
+        internal override void Verify()
         {
             base.Verify();
             Save();

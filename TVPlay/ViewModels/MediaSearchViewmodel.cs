@@ -285,7 +285,7 @@ namespace TAS.Client.ViewModels
                     if (media is IIngestMedia
                         && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
                         && !media.Verified)
-                        ThreadPool.QueueUserWorkItem(o => media.Verify());
+                        media.ReVerify();
                     if (_previewViewmodel != null)
                         _previewViewmodel.Media = media;
                     NotifyPropertyChanged("CommandAdd");

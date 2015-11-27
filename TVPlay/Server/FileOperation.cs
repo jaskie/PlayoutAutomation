@@ -201,7 +201,7 @@ namespace TAS.Server
                                     return false;
                             }
                             DestMedia.MediaStatus = TMediaStatus.Copied;
-                            ThreadPool.QueueUserWorkItem(o => DestMedia.Verify());
+                            ThreadPool.QueueUserWorkItem(o => ((Media)DestMedia).Verify());
 
                             Debug.WriteLine(this, "File operation succeed");
                             _addOutputMessage("Copy operation finished");
@@ -246,7 +246,7 @@ namespace TAS.Server
                             File.SetCreationTimeUtc(DestMedia.FullPath, File.GetCreationTimeUtc(SourceMedia.FullPath));
                             File.SetLastWriteTimeUtc(DestMedia.FullPath, File.GetLastWriteTimeUtc(SourceMedia.FullPath));
                             DestMedia.MediaStatus = TMediaStatus.Copied;
-                            ThreadPool.QueueUserWorkItem(o => DestMedia.Verify());
+                            ThreadPool.QueueUserWorkItem(o => ((Media)DestMedia).Verify());
                             _addOutputMessage("Move operation finished");
                             Debug.WriteLine(this, "File operation succeed");
                             return true;
