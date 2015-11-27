@@ -42,7 +42,7 @@ namespace TAS.Client.Model
             throw new NotImplementedException();
         }
 
-        public IFileManager FileManager { get { return Get<FileManager>(); }  set { Set(value); } }
+        public IFileManager FileManager { get { return Get<IFileManager>(); }  set { Set(value); } }
 
         public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { Set(value); } }
 

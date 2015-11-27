@@ -36,7 +36,9 @@ namespace TAS.Client
                     new Converters.IMediaConverter(_client),
                     new Converters.IFileOperationConverter(_client),
                     new Converters.IMediaSegmentConverter(_client),
-                    new Converters.IMediaDirectoryConverter(_client)
+                    new Converters.IMediaDirectoryConverter(_client),
+                    new Converters.IFileManagerConverter(_client),
+                    new Converters.MediaManagerConverter(_client)
                     };
                 _client.Initialize();
                 Model.MediaManager mm = _client.GetInitalObject<Model.MediaManager>();
