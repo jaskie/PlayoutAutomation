@@ -11,7 +11,7 @@ using TAS.Server.Remoting;
 
 namespace TAS.Client.Model
 {
-    public class Media : ProxyBase, Server.Interfaces.IMedia
+    public class Media : ProxyBase, IMedia
     {
         public TAudioChannelMapping AudioChannelMapping { get { return Get<TAudioChannelMapping>(); } set { Set(value); } }
 

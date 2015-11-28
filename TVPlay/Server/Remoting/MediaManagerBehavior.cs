@@ -101,8 +101,11 @@ namespace TAS.Server.Remoting
                             if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventAdd)
                             {
                                 _addDelegate(objectToInvoke, ei);
-                                message.ConvertToResponse(objectToInvoke);
-                                Send(Serialize(message));
+                                if (message.MemberName == "PropertyChanged")
+                                {
+                                    message.ConvertToResponse(objectToInvoke);
+                                    Send(Serialize(message));
+                                }
                             }
                             else
                             if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventRemove)

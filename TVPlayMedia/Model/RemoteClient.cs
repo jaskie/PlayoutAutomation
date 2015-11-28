@@ -194,15 +194,16 @@ namespace TAS.Client.Model
             _clientSocket.Send(JsonConvert.SerializeObject(query));
         }
 
-        public void EventAdd(ProxyBase dto, [CallerMemberName] string eventName = "")
+        public void EventAdd(ProxyBase dto, string eventName)
         {
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.DtoGuid, MessageType = WebSocketMessage.WebSocketMessageType.EventAdd, MemberName = eventName };
             Debug.WriteLine(query, "EventAdd");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
-            Update(WaitForResponse(query).Response, dto);
+            if (eventName == "PropertyChanged")
+                Update(WaitForResponse(query).Response, dto);
         }
 
-        public void EventRemove(ProxyBase dto, [CallerMemberName] string eventName = "")
+        public void EventRemove(ProxyBase dto, string eventName)
         {
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.DtoGuid, MessageType = WebSocketMessage.WebSocketMessageType.EventRemove, MemberName = eventName };
             Debug.WriteLine(query, "EventRemove");
