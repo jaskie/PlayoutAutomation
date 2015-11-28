@@ -96,7 +96,7 @@
                                     <Image x:Name="trimmedImage" />
                                     <DataTemplate.Triggers>
                                         <DataTrigger Binding="{Binding IsTrimmed}" Value="True">
-                                            <Setter Property="Source" TargetName="trimmedImage" Value="../Glyphs/Scizors.png" />
+                                            <Setter Property="Source" TargetName="trimmedImage" Value="/TAS.Client.Common;component/Images/scizors.png" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding IsTrimmed}" Value="False">
                                             <Setter Property="Source" TargetName="trimmedImage" Value="{x:Null}" />
@@ -107,8 +107,8 @@
                         </DataGridTemplateColumn>
                         <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.ClipName}" Width="2*" Binding="{Binding MediaName, Mode=OneWay}" IsReadOnly="True" />
                         <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, Converter={StaticResource UtcToLocalDateTimeString}, ConverterParameter=g, Mode=OneWay}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.TCStart}" Width="80" Binding="{Binding sTCPlay, Mode=OneWay}" IsReadOnly="True" />
-                        <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Width="90" Binding="{Binding sDurationPlay, Mode=OneWay}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.TCStart}" Width="80" Binding="{Binding TCPlay, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" IsReadOnly="True" />
+                        <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Width="90" Binding="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" IsReadOnly="True" />
                         <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.File}" Width="*" Binding="{Binding FileName, Mode=OneWay}" IsReadOnly="True" />
                     </DataGrid.Columns>
                     <DataGrid.RowDetailsTemplate >
