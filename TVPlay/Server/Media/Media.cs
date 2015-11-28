@@ -153,7 +153,11 @@ namespace TAS.Server
             set
             {
                 if (SetField(ref _videoFormat, value, "VideoFormat"))
+                {
                     _videoFormatDescription = null;
+                    NotifyPropertyChanged("FrameRate");
+                    NotifyPropertyChanged("VideoFormatDescription");
+                }
             }
         }
         protected TAudioChannelMapping _audioChannelMapping;

@@ -171,8 +171,8 @@
                 </DataGridTemplateColumn>
                 <DataGridTextColumn x:Name="clipName" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipName}" Width="2*" Binding="{Binding MediaName, Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn x:Name="ingestDate" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, Converter={StaticResource UtcToLocalDateTimeString}, ConverterParameter=g, Mode=OneWay}" IsReadOnly="True" />
-                <DataGridTextColumn x:Name="tCStart" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.TcStart}" Width="80" Binding="{Binding TCStart, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" IsReadOnly="True" />
-                <DataGridTextColumn x:Name="duration" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.Duration}"  Width="90" Binding="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" IsReadOnly="True" />
+                <DataGridTextColumn x:Name="tCStart" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.TcPlay}" Width="80" Binding="{Binding sTCPlay, Mode=OneWay}" IsReadOnly="True" />
+                <DataGridTextColumn x:Name="duration" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.DurationPlay}"  Width="90" Binding="{Binding sDurationPlay, Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.FileName}" Width="*" Binding="{Binding FileName, Mode=OneWay}" IsReadOnly="True" />
             </DataGrid.Columns>
             <DataGrid.RowDetailsTemplate>

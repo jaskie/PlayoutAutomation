@@ -123,7 +123,7 @@
   <data name="_grid.Header.ClipName" xml:space="preserve">
     <value>Nazwa klipu</value>
   </data>
-  <data name="_grid.Header.Duration" xml:space="preserve">
+  <data name="_grid.Header.DurationPlay" xml:space="preserve">
     <value>Czas trwania</value>
   </data>
   <data name="_grid.Header.FileName" xml:space="preserve">
@@ -132,7 +132,7 @@
   <data name="_grid.Header.IngestDate" xml:space="preserve">
     <value>Data ingestu</value>
   </data>
-  <data name="_grid.Header.TcStart" xml:space="preserve">
+  <data name="_grid.Header.TcPlay" xml:space="preserve">
     <value>TC Start</value>
   </data>
   <data name="_refresh" xml:space="preserve">

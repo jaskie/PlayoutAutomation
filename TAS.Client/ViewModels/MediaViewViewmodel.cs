@@ -42,6 +42,10 @@ namespace TAS.Client.ViewModels
         public TimeSpan TCPlay { get { return Media.TCPlay; } }
         public TimeSpan Duration { get { return Media.Duration; } }
         public TimeSpan DurationPlay { get { return Media.DurationPlay; } }
+        public string sTCStart { get { return Media.TCStart.ToSMPTETimecodeString(Media.FrameRate); } }
+        public string sTCPlay { get { return Media.TCPlay.ToSMPTETimecodeString(Media.FrameRate); } }
+        public string sDuration { get { return Media.Duration.ToSMPTETimecodeString(Media.FrameRate); } }
+        public string sDurationPlay { get { return Media.DurationPlay.ToSMPTETimecodeString(Media.FrameRate); } }
         public DateTime LastUpdated { get { return Media.LastUpdated; } }
         public TMediaCategory MediaCategory { get { return Media.MediaCategory; } }
         public TMediaStatus MediaStatus { get { return Media.MediaStatus; } }
@@ -110,6 +114,13 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == "Duration"
                 || e.PropertyName == "DurationPlay")
                 NotifyPropertyChanged("IsTrimmed");
+            if (e.PropertyName == "FrameRate")
+            {
+                NotifyPropertyChanged("sTCPlay");
+                NotifyPropertyChanged("sTCStart");
+                NotifyPropertyChanged("sDuration");
+                NotifyPropertyChanged("sDurationPlay");
+            }
         }
 
         public override string ToString()

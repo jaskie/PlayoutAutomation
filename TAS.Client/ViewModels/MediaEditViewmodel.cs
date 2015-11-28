@@ -122,6 +122,14 @@ namespace TAS.Client.ViewModels
                             Modified = oldModified;
                             NotifyPropertyChanged(e.PropertyName);
                         }
+                        if (e.PropertyName == "FrameRate")
+                        {
+                            ((MediaEditView)Editor).SetFrameRate(Model.FrameRate);
+                            NotifyPropertyChanged("TCStart");
+                            NotifyPropertyChanged("TCPlay");
+                            NotifyPropertyChanged("Duration");
+                            NotifyPropertyChanged("DurationPlay");
+                        }
                     }
                 }),
             null);
@@ -134,14 +142,6 @@ namespace TAS.Client.ViewModels
             if (e.PropertyName == "MediaGuid")
             {
                 NotifyPropertyChanged(e.PropertyName);
-            }
-            if (e.PropertyName == "VideoFormat")
-            {
-                ((MediaEditView)Editor).SetFrameRate(Model.FrameRate);
-                NotifyPropertyChanged("TCStart");
-                NotifyPropertyChanged("TCPlay");
-                NotifyPropertyChanged("Duration");
-                NotifyPropertyChanged("DurationPlay");
             }
         }
 
