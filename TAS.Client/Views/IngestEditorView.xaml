@@ -12,7 +12,6 @@
             <Setter Property="Width" Value="80" />
             <Setter Property="Height" Value="25" />
         </Style>
-        <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>

@@ -33,8 +33,10 @@ namespace TAS.Client.Model
                 if (h != null)
                     h(this, ConvertEventArgs<AudioVolumeEventArgs>(e));
             }
+            else
+                base.OnEventNotification(e);
         }
-
+        
         public TimeSpan MeasureDuration { get { return Get<TimeSpan>(); }  set { Set(value); } }
         public TimeSpan MeasureStart { get { return Get<TimeSpan>(); } set { Set(value); } }
     }

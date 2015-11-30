@@ -256,10 +256,10 @@ namespace TAS.Client.ViewModels
                 IMedia media = _event.Media;
                 if (ev.EventType == TEventType.Movie && media != null)
                 {
-                    if (_scheduledTC > media.Duration + media.TCStart)
-                        validationResult = string.Format(resources._validate_StartTCAfterFile, (media.Duration + media.TCStart).ToSMPTETimecodeString(_engine.VideoFormat));
-                    if (_scheduledTC < media.TCStart)
-                        validationResult = string.Format(resources._validate_StartTCBeforeFile, media.TCStart.ToSMPTETimecodeString(_engine.VideoFormat));
+                    if (_scheduledTC > media.Duration + media.TcStart)
+                        validationResult = string.Format(resources._validate_StartTCAfterFile, (media.Duration + media.TcStart).ToSMPTETimecodeString(_engine.VideoFormat));
+                    if (_scheduledTC < media.TcStart)
+                        validationResult = string.Format(resources._validate_StartTCBeforeFile, media.TcStart.ToSMPTETimecodeString(_engine.VideoFormat));
                 }
             }
             return validationResult;
@@ -273,7 +273,7 @@ namespace TAS.Client.ViewModels
             {
                 IMedia media = _event.Media;
                 if (ev.EventType == TEventType.Movie && media != null
-                    && _duration + _scheduledTC > media.Duration + media.TCStart)
+                    && _duration + _scheduledTC > media.Duration + media.TcStart)
                     validationResult = resources._validate_DurationInvalid;
             }
             return validationResult;
@@ -451,7 +451,7 @@ namespace TAS.Client.ViewModels
                         newEvent.EventType = TEventType.Movie;
                         newEvent.Media = e.Media;
                         newEvent.EventName = e.MediaName;
-                        newEvent.ScheduledTC = e.TCIn;
+                        newEvent.ScheduledTc = e.TCIn;
                         newEvent.Duration = e.Duration;
                         newEvent.Layer = VideoLayer.Program;
                         newEvent.GPI = _setGPI(e.Media);
@@ -527,7 +527,7 @@ namespace TAS.Client.ViewModels
                             newEvent.EventType = TEventType.Movie;
                             newEvent.Media = e.Media;
                             newEvent.EventName = e.MediaName;
-                            newEvent.ScheduledTC = e.TCIn;
+                            newEvent.ScheduledTc = e.TCIn;
                             newEvent.Duration = e.Duration;
                             newEvent.Layer = VideoLayer.Program;
                             newEvent.GPI = _setGPI(e.Media);
@@ -641,7 +641,7 @@ namespace TAS.Client.ViewModels
             var pwm = _engineViewModel.PreviewViewmodel;
             if (pwm != null && pwm.IsLoaded)
             {
-                ScheduledTC = pwm.TCIn;
+                ScheduledTC = pwm.TcIn;
                 Duration = pwm.DurationSelection;
             }
         }
@@ -654,7 +654,7 @@ namespace TAS.Client.ViewModels
             var fileManager = _engine.MediaManager.FileManager;
             var operation = fileManager.CreateLoudnessOperation();
             operation.SourceMedia = _event.Media;
-            operation.MeasureStart = _event.StartTC - _media.TCStart;
+            operation.MeasureStart = _event.StartTc - _media.TcStart;
             operation.MeasureDuration = _event.Duration;
             operation.AudioVolumeMeasured += _audioVolumeMeasured;
             operation.Finished += _audioVolumeFinished;

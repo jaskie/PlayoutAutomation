@@ -71,9 +71,9 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Operation}" Binding="{Binding Title, Mode=OneWay}" Width="*" />
-                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Scheduled}" Width="100"  Binding="{Binding ScheduledTime, Converter={StaticResource UtcToLocalDateTimeString}, ConverterParameter=T, Mode=OneWay}" />
-                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Started}" Width="100" Binding="{Binding StartTime, Converter={StaticResource UtcToLocalDateTimeString}, ConverterParameter=T,  Mode=OneWay}" />
-                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Finished}" Width="100" Binding="{Binding FinishedTime, Converter={StaticResource UtcToLocalDateTimeString}, ConverterParameter=T, Mode=OneWay}" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Scheduled}" Width="100"  Binding="{Binding ScheduledTime, StringFormat=T, Mode=OneWay}" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Started}" Width="100" Binding="{Binding StartTime, StringFormat=T,  Mode=OneWay}" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.Finished}" Width="100" Binding="{Binding FinishedTime, StringFormat=T, Mode=OneWay}" />
                 <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.TryCount}" Binding="{Binding TryCount, Mode=OneWay}" />
             </DataGrid.Columns>
             <DataGrid.Resources>

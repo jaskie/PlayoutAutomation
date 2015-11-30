@@ -152,7 +152,7 @@
             <MenuItem Header="{Resx _menu.Show}" ItemsSource="{Binding Path=RootEventViewModel.Childrens}">
                 <MenuItem.ItemContainerStyle>
                     <Style TargetType="MenuItem">
-                        <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource NegativeBoolToVis}}"/>
+                        <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource InvertedBoolToVis}}"/>
                         <Setter Property="Command" Value="{Binding CommandShow}"/>
                     </Style>
                 </MenuItem.ItemContainerStyle>

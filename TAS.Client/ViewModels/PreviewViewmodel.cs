@@ -93,7 +93,7 @@ namespace TAS.Client.ViewModels
             if (pm is IServerMedia)
             {
                 media = (IServerMedia)pm;
-                tcIn = _playWholeClip ? media.TCStart : (segment == null)? media.TCPlay: segment.TCIn;
+                tcIn = _playWholeClip ? media.TcStart : (segment == null)? media.TcPlay: segment.TcIn;
                 duration = _playWholeClip ? media.Duration : (segment == null)? media.DurationPlay: segment.Duration;
             }
             IEvent ev = Event;
@@ -102,7 +102,7 @@ namespace TAS.Client.ViewModels
                 media = ev.ServerMediaPRV;
                 if (media != null)
                 {
-                    tcIn = _playWholeClip ? media.TCStart : (segment == null)? ev.ScheduledTC: segment.TCIn;
+                    tcIn = _playWholeClip ? media.TcStart : (segment == null)? ev.ScheduledTc: segment.TcIn;
                     duration = _playWholeClip ? media.Duration : (segment == null)? ev.Duration: segment.Duration;
                 }
             }
@@ -111,15 +111,15 @@ namespace TAS.Client.ViewModels
                 && duration.Ticks >= _engine.FrameTicks)
             {
                 LoadedMedia = media;
-                TCIn = tcIn;
-                TCOut = tcIn + duration - TimeSpan.FromTicks(_engine.FrameTicks);
+                TcIn = tcIn;
+                TcOut = tcIn + duration - TimeSpan.FromTicks(_engine.FrameTicks);
                 if (reloadSegments)
                 {
                     MediaSegments.Clear();
                     foreach (IMediaSegment ms in media.MediaSegments.ToList())
                         MediaSegments.Add(new MediaSegmentViewmodel(media, ms));
                 }
-                _loadedSeek = (tcIn.Ticks - media.TCStart.Ticks) / _engine.FrameTicks;
+                _loadedSeek = (tcIn.Ticks - media.TcStart.Ticks) / _engine.FrameTicks;
                 long newPosition = _engine.PreviewLoaded ? _engine.PreviewSeek + _engine.PreviewPosition - _loadedSeek : 0;
                 if (newPosition < 0)
                     newPosition = 0;
@@ -131,51 +131,51 @@ namespace TAS.Client.ViewModels
 
         void _mediaUnload()
         {
-            TCIn = TimeSpan.Zero;
-            TCOut = TimeSpan.Zero;
+            TcIn = TimeSpan.Zero;
+            TcOut = TimeSpan.Zero;
             LoadedMedia = null;
             _engine.PreviewUnload();
             NotifyPropertyChanged(null);
         }
 
-        public TimeSpan StartTC
+        public TimeSpan StartTc
         {
-            get { return (LoadedMedia == null) ? TimeSpan.Zero : LoadedMedia.TCStart; }
+            get { return (LoadedMedia == null) ? TimeSpan.Zero : LoadedMedia.TcStart; }
         }
 
-        private TimeSpan _tCIn;
-        public TimeSpan TCIn
+        private TimeSpan _tcIn;
+        public TimeSpan TcIn
         {
-            get { return _tCIn; }
+            get { return _tcIn; }
             set
             {
-                if (SetField(ref _tCIn, value, "TCIn"))
+                if (SetField(ref _tcIn, value, "TcIn"))
                     NotifyPropertyChanged("CommandSaveSegment");
             }
         }
 
-        private TimeSpan _tCOut;
-        public TimeSpan TCOut
+        private TimeSpan _tcOut;
+        public TimeSpan TcOut
         {
-            get { return _tCOut; }
+            get { return _tcOut; }
             set
             {
-                if (SetField(ref _tCOut, value, "TCOut"))
+                if (SetField(ref _tcOut, value, "TcOut"))
                     NotifyPropertyChanged("CommandSaveSegment");
             }
         }
 
-        public TimeSpan DurationSelection { get { return new TimeSpan(TCOut.Ticks - TCIn.Ticks + _engine.FrameTicks); } }
+        public TimeSpan DurationSelection { get { return new TimeSpan(TcOut.Ticks - TcIn.Ticks + _engine.FrameTicks); } }
 
         public TimeSpan Position
         {
             get
             {
-                return TimeSpan.FromTicks((long)((_engine.PreviewPosition + _engine.PreviewSeek) * TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num) + StartTC.Ticks);
+                return TimeSpan.FromTicks((long)((_engine.PreviewPosition + _engine.PreviewSeek) * TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num) + StartTc.Ticks);
             }
             set
             {
-                _engine.PreviewPosition = (value.Ticks - StartTC.Ticks) / _engine.FrameTicks - _loadedSeek;
+                _engine.PreviewPosition = (value.Ticks - StartTc.Ticks) / _engine.FrameTicks - _loadedSeek;
                 NotifyPropertyChanged("SliderPosition");
             }
         }
@@ -204,12 +204,12 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                return _loadedDuration < 1 ? 0 : (_engine.PreviewPosition * _sliderMaximum) / (_loadedDuration-1);
+                return _loadedDuration <= 1 ? 0 : (_engine.PreviewPosition * _sliderMaximum) / (_loadedDuration-1);
             }
             set 
             {
                 long newPos = _loadedSeek + (value * (_loadedDuration -1)) / _sliderMaximum;
-                Position = TimeSpan.FromTicks(newPos * _engine.FrameTicks + StartTC.Ticks);
+                Position = TimeSpan.FromTicks(newPos * _engine.FrameTicks + StartTc.Ticks);
                 NotifyPropertyChanged("Position");
             }
         }
@@ -300,9 +300,9 @@ namespace TAS.Client.ViewModels
             if (loadedMedia != null)
             {
                 if (_playWholeClip)
-                    return loadedMedia.TCStart + loadedMedia.Duration;
+                    return loadedMedia.TcStart + loadedMedia.Duration;
                 else
-                    return TCOut;
+                    return TcOut;
             }
             return TimeSpan.Zero;
         }
@@ -325,8 +325,8 @@ namespace TAS.Client.ViewModels
         public UICommand CommandPlay { get; private set; }
         public UICommand CommandStop { get; private set; }
         public UICommand CommandSeek { get; private set; }
-        public UICommand CommandCopyToTCIn { get; private set; }
-        public UICommand CommandCopyToTCOut { get; private set; }
+        public UICommand CommandCopyToTcIn { get; private set; }
+        public UICommand CommandCopyToTcOut { get; private set; }
         public UICommand CommandSaveSegment { get; private set; }
         public UICommand CommandDeleteSegment { get; private set; }
         public UICommand CommandNewSegment { get; private set; }
@@ -414,20 +414,20 @@ namespace TAS.Client.ViewModels
                 CanExecuteDelegate = _canStop
             };
 
-            CommandCopyToTCIn = new UICommand()
+            CommandCopyToTcIn = new UICommand()
             {
                 ExecuteDelegate = o =>
                     {
-                        TCIn = Position;
+                        TcIn = Position;
                     },
                 CanExecuteDelegate = _canStop
             };
 
-            CommandCopyToTCOut = new UICommand()
+            CommandCopyToTcOut = new UICommand()
             {
                 ExecuteDelegate = o =>
                     {
-                        TCOut = Position;
+                        TcOut = Position;
                     },
                 CanExecuteDelegate = _canStop
             };
@@ -440,15 +440,15 @@ namespace TAS.Client.ViewModels
                         IServerMedia media = LoadedMedia;
                         if (msVm == null)
                         {
-                            msVm = new MediaSegmentViewmodel(media) { TCIn = this.TCIn, TCOut = this.TCOut, SegmentName = this.SelectedSegmentName };
+                            msVm = new MediaSegmentViewmodel(media) { TcIn = this.TcIn, TcOut = this.TcOut, SegmentName = this.SelectedSegmentName };
                             media.MediaSegments.Add(msVm.MediaSegment);
                             MediaSegments.Add(msVm);
                             SelectedSegment = msVm;
                         }
                         else
                         {
-                            msVm.TCIn = TCIn;
-                            msVm.TCOut = TCOut;
+                            msVm.TcIn = TcIn;
+                            msVm.TcOut = TcOut;
                             msVm.SegmentName = SelectedSegmentName;
                         }
                         msVm.Save();
@@ -458,7 +458,7 @@ namespace TAS.Client.ViewModels
                         var ss = SelectedSegment;
                         return (LoadedMedia != null 
                             && ((ss == null && !string.IsNullOrEmpty(SelectedSegmentName))
-                                || (ss != null && (ss.Modified || SelectedSegmentName != ss.SegmentName || TCIn != ss.TCIn || TCOut != ss.TCOut))));
+                                || (ss != null && (ss.Modified || SelectedSegmentName != ss.SegmentName || TcIn != ss.TcIn || TcOut != ss.TcOut))));
                     }
             };
             CommandDeleteSegment = new UICommand()
@@ -480,7 +480,7 @@ namespace TAS.Client.ViewModels
                 ExecuteDelegate = o =>
                     {
                         var media = LoadedMedia;
-                        var msVm = new MediaSegmentViewmodel(media) { TCIn = this.TCIn, TCOut = this.TCOut, SegmentName = Common.Properties.Resources._title_NewSegment };
+                        var msVm = new MediaSegmentViewmodel(media) { TcIn = this.TcIn, TcOut = this.TcOut, SegmentName = Common.Properties.Resources._title_NewSegment };
                         msVm.Save();
                         media.MediaSegments.Add(msVm.MediaSegment);
                         MediaSegments.Add(msVm);

@@ -53,9 +53,9 @@ namespace TAS.Client.Model
 
         public TParental Parental { get { return Get<TParental>(); } set { Set(value); } }
 
-        public TimeSpan TCPlay { get { return Get<TimeSpan>(); } set { Set(value); } }
+        public TimeSpan TcPlay { get { return Get<TimeSpan>(); } set { Set(value); } }
 
-        public TimeSpan TCStart { get { return Get<TimeSpan>(); } set { Set(value); } }
+        public TimeSpan TcStart { get { return Get<TimeSpan>(); } set { Set(value); } }
 
         public bool Verified { get { return Get<bool>(); } set { Set(value); } }
 

@@ -5,6 +5,7 @@ using System.Text;
 using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
+using TAS.Common;
 using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
@@ -13,20 +14,17 @@ namespace TAS.Client.ViewModels
     {
         private readonly IMediaSegment _mediaSegment;
         private readonly IPersistentMedia _media;
+        private RationalNumber _frameRate;
         public MediaSegmentViewmodel(IPersistentMedia media, IMediaSegment mediaSegment)
         {
             _mediaSegment = mediaSegment;
             _media = media;
+            _frameRate = media.FrameRate;
             mediaSegment.PropertyChanged += OnPropertyChanged;
             Load();
         }
 
-        public MediaSegmentViewmodel(IPersistentMedia media)
-        {
-            _media = media;
-            _mediaSegment = media.CreateSegment();
-            _mediaSegment.PropertyChanged += OnPropertyChanged;
-        }
+        public MediaSegmentViewmodel(IPersistentMedia media) : this(media, media.CreateSegment()) { }
 
         protected override void OnDispose()
         {
@@ -39,24 +37,55 @@ namespace TAS.Client.ViewModels
             get { return _segmentName; }
             set { SetField(ref _segmentName, value, "SegmentName"); }
         }
-
+        
         private TimeSpan _tcIn;
-        public TimeSpan TCIn
+        public TimeSpan TcIn
         {
             get { return _tcIn; }
-            set { SetField(ref _tcIn, value, "TCIn"); }
+            set
+            {
+                if (SetField(ref _tcIn, value, "TcIn"))
+                {
+                    NotifyPropertyChanged("sTcIn");
+                    NotifyPropertyChanged("Duration");
+                    NotifyPropertyChanged("sDuration");
+                }
+            }
         }
 
         private TimeSpan _tcOut;
-        public TimeSpan TCOut
+        public TimeSpan TcOut
         {
             get { return _tcOut; }
-            set { SetField(ref _tcOut, value, "TCOut"); }
+            set
+            {
+                if (SetField(ref _tcOut, value, "TcOut"))
+                {
+                    NotifyPropertyChanged("Duration");
+                    NotifyPropertyChanged("sDuration");
+                }
+            }
         }
 
         public TimeSpan Duration
         {
-            get { return TCOut - TCIn + _media.VideoFormatDescription.FrameDuration; }
+            get { return TcOut - TcIn + _media.VideoFormatDescription.FrameDuration; }
+        }
+
+        public string sTcIn { get { return _tcIn.ToSMPTETimecodeString(_frameRate); } }
+        public string sDuration { get { return Duration.ToSMPTETimecodeString(_frameRate); } }
+
+        public RationalNumber FrameRate
+        {
+            get { return _frameRate; }
+            set
+            {
+                if (SetField(ref _frameRate, value, "FrameRate"))
+                {
+                    NotifyPropertyChanged("sDuration");
+                    NotifyPropertyChanged("sTcIn");
+                }
+            }
         }
 
         public IMediaSegment MediaSegment { get { return _mediaSegment; } }

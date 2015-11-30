@@ -25,8 +25,8 @@
         </Style>
     </UserControl.Resources>
     <UserControl.InputBindings>
-        <KeyBinding Command="{Binding CommandCopyToTCIn}" Gesture="Ctrl+I"/>
-        <KeyBinding Command="{Binding CommandCopyToTCOut}" Gesture="Ctrl+O"/>
+        <KeyBinding Command="{Binding CommandCopyToTcIn}" Gesture="Ctrl+I"/>
+        <KeyBinding Command="{Binding CommandCopyToTcOut}" Gesture="Ctrl+O"/>
         <KeyBinding Command="{Binding CommandSeek}" CommandParameter="-25" Gesture="Ctrl+Left"/>
         <KeyBinding Command="{Binding CommandSeek}" CommandParameter="-1" Gesture="Shift+Left"/>
         <KeyBinding Command="{Binding CommandSeek}" CommandParameter="25" Gesture="Ctrl+Right"/>
@@ -67,7 +67,7 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
                     <Label Content="Start TC" />
-                    <TextBox Text="{Binding StartTC, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" IsReadOnly="True"/>
+                    <TextBox Text="{Binding StartTc, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" IsReadOnly="True"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1">
                     <Button Height="24" Margin="1" Padding="0" ToolTip="{Resx _secondBack.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="rsecond" >
@@ -102,17 +102,17 @@
                     <ColumnDefinition Width="27" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <common:DelayedBindingTextBox Grid.Column="0" Text="{Binding TCIn, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
-                <Button Grid.Column="1"  Margin="1" ToolTip="{Resx _buttonCopyTCIn.ToolTip}" Command="{Binding CommandCopyToTCIn}" >
+                <common:DelayedBindingTextBox Grid.Column="0" Text="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button Grid.Column="1"  Margin="1" ToolTip="{Resx _buttonCopyTCIn.ToolTip}" Command="{Binding CommandCopyToTcIn}" >
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy-small.png" Stretch="None" />
                 </Button>
-                <Button Grid.Column="3"  Margin="1" ToolTip="{Resx _buttonCopyTCOut.ToolTip}" Command="{Binding CommandCopyToTCOut}">
+                <Button Grid.Column="3"  Margin="1" ToolTip="{Resx _buttonCopyTCOut.ToolTip}" Command="{Binding CommandCopyToTcOut}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy-small.png" Stretch="None" />
                 </Button>
                 <Label Grid.Column="2" Content="In" HorizontalAlignment="Left" />
                 <CheckBox Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Resx _wholeFile.ToolTip}" IsChecked="{Binding PlayWholeClip}" />
                 <Label Grid.Column="2" Content="Out" HorizontalAlignment="Right" />
-                <common:DelayedBindingTextBox Grid.Column="4" Text="{Binding TCOut, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                <common:DelayedBindingTextBox Grid.Column="4" Text="{Binding TcOut, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
             <DockPanel DockPanel.Dock="Top">
                 <Label DockPanel.Dock="Left" Content="{Resx _name}" Padding="2" VerticalContentAlignment="Center" Margin="4,0"/>
@@ -130,8 +130,8 @@
             <DataGrid ItemsSource="{Binding MediaSegments}" SelectedItem="{Binding SelectedSegment}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single">
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding SegmentName}" Header="{Resx ResxName=TAS.Client.Views.PreviewView, Key=_name}" Width="*"/>
-                    <DataGridTextColumn Binding="{Binding TCIn, Converter={StaticResource TimeSpanToSMPTE}}" Header="TC In" Width="100"/>
-                    <DataGridTextColumn Binding="{Binding TCOut, Converter={StaticResource TimeSpanToSMPTE}}" Header="TC Out" Width="100"/>
+                    <DataGridTextColumn Binding="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}}" Header="TC In" Width="100"/>
+                    <DataGridTextColumn Binding="{Binding TcOut, Converter={StaticResource TimeSpanToSMPTE}}" Header="TC Out" Width="100"/>
                 </DataGrid.Columns>
             </DataGrid>
         </DockPanel>

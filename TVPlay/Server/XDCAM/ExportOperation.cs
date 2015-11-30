@@ -123,7 +123,7 @@ namespace TAS.Server.XDCAM
                     : D10_PAL_IMX50,
                 DestDirectory.XDCAMAudioExportFormat == TxDCAMAudioExportFormat.Channels4Bits24 ? PCM24LE : PCM16LE,
                 AudioVolume,
-                StartTC - SourceMedia.TCStart,
+                StartTC - SourceMedia.TcStart,
                 TimeSpan.FromTicks((Duration.Ticks/(40*TimeSpan.TicksPerMillisecond))*(40*TimeSpan.TicksPerMillisecond)), // rounding down to nearest PAL frame time
                 StartTC.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[TVideoFormat.PAL_FHA].FrameRate),
                 outFile);

@@ -203,7 +203,7 @@ namespace TAS.Data
             aEvent._scheduledTime = _readDateTimeField(dataReader, "ScheduledTime");
             aEvent._duration = dataReader.IsDBNull(dataReader.GetOrdinal("Duration")) ? default(TimeSpan) : aEvent.Engine.AlignTimeSpan(dataReader.GetTimeSpan("Duration"));
             aEvent._scheduledDelay = dataReader.IsDBNull(dataReader.GetOrdinal("ScheduledDelay")) ? default(TimeSpan) : aEvent.Engine.AlignTimeSpan(dataReader.GetTimeSpan("ScheduledDelay"));
-            aEvent._scheduledTC = dataReader.IsDBNull(dataReader.GetOrdinal("ScheduledTC")) ? TimeSpan.Zero : dataReader.GetTimeSpan("ScheduledTC");
+            aEvent._scheduledTc = dataReader.IsDBNull(dataReader.GetOrdinal("ScheduledTC")) ? TimeSpan.Zero : dataReader.GetTimeSpan("ScheduledTC");
             aEvent._mediaGuid = (dataReader.IsDBNull(dataReader.GetOrdinal("MediaGuid"))) ? Guid.Empty : dataReader.GetGuid("MediaGuid");
             aEvent._eventName = dataReader.IsDBNull(dataReader.GetOrdinal("EventName")) ? default(string) : dataReader.GetString("EventName");
             var psb = dataReader.GetByte("PlayState");
@@ -213,7 +213,7 @@ namespace TAS.Data
             if (aEvent._playState == TPlayState.Fading)
                 aEvent._playState = TPlayState.Played;
             aEvent._startTime = _readDateTimeField(dataReader, "StartTime");
-            aEvent._startTC = dataReader.IsDBNull(dataReader.GetOrdinal("StartTC")) ? TimeSpan.Zero : dataReader.GetTimeSpan("StartTC");
+            aEvent._startTc = dataReader.IsDBNull(dataReader.GetOrdinal("StartTC")) ? TimeSpan.Zero : dataReader.GetTimeSpan("StartTC");
             aEvent._requestedStartTime = dataReader.IsDBNull(dataReader.GetOrdinal("RequestedStartTime")) ? null : (TimeSpan?)dataReader.GetTimeSpan("RequestedStartTime");
             aEvent._transitionTime = dataReader.IsDBNull(dataReader.GetOrdinal("TransitionTime")) ? default(TimeSpan) : dataReader.GetTimeSpan("TransitionTime");
             aEvent._transitionType = (TTransitionType)dataReader.GetByte("typTransition");
@@ -247,10 +247,10 @@ namespace TAS.Data
             else
                 cmd.Parameters.AddWithValue("@ScheduledTime", aEvent._scheduledTime);
             cmd.Parameters.AddWithValue("@Duration", aEvent._duration);
-            if (aEvent._scheduledTC.Equals(TimeSpan.Zero))
+            if (aEvent._scheduledTc.Equals(TimeSpan.Zero))
                 cmd.Parameters.AddWithValue("@ScheduledTC", DBNull.Value);
             else
-                cmd.Parameters.AddWithValue("@ScheduledTC", aEvent._scheduledTC);
+                cmd.Parameters.AddWithValue("@ScheduledTC", aEvent._scheduledTc);
             cmd.Parameters.AddWithValue("@ScheduledDelay", aEvent._scheduledDelay);
             if (aEvent.MediaGuid == Guid.Empty)
                 cmd.Parameters.AddWithValue("@MediaGuid", DBNull.Value);
@@ -262,10 +262,10 @@ namespace TAS.Data
                 cmd.Parameters.AddWithValue("@StartTime", DBNull.Value);
             else
                 cmd.Parameters.AddWithValue("@StartTime", aEvent._startTime);
-            if (aEvent._startTC.Equals(TimeSpan.Zero))
+            if (aEvent._startTc.Equals(TimeSpan.Zero))
                 cmd.Parameters.AddWithValue("@StartTC", DBNull.Value);
             else
-                cmd.Parameters.AddWithValue("@StartTC", aEvent._startTC);
+                cmd.Parameters.AddWithValue("@StartTC", aEvent._startTc);
             if (aEvent._requestedStartTime == null)
                 cmd.Parameters.AddWithValue("@RequestedStartTime", DBNull.Value);
             else
@@ -415,8 +415,8 @@ WHERE idRundownEvent=@idRundownEvent;";
             cmd.Parameters.AddWithValue("@AudioVolume", media.AudioVolume);
             cmd.Parameters.AddWithValue("@AudioLevelIntegrated", media.AudioLevelIntegrated);
             cmd.Parameters.AddWithValue("@AudioLevelPeak", media.AudioLevelPeak);
-            cmd.Parameters.AddWithValue("@TCStart", media.TCStart);
-            cmd.Parameters.AddWithValue("@TCPlay", media.TCPlay);
+            cmd.Parameters.AddWithValue("@TCStart", media.TcStart);
+            cmd.Parameters.AddWithValue("@TCPlay", media.TcPlay);
             try
             {
                 cmd.ExecuteNonQuery();
@@ -438,8 +438,8 @@ WHERE idRundownEvent=@idRundownEvent;";
             media.LastUpdated = _readDateTimeField(dataReader, "LastUpdated");
             media.MediaStatus = (TMediaStatus)(dataReader.IsDBNull(dataReader.GetOrdinal("statusMedia")) ? 0 : dataReader.GetInt32("statusMedia"));
             media.MediaType = (TMediaType)(dataReader.IsDBNull(dataReader.GetOrdinal("typMedia")) ? 0 : dataReader.GetInt32("typMedia"));
-            media.TCStart = dataReader.IsDBNull(dataReader.GetOrdinal("TCStart")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCStart");
-            media.TCPlay = dataReader.IsDBNull(dataReader.GetOrdinal("TCPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCPlay");
+            media.TcStart = dataReader.IsDBNull(dataReader.GetOrdinal("TCStart")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCStart");
+            media.TcPlay = dataReader.IsDBNull(dataReader.GetOrdinal("TCPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCPlay");
             media.idProgramme = dataReader.IsDBNull(dataReader.GetOrdinal("idProgramme")) ? 0 : dataReader.GetUInt64("idProgramme");
             media.AudioVolume = dataReader.IsDBNull(dataReader.GetOrdinal("AudioVolume")) ? 0 : dataReader.GetDecimal("AudioVolume");
             media.AudioLevelIntegrated = dataReader.IsDBNull(dataReader.GetOrdinal("AudioLevelIntegrated")) ? 0 : dataReader.GetDecimal("AudioLevelIntegrated");
@@ -809,7 +809,7 @@ VALUES
                             cmd.Parameters.AddWithValue("@typVideo", DBNull.Value);
                             cmd.Parameters.AddWithValue("@typAudio", DBNull.Value);
                         }
-                        cmd.Parameters.AddWithValue("@StartTC", e.StartTC);
+                        cmd.Parameters.AddWithValue("@StartTC", e.StartTc);
                         cmd.Parameters.AddWithValue("@Duration", e.Duration);
                         cmd.Parameters.AddWithValue("@idProgramme", e.idProgramme);
                         cmd.Parameters.AddWithValue("@idAuxRundown", e.IdAux);
@@ -1052,8 +1052,8 @@ idEngine=@idEngine", connection);
                                 {
                                     idMediaSegment = dataReader.GetUInt64("idMediaSegment"),
                                     SegmentName = (dataReader.IsDBNull(dataReader.GetOrdinal("SegmentName")) ? string.Empty : dataReader.GetString("SegmentName")),
-                                    TCIn = dataReader.IsDBNull(dataReader.GetOrdinal("TCIn")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCIn"),
-                                    TCOut = dataReader.IsDBNull(dataReader.GetOrdinal("TCOut")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCOut"),
+                                    TcIn = dataReader.IsDBNull(dataReader.GetOrdinal("TCIn")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCIn"),
+                                    TcOut = dataReader.IsDBNull(dataReader.GetOrdinal("TCOut")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCOut"),
                                 };
                                 segments.Add(newMediaSegment);
                             }
@@ -1106,8 +1106,8 @@ idEngine=@idEngine", connection);
                         command.Parameters.AddWithValue("@idMediaSegment", mediaSegment.idMediaSegment);
                     }
                     command.Parameters.Add("@MediaGuid", MySqlDbType.Binary).Value = mediaSegment.MediaGuid.ToByteArray();
-                    command.Parameters.AddWithValue("@TCIn", mediaSegment.TCIn);
-                    command.Parameters.AddWithValue("@TCOut", mediaSegment.TCOut);
+                    command.Parameters.AddWithValue("@TCIn", mediaSegment.TcIn);
+                    command.Parameters.AddWithValue("@TCOut", mediaSegment.TcOut);
                     command.Parameters.AddWithValue("@SegmentName", mediaSegment.SegmentName);
                     command.ExecuteNonQuery();
                     if (mediaSegment.idMediaSegment == 0)

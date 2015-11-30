@@ -9,8 +9,8 @@ namespace TAS.Server.Interfaces
     public interface IMediaSegment: IDto, INotifyPropertyChanged
     {
         string SegmentName { get; set; }
-        TimeSpan TCIn { get; set; }
-        TimeSpan TCOut { get; set; }
+        TimeSpan TcIn { get; set; }
+        TimeSpan TcOut { get; set; }
         Guid MediaGuid { get; }
         void Save();
         void Delete();

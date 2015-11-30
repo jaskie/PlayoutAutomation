@@ -20,9 +20,9 @@ namespace TAS.Server.Interfaces
         long Position { get; set; }
         TimeSpan? RequestedStartTime { get; set; }
         TimeSpan ScheduledDelay { get; set; }
-        TimeSpan ScheduledTC { get; set; }
+        TimeSpan ScheduledTc { get; set; }
         DateTime ScheduledTime { get; set; }
-        TimeSpan StartTC { get; set; }
+        TimeSpan StartTc { get; set; }
         DateTime StartTime { get; }
         TStartType StartType { get; set; }
         TimeSpan TransitionTime { get; set; }

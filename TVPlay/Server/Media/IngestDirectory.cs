@@ -273,8 +273,8 @@ namespace TAS.Server
                                             TimeSpan tcStart = start.value.LTCTimecodeToTimeSpan(rate);
                                             if (tcStart >= TimeSpan.FromHours(40)) // TC 40:00:00:00 and greater
                                                 tcStart -= TimeSpan.FromHours(40);
-                                            newMedia.TCStart = tcStart;
-                                            newMedia.TCPlay = tcStart;
+                                            newMedia.TcStart = tcStart;
+                                            newMedia.TcPlay = tcStart;
                                         }
                                         newMedia.Verified = true;
                                         newMedia.MediaStatus = TMediaStatus.Available;
@@ -317,8 +317,8 @@ namespace TAS.Server
                                                 TimeSpan tcStart = start.value.LTCTimecodeToTimeSpan(new RationalNumber(edl.EdlMeta.LtcChangeTable.tcFps, 1));
                                                 if (tcStart >= TimeSpan.FromHours(40)) // TC 40:00:00:00 and greater
                                                     tcStart -= TimeSpan.FromHours(40);
-                                                newMedia.TCStart = tcStart;
-                                                newMedia.TCPlay = tcStart;
+                                                newMedia.TcStart = tcStart;
+                                                newMedia.TcPlay = tcStart;
                                             }
                                             newMedia.Verified = true;
                                             newMedia.MediaStatus = TMediaStatus.Available;
@@ -477,8 +477,8 @@ namespace TAS.Server
                         IngestMedia m = (IngestMedia)FindMediaFirst(f => f.FileName == fileName);
                         if (m != null)
                         {
-                            m.TCStart = clip.SelectSingleNode(@"file/timecode/string").InnerText.SMPTETimecodeToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
-                            m.TCPlay = m.TCStart;
+                            m.TcStart = clip.SelectSingleNode(@"file/timecode/string").InnerText.SMPTETimecodeToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
+                            m.TcPlay = m.TcStart;
                             m.Duration = Int64.Parse(clip.SelectSingleNode(@"duration").InnerText).SMPTEFramesToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
                             m.DurationPlay = m.Duration;
                             m.XmlFile = xmlFileName;

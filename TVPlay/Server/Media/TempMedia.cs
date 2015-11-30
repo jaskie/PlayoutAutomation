@@ -32,13 +32,13 @@ namespace TAS.Server
         {
             get { return OriginalMedia.DurationPlay == TimeSpan.Zero ? _durationPlay : OriginalMedia.DurationPlay; }
         }
-        public override TimeSpan TCStart
+        public override TimeSpan TcStart
         {
-            get { return OriginalMedia.TCStart == TimeSpan.Zero ? _tCStart : OriginalMedia.TCStart; }
+            get { return OriginalMedia.TcStart == TimeSpan.Zero ? _tcStart : OriginalMedia.TcStart; }
         }
-        public override TimeSpan TCPlay
+        public override TimeSpan TcPlay
         {
-            get { return OriginalMedia.TCPlay == TimeSpan.Zero ? _tCPlay : OriginalMedia.TCPlay; }
+            get { return OriginalMedia.TcPlay == TimeSpan.Zero ? _tcPlay : OriginalMedia.TcPlay; }
         }
         public override decimal AudioVolume
         {

@@ -26,7 +26,7 @@ namespace TAS.Client.ViewModels
             CommandSaveEdit = new UICommand() { ExecuteDelegate = Save, CanExecuteDelegate = o => Modified && IsValid };
             CommandCancelEdit = new UICommand() { ExecuteDelegate = Load, CanExecuteDelegate = o => Modified };
             CommandRefreshStatus = new UICommand() { ExecuteDelegate = _refreshStatus };
-            CommandGetTCFromPreview = new UICommand() { ExecuteDelegate = _getTCFromPreview, CanExecuteDelegate = _canGetTCFormPreview };
+            CommandGetTcFromPreview = new UICommand() { ExecuteDelegate = _getTcFromPreview, CanExecuteDelegate = _canGetTcFormPreview };
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = (o) => !_isVolumeChecking };
             _previewVm = previewVm;
             _mediaManager = mediaManager;
@@ -46,7 +46,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandSaveEdit { get; private set; }
         public ICommand CommandCancelEdit { get; private set; }
         public ICommand CommandRefreshStatus { get; private set; }
-        public ICommand CommandGetTCFromPreview { get; private set; }
+        public ICommand CommandGetTcFromPreview { get; private set; }
         public ICommand CommandCheckVolume { get; private set; }
 
         public override void Save(object destObject = null)
@@ -67,16 +67,17 @@ namespace TAS.Client.ViewModels
         }
 
 
-        void _getTCFromPreview(object o)
+        void _getTcFromPreview(object o)
         {
             if (_previewVm != null)
             {
                 IMedia previewMedia = _previewVm.LoadedMedia;
-                TCPlay = _previewVm.TCIn;
+                TcPlay = _previewVm.TcIn;
                 DurationPlay = _previewVm.DurationSelection;
             }
         }
 
+        AutoResetEvent _checkVolumeSignal;
         void _checkVolume(object o)
         {
             if (_isVolumeChecking)
@@ -85,23 +86,33 @@ namespace TAS.Client.ViewModels
             IFileManager fileManager = _mediaManager.FileManager;
             ILoudnessOperation operation = fileManager.CreateLoudnessOperation();
             operation.SourceMedia = this.Model;
-            operation.MeasureStart = this.TCPlay - this.TCStart;
+            operation.MeasureStart = this.TcPlay - this.TcStart;
             operation.MeasureDuration = this.DurationPlay;
             operation.AudioVolumeMeasured += _audioVolumeMeasured;
             operation.Finished += _audioVolumeFinished;
+            _checkVolumeSignal = new AutoResetEvent(false);
             fileManager.Queue(operation, true);
         }
 
         private void _audioVolumeFinished(object sender, EventArgs e)
         {
-            IsVolumeChecking = false; // finishCallback
-            ((ILoudnessOperation)sender).Finished -= _audioVolumeFinished;
-            ((ILoudnessOperation)sender).AudioVolumeMeasured -= _audioVolumeMeasured;
+            ThreadPool.QueueUserWorkItem((o) =>
+            {
+                _checkVolumeSignal.WaitOne(5000);
+                IsVolumeChecking = false; // finishCallback
+                ((ILoudnessOperation)sender).Finished -= _audioVolumeFinished;
+                ((ILoudnessOperation)sender).AudioVolumeMeasured -= _audioVolumeMeasured;
+                _checkVolumeSignal.Dispose();
+                _checkVolumeSignal = null;
+            });
         }
 
         private void _audioVolumeMeasured(object sender, AudioVolumeEventArgs e)
         {
             this.AudioVolume = e.AudioVolume;
+            AutoResetEvent signal = _checkVolumeSignal;
+            if (signal != null)
+                signal.Set();
         }
 
         private void OnMediaPropertyChanged(object media, PropertyChangedEventArgs e)
@@ -125,8 +136,8 @@ namespace TAS.Client.ViewModels
                         if (e.PropertyName == "FrameRate")
                         {
                             ((MediaEditView)Editor).SetFrameRate(Model.FrameRate);
-                            NotifyPropertyChanged("TCStart");
-                            NotifyPropertyChanged("TCPlay");
+                            NotifyPropertyChanged("TcStart");
+                            NotifyPropertyChanged("TcPlay");
                             NotifyPropertyChanged("Duration");
                             NotifyPropertyChanged("DurationPlay");
                         }
@@ -148,7 +159,7 @@ namespace TAS.Client.ViewModels
         private void _onPreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "LoadedMedia")
-                NotifyPropertyChanged("CommandGetTCFromPreview");
+                NotifyPropertyChanged("CommandGetTcFromPreview");
         }
 
         private bool _isVolumeChecking;
@@ -223,18 +234,18 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _durationPlay, value, "DurationPlay"); }
         }
 
-        private TimeSpan _tCStart;
-        public TimeSpan TCStart
+        private TimeSpan _tcStart;
+        public TimeSpan TcStart
         {
-            get { return _tCStart; }
-            set { SetField(ref _tCStart, value, "TCStart"); }
+            get { return _tcStart; }
+            set { SetField(ref _tcStart, value, "TcStart"); }
         }
 
-        private TimeSpan _tCPlay;
-        public TimeSpan TCPlay
+        private TimeSpan _tcPlay;
+        public TimeSpan TcPlay
         {
-            get { return _tCPlay; }
-            set { SetField(ref _tCPlay, value, "TCPlay"); }
+            get { return _tcPlay; }
+            set { SetField(ref _tcPlay, value, "TcPlay"); }
         }
 
         readonly Array _videoFormats = Enum.GetValues(typeof(TVideoFormat));
@@ -391,7 +402,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private bool _canGetTCFormPreview(object o)
+        private bool _canGetTcFormPreview(object o)
         {
             return _previewVm != null
                 && _previewVm.LoadedMedia != null
@@ -413,8 +424,8 @@ namespace TAS.Client.ViewModels
                     case "FileName":
                         validationResult = _validateFileName();
                         break;
-                    case "TCPlay":
-                        validationResult = _validateTCPlay();
+                    case "TcPlay":
+                        validationResult = _validateTcPlay();
                         break;
                     case "DurationPlay":
                         validationResult = _validateDurationPlay();
@@ -462,11 +473,11 @@ namespace TAS.Client.ViewModels
             return validationResult;
         }
 
-        private string _validateTCPlay()
+        private string _validateTcPlay()
         {
             string validationResult = string.Empty;
-            if (TCPlay < TCStart
-                || TCPlay > TCStart + Duration)
+            if (TcPlay < TcStart
+                || TcPlay > TcStart + Duration)
                 validationResult = resources._validateStartPlayMustBeInsideFile;
             return validationResult;
         }
@@ -474,7 +485,7 @@ namespace TAS.Client.ViewModels
         private string _validateDurationPlay()
         {
             string validationResult = string.Empty;
-            if (DurationPlay + TCPlay > Duration + TCStart)
+            if (DurationPlay + TcPlay > Duration + TcStart)
                 validationResult = resources._validate_DurationInvalid;
             return validationResult;
         }

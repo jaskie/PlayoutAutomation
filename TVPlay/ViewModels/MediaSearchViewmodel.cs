@@ -222,10 +222,10 @@ namespace TAS.Client.ViewModels
                     {
                         var s = _previewViewmodel.SelectedSegment;
                         if (s != null)
-                            return s.TCIn;
+                            return s.TcIn;
                         else
-                            if (_previewViewmodel.TCIn != pvlm.TCPlay || _previewViewmodel.TCOut != pvlm.TCPlay + pvlm.DurationPlay)
-                                return _previewViewmodel.TCIn;
+                            if (_previewViewmodel.TcIn != pvlm.TcPlay || _previewViewmodel.TcOut != pvlm.TcPlay + pvlm.DurationPlay)
+                                return _previewViewmodel.TcIn;
                     }
                 }
                 var mediaVm = SelectedItem;
@@ -233,9 +233,9 @@ namespace TAS.Client.ViewModels
                 {
                     var segmentVM = mediaVm.SelectedSegment;
                     if (segmentVM == null)
-                        return mediaVm.TCPlay;
+                        return mediaVm.TcPlay;
                     else
-                        return segmentVM.TCIn;
+                        return segmentVM.TcIn;
                 }
                 return TimeSpan.Zero;
             }
@@ -254,7 +254,7 @@ namespace TAS.Client.ViewModels
                         if (s != null)
                             return s.Duration;
                         else
-                            if (_previewViewmodel.TCIn != pvlm.TCPlay || _previewViewmodel.TCOut != pvlm.TCPlay + pvlm.DurationPlay)
+                            if (_previewViewmodel.TcIn != pvlm.TcPlay || _previewViewmodel.TcOut != pvlm.TcPlay + pvlm.DurationPlay)
                                 return _previewViewmodel.DurationSelection;
                     }
                 }
@@ -306,7 +306,7 @@ namespace TAS.Client.ViewModels
                         if (s != null)
                             return pvlm.MediaName + " [" + s.SegmentName + "]";
                         else
-                            if (_previewViewmodel.TCIn != pvlm.TCPlay || _previewViewmodel.TCOut != pvlm.TCPlay+pvlm.DurationPlay)
+                            if (_previewViewmodel.TcIn != pvlm.TcPlay || _previewViewmodel.TcOut != pvlm.TcPlay+pvlm.DurationPlay)
                                 return pvlm.MediaName + " [fragment]";
                     }
                 }

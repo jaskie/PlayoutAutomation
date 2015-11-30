@@ -27,18 +27,18 @@ namespace TAS.Server
             set { SetField(ref _segmentName, value, "SegmentName"); }
         }
 
-        private TimeSpan _tCIn;
-        public TimeSpan TCIn
+        private TimeSpan _tcIn;
+        public TimeSpan TcIn
         {
-            get { return _tCIn; }
-            set { SetField(ref _tCIn, value, "TCIn"); }
+            get { return _tcIn; }
+            set { SetField(ref _tcIn, value, "TcIn"); }
         }
 
-        private TimeSpan _tCOut;
-        public TimeSpan TCOut
+        private TimeSpan _tcOut;
+        public TimeSpan TcOut
         {
-            get { return _tCOut; }
-            set { SetField(ref _tCOut, value, "TCOut"); }
+            get { return _tcOut; }
+            set { SetField(ref _tcOut, value, "TcOut"); }
         }
 
         public Guid MediaGuid

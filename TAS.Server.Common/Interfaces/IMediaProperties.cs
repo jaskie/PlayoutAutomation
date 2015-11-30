@@ -22,8 +22,8 @@ namespace TAS.Server.Interfaces
         string MediaName { get; set; }
         TMediaStatus MediaStatus { get; set; }
         TMediaType MediaType { get; set; }
-        TimeSpan TCPlay { get; set; }
-        TimeSpan TCStart { get; set; }
+        TimeSpan TcPlay { get; set; }
+        TimeSpan TcStart { get; set; }
         bool Verified { get; set; }
         TVideoFormat VideoFormat { get; set; }
         VideoFormatDescription VideoFormatDescription { get; }

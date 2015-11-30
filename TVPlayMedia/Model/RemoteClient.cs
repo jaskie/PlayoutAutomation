@@ -26,7 +26,7 @@ namespace TAS.Client.Model
         readonly JsonSerializer _serializer;
         ConcurrentDictionary<Guid, WebSocketMessage> _receivedMessages = new ConcurrentDictionary<Guid, WebSocketMessage>();
         ConcurrentDictionary<Guid, IDto> _knownObjects = new ConcurrentDictionary<Guid, IDto>();
-        const int query_timeout = 1000;
+        const int query_timeout = 15000;
 
         public event EventHandler<WebSocketMessageEventArgs> EventNotification;
         public event EventHandler OnOpen;

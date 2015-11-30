@@ -141,21 +141,6 @@ namespace TAS.Client.Common
         public RationalNumber FrameRate { get { return _frameRate; } set { _frameRate = value; } }
     }
 
-    [ValueConversion(typeof(DateTime), typeof(string))]
-    public class UtcToLocalDateTimeStringConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            DateTime dt = (DateTime)value;
-            return dt == default(DateTime) ? string.Empty : dt.ToLocalTime().ToString((string)parameter, culture);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     [ValueConversion(typeof(bool), typeof(double))]
     public class EnabledBoolToOpacityConverter : IValueConverter
     {
@@ -294,11 +279,25 @@ namespace TAS.Client.Common
     }
 
     [ValueConversion(typeof(bool), typeof(System.Windows.Visibility))]
-    public class NegativeBooleanToVisibilityConverter : IValueConverter
+    public class InvertedBooleanToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             return (bool)value ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ValueConversion(typeof(object), typeof(System.Windows.Visibility))]
+    public class NullToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return value == null ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

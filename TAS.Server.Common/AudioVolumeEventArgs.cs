@@ -7,9 +7,9 @@ namespace TAS.Server.Common
 {
     public class AudioVolumeEventArgs : EventArgs
     {
-        public AudioVolumeEventArgs(decimal volume)
+        public AudioVolumeEventArgs(decimal audioVolume)
         {
-            AudioVolume = volume;
+            AudioVolume = audioVolume;
         }
         public decimal AudioVolume { get; private set; }
     }

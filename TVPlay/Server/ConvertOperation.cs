@@ -70,9 +70,9 @@ namespace TAS.Server
                                 Match m_tc = reg_tc.Match(m_tcs.Value);
                                 if (m_tc.Success)
                                 {
-                                    DestMedia.TCStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan(mf.VideoFormatDescription.FrameRate);
-                                    if (DestMedia.TCPlay == TimeSpan.Zero)
-                                        DestMedia.TCPlay = DestMedia.TCStart;
+                                    DestMedia.TcStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan(mf.VideoFormatDescription.FrameRate);
+                                    if (DestMedia.TcPlay == TimeSpan.Zero)
+                                        DestMedia.TcPlay = DestMedia.TcStart;
                                     break;
                                 }
                             }
@@ -95,9 +95,9 @@ namespace TAS.Server
                             Match m_tc = re.Match(miOutputLines[i + 1]);
                             if (m_tc.Success)
                             {
-                                DestMedia.TCStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan(mf.VideoFormatDescription.FrameRate);
-                                if (DestMedia.TCPlay == TimeSpan.Zero)
-                                    DestMedia.TCPlay = DestMedia.TCStart;
+                                DestMedia.TcStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan(mf.VideoFormatDescription.FrameRate);
+                                if (DestMedia.TcPlay == TimeSpan.Zero)
+                                    DestMedia.TcPlay = DestMedia.TcStart;
                                 break;
                             }
                         }
@@ -277,7 +277,7 @@ namespace TAS.Server
             string Params = string.Format("-i \"{0}\" -vsync cfr {1} -ar 48000 -timecode {2} -r {3} -y \"{4}\"",
                     inputMedia.FullPath,
                     encodeParams,
-                    DestMedia.TCStart.ToSMPTETimecodeString(formatDescription.FrameRate),
+                    DestMedia.TcStart.ToSMPTETimecodeString(formatDescription.FrameRate),
                     formatDescription.FrameRate,
                     DestMedia.FullPath);
 

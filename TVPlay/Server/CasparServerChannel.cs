@@ -344,7 +344,7 @@ namespace TAS.Server
                 if (item != null)
                 {
                     if (ev.EventType == TEventType.Movie && ev.Media != null)
-                        item.Seek = (int)ev.Position + (int)((ev.ScheduledTC.Ticks - ev.Media.TCPlay.Ticks) / Engine.FrameTicks);
+                        item.Seek = (int)ev.Position + (int)((ev.ScheduledTc.Ticks - ev.Media.TcPlay.Ticks) / Engine.FrameTicks);
                     item.Transition.Duration = 3;
                     item.Transition.Type = TransitionType.MIX;
                     channel.LoadBG(item);

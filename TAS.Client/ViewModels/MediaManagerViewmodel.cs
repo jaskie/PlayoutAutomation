@@ -96,8 +96,11 @@ namespace TAS.Client.ViewModels
                             break;
                     }
                 }
+                var oldSelectedMedia = _selectedMedia;
                 if (SetField(ref _selectedMedia, value, "SelectedMedia"))
                 {
+                    if (oldSelectedMedia != null)
+                        oldSelectedMedia.SelectedSegment = null;
                     IMedia media = value == null ? null : value.Media;
                     if (media is IIngestMedia
                         && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
@@ -205,7 +208,7 @@ namespace TAS.Client.ViewModels
 
         private void _export(object obj)
         {
-            var selections = _getSelections().Select( m => new MediaExport(m, m.TCPlay, m.DurationPlay, m.AudioVolume));
+            var selections = _getSelections().Select( m => new MediaExport(m, m.TcPlay, m.DurationPlay, m.AudioVolume));
             using (ExportViewmodel evm = new ExportViewmodel(this._mediaManager, selections)) { }
         }
 

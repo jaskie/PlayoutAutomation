@@ -12,9 +12,9 @@ namespace TAS.Client.Model
         public Guid MediaGuid { get { return Get<Guid>(); }  set { Set(value); } }
         public string SegmentName { get { return Get<string>(); } set { Set(value); } }
 
-        public TimeSpan TCIn { get { return Get<TimeSpan>(); } set { Set(value); } }
+        public TimeSpan TcIn { get { return Get<TimeSpan>(); } set { Set(value); } }
 
-        public TimeSpan TCOut { get { return Get<TimeSpan>(); } set { Set(value); } }
+        public TimeSpan TcOut { get { return Get<TimeSpan>(); } set { Set(value); } }
 
         public void Delete()
         {

@@ -92,7 +92,7 @@ namespace TAS.Client.Model
         protected bool SetField(object value, string propertyName)
         {
             object oldValue;
-            if (!_properties.TryGetValue(propertyName, out oldValue) || !oldValue.Equals(value))
+            if (!_properties.TryGetValue(propertyName, out oldValue) || oldValue != value)
             {
                 _properties[propertyName] = value;
                 NotifyPropertyChanged(propertyName);

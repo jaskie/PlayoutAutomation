@@ -31,6 +31,13 @@ namespace TAS.Server
             _addOutputMessage("Operation scheduled");
         }
 
+#if DEBUG
+        ~FileOperation()
+        {
+            Debug.WriteLine(this, "FileOperation Finalized");
+        }
+#endif // DEBUG
+
         private readonly Guid _dtoGuid = Guid.NewGuid();
 
         [JsonProperty]

@@ -131,19 +131,19 @@ namespace TAS.Server
             get { return _durationPlay; }
             set { SetField(ref _durationPlay, value, "DurationPlay"); }
         }
-        protected TimeSpan _tCStart;
+        protected TimeSpan _tcStart;
         [JsonProperty]
-        public virtual TimeSpan TCStart 
+        public virtual TimeSpan TcStart 
         {
-            get { return _tCStart; }
-            set { SetField(ref _tCStart, value, "TCStart"); }
+            get { return _tcStart; }
+            set { SetField(ref _tcStart, value, "TcStart"); }
         }
-        protected TimeSpan _tCPlay;
+        protected TimeSpan _tcPlay;
         [JsonProperty]
-        public virtual TimeSpan TCPlay
+        public virtual TimeSpan TcPlay
         {
-            get { return _tCPlay; }
-            set { SetField(ref _tCPlay, value, "TCPlay"); }
+            get { return _tcPlay; }
+            set { SetField(ref _tcPlay, value, "TcPlay"); }
         }
         protected TVideoFormat _videoFormat;
         [JsonProperty]
@@ -292,8 +292,8 @@ namespace TAS.Server
             AudioLevelPeak = fromMedia.AudioLevelPeak;
             Duration = fromMedia.Duration;
             DurationPlay = fromMedia.DurationPlay;
-            TCStart = fromMedia.TCStart;
-            TCPlay = fromMedia.TCPlay;
+            TcStart = fromMedia.TcStart;
+            TcPlay = fromMedia.TcPlay;
             VideoFormat = fromMedia.VideoFormat;
             MediaCategory = fromMedia.MediaCategory;
             Parental = fromMedia.Parental;
@@ -453,7 +453,7 @@ namespace TAS.Server
 
         public void GetLoudness()
         {
-            _directory.MediaManager.Queue(new LoudnessOperation() { SourceMedia = this, MeasureStart = this.TCPlay - this.TCStart, MeasureDuration = this.DurationPlay });
+            _directory.MediaManager.Queue(new LoudnessOperation() { SourceMedia = this, MeasureStart = this.TcPlay - this.TcStart, MeasureDuration = this.DurationPlay });
         }
 
 

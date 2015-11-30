@@ -75,11 +75,8 @@ namespace TAS.Server.Remoting
                             if (message.MessageType == WebSocketMessage.WebSocketMessageType.Get && property.CanRead)
                             {
                                 object response = property.GetValue(objectToInvoke, null);
-                                if (response != null)
-                                {
-                                    message.ConvertToResponse(response);
-                                    Send(Serialize(message));
-                                }
+                                message.ConvertToResponse(response);
+                                Send(Serialize(message));
                             }
                             else // Set
                             {
@@ -191,7 +188,11 @@ namespace TAS.Server.Remoting
                         input[i] = inputParameters;
                     }
                     else
-                        input[i] = _dtos[Deserialize<ReceivedDto>((input[i] as JContainer).ToString()).DtoGuid];
+                    {
+                        ReceivedDto receivedDto = Deserialize<ReceivedDto>((input[i] as JContainer).ToString());
+                        if (!receivedDto.DtoGuid.Equals(Guid.Empty))
+                            input[i] = _dtos[receivedDto.DtoGuid];
+                    }
             }
         }
 

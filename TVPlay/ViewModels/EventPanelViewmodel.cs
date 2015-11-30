@@ -559,7 +559,7 @@ namespace TAS.Client.ViewModels
                         if (media.MediaStatus == TMediaStatus.Available)
                             if (   media.MediaType == TMediaType.Still
                                 || media.MediaType == TMediaType.AnimationFlash
-                                || _event.ScheduledTC + _event.Duration <= media.TCStart + media.Duration
+                                || _event.ScheduledTc + _event.Duration <= media.TcStart + media.Duration
                                 )
                                 return TMediaErrorInfo.NoError;
                     return TMediaErrorInfo.TooShort;

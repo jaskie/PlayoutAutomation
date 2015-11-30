@@ -10,7 +10,7 @@
     <common:TimeSpanToSignedStringConverter x:Key="TimeSpanToSignedString" />
     <common:MediaEmphasisToBrushConverter x:Key="MediaEmphasisToBrush" />
     <common:BoolToStringConverter x:Key="BooleanToAspectDescriptionConverter" FalseValue="16:9" TrueValue="4:3" />
-    <common:NegativeBooleanToVisibilityConverter x:Key="NegativeBoolToVis" />
+    <common:InvertedBooleanToVisibilityConverter x:Key="InvertedBoolToVis" />
+    <common:NullToVisibilityConverter x:Key="NullToVis"/>
     <common:StringArrayToDelimitedStringConverter x:Key="StringArrayToDelimitedString"/>
-    <common:UtcToLocalDateTimeStringConverter x:Key="UtcToLocalDateTimeString"/>
 </ResourceDictionary>

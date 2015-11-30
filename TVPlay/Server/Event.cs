@@ -76,7 +76,7 @@ namespace TAS.Server
             newEvent.AudioVolume = this.AudioVolume; // must be after media
             newEvent.PlayState = TPlayState.Scheduled;
             newEvent.ScheduledDelay = this.ScheduledDelay;
-            newEvent.ScheduledTC = this.ScheduledTC;
+            newEvent.ScheduledTc = this.ScheduledTc;
             newEvent.ScheduledTime = this.ScheduledTime;
             newEvent.StartType = this.StartType;
             newEvent.TransitionTime = this.TransitionTime;
@@ -115,12 +115,12 @@ namespace TAS.Server
                             if (value == TPlayState.Playing)
                             {
                                 StartTime = Engine.CurrentTime;
-                                StartTC = ScheduledTC + TimeSpan.FromTicks(_position * Engine.FrameTicks);
+                                StartTc = ScheduledTc + TimeSpan.FromTicks(_position * Engine.FrameTicks);
                             }
                             if (value == TPlayState.Scheduled)
                             {
                                 StartTime = default(DateTime);
-                                StartTC = ScheduledTC;
+                                StartTc = ScheduledTc;
                                 Position = 0;
                                 GPITrigerred = false;
                                 LocalGPITriggered = false;
@@ -289,7 +289,7 @@ namespace TAS.Server
                 }
                 if (_playState == TPlayState.Played || _playState == TPlayState.Aborted)
                 {
-                    long val = StartTime.Ticks + Length.Ticks + (StartTC.Ticks - ScheduledTC.Ticks);
+                    long val = StartTime.Ticks + Length.Ticks + (StartTc.Ticks - ScheduledTc.Ticks);
                     if (val > 0)
                         return new DateTime(val);
                     else
@@ -513,31 +513,31 @@ namespace TAS.Server
             }
         }
 
-        internal TimeSpan _scheduledTC = TimeSpan.Zero;
-        public TimeSpan ScheduledTC
+        internal TimeSpan _scheduledTc = TimeSpan.Zero;
+        public TimeSpan ScheduledTc
         {
             get
             {
-                return _scheduledTC;
+                return _scheduledTc;
             }
             set
             {
                 value = Engine.AlignTimeSpan(value);
-                SetField(ref _scheduledTC, value, "ScheduledTC");
+                SetField(ref _scheduledTc, value, "ScheduledTc");
             }
         }
 
-        internal TimeSpan _startTC = TimeSpan.Zero;
-        public TimeSpan StartTC
+        internal TimeSpan _startTc = TimeSpan.Zero;
+        public TimeSpan StartTc
         {
             get
             {
-                return _startTC;
+                return _startTc;
             }
             set
             {
                 value = Engine.AlignTimeSpan(value);
-                SetField(ref _startTC, value, "StartTC");
+                SetField(ref _startTc, value, "StartTc");
             }
         }
 
@@ -702,7 +702,7 @@ namespace TAS.Server
             {
                 if (ServerMediaPGM != null)
                 {
-                    long seek = (this.ScheduledTC.Ticks - ServerMediaPGM.TCStart.Ticks) / Engine.FrameTicks;
+                    long seek = (this.ScheduledTc.Ticks - ServerMediaPGM.TcStart.Ticks) / Engine.FrameTicks;
                     return (seek < 0) ? 0 : seek;
                 }
                 return 0;
@@ -1070,8 +1070,8 @@ namespace TAS.Server
                 IMedia m = Media;
                 if (m == null 
                     || m.MediaStatus != TMediaStatus.Available
-                    || _scheduledTC<m.TCStart 
-                    || _duration+_scheduledTC > m.Duration+m.TCStart)
+                    || _scheduledTc<m.TcStart 
+                    || _duration+_scheduledTc > m.Duration+m.TcStart)
                     return TimeSpan.Zero;
             }
             if (_eventType == TEventType.Rundown)

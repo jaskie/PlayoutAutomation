@@ -38,21 +38,21 @@ namespace TAS.Client.ViewModels
         public string MediaName { get { return Media.MediaName; } }
         public string FileName { get { return Media.FileName; } }
         public string Location { get { return Media.Directory.DirectoryName; } }
-        public TimeSpan TCStart { get { return Media.TCStart; } }
-        public TimeSpan TCPlay { get { return Media.TCPlay; } }
+        public TimeSpan TcStart { get { return Media.TcStart; } }
+        public TimeSpan TcPlay { get { return Media.TcPlay; } }
         public TimeSpan Duration { get { return Media.Duration; } }
         public TimeSpan DurationPlay { get { return Media.DurationPlay; } }
-        public string sTCStart { get { return Media.TCStart.ToSMPTETimecodeString(Media.FrameRate); } }
-        public string sTCPlay { get { return Media.TCPlay.ToSMPTETimecodeString(Media.FrameRate); } }
+        public string sTcStart { get { return Media.TcStart.ToSMPTETimecodeString(Media.FrameRate); } }
+        public string sTcPlay { get { return Media.TcPlay.ToSMPTETimecodeString(Media.FrameRate); } }
         public string sDuration { get { return Media.Duration.ToSMPTETimecodeString(Media.FrameRate); } }
         public string sDurationPlay { get { return Media.DurationPlay.ToSMPTETimecodeString(Media.FrameRate); } }
-        public DateTime LastUpdated { get { return Media.LastUpdated; } }
+        public DateTime LastUpdated { get { return Media.LastUpdated.ToLocalTime(); } }
         public TMediaCategory MediaCategory { get { return Media.MediaCategory; } }
         public TMediaStatus MediaStatus { get { return Media.MediaStatus; } }
         public TMediaEmphasis MediaEmphasis { get { return (Media is IPersistentMedia) ? (Media as IPersistentMedia).MediaEmphasis : TMediaEmphasis.None; } }
         public int SegmentCount { get { return (Media is IPersistentMedia) ? (Media as IPersistentMedia).MediaSegments.Count : 0; } }
         public bool HasSegments { get { return SegmentCount != 0; } }
-        public bool IsTrimmed { get { return TCPlay != TCStart || Duration != DurationPlay; } }
+        public bool IsTrimmed { get { return TcPlay != TcStart || Duration != DurationPlay; } }
         private bool _isExpanded;
         public bool IsExpanded
         {
@@ -109,17 +109,22 @@ namespace TAS.Client.ViewModels
         {
             if (!string.IsNullOrEmpty(e.PropertyName) && GetType().GetProperty(e.PropertyName) != null)
                 NotifyPropertyChanged(e.PropertyName);
-            if (e.PropertyName == "TCPlay"
-                || e.PropertyName == "TCStart"
+            if (e.PropertyName == "TcPlay"
+                || e.PropertyName == "TcStart"
                 || e.PropertyName == "Duration"
                 || e.PropertyName == "DurationPlay")
                 NotifyPropertyChanged("IsTrimmed");
             if (e.PropertyName == "FrameRate")
             {
-                NotifyPropertyChanged("sTCPlay");
-                NotifyPropertyChanged("sTCStart");
+                NotifyPropertyChanged("sTcPlay");
+                NotifyPropertyChanged("sTcStart");
                 NotifyPropertyChanged("sDuration");
                 NotifyPropertyChanged("sDurationPlay");
+                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                   {
+                       foreach (MediaSegmentViewmodel segment in _mediaSegments)
+                           segment.FrameRate = ((IMedia)media).FrameRate;
+                   }));
             }
         }
 
