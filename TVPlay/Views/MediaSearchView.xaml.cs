@@ -67,6 +67,9 @@ namespace TAS.Client
             if (e.Key == Key.Up && gSearch.SelectedIndex > 0)
                 gSearch.SelectedIndex--;
         }
-        
+
+        private void MediaSearchWindow_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+        }
     }
 }

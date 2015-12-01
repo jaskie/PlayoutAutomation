@@ -11,13 +11,12 @@
         xmlns:vm="clr-namespace:TAS.Client.ViewModels"
         Title="{Resx Window.Title}" 
         Height="450" 
-        SizeToContent="Width"
+        Width="{Binding WindowWidth, Mode=TwoWay}"
         WindowStartupLocation="CenterOwner"
         mc:Ignorable="d" 
         ShowInTaskbar="False" SnapsToDevicePixels="True"
         FocusManager.FocusedElement="{Binding ElementName=tbSearch}"
         FontSize="12"
-        Name="MediaSearchWindow"
         >
     <Window.Resources>
         <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
@@ -47,7 +46,7 @@
             <Setter Property="Template" Value="{StaticResource toggleButtonTemplate}" />
         </Style>
     </Window.Resources>
-    <Grid>
+    <Grid Width="Auto">
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
             <RowDefinition Height="*" />
@@ -68,10 +67,22 @@
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="650" />
-                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>                    
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <DataGrid x:Name="gSearch" Grid.Row="2" SelectionUnit="FullRow" SelectionMode="Single" AutoGenerateColumns="False" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}" SelectionChanged="DataGrid_SelectionChanged" RowHeaderWidth="0">
+            <ContentControl x:Name="_preview" Grid.Column="1" DockPanel.Dock="Right" Content="{Binding PreviewView}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" Width="330"/>
+            <DataGrid 
+                DockPanel.Dock="Left"
+                x:Name="gSearch" 
+                SelectionUnit="FullRow" 
+                SelectionMode="Single" 
+                AutoGenerateColumns="False" 
+                ColumnWidth="Auto"
+                ItemsSource="{Binding Items}" 
+                SelectedItem="{Binding SelectedItem, Mode=TwoWay}" 
+                SelectionChanged="DataGrid_SelectionChanged" 
+                IsReadOnly="True"
+                RowHeaderWidth="0">
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
                         <Style.Resources>
@@ -79,19 +90,19 @@
                             <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="White"/>
                         </Style.Resources>
                         <Setter Property="DetailsVisibility" Value="{Binding IsExpanded, Converter={StaticResource BoolToVis}}" />
-                        <Setter Property="common:MouseDoubleClick.Command" Value="{Binding ElementName=gSearch, Path=DataContext.CommandAdd}" />
+                        <!--<Setter Property="common:MouseDoubleClick.Command" Value="{Binding ElementName=gSearch, Path=DataContext.CommandAdd}" />-->
                         <Setter Property="Background" Value="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}" />
                     </Style>
                 </DataGrid.RowStyle>
                 <DataGrid.Columns>
-                    <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" CanUserSort="False" Width="20">
+                    <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" CanUserSort="False" Width="20" >
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <ToggleButton Visibility="{Binding HasSegments, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsExpanded, UpdateSourceTrigger=PropertyChanged}" Width="14" Height="14" Style="{StaticResource toggleButtonStyle}"  />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn x:Name="isTrimmedColumn" >
+                    <DataGridTemplateColumn x:Name="isTrimmedColumn" Width="20" CanUserResize="False" >
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Image x:Name="trimmedImage" Height="16" />
@@ -106,11 +117,11 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.ClipName}" Width="2*" Binding="{Binding MediaName, Mode=OneWay}" IsReadOnly="True" />
-                    <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" IsReadOnly="True" />
-                    <DataGridTextColumn x:Name="tcStartColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.TCStart}" Width="80" Binding="{Binding TcPlay, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" IsReadOnly="True" />
-                    <DataGridTextColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Width="90" Binding="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.File}" Width="*" Binding="{Binding FileName, Mode=OneWay}" IsReadOnly="True" />
+                    <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.ClipName}" Width="3*" Binding="{Binding MediaName, Mode=OneWay}" />
+                    <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.IngestDate}" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" />
+                    <DataGridTextColumn x:Name="tcStartColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.TCStart}" Binding="{Binding TcPlay, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" />
+                    <DataGridTextColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Binding="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" />
+                    <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.File}" Binding="{Binding FileName, Mode=OneWay}" Width="2*" />
                 </DataGrid.Columns>
                 <DataGrid.RowDetailsTemplate >
                     <DataTemplate>
@@ -127,7 +138,7 @@
                                             <DataTemplate />
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Width="{Binding ElementName=isTrimmedColumn, Path=ActualWidth}" >
+                                    <GridViewColumn Width="{Binding ElementName=isTrimmedColumn, Path=ActualWidth}"  >
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate />
                                         </GridViewColumn.CellTemplate>
@@ -138,7 +149,7 @@
                                             <DataTemplate />
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn DisplayMemberBinding="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Width="{Binding ElementName=tCStartColumn, Path=ActualWidth}" TextBlock.TextAlignment="Left" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Width="{Binding ElementName=tcStartColumn, Path=ActualWidth}" TextBlock.TextAlignment="Left" />
                                     <GridViewColumn DisplayMemberBinding="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Width="{Binding ElementName=durationColumn, Path=ActualWidth}" TextBlock.TextAlignment="Left" />
                                 </GridView>
                             </ListView.View>
@@ -146,7 +157,6 @@
                     </DataTemplate>
                 </DataGrid.RowDetailsTemplate>
             </DataGrid>
-            <ContentControl Grid.Column="1" Content="{Binding PreviewView}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}"/>
         </Grid>
     </Grid>
 </Window>

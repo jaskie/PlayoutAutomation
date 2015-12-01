@@ -29,6 +29,7 @@ namespace TAS.Client
             System.Threading.Thread.Sleep(5000); // wait for server to set up
 #endif
             InitializeComponent();
+            Common.WpfHacks.ApplyGridViewRowPresenter_CellMargin();
             try
             {
                 _client = new Model.RemoteClient(ConfigurationManager.AppSettings["Host"]);

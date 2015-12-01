@@ -28,6 +28,9 @@ namespace TAS.Client
                 decimal.TryParse(ConfigurationManager.AppSettings[volumeReferenceLoudnessKey], out referenceLoudness);
             App.Current.Properties[volumeReferenceLoudnessKey] = referenceLoudness;
             CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
+            #region hacks
+            Common.WpfHacks.ApplyGridViewRowPresenter_CellMargin();
+            #endregion
             //CultureManager.UICulture = new System.Globalization.CultureInfo("en");
             EngineController = new EngineController();
         }

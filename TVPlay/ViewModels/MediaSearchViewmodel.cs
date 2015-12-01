@@ -60,7 +60,7 @@ namespace TAS.Client.ViewModels
             _itemsView = CollectionViewSource.GetDefaultView(_items);
             _itemsView.SortDescriptions.Add(new SortDescription("MediaName", ListSortDirection.Ascending));
             _itemsView.Filter += _itemsFilter;
-            
+            WindowWidth = mediaType == TMediaType.Movie && engineVM.PreviewViewmodel != null ? 1050 : 750;
             _view = new MediaSearchView(engineVM.FrameRate);
             _view.Owner = App.Current.MainWindow;
             _view.DataContext = this;
@@ -82,6 +82,8 @@ namespace TAS.Client.ViewModels
         }
 
         public PreviewView PreviewView { get { return _previewView; } }
+
+        public double WindowWidth { get; set; }
 
         bool _canAddMediaToCollection(IMedia media, TMediaType requiredMediaType, RationalNumber requiredFrameRate, VideoFormatDescription requiredFormatDescription)
         {

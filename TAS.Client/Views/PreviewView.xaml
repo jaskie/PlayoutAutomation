@@ -7,7 +7,6 @@
              mc:Ignorable="d" 
              xmlns:client="clr-namespace:TAS.Client"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
-             d:DesignWidth="361"
              FontSize="13" 
              SnapsToDevicePixels="True"
              KeyboardNavigation.DirectionalNavigation="Cycle"
@@ -35,7 +34,7 @@
         <KeyBinding Command="{Binding CommandSetSegmentNameFocus}" Gesture="F2" />
     </UserControl.InputBindings>
 
-    <Grid IsEnabled="{Binding IsEnabled}" Margin="3,0" MinHeight="300">
+    <Grid IsEnabled="{Binding IsEnabled}" MinHeight="300" MinWidth="280">
         <Grid.RowDefinitions>
             <RowDefinition Height="55" />
             <RowDefinition Height="*" />

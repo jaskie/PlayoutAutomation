@@ -192,6 +192,15 @@ namespace Infralution.Localization.Wpf
                 menuItem.Click += new EventHandler(OnCultureSelectMenuClick);
                 menuStrip.Items.Add(menuItem);
 
+                // add menu to exit the designer for VS2012/2013
+                //
+                if (AppDomain.CurrentDomain.FriendlyName == "XDesProc.exe")
+                {
+                    menuItem = new ToolStripMenuItem(Resources.ExitDesignerMenu);
+                    menuItem.Click += new EventHandler(OnExitDesignerMenuClick);
+                    menuStrip.Items.Add(menuItem);
+                }
+
                 menuStrip.Opening += OnMenuStripOpening;
                 _notifyIcon.ContextMenuStrip = menuStrip;
                 _notifyIcon.Visible = true;
@@ -284,7 +293,7 @@ namespace Infralution.Localization.Wpf
                 menuItem.CheckOnClick = true;
                 menuItem.Tag = culture;
                 menuItem.CheckedChanged += new EventHandler(OnCultureMenuCheckChanged);
-                menuStrip.Items.Insert(menuStrip.Items.Count - 2, menuItem);
+                menuStrip.Items.Insert(0, menuItem);
             }
         }
 
@@ -350,6 +359,16 @@ namespace Infralution.Localization.Wpf
         private static void OnCultureSelectMenuClick(object sender, EventArgs e)
         {
             DisplayCultureSelectWindow();
+        }
+
+        /// <summary>
+        /// Exit the designer process
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private static void OnExitDesignerMenuClick(object sender, EventArgs e)
+        {
+            System.Windows.Application.Current.Shutdown();
         }
 
         /// <summary>
