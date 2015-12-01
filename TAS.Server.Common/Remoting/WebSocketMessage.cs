@@ -22,7 +22,8 @@ namespace TAS.Server.Remoting
             Set,
             EventAdd,
             EventRemove,
-            EventNotification
+            EventNotification,
+            DisposeObject
         }
         [DataMember]
         public readonly Guid MessageGuid;

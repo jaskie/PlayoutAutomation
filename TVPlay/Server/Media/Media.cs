@@ -19,7 +19,7 @@ using System.Threading;
 namespace TAS.Server
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public abstract class Media : IMedia, IDto
+    public abstract class Media : IMedia
     {
 
         public Media(MediaDirectory directory)
@@ -465,6 +465,17 @@ namespace TAS.Server
             if (handler != null)
                 handler(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        bool _disposed = false;
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                DoDispose();
+            }
+        }
+
+        protected virtual void DoDispose() { }
 
     }
 

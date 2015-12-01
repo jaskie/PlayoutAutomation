@@ -48,11 +48,9 @@ namespace TAS.Server
         {
             get { return OriginalMedia.MediaGuid; }
         }
-        private bool _disposed = false;
-        public void Dispose()
+        protected override void DoDispose()
         {
-            if (!_disposed)
-                _directory.DeleteMedia(this);
+            _directory.DeleteMedia(this);
         }
 
     }

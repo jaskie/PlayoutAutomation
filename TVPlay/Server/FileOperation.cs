@@ -327,7 +327,17 @@ namespace TAS.Server
             if (DestMedia != null)
                 DestMedia.Delete();
             Debug.WriteLine(this, "File simple operation failed - TryCount is zero");
-        }       
+        }
 
+        bool _disposed = false;
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                SourceMedia = null;
+                DestMedia = null;
+            }
+        }
     }
 }

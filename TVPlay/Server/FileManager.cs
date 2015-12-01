@@ -147,6 +147,18 @@ namespace TAS.Server
             if (handler != null)
                 handler(this, new FileOperationEventArgs(operation));
         }
+
+        bool _disposed = false;
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                _queueSimpleOperation.Clear();
+                _queueExportOperation.Clear();
+                _queueConvertOperation.Clear();
+            }
+        }
     }
 
 
