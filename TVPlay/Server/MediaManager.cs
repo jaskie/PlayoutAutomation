@@ -493,14 +493,6 @@ namespace TAS.Server
             else
                 return ((ServerDirectory)MediaDirectoryPRV).FindMediaByMediaGuid(media.MediaGuid);
         }
-
-        bool _disposed = false;
-        public void Dispose()
-        {
-            if (!_disposed)
-            {
-            }
-        }
     }
 
 

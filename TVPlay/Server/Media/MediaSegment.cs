@@ -76,12 +76,5 @@ namespace TAS.Server
             if (handler != null)
                 handler(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        bool _disposed = false;
-        public void Dispose()
-        {
-            if (!_disposed)
-            { }
-        }
     }
 }

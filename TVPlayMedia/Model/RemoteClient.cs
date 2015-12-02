@@ -129,12 +129,6 @@ namespace TAS.Client.Model
             return resultFunc.EndInvoke(funcAsyncResult);
         }
 
-        public void DisposeDto(IDto dto)
-        {
-            WebSocketMessage disposeMessage = new WebSocketMessage() { MessageType = WebSocketMessage.WebSocketMessageType.DisposeObject, DtoGuid = dto.DtoGuid };
-            _clientSocket.Send(JsonConvert.SerializeObject(disposeMessage));
-        }
-
         public T Deserialize<T>(object o)
         {
             if (o is Newtonsoft.Json.Linq.JContainer)

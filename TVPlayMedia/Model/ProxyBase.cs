@@ -122,7 +122,10 @@ namespace TAS.Client.Model
             Debug.WriteLine(this, e.ToString());
         }
 
-        protected virtual void OnEventRegistration(WebSocketMessageEventArgs e) { }
+        protected virtual void OnEventRegistration(WebSocketMessageEventArgs e)
+        {
+
+        }
 
 
         protected T ConvertEventArgs<T>(WebSocketMessageEventArgs e) where T : EventArgs
@@ -157,20 +160,6 @@ namespace TAS.Client.Model
                 EventRemove(_propertyChanged);
             }
         }
-
-        #region IDisposable
-        bool _disposed = false;
-        public void Dispose()
-        {
-            if (!_disposed)
-                DoDispose();
-        }
-
-        protected virtual void DoDispose()
-        {
-            _client.DisposeDto(this);
-        }
-        #endregion // IDisposable
 
 
     }

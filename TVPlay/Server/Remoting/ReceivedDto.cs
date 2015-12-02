@@ -10,7 +10,5 @@ namespace TAS.Server.Remoting
     internal class ReceivedDto : IDto
     {
         public Guid DtoGuid { get; set; }
-
-        public void Dispose() { }
     }
 }

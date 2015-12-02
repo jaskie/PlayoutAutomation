@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IDto: IDisposable
+    public interface IDto
     {
         Guid DtoGuid { get; }
     }

@@ -23,12 +23,12 @@ namespace TAS.Server.Remoting
         {
             _mediaManager = mediaManager;
             _dtos = new ConcurrentDictionary<Guid, IDto>();
-            _events = new ConcurrentDictionary<delegateKey, Delegate>();
+            _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
             Debug.WriteLine("Created MM behavior");
         }
 
         protected ConcurrentDictionary<Guid, IDto> _dtos;
-        protected ConcurrentDictionary<Tuple<Guid, string>, Delegate> _events;
+        protected ConcurrentDictionary<Tuple<Guid, string>, Delegate> _delegates;
 
         protected override void OnMessage(MessageEventArgs e)
         {
@@ -106,13 +106,8 @@ namespace TAS.Server.Remoting
                             }
                             else
                             if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventRemove)
-                                _removEvent(objectToInvoke, ei);
+                                _removeDelegate(objectToInvoke, ei);
                         }
-                    }
-                    else 
-                    if (message.MessageType == WebSocketMessage.WebSocketMessageType.DisposeObject)
-                    {
-                        _disposedAtClient(message.DtoGuid);
                     }
                 }
                 else
@@ -122,11 +117,11 @@ namespace TAS.Server.Remoting
 
         protected override void OnClose(CloseEventArgs e)
         {
-            foreach (delegateKey d in _events.Keys)
+            foreach (delegateKey d in _delegates.Keys)
             {
                 EventInfo ei = _dtos[d.Item1].GetType().GetEvent(d.Item2);
                 Delegate delegateToRemove;
-                if (_events.TryRemove(d, out delegateToRemove))
+                if (_delegates.TryRemove(d, out delegateToRemove))
                     ei.RemoveEventHandler(_dtos[d.Item1], delegateToRemove);
             }
             _dtos.Clear();
@@ -151,19 +146,19 @@ namespace TAS.Server.Remoting
         void _addDelegate(IDto objectToInvoke, EventInfo ei)
         {
             delegateKey signature = new delegateKey(objectToInvoke.DtoGuid, ei.Name);
-            if (_events.ContainsKey(signature))
+            if (_delegates.ContainsKey(signature))
                 return;
             Delegate delegateToInvoke = ConvertDelegate((Action<object, EventArgs>)delegate (object o, EventArgs ea) { _notifyClient(o, ea, ei.Name); }, ei.EventHandlerType);
             Debug.WriteLine(objectToInvoke, string.Format("Delegate {0} added", ei.Name));
-            _events[signature] = delegateToInvoke;
+            _delegates[signature] = delegateToInvoke;
             ei.AddEventHandler(objectToInvoke, delegateToInvoke);
         }
 
-        void _removEvent(IDto objectToInvoke, EventInfo ei)
+        void _removeDelegate(IDto objectToInvoke, EventInfo ei)
         {
             delegateKey signature = new delegateKey(objectToInvoke.DtoGuid, ei.Name);
             Delegate delegateToRemove;
-            if (_events.TryRemove(signature, out delegateToRemove))
+            if (_delegates.TryRemove(signature, out delegateToRemove))
                 ei.RemoveEventHandler(objectToInvoke, delegateToRemove);
         }
 
@@ -236,22 +231,6 @@ namespace TAS.Server.Remoting
             {
                 IFileOperation operation = (response as Common.FileOperationEventArgs).Operation;
                 _registerResponse(operation);
-            }
-        }
-
-        void _disposedAtClient(Guid dtoGuid)
-        {
-            IDto removed;
-            _dtos.TryRemove(dtoGuid, out removed);
-            if (removed != null)
-            {
-                IEnumerable<delegateKey> eventsToRemove = _events.Keys.Where(k => k.Item1 == dtoGuid);
-                foreach (var key in eventsToRemove)
-                {
-                    EventInfo ei = removed.GetType().GetEvent(key.Item2);
-                    if (ei != null)
-                        _removEvent(removed, ei);
-                }
             }
         }
     }
