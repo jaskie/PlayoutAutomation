@@ -386,10 +386,11 @@ namespace TAS.Server
         }
 
         private bool _verified = false;
+        [JsonProperty]
         public bool Verified
         {
             get { return _verified; }
-            set { _verified = value; }
+            set { SetField(ref _verified, value, "Verified"); }
         }
 
         [JsonProperty]

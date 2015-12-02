@@ -117,13 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="_buttonCancel" xml:space="preserve">
-    <value>Anuluj</value>
-  </data>
   <data name="_grid.Header.Clip" xml:space="preserve">
     <value>Klip</value>
-  </data>
-  <data name="_window.Title" xml:space="preserve">
-    <value>Ingestuj jako...</value>
   </data>
 </root>

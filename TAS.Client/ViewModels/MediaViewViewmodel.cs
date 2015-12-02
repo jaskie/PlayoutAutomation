@@ -116,6 +116,14 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == "Duration"
                 || e.PropertyName == "DurationPlay")
                 NotifyPropertyChanged("IsTrimmed");
+            if (e.PropertyName == "TcStart")
+                NotifyPropertyChanged("sTcStart");
+            if (e.PropertyName == "TcPlay")
+                NotifyPropertyChanged("sTcPlay");
+            if (e.PropertyName == "Duration")
+                NotifyPropertyChanged("sDuration");
+            if (e.PropertyName == "DurationPlay")
+                NotifyPropertyChanged("sDurationPlay");
             if (e.PropertyName == "FrameRate")
             {
                 NotifyPropertyChanged("sTcPlay");

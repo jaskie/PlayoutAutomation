@@ -249,7 +249,8 @@ namespace TAS.Server.Remoting
                     ei.RemoveEventHandler(_dtos[d.Item1], delegateToRemove);
             }
             IDto removed;
-            _dtos.TryRemove(dtoGuid, out removed);
+            if (_dtos.TryRemove(dtoGuid, out removed))
+                Debug.WriteLine(removed, "Dto removed");
         }
 
     }

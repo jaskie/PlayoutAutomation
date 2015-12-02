@@ -16,16 +16,11 @@ namespace TAS.Client
     /// <summary>
     /// Interaction logic for IngestEditorWindow.xaml
     /// </summary>
-    public partial class IngestEditorView : Window
+    public partial class IngestEditorView : UserControl
     {
         public IngestEditorView()
         {
             InitializeComponent();
-        }
-
-        private void btnOK_Click(object sender, RoutedEventArgs e)
-        {
-            this.DialogResult = true;
         }
     }
 }

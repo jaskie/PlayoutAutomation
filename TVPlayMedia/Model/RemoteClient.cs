@@ -165,7 +165,7 @@ namespace TAS.Client.Model
         public T Query<T>(ProxyBase dto, string methodName, params object[] parameters)
         {
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.DtoGuid, MessageType = WebSocketMessage.WebSocketMessageType.Query, MemberName = methodName, Parameters = parameters };
-            Debug.WriteLine(query, "Query");
+            Debug.WriteLine(query, "Query requested");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
             return Deserialize<T>(WaitForResponse(query).Response);
         }
@@ -173,7 +173,7 @@ namespace TAS.Client.Model
         public T Get<T>(ProxyBase dto, string propertyName)
         {
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.DtoGuid, MessageType = WebSocketMessage.WebSocketMessageType.Get, MemberName = propertyName};
-            Debug.WriteLine(query, "Get");
+            Debug.WriteLine(query, "Get requested");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
             return Deserialize<T>(WaitForResponse(query).Response);
         }
@@ -181,21 +181,21 @@ namespace TAS.Client.Model
         public void Invoke(ProxyBase dto, string methodName, params object[] parameters)
         {
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.DtoGuid, MessageType = WebSocketMessage.WebSocketMessageType.Invoke, MemberName = methodName, Parameters = parameters };
-            Debug.WriteLine(query, "Invoke");
+            Debug.WriteLine(query, "Invoke requested");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
         }
 
         public void Set(ProxyBase dto, object value, string propertyName)
         {
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.DtoGuid, MessageType = WebSocketMessage.WebSocketMessageType.Set, MemberName = propertyName, Parameters = new object[] { value} };
-            Debug.WriteLine(query, "Set");
+            Debug.WriteLine(query, "Set requested");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
         }
 
         public void EventAdd(ProxyBase dto, string eventName)
         {
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.DtoGuid, MessageType = WebSocketMessage.WebSocketMessageType.EventAdd, MemberName = eventName };
-            Debug.WriteLine(query, "EventAdd");
+            Debug.WriteLine(query, "EventAdd requested");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
             if (eventName == "PropertyChanged")
                 Update(WaitForResponse(query).Response, dto);
@@ -204,14 +204,14 @@ namespace TAS.Client.Model
         public void EventRemove(ProxyBase dto, string eventName)
         {
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.DtoGuid, MessageType = WebSocketMessage.WebSocketMessageType.EventRemove, MemberName = eventName };
-            Debug.WriteLine(query, "EventRemove");
+            Debug.WriteLine(query, "EventRemove requested");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
         }
 
         public void ObjectRemove(ProxyBase dto)
         {
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.DtoGuid, MessageType = WebSocketMessage.WebSocketMessageType.ObjectRemove };
-            Debug.WriteLine(query, "ObjectRemove");
+            Debug.WriteLine(query, "ObjectRemove requested");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
         }
 

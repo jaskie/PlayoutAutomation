@@ -256,13 +256,7 @@ namespace TAS.Client.ViewModels
                 {
                     using (IngestEditViewmodel ievm = new IngestEditViewmodel(ingestList))
                     {
-                        IngestEditorView iewnd = new IngestEditorView()
-                        {
-                            DataContext = ievm,
-                            Owner = Application.Current.MainWindow,
-                            ShowInTaskbar = false
-                        };
-                        if (iewnd.ShowDialog() == true)
+                        if (ievm.ShowDialog() == true)
                         {
                             foreach (IConvertOperation operation in ingestList)
                                 _mediaManager.Queue(operation);
