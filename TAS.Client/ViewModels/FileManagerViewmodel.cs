@@ -32,11 +32,12 @@ namespace TAS.Client.ViewModels
             {
                 if (_clearFinished)
                 {
-                    _operationList.Where(vm => vm.FileOperation == e.Operation).ToList().ForEach(vm =>
+                    FileOperationViewmodel fovm = _operationList.FirstOrDefault(vm => vm.FileOperation == e.Operation);
+                    if (fovm != null)
                     {
-                        _operationList.Remove(vm);
-                        vm.Dispose();
-                    });
+                        _operationList.Remove(fovm);
+                        fovm.Dispose();
+                    }
                 }
             }), null);
         }
@@ -87,7 +88,6 @@ namespace TAS.Client.ViewModels
             result.AspectConversion = aspectConversion;
             return result;
         }
-
 
     }
 }

@@ -15,7 +15,7 @@ namespace TAS.Server
 {
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class FileOperation : IFileOperation
+    public class FileOperation : Remoting.DtoBase, IFileOperation
     {
         [JsonProperty]
         public TFileOperationKind Kind { get; set; }
@@ -37,11 +37,6 @@ namespace TAS.Server
             Debug.WriteLine(this, "FileOperation Finalized");
         }
 #endif // DEBUG
-
-        private readonly Guid _dtoGuid = Guid.NewGuid();
-
-        [JsonProperty]
-        public Guid DtoGuid { get { return _dtoGuid; } }
 
         private int _tryCount = 15;
         [JsonProperty]

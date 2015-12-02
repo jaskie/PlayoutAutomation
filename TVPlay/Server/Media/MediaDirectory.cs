@@ -19,7 +19,7 @@ using System.Collections.Concurrent;
 namespace TAS.Server
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public abstract class MediaDirectory : IMediaDirectory, IDto
+    public abstract class MediaDirectory : Remoting.DtoBase, IMediaDirectory
     { 
         protected string[] _extensions;
         private FileSystemWatcher _watcher;
@@ -31,7 +31,6 @@ namespace TAS.Server
         public event EventHandler<MediaDtoEventArgs> MediaVerified;
 
         protected bool _isInitialized = false;
-        private readonly Guid _idDto = Guid.NewGuid();
 
         public MediaDirectory(MediaManager mediaManager)
         {
@@ -81,9 +80,6 @@ namespace TAS.Server
                 Initialize();
             }
         }
-
-        [JsonProperty]
-        public Guid DtoGuid { get { return _idDto; } }
 
         protected virtual void ClearFiles()
         {

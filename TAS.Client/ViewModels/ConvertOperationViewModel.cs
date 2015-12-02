@@ -25,9 +25,9 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
-            base.OnDispose();
             _convertOperation.SourceMedia.PropertyChanged -= OnSourceMediaPropertyChanged;
             _convertOperation.DestMedia.PropertyChanged -= OnDestMediaPropertyChanged;
+            base.OnDispose();
         }
 
         static readonly Array _categories = Enum.GetValues(typeof(TMediaCategory)); 

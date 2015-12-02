@@ -16,12 +16,12 @@ using delegateKey = System.Tuple<System.Guid, string>;
 
 namespace TAS.Server.Remoting
 {
-    public class MediaManagerBehavior : WebSocketBehavior
+    public class CommunicationBehavior : WebSocketBehavior
     {
-        readonly MediaManager _mediaManager;
-        public MediaManagerBehavior(MediaManager mediaManager)
+        readonly IDto _initialObject;
+        public CommunicationBehavior(IDto initialObject)
         {
-            _mediaManager = mediaManager;
+            _initialObject = initialObject;
             _dtos = new ConcurrentDictionary<Guid, IDto>();
             _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
             Debug.WriteLine("Created MM behavior");
@@ -35,9 +35,9 @@ namespace TAS.Server.Remoting
             WebSocketMessage message = Deserialize<WebSocketMessage>(e.Data);
             if (message.MessageType == WebSocketMessage.WebSocketMessageType.RootQuery)
             {
-                message.ConvertToResponse(_mediaManager);
+                message.ConvertToResponse(_initialObject);
                 Send(Serialize(message));
-                _dtos[_mediaManager.DtoGuid] = _mediaManager;
+                _dtos[_initialObject.DtoGuid] = _initialObject;
             }
             else // method of particular object
             {
@@ -108,6 +108,11 @@ namespace TAS.Server.Remoting
                             if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventRemove)
                                 _removeDelegate(objectToInvoke, ei);
                         }
+                    }
+                    else
+                    if (message.MessageType == WebSocketMessage.WebSocketMessageType.ObjectRemove)
+                    {
+                        _removeObject(message.DtoGuid);
                     }
                 }
                 else
@@ -233,5 +238,19 @@ namespace TAS.Server.Remoting
                 _registerResponse(operation);
             }
         }
+
+        void _removeObject(Guid dtoGuid)
+        {
+            foreach (delegateKey d in _delegates.Keys.Where(k => k.Item1 == dtoGuid).ToList())
+            {
+                EventInfo ei = _dtos[d.Item1].GetType().GetEvent(d.Item2);
+                Delegate delegateToRemove;
+                if (_delegates.TryRemove(d, out delegateToRemove))
+                    ei.RemoveEventHandler(_dtos[d.Item1], delegateToRemove);
+            }
+            IDto removed;
+            _dtos.TryRemove(dtoGuid, out removed);
+        }
+
     }
 }

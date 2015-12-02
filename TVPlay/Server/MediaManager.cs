@@ -21,9 +21,8 @@ namespace TAS.Server
 {
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class MediaManager: IMediaManager
+    public class MediaManager: Remoting.DtoBase, IMediaManager
     {
-        readonly Guid _guidDto = Guid.NewGuid();
         readonly IEngine _engine;
         readonly FileManager _fileManager;
         public IFileManager FileManager { get { return _fileManager; } }
@@ -77,8 +76,6 @@ namespace TAS.Server
             LoadIngestDirs(ConfigurationManager.AppSettings["IngestFolders"]);
             Debug.WriteLine(this, "End initializing");
         }
-        [JsonProperty]
-        public Guid DtoGuid { get { return _guidDto; } }
 
         private List<IIngestDirectory> _ingestDirectories;
         public List<IIngestDirectory> IngestDirectories

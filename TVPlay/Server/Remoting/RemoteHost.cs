@@ -24,8 +24,7 @@ namespace TAS.Server.Remoting
             try
             {
                 _server = new WebSocketServer(string.Format("ws://{0}", EndpointAddress));
-                _server.AddWebSocketService<MediaManagerBehavior>("/MediaManager", () => new MediaManagerBehavior(engine.MediaManager as MediaManager));
-                //_server.AddWebSocketService<EngineBehavior>("/Engine", () => new EngineBehavior(engine));
+                _server.AddWebSocketService<CommunicationBehavior>("/MediaManager", () => new CommunicationBehavior(engine.MediaManager as MediaManager));
                 _server.Start();
                 return true;
             }

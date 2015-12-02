@@ -7,9 +7,12 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server.Remoting
 {
-    internal class ReceivedDto : IDto
+    [JsonObject(MemberSerialization.OptIn)]
+    public abstract class DtoBase: IDto
     {
-        public Guid DtoGuid { get; set; }
+        private readonly Guid _guidDto = Guid.NewGuid();
+        [JsonProperty]
+        public Guid DtoGuid { get { return _guidDto; } }
 
         public void ReferenceAdd() { }
 

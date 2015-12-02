@@ -18,13 +18,14 @@ namespace TAS.Client.Model
         [JsonProperty]
         public Guid DtoGuid { get; set; }
         IRemoteClient _client;
-        internal void SetClient(IRemoteClient client)
+        ConcurrentDictionary<Guid, IDto> _objectList;
+        internal void SetClient(IRemoteClient client, ConcurrentDictionary<Guid, IDto> objectList)
         {
             if (_client != null)
                 return;
             client.EventNotification += _onEventNotificationMessage;
             _client = client;
-            Debug.WriteLine(this, "Client assigned");
+            _objectList = objectList;
         }
 
         protected T Get<T>([CallerMemberName] string propertyName = null)
@@ -122,11 +123,7 @@ namespace TAS.Client.Model
             Debug.WriteLine(this, e.ToString());
         }
 
-        protected virtual void OnEventRegistration(WebSocketMessageEventArgs e)
-        {
-
-        }
-
+        protected virtual void OnEventRegistration(WebSocketMessageEventArgs e) { }
 
         protected T ConvertEventArgs<T>(WebSocketMessageEventArgs e) where T : EventArgs
         {
@@ -142,6 +139,27 @@ namespace TAS.Client.Model
             var h = _propertyChanged;
             if (h != null)
                 h(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private int _referenceCount = 0;
+        public void ReferenceAdd()
+        {
+            _referenceCount++;
+        }
+
+        public void ReferenceRemove()
+        {
+            int current = --_referenceCount;
+            if (current == 0)
+            {
+                var client = _client;
+                if (client != null)
+                {
+                    client.ObjectRemove(this);
+                    IDto removed;
+                    _objectList.TryRemove(DtoGuid, out removed);
+                }
+            }
         }
 
         private ConcurrentDictionary<string, object> _properties = new ConcurrentDictionary<string, object>();

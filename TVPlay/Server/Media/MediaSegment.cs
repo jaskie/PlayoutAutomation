@@ -8,17 +8,14 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class MediaSegment : IMediaSegment
+    public class MediaSegment : Remoting.DtoBase, IMediaSegment
     {
         internal UInt64 idMediaSegment;
         protected readonly Guid _mediaGuid;
-        private readonly Guid _dtoGuid = Guid.NewGuid();
         public MediaSegment(Guid mediaGuid)
         {
             _mediaGuid = mediaGuid;
         }
-
-        public Guid DtoGuid { get { return _dtoGuid; } }
 
         private string _segmentName;
         public string SegmentName

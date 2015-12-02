@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 namespace TAS.Server
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class FileManager: IFileManager
+    public class FileManager: Remoting.DtoBase, IFileManager
     {
         private SynchronizedCollection<IFileOperation> _queueSimpleOperation = new SynchronizedCollection<IFileOperation>();
         private SynchronizedCollection<IFileOperation> _queueConvertOperation = new SynchronizedCollection<IFileOperation>();
@@ -30,10 +30,6 @@ namespace TAS.Server
         public ILoudnessOperation CreateLoudnessOperation() { return new LoudnessOperation(); }
         public IFileOperation CreateFileOperation() { return new FileOperation(); }
 
-        private readonly Guid _guidDto = Guid.NewGuid();
-        [JsonProperty]
-        public Guid DtoGuid { get { return _guidDto; } }
-        
         public TempDirectory TempDirectory;
         public IEnumerable<IFileOperation> GetOperationQueue()
         {

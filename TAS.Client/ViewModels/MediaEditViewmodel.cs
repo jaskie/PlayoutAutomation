@@ -34,6 +34,7 @@ namespace TAS.Client.ViewModels
             if (previewVm != null)
                 previewVm.PropertyChanged += _onPreviewPropertyChanged;
             media.PropertyChanged += OnMediaPropertyChanged;
+            Model.ReferenceAdd();
         }
 
         protected override void OnDispose()
@@ -41,6 +42,7 @@ namespace TAS.Client.ViewModels
             Model.PropertyChanged -= OnMediaPropertyChanged;
             if (_previewVm != null)
                 _previewVm.PropertyChanged -= _onPreviewPropertyChanged;
+            Model.ReferenceRemove();
         }
 
         public ICommand CommandSaveEdit { get; private set; }

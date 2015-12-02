@@ -15,11 +15,12 @@ using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using Newtonsoft.Json;
 using System.Threading;
+using TAS.Server.Remoting;
 
 namespace TAS.Server
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public abstract class Media : IMedia, IDto
+    public abstract class Media : DtoBase, IMedia
     {
 
         public Media(MediaDirectory directory)
@@ -393,12 +394,6 @@ namespace TAS.Server
 
         [JsonProperty]
         public RationalNumber FrameRate { get { return VideoFormatDescription.FrameRate; } }
-
-        private readonly Guid _guidDto = Guid.NewGuid();
-
-        [JsonProperty]
-        public Guid DtoGuid { get { return _guidDto; } }
-
 
         public void ReVerify()
         {

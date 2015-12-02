@@ -8,5 +8,7 @@ namespace TAS.Server.Interfaces
     public interface IDto
     {
         Guid DtoGuid { get; }
+        void ReferenceAdd();
+        void ReferenceRemove();
     }
 }

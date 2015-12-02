@@ -25,7 +25,6 @@ namespace TAS.Client.Model
         AutoResetEvent _messageHandler = new AutoResetEvent(false);
         readonly JsonSerializer _serializer;
         ConcurrentDictionary<Guid, WebSocketMessage> _receivedMessages = new ConcurrentDictionary<Guid, WebSocketMessage>();
-        ConcurrentDictionary<Guid, IDto> _knownObjects = new ConcurrentDictionary<Guid, IDto>();
         const int query_timeout = 15000;
 
         public event EventHandler<WebSocketMessageEventArgs> EventNotification;
@@ -45,7 +44,6 @@ namespace TAS.Client.Model
                 _serializer.Converters.Clear();
                 foreach (JsonConverter c in value)
                     _serializer.Converters.Add(c);
-
             }
         }
 
@@ -207,6 +205,13 @@ namespace TAS.Client.Model
         {
             WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.DtoGuid, MessageType = WebSocketMessage.WebSocketMessageType.EventRemove, MemberName = eventName };
             Debug.WriteLine(query, "EventRemove");
+            _clientSocket.Send(JsonConvert.SerializeObject(query));
+        }
+
+        public void ObjectRemove(ProxyBase dto)
+        {
+            WebSocketMessage query = new WebSocketMessage() { DtoGuid = dto.DtoGuid, MessageType = WebSocketMessage.WebSocketMessageType.ObjectRemove };
+            Debug.WriteLine(query, "ObjectRemove");
             _clientSocket.Send(JsonConvert.SerializeObject(query));
         }
 

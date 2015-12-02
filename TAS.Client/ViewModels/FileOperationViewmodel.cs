@@ -17,6 +17,7 @@ namespace TAS.Client.ViewModels
 
         public FileOperationViewmodel(IFileOperation fileOperation)
         {
+            fileOperation.ReferenceAdd();
             _fileOperation = fileOperation;
             _fileOperation.PropertyChanged += OnPropertyChanged;
             CommandAbort = new UICommand() { ExecuteDelegate = o => _fileOperation.Aborted = true, CanExecuteDelegate = o => _fileOperation.OperationStatus == FileOperationStatus.Waiting || _fileOperation.OperationStatus == FileOperationStatus.InProgress };
@@ -46,6 +47,7 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             _fileOperation.PropertyChanged -= OnPropertyChanged;
+            _fileOperation.ReferenceRemove();
         }
 
         public int Progress { get { return _fileOperation.Progress; } }
@@ -86,7 +88,10 @@ namespace TAS.Client.ViewModels
             if (e.PropertyName == "OperationWarning")
                 IsWarning = true;
         }
-
+        public override string ToString()
+        {
+            return _fileOperation.Title;
+        }
 
     }
 }
