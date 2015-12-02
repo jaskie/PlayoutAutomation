@@ -82,7 +82,7 @@ namespace TAS.Client.ViewModels
             get { return _selectedMedia; }
             set
             {
-                var oldEditMedia = _editMedia;
+                MediaEditViewmodel oldEditMedia = _editMedia;
                 if (oldEditMedia != null
                     && oldEditMedia.Modified)
                 {
@@ -119,9 +119,9 @@ namespace TAS.Client.ViewModels
             get { return _editMedia; }
             set
             {
-                var _oldMedia = _editMedia;
-                if (SetField(ref _editMedia, value, "EditMedia") && _oldMedia != null)
-                    _oldMedia.Dispose();
+                MediaEditViewmodel oldEditMedia = _editMedia;
+                if (SetField(ref _editMedia, value, "EditMedia") && oldEditMedia != null)
+                    oldEditMedia.Dispose();
             }
         }
 
@@ -443,6 +443,7 @@ namespace TAS.Client.ViewModels
         }
         private void _reloadFiles()
         {
+            UiServices.SetBusyState();
             if (_mediaItems != null)
             {
                 foreach (var m in _mediaItems)
@@ -490,9 +491,12 @@ namespace TAS.Client.ViewModels
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                var vm = _mediaItems.FirstOrDefault(v => v.Media.DtoGuid == e.DtoGuid);
+                MediaViewViewmodel vm = _mediaItems.FirstOrDefault(v => v.Media.DtoGuid == e.DtoGuid);
                 if (vm != null)
+                {
                     _mediaItems.Remove(vm);
+                    vm.Dispose();
+                }
                 _notifyDirectoryPropertiesChanged();
             }, null);
         }

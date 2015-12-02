@@ -26,6 +26,7 @@ namespace TAS.Client.ViewModels
                 foreach (IMediaSegment ms in (Media as IPersistentMedia).MediaSegments)
                     _mediaSegments.Add(new MediaSegmentViewmodel((Media as IPersistentMedia), ms));
             }
+            media.ReferenceAdd();
         }
 
         protected override void OnDispose()
@@ -33,6 +34,7 @@ namespace TAS.Client.ViewModels
             Media.PropertyChanged -= OnMediaPropertyChanged;
             if (_mediaSegments != null && Media is IPersistentMedia)
                 (Media as IPersistentMedia).MediaSegments.CollectionOperation -= new EventHandler<CollectionOperationEventArgs<IMediaSegment>>(_mediaSegmentsCollectionOperation);
+            Media.ReferenceRemove();
         }
 
         public string MediaName { get { return Media.MediaName; } }
