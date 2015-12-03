@@ -17,7 +17,6 @@ namespace TAS.Client.ViewModels
 
         public FileOperationViewmodel(IFileOperation fileOperation)
         {
-            fileOperation.ReferenceAdd();
             _fileOperation = fileOperation;
             _fileOperation.PropertyChanged += OnPropertyChanged;
             CommandAbort = new UICommand() { ExecuteDelegate = o => _fileOperation.Aborted = true, CanExecuteDelegate = o => _fileOperation.OperationStatus == FileOperationStatus.Waiting || _fileOperation.OperationStatus == FileOperationStatus.InProgress };

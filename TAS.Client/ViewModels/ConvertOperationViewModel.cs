@@ -30,6 +30,7 @@ namespace TAS.Client.ViewModels
             base.OnDispose();
         }
 
+        
         static readonly Array _categories = Enum.GetValues(typeof(TMediaCategory)); 
         public Array Categories { get { return _categories; } }
         public TMediaCategory DestCategory { get { return _convertOperation.DestMedia.MediaCategory; } set { _convertOperation.DestMedia.MediaCategory = value; } }

@@ -12,6 +12,7 @@ namespace TAS.Client.Common
     public abstract class OkCancelViewmodelBase<M> : EditViewmodelBase<M>
     {
         public readonly OkCancelView View;
+        private bool? _showResult;
 
         public OkCancelViewmodelBase(M model, UserControl editor, string windowTitle):base(model, editor)
         {
@@ -34,8 +35,11 @@ namespace TAS.Client.Common
 
         public virtual bool? ShowDialog()
         {
-            return View.ShowDialog();
+            _showResult = View.ShowDialog();
+            return _showResult;
         }
+
+        public bool? ShowResult { get { return _showResult; } }
 
         protected virtual void Close(object parameter)
         {

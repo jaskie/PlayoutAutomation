@@ -29,6 +29,7 @@ namespace TAS.Client.Converters
                 if (_knownObjects.TryGetValue(((IDto)deserialized).DtoGuid, out oldObject))
                 {
                     Debug.WriteLine(oldObject, "Reused");
+                    Debug.Write(new StackTrace());
                     return oldObject;
                 }
                 else
