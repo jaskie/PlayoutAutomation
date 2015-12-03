@@ -268,6 +268,7 @@ namespace TAS.Server
                 if (_directory.AccessType == TDirectoryAccessType.Direct)
                 {
                     File.Move(FullPath, Path.Combine(_directory.Folder, this.Folder, NewFileName));
+                    SetField(ref _fileName, NewFileName, "FileName");
                     return true;
                 }
                 else throw new NotImplementedException("Cannot rename on remote directories");
@@ -447,12 +448,16 @@ namespace TAS.Server
             }
         }
 
+        internal void FileNameChanged(string newFileName)
+        {
+            SetField(ref _fileName, newFileName, "FileName");            
+        }
+
         public void GetLoudness()
         {
             _directory.MediaManager.Queue(new LoudnessOperation() { SourceMedia = this, MeasureStart = this.TcPlay - this.TcStart, MeasureDuration = this.DurationPlay });
         }
-
-
+        
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void NotifyPropertyChanged(string propertyName)

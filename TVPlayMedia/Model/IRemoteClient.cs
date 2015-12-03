@@ -10,7 +10,7 @@ namespace TAS.Client.Model
 {
     public interface IRemoteClient
     {
-        T Deserialize<T>(object o);
+        T Deserialize<T>(WebSocketMessage message);
         event EventHandler<WebSocketMessageEventArgs> EventNotification;
         T Query<T>(ProxyBase dto, [CallerMemberName] string methodName = "", params object[] parameters);
         void Invoke(ProxyBase dto, [CallerMemberName] string methodName = "", params object[] parameters);

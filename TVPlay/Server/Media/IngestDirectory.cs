@@ -87,6 +87,7 @@ namespace TAS.Server
         [JsonProperty]
         public bool MediaDoNotArchive { get; set; }
 
+        [JsonProperty]
         public int MediaRetnentionDays { get; set; }
 
         [JsonProperty]

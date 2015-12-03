@@ -108,7 +108,7 @@ namespace TAS.Server
             base.MediaRemove(media);
         }
 
-        protected override void OnMediaRenamed(IMedia media, string newName)
+        protected override void OnMediaRenamed(Media media, string newName)
         {
             base.OnMediaRenamed(media, newName);
             ((ArchiveMedia)media).Save();

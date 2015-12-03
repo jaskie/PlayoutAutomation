@@ -99,9 +99,7 @@ namespace TAS.Server
         {
             if (media == null)
                 return null;
-            ServerMedia fm = null;
-            if (searchExisting)
-                fm = (ServerMedia)FindMediaByMediaGuid(media.MediaGuid);
+            ServerMedia fm = (ServerMedia)FindMediaByMediaGuid(media.MediaGuid); // check if need to select new Guid
             if (fm == null || !searchExisting)
             {
                 fm = (new ServerMedia(this, fm == null ? media.MediaGuid : Guid.NewGuid()) // in case file with the same GUID already exists and we need to get new one
@@ -137,7 +135,7 @@ namespace TAS.Server
             return fm;
         }
 
-        protected override void OnMediaRenamed(IMedia media, string newName)
+        protected override void OnMediaRenamed(Media media, string newName)
         {
             base.OnMediaRenamed(media, newName);
             ((ServerMedia)media).Save();

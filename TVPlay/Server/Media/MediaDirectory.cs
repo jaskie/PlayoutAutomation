@@ -265,9 +265,9 @@ namespace TAS.Server
                 MediaRemove(m);
         }
 
-        protected virtual void OnMediaRenamed(IMedia media, string newName)
+        protected virtual void OnMediaRenamed(Media media, string newName)
         {
-            media.FileName = newName;
+            media.FileNameChanged(newName);
         }
 
         protected virtual void OnMediaChanged(IMedia media)
@@ -405,7 +405,7 @@ namespace TAS.Server
 
         protected virtual void OnFileRenamed(object source, RenamedEventArgs e)
         {
-            IMedia m = _files.Values.FirstOrDefault(f => e.OldFullPath == f.FullPath);
+            Media m = (Media)_files.Values.FirstOrDefault(f => e.OldFullPath == f.FullPath);
             if (m != null)
                 OnMediaRenamed(m, e.Name);
         }

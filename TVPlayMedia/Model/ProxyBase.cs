@@ -93,7 +93,8 @@ namespace TAS.Client.Model
         protected bool SetField(object value, string propertyName)
         {
             object oldValue;
-            if (!_properties.TryGetValue(propertyName, out oldValue) || oldValue != value)
+            if (!_properties.TryGetValue(propertyName, out oldValue)  // here values may be boxed
+                || (oldValue != value && (oldValue != null && !oldValue.Equals(value)) || (value != null && !value.Equals(oldValue))))
             {
                 _properties[propertyName] = value;
                 NotifyPropertyChanged(propertyName);
@@ -106,10 +107,10 @@ namespace TAS.Client.Model
         {
             if (e.Message.DtoGuid == DtoGuid)
             {
-                Debug.WriteLine("OnMessage received {0}:{1}", this, e.Message.MemberName);
+                Debug.WriteLine("ProxyBase: {1} on {0}", this, e.Message.MemberName);
                 if (e.Message.MemberName == "PropertyChanged")
                 {
-                    PropertyChangedEventArgs ea = (sender as IRemoteClient).Deserialize<PropertyChangedEventArgs>(e.Message.Response);
+                    PropertyChangedEventArgs ea = (sender as IRemoteClient).Deserialize<PropertyChangedEventArgs>(e.Message);
                     NotifyPropertyChanged(ea.PropertyName);
                     object o;
                     _properties.TryRemove(ea.PropertyName, out o);
@@ -130,7 +131,7 @@ namespace TAS.Client.Model
             T value = default(T);
             var client = _client;
             if (client != null)
-                value = client.Deserialize<T>(e.Message.Response);
+                value = client.Deserialize<T>(e.Message);
             return value;
         }
 

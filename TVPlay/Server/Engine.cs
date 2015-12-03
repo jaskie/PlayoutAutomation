@@ -97,10 +97,13 @@ namespace TAS.Server
                 _visibleEvents.DictionaryOperation -= _visibleEventsOperation;
                 _loadedNextEvents.DictionaryOperation -= _loadedNextEventsOperation;
                 _runningEvents.CollectionOperation -= _runningEventsOperation;
-                if (_gpi != null)
-                    _gpi.Dispose();
                 foreach (Event e in _rootEvents)
                     e.SaveLoadedTree();
+                if (_gpi != null)
+                    _gpi.Dispose();
+                var remote = Remote;
+                if (remote != null)
+                    remote.Dispose();
             }
         }
 

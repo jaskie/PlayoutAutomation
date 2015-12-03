@@ -64,9 +64,13 @@ namespace TAS.Client.ViewModels
                 return true;
             }
         }
+        protected override bool CanClose(object parameter)
+        {
+            return IsValid;
+        }
 
 
-    
+
     }
 }
 

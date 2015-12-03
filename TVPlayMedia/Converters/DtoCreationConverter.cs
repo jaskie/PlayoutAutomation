@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using TAS.Server.Interfaces;
 using TAS.Client.Model;
+using System.Diagnostics;
 
 namespace TAS.Client.Converters
 {
@@ -26,7 +27,10 @@ namespace TAS.Client.Converters
             {
                 IDto oldObject;
                 if (_knownObjects.TryGetValue(((IDto)deserialized).DtoGuid, out oldObject))
+                {
+                    Debug.WriteLine(oldObject, "Reused");
                     return oldObject;
+                }
                 else
                 {
                     _knownObjects[((IDto)deserialized).DtoGuid] = (IDto)deserialized;
@@ -35,6 +39,7 @@ namespace TAS.Client.Converters
                         proxy.SetClient(Client, _knownObjects);
                 }
             }
+            Debug.WriteLine(deserialized, "Client: created new");
             return deserialized;
         }
     }
