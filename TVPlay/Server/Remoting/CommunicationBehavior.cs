@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using TAS.Client.Server.Remoting;
 using TAS.Server.Interfaces;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -18,13 +19,21 @@ namespace TAS.Server.Remoting
 {
     public class CommunicationBehavior : WebSocketBehavior
     {
+        readonly JsonSerializer _serializer;
         readonly IDto _initialObject;
+        readonly DtoSerializationConverter _converter;
         public CommunicationBehavior(IDto initialObject)
         {
             _initialObject = initialObject;
-            _dtos = new ConcurrentDictionary<Guid, IDto>();
             _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
             Debug.WriteLine(initialObject, "Server: created behavior for");
+            _serializer = JsonSerializer.CreateDefault(
+                new JsonSerializerSettings() {
+                    NullValueHandling = NullValueHandling.Include,
+                    MissingMemberHandling = MissingMemberHandling.Ignore }
+                );
+            _converter = new DtoSerializationConverter();
+            _serializer.Converters.Add(_converter);
         }
 
 #if DEBUG
@@ -34,7 +43,6 @@ namespace TAS.Server.Remoting
         }
 #endif
 
-        protected ConcurrentDictionary<Guid, IDto> _dtos;
         protected ConcurrentDictionary<Tuple<Guid, string>, Delegate> _delegates;
 
         protected override void OnMessage(MessageEventArgs e)
@@ -45,13 +53,12 @@ namespace TAS.Server.Remoting
                 {
                     message.ConvertToResponse(_initialObject);
                     Send(Serialize(message));
-                    _dtos[_initialObject.DtoGuid] = _initialObject;
                 }
                 else // method of particular object
                 {
-                    if (_dtos.ContainsKey(message.DtoGuid))
+                    IDto objectToInvoke;
+                    if (_converter.TryGetValue(message.DtoGuid, out objectToInvoke))
                     {
-                        IDto objectToInvoke = _dtos[message.DtoGuid];
                         if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query
                             || message.MessageType == WebSocketMessage.WebSocketMessageType.Invoke)
                         {
@@ -140,29 +147,36 @@ namespace TAS.Server.Remoting
         {
             foreach (delegateKey d in _delegates.Keys)
             {
-                EventInfo ei = _dtos[d.Item1].GetType().GetEvent(d.Item2);
-                Delegate delegateToRemove;
-                if (_delegates.TryRemove(d, out delegateToRemove))
-                    ei.RemoveEventHandler(_dtos[d.Item1], delegateToRemove);
+                IDto havingDelegate;
+                if (_converter.TryGetValue(d.Item1, out havingDelegate))
+                {
+                    EventInfo ei = havingDelegate.GetType().GetEvent(d.Item2);
+                    Delegate delegateToRemove;
+                    if (_delegates.TryRemove(d, out delegateToRemove))
+                        ei.RemoveEventHandler(havingDelegate, delegateToRemove);
+                }
             }
-            _dtos.Clear();
+            _converter.Clear();
             Debug.WriteLine("Server: connection closed.");
         }
 
         string Serialize(WebSocketMessage message)
         {
-            if (message.MessageType == WebSocketMessage.WebSocketMessageType.Get ||
-                message.MessageType == WebSocketMessage.WebSocketMessageType.Query)
-                _registerResponse(message.Response);
-            else
-            if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventNotification)
-                _registerNotificationDtos(message.Response);
-            return JsonConvert.SerializeObject(message, serializeSettings);
+            using (System.IO.StringWriter writer = new System.IO.StringWriter())
+            {
+                _serializer.Serialize(writer, message);
+                return writer.ToString();
+            }                
         }
 
         T Deserialize<T>(string s)
         {
-            return JsonConvert.DeserializeObject<T>(s, deserializeSettings);
+            using (System.IO.StringReader stringReader = new System.IO.StringReader(s))
+            using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
+            {
+                object value = _serializer.Deserialize(jsonReader, typeof(T));
+                return (T)value;
+            }
         }
 
         void _addDelegate(IDto objectToInvoke, EventInfo ei)
@@ -192,9 +206,6 @@ namespace TAS.Server.Remoting
                 originalDelegate.Method);
         }
 
-        static JsonSerializerSettings deserializeSettings = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore };
-        static JsonSerializerSettings serializeSettings = new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Include };
-
         void _deserializeContent(ref object[] input)
         {
             if (input == null)
@@ -204,17 +215,11 @@ namespace TAS.Server.Remoting
                 if (input[i] is JContainer)
                     if (input[i] is JArray)
                     {
-                        IDto[] inputParameters = Deserialize<ReceivedDto[]>((input[i] as JContainer).ToString()).Cast<IDto>().ToArray();
-                        for (int j = 0; j < inputParameters.Length; j++)
-                            inputParameters[j] = _dtos[inputParameters[j].DtoGuid];
+                        IDto[] inputParameters = Deserialize<IDto[]>((input[i] as JContainer).ToString());
                         input[i] = inputParameters;
                     }
                     else
-                    {
-                        ReceivedDto receivedDto = Deserialize<ReceivedDto>((input[i] as JContainer).ToString());
-                        if (!receivedDto.DtoGuid.Equals(Guid.Empty))
-                            input[i] = _dtos[receivedDto.DtoGuid];
-                    }
+                        input[i] = Deserialize<IDto>((input[i] as JContainer).ToString());
             }
         }
 
@@ -234,40 +239,19 @@ namespace TAS.Server.Remoting
             base.OnError(e);
         }
 
-        void _registerResponse(object response)
-        {
-            IDto responseDto = response as IDto;
-            if (responseDto != null && !_dtos.ContainsKey(responseDto.DtoGuid))
-            {
-                _dtos[responseDto.DtoGuid] = responseDto;
-            }
-            IEnumerable responseEnum = response as IEnumerable;
-            if (responseEnum != null)
-                foreach (object o in responseEnum)
-                    _registerResponse(o);
-        }
-
-        void _registerNotificationDtos(object response)
-        {
-            if (response is Common.FileOperationEventArgs)
-            {
-                IFileOperation operation = (response as Common.FileOperationEventArgs).Operation;
-                _registerResponse(operation);
-            }
-        }
-
         void _removeObject(Guid dtoGuid)
         {
-            foreach (delegateKey d in _delegates.Keys.Where(k => k.Item1 == dtoGuid).ToList())
+            IDto objectToRemove;
+            if (_converter.TryRemove(dtoGuid, out objectToRemove))
             {
-                EventInfo ei = _dtos[d.Item1].GetType().GetEvent(d.Item2);
-                Delegate delegateToRemove;
-                if (_delegates.TryRemove(d, out delegateToRemove))
-                    ei.RemoveEventHandler(_dtos[d.Item1], delegateToRemove);
+                foreach (delegateKey d in _delegates.Keys.Where(k => k.Item1 == dtoGuid).ToList())
+                {
+                    EventInfo ei = objectToRemove.GetType().GetEvent(d.Item2);
+                    Delegate delegateToRemove;
+                    if (_delegates.TryRemove(d, out delegateToRemove))
+                        ei.RemoveEventHandler(objectToRemove, delegateToRemove);
+                }
             }
-            IDto removed;
-            if (_dtos.TryRemove(dtoGuid, out removed))
-                Debug.WriteLine(removed, "Server: Dto removed");
         }
 
     }

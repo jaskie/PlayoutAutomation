@@ -226,6 +226,7 @@
     <Compile Include="Server\Media\TempDirectory.cs" />
     <Compile Include="Server\Remoting\DtoBase.cs" />
     <Compile Include="Server\Remoting\CommunicationBehavior.cs" />
+    <Compile Include="Server\Remoting\DtoSerializationConverter.cs" />
     <Compile Include="Server\Remoting\ReceivedDto.cs" />
     <Compile Include="Server\Remoting\RemoteHost.cs" />
     <Compile Include="Server\Template.cs" />

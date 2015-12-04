@@ -64,7 +64,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandAddGraphics { get { return _eventEditViewmodel.CommandAddGraphics; } }
         public ICommand CommandHide { get { return Selected == null? null : Selected.CommandHide; } }
 
-        public EngineViewmodel(Server.Engine engine, PreviewViewmodel preview)
+        public EngineViewmodel(TAS.Server.Engine engine, PreviewViewmodel preview)
         {
             _engine = engine;
             _frameRate = engine.FrameRate;
@@ -245,7 +245,7 @@ namespace TAS.Client.ViewModels
 
         private void _newRootRundown(object o)
         {
-            IEvent newEvent = new Server.Event(_engine);
+            IEvent newEvent = new TAS.Server.Event(_engine);
             newEvent.EventType = TEventType.Rundown;
             newEvent.EventName = resources._title_NewRundown;
             newEvent.Duration = TimeSpan.Zero;
@@ -257,7 +257,7 @@ namespace TAS.Client.ViewModels
         
         private void _newContainer(object o)
         {
-            IEvent newEvent = new Server.Event(_engine);
+            IEvent newEvent = new TAS.Server.Event(_engine);
             newEvent.EventType = TEventType.Container;
             newEvent.EventName = resources._title_NewContainer;
             newEvent.StartType = TStartType.None;

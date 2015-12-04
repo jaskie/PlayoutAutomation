@@ -7,7 +7,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditWindowViewmodel : OkCancelViewmodelBase<Server.Interfaces.IMedia>
+    public class MediaEditWindowViewmodel : OkCancelViewmodelBase<TAS.Server.Interfaces.IMedia>
     {
         public readonly MediaEditViewmodel editViewModel;
         public MediaEditWindowViewmodel(IMedia media, IMediaManager mediaManager)
