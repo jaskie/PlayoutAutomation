@@ -1,17 +1,13 @@
 ﻿using Newtonsoft.Json.Converters;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
-using TAS.Server.Interfaces;
-using TAS.Client.Model;
 using System.Diagnostics;
+using TAS.Remoting;
 
-namespace TAS.Client.Converters
+namespace TAS.Remoting.Client
 {
-    abstract class DtoCreationConverter<T> : CustomCreationConverter<T> where T : IDto
+    public abstract class DtoCreationConverter<T> : CustomCreationConverter<T> where T : IDto
     {
         protected readonly IRemoteClient Client;
         public DtoCreationConverter(IRemoteClient client)

@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using TAS.Common;
+using TAS.Remoting;
 using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces

@@ -15,7 +15,7 @@ using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using Newtonsoft.Json;
 using System.Threading;
-using TAS.Server.Remoting;
+using TAS.Remoting.Server;
 
 namespace TAS.Server
 {

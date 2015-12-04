@@ -10,12 +10,13 @@ using TAS.Common;
 using System.Threading;
 using TAS.Server.Interfaces;
 using Newtonsoft.Json;
+using TAS.Remoting.Server;
 
 namespace TAS.Server
 {
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class FileOperation : Remoting.DtoBase, IFileOperation
+    public class FileOperation : DtoBase, IFileOperation
     {
         [JsonProperty]
         public TFileOperationKind Kind { get; set; }

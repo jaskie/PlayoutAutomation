@@ -2,14 +2,9 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using TAS.Server.Interfaces;
-using TAS.Server.Remoting;
+using TAS.Remoting;
 
-namespace TAS.Client.Server.Remoting
+namespace TAS.Remoting.Server
 {
     public class DtoSerializationConverter : JsonConverter
     {

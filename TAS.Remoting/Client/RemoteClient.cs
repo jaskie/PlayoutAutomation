@@ -9,14 +9,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
-using TAS.Common;
-using TAS.Server.Common;
-using TAS.Server.Interfaces;
-using TAS.Server.Remoting;
 using WebSocketSharp;
 using Newtonsoft.Json;
 
-namespace TAS.Client.Model
+namespace TAS.Remoting.Client
 {
     public class RemoteClient: IRemoteClient
     {

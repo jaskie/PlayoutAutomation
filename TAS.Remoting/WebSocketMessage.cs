@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
+﻿using Newtonsoft.Json;
+using System;
 
-namespace TAS.Server.Remoting
+
+namespace TAS.Remoting
 {
-    [DataContract]
+    [JsonObject(MemberSerialization.OptIn)]
     public class WebSocketMessage
     {
         public WebSocketMessage()
@@ -26,20 +24,20 @@ namespace TAS.Server.Remoting
             ObjectRemove,
             Exception
         }
-        [DataMember]
+        [JsonProperty]
         public readonly Guid MessageGuid;
-        [DataMember]
+        [JsonProperty]
         public Guid DtoGuid;
-        [DataMember]
+        [JsonProperty]
         public WebSocketMessageType MessageType;
         /// <summary>
         /// Object member (method, property or event) name
         /// </summary>
-        [DataMember]
+        [JsonProperty]
         public string MemberName;
-        [DataMember]
+        [JsonProperty]
         public object[] Parameters;
-        [DataMember]
+        [JsonProperty]
         public object Response;
         public void ConvertToResponse(object response)
         {

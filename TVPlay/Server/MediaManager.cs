@@ -16,12 +16,13 @@ using TAS.Data;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using Newtonsoft.Json;
+using TAS.Remoting.Server;
 
 namespace TAS.Server
 {
 
     [JsonObject(MemberSerialization.OptIn)]
-    public class MediaManager: Remoting.DtoBase, IMediaManager
+    public class MediaManager: DtoBase, IMediaManager
     {
         readonly IEngine _engine;
         readonly FileManager _fileManager;

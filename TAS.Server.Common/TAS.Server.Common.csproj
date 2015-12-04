@@ -59,7 +59,6 @@
     <Compile Include="Interfaces\IArchiveDirectory.cs" />
     <Compile Include="Interfaces\IArchiveMedia.cs" />
     <Compile Include="Interfaces\IConvertOperation.cs" />
-    <Compile Include="Interfaces\IDto.cs" />
     <Compile Include="Interfaces\IEngine.cs" />
     <Compile Include="Interfaces\IEngineConfig.cs" />
     <Compile Include="Interfaces\IEvent.cs" />
@@ -110,8 +109,6 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="RationalNumber.cs" />
-    <Compile Include="Remoting\MethodParametersAlignment.cs" />
-    <Compile Include="Remoting\WebSocketMessage.cs" />
     <Compile Include="SerializationHelper.cs" />
     <Compile Include="SimpleDictionary.cs" />
     <Compile Include="SMPTETimecodeExtensions.cs" />
@@ -133,6 +130,10 @@
     <ProjectReference Include="..\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
       <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>
       <Name>Infralution.Localization.Wpf</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
+      <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
+      <Name>TAS.Remoting</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

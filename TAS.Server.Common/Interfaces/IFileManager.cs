@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TAS.Remoting;
 using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces

@@ -1,21 +1,15 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using TAS.Client.Server.Remoting;
-using TAS.Server.Interfaces;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using delegateKey = System.Tuple<System.Guid, string>;
 
-namespace TAS.Server.Remoting
+namespace TAS.Remoting.Server
 {
     public class CommunicationBehavior : WebSocketBehavior
     {

@@ -66,7 +66,7 @@ namespace TAS.Server
         private GPINotifier _gpi;
         public IGpi Gpi { get { return _gpi; } }
 
-        public Remoting.RemoteHost Remote { get; set; }
+        public RemoteHost Remote { get; set; }
         public TAspectRatioControl AspectRatioControl { get; set; }
 
         public int TimeCorrection { get { return (int)_timeCorrection.TotalMilliseconds; } set { _timeCorrection = TimeSpan.FromMilliseconds(value); } }

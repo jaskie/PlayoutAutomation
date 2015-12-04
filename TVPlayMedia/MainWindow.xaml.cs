@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using TAS.Client.ViewModels;
+using TAS.Remoting.Client;
 
 namespace TAS.Client
 {
@@ -21,7 +22,7 @@ namespace TAS.Client
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly Model.RemoteClient _client;
+        readonly RemoteClient _client;
         public MainWindow()
         {
 #if DEBUG
@@ -32,7 +33,7 @@ namespace TAS.Client
             Common.WpfHacks.ApplyGridViewRowPresenter_CellMargin();
             try
             {
-                _client = new Model.RemoteClient(ConfigurationManager.AppSettings["Host"]);
+                _client = new RemoteClient(ConfigurationManager.AppSettings["Host"]);
                     _client.CreationConverters = new Newtonsoft.Json.JsonConverter[] {
                     new Converters.IMediaConverter(_client),
                     new Converters.IFileOperationConverter(_client),

@@ -15,11 +15,12 @@ using TAS.Server.Common;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using TAS.Remoting.Server;
 
 namespace TAS.Server
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public abstract class MediaDirectory : Remoting.DtoBase, IMediaDirectory
+    public abstract class MediaDirectory : DtoBase, IMediaDirectory
     { 
         protected string[] _extensions;
         private FileSystemWatcher _watcher;

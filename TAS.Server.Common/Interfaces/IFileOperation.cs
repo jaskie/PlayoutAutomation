@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using TAS.Common;
+using TAS.Remoting;
 
 namespace TAS.Server.Interfaces
 {

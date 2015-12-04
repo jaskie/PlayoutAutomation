@@ -5,10 +5,11 @@ using System.Text;
 using System.ComponentModel;
 using TAS.Data;
 using TAS.Server.Interfaces;
+using TAS.Remoting.Server;
 
 namespace TAS.Server
 {
-    public class MediaSegment : Remoting.DtoBase, IMediaSegment
+    public class MediaSegment : DtoBase, IMediaSegment
     {
         internal UInt64 idMediaSegment;
         protected readonly Guid _mediaGuid;

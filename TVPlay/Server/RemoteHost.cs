@@ -5,10 +5,11 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Xml.Serialization;
+using TAS.Remoting.Server;
 using TAS.Server.Interfaces;
 using WebSocketSharp.Server;
 
-namespace TAS.Server.Remoting
+namespace TAS.Server
 {
     public class RemoteHost : IDisposable, IRemoteHostConfig
     {

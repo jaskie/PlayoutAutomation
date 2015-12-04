@@ -10,11 +10,12 @@ using TAS.Common;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using Newtonsoft.Json;
+using TAS.Remoting.Server;
 
 namespace TAS.Server
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class FileManager: Remoting.DtoBase, IFileManager
+    public class FileManager: DtoBase, IFileManager
     {
         private SynchronizedCollection<IFileOperation> _queueSimpleOperation = new SynchronizedCollection<IFileOperation>();
         private SynchronizedCollection<IFileOperation> _queueConvertOperation = new SynchronizedCollection<IFileOperation>();

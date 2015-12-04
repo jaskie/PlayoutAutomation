@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace TAS.Server.Remoting
+namespace TAS.Remoting.Server
 {
     public static class MethodParametersAlignment
     {

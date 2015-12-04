@@ -1,11 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Server.Interfaces;
+﻿using System;
 
-namespace TAS.Server.Remoting
+namespace TAS.Remoting.Server
 {
     internal class ReceivedDto : IDto
     {

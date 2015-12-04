@@ -7,11 +7,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using TAS.Server.Interfaces;
-using TAS.Server.Remoting;
 using WebSocketSharp;
 
-namespace TAS.Client.Model
+namespace TAS.Remoting.Client
 {
     public abstract class ProxyBase: IDto, INotifyPropertyChanged
     {

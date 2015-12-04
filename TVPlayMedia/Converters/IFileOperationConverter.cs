@@ -5,6 +5,7 @@ using System.Text;
 using TAS.Client.Model;
 using TAS.Server.Interfaces;
 using Newtonsoft.Json;
+using TAS.Remoting.Client;
 
 namespace TAS.Client.Converters
 {
