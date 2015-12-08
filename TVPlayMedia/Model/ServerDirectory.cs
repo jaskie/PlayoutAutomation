@@ -20,5 +20,12 @@ namespace TAS.Client.Model
             return list.Cast<IMedia>().ToList(); ;
         }
 
+        public override IMedia FindMediaByDto(Guid dtoGuid)
+        {
+            ServerMedia result = Query<ServerMedia>(parameters: new[] { dtoGuid });
+            result.Directory = this;
+            return result;
+        }
+
     }
 }

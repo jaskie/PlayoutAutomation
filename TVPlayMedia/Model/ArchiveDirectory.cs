@@ -49,5 +49,13 @@ namespace TAS.Client.Model
             list.ForEach(m => m.Directory = this);
             return list.Cast<IMedia>().ToList();
         }
+
+        public override IMedia FindMediaByDto(Guid dtoGuid)
+        {
+            ArchiveMedia result = Query<ArchiveMedia>(parameters: new[] { dtoGuid });
+            result.Directory = this;
+            return result;
+        }
+
     }
 }

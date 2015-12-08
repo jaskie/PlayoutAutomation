@@ -112,12 +112,7 @@ namespace TAS.Client.Model
         {
             return Query<bool>(parameters: new object[] { filename, subfolder });
         }
-        public IMedia FindMediaByDto(Guid dtoGuid)
-        {
-            Media result = Query<Media>(parameters: new[] { dtoGuid});
-            result.Directory = this;
-            return result;
-        }
+        public abstract IMedia FindMediaByDto(Guid dtoGuid);
 
         public void Initialize()
         {

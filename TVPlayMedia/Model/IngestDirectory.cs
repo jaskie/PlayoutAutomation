@@ -23,6 +23,14 @@ namespace TAS.Client.Model
         public TxDCAMAudioExportFormat XDCAMAudioExportFormat { get { return Get<TxDCAMAudioExportFormat>(); } set { Set(value); } }
         public TxDCAMVideoExportFormat XDCAMVideoExportFormat { get { return Get<TxDCAMVideoExportFormat>(); } set { Set(value); } }
 
+        public override IMedia FindMediaByDto(Guid dtoGuid)
+        {
+            IngestMedia result = Query<IngestMedia>(parameters: new[] { dtoGuid });
+            result.Directory = this;
+            return result;
+        }
+
+
         public override IEnumerable<IMedia> GetFiles()
         {
             var list = Query<List<IngestMedia>>();

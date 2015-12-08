@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -56,14 +58,12 @@ namespace TAS.Remoting.Server
                         if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query
                             || message.MessageType == WebSocketMessage.WebSocketMessageType.Invoke)
                         {
-                            _deserializeContent(ref message.Parameters);
                             Type objectToInvokeType = objectToInvoke.GetType();
-                            MethodInfo methodToInvoke = objectToInvokeType.GetMethod(message.MemberName, message.Parameters.Select(p => p.GetType()).ToArray());
-                            if (methodToInvoke == null)
-                                methodToInvoke = objectToInvokeType.GetMethods().FirstOrDefault(m => m.Name == message.MemberName && m.GetParameters().Length == message.Parameters.Length);
+                            MethodInfo methodToInvoke = objectToInvokeType.GetMethods().FirstOrDefault(m => m.Name == message.MemberName && m.GetParameters().Length == message.Parameters.Length);
                             if (methodToInvoke != null)
                             {
-                                MethodParametersAlignment.AlignParameters(ref message.Parameters, methodToInvoke.GetParameters());
+                                ParameterInfo[] methodParameters = methodToInvoke.GetParameters();
+                                _deserializeContent(ref message.Parameters, methodParameters.Select(p => p.ParameterType).ToArray());
                                 object response = methodToInvoke.Invoke(objectToInvoke, BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.Public, null, message.Parameters, null);
                                 Debug.WriteLine(methodToInvoke.Name, "Invoked");
                                 if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query)
@@ -77,7 +77,6 @@ namespace TAS.Remoting.Server
                         if (message.MessageType == WebSocketMessage.WebSocketMessageType.Get
                             || message.MessageType == WebSocketMessage.WebSocketMessageType.Set)
                         {
-                            _deserializeContent(ref message.Parameters);
                             PropertyInfo property = objectToInvoke.GetType().GetProperty(message.MemberName);
                             if (property != null)
                             {
@@ -91,7 +90,7 @@ namespace TAS.Remoting.Server
                                 {
                                     if (property.CanWrite)
                                     {
-                                        MethodParametersAlignment.AlignType(ref message.Parameters[0], property.PropertyType);
+                                        _deserializeContent(ref message.Parameters, new Type[] { property.PropertyType });
                                         property.SetValue(objectToInvoke, message.Parameters[0], null);
                                     }
                                 }
@@ -200,20 +199,46 @@ namespace TAS.Remoting.Server
                 originalDelegate.Method);
         }
 
-        void _deserializeContent(ref object[] input)
+        void _deserializeContent(ref object[] inputArray, Type[] inputTypes)
         {
-            if (input == null)
+            if (inputArray == null)
                 return;
-            for (int i = 0; i < input.Length; i++)
+            for (int i = 0; i < inputArray.Length; i++)
             {
-                if (input[i] is JContainer)
-                    if (input[i] is JArray)
+                object input = inputArray[i];
+                Type type = inputTypes[i];
+                if (!(input is string))
+                {
+                    if (type.IsEnum)
+                        input = Enum.Parse(type, input.ToString());
+                    else
+                    if (type == typeof(TimeSpan))
+                        input = TimeSpan.Parse((string)input, System.Globalization.CultureInfo.InvariantCulture);
+                    else
+                    if (type.IsValueType && type != typeof(Guid))
+                        input = Convert.ChangeType(input, type);
+                    else
+                    if (input is JArray)
                     {
-                        IDto[] inputParameters = Deserialize<IDto[]>((input[i] as JContainer).ToString());
-                        input[i] = inputParameters;
+                        if (type == typeof(Guid))
+                            input = new Guid(((JArray)input).First.ToString());
+                        else
+                        {
+                            Type[] genericArgumentTypes = type.GetGenericArguments();
+                            IDto[] arrayElements = Deserialize<IDto[]>((input as JContainer).ToString());
+                            if (genericArgumentTypes.Length == 1)
+                            {
+                                Type listType = typeof(List<>);
+                                input = (IList)Activator.CreateInstance(listType.MakeGenericType(genericArgumentTypes));
+                                foreach (object o in arrayElements)
+                                    ((IList)input).Add(o);
+                            }
+                        }
                     }
                     else
-                        input[i] = Deserialize<IDto>((input[i] as JContainer).ToString());
+                        input = Deserialize<IDto>((input as JContainer).ToString());
+                    inputArray[i] = input;
+                }
             }
         }
 
