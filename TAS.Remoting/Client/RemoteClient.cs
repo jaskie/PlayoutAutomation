@@ -30,7 +30,7 @@ namespace TAS.Remoting.Client
         public RemoteClient(string host)
         {
             _address = host;
-            _serializer = JsonSerializer.CreateDefault();
+            _serializer = JsonSerializer.CreateDefault(SerializationSettings.SerializerSettings);
         }
         
         public JsonConverter[] CreationConverters
@@ -81,6 +81,7 @@ namespace TAS.Remoting.Client
 
         private void _clientSocket_OnMessage(object sender, MessageEventArgs e)
         {
+            Debug.WriteLine(e.Data);
             WebSocketMessage message = JsonConvert.DeserializeObject<WebSocketMessage>(e.Data);
             if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventNotification)
             {

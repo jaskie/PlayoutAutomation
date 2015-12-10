@@ -23,11 +23,7 @@ namespace TAS.Remoting.Server
             _initialObject = initialObject;
             _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
             Debug.WriteLine(initialObject, "Server: created behavior for");
-            _serializer = JsonSerializer.CreateDefault(
-                new JsonSerializerSettings() {
-                    NullValueHandling = NullValueHandling.Include,
-                    MissingMemberHandling = MissingMemberHandling.Ignore }
-                );
+            _serializer = JsonSerializer.CreateDefault(SerializationSettings.SerializerSettings);
             _converter = new DtoSerializationConverter();
             _serializer.Converters.Add(_converter);
         }
@@ -207,7 +203,7 @@ namespace TAS.Remoting.Server
             {
                 object input = inputArray[i];
                 Type type = inputTypes[i];
-                if (!(input is string))
+                if (input.GetType() != type)
                 {
                     if (type.IsEnum)
                         input = Enum.Parse(type, input.ToString());

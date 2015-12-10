@@ -14,6 +14,7 @@ namespace TAS.Client.Common
     {
         public readonly M Model;
         public readonly UserControl _editor;
+        //public readonly List<string> ModifiedFields = new List<string>();
         public EditViewmodelBase(M model, UserControl editor)
         {
             Model = model;
@@ -32,7 +33,8 @@ namespace TAS.Client.Common
             get { return _modified; }
             protected set
             {
-                if (base.SetField(ref _modified, value, "Modified"))
+                if (base.SetField(ref _modified, value, "Modified")
+                    && value)
                 {
                     OnModified();
                     InvalidateRequerySuggested();
@@ -43,7 +45,11 @@ namespace TAS.Client.Common
         protected override bool SetField<T>(ref T field, T value, string propertyName)
         {
             bool modified = base.SetField<T>(ref field, value, propertyName);
-            if (modified) Modified = true;
+            if (modified)
+            {
+                Modified = true;
+                //ModifiedFields.Add(propertyName);
+            }
             return modified;
         }
 
