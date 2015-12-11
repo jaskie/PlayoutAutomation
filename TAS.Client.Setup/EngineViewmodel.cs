@@ -13,6 +13,7 @@ namespace TAS.Client.Setup
         private string _engineName;
         private int _timeCorrection;
         private TVideoFormat _videoFormat;
+        private double _volumeReferenceLoudness;
         private ulong _instance;
         public EngineViewmodel(Model.Engine engine)
             : base(engine, new EngineView())
@@ -55,6 +56,7 @@ namespace TAS.Client.Setup
         public int TimeCorrection { get { return _timeCorrection; } set { SetField(ref _timeCorrection, value, "TimeCorrection"); } }
         public TVideoFormat VideoFormat { get { return _videoFormat; } set { SetField(ref _videoFormat, value, "VideoFormat"); } }
         public ulong Instance { get { return _instance; } set { SetField(ref _instance, value, "Instance"); } }
+        public double VolumeReferenceLoudness { get { return _volumeReferenceLoudness; } set { SetField(ref _volumeReferenceLoudness, value, "VolumeReferenceLoudness"); } }
 
         readonly List<object> _channels;
         public List<object> Channels { get { return _channels; } }

@@ -30,13 +30,13 @@
             </StackPanel.Resources>
             <Button IsDefault="True" Command="{Binding CommandOK}">
                 <DockPanel>
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Check.png"></common:AutoGreyableImage>
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png"></common:AutoGreyableImage>
                     <Label Content="OK" />
                 </DockPanel>
             </Button>
             <Button IsCancel="True">
                 <DockPanel>
-                    <Image Source="/TAS.Client.Common;component/Images/delete.png"></Image>
+                    <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png"></Image>
                     <Label Content="Anuluj" />
                 </DockPanel>
             </Button>

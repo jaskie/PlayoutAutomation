@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:client="clr-namespace:TAS.Client"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
-             StartupUri="Views/MainWindow.xaml">
+             StartupUri="MainWindow.xaml">
         
     <Application.Resources>
         <ResourceDictionary>

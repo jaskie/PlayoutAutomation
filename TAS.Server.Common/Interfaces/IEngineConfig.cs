@@ -10,6 +10,7 @@ namespace TAS.Server.Interfaces
         string EngineName { get; set; }
         int TimeCorrection { get; set; }
         TVideoFormat VideoFormat { get; set; }
+        double VolumeReferenceLoudness { get; set; }
         [XmlIgnore]
         ulong Instance { get; set; }
         [XmlIgnore]

@@ -19,14 +19,8 @@ namespace TAS.Client
 
         public static EngineController EngineController;
 
-        private static string volumeReferenceLoudnessKey = "VolumeReferenceLoudness";
-        
         public App()
         {
-            decimal referenceLoudness = -23;
-            if (ConfigurationManager.AppSettings.AllKeys.Contains(volumeReferenceLoudnessKey))
-                decimal.TryParse(ConfigurationManager.AppSettings[volumeReferenceLoudnessKey], out referenceLoudness);
-            App.Current.Properties[volumeReferenceLoudnessKey] = referenceLoudness;
             CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
             #region hacks
             Common.WpfHacks.ApplyGridViewRowPresenter_CellMargin();

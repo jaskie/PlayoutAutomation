@@ -221,78 +221,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="MediaInfoDLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Server\DatabaseConnector.cs" />
-    <Compile Include="Server\FFMpegOperation.cs" />
-    <Compile Include="Server\GPICommand.cs" />
-    <Compile Include="Server\GPIState.cs" />
-    <Compile Include="Server\LoudnessOperation.cs" />
-    <Compile Include="Server\Media\AnimationDirectory.cs" />
-    <Compile Include="Server\CasparServerChannel.cs" />
-    <Compile Include="Server\GPINotifier.cs" />
-    <Compile Include="Server\Media\FtpMediaStream.cs" />
-    <Compile Include="Server\Media\MediaChecker.cs" />
-    <Compile Include="Server\Media\MediaSegment.cs" />
-    <Compile Include="Server\Media\PInvokeWindowsNetworking.cs" />
-    <Compile Include="Server\Media\TempDirectory.cs" />
-    <Compile Include="Server\RemoteHost.cs" />
-    <Compile Include="Server\Template.cs" />
-    <Compile Include="Server\Media\TempMedia.cs" />
-    <Compile Include="Server\XDCAM\ExportOperation.cs" />
-    <Compile Include="Server\XDCAM\Index.cs" />
-    <Compile Include="Server\XDCAM\NonRealTimeMeta.cs" />
-    <Compile Include="Server\XDCAM\SerializationHelper.cs" />
-    <Compile Include="Server\XDCAM\Smil.cs" />
-    <Compile Include="Server\XDCAM\XdcamStream.cs" />
-    <Compile Include="ViewModels\EventClipboard.cs" />
-    <Compile Include="ViewModels\EventEditViewmodel.cs" />
-    <Compile Include="ViewModels\IngestTrimmerViewmodel.cs" />
-    <Compile Include="ViewModels\MediaEditWindowViewmodel.cs" />
-    <Compile Include="ViewModels\MediaSearchViewmodel.cs" />
-    <Compile Include="ViewModels\TemplateViewmodel.cs" />
-    <Compile Include="ViewModels\TemplatesViewmodel.cs" />
-    <Compile Include="Server\Media\ArchiveMedia.cs" />
-    <Compile Include="Server\Media\ArchiveDirectory.cs" />
-    <Compile Include="Server\ConvertOperation.cs" />
-    <Compile Include="Views\EngineStateView.xaml.cs">
-      <DependentUpon>EngineStateView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Server\EngineController.cs" />
-    <Compile Include="Server\FileManager.cs" />
-    <Compile Include="Server\FileOperation.cs" />
-    <Compile Include="Server\Media\IngestDirectory.cs" />
-    <Compile Include="Server\Media\IngestMedia.cs" />
-    <Compile Include="Server\Media\Media.cs" />
-    <Compile Include="Server\Media\MediaDirectory.cs" />
-    <Compile Include="Server\Media\PersistentMedia.cs" />
-    <Compile Include="Server\Media\ServerDirectory.cs" />
-    <Compile Include="Server\Media\ServerMedia.cs" />
-    <Compile Include="Server\MediaManager.cs" />
-    <Compile Include="Views\MediaSearchView.xaml.cs">
-      <DependentUpon>MediaSearchView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\EngineView.xaml.cs">
-      <DependentUpon>EngineView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ViewModels\EngineViewmodel.cs" />
-    <Compile Include="ViewModels\EventPanelViewmodel.cs" />
-    <Compile Include="Views\TemplatesView.xaml.cs">
-      <DependentUpon>TemplatesView.xaml</DependentUpon>
-    </Compile>
-    <Page Include="Views\EngineStateView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\EventPanelView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\EventEditView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\MainWindow.xaml">
+    <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -300,62 +230,17 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Server\CasparServer.cs" />
-    <Compile Include="Server\Engine.cs" />
-    <Compile Include="Server\Event.cs" />
-    <Compile Include="Views\EventPanelView.xaml.cs">
-      <DependentUpon>EventPanelView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\EventEditView.xaml.cs">
-      <DependentUpon>EventEditView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\MainWindow.xaml.cs">
+    <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Views\MediaSearchView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\EngineView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\TemplatesView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Views\EngineView.pl.resx">
-      <DependentUpon>EngineView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\EngineView.resx">
-      <DependentUpon>EngineView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\EventEditView.pl.resx">
-      <DependentUpon>EventEditView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\EventEditView.resx">
-      <DependentUpon>EventEditView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\EventPanelView.pl.resx">
-      <DependentUpon>EventPanelView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\EventPanelView.resx">
-      <DependentUpon>EventPanelView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\MainWindow.resx">
+    <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\MainWindow.pl.resx">
+    <EmbeddedResource Include="MainWindow.pl.resx">
       <DependentUpon>MainWindow.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\MediaSearchView.pl.resx">
-      <DependentUpon>MediaSearchView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\MediaSearchView.resx">
-      <DependentUpon>MediaSearchView.xaml</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config">
     </None>
@@ -396,54 +281,11 @@
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Glyphs\Stop.png" />
-    <Resource Include="Glyphs\timer24_h.png" />
-    <Resource Include="Glyphs\Undo.png" />
-    <Resource Include="Glyphs\ArrowLeftUpRed.gif" />
-    <Resource Include="Glyphs\ArrowUpRed.gif" />
-    <Resource Include="Glyphs\VCRPark.gif" />
-    <Resource Include="Glyphs\play.png" />
-    <Resource Include="Glyphs\pause.png" />
-    <Resource Include="Glyphs\Circle_1.png" />
-    <Resource Include="Glyphs\Circle_2.png" />
-    <Resource Include="Glyphs\Circle_3.png" />
-    <Resource Include="Glyphs\Down.png" />
-    <Resource Include="Glyphs\EventTypes\StillImage.png" />
-    <Resource Include="Glyphs\NewMovie.png" />
-    <Resource Include="Glyphs\NewRundown.png" />
-    <Resource Include="Glyphs\NewSubMovie.png" />
-    <Resource Include="Glyphs\NewSubRundown.png" />
-    <Resource Include="Glyphs\NewNextLive.png" />
-    <Resource Include="Glyphs\NewSubLive.png" />
-    <Resource Include="Glyphs\Drawer.png" />
-    <Resource Include="Glyphs\go-bottom.png" />
-    <Resource Include="Glyphs\Refresh.png" />
-    <Resource Include="Glyphs\Circle_A.png" />
-    <Resource Include="Glyphs\file_delete.png" />
-    <Resource Include="Glyphs\go-up.png" />
-    <Resource Include="Glyphs\playpause.png" />
-    <Resource Include="Glyphs\EventTypes\Movie.png" />
-    <Resource Include="Glyphs\EventTypes\Rundown.gif" />
-    <Resource Include="Glyphs\EventTypes\Live.png" />
-    <Resource Include="Glyphs\EventTypes\Container.png" />
-    <Resource Include="Glyphs\VideoFormats\FHA.png" />
-    <Resource Include="Glyphs\VideoFormats\HD.png" />
-    <Resource Include="Glyphs\VideoFormats\4-3.png" />
-    <Resource Include="Glyphs\NewEmptyMovie.png" />
-    <Resource Include="Glyphs\tick_circle.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="IngestFolders.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>
     <Resource Include="TVPlay.ico" />
-    <Resource Include="Glyphs\OnAir.png" />
-    <Resource Include="Glyphs\Parentals\12.png" />
-    <Resource Include="Glyphs\Parentals\16.png" />
-    <Resource Include="Glyphs\Parentals\18.png" />
-    <Resource Include="Glyphs\Parentals\7.png" />
-    <Resource Include="Glyphs\Parentals\BO.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\DataSources\" />
@@ -488,6 +330,10 @@
     <ProjectReference Include="..\TAS.Server.Common\TAS.Server.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
       <Name>TAS.Server.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TAS.Server\TAS.Server.csproj">
+      <Project>{f268cd0e-804f-49cd-a3f2-341e5b6a9927}</Project>
+      <Name>TAS.Server</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

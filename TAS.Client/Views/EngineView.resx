@@ -1,0 +1,246 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="_menu.Edit" xml:space="preserve">
+    <value>_Edit</value>
+  </data>
+  <data name="_menu.Edit.AddNext" xml:space="preserve">
+    <value>Add _next...</value>
+  </data>
+  <data name="_menu.Edit.AddNext.Live" xml:space="preserve">
+    <value>_Live</value>
+  </data>
+  <data name="_menu.Edit.AddNext.Movie" xml:space="preserve">
+    <value>_Movie</value>
+  </data>
+  <data name="_menu.Edit.AddNext.Rundown" xml:space="preserve">
+    <value>_Rundown</value>
+  </data>
+  <data name="_menu.Edit.AddUnder" xml:space="preserve">
+    <value>Add _under...</value>
+  </data>
+  <data name="_menu.Edit.Cut" xml:space="preserve">
+    <value>_Cut...</value>
+  </data>
+  <data name="_menu.Edit.Cut.FromThis" xml:space="preserve">
+    <value>_All items from this (Ctrl+Shift+X)</value>
+  </data>
+  <data name="_menu.Edit.Cut.OnlyThis" xml:space="preserve">
+    <value>Only _this item (Ctrl+X)</value>
+  </data>
+  <data name="_menu.Edit.DeleteSelected" xml:space="preserve">
+    <value>Delete _selected</value>
+  </data>
+  <data name="_menu.Edit.Paste" xml:space="preserve">
+    <value>_Paste...</value>
+  </data>
+  <data name="_menu.Edit.Paste.After" xml:space="preserve">
+    <value>_After</value>
+  </data>
+  <data name="_menu.Edit.Paste.Before" xml:space="preserve">
+    <value>P_rzed</value>
+  </data>
+  <data name="_menu.Edit.Paste.Under" xml:space="preserve">
+    <value>_Under</value>
+  </data>
+  <data name="_menu.Rundown" xml:space="preserve">
+    <value>_Rundown</value>
+  </data>
+  <data name="_menu.Rundown.AddContainer" xml:space="preserve">
+    <value>Add _container</value>
+  </data>
+  <data name="_menu.Rundown.AddEmpty" xml:space="preserve">
+    <value>_Add empty root rundown</value>
+  </data>
+  <data name="_menu.Rundown.Restart" xml:space="preserve">
+    <value>R_estart selected event</value>
+  </data>
+  <data name="_menu.Show" xml:space="preserve">
+    <value>_Show</value>
+  </data>
+  <data name="_statusbar.Gpi.Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="_statusbar.Gpi.Crawl" xml:space="preserve">
+    <value>Crawl:</value>
+  </data>
+  <data name="_statusbar.Gpi.Logo" xml:space="preserve">
+    <value>Logo:</value>
+  </data>
+  <data name="_statusbar.Gpi.Parental" xml:space="preserve">
+    <value>Parental:</value>
+  </data>
+  <data name="_statusbar.Selected" xml:space="preserve">
+    <value>Selected {0}, </value>
+  </data>
+  <data name="_toolbar.ClearAll" xml:space="preserve">
+    <value>Clear all (Shift+Pause/Break)</value>
+  </data>
+  <data name="_toolbar.ClearCG1" xml:space="preserve">
+    <value>Clear image 1</value>
+  </data>
+  <data name="_toolbar.ClearCG2" xml:space="preserve">
+    <value>Clear image 2</value>
+  </data>
+  <data name="_toolbar.ClearCG3" xml:space="preserve">
+    <value>Clear image 3</value>
+  </data>
+  <data name="_toolbar.Load" xml:space="preserve">
+    <value>Load (F2)</value>
+  </data>
+  <data name="_toolbar.NextEvent.ToolTip" xml:space="preserve">
+    <value>Next: {0}</value>
+  </data>
+  <data name="_toolbar.NowPlaying" xml:space="preserve">
+    <value>Now playing</value>
+  </data>
+  <data name="_toolbar.playingEventName.Menu.Restart" xml:space="preserve">
+    <value>Restart (from current location)</value>
+  </data>
+  <data name="_toolbar.Reschedule" xml:space="preserve">
+    <value>Reschedule (F4)</value>
+  </data>
+  <data name="_toolbar.StartLoaded" xml:space="preserve">
+    <value>Start loaded (F3)</value>
+  </data>
+  <data name="_toolbar.StartSelected" xml:space="preserve">
+    <value>Start selected (Ctrl+F3)</value>
+  </data>
+  <data name="_toolbar.TimeToAttention" xml:space="preserve">
+    <value>Attention for</value>
+  </data>
+  <data name="_toolbar.Track" xml:space="preserve">
+    <value>Track</value>
+  </data>
+  <data name="_statusbar.Total" xml:space="preserve">
+    <value>total </value>
+  </data>
+  <data name="_menu.Tools" xml:space="preserve">
+    <value>Tools</value>
+  </data>
+  <data name="_toolbar.clockWidth" xml:space="preserve">
+    <value>160</value>
+  </data>
+  <data name="_menu.Tools.Export" xml:space="preserve">
+    <value>E_xport selected</value>
+  </data>
+  <data name="_menu.Edit.Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+</root>

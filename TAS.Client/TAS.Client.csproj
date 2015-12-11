@@ -59,18 +59,39 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\ConvertOperationViewModel.cs" />
+    <Compile Include="ViewModels\EngineViewmodel.cs" />
+    <Compile Include="ViewModels\EventClipboard.cs" />
+    <Compile Include="ViewModels\EventEditViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelViewmodel.cs" />
     <Compile Include="ViewModels\ExportViewmodel.cs" />
     <Compile Include="ViewModels\FileManagerViewmodel.cs" />
     <Compile Include="ViewModels\FileOperationViewmodel.cs" />
     <Compile Include="ViewModels\IngestEditViewmodel.cs" />
+    <Compile Include="ViewModels\IngestTrimmerViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditViewmodel.cs" />
+    <Compile Include="ViewModels\MediaEditWindowViewmodel.cs" />
     <Compile Include="ViewModels\MediaExportViewmodel.cs" />
     <Compile Include="ViewModels\MediaManagerViewmodel.cs" />
+    <Compile Include="ViewModels\MediaSearchViewmodel.cs" />
     <Compile Include="ViewModels\MediaSegmentViewmodel.cs" />
     <Compile Include="ViewModels\MediaViewViewmodel.cs" />
     <Compile Include="ViewModels\PreviewViewmodel.cs" />
+    <Compile Include="ViewModels\TemplatesViewmodel.cs" />
+    <Compile Include="ViewModels\TemplateViewmodel.cs" />
     <Compile Include="Views\ConvertOperationView.xaml.cs">
       <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EngineStateView.xaml.cs">
+      <DependentUpon>EngineStateView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EngineView.xaml.cs">
+      <DependentUpon>EngineView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventEditView.xaml.cs">
+      <DependentUpon>EventEditView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelView.xaml.cs">
+      <DependentUpon>EventPanelView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ExportView.xaml.cs">
       <DependentUpon>ExportView.xaml</DependentUpon>
@@ -87,11 +108,17 @@
     <Compile Include="Views\MediaManagerView.xaml.cs">
       <DependentUpon>MediaManagerView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\MediaSearchView.xaml.cs">
+      <DependentUpon>MediaSearchView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\OperationOutputView.xaml.cs">
       <DependentUpon>OperationOutputView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PreviewView.xaml.cs">
       <DependentUpon>PreviewView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TemplatesView.xaml.cs">
+      <DependentUpon>TemplatesView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -117,6 +144,22 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\EngineStateView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EngineView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventEditView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventPanelView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\ExportView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -137,11 +180,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\MediaSearchView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\OperationOutputView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\PreviewView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\TemplatesView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -152,6 +203,24 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ConvertOperationView.resx">
       <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineView.pl.resx">
+      <DependentUpon>EngineView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineView.resx">
+      <DependentUpon>EngineView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventEditView.pl.resx">
+      <DependentUpon>EventEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventEditView.resx">
+      <DependentUpon>EventEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventPanelView.pl.resx">
+      <DependentUpon>EventPanelView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventPanelView.resx">
+      <DependentUpon>EventPanelView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ExportView.pl.resx">
       <DependentUpon>ExportView.xaml</DependentUpon>
@@ -182,6 +251,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\MediaManagerView.resx">
       <DependentUpon>MediaManagerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MediaSearchView.pl.resx">
+      <DependentUpon>MediaSearchView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MediaSearchView.resx">
+      <DependentUpon>MediaSearchView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\PreviewView.pl.resx">
       <DependentUpon>PreviewView.xaml</DependentUpon>

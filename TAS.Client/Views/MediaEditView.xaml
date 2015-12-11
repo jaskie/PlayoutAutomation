@@ -73,13 +73,13 @@
             </StackPanel.Resources>
             <Button IsDefault="True" ToolTip="{Resx _buttonSave.ToolTip}" Command="{Binding CommandSaveEdit}" >
                 <DockPanel>
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Check.png"/>
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png"/>
                     <Label Content="{Resx _buttonSave.Caption}" />
                 </DockPanel>
             </Button>
             <Button IsCancel="True" ToolTip="{Resx _buttonCancel.ToolTip}" Command="{Binding CommandCancelEdit}">
                 <DockPanel>
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/delete.png"/>
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png"/>
                     <Label Content="{Resx _buttonRevert.Caption}" />
                 </DockPanel>
             </Button>

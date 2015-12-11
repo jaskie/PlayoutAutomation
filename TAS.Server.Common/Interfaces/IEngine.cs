@@ -30,6 +30,7 @@ namespace TAS.Server.Interfaces
 
         void AddEvent(IEvent ev);
         void RemoveEvent(IEvent aEvent);
+        IEvent CreateEvent();
 
         void Load(IEvent aEvent);
         void StartLoaded();

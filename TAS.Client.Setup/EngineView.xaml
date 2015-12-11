@@ -29,6 +29,8 @@
             <ComboBox SelectedItem="{Binding AspectRatioControl}" ItemsSource="{Binding AspectRatioControls}"/>
             <Label Content="Time correction (ms, relative to system time)"/>
             <TextBox Text="{Binding TimeCorrection, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label Content="Reference loudness"/>
+            <TextBox Text="{Binding VolumeReferenceLoudness, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Instance binding"/>
             <TextBox Text="{Binding Instance, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Program channel"/>

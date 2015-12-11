@@ -166,10 +166,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Check.png" />
+    <Resource Include="Images\Actions\apply.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Delete.png" />
+    <Resource Include="Images\Actions\delete.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\PlayStates\Played.png" />
@@ -220,7 +220,7 @@
     <Resource Include="Images\Gearwheel.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Edit.png" />
+    <Resource Include="Images\Actions\edit.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Connect.png" />
@@ -271,7 +271,7 @@
     <Resource Include="Images\MediaStates\copy-error.png" />
     <Resource Include="Images\MediaStates\copied.png" />
     <Resource Include="Images\MediaStates\available.png" />
-    <Resource Include="Images\scizors.png" />
+    <Resource Include="Images\Indicators\scizors.png" />
     <Resource Include="Images\Actions\copy-small.png" />
     <Resource Include="Images\Actions\add-small.png" />
     <Resource Include="Images\Actions\save-small.png" />
@@ -281,7 +281,109 @@
     <Resource Include="Images\MediaNavigation\FFBack.png" />
     <Resource Include="Images\MediaNavigation\OneFrameForward.png" />
     <Resource Include="Images\MediaNavigation\OneFrameBack.png" />
-    <Resource Include="Images\warning.png" />
+    <Resource Include="Images\Indicators\warning.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventTypes\Container.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventTypes\Live.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventTypes\Movie.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventTypes\Rundown.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventTypes\StillImage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Indicators\tick_circle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Parentals\12.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Parentals\16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Parentals\18.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Parentals\7.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Parentals\BO.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Layers\Layer1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Layers\Layer2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Layers\Layer3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Layers\LayerA.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\undo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\select.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventActions\new-empty-movie.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventActions\new-movie.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventActions\new-next-live.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventActions\new-rundown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventActions\new-sub-live.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventActions\new-sub-movie.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventActions\new-sub-rundown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\go-down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\go-up.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\VideoFormats\4-3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\VideoFormats\FHA.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\VideoFormats\HD.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventActions\pause.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventActions\play.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventActions\play-pause.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventActions\stop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Indicators\on-air.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

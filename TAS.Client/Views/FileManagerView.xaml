@@ -64,7 +64,7 @@
                                     <components:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Gearwheel.png"/>
                                 </Button>
                                 <Button Width="16" Padding="0" Grid.Column="2" Visibility="{Binding IsWarning, Converter={StaticResource BoolToVis}}" Command="{Binding CommandShowWarning}">
-                                    <Image Source="/TAS.Client.Common;component/Images/warning.png"/>
+                                    <Image Source="/TAS.Client.Common;component/Images/Indicators/warning.png"/>
                                 </Button>
                             </Grid>
                         </DataTemplate>
