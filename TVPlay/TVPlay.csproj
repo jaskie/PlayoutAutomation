@@ -143,10 +143,6 @@
     <Reference Include="MySql.Data, Version=6.8.6.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -185,10 +181,6 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="UIAutomationProvider" />
-    <Reference Include="websocket-sharp, Version=1.0.2.36589, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSocketSharp.1.0.3-rc9\lib\websocket-sharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="Xceed.Wpf.AvalonDock, Version=2.5.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
@@ -295,25 +287,9 @@
       <Project>{f6e01e47-5075-42a7-b2a2-bc35bc074f9f}</Project>
       <Name>TAS.Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TAS.FFMpegUtils\FFMpegUtils.vcxproj">
-      <Project>{aaa90fdf-4e13-490e-a4a4-9b83f522f6c4}</Project>
-      <Name>TAS.FFMpegUtils</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
       <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>
       <Name>Infralution.Localization.Wpf</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Svt\Svt.Caspar\Svt.Caspar.csproj">
-      <Project>{9b56a150-ece3-4099-aea1-0f8e115dc374}</Project>
-      <Name>Svt.Caspar</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Svt\Svt.Network\Svt.Network.csproj">
-      <Project>{941ed6a5-c8df-459d-bfce-5c6ed9ac0492}</Project>
-      <Name>Svt.Network</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\System.Net.FtpClient\source\System.Net.FtpClient.csproj">
-      <Project>{e963b766-56bf-4966-8917-88c1ee69d61a}</Project>
-      <Name>System.Net.FtpClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Client.Common\TAS.Client.Common.csproj">
       <Project>{bccaca68-8bb6-4d9c-b546-795a2a8dee93}</Project>
@@ -322,10 +298,6 @@
     <ProjectReference Include="..\TAS.Client.Setup\TAS.Client.Setup.csproj">
       <Project>{86071de4-1a5d-4889-b54a-08da101b2b51}</Project>
       <Name>TAS.Client.Setup</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
-      <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
-      <Name>TAS.Remoting</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Server.Common\TAS.Server.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
