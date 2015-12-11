@@ -572,7 +572,7 @@ namespace TAS.Server
             { 
                 value = Engine.AlignTimeSpan(value);
                 if (SetField(ref _transitionTime, value, "TransitionTime"))
-                    DurationChanged();
+                    UpdateScheduledTime(true);
             } 
         }
 

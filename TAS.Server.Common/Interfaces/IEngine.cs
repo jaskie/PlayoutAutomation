@@ -31,7 +31,6 @@ namespace TAS.Server.Interfaces
         void AddEvent(IEvent ev);
         void RemoveEvent(IEvent aEvent);
 
-        [OperationContract]
         void Load(IEvent aEvent);
         void StartLoaded();
         void Start(IEvent aEvent);
@@ -70,14 +69,13 @@ namespace TAS.Server.Interfaces
         bool GPIIsMaster { get; }
         #endregion // GPI
 
-        TimeSpan GetTimeToAttention();
         MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia);
         void SearchMissingEvents();
         IEvent PlayingEvent(VideoLayer layer = VideoLayer.Program);
 
         event EventHandler<PropertyChangedEventArgs> ServerPropertyChanged;
         event EventHandler EventSaved;
-        event EventHandler<EventArgs> EngineTick;
+        event EventHandler<EngineTickEventArgs> EngineTick;
         event EventHandler<EngineOperationEventArgs> EngineOperation;
         event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> VisibleEventsOperation;
         event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> LoadedNextEventsOperation;

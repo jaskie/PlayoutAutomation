@@ -84,8 +84,6 @@ namespace TAS.Client.ViewModels
             _eventEditViewmodel = new EventEditViewmodel(this);
             _eventEditView = new EventEditView(_frameRate) { DataContext = _eventEditViewmodel };
             
-            Debug.WriteLine(this, "Creating EventClipboard");
-            
             Debug.WriteLine(this, "Creating EngineView");
             _engineView = new EngineView(this._frameRate);
             _engineView.DataContext = this;
@@ -95,16 +93,11 @@ namespace TAS.Client.ViewModels
 
             _selectedEvents = new ObservableCollection<EventPanelViewmodel>();
             _selectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
-            EventClipboard.ClipboardChanged += EngineViewmodel_ClipboardChanged;
+            EventClipboard.ClipboardChanged += _engineViewmodel_ClipboardChanged;
 
             _createCommands();
         }
 
-        void EngineViewmodel_ClipboardChanged()
-        {
-            NotifyPropertyChanged("CommandPasteSelected");
-        }
-        
         protected override void OnDispose()
         {
             _engine.EngineTick -= this.OnEngineTick;
@@ -112,7 +105,12 @@ namespace TAS.Client.ViewModels
             _engine.ServerPropertyChanged -= this.OnServerPropertyChanged;
             _engine.PropertyChanged -= this.OnEnginePropertyChanged;
             _selectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
-            EventClipboard.ClipboardChanged -= EngineViewmodel_ClipboardChanged;
+            EventClipboard.ClipboardChanged -= _engineViewmodel_ClipboardChanged;
+        }
+
+        void _engineViewmodel_ClipboardChanged()
+        {
+            NotifyPropertyChanged("CommandPasteSelected");
         }
 
         public EngineView View { get { return _engineView; } }
@@ -215,7 +213,7 @@ namespace TAS.Client.ViewModels
         private bool _canScheduleSelected(object o)
         {
             IEvent ev = _selected == null ? null : _selected.Event;
-            return ev != null && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused) && ev.ScheduledTime >= _engine.CurrentTime;
+            return ev != null && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused) && ev.ScheduledTime >= _currentTime;
         }
         private bool _canRescheduleSelected(object o)
         {
@@ -250,7 +248,7 @@ namespace TAS.Client.ViewModels
             newEvent.EventName = resources._title_NewRundown;
             newEvent.Duration = TimeSpan.Zero;
             newEvent.StartType = TStartType.Manual;
-            newEvent.ScheduledTime = _engine.CurrentTime;
+            newEvent.ScheduledTime = _currentTime;
             _engine.RootEvents.Add(newEvent);
             newEvent.Save();
         }
@@ -383,16 +381,22 @@ namespace TAS.Client.ViewModels
             set { _engine.Pst2Prv = value; }
         }
 
-
+        private DateTime _currentTime;
         public DateTime CurrentTime
         {
-            get { return _engine.CurrentTime.ToLocalTime(); }
+            get { return _currentTime; }
+            private set { SetField(ref _currentTime, value, "CurrentTime"); }
         }
 
         private RationalNumber _frameRate;
         public RationalNumber FrameRate { get { return _frameRate; } }
 
-        public TimeSpan TimeToAttention { get { return _engine.GetTimeToAttention(); } }
+        private TimeSpan _timeToAttention;
+        public TimeSpan TimeToAttention
+        {
+            get { return _timeToAttention; }
+            set { SetField(ref _timeToAttention, value, "TimeToAttention"); }
+        }
 
         public bool ServerConnectedPGM
         {
@@ -567,10 +571,10 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged("CommandRescheduleSelected");
         }
 
-        public void OnEngineTick(object sender, EventArgs a)
+        public void OnEngineTick(object sender, EngineTickEventArgs e)
         {
-            NotifyPropertyChanged("CurrentTime");
-            NotifyPropertyChanged("TimeToAttention");
+            CurrentTime = e.CurrentTime.ToLocalTime();
+            TimeToAttention = e.TimeToAttention;
         }
 
         public void OnServerPropertyChanged(object sender, PropertyChangedEventArgs e)

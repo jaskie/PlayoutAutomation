@@ -183,7 +183,7 @@
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _scheduledTC}" />
-                        <common:DelayedBindingTextBox Text="{Binding ScheduledTC, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
+                        <common:DelayedBindingTextBox Text="{Binding ScheduledTc, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
                     </DockPanel>
                     <DockPanel>
                         <Label Content="{Resx _clip}" />

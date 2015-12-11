@@ -224,8 +224,8 @@ namespace TAS.Client.ViewModels
                     case "Duration":
                         validationResult = _validateDuration();
                         break;
-                    case "ScheduledTC":
-                        validationResult = _validateScheduledTC();
+                    case "ScheduledTc":
+                        validationResult = _validateScheduledTc();
                         break;
                     case "ScheduledTime":
                         validationResult = _validateScheduledTime();
@@ -247,7 +247,7 @@ namespace TAS.Client.ViewModels
                 return string.Empty;
         }
 
-        private string _validateScheduledTC()
+        private string _validateScheduledTc()
         {
             string validationResult = string.Empty;
             IEvent ev = _event;
@@ -256,9 +256,9 @@ namespace TAS.Client.ViewModels
                 IMedia media = _event.Media;
                 if (ev.EventType == TEventType.Movie && media != null)
                 {
-                    if (_scheduledTC > media.Duration + media.TcStart)
+                    if (_scheduledTc > media.Duration + media.TcStart)
                         validationResult = string.Format(resources._validate_StartTCAfterFile, (media.Duration + media.TcStart).ToSMPTETimecodeString(_engine.VideoFormat));
-                    if (_scheduledTC < media.TcStart)
+                    if (_scheduledTc < media.TcStart)
                         validationResult = string.Format(resources._validate_StartTCBeforeFile, media.TcStart.ToSMPTETimecodeString(_engine.VideoFormat));
                 }
             }
@@ -273,7 +273,7 @@ namespace TAS.Client.ViewModels
             {
                 IMedia media = _event.Media;
                 if (ev.EventType == TEventType.Movie && media != null
-                    && _duration + _scheduledTC > media.Duration + media.TcStart)
+                    && _duration + _scheduledTc > media.Duration + media.TcStart)
                     validationResult = resources._validate_DurationInvalid;
             }
             return validationResult;
@@ -367,7 +367,7 @@ namespace TAS.Client.ViewModels
                             {
                                 Media = e.Media;
                                 Duration = e.Duration;
-                                ScheduledTC = e.TCIn;
+                                ScheduledTc = e.TCIn;
                                 AudioVolume = null;
                                 EventName = e.MediaName;
                                 _gpi = _setGPI(e.Media);
@@ -641,7 +641,7 @@ namespace TAS.Client.ViewModels
             var pwm = _engineViewModel.PreviewViewmodel;
             if (pwm != null && pwm.IsLoaded)
             {
-                ScheduledTC = pwm.TcIn;
+                ScheduledTc = pwm.TcIn;
                 Duration = pwm.DurationSelection;
             }
         }
@@ -932,12 +932,12 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private TimeSpan _scheduledTC;
-        public TimeSpan ScheduledTC
+        private TimeSpan _scheduledTc;
+        public TimeSpan ScheduledTc
         {
-            get { return _scheduledTC; }
+            get { return _scheduledTc; }
             set { 
-                SetField(ref _scheduledTC, value, "ScheduledTC");
+                SetField(ref _scheduledTc, value, "ScheduledTc");
                 NotifyPropertyChanged("Duration");
             }
         }
@@ -1020,7 +1020,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 SetField(ref _duration, value, "Duration");
-                NotifyPropertyChanged("ScheduledTC");
+                NotifyPropertyChanged("ScheduledTc");
             }
         }
 

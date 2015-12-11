@@ -57,7 +57,7 @@ namespace TAS.Server
         internal SimpleDictionary<VideoLayer, IEvent> _loadedNextEvents = new SimpleDictionary<VideoLayer, IEvent>(); // events loaded in backgroud
         private SimpleDictionary<VideoLayer, IEvent> _finishedEvents = new SimpleDictionary<VideoLayer, IEvent>(); // events finished or loaded and not playing
 
-        public event EventHandler<EventArgs> EngineTick;
+        public event EventHandler<EngineTickEventArgs> EngineTick;
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
         public event EventHandler<PropertyChangedEventArgs> ServerPropertyChanged;
         
@@ -243,7 +243,7 @@ namespace TAS.Server
                         _tick(nFrames);
                         var e = EngineTick;
                         if (e != null)
-                            e(this, EventArgs.Empty);
+                            e(this, new EngineTickEventArgs(CurrentTime, _getTimeToAttention()));
                     }
                     catch (Exception e)
                     {
@@ -1172,7 +1172,7 @@ namespace TAS.Server
             }
         }
 
-        public TimeSpan GetTimeToAttention()
+        private TimeSpan _getTimeToAttention()
         {
             IEvent pe = PlayingEvent();
             if (pe != null)

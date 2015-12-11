@@ -90,7 +90,7 @@
                             <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="White"/>
                         </Style.Resources>
                         <Setter Property="DetailsVisibility" Value="{Binding IsExpanded, Converter={StaticResource BoolToVis}}" />
-                        <!--<Setter Property="common:MouseDoubleClick.Command" Value="{Binding ElementName=gSearch, Path=DataContext.CommandAdd}" />-->
+                        <Setter Property="common:MouseDoubleClick.Command" Value="{Binding ElementName=gSearch, Path=DataContext.CommandAdd}" />
                         <Setter Property="Background" Value="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}" />
                     </Style>
                 </DataGrid.RowStyle>
