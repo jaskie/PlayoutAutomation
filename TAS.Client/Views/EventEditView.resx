@@ -159,6 +159,9 @@
   <data name="_hold.ToolTip" xml:space="preserve">
     <value>Instant change - F6</value>
   </data>
+  <data name="_loop" xml:space="preserve">
+    <value>Loop</value>
+  </data>
   <data name="_name" xml:space="preserve">
     <value>Name</value>
   </data>

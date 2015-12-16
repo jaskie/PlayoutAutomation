@@ -163,8 +163,13 @@
                         <TextBox Text="{Binding StartType}" IsEnabled="False" />
                     </DockPanel>
                     <DockPanel>
-                        <CheckBox Content="{Resx _hold}" IsChecked="{Binding Hold}" IsEnabled="{Binding CanHold}" HorizontalContentAlignment="Right" VerticalAlignment="Center" ToolTip="{Resx _hold.ToolTip}" />
+                        <Label/>
                         <TextBox Text="{Binding BoundEventName, Mode=OneWay}" IsReadOnly="True" Background="#F0F0F0"/>
+                    </DockPanel>
+                    <DockPanel>
+                        <Label/>
+                        <CheckBox Content="{Resx _hold}" IsChecked="{Binding Hold}" IsEnabled="{Binding CanHold}" ToolTip="{Resx _hold.ToolTip}"  Margin="1,3"/>
+                        <CheckBox Content="{Resx _loop}" IsChecked="{Binding Loop}" IsEnabled="{Binding CanLoop}"/>
                     </DockPanel>
                     <DockPanel>
                         <Label Content="{Resx _scheduledTime}" />

@@ -12,6 +12,7 @@ namespace TAS.Server.Interfaces
         string EventName { get; set; }
         TEventType EventType { get; set; }
         bool Hold { get; set; }
+        bool Loop { get; set; }
         string IdAux { get; set; }
         ulong idProgramme { get; set; }
         VideoLayer Layer { get; set; }

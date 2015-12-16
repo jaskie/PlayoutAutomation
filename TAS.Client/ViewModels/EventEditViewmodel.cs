@@ -712,7 +712,8 @@ namespace TAS.Client.ViewModels
             IEvent ev = _event;
             return ev != null
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Playing)
-                && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live);
+                && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live)
+                && (!ev.Loop);
         }
         
         bool _canAddSubMovie(object o)
@@ -892,6 +893,7 @@ namespace TAS.Client.ViewModels
         }
 
         public bool CanHold { get { return _event != null && _event.Prior != null; } }
+        public bool CanLoop { get { return _event != null && _event.GetSuccessor() == null; } }
 
         private bool _enabled;
         public bool Enabled
@@ -913,6 +915,13 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged("IsTransitionPanelEnabled");
                 }
             }
+        }
+
+        private bool _loop;
+        public bool Loop
+        {
+            get { return _loop; }
+            set { SetField(ref _loop, value, "Loop"); }
         }
 
         private TStartType _startType;

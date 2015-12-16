@@ -47,12 +47,20 @@
                 empty if not filtered, use ";" as separator
             </TextBlock>
             <TextBox Text="{Binding Extensions, Converter={StaticResource StringArrayToDelimitedString}, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
-            <Label Content="Encode parameters (FFmpeg)"/>
-            <TextBox Text="{Binding EncodeParams, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
-            <Label Content="Default aspect conversion"/>
-            <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}"/>
-            <Label Content="Default source field order"/>
-            <ComboBox ItemsSource="{Binding SourceFieldOrders}" SelectedItem="{Binding SourceFieldOrder}"/>
+            <CheckBox IsChecked="{Binding DoNotEncode}" Content="Don't re-encode media"/>
+            <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource InvertedBoolToVis}}">
+                <Label Content="Encode parameters (FFmpeg)"/>
+                <TextBox Text="{Binding EncodeParams, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
+                <Label Content="Default aspect conversion"/>
+                <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}"/>
+                <Label Content="Default source field order"/>
+                <ComboBox ItemsSource="{Binding SourceFieldOrders}" SelectedItem="{Binding SourceFieldOrder}"/>
+                <DockPanel Margin="0, 5">
+                    <Label DockPanel.Dock="Left" Content="Audio volume correction"/>
+                    <Label DockPanel.Dock="Right" Content="dB"/>
+                    <TextBox Text="{Binding AudioVolume}"/>
+                </DockPanel>
+            </StackPanel>
             <Label Content="Default media category"/>
             <ComboBox ItemsSource="{Binding MediaCategories}" SelectedItem="{Binding MediaCategory}"/>
             <CheckBox Content="On slow link (WAN connection)" IsChecked="{Binding IsWAN}"/>

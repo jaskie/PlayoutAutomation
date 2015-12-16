@@ -8,6 +8,7 @@ namespace TAS.Server.Interfaces
         TAspectConversion AspectConversion { get; set; }
         decimal AudioVolume { get; set; }
         bool DeleteSource { get; set; }
+        bool DoNotEncode { get; set; }
         string EncodeParams { get; set; }
         bool IsXDCAM { get; set; }
         bool IsWAN { get; set; }

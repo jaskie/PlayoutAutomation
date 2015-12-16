@@ -222,6 +222,7 @@ namespace TAS.Data
             aEvent._idAux = dataReader.IsDBNull(dataReader.GetOrdinal("IdAux")) ? default(string) : dataReader.GetString("IdAux");
             aEvent._enabled = (flags & (1 << 0)) != 0;
             aEvent._hold = (flags & (1 << 1)) != 0;
+            aEvent._loop = (flags & (1 << 2)) != 0;
             EventGPI.FromUInt64(ref aEvent._gPI, (flags >> 4) & EventGPI.Mask);
             aEvent._nextLoaded = false;
             return aEvent;
@@ -279,6 +280,7 @@ namespace TAS.Data
                 cmd.Parameters.AddWithValue("@AudioVolume", aEvent._audioVolume);
             UInt64 flags = Convert.ToUInt64(aEvent._enabled) << 0
                          | Convert.ToUInt64(aEvent._hold) << 1
+                         | Convert.ToUInt64(aEvent._loop) << 2
                          | aEvent.GPI.ToUInt64() << 4 // of size EventGPI.Size
                          ;
             cmd.Parameters.AddWithValue("@flagsEvent", flags);

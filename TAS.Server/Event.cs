@@ -410,6 +410,9 @@ namespace TAS.Server
             set { SetField(ref _hold, value, "Hold"); }
         }
 
+        internal bool _loop;
+        public bool Loop { get { return _loop; } set { SetField(ref _loop, value, "Loop"); } }
+
         internal DateTime _startTime;
         public DateTime StartTime 
         { 

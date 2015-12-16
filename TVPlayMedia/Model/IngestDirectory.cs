@@ -9,6 +9,7 @@ namespace TAS.Client.Model
 {
     public class IngestDirectory : MediaDirectory, IIngestDirectory
     {
+        public bool DoNotEncode { get { return Get<bool>(); } set { Set(value); } }
         public TAspectConversion AspectConversion { get { return Get<TAspectConversion>(); } set { Set(value); } }
         public decimal AudioVolume { get { return Get<decimal>(); } set { Set(value); } }
         public bool DeleteSource { get { return Get<bool>(); } set { Set(value); } }

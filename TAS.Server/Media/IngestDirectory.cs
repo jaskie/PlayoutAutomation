@@ -70,7 +70,10 @@ namespace TAS.Server
 
         private object _xdcamLockObject = new object();
         
-        public string EncodeParams {get; set;}
+        public string EncodeParams { get; set; }
+
+        [JsonProperty]
+        public bool DoNotEncode { get; set; }
         
         [JsonProperty]
         public bool IsXDCAM { get; set; }

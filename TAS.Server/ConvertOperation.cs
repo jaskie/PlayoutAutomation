@@ -224,44 +224,49 @@ namespace TAS.Server
         {
             List<string> vf = new List<string>();
             List<string> af = new List<string>();
-            StringBuilder ep = new StringBuilder(((IngestDirectory)SourceMedia.Directory).EncodeParams);
-
-            if (inputMedia.HasExtraLines)
-            {
-                vf.Add("crop=720:576:0:32");
-                vf.Add("setdar=dar=16/9");
-            }
-            if (inputFileStreams.Count(s => s.StreamType == StreamType.AUDIO) > 8)
-                af.Add("aformat=channel_layouts=0xFFFF");
-            _addConversion(MediaConversion.AspectConversions[AspectConversion], ep, vf, af);
-            _addConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], ep, vf, af);
-            MediaConversion audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
-            if (inputFileStreams.Count(s => s.StreamType == StreamType.AUDIO) >= 2 && !audiChannelMappingConversion.OutputFormat.Equals(TAudioChannelMapping.Unknown)) 
-            {
-                foreach (StreamInfo stream in inputFileStreams.Where(s => s.StreamType == StreamType.AUDIO))
-                    for (int i = 0; i < stream.ChannelCount; i++)
-                        ep.AppendFormat(" -map_channel 0.{0}.{1}", stream.Index, i);
-            }
-            _addConversion(audiChannelMappingConversion, ep, vf, af);
-            if (AudioVolume != 0)
-                _addConversion(new MediaConversion(AudioVolume), ep, vf, af);
-            VideoFormatDescription outputFormatDescription = VideoFormatDescription.Descriptions[OutputFormat];
-            VideoFormatDescription inputFormatDescription = SourceMedia.VideoFormatDescription;
-            if (outputFormatDescription.ImageSize != inputFormatDescription.ImageSize)
-                vf.Add(string.Format("scale={0}:{1}", outputFormatDescription.ImageSize.Width, outputFormatDescription.ImageSize.Height));
-            if (outputFormatDescription.Interlaced)
-            {
-                vf.Add("fieldorder=tff");
-                ep.Append(" -flags +ildct+ilme");
-            }
+            StringBuilder ep;
+            if (((IngestDirectory)SourceMedia.Directory).DoNotEncode)
+                ep = new StringBuilder("-c:v copy -c:a copy");
             else
             {
-                vf.Add("w3fdif");
+                ep = new StringBuilder(((IngestDirectory)SourceMedia.Directory).EncodeParams);
+                if (inputMedia.HasExtraLines)
+                {
+                    vf.Add("crop=720:576:0:32");
+                    vf.Add("setdar=dar=16/9");
+                }
+                if (inputFileStreams.Count(s => s.StreamType == StreamType.AUDIO) > 8)
+                    af.Add("aformat=channel_layouts=0xFFFF");
+                _addConversion(MediaConversion.AspectConversions[AspectConversion], ep, vf, af);
+                _addConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], ep, vf, af);
+                MediaConversion audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
+                if (inputFileStreams.Count(s => s.StreamType == StreamType.AUDIO) >= 2 && !audiChannelMappingConversion.OutputFormat.Equals(TAudioChannelMapping.Unknown))
+                {
+                    foreach (StreamInfo stream in inputFileStreams.Where(s => s.StreamType == StreamType.AUDIO))
+                        for (int i = 0; i < stream.ChannelCount; i++)
+                            ep.AppendFormat(" -map_channel 0.{0}.{1}", stream.Index, i);
+                }
+                _addConversion(audiChannelMappingConversion, ep, vf, af);
+                if (AudioVolume != 0)
+                    _addConversion(new MediaConversion(AudioVolume), ep, vf, af);
+                VideoFormatDescription outputFormatDescription = VideoFormatDescription.Descriptions[OutputFormat];
+                VideoFormatDescription inputFormatDescription = SourceMedia.VideoFormatDescription;
+                if (outputFormatDescription.ImageSize != inputFormatDescription.ImageSize)
+                    vf.Add(string.Format("scale={0}:{1}", outputFormatDescription.ImageSize.Width, outputFormatDescription.ImageSize.Height));
+                if (outputFormatDescription.Interlaced)
+                {
+                    vf.Add("fieldorder=tff");
+                    ep.Append(" -flags +ildct+ilme");
+                }
+                else
+                {
+                    vf.Add("w3fdif");
+                }
+                if (vf.Any())
+                    ep.AppendFormat(" -filter:v \"{0}\"", string.Join(",", vf));
+                if (af.Any())
+                    ep.AppendFormat(" -filter:a \"{0}\"", string.Join(",", af));
             }
-            if (vf.Any())
-                ep.AppendFormat(" -filter:v \"{0}\"", string.Join(",", vf));
-            if (af.Any())
-                ep.AppendFormat(" -filter:a \"{0}\"", string.Join(",", af));
             return ep.ToString();
         }
 
