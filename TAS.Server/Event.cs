@@ -135,8 +135,17 @@ namespace TAS.Server
         public long Position // in frames
         {
             get { return _position; }
-            set { SetField(ref _position, value, "Position"); }
+            set { if (_position != value)
+                {
+                    _position = value;
+                    var h = PositionChanged;
+                    if (h != null)
+                        h(this, new EventPositionEventArgs(value, _duration - TimeSpan.FromTicks(Engine.FrameTicks * value)));
+                }
+            }
         }
+
+        public event EventHandler<EventPositionEventArgs> PositionChanged;
 
         public bool Finished { get { return _position >= LengthInFrames; } }
 
@@ -296,7 +305,7 @@ namespace TAS.Server
                         return default(DateTime);
                 }
                 // playstate playing, fading
-                return Engine.CurrentTime + TimeLeft;
+                return Engine.CurrentTime + _duration - TimeSpan.FromTicks(Engine.FrameTicks * _position);
             }
         }
 
@@ -369,14 +378,6 @@ namespace TAS.Server
             get 
             {
                 return _enabled ? _duration + _scheduledDelay : TimeSpan.Zero; 
-            }
-        }
-
-        public TimeSpan TimeLeft
-        {
-            get
-            {
-                return _duration - TimeSpan.FromTicks(Engine.FrameTicks * _position);
             }
         }
 
@@ -766,7 +767,11 @@ namespace TAS.Server
             }
             protected set {
                 if (SetField(ref _next, value as Event, "Next"))
+                {
                     _nextLoaded = true;
+                    if (value != null)
+                        Loop = false;
+                }
             }
         }
 

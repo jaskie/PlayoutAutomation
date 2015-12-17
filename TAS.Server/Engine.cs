@@ -653,7 +653,8 @@ namespace TAS.Server
             if (aEvent == null)
                 return false;
             Debug.WriteLine(aEvent, "LoadNext");
-            aEvent.PlayState = TPlayState.Scheduled;
+            if (aEvent.PlayState == TPlayState.Scheduled || aEvent.PlayState == TPlayState.Played || aEvent.PlayState == TPlayState.Aborted)
+                aEvent.PlayState = TPlayState.Scheduled;
             if (aEvent.EventType != TEventType.Rundown)
             {
                 if (PlayoutChannelPGM != null)
@@ -850,8 +851,7 @@ namespace TAS.Server
                 {
                     var le = _loadedNextEvents[aEvent.Layer];
                     if (aEvent.EventType != TEventType.Live
-                        && (le == null
-                        || (le.ScheduledTime.Ticks - CurrentTicks >= _frameTicks)))
+                        && (le == null || (le.ScheduledTime.Ticks - CurrentTicks >= _frameTicks)))
                     {
                         Debug.WriteLine(aEvent, "Stop");
                         if (PlayoutChannelPGM != null)
@@ -1041,7 +1041,7 @@ namespace TAS.Server
 
                     foreach (IEvent ev in runningEvents)
                     {
-                        IEvent succ = ev.GetSuccessor();
+                        IEvent succ = ev.Loop ? ev : ev.GetSuccessor();
 
                         _triggerGPIGraphics(ev as Event, false);
                         _triggerGPIGraphics(succ as Event, false);
@@ -1061,8 +1061,9 @@ namespace TAS.Server
                                 }
                             }
                             if (succ != null
-                                && CurrentTicks >= succ.ScheduledTime.Ticks - _preloadTime.Ticks
-                                && !_runningEvents.Contains(succ))
+                                && ( CurrentTicks >= succ.ScheduledTime.Ticks - _preloadTime.Ticks && !_runningEvents.Contains(succ)
+                                    || (ev.Loop && CurrentTicks > ev.EndTime.Ticks - _preloadTime.Ticks ))
+                                )
                             {
                                 // second: preload next scheduled events
                                 Debug.WriteLine(succ, "Tick: LoadNext Running");
@@ -1073,8 +1074,7 @@ namespace TAS.Server
 
                         // third: start 
                         if (!ev.Hold
-                            && CurrentTicks >= ev.ScheduledTime.Ticks
-                            && ev.PlayState == TPlayState.Scheduled)
+                            && (CurrentTicks >= ev.ScheduledTime.Ticks && ev.PlayState == TPlayState.Scheduled))
                         {
                             if (CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks)
                             {

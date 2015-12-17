@@ -66,6 +66,7 @@
     <Compile Include="EngineTickEventArgs.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="EventGPI.cs" />
+    <Compile Include="EventPositionEventArgs.cs" />
     <Compile Include="FileOperationEventArgs.cs" />
     <Compile Include="FileUtils.cs" />
     <Compile Include="Interfaces\IAnimationDirectory.cs" />

@@ -226,7 +226,14 @@ namespace TAS.Server
             List<string> af = new List<string>();
             StringBuilder ep;
             if (((IngestDirectory)SourceMedia.Directory).DoNotEncode)
+            {
                 ep = new StringBuilder("-c:v copy -c:a copy");
+                if (AspectConversion == TAspectConversion.Force16_9)
+                    ep.Append(" -aspect 16/9");
+                else
+                if (AspectConversion == TAspectConversion.Force4_3)
+                    ep.Append(" -aspect 4/3");
+            }
             else
             {
                 ep = new StringBuilder(((IngestDirectory)SourceMedia.Directory).EncodeParams);

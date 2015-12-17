@@ -67,10 +67,12 @@ namespace TAS.Client.ViewModels
             _event.Deleted += _eventDeleted;
             _event.SubEventChanged += _onSubeventChanged;
             _event.Relocated += _onRelocated;
+            _event.PositionChanged += _eventPositionChanged;
             Media = aEvent.Media;
             _engine = _event.Engine;
             _createCommands();
         }
+
 #if DEBUG
         ~EventPanelViewmodel ()
         {
@@ -94,6 +96,7 @@ namespace TAS.Client.ViewModels
                 _event.Deleted -= _eventDeleted;
                 _event.SubEventChanged -= _onSubeventChanged;
                 _event.Relocated -= _onRelocated;
+                _event.PositionChanged -= _eventPositionChanged;
                 Media = null; // unregister media propertychanged event
             }
             Debug.WriteLine(this, "EventPanelViewmodel Disposed");
@@ -235,67 +238,67 @@ namespace TAS.Client.ViewModels
 
         private void _onPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "Position")
-                NotifyPropertyChanged("TimeLeft");
-            else
+            if (e.PropertyName == "Duration"
+                || e.PropertyName == "Enabled"
+                || e.PropertyName == "Hold"
+                || e.PropertyName == "EventName")
+                NotifyPropertyChanged(e.PropertyName);
+            if (e.PropertyName == "ScheduledTC" || e.PropertyName == "Duration")
             {
-                if (e.PropertyName == "Duration"
-                    || e.PropertyName == "Enabled"
-                    || e.PropertyName == "Hold"
-                    || e.PropertyName == "EventName")
-                    NotifyPropertyChanged(e.PropertyName);
-                if (e.PropertyName == "ScheduledTC" || e.PropertyName == "Duration")
-                {
-                    NotifyPropertyChanged("Enabled");
-                    NotifyPropertyChanged("EndTime");
-                    NotifyPropertyChanged("MediaErrorInfo");
-                }
-                if (e.PropertyName == "PlayState")
-                {
-                    NotifyPropertyChanged(e.PropertyName);
-                    NotifyPropertyChanged("ScheduledTime");
-                    NotifyPropertyChanged("EndTime");
-                    NotifyPropertyChanged("IsPlaying");
-                }
-                if (e.PropertyName == "ScheduledTime")
-                {
-                    NotifyPropertyChanged(e.PropertyName);
-                    NotifyPropertyChanged("EndTime");
-                    NotifyPropertyChanged("Offset");
-                }
-                if (e.PropertyName == "StartType")
-                    NotifyPropertyChanged("IsStartEvent");
-                if (e.PropertyName == "RequestedStartTime")
-                {
-                    NotifyPropertyChanged("Offset");
-                    NotifyPropertyChanged("OffsetVisible");
-                }
-                if (e.PropertyName == "Media")
-                {
-                    Media = _event.Media;
-                    NotifyPropertyChanged("MediaFileName");
-                    NotifyPropertyChanged("MediaCategory");
-                    NotifyPropertyChanged("MediaEmphasis");
-                    NotifyPropertyChanged("VideoFormat");
-                    NotifyPropertyChanged("MediaErrorInfo");
-                }
-                if (e.PropertyName == "GPI")
-                {
-                    NotifyPropertyChanged("GPICanTrigger");
-                    NotifyPropertyChanged("GPICrawl");
-                    NotifyPropertyChanged("GPILogo");
-                    NotifyPropertyChanged("GPIParental");
-                }
-                if (e.PropertyName == "Enabled")
-                    NotifyPropertyChanged("IsVisible");
-                EventPanelViewmodel parent = _parent;
-                if (e.PropertyName == "EventName" && parent != null)
-                {
-                    parent.NotifyPropertyChanged("Layer1SubItemMediaName");
-                    parent.NotifyPropertyChanged("Layer2SubItemMediaName");
-                    parent.NotifyPropertyChanged("Layer3SubItemMediaName");
-                }
+                NotifyPropertyChanged("Enabled");
+                NotifyPropertyChanged("EndTime");
+                NotifyPropertyChanged("MediaErrorInfo");
             }
+            if (e.PropertyName == "PlayState")
+            {
+                NotifyPropertyChanged(e.PropertyName);
+                NotifyPropertyChanged("ScheduledTime");
+                NotifyPropertyChanged("EndTime");
+                NotifyPropertyChanged("IsPlaying");
+            }
+            if (e.PropertyName == "ScheduledTime")
+            {
+                NotifyPropertyChanged(e.PropertyName);
+                NotifyPropertyChanged("EndTime");
+                NotifyPropertyChanged("Offset");
+            }
+            if (e.PropertyName == "StartType")
+                NotifyPropertyChanged("IsStartEvent");
+            if (e.PropertyName == "RequestedStartTime")
+            {
+                NotifyPropertyChanged("Offset");
+                NotifyPropertyChanged("OffsetVisible");
+            }
+            if (e.PropertyName == "Media")
+            {
+                Media = _event.Media;
+                NotifyPropertyChanged("MediaFileName");
+                NotifyPropertyChanged("MediaCategory");
+                NotifyPropertyChanged("MediaEmphasis");
+                NotifyPropertyChanged("VideoFormat");
+                NotifyPropertyChanged("MediaErrorInfo");
+            }
+            if (e.PropertyName == "GPI")
+            {
+                NotifyPropertyChanged("GPICanTrigger");
+                NotifyPropertyChanged("GPICrawl");
+                NotifyPropertyChanged("GPILogo");
+                NotifyPropertyChanged("GPIParental");
+            }
+            if (e.PropertyName == "Enabled")
+                NotifyPropertyChanged("IsVisible");
+            EventPanelViewmodel parent = _parent;
+            if (e.PropertyName == "EventName" && parent != null)
+            {
+                parent.NotifyPropertyChanged("Layer1SubItemMediaName");
+                parent.NotifyPropertyChanged("Layer2SubItemMediaName");
+                parent.NotifyPropertyChanged("Layer3SubItemMediaName");
+            }
+        }
+
+        private void _eventPositionChanged(object sender, EventPositionEventArgs e)
+        {
+            TimeLeft = (e.TimeToFinish == TimeSpan.Zero || _event.PlayState == TPlayState.Scheduled) ? string.Empty : e.TimeToFinish.ToSMPTETimecodeString(_frameRate);
         }
 
         private void _onSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
@@ -577,10 +580,13 @@ namespace TAS.Client.ViewModels
                 IMedia media = _event.ServerMediaPGM;
                 return (media == null) ? ((_event.EventType == TEventType.Movie || _event.EventType == TEventType.StillImage)? _event.MediaGuid.ToString() :string.Empty) : media.FileName; }
         }
-        
+
+
+        private string _timeLeft = string.Empty;
         public string TimeLeft
         {
-            get { return (_event == null || _event.Position == 0 || _event.TimeLeft == TimeSpan.Zero) ? string.Empty : _event.TimeLeft.ToSMPTETimecodeString(_frameRate); }
+            get { return _timeLeft; }
+            set { SetField(ref _timeLeft, value, "TimeLeft"); }
         }
 
         public string EndTime

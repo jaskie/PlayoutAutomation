@@ -18,7 +18,6 @@ namespace TAS.Server.Interfaces
         long SeekPGM { get; }
         bool Finished { get; }
         TimeSpan Length { get; }
-        TimeSpan TimeLeft { get; }
         DateTime EndTime { get; }
 
         IEvent Next { get; }
@@ -52,5 +51,6 @@ namespace TAS.Server.Interfaces
         event EventHandler Deleted;
         event EventHandler Relocated;
         event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
+        event EventHandler<EventPositionEventArgs> PositionChanged;
     }
 }

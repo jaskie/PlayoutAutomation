@@ -1161,17 +1161,16 @@ namespace TAS.Client.ViewModels
 
         private void _eventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName != "Position")
-                Application.Current.Dispatcher.BeginInvoke((Action)delegate()
-                {
-                        bool oldModified = _modified;
-                        PropertyInfo sourcePi = sender.GetType().GetProperty(e.PropertyName);
-                        PropertyInfo destPi = this.GetType().GetProperty(e.PropertyName);
-                        if (sourcePi != null && destPi != null
-                            && sourcePi.PropertyType.Equals(destPi.PropertyType))
-                            destPi.SetValue(this, sourcePi.GetValue(sender, null), null);
-                        _modified = oldModified;
-                });
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                bool oldModified = _modified;
+                PropertyInfo sourcePi = sender.GetType().GetProperty(e.PropertyName);
+                PropertyInfo destPi = this.GetType().GetProperty(e.PropertyName);
+                if (sourcePi != null && destPi != null
+                    && sourcePi.PropertyType.Equals(destPi.PropertyType))
+                    destPi.SetValue(this, sourcePi.GetValue(sender, null), null);
+                _modified = oldModified;
+            });
             if (e.PropertyName == "GPI")
             {
                 NotifyPropertyChanged("GPICanTrigger");
@@ -1184,18 +1183,19 @@ namespace TAS.Client.ViewModels
             {
                 NotifyPropertyChanged("IsEditEnabled");
                 NotifyPropertyChanged("IsMovieOrLive");
-                NotifyPropertyChanged("CommandAddAnimation");
-                NotifyPropertyChanged("CommandAddGraphics");
-                NotifyPropertyChanged("CommandAddNextEmptyMovie");
-                NotifyPropertyChanged("CommandAddNextLive");
-                NotifyPropertyChanged("CommandAddNextRundown");
-                NotifyPropertyChanged("CommandAddSubLive");
-                NotifyPropertyChanged("CommandAddSubMovie");
-                NotifyPropertyChanged("CommandAddSubRundown");
-                NotifyPropertyChanged("CommandRemoveSubItems");
-                NotifyPropertyChanged("CommandReschedule");
-                NotifyPropertyChanged("CommandToggleEnabled");
-                NotifyPropertyChanged("CommandToggleHold");
+                //NotifyPropertyChanged("CommandAddAnimation");
+                //NotifyPropertyChanged("CommandAddGraphics");
+                //NotifyPropertyChanged("CommandAddNextEmptyMovie");
+                //NotifyPropertyChanged("CommandAddNextLive");
+                //NotifyPropertyChanged("CommandAddNextRundown");
+                //NotifyPropertyChanged("CommandAddSubLive");
+                //NotifyPropertyChanged("CommandAddSubMovie");
+                //NotifyPropertyChanged("CommandAddSubRundown");
+                //NotifyPropertyChanged("CommandRemoveSubItems");
+                //NotifyPropertyChanged("CommandReschedule");
+                //NotifyPropertyChanged("CommandToggleEnabled");
+                //NotifyPropertyChanged("CommandToggleHold");
+                InvalidateRequerySuggested();
             }
             if (e.PropertyName == "Next" || e.PropertyName == "Prior")
             {
@@ -1207,6 +1207,15 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("AudioVolumeLevel");
                 NotifyPropertyChanged("HasAudioVolume");
                 NotifyPropertyChanged("AudioVolume");
+            }
+            if (e.PropertyName == "Loop")
+            {
+                InvalidateRequerySuggested();
+            }
+            if (e.PropertyName == "Next")
+            {
+                Loop = false;
+                NotifyPropertyChanged("CanLoop");
             }
         }
 
