@@ -22,14 +22,9 @@ namespace TAS.Server.Interfaces
         VideoFormatDescription FormatDescription { get; }
         TVideoFormat VideoFormat { get; }
 
-        void IngestMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false);
-        void IngestMediaToArchive(IIngestMedia media, bool toTop = false);
-        void IngestMediaToArchive(IArchiveMedia media, bool toTop = false);
-        void IngestMediaToArchive(IEnumerable<IIngestMedia> mediaList, bool ToTop = false);
-        void Queue(IFileOperation operation, bool toTop = false);
-        void ArchiveMedia(IMedia media, bool deleteAfter);
+        void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false);
+        void ArchiveMedia(IEnumerable<IMedia> mediaList, bool deleteAfter);
         void Export(IEnumerable<MediaExport> exportList, IIngestDirectory directory);
-        void Export(MediaExport export, IIngestDirectory directory);
         IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList);
 
         void ReloadIngestDirs();

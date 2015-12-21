@@ -193,81 +193,25 @@ namespace TAS.Server
             }
         }
 
-        internal void IngestMediaToPlayout(IMedia media, bool toTop = false)
+        public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool toTop)
         {
-            if (media != null)
+            foreach (IMedia sourceMedia in mediaList)
             {
-                if (media is ServerMedia)
+                if (sourceMedia is ArchiveMedia)
                 {
-                    if (media.MediaStatus == TMediaStatus.Deleted || media.MediaStatus == TMediaStatus.Required || media.MediaStatus == TMediaStatus.CopyError)
+                    IServerDirectory destDir = MediaDirectoryPGM != null && MediaDirectoryPGM.DirectoryExists() ? MediaDirectoryPGM :
+                                               MediaDirectoryPRV != null && MediaDirectoryPRV.DirectoryExists() ? MediaDirectoryPRV :
+                                               null;
+                    if (destDir != null)
                     {
-                        if (ArchiveDirectory != null)
-                        {
-                            IArchiveMedia fromArchive = ArchiveDirectory.Find(media);
-                            if (fromArchive != null)
-                            {
-                                ArchiveDirectory.ArchiveRestore(fromArchive, media as ServerMedia, toTop);
-                                return;
-                            }
-                        }
-                        //IngestMedia im = FindIngestMedia(media);
-                        //if (im != null)
-                        //    ((IngestDirectory)im.Directory).IngestGet((IngestMedia)im, (ServerMedia)media, toTop);
+                        IMedia destMedia = destDir.GetServerMedia(sourceMedia, true);
+                        if (!destMedia.FileExists())
+                            _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = sourceMedia, DestMedia = destMedia }, toTop);
                     }
-                    return;
-                }
-                IServerMedia sm = null;
-                if (MediaDirectoryPGM != null)
-                    sm = MediaDirectoryPGM.GetServerMedia(media, true);
-                if (sm != null
-                    && (sm.MediaStatus == TMediaStatus.Deleted || sm.MediaStatus == TMediaStatus.Required || sm.MediaStatus == TMediaStatus.CopyError))
-                {
-                    if (media is ArchiveMedia)
-                    {
-                        ArchiveDirectory.ArchiveRestore((ArchiveMedia)media, sm, toTop);
-                        return;
-                    }
-                    //if (media is IngestMedia)
-                    //    ((IngestDirectory)media.Directory).IngestGet((IngestMedia)media, sm, toTop);
                 }
             }
         }
-
-        public void IngestMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false)
-        {
-            foreach (IMedia m in mediaList)
-                IngestMediaToPlayout(m, ToTop);
-        }
-
-        public void IngestMediaToArchive(IIngestMedia media, bool toTop = false)
-        {
-            if (media == null)
-                return;
-            if (ArchiveDirectory != null)
-            {
-                IArchiveMedia destMedia;
-                destMedia = ArchiveDirectory.GetArchiveMedia(media);
-                if (!destMedia.FileExists())
-                    _fileManager.Queue(new ConvertOperation { SourceMedia = media, DestMedia = destMedia, OutputFormat = _engine.VideoFormat }, toTop);
-            }
-        }
-
-        public void IngestMediaToArchive(IArchiveMedia media, bool toTop = false)
-        {
-            if (media == null || ArchiveDirectory == null)
-                return;
-            Media sourceMedia = ((ArchiveMedia)media).OriginalMedia as Media;
-            if (sourceMedia == null || !(sourceMedia is IIngestMedia))
-                return;
-            if (!media.FileExists() && sourceMedia.FileExists())
-                _fileManager.Queue(new ConvertOperation { SourceMedia = sourceMedia, DestMedia = media, OutputFormat = _engine.VideoFormat }, toTop);
-        }
-
-        public void IngestMediaToArchive(IEnumerable<IIngestMedia> mediaList, bool ToTop = false)
-        {
-            foreach (IIngestMedia m in mediaList)
-                IngestMediaToArchive(m);
-        }
+            
 
         private MediaDeleteDenyReason deleteMedia(IMedia media)
         {
@@ -291,34 +235,13 @@ namespace TAS.Server
                 m.GetLoudness();
         }
 
-        public void ArchiveMedia(IMedia media, bool deleteAfter)
+        public void ArchiveMedia(IEnumerable<IMedia> mediaList, bool deleteAfter)
         {
             if (ArchiveDirectory == null)
                 return;
-            if (media is ServerMedia)
-                ArchiveDirectory.ArchiveSave(media, _engine.VideoFormat, deleteAfter);
-            if (media is IngestMedia)
-                IngestMediaToArchive((IngestMedia)media, false);
-            if (media is ArchiveMedia)
-                IngestMediaToArchive((ArchiveMedia)media, false);
-        }
-
-        public void Queue(IFileOperation operation, bool toTop = false)
-        {
-            if (operation is FileOperation)
-                _fileManager.Queue((FileOperation)operation, toTop);
-            else
-                if (operation is IConvertOperation)
-            {
-                _fileManager.Queue(new ConvertOperation()
-                {
-                    SourceMedia = operation.SourceMedia,
-                    DestMedia = operation.DestMedia,
-
-                }, toTop);
-            }
-            else
-                throw new InvalidOperationException("Mediamanager.Queue invalid operation");
+            foreach (IMedia media in mediaList)
+                if (media is ServerMedia)
+                    ArchiveDirectory.ArchiveSave(media, _engine.VideoFormat, deleteAfter);
         }
 
         private ServerMedia _findComplementaryMedia(ServerMedia originalMedia)
@@ -415,7 +338,7 @@ namespace TAS.Server
 
         }
 
-        public void Export(MediaExport export, IIngestDirectory directory)
+        private void Export(MediaExport export, IIngestDirectory directory)
         {
             _fileManager.Queue(new XDCAM.ExportOperation() { SourceMedia = export.Media, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory as IngestDirectory });
         }
@@ -470,7 +393,7 @@ namespace TAS.Server
                       || media.MediaStatus == TMediaStatus.Copying
                       || media.MediaStatus == TMediaStatus.CopyPending
                       || media.MediaStatus == TMediaStatus.Copied))
-                    Queue(new FileOperation { Kind = TFileOperationKind.Copy, SourceMedia = pgmMedia, DestMedia = media });
+                    FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Copy, SourceMedia = pgmMedia, DestMedia = media }, false);
             }
         }
 
@@ -482,7 +405,7 @@ namespace TAS.Server
             {
                 IMedia mediaToDelete = ((MediaDirectory)MediaDirectoryPRV).FindMediaByMediaGuid(e.MediaGuid);
                 if (mediaToDelete != null && mediaToDelete.FileExists())
-                    Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = mediaToDelete });
+                    FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = mediaToDelete }, false);
             }
         }
 

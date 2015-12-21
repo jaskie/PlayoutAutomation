@@ -491,5 +491,14 @@ namespace TAS.Client.Common.Properties {
                 return ResourceManager.GetString("_validateStartPlayMustBeInsideFile", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ingest as....
+        /// </summary>
+        public static string _window_IngestAs {
+            get {
+                return ResourceManager.GetString("_window_IngestAs", resourceCulture);
+            }
+        }
     }
 }

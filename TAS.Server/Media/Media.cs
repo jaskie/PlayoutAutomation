@@ -455,7 +455,7 @@ namespace TAS.Server
 
         public void GetLoudness()
         {
-            _directory.MediaManager.Queue(new LoudnessOperation() { SourceMedia = this, MeasureStart = this.TcPlay - this.TcStart, MeasureDuration = this.DurationPlay });
+            _directory.MediaManager.FileManager.Queue(new LoudnessOperation() { SourceMedia = this, MeasureStart = this.TcPlay - this.TcStart, MeasureDuration = this.DurationPlay }, false);
         }
         
         public event PropertyChangedEventHandler PropertyChanged;

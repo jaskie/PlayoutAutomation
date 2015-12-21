@@ -11,19 +11,14 @@ namespace TAS.Client.Model
 {
     public class MediaManager : ProxyBase, IMediaManager
     {
-        public void ArchiveMedia(IMedia media, bool deleteAfter)
+        public void ArchiveMedia(IEnumerable<IMedia> mediaList, bool deleteAfter)
         {
-            Invoke(parameters: new object[] { media, deleteAfter });
+            Invoke(parameters: new object[] { mediaList, deleteAfter });
         }
 
         public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList)
         {
             return Query<List<MediaDeleteDenyReason>>(parameters: mediaList);
-        }
-
-        public void Export(MediaExport export, IIngestDirectory directory)
-        {
-            Invoke(parameters: new object[] { export, directory });
         }
 
         public void Export(IEnumerable<MediaExport> exportList, IIngestDirectory directory)
@@ -68,39 +63,11 @@ namespace TAS.Client.Model
 
         public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { Set(value); } }
 
-        public void IngestMediaToArchive(IEnumerable<IIngestMedia> mediaList, bool ToTop = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void IngestMediaToArchive(IArchiveMedia media, bool toTop = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void IngestMediaToArchive(IIngestMedia media, bool toTop = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void IngestMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false)
-        {
-            Invoke(parameters: new object[] { mediaList, ToTop });
-        }
-
-        public void IngestMediaToPlayout(IMedia media, bool toTop = false)
-        {
-            throw new NotImplementedException();
-        }
-
+        public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool toTop) { Invoke(parameters: new object[] { mediaList, toTop }); }
+        
         public void Initialize()
         {
             throw new NotImplementedException();
-        }
-
-        public void Queue(IFileOperation operation, bool toTop = false)
-        {
-            Invoke(parameters: new object[] { operation, toTop });
         }
 
         public void ReloadIngestDirs()

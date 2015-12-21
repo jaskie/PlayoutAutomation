@@ -267,4 +267,7 @@ Really start new one?</value>
   <data name="_validate_TransitionTimeInvalid" xml:space="preserve">
     <value>Transition time exceeds clip duration</value>
   </data>
+  <data name="_window_IngestAs" xml:space="preserve">
+    <value>Ingest as...</value>
+  </data>
 </root>

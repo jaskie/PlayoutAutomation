@@ -403,7 +403,7 @@ namespace TAS.Server
                 && ArchivePolicy == Engine.ArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
                 && MediaManager.ArchiveDirectory != null
                 && CanDeleteMedia(media).Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
-                ThreadPool.QueueUserWorkItem(o => MediaManager.ArchiveMedia(media, true));
+                ThreadPool.QueueUserWorkItem(o => MediaManager.ArchiveMedia(new IMedia[] { media }, true));
         }
 
         private void _onServerPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -698,13 +698,10 @@ namespace TAS.Server
                 }
                 _setAspectRatio(aEvent);
             }
-            _triggerGPIGraphics(aEvent as Event, true);
             aEvent.PlayState = TPlayState.Playing;
-
             foreach (Event e in aEvent.SubEvents.ToList())
                 if (e.ScheduledDelay.Ticks < _frameTicks)
                     _play(e, fromBeginning);
-
             aEvent.Save();
             if (_pst2Prv)
                 _loadPST();
@@ -1025,73 +1022,66 @@ namespace TAS.Server
             {
                 if (EngineState == TEngineState.Running)
                 {
-                    IEnumerable<IEvent> runningEvents = null;
-                    lock (_runningEvents.SyncRoot)
-                        runningEvents = _runningEvents.ToList();
-                    foreach (IEvent e in runningEvents.Where(e => e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading))
-                        e.Position += nFrames;
+                    foreach (IEvent e in _runningEvents)
+                        if (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading)
+                            e.Position += nFrames;
 
-                    if (runningEvents.Any(e => CurrentTicks >= e.ScheduledTime.Ticks
-                                                && e.PlayState == TPlayState.Scheduled
-                                                && e.Hold))
+                    Event playingEvent = _visibleEvents[VideoLayer.Program] as Event;
+                    if (playingEvent != null)
                     {
-                        EngineState = TEngineState.Hold;
-                        return;
-                    }
-
-                    foreach (IEvent ev in runningEvents)
-                    {
-                        IEvent succ = ev.Loop ? ev : ev.GetSuccessor();
-
-                        _triggerGPIGraphics(ev as Event, false);
-                        _triggerGPIGraphics(succ as Event, false);
-
-                        // first: check if some events should finish
-                        if (ev.PlayState == TPlayState.Playing || ev.PlayState == TPlayState.Fading)
+                        Event succEvent = playingEvent.GetSuccessor() as Event;
+                        if (succEvent != null)
                         {
-                            if (ev.Finished)
-                                _stop(ev);
-                            if (succ != null
-                                && ev.Position * _frameTicks >= (ev.Length.Ticks + succ.ScheduledDelay.Ticks - succ.TransitionTime.Ticks))
+                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
                             {
-                                if (ev.PlayState == TPlayState.Playing)
+                                if (playingEvent.PlayState == TPlayState.Playing)
                                 {
-                                    ev.PlayState = TPlayState.Fading;
-                                    Debug.WriteLine(ev, "Tick: Fading");
+                                    playingEvent.PlayState = TPlayState.Fading;
+                                    Debug.WriteLine(playingEvent, "Tick: Fading");
                                 }
                             }
-                            if (succ != null
-                                && ( CurrentTicks >= succ.ScheduledTime.Ticks - _preloadTime.Ticks && !_runningEvents.Contains(succ)
-                                    || (ev.Loop && CurrentTicks > ev.EndTime.Ticks - _preloadTime.Ticks ))
-                                )
+                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks  
+                                && !_runningEvents.Contains(succEvent))
                             {
                                 // second: preload next scheduled events
-                                Debug.WriteLine(succ, "Tick: LoadNext Running");
-                                succ.Position = 0;
-                                _loadNext(succ);
+                                Debug.WriteLine(succEvent, "Tick: LoadNext Running");
+                                succEvent.Position = 0;
+                                _loadNext(succEvent);
+                            }
+                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
+                            {
+                                if (!succEvent.Hold && succEvent.PlayState == TPlayState.Scheduled)
+                                {
+                                    Debug.WriteLine(succEvent, string.Format("Tick: Play current time: {0} scheduled time: {1}", CurrentTime, succEvent.ScheduledTime));
+                                    _play(succEvent, true);
+                                }
+                                if (succEvent.Hold)
+                                    EngineState = TEngineState.Hold;
+                            }
+                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
+                            {
+
                             }
                         }
+                    }
 
-                        // third: start 
-                        if (!ev.Hold
-                            && (CurrentTicks >= ev.ScheduledTime.Ticks && ev.PlayState == TPlayState.Scheduled))
+                    IEnumerable<IEvent> runningEvents = null;
+                    lock (_runningEvents.SyncRoot)
+                        runningEvents = _runningEvents.Where(e => e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading).ToList();
+                    foreach (IEvent e in runningEvents)
+                        if (e.Finished)
+                            _stop(e);
+                    
+                    lock (_runningEvents.SyncRoot)
+                    {
+                        if (!_runningEvents.Any(e => !e.Finished))
                         {
-                            if (CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks)
-                            {
-                                Debug.WriteLine(ev, string.Format("Tick: Play current time: {0} scheduled time: {1}", CurrentTime, ev.ScheduledTime + ev.ScheduledDelay));
-                                _play(ev, true);
-                            }
+                            EngineState = TEngineState.Idle;
+                            return;
                         }
-
-                        lock (_runningEvents.SyncRoot)
-                            if (!_runningEvents.Any(e => !e.Finished))
-                            {
-                                EngineState = TEngineState.Idle;
-                                return;
-                            }
                     }
                 }
-                
+
                 // preview controls
                 if (PreviewIsPlaying)
                 {
@@ -1109,30 +1099,11 @@ namespace TAS.Server
             }
         }
 
-        private void _triggerGPIGraphics(Event ev, bool ignoreScheduledTime) // aspect is triggered on _play
+        private void _triggerGPIGraphics(IGpi gpi, Event ev)
         {
-            if (!this.GPIEnabled
-                || ev == null
-                || !ev.GPI.CanTrigger)
-                return;
-            if (_gpi != null
-                && !ev.GPITrigerred
-                && (ignoreScheduledTime ||( !ev.Hold && CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks + _gpi.GraphicsStartDelay * 10000L )))
-            {
-                ev.GPITrigerred = true;
-                _gpi.Crawl = (int)ev.GPI.Crawl;
-                _gpi.Logo = (int)ev.GPI.Logo;
-                _gpi.Parental = (int)ev.GPI.Parental;
-            }
-            if (LocalGpi != null
-                && !ev.LocalGPITriggered
-                && (ignoreScheduledTime || ( !ev.Hold && CurrentTicks >= ev.ScheduledTime.Ticks + ev.ScheduledDelay.Ticks )))
-            {
-                ev.LocalGPITriggered = true;
-                LocalGpi.Crawl = (int)ev.GPI.Crawl;
-                LocalGpi.Logo = (int)ev.GPI.Logo;
-                LocalGpi.Parental = (int)ev.GPI.Parental;
-            }
+            gpi.Crawl = (int)ev.GPI.Crawl;
+            gpi.Logo = (int)ev.GPI.Logo;
+            gpi.Parental = (int)ev.GPI.Parental;
         }
         
         public MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia)

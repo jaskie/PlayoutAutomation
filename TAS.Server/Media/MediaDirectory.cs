@@ -102,6 +102,11 @@ namespace TAS.Server
             }
         }
 
+        public bool DirectoryExists()
+        {
+            return Directory.Exists(Folder);
+        }
+
         private UInt64 _volumeFreeSize = 0;
         
         [XmlIgnore]

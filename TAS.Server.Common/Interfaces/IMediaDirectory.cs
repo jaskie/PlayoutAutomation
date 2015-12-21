@@ -12,6 +12,7 @@ namespace TAS.Server.Interfaces
     public interface IMediaDirectory : IMediaDirectoryConfig, IDto, INotifyPropertyChanged, IDisposable
     {
         bool FileExists(string filename, string subfolder = null);
+        bool DirectoryExists();
         TDirectoryAccessType AccessType { get; }
         System.Net.NetworkCredential NetworkCredential { get; }
         bool IsInitialized { get; }

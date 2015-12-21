@@ -54,23 +54,21 @@ namespace TAS.Server
             if (operation.Kind == TFileOperationKind.Convert)
             {
                 lock (_queueConvertOperation.SyncRoot)
-                    if (!_queueConvertOperation.Any(fe => fe.Equals(operation)))
+                {
+                    if (toTop)
+                        _queueConvertOperation.Insert(0, operation);
+                    else
+                        _queueConvertOperation.Add(operation);
+                    if (!_isRunningConvertOperation)
                     {
-                        if (toTop)
-                            _queueConvertOperation.Insert(0, operation);
-                        else
-                            _queueConvertOperation.Add(operation);
-                        if (!_isRunningConvertOperation)
-                        {
-                            _isRunningConvertOperation = true;
-                            ThreadPool.QueueUserWorkItem(o => _runOperation(_queueConvertOperation, ref _isRunningConvertOperation));
-                        }
+                        _isRunningConvertOperation = true;
+                        ThreadPool.QueueUserWorkItem(o => _runOperation(_queueConvertOperation, ref _isRunningConvertOperation));
                     }
+                }
             }
             if (operation.Kind == TFileOperationKind.Export)
             {
                 lock (_queueExportOperation.SyncRoot)
-                    if (!_queueExportOperation.Any(fe => fe.Equals(operation)))
                     {
                         if (toTop)
                             _queueExportOperation.Insert(0, operation);
@@ -89,7 +87,6 @@ namespace TAS.Server
                 || operation.Kind == TFileOperationKind.Move)
             {
                 lock (_queueSimpleOperation.SyncRoot)
-                    if (!_queueSimpleOperation.Any(fe => fe.Equals(operation)))
                     {
                         if (toTop)
                             _queueSimpleOperation.Insert(0, operation);

@@ -267,4 +267,7 @@ Jeśli jego poprzednia kopia nie odpowiada i chcesz uruchomić nową, naciśnij 
   <data name="_validate_TransitionTimeInvalid" xml:space="preserve">
     <value>Czas przejścia jest dłuższy, niż czas trwania.</value>
   </data>
+  <data name="_window_IngestAs" xml:space="preserve">
+    <value>Zaingestuj jako...</value>
+  </data>
 </root>

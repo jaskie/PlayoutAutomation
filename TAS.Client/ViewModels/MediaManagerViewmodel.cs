@@ -259,7 +259,7 @@ namespace TAS.Client.ViewModels
                         if (ievm.ShowDialog() == true)
                         {
                             foreach (IConvertOperation operation in ingestList)
-                                _mediaManager.Queue(operation);
+                                _mediaManager.FileManager.Queue(operation, false);
                         }
                         else
                             foreach (IConvertOperation operation in ingestList)
@@ -287,7 +287,7 @@ namespace TAS.Client.ViewModels
             if (_mediaDirectory is IIngestDirectory)
                 _ingestSelectionToDir(_mediaManager.MediaDirectoryPGM);
             else
-                _mediaManager.IngestMediaToPlayout(_getSelections(), true);
+                _mediaManager.CopyMediaToPlayout(_getSelections(), true);
         }
 
         private void _search(object o)
@@ -338,23 +338,12 @@ namespace TAS.Client.ViewModels
 
         private void _moveSelectedToArchive(object o)
         {
-            if (_mediaManager.ArchiveDirectory != null && _mediaDirectory is IServerDirectory)
-            {
-                    foreach (IMedia m in _getSelections())
-                        _mediaManager.ArchiveMedia(m, true);
-            }
+            _mediaManager.ArchiveMedia(_getSelections(), true);
         }
 
         private void _copySelectedToArchive(object o)
         {
-            if (_mediaManager.ArchiveDirectory != null)
-            {
-                if (_mediaDirectory is IIngestDirectory)
-                    _ingestSelectionToDir(_mediaManager.ArchiveDirectory);
-                else
-                    foreach (IMedia m in _getSelections())
-                        _mediaManager.ArchiveMedia(m, false);
-            }
+            _mediaManager.ArchiveMedia(_getSelections(), false);
         }
 
         private bool _filter(object item)

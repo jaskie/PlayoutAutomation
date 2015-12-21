@@ -30,15 +30,19 @@ namespace TAS.Common
         { }
     }
 
+    [Flags]
     public enum VideoLayer : sbyte
     {
         None = -1,
         Program = 0,
-        CG1 = 1,
-        CG2 = 2,
-        CG3 = 3,
+        CG1 = Program | 1,
+        CG2 = Program | 2,
+        CG3 = Program | 3,
         Preset = 9,
-        Preview = 10
+        Preview = 10,
+        PreviewCG1 = Preview | CG1,
+        PreviewCG2 = Preview | CG2,
+        PreviewCG3 = Preview | CG3,
     }
     public enum TEngineOperation { Start, Play, Pause, Stop, Clear, Load, Schedule }
     public enum TEngineState { NotInitialized, Idle, Running, Hold }

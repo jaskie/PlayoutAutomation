@@ -7,13 +7,14 @@ using System.Windows;
 using System.ComponentModel;
 using TAS.Server.Interfaces;
 using TAS.Client.Common;
+using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
     class IngestEditViewmodel : OkCancelViewmodelBase<IList<IConvertOperation>>
     {
         private readonly ObservableCollection<ConvertOperationViewModel> _conversionList;
-        public IngestEditViewmodel(IList<IConvertOperation> convertionList): base(convertionList, new IngestEditorView(), "Ingest as")
+        public IngestEditViewmodel(IList<IConvertOperation> convertionList): base(convertionList, new IngestEditorView(), resources._window_IngestAs)
         {
             _conversionList = new ObservableCollection<ConvertOperationViewModel>(from op in convertionList select new ConvertOperationViewModel(op));
             SelectedOperation = _conversionList.FirstOrDefault();

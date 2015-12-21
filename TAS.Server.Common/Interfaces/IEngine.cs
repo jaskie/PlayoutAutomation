@@ -25,8 +25,6 @@ namespace TAS.Server.Interfaces
 
         RationalNumber FrameRate { get; }
         SynchronizedCollection<IEvent> RootEvents { get; }
-        ICollection<IEvent> VisibleEvents { get; }
-        ICollection<IEvent> LoadedNextEvents { get; }
 
         void AddEvent(IEvent ev);
         void RemoveEvent(IEvent aEvent);

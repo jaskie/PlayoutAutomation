@@ -265,29 +265,6 @@ namespace TAS.Server
             }
         }
 
-        public virtual int CompareTo(object obj)
-        {
-            if (obj == null || !(obj is FileOperation)) return 1;
-            FileOperation co = obj as FileOperation;
-            int ret = Kind.CompareTo(co.Kind);
-            if (ret != 0)
-                return ret;
-            if (SourceMedia != null && co.SourceMedia != null)
-            {
-                ret = SourceMedia.FullPath.CompareTo(co.SourceMedia.FullPath);
-                if (ret != 0)
-                    return ret;
-                if (DestMedia != null && co.DestMedia != null)
-                    return DestMedia.FullPath.CompareTo(co.DestMedia.FullPath);
-            }
-            return -1;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return CompareTo(obj) == 0;
-        }
-
         protected bool SetField<T>(ref T field, T value, string propertyName)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
