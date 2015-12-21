@@ -76,6 +76,7 @@ namespace TAS.Common
             : base(typeof(TAspectConversion), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
+
     [TypeConverter(typeof(TxDCAMAudioExportFormatEnumConverter))]
     public enum TxDCAMAudioExportFormat: byte
     {

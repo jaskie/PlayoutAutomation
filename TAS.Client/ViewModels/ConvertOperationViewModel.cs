@@ -21,6 +21,7 @@ namespace TAS.Client.ViewModels
             _convertOperation = operation;
             operation.SourceMedia.PropertyChanged += OnSourceMediaPropertyChanged;
             operation.DestMedia.PropertyChanged += OnDestMediaPropertyChanged;
+            Array.Copy(_aspectConversions, _aspectConversionsEnforce, 3);
         }
 
         protected override void OnDispose()
@@ -48,6 +49,9 @@ namespace TAS.Client.ViewModels
 
         static readonly Array _aspectConversions = Enum.GetValues(typeof(TAspectConversion));
         public Array AspectConversions { get { return _aspectConversions; } }
+        readonly Array _aspectConversionsEnforce = new TAspectConversion[3];
+        public Array AspectConversionsEnforce { get { return _aspectConversionsEnforce; } }
+
         public TAspectConversion AspectConversion
         {
             get { return _convertOperation.AspectConversion; }
@@ -74,6 +78,8 @@ namespace TAS.Client.ViewModels
             get { return _convertOperation.SourceFieldOrderEnforceConversion; }
             set { _convertOperation.SourceFieldOrderEnforceConversion = value; }
         }
+    
+        public bool DoNotEncode { get { return ((IIngestDirectory)_convertOperation.SourceMedia.Directory).DoNotEncode; } }
 
         public string SourceFileName { get { return string.Format("{0}:{1}", _convertOperation.SourceMedia.Directory.DirectoryName, _convertOperation.SourceMedia.FileName); } }
 

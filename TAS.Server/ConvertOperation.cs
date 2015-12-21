@@ -236,7 +236,7 @@ namespace TAS.Server
             }
             else
             {
-                ep = new StringBuilder(((IngestDirectory)SourceMedia.Directory).EncodeParams);
+                ep = new StringBuilder(((IngestDirectory)SourceMedia.Directory).EncodeParams).Append(" -ar 48000");
                 if (inputMedia.HasExtraLines)
                 {
                     vf.Add("crop=720:576:0:32");
@@ -260,6 +260,7 @@ namespace TAS.Server
                 VideoFormatDescription inputFormatDescription = SourceMedia.VideoFormatDescription;
                 if (outputFormatDescription.ImageSize != inputFormatDescription.ImageSize)
                     vf.Add(string.Format("scale={0}:{1}", outputFormatDescription.ImageSize.Width, outputFormatDescription.ImageSize.Height));
+                vf.Add(string.Format("fps=fps={0}", outputFormatDescription.FrameRate));
                 if (outputFormatDescription.Interlaced)
                 {
                     vf.Add("fieldorder=tff");
@@ -286,11 +287,10 @@ namespace TAS.Server
             DestMedia.MediaStatus = TMediaStatus.Copying;
             CheckInputFile(inputMedia);
             string encodeParams = _encodeParameters(inputMedia);
-            string Params = string.Format("-i \"{0}\" -vsync cfr {1} -ar 48000 -timecode {2} -r {3} -y \"{4}\"",
+            string Params = string.Format("-i \"{0}\" -vsync cfr {1} -timecode {2} -y \"{3}\"",
                     inputMedia.FullPath,
                     encodeParams,
                     DestMedia.TcStart.ToSMPTETimecodeString(formatDescription.FrameRate),
-                    formatDescription.FrameRate,
                     DestMedia.FullPath);
 
             if (DestMedia is ArchiveMedia && !Directory.Exists(Path.GetDirectoryName(DestMedia.FullPath)))

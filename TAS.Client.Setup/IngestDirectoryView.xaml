@@ -61,6 +61,10 @@
                     <TextBox Text="{Binding AudioVolume}"/>
                 </DockPanel>
             </StackPanel>
+            <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource BoolToVis}}">
+                <Label Content="Default aspect"/>
+                <ComboBox ItemsSource="{Binding AspectConversionsEnforce}" SelectedItem="{Binding AspectConversion}"/>
+            </StackPanel>
             <Label Content="Default media category"/>
             <ComboBox ItemsSource="{Binding MediaCategories}" SelectedItem="{Binding MediaCategory}"/>
             <CheckBox Content="On slow link (WAN connection)" IsChecked="{Binding IsWAN}"/>

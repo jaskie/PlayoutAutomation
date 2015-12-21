@@ -7,30 +7,26 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.Setup
 {
-    [XmlType("IngestDirectory")]
     public class IngestDirectoryViewmodel: EditViewmodelBase<IngestDirectory>, IIngestDirectoryConfig
     {
         // only required by serializer
         public IngestDirectoryViewmodel(IngestDirectory model):base(model, new IngestDirectoryView())
         {
-
+            Array.Copy(_aspectConversions, _aspectConversionsEnforce, 3);
         }
         
         #region Enumerations
         Array _aspectConversions = Enum.GetValues(typeof(TAspectConversion));
-        [XmlIgnore]
         public Array AspectConversions { get { return _aspectConversions; } }
+        Array _aspectConversionsEnforce = new TAspectConversion[3];
+        public Array AspectConversionsEnforce { get { return _aspectConversionsEnforce; } }
         Array _mediaCategories = Enum.GetValues(typeof(TMediaCategory));
-        [XmlIgnore]
         public Array MediaCategories { get { return _mediaCategories; } }
         Array _sourceFieldOrders = Enum.GetValues(typeof(TFieldOrder));
-        [XmlIgnore]
         public Array SourceFieldOrders { get { return _sourceFieldOrders; } }
         Array _xDCAMAudioExportFormats = Enum.GetValues(typeof(TxDCAMAudioExportFormat));
-        [XmlIgnore]
         public Array XDCAMAudioExportFormats { get { return _xDCAMAudioExportFormats; } }
         Array _xDCAMVideoExportFormats = Enum.GetValues(typeof(TxDCAMVideoExportFormat));
-        [XmlIgnore]
         public Array XDCAMVideoExportFormats { get { return _xDCAMVideoExportFormats; } }
         #endregion // Enumerations
 

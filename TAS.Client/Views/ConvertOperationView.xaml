@@ -38,16 +38,22 @@
         </ComboBox>
         <Label Content="{Resx _parental}" />
         <ComboBox ItemsSource="{Binding Parentals}" SelectedValue="{Binding DestParental}"  />
-        <Label Content="{Resx _aspectCorrection}" />
-        <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}" />
-        <Label Content="{Resx _fieldOrder}" />
-        <ComboBox ItemsSource="{Binding SourceFieldOrderEnforceConversions}"  SelectedItem="{Binding SourceFieldOrderEnforceConversion}" />
-        <Label Content="{Resx _audioChannelMix}" />
-        <ComboBox ItemsSource="{Binding AudioChannelMappingConversions}" SelectedItem="{Binding AudioChannelMappingConversion}" />
-        <Label Content="{Resx _audioLevelCorrection}" />            
-        <DockPanel>
-            <TextBox Margin="4" MinWidth="45" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
-            <Slider Margin="2" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
-        </DockPanel>
+        <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource InvertedBoolToVis}}">
+            <Label Content="{Resx _aspectCorrection}" />
+            <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}" />
+            <Label Content="{Resx _fieldOrder}" />
+            <ComboBox ItemsSource="{Binding SourceFieldOrderEnforceConversions}"  SelectedItem="{Binding SourceFieldOrderEnforceConversion}" />
+            <Label Content="{Resx _audioChannelMix}" />
+            <ComboBox ItemsSource="{Binding AudioChannelMappingConversions}" SelectedItem="{Binding AudioChannelMappingConversion}" />
+            <Label Content="{Resx _audioLevelCorrection}" />
+            <DockPanel>
+                <TextBox Margin="4" MinWidth="45" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
+                <Slider Margin="2" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
+            </DockPanel>
+        </StackPanel>
+        <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource BoolToVis}}">
+            <Label Content="{Resx _aspectCorrection}" />
+            <ComboBox ItemsSource="{Binding AspectConversionsEnforce}" SelectedItem="{Binding AspectConversion}" />
+        </StackPanel>
     </StackPanel>
 </UserControl>
