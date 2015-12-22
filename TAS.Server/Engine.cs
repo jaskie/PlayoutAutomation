@@ -646,10 +646,10 @@ namespace TAS.Server
             return true;
         }
 
-        private bool _loadNext(IEvent aEvent)
+        private bool _loadNext(Event aEvent)
         {
             if (aEvent != null && (!aEvent.Enabled || aEvent.Length == TimeSpan.Zero))
-                aEvent = aEvent.GetSuccessor();
+                aEvent = aEvent.GetSuccessor() as Event;
             if (aEvent == null)
                 return false;
             Debug.WriteLine(aEvent, "LoadNext");
@@ -662,6 +662,16 @@ namespace TAS.Server
                 if (PlayoutChannelPRV != null)
                     PlayoutChannelPRV.LoadNext(aEvent);
                 _loadedNextEvents[aEvent.Layer] = aEvent;
+                if (_gpi != null
+                    && GPIEnabled
+                    && _gpi.GraphicsStartDelay < 0)
+                {
+                    ThreadPool.QueueUserWorkItem(o =>
+                    {
+                        Thread.Sleep(_preloadTime + TimeSpan.FromMilliseconds(_gpi.GraphicsStartDelay));
+                        _setGPIGraphics(_gpi, aEvent);
+                    });
+                }
             }
             _run(aEvent);
             foreach (Event e in aEvent.SubEvents.ToList())
@@ -670,10 +680,10 @@ namespace TAS.Server
             return true;
         }
 
-        private bool _play(IEvent aEvent, bool fromBeginning)
+        private bool _play(Event aEvent, bool fromBeginning)
         {
             if (aEvent != null && (!aEvent.Enabled || aEvent.Length == TimeSpan.Zero))
-                aEvent = aEvent.GetSuccessor();
+                aEvent = aEvent.GetSuccessor() as Event;
             if (aEvent == null)
                 return false;
             Debug.WriteLine("Play {1}: {0}", aEvent, CurrentTime.TimeOfDay);
@@ -697,6 +707,21 @@ namespace TAS.Server
                     ProgramAudioVolume = volumeDB;
                 }
                 _setAspectRatio(aEvent);
+                if (LocalGpi != null && GPIEnabled)
+                    _setGPIGraphics(LocalGpi, aEvent);
+                if (_gpi != null && GPIEnabled)
+                {
+                    if (_gpi.GraphicsStartDelay == 0)
+                        _setGPIGraphics(_gpi, aEvent);
+                    if (_gpi.GraphicsStartDelay > 0)
+                    {
+                        ThreadPool.QueueUserWorkItem(o =>
+                        {
+                            Thread.Sleep(_gpi.GraphicsStartDelay);
+                            _setGPIGraphics(_gpi, aEvent);
+                        });
+                    }
+                }
             }
             aEvent.PlayState = TPlayState.Playing;
             foreach (Event e in aEvent.SubEvents.ToList())
@@ -808,7 +833,7 @@ namespace TAS.Server
                         e.PlayState = TPlayState.Aborted;
                 }
 
-                _play(aEvent, true);
+                _play(aEvent as Event, true);
                 foreach (Event e in oldEvents)
                     if (_visibleEvents[e.Layer] == null)
                         Clear(e.Layer);
@@ -1050,17 +1075,16 @@ namespace TAS.Server
                             }
                             if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
                             {
-                                if (!succEvent.Hold && succEvent.PlayState == TPlayState.Scheduled)
+                                if (succEvent.PlayState == TPlayState.Scheduled)
                                 {
-                                    Debug.WriteLine(succEvent, string.Format("Tick: Play current time: {0} scheduled time: {1}", CurrentTime, succEvent.ScheduledTime));
-                                    _play(succEvent, true);
+                                    if (succEvent.Hold)
+                                        EngineState = TEngineState.Hold;
+                                    else
+                                    {
+                                        Debug.WriteLine(succEvent, string.Format("Tick: Play current time: {0} scheduled time: {1}", CurrentTime, succEvent.ScheduledTime));
+                                        _play(succEvent, true);
+                                    }
                                 }
-                                if (succEvent.Hold)
-                                    EngineState = TEngineState.Hold;
-                            }
-                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
-                            {
-
                             }
                         }
                     }
@@ -1099,11 +1123,14 @@ namespace TAS.Server
             }
         }
 
-        private void _triggerGPIGraphics(IGpi gpi, Event ev)
+        private void _setGPIGraphics(IGpi gpi, Event ev)
         {
-            gpi.Crawl = (int)ev.GPI.Crawl;
-            gpi.Logo = (int)ev.GPI.Logo;
-            gpi.Parental = (int)ev.GPI.Parental;
+            if (ev.GPI.CanTrigger)
+            {
+                gpi.Crawl = (int)ev.GPI.Crawl;
+                gpi.Logo = (int)ev.GPI.Logo;
+                gpi.Parental = (int)ev.GPI.Parental;
+            }
         }
         
         public MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia)
@@ -1140,10 +1167,11 @@ namespace TAS.Server
                 lock (_tickLock)
                 {
                     TPlayState ps = ((Event)sender).PlayState;
-                    if (ps == TPlayState.Playing || ps == TPlayState.Paused)
+                    if ((ps == TPlayState.Playing || ps == TPlayState.Paused)
+                        && e.Item.PlayState == TPlayState.Scheduled)
                     {
                         e.Item.Position = ((Event)sender).Position;
-                        _play(e.Item, false);
+                        _play(e.Item as Event, false);
                     }
                 }
             }

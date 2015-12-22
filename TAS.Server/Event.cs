@@ -98,9 +98,6 @@ namespace TAS.Server
             return newEvent;
         }
 
-        internal bool GPITrigerred;
-        internal bool LocalGPITriggered;
-
         internal TPlayState _playState = TPlayState.Scheduled;
         public TPlayState PlayState
         {
@@ -122,8 +119,6 @@ namespace TAS.Server
                                 StartTime = default(DateTime);
                                 StartTc = ScheduledTc;
                                 Position = 0;
-                                GPITrigerred = false;
-                                LocalGPITriggered = false;
                                 UpdateScheduledTime(false);
                             }
                         }
