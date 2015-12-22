@@ -38,7 +38,7 @@
             <Label Content="Connection string"/>
             <DockPanel>
                 <Button DockPanel.Dock="Right" MaxHeight="31" VerticalAlignment="Top" Height="{Binding ElementName=edConnectionString, Path=ActualHeight}" Command="{Binding CommandEditConnectionString}" ToolTip="Edit...">
-                    <Image Source="/TAS.Client.Common;component/Images/Edit.png"/>
+                    <Image Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
                 </Button>
                 <TextBox x:Name="edConnectionString" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding tasConnectionString}" IsReadOnly="True"/>
             </DockPanel>

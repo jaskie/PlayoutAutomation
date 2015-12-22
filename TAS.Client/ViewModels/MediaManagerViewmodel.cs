@@ -56,7 +56,7 @@ namespace TAS.Client.ViewModels
             if (serverDirectoryPGM != null)
                 _mediaDirectories.Insert(0, serverDirectoryPGM);
             IServerDirectory serverDirectoryPRV = mediaManager.MediaDirectoryPRV;
-            if (serverDirectoryPRV.DtoGuid!= serverDirectoryPGM.DtoGuid)
+            if (serverDirectoryPRV != null && serverDirectoryPRV.DtoGuid!= serverDirectoryPGM.DtoGuid)
                 _mediaDirectories.Insert(1, serverDirectoryPRV);
 
             _mediaCategory = _mediaCategories.FirstOrDefault();
