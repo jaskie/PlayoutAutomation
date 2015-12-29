@@ -195,21 +195,16 @@ namespace TAS.Server
             }
         }
 
-        public List<IEvent> VisualRootTrack
+        public IEnumerable<IEvent> GetVisualRootTrack()
         {
-            get
+            IEvent pe = this;
+            while (pe != null)
             {
-                List<IEvent> rt = new List<IEvent>();
-                IEvent pe = this;
-                while (pe != null)
-                {
-                    rt.Insert(0, pe);
-                    pe = pe.VisualParent;
-                }
-                return rt;
+                yield return pe;
+                pe = pe.VisualParent;
             }
         }
-        
+
         public IEvent VisualParent
         {
             get

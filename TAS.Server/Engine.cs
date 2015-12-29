@@ -1054,7 +1054,9 @@ namespace TAS.Server
                     Event playingEvent = _visibleEvents[VideoLayer.Program] as Event;
                     if (playingEvent != null)
                     {
-                        Event succEvent = playingEvent.GetSuccessor() as Event;
+                        Event succEvent = playingEvent.Loop ? playingEvent : playingEvent.GetSuccessor() as Event;
+                        if (succEvent == null)
+                            succEvent = playingEvent.GetVisualRootTrack().FirstOrDefault(e => e.Loop) as Event;
                         if (succEvent != null)
                         {
                             if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
@@ -1070,7 +1072,6 @@ namespace TAS.Server
                             {
                                 // second: preload next scheduled events
                                 Debug.WriteLine(succEvent, "Tick: LoadNext Running");
-                                succEvent.Position = 0;
                                 _loadNext(succEvent);
                             }
                             if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)

@@ -24,7 +24,6 @@ namespace TAS.Server.Interfaces
         IEvent Prior { get; }
         IEvent Parent { get; }
         IEvent VisualParent { get; }
-        List<IEvent> VisualRootTrack { get; }
 
         SynchronizedCollection<IEvent> SubEvents { get; }
         void InsertAfter(IEvent e);
@@ -41,6 +40,7 @@ namespace TAS.Server.Interfaces
         bool IsDeleted { get; }
         MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media);
         IEvent GetSuccessor();
+        IEnumerable<IEvent> GetVisualRootTrack();
         bool IsContainedIn(IEvent parent);
         bool IsBefore(IEvent aEvent);
         decimal GetAudioVolume();
