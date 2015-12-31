@@ -8,11 +8,11 @@ namespace TAS.Server.Interfaces
     {
         decimal? AudioVolume { get; set; }
         TimeSpan Duration { get; set; }
-        bool Enabled { get; set; }
+        bool IsEnabled { get; set; }
         string EventName { get; set; }
         TEventType EventType { get; set; }
-        bool Hold { get; set; }
-        bool Loop { get; set; }
+        bool IsHold { get; set; }
+        bool IsLoop { get; set; }
         string IdAux { get; set; }
         ulong idProgramme { get; set; }
         VideoLayer Layer { get; set; }

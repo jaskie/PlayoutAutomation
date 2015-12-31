@@ -159,7 +159,7 @@
                 </DockPanel>
                 <StackPanel Visibility="{Binding IsNotContainer, Converter={StaticResource BoolToVis}}">
                     <DockPanel>
-                        <CheckBox Content="{Resx _starting}" IsChecked="{Binding Enabled}" HorizontalContentAlignment="Right" VerticalAlignment="Center" ToolTip="{Resx _starting.ToolTip}" />
+                        <CheckBox Content="{Resx _starting}" IsChecked="{Binding IsEnabled}" HorizontalContentAlignment="Right" VerticalAlignment="Center" ToolTip="{Resx _starting.ToolTip}" />
                         <TextBox Text="{Binding StartType}" IsEnabled="False" />
                     </DockPanel>
                     <DockPanel>
@@ -168,8 +168,8 @@
                     </DockPanel>
                     <DockPanel>
                         <Label/>
-                        <CheckBox Content="{Resx _hold}" IsChecked="{Binding Hold}" IsEnabled="{Binding CanHold}" ToolTip="{Resx _hold.ToolTip}"  Margin="1,3"/>
-                        <CheckBox Content="{Resx _loop}" IsChecked="{Binding Loop}" IsEnabled="{Binding CanLoop}"/>
+                        <CheckBox Content="{Resx _hold}" IsChecked="{Binding IsHold}" IsEnabled="{Binding CanHold}" ToolTip="{Resx _hold.ToolTip}"  Margin="1,3"/>
+                        <CheckBox Content="{Resx _loop}" IsChecked="{Binding IsLoop}" IsEnabled="{Binding CanLoop}"/>
                     </DockPanel>
                     <DockPanel>
                         <Label Content="{Resx _scheduledTime}" />

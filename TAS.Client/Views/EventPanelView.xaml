@@ -48,8 +48,8 @@
             <Border Background="#FFEBBDA0" Height="15" Visibility="{Binding IsStartEvent,  Converter={StaticResource BoolToVis}}">
                 <TextBlock Text="{Resx _blockBegin}" FontSize="10" Margin="50, 0" />
             </Border>
-            <StackPanel Opacity="{Binding Enabled, Converter={StaticResource EnabledToOpacity}}" >
-            <Border Background="OrangeRed" Height="6" Visibility="{Binding Hold,  Converter={StaticResource BoolToVis}}" />
+            <StackPanel Opacity="{Binding IsEnabled, Converter={StaticResource EnabledToOpacity}}" >
+            <Border Background="OrangeRed" Height="6" Visibility="{Binding IsHold,  Converter={StaticResource BoolToVis}}" />
                 <Grid Height="59" Background="{Binding IsPlaying, Converter={StaticResource BoolToBrush}, ConverterParameter=#4040FF00}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="33" />
@@ -187,7 +187,8 @@
                         <TextBlock Text="{Binding ScheduledTime}" FontWeight="SemiBold" />
                         <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" FontWeight="SemiBold" Foreground="DarkGreen" Visibility="{Binding OffsetVisible, Converter={StaticResource BoolToVis}}" />
                         <TextBlock Text="{Binding Duration}" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding EndTime}"  FontWeight="Bold" />
+                        <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}"  FontWeight="Bold" />
+                        <Image Source="/TAS.Client.Common;component/Images/Indicators/loop.png" Stretch="None" Visibility="{Binding IsLoop, Converter={StaticResource BoolToVis}}" />
                     </StackPanel>
                     <TextBlock Grid.Column="5" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0">
                         <TextBlock.ToolTip>

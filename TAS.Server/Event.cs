@@ -65,10 +65,10 @@ namespace TAS.Server
         {
             Event newEvent = new Event(Engine);
             newEvent.Duration = this.Duration;
-            newEvent.Enabled = this.Enabled;
+            newEvent.IsEnabled = this.IsEnabled;
             newEvent.EventName = this.EventName;
             newEvent.EventType = this.EventType;
-            newEvent.Hold = this.Hold;
+            newEvent.IsHold = this.IsHold;
             newEvent.IdAux = this.IdAux;
             newEvent.idProgramme = this.idProgramme;
             newEvent.Layer = this.Layer;
@@ -142,7 +142,7 @@ namespace TAS.Server
 
         public event EventHandler<EventPositionEventArgs> PositionChanged;
 
-        public bool Finished { get { return _position >= LengthInFrames; } }
+        public bool IsFinished { get { return _position >= LengthInFrames; } }
 
         internal UInt64 idEventBinding
         {
@@ -367,20 +367,20 @@ namespace TAS.Server
         {
             get 
             {
-                return _enabled ? _duration + _scheduledDelay : TimeSpan.Zero; 
+                return _isEnabled ? _duration + _scheduledDelay : TimeSpan.Zero; 
             }
         }
 
-        internal bool _enabled = true;
-        public bool Enabled
+        internal bool _isEnabled = true;
+        public bool IsEnabled
         {
             get
             {
-                return _enabled;
+                return _isEnabled;
             }
             set
             {
-                if (SetField(ref _enabled, value, "Enabled"))
+                if (SetField(ref _isEnabled, value, "IsEnabled"))
                 {
                     DurationChanged();
                     if (Next != null)
@@ -389,20 +389,20 @@ namespace TAS.Server
             }
         }
 
-        internal bool _hold;
-        public bool Hold
+        internal bool _isHold;
+        public bool IsHold
         {
             get
             {
                 //Event parent = Parent;
                 //return (parent == null) ? _hold : parent.Hold;
-                return _hold;
+                return _isHold;
             }
-            set { SetField(ref _hold, value, "Hold"); }
+            set { SetField(ref _isHold, value, "IsHold"); }
         }
 
-        internal bool _loop;
-        public bool Loop { get { return _loop; } set { SetField(ref _loop, value, "Loop"); } }
+        internal bool _isLoop;
+        public bool IsLoop { get { return _isLoop; } set { SetField(ref _isLoop, value, "IsLoop"); } }
 
         internal DateTime _startTime;
         public DateTime StartTime 
@@ -475,7 +475,7 @@ namespace TAS.Server
                             len += n.Length.Ticks;
                             n = n.Next;
                             if (n != null) // first item's transition time doesn't count
-                                len -= n.Enabled ? n.TransitionTime.Ticks : 0;
+                                len -= n.IsEnabled ? n.TransitionTime.Ticks : 0;
                         }
                         if (len > maxlen)
                             maxlen = len;
@@ -555,7 +555,7 @@ namespace TAS.Server
         {
             get
             {
-                if (_hold)
+                if (_isHold)
                     return TimeSpan.Zero;
                 Event parent = _parent;
                 if (_eventType == TEventType.StillImage && parent != null && _scheduledDelay == TimeSpan.Zero)
@@ -760,7 +760,7 @@ namespace TAS.Server
                 {
                     _nextLoaded = true;
                     if (value != null)
-                        Loop = false;
+                        IsLoop = false;
                 }
             }
         }
@@ -825,7 +825,7 @@ namespace TAS.Server
 
                     eventToInsert.StartType = _startType;
                     if (prior == null)
-                        eventToInsert.Hold = false;
+                        eventToInsert.IsHold = false;
 
                     if (parent != null)
                     {
@@ -875,7 +875,7 @@ namespace TAS.Server
                     else
                         subEventToAdd.StartType = TStartType.With;
                     subEventToAdd.Parent = this;
-                    subEventToAdd.Hold = false;
+                    subEventToAdd.IsHold = false;
                     SubEvents.Add(subEventToAdd);
                     NotifySubEventChanged(subEventToAdd, TCollectionOperation.Insert);
                     Duration = ComputedDuration();
@@ -1061,7 +1061,7 @@ namespace TAS.Server
         /// <returns></returns> 
         public Nullable<TimeSpan> GetAttentionTime()
         {
-            if (_hold || _eventType == TEventType.Live)
+            if (_isHold || _eventType == TEventType.Live)
                 return TimeSpan.Zero;
             if (_eventType == TEventType.Movie)
             {

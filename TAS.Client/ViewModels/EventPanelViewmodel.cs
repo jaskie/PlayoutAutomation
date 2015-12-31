@@ -108,19 +108,19 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o =>
                 {
-                    _event.Enabled = false;
+                    _event.IsEnabled = false;
                     _event.Save();
                 },
-                CanExecuteDelegate = o => _event.EventType == TEventType.Container && _event.Enabled == true
+                CanExecuteDelegate = o => _event.EventType == TEventType.Container && _event.IsEnabled == true
             };
             CommandShow = new UICommand()
             {
                 ExecuteDelegate = o =>
                     {
-                        _event.Enabled = true;
+                        _event.IsEnabled = true;
                         _event.Save();
                     },
-                CanExecuteDelegate = o => _event.EventType == TEventType.Container && _event.Enabled == false
+                CanExecuteDelegate = o => _event.EventType == TEventType.Container && _event.IsEnabled == false
             };
         }
 
@@ -239,13 +239,14 @@ namespace TAS.Client.ViewModels
         private void _onPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Duration"
-                || e.PropertyName == "Enabled"
-                || e.PropertyName == "Hold"
-                || e.PropertyName == "EventName")
+                || e.PropertyName == "IsEnabled"
+                || e.PropertyName == "IsHold"
+                || e.PropertyName == "EventName"
+                || e.PropertyName == "IsLoop")
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == "ScheduledTC" || e.PropertyName == "Duration")
             {
-                NotifyPropertyChanged("Enabled");
+                NotifyPropertyChanged("IsEnabled");
                 NotifyPropertyChanged("EndTime");
                 NotifyPropertyChanged("MediaErrorInfo");
             }
@@ -285,7 +286,7 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("GPILogo");
                 NotifyPropertyChanged("GPIParental");
             }
-            if (e.PropertyName == "Enabled")
+            if (e.PropertyName == "IsEnabled")
                 NotifyPropertyChanged("IsVisible");
             EventPanelViewmodel parent = _parent;
             if (e.PropertyName == "EventName" && parent != null)
@@ -483,19 +484,24 @@ namespace TAS.Client.ViewModels
             get { return (_event == null) ? string.Empty: _event.Duration.ToSMPTETimecodeString(_frameRate); }
         }
 
-        public bool Enabled
+        public bool IsEnabled
         {
-            get { return (_event == null) ? true : (_event.Enabled && Event.Duration > TimeSpan.Zero) || _event.EventType == TEventType.Container; }
+            get { return (_event == null) ? true : (_event.IsEnabled && Event.Duration > TimeSpan.Zero) || _event.EventType == TEventType.Container; }
         }
 
         public bool IsVisible
         {
-            get { return (_event == null) ? true : _event.Enabled || _event.EventType != TEventType.Container; }
+            get { return (_event == null) ? true : _event.IsEnabled || _event.EventType != TEventType.Container; }
         }
 
-        public bool Hold
+        public bool IsHold
         {
-            get { return (_event == null) ? true : _event.Hold; }
+            get { return (_event == null) ? true : _event.IsHold; }
+        }
+
+        public bool IsLoop
+        {
+            get { return (_event == null) ? true : _event.IsLoop; }
         }
 
         public bool IsNotContainer { get { return (_event == null) ? false : _event.EventType != TEventType.Container; } }
@@ -912,7 +918,7 @@ namespace TAS.Client.ViewModels
                         v.SetOnTop();
                 }
                 else
-                    if (p.Enabled) // container can be disabled
+                    if (p.IsEnabled) // container can be disabled
                         p.SetOnTop();
         }
 
@@ -927,7 +933,7 @@ namespace TAS.Client.ViewModels
                         v.BringIntoView();
                 }
                 else
-                    if (p.Enabled) // container can be disabled
+                    if (p.IsEnabled) // container can be disabled
                         p._bringIntoView();
         }
     }

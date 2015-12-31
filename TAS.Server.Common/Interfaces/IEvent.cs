@@ -16,7 +16,7 @@ namespace TAS.Server.Interfaces
         IMedia Media { get; set; }
         IEngine Engine { get; }
         long SeekPGM { get; }
-        bool Finished { get; }
+        bool IsFinished { get; }
         TimeSpan Length { get; }
         DateTime EndTime { get; }
 

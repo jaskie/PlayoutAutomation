@@ -551,14 +551,14 @@ namespace TAS.Server
                 if (SetField(ref _engineState, value, "EngineState"))
                 {
                     if (value == TEngineState.Hold)
-                        foreach (Event ev in _runningEvents.Where(e => e.PlayState == TPlayState.Playing && e.Finished).ToList())
+                        foreach (Event ev in _runningEvents.Where(e => e.PlayState == TPlayState.Playing && e.IsFinished).ToList())
                         {
                             _pause(ev, true);
                             Debug.WriteLine(ev, "Hold: Played");
                         }
                     if (value == TEngineState.Idle && _runningEvents.Count>0)
                     {
-                        foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.Finished).ToList())
+                        foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished).ToList())
                             {
                                 _pause(ev, true);
                                 Debug.WriteLine(ev, "Idle: Played");
@@ -604,7 +604,7 @@ namespace TAS.Server
                 {
                     if (aEvent.PlayState == TPlayState.Aborted
                         || aEvent.PlayState == TPlayState.Played
-                        || !aEvent.Enabled)
+                        || !aEvent.IsEnabled)
                     {
                         aEvent.PlayState = TPlayState.Scheduled;
                         foreach (Event se in aEvent.SubEvents.ToList())
@@ -623,7 +623,7 @@ namespace TAS.Server
 
         private bool _load(IEvent aEvent)
         {
-            if (aEvent != null && (!aEvent.Enabled || aEvent.Length == TimeSpan.Zero))
+            if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
                 aEvent = aEvent.GetSuccessor();
             if (aEvent == null)
                 return false;
@@ -648,7 +648,7 @@ namespace TAS.Server
 
         private bool _loadNext(Event aEvent)
         {
-            if (aEvent != null && (!aEvent.Enabled || aEvent.Length == TimeSpan.Zero))
+            if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
                 aEvent = aEvent.GetSuccessor() as Event;
             if (aEvent == null)
                 return false;
@@ -682,7 +682,7 @@ namespace TAS.Server
 
         private bool _play(Event aEvent, bool fromBeginning)
         {
-            if (aEvent != null && (!aEvent.Enabled || aEvent.Length == TimeSpan.Zero))
+            if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
                 aEvent = aEvent.GetSuccessor() as Event;
             if (aEvent == null)
                 return false;
@@ -1054,9 +1054,9 @@ namespace TAS.Server
                     Event playingEvent = _visibleEvents[VideoLayer.Program] as Event;
                     if (playingEvent != null)
                     {
-                        Event succEvent = playingEvent.Loop ? playingEvent : playingEvent.GetSuccessor() as Event;
+                        Event succEvent = playingEvent.IsLoop ? playingEvent : playingEvent.GetSuccessor() as Event;
                         if (succEvent == null)
-                            succEvent = playingEvent.GetVisualRootTrack().FirstOrDefault(e => e.Loop) as Event;
+                            succEvent = playingEvent.GetVisualRootTrack().FirstOrDefault(e => e.IsLoop) as Event;
                         if (succEvent != null)
                         {
                             if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
@@ -1078,7 +1078,7 @@ namespace TAS.Server
                             {
                                 if (succEvent.PlayState == TPlayState.Scheduled)
                                 {
-                                    if (succEvent.Hold)
+                                    if (succEvent.IsHold)
                                         EngineState = TEngineState.Hold;
                                     else
                                     {
@@ -1094,12 +1094,12 @@ namespace TAS.Server
                     lock (_runningEvents.SyncRoot)
                         runningEvents = _runningEvents.Where(e => e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading).ToList();
                     foreach (IEvent e in runningEvents)
-                        if (e.Finished)
+                        if (e.IsFinished)
                             _stop(e);
                     
                     lock (_runningEvents.SyncRoot)
                     {
-                        if (!_runningEvents.Any(e => !e.Finished))
+                        if (!_runningEvents.Any(e => !e.IsFinished))
                         {
                             EngineState = TEngineState.Idle;
                             return;

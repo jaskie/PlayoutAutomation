@@ -678,7 +678,7 @@ namespace TAS.Client.ViewModels
             IEvent ev = Event;
             if (ev != null && ev.EventType != TEventType.Container)
             {
-                ev.Enabled = !ev.Enabled;
+                ev.IsEnabled = !ev.IsEnabled;
                 ev.Save();
             }
         }
@@ -688,7 +688,7 @@ namespace TAS.Client.ViewModels
             IEvent ev = Event;
             if (ev != null && ev.EventType != TEventType.Container)
             {
-                ev.Hold = !ev.Hold;
+                ev.IsHold = !ev.IsHold;
                 ev.Save();
             }
         }
@@ -713,7 +713,7 @@ namespace TAS.Client.ViewModels
             return ev != null
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Playing)
                 && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live)
-                && (!ev.Loop);
+                && (!ev.IsLoop);
         }
         
         bool _canAddSubMovie(object o)
@@ -880,7 +880,7 @@ namespace TAS.Client.ViewModels
         {
             get { 
                 var ev = _event;
-                return ev != null && !_hold && (ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie);
+                return ev != null && !_isHold && (ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie);
                 }
         }
 
@@ -895,20 +895,20 @@ namespace TAS.Client.ViewModels
         public bool CanHold { get { return _event != null && _event.Prior != null; } }
         public bool CanLoop { get { return _event != null && _event.GetSuccessor() == null; } }
 
-        private bool _enabled;
-        public bool Enabled
+        private bool _isEnabled;
+        public bool IsEnabled
         {
-            get { return _enabled; }
-            set { SetField(ref _enabled, value, "Enabled"); }
+            get { return _isEnabled; }
+            set { SetField(ref _isEnabled, value, "IsEnabled"); }
         }
 
-        private bool _hold;
-        public bool Hold
+        private bool _isHold;
+        public bool IsHold
         {
-            get { return _hold; }
+            get { return _isHold; }
             set
             {
-                if (SetField(ref _hold, value, "Hold"))
+                if (SetField(ref _isHold, value, "IsHold"))
                 {
                     if (value)
                         TransitionTime = TimeSpan.Zero;
@@ -917,11 +917,11 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private bool _loop;
-        public bool Loop
+        private bool _isLoop;
+        public bool IsLoop
         {
-            get { return _loop; }
-            set { SetField(ref _loop, value, "Loop"); }
+            get { return _isLoop; }
+            set { SetField(ref _isLoop, value, "IsLoop"); }
         }
 
         private TStartType _startType;
@@ -1208,13 +1208,13 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("HasAudioVolume");
                 NotifyPropertyChanged("AudioVolume");
             }
-            if (e.PropertyName == "Loop")
+            if (e.PropertyName == "IsLoop")
             {
                 InvalidateRequerySuggested();
             }
             if (e.PropertyName == "Next")
             {
-                Loop = false;
+                IsLoop = false;
                 NotifyPropertyChanged("CanLoop");
             }
         }
