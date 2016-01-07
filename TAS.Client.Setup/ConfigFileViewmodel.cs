@@ -63,7 +63,7 @@ namespace TAS.Client.Setup
 
         private void _testConnectivity(object obj)
         {
-            if (Database.TestConnect(tasConnectionString))
+            if (Database.TestConnect(tasConnectionString, tasConnectionStringSecondary))
                 MessageBox.Show(Window.GetWindow(View), "Connection successful", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
             else
                 MessageBox.Show(Window.GetWindow(View), "Connection failed", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -81,6 +81,8 @@ namespace TAS.Client.Setup
         public int Instance { get { return _instance; } set { SetField(ref _instance, value, "Instance"); } }
         string _tasConnectionString;
         public string tasConnectionString { get { return _tasConnectionString; } set { SetField(ref _tasConnectionString, value, "tasConnectionString"); } }
+        string _tasConnectionStringSecondary;
+        public string tasConnectionStringSecondary { get { return _tasConnectionStringSecondary; } set { SetField(ref _tasConnectionStringSecondary, value, "tasConnectionStringSecondary"); } }
 
         public string ExeDirectory { get { return Path.GetDirectoryName(Model.FileName); } }
 

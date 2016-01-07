@@ -173,7 +173,7 @@
                     </Button>
                     <Label DockPanel.Dock="Right" VerticalContentAlignment="Center" Content="dB" />
                     <TextBox DockPanel.Dock="Right" Margin="4" Width="40" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
-                    <Slider  Margin="2" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
+                    <Slider  Margin="2" Minimum="-18" Maximum="18" Value="{Binding AudioVolume}"/>
                 </DockPanel>
                 <!--<DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
                 <Label Style="{StaticResource fieldNameLabels}" Content="Usuń po" Target="{Binding ElementName=edKillDate}" />

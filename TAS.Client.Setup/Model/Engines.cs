@@ -8,15 +8,17 @@ namespace TAS.Client.Setup.Model
 {
     public class Engines
     {
-        readonly string _connectionString;
         readonly List<Engine> _engines;
         internal readonly List<CasparServer> Servers;
-        public Engines(string connectionString)
+        private readonly string _connectionStringPrimary;
+        private readonly string _connectionStringSecondary;
+        public Engines(string connectionStringPrimary, string connectionStringSecondary)
         {
-            this._connectionString = connectionString;
+            _connectionStringPrimary = connectionStringPrimary;
+            _connectionStringSecondary = connectionStringSecondary;
             try
             {
-                Database.Initialize(connectionString);
+                Database.Open(connectionStringPrimary, connectionStringSecondary);
                 _engines = Database.DbLoadEngines<Engine>();
                 Servers = Database.DbLoadServers<CasparServer>();
                 Servers.ForEach(s => s.Channels.ForEach(c => c.Owner = s));
@@ -29,7 +31,7 @@ namespace TAS.Client.Setup.Model
             }
             finally
             {
-                Database.Uninitialize();
+                Database.Close();
             }
         }
 
@@ -37,7 +39,7 @@ namespace TAS.Client.Setup.Model
         {
             try
             {
-                Database.Initialize(_connectionString);
+                Database.Open(_connectionStringPrimary, _connectionStringSecondary);
                 _engines.ForEach(e =>
                 {
                     if (e.Modified)
@@ -52,7 +54,7 @@ namespace TAS.Client.Setup.Model
             }
             finally
             {
-                Database.Uninitialize();
+                Database.Close();
             }
         }
 

@@ -25,13 +25,13 @@ namespace TAS.Client.Setup
         
         private void _enginesSetup(object obj)
         {
-            EnginesViewmodel vm = new EnginesViewmodel(_configFile.connectionStrings.tasConnectionString);
+            EnginesViewmodel vm = new EnginesViewmodel(_configFile.connectionStrings.tasConnectionString, _configFile.connectionStrings.tasConnectionStringSecondary);
             vm.ShowDialog();
         }
         
         private void _serversSetup(object obj)
         {
-            PlayoutServersViewmodel vm = new PlayoutServersViewmodel( _configFile.connectionStrings.tasConnectionString);
+            PlayoutServersViewmodel vm = new PlayoutServersViewmodel( _configFile.connectionStrings.tasConnectionString, _configFile.connectionStrings.tasConnectionStringSecondary);
             vm.ShowDialog();
         }
                 

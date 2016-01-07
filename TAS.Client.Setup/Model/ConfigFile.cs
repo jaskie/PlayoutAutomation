@@ -17,12 +17,18 @@ namespace TAS.Client.Setup.Model
             connectionStrings = new ConnectionStrings();
             PropertyInfo[] csl = connectionStrings.GetType().GetProperties();
             foreach (PropertyInfo cs in csl)
-                cs.SetValue(connectionStrings, _configuration.ConnectionStrings.ConnectionStrings[cs.Name].ConnectionString, null);
+            {
+                ConnectionStringSettings css = _configuration.ConnectionStrings.ConnectionStrings[cs.Name];
+                cs.SetValue(connectionStrings, css == null ? string.Empty : css.ConnectionString, null);
+            }
             appSettings = new AppSettings();
             PropertyInfo[] asl = appSettings.GetType().GetProperties();
             foreach (PropertyInfo setting in asl)
-                if (_configuration.AppSettings.Settings[setting.Name]!= null)
-                    setting.SetValue(appSettings,  Convert.ChangeType(_configuration.AppSettings.Settings[setting.Name].Value, setting.PropertyType), null);
+            {
+                var aps = _configuration.AppSettings.Settings[setting.Name];
+                if (aps != null)
+                    setting.SetValue(appSettings, Convert.ChangeType(_configuration.AppSettings.Settings[setting.Name].Value, setting.PropertyType), null);
+            }
         }
 
         public void Save()
@@ -42,6 +48,7 @@ namespace TAS.Client.Setup.Model
         public class ConnectionStrings
         {
             public string tasConnectionString { get; set; }
+            public string tasConnectionStringSecondary { get; set; }
         }
 
         public ConnectionStrings connectionStrings { get; set; }

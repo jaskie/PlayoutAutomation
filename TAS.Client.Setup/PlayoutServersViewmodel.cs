@@ -18,8 +18,8 @@ namespace TAS.Client.Setup
         {
             _playoutServers.CollectionChanged -= _playoutServers_CollectionChanged;
         }
-        public PlayoutServersViewmodel(string connectionString)
-            : base(new Model.PlayoutServers(connectionString), new PlayoutServersView(), "Playout servers")
+        public PlayoutServersViewmodel(string connectionString, string connectionStringSecondary)
+            : base(new Model.PlayoutServers(connectionString, connectionStringSecondary), new PlayoutServersView(), "Playout servers")
         {
             _commandAdd = new UICommand() { ExecuteDelegate = _add };
             _commandDelete = new UICommand() { ExecuteDelegate = o => _playoutServers.Remove(_selectedServer), CanExecuteDelegate = o => _selectedServer != null };

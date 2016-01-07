@@ -5,64 +5,23 @@ using System.Text;
 using System.IO;
 using System.Threading;
 using System.Data;
-using MySql.Data.MySqlClient;
 using System.Diagnostics;
 using TAS.Server.Interfaces;
 using TAS.Common;
 using System.Xml;
 using System.Xml.Serialization;
+using MySql.Data.MySqlClient;
 
 namespace TAS.Server.Common
 {
     public static class Database
     {
-        static MySqlConnection _connection;
-        static Timer _idleTimeTimer;
-        static bool _connect()
-        {
-            bool _connectionResult = _connection.State == ConnectionState.Open;
-            if (!_connectionResult)
-            {
-                _connection.Open();
-                _connectionResult = _connection.State == ConnectionState.Open;
-            }
-            Debug.WriteLineIf(!_connectionResult, _connection.State, "Not connected");
-            return _connectionResult;
-        }
-
-        public static void Initialize(string connectionString)
-        {
-            _connection = new MySqlConnection(connectionString);
-            _idleTimeTimer = new Timer(_idleTimeTimerCallback, null, TimeSpan.FromHours(1), TimeSpan.FromHours(1));
-            Debug.WriteLine(_connection, "Created");
-        }
-
-        internal static void Uninitialize()
-        {
-            lock (_connection)
-            {
-                _idleTimeTimer.Dispose();
-                _idleTimeTimer = null;
-                _connection.Close();
-                _connection.Dispose();
-                _connection = null;
-            }
-        }
-
-        private static void _idleTimeTimerCallback(object o)
-        {
-            lock (_connection)
-                if (!_connection.Ping())
-                {
-                    _connection.Close();
-                    _connect();
-                }
-        }
+        static DbConnectionRedundant _connection;
 
         #region Configuration Functions
-        public static bool TestConnect(string connectionString)
+        public static bool TestConnect(string connectionStringPrimary, string connectionStringSecondary)
         {
-            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            using (DbConnectionRedundant connection = new DbConnectionRedundant(connectionStringPrimary, connectionStringSecondary))
             {
                 try
                 {
@@ -72,6 +31,17 @@ namespace TAS.Server.Common
                 catch { }
             }
             return false;
+        }
+
+        public static void Open(string connectionStringPrimary, string connectionStringSecondary)
+        {
+            _connection = new DbConnectionRedundant(connectionStringPrimary, connectionStringSecondary);
+            _connection.Open();
+        }
+
+        public static void Close()
+        {
+            _connection.Close();
         }
 
         public static bool CreateEmptyDatabase(string connectionString, string collate)
@@ -110,63 +80,34 @@ namespace TAS.Server.Common
 
         #region IPlayoutServer
 
-        internal static List<T> DbLoadServers<T>() where T: IPlayoutServerConfig
+        internal static List<T> DbLoadServers<T>() where T : IPlayoutServerConfig
         {
             List<T> servers = new List<T>();
             lock (_connection)
             {
-                if (_connect())
+                DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM server;", _connection);
+                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                 {
-
-                    MySqlCommand cmd = new MySqlCommand("SELECT * FROM server;", _connection);
-                    using (MySqlDataReader dataReader = cmd.ExecuteReader())
+                    while (dataReader.Read())
                     {
-                        while (dataReader.Read())
-                        {
-                            StringReader reader = new StringReader(dataReader.GetString("Config"));
-                            XmlSerializer serializer = new XmlSerializer(typeof(T));
-                            T server = (T)serializer.Deserialize(reader);
-                            server.Id = dataReader.GetUInt64("idServer");
-                            servers.Add(server);
-                        }
-                        dataReader.Close();
+                        StringReader reader = new StringReader(dataReader.GetString("Config"));
+                        XmlSerializer serializer = new XmlSerializer(typeof(T));
+                        T server = (T)serializer.Deserialize(reader);
+                        server.Id = dataReader.GetUInt64("idServer");
+                        servers.Add(server);
                     }
+                    dataReader.Close();
                 }
             }
             return servers;
         }
 
-        internal static void DbInsertServer<T>(this T server) where T: IPlayoutServerConfig
+        internal static void DbInsertServer<T>(this T server) where T : IPlayoutServerConfig
         {
             lock (_connection)
             {
-                if (_connect())
                 {
-                    {
-                        MySqlCommand cmd = new MySqlCommand(@"INSERT INTO server set typServer=0, Config=@Config", _connection);
-                        XmlSerializer serializer = new XmlSerializer(typeof(T));
-                        using (var writer = new StringWriter())
-                        {
-                            serializer.Serialize(writer, server);
-                            cmd.Parameters.AddWithValue("@Config", writer.ToString());
-                        }
-                        cmd.ExecuteNonQuery();
-                        server.Id = (ulong)cmd.LastInsertedId;
-                    }
-                }
-            }
-
-        }
-
-        internal static void DbUpdateServer<T>(this T server) where T : IPlayoutServerConfig
-        {
-            lock (_connection)
-            {
-                if (_connect())
-                {
-
-                    MySqlCommand cmd = new MySqlCommand("UPDATE server SET Config=@Config WHERE idServer=@idServer;", _connection);
-                    cmd.Parameters.AddWithValue("@idServer", server.Id);
+                    DbCommandRedundant cmd = new DbCommandRedundant(@"INSERT INTO server set typServer=0, Config=@Config", _connection);
                     XmlSerializer serializer = new XmlSerializer(typeof(T));
                     using (var writer = new StringWriter())
                     {
@@ -174,8 +115,25 @@ namespace TAS.Server.Common
                         cmd.Parameters.AddWithValue("@Config", writer.ToString());
                     }
                     cmd.ExecuteNonQuery();
-
+                    server.Id = (ulong)cmd.LastInsertedId;
                 }
+            }
+        }
+
+        internal static void DbUpdateServer<T>(this T server) where T : IPlayoutServerConfig
+        {
+            lock (_connection)
+            {
+
+                DbCommandRedundant cmd = new DbCommandRedundant("UPDATE server SET Config=@Config WHERE idServer=@idServer;", _connection);
+                cmd.Parameters.AddWithValue("@idServer", server.Id);
+                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                using (var writer = new StringWriter())
+                {
+                    serializer.Serialize(writer, server);
+                    cmd.Parameters.AddWithValue("@Config", writer.ToString());
+                }
+                cmd.ExecuteNonQuery();
             }
         }
 
@@ -183,13 +141,9 @@ namespace TAS.Server.Common
         {
             lock (_connection)
             {
-                if (_connect())
-                {
-
-                    MySqlCommand cmd = new MySqlCommand("DELETE FROM server WHERE idServer=@idServer;", _connection);
-                    cmd.Parameters.AddWithValue("@idServer", server.Id);
-                    cmd.ExecuteNonQuery();
-                }
+                DbCommandRedundant cmd = new DbCommandRedundant("DELETE FROM server WHERE idServer=@idServer;", _connection);
+                cmd.Parameters.AddWithValue("@idServer", server.Id);
+                cmd.ExecuteNonQuery();
             }
         }
 
@@ -202,34 +156,31 @@ namespace TAS.Server.Common
             List<T> engines = new List<T>();
             lock (_connection)
             {
-                if (_connect())
+                DbCommandRedundant cmd;
+                if (instance == null)
+                    cmd = new DbCommandRedundant("SELECT * FROM engine;", _connection);
+                else
                 {
-                    MySqlCommand cmd;
-                    if (instance == null)
-                        cmd = new MySqlCommand("SELECT * FROM engine;", _connection);
-                    else
+                    cmd = new DbCommandRedundant("SELECT * FROM engine where Instance=@Instance;", _connection);
+                    cmd.Parameters.AddWithValue("@Instance", instance);
+                }
+                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
                     {
-                        cmd = new MySqlCommand("SELECT * FROM engine where Instance=@Instance;", _connection);
-                        cmd.Parameters.AddWithValue("@Instance", instance);
+                        StringReader reader = new StringReader(dataReader.GetString("Config"));
+                        XmlSerializer serializer = new XmlSerializer(typeof(T));
+                        T engine = (T)serializer.Deserialize(reader);
+                        engine.Id = dataReader.GetUInt64("idEngine");
+                        engine.IdServerPGM = dataReader.GetUInt64("idServerPGM");
+                        engine.ServerChannelPGM = dataReader.GetInt32("ServerChannelPGM");
+                        engine.IdServerPRV = dataReader.GetUInt64("idServerPRV");
+                        engine.ServerChannelPRV = dataReader.GetInt32("ServerChannelPRV");
+                        engine.IdArchive = dataReader.GetUInt64("IdArchive");
+                        engine.Instance = dataReader.GetUInt64("Instance");
+                        engines.Add(engine);
                     }
-                    using (MySqlDataReader dataReader = cmd.ExecuteReader())
-                    {
-                        while (dataReader.Read())
-                        {
-                            StringReader reader = new StringReader(dataReader.GetString("Config"));
-                            XmlSerializer serializer = new XmlSerializer(typeof(T));
-                            T engine = (T)serializer.Deserialize(reader);
-                            engine.Id = dataReader.GetUInt64("idEngine");
-                            engine.IdServerPGM = dataReader.GetUInt64("idServerPGM");
-                            engine.ServerChannelPGM = dataReader.GetInt32("ServerChannelPGM");
-                            engine.IdServerPRV = dataReader.GetUInt64("idServerPRV");
-                            engine.ServerChannelPRV = dataReader.GetInt32("ServerChannelPRV");
-                            engine.IdArchive = dataReader.GetUInt64("IdArchive");
-                            engine.Instance = dataReader.GetUInt64("Instance");
-                            engines.Add(engine);
-                        }
-                        dataReader.Close();
-                    }
+                    dataReader.Close();
                 }
             }
             return engines;
@@ -239,38 +190,8 @@ namespace TAS.Server.Common
         {
             lock (_connection)
             {
-                if (_connect())
                 {
-                    {
-                        MySqlCommand cmd = new MySqlCommand(@"INSERT INTO engine set Instance=@Instance, idServerPGM=@idServerPGM, ServerChannelPGM=@ServerChannelPGM, idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config;", _connection);
-                        cmd.Parameters.AddWithValue("@Instance", engine.Instance);
-                        cmd.Parameters.AddWithValue("@idServerPGM", engine.IdServerPGM);
-                        cmd.Parameters.AddWithValue("@ServerChannelPGM", engine.ServerChannelPGM);
-                        cmd.Parameters.AddWithValue("@idServerPRV", engine.IdServerPRV);
-                        cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.ServerChannelPRV);
-                        cmd.Parameters.AddWithValue("@IdArchive", engine.IdArchive);
-                        XmlSerializer serializer = new XmlSerializer(typeof(T));
-                        using (var writer = new StringWriter())
-                        {
-                            serializer.Serialize(writer, engine);
-                            cmd.Parameters.AddWithValue("@Config", writer.ToString());
-                        }
-                        cmd.ExecuteNonQuery();
-                        engine.Id = (ulong)cmd.LastInsertedId;
-                    }
-                }
-            }
-        }
-
-        internal static void DbUpdateEngine<T>(this T engine) where T : IEngineConfig
-        {
-            lock (_connection)
-            {
-                if (_connect())
-                {
-
-                    MySqlCommand cmd = new MySqlCommand(@"UPDATE engine set Instance=@Instance, idServerPGM=@idServerPGM, ServerChannelPGM=@ServerChannelPGM, idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config where idEngine=@idEngine", _connection);
-                    cmd.Parameters.AddWithValue("@idEngine", engine.Id);
+                    DbCommandRedundant cmd = new DbCommandRedundant(@"INSERT INTO engine set Instance=@Instance, idServerPGM=@idServerPGM, ServerChannelPGM=@ServerChannelPGM, idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config;", _connection);
                     cmd.Parameters.AddWithValue("@Instance", engine.Instance);
                     cmd.Parameters.AddWithValue("@idServerPGM", engine.IdServerPGM);
                     cmd.Parameters.AddWithValue("@ServerChannelPGM", engine.ServerChannelPGM);
@@ -284,7 +205,30 @@ namespace TAS.Server.Common
                         cmd.Parameters.AddWithValue("@Config", writer.ToString());
                     }
                     cmd.ExecuteNonQuery();
+                    engine.Id = (ulong)cmd.LastInsertedId;
                 }
+            }
+        }
+
+        internal static void DbUpdateEngine<T>(this T engine) where T : IEngineConfig
+        {
+            lock (_connection)
+            {
+                DbCommandRedundant cmd = new DbCommandRedundant(@"UPDATE engine set Instance=@Instance, idServerPGM=@idServerPGM, ServerChannelPGM=@ServerChannelPGM, idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config where idEngine=@idEngine", _connection);
+                cmd.Parameters.AddWithValue("@idEngine", engine.Id);
+                cmd.Parameters.AddWithValue("@Instance", engine.Instance);
+                cmd.Parameters.AddWithValue("@idServerPGM", engine.IdServerPGM);
+                cmd.Parameters.AddWithValue("@ServerChannelPGM", engine.ServerChannelPGM);
+                cmd.Parameters.AddWithValue("@idServerPRV", engine.IdServerPRV);
+                cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.ServerChannelPRV);
+                cmd.Parameters.AddWithValue("@IdArchive", engine.IdArchive);
+                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                using (var writer = new StringWriter())
+                {
+                    serializer.Serialize(writer, engine);
+                    cmd.Parameters.AddWithValue("@Config", writer.ToString());
+                }
+                cmd.ExecuteNonQuery();
             }
         }
 
@@ -292,13 +236,9 @@ namespace TAS.Server.Common
         {
             lock (_connection)
             {
-                if (_connect())
-                {
-
-                    MySqlCommand cmd = new MySqlCommand("DELETE FROM engine WHERE idEngine=@idEngine;", _connection);
-                    cmd.Parameters.AddWithValue("@idEngine", engine.Id);
-                    cmd.ExecuteNonQuery();
-                }
+                DbCommandRedundant cmd = new DbCommandRedundant("DELETE FROM engine WHERE idEngine=@idEngine;", _connection);
+                cmd.Parameters.AddWithValue("@idEngine", engine.Id);
+                cmd.ExecuteNonQuery();
             }
         }
 

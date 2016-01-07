@@ -10,13 +10,15 @@ namespace TAS.Client.Setup.Model
     public class PlayoutServers
     {
         readonly string _connectionString;
+        readonly string _connectionStringSecondary;
         readonly List<CasparServer> _servers;
-        public PlayoutServers(string connectionString)
+        public PlayoutServers(string connectionString, string connectionStringSecondary)
         {
-            this._connectionString = connectionString;
+            _connectionString = connectionString;
+            _connectionStringSecondary = connectionStringSecondary;
             try
             {
-                Database.Initialize(connectionString);
+                Database.Open(_connectionString, _connectionStringSecondary);
                 _servers = Database.DbLoadServers<CasparServer>();
                 _servers.ForEach(s =>
                     {
@@ -26,7 +28,7 @@ namespace TAS.Client.Setup.Model
             }
             finally
             {
-                Database.Uninitialize();
+                Database.Close();
             }
         }
 
@@ -34,7 +36,7 @@ namespace TAS.Client.Setup.Model
         {
             try
             {
-                Database.Initialize(_connectionString);
+                Database.Open(_connectionString, _connectionStringSecondary);
                 _servers.ForEach(s =>
                 {
                     if (s.Id == 0)
@@ -46,7 +48,7 @@ namespace TAS.Client.Setup.Model
             }
             finally
             {
-                Database.Uninitialize();
+                Database.Close();
             }
         }
 

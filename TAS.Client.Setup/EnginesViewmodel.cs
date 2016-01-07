@@ -13,8 +13,8 @@ namespace TAS.Client.Setup
     {
         readonly UICommand _commandAdd;
         readonly UICommand _commandDelete;
-        public EnginesViewmodel(string connectionString)
-            : base(new Model.Engines(connectionString), new EnginesView(), "Engines")
+        public EnginesViewmodel(string connectionString, string connectionStringSecondary)
+            : base(new Model.Engines(connectionString, connectionStringSecondary), new EnginesView(), "Engines")
         {
             _engines = new ObservableCollection<EngineViewmodel>(Model.EngineList.Select(e => new EngineViewmodel(e)));
             _engines.CollectionChanged += _engines_CollectionChanged;

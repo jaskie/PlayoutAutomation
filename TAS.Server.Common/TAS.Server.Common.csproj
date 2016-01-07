@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -62,6 +63,9 @@
     <Compile Include="AudioVolumeEventArgs.cs" />
     <Compile Include="ColorAttribute.cs" />
     <Compile Include="ConcurrentHashSet.cs" />
+    <Compile Include="DbCommandRedundant.cs" />
+    <Compile Include="DbConnectionRedundant.cs" />
+    <Compile Include="DbDataReaderRedundant.cs" />
     <Compile Include="EngineOperationEventArgs.cs" />
     <Compile Include="EngineTickEventArgs.cs" />
     <Compile Include="Enums.cs" />
