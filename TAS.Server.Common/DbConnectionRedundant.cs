@@ -52,26 +52,18 @@ namespace TAS.Server.Common
                 _idleTimeTimerPrimary = null;
                 _connectionPrimary.Close();
             }
-            lock (_connectionPrimary)
-            {
-                _idleTimeTimerPrimary.Dispose();
-                _idleTimeTimerPrimary = null;
-                _connectionPrimary.Close();
-            }
+            if (_connectionSecondary != null)
+                lock (_connectionSecondary)
+                {
+                    _idleTimeTimerSecondary.Dispose();
+                    _idleTimeTimerSecondary = null;
+                    _connectionSecondary.Close();
+                }
         }
 
         public new void Dispose()
         {
-            if (_connectionPrimary != null)
-            {
-                _connectionPrimary.Dispose();
-                _connectionPrimary = null;
-            }
-            if (_connectionSecondary != null)
-            {
-                _connectionSecondary.Dispose();
-                _connectionSecondary = null;
-            }
+            Close();
         }
 
         private static void _idleTimeTimerCallback(object o)

@@ -35,7 +35,13 @@ namespace TAS.Client.Setup.Model
         {
             PropertyInfo[] csl = connectionStrings.GetType().GetProperties();
             foreach (PropertyInfo cs in csl)
-                _configuration.ConnectionStrings.ConnectionStrings[cs.Name].ConnectionString = (string)cs.GetValue(connectionStrings, null);
+            {
+                ConnectionStringSettings css = _configuration.ConnectionStrings.ConnectionStrings[cs.Name];
+                if (css == null)
+                    _configuration.ConnectionStrings.ConnectionStrings.Add(new ConnectionStringSettings(cs.Name, (string)cs.GetValue(connectionStrings, null)));
+                else
+                    css.ConnectionString = (string)cs.GetValue(connectionStrings, null);
+            }
             PropertyInfo[] asl = appSettings.GetType().GetProperties();
             foreach (PropertyInfo setting in asl)
                 if (_configuration.AppSettings.Settings[setting.Name] == null)
@@ -59,7 +65,6 @@ namespace TAS.Client.Setup.Model
             public string LocalDevices { get; set; }
             public string TempDirectory { get; set; }
             public int Instance { get; set; }
-            public double VolumeReferenceLoudness { get; set; }
         }
         public AppSettings appSettings { get; set; }
 

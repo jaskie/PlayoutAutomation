@@ -31,8 +31,6 @@
             <TextBox Text="{Binding TempDirectory, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Instance binding"/>
             <TextBox Text="{Binding Instance, UpdateSourceTrigger=PropertyChanged}"/>
-            <Label Content="Volume reference loudness [dBFS]"/>
-            <TextBox Text="{Binding VolumeReferenceLoudness, UpdateSourceTrigger=PropertyChanged}"/>
             <Separator Margin="10"/>
             <Label Content="Database" FontWeight="Bold" HorizontalAlignment="Center"/>
             <Label Content="Connection string"/>
@@ -41,6 +39,13 @@
                     <Image Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
                 </Button>
                 <TextBox x:Name="edConnectionString" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding tasConnectionString}" IsReadOnly="True"/>
+            </DockPanel>
+            <CheckBox Margin="5" Content="Mirror database"/>
+            <DockPanel>
+                <Button DockPanel.Dock="Right" MaxHeight="31" VerticalAlignment="Top" Height="{Binding ElementName=edConnectionStringSecondary, Path=ActualHeight}" Command="{Binding CommandEditConnectionStringSecondary}" ToolTip="Edit...">
+                    <Image Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
+                </Button>
+                <TextBox x:Name="edConnectionStringSecondary" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding tasConnectionStringSecondary}" IsReadOnly="True"/>
             </DockPanel>
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>

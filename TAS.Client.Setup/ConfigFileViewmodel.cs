@@ -18,6 +18,7 @@ namespace TAS.Client.Setup
             : base(configFile, new ConfigFileView(), string.Format("Config file ({0})", configFile.FileName))
         {
             _commandEditConnectionString = new UICommand() { ExecuteDelegate = _editConnectionString };
+            _commandEditConnectionStringSecondary = new UICommand() { ExecuteDelegate = _editConnectionStringSecondary };
             _commandTestConnectivity = new UICommand() { ExecuteDelegate = _testConnectivity, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionString) };
             _commandCreateDatabase = new UICommand() { ExecuteDelegate = _createDatabase, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionString) };
         }
@@ -49,6 +50,8 @@ namespace TAS.Client.Setup
 
         readonly UICommand _commandEditConnectionString;
         public ICommand CommandEditConnectionString { get { return _commandEditConnectionString; } }
+        readonly UICommand _commandEditConnectionStringSecondary;
+        public ICommand CommandEditConnectionStringSecondary { get { return _commandEditConnectionStringSecondary; } }
         readonly UICommand _commandTestConnectivity;
         public ICommand CommandTestConnectivity { get { return _commandTestConnectivity; } }
         readonly UICommand _commandCreateDatabase;
@@ -59,6 +62,13 @@ namespace TAS.Client.Setup
             var vm = new ConnectionStringViewmodel(_tasConnectionString);
             if (vm.ShowDialog() == true)
                 tasConnectionString = vm.ConnectionString;
+        }
+
+        private void _editConnectionStringSecondary(object obj)
+        {
+            var vm = new ConnectionStringViewmodel(_tasConnectionStringSecondary);
+            if (vm.ShowDialog() == true)
+                tasConnectionStringSecondary = vm.ConnectionString;
         }
 
         private void _testConnectivity(object obj)
@@ -75,14 +85,15 @@ namespace TAS.Client.Setup
         public string LocalDevices { get { return _localDevices; } set { SetField(ref _localDevices, value, "LocalDevices"); } }
         string _tempDirectory;
         public string TempDirectory { get { return _tempDirectory; } set { SetField(ref _tempDirectory, value, "TempDirectory"); } }
-        double _volumeReferenceLoudness;
-        public double VolumeReferenceLoudness { get { return _volumeReferenceLoudness; } set { SetField(ref _volumeReferenceLoudness, value, "VolumeReferenceLoudness"); } }
         int _instance;
         public int Instance { get { return _instance; } set { SetField(ref _instance, value, "Instance"); } }
         string _tasConnectionString;
         public string tasConnectionString { get { return _tasConnectionString; } set { SetField(ref _tasConnectionString, value, "tasConnectionString"); } }
         string _tasConnectionStringSecondary;
+
+        private bool _isSConnectionStringSecondary;
         public string tasConnectionStringSecondary { get { return _tasConnectionStringSecondary; } set { SetField(ref _tasConnectionStringSecondary, value, "tasConnectionStringSecondary"); } }
+        public bool IsSConnectionStringSecondary { get { return _isSConnectionStringSecondary; } }
 
         public string ExeDirectory { get { return Path.GetDirectoryName(Model.FileName); } }
 
