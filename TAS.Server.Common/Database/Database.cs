@@ -10,33 +10,23 @@ using TAS.Server.Interfaces;
 using TAS.Common;
 using System.Xml;
 using System.Xml.Serialization;
-using MySql.Data.MySqlClient;
 
-namespace TAS.Server.Common
+namespace TAS.Server.Database
 {
     public static class Database
     {
         static DbConnectionRedundant _connection;
 
-        #region Configuration Functions
-        public static bool TestConnect(string connectionStringPrimary, string connectionStringSecondary)
-        {
-            using (DbConnectionRedundant connection = new DbConnectionRedundant(connectionStringPrimary, connectionStringSecondary))
-            {
-                try
-                {
-                    connection.Open();
-                    return true;
-                }
-                catch { }
-            }
-            return false;
-        }
-
         public static void Open(string connectionStringPrimary, string connectionStringSecondary)
         {
             _connection = new DbConnectionRedundant(connectionStringPrimary, connectionStringSecondary);
             _connection.Open();
+        }
+
+        #region Configuration Functions
+        public static bool TestConnect(string connectionString)
+        {
+            return DbConnectionRedundant.TestConnect(connectionString);
         }
 
         public static void Close()
@@ -46,41 +36,14 @@ namespace TAS.Server.Common
 
         public static bool CreateEmptyDatabase(string connectionString, string collate)
         {
-            MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder(connectionString);
-            string databaseName = csb.Database;
-            string charset = csb.CharacterSet;
-            if (string.IsNullOrWhiteSpace(databaseName))
-                return false;
-            csb.Remove("Database");
-            csb.Remove("CharacterSet");
-            using (MySqlConnection connection = new MySqlConnection(csb.ConnectionString))
-            {
-                    connection.Open();
-                    using (var createCommand = new MySqlCommand(string.Format("CREATE DATABASE {0} CHARACTER SET = {1} COLLATE = {2};", databaseName, charset, collate), connection))
-                    {
-                        if (createCommand.ExecuteNonQuery() == 1)
-                        {
-                            using (var useCommand = new MySqlCommand(string.Format("use {0};", databaseName), connection))
-                            {
-                                useCommand.ExecuteNonQuery();
-                                using (StreamReader scriptReader = new StreamReader(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TAS.Client.Setup.database.sql")))
-                                {
-                                    string createStatements = scriptReader.ReadToEnd();
-                                    MySqlScript createScript = new MySqlScript(connection, createStatements);
-                                    if (createScript.Execute() > 0)
-                                        return true;
-                                }
-                            }
-                        }
-                    }
-                    return false;
-            }
+            return DbConnectionRedundant.CreateEmptyDatabase(connectionString, collate);
         }
+
         #endregion //Configuration functions
 
         #region IPlayoutServer
 
-        internal static List<T> DbLoadServers<T>() where T : IPlayoutServerConfig
+        public static List<T> DbLoadServers<T>() where T : IPlayoutServerConfig
         {
             List<T> servers = new List<T>();
             lock (_connection)
@@ -102,7 +65,7 @@ namespace TAS.Server.Common
             return servers;
         }
 
-        internal static void DbInsertServer<T>(this T server) where T : IPlayoutServerConfig
+        public static void DbInsertServer<T>(this T server) where T : IPlayoutServerConfig
         {
             lock (_connection)
             {
@@ -120,7 +83,7 @@ namespace TAS.Server.Common
             }
         }
 
-        internal static void DbUpdateServer<T>(this T server) where T : IPlayoutServerConfig
+        public static void DbUpdateServer<T>(this T server) where T : IPlayoutServerConfig
         {
             lock (_connection)
             {
@@ -137,7 +100,7 @@ namespace TAS.Server.Common
             }
         }
 
-        internal static void DbDeleteServer<T>(this T server) where T : IPlayoutServerConfig
+        public static void DbDeleteServer<T>(this T server) where T : IPlayoutServerConfig
         {
             lock (_connection)
             {
@@ -151,7 +114,7 @@ namespace TAS.Server.Common
 
         #region IEngine
 
-        internal static List<T> DbLoadEngines<T>(ulong? instance = null) where T : IEngineConfig
+        public static List<T> DbLoadEngines<T>(ulong? instance = null) where T : IEngineConfig
         {
             List<T> engines = new List<T>();
             lock (_connection)
@@ -186,7 +149,7 @@ namespace TAS.Server.Common
             return engines;
         }
 
-        internal static void DbInsertEngine<T>(this T engine) where T : IEngineConfig
+        public static void DbInsertEngine<T>(this T engine) where T : IEngineConfig
         {
             lock (_connection)
             {
@@ -210,7 +173,7 @@ namespace TAS.Server.Common
             }
         }
 
-        internal static void DbUpdateEngine<T>(this T engine) where T : IEngineConfig
+        public static void DbUpdateEngine<T>(this T engine) where T : IEngineConfig
         {
             lock (_connection)
             {
@@ -232,7 +195,7 @@ namespace TAS.Server.Common
             }
         }
 
-        internal static void DbDeleteEngine<T>(this T engine) where T : IEngineConfig
+        public static void DbDeleteEngine<T>(this T engine) where T : IEngineConfig
         {
             lock (_connection)
             {

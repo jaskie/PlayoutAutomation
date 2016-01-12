@@ -8,8 +8,9 @@ using System.Text;
 using System.Threading;
 using System.ComponentModel;
 using MySql.Data.MySqlClient;
+using System.IO;
 
-namespace TAS.Server.Common
+namespace TAS.Server.Database
 {
     [DesignerCategory("Code")]
     public class DbConnectionRedundant: DbConnection
@@ -18,6 +19,56 @@ namespace TAS.Server.Common
         Timer _idleTimeTimerPrimary;
         MySqlConnection _connectionSecondary;
         Timer _idleTimeTimerSecondary;
+
+        #region static methods
+        public static bool TestConnect(string connectionString)
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    return true;
+                }
+                catch { }
+            }
+            return false;
+        }
+
+        public static bool CreateEmptyDatabase(string connectionString, string collate)
+        {
+            MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder(connectionString);
+            string databaseName = csb.Database;
+            string charset = csb.CharacterSet;
+            if (string.IsNullOrWhiteSpace(databaseName))
+                return false;
+            csb.Remove("Database");
+            csb.Remove("CharacterSet");
+            using (MySqlConnection connection = new MySqlConnection(csb.ConnectionString))
+            {
+                connection.Open();
+                using (var createCommand = new MySqlCommand(string.Format("CREATE DATABASE {0} CHARACTER SET = {1} COLLATE = {2};", databaseName, charset, collate), connection))
+                {
+                    if (createCommand.ExecuteNonQuery() == 1)
+                    {
+                        using (var useCommand = new MySqlCommand(string.Format("use {0};", databaseName), connection))
+                        {
+                            useCommand.ExecuteNonQuery();
+                            using (StreamReader scriptReader = new StreamReader(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TAS.Server.Common.Database.database.sql")))
+                            {
+                                string createStatements = scriptReader.ReadToEnd();
+                                MySqlScript createScript = new MySqlScript(connection, createStatements);
+                                if (createScript.Execute() > 0)
+                                    return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+        }
+
+        #endregion // static methods
 
         public DbConnectionRedundant(string connectionStringPrimary, string connectionStringSecondary)
         {

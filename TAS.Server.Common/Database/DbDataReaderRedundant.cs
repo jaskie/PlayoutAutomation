@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using MySql.Data.MySqlClient;
 
-namespace TAS.Server.Common
+namespace TAS.Server.Database
 {
     public class DbDataReaderRedundant : DbDataReader
     {

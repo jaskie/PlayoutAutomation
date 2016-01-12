@@ -83,7 +83,6 @@
     <Compile Include="EngineViewmodel.cs" />
     <Compile Include="Model\CreateDatabase.cs" />
     <Compile Include="CreateDatabaseViewmodel.cs" />
-    <Compile Include="Database.cs" />
     <Compile Include="IngestDirectoriesView.xaml.cs">
       <DependentUpon>IngestDirectoriesView.xaml</DependentUpon>
     </Compile>
@@ -166,9 +165,6 @@
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
       <Name>TAS.Server.Common</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="database.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

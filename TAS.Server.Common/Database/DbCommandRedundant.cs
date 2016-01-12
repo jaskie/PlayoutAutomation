@@ -7,7 +7,7 @@ using System.Text;
 using System.ComponentModel;
 using MySql.Data.MySqlClient;
 
-namespace TAS.Server.Common
+namespace TAS.Server.Database
 {
     [DesignerCategory("Code")]
     public class DbCommandRedundant : DbCommand

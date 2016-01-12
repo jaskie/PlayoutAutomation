@@ -217,7 +217,6 @@
                             <Slider  VerticalAlignment="Stretch" Margin="5, 0" Minimum="-18" Maximum="18" Value="{Binding AudioVolumeLevel}"/>
                         </DockPanel>
                         <Grid Visibility="{Binding IsGPIEnabled, Converter={StaticResource BoolToVis}}" >
-                            <CheckBox Content="GPI" IsChecked="{Binding GPICanTrigger}" VerticalAlignment="Top" Margin="10, 5" />
                             <StackPanel Visibility="{Binding GPICanTrigger, Converter={StaticResource BoolToVis}}">
                                 <StackPanel Orientation="Horizontal">
                                     <Label Content="{Resx _gpiLogo}" />
@@ -230,10 +229,11 @@
                                     <ComboBox ItemsSource="{Binding GPIParentals}" SelectedValue="{Binding GPIParental}" />
                                 </StackPanel>
                             </StackPanel>
+                            <CheckBox Content="GPI" IsChecked="{Binding GPICanTrigger}" VerticalAlignment="Top" Margin="10, 5" />
                         </Grid>
                     </StackPanel>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
         </ScrollViewer>
     </Grid>
 </UserControl>

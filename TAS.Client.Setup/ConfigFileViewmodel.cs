@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Server.Common;
+using TAS.Server.Database;
 
 namespace TAS.Client.Setup
 {
@@ -73,7 +74,7 @@ namespace TAS.Client.Setup
 
         private void _testConnectivity(object obj)
         {
-            if (Database.TestConnect(tasConnectionString, tasConnectionStringSecondary))
+            if (Database.TestConnect(tasConnectionString))
                 MessageBox.Show(Window.GetWindow(View), "Connection successful", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
             else
                 MessageBox.Show(Window.GetWindow(View), "Connection failed", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
