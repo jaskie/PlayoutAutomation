@@ -40,7 +40,7 @@
                 </Button>
                 <TextBox x:Name="edConnectionString" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding tasConnectionString}" IsReadOnly="True"/>
             </DockPanel>
-            <CheckBox Margin="5" Content="Mirror database"/>
+            <CheckBox IsChecked="{Binding IsSConnectionStringSecondary}" Margin="5" Content="Mirror database"/>
             <DockPanel>
                 <Button DockPanel.Dock="Right" MaxHeight="31" VerticalAlignment="Top" Height="{Binding ElementName=edConnectionStringSecondary, Path=ActualHeight}" Command="{Binding CommandEditConnectionStringSecondary}" ToolTip="Edit...">
                     <Image Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>

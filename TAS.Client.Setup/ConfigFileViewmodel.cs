@@ -41,11 +41,14 @@ namespace TAS.Client.Setup
         {
             base.Load(Model.appSettings);
             base.Load(Model.connectionStrings);
+            _isConnectionStringSecondary = !string.IsNullOrWhiteSpace(tasConnectionStringSecondary);
         }
 
         public override void Save(object destObject)
         {
             base.Save(Model.appSettings);
+            if (!_isConnectionStringSecondary)
+                tasConnectionStringSecondary = string.Empty;
             base.Save(Model.connectionStrings);
             Model.Save();
         }
@@ -103,9 +106,9 @@ namespace TAS.Client.Setup
         public string tasConnectionString { get { return _tasConnectionString; } set { SetField(ref _tasConnectionString, value, "tasConnectionString"); } }
         string _tasConnectionStringSecondary;
 
-        private bool _isSConnectionStringSecondary;
         public string tasConnectionStringSecondary { get { return _tasConnectionStringSecondary; } set { SetField(ref _tasConnectionStringSecondary, value, "tasConnectionStringSecondary"); } }
-        public bool IsSConnectionStringSecondary { get { return _isSConnectionStringSecondary; } }
+        private bool _isConnectionStringSecondary;
+        public bool IsSConnectionStringSecondary { get { return _isConnectionStringSecondary; } set { SetField(ref _isConnectionStringSecondary, value, "IsSConnectionStringSecondary"); } }
 
         public string ExeDirectory { get { return Path.GetDirectoryName(Model.FileName); } }
 
