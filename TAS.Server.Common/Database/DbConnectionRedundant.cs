@@ -68,6 +68,52 @@ namespace TAS.Server.Database
             }
         }
 
+        public static void CloneDatabase(string connectionStringSource, string connectionStringDestination)
+        {
+            string backupFile = Path.GetTempFileName();
+            MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder(connectionStringDestination);
+            string databaseName = csb.Database;
+            string charset = csb.CharacterSet;
+            if (string.IsNullOrWhiteSpace(databaseName))
+                return;
+            csb.Remove("Database");
+            csb.Remove("CharacterSet");
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(connectionStringSource))
+                {
+                    using (MySqlCommand cmd = new MySqlCommand())
+                    {
+                        using (MySqlBackup mb = new MySqlBackup(cmd))
+                        {
+                            cmd.Connection = conn;
+                            conn.Open();
+                            mb.ExportToFile(backupFile);
+                            conn.Close();
+                        }
+                    }
+                }
+                //file ready
+                using (MySqlConnection conn = new MySqlConnection(csb.ConnectionString))
+                {
+                    using (MySqlCommand cmd = new MySqlCommand())
+                    {
+                        using (MySqlBackup mb = new MySqlBackup(cmd))
+                        {
+                            cmd.Connection = conn;
+                            conn.Open();
+                            mb.ImportFromFile(backupFile);
+                            conn.Close();
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                File.Delete(backupFile);
+            }
+        }
+
         #endregion // static methods
 
         public DbConnectionRedundant(string connectionStringPrimary, string connectionStringSecondary)

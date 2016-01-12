@@ -39,6 +39,12 @@ namespace TAS.Server.Database
             return DbConnectionRedundant.CreateEmptyDatabase(connectionString, collate);
         }
 
+        public static bool CloneDatabase(string connectionStringSource, string connectionStringDestination)
+        {
+            DbConnectionRedundant.CloneDatabase(connectionStringSource, connectionStringDestination);
+            return DbConnectionRedundant.TestConnect(connectionStringDestination);
+        }
+
         #endregion //Configuration functions
 
         #region IPlayoutServer

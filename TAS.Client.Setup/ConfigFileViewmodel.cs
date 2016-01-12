@@ -22,6 +22,7 @@ namespace TAS.Client.Setup
             _commandEditConnectionStringSecondary = new UICommand() { ExecuteDelegate = _editConnectionStringSecondary };
             _commandTestConnectivity = new UICommand() { ExecuteDelegate = _testConnectivity, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionString) };
             _commandCreateDatabase = new UICommand() { ExecuteDelegate = _createDatabase, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionString) };
+            _commandCloneDatabase = new UICommand() { ExecuteDelegate = _clonePrimaryDatabase, CanExecuteDelegate = o => !(string.IsNullOrWhiteSpace(tasConnectionString) || string.IsNullOrWhiteSpace(tasConnectionStringSecondary)) };
         }
 
         private void _createDatabase(object obj)
@@ -57,6 +58,8 @@ namespace TAS.Client.Setup
         public ICommand CommandTestConnectivity { get { return _commandTestConnectivity; } }
         readonly UICommand _commandCreateDatabase;
         public ICommand CommandCreateDatabase { get { return _commandCreateDatabase; } }
+        readonly UICommand _commandCloneDatabase;
+        public ICommand CommandCloneDatabase { get { return _commandCloneDatabase; } }
 
         private void _editConnectionString(object obj)
         {
@@ -78,6 +81,14 @@ namespace TAS.Client.Setup
                 MessageBox.Show(Window.GetWindow(View), "Connection successful", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
             else
                 MessageBox.Show(Window.GetWindow(View), "Connection failed", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private void _clonePrimaryDatabase(object obj)
+        {
+            if (Database.CloneDatabase(tasConnectionString, tasConnectionStringSecondary))
+                MessageBox.Show(Window.GetWindow(View), "Database clone successful", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
+            else
+                MessageBox.Show(Window.GetWindow(View), "Database clonning failed", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         string _ingestFolders;
