@@ -82,34 +82,34 @@ namespace MySql.Data.MySqlClient
                 switch (ch)
                 {
                     case '\\': // Backslash
-                        builder.AppendFormat("\\\\");
+                        builder.Append("\\\\");
                         break;
                     case '\r': // Carriage return
-                        builder.AppendFormat("\\r");
+                        builder.Append("\\r");
                         break;
                     case '\n': // New Line
-                        builder.AppendFormat("\\n");
+                        builder.Append("\\n");
                         break;
                     //case '\a': // Vertical tab
-                    //    builder.AppendFormat("\\a");
+                    //    builder.Append("\\a");
                     //    break;
                     case '\b': // Backspace
-                        builder.AppendFormat("\\b");
+                        builder.Append("\\b");
                         break;
                     //case '\f': // Formfeed
-                    //    builder.AppendFormat("\\f");
+                    //    builder.Append("\\f");
                     //    break;
                     case '\t': // Horizontal tab
-                        builder.AppendFormat("\\t");
+                        builder.Append("\\t");
                         break;
                     //case '\v': // Vertical tab
-                    //    builder.AppendFormat("\\v");
+                    //    builder.Append("\\v");
                     //    break;
                     case '\"': // Double quotation mark
-                        builder.AppendFormat("\\\"");
+                        builder.Append("\\\"");
                         break;
                     case '\'': // Single quotation mark
-                        builder.AppendFormat("''");
+                        builder.Append("''");
                         break;
                     default:
                         builder.Append(ch);
@@ -126,7 +126,7 @@ namespace MySql.Data.MySqlClient
             string definer = " DEFINER=";
             int dIndex = input.IndexOf(definer);
 
-            sb.AppendFormat(definer);
+            sb.Append(definer);
 
             bool pointAliasReached = false;
             bool point3rdQuoteReached = false;
@@ -172,7 +172,7 @@ namespace MySql.Data.MySqlClient
 
             if (ob == null || ob is System.DBNull)
             {
-                sb.AppendFormat("NULL");
+                sb.Append("NULL");
             }
             else if (ob is System.String)
             {
@@ -182,16 +182,16 @@ namespace MySql.Data.MySqlClient
                     str = QueryExpress.EscapeStringSequence(str);
 
                 if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
+                    sb.Append("'");
 
                 sb.Append(str);
 
                 if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
+                    sb.Append("'");
             }
             else if (ob is System.Boolean)
             {
-                sb.AppendFormat(Convert.ToInt32(ob).ToString());
+                sb.Append(Convert.ToInt32(ob).ToString());
             }
             else if (ob is System.Byte[])
             {
@@ -204,78 +204,80 @@ namespace MySql.Data.MySqlClient
                 }
                 else
                 {
-                    sb.AppendFormat(CryptoExpress.ConvertByteArrayToHexString((byte[])ob));
+                    sb.Append(CryptoExpress.ConvertByteArrayToHexString((byte[])ob));
                 }
             }
             else if (ob is short)
             {
-                sb.AppendFormat(((short)ob).ToString(_numberFormatInfo));
+                sb.Append(((short)ob).ToString(_numberFormatInfo));
             }
             else if (ob is int)
             {
-                sb.AppendFormat(((int)ob).ToString(_numberFormatInfo));
+                sb.Append(((int)ob).ToString(_numberFormatInfo));
             }
             else if (ob is long)
             {
-                sb.AppendFormat(((long)ob).ToString(_numberFormatInfo));
+                sb.Append(((long)ob).ToString(_numberFormatInfo));
             }
             else if (ob is ushort)
             {
-                sb.AppendFormat(((ushort)ob).ToString(_numberFormatInfo));
+                sb.Append(((ushort)ob).ToString(_numberFormatInfo));
             }
             else if (ob is uint)
             {
-                sb.AppendFormat(((uint)ob).ToString(_numberFormatInfo));
+                sb.Append(((uint)ob).ToString(_numberFormatInfo));
             }
             else if (ob is ulong)
             {
-                sb.AppendFormat(((ulong)ob).ToString(_numberFormatInfo));
+                sb.Append(((ulong)ob).ToString(_numberFormatInfo));
             }
             else if (ob is double)
             {
-                sb.AppendFormat(((double)ob).ToString(_numberFormatInfo));
+                sb.Append(((double)ob).ToString(_numberFormatInfo));
             }
             else if (ob is decimal)
             {
-                sb.AppendFormat(((decimal)ob).ToString(_numberFormatInfo));
+                sb.Append(((decimal)ob).ToString(_numberFormatInfo));
             }
             else if (ob is float)
             {
-                sb.AppendFormat(((float)ob).ToString(_numberFormatInfo));
+                sb.Append(((float)ob).ToString(_numberFormatInfo));
             }
             else if (ob is byte)
             {
-                sb.AppendFormat(((byte)ob).ToString(_numberFormatInfo));
+                sb.Append(((byte)ob).ToString(_numberFormatInfo));
             }
             else if (ob is sbyte)
             {
-                sb.AppendFormat(((sbyte)ob).ToString(_numberFormatInfo));
+                sb.Append(((sbyte)ob).ToString(_numberFormatInfo));
             }
             else if (ob is TimeSpan)
             {
                 TimeSpan ts = (TimeSpan)ob;
 
                 if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
+                    sb.Append("'");
 
-                sb.AppendFormat(ts.Hours.ToString().PadLeft(2, '0'));
-                sb.AppendFormat(":");
-                sb.AppendFormat(ts.Minutes.ToString().PadLeft(2, '0'));
-                sb.AppendFormat(":");
-                sb.AppendFormat(ts.Seconds.ToString().PadLeft(2, '0'));
+                sb.Append(ts.Hours.ToString("D2"))
+                  .Append(":")
+                  .Append(ts.Minutes.ToString("D2"))
+                  .Append(":")
+                  .Append(ts.Seconds.ToString("D2"))
+                  .Append(".")
+                  .Append(ts.Milliseconds.ToString("D3"));
 
                 if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
+                    sb.Append("'");
             }
-            else if (ob is System.DateTime)
+            else if (ob is DateTime)
             {
                 if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
-
-                sb.AppendFormat(((DateTime)ob).ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
+                    sb.Append("'");
+               
+                sb.Append(((DateTime)ob).ToString("yyyy-MM-dd HH:mm:ss.fff", _dateFormatInfo));
 
                 if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
+                    sb.Append("'");
             }
             else if (ob is MySql.Data.Types.MySqlDateTime)
             {
@@ -283,7 +285,7 @@ namespace MySql.Data.MySqlClient
 
                 if (mdt.IsNull)
                 {
-                    sb.AppendFormat("NULL");
+                    sb.Append("NULL");
                 }
                 else
                 {
@@ -292,42 +294,42 @@ namespace MySql.Data.MySqlClient
                         DateTime dtime = mdt.Value;
 
                         if (wrapStringWithSingleQuote)
-                            sb.AppendFormat("'");
+                            sb.Append("'");
 
                         if (col.MySqlDataType == "datetime")
-                            sb.AppendFormat(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
+                            sb.Append(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
                         else if (col.MySqlDataType == "date")
-                            sb.AppendFormat(dtime.ToString("yyyy-MM-dd", _dateFormatInfo));
+                            sb.Append(dtime.ToString("yyyy-MM-dd", _dateFormatInfo));
                         else if (col.MySqlDataType == "time")
-                            sb.AppendFormat(dtime.ToString("HH:mm:ss", _dateFormatInfo));
+                            sb.Append(dtime.ToString("HH:mm:ss", _dateFormatInfo));
                         else
-                            sb.AppendFormat(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
+                            sb.Append(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
 
                         if (dtime.Millisecond > 0)
                         {
                             sb.Append(".");
-                            sb.Append(dtime.Millisecond);
+                            sb.Append(dtime.Millisecond.ToString("D3"));
                         }
 
                         if (wrapStringWithSingleQuote)
-                            sb.AppendFormat("'");
+                            sb.Append("'");
                     }
                     else
                     {
                         if (wrapStringWithSingleQuote)
-                            sb.AppendFormat("'");
+                            sb.Append("'");
 
                         if (col.MySqlDataType == "datetime")
-                            sb.AppendFormat("0000-00-00 00:00:00");
+                            sb.Append("0000-00-00 00:00:00");
                         else if (col.MySqlDataType == "date")
-                            sb.AppendFormat("0000-00-00");
+                            sb.Append("0000-00-00");
                         else if (col.MySqlDataType == "time")
-                            sb.AppendFormat("00:00:00");
+                            sb.Append("00:00:00");
                         else
-                            sb.AppendFormat("0000-00-00 00:00:00");
+                            sb.Append("0000-00-00 00:00:00");
 
                         if (wrapStringWithSingleQuote)
-                            sb.AppendFormat("'");
+                            sb.Append("'");
                     }
                 }
             }
@@ -340,22 +342,22 @@ namespace MySql.Data.MySqlClient
                 else if (col.MySqlDataType == "char(36)")
                 {
                     if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
+                        sb.Append("'");
 
                     sb.Append(ob);
 
                     if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
+                        sb.Append("'");
                 }
                 else
                 {
                     if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
+                        sb.Append("'");
 
                     sb.Append(ob);
 
                     if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
+                        sb.Append("'");
                 }
             }
             else
@@ -373,7 +375,7 @@ namespace MySql.Data.MySqlClient
 
             if (ob == null || ob is System.DBNull)
             {
-                sb.AppendFormat("NULL");
+                sb.Append("NULL");
             }
             else if (ob is System.String)
             {
@@ -383,16 +385,16 @@ namespace MySql.Data.MySqlClient
                     str = QueryExpress.EscapeStringSequence(str);
 
                 if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
+                    sb.Append("'");
 
                 sb.Append(str);
 
                 if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
+                    sb.Append("'");
             }
             else if (ob is System.Boolean)
             {
-                sb.AppendFormat(Convert.ToInt32(ob).ToString());
+                sb.Append(Convert.ToInt32(ob).ToString());
             }
             else if (ob is System.Byte[])
             {
@@ -405,76 +407,75 @@ namespace MySql.Data.MySqlClient
                 }
                 else
                 {
-                    sb.AppendFormat(CryptoExpress.ConvertByteArrayToHexString((byte[])ob));
+                    sb.Append(CryptoExpress.ConvertByteArrayToHexString((byte[])ob));
                 }
             }
             else if (ob is short)
             {
-                sb.AppendFormat(((short)ob).ToString(_numberFormatInfo));
+                sb.Append(((short)ob).ToString(_numberFormatInfo));
             }
             else if (ob is int)
             {
-                sb.AppendFormat(((int)ob).ToString(_numberFormatInfo));
+                sb.Append(((int)ob).ToString(_numberFormatInfo));
             }
             else if (ob is long)
             {
-                sb.AppendFormat(((long)ob).ToString(_numberFormatInfo));
+                sb.Append(((long)ob).ToString(_numberFormatInfo));
             }
             else if (ob is ushort)
             {
-                sb.AppendFormat(((ushort)ob).ToString(_numberFormatInfo));
+                sb.Append(((ushort)ob).ToString(_numberFormatInfo));
             }
             else if (ob is uint)
             {
-                sb.AppendFormat(((uint)ob).ToString(_numberFormatInfo));
+                sb.Append(((uint)ob).ToString(_numberFormatInfo));
             }
             else if (ob is ulong)
             {
-                sb.AppendFormat(((ulong)ob).ToString(_numberFormatInfo));
+                sb.Append(((ulong)ob).ToString(_numberFormatInfo));
             }
             else if (ob is double)
             {
-                sb.AppendFormat(((double)ob).ToString(_numberFormatInfo));
+                sb.Append(((double)ob).ToString(_numberFormatInfo));
             }
             else if (ob is decimal)
             {
-                sb.AppendFormat(((decimal)ob).ToString(_numberFormatInfo));
+                sb.Append(((decimal)ob).ToString(_numberFormatInfo));
             }
             else if (ob is float)
             {
-                sb.AppendFormat(((float)ob).ToString(_numberFormatInfo));
+                sb.Append(((float)ob).ToString(_numberFormatInfo));
             }
             else if (ob is byte)
             {
-                sb.AppendFormat(((byte)ob).ToString(_numberFormatInfo));
+                sb.Append(((byte)ob).ToString(_numberFormatInfo));
             }
             else if (ob is sbyte)
             {
-                sb.AppendFormat(((sbyte)ob).ToString(_numberFormatInfo));
+                sb.Append(((sbyte)ob).ToString(_numberFormatInfo));
             }
             else if (ob is TimeSpan)
             {
                 TimeSpan ts = (TimeSpan)ob;
 
                 if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
+                    sb.Append("'");
 
-                sb.AppendFormat(ts.Hours.ToString().PadLeft(2, '0'));
-                sb.AppendFormat(":");
-                sb.AppendFormat(ts.Minutes.ToString().PadLeft(2, '0'));
-                sb.AppendFormat(":");
-                sb.AppendFormat(ts.Seconds.ToString().PadLeft(2, '0'));
-
+                sb.Append(ts.Hours.ToString("D2"))
+                    .Append(":")
+                    .Append(ts.Minutes.ToString("D2"))
+                    .Append(":")
+                    .Append(ts.Seconds.ToString("D2"))
+                    .Append(".")
+                    .Append(ts.Milliseconds.ToString("D3"));
                 if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
+                    sb.Append("'");
             }
             else if (ob is System.DateTime)
             {
                 if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
-
-                sb.AppendFormat(((DateTime)ob).ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
-
+                    sb.Append("'");
+                sb.Append(((DateTime)ob).ToString("yyyy-MM-dd HH:mm:ss.fff", _dateFormatInfo));
                 if (col.TimeFractionLength > 0)
                 {
                     sb.Append(".");
@@ -491,7 +492,7 @@ namespace MySql.Data.MySqlClient
                 }
 
                 if (wrapStringWithSingleQuote)
-                    sb.AppendFormat("'");
+                    sb.Append("'");
             }
             else if (ob is MySql.Data.Types.MySqlDateTime)
             {
@@ -499,7 +500,7 @@ namespace MySql.Data.MySqlClient
 
                 if (mdt.IsNull)
                 {
-                    sb.AppendFormat("NULL");
+                    sb.Append("NULL");
                 }
                 else
                 {
@@ -508,16 +509,16 @@ namespace MySql.Data.MySqlClient
                         DateTime dtime = mdt.Value;
 
                         if (wrapStringWithSingleQuote)
-                            sb.AppendFormat("'");
+                            sb.Append("'");
 
                         if (col.MySqlDataType == "datetime")
-                            sb.AppendFormat(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
+                            sb.Append(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
                         else if (col.MySqlDataType == "date")
-                            sb.AppendFormat(dtime.ToString("yyyy-MM-dd", _dateFormatInfo));
+                            sb.Append(dtime.ToString("yyyy-MM-dd", _dateFormatInfo));
                         else if (col.MySqlDataType == "time")
-                            sb.AppendFormat(dtime.ToString("HH:mm:ss", _dateFormatInfo));
+                            sb.Append(dtime.ToString("HH:mm:ss", _dateFormatInfo));
                         else
-                            sb.AppendFormat(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
+                            sb.Append(dtime.ToString("yyyy-MM-dd HH:mm:ss", _dateFormatInfo));
 
                         if(col.TimeFractionLength > 0)
                         {
@@ -526,21 +527,21 @@ namespace MySql.Data.MySqlClient
                         }
 
                         if (wrapStringWithSingleQuote)
-                            sb.AppendFormat("'");
+                            sb.Append("'");
                     }
                     else
                     {
                         if (wrapStringWithSingleQuote)
-                            sb.AppendFormat("'");
+                            sb.Append("'");
 
                         if (col.MySqlDataType == "datetime")
-                            sb.AppendFormat("0000-00-00 00:00:00");
+                            sb.Append("0000-00-00 00:00:00");
                         else if (col.MySqlDataType == "date")
-                            sb.AppendFormat("0000-00-00");
+                            sb.Append("0000-00-00");
                         else if (col.MySqlDataType == "time")
-                            sb.AppendFormat("00:00:00");
+                            sb.Append("00:00:00");
                         else
-                            sb.AppendFormat("0000-00-00 00:00:00");
+                            sb.Append("0000-00-00 00:00:00");
 
                         if (col.TimeFractionLength > 0)
                         {
@@ -548,7 +549,7 @@ namespace MySql.Data.MySqlClient
                         }
 
                         if (wrapStringWithSingleQuote)
-                            sb.AppendFormat("'");
+                            sb.Append("'");
                     }
                 }
             }
@@ -561,22 +562,22 @@ namespace MySql.Data.MySqlClient
                 else if (col.MySqlDataType == "char(36)")
                 {
                     if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
+                        sb.Append("'");
 
                     sb.Append(ob);
 
                     if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
+                        sb.Append("'");
                 }
                 else
                 {
                     if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
+                        sb.Append("'");
 
                     sb.Append(ob);
 
                     if (wrapStringWithSingleQuote)
-                        sb.AppendFormat("'");
+                        sb.Append("'");
                 }
             }
             else

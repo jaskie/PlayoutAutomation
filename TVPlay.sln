@@ -37,9 +37,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.Common", "TAS.Cl
 		{9ACA6AE7-49ED-4599-91AC-927680CF9623} = {9ACA6AE7-49ED-4599-91AC-927680CF9623}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.Setup", "TAS.Client.Setup\TAS.Client.Setup.csproj", "{86071DE4-1A5D-4889-B54A-08DA101B2B51}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.Config", "TAS.Client.Config\TAS.Client.Config.csproj", "{86071DE4-1A5D-4889-B54A-08DA101B2B51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPlay.setup", "TVPlay.setup\TVPlay.setup.csproj", "{0BB48447-B299-4CE9-AF50-174384B269D0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPlay.config", "TVPlay.config\TVPlay.config.csproj", "{0BB48447-B299-4CE9-AF50-174384B269D0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FFBD2072-AD87-47DF-9FC1-CC439AD84916}"
 	ProjectSection(SolutionItems) = preProject

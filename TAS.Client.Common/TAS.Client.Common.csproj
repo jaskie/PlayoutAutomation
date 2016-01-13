@@ -388,6 +388,18 @@
   <ItemGroup>
     <Resource Include="Images\Indicators\loop.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\database-create.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\database-clone.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\database-connect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\database-secondary-connect.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

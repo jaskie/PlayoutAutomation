@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="TAS.Client.Config.PlayoutServersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"  
+             xmlns:vm="clr-namespace:TAS.Client.Config"
+             d:DataContext="{x:Type vm:PlayoutServersViewmodel}"
+             mc:Ignorable="d" 
+             MinHeight="400"
+             >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Margin" Value="3"/>
+                    <Setter Property="Padding" Value="3"/>
+                </Style>
+            </StackPanel.Resources>
+            <Button Command="{Binding CommandAdd}" ToolTip="Add new server">
+                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_add.png"/>
+            </Button>
+            <Button Command="{Binding CommandDelete}" ToolTip="Delete selected server">
+                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_delete.png"/>
+            </Button>
+        </StackPanel>
+        <DataGrid Grid.Row="1" ItemsSource="{Binding PlayoutServers}" SelectedItem="{Binding SelectedServer}" AutoGenerateColumns="False" IsReadOnly="True" MinWidth="200">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Address" Binding="{Binding ServerAddress}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <ContentControl Grid.Column="1" Grid.RowSpan="2" Content="{Binding SelectedServer.Editor}"/>
+    </Grid>
+</UserControl>
+

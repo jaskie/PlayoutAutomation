@@ -96,14 +96,23 @@ namespace TAS.Server.Database
                 //file ready
                 using (MySqlConnection conn = new MySqlConnection(csb.ConnectionString))
                 {
-                    using (MySqlCommand cmd = new MySqlCommand())
+                    conn.Open();
+                    using (var createCommand = new MySqlCommand(string.Format("CREATE DATABASE {0} CHARACTER SET = {1};", databaseName, charset), conn))
                     {
-                        using (MySqlBackup mb = new MySqlBackup(cmd))
+                        if (createCommand.ExecuteNonQuery() == 1)
                         {
-                            cmd.Connection = conn;
-                            conn.Open();
-                            mb.ImportFromFile(backupFile);
-                            conn.Close();
+                            using (var useCommand = new MySqlCommand(string.Format("use {0};", databaseName), conn))
+                            {
+                                useCommand.ExecuteNonQuery();
+                                using (MySqlCommand cmd = new MySqlCommand())
+                                {
+                                    using (MySqlBackup mb = new MySqlBackup(cmd))
+                                    {
+                                        cmd.Connection = conn;
+                                        mb.ImportFromFile(backupFile);
+                                    }
+                                }
+                            }
                         }
                     }
                 }

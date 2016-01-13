@@ -21,11 +21,15 @@ namespace TAS.Client
 
         public App()
         {
-            CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
+            
             #region hacks
             Common.WpfHacks.ApplyGridViewRowPresenter_CellMargin();
             #endregion
-            //CultureManager.UICulture = new System.Globalization.CultureInfo("en");
+            string uiCulture = ConfigurationManager.AppSettings["UiLanguage"];
+            if (string.IsNullOrWhiteSpace(uiCulture))
+                CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
+            else
+                CultureManager.UICulture = new System.Globalization.CultureInfo(uiCulture);
             EngineController = new EngineController();
         }
         protected override void OnExit(ExitEventArgs e)

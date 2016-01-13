@@ -59,7 +59,8 @@ namespace MySql.Data.MySqlClient
                 _isPrimaryKey = true;
             }
 
-            if (_dataType == typeof(DateTime))
+            if (_dataType == typeof(DateTime) 
+                || _dataType == typeof(TimeSpan))
             {
                 if (_mySqlDataType.Length > 8)
                 {

@@ -1,0 +1,50 @@
+﻿<Window x:Class="TAS.Client.Config.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:config ="clr-namespace:TAS.Client.Config"
+        mc:Ignorable="d"
+        d:DataContext="{x:Type config:MainWindowViewmodel}"
+        Title="TV Automation Configuration" 
+        SizeToContent="WidthAndHeight"
+        >
+    <Window.Resources>
+        <config:MainWindowViewmodel x:Key="MainWindowViewmodel"/>
+    </Window.Resources>
+    <StackPanel DataContext="{StaticResource MainWindowViewmodel}">
+        <DockPanel>
+            <Label VerticalAlignment="Center" Content="Application config file"/>
+            <Button DockPanel.Dock="Right" Height="18" Command="{Binding CommandConfigFileSelect}" Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}">
+                <Image Source="/TAS.Client.Common;component/Images/FileOpen.png" />
+            </Button>
+            <TextBox IsReadOnly="True" VerticalAlignment="Center" MinWidth="200" HorizontalAlignment="Stretch" Text="{Binding ConfigFile.FileName, Mode=OneWay}" />
+        </DockPanel>
+        <ToolBar>
+            <Button Command="{Binding CommandConfigFileEdit}">
+                <StackPanel>
+                    <Label Content="Config file and database"/>
+                    <Image Source="/TAS.Client.Common;component/Images/database_config.png"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding CommandIngestFoldersSetup}">
+                <StackPanel>
+                    <Label Content="Ingest folders"/>
+                    <Image Source="/TAS.Client.Common;component/Images/folder_development.png"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding CommandPlayoutServersSetup}">
+                <StackPanel>
+                    <Label Content="Play-out servers"/>
+                    <Image Source="/TAS.Client.Common;component/Images/video_display_setup.png"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding CommandEnginesSetup}">
+                <StackPanel>
+                    <Label Content="Rundown engines"/>
+                    <Image Source="/TAS.Client.Common;component/Images/playlist_config.png"/>
+                </StackPanel>
+            </Button>
+        </ToolBar>
+    </StackPanel>
+</Window>
