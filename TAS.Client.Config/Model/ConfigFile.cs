@@ -44,10 +44,13 @@ namespace TAS.Client.Config.Model
             }
             PropertyInfo[] asl = appSettings.GetType().GetProperties();
             foreach (PropertyInfo setting in asl)
+            {
+                object newValue = setting.GetValue(appSettings, null);
                 if (_configuration.AppSettings.Settings[setting.Name] == null)
-                    _configuration.AppSettings.Settings.Add(setting.Name, setting.GetValue(appSettings, null).ToString());
+                    _configuration.AppSettings.Settings.Add(setting.Name, newValue == null ? string.Empty : newValue.ToString());
                 else
-                    _configuration.AppSettings.Settings[setting.Name].Value = setting.GetValue(appSettings, null).ToString();
+                    _configuration.AppSettings.Settings[setting.Name].Value = newValue == null ? string.Empty : setting.GetValue(appSettings, null).ToString();
+            }
             _configuration.Save();
         }
 

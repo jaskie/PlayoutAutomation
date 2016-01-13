@@ -143,14 +143,17 @@ namespace TAS.Server.Database
         {
             get
             {
-                return Parameters;
+                throw new NotImplementedException();
             }
         }
 
-        public new MySqlParameterCollection Parameters {
+        private DbParameterCollectionRedundant _parameters;
+        public new DbParameterCollectionRedundant Parameters {
             get
             {
-                return _commandPrimary.Parameters;
+                if (_parameters == null)
+                    _parameters = new DbParameterCollectionRedundant();
+                return _parameters;
             }
         }
 
@@ -161,19 +164,37 @@ namespace TAS.Server.Database
             throw new NotImplementedException();
         }
 
+        private void _fillParameters()
+        {
+            if (_parameters != null)
+                foreach (var parameter in _parameters)
+                {
+                    _commandPrimary.Parameters.AddWithValue(parameter.Key, parameter.Value);
+                    _commandSecondary.Parameters.AddWithValue(parameter.Key, parameter.Value);
+                }
+        }
+
         public override int ExecuteNonQuery()
         {
-            throw new NotImplementedException();
+            _fillParameters();
+            int ret1 = _commandPrimary.ExecuteNonQuery();
+            int ret2 = _commandSecondary.ExecuteNonQuery();
+            return ret1;
         }
 
         public override object ExecuteScalar()
         {
-            throw new NotImplementedException();
+            _fillParameters();
+            object ret1 = _commandPrimary.ExecuteScalar();
+            object ret2 = _commandSecondary.ExecuteScalar();
+            return ret1;
         }
 
         public override void Prepare()
         {
-            throw new NotImplementedException();
+            _fillParameters();
+            _commandPrimary.Prepare();
+            _commandSecondary.Prepare();
         }
 
         protected override DbParameter CreateDbParameter()
@@ -188,6 +209,7 @@ namespace TAS.Server.Database
 
         public new DbDataReaderRedundant ExecuteReader(CommandBehavior behavior)
         {
+            _fillParameters();
             return new DbDataReaderRedundant(this, behavior);
         }
 
