@@ -169,8 +169,13 @@ namespace TAS.Server.Database
             if (_parameters != null)
                 foreach (var parameter in _parameters)
                 {
-                    _commandPrimary.Parameters.AddWithValue(parameter.Key, parameter.Value);
-                    _commandSecondary.Parameters.AddWithValue(parameter.Key, parameter.Value);
+                    object convertedValue = parameter.Value;
+                    if (parameter.Value == null)
+                        convertedValue = DBNull.Value;
+                    if (parameter.Value is Guid)
+                        convertedValue = ((Guid)parameter.Value).ToByteArray();
+                    _commandPrimary.Parameters.AddWithValue(parameter.Key, convertedValue);
+                    _commandSecondary.Parameters.AddWithValue(parameter.Key, convertedValue);
                 }
         }
 
@@ -204,18 +209,18 @@ namespace TAS.Server.Database
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
-            throw new NotImplementedException();
-        }
-
-        public new DbDataReaderRedundant ExecuteReader(CommandBehavior behavior)
-        {
             _fillParameters();
             return new DbDataReaderRedundant(this, behavior);
         }
 
         public new DbDataReaderRedundant ExecuteReader()
         {
-            return ExecuteReader(CommandBehavior.Default);
+            return (DbDataReaderRedundant)base.ExecuteReader();
+        }
+
+        public new DbDataReaderRedundant ExecuteReader(CommandBehavior behavior)
+        {
+            return (DbDataReaderRedundant)base.ExecuteReader(behavior);
         }
 
         internal MySqlCommand CommandPrimary { get { return _commandPrimary; } }
@@ -225,7 +230,10 @@ namespace TAS.Server.Database
         {
             get
             {
-                return _commandPrimary.LastInsertedId;
+                var primaryId = _commandPrimary.LastInsertedId;
+                if (_commandPrimary.LastInsertedId != primaryId)
+                    throw new ApplicationException("LastInsertedId mismatch");
+                return primaryId;
             }
         }
     }

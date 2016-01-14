@@ -12,6 +12,7 @@ using System.IO;
 
 namespace TAS.Server.Database
 {
+
     [DesignerCategory("Code")]
     public class DbConnectionRedundant: DbConnection
     {
@@ -128,7 +129,10 @@ namespace TAS.Server.Database
         public DbConnectionRedundant(string connectionStringPrimary, string connectionStringSecondary)
         {
             if (!string.IsNullOrWhiteSpace(connectionStringPrimary))
+            {
                 _connectionPrimary = new MySqlConnection(connectionStringPrimary);
+                _idleTimeTimerPrimary = new Timer(_idleTimeTimerCallback, _connectionPrimary, TimeSpan.FromHours(1), TimeSpan.FromHours(1));
+            }
             if (!string.IsNullOrWhiteSpace(connectionStringSecondary))
             {
                 _connectionSecondary = new MySqlConnection(connectionStringSecondary);
@@ -152,12 +156,13 @@ namespace TAS.Server.Database
 
         public override void Close()
         {
-            lock (_connectionPrimary)
-            {
-                _idleTimeTimerPrimary.Dispose();
-                _idleTimeTimerPrimary = null;
-                _connectionPrimary.Close();
-            }
+            if (_connectionPrimary != null)
+                lock (_connectionPrimary)
+                {
+                    _idleTimeTimerPrimary.Dispose();
+                    _idleTimeTimerPrimary = null;
+                    _connectionPrimary.Close();
+                }
             if (_connectionSecondary != null)
                 lock (_connectionSecondary)
                 {
@@ -260,6 +265,19 @@ namespace TAS.Server.Database
 
         internal MySqlConnection ConnectionPrimary { get { return _connectionPrimary; } }
         internal MySqlConnection ConnectionSecondary { get { return _connectionSecondary; } }
+
+        public ConnectionState ConnectionStatePrimary { get { return _connectionPrimary.State; } }
+        public ConnectionState ConnectionStateSecondary { get { return _connectionSecondary.State; } }
+
+        private bool _isConnectionSync = true;
+        public bool IsConnetionSync
+        {
+            get { return _isConnectionSync; }
+            internal set
+            {
+                _isConnectionSync = value;
+            }
+        }
 
     }
 }
