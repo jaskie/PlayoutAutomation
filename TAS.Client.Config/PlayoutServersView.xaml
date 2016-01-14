@@ -26,10 +26,10 @@
                 </Style>
             </StackPanel.Resources>
             <Button Command="{Binding CommandAdd}" ToolTip="Add new server">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_add.png"/>
+                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-add.png"/>
             </Button>
             <Button Command="{Binding CommandDelete}" ToolTip="Delete selected server">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_delete.png"/>
+                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-delete.png"/>
             </Button>
         </StackPanel>
         <DataGrid Grid.Row="1" ItemsSource="{Binding PlayoutServers}" SelectedItem="{Binding SelectedServer}" AutoGenerateColumns="False" IsReadOnly="True" MinWidth="200">

@@ -193,54 +193,54 @@
     <Resource Include="Images\MediaErrorInfo\TooShort.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\FileOpen.png" />
+    <Resource Include="Images\Config\file-open.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\document_add.png" />
+    <Resource Include="Images\Config\document-add.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\document_delete.png" />
+    <Resource Include="Images\Config\document-delete.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\document_cancel.png" />
+    <Resource Include="Images\Config\document-cancel.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\document_done.png" />
+    <Resource Include="Images\Config\document-done.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\document_edit.png" />
+    <Resource Include="Images\Config\document-edit.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\document_save.png" />
+    <Resource Include="Images\Config\document-save.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Gearwheel.png" />
+    <Resource Include="Images\Config\gearwheel.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Actions\edit.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Connect.png" />
+    <Resource Include="Images\Config\connect-test.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\NewDatabase.png" />
+    <Resource Include="Images\Config\database-new.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\playlist_config.png" />
-    <Resource Include="Images\video_display_setup.png" />
+    <Resource Include="Images\Config\playlist-config.png" />
+    <Resource Include="Images\Config\video_display_setup.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\folder_development.png" />
+    <Resource Include="Images\Config\folder-development.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\config.png" />
-    <Resource Include="Images\database.png" />
+    <Resource Include="Images\Config\config.png" />
+    <Resource Include="Images\Config\database.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\database_config.png" />
+    <Resource Include="Images\Config\database_config.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Actions\media-ingest.png" />
@@ -399,6 +399,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Actions\database-secondary-connect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Config\direction-down.png" />
+    <Resource Include="Images\Config\direction-up.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

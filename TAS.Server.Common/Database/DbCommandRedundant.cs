@@ -9,6 +9,8 @@ using MySql.Data.MySqlClient;
 
 namespace TAS.Server.Database
 {
+
+
     [DesignerCategory("Code")]
     public class DbCommandRedundant : DbCommand
     {
@@ -24,12 +26,14 @@ namespace TAS.Server.Database
 
         public DbCommandRedundant(string commandText)
         {
+            CommandText = commandText;
             _commandPrimary = new MySqlCommand(commandText);
             _commandSecondary = new MySqlCommand(commandText);
         }
 
         public DbCommandRedundant(string commandText, DbConnectionRedundant connection)
         {
+            CommandText = commandText;
             _commandPrimary = new MySqlCommand(commandText, connection.ConnectionPrimary);
             _commandSecondary = new MySqlCommand(commandText, connection.ConnectionSecondary);
         }
@@ -42,12 +46,67 @@ namespace TAS.Server.Database
 
         #endregion //Constructors
 
+        #region utilities
+
+        private enum StatementType
+        {
+            Select,
+            Insert,
+            Update,
+            Delete,
+            Other
+        }
+
+        private StatementType _determineStatementType(ref string commandText)
+        {
+            string statement = commandText.Substring(0, commandText.IndexOf(' ')).Trim().ToLowerInvariant();
+            switch (statement)
+            {
+                case "select":
+                    return StatementType.Select;
+                case "insert":
+                    return StatementType.Insert;
+                case "update":
+                    return StatementType.Update;
+                case "delete":
+                    return StatementType.Delete;
+            }
+            return StatementType.Other;
+        }
+
+        private bool _isConnectionValid(MySqlConnection connection)
+        {
+            return connection != null
+                && connection.State == ConnectionState.Open;
+        }
+
+        private void _fillParameters()
+        {
+            if (_parameters != null)
+                foreach (var parameter in _parameters)
+                {
+                    object convertedValue = parameter.Value;
+                    if (parameter.Value == null)
+                        convertedValue = DBNull.Value;
+                    if (parameter.Value is Guid)
+                        convertedValue = ((Guid)parameter.Value).ToByteArray();
+                    _commandPrimary.Parameters.AddWithValue(parameter.Key, convertedValue);
+                    _commandSecondary.Parameters.AddWithValue(parameter.Key, convertedValue);
+                }
+        }
+
+        #endregion // utilities
 
         public new void Dispose()
         {
             _commandPrimary.Dispose();
             _commandSecondary.Dispose();
         }
+
+
+        private StatementType _statementType;
+
+        #region DbCcmmand implementation
 
         private string _commandText;
         public override string CommandText
@@ -57,9 +116,12 @@ namespace TAS.Server.Database
             {
                 if (_commandText != value)
                 {
-                    _commandText = value;
-                    _commandPrimary.CommandText = value;
-                    _commandSecondary.CommandText = value;
+                    _commandText = value.Trim();
+                    _statementType = _determineStatementType(ref value);
+                    if (_commandPrimary != null)
+                        _commandPrimary.CommandText = value;
+                    if (_commandSecondary != null)
+                        _commandSecondary.CommandText = value;
                 }
             }
         }
@@ -164,42 +226,35 @@ namespace TAS.Server.Database
             throw new NotImplementedException();
         }
 
-        private void _fillParameters()
-        {
-            if (_parameters != null)
-                foreach (var parameter in _parameters)
-                {
-                    object convertedValue = parameter.Value;
-                    if (parameter.Value == null)
-                        convertedValue = DBNull.Value;
-                    if (parameter.Value is Guid)
-                        convertedValue = ((Guid)parameter.Value).ToByteArray();
-                    _commandPrimary.Parameters.AddWithValue(parameter.Key, convertedValue);
-                    _commandSecondary.Parameters.AddWithValue(parameter.Key, convertedValue);
-                }
-        }
-
         public override int ExecuteNonQuery()
         {
             _fillParameters();
-            int ret1 = _commandPrimary.ExecuteNonQuery();
-            int ret2 = _commandSecondary.ExecuteNonQuery();
-            return ret1;
+            int ret = 0;
+            if (_isConnectionValid(_commandPrimary.Connection))
+                ret = _commandPrimary.ExecuteNonQuery();
+            if (_statementType != StatementType.Select && _isConnectionValid(_commandSecondary.Connection))
+                _commandSecondary.ExecuteNonQuery();
+            return ret;
         }
 
         public override object ExecuteScalar()
         {
             _fillParameters();
-            object ret1 = _commandPrimary.ExecuteScalar();
-            object ret2 = _commandSecondary.ExecuteScalar();
-            return ret1;
+            object ret = null;
+            if (_isConnectionValid(_commandPrimary.Connection))
+                ret = _commandPrimary.ExecuteScalar();
+            if (_statementType != StatementType.Select && _isConnectionValid(_commandSecondary.Connection))
+                _commandSecondary.ExecuteScalar();
+            return ret;
         }
 
         public override void Prepare()
         {
             _fillParameters();
-            _commandPrimary.Prepare();
-            _commandSecondary.Prepare();
+            if (_isConnectionValid(_commandPrimary.Connection))
+                _commandPrimary.Prepare();
+            if (_statementType != StatementType.Select && _isConnectionValid(_commandSecondary.Connection))
+                _commandSecondary.Prepare();
         }
 
         protected override DbParameter CreateDbParameter()
@@ -210,7 +265,13 @@ namespace TAS.Server.Database
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
             _fillParameters();
-            return new DbDataReaderRedundant(this, behavior);
+            if (_isConnectionValid(_commandPrimary.Connection))
+                return new DbDataReaderRedundant(_commandPrimary, behavior);
+            else
+            if (_isConnectionValid(_commandSecondary.Connection))
+                return new DbDataReaderRedundant(_commandSecondary, behavior);
+            else
+                throw new DataException("No valid connection to execute reader");
         }
 
         public new DbDataReaderRedundant ExecuteReader()
@@ -222,6 +283,8 @@ namespace TAS.Server.Database
         {
             return (DbDataReaderRedundant)base.ExecuteReader(behavior);
         }
+
+        #endregion
 
         internal MySqlCommand CommandPrimary { get { return _commandPrimary; } }
         internal MySqlCommand CommandSecondary { get { return _commandSecondary; } }

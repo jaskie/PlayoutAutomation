@@ -11,62 +11,55 @@ namespace TAS.Server.Database
 {
     public class DbDataReaderRedundant : DbDataReader
     {
-        private readonly MySqlDataReader _activeReader;
-        private readonly DbCommandRedundant _command;
+        private readonly MySqlDataReader _reader;
+        private readonly MySqlCommand _command;
 
-        internal DbDataReaderRedundant(DbCommandRedundant command, CommandBehavior behavior)
+        internal DbDataReaderRedundant(MySqlCommand command, CommandBehavior behavior)
         {
             _command = command;
-            try
-            {
-                _activeReader = command.CommandPrimary.ExecuteReader(behavior);
-            }
-            catch
-            {
-                _activeReader = command.CommandSecondary.ExecuteReader(behavior);
-            }
+            _reader = command.ExecuteReader(behavior);
         }
 
-        public override object this[string name] { get { return _activeReader[name]; } }
+        public override object this[string name] { get { return _reader[name]; } }
 
-        public override object this[int ordinal] { get { return _activeReader[ordinal]; } }
-        public override int Depth { get { return _activeReader.Depth; } }
-        public override int FieldCount { get { return _activeReader.FieldCount; } }
-        public override bool HasRows { get { return _activeReader.HasRows; } }
-        public override bool IsClosed { get { return _activeReader.IsClosed; } }
-        public override int RecordsAffected { get { return _activeReader.RecordsAffected; } }
-        public override void Close() { _activeReader.Close(); }
+        public override object this[int ordinal] { get { return _reader[ordinal]; } }
+        public override int Depth { get { return _reader.Depth; } }
+        public override int FieldCount { get { return _reader.FieldCount; } }
+        public override bool HasRows { get { return _reader.HasRows; } }
+        public override bool IsClosed { get { return _reader.IsClosed; } }
+        public override int RecordsAffected { get { return _reader.RecordsAffected; } }
+        public override void Close() { _reader.Close(); }
 
         #region field values
         public override bool GetBoolean(int ordinal)
         {
-            return _activeReader.GetBoolean(ordinal);
+            return _reader.GetBoolean(ordinal);
         }
         public override byte GetByte(int ordinal)
         {
-            return _activeReader.GetByte(ordinal);
+            return _reader.GetByte(ordinal);
         }
 
         public byte GetByte(string name)
         {
-            return _activeReader.GetByte(name);
+            return _reader.GetByte(name);
         }
 
         public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
         {
-            return _activeReader.GetBytes(ordinal, dataOffset, buffer, bufferOffset, length);
+            return _reader.GetBytes(ordinal, dataOffset, buffer, bufferOffset, length);
         }
 
-        public override char GetChar(int ordinal) { return _activeReader.GetChar(ordinal); }
+        public override char GetChar(int ordinal) { return _reader.GetChar(ordinal); }
 
         public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
         {
-            return _activeReader.GetChars(ordinal, dataOffset, buffer, bufferOffset, length);
+            return _reader.GetChars(ordinal, dataOffset, buffer, bufferOffset, length);
         }
 
         public override string GetDataTypeName(int ordinal)
         {
-            return _activeReader.GetDataTypeName(ordinal);
+            return _reader.GetDataTypeName(ordinal);
         }
 
         public override DateTime GetDateTime(int ordinal)
@@ -76,151 +69,151 @@ namespace TAS.Server.Database
 
         public DateTime GetDateTime(int ordinal, DateTimeKind kind )
         {
-            return _activeReader.IsDBNull(ordinal) ? default(DateTime) : DateTime.SpecifyKind(_activeReader.GetDateTime(ordinal), kind);
+            return _reader.IsDBNull(ordinal) ? default(DateTime) : DateTime.SpecifyKind(_reader.GetDateTime(ordinal), kind);
         }
 
         public DateTime GetDateTime(string name, DateTimeKind kind = DateTimeKind.Utc)
         {
-            int columnIndex = _activeReader.GetOrdinal(name);
-            return _activeReader.IsDBNull(columnIndex) ? default(DateTime) : DateTime.SpecifyKind(_activeReader.GetDateTime(columnIndex), kind);
+            int columnIndex = _reader.GetOrdinal(name);
+            return _reader.IsDBNull(columnIndex) ? default(DateTime) : DateTime.SpecifyKind(_reader.GetDateTime(columnIndex), kind);
         }
 
         public TimeSpan GetTimeSpan(string name)
         {
-            return _activeReader.GetTimeSpan(name);
+            return _reader.GetTimeSpan(name);
         }
 
         public override decimal GetDecimal(int ordinal)
         {
-            return _activeReader.GetDecimal(ordinal);
+            return _reader.GetDecimal(ordinal);
         }
 
         public override double GetDouble(int ordinal)
         {
-            return _activeReader.GetDouble(ordinal);
+            return _reader.GetDouble(ordinal);
         }
 
         public override IEnumerator GetEnumerator()
         {
-            return _activeReader.GetEnumerator();
+            return _reader.GetEnumerator();
         }
 
         public override Type GetFieldType(int ordinal)
         {
-            return _activeReader.GetFieldType(ordinal);
+            return _reader.GetFieldType(ordinal);
         }
 
         public override float GetFloat(int ordinal)
         {
-            return _activeReader.GetFloat(ordinal);
+            return _reader.GetFloat(ordinal);
         }
 
         public override Guid GetGuid(int ordinal)
         {
-            return _activeReader.GetGuid(ordinal);
+            return _reader.GetGuid(ordinal);
         }
 
         public override short GetInt16(int ordinal)
         {
-            return _activeReader.GetInt16(ordinal);
+            return _reader.GetInt16(ordinal);
         }
 
         public override int GetInt32(int ordinal)
         {
-            return _activeReader.GetInt32(ordinal);
+            return _reader.GetInt32(ordinal);
         }
 
         public int GetInt32(string name)
         {
-            return _activeReader.GetInt32(name);
+            return _reader.GetInt32(name);
         }
 
         public uint GetUInt32(string name)
         {
-            return _activeReader.GetUInt32(name);
+            return _reader.GetUInt32(name);
         }
 
         public override long GetInt64(int ordinal)
         {
-            return _activeReader.GetInt64(ordinal);
+            return _reader.GetInt64(ordinal);
         }
 
         public ulong GetUInt64(string name)
         {
-            return _activeReader.GetUInt64(name);
+            return _reader.GetUInt64(name);
         }
 
         public override string GetString(int ordinal)
         {
-            return _activeReader.GetString(ordinal);
+            return _reader.GetString(ordinal);
         }
 
         public string GetString(string name)
         {
-            return _activeReader.GetString(name);
+            return _reader.GetString(name);
         }
 
         public override object GetValue(int ordinal)
         {
-            return _activeReader.GetValue(ordinal);
+            return _reader.GetValue(ordinal);
         }
 
         public override int GetValues(object[] values)
         {
-            return _activeReader.GetValues(values);
+            return _reader.GetValues(values);
         }
 
         public sbyte GetSByte(int ordinal)
         {
-            return _activeReader.GetSByte(ordinal);
+            return _reader.GetSByte(ordinal);
         }
 
         public sbyte GetSByte(string name)
         {
-            return _activeReader.GetSByte(name);
+            return _reader.GetSByte(name);
         }
 
         public Guid GetGuid (string name)
         {
-            return _activeReader.GetGuid(name);
+            return _reader.GetGuid(name);
         }
 
         public decimal GetDecimal(string name)
         {
-            return _activeReader.GetDecimal(name);
+            return _reader.GetDecimal(name);
         }
 
         #endregion // field falues
 
         public override string GetName(int ordinal)
         {
-            return _activeReader.GetName(ordinal);
+            return _reader.GetName(ordinal);
         }
 
         public override int GetOrdinal(string name)
         {
-            return _activeReader.GetOrdinal(name);
+            return _reader.GetOrdinal(name);
         }
 
         public override DataTable GetSchemaTable()
         {
-            return _activeReader.GetSchemaTable();
+            return _reader.GetSchemaTable();
         }
 
 
         public override bool IsDBNull(int ordinal)
         {
-            return _activeReader.IsDBNull(ordinal);
+            return _reader.IsDBNull(ordinal);
         }
 
         public override bool NextResult()
         {
-            return _activeReader.NextResult();
+            return _reader.NextResult();
         }
 
         public override bool Read()
         {
-            return _activeReader.Read();
+            return _reader.Read();
         }
     }
 }

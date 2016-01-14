@@ -275,9 +275,17 @@ namespace TAS.Server.Database
             get { return _isConnectionSync; }
             internal set
             {
-                _isConnectionSync = value;
+                if (_isConnectionSync != value)
+                {
+                    _isConnectionSync = value;
+                    var h = OnConnectionSyncChanged;
+                    if (h != null)
+                        h(this, EventArgs.Empty);
+                }
             }
         }
+
+        public event EventHandler OnConnectionSyncChanged;
 
     }
 }

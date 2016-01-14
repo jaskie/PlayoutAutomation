@@ -25,10 +25,10 @@
                 </Style>
             </StackPanel.Resources>
             <Button Command="{Binding CommandAdd}">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_add.png"/>
+                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-add.png"/>
             </Button>
             <Button Command="{Binding CommandDelete}">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/document_delete.png"/>
+                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-delete.png"/>
             </Button>
         </StackPanel>
         <DataGrid Grid.Row="1" ItemsSource="{Binding Engines}" SelectedItem="{Binding SelectedEngine}" AutoGenerateColumns="False" IsReadOnly="True" MinWidth="200" MinHeight="350">

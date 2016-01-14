@@ -523,12 +523,10 @@ VALUES
                 cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.idPersistentMedia);
                 return cmd.ExecuteNonQuery() == 1;
             }
-            return false;
         }
 
         internal static Boolean DbDelete(this ArchiveMedia archiveMedia)
         {
-            Boolean success = false;
             lock (connection)
             {
                 string query = "DELETE FROM archivemedia WHERE idArchiveMedia=@idArchiveMedia;";
@@ -536,7 +534,6 @@ VALUES
                 cmd.Parameters.AddWithValue("@idArchiveMedia", archiveMedia.idPersistentMedia);
                 return cmd.ExecuteNonQuery() == 1;
             }
-            return false;
         }
 
         internal static Boolean DbUpdate(this ServerMedia serverMedia)
@@ -811,7 +808,6 @@ VALUES
                 cmd.Parameters.AddWithValue("@Folder", dir.GetCurrentFolder());
                 return (long)cmd.ExecuteScalar() != 0;
             }
-            return true;
         }
 
         internal static List<Engine> DbLoadEngines(UInt64 instance, List<IPlayoutServer> servers)

@@ -86,6 +86,7 @@ namespace TAS.Client.Config
 
         private void _testConnectivity(object obj)
         {
+            UiServices.SetBusyState();
             if (Database.TestConnect(tasConnectionString))
                 MessageBox.Show(Window.GetWindow(View), "Connection successful", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
             else
@@ -94,6 +95,7 @@ namespace TAS.Client.Config
 
         private void _testConnectivitySecondary(object obj)
         {
+            UiServices.SetBusyState();
             if (Database.TestConnect(tasConnectionStringSecondary))
                 MessageBox.Show(Window.GetWindow(View), "Connection successful", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
             else
@@ -102,6 +104,7 @@ namespace TAS.Client.Config
 
         private void _clonePrimaryDatabase(object obj)
         {
+            UiServices.SetBusyState();
             if (Database.CloneDatabase(tasConnectionString, tasConnectionStringSecondary))
                 MessageBox.Show(Window.GetWindow(View), "Database clone successful", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
             else

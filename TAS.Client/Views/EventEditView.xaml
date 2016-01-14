@@ -37,9 +37,9 @@
         <KeyBinding Command="{Binding CommandAddNextMovie}" Gesture="Ctrl+N" />
         <KeyBinding Command="{Binding CommandDelete}" Gesture="Ctrl+Del" />
     </UserControl.InputBindings>
-        <Grid>
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="36" /> 
+            <RowDefinition Height="36" />
             <RowDefinition Height="36" />
             <RowDefinition Height="362*" />
         </Grid.RowDefinitions>
@@ -168,8 +168,8 @@
                     </DockPanel>
                     <DockPanel>
                         <Label/>
-                        <CheckBox Content="{Resx _hold}" IsChecked="{Binding IsHold}" IsEnabled="{Binding CanHold}" ToolTip="{Resx _hold.ToolTip}"  Margin="1,3"/>
-                        <CheckBox Content="{Resx _loop}" IsChecked="{Binding IsLoop}" IsEnabled="{Binding CanLoop}"/>
+                        <CheckBox Content="{Resx _hold}" IsChecked="{Binding IsHold}" IsEnabled="{Binding CanHold}" ToolTip="{Resx _hold.ToolTip}"  Margin="1,3" Width="100"/>
+                        <!--<CheckBox Content="{Resx _loop}" IsChecked="{Binding IsLoop}" IsEnabled="{Binding CanLoop}"/>-->
                     </DockPanel>
                     <DockPanel>
                         <Label Content="{Resx _scheduledTime}" />
@@ -217,7 +217,11 @@
                             <Slider  VerticalAlignment="Stretch" Margin="5, 0" Minimum="-18" Maximum="18" Value="{Binding AudioVolumeLevel}"/>
                         </DockPanel>
                         <Grid Visibility="{Binding IsGPIEnabled, Converter={StaticResource BoolToVis}}" >
-                            <StackPanel Visibility="{Binding GPICanTrigger, Converter={StaticResource BoolToVis}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="59*"/>
+                                <ColumnDefinition Width="280*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Visibility="{Binding GPICanTrigger, Converter={StaticResource BoolToVis}}" Grid.ColumnSpan="2">
                                 <StackPanel Orientation="Horizontal">
                                     <Label Content="{Resx _gpiLogo}" />
                                     <ComboBox ItemsSource="{Binding GPILogos}" SelectedValue="{Binding GPILogo}"/>
@@ -229,7 +233,7 @@
                                     <ComboBox ItemsSource="{Binding GPIParentals}" SelectedValue="{Binding GPIParental}" />
                                 </StackPanel>
                             </StackPanel>
-                            <CheckBox Content="GPI" IsChecked="{Binding GPICanTrigger}" VerticalAlignment="Top" Margin="10, 5" />
+                            <CheckBox Content="GPI" IsChecked="{Binding GPICanTrigger}" VerticalAlignment="Top" Margin="10,3,0,0" Grid.ColumnSpan="2" />
                         </Grid>
                     </StackPanel>
                 </StackPanel>

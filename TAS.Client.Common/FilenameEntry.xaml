@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <DockPanel>
         <Button DockPanel.Dock="Right" Click="BrowseFolder" Height="{Binding ElementName=textBox, Path=ActualHeight}" ToolTip="{Binding ButtonToolTip, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
-            <Image Source="/TAS.Client.Common;component/Images/FileOpen.png" />
+            <Image Source="/TAS.Client.Common;component/Images/Config/file-open.png" />
         </Button>
         <TextBox x:Name="textBox" Height="Auto" HorizontalAlignment="Stretch" DockPanel.Dock="Right" VerticalAlignment="Center"  
            Text="{Binding FileName, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}" />

@@ -16,7 +16,7 @@
         <DockPanel>
             <Label VerticalAlignment="Center" Content="Application config file"/>
             <Button DockPanel.Dock="Right" Height="18" Command="{Binding CommandConfigFileSelect}" Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}">
-                <Image Source="/TAS.Client.Common;component/Images/FileOpen.png" />
+                <Image Source="/TAS.Client.Common;component/Images/Config/file-open.png" />
             </Button>
             <TextBox IsReadOnly="True" VerticalAlignment="Center" MinWidth="200" HorizontalAlignment="Stretch" Text="{Binding ConfigFile.FileName, Mode=OneWay}" />
         </DockPanel>
@@ -24,25 +24,25 @@
             <Button Command="{Binding CommandConfigFileEdit}">
                 <StackPanel>
                     <Label Content="Config file and database"/>
-                    <Image Source="/TAS.Client.Common;component/Images/database_config.png"/>
+                    <Image Source="/TAS.Client.Common;component/Images/Config/database_config.png"/>
                 </StackPanel>
             </Button>
             <Button Command="{Binding CommandIngestFoldersSetup}">
                 <StackPanel>
                     <Label Content="Ingest folders"/>
-                    <Image Source="/TAS.Client.Common;component/Images/folder_development.png"/>
+                    <Image Source="/TAS.Client.Common;component/Images/Config/folder-development.png"/>
                 </StackPanel>
             </Button>
             <Button Command="{Binding CommandPlayoutServersSetup}">
                 <StackPanel>
                     <Label Content="Play-out servers"/>
-                    <Image Source="/TAS.Client.Common;component/Images/video_display_setup.png"/>
+                    <Image Source="/TAS.Client.Common;component/Images/Config/video_display_setup.png"/>
                 </StackPanel>
             </Button>
             <Button Command="{Binding CommandEnginesSetup}">
                 <StackPanel>
                     <Label Content="Rundown engines"/>
-                    <Image Source="/TAS.Client.Common;component/Images/playlist_config.png"/>
+                    <Image Source="/TAS.Client.Common;component/Images/Config/playlist-config.png"/>
                 </StackPanel>
             </Button>
         </ToolBar>

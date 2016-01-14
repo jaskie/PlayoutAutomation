@@ -16,6 +16,8 @@ namespace TAS.Client.Config
     {
         public ICommand CommandAdd { get; private set; }
         public ICommand CommandDelete { get; private set; }
+        public ICommand CommandUp { get; private set; }
+        public ICommand CommandDown { get; private set; }
         private readonly ObservableCollection<IngestDirectoryViewmodel> _directories;
         private readonly string _fileName;
 
@@ -52,6 +54,8 @@ namespace TAS.Client.Config
         {
             CommandAdd = new UICommand() { ExecuteDelegate = _add };
             CommandDelete = new UICommand() { ExecuteDelegate = _delete, CanExecuteDelegate = _canDelete };
+            CommandUp = new UICommand() { ExecuteDelegate = _up, CanExecuteDelegate = _canUp };
+            CommandDown = new UICommand() { ExecuteDelegate = _down, CanExecuteDelegate = _canDown };
         }
 
         private void _delete(object obj)
@@ -74,11 +78,43 @@ namespace TAS.Client.Config
             SelectedDirectory = newDir;
         }
 
+        private void _up(object o)
+        {
+            int oldIndex = _directories.IndexOf(_selectedDirectory);
+            if (oldIndex > 0)
+            {
+                _directories.Move(oldIndex, oldIndex - 1);
+                _moved = true;
+            }
+        }
+
+        private bool _canDown(object o)
+        {
+            int index = _directories.IndexOf(_selectedDirectory);
+            return index >= 0 && index < _directories.Count - 1;
+        }
+
+        private void _down(object o)
+        {
+            int oldIndex = _directories.IndexOf(_selectedDirectory);
+            if (oldIndex < _directories.Count - 1)
+            {
+                _directories.Move(oldIndex, oldIndex + 1);
+                _moved = true;
+            }
+        }
+
+        private bool _canUp(object o)
+        {
+            return _directories.IndexOf(_selectedDirectory) > 0;
+        }
+
         public ObservableCollection<IngestDirectoryViewmodel> Directories { get { return _directories; } }
         IngestDirectoryViewmodel _selectedDirectory;
         
         private bool _added;
         private bool _deleted;
+        private bool _moved;
 
         public IngestDirectoryViewmodel SelectedDirectory { get { return _selectedDirectory; } set { SetField(ref _selectedDirectory, value, "SelectedDirectory"); } }
 
@@ -88,7 +124,7 @@ namespace TAS.Client.Config
             
         }
         
-        public override bool Modified { get { return _added || _deleted || _directories.Any(d => d.Modified); } }
+        public override bool Modified { get { return _added || _deleted || _moved|| _directories.Any(d => d.Modified); } }
 
         public override void Save(object parameter)
         {
