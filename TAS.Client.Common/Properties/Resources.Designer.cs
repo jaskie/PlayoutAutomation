@@ -134,6 +134,16 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to refresh directory. Following error occurred:
+        ///{0}.
+        /// </summary>
+        public static string _message_DirectoryRefreshFailed {
+            get {
+                return ResourceManager.GetString("_message_DirectoryRefreshFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Item is scheduled in {0} at {1}.
         /// </summary>
         public static string _message_MediaDeleteDenyReason_Scheduled {

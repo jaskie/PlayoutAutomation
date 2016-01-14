@@ -183,14 +183,7 @@ namespace TAS.Client.ViewModels
                     {
                         ThreadPool.QueueUserWorkItem(o =>
                             {
-                                try
-                                {
-                                    MediaDirectory.Refresh();
-                                }
-                                catch (Exception e)
-                                {
-                                    MessageBox.Show(string.Format(resources._message_CommandFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
-                                }
+                                _refreshMediaDirectory(MediaDirectory);
                             });
                     },
                 CanExecuteDelegate = (o) =>
@@ -204,6 +197,20 @@ namespace TAS.Client.ViewModels
             CommandSweepStaleMedia = new UICommand() { ExecuteDelegate = _sweepStaleMedia };
             CommandGetLoudness = new UICommand() { ExecuteDelegate = _getLoudness, CanExecuteDelegate = _isSomethingSelected };
             CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
+        }
+
+        private void _refreshMediaDirectory(IMediaDirectory directory)
+        {
+            try
+            {
+                directory.Refresh();
+            }
+            catch (Exception e)
+            {
+                if (directory == MediaDirectory)
+                    MessageBox.Show(string.Format(resources._message_DirectoryRefreshFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
+            }
+
         }
 
         private void _export(object obj)
@@ -444,7 +451,9 @@ namespace TAS.Client.ViewModels
             _mediaView.SortDescriptions.Add(new SortDescription("MediaName", ListSortDirection.Ascending));
             if (!(_mediaDirectory is IArchiveDirectory))
                 _mediaView.Filter = new Predicate<object>(_filter);
-            System.Threading.Tasks.Task.Factory.StartNew(_mediaDirectory.Refresh);
+            var ingestdir = _mediaDirectory as IIngestDirectory;
+            if (ingestdir != null && ingestdir.IsXDCAM && !ingestdir.IsWAN)
+                ThreadPool.QueueUserWorkItem(o => _refreshMediaDirectory(ingestdir));
             NotifyPropertyChanged("MediaItems");
         }
 

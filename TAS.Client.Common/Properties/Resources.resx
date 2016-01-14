@@ -142,6 +142,10 @@
     <value>Command failed. Following error occurred:
 {0}</value>
   </data>
+  <data name="_message_DirectoryRefreshFailed" xml:space="preserve">
+    <value>Unable to refresh directory. Following error occurred:
+{0}</value>
+  </data>
   <data name="_message_MediaDeleteDenyReason_Scheduled" xml:space="preserve">
     <value>Item is scheduled in {0} at {1}</value>
   </data>

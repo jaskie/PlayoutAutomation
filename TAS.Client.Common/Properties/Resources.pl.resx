@@ -142,6 +142,10 @@
     <value>Wykonanie polecenia nie powiodło się. Błąd, który wystąpił:
 {0}</value>
   </data>
+  <data name="_message_DirectoryResreshFailed" xml:space="preserve">
+    <value>Odświeżenie katalogu nie powiodło się. Błąd, który wystąpił:
+{0}</value>
+  </data>
   <data name="_message_MediaDeleteDenyReason_Scheduled" xml:space="preserve">
     <value>Zaplanowany w {0} o {1}</value>
   </data>

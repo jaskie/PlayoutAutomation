@@ -19,7 +19,7 @@ using TAS.Server.Database;
 
 namespace TAS.Data
 {
-    public static partial class DatabaseConnector
+    public static class DatabaseConnector
     {
         private static DbConnectionRedundant connection;
 
@@ -29,6 +29,8 @@ namespace TAS.Data
             Debug.WriteLine(connection, "DbConnection initialized");
             connection.Open();
         }
+
+        public static DbConnectionRedundant Connection { get { return connection; } }
 
         internal static void DbReadRootEvents(this Engine engine)
         {

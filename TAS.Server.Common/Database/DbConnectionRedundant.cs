@@ -177,9 +177,9 @@ namespace TAS.Server.Database
             Close();
         }
 
-        private static void _idleTimeTimerCallback(object o)
+        private void _idleTimeTimerCallback(object o)
         {
-            lock (o)
+            lock (this)
             {
                 MySqlConnection connection = o as MySqlConnection;
                 if (connection != null
@@ -191,7 +191,7 @@ namespace TAS.Server.Database
             }
         }
 
-        private static bool _connect(MySqlConnection connection)
+        private bool _connect(MySqlConnection connection)
         {
             bool connectionResult = connection.State == ConnectionState.Open;
             if (!connectionResult)

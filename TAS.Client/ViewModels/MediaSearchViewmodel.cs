@@ -126,7 +126,6 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        private ICollectionView _itemsViewSource;
         private ObservableCollection<MediaViewViewmodel> _items;
         public ObservableCollection<MediaViewViewmodel> Items { get { return _items; } }
         public ICommand CommandAdd { get; private set; }
