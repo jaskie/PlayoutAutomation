@@ -605,6 +605,7 @@ namespace TAS.Server
                 if (SetField(ref _serverMediaPGM, newMedia, "Media"))
                 {
                     _mediaGuid = newMedia == null ? Guid.Empty : newMedia.MediaGuid;
+                    _serverMediaPRV = null;
                     if (newMedia != null)
                         newMedia.PropertyChanged += _serverMediaPGM_PropertyChanged;
                     if (oldMedia != null)
@@ -620,8 +621,8 @@ namespace TAS.Server
                 NotifyPropertyChanged("AudioVolume");
         }
         
-        private IServerMedia _serverMediaPRV;
-        private IServerMedia _serverMediaPGM;
+        private ServerMedia _serverMediaPRV;
+        private ServerMedia _serverMediaPGM;
         public IServerMedia ServerMediaPGM
         {
             get
