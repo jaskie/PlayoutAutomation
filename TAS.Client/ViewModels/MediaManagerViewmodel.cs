@@ -208,7 +208,10 @@ namespace TAS.Client.ViewModels
             catch (Exception e)
             {
                 if (directory == MediaDirectory)
-                    MessageBox.Show(string.Format(resources._message_DirectoryRefreshFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
+                    Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+                    {
+                        MessageBox.Show(string.Format(resources._message_DirectoryRefreshFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
+                    });
             }
 
         }

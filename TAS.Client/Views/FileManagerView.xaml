@@ -61,7 +61,7 @@
                                 <ProgressBar IsIndeterminate="{Binding IsIndeterminate, Mode=OneWay}"  Value="{Binding Progress, Mode=OneWay}" Minimum="0" Maximum="100" />
                                 <Label Content="{Binding Path=Progress}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" Foreground="White" FontWeight="Bold" />
                                 <Button Width="16" Padding="0" Grid.Column="1" ToolTip="{Resx ResxName=TAS.Client.Views.FileManagerView, Key=_grid.Header.OperationOutput}" Command="{Binding CommandShowOutput}">
-                                    <components:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Gearwheel.png"/>
+                                    <components:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Indicators/gearwheel.png"/>
                                 </Button>
                                 <Button Width="16" Padding="0" Grid.Column="2" Visibility="{Binding IsWarning, Converter={StaticResource BoolToVis}}" Command="{Binding CommandShowWarning}">
                                     <Image Source="/TAS.Client.Common;component/Images/Indicators/warning.png"/>

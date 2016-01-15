@@ -266,24 +266,27 @@ namespace TAS.Server
                 if (_playState == TPlayState.Scheduled)
                 {
                     DateTime et = ScheduledTime;
-                    if (_eventType == TEventType.Rundown)
+                    if (_isEnabled)
                     {
-                        foreach (IEvent se in SubEvents)
+                        if (_eventType == TEventType.Rundown)
                         {
-                            IEvent le = se;
-                            IEvent le_n = le.Next;
-                            while (le_n != null)
+                            foreach (IEvent se in SubEvents)
                             {
-                                le = le_n;
-                                le_n = le.Next;
+                                IEvent le = se;
+                                IEvent le_n = le.Next;
+                                while (le_n != null)
+                                {
+                                    le = le_n;
+                                    le_n = le.Next;
+                                }
+                                DateTime le_t = le.EndTime;
+                                if (le_t > et)
+                                    et = le_t;
                             }
-                            DateTime le_t = le.EndTime;
-                            if (le_t > et)
-                                et = le_t;
                         }
+                        else
+                            et = ScheduledTime + Length;
                     }
-                    else
-                        et = ScheduledTime + Length;
                     return et;
                 }
                 if (_playState == TPlayState.Played || _playState == TPlayState.Aborted)

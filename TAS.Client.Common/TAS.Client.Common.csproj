@@ -217,7 +217,7 @@
     <Resource Include="Images\Config\document-save.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Config\gearwheel.png" />
+    <Resource Include="Images\Indicators\gearwheel.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Actions\edit.png" />
