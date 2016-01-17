@@ -6,7 +6,7 @@ using TAS.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IArchiveDirectory: IMediaDirectory
+    public interface IArchiveDirectory: IMediaDirectory, IArchiveDirectoryConfig
     {
         IArchiveMedia Find(IMedia media);
         IArchiveMedia GetArchiveMedia(IMedia media, bool searchExisting = true);

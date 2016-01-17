@@ -9,6 +9,8 @@ namespace TAS.Client.Model
 {
     public class ArchiveDirectory : MediaDirectory, IArchiveDirectory
     {
+        public ulong idArchive { get { return Get<UInt64>(); } set { Set(value); } }
+
         public TMediaCategory? SearchMediaCategory { get { return Get<TMediaCategory?>(); } set { Set(value); } }
         
         public string SearchString { get { return Get<string>(); } set { Set(value); } }

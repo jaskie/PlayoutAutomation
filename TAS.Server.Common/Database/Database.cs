@@ -212,5 +212,30 @@ namespace TAS.Server.Database
         }
 
         #endregion //IEngine
+
+        #region ArchiveDirectory
+        public static List<T> DbLoadArchiveDirectories<T>() where T : IArchiveDirectoryConfig, new()
+        {
+            List<T> directories = new List<T>();
+            lock (_connection)
+            {
+                DbCommandRedundant cmd;
+                cmd = new DbCommandRedundant("SELECT * FROM archive;", _connection);
+                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        var dir = new T();
+                        dir.idArchive = dataReader.GetUInt64("idArchive");
+                        dir.Folder = dataReader.GetString("Folder");
+                    }
+                    dataReader.Close();
+                }
+            }
+            return directories;
+        }
+
+
+        #endregion // ArchiveDirectory
     }
 }

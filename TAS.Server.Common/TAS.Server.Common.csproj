@@ -78,6 +78,7 @@
     <Compile Include="FileUtils.cs" />
     <Compile Include="Interfaces\IAnimationDirectory.cs" />
     <Compile Include="Interfaces\IArchiveDirectory.cs" />
+    <Compile Include="Interfaces\IArchiveDirectoryConfig.cs" />
     <Compile Include="Interfaces\IArchiveMedia.cs" />
     <Compile Include="Interfaces\IConvertOperation.cs" />
     <Compile Include="Interfaces\IEngine.cs" />

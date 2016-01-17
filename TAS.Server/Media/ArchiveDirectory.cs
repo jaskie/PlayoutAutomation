@@ -26,7 +26,7 @@ namespace TAS.Server
             GetVolumeInfo();
             Debug.WriteLine("ArchiveDirectory {0} initialized", Folder, null);
         }
-        public UInt64 IdArchive { get; internal set; }
+        public UInt64 idArchive { get; set; }
 
         private string _searchString;
         public string SearchString

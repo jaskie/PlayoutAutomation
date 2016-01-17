@@ -344,7 +344,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             }
             if (media is ArchiveMedia && media.Directory is ArchiveDirectory)
             {
-                cmd.Parameters.AddWithValue("@idArchive", (((media as ArchiveMedia).Directory) as ArchiveDirectory).IdArchive);
+                cmd.Parameters.AddWithValue("@idArchive", (((media as ArchiveMedia).Directory) as ArchiveDirectory).idArchive);
                 cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
             }
             cmd.Parameters.AddWithValue("@MediaName", media.MediaName);
@@ -658,7 +658,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                     cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and ((flags >> 4) & 3)=@Category and  " + string.Join(" and ", textSearches) + " LIMIT 0, 1000;", connection);
                     cmd.Parameters.AddWithValue("@Category", (uint)dir.SearchMediaCategory);
                 }
-                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
+                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
                 using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
@@ -743,7 +743,7 @@ VALUES
             lock (connection)
             {
                 DbCommandRedundant cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and KillDate<CURRENT_DATE and KillDate>'2000-01-01' LIMIT 0, 1000;", connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
+                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
                 using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
@@ -763,7 +763,7 @@ VALUES
                 if (media.MediaGuid != Guid.Empty)
                 {
                     cmd = new DbCommandRedundant("SELECT * FROM archivemedia WHERE idArchive=@idArchive && MediaGuid=@MediaGuid;", connection);
-                    cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
+                    cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
                     cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
                     using (DbDataReaderRedundant dataReader = cmd.ExecuteReader(CommandBehavior.SingleRow))
                     {
@@ -789,7 +789,7 @@ VALUES
                 {
                     ArchiveDirectory directory = new ArchiveDirectory(manager)
                     {
-                        IdArchive = idArchive,
+                        idArchive = idArchive,
                         Folder = folder,
                     };
                     directory.Initialize();
@@ -805,7 +805,7 @@ VALUES
             {
                 string query = "SELECT COUNT(*) FROM archivemedia WHERE idArchive=@idArchive AND FileName=@FileName AND Folder=@Folder;";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, connection);
-                cmd.Parameters.AddWithValue("@idArchive", dir.IdArchive);
+                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
                 cmd.Parameters.AddWithValue("@FileName", fileName);
                 cmd.Parameters.AddWithValue("@Folder", dir.GetCurrentFolder());
                 return (long)cmd.ExecuteScalar() != 0;
