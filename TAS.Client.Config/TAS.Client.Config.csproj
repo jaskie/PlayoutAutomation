@@ -81,6 +81,10 @@
       <DependentUpon>EngineView.xaml</DependentUpon>
     </Compile>
     <Compile Include="EngineViewmodel.cs" />
+    <Compile Include="ArchiveDirectoriesViewmodel.cs" />
+    <Compile Include="ArchiveDirectoriesView.xaml.cs">
+      <DependentUpon>ArchiveDirectoriesView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Model\ArchiveDirectories.cs" />
     <Compile Include="Model\ArchiveDirectory.cs" />
     <Compile Include="Model\CreateDatabase.cs" />
@@ -136,6 +140,10 @@
     <Page Include="EngineView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ArchiveDirectoriesView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="IngestDirectoriesView.xaml">
       <Generator>MSBuild:Compile</Generator>

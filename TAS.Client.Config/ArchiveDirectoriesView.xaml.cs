@@ -17,9 +17,9 @@ namespace TAS.Client.Config
     /// <summary>
     /// Interaction logic for IngestFoldersView.xaml
     /// </summary>
-    public partial class IngestDirectoriesView : UserControl
+    public partial class ArchiveDirectoriesView : UserControl
     {
-        public IngestDirectoriesView()
+        public ArchiveDirectoriesView()
         {
             InitializeComponent();
         }

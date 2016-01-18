@@ -32,5 +32,6 @@ namespace TAS.Client.Config.Model
         public RemoteHost Remote { get; set; }
 
         internal List<CasparServer> Servers;
+        internal ArchiveDirectories ArchiveDirectories;
     }
 }

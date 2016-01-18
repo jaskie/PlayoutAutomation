@@ -14,12 +14,16 @@ namespace TAS.Client.Config.Model
         public string Folder { get { return _folder; } set { SetField(ref _folder, value); } }
         protected bool _modified;
         public bool Modified { get { return _modified; } internal set { _modified = value; } }
-        protected bool _deleted;
+        private bool _deleted;
 
         public void Delete()
         {
             _deleted = true;
         }
+
+        public bool IsDeleted { get { return _deleted; } }
+
+        public bool IsNew { get { return _idArchive == 0; } }
 
         protected virtual bool SetField<T>(ref T field, T value)
         {
@@ -27,6 +31,11 @@ namespace TAS.Client.Config.Model
             field = value;
             Modified = true;
             return true;
+        }
+
+        public override string ToString()
+        {
+            return Folder;
         }
     }
 }

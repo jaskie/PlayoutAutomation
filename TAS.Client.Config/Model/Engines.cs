@@ -10,15 +10,17 @@ namespace TAS.Client.Config.Model
     {
         readonly List<Engine> _engines;
         internal readonly List<CasparServer> Servers;
-        private readonly string _connectionStringPrimary;
-        private readonly string _connectionStringSecondary;
+        internal readonly ArchiveDirectories ArchiveDirectories;
+        public readonly string ConnectionStringPrimary;
+        public readonly string ConnectionStringSecondary;
         public Engines(string connectionStringPrimary, string connectionStringSecondary)
         {
-            _connectionStringPrimary = connectionStringPrimary;
-            _connectionStringSecondary = connectionStringSecondary;
+            ConnectionStringPrimary = connectionStringPrimary;
+            ConnectionStringSecondary = connectionStringSecondary;
+            ArchiveDirectories = new ArchiveDirectories(connectionStringPrimary, connectionStringSecondary);
             try
             {
-                Database.Open(connectionStringPrimary, connectionStringSecondary);
+                Database.Open();
                 _engines = Database.DbLoadEngines<Engine>();
                 Servers = Database.DbLoadServers<CasparServer>();
                 Servers.ForEach(s => s.Channels.ForEach(c => c.Owner = s));
@@ -26,8 +28,8 @@ namespace TAS.Client.Config.Model
                     {
                         e.IsNew = false;
                         e.Servers = this.Servers;
+                        e.ArchiveDirectories = this.ArchiveDirectories;
                     });
-                
             }
             finally
             {
@@ -39,7 +41,7 @@ namespace TAS.Client.Config.Model
         {
             try
             {
-                Database.Open(_connectionStringPrimary, _connectionStringSecondary);
+                Database.Open(ConnectionStringPrimary, ConnectionStringSecondary);
                 _engines.ForEach(e =>
                 {
                     if (e.Modified)

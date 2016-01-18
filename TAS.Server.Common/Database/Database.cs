@@ -16,12 +16,27 @@ namespace TAS.Server.Database
     public static class Database
     {
         static DbConnectionRedundant _connection;
+        private static string _connectionStringSecondary;
+        private static string _connectionStringPrimary;
 
-        public static void Open(string connectionStringPrimary, string connectionStringSecondary)
+        public static void Open(string connectionStringPrimary = null, string connectionStringSecondary = null)
         {
-            _connection = new DbConnectionRedundant(connectionStringPrimary, connectionStringSecondary);
+            if (connectionStringPrimary != null)
+            {
+                _connectionStringPrimary = connectionStringPrimary;
+                _connectionStringSecondary = connectionStringSecondary;
+            }
+            _connection = new DbConnectionRedundant(_connectionStringPrimary, _connectionStringSecondary);
             _connection.Open();
         }
+
+        public static void Close()
+        {
+            _connection.Close();
+        }
+
+        public static string ConnectionStringPrimary { get { return _connectionStringPrimary; } }
+        public static string ConnectionStringSecondary { get { return _connectionStringSecondary; } }
 
         #region Configuration Functions
         public static bool TestConnect(string connectionString)
@@ -29,10 +44,6 @@ namespace TAS.Server.Database
             return DbConnectionRedundant.TestConnect(connectionString);
         }
 
-        public static void Close()
-        {
-            _connection.Close();
-        }
 
         public static bool CreateEmptyDatabase(string connectionString, string collate)
         {
@@ -228,6 +239,7 @@ namespace TAS.Server.Database
                         var dir = new T();
                         dir.idArchive = dataReader.GetUInt64("idArchive");
                         dir.Folder = dataReader.GetString("Folder");
+                        directories.Add(dir);
                     }
                     dataReader.Close();
                 }
@@ -235,7 +247,39 @@ namespace TAS.Server.Database
             return directories;
         }
 
+        public static void DbInsertArchiveDirectory<T>(this T dir) where T : IArchiveDirectoryConfig
+        {
+            lock (_connection)
+            {
+                {
+                    DbCommandRedundant cmd = new DbCommandRedundant(@"INSERT INTO archive set Folder=@Folder", _connection);
+                    cmd.Parameters.AddWithValue("@Folder", dir.Folder);
+                    cmd.ExecuteNonQuery();
+                    dir.idArchive = (ulong)cmd.LastInsertedId;
+                }
+            }
+        }
 
+        public static void DbUpdateArchiveDirectory<T>(this T dir) where T : IArchiveDirectoryConfig
+        {
+            lock (_connection)
+            {
+                DbCommandRedundant cmd = new DbCommandRedundant(@"UPDATE archive set Folder=@Folder where idArchive=@idArchive", _connection);
+                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                cmd.Parameters.AddWithValue("@Folder", dir.Folder);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public static void DbDeleteArchiveDirectory<T>(this T dir) where T : IArchiveDirectoryConfig
+        {
+            lock (_connection)
+            {
+                DbCommandRedundant cmd = new DbCommandRedundant("DELETE FROM archive WHERE idArchive=@idArchive;", _connection);
+                cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                cmd.ExecuteNonQuery();
+            }
+        }
         #endregion // ArchiveDirectory
     }
 }

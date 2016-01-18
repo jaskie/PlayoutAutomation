@@ -10,12 +10,8 @@ namespace TAS.Client.Config.Model
     {
         public readonly List<ArchiveDirectory> Directories;
 
-        private readonly string _connectionStringPrimary;
-        private readonly string _connectionStringSecondary;
-        public ArchiveDirectories(string connectionStringPrimary, string connectionStringSecondary)
+        public ArchiveDirectories(string connectionStringPrimary = null, string connectionStringSecondary = null)
         {
-            _connectionStringPrimary = connectionStringPrimary;
-            _connectionStringSecondary = connectionStringSecondary;
             try
             {
                 Database.Open(connectionStringPrimary, connectionStringSecondary);
@@ -30,8 +26,23 @@ namespace TAS.Client.Config.Model
 
         public void Save()
         {
+            Database.Open();
             try
             {
+                foreach (var dir in Directories.ToList())
+                {
+                    if (dir.IsDeleted)
+                    {
+                        dir.DbDeleteArchiveDirectory();
+                        Directories.Remove(dir);
+                    }
+                    else
+                    if (dir.IsNew)
+                        dir.DbInsertArchiveDirectory();
+                    else
+                    if (dir.Modified)
+                        dir.DbUpdateArchiveDirectory();
+                }
             }
             finally
             {

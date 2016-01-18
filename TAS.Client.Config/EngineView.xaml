@@ -37,6 +37,13 @@
             <ComboBox SelectedItem="{Binding ChannelPGM}" ItemsSource="{Binding Channels}"/>
             <Label Content="Preview channel"/>
             <ComboBox SelectedItem="{Binding ChannelPRV}" ItemsSource="{Binding Channels}"/>
+            <Label Content="Archive directory"/>
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Height="21" ToolTip="Manage archive directories" Command="{Binding CommandManageArchiveDirectories}">
+                    <Image Source="/TAS.Client.Common;component/Images/Config/config.png"/>
+                </Button>
+                <ComboBox ItemsSource="{Binding ArchiveDirectories}" SelectedItem="{Binding ArchiveDirectory}"/>
+            </DockPanel>
             <Separator Margin="5"/>
             <HeaderedContentControl>
                 <HeaderedContentControl.Header>

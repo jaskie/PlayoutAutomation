@@ -29,6 +29,9 @@ namespace TAS.Client.Config
                                                         && ((Model.CasparServerChannel)c).ChannelNumber == Model.ServerChannelPRV
                                                         && ((Model.CasparServerChannel)c).Owner is Model.CasparServer
                                                         && ((Model.CasparServer)(((Model.CasparServerChannel)c).Owner)).Id == Model.IdServerPRV);
+            _archiveDirectories = new List<object>() { TAS.Client.Common.Properties.Resources._none_ };
+            _archiveDirectories.AddRange(Model.ArchiveDirectories.Directories);
+            _archiveDirectory = engine.IdArchive == 0 ? _archiveDirectories.First() : _archiveDirectories.FirstOrDefault(d => (d is Model.ArchiveDirectory) && ((Model.ArchiveDirectory)d).idArchive == engine.IdArchive);
             if (_channelPRV == null) _channelPRV = _channels.First();
             if (Model.Gpi != null)
             {
@@ -40,6 +43,19 @@ namespace TAS.Client.Config
             {
                 _remoteHostEnabled = true;
                 _remoteHostEndpointAddress = Model.Remote.EndpointAddress;
+            }
+            CommandManageArchiveDirectories = new UICommand() { ExecuteDelegate = _manageArchiveDirectories };
+        }
+
+        private void _manageArchiveDirectories(object obj)
+        {
+            var dialog = new ArchiveDirectoriesViewmodel(Model.ArchiveDirectories);
+            if (dialog.ShowDialog() == true)
+            {
+                _archiveDirectories = new List<object>() { TAS.Client.Common.Properties.Resources._none_ };
+                _archiveDirectories.AddRange(Model.ArchiveDirectories.Directories);
+                NotifyPropertyChanged("ArchiveDirectories");
+                ArchiveDirectory = dialog.SelectedDirectory;
             }
         }
 
@@ -64,6 +80,10 @@ namespace TAS.Client.Config
         public object ChannelPGM { get { return _channelPGM; } set { SetField(ref _channelPGM, value, "ChannelPGM"); } }
         private object _channelPRV;
         public object ChannelPRV { get { return _channelPRV; } set { SetField(ref _channelPRV, value, "ChannelPRV"); } }
+        private List<object> _archiveDirectories;
+        public List<object> ArchiveDirectories { get { return _archiveDirectories; } }
+        private object _archiveDirectory;
+        public object ArchiveDirectory { get { return _archiveDirectory; } set { SetField(ref _archiveDirectory, value, "ArchiveDirectory"); } }
         private bool _gpiEnabled;
         public bool GpiEnabled { get { return _gpiEnabled; } set { SetField(ref _gpiEnabled, value, "GpiEnabled"); } }
         private string _gpiAddress;
@@ -74,6 +94,9 @@ namespace TAS.Client.Config
         public bool RemoteHostEnabled { get { return _remoteHostEnabled; } set { SetField(ref _remoteHostEnabled, value, "RemoteHostEnabled"); } }
         private string _remoteHostEndpointAddress;
         public string RemoteHostEndpointAddress { get { return _remoteHostEndpointAddress; } set { SetField(ref _remoteHostEndpointAddress, value, "RemoteHostEndpointAddress"); } }
+
+        public UICommand CommandManageArchiveDirectories { get; private set; }
+
 
         public override void Save(object destObject = null)
         {
@@ -87,12 +110,10 @@ namespace TAS.Client.Config
                 Model.ServerChannelPRV = playoutServerChannelPRV == null ? 0 : playoutServerChannelPRV.ChannelNumber;
                 Model.Gpi = _gpiEnabled ? new Model.Gpi() { Address = this.GpiAddress, GraphicsStartDelay = this.GpiGraphicsStartDelay } : null;
                 Model.Remote = _remoteHostEnabled ? new Model.RemoteHost() { EndpointAddress = RemoteHostEndpointAddress } : null;
+                Model.IdArchive = _archiveDirectory is Model.ArchiveDirectory ? ((Model.ArchiveDirectory)_archiveDirectory).idArchive : 0;
                 Model.Modified = true;
             }
             base.Save(destObject);
         }
-
-        public ulong IdArchive { get; set; }
-
     }
 }
