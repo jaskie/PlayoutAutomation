@@ -113,29 +113,42 @@ namespace TAS.Server
 
         #endregion // Checkfile
 
+        #region IConvertOperation implementation
+
         private TAspectConversion _aspectConversion;
+        private TAudioChannelMappingConversion _audioChannelMappingConversion;
+        private decimal _audioVolume;
+        private TFieldOrder _sourceFieldOrderEnforceConversion;
+        private TVideoFormat _outputFormat;
+
         [JsonProperty]
         public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value, "AspectConversion"); } }
-
-        private TAudioChannelMappingConversion _audioChannelMappingConversion;
         [JsonProperty]
         public TAudioChannelMappingConversion AudioChannelMappingConversion { get { return _audioChannelMappingConversion; } set { SetField(ref _audioChannelMappingConversion, value, "AudioChannelMappingConversion"); } }
-
-        private decimal _audioVolume;
         [JsonProperty]
-        public decimal AudioVolume
-        {
-            get { return _audioVolume; }
-            set { SetField(ref _audioVolume, value, "AudioVolume");}
-        }
-
-        private TFieldOrder _sourceFieldOrderEnforceConversion;
+        public decimal AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value, "AudioVolume"); } }
         [JsonProperty]
         public TFieldOrder SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { SetField(ref _sourceFieldOrderEnforceConversion, value, "SourceFieldOrderEnforceConversion"); } }
-
-        private TVideoFormat _outputFormat;
         [JsonProperty]
         public TVideoFormat OutputFormat { get { return _outputFormat; } set { SetField(ref _outputFormat, value, "OutputFormat"); } }
+        [JsonProperty]
+        public string IdAux
+        {
+            get
+            {
+                var media = DestMedia as IPersistentMedia;
+                return (media == null) ? null : media.IdAux;
+            }
+            set
+            {
+                var media = DestMedia as IPersistentMedia;
+                if (media != null)
+                    media.IdAux = value;
+                NotifyPropertyChanged("IdAux");
+            }
+        }
+
+        #endregion // IConvertOperation implementation
 
 
         public override bool Do()

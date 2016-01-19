@@ -71,6 +71,7 @@ namespace TAS.Client.ViewModels
             set { _convertOperation.AudioVolume = value; }
         }
 
+        public string IdAux { get { return _convertOperation.IdAux; } set { _convertOperation.IdAux = value; } }
         static readonly Array _sourceFieldOrderEnforceConversions = Enum.GetValues(typeof(TFieldOrder));
         public Array SourceFieldOrderEnforceConversions { get { return _sourceFieldOrderEnforceConversions; } }
         public TFieldOrder SourceFieldOrderEnforceConversion

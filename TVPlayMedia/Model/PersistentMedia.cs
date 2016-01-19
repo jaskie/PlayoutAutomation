@@ -12,6 +12,8 @@ namespace TAS.Client.Model
     {
         public TMediaEmphasis MediaEmphasis { get { return Get<TMediaEmphasis>(); } set { Set(value); } }
 
+        public string IdAux { get { return Get<string>(); } set { Set(value); } }
+
         public ObservableSynchronizedCollection<IMediaSegment> MediaSegments { get { return Get<ObservableSynchronizedCollection<IMediaSegment>>(); }  set { Set(value); }  }
 
         public IMediaSegment CreateSegment()

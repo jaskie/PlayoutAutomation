@@ -25,7 +25,7 @@ namespace TAS.Client.ViewModels
         void _convertOperationPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "IsValid")
-                NotifyPropertyChanged(e.PropertyName);
+                OnModified();
         }
 
         public ObservableCollection<ConvertOperationViewModel> OperationList { get { return _conversionList; } }
@@ -65,7 +65,8 @@ namespace TAS.Client.ViewModels
                 return true;
             }
         }
-        protected override bool CanClose(object parameter)
+
+        protected override bool CanOK(object parameter)
         {
             return IsValid;
         }

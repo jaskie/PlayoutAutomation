@@ -957,7 +957,7 @@ idEngine=@idEngine", connection);
         {
             if (mediaSegment.idMediaSegment != 0)
             {
-                var segments = (ObservableSynchronizedCollection<MediaSegment>)_mediaSegments[mediaSegment.MediaGuid];
+                var segments = (ObservableSynchronizedCollection<IMediaSegment>)_mediaSegments[mediaSegment.MediaGuid];
                 if (segments != null)
                 {
                     segments.Remove(mediaSegment);

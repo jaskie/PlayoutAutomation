@@ -22,7 +22,7 @@ namespace TAS.Client.ViewModels
             Media.PropertyChanged += OnMediaPropertyChanged;
             if (Media is IPersistentMedia)
             {
-                (Media as IPersistentMedia).MediaSegments.CollectionOperation += new EventHandler<CollectionOperationEventArgs<IMediaSegment>>(_mediaSegmentsCollectionOperation);
+                (Media as IPersistentMedia).MediaSegments.CollectionOperation += _mediaSegmentsCollectionOperation;
                 foreach (IMediaSegment ms in (Media as IPersistentMedia).MediaSegments)
                     _mediaSegments.Add(new MediaSegmentViewmodel((Media as IPersistentMedia), ms));
             }
@@ -33,7 +33,7 @@ namespace TAS.Client.ViewModels
         {
             Media.PropertyChanged -= OnMediaPropertyChanged;
             if (_mediaSegments != null && Media is IPersistentMedia)
-                (Media as IPersistentMedia).MediaSegments.CollectionOperation -= new EventHandler<CollectionOperationEventArgs<IMediaSegment>>(_mediaSegmentsCollectionOperation);
+                (Media as IPersistentMedia).MediaSegments.CollectionOperation -= _mediaSegmentsCollectionOperation;
             Media.ReferenceRemove();
         }
 

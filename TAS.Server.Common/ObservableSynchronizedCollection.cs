@@ -13,16 +13,20 @@ namespace TAS.Server.Common
         protected override void InsertItem(int index, T item)
         {
             base.InsertItem(index, item);
+            NotifyCollectionOperation(item, TCollectionOperation.Insert);
         }
 
         protected override void RemoveItem(int index)
         {
+            T item = default(T);
             lock (SyncRoot)
                 if (Count > index)
                 {
-                    T item = this[index];
+                    item = this[index];
                 }
             base.RemoveItem(index);
+            if (item != null)
+                NotifyCollectionOperation(item, TCollectionOperation.Remove);
         }
 
         protected override void SetItem(int index, T item)

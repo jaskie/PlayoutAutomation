@@ -10,6 +10,7 @@ namespace TAS.Server.Interfaces
     public interface IPersistentMedia: IMedia
     {
         TMediaEmphasis MediaEmphasis { get; set; }
+        string IdAux { get; set; }
         ObservableSynchronizedCollection<IMediaSegment> MediaSegments { get; }
         IMediaSegment CreateSegment();
         bool Save();

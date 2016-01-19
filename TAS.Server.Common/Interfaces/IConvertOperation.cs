@@ -13,5 +13,6 @@ namespace TAS.Server.Interfaces
         TFieldOrder SourceFieldOrderEnforceConversion { get; set; }
         TVideoFormat OutputFormat { get; set; }
         decimal AudioVolume { get; set; }
+        string IdAux { get; set; }
     }
 }

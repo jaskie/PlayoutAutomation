@@ -639,10 +639,10 @@ namespace TAS.Server
                 _loadedNextEvents[aEvent.Layer] = null;
                 _setAspectRatio(aEvent);
             }
+            _run(aEvent);
             aEvent.PlayState = TPlayState.Paused;
             foreach (Event se in (aEvent.SubEvents.Where(e => e.ScheduledDelay == TimeSpan.Zero)).ToList())
                 _load(se);
-            _run(aEvent);
             return true;
         }
 

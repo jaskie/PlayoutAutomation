@@ -15,5 +15,6 @@ namespace TAS.Client.Model
         public decimal AudioVolume { get { return Get<decimal>(); } set { Set(value); } }
         public TVideoFormat OutputFormat { get { return Get<TVideoFormat>(); } set { Set(value); } }
         public TFieldOrder SourceFieldOrderEnforceConversion { get { return Get<TFieldOrder>(); } set { Set(value); } }
+        public string IdAux { get { return Get<string>(); } set { Set(value); } }
     }
 }

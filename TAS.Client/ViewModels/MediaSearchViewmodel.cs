@@ -372,8 +372,8 @@ namespace TAS.Client.ViewModels
 
         private  void _add(object param)
         {
-            var handler = MediaChoosen;
             var sm = SelectedItem;
+            var handler = MediaChoosen;
             if (handler!= null && sm != null)
                 handler(this, new MediaSearchEventArgs(sm.Media, sm.SelectedSegment == null ? null : sm.SelectedSegment.MediaSegment, MediaName, TCStart, Duration));
             if (_closeAfterAdd)

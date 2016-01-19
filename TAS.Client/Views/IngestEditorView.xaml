@@ -8,7 +8,7 @@
         <DockPanel>
             <DataGrid ItemsSource="{Binding OperationList}" SelectedItem="{Binding SelectedOperation}" AutoGenerateColumns="False" IsReadOnly="True" Visibility="{Binding ShowMediaList, Converter={StaticResource BoolToVis}}" Width="200">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="{Resx _grid.Header.Clip}" Width="*" Binding="{Binding SourceFileName, Mode=OneWay}" />
+                    <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.IngestEditorView, Key=_grid.Header.Clip}" Width="*" Binding="{Binding SourceFileName, Mode=OneWay}" />
                 </DataGrid.Columns>
             </DataGrid>
             <client:ConvertOperationView DataContext="{Binding SelectedOperation}" Width="200" Margin="10"/>

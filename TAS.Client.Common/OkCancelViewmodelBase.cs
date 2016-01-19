@@ -17,8 +17,8 @@ namespace TAS.Client.Common
         public OkCancelViewmodelBase(M model, UserControl editor, string windowTitle):base(model, editor)
         {
             CommandClose = new UICommand() { CanExecuteDelegate = CanClose, ExecuteDelegate = Close };
-            CommandApply = new UICommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = o => Save() };
-            CommandOK = new UICommand() { CanExecuteDelegate = o => Modified == true, ExecuteDelegate = Ok };
+            CommandApply = new UICommand() { CanExecuteDelegate = CanApply, ExecuteDelegate = o => Save() };
+            CommandOK = new UICommand() { CanExecuteDelegate = CanOK, ExecuteDelegate = Ok };
             View = new OkCancelView() { 
                 DataContext = this, 
                 Title = windowTitle, 
@@ -49,6 +49,16 @@ namespace TAS.Client.Common
         protected virtual bool CanClose(object parameter)
         {
             return true;
+        }
+
+        protected virtual bool CanOK(object parameter)
+        {
+            return Modified == true;
+        }
+
+        protected virtual bool CanApply(object parameter)
+        {
+            return Modified == true;
         }
 
         protected override void OnModified()

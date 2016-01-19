@@ -129,6 +129,9 @@
   <data name="_category" xml:space="preserve">
     <value>Category</value>
   </data>
+  <data name="_conversions" xml:space="preserve">
+    <value>Conversions</value>
+  </data>
   <data name="_destFileName" xml:space="preserve">
     <value>Destination file name</value>
   </data>
@@ -140,6 +143,9 @@
   </data>
   <data name="_fieldOrder" xml:space="preserve">
     <value>Source field order</value>
+  </data>
+  <data name="_idAux" xml:space="preserve">
+    <value>External Id</value>
   </data>
   <data name="_parental" xml:space="preserve">
     <value>Parental control</value>
