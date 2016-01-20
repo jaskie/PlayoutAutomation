@@ -1141,8 +1141,8 @@ namespace TAS.Server
                         IEvent ne = se.Next;
                         while (ne != null)
                         {
-                            ne.Delete();
                             var next = ne.Next;
+                            ne.Delete();
                             ne = next;
                         }
                         se.Delete();
