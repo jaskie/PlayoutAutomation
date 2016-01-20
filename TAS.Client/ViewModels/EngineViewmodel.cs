@@ -349,7 +349,7 @@ namespace TAS.Client.ViewModels
 
         private EventPanelViewmodel _GetEventViewModel(IEvent aEvent)
         {
-            IEnumerable<IEvent> rt = aEvent.GetVisualRootTrack();
+            IEnumerable<IEvent> rt = aEvent.GetVisualRootTrack().Reverse();
             EventPanelViewmodel evm = _rootEventViewModel;
             foreach (IEvent ev in rt)
             {
