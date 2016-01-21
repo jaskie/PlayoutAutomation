@@ -37,7 +37,6 @@ namespace TAS.Server.Interfaces
         void Clear(VideoLayer aVideoLayer);
         void RestartRundown(IEvent ARundown);
         void Schedule(IEvent aEvent);
-        void ReSchedule(IEvent aEvent);
         void ReScheduleAsync(IEvent aEvent);
         void RestartLayer(VideoLayer aLayer);
 

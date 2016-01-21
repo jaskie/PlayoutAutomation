@@ -12,7 +12,7 @@
              xmlns:client="clr-namespace:TAS.Client.Views"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              d:DataContext="{x:Type vm:MediaManagerViewmodel}"
-             FontSize="13" >
+             FontSize="13" KeyUp="UserControl_KeyUp" >
     <UserControl.Resources>
         <Style x:Key="fieldNameLabels" TargetType="Label" >
             <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -28,35 +28,14 @@
             <Setter Property="Margin" Value="10, 3" />
             <Setter Property="Width" Value="150" />
         </Style>
-        <!--<ObjectDataProvider x:Key="VideoFormatEnum" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="server:TVideoFormat"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-        <ObjectDataProvider x:Key="AudioChannelMappingEnum" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="server:TAudioChannelMapping"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>-->
         <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
         <ControlTemplate x:Key="toggleButtonTemplate" TargetType="ToggleButton">
-            <Grid
-            Width="15"
-            Height="13"
-            Background="Transparent">
-                <Path x:Name="ExpandPath"
-              HorizontalAlignment="Left" 
-              VerticalAlignment="Center" 
-              Margin="1,1,1,1"
-              Fill="{StaticResource GlyphBrush}"
-              Data="M 4 0 L 8 4 L 4 8 Z"/>
+            <Grid Width="15" Height="13" Background="Transparent">
+                <Path x:Name="ExpandPath" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="1,1,1,1" Fill="{StaticResource GlyphBrush}" Data="M 4 0 L 8 4 L 4 8 Z"/>
             </Grid>
             <ControlTemplate.Triggers>
-                <Trigger Property="IsChecked"
-                 Value="True">
-                    <Setter Property="Data"
-                  TargetName="ExpandPath"
-                  Value="M 0 4 L 8 4 L 4 8 Z"/>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Data" TargetName="ExpandPath" Value="M 0 4 L 8 4 L 4 8 Z"/>
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -66,6 +45,7 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="30" />
             <RowDefinition Height="40" />
             <RowDefinition Height="*" />
@@ -76,7 +56,12 @@
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="330" />
         </Grid.ColumnDefinitions>
-        <Grid Height="30">
+        <Menu Name="mainMenu" IsMainMenu="True" Visibility="Collapsed">
+            <MenuItem Header="{Resx _menu.Tools}">
+                <MenuItem Header="{Resx _menu.Tools.SynchronizePgmToPrv}" Command="{Binding CommandSyncPrvToPgm}"/>
+            </MenuItem>
+        </Menu>
+        <Grid Grid.Row="1" Height="30">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="85" />
                 <ColumnDefinition Width="*" />
@@ -94,7 +79,7 @@
             <Button Grid.Column="4" Name="btnSearch" Content="{Resx _find}" IsDefault="True" Margin="40,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="25" 
                     Command="{Binding CommandSearch}" Width="80" />
         </Grid>
-        <DataGrid Name="fileList" Grid.Row="2" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItems}" SelectedItem="{Binding Path=SelectedMedia, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
+        <DataGrid Name="fileList" Grid.Row="3" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItems}" SelectedItem="{Binding Path=SelectedMedia, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
             <i:Interaction.Behaviors>
                 <common:BindableSelectedItems SelectedItems="{Binding SelectedMediaList, Mode=OneWayToSource}"/>
             </i:Interaction.Behaviors>
@@ -213,7 +198,7 @@
             </DataGrid.RowDetailsTemplate>
         </DataGrid>
         <GridSplitter Grid.Column="1" ResizeDirection="Columns" Grid.RowSpan="4" VerticalAlignment="Stretch" HorizontalAlignment="Left"  Background="DarkGray" Width="3" Cursor="SizeWE" />
-        <Grid Grid.Column="1" Grid.RowSpan="4" >
+        <Grid Grid.Column="1" Grid.RowSpan="5" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto" />
@@ -222,7 +207,7 @@
             <GridSplitter Grid.Row="0" Visibility="{Binding PreviewView, Converter={StaticResource NullToVis}}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>
             <ContentControl Margin="3, 0, 0, 0" Grid.Row="1" Content="{Binding PreviewView}"/>
         </Grid>
-        <ToolBar ToolBarTray.IsLocked="True" Grid.Row="1"  Height="35" >
+        <ToolBar ToolBarTray.IsLocked="True" Grid.Row="2"  Height="35" >
             <ToolBar.Resources>
                 <Style TargetType="Label">
                     <Setter Property="Padding" Value="3"/>
@@ -268,9 +253,9 @@
         <Button Grid.Row="1" HorizontalAlignment="Right" Margin="5" Width="30" Command="{Binding CommandSweepStaleMedia}" Visibility="Hidden">
             <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
         </Button>
-        <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-        <ContentControl Grid.Row="3" Content="{Binding FileManagerVm.View}" />
-        <StatusBar Grid.Row="4" Grid.ColumnSpan="2" Height="22">
+        <GridSplitter Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>
+        <ContentControl Grid.Row="4" Content="{Binding FileManagerVm.View}" />
+        <StatusBar Grid.Row="5" Grid.ColumnSpan="2" Height="22">
             <StackPanel Orientation="Horizontal" Visibility="{Binding DisplayDirectoryInfo, Converter={StaticResource BoolToVis}}" >
                 <common:StatusIndicator IsGreen="{Binding DirectoryFreeOver20Percent}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,0,0,0"/>
                 <TextBlock Text="{Resx _statusbar.TotalItems}" Margin="5, 0"/>

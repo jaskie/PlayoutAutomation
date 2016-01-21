@@ -166,9 +166,7 @@ namespace TAS.Server
         private void _onServerDirectoryPropertyChanged(object dir, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "IsInitialized")
-            {
-                ThreadPool.QueueUserWorkItem((o) => _synchronizePrvToPgm());
-            }
+                SynchronizePrvToPgm(false);
         }
 
         private void _onAnimationDirectoryPropertyChanged(object dir, PropertyChangedEventArgs e)
@@ -268,7 +266,7 @@ namespace TAS.Server
             return null;
         }
 
-        private void _synchronizePrvToPgm()
+        public void SynchronizePrvToPgm(bool deleteNotExisted)
         {
             if (MediaDirectoryPGM != null
                 && MediaDirectoryPRV != null
@@ -276,28 +274,40 @@ namespace TAS.Server
                 && MediaDirectoryPGM.IsInitialized
                 && MediaDirectoryPRV.IsInitialized)
             {
-                Debug.WriteLine(this, "_synchronizePrvToPgm");
-                foreach (ServerMedia pGMmedia in MediaDirectoryPGM.GetFiles())
-                {
-                    if (pGMmedia.MediaStatus == TMediaStatus.Available && pGMmedia.FileExists())
-                    {
-                        ServerMedia pRVmedia = (ServerMedia)((MediaDirectory)MediaDirectoryPRV).FindMediaByMediaGuid(pGMmedia.MediaGuid);
-                        if (pRVmedia == null)
-                        {
-                            pRVmedia = (ServerMedia)((ServerDirectory)MediaDirectoryPRV).FindMediaFirst(m => m.FileExists() && m.FileSize == pGMmedia.FileSize && m.FileName == pGMmedia.FileName && m.LastUpdated.DateTimeEqualToDays(pGMmedia.LastUpdated)); 
-                            if (pRVmedia != null)
-                            {
-                                pRVmedia.CloneMediaProperties(pGMmedia);
-                                pRVmedia.Save();
-                            }
-                            else
-                            {
-                                pRVmedia = (ServerMedia)MediaDirectoryPRV.GetServerMedia(pGMmedia, true);
-                                _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = pGMmedia, DestMedia = pRVmedia });
-                            }
-                        }
-                    }
-                }
+                ThreadPool.QueueUserWorkItem(o =>
+               {
+                   Debug.WriteLine(this, "_synchronizePrvToPgm started");
+                   var pGMMedia = MediaDirectoryPGM.GetFiles().ToList();
+                   foreach (ServerMedia pGMmedia in pGMMedia)
+                   {
+                       if (pGMmedia.MediaStatus == TMediaStatus.Available && pGMmedia.FileExists())
+                       {
+                           ServerMedia pRVmedia = (ServerMedia)((MediaDirectory)MediaDirectoryPRV).FindMediaByMediaGuid(pGMmedia.MediaGuid);
+                           if (pRVmedia == null)
+                           {
+                               pRVmedia = (ServerMedia)((ServerDirectory)MediaDirectoryPRV).FindMediaFirst(m => m.FileExists() && m.FileSize == pGMmedia.FileSize && m.FileName == pGMmedia.FileName && m.LastUpdated.DateTimeEqualToDays(pGMmedia.LastUpdated));
+                               if (pRVmedia != null)
+                               {
+                                   pRVmedia.CloneMediaProperties(pGMmedia);
+                                   pRVmedia.Verify();
+                               }
+                               else
+                               {
+                                   pRVmedia = (ServerMedia)MediaDirectoryPRV.GetServerMedia(pGMmedia, true);
+                                   _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = pGMmedia, DestMedia = pRVmedia });
+                               }
+                           }
+                       }
+                   }
+                   if (deleteNotExisted)
+                   {
+                       foreach (ServerMedia prvMedia in MediaDirectoryPRV.GetFiles().ToList())
+                       {
+                           if ((ServerMedia)((MediaDirectory)MediaDirectoryPGM).FindMediaByMediaGuid(prvMedia.MediaGuid) == null)
+                               _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = prvMedia });
+                       }
+                   }
+               });
             }
         }
 

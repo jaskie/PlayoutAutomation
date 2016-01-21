@@ -135,6 +135,12 @@
   <data name="_grid.Header.TcPlay" xml:space="preserve">
     <value>TC Start</value>
   </data>
+  <data name="_menu.Tools" xml:space="preserve">
+    <value>Narzędzia</value>
+  </data>
+  <data name="_menu.Tools.SynchronizePgmToPrv" xml:space="preserve">
+    <value>Synchronizuj PRV z PGM</value>
+  </data>
   <data name="_refresh" xml:space="preserve">
     <value>Odśwież</value>
   </data>

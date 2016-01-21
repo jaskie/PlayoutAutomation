@@ -117,7 +117,7 @@ namespace TAS.Server
                     {
                         CancelBeginWatch();
                         ClearFiles();
-                        BeginWatch(value, false);
+                        BeginWatch(value, TimeSpan.FromSeconds(10));
                     }
                     else
                         _filter = value;

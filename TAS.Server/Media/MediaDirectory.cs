@@ -43,7 +43,7 @@ namespace TAS.Server
         {
             if (!_isInitialized)
             {
-                BeginWatch(null, true); 
+                BeginWatch(null); 
             }
         }
 
@@ -330,12 +330,11 @@ namespace TAS.Server
         protected string _filter;
         protected CancellationTokenSource _watcherTaskCancelationTokenSource;
         protected System.Threading.Tasks.Task _watcherTask;
-        protected void BeginWatch(string filter, bool setIsInitalized)
+        protected void BeginWatch(string filter, TimeSpan timeout = default(TimeSpan))
         {
             var oldTask = _watcherTask;
             if (oldTask != null && oldTask.Status == System.Threading.Tasks.TaskStatus.Running)
                 return;
-
             var watcherTaskCancelationTokenSource = new CancellationTokenSource();
             var watcherCancelationToken = watcherTaskCancelationTokenSource.Token;
             _watcherTaskCancelationTokenSource = watcherTaskCancelationTokenSource;
@@ -381,9 +380,15 @@ namespace TAS.Server
                             System.Threading.Thread.Sleep(30000); //Wait for retry 30 sec.
                     }
                     Debug.WriteLine("MediaDirectory: Watcher {0} setup successful.", (object)_folder);
-                    if (setIsInitalized)
-                        IsInitialized = true;
+                    IsInitialized = true;
                 }, watcherCancelationToken);
+            if (timeout != TimeSpan.Zero)
+            {
+                ThreadPool.QueueUserWorkItem(o => {
+                if (!_watcherTask.Wait(timeout))
+                    CancelBeginWatch();
+                });
+            }
         }
 
         protected virtual void CancelBeginWatch()
@@ -393,6 +398,7 @@ namespace TAS.Server
             {
                 _watcherTaskCancelationTokenSource.Cancel();
                 watcherTask.Wait();
+                Debug.WriteLine("MediaDirectory: BeginWatch for {0} canceled.", (object)_folder);
             }
         }
 
@@ -427,7 +433,7 @@ namespace TAS.Server
         protected virtual void OnError(object source, ErrorEventArgs e)
         {
             Debug.WriteLine("MediaDirectory: Watcher {0} returned error: {1}.", _folder, e.GetException());
-            BeginWatch(_filter, false);
+            BeginWatch(_filter);
         }
 
         public override string ToString()

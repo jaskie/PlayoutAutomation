@@ -28,7 +28,6 @@ namespace TAS.Client.ViewModels
             CommandSaveEdit = new UICommand() { ExecuteDelegate = _save, CanExecuteDelegate = _canSave };
             CommandCancelEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
             CommandDelete = new UICommand() { ExecuteDelegate = _delete, CanExecuteDelegate = _canDelete };
-            CommandReschedule = new UICommand() { ExecuteDelegate = _reschedule, CanExecuteDelegate = _canReschedule };
             CommandAddGraphics = new UICommand() { ExecuteDelegate = _addGraphics, CanExecuteDelegate = _canAddGraphics };
             CommandRemoveSubItems = new UICommand() { ExecuteDelegate = _removeSubItems, CanExecuteDelegate = _canRemoveSubitems };
             CommandAddAnimation = new UICommand() { ExecuteDelegate = _addAnimation, CanExecuteDelegate = _canAddGraphics };
@@ -58,7 +57,6 @@ namespace TAS.Client.ViewModels
         public UICommand CommandCancelEdit { get; private set; }
         public UICommand CommandSaveEdit { get; private set; }
         public UICommand CommandDelete { get; private set; } 
-        public UICommand CommandReschedule { get; private set; }
         public UICommand CommandAddGraphics { get; private set; }
         public UICommand CommandAddAnimation { get; private set; }
         public UICommand CommandRemoveSubItems { get; private set; }
@@ -626,14 +624,6 @@ namespace TAS.Client.ViewModels
                 }
                 NotifyPropertyChanged("HasAnimation");
             }
-        }
-
-
-        void _reschedule(object o)
-        {
-            IEvent ev = _event;
-            if (ev != null)
-                _engine.ReSchedule(ev);
         }
 
         void _getTCInTCOut(object o)

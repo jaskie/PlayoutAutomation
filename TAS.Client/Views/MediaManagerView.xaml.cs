@@ -65,5 +65,16 @@ namespace TAS.Client.Views
                 else
                     (obj as DataGridRow).DetailsVisibility = Visibility.Visible;
         }
+
+        private void UserControl_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.System)
+            {
+                if (mainMenu.Visibility == Visibility.Collapsed)
+                    mainMenu.Visibility = Visibility.Visible;
+                else
+                    mainMenu.Visibility = Visibility.Collapsed;
+            }
+        }
     }
 }

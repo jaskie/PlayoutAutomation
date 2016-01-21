@@ -28,6 +28,7 @@ namespace TAS.Server.Interfaces
         IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList);
 
         void ReloadIngestDirs();
+        void SynchronizePrvToPgm(bool deleteNotExisted);
 
         void GetLoudness(IEnumerable<IMedia> mediaList);
         IMedia GetPRVMedia(IMedia media);

@@ -65,7 +65,7 @@ namespace TAS.Client.Config
             base.Save(destObject);
         }
 
-        public override bool Modified { get { return _isCollectionChanged || _playoutServerChannels.Any(c => c.Modified); } }
+        public override bool Modified { get { return  _modified || _isCollectionChanged || _playoutServerChannels.Any(c => c.Modified); } }
 
         public string ServerAddress { get { return _serverAddress; } set { SetField(ref _serverAddress, value, "ServerAddress"); } }
         public string MediaFolder { get { return _mediaFolder; } set { SetField(ref _mediaFolder, value, "MediaFolder"); } }

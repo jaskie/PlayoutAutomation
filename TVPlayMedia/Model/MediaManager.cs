@@ -72,7 +72,12 @@ namespace TAS.Client.Model
 
         public void ReloadIngestDirs()
         {
-            throw new NotImplementedException();
+            Invoke();
+        }
+
+        public void SynchronizePrvToPgm(bool deleteNotExisted)
+        {
+            Invoke(parameters: deleteNotExisted);
         }
     }
 }

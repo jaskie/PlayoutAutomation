@@ -589,12 +589,12 @@ namespace TAS.Server
 
         public void ReScheduleAsync(IEvent aEvent)
         {
-            ThreadPool.QueueUserWorkItem(o => ReSchedule(aEvent));
+            ThreadPool.QueueUserWorkItem(o => ReSchedule(aEvent as Event));
         }
 
         public object RundownSync = new object();
         
-        public void ReSchedule(IEvent aEvent)
+        public void ReSchedule(Event aEvent)
         {
             lock (RundownSync)
             {
@@ -603,16 +603,18 @@ namespace TAS.Server
                 try
                 {
                     if (aEvent.PlayState == TPlayState.Aborted
-                        || aEvent.PlayState == TPlayState.Played
-                        || !aEvent.IsEnabled)
+                        || aEvent.PlayState == TPlayState.Played)
                     {
                         aEvent.PlayState = TPlayState.Scheduled;
                         foreach (Event se in aEvent.SubEvents.ToList())
                             ReSchedule(se);
-                        ReSchedule(aEvent.GetSuccessor());
                     }
                     else
-                        aEvent.UpdateScheduledTime(true);
+                        aEvent.UpdateScheduledTime(false);
+                    Event ne = aEvent.Next as Event;
+                    if (ne == null)
+                        ne = aEvent.GetSuccessor() as Event;
+                    ReSchedule(ne);
                 }
                 finally
                 {
@@ -711,7 +713,7 @@ namespace TAS.Server
                     _setGPIGraphics(LocalGpi, aEvent);
                 if (_gpi != null && GPIEnabled)
                 {
-                    if (_gpi.GraphicsStartDelay == 0)
+                    if (_gpi.GraphicsStartDelay <= 0)
                         _setGPIGraphics(_gpi, aEvent);
                     if (_gpi.GraphicsStartDelay > 0)
                     {

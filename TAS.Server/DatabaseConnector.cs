@@ -829,9 +829,9 @@ VALUES
                         int numServerChannelPRV = dataReader.IsDBNull(dataReader.GetOrdinal("ServerChannelPRV")) ? 0 : dataReader.GetInt32("ServerChannelPRV");
 
                         var sPGM = servers.Find(S => S.Id == idServerPGM);
-                        var cPGM = sPGM == null || sPGM.Channels.Count < numServerChannelPGM ? null : sPGM.Channels.FirstOrDefault(c => c.ChannelNumber == numServerChannelPGM);
+                        var cPGM = sPGM == null ? null : sPGM.Channels.FirstOrDefault(c => c.ChannelNumber == numServerChannelPGM);
                         var sPRV = servers.Find(S => S.Id == idServerPRV);
-                        var cPRV = sPRV == null || sPRV.Channels.Count < numServerChannelPRV ? null : sPRV.Channels.FirstOrDefault(c => c.ChannelNumber == numServerChannelPRV);
+                        var cPRV = sPRV == null ? null : sPRV.Channels.FirstOrDefault(c => c.ChannelNumber == numServerChannelPRV);
                         Engine newEngine = SerializationHelper.Deserialize<Engine>(dataReader.GetString("Config"));
                         newEngine.Id = dataReader.GetUInt64("idEngine");
                         newEngine.Instance = dataReader.GetUInt64("Instance");

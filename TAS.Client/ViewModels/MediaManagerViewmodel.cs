@@ -38,6 +38,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandGetLoudness { get; private set; }
         public ICommand CommandExport { get; private set; }
         public ICommand CommandRefresh { get; private set; }
+        public ICommand CommandSyncPrvToPgm { get; private set; }
 
         public MediaManagerViewmodel(IMediaManager mediaManager, PreviewViewmodel previewVm)
         {
@@ -171,7 +172,7 @@ namespace TAS.Client.ViewModels
         
         private void _createCommands()
         {
-            CommandSearch = new UICommand() { ExecuteDelegate = _search };
+            CommandSearch = new UICommand() { ExecuteDelegate = _search, CanExecuteDelegate = _canSearch };
             CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = _isSomethingSelected };
             CommandMoveSelectedToArchive = new UICommand() { ExecuteDelegate = _moveSelectedToArchive, CanExecuteDelegate = o => _mediaDirectory is IServerDirectory && _isSomethingSelected() };
             CommandCopySelectedToArchive = new UICommand() { ExecuteDelegate = _copySelectedToArchive, CanExecuteDelegate = _isSomethingSelected };
@@ -197,6 +198,7 @@ namespace TAS.Client.ViewModels
             CommandSweepStaleMedia = new UICommand() { ExecuteDelegate = _sweepStaleMedia };
             CommandGetLoudness = new UICommand() { ExecuteDelegate = _getLoudness, CanExecuteDelegate = _isSomethingSelected };
             CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
+            CommandSyncPrvToPgm = new UICommand { ExecuteDelegate = _syncPrvToPgm, CanExecuteDelegate = o => _mediaDirectory is IServerDirectory };
         }
 
         private void _refreshMediaDirectory(IMediaDirectory directory)
@@ -213,7 +215,12 @@ namespace TAS.Client.ViewModels
                         MessageBox.Show(string.Format(resources._message_DirectoryRefreshFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
                     });
             }
+        }
 
+        private void _syncPrvToPgm(object o)
+        {
+            if (_mediaDirectory is IServerDirectory)
+                _mediaManager.SynchronizePrvToPgm(true);
         }
 
         private void _export(object obj)
@@ -298,6 +305,13 @@ namespace TAS.Client.ViewModels
                 _ingestSelectionToDir(_mediaManager.MediaDirectoryPGM);
             else
                 _mediaManager.CopyMediaToPlayout(_getSelections(), true);
+        }
+
+        private bool _canSearch(object o)
+        {
+            return (_mediaDirectory is IServerDirectory 
+                || (_mediaDirectory is IIngestDirectory && !((IIngestDirectory)_mediaDirectory).IsWAN)
+                || _searchText.Length >= 3);
         }
 
         private void _search(object o)
