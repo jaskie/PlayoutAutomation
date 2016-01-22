@@ -179,9 +179,10 @@ namespace TAS.Server
 
         private void _onServerDirectoryMediaSaved(object media, MediaDtoEventArgs e)
         {
-            if (media is ServerMedia)
+            ServerMedia pgmMedia = media as ServerMedia;
+            if (pgmMedia != null && pgmMedia.MediaStatus != TMediaStatus.Deleted)
             {
-                ServerMedia compMedia = _findComplementaryMedia(media as ServerMedia);
+                ServerMedia compMedia = _findComplementaryMedia(pgmMedia);
                 if (compMedia != null)
                     ThreadPool.QueueUserWorkItem((o) =>
                         {
@@ -277,8 +278,8 @@ namespace TAS.Server
                 ThreadPool.QueueUserWorkItem(o =>
                {
                    Debug.WriteLine(this, "_synchronizePrvToPgm started");
-                   var pGMMedia = MediaDirectoryPGM.GetFiles().ToList();
-                   foreach (ServerMedia pGMmedia in pGMMedia)
+                   var pGMMediaList = MediaDirectoryPGM.GetFiles().ToList();
+                   foreach (ServerMedia pGMmedia in pGMMediaList)
                    {
                        if (pGMmedia.MediaStatus == TMediaStatus.Available && pGMmedia.FileExists())
                        {
@@ -301,11 +302,18 @@ namespace TAS.Server
                    }
                    if (deleteNotExisted)
                    {
-                       foreach (ServerMedia prvMedia in MediaDirectoryPRV.GetFiles().ToList())
+                       var prvMediaList = MediaDirectoryPRV.GetFiles().ToList();
+                       foreach (ServerMedia prvMedia in prvMediaList)
                        {
                            if ((ServerMedia)((MediaDirectory)MediaDirectoryPGM).FindMediaByMediaGuid(prvMedia.MediaGuid) == null)
                                _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = prvMedia });
                        }
+                       var duplicatesList = prvMediaList.Where(m => prvMediaList.FirstOrDefault(d => d.MediaGuid == m.MediaGuid && ((ServerMedia)d).idPersistentMedia != ((ServerMedia)m).idPersistentMedia) != null).Select(m => m.MediaGuid).Distinct();
+                       foreach(var mediaGuid in duplicatesList)
+                           ((MediaDirectory)MediaDirectoryPRV)
+                           .FindMediaList(m => m.MediaGuid == mediaGuid)
+                           .Skip(1).ToList()
+                           .ForEach(m => m.Delete());
                    }
                });
             }

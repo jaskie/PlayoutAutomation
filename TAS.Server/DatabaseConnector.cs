@@ -156,8 +156,8 @@ namespace TAS.Data
             aEvent._eventType = (TEventType)dataReader.GetByte("typEvent");
             aEvent._startType = (TStartType)dataReader.GetByte("typStart");
             aEvent._scheduledTime = dataReader.GetDateTime("ScheduledTime");
-            aEvent._duration = dataReader.IsDBNull(dataReader.GetOrdinal("Duration")) ? default(TimeSpan) : aEvent.Engine.AlignTimeSpan(dataReader.GetTimeSpan("Duration"));
-            aEvent._scheduledDelay = dataReader.IsDBNull(dataReader.GetOrdinal("ScheduledDelay")) ? default(TimeSpan) : aEvent.Engine.AlignTimeSpan(dataReader.GetTimeSpan("ScheduledDelay"));
+            aEvent._duration = dataReader.IsDBNull(dataReader.GetOrdinal("Duration")) ? default(TimeSpan) : dataReader.GetTimeSpan("Duration");
+            aEvent._scheduledDelay = dataReader.IsDBNull(dataReader.GetOrdinal("ScheduledDelay")) ? default(TimeSpan) : dataReader.GetTimeSpan("ScheduledDelay");
             aEvent._scheduledTc = dataReader.IsDBNull(dataReader.GetOrdinal("ScheduledTC")) ? TimeSpan.Zero : dataReader.GetTimeSpan("ScheduledTC");
             aEvent._mediaGuid = (dataReader.IsDBNull(dataReader.GetOrdinal("MediaGuid"))) ? Guid.Empty : dataReader.GetGuid("MediaGuid");
             aEvent._eventName = dataReader.IsDBNull(dataReader.GetOrdinal("EventName")) ? default(string) : dataReader.GetString("EventName");
@@ -619,11 +619,14 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             MediaDeleteDenyReason reason = MediaDeleteDenyReason.NoDeny;
             lock (connection)
             {
-                string query = "select count(*) from rundownevent where MediaGuid=@MediaGuid and ADDTIME(ScheduledTime, Duration) > UTC_TIMESTAMP();";
+                string query = "select * from rundownevent where MediaGuid=@MediaGuid and ADDTIME(ScheduledTime, Duration) > UTC_TIMESTAMP();";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, connection);
                 cmd.Parameters.AddWithValue("@MediaGuid", serverMedia.MediaGuid);
-                if ((long)cmd.ExecuteScalar() > 0)
-                    return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Media = serverMedia };
+                using (DbDataReaderRedundant reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                        return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Media = serverMedia, Event = _EventRead(null, reader) };
+                }
             }
             return reason;
         }

@@ -551,7 +551,7 @@ namespace TAS.Server
                 if (SetField(ref _engineState, value, "EngineState"))
                 {
                     if (value == TEngineState.Hold)
-                        foreach (Event ev in _runningEvents.Where(e => e.PlayState == TPlayState.Playing && e.IsFinished).ToList())
+                        foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished).ToList())
                         {
                             _pause(ev, true);
                             Debug.WriteLine(ev, "Hold: Played");

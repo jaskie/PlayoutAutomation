@@ -18,10 +18,11 @@ namespace TAS.Server
     public class Event : IEvent, IComparable
     {
 
-        public Event(IEngine AEngine)
+        public Event(IEngine aEngine)
         {
-            Engine = AEngine;
-            AEngine.AddEvent(this);
+            Engine = aEngine;
+            if (aEngine != null)
+                aEngine.AddEvent(this);
         }
 
 #if DEBUG
@@ -63,7 +64,7 @@ namespace TAS.Server
 
         public IEvent Clone()
         {
-            Event newEvent = new Event(Engine);
+            Event newEvent = new Event(this.Engine);
             newEvent.Duration = this.Duration;
             newEvent.IsEnabled = this.IsEnabled;
             newEvent.EventName = this.EventName;

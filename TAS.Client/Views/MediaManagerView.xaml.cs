@@ -68,7 +68,7 @@ namespace TAS.Client.Views
 
         private void UserControl_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.System)
+            if (e.SystemKey == Key.LeftAlt)
             {
                 if (mainMenu.Visibility == Visibility.Collapsed)
                     mainMenu.Visibility = Visibility.Visible;

@@ -98,7 +98,8 @@ namespace TAS.Server
         internal override void Verify()
         {
             base.Verify();
-            Save();
+            if (Modified)
+                Save();
         }
     }
 }

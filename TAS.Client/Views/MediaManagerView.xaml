@@ -56,7 +56,7 @@
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="330" />
         </Grid.ColumnDefinitions>
-        <Menu Name="mainMenu" IsMainMenu="True" Visibility="Collapsed">
+        <Menu Name="mainMenu" IsMainMenu="True" Visibility="Collapsed" >
             <MenuItem Header="{Resx _menu.Tools}">
                 <MenuItem Header="{Resx _menu.Tools.SynchronizePgmToPrv}" Command="{Binding CommandSyncPrvToPgm}"/>
             </MenuItem>

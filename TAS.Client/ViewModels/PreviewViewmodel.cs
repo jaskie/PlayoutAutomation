@@ -81,32 +81,53 @@ namespace TAS.Client.ViewModels
         private long _loadedSeek;
         private long _loadedDuration;
 
+        private IServerMedia _mediaToLoad { get { return _media is IServerMedia ? (IServerMedia)_media : _event != null ? _event.ServerMediaPRV : null; } }
+        public TimeSpan StartTc
+        {
+            get
+            {
+                if (_selectedSegment != null & !_playWholeClip)
+                    return _selectedSegment.TcIn;
+                if (_media != null)
+                    return _playWholeClip ? _media.TcStart : _media.TcPlay;
+                if (_event != null)
+                {
+                    IServerMedia media = _event.ServerMediaPRV;
+                    if (media != null)
+                        return _playWholeClip ? media.TcStart : _event.ScheduledTc;
+                }
+                return TimeSpan.Zero;
+            }
+        }
+
+        public TimeSpan Duration
+        {
+            get
+            {
+                if (_selectedSegment != null & !_playWholeClip)
+                    return _selectedSegment.Duration;
+                if (_media != null)
+                    return _playWholeClip ? _media.Duration : _media.DurationPlay;
+                if (_event != null)
+                {
+                    IServerMedia media = _event.ServerMediaPRV;
+                    if (media != null)
+                        return _playWholeClip ? media.Duration : _event.Duration;
+                }
+                return TimeSpan.Zero;
+            }
+        }
+
         private void MediaLoad(bool reloadSegments)
         {
-            IMedia pm = Media;
-            IServerMedia media = null;
-            TimeSpan tcIn = TimeSpan.Zero;
-            TimeSpan duration = TimeSpan.Zero;
-            MediaSegmentViewmodel segment = reloadSegments ? null : SelectedSegment;
             if (reloadSegments)
-                PlayWholeClip = false;
-            if (pm is IServerMedia)
             {
-                media = (IServerMedia)pm;
-                tcIn = _playWholeClip ? media.TcStart : (segment == null)? media.TcPlay: segment.TcIn;
-                duration = _playWholeClip ? media.Duration : (segment == null)? media.DurationPlay: segment.Duration;
+                _playWholeClip = false;
+                SelectedSegment = null;
             }
-            IEvent ev = Event;
-            if (ev != null)
-            {
-                media = ev.ServerMediaPRV;
-                if (media != null)
-                {
-                    tcIn = _playWholeClip ? media.TcStart : (segment == null)? ev.ScheduledTc: segment.TcIn;
-                    duration = _playWholeClip ? media.Duration : (segment == null)? ev.Duration: segment.Duration;
-                }
-            }
-
+            IServerMedia media = _mediaToLoad;
+            TimeSpan duration = Duration;
+            TimeSpan tcIn = StartTc;
             if (media != null
                 && duration.Ticks >= _engine.FrameTicks)
             {
@@ -138,11 +159,6 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged(null);
         }
 
-        public TimeSpan StartTc
-        {
-            get { return (LoadedMedia == null) ? TimeSpan.Zero : LoadedMedia.TcStart; }
-        }
-
         private TimeSpan _tcIn;
         public TimeSpan TcIn
         {
@@ -171,7 +187,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                return TimeSpan.FromTicks((long)((_engine.PreviewPosition + _engine.PreviewSeek) * TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num) + StartTc.Ticks);
+                return _loadedMedia == null ? TimeSpan.Zero : TimeSpan.FromTicks((long)((_engine.PreviewPosition + _engine.PreviewSeek) * TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num + _loadedMedia.TcStart.Ticks));
             }
             set
             {
@@ -285,14 +301,6 @@ namespace TAS.Client.ViewModels
 
         public bool IsSegmentNameFocused { get; set; }
 
-        public TimeSpan Duration
-        {
-            get
-            {
-                IServerMedia loadedMedia = LoadedMedia;
-                return (loadedMedia == null) ? TimeSpan.Zero : loadedMedia.Duration;
-            }
-        }
 
         protected TimeSpan MaxPos()
         {
