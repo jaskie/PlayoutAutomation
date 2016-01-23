@@ -2,10 +2,12 @@
 
 #pragma once
 
+#using <mscorlib.dll>
+#include <windows.h>
+
 using namespace System;
 using namespace System::Runtime::InteropServices;
 
-#using <mscorlib.dll>
 
 namespace TAS {
 	namespace FFMpegUtils {
@@ -50,9 +52,12 @@ namespace TAS {
 	private:
 		AVFormatContext	*pFormatCtx;
 		int64_t countFrames(unsigned int streamIndex);
+		void renderFrame(AVFrame* frame);
 		AVFrame *decodeFirstFrame();
+		HWND hWnd;
 	public:
 		_FFMpegWrapper(char* fileName);
+		_FFMpegWrapper(char* fileName, HWND hWnd);
 		~_FFMpegWrapper();
 		int64_t getFrameCount();
 		int64_t getAudioDuration();
@@ -63,6 +68,9 @@ namespace TAS {
 		AVFieldOrder getFieldOrder();
 		AVRational getSAR();
 		AVRational getFrameRate();
+		bool readNextPacket();
+		AVPacket* readedPacket;
+		bool Seek(int64_t position);
 	};
 
 	// managed code
@@ -70,8 +78,11 @@ namespace TAS {
 		{
 		private: 
 			_FFMpegWrapper* wrapper;
+			 String^ _fileName;
+			 IntPtr _windowHandle;
 		public:
 			FFMpegWrapper(String^ fileName);
+			FFMpegWrapper(String^ fileName, IntPtr hWnd);
 			~FFMpegWrapper();
 			Int64 GetFrameCount();
 			int GetHeight();
@@ -82,6 +93,7 @@ namespace TAS {
 			Rational^ GetSAR();
 //			bool GetFrame(TimeSpan fromTime, Bitmap^ destBitmap);
 			array<StreamInfo^>^ GetStreamInfo();
+			bool Seek(TimeSpan time);
 		};
 	}
 }

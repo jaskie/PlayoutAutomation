@@ -1,7 +1,7 @@
 // This is the main DLL file.
 #include "stdafx.h"
 #include "FFMpegUtils.h"
-
+#include <windows.h>
 
 namespace TAS {
 	namespace FFMpegUtils {
@@ -14,13 +14,34 @@ namespace TAS {
 			pFormatCtx=NULL;
 			if (avformat_open_input(&pFormatCtx, fileName, NULL, NULL) == 0)
 				avformat_find_stream_info(pFormatCtx, NULL);
+			readedPacket = (AVPacket *)av_malloc(sizeof(AVPacket));
+		};
+
+		_FFMpegWrapper::_FFMpegWrapper(char* fileName, HWND hWnd): _FFMpegWrapper(fileName)
+		{
+			this->hWnd = hWnd;
+			renderFrame(nullptr);
 		};
 
 		_FFMpegWrapper::~_FFMpegWrapper()
 		{
 			if (pFormatCtx)
 				avformat_close_input(&pFormatCtx); 
+			av_free_packet(readedPacket);
 		};
+
+		void _FFMpegWrapper::renderFrame(AVFrame* frame)
+		{
+			//if (hWnd == nullptr)
+			//	return;
+			HDC hRenderDC = GetDC(hWnd);
+			HDC hBufferDC = CreateCompatibleDC(hRenderDC);
+			
+			RECT rect = { 30, 50, 100, 200 };
+			HBRUSH brush = CreateSolidBrush(RGB(50, 151, 151));
+			FillRect(hRenderDC, &rect, brush);
+			DeleteObject(brush);
+		}
 
 		int64_t _FFMpegWrapper::getFrameCount()
 		{
@@ -44,6 +65,14 @@ namespace TAS {
 			} 
 			// if not found
 			return 0; 
+		}
+
+		bool _FFMpegWrapper::readNextPacket()
+		{
+			if (pFormatCtx
+				&& av_read_frame(pFormatCtx, readedPacket) >= 0)
+				return true;
+			return false;
 		}
 
 		int64_t _FFMpegWrapper::countFrames(unsigned int streamIndex)
@@ -255,14 +284,32 @@ namespace TAS {
 			return ret;
 		}
 
+		bool _FFMpegWrapper::Seek(int64_t position) 
+		{
+			renderFrame(nullptr);
+			return true;
+		}
+
+
 		// managed object
 
 		FFMpegWrapper::FFMpegWrapper(String^ fileName)
 		{
-			char* fn = (char*) Marshal::StringToHGlobalAnsi(fileName).ToPointer();
+			_fileName = fileName;
+			char* fn = (char*)Marshal::StringToHGlobalAnsi(fileName).ToPointer();
 			wrapper = new _FFMpegWrapper(fn);
 			Marshal::FreeHGlobal(IntPtr((void*)fn));
 		};
+
+		FFMpegWrapper::FFMpegWrapper(String^ fileName, IntPtr hWnd)
+		{
+			_fileName = fileName;
+			_windowHandle = hWnd;
+			char* fn = (char*)Marshal::StringToHGlobalAnsi(fileName).ToPointer();
+			wrapper = new _FFMpegWrapper(fn, reinterpret_cast <HWND>(hWnd.ToPointer()));
+			Marshal::FreeHGlobal(IntPtr((void*)fn));
+		};
+
 
 		FFMpegWrapper::~FFMpegWrapper()
 		{
@@ -318,6 +365,11 @@ namespace TAS {
 			for (int i = 0; i < ret->Length; i++)
 				ret[i] = wrapper->getStreamInfo(i);
 			return ret;
+		}
+
+		bool FFMpegWrapper::Seek(TimeSpan time)
+		{
+			return wrapper->Seek(0);
 		}
 
 		//bool FFMpegWrapper::GetFrame(TimeSpan fromTime, Bitmap^ destBitmap)
