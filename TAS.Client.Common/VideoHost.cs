@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Interop;
 
-namespace TestPlayer
+namespace TAS.Client.Common
 {
     public class VideoHost : HwndHost
     {
@@ -27,7 +27,6 @@ namespace TestPlayer
         protected override HandleRef BuildWindowCore(HandleRef hwndParent)
         {
             _hwndHost = IntPtr.Zero;
-
             _hwndHost = CreateWindowEx(0, "STATIC", "VideoHostWindow",
                 WsChild | WsVisible,
                 0, 0,

@@ -103,6 +103,7 @@
     <Compile Include="Interfaces\IPlayoutServerChannel.cs" />
     <Compile Include="Interfaces\IPlayoutServerConfig.cs" />
     <Compile Include="Interfaces\IPlayoutServerChannelConfig.cs" />
+    <Compile Include="Interfaces\IPreview.cs" />
     <Compile Include="Interfaces\IRemoteHostConfig.cs" />
     <Compile Include="Interfaces\IServerDirectory.cs" />
     <Compile Include="Interfaces\IServerDirectoryConfig.cs" />

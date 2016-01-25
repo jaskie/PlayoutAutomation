@@ -126,6 +126,7 @@
     <Compile Include="UICommand.cs" />
     <Compile Include="UIServices.cs" />
     <Compile Include="ValueConverters.cs" />
+    <Compile Include="VideoHost.cs" />
     <Compile Include="ViewmodelBase.cs" />
     <Compile Include="WpfHacks.cs" />
   </ItemGroup>

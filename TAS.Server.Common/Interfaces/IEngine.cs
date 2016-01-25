@@ -9,7 +9,7 @@ using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IEngine : IEngineConfig, INotifyPropertyChanged
+    public interface IEngine : IEngineConfig, IPreview, INotifyPropertyChanged
     {
         VideoFormatDescription FormatDescription { get; } 
         long FrameTicks { get; }
@@ -44,18 +44,6 @@ namespace TAS.Server.Interfaces
         TimeSpan AlignTimeSpan(TimeSpan ts);
         DateTime AlignDateTime(DateTime dt);
         bool DateTimeEqal(DateTime dt1, DateTime dt2);
-
-        #region Preview
-        void PreviewLoad(IServerMedia media, long seek, long duration, long position);
-        IServerMedia PreviewMedia { get; }
-        void PreviewUnload();
-        bool PreviewLoaded { get; }
-        bool PreviewIsPlaying { get; }
-        long PreviewPosition { get; set; }
-        long PreviewSeek { get; }
-        bool PreviewPause();
-        bool PreviewPlay();
-        #endregion // Preview routines
 
         #region GPI
         bool GPIConnected { get; }
