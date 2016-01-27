@@ -426,4 +426,10 @@
   <data name="FileOperationStatus_Waiting" xml:space="preserve">
     <value>Waiting</value>
   </data>
+  <data name="TVideoFormat_NTSC" xml:space="preserve">
+    <value>NTSC (4:3)</value>
+  </data>
+  <data name="TVideoFormat_NTSC_FHA" xml:space="preserve">
+    <value>NTSC (16:9)</value>
+  </data>
 </root>

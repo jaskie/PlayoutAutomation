@@ -344,7 +344,8 @@ namespace TAS.Server
             {
                 lock (this)
                 {
-                    if (_playState == TPlayState.Scheduled || _startTime == default(DateTime))
+                    if (_playState == TPlayState.Scheduled 
+                        || _startTime == default(DateTime))
                         return _scheduledTime;
                     else
                         return _startTime;

@@ -125,27 +125,8 @@ namespace TAS.Client.ViewModels
             CommandClearLayer = new UICommand() { ExecuteDelegate = layer => _engine.Clear((VideoLayer)int.Parse((string)layer)) };
             CommandRestartLayer = new UICommand() { ExecuteDelegate = layer => _engine.RestartLayer((VideoLayer)int.Parse((string)layer)) };
             CommandStartSelected = new UICommand() { ExecuteDelegate = o => _engine.Start(_selected.Event), CanExecuteDelegate = _canStartSelected };
-            CommandLoadSelected = new UICommand()
-            {
-                ExecuteDelegate = o =>
-                    {
-                        IEvent e = _selected.Event;
-                        _engine.ReScheduleAsync(e);
-                        _engine.Load(e);
-                    },
-                CanExecuteDelegate = _canLoadSelected
-            };
-
-            CommandScheduleSelected = new UICommand()
-            {
-                ExecuteDelegate = o =>
-                    {
-                        IEvent e = _selected.Event;
-                        _engine.ReScheduleAsync(e);
-                        _engine.Schedule(e);
-                    },
-                CanExecuteDelegate = _canScheduleSelected
-            };
+            CommandLoadSelected = new UICommand() { ExecuteDelegate = o => _engine.Load(_selected.Event), CanExecuteDelegate = _canLoadSelected };
+            CommandScheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.Schedule(_selected.Event), CanExecuteDelegate = _canScheduleSelected };
             CommandRescheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.ReScheduleAsync(_selected.Event), CanExecuteDelegate = _canRescheduleSelected };
             CommandTrackingToggle = new UICommand() { ExecuteDelegate = o => TrackPlayingEvent = !TrackPlayingEvent };
             CommandDebugToggle = new UICommand() { ExecuteDelegate = _debugShow };

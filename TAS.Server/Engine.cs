@@ -431,8 +431,7 @@ namespace TAS.Server
                 _previewSeek = seek;
                 _previewPosition = position;
                 _previewMedia = media;
-                if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
-                    PlayoutChannelPRV.SetAspect(VideoLayer.Preview, media.VideoFormat == TVideoFormat.NTSC
+                PlayoutChannelPRV.SetAspect(VideoLayer.Preview, media.VideoFormat == TVideoFormat.NTSC
                                             || media.VideoFormat == TVideoFormat.PAL
                                             || media.VideoFormat == TVideoFormat.PAL_P);
                 PlayoutChannelPRV.Load(media, VideoLayer.Preview, seek+position, duration-position);
