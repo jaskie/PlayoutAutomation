@@ -14,7 +14,7 @@ namespace TAS {
 			pFormatCtx=NULL;
 			if (avformat_open_input(&pFormatCtx, fileName, NULL, NULL) == 0)
 				avformat_find_stream_info(pFormatCtx, NULL);
-			readedPacket = (AVPacket *)av_malloc(sizeof(AVPacket));
+//			readedPacket = (AVPacket *)av_malloc(sizeof(AVPacket));
 		};
 
 		_FFMpegWrapper::_FFMpegWrapper(char* fileName, HWND hWnd): _FFMpegWrapper(fileName)
@@ -27,7 +27,7 @@ namespace TAS {
 		{
 			if (pFormatCtx)
 				avformat_close_input(&pFormatCtx); 
-			av_free_packet(readedPacket);
+//			av_free_packet(readedPacket);
 		};
 
 		void _FFMpegWrapper::renderFrame(AVFrame* frame)
@@ -67,10 +67,10 @@ namespace TAS {
 			return 0; 
 		}
 
-		bool _FFMpegWrapper::readNextPacket()
+		bool _FFMpegWrapper::readNextPacket(AVPacket* packetToRead)
 		{
 			if (pFormatCtx
-				&& av_read_frame(pFormatCtx, readedPacket) >= 0)
+				&& av_read_frame(pFormatCtx, packetToRead) >= 0)
 				return true;
 			return false;
 		}

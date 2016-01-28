@@ -68,8 +68,8 @@ namespace TAS {
 		AVFieldOrder getFieldOrder();
 		AVRational getSAR();
 		AVRational getFrameRate();
-		bool readNextPacket();
-		AVPacket* readedPacket;
+		bool readNextPacket(AVPacket* packetToRead);
+//		AVPacket* readedPacket;
 		bool Seek(int64_t position);
 	};
 
