@@ -74,14 +74,9 @@ namespace TAS.Server
                 base.MediaRemove(m); //base: to not actually delete file and db
         }
 
-        protected override IMedia CreateMedia(string fileNameOnly)
+        protected override IMedia CreateMedia(string fullPath, Guid guid = default(Guid))
         {
-            return new ArchiveMedia(this) { FileName = fileNameOnly };
-        }
-
-        protected override IMedia CreateMedia(string fileNameOnly, Guid guid)
-        {
-            return new ArchiveMedia(this, guid) { FileName = fileNameOnly };
+            throw new NotImplementedException();
         }
 
         //public override void MediaAdd(Media media)
@@ -110,7 +105,6 @@ namespace TAS.Server
 
         protected override void OnMediaRenamed(Media media, string newName)
         {
-            base.OnMediaRenamed(media, newName);
             ((ArchiveMedia)media).Save();
         }
 
@@ -128,9 +122,11 @@ namespace TAS.Server
                     AudioLevelPeak = media.AudioLevelPeak,
                     Duration = media.Duration,
                     DurationPlay = media.DurationPlay,
-                    FileName = (media is IngestMedia) ? Path.GetFileNameWithoutExtension(media.FileName) + FileUtils.DefaultFileExtension(media.MediaType) : media.FileName,
+                    FullPath = Path.Combine(
+                            Folder, 
+                            GetCurrentFolder(), 
+                            (media is IngestMedia) ? Path.GetFileNameWithoutExtension(media.FileName) + FileUtils.DefaultFileExtension(media.MediaType) : media.FileName),
                     FileSize = media.FileSize,
-                    Folder = GetCurrentFolder(),
                     LastUpdated = media.LastUpdated,
                     MediaName = media.MediaName,
                     MediaStatus = TMediaStatus.Required,

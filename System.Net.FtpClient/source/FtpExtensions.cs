@@ -129,5 +129,27 @@ namespace System.Net.FtpClient {
 
             return DateTime.MinValue;
         }
+        /// <summary>
+        /// Tries to convert the string GrassValley K2 FTP date representation  into a date time object
+        /// </summary>
+        /// <param name="date">The date</param>
+        /// <returns>A date time object representing the date, DateTime.MinValue if there was a problem</returns>
+        public static DateTime GetK2Date(this string date)
+        {
+            string[] formats = new string[] {
+                "MMM dd yyyy",
+                "MMM dd HH:mm:ss",
+            };
+            DateTime parsed;
+
+            if (DateTime.TryParseExact(date, formats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out parsed))
+            {
+                if (parsed > DateTime.Now)
+                    return new DateTime(parsed.Year - 1, parsed.Month, parsed.Day, parsed.Hour, parsed.Minute, parsed.Second);
+                return parsed;
+            }
+
+            return DateTime.MinValue;
+        }
     }
 }

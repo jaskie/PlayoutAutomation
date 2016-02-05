@@ -13,17 +13,23 @@ namespace TAS.Server
     [JsonObject(MemberSerialization.OptIn)]
     public class IngestMedia : Media, IIngestMedia
     {
-        public IngestMedia(IngestDirectory directory) : base(directory) { }
-        public IngestMedia(IngestDirectory directory, Guid guid) : base(directory, guid) { }
+        public IngestMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
+
+        public override bool RenameTo(string newFileName)
+        {
+            if (((IngestDirectory)_directory).AccessType == TDirectoryAccessType.Direct)
+                return base.RenameTo(newFileName);
+                else throw new NotImplementedException("Cannot rename on remote directories");
+        }
 
         internal XDCAM.NonRealTimeMeta ClipMetadata;
         internal XDCAM.Smil SmilMetadata;
         internal string XmlFile;
         public override Stream GetFileStream(bool forWrite)
         {
-            if (_directory.AccessType == TDirectoryAccessType.Direct)
+            if (((IngestDirectory)_directory).AccessType == TDirectoryAccessType.Direct)
                 return base.GetFileStream(forWrite);
-            if (_directory.AccessType == TDirectoryAccessType.FTP)
+            if (((IngestDirectory)_directory).AccessType == TDirectoryAccessType.FTP)
             {
                 try
                 {

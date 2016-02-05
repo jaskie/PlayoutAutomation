@@ -21,6 +21,8 @@ namespace TAS.Client.Config.Model
         [DefaultValue(false)]
         public bool IsWAN { get; set; }
         [DefaultValue(false)]
+        public bool IsRecursive { get; set; }
+        [DefaultValue(false)]
         public bool DoNotEncode { get; set; }
         [DefaultValue(default(TMediaCategory))]
         public TMediaCategory MediaCategory { get; set; }

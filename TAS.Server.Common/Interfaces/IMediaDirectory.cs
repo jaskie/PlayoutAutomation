@@ -13,8 +13,6 @@ namespace TAS.Server.Interfaces
     {
         bool FileExists(string filename, string subfolder = null);
         bool DirectoryExists();
-        TDirectoryAccessType AccessType { get; }
-        System.Net.NetworkCredential NetworkCredential { get; }
         bool IsInitialized { get; }
         IEnumerable<IMedia> GetFiles();
         void Initialize();
@@ -23,6 +21,7 @@ namespace TAS.Server.Interfaces
         IMedia FindMediaByDto(Guid guidDto);
         UInt64 VolumeTotalSize { get; }
         UInt64 VolumeFreeSize { get; }
+        char PathSeparator { get; }
 
         event EventHandler<MediaDtoEventArgs> MediaAdded;
         event EventHandler<MediaDtoEventArgs> MediaRemoved;

@@ -36,7 +36,7 @@ namespace TAS.Server.XDCAM
 
         public override bool Do()
         {
-            if (Kind == TFileOperationKind.Export && SourceMedia.Directory.AccessType == TDirectoryAccessType.Direct)
+            if (Kind == TFileOperationKind.Export && ((IngestDirectory)SourceMedia.Directory).AccessType == TDirectoryAccessType.Direct)
             {
                 StartTime = DateTime.UtcNow;
                 OperationStatus = FileOperationStatus.InProgress;

@@ -13,6 +13,7 @@ namespace TAS.Server.Interfaces
         bool FileExists();
         bool Delete();
         void ReVerify();
+        bool RenameTo(string newName);
         RationalNumber FrameRate { get; }
         void GetLoudness();
     }

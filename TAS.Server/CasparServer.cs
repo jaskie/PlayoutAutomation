@@ -63,6 +63,7 @@ namespace TAS.Server
                     AnimationDirectory = new Server.AnimationDirectory(this, MediaManager);
                     MediaDirectory.Folder = MediaFolder;
                     MediaDirectory.Initialize();
+                    AnimationDirectory.Folder = MediaFolder;
                     AnimationDirectory.Initialize();
                     _casparDevice = new Svt.Caspar.CasparDevice();
                     _casparDevice.ConnectionStatusChanged += _casparDevice_ConnectionStatusChanged;
@@ -171,8 +172,7 @@ namespace TAS.Server
                         {
                             MediaType = TMediaType.AnimationFlash,
                             MediaName = template.Name,
-                            Folder = template.Folder,
-                            FileName = template.Name,
+                            FullPath = Path.Combine(AnimationDirectory.Folder, template.Folder, template.Name),
                             FileSize = (UInt64)template.Size,
                             MediaStatus = TMediaStatus.Available,
                             LastUpdated = DateTimeExtensions.FromFileTime(template.LastUpdated.ToUniversalTime(), DateTimeKind.Utc),

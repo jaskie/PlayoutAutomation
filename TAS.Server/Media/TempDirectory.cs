@@ -16,14 +16,9 @@ namespace TAS.Server
             _folder = ConfigurationManager.AppSettings["TempDirectory"];
         }
 
-        protected override IMedia CreateMedia(string fileNameOnly)
-        {
-            throw new InvalidOperationException("Temp media must have OriginalMedia property. Use Get() to acquire one.");
-        }
-
         protected override IMedia CreateMedia(string fileNameOnly, Guid guid)
         {
-            throw new InvalidOperationException("Temp media must have OriginalMedia property. Use Get() to acquire one.");
+            throw new NotImplementedException();
         }
 
         public override void MediaAdd(IMedia media)

@@ -53,7 +53,26 @@ namespace TAS.Client.ViewModels
 
         public override void Save(object destObject = null)
         {
-            base.Save(destObject);
+            if (Modified)
+            {
+                PropertyInfo[] copiedProperties = this.GetType().GetProperties();
+                foreach (PropertyInfo copyPi in copiedProperties)
+                {
+                    if (copyPi.Name == "FileName")
+                        Model.RenameTo(FileName);
+                    else
+                    {
+                        PropertyInfo destPi = (destObject ?? Model).GetType().GetProperty(copyPi.Name);
+                        if (destPi != null)
+                        {
+                            if (destPi.GetValue(destObject ?? Model, null) != copyPi.GetValue(this, null)
+                                && destPi.CanWrite)
+                                destPi.SetValue(destObject ?? Model, copyPi.GetValue(this, null), null);
+                        }
+                    }
+                }
+                Modified = false;
+            }
             if (Model is IPersistentMedia)
                 ((IPersistentMedia)Model).Save();
         }

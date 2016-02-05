@@ -28,6 +28,7 @@
             <TextBox Text="{Binding DirectoryName, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Target directory"/>
             <TextBox Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}"/>
+            <CheckBox IsChecked="{Binding IsRecursive}" Content="Recursive, with subdirectories"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>

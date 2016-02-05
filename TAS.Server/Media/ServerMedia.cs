@@ -17,10 +17,8 @@ namespace TAS.Server
     public class ServerMedia: PersistentMedia, IServerMedia
     {
 
-        public ServerMedia(ServerDirectory directory) : base(directory) { }
-        public ServerMedia(ServerDirectory directory, Guid guid) : base(directory, guid) { }
-        public ServerMedia(AnimationDirectory directory) : base(directory) { }
-        public ServerMedia(AnimationDirectory directory, Guid guid) : base(directory, guid) { }
+        public ServerMedia(ServerDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
+        public ServerMedia(AnimationDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
 
         // media properties
         private bool _isPGM;
@@ -61,6 +59,7 @@ namespace TAS.Server
                             result = this.DbInsert();
                         else
                             result = this.DbUpdate();
+                        Modified = false;
                     }
                 }
             }

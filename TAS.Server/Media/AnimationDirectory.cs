@@ -6,6 +6,7 @@ using System.Diagnostics;
 using TAS.Common;
 using TAS.Data;
 using TAS.Server.Interfaces;
+using System.IO;
 
 namespace TAS.Server
 {
@@ -36,14 +37,9 @@ namespace TAS.Server
             
         }
 
-        protected override IMedia CreateMedia(string fileNameOnly)
+        protected override IMedia CreateMedia(string fullPath, Guid guid)
         {
-            return new ServerMedia(this) { MediaType = TMediaType.AnimationFlash, FileName = fileNameOnly, };
-        }
-
-        protected override IMedia CreateMedia(string fileNameOnly, Guid guid)
-        {
-            return new ServerMedia(this, guid) { MediaType = TMediaType.AnimationFlash, FileName = fileNameOnly, };
+            throw new NotImplementedException();
         }
 
         public override void MediaRemove(IMedia media)

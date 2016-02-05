@@ -82,6 +82,11 @@ namespace TAS.Client.Model
         {
             Invoke();
         }
+
+        public bool RenameTo(string newName)
+        {
+            return Query<bool>(parameters: new[] { newName });
+        }
         
     }
 }

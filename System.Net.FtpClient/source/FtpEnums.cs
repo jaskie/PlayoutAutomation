@@ -295,9 +295,13 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// A symbolic link
         /// </summary>
-        Link
+        Link,
+        /// <summary>
+        /// A movie on media server
+        /// </summary>
+        Movie,
     }
-    
+
     /// <summary>
     /// Types of file permissions
     /// </summary>

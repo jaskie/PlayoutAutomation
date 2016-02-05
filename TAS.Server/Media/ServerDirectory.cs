@@ -19,9 +19,6 @@ namespace TAS.Server
             : base(manager)
         {
             Server = server;
-            Extensions = new string[FileUtils.VideoFileTypes.Length + FileUtils.StillFileTypes.Length];
-            FileUtils.VideoFileTypes.CopyTo(Extensions, 0);
-            FileUtils.StillFileTypes.CopyTo(Extensions, FileUtils.VideoFileTypes.Length);
         }
 
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
@@ -38,18 +35,11 @@ namespace TAS.Server
 
         }
 
-        protected override IMedia CreateMedia(string fileNameOnly)
-        {
-            return new ServerMedia(this)
-            {
-                FileName = fileNameOnly,
-            };
-        }
-        protected override IMedia CreateMedia(string fileNameOnly, Guid guid)
+        protected override IMedia CreateMedia(string fullPath, Guid guid)
         {
             return new ServerMedia(this, guid)
             {
-                FileName = fileNameOnly,
+                FullPath = fullPath,
             };
         }
 
@@ -105,8 +95,10 @@ namespace TAS.Server
                 fm = (new ServerMedia(this, fm == null ? media.MediaGuid : Guid.NewGuid()) // in case file with the same GUID already exists and we need to get new one
                 {
                     MediaName = media.MediaName,
-                    Folder = string.Empty,
-                    FileName = (media is IngestMedia) ? (FileUtils.VideoFileTypes.Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + FileUtils.DefaultFileExtension(media.MediaType) : media.FileName,
+                    FullPath = (media is IngestMedia) ? 
+                            Path.Combine(Folder, (FileUtils.VideoFileTypes.Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + FileUtils.DefaultFileExtension(media.MediaType)) 
+                            : 
+                            Path.Combine(Folder, media.FileName),
                     MediaType = (media.MediaType == TMediaType.Unknown) ? (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(media.FullPath).ToLowerInvariant()) ? TMediaType.Still : TMediaType.Movie) : media.MediaType,
                     MediaStatus = TMediaStatus.Required,
                     TcStart = media.TcStart,
@@ -137,7 +129,6 @@ namespace TAS.Server
 
         protected override void OnMediaRenamed(Media media, string newName)
         {
-            base.OnMediaRenamed(media, newName);
             ((ServerMedia)media).Save();
         }
 

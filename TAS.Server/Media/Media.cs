@@ -20,17 +20,10 @@ namespace TAS.Server
     public abstract class Media : DtoBase, IMedia
     {
 
-        public Media(MediaDirectory directory)
+        public Media(MediaDirectory directory, Guid mediaGuid = default(Guid))
         {
             _directory = directory;
-            _mediaGuid = Guid.NewGuid();
-            directory.MediaAdd(this);
-        }
-
-        public Media(MediaDirectory directory, Guid mediaGuid)
-        {
-            _directory = directory;
-            _mediaGuid = mediaGuid;
+            _mediaGuid = mediaGuid == default(Guid)? Guid.NewGuid() : mediaGuid;
             directory.MediaAdd(this);
         }
 
@@ -54,16 +47,10 @@ namespace TAS.Server
         public string FileName
         {
             get { return _fileName; }
-            set 
+            set
             {
-                string prevFileName = _fileName;
-                if (value != prevFileName)
-                {
-                    if (_mediaStatus == TMediaStatus.Available)
-                        RenameTo(value);
-                    else
-                        SetField(ref _fileName, value, "FileName");
-                }
+                if (SetField(ref _fileName, value, "FileName"))
+                    FullPath = Path.Combine(Path.GetDirectoryName(FullPath), value);
             }
         }
 
@@ -239,17 +226,18 @@ namespace TAS.Server
             get { return _directory; }
         }
 
+        protected string _fullPath;
         [JsonProperty]
-        public string FullPath
-        {
-            get
+        public virtual string FullPath {
+            get { return _fullPath; }
+            internal set
             {
-                string fullPath = Path.Combine(_directory.Folder, _folder, _fileName);
-                if (_directory.AccessType == TDirectoryAccessType.FTP)
+                if (SetField(ref _fullPath, value, "FullPath"))
                 {
-                    return fullPath.Replace('\\', '/');
-                }
-                return fullPath;
+                    string relativeName = value.Substring(_directory.Folder.Length);
+                    FileName = Path.GetFileName(relativeName);
+                    Folder = relativeName.Substring(0, relativeName.Length - _fileName.Length).TrimEnd(_directory.PathSeparator);
+                };
             }
         }
 
@@ -258,17 +246,12 @@ namespace TAS.Server
             return ((MediaDirectory)Directory).DeleteMedia(this);
         }
 
-        protected virtual bool RenameTo(string NewFileName)
+        public virtual bool RenameTo(string newFileName)
         {
             try
             {
-                if (_directory.AccessType == TDirectoryAccessType.Direct)
-                {
-                    File.Move(FullPath, Path.Combine(_directory.Folder, this.Folder, NewFileName));
-                    SetField(ref _fileName, NewFileName, "FileName");
-                    return true;
-                }
-                else throw new NotImplementedException("Cannot rename on remote directories");
+                File.Move(FullPath, Path.Combine(Path.GetDirectoryName(FullPath), newFileName));
+                return true;
             }
             catch { }
             return false;
@@ -306,7 +289,8 @@ namespace TAS.Server
         public virtual bool CopyMediaTo(Media destMedia, ref bool abortCopy)
         {
             bool copyResult = true;
-            if (_directory.AccessType == TDirectoryAccessType.Direct && destMedia.Directory.AccessType == TDirectoryAccessType.Direct)
+            if ((!(_directory is IngestDirectory) || ((IngestDirectory)_directory).AccessType == TDirectoryAccessType.Direct)
+                && (!(destMedia.Directory is IngestDirectory) || ((IngestDirectory)destMedia.Directory).AccessType == TDirectoryAccessType.Direct))
             {
                 File.Copy(FullPath, destMedia.FullPath, true);
                 File.SetCreationTimeUtc(destMedia.FullPath, File.GetCreationTimeUtc(FullPath));
@@ -443,11 +427,6 @@ namespace TAS.Server
             {
                 Debug.WriteLine(e);
             }
-        }
-
-        internal void FileNameChanged(string newFileName)
-        {
-            SetField(ref _fileName, newFileName, "FileName");            
         }
 
         public void GetLoudness()

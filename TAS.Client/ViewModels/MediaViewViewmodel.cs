@@ -38,7 +38,7 @@ namespace TAS.Client.ViewModels
         }
 
         public string MediaName { get { return Media.MediaName; } }
-        public string FileName { get { return Media.FileName; } }
+        public string FileName { get { return string.Join(Media.Directory.PathSeparator.ToString(), Media.Folder, Media.FileName); } }
         public string Location { get { return Media.Directory.DirectoryName; } }
         public TimeSpan TcStart { get { return Media.TcStart; } }
         public TimeSpan TcPlay { get { return Media.TcPlay; } }

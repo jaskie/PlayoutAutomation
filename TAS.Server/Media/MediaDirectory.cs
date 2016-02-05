@@ -22,7 +22,6 @@ namespace TAS.Server
     [JsonObject(MemberSerialization.OptIn)]
     public abstract class MediaDirectory : DtoBase, IMediaDirectory
     { 
-        protected string[] _extensions;
         private FileSystemWatcher _watcher;
         protected ConcurrentDictionary<Guid, IMedia> _files = new ConcurrentDictionary<Guid, IMedia>();
         internal MediaManager MediaManager;
@@ -43,7 +42,7 @@ namespace TAS.Server
         {
             if (!_isInitialized)
             {
-                BeginWatch(null); 
+                BeginWatch("*", false, TimeSpan.Zero); 
             }
         }
 
@@ -94,12 +93,9 @@ namespace TAS.Server
         protected virtual void GetVolumeInfo()
         {
             _volumeTotalSize = 0;
-            if (AccessType == TDirectoryAccessType.Direct)
-            {
-                UInt64 dummy = 0;
-                if (GetDiskFreeSpaceEx(Folder, out _volumeFreeSize, out _volumeTotalSize, out dummy))
-                    NotifyPropertyChanged("VolumeFreeSize");
-            }
+            UInt64 dummy = 0;
+            if (GetDiskFreeSpaceEx(Folder, out _volumeFreeSize, out _volumeTotalSize, out dummy))
+                NotifyPropertyChanged("VolumeFreeSize");
         }
 
         public bool DirectoryExists()
@@ -149,6 +145,9 @@ namespace TAS.Server
             }
         }
 
+        [JsonProperty]
+        public virtual char PathSeparator { get { return Path.DirectorySeparatorChar; } }
+
         [XmlIgnore]
         public bool IsInitialized
         {
@@ -165,27 +164,6 @@ namespace TAS.Server
         [JsonProperty]
         public string DirectoryName { get; set; }
 
-        [XmlIgnore]
-        [JsonProperty]
-        public TDirectoryAccessType AccessType { get; protected set; }
-
-        public string Username { get; set; }
-
-        public string Password { get; set; }
-
-        private NetworkCredential _networkCredential;
-        public NetworkCredential NetworkCredential
-        {
-            get
-            {
-                if (_networkCredential == null)
-                    _networkCredential = new NetworkCredential(Username, Password);
-                return _networkCredential;
-            }
-        }
-        [XmlArray]
-        [XmlArrayItem("Extension")]
-        public string[] Extensions { get { return _extensions; } set { _extensions = value; } }
         
         public virtual bool FileExists(string filename, string subfolder = null)
         {
@@ -220,33 +198,23 @@ namespace TAS.Server
             return false;
         }
 
-        protected abstract IMedia CreateMedia(string fileNameOnly);
-        protected abstract IMedia CreateMedia(string fileNameOnly, Guid guid);
+        protected abstract IMedia CreateMedia(string fullPath, Guid guid = default(Guid));
 
         public abstract void SweepStaleMedia();
 
         protected virtual IMedia AddFile(string fullPath, DateTime created = default(DateTime), DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
-            if (_extensions == null
-                || _extensions.Count() == 0
-                || _extensions.Any(ext => ext.ToLowerInvariant() == Path.GetExtension(fullPath).ToLowerInvariant()))
+            Media newMedia;
+            newMedia = (Media)_files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath));
+            if (newMedia == null)
             {
-                Media newMedia;
-                    newMedia = (Media)_files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath));
-                if (newMedia == null)
-                {
-                    if (guid == default(Guid))
-                        newMedia = (Media)CreateMedia(Path.GetFileName(fullPath));
-                    else
-                        newMedia = (Media)CreateMedia(Path.GetFileName(fullPath), guid);
-                    newMedia.MediaName = (_extensions == null || _extensions.Length == 0) ? Path.GetFileName(fullPath) : Path.GetFileNameWithoutExtension(fullPath);
-                    newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
-                    newMedia.MediaType = (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Still : (FileUtils.VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Movie : TMediaType.Unknown;
-                    NotifyMediaAdded(newMedia);
-                }
-                return newMedia;
+                newMedia = (Media)CreateMedia(fullPath, guid);
+                newMedia.MediaName = Path.GetFileName(fullPath);
+                newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
+                newMedia.MediaType = (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Still : (FileUtils.VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Movie : TMediaType.Unknown;
+                NotifyMediaAdded(newMedia);
             }
-            return null;
+            return newMedia;
         }
 
         public virtual void MediaAdd(IMedia media)
@@ -271,10 +239,7 @@ namespace TAS.Server
                 MediaRemove(m);
         }
 
-        protected virtual void OnMediaRenamed(Media media, string newName)
-        {
-            media.FileNameChanged(newName);
-        }
+        protected virtual void OnMediaRenamed(Media media, string newName) { }
 
         protected virtual void OnMediaChanged(IMedia media)
         {
@@ -291,14 +256,20 @@ namespace TAS.Server
                 h(media, new MediaDtoEventArgs(media.DtoGuid, media.MediaGuid));
         }
 
-        protected virtual void EnumerateFiles(string filter, CancellationToken cancelationToken)
+        protected virtual void EnumerateFiles(string directory, string filter, bool includeSubdirectories, CancellationToken cancelationToken)
         {
-            IEnumerable<FileSystemInfo> list = (new DirectoryInfo(_folder)).EnumerateFiles(string.IsNullOrWhiteSpace(filter) ? "*" : string.Format("*{0}*", filter));
+            IEnumerable<FileSystemInfo> list = (new DirectoryInfo(directory)).EnumerateFiles(string.IsNullOrWhiteSpace(filter) ? "*" : string.Format("*{0}*", filter));
             foreach (FileSystemInfo f in list)
             {
                 if (cancelationToken.IsCancellationRequested)
                     return;
                 AddFile(f.FullName, f.CreationTimeUtc, f.LastWriteTimeUtc);
+            }
+            if (includeSubdirectories)
+            {
+                list = (new DirectoryInfo(directory)).EnumerateDirectories();
+                foreach (FileSystemInfo d in list)
+                    EnumerateFiles(d.FullName, filter, includeSubdirectories, cancelationToken);
             }
         }
 
@@ -327,10 +298,12 @@ namespace TAS.Server
         }
 
 
-        protected string _filter;
+        private string _watcherFilter;
+        private TimeSpan _watcherTimeout;
+        private bool _watcherIncludeSubdirectories;
         protected CancellationTokenSource _watcherTaskCancelationTokenSource;
         protected System.Threading.Tasks.Task _watcherTask;
-        protected void BeginWatch(string filter, TimeSpan timeout = default(TimeSpan))
+        protected void BeginWatch(string filter, bool includeSubdirectories, TimeSpan timeout)
         {
             var oldTask = _watcherTask;
             if (oldTask != null && oldTask.Status == System.Threading.Tasks.TaskStatus.Running)
@@ -341,7 +314,9 @@ namespace TAS.Server
             _watcherTask = System.Threading.Tasks.Task.Factory.StartNew(
                 () =>
                 {
-                    _filter = filter;
+                    _watcherFilter = filter;
+                    _watcherTimeout = timeout;
+                    _watcherIncludeSubdirectories = includeSubdirectories;
                     bool watcherReady = false;
                     while (!watcherReady)
                     {
@@ -360,12 +335,12 @@ namespace TAS.Server
                             }
                             if (Directory.Exists(_folder))
                             {
-                                EnumerateFiles(filter, watcherCancelationToken);
+                                EnumerateFiles(_folder, filter, includeSubdirectories, watcherCancelationToken);
                                 _watcher = new FileSystemWatcher(_folder)
                                 {
                                     Filter = string.IsNullOrWhiteSpace(filter) ? string.Empty : string.Format("*{0}*", filter),
-                                    IncludeSubdirectories = false,
-                                    EnableRaisingEvents = true
+                                    IncludeSubdirectories = includeSubdirectories,
+                                    EnableRaisingEvents = true,
                                 };
                                 _watcher.Created += OnFileCreated;
                                 _watcher.Deleted += OnFileDeleted;
@@ -419,7 +394,10 @@ namespace TAS.Server
         {
             Media m = (Media)_files.Values.FirstOrDefault(f => e.OldFullPath == f.FullPath);
             if (m != null)
+            {
+                m.FullPath = e.FullPath;
                 OnMediaRenamed(m, e.Name);
+            }
         }
 
         protected virtual void OnFileChanged(object source, FileSystemEventArgs e)
@@ -433,7 +411,7 @@ namespace TAS.Server
         protected virtual void OnError(object source, ErrorEventArgs e)
         {
             Debug.WriteLine("MediaDirectory: Watcher {0} returned error: {1}.", _folder, e.GetException());
-            BeginWatch(_filter);
+            BeginWatch(_watcherFilter, _watcherIncludeSubdirectories, _watcherTimeout);
         }
 
         public override string ToString()

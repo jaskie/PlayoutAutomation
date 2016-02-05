@@ -20,18 +20,13 @@ namespace TAS.Client.Model
         }
         public TDirectoryAccessType AccessType { get; set; }
         public string DirectoryName { get { return Get<string>(); } set { Set(value); } }
-        public string[] Extensions { get; set; }
         public abstract IEnumerable<IMedia> GetFiles();
 
         public string Folder { get { return Get<string>(); } set { Set(value); } }
 
+        public char PathSeparator { get { return Get<char>(); }  set { Set(value); } }
+
         public bool IsInitialized { get; set; }
-
-        public NetworkCredential NetworkCredential { get { return null; } }
-
-        public string Password { get; set; }
-        
-        public string Username { get; set; }
 
         public ulong VolumeFreeSize { get { return Get<ulong>(); } internal set { Set(value); } }
 

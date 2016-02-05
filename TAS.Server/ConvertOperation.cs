@@ -164,7 +164,7 @@ namespace TAS.Server
                     if (sourceMedia == null)
                         throw new ArgumentException("ConvertOperation: SourceMedia is not of type IngestMedia");
                     bool success = false;
-                    if (sourceMedia.Directory.AccessType != TDirectoryAccessType.Direct)
+                    if (((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
                         using (TempMedia _localSourceMedia = Owner.TempDirectory.CreateMedia(sourceMedia))
                         {
                             _addOutputMessage(string.Format("Copying to local file {0}", _localSourceMedia.FullPath));

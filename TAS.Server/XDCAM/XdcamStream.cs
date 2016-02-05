@@ -17,7 +17,7 @@ namespace TAS.Server.XDCAM
                 throw new ApplicationException();
             Uri uri = new Uri(media.FullPath);
             _client = new XdcamClient();
-            _client.Credentials = media.Directory.NetworkCredential;
+            _client.Credentials = ((IngestDirectory)media.Directory).NetworkCredential;
             _client.Host = uri.Host;
             _client.UngracefullDisconnection = true;
             try

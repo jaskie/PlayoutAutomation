@@ -12,6 +12,10 @@ namespace TAS.Server.Interfaces
         string EncodeParams { get; set; }
         bool IsXDCAM { get; set; }
         bool IsWAN { get; set; }
+        bool IsRecursive { get; set; }
+        string Username { get; set; }
+        string Password { get; set; }
+        string[] Extensions { get; set; }
         TMediaCategory MediaCategory { get; set; }
         bool MediaDoNotArchive { get; set; }
         int MediaRetnentionDays { get; set; }

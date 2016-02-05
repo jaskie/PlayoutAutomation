@@ -50,6 +50,9 @@ namespace TAS.Client.Config
         public bool IsXDCAM { get { return _isXDCAM; } set { SetField(ref _isXDCAM, value, "IsXDCAM"); } }
         bool _isWAN;
         public bool IsWAN { get { return _isWAN; } set { SetField(ref _isWAN, value, "IsWAN"); } }
+        bool _isRecursive;
+        public bool IsRecursive { get { return _isRecursive; }  set { SetField(ref _isRecursive, value, "IsRecursive"); } }
+
         TMediaCategory _mediaCategory;
         public TMediaCategory MediaCategory { get { return _mediaCategory; } set { SetField(ref _mediaCategory, value, "MediaCategory"); } }
         bool _mediaDoNotArchive;
