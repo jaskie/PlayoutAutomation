@@ -14,3 +14,5 @@ extern "C"
 #include <libavutil\mem.h>
 }
 
+#include <Windows.h>
+

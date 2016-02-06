@@ -3,7 +3,6 @@
 #pragma once
 
 #using <mscorlib.dll>
-#include <windows.h>
 
 using namespace System;
 using namespace System::Runtime::InteropServices;
@@ -50,14 +49,11 @@ namespace TAS {
 	class _FFMpegWrapper
 	{
 	private:
-		AVFormatContext	*pFormatCtx;
+		AVFormatContext* pFormatCtx;
 		int64_t countFrames(unsigned int streamIndex);
-		void renderFrame(AVFrame* frame);
-		AVFrame *decodeFirstFrame();
-		HWND hWnd;
+		AVFrame* decodeFirstFrame();
 	public:
 		_FFMpegWrapper(char* fileName);
-		_FFMpegWrapper(char* fileName, HWND hWnd);
 		~_FFMpegWrapper();
 		int64_t getFrameCount();
 		int64_t getAudioDuration();
@@ -69,20 +65,16 @@ namespace TAS {
 		AVRational getSAR();
 		AVRational getFrameRate();
 		bool readNextPacket(AVPacket* packetToRead);
-//		AVPacket* readedPacket;
-		bool Seek(int64_t position);
 	};
 
 	// managed code
-	public ref class FFMpegWrapper
+	public ref class FFMpegWrapper: IDisposable
 		{
 		private: 
 			_FFMpegWrapper* wrapper;
 			 String^ _fileName;
-			 IntPtr _windowHandle;
 		public:
 			FFMpegWrapper(String^ fileName);
-			FFMpegWrapper(String^ fileName, IntPtr hWnd);
 			~FFMpegWrapper();
 			Int64 GetFrameCount();
 			int GetHeight();
@@ -91,9 +83,7 @@ namespace TAS {
 			FieldOrder GetFieldOrder();
 			Rational^ GetFrameRate();
 			Rational^ GetSAR();
-//			bool GetFrame(TimeSpan fromTime, Bitmap^ destBitmap);
 			array<StreamInfo^>^ GetStreamInfo();
-			bool Seek(TimeSpan time);
 		};
 	}
 }
