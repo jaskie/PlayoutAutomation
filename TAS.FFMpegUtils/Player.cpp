@@ -4,11 +4,20 @@
 namespace TAS {
 	namespace FFMpegUtils {
 
+		int64_t GetTimeFromFrameNumber(const AVRational frameRate, const int64_t frameNo)
+		{
+			return AV_TIME_BASE * (frameNo * frameRate.den) / (frameRate.num);
+		}
+
+		int64_t GetFrameNumberFromTime(const int64_t time, const AVRational frameRate)
+		{
+			return time * frameRate.num / (AV_TIME_BASE * frameRate.den);
+		}
+
 		Player::Player()
 		{
 			av_register_all();
 		}
-
 
 		Player::~Player()
 		{
@@ -24,10 +33,17 @@ namespace TAS {
 		{
 			_playState = PLAYING;
 		}
+		
 		void Player::Seek(int64_t frame)
 		{
-			_playState = PAUSED;
+			if (_videoDecoder
+				&& _videoDecoder->DecoderReady
+				&& _videoDecoder->SeekTo(frame))
+				_playState = PAUSED;
+			else
+				Close();
 		}
+
 		void Player::Open(char * fileName)
 		{
 			if (_playState != IDLE)
@@ -35,13 +51,16 @@ namespace TAS {
 			_input = new Input(fileName);
 			if (_input->InputReady)
 			{
-				_videoDecoder = new VideoDecoder(_input->FindVideoStream());
-				_playState = PAUSED;
+				_videoDecoder = new VideoDecoder(_input);
+				if (_videoDecoder->DecoderReady)
+				{
+					_playState = PAUSED;
+					return;
+				}
 			}
-			else
-				Close();
-
+			Close();
 		}
+
 		void Player::Close()
 		{
 			if (_input)
@@ -49,6 +68,7 @@ namespace TAS {
 			if (_videoDecoder)
 				delete _videoDecoder;
 			_input = nullptr;
+			_videoDecoder = nullptr;
 			_playState = IDLE;
 		}
 		PLAY_STATE Player::GetPlayState() const

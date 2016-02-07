@@ -18,8 +18,15 @@ namespace TAS {
 			~Input();
 			const bool InputReady;
 			AVStream * FindVideoStream();
+			/**
+			* retrieves next packet with specified stream index and creates queue that acumulates this stream packets 
+			*/
 			AVPacket * GetPacket(int streamIndex);
-			bool Seek(int streamIndex, int64_t timestamp);
+			/**
+			* creates queue that will acumulate not used yet this stream packets
+			*/
+			void AddQueue(const int streamIndex);
+			bool Seek(const int streamIndex, const int64_t pts);
 		};
 	}
 }

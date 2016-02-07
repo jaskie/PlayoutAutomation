@@ -66,10 +66,16 @@ namespace TAS {
 			}
 			return packet;
 		}
-		bool Input::Seek(int streamIndex, int64_t timestamp)
+
+		void Input::AddQueue(const int streamIndexe)
+		{
+			queues[streamIndexe].empty();
+		}
+		
+		bool Input::Seek(const int streamIndex, const int64_t pts)
 		{
 			clearQueues();
-			return av_seek_frame(pFormatCtx, streamIndex, timestamp, 0) >= 0;
+			return av_seek_frame(pFormatCtx, streamIndex, pts, 0) >= 0;
 		}
 	}
 }
