@@ -29,10 +29,9 @@ namespace TAS.Server
         {
             if (((IngestDirectory)_directory).AccessType == TDirectoryAccessType.Direct)
                 return base.GetFileStream(forWrite);
+            else
             if (((IngestDirectory)_directory).AccessType == TDirectoryAccessType.FTP)
             {
-                try
-                {
                         if (_directory is IngestDirectory)
                         {
                             if (((IngestDirectory)_directory).IsXDCAM)
@@ -40,11 +39,6 @@ namespace TAS.Server
                             else
                                 return new FtpMediaStream(this);
                         }
-                }
-                catch (Exception we)
-                {
-                    Debug.WriteLine(we.Message);
-                }
             }
             throw new NotImplementedException("Access types other than Direct and readonly FTP not implemented");
         }

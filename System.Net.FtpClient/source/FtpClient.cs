@@ -1412,7 +1412,8 @@ namespace System.Net.FtpClient {
 
                 client.SetDataType(type);
                 length = client.GetFileSize(path);
-                stream = client.OpenDataStream(string.Format("RETR {0}", path.GetFtpPath()), restart);
+                client.SetWorkingDirectory("/"+path.GetFtpDirectoryName());
+                stream = client.OpenDataStream(string.Format("RETR {0}", path.GetFtpFileName()), restart);
             }
             finally {
                 m_lock.ReleaseMutex();

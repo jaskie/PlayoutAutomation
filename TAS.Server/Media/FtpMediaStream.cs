@@ -28,6 +28,7 @@ namespace TAS.Server
             catch
             {
                 _client.Dispose();
+                throw;
             }
         }
 

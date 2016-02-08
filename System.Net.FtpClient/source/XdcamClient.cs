@@ -37,7 +37,7 @@ namespace System.Net.FtpClient
                 // read in one line of raw file listing for the file - it's the only method to get file size
                 try
                 {
-                    using (FtpDataStream stream = OpenDataStream(string.Format("LIST {0}", path.GetFtpPath()), 0))
+                    using (FtpDataStream stream = OpenDataStream(string.Format("LIST /{0}", path.GetFtpPath()), 0))
                     {
                         string buf;
                         try

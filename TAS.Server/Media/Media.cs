@@ -50,7 +50,7 @@ namespace TAS.Server
             set
             {
                 if (SetField(ref _fileName, value, "FileName"))
-                    FullPath = Path.Combine(Path.GetDirectoryName(FullPath), value);
+                    FullPath = Path.Combine(_directory.Folder, _folder, value);
             }
         }
 
@@ -235,8 +235,10 @@ namespace TAS.Server
                 if (SetField(ref _fullPath, value, "FullPath"))
                 {
                     string relativeName = value.Substring(_directory.Folder.Length);
-                    FileName = Path.GetFileName(relativeName);
-                    Folder = relativeName.Substring(0, relativeName.Length - _fileName.Length).TrimEnd(_directory.PathSeparator);
+                    _fileName = Path.GetFileName(relativeName);
+                    _folder = relativeName.Substring(0, relativeName.Length - _fileName.Length).TrimEnd(_directory.PathSeparator);
+                    NotifyPropertyChanged("FileName");
+                    NotifyPropertyChanged("Folder");
                 };
             }
         }

@@ -12,7 +12,7 @@ namespace TAS.Server
         public TempMedia(TempDirectory directory, IMedia originalMedia, string fileExtension): base(directory, originalMedia.MediaGuid)
         {
             OriginalMedia = originalMedia;
-            _fileName = string.Format("{0}.{1}", _mediaGuid, fileExtension);
+            FileName = string.Format("{0}.{1}", _mediaGuid, fileExtension);
         }
 
         internal IMedia OriginalMedia;
