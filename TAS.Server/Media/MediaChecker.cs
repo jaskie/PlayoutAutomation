@@ -69,6 +69,10 @@ namespace TAS.Server
                     var vfd = VideoFormatDescription.Match(new System.Drawing.Size(w, h), new RationalNumber(frameRate.Num, frameRate.Den), sAR, order != FieldOrder.PROGRESSIVE);
                     media.VideoFormat = vfd.Format;
                     media.VideoFormatDescription = vfd;
+                    if (media is IngestMedia)
+                        ((IngestMedia)media).StreamInfo = ffmpeg.GetStreamInfo();
+                    if (media is TempMedia)
+                        ((TempMedia)media).StreamInfo = ffmpeg.GetStreamInfo();
 
                     if (videoDuration > TimeSpan.Zero)
                     {

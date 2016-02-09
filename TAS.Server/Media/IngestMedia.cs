@@ -7,6 +7,7 @@ using System.Diagnostics;
 using TAS.Common;
 using TAS.Server.Interfaces;
 using Newtonsoft.Json;
+using TAS.FFMpegUtils;
 
 namespace TAS.Server
 {
@@ -25,6 +26,8 @@ namespace TAS.Server
         internal XDCAM.NonRealTimeMeta ClipMetadata;
         internal XDCAM.Smil SmilMetadata;
         internal string XmlFile;
+        internal StreamInfo[] StreamInfo;
+
         public override Stream GetFileStream(bool forWrite)
         {
             if (((IngestDirectory)_directory).AccessType == TDirectoryAccessType.Direct)

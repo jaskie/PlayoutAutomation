@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TAS.Common;
+using TAS.FFMpegUtils;
 using TAS.Server.Interfaces;
 
 namespace TAS.Server
@@ -16,6 +17,8 @@ namespace TAS.Server
         }
 
         internal IMedia OriginalMedia;
+        internal StreamInfo[] StreamInfo;
+
         public override string MediaName
         {
             get { return OriginalMedia.MediaName; }
@@ -48,6 +51,7 @@ namespace TAS.Server
         {
             get { return OriginalMedia.MediaGuid; }
         }
+
         private bool _disposed = false;
         public void Dispose()
         {

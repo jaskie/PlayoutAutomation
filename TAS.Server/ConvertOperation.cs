@@ -26,8 +26,6 @@ namespace TAS.Server
         
         #region Properties
 
-        StreamInfo[] inputFileStreams;
-
         public ConvertOperation()
         {
             Kind = TFileOperationKind.Convert;
@@ -39,13 +37,8 @@ namespace TAS.Server
         #endregion // properties
 
         #region CheckFile
-        private void CheckInputFile(IMedia mf)
+        private void CheckInputFile(Media mf)
         {
-            using (FFMpegWrapper ff = new FFMpegWrapper(mf.FullPath))
-            {
-                inputFileStreams = ff.GetStreamInfo();
-            }
-
             MediaInfo mi = new MediaInfo();
             try
             {
@@ -175,7 +168,7 @@ namespace TAS.Server
                                 _localSourceMedia.Verify();
                                 try
                                 {
-                                    success = _do(_localSourceMedia);
+                                    success = _do(_localSourceMedia, _localSourceMedia.StreamInfo);
                                 }
                                 finally
                                 {
@@ -191,9 +184,14 @@ namespace TAS.Server
 
                     else
                     {
-                        success = _do(sourceMedia);
-                        if (!success)
-                            TryCount--;
+                        if (sourceMedia is IngestMedia && sourceMedia.Verified)
+                        {
+                            success = _do(sourceMedia, ((IngestMedia)sourceMedia).StreamInfo);
+                            if (!success)
+                                TryCount--;
+                        }
+                        else
+                            _addOutputMessage("Waiting for media to verify");
                         return success;
                     }
                 }
@@ -233,7 +231,7 @@ namespace TAS.Server
             }
         }
 
-        private string _encodeParameters(IMedia inputMedia)
+        private string _encodeParameters(Media inputMedia, StreamInfo[] inputStreams)
         {
             List<string> vf = new List<string>();
             List<string> af = new List<string>();
@@ -255,14 +253,14 @@ namespace TAS.Server
                     vf.Add("crop=720:576:0:32");
                     vf.Add("setdar=dar=16/9");
                 }
-                if (inputFileStreams.Count(s => s.StreamType == StreamType.AUDIO) > 8)
+                if (inputStreams.Count(s => s.StreamType == StreamType.AUDIO) > 8)
                     af.Add("aformat=channel_layouts=0xFFFF");
                 _addConversion(MediaConversion.AspectConversions[AspectConversion], ep, vf, af);
                 _addConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], ep, vf, af);
                 MediaConversion audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
-                if (inputFileStreams.Count(s => s.StreamType == StreamType.AUDIO) >= 2 && !audiChannelMappingConversion.OutputFormat.Equals(TAudioChannelMapping.Unknown))
+                if (inputStreams.Count(s => s.StreamType == StreamType.AUDIO) >= 2 && !audiChannelMappingConversion.OutputFormat.Equals(TAudioChannelMapping.Unknown))
                 {
-                    foreach (StreamInfo stream in inputFileStreams.Where(s => s.StreamType == StreamType.AUDIO))
+                    foreach (StreamInfo stream in inputStreams.Where(s => s.StreamType == StreamType.AUDIO))
                         for (int i = 0; i < stream.ChannelCount; i++)
                             ep.AppendFormat(" -map_channel 0.{0}.{1}", stream.Index, i);
                 }
@@ -291,17 +289,17 @@ namespace TAS.Server
             return ep.ToString();
         }
 
-        private bool _do(Media inputMedia)
+        private bool _do(Media media, StreamInfo[] streams)
         {
-            _progressDuration = inputMedia.Duration;
+            _progressDuration = media.Duration;
             Debug.WriteLine(this, "Convert operation started");
             _addOutputMessage("Starting convert operation:");
             VideoFormatDescription formatDescription = VideoFormatDescription.Descriptions[OutputFormat];
             DestMedia.MediaStatus = TMediaStatus.Copying;
-            CheckInputFile(inputMedia);
-            string encodeParams = _encodeParameters(inputMedia);
+            CheckInputFile(media);
+            string encodeParams = _encodeParameters(media, streams);
             string Params = string.Format("-i \"{0}\" -vsync cfr {1} -timecode {2} -y \"{3}\"",
-                    inputMedia.FullPath,
+                    media.FullPath,
                     encodeParams,
                     DestMedia.TcStart.ToSMPTETimecodeString(formatDescription.FrameRate),
                     DestMedia.FullPath);
@@ -314,12 +312,12 @@ namespace TAS.Server
             {
                 DestMedia.MediaStatus = TMediaStatus.Copied;
                 ((Media)DestMedia).Verify();
-                if (Math.Abs(DestMedia.Duration.Ticks - inputMedia.Duration.Ticks) > TimeSpan.TicksPerSecond / 2)
+                if (Math.Abs(DestMedia.Duration.Ticks - media.Duration.Ticks) > TimeSpan.TicksPerSecond / 2)
                 {
                     DestMedia.MediaStatus = TMediaStatus.CopyError;
                     if (DestMedia is PersistentMedia)
                         (DestMedia as PersistentMedia).Save();
-                    _addWarningMessage(string.Format(resources._encodeWarningDifferentDurations, inputMedia.Duration.ToSMPTETimecodeString(inputMedia.VideoFormatDescription.FrameRate), DestMedia.Duration.ToSMPTETimecodeString(DestMedia.VideoFormatDescription.FrameRate)));
+                    _addWarningMessage(string.Format(resources._encodeWarningDifferentDurations, media.Duration.ToSMPTETimecodeString(media.VideoFormatDescription.FrameRate), DestMedia.Duration.ToSMPTETimecodeString(DestMedia.VideoFormatDescription.FrameRate)));
                     Debug.WriteLine(this, "Convert operation succeed, but durations are diffrent");
                 }
                 else
