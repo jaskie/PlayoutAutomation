@@ -14,27 +14,28 @@ namespace TAS {
 			return time * frameRate.num / (AV_TIME_BASE * frameRate.den);
 		}
 
-		Player::Player()
+#pragma region Umanaged code
+		_Player::_Player()
 		{
 			av_register_all();
 		}
 
-		Player::~Player()
+		_Player::~_Player()
 		{
 			Close();
 		}
-		void Player::SetVideoDevice(HDC device, int width, int height)
+		void _Player::SetVideoDevice(HDC device, int width, int height)
 		{
 			_device = device;
 			_width = width;
 			_height = height;
 		}
-		void Player::Play()
+		void _Player::Play()
 		{
 			_playState = PLAYING;
 		}
 		
-		void Player::Seek(int64_t frame)
+		void _Player::Seek(int64_t frame)
 		{
 			if (_videoDecoder
 				&& _videoDecoder->DecoderReady
@@ -44,7 +45,7 @@ namespace TAS {
 				Close();
 		}
 
-		void Player::Open(char * fileName)
+		void _Player::Open(char * fileName)
 		{
 			if (_playState != IDLE)
 				Close();
@@ -61,7 +62,12 @@ namespace TAS {
 			Close();
 		}
 
-		void Player::Close()
+		void _Player::Pause()
+		{
+			_playState = PAUSED;
+		}
+
+		void _Player::Close()
 		{
 			if (_input)
 				delete _input;
@@ -71,19 +77,56 @@ namespace TAS {
 			_videoDecoder = nullptr;
 			_playState = IDLE;
 		}
-		PLAY_STATE Player::GetPlayState() const
+
+		PLAY_STATE _Player::GetPlayState() const
 		{
 			return _playState;
 		}
-		int64_t Player::GetCurrentFrame() const
+		int64_t _Player::GetCurrentFrame() const
 		{
 			return _currentFrame;
 		}
-		int64_t Player::GetFramesCount() const
+		int64_t _Player::GetFramesCount() const
 		{
 			if (_playState != IDLE && _videoDecoder)
 				return _videoDecoder->FrameCount;
 			return 0;
 		}
+
+		IDirect3DSurface9* _Player::GetDXBackBufferNoRef()
+		{
+			if (!_RenderManager) DirectXRendererManager::Create(&_RenderManager);
+			return nullptr;
+
+		}
+
+#pragma endregion Umanaged code
+
+#pragma region Managed code
+		Player::Player()
+		{
+			_player = new _Player();
+		}
+
+		Player::~Player()
+		{
+			delete _player;
+		}
+
+		void Player::Open(String^ fileName)
+		{
+			_fileName = fileName;
+			char* fn = (char*)Marshal::StringToHGlobalAnsi(fileName).ToPointer();
+			_player->Open(fn);
+			Marshal::FreeHGlobal(IntPtr((void*)fn));
+		}
+
+		IntPtr Player::GetDXBackBufferNoRef()
+		{
+			return (IntPtr)_player->GetDXBackBufferNoRef();
+		}
+
+#pragma endregion Managed code
+
 	}
 }

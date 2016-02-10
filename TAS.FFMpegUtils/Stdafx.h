@@ -4,7 +4,8 @@
 
 #pragma once
 
-//#pragma unmanaged
+#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+
 // FFMpeg
 extern "C" 
 {
@@ -14,5 +15,13 @@ extern "C"
 #include <libavutil\mem.h>
 }
 
+// Windows Header Files:
 #include <Windows.h>
+#include <d3d9.h>
+#include <d3dx9.h>
+#include <assert.h>
+#include "DirectXRenderer.h"
 
+#define IFC(x) { hr = (x); if (FAILED(hr)) goto Cleanup; }
+#define IFCOOM(x) { if ((x) == NULL) { hr = E_OUTOFMEMORY; IFC(hr); } }
+#define SAFE_RELEASE(x) { if (x) { x->Release(); x = NULL; } }

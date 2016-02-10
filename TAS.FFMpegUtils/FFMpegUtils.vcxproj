@@ -115,13 +115,15 @@
       <Optimization>MaxSpeed</Optimization>
       <MinimalRebuild>
       </MinimalRebuild>
+      <AdditionalIncludeDirectories>$(ProgramFiles)\Microsoft DirectX SDK (June 2010)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>comsuppwd.lib;avformat.lib;avcodec.lib;avutil.lib;swscale.lib;avfilter.lib;postproc.lib;swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comsuppwd.lib;avformat.lib;d3d9.lib;d3dx9.lib;avcodec.lib;avutil.lib;swscale.lib;avfilter.lib;postproc.lib;swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <MinimumRequiredVersion>
       </MinimumRequiredVersion>
+      <AdditionalLibraryDirectories>$(ProgramFiles)\Microsoft DirectX SDK (June 2010)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -143,12 +145,14 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(ProgramFiles)\Microsoft DirectX SDK (June 2010)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>comsuppwd.lib;avformat.lib;avcodec.lib;avutil.lib;swscale.lib;avfilter.lib;postproc.lib;swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comsuppwd.lib;avformat.lib;d3d9.lib;d3dx9.lib;avcodec.lib;avutil.lib;swscale.lib;avfilter.lib;postproc.lib;swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <MinimumRequiredVersion>5.01</MinimumRequiredVersion>
+      <AdditionalLibraryDirectories>$(ProgramFiles)\Microsoft DirectX SDK (June 2010)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -158,6 +162,8 @@
     <ClInclude Include="FFMpegUtils.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="DirectXRenderer.h" />
+    <ClInclude Include="DirectXRendererManager.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Stdafx.h" />
     <ClInclude Include="VideoDecoder.h" />
@@ -167,6 +173,8 @@
     <ClCompile Include="FFMpegUtils.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="DirectXRenderer.cpp" />
+    <ClCompile Include="DirectXRendererManager.cpp" />
     <ClCompile Include="Stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
