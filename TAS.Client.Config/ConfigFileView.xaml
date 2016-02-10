@@ -31,6 +31,7 @@
             <TextBox Text="{Binding TempDirectory, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Instance binding"/>
             <TextBox Text="{Binding Instance, UpdateSourceTrigger=PropertyChanged}"/>
+            <CheckBox Margin="0, 5" IsChecked="{Binding IsBackupInstance}" Content="Backup instance"/>
             <Label Content="User interface language"/>
             <ComboBox ItemsSource="{Binding SupportedLanguages}" DisplayMemberPath="DisplayName" SelectedValuePath="Name" SelectedValue="{Binding UiLanguage}" />
             <Separator Margin="10"/>
@@ -42,7 +43,7 @@
                 </Button>
                 <TextBox x:Name="edConnectionString" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding tasConnectionString}" IsReadOnly="True"/>
             </DockPanel>
-            <CheckBox IsChecked="{Binding IsSConnectionStringSecondary}" Margin="5" Content="Mirror database"/>
+            <CheckBox IsChecked="{Binding IsSConnectionStringSecondary}" Margin="0, 5" Content="Mirror database"/>
             <DockPanel Visibility="{Binding IsSConnectionStringSecondary, Converter={StaticResource BoolToVis}}" >
                 <Button DockPanel.Dock="Right" MaxHeight="31" VerticalAlignment="Top" Height="{Binding ElementName=edConnectionStringSecondary, Path=ActualHeight}" Command="{Binding CommandEditConnectionStringSecondary}" ToolTip="Edit...">
                     <Image Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>

@@ -69,6 +69,7 @@ namespace TAS.Client.Config.Model
             public string TempDirectory { get; set; }
             public int Instance { get; set; }
             public string UiLanguage { get; set; }
+            public bool IsBackupInstance { get; set; }
         }
         public AppSettings appSettings { get; set; }
 

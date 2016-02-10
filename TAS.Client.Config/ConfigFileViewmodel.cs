@@ -122,6 +122,8 @@ namespace TAS.Client.Config
         string _tasConnectionString;
         public string tasConnectionString { get { return _tasConnectionString; } set { SetField(ref _tasConnectionString, value, "tasConnectionString"); } }
         string _tasConnectionStringSecondary;
+        bool _isBackupInstance;
+        public bool IsBackupInstance { get { return _isBackupInstance; } set { SetField(ref _isBackupInstance, value, "IsBackupInstance"); } }
 
         public string tasConnectionStringSecondary { get { return _tasConnectionStringSecondary; } set { SetField(ref _tasConnectionStringSecondary, value, "tasConnectionStringSecondary"); } }
         private bool _isConnectionStringSecondary;

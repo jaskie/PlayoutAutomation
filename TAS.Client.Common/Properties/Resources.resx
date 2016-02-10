@@ -196,6 +196,11 @@ Really delete?</value>
     <value>Application should execute in one instance only, but was running already.
 Really start new one?</value>
   </data>
+  <data name="_query_StartBackupInstance" xml:space="preserve">
+    <value>The application is configured as backup for another installation and should be executing ONLY when that instance cannot operate.
+Simultaneous operation of the two instances is not permitted.
+Do you really want to run this BACKUP play-out?</value>
+  </data>
   <data name="_title_Delete" xml:space="preserve">
     <value>Delete: {0}:{1}</value>
   </data>

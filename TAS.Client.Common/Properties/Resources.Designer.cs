@@ -278,6 +278,17 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The application is configured as backup for another installation and should be executing ONLY when that instance cannot operate.
+        ///Simultaneous operation of the two instances is not permitted.
+        ///Do you really want to run this BACKUP play-out?.
+        /// </summary>
+        public static string _query_StartBackupInstance {
+            get {
+                return ResourceManager.GetString("_query_StartBackupInstance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete: {0}:{1}.
         /// </summary>
         public static string _title_Delete {

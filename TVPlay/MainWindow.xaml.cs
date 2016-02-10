@@ -18,7 +18,7 @@ using TAS.Client.Common;
 using TAS.Client.ViewModels;
 using System.Threading;
 using resources = TAS.Client.Common.Properties.Resources;
-
+using System.Configuration;
 
 namespace TAS.Client
 {
@@ -33,9 +33,10 @@ namespace TAS.Client
         {
             try
             {
-                if (!mutex.WaitOne(5000)
-                    && (MessageBox.Show(resources._query_StartAnotherInstance,
-                                    Common.Properties.Resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel))
+                bool isBackupInstance;
+                bool.TryParse(ConfigurationManager.AppSettings["IsBackupInstance"], out isBackupInstance);
+                if ((!mutex.WaitOne(5000) && (MessageBox.Show(resources._query_StartAnotherInstance, resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel))
+                    || (isBackupInstance && MessageBox.Show(resources._query_StartBackupInstance, resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes ))
                 {
                     _systemShutdown = true;
                     Application.Current.Shutdown(0);

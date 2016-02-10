@@ -196,6 +196,11 @@ Naprawdę usunąć?</value>
     <value>Program może byc uruchomiony tylko raz.
 Jeśli jego poprzednia kopia nie odpowiada i chcesz uruchomić nową, naciśnij OK. W przeciwnym razie naciśnij Anuluj.</value>
   </data>
+  <data name="_query_StartBackupInstance" xml:space="preserve">
+    <value>Ten program został skonfigurowany jako zapasowy dla instalacji na innym komputerze i powinien być uruchomiony TYLKO w razie awarii.
+Jednoczesna praca na obydwu komputerach nie jest dozwolona.
+Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
+  </data>
   <data name="_title_Delete" xml:space="preserve">
     <value>Usuń: {0}:{1}</value>
   </data>
