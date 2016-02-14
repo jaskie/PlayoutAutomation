@@ -119,7 +119,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>comsuppwd.lib;avformat.lib;d3d9.lib;d3dx9.lib;avcodec.lib;avutil.lib;swscale.lib;avfilter.lib;postproc.lib;swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comsuppwd.lib;avformat.lib;winmm.lib;d3d9.lib;d3dx9.lib;avcodec.lib;avutil.lib;swscale.lib;avfilter.lib;postproc.lib;swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <MinimumRequiredVersion>
       </MinimumRequiredVersion>
@@ -149,7 +149,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>comsuppwd.lib;avformat.lib;d3d9.lib;d3dx9.lib;avcodec.lib;avutil.lib;swscale.lib;avfilter.lib;postproc.lib;swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comsuppwd.lib;avformat.lib;winmm.lib;d3d9.lib;d3dx9.lib;avcodec.lib;avutil.lib;swscale.lib;avfilter.lib;postproc.lib;swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <MinimumRequiredVersion>5.01</MinimumRequiredVersion>
       <AdditionalLibraryDirectories>$(ProgramFiles)\Microsoft DirectX SDK (June 2010)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

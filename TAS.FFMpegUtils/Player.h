@@ -17,17 +17,22 @@ namespace TAS {
 
 #pragma region Unmanaged code
 
+		void CALLBACK TimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
+
 		class _Player
 		{
 		private:
-				int _width;
-				int _height;
-				HDC _device;
-				Input * _input;
-				VideoDecoder * _videoDecoder;
-				PLAY_STATE _playState;
-				int64_t _currentFrame;
-				DirectXRendererManager *_RenderManager = NULL;
+			int _width;
+			int _height;
+			HDC _device;
+			Input * _input;
+			VideoDecoder * _videoDecoder;
+			PLAY_STATE _playState;
+			int64_t _currentFrame;
+			DirectXRendererManager *_RenderManager = NULL;
+			TIMECAPS _timerCaps;
+			int _timerId;
+			void _closeTimer();
 		public:
 			_Player();
 			~_Player();
@@ -42,7 +47,6 @@ namespace TAS {
 			int64_t GetFramesCount() const;
 			IDirect3DSurface9* GetDXBackBufferNoRef();
 
-
 		};
 #pragma endregion Unmanaged code
 
@@ -56,11 +60,12 @@ using namespace System::Runtime::InteropServices;
 			Player();
 			~Player();
 			void Open(String ^ fileName);
+			void Play();
+			event System::EventHandler ^ TimerTick;
 			IntPtr GetDXBackBufferNoRef();
 		private:
 			String^ _fileName;
 			_Player * _player;
-
 		};
 #pragma endregion Managed code
 	}
