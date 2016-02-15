@@ -15,6 +15,7 @@ namespace TAS {
 			PAUSED,
 		};
 
+		typedef void(__stdcall *tickProc)();
 #pragma region Unmanaged code
 
 		void CALLBACK TimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
@@ -30,8 +31,6 @@ namespace TAS {
 			PLAY_STATE _playState;
 			int64_t _currentFrame;
 			DirectXRendererManager *_RenderManager = NULL;
-			TIMECAPS _timerCaps;
-			int _timerId;
 			void _closeTimer();
 		public:
 			_Player();
@@ -46,7 +45,9 @@ namespace TAS {
 			int64_t GetCurrentFrame() const;
 			int64_t GetFramesCount() const;
 			IDirect3DSurface9* GetDXBackBufferNoRef();
-
+			// should be internal
+			tickProc _timerTickProc;
+			int _timerId;
 		};
 #pragma endregion Unmanaged code
 
@@ -66,6 +67,7 @@ using namespace System::Runtime::InteropServices;
 		private:
 			String^ _fileName;
 			_Player * _player;
+			void _timerTickProc();
 		};
 #pragma endregion Managed code
 	}

@@ -5,6 +5,7 @@ namespace TAS {
 	namespace FFMpegUtils {
 
 #pragma region Umanaged code
+#pragma unmanaged
 
 		int64_t GetTimeFromFrameNumber(const AVRational frameRate, const int64_t frameNo)
 		{
@@ -18,9 +19,10 @@ namespace TAS {
 		
 		void CALLBACK TimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 		{
-			if (((_Player*)dwUser)->_timerId == uTimerID)
+			_Player* player = (_Player*)dwUser;
+			if (player->_timerId == uTimerID)
 			{
-
+				//player->_timerTickProc();
 			}
 		}
 
@@ -37,7 +39,6 @@ namespace TAS {
 		_Player::_Player()
 		{
 			av_register_all();
-			timeGetDevCaps(&_timerCaps, sizeof(_timerCaps));
 			_timerId = NULL;
 		}
 
@@ -56,7 +57,7 @@ namespace TAS {
 		void _Player::Play()
 		{
 			_playState = PLAYING;
-			_timerId = timeSetEvent(40, 0, TimerCallback, (DWORD)this, TIME_PERIODIC);
+			_timerId = timeSetEvent(40, 0, TimerCallback, (DWORD_PTR)this, TIME_PERIODIC);
 		}
 		
 		void _Player::Seek(int64_t frame)
@@ -129,6 +130,8 @@ namespace TAS {
 #pragma endregion Umanaged code
 
 #pragma region Managed code
+#pragma managed
+
 		Player::Player()
 		{
 			_player = new _Player();
@@ -155,6 +158,11 @@ namespace TAS {
 		IntPtr Player::GetDXBackBufferNoRef()
 		{
 			return (IntPtr)_player->GetDXBackBufferNoRef();
+		}
+
+		void Player::_timerTickProc()
+		{
+			TimerTick(this, EventArgs::Empty);
 		}
 
 #pragma endregion Managed code
