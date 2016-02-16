@@ -67,8 +67,10 @@ using namespace System::Runtime::InteropServices;
 		private:
 			String^ _fileName;
 			_Player * _player;
+			GCHandle _timerTickProcHandle;
 			void _timerTickProc();
 		};
+
 #pragma endregion Managed code
 	}
 }

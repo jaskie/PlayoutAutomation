@@ -21,9 +21,7 @@ namespace TAS {
 		{
 			_Player* player = (_Player*)dwUser;
 			if (player->_timerId == uTimerID)
-			{
-				//player->_timerTickProc();
-			}
+				player->_timerTickProc();
 		}
 
 		void _Player::_closeTimer()
@@ -131,15 +129,24 @@ namespace TAS {
 
 #pragma region Managed code
 #pragma managed
+		static void tproc() {
+
+		}
 
 		Player::Player()
 		{
 			_player = new _Player();
+			// providing timer tick callback to unmanaged class
+			Action^ timerTickAction = gcnew Action(this, &Player::_timerTickProc);
+			_timerTickProcHandle = GCHandle::Alloc(timerTickAction);
+			IntPtr _timerTickPointer = Marshal::GetFunctionPointerForDelegate(timerTickAction);
+			_player->_timerTickProc = static_cast<tickProc>(_timerTickPointer.ToPointer());
 		}
 
 		Player::~Player()
 		{
 			delete _player;
+			_timerTickProcHandle.Free();
 		}
 
 		void Player::Open(String^ fileName)
