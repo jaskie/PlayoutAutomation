@@ -39,6 +39,9 @@
     <ClInclude Include="DirectXRendererManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FrameEventArgs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FFMpegUtils.cpp">

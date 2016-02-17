@@ -160,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FFMpegUtils.h" />
+    <ClInclude Include="FrameEventArgs.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="DirectXRenderer.h" />

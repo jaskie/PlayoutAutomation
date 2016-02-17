@@ -3,6 +3,7 @@
 #include "Input.h"
 #include "VideoDecoder.h"
 #include "DirectXRendererManager.h"
+#include "FrameEventArgs.h"
 
 namespace TAS {
 	namespace FFMpegUtils {
@@ -15,7 +16,7 @@ namespace TAS {
 			PAUSED,
 		};
 
-		typedef void(__stdcall *tickProc)();
+		typedef void(__stdcall *tickProc)(const int64_t);
 #pragma region Unmanaged code
 
 		void CALLBACK TimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
@@ -29,7 +30,6 @@ namespace TAS {
 			Input * _input;
 			VideoDecoder * _videoDecoder;
 			PLAY_STATE _playState;
-			int64_t _currentFrame;
 			DirectXRendererManager *_RenderManager = NULL;
 			void _closeTimer();
 		public:
@@ -48,13 +48,14 @@ namespace TAS {
 			// should be internal
 			tickProc _timerTickProc;
 			int _timerId;
+			int64_t _currentFrame;
 		};
 #pragma endregion Unmanaged code
 
 #pragma region Managed code
 using namespace System;
 using namespace System::Runtime::InteropServices;
-
+		public delegate void TickDelegate(const int64_t);
 		public ref class Player
 		{
 		public:
@@ -62,13 +63,14 @@ using namespace System::Runtime::InteropServices;
 			~Player();
 			void Open(String ^ fileName);
 			void Play();
-			event System::EventHandler ^ TimerTick;
+			event System::EventHandler<FrameEventArgs^> ^ TimerTick;
 			IntPtr GetDXBackBufferNoRef();
+
 		private:
 			String^ _fileName;
 			_Player * _player;
 			GCHandle _timerTickProcHandle;
-			void _timerTickProc();
+			void _timerTickProc(const int64_t frameNumber);
 		};
 
 #pragma endregion Managed code
