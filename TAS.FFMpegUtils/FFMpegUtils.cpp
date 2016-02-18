@@ -31,9 +31,10 @@ namespace TAS {
 					{
 						if (pFormatCtx->streams[i]->nb_frames > 0)
 						{
-							if (pFormatCtx->streams[i]->r_frame_rate.num == 50 && pFormatCtx->streams[i]->r_frame_rate.den == 1)
+/*							if (pFormatCtx->streams[i]->r_frame_rate.num == 50 && pFormatCtx->streams[i]->r_frame_rate.den == 1)
 								return pFormatCtx->streams[i]->nb_frames/2; //hack to vegas mp4 files
 							else
+*/
 								return pFormatCtx->streams[i]->nb_frames; 
 						}
 						else
