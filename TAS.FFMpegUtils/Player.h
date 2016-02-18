@@ -42,7 +42,6 @@ namespace TAS {
 			void Open(char* fileName);
 			void Close();
 			PLAY_STATE GetPlayState() const;
-			int64_t GetCurrentFrame() const;
 			int64_t GetFramesCount() const;
 			IDirect3DSurface9* GetDXBackBufferNoRef();
 			// should be internal

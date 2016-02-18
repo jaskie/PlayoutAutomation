@@ -10,12 +10,9 @@ namespace TAS {
 			std::map<int, AVFrame*> _buffer;
 			void clearBuffer();
 			int64_t getFrameCount() const;
-			AVFrame * decode();
 			bool openCodec();
 			Input * const _input;
 			int64_t _readed_pts;
-			int64_t decodedFrameNumber() const;
-
 		public:
 			VideoDecoder(Input * const input);
 			~VideoDecoder();

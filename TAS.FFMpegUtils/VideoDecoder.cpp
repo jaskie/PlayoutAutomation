@@ -15,18 +15,12 @@ namespace TAS {
 
 		int64_t VideoDecoder::getFrameCount() const
 		{
-			if (DecoderReady && Stream->nb_frames > 0)
-			{
-				if (Stream->r_frame_rate.num == 50 && Stream->r_frame_rate.den == 1)
-					return Stream->nb_frames / 2; //hack for Sony Vegas mp4 files
-				else
-					return Stream->nb_frames;
-			}
-			else
-				return 0;
+			if (DecoderReady)
+				return Stream->nb_frames;
+			return 0;
 		}
 
-		AVFrame * VideoDecoder::decode()
+		AVFrame * VideoDecoder::DecodeNextFrame()
 		{
 			AVFrame * decodedFrame = av_frame_alloc();
 			AVPacket * packet;
@@ -53,11 +47,6 @@ namespace TAS {
 			return false;
 		}
 		
-		int64_t VideoDecoder::decodedFrameNumber() const
-		{
-			return av_rescale_q(_readed_pts, Stream->time_base, FrameRate);
-		}
-
 		VideoDecoder::VideoDecoder(Input * const input)
 			: _input(input)
 			, Stream(input->FindVideoStream())
@@ -72,11 +61,6 @@ namespace TAS {
 		{
 		}
 
-		AVFrame * VideoDecoder::DecodeNextFrame()
-		{
-			return nullptr;
-		}
-
 		bool VideoDecoder::SeekTo(int64_t frameNo)
 		{
 			clearBuffer();
@@ -88,7 +72,7 @@ namespace TAS {
 				int frameReadCount = 0;
 				do
 				{
-					frame = decode();
+					frame = DecodeNextFrame();
 					if (!frame)
 						return false;
 					frameReadCount++;

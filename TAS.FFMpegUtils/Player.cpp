@@ -120,9 +120,15 @@ namespace TAS {
 
 		IDirect3DSurface9* _Player::GetDXBackBufferNoRef()
 		{
-			if (!_RenderManager) DirectXRendererManager::Create(&_RenderManager);
-			return nullptr;
-
+			if (!_RenderManager)
+			{
+				if (FAILED(DirectXRendererManager::Create(&_RenderManager)))
+					return nullptr;
+			}
+			IDirect3DSurface9* result;
+			if (FAILED(_RenderManager->GetBackBufferNoRef(&result)))
+				return nullptr;
+			return result;
 		}
 
 #pragma endregion Umanaged code

@@ -24,24 +24,10 @@ namespace TAS {
 		int64_t _FFMpegWrapper::getFrameCount()
 		{
 			if (pFormatCtx)
-			{
 				for (unsigned int i=0; i<pFormatCtx->nb_streams; i++)
-				{
 					if(pFormatCtx->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO) 
-					{
 						if (pFormatCtx->streams[i]->nb_frames > 0)
-						{
-/*							if (pFormatCtx->streams[i]->r_frame_rate.num == 50 && pFormatCtx->streams[i]->r_frame_rate.den == 1)
-								return pFormatCtx->streams[i]->nb_frames/2; //hack to vegas mp4 files
-							else
-*/
 								return pFormatCtx->streams[i]->nb_frames; 
-						}
-						else
-							return 0;//countFrames(i);
-					}
-				}
-			} 
 			// if not found
 			return 0; 
 		}
