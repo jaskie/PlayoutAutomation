@@ -11,11 +11,12 @@ namespace TAS.Server.Interfaces
     public interface IEvent: IEventProperties, INotifyPropertyChanged
     {
         UInt64 IdRundownEvent { get; set; }
-        IServerMedia ServerMediaPGM { get; }
+        IServerMedia ServerMediaPRI { get; }
+        IServerMedia ServerMediaSEC { get; }
         IServerMedia ServerMediaPRV { get; }
         IMedia Media { get; set; }
         IEngine Engine { get; }
-        long SeekPGM { get; }
+        long MediaSeek { get; }
         bool IsFinished { get; }
         TimeSpan Length { get; }
         DateTime EndTime { get; }

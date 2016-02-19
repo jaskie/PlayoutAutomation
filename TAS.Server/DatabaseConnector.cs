@@ -814,7 +814,7 @@ VALUES
             }
         }
 
-        internal static List<Engine> DbLoadEngines(UInt64 instance, List<IPlayoutServer> servers)
+        internal static List<Engine> DbLoadEngines(UInt64 instance)
         {
             List<Engine> Engines = new List<Engine>();
             lock (connection)
@@ -825,60 +825,22 @@ VALUES
                 {
                     while (dataReader.Read())
                     {
-                        UInt64 idServerPGM = dataReader.IsDBNull(dataReader.GetOrdinal("idServerPGM")) ? 0UL : dataReader.GetUInt64("idServerPGM");
-                        int numServerChannelPGM = dataReader.IsDBNull(dataReader.GetOrdinal("ServerChannelPGM")) ? 0 : dataReader.GetInt32("ServerChannelPGM");
-                        UInt64 idServerPRV = dataReader.IsDBNull(dataReader.GetOrdinal("idServerPRV")) ? 0UL : dataReader.GetUInt64("idServerPRV");
-                        int numServerChannelPRV = dataReader.IsDBNull(dataReader.GetOrdinal("ServerChannelPRV")) ? 0 : dataReader.GetInt32("ServerChannelPRV");
-
-                        var sPGM = servers.Find(S => S.Id == idServerPGM);
-                        var cPGM = sPGM == null ? null : sPGM.Channels.FirstOrDefault(c => c.ChannelNumber == numServerChannelPGM);
-                        var sPRV = servers.Find(S => S.Id == idServerPRV);
-                        var cPRV = sPRV == null ? null : sPRV.Channels.FirstOrDefault(c => c.ChannelNumber == numServerChannelPRV);
                         Engine newEngine = SerializationHelper.Deserialize<Engine>(dataReader.GetString("Config"));
                         newEngine.Id = dataReader.GetUInt64("idEngine");
                         newEngine.Instance = dataReader.GetUInt64("Instance");
-                        newEngine.PlayoutChannelPGM = cPGM;
-                        newEngine.PlayoutChannelPRV = cPRV;
                         newEngine.IdArchive = dataReader.GetUInt64("idArchive");
+                        newEngine.IdServerPRI = dataReader.IsDBNull(dataReader.GetOrdinal("idServerPRI")) ? 0UL : dataReader.GetUInt64("idServerPRI");
+                        newEngine.ServerChannelPRI = dataReader.IsDBNull(dataReader.GetOrdinal("ServerChannelPRI")) ? 0 : dataReader.GetInt32("ServerChannelPRI");
+                        newEngine.IdServerSEC = dataReader.IsDBNull(dataReader.GetOrdinal("idServerSEC")) ? 0UL : dataReader.GetUInt64("idServerSEC");
+                        newEngine.ServerChannelSEC = dataReader.IsDBNull(dataReader.GetOrdinal("ServerChannelSEC")) ? 0 : dataReader.GetInt32("ServerChannelSEC");
+                        newEngine.IdServerPRV = dataReader.IsDBNull(dataReader.GetOrdinal("idServerPRV")) ? 0UL : dataReader.GetUInt64("idServerPRV");
+                        newEngine.ServerChannelPRV = dataReader.IsDBNull(dataReader.GetOrdinal("ServerChannelPRV")) ? 0 : dataReader.GetInt32("ServerChannelPRV");
                         Engines.Add(newEngine);
                     }
                     dataReader.Close();
                 }
             }
             return Engines;
-        }
-
-        internal static bool DbUpdate(this Engine engine)
-        {
-            lock (connection)
-            {
-                DbCommandRedundant cmd = new DbCommandRedundant(
-@"UPDATE Engine set 
-Instance=@Instance, 
-idServerPGM=@idServerPGM, 
-ServerChannelPGM=@ServerChannelPGM, 
-idServerPRV=@idServerPRV, 
-ServerChannelPRV=@ServerChannelPRV,
-idArchive=@idArchive, 
-Config=@Config
-where
-idEngine=@idEngine", connection);
-                cmd.Parameters.AddWithValue("@idEngine", engine.Id);
-                cmd.Parameters.AddWithValue("@Instance", engine.Instance);
-                cmd.Parameters.AddWithValue("@idServerPGM", engine.PlayoutChannelPGM == null ? DBNull.Value : (object)engine.PlayoutChannelPGM.OwnerServer.Id);
-                cmd.Parameters.AddWithValue("@ServerChannelPGM", engine.PlayoutChannelPGM == null ? DBNull.Value : (object)engine.PlayoutChannelPGM.ChannelNumber);
-                cmd.Parameters.AddWithValue("@idServerPRV", engine.PlayoutChannelPRV == null ? DBNull.Value : (object)engine.PlayoutChannelPRV.OwnerServer.Id);
-                cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.PlayoutChannelPRV == null ? DBNull.Value : (object)engine.PlayoutChannelPRV.ChannelNumber);
-                cmd.Parameters.AddWithValue("@idArchive", engine.IdArchive);
-                cmd.Parameters.AddWithValue("@Config", SerializationHelper.Serialize<Engine>(engine));
-
-                if (cmd.ExecuteNonQuery() == 1)
-                {
-                    Debug.WriteLine(engine, "Saved");
-                    return true;
-                }
-            }
-            return false;
         }
 
         internal static List<IPlayoutServer> DbLoadServers()

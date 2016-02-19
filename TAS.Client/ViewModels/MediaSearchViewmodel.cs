@@ -41,9 +41,9 @@ namespace TAS.Client.ViewModels
                 _previewViewmodel.PropertyChanged += _onPreviewPropertyChanged;
             _mediaType = mediaType;
             if (mediaType == TMediaType.AnimationFlash)
-                _searchDirectory = _manager.AnimationDirectoryPGM;
+                _searchDirectory = _manager.AnimationDirectoryPRI;
             else
-                _searchDirectory = _manager.MediaDirectoryPGM;
+                _searchDirectory = _manager.MediaDirectoryPRI;
             _searchDirectory.MediaAdded += _searchDirectory_MediaAdded;
             _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
             _searchDirectory.MediaVerified += _searchDirectory_MediaVerified;

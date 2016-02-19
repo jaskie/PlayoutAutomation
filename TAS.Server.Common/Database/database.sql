@@ -62,8 +62,10 @@ CREATE TABLE `customcommand` (
 CREATE TABLE `engine` (
   `idEngine` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `Instance` bigint(20) unsigned DEFAULT NULL,
-  `idServerPGM` bigint(20) unsigned DEFAULT NULL,
-  `ServerChannelPGM` int(11) DEFAULT NULL,
+  `idServerPRI` bigint(20) unsigned DEFAULT NULL,
+  `ServerChannelPRI` int(11) DEFAULT NULL,
+  `idServerSEC` bigint(20) unsigned DEFAULT NULL,
+  `ServerChannelSEC` int(11) DEFAULT NULL,
   `idServerPRV` bigint(20) unsigned DEFAULT NULL,
   `ServerChannelPRV` int(11) DEFAULT NULL,
   `idArchive` bigint(20) DEFAULT NULL,
@@ -157,3 +159,11 @@ CREATE TABLE `template` (
   PRIMARY KEY (`idTemplate`),
   KEY `ixMediaGuid` (`MediaGuid`)
 ) ENGINE=InnoDB;
+
+CREATE TABLE `params` (
+  `Section` VARCHAR(50) NOT NULL,
+  `Key` VARCHAR(50) NOT NULL,
+  `Value` VARCHAR(100) NULL,
+  PRIMARY KEY (`Section`, `Key`));
+
+INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', 'V1');

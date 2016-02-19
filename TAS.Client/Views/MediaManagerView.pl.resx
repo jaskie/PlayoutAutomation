@@ -138,8 +138,8 @@
   <data name="_menu.Tools" xml:space="preserve">
     <value>Narzędzia</value>
   </data>
-  <data name="_menu.Tools.SynchronizePgmToPrv" xml:space="preserve">
-    <value>Synchronizuj PRV z PGM</value>
+  <data name="_menu.Tools.SynchronizeSecToPri" xml:space="preserve">
+    <value>Synchronizuj zawartość serwerów</value>
   </data>
   <data name="_refresh" xml:space="preserve">
     <value>Odśwież</value>

@@ -15,9 +15,9 @@ namespace TAS.Client.Model
         
         public string SearchString { get { return Get<string>(); } set { Set(value); } }
 
-        public void ArchiveRestore(IArchiveMedia media, IServerMedia mediaPGM, bool toTop)
+        public void ArchiveRestore(IArchiveMedia srcMedia, IServerMedia destMedia, bool toTop)
         {
-            Invoke(parameters: new object[] { media, mediaPGM, toTop });
+            Invoke(parameters: new object[] { srcMedia, destMedia, toTop });
         }
 
         public void ArchiveSave(IMedia media, TVideoFormat outputFormat, bool deleteAfterSuccess)

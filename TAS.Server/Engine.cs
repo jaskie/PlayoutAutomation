@@ -23,8 +23,10 @@ namespace TAS.Server
         public UInt64 Id { get; set; }
         public UInt64 Instance { get; set; }
         public UInt64 IdArchive { get; set; }
-        public ulong IdServerPGM { get; set; }
-        public int ServerChannelPGM { get; set; }
+        public ulong IdServerPRI { get; set; }
+        public int ServerChannelPRI { get; set; }
+        public ulong IdServerSEC { get; set; }
+        public int ServerChannelSEC { get; set; }
         public ulong IdServerPRV { get; set; }
         public int ServerChannelPRV { get; set; }
         string _engineName;
@@ -110,58 +112,17 @@ namespace TAS.Server
 
 #endregion //IDisposable
 
-        private IPlayoutServerChannel _playoutChannelPGM;
+        private IPlayoutServerChannel _playoutChannelPRI;
+        [XmlIgnore]
+        public IPlayoutServerChannel PlayoutChannelPRI { get { return _playoutChannelPRI; } }
 
+        private IPlayoutServerChannel _playoutChannelSEC;
         [XmlIgnore]
-        public IPlayoutServerChannel PlayoutChannelPGM
-        {
-            get { return _playoutChannelPGM; }
-            set
-            {
-                var old = _playoutChannelPGM;
-                if (old != value)
-                {
-                    if (old != null)
-                    {
-                        old.OwnerServer.PropertyChanged -= _onServerPropertyChanged;
-                        old.Engine = null;
-                    }
-                    _playoutChannelPGM = value;
-                    if (value != null)
-                    {
-                        value.OwnerServer.PropertyChanged += _onServerPropertyChanged;
-                        value.Engine = this;
-                    }
-                    NotifyPropertyChanged("PlayoutChannelPGM");
-                }
-            }
-        }
+        public IPlayoutServerChannel PlayoutChannelSEC { get { return _playoutChannelSEC; } }
+
         private IPlayoutServerChannel _playoutChannelPRV;
-        
         [XmlIgnore]
-        public IPlayoutServerChannel PlayoutChannelPRV
-        {
-            get { return _playoutChannelPRV; }
-            set
-            {
-                var old = _playoutChannelPRV;
-                if (old != value)
-                {
-                    if (old != null)
-                    {
-                        old.OwnerServer.PropertyChanged -= _onServerPropertyChanged;
-                        old.Engine = null;
-                    }
-                    _playoutChannelPRV = value;
-                    if (value != null)
-                    {
-                        value.OwnerServer.PropertyChanged += _onServerPropertyChanged;
-                        value.Engine = this;
-                    }
-                    NotifyPropertyChanged("PlayoutChannelPRV");
-                }
-            }
-        }
+        public IPlayoutServerChannel PlayoutChannelPRV { get { return _playoutChannelPRV; } }
 
         long _frameTicks;
         public long FrameTicks { get { return _frameTicks; } }
@@ -174,32 +135,41 @@ namespace TAS.Server
         [XmlIgnore]
         public VideoFormatDescription FormatDescription { get; private set; }
 
-        public void Initialize(IGpi localGpi)
+        public void Initialize(IEnumerable<IPlayoutServer> servers, IGpi localGpi)
         {
             Debug.WriteLine(this, "Begin initializing");
+
+            var sPRI = servers.FirstOrDefault(S => S.Id == IdServerPRI);
+            _playoutChannelPRI = sPRI == null ? null : sPRI.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelPRI);
+            var sSEC = servers.FirstOrDefault(S => S.Id == IdServerSEC);
+            _playoutChannelSEC = sPRI == null ? null : sSEC.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelSEC);
+            var sPRV = servers.FirstOrDefault(S => S.Id == IdServerPRV);
+            _playoutChannelPRV = sPRV == null ? null : sPRV.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelPRV);
+
+
             LocalGpi = localGpi;
             FormatDescription = VideoFormatDescription.Descriptions[VideoFormat];
             _frameTicks = FormatDescription.FrameTicks;
             _frameRate = FormatDescription.FrameRate;
-            var chPGM = PlayoutChannelPGM;
-            Debug.WriteLine(chPGM, "About to initialize");
-            Debug.Assert(chPGM != null && chPGM.OwnerServer != null, "Null channel PGM or its server");
-            var chPRV = PlayoutChannelPRV;
-            if (chPRV != null
-                && chPRV != chPGM
-                && chPRV.OwnerServer != null)
+            var chPRI = PlayoutChannelPRI;
+            Debug.WriteLine(chPRI, "About to initialize");
+            Debug.Assert(chPRI != null && chPRI.OwnerServer != null, "Null primary channel or its server");
+            var chSEC = PlayoutChannelSEC;
+            if (chSEC != null
+                && chSEC != chPRI
+                && chSEC.OwnerServer != null)
             {
-                ((CasparServer)chPRV.OwnerServer).MediaManager = this.MediaManager as MediaManager;
-                chPRV.OwnerServer.Initialize();
-                chPRV.OwnerServer.MediaDirectory.DirectoryName = chPRV.ChannelName;
+                ((CasparServer)chSEC.OwnerServer).MediaManager = this.MediaManager as MediaManager;
+                chSEC.OwnerServer.Initialize();
+                chSEC.OwnerServer.MediaDirectory.DirectoryName = chSEC.ChannelName;
             }
 
-            if (chPGM != null
-                && chPGM.OwnerServer != null)
+            if (chPRI != null
+                && chPRI.OwnerServer != null)
             {
-                ((CasparServer)chPGM.OwnerServer).MediaManager = this.MediaManager as MediaManager;
-                chPGM.OwnerServer.Initialize();
-                chPGM.OwnerServer.MediaDirectory.DirectoryName = chPGM.ChannelName;
+                ((CasparServer)chPRI.OwnerServer).MediaManager = this.MediaManager as MediaManager;
+                chPRI.OwnerServer.Initialize();
+                chPRI.OwnerServer.MediaDirectory.DirectoryName = chPRI.ChannelName;
             }
 
             MediaManager.Initialize();
@@ -267,7 +237,7 @@ namespace TAS.Server
         {
             Debug.WriteLine(this, "Begin uninitializing");
 
-            var ch = PlayoutChannelPGM;
+            var ch = PlayoutChannelPRI;
             Debug.WriteLine(this, "Aborting engine thread");
             _engineThread.Abort();
             _engineThread.Join();
@@ -580,10 +550,10 @@ namespace TAS.Server
                 if (value != _programAudioVolume)
                 {
                     _programAudioVolume = value;
-                    if (PlayoutChannelPGM != null)
-                        PlayoutChannelPGM.SetVolume(VideoLayer.Program, _programAudioVolume);
-                    if (PlayoutChannelPRV != null && !_previewLoaded)
-                        PlayoutChannelPRV.SetVolume(VideoLayer.Program, _programAudioVolume);
+                    if (PlayoutChannelPRI != null)
+                        PlayoutChannelPRI.SetVolume(VideoLayer.Program, _programAudioVolume);
+                    if (PlayoutChannelSEC != null && !_previewLoaded)
+                        PlayoutChannelSEC.SetVolume(VideoLayer.Program, _programAudioVolume);
                     NotifyPropertyChanged("ProgramAudioVolume");
                 }
             }
@@ -634,10 +604,10 @@ namespace TAS.Server
             Debug.WriteLine(aEvent, "Load");
             if (aEvent.EventType != TEventType.Rundown)
             {
-                if (PlayoutChannelPGM != null)
-                    PlayoutChannelPGM.Load(aEvent);
-                if (PlayoutChannelPRV != null)
-                    PlayoutChannelPRV.Load(aEvent);
+                if (PlayoutChannelPRI != null)
+                    PlayoutChannelPRI.Load(aEvent);
+                if (PlayoutChannelSEC != null)
+                    PlayoutChannelSEC.Load(aEvent);
                 _visibleEvents[aEvent.Layer] = aEvent;
                 _finishedEvents[aEvent.Layer] = null;
                 _loadedNextEvents[aEvent.Layer] = null;
@@ -661,10 +631,10 @@ namespace TAS.Server
                 aEvent.PlayState = TPlayState.Scheduled;
             if (aEvent.EventType != TEventType.Rundown)
             {
-                if (PlayoutChannelPGM != null)
-                    PlayoutChannelPGM.LoadNext(aEvent);
-                if (PlayoutChannelPRV != null)
-                    PlayoutChannelPRV.LoadNext(aEvent);
+                if (PlayoutChannelPRI != null)
+                    PlayoutChannelPRI.LoadNext(aEvent);
+                if (PlayoutChannelSEC != null)
+                    PlayoutChannelSEC.LoadNext(aEvent);
                 _loadedNextEvents[aEvent.Layer] = aEvent;
                 if (_gpi != null
                     && GPIEnabled
@@ -698,10 +668,10 @@ namespace TAS.Server
             {
                 if (_visibleEvents[aEvent.Layer] != aEvent && !(_loadedNextEvents[aEvent.Layer] == aEvent)) 
                     _loadNext(aEvent);
-                if (PlayoutChannelPGM != null)
-                    PlayoutChannelPGM.Play(aEvent);
-                if (PlayoutChannelPRV != null)
-                    PlayoutChannelPRV.Play(aEvent);
+                if (PlayoutChannelPRI != null)
+                    PlayoutChannelPRI.Play(aEvent);
+                if (PlayoutChannelSEC != null)
+                    PlayoutChannelSEC.Play(aEvent);
                 _loadedNextEvents[aEvent.Layer] = null;
                 _finishedEvents[aEvent.Layer] = null;
                 _visibleEvents[aEvent.Layer] = aEvent;
@@ -764,10 +734,10 @@ namespace TAS.Server
             bool narrow = media != null && (media.VideoFormat == TVideoFormat.PAL || media.VideoFormat == TVideoFormat.NTSC || media.VideoFormat == TVideoFormat.PAL_P);
             if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
             {
-                if (PlayoutChannelPGM != null)
-                    PlayoutChannelPGM.SetAspect(VideoLayer.Program, narrow);
-                if (PlayoutChannelPRV != null)
-                    PlayoutChannelPRV.SetAspect(VideoLayer.Program, narrow);
+                if (PlayoutChannelPRI != null)
+                    PlayoutChannelPRI.SetAspect(VideoLayer.Program, narrow);
+                if (PlayoutChannelSEC != null)
+                    PlayoutChannelSEC.SetAspect(VideoLayer.Program, narrow);
             }
             if (AspectRatioControl == TAspectRatioControl.GPI || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
                 if (_gpi != null)
@@ -880,10 +850,10 @@ namespace TAS.Server
                         && (le == null || (le.ScheduledTime.Ticks - CurrentTicks >= _frameTicks)))
                     {
                         Debug.WriteLine(aEvent, "Stop");
-                        if (PlayoutChannelPGM != null)
-                            PlayoutChannelPGM.Stop(aEvent);
-                        if (PlayoutChannelPRV != null)
-                            PlayoutChannelPRV.Stop(aEvent);
+                        if (PlayoutChannelPRI != null)
+                            PlayoutChannelPRI.Stop(aEvent);
+                        if (PlayoutChannelSEC != null)
+                            PlayoutChannelSEC.Stop(aEvent);
                     }
                     _visibleEvents[aEvent.Layer] = null;
                 }
@@ -899,10 +869,10 @@ namespace TAS.Server
                     Debug.WriteLine(aEvent, "Pause");
                     if (aEvent.EventType != TEventType.Live)
                     {
-                        if (PlayoutChannelPGM != null)
-                            PlayoutChannelPGM.Pause(aEvent);
-                        if (PlayoutChannelPRV != null)
-                            PlayoutChannelPRV.Pause(aEvent);
+                        if (PlayoutChannelPRI != null)
+                            PlayoutChannelPRI.Pause(aEvent);
+                        if (PlayoutChannelSEC != null)
+                            PlayoutChannelSEC.Pause(aEvent);
                     }
                     if (finish)
                     {
@@ -926,22 +896,22 @@ namespace TAS.Server
         private void _loadPST()
         {
             var currEvent = PlayingEvent();
-            if (PlayoutChannelPRV != null)
+            if (PlayoutChannelSEC != null)
                 if (currEvent != null)
                 {
                     var nextEvent = currEvent.GetSuccessor();
                     if (nextEvent != null)
                     {
-                        var media = nextEvent.ServerMediaPRV;
+                        var media = nextEvent.ServerMediaSEC;
                         if (media != null)
                         {
-                            PlayoutChannelPRV.Load(media, VideoLayer.Preset, 0, -1);
+                            PlayoutChannelSEC.Load(media, VideoLayer.Preset, 0, -1);
                             return;
                         }
                     }
                 }
                 else
-                    PlayoutChannelPRV.Load(System.Drawing.Color.Black, VideoLayer.Preset);
+                    PlayoutChannelSEC.Load(System.Drawing.Color.Black, VideoLayer.Preset);
         }
 
         public void Clear(VideoLayer aVideoLayer)
@@ -969,10 +939,10 @@ namespace TAS.Server
                 ev.Save();
                 _runningEvents.Remove(ev);
             }
-            if (PlayoutChannelPGM != null)
-                PlayoutChannelPGM.Clear(aVideoLayer);
-            if (PlayoutChannelPRV != null)
-                PlayoutChannelPRV.Clear(aVideoLayer);
+            if (PlayoutChannelPRI != null)
+                PlayoutChannelPRI.Clear(aVideoLayer);
+            if (PlayoutChannelSEC != null)
+                PlayoutChannelSEC.Clear(aVideoLayer);
         }
         
         public void Clear()
@@ -984,10 +954,10 @@ namespace TAS.Server
             _loadedNextEvents.Clear();
             _finishedEvents.Clear();
             PreviewUnload(); 
-            if (PlayoutChannelPGM != null)
-                PlayoutChannelPGM.Clear();
-            if (PlayoutChannelPRV != null)
-                PlayoutChannelPRV.Clear();
+            if (PlayoutChannelPRI != null)
+                PlayoutChannelPRI.Clear();
+            if (PlayoutChannelSEC != null)
+                PlayoutChannelSEC.Clear();
             NotifyEngineOperation(null, TEngineOperation.Clear);
             _programAudioVolume = 1.0m;
             NotifyPropertyChanged("ProgramAudioVolume");
@@ -997,10 +967,10 @@ namespace TAS.Server
 
         public void RestartLayer(VideoLayer aLayer)
         {
-            if (PlayoutChannelPGM != null)
-                PlayoutChannelPGM.ReStart(aLayer);
-            if (PlayoutChannelPRV != null)
-                PlayoutChannelPRV.ReStart(aLayer);
+            if (PlayoutChannelPRI != null)
+                PlayoutChannelPRI.ReStart(aLayer);
+            if (PlayoutChannelSEC != null)
+                PlayoutChannelSEC.ReStart(aLayer);
         }
 
         //private void _reRun(Event aEvent)
@@ -1272,8 +1242,8 @@ namespace TAS.Server
                         _loadPST();
                     else
                     {
-                        if (PlayoutChannelPRV != null)
-                            PlayoutChannelPRV.Clear(VideoLayer.Preset);
+                        if (PlayoutChannelSEC != null)
+                            PlayoutChannelSEC.Clear(VideoLayer.Preset);
                     }
                 }
             }

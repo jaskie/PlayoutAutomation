@@ -55,7 +55,7 @@ namespace TAS.Server.Database
                         using (var useCommand = new MySqlCommand(string.Format("use {0};", databaseName), connection))
                         {
                             useCommand.ExecuteNonQuery();
-                            using (StreamReader scriptReader = new StreamReader(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TAS.Server.Common.Database.database.sql")))
+                            using (StreamReader scriptReader = new StreamReader(DbSchema.GetSchemaDefinitionStream()))
                             {
                                 string createStatements = scriptReader.ReadToEnd();
                                 MySqlScript createScript = new MySqlScript(connection, createStatements);

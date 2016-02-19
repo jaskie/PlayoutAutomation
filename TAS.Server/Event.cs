@@ -247,7 +247,8 @@ namespace TAS.Server
                 if (SetField(ref _eventType, value, "EventType"))
                     if (value == TEventType.Live || value == TEventType.Rundown)
                     {
-                        _serverMediaPGM = null;
+                        _serverMediaPRI = null;
+                        _serverMediaSEC = null;
                         _serverMediaPRV = null;
                     }
             }
@@ -601,38 +602,38 @@ namespace TAS.Server
         {
             get 
             {
-                return ServerMediaPGM;
+                return ServerMediaPRI;
             }
             set
             {
                 var newMedia = value as ServerMedia;
-                var oldMedia = _serverMediaPGM;
-                if (SetField(ref _serverMediaPGM, newMedia, "Media"))
+                var oldMedia = _serverMediaPRI;
+                if (SetField(ref _serverMediaPRI, newMedia, "Media"))
                 {
                     _mediaGuid = newMedia == null ? Guid.Empty : newMedia.MediaGuid;
                     _serverMediaPRV = null;
+                    _serverMediaSEC = null;
                     if (newMedia != null)
-                        newMedia.PropertyChanged += _serverMediaPGM_PropertyChanged;
+                        newMedia.PropertyChanged += _serverMediaPRI_PropertyChanged;
                     if (oldMedia != null)
-                        oldMedia.PropertyChanged -= _serverMediaPGM_PropertyChanged;
+                        oldMedia.PropertyChanged -= _serverMediaPRI_PropertyChanged;
                 }
 
             }
         }
 
-        private void _serverMediaPGM_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void _serverMediaPRI_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "AudioVolume" && this.AudioVolume == null)
                 NotifyPropertyChanged("AudioVolume");
         }
         
-        private ServerMedia _serverMediaPRV;
-        private ServerMedia _serverMediaPGM;
-        public IServerMedia ServerMediaPGM
+        private ServerMedia _serverMediaPRI;
+        public IServerMedia ServerMediaPRI
         {
             get
             {
-                var media = _serverMediaPGM;
+                var media = _serverMediaPRI;
                 if (media != null)
                     return media;
                 Guid mediaGuid = _mediaGuid;
@@ -640,25 +641,52 @@ namespace TAS.Server
                 {
                     MediaDirectory dir;
                     if (_eventType == TEventType.AnimationFlash)
-                        dir = (MediaDirectory)Engine.MediaManager.AnimationDirectoryPGM;
+                        dir = (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRI;
                     else
-                        dir = (MediaDirectory)Engine.MediaManager.MediaDirectoryPGM;
+                        dir = (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI;
                     if (dir != null)
                     {
                         var newMedia = dir.FindMediaByMediaGuid(mediaGuid);
                         if (newMedia is ServerMedia)
                         {
-                            _serverMediaPGM = (ServerMedia)newMedia;
-                            newMedia.PropertyChanged += _serverMediaPGM_PropertyChanged;
+                            _serverMediaPRI = (ServerMedia)newMedia;
+                            newMedia.PropertyChanged += _serverMediaPRI_PropertyChanged;
                         }
                     }
                 }
-                return _serverMediaPGM;
+                return _serverMediaPRI;
             }
         }
-        
-        
 
+        private ServerMedia _serverMediaSEC;
+        public IServerMedia ServerMediaSEC
+        {
+            get
+            {
+                var media = _serverMediaSEC;
+                if (media != null)
+                    return media;
+                Guid mediaGuid = _mediaGuid;
+                if (media == null && mediaGuid != Guid.Empty)
+                {
+                    MediaDirectory dir;
+                    if (_eventType == TEventType.AnimationFlash)
+                        dir = (MediaDirectory)Engine.MediaManager.AnimationDirectorySEC;
+                    else
+                        dir = (MediaDirectory)Engine.MediaManager.MediaDirectorySEC;
+                    if (dir != null)
+                    {
+                        var newMedia = dir.FindMediaByMediaGuid(mediaGuid);
+                        if (newMedia is ServerMedia)
+                            _serverMediaSEC = (ServerMedia)newMedia;
+                    }
+                }
+                return _serverMediaSEC;
+            }
+        }
+
+
+        private ServerMedia _serverMediaPRV;
         public IServerMedia ServerMediaPRV
         {
             get
@@ -696,13 +724,13 @@ namespace TAS.Server
             }
         }
 
-        public long SeekPGM
+        public long MediaSeek
         {
             get
             {
-                if (ServerMediaPGM != null)
+                if (ServerMediaPRI != null)
                 {
-                    long seek = (this.ScheduledTc.Ticks - ServerMediaPGM.TcStart.Ticks) / Engine.FrameTicks;
+                    long seek = (this.ScheduledTc.Ticks - ServerMediaPRI.TcStart.Ticks) / Engine.FrameTicks;
                     return (seek < 0) ? 0 : seek;
                 }
                 return 0;

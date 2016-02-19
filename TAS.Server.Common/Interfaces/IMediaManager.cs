@@ -12,9 +12,11 @@ namespace TAS.Server.Interfaces
     public interface IMediaManager: IInitializable, IDto
     {
         IEngine getEngine();
-        IAnimationDirectory AnimationDirectoryPGM { get; }
+        IAnimationDirectory AnimationDirectoryPRI { get; }
+        IAnimationDirectory AnimationDirectorySEC { get; }
         IAnimationDirectory AnimationDirectoryPRV { get; }
-        IServerDirectory MediaDirectoryPGM { get; }
+        IServerDirectory MediaDirectoryPRI { get; }
+        IServerDirectory MediaDirectorySEC { get; }
         IServerDirectory MediaDirectoryPRV { get; }
         IArchiveDirectory ArchiveDirectory { get; }
         List<IIngestDirectory> IngestDirectories { get; }
@@ -28,7 +30,7 @@ namespace TAS.Server.Interfaces
         IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList);
 
         void ReloadIngestDirs();
-        void SynchronizePrvToPgm(bool deleteNotExisted);
+        void SynchronizeSecToPri(bool deleteNotExisted);
 
         void GetLoudness(IEnumerable<IMedia> mediaList);
         IMedia GetPRVMedia(IMedia media);

@@ -23,8 +23,10 @@ namespace TAS.Client.Config.Model
         public TVideoFormat VideoFormat { get; set; }
         public double VolumeReferenceLoudness { get; set; }
         public ulong Instance { get; set; }
-        public ulong IdServerPGM { get; set; }
-        public int ServerChannelPGM { get; set; }
+        public ulong IdServerPRI { get; set; }
+        public int ServerChannelPRI { get; set; }
+        public ulong IdServerSEC { get; set; }
+        public int ServerChannelSEC { get; set; }
         public ulong IdServerPRV { get; set; }
         public int ServerChannelPRV { get; set; }
         public ulong IdArchive { get; set; }

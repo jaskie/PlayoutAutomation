@@ -562,7 +562,7 @@ namespace TAS.Client.ViewModels
                     return TMediaErrorInfo.NoError;
                 else
                 {
-                    IMedia media = _event.ServerMediaPGM;
+                    IMedia media = _event.ServerMediaPRI;
                     if (media == null || media.MediaStatus == TMediaStatus.Deleted)
                         return TMediaErrorInfo.Missing;
                     else
@@ -584,7 +584,7 @@ namespace TAS.Client.ViewModels
             get {
                 if (_event == null)
                     return string.Empty;
-                IMedia media = _event.ServerMediaPGM;
+                IMedia media = _event.ServerMediaPRI;
                 return (media == null) ? ((_event.EventType == TEventType.Movie || _event.EventType == TEventType.StillImage)? _event.MediaGuid.ToString() :string.Empty) : media.FileName; }
         }
 

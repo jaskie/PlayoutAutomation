@@ -316,11 +316,11 @@
                 <StackPanel Orientation="Horizontal" >
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Indicators/on-air.png" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding GPIIsMaster}" />
                     <StackPanel Orientation="Horizontal">
-                        <common:StatusIndicator IsGreen="{Binding ServerConnectedPGM}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
-                        <Label Content="PGM" Padding="5, 0" />
-                        <common:StatusIndicator IsGreen="{Binding ServerConnectedPRV}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
-                        <Label Content="PRV" Padding="5, 0" />
-                        <CheckBox Content="PST" Margin="5, 0" IsChecked="{Binding Pst2Prv}"/>
+                        <common:StatusIndicator IsGreen="{Binding ServerConnectedPRI}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
+                        <Label Content="PRI" Padding="5, 0" />
+                        <common:StatusIndicator IsGreen="{Binding ServerConnectedSEC}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
+                        <Label Content="SEC" Padding="5, 0" />
+                        <CheckBox Content="Next" Margin="5, 0" IsChecked="{Binding Pst2Prv}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}">
                         <Separator Width="5"  Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />

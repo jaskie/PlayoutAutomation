@@ -28,6 +28,7 @@ namespace TAS.Server.Database
             }
             _connection = new DbConnectionRedundant(_connectionStringPrimary, _connectionStringSecondary);
             _connection.Open();
+            //_connection.Update();
         }
 
         public static void Close()
@@ -82,13 +83,13 @@ namespace TAS.Server.Database
             return servers;
         }
 
-        public static void DbInsertServer<T>(this T server) where T : IPlayoutServerConfig
+        public static void DbInsertServer(this IPlayoutServerConfig server) 
         {
             lock (_connection)
             {
                 {
                     DbCommandRedundant cmd = new DbCommandRedundant(@"INSERT INTO server set typServer=0, Config=@Config", _connection);
-                    XmlSerializer serializer = new XmlSerializer(typeof(T));
+                    XmlSerializer serializer = new XmlSerializer(server.GetType());
                     using (var writer = new StringWriter())
                     {
                         serializer.Serialize(writer, server);
@@ -100,14 +101,14 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbUpdateServer<T>(this T server) where T : IPlayoutServerConfig
+        public static void DbUpdateServer(this IPlayoutServerConfig server) 
         {
             lock (_connection)
             {
 
                 DbCommandRedundant cmd = new DbCommandRedundant("UPDATE server SET Config=@Config WHERE idServer=@idServer;", _connection);
                 cmd.Parameters.AddWithValue("@idServer", server.Id);
-                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                XmlSerializer serializer = new XmlSerializer(server.GetType());
                 using (var writer = new StringWriter())
                 {
                     serializer.Serialize(writer, server);
@@ -117,7 +118,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbDeleteServer<T>(this T server) where T : IPlayoutServerConfig
+        public static void DbDeleteServer(this IPlayoutServerConfig server) 
         {
             lock (_connection)
             {
@@ -152,8 +153,10 @@ namespace TAS.Server.Database
                         XmlSerializer serializer = new XmlSerializer(typeof(T));
                         T engine = (T)serializer.Deserialize(reader);
                         engine.Id = dataReader.GetUInt64("idEngine");
-                        engine.IdServerPGM = dataReader.GetUInt64("idServerPGM");
-                        engine.ServerChannelPGM = dataReader.GetInt32("ServerChannelPGM");
+                        engine.IdServerPRI = dataReader.GetUInt64("idServerPRI");
+                        engine.ServerChannelPRI = dataReader.GetInt32("ServerChannelPRI");
+                        engine.IdServerSEC = dataReader.GetUInt64("idServerSEC");
+                        engine.ServerChannelSEC = dataReader.GetInt32("ServerChannelSEC");
                         engine.IdServerPRV = dataReader.GetUInt64("idServerPRV");
                         engine.ServerChannelPRV = dataReader.GetInt32("ServerChannelPRV");
                         engine.IdArchive = dataReader.GetUInt64("IdArchive");
@@ -166,19 +169,21 @@ namespace TAS.Server.Database
             return engines;
         }
 
-        public static void DbInsertEngine<T>(this T engine) where T : IEngineConfig
+        public static void DbInsertEngine(this IEngineConfig engine) 
         {
             lock (_connection)
             {
                 {
-                    DbCommandRedundant cmd = new DbCommandRedundant(@"INSERT INTO engine set Instance=@Instance, idServerPGM=@idServerPGM, ServerChannelPGM=@ServerChannelPGM, idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config;", _connection);
+                    DbCommandRedundant cmd = new DbCommandRedundant(@"INSERT INTO engine set Instance=@Instance, idServerPRI=@idServerPRI, ServerChannelPRI=@ServerChannelPRI, idServerSEC=@idServerSEC, ServerChannelSEC=@ServerChannelSEC,  idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config;", _connection);
                     cmd.Parameters.AddWithValue("@Instance", engine.Instance);
-                    cmd.Parameters.AddWithValue("@idServerPGM", engine.IdServerPGM);
-                    cmd.Parameters.AddWithValue("@ServerChannelPGM", engine.ServerChannelPGM);
+                    cmd.Parameters.AddWithValue("@idServerPRI", engine.IdServerPRI);
+                    cmd.Parameters.AddWithValue("@ServerChannelPRI", engine.ServerChannelPRI);
+                    cmd.Parameters.AddWithValue("@idServerSEC", engine.IdServerSEC);
+                    cmd.Parameters.AddWithValue("@ServerChannelSEC", engine.ServerChannelSEC);
                     cmd.Parameters.AddWithValue("@idServerPRV", engine.IdServerPRV);
                     cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.ServerChannelPRV);
                     cmd.Parameters.AddWithValue("@IdArchive", engine.IdArchive);
-                    XmlSerializer serializer = new XmlSerializer(typeof(T));
+                    XmlSerializer serializer = new XmlSerializer(engine.GetType());
                     using (var writer = new StringWriter())
                     {
                         serializer.Serialize(writer, engine);
@@ -190,19 +195,21 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbUpdateEngine<T>(this T engine) where T : IEngineConfig
+        public static void DbUpdateEngine(this IEngineConfig engine)
         {
             lock (_connection)
             {
-                DbCommandRedundant cmd = new DbCommandRedundant(@"UPDATE engine set Instance=@Instance, idServerPGM=@idServerPGM, ServerChannelPGM=@ServerChannelPGM, idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config where idEngine=@idEngine", _connection);
+                DbCommandRedundant cmd = new DbCommandRedundant(@"UPDATE engine set Instance=@Instance, idServerPRI=@idServerPRI, ServerChannelPRI=@ServerChannelPRI, idServerSEC=@idServerSEC, ServerChannelSEC=@ServerChannelSEC, idServerPRV=@idServerPRV, ServerChannelPRV=@ServerChannelPRV, idArchive=@idArchive, Config=@Config where idEngine=@idEngine", _connection);
                 cmd.Parameters.AddWithValue("@idEngine", engine.Id);
                 cmd.Parameters.AddWithValue("@Instance", engine.Instance);
-                cmd.Parameters.AddWithValue("@idServerPGM", engine.IdServerPGM);
-                cmd.Parameters.AddWithValue("@ServerChannelPGM", engine.ServerChannelPGM);
+                cmd.Parameters.AddWithValue("@idServerPRI", engine.IdServerPRI);
+                cmd.Parameters.AddWithValue("@ServerChannelPRI", engine.ServerChannelPRI);
+                cmd.Parameters.AddWithValue("@idServerSEC", engine.IdServerSEC);
+                cmd.Parameters.AddWithValue("@ServerChannelSEC", engine.ServerChannelSEC);
                 cmd.Parameters.AddWithValue("@idServerPRV", engine.IdServerPRV);
                 cmd.Parameters.AddWithValue("@ServerChannelPRV", engine.ServerChannelPRV);
                 cmd.Parameters.AddWithValue("@IdArchive", engine.IdArchive);
-                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                XmlSerializer serializer = new XmlSerializer(engine.GetType());
                 using (var writer = new StringWriter())
                 {
                     serializer.Serialize(writer, engine);
@@ -212,7 +219,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbDeleteEngine<T>(this T engine) where T : IEngineConfig
+        public static void DbDeleteEngine(this IEngineConfig engine) 
         {
             lock (_connection)
             {
@@ -247,7 +254,7 @@ namespace TAS.Server.Database
             return directories;
         }
 
-        public static void DbInsertArchiveDirectory<T>(this T dir) where T : IArchiveDirectoryConfig
+        public static void DbInsertArchiveDirectory(this IArchiveDirectoryConfig dir) 
         {
             lock (_connection)
             {
@@ -260,7 +267,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbUpdateArchiveDirectory<T>(this T dir) where T : IArchiveDirectoryConfig
+        public static void DbUpdateArchiveDirectory(this IArchiveDirectoryConfig dir)
         {
             lock (_connection)
             {
@@ -271,7 +278,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbDeleteArchiveDirectory<T>(this T dir) where T : IArchiveDirectoryConfig
+        public static void DbDeleteArchiveDirectory(this IArchiveDirectoryConfig dir) 
         {
             lock (_connection)
             {
@@ -281,5 +288,6 @@ namespace TAS.Server.Database
             }
         }
         #endregion // ArchiveDirectory
+
     }
 }

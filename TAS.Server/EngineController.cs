@@ -44,11 +44,11 @@ namespace TAS.Server
             DatabaseConnector.Initialize(connectionStringPrimary == null ? string.Empty : connectionStringPrimary.ConnectionString,
                                          connectionStringSecondary == null ? string.Empty : connectionStringSecondary.ConnectionString);
             Servers = DatabaseConnector.DbLoadServers();
-            Engines = DatabaseConnector.DbLoadEngines(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]), Servers);
+            Engines = DatabaseConnector.DbLoadEngines(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]));
             foreach (Engine E in Engines)
             {
                 IGpi engineGpi = _localGPIDevices == null ? null : _localGPIDevices.Select(E.Id); 
-                E.Initialize(engineGpi);
+                E.Initialize(Servers, engineGpi);
             }
             Debug.WriteLine(this, "Created");
         }

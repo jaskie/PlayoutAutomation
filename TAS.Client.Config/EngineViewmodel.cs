@@ -20,11 +20,16 @@ namespace TAS.Client.Config
         {
             _channels = new List<object>() { TAS.Client.Common.Properties.Resources._none_ };
             Model.Servers.ForEach(s => s.Channels.ForEach(c => _channels.Add(c)));
-            _channelPGM = _channels.FirstOrDefault(c => c is Model.CasparServerChannel 
-                                                        && ((Model.CasparServerChannel)c).ChannelNumber == Model.ServerChannelPGM 
+            _channelPRI = _channels.FirstOrDefault(c => c is Model.CasparServerChannel 
+                                                        && ((Model.CasparServerChannel)c).ChannelNumber == Model.ServerChannelPRI 
                                                         && ((Model.CasparServerChannel)c).Owner is Model.CasparServer
-                                                        && ((Model.CasparServer)(((Model.CasparServerChannel)c).Owner)).Id == Model.IdServerPGM);
-            if (_channelPGM == null) _channelPGM = _channels.First();
+                                                        && ((Model.CasparServer)(((Model.CasparServerChannel)c).Owner)).Id == Model.IdServerPRI);
+            if (_channelPRI == null) _channelPRI = _channels.First();
+            _channelSEC = _channels.FirstOrDefault(c => c is Model.CasparServerChannel
+                                                        && ((Model.CasparServerChannel)c).ChannelNumber == Model.ServerChannelSEC
+                                                        && ((Model.CasparServerChannel)c).Owner is Model.CasparServer
+                                                        && ((Model.CasparServer)(((Model.CasparServerChannel)c).Owner)).Id == Model.IdServerSEC);
+            if (_channelSEC == null) _channelSEC = _channels.First();
             _channelPRV = _channels.FirstOrDefault(c => c is Model.CasparServerChannel
                                                         && ((Model.CasparServerChannel)c).ChannelNumber == Model.ServerChannelPRV
                                                         && ((Model.CasparServerChannel)c).Owner is Model.CasparServer
@@ -76,8 +81,10 @@ namespace TAS.Client.Config
 
         readonly List<object> _channels;
         public List<object> Channels { get { return _channels; } }
-        private object _channelPGM;
-        public object ChannelPGM { get { return _channelPGM; } set { SetField(ref _channelPGM, value, "ChannelPGM"); } }
+        private object _channelPRI;
+        public object ChannelPRI { get { return _channelPRI; } set { SetField(ref _channelPRI, value, "ChannelPRI"); } }
+        private object _channelSEC;
+        public object ChannelSEC { get { return _channelSEC; } set { SetField(ref _channelSEC, value, "ChannelSEC"); } }
         private object _channelPRV;
         public object ChannelPRV { get { return _channelPRV; } set { SetField(ref _channelPRV, value, "ChannelPRV"); } }
         private List<object> _archiveDirectories;
@@ -102,9 +109,12 @@ namespace TAS.Client.Config
         {
             if (Modified)
             {
-                var playoutServerChannelPGM = _channelPGM as Model.CasparServerChannel;
-                Model.IdServerPGM = playoutServerChannelPGM == null ? 0 : ((Model.CasparServer)playoutServerChannelPGM.Owner).Id;
-                Model.ServerChannelPGM = playoutServerChannelPGM == null ? 0 : playoutServerChannelPGM.ChannelNumber;
+                var playoutServerChannelPRI = _channelPRI as Model.CasparServerChannel;
+                Model.IdServerPRI = playoutServerChannelPRI == null ? 0 : ((Model.CasparServer)playoutServerChannelPRI.Owner).Id;
+                Model.ServerChannelPRI = playoutServerChannelPRI == null ? 0 : playoutServerChannelPRI.ChannelNumber;
+                var playoutServerChannelSEC = _channelSEC as Model.CasparServerChannel;
+                Model.IdServerSEC = playoutServerChannelSEC == null ? 0 : ((Model.CasparServer)playoutServerChannelSEC.Owner).Id;
+                Model.ServerChannelSEC = playoutServerChannelSEC == null ? 0 : playoutServerChannelSEC.ChannelNumber;
                 var playoutServerChannelPRV = _channelPRV as Model.CasparServerChannel;
                 Model.IdServerPRV = playoutServerChannelPRV == null ? 0 : ((Model.CasparServer)playoutServerChannelPRV.Owner).Id;
                 Model.ServerChannelPRV = playoutServerChannelPRV == null ? 0 : playoutServerChannelPRV.ChannelNumber;

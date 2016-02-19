@@ -26,8 +26,8 @@ namespace TAS.Client.Model
             Invoke(parameters: new object[] { exportList, directory });
         }
 
-        public IAnimationDirectory AnimationDirectoryPGM { get; set; }
-
+        public IAnimationDirectory AnimationDirectoryPRI { get; set; }
+        public IAnimationDirectory AnimationDirectorySEC { get; set; }
         public IAnimationDirectory AnimationDirectoryPRV { get; set; }
 
         public IArchiveDirectory ArchiveDirectory { get { return Get<ArchiveDirectory>(); } set { Set(value); } }
@@ -52,8 +52,8 @@ namespace TAS.Client.Model
             Invoke(parameters: mediaList);
         }
 
-        public IServerDirectory MediaDirectoryPGM { get { return Get<ServerDirectory>(); } set { Set(value); } }
-
+        public IServerDirectory MediaDirectoryPRI { get { return Get<ServerDirectory>(); } set { Set(value); } }
+        public IServerDirectory MediaDirectorySEC { get { return Get<ServerDirectory>(); } set { Set(value); } }
         public IServerDirectory MediaDirectoryPRV { get { return Get<ServerDirectory>(); } set { Set(value); } }
 
         public IMedia GetPRVMedia(IMedia media)
@@ -75,7 +75,7 @@ namespace TAS.Client.Model
             Invoke();
         }
 
-        public void SynchronizePrvToPgm(bool deleteNotExisted)
+        public void SynchronizeSecToPri(bool deleteNotExisted)
         {
             Invoke(parameters: deleteNotExisted);
         }

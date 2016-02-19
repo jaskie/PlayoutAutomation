@@ -158,10 +158,10 @@ namespace TAS.Server
             }
         }
 
-        public void ArchiveRestore(IArchiveMedia media, IServerMedia mediaPGM, bool toTop)
+        public void ArchiveRestore(IArchiveMedia srcMedia, IServerMedia destMedia, bool toTop)
         {
-            if (mediaPGM != null)
-                _archiveCopy((Media)media, (Media)mediaPGM, false, toTop);
+            if (destMedia != null)
+                _archiveCopy((Media)srcMedia, (Media)destMedia, false, toTop);
         }
 
         internal string GetCurrentFolder()

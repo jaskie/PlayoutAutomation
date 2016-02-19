@@ -13,8 +13,9 @@ namespace TAS.Server.Interfaces
     {
         VideoFormatDescription FormatDescription { get; } 
         long FrameTicks { get; }
-        IPlayoutServerChannel PlayoutChannelPRV { get; set; }
-        IPlayoutServerChannel PlayoutChannelPGM { get; set; }
+        IPlayoutServerChannel PlayoutChannelPRI { get; }
+        IPlayoutServerChannel PlayoutChannelSEC { get; }
+        IPlayoutServerChannel PlayoutChannelPRV { get; }
         IMediaManager MediaManager { get; }
         bool Pst2Prv { get; set; }
         IGpi LocalGpi { get; }

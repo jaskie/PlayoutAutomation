@@ -86,7 +86,7 @@ namespace TAS.Server
         private CasparItem _getItem(IEvent aEvent)
         {
             CasparItem item = new CasparItem(string.Empty);
-            IServerMedia media = (aEvent.Engine.PlayoutChannelPGM == this) ? aEvent.ServerMediaPGM : aEvent.ServerMediaPRV;
+            IServerMedia media = (aEvent.Engine.PlayoutChannelPRI == this) ? aEvent.ServerMediaPRI : aEvent.ServerMediaSEC;
             if (aEvent.EventType == TEventType.Live || media != null)
             {
                 if (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
@@ -99,7 +99,7 @@ namespace TAS.Server
                 item.VideoLayer = (int)aEvent.Layer;
                 item.Loop = false;
                 item.Transition.Duration = (int)(aEvent.TransitionTime.Ticks / Engine.FrameTicks);
-                item.Seek = (int)aEvent.SeekPGM;
+                item.Seek = (int)aEvent.MediaSeek;
                 item.Transition.Type = (Svt.Caspar.TransitionType)aEvent.TransitionType;
                 return item;
             }

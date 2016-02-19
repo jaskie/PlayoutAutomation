@@ -367,11 +367,26 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _timeToAttention, value, "TimeToAttention"); }
         }
 
-        public bool ServerConnectedPGM
+        public bool ServerConnectedPRI
         {
             get
             {
-                var channel = _engine.PlayoutChannelPGM;
+                var channel = _engine.PlayoutChannelPRI;
+                if (channel != null)
+                {
+                    var server = channel.OwnerServer;
+                    if (server != null)
+                        return server.IsConnected;
+                }
+                return false;
+            }
+        }
+
+        public bool ServerConnectedSEC
+        {
+            get
+            {
+                var channel = _engine.PlayoutChannelSEC;
                 if (channel != null)
                 {
                     var server = channel.OwnerServer;
@@ -548,9 +563,12 @@ namespace TAS.Client.ViewModels
 
         public void OnServerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var ch = _engine.PlayoutChannelPGM;
+            var ch = _engine.PlayoutChannelPRI;
             if (ch!= null && sender == ch.OwnerServer)
-                NotifyPropertyChanged("ServerConnectedPGM");
+                NotifyPropertyChanged("ServerConnectedPRI");
+            ch = _engine.PlayoutChannelSEC;
+            if (ch != null && sender == ch.OwnerServer)
+                NotifyPropertyChanged("ServerConnectedSEC");
             ch = _engine.PlayoutChannelPRV;
             if (ch != null && sender == ch.OwnerServer)
                 NotifyPropertyChanged("ServerConnectedPRV");

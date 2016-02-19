@@ -21,8 +21,8 @@ namespace TAS.Server
         public ServerMedia(AnimationDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
 
         // media properties
-        private bool _isPGM;
-        public bool IsPGM { get { return _isPGM; } set { if (value) _isPGM = true; } } //one way to true only possible
+        private bool _isPRI;
+        public bool IsPRI { get { return _isPRI; } set { if (value) _isPRI = true; } } //one way to true only possible
         internal bool _doNotArchive;
         [JsonProperty]
         public bool DoNotArchive
@@ -67,13 +67,6 @@ namespace TAS.Server
                 (_directory as ServerDirectory).OnMediaSaved(this);
             return result;
         }
-
-        //protected override void setMediaStatus(TMediaStatus newStatus)
-        //{
-        //    if (newStatus != TMediaStatus.Available)
-        //        Verified = false;
-        //    base.setMediaStatus(newStatus);
-        //}
 
     }
 }

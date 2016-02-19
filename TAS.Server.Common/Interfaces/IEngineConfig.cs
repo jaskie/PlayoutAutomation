@@ -14,9 +14,13 @@ namespace TAS.Server.Interfaces
         [XmlIgnore]
         ulong Instance { get; set; }
         [XmlIgnore]
-        ulong IdServerPGM { get; set; }
+        ulong IdServerPRI { get; set; }
         [XmlIgnore]
-        int ServerChannelPGM { get; set; }
+        int ServerChannelPRI { get; set; }
+        [XmlIgnore]
+        ulong IdServerSEC { get; set; }
+        [XmlIgnore]
+        int ServerChannelSEC { get; set; }
         [XmlIgnore]
         ulong IdServerPRV { get; set; }
         [XmlIgnore]

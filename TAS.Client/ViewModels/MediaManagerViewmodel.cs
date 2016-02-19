@@ -38,7 +38,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandGetLoudness { get; private set; }
         public ICommand CommandExport { get; private set; }
         public ICommand CommandRefresh { get; private set; }
-        public ICommand CommandSyncPrvToPgm { get; private set; }
+        public ICommand CommandSyncPriToSec { get; private set; }
 
         public MediaManagerViewmodel(IMediaManager mediaManager, PreviewViewmodel previewVm)
         {
@@ -53,15 +53,15 @@ namespace TAS.Client.ViewModels
             IArchiveDirectory archiveDirectory = mediaManager.ArchiveDirectory;
             if (archiveDirectory != null)
                 _mediaDirectories.Insert(0, archiveDirectory);
-            IServerDirectory serverDirectoryPGM = mediaManager.MediaDirectoryPGM;
-            if (serverDirectoryPGM != null)
-                _mediaDirectories.Insert(0, serverDirectoryPGM);
-            IServerDirectory serverDirectoryPRV = mediaManager.MediaDirectoryPRV;
-            if (serverDirectoryPRV != null && serverDirectoryPRV.DtoGuid!= serverDirectoryPGM.DtoGuid)
-                _mediaDirectories.Insert(1, serverDirectoryPRV);
+            IServerDirectory serverDirectoryPRI = mediaManager.MediaDirectoryPRI;
+            if (serverDirectoryPRI != null)
+                _mediaDirectories.Insert(0, serverDirectoryPRI);
+            IServerDirectory serverDirectorySEC = mediaManager.MediaDirectorySEC;
+            if (serverDirectorySEC != null && serverDirectorySEC.DtoGuid!= serverDirectoryPRI.DtoGuid)
+                _mediaDirectories.Insert(1, serverDirectorySEC);
 
             _mediaCategory = _mediaCategories.FirstOrDefault();
-            MediaDirectory = mediaManager.MediaDirectoryPGM;
+            MediaDirectory = mediaManager.MediaDirectoryPRI;
             _view = new MediaManagerView() { DataContext = this };
             if (mediaManager.FileManager != null)
                 _fileManagerVm = new FileManagerViewmodel(mediaManager.FileManager);
@@ -198,7 +198,7 @@ namespace TAS.Client.ViewModels
             CommandSweepStaleMedia = new UICommand() { ExecuteDelegate = _sweepStaleMedia };
             CommandGetLoudness = new UICommand() { ExecuteDelegate = _getLoudness, CanExecuteDelegate = _isSomethingSelected };
             CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
-            CommandSyncPrvToPgm = new UICommand { ExecuteDelegate = _syncPrvToPgm, CanExecuteDelegate = o => _mediaDirectory is IServerDirectory };
+            CommandSyncPriToSec = new UICommand { ExecuteDelegate = _syncSecToPri, CanExecuteDelegate = o => _mediaDirectory is IServerDirectory };
         }
 
         private void _refreshMediaDirectory(IMediaDirectory directory)
@@ -217,10 +217,11 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _syncPrvToPgm(object o)
+        private void _syncSecToPri(object o)
         {
             if (_mediaDirectory is IServerDirectory)
-                _mediaManager.SynchronizePrvToPgm(true);
+                ThreadPool.QueueUserWorkItem((obj)=>
+                    _mediaManager.SynchronizeSecToPri(true));
         }
 
         private void _export(object obj)
@@ -302,7 +303,7 @@ namespace TAS.Client.ViewModels
                         break;
                 }
             if (_mediaDirectory is IIngestDirectory)
-                _ingestSelectionToDir(_mediaManager.MediaDirectoryPGM);
+                _ingestSelectionToDir(_mediaManager.MediaDirectoryPRI);
             else
                 _mediaManager.CopyMediaToPlayout(_getSelections(), true);
         }

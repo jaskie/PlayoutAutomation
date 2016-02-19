@@ -114,6 +114,7 @@
     <Compile Include="Interfaces\IServerMedia.cs" />
     <Compile Include="Interfaces\ITemplate.cs" />
     <Compile Include="Interfaces\ITempMedia.cs" />
+    <Compile Include="Database\DbSchema.cs" />
     <Compile Include="ValueEventArgs.cs" />
     <Compile Include="MediaConversion.cs" />
     <Compile Include="MediaDeleteDenyReason.cs" />
@@ -139,6 +140,9 @@
     <Compile Include="VideoFormatDescription.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Database\SchemaUpdates.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.pl.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.pl.Designer.cs</LastGenOutput>
@@ -170,6 +174,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Database\database.sql" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
