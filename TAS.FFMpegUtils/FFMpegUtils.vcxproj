@@ -159,6 +159,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AVFrameRenderer.h" />
     <ClInclude Include="FFMpegUtils.h" />
     <ClInclude Include="FrameEventArgs.h" />
     <ClInclude Include="Input.h" />
@@ -171,11 +172,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="AVFrameRenderer.cpp" />
+    <ClCompile Include="DirectXRenderer.cpp" />
+    <ClCompile Include="DirectXRendererManager.cpp" />
     <ClCompile Include="FFMpegUtils.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Player.cpp" />
-    <ClCompile Include="DirectXRenderer.cpp" />
-    <ClCompile Include="DirectXRendererManager.cpp" />
     <ClCompile Include="Stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -5,7 +5,6 @@ namespace TAS {
 	namespace FFMpegUtils {
 
 #pragma region Umanaged code
-#pragma unmanaged
 
 		int64_t GetTimeFromFrameNumber(const AVRational frameRate, const int64_t frameNo)
 		{
@@ -17,31 +16,32 @@ namespace TAS {
 			return time * frameRate.num / (AV_TIME_BASE * frameRate.den);
 		}
 		
-		void CALLBACK TimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
+		void CALLBACK FrameTickTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 		{
 			_Player* player = (_Player*)dwUser;
-			if (player->_timerId == uTimerID)
+			if (player->_frameTickTimerId == uTimerID)
 			{
 				player->_currentFrame++;
-				player->_timerTickProc(player->_currentFrame);
+				player->_frameTickTimerProc(player->_currentFrame);
 			}
 		}
 
 		void _Player::_closeTimer()
 		{
-			if (_timerId)
+			if (_frameTickTimerId)
 			{
-				timeKillEvent(_timerId);
-				_timerId = 0;
+				timeKillEvent(_frameTickTimerId);
+				_frameTickTimerId = 0;
 			}
 
 		}
 
 		_Player::_Player() :
-			_currentFrame(0L)
+			  _currentFrame(0L)
+			, _playState(IDLE)
 		{
 			av_register_all();
-			_timerId = NULL;
+			_frameTickTimerId = NULL;
 		}
 
 		_Player::~_Player()
@@ -59,7 +59,7 @@ namespace TAS {
 		void _Player::Play()
 		{
 			_playState = PLAYING;
-			_timerId = timeSetEvent(40, 0, TimerCallback, (DWORD_PTR)this, TIME_PERIODIC);
+			_frameTickTimerId = timeSetEvent(40, 0, FrameTickTimerCallback, (DWORD_PTR)this, TIME_PERIODIC);
 		}
 		
 		void _Player::Seek(int64_t frame)
@@ -82,6 +82,7 @@ namespace TAS {
 				_videoDecoder = new VideoDecoder(_input);
 				if (_videoDecoder->DecoderReady)
 				{
+					_videoDecoder->DecodeNextFrame();
 					_playState = PAUSED;
 					return;
 				}
@@ -134,7 +135,6 @@ namespace TAS {
 #pragma endregion Umanaged code
 
 #pragma region Managed code
-#pragma managed
 		static void tproc() {
 
 		}
@@ -143,16 +143,16 @@ namespace TAS {
 		{
 			_player = new _Player();
 			// providing timer tick callback to unmanaged class
-			TickDelegate^ timerTickAction = gcnew TickDelegate(this, &Player::_timerTickProc);
-			_timerTickProcHandle = GCHandle::Alloc(timerTickAction);
+			TickDelegate^ timerTickAction = gcnew TickDelegate(this, &Player::_frameTickTimerProc);
+			_frameTickTimerProcHandle = GCHandle::Alloc(timerTickAction);
 			IntPtr _timerTickPointer = Marshal::GetFunctionPointerForDelegate(timerTickAction);
-			_player->_timerTickProc = static_cast<tickProc>(_timerTickPointer.ToPointer());
+			_player->_frameTickTimerProc = static_cast<tickProc>(_timerTickPointer.ToPointer());
 		}
 
 		Player::~Player()
 		{
 			delete _player;
-			_timerTickProcHandle.Free();
+			_frameTickTimerProcHandle.Free();
 		}
 
 		void Player::Open(String^ fileName)
@@ -161,6 +161,11 @@ namespace TAS {
 			char* fn = (char*)Marshal::StringToHGlobalAnsi(fileName).ToPointer();
 			_player->Open(fn);
 			Marshal::FreeHGlobal(IntPtr((void*)fn));
+		}
+
+		void Player::_frameTickTimerProc(const int64_t frameNumber)
+		{
+			TimerTick(this, gcnew FrameEventArgs(frameNumber));
 		}
 
 		void Player::Play()
@@ -173,10 +178,7 @@ namespace TAS {
 			return (IntPtr)_player->GetDXBackBufferNoRef();
 		}
 
-		void Player::_timerTickProc(const int64_t frameNumber)
-		{
-			TimerTick(this, gcnew FrameEventArgs(frameNumber));
-		}
+		int64_t Player::FrameCount::get() { return _player->GetFramesCount(); }
 
 #pragma endregion Managed code
 

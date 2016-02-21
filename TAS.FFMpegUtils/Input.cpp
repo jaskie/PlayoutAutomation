@@ -5,7 +5,7 @@ namespace TAS {
 	namespace FFMpegUtils {
 		bool Input::readPacket()
 		{
-			AVPacket * pPacket = NULL;
+			AVPacket * pPacket = (AVPacket*)av_malloc(sizeof(AVPacket));
 			if (av_read_frame(pFormatCtx, pPacket) == 0)
 			{
 				if (queues.count(pPacket->stream_index) == 1)
@@ -23,7 +23,8 @@ namespace TAS {
 
 		void Input::clearQueues()
 		{
-			for each (auto queue in queues)
+			auto q = queues;
+			for each (auto queue in q)
 			{
 				while (!queue.second.empty())
 				{
@@ -33,10 +34,11 @@ namespace TAS {
 			}
 		}
 
-		Input::Input(const char * fileName)
-			: InputReady(!(avformat_open_input(&pFormatCtx, fileName, NULL, NULL) || avformat_find_stream_info(pFormatCtx, NULL)))
+		Input::Input(const char * fileName):
+			pFormatCtx(nullptr)
 		{
 
+			InputReady = !avformat_open_input(&pFormatCtx, fileName, NULL, NULL) || !avformat_find_stream_info(pFormatCtx, NULL);
 		}
 
 		Input::~Input()

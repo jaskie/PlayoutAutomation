@@ -5,7 +5,6 @@
 
 namespace TAS {
 	namespace FFMpegUtils {
-		
 		class Input
 		{
 		private:
@@ -16,7 +15,7 @@ namespace TAS {
 		public:
 			Input(const char * fileName);
 			~Input();
-			const bool InputReady;
+			bool InputReady;
 			AVStream * FindVideoStream();
 			/**
 			* retrieves next packet with specified stream index and creates queue that acumulates this stream packets 

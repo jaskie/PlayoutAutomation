@@ -2,6 +2,7 @@
 
 #include "stdafx.h"
 #include "DirectXRendererManager.h"
+#include "AVFrameRenderer.h"
 
 
 //+-----------------------------------------------------------------------------
@@ -104,7 +105,7 @@ DirectXRendererManager::EnsureRenderers()
 
 		for (UINT i = 0; i < m_cAdapters; ++i)
 		{
-			//IFC(CTriangleRenderer::Create(m_pD3D, m_pD3DEx, m_hwnd, i, &m_rgRenderers[i]));
+			IFC(AVFrameRenderer::Create(m_pD3D, m_pD3DEx, m_hwnd, i, &m_rgRenderers[i]));
 		}
 
 		// Default to the default adapter 
@@ -146,7 +147,8 @@ DirectXRendererManager::EnsureHWND()
 
 		if (!RegisterClass(&wndclass))
 		{
-			IFC(E_FAIL);
+			
+			(E_FAIL);
 		}
 
 		m_hwnd = CreateWindow(szAppName,

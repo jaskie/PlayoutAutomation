@@ -11,7 +11,6 @@ protected:
 
 	IDirect3DSurface9 *m_pd3dRTS;
 public:
-
 	virtual ~DirectXRenderer();
 	HRESULT CheckDeviceState();
 	HRESULT CreateSurface(UINT uWidth, UINT uHeight, bool fUseAlpha, UINT m_uNumSamples);

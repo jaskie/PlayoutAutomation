@@ -18,8 +18,7 @@ namespace TAS {
 
 		typedef void(__stdcall *tickProc)(const int64_t);
 #pragma region Unmanaged code
-
-		void CALLBACK TimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
+		void CALLBACK FrameTickTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
 
 		class _Player
 		{
@@ -45,15 +44,17 @@ namespace TAS {
 			int64_t GetFramesCount() const;
 			IDirect3DSurface9* GetDXBackBufferNoRef();
 			// should be internal
-			tickProc _timerTickProc;
-			int _timerId;
+			tickProc _frameTickTimerProc;
+			int _frameTickTimerId;
 			int64_t _currentFrame;
 		};
 #pragma endregion Unmanaged code
 
 #pragma region Managed code
-using namespace System;
-using namespace System::Runtime::InteropServices;
+
+		using namespace System;
+		using namespace System::Runtime::InteropServices;
+		
 		public delegate void TickDelegate(const int64_t);
 		public ref class Player
 		{
@@ -63,15 +64,14 @@ using namespace System::Runtime::InteropServices;
 			void Open(String ^ fileName);
 			void Play();
 			event System::EventHandler<FrameEventArgs^> ^ TimerTick;
+			property int64_t FrameCount { int64_t get(); }
 			IntPtr GetDXBackBufferNoRef();
-
 		private:
 			String^ _fileName;
 			_Player * _player;
-			GCHandle _timerTickProcHandle;
-			void _timerTickProc(const int64_t frameNumber);
+			GCHandle _frameTickTimerProcHandle; //this handle prevents method relocation on GC
+			void _frameTickTimerProc(const int64_t frameNumber);
 		};
-
 #pragma endregion Managed code
 	}
 }
