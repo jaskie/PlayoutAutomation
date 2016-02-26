@@ -25,7 +25,6 @@ namespace TAS.Server
         public override void Initialize()
         {
             this.Load();
-            VerifyMedia();
             base.Initialize();
             Debug.WriteLine(this, "Directory initialized");
         }
@@ -132,11 +131,11 @@ namespace TAS.Server
             ((ServerMedia)media).Save();
         }
 
-        public void VerifyMedia()
+        protected override void EnumerateFiles(string directory, string filter, bool includeSubdirectories, CancellationToken cancelationToken)
         {
-                var unverifiedFiles = _files.Values.Where(mf => ((ServerMedia)mf).Verified == false).Cast<Media>().ToList();
-                unverifiedFiles.ForEach(media => media.Verify());
+            base.EnumerateFiles(directory, filter, includeSubdirectories, cancelationToken);
+            var unverifiedFiles = _files.Values.Where(mf => ((ServerMedia)mf).Verified == false).Cast<Media>().ToList();
+            unverifiedFiles.ForEach(media => media.Verify());
         }
-
     }
 }

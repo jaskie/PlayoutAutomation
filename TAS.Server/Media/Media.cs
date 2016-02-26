@@ -392,7 +392,7 @@ namespace TAS.Server
         {
             if (Verified || (_mediaStatus == TMediaStatus.Copying) || (_mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required))
                 return;
-            if (!File.Exists(FullPath) && _directory != null && System.IO.Directory.Exists(_directory.Folder))
+            if (_directory != null && System.IO.Directory.Exists(_directory.Folder) && !File.Exists(FullPath))
             {
                 _mediaStatus = TMediaStatus.Deleted;
                 return; // in case that no file was found, and directory exists

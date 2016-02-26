@@ -457,7 +457,7 @@ namespace TAS.Server
                         newSeek = maxSeek;
                     if (newSeek != _previewPosition)
                     {
-                        PlayoutChannelPRV.Load(_previewMedia, VideoLayer.Preview, _previewSeek + newSeek, _previewDuration - newSeek);
+                        PlayoutChannelPRV.Seek(VideoLayer.Preview, _previewSeek + newSeek);
                         _previewPosition = newSeek;
                     }
                 }
