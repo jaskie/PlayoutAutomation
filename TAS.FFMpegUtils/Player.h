@@ -25,16 +25,17 @@ namespace TAS {
 		private:
 			int _width;
 			int _height;
-			HDC _device;
 			Input * _input;
 			VideoDecoder * _videoDecoder;
 			PLAY_STATE _playState;
-			DirectXRendererManager *_RenderManager = NULL;
+			AVFrame * _lastFrame = NULL;
+			DirectXRendererManager *_renderManager = NULL;
+			HRESULT _ensureRenderManager();
 			void _closeTimer();
 		public:
 			_Player();
 			~_Player();
-			void SetVideoDevice(HDC device, int width, int height);
+			void SetSize(int width, int height);
 			void Play();
 			void Seek(int64_t frame);
 			void Pause();
@@ -66,6 +67,7 @@ namespace TAS {
 			event System::EventHandler<FrameEventArgs^> ^ TimerTick;
 			property int64_t FrameCount { int64_t get(); }
 			IntPtr GetDXBackBufferNoRef();
+			void SetSize(int width, int height);
 		private:
 			String^ _fileName;
 			_Player * _player;

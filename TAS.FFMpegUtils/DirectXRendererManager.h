@@ -1,4 +1,5 @@
 #pragma once
+#include "stdafx.h"
 
 class DirectXRenderer;
 
@@ -8,8 +9,6 @@ public:
 	static HRESULT Create(DirectXRendererManager **ppManager);
 	~DirectXRendererManager();
 
-	HRESULT EnsureDevices();
-
 	void SetSize(UINT uWidth, UINT uHeight);
 	void SetAlpha(bool fUseAlpha);
 	void SetNumDesiredSamples(UINT uNumSamples);
@@ -17,7 +16,7 @@ public:
 
 	HRESULT GetBackBufferNoRef(IDirect3DSurface9 **ppSurface);
 
-	HRESULT Render();
+	HRESULT Render(AVFrame * const frame);
 
 private:
 	DirectXRendererManager();

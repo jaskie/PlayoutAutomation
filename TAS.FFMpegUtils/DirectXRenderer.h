@@ -13,9 +13,9 @@ protected:
 public:
 	virtual ~DirectXRenderer();
 	HRESULT CheckDeviceState();
-	HRESULT CreateSurface(UINT uWidth, UINT uHeight, bool fUseAlpha, UINT m_uNumSamples);
+	virtual HRESULT CreateSurface(UINT uWidth, UINT uHeight, bool fUseAlpha, UINT m_uNumSamples);
 
-	virtual HRESULT Render() = 0;
+	virtual HRESULT Render(AVFrame * const frame) = 0;
 	
 	IDirect3DSurface9 *GetSurfaceNoRef() { return m_pd3dRTS; }
 };

@@ -26,6 +26,16 @@ namespace TAS {
 			}
 		}
 
+		HRESULT _Player::_ensureRenderManager()
+		{
+			if (!_renderManager)
+			{
+				if (FAILED(DirectXRendererManager::Create(&_renderManager)))
+					return NULL;
+			}
+			return S_OK;
+		}
+
 		void _Player::_closeTimer()
 		{
 			if (_frameTickTimerId)
@@ -49,11 +59,12 @@ namespace TAS {
 			Close();
 		}
 
-		void _Player::SetVideoDevice(HDC device, int width, int height)
+		void _Player::SetSize(int width, int height)
 		{
-			_device = device;
 			_width = width;
 			_height = height;
+			if (_ensureRenderManager() == S_OK)
+				_renderManager->SetSize(_width, _height);
 		}
 
 		void _Player::Play()
@@ -82,7 +93,7 @@ namespace TAS {
 				_videoDecoder = new VideoDecoder(_input);
 				if (_videoDecoder->DecoderReady)
 				{
-					_videoDecoder->DecodeNextFrame();
+					_lastFrame = _videoDecoder->DecodeNextFrame();
 					_playState = PAUSED;
 					return;
 				}
@@ -121,13 +132,12 @@ namespace TAS {
 
 		IDirect3DSurface9* _Player::GetDXBackBufferNoRef()
 		{
-			if (!_RenderManager)
-			{
-				if (FAILED(DirectXRendererManager::Create(&_RenderManager)))
-					return nullptr;
-			}
+			if (FAILED(_ensureRenderManager()))
+				return nullptr;
 			IDirect3DSurface9* result;
-			if (FAILED(_RenderManager->GetBackBufferNoRef(&result)))
+			if (FAILED(_renderManager->GetBackBufferNoRef(&result)))
+				return nullptr;
+			if (FAILED(_renderManager->Render(_lastFrame)))
 				return nullptr;
 			return result;
 		}
@@ -179,6 +189,12 @@ namespace TAS {
 		}
 
 		int64_t Player::FrameCount::get() { return _player->GetFramesCount(); }
+
+		void Player::SetSize(int width, int height) 
+		{
+			_player->SetSize(width, height);
+		}
+
 
 #pragma endregion Managed code
 

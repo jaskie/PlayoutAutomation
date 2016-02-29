@@ -1,8 +1,8 @@
 // code based on sample from MS walkthrough
-
-#include "stdafx.h"
-#include "DirectXRendererManager.h"
+#pragma once
+#include "Stdafx.h"
 #include "AVFrameRenderer.h"
+#include "DirectXRendererManager.h"
 
 
 //+-----------------------------------------------------------------------------
@@ -508,8 +508,7 @@ DirectXRendererManager::SetAdapter(POINT screenSpacePoint)
 //      Forward to the current renderer
 //
 //------------------------------------------------------------------------------
-HRESULT
-DirectXRendererManager::Render()
+HRESULT DirectXRendererManager::Render(AVFrame * const frame)
 {
-	return m_pCurrentRenderer ? m_pCurrentRenderer->Render() : S_OK;
+	return m_pCurrentRenderer ? m_pCurrentRenderer->Render(frame) : S_OK;
 }
