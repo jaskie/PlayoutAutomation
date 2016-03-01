@@ -45,11 +45,15 @@ namespace TAS.Common
 
         public static long ToSMPTEFrames(this TimeSpan t, RationalNumber rate)
         {
+            if (rate.IsInvalid)
+                return 0L;
             return t.Ticks * rate.Num / (TimeSpan.TicksPerSecond * rate.Den);
         }
 
         public static TimeSpan SMPTEFramesToTimeSpan(this long totalFrames, RationalNumber rate)
         {
+            if (rate.IsZero)
+                return TimeSpan.Zero;
             return TimeSpan.FromTicks(totalFrames * TimeSpan.TicksPerSecond * rate.Den / rate.Num);
         }
 
