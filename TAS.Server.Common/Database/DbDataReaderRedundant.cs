@@ -126,12 +126,14 @@ namespace TAS.Server.Database
 
         public int GetInt32(string name)
         {
-            return _reader.GetInt32(name);
+            int index = _reader.GetOrdinal(name);
+            return _reader.IsDBNull(index) ? 0 : _reader.GetInt32(index);
         }
 
         public uint GetUInt32(string name)
         {
-            return _reader.GetUInt32(name);
+            int index = _reader.GetOrdinal(name);
+            return _reader.IsDBNull(index)? uint.MinValue: _reader.GetUInt32(index);
         }
 
         public override long GetInt64(int ordinal)
@@ -141,7 +143,8 @@ namespace TAS.Server.Database
 
         public ulong GetUInt64(string name)
         {
-            return _reader.GetUInt64(name);
+            int index = _reader.GetOrdinal(name);
+            return _reader.IsDBNull(index) ? ulong.MinValue : _reader.GetUInt64(index);
         }
 
         public override string GetString(int ordinal)
@@ -151,7 +154,8 @@ namespace TAS.Server.Database
 
         public string GetString(string name)
         {
-            return _reader.GetString(name);
+            int index = _reader.GetOrdinal(name);
+            return _reader.IsDBNull(index) ? string.Empty : _reader.GetString(index);
         }
 
         public override object GetValue(int ordinal)
@@ -176,7 +180,8 @@ namespace TAS.Server.Database
 
         public Guid GetGuid (string name)
         {
-            return _reader.GetGuid(name);
+            int index = _reader.GetOrdinal(name);
+            return _reader.IsDBNull(index) ? Guid.Empty : _reader.GetGuid(index);
         }
 
         public decimal GetDecimal(string name)

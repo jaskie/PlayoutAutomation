@@ -16,8 +16,12 @@ namespace TAS.Server
     public class ArchiveDirectory : MediaDirectory, IArchiveDirectory
     {
 
-        public ArchiveDirectory(MediaManager mediaManager) : base(mediaManager) { }
-
+        public ArchiveDirectory(IMediaManager mediaManager, UInt64 id, string folder) : base((MediaManager)mediaManager)
+        {
+            idArchive = id;
+            _folder = folder;
+        }
+        
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {

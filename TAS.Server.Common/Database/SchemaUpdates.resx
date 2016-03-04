@@ -119,7 +119,7 @@
   </resheader>
   <data name="V1" xml:space="preserve">
     <value>ALTER TABLE `engine` 
-CHANGE COLUMN `idServerPRI` `idServerPRI` BIGINT(20) UNSIGNED NULL DEFAULT NULL ,
+CHANGE COLUMN `idServerPGM` `idServerPRI` BIGINT(20) UNSIGNED NULL DEFAULT NULL ,
 CHANGE COLUMN `ServerChannelPGM` `ServerChannelPRI` INT(11) NULL DEFAULT NULL ,
 ADD COLUMN `idServerSEC` BIGINT UNSIGNED NULL AFTER `ServerChannelPRI`,
 ADD COLUMN `ServerChannelSEC` INT NULL AFTER `idServerSEC`;

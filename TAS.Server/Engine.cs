@@ -139,7 +139,7 @@ namespace TAS.Server
             var sPRI = servers.FirstOrDefault(S => S.Id == IdServerPRI);
             _playoutChannelPRI = sPRI == null ? null : sPRI.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelPRI);
             var sSEC = servers.FirstOrDefault(S => S.Id == IdServerSEC);
-            _playoutChannelSEC = sPRI == null ? null : sSEC.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelSEC);
+            _playoutChannelSEC = sSEC == null ? null : sSEC.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelSEC);
             var sPRV = servers.FirstOrDefault(S => S.Id == IdServerPRV);
             _playoutChannelPRV = sPRV == null ? null : sPRV.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelPRV);
 

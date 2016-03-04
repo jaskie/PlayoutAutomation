@@ -16,6 +16,10 @@ namespace TAS.Server
 {
     public class CasparServerChannel : IPlayoutServerChannel
     {
+        public CasparServerChannel()
+        {
+        }
+
         [XmlIgnore]
         public IPlayoutServer OwnerServer { get; set; }
         #region IPlayoutServerChannel

@@ -37,13 +37,7 @@ namespace TAS.Server
         [XmlIgnore]
         public List<IPlayoutServerChannel> Channels
         {
-            get { return _channels; }
-            set
-            {
-                foreach (CasparServerChannel c in value)
-                    c.OwnerServer = this;
-                _channels = value;
-            }
+            get { return _serChannels.ConvertAll(new Converter<CasparServerChannel, IPlayoutServerChannel>(c => c)); }
         }
         private Svt.Caspar.CasparDevice _casparDevice;
 
@@ -75,11 +69,13 @@ namespace TAS.Server
             }
         }
 
+        List<CasparServerChannel> _serChannels;
+
         [XmlArray("Channels")]
-        public List<CasparServerChannel> _serChannels
+        public List<CasparServerChannel> serChannels
         {
-            get { return null; }
-            set { Channels = value.Cast<IPlayoutServerChannel>().ToList(); }
+            get { return _serChannels; }
+            set { _serChannels = value; }
         }
 
         protected bool _isConnected;
