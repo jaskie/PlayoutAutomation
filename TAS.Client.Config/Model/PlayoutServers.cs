@@ -23,7 +23,7 @@ namespace TAS.Client.Config.Model
                 _servers.ForEach(s =>
                     {
                         s.IsNew = false;
-                        s.Channels.ForEach(c => c.Owner = s);
+                        s.Channels.ForEach(c => c.OwnerServer = s);
                     });
             }
             finally

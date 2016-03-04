@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.ComponentModel;
 using System.Threading;
 using TAS.Common;
-using TAS.Data;
+using TAS.Server.Database;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
 
@@ -14,17 +14,18 @@ namespace TAS.Server
 {
     public class ServerDirectory : MediaDirectory, IServerDirectory
     {
-        public readonly IPlayoutServer Server;
+        private readonly IPlayoutServer _server;
+        public IPlayoutServer Server { get { return _server; } }
         public ServerDirectory(IPlayoutServer server, MediaManager manager)
             : base(manager)
         {
-            Server = server;
+            _server = server;
         }
 
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {
-            this.Load();
+            this.Load<ServerMedia>();
             base.Initialize();
             Debug.WriteLine(this, "Directory initialized");
         }
@@ -36,7 +37,7 @@ namespace TAS.Server
 
         protected override IMedia CreateMedia(string fullPath, Guid guid)
         {
-            return new ServerMedia(this, guid)
+            return new ServerMedia(this, guid, 0)
             {
                 FullPath = fullPath,
             };
@@ -91,7 +92,7 @@ namespace TAS.Server
             ServerMedia fm = (ServerMedia)FindMediaByMediaGuid(media.MediaGuid); // check if need to select new Guid
             if (fm == null || !searchExisting)
             {
-                fm = (new ServerMedia(this, fm == null ? media.MediaGuid : Guid.NewGuid()) // in case file with the same GUID already exists and we need to get new one
+                fm = (new ServerMedia(this, fm == null ? media.MediaGuid : Guid.NewGuid(), 0) // in case file with the same GUID already exists and we need to get new one
                 {
                     MediaName = media.MediaName,
                     FullPath = (media is IngestMedia) ? 
@@ -114,7 +115,7 @@ namespace TAS.Server
                     MediaCategory = media.MediaCategory,
                     Parental = media.Parental,
                     IdAux = (media is PersistentMedia) ? (media as PersistentMedia).IdAux : string.Empty,
-                    idProgramme = (media is PersistentMedia) ? (media as PersistentMedia).idProgramme : 0L,
+                    IdProgramme = (media is PersistentMedia) ? (media as PersistentMedia).IdProgramme : 0L,
                     OriginalMedia = media,
                 });
                 NotifyMediaAdded(fm);

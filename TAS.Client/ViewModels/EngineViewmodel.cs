@@ -31,7 +31,7 @@ namespace TAS.Client.ViewModels
         public IEngine Engine { get { return _engine; } }
         public ICommand CommandClearAll { get; private set; }
         public ICommand CommandClearLayer { get; private set; }
-        public ICommand CommandRestartLayer { get; private set; }
+        public ICommand CommandRestart { get; private set; }
         public ICommand CommandStartSelected { get; private set; }
         public ICommand CommandStartLoaded { get; private set; }
         public ICommand CommandLoadSelected { get; private set; }
@@ -123,7 +123,7 @@ namespace TAS.Client.ViewModels
         {
             CommandClearAll = new UICommand() { ExecuteDelegate = o => _engine.Clear() };
             CommandClearLayer = new UICommand() { ExecuteDelegate = layer => _engine.Clear((VideoLayer)int.Parse((string)layer)) };
-            CommandRestartLayer = new UICommand() { ExecuteDelegate = layer => _engine.RestartLayer((VideoLayer)int.Parse((string)layer)) };
+            CommandRestart = new UICommand() { ExecuteDelegate = ev => _engine.Restart() };
             CommandStartSelected = new UICommand() { ExecuteDelegate = o => _engine.Start(_selected.Event), CanExecuteDelegate = _canStartSelected };
             CommandLoadSelected = new UICommand() { ExecuteDelegate = o => _engine.Load(_selected.Event), CanExecuteDelegate = _canLoadSelected };
             CommandScheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.Schedule(_selected.Event), CanExecuteDelegate = _canScheduleSelected };

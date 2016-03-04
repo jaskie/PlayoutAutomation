@@ -8,5 +8,6 @@ namespace TAS.Client.Model
 {
     public class ArchiveMedia: PersistentMedia, IArchiveMedia
     {
+
     }
 }

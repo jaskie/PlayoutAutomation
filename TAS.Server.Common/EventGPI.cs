@@ -20,12 +20,14 @@ namespace TAS.Server.Common
                  | ((UInt64)Crawl & 0xF) << 10 // 4 bits, 10-14
                  ;
         }
-        public static void FromUInt64(ref EventGPI gpiValue, UInt64 value)
+        public static EventGPI FromUInt64(UInt64 value)
         {
+            EventGPI gpiValue;
             gpiValue.CanTrigger = (value & 0x1) > 0;
             gpiValue.Parental = (TParental)((value >> 2) & 0xF);
             gpiValue.Logo = (TLogo)((value >> 6) & 0xF);
             gpiValue.Crawl = (TCrawl)((value >> 10) & 0xF);
+            return gpiValue;
         }
         public static readonly UInt64 Mask = 0xFFFF; // 2 bits more
     }

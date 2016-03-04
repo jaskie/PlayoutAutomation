@@ -23,7 +23,7 @@ namespace TAS.Client.Config.Model
                 Database.Open();
                 _engines = Database.DbLoadEngines<Engine>();
                 Servers = Database.DbLoadServers<CasparServer>();
-                Servers.ForEach(s => s.Channels.ForEach(c => c.Owner = s));
+                Servers.ForEach(s => s.Channels.ForEach(c => c.OwnerServer = s));
                 _engines.ForEach(e =>
                     {
                         e.IsNew = false;

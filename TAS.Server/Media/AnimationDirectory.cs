@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using TAS.Common;
-using TAS.Data;
+using TAS.Server.Database;
 using TAS.Server.Interfaces;
 using System.IO;
 
@@ -12,10 +12,16 @@ namespace TAS.Server
 {
     public class AnimationDirectory: MediaDirectory, IAnimationDirectory
     {
-        public readonly IPlayoutServer Server;
+        private readonly IPlayoutServer _server;
+
+        public IPlayoutServer Server
+        {
+            get { return _server; }
+        }
+
         public AnimationDirectory(IPlayoutServer server, MediaManager manager): base(manager)
         {
-            Server = server;
+            _server = server;
         }
 
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
@@ -23,7 +29,7 @@ namespace TAS.Server
         {
             _isInitialized = false; // to avoid subsequent reinitializations
             DirectoryName = "Animacje";
-            this.Load();
+            this.Load<ServerMedia>();
             Debug.WriteLine(Server.MediaFolder, "AnimationDirectory initialized");
         }
 

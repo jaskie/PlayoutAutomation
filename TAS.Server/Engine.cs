@@ -5,15 +5,12 @@ using System.Linq;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Runtime.Remoting.Messaging;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Specialized;
 using System.Xml;
 using System.Xml.Serialization;
 using TAS.Common;
-using TAS.Data;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using TAS.Server.Database;
 
 namespace TAS.Server
 {
@@ -175,8 +172,7 @@ namespace TAS.Server
             MediaManager.Initialize();
 
             Debug.WriteLine(this, "Reading Root Events");
-            this.DbReadRootEvents();
-            this.DbReadTemplates();
+            this.DbReadRootEvents<Event>();
 
             EngineState = TEngineState.Idle;
             var gpi = _gpi;
@@ -965,12 +961,18 @@ namespace TAS.Server
                 EngineState = TEngineState.Idle;
         }
 
-        public void RestartLayer(VideoLayer aLayer)
+        private void _restartEvent(Event ev)
         {
             if (PlayoutChannelPRI != null)
-                PlayoutChannelPRI.ReStart(aLayer);
+                PlayoutChannelPRI.ReStart(ev);
             if (PlayoutChannelSEC != null)
-                PlayoutChannelSEC.ReStart(aLayer);
+                PlayoutChannelSEC.ReStart(ev);
+        }
+
+        public void Restart()
+        {
+            foreach (Event e in _visibleEvents.Values.ToList())
+                _restartEvent(e);
         }
 
         //private void _reRun(Event aEvent)
@@ -987,7 +989,7 @@ namespace TAS.Server
                     if (aEvent.EventType != TEventType.Rundown)
                     {
                         _visibleEvents[aEvent.Layer] = aEvent;
-                        RestartLayer(aEvent.Layer);
+                        _restartEvent(aEvent);
                     }
                 };
 
@@ -1117,7 +1119,7 @@ namespace TAS.Server
                 if (reason.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
                     return reason;
             }
-            return serverMedia.DbMediaInUse();
+            return serverMedia.DbMediaInUse<Event>();
         }
 
         [XmlIgnore]
@@ -1226,7 +1228,7 @@ namespace TAS.Server
 
         public void SearchMissingEvents()
         {
-            this.DbSearchMissing();
+            this.DbSearchMissing<Event>();
         }
 
         private bool _pst2Prv;

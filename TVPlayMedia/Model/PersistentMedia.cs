@@ -16,6 +16,12 @@ namespace TAS.Client.Model
 
         public ObservableSynchronizedCollection<IMediaSegment> MediaSegments { get { return Get<ObservableSynchronizedCollection<IMediaSegment>>(); }  set { Set(value); }  }
 
+        public DateTime KillDate { get { return Get<DateTime>(); } set { Set(value); } }
+
+        public UInt64 IdProgramme { get { return Get<UInt64>(); } set { Set(value); } }
+
+        public UInt64 IdPersistentMedia { get { return Get<UInt64>(); } set { Set(value); } }
+
         public IMediaSegment CreateSegment()
         {
             return Query<IMediaSegment>();

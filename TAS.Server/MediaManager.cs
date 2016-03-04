@@ -12,9 +12,9 @@ using System.Threading;
 using System.Diagnostics;
 using System.ServiceModel;
 using TAS.Common;
-using TAS.Data;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using TAS.Server.Database;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
 
@@ -58,7 +58,9 @@ namespace TAS.Server
             AnimationDirectorySEC = (_engine.PlayoutChannelSEC == null) ? null : _engine.PlayoutChannelSEC.OwnerServer.AnimationDirectory;
             AnimationDirectoryPRV = (_engine.PlayoutChannelPRV == null) ? null : _engine.PlayoutChannelPRV.OwnerServer.AnimationDirectory;
 
-            ArchiveDirectory = this.LoadArchiveDirectory(_engine.IdArchive);
+            ArchiveDirectory = this.LoadArchiveDirectory<ArchiveDirectory>(_engine.IdArchive);
+            if (this.ArchiveDirectory != null)
+                this.ArchiveDirectory.Initialize();
             Debug.WriteLine(this, "Begin initializing");
             ServerDirectory sdir = MediaDirectoryPRI as ServerDirectory;
             if (sdir != null)
@@ -305,7 +307,7 @@ namespace TAS.Server
                            if ((ServerMedia)((MediaDirectory)MediaDirectoryPRI).FindMediaByMediaGuid(prvMedia.MediaGuid) == null)
                                _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = prvMedia });
                        }
-                       var duplicatesList = prvMediaList.Where(m => prvMediaList.FirstOrDefault(d => d.MediaGuid == m.MediaGuid && ((ServerMedia)d).idPersistentMedia != ((ServerMedia)m).idPersistentMedia) != null).Select(m => m.MediaGuid).Distinct();
+                       var duplicatesList = prvMediaList.Where(m => prvMediaList.FirstOrDefault(d => d.MediaGuid == m.MediaGuid && ((ServerMedia)d).IdPersistentMedia != ((ServerMedia)m).IdPersistentMedia) != null).Select(m => m.MediaGuid).Distinct();
                        foreach(var mediaGuid in duplicatesList)
                            ((MediaDirectory)MediaDirectoryPRV)
                            .FindMediaList(m => m.MediaGuid == mediaGuid)

@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Configuration;
 using System.IO;
 using System.Xml.Serialization;
-using TAS.Data;
 using TAS.Server.Interfaces;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
@@ -16,7 +15,7 @@ namespace TAS.Server
 {
     public class EngineController: IDisposable
     {
-        public readonly List<IPlayoutServer> Servers;
+        public readonly List<CasparServer> Servers;
         public readonly List<Engine> Engines;
         [Import]
         ILocalDevices _localGPIDevices = null;
@@ -41,10 +40,11 @@ namespace TAS.Server
             Debug.WriteLine(this, "Initializing database connector");
             ConnectionStringSettings connectionStringPrimary = ConfigurationManager.ConnectionStrings["tasConnectionString"];
             ConnectionStringSettings connectionStringSecondary = ConfigurationManager.ConnectionStrings["tasConnectionStringSecondary"];
-            DatabaseConnector.Initialize(connectionStringPrimary == null ? string.Empty : connectionStringPrimary.ConnectionString,
+            Database.Database.Open(connectionStringPrimary == null ? string.Empty : connectionStringPrimary.ConnectionString,
                                          connectionStringSecondary == null ? string.Empty : connectionStringSecondary.ConnectionString);
-            Servers = DatabaseConnector.DbLoadServers();
-            Engines = DatabaseConnector.DbLoadEngines(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]));
+            Servers = Database.Database.DbLoadServers<CasparServer>();
+            Servers.ForEach(s => s.Channels.ForEach(c => c.OwnerServer = s));
+            Engines = Database.Database.DbLoadEngines<Engine>(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]));
             foreach (Engine E in Engines)
             {
                 IGpi engineGpi = _localGPIDevices == null ? null : _localGPIDevices.Select(E.Id); 

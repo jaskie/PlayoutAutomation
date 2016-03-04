@@ -7,9 +7,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.Remoting.Messaging;
 using TAS.Common;
-using TAS.Data;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using TAS.Server.Database;
 
 namespace TAS.Server
 {
@@ -49,7 +49,8 @@ namespace TAS.Server
 
         public void Search()
         {
-            this.DbSearch();
+            this.Clear();
+            this.DbSearch<ArchiveMedia>();
         }
 
         public TMediaCategory? SearchMediaCategory { get; set; }
@@ -57,15 +58,14 @@ namespace TAS.Server
         public override void SweepStaleMedia()
         {
             DateTime currentDate = DateTime.UtcNow.Date;
-            this.DbFindStaleMedia();
-            List<IMedia> StaleMediaList = FindMediaList(m => (m is ArchiveMedia) && currentDate > (m as ArchiveMedia).KillDate);
+            IEnumerable<IMedia> StaleMediaList = this.DbFindStaleMedia<ArchiveMedia>();
             foreach (Media m in StaleMediaList)
                 m.Delete();
         }
 
         public IArchiveMedia Find(IMedia media)
         {
-            return this.DbMediaFind(media);
+            return this.DbMediaFind<ArchiveMedia>(media);
         }
 
         internal void Clear()
@@ -112,9 +112,9 @@ namespace TAS.Server
         {
             IArchiveMedia result = null;
             if (searchExisting)
-                result = this.DbMediaFind(media);
+                result = this.DbMediaFind<ArchiveMedia>(media);
             if (result == null)
-                result = new ArchiveMedia(this, media.MediaGuid)
+                result = new ArchiveMedia(this, media.MediaGuid, 0)
                 {
                     AudioChannelMapping = media.AudioChannelMapping,
                     AudioVolume = media.AudioVolume,
@@ -135,7 +135,7 @@ namespace TAS.Server
                     VideoFormat = media.VideoFormat,
                     KillDate = (media is PersistentMedia) ? (media as PersistentMedia).KillDate : (media is IngestMedia ? media.LastUpdated + TimeSpan.FromDays(((IngestDirectory)media.Directory).MediaRetnentionDays) : default(DateTime)),
                     IdAux = (media is PersistentMedia) ? (media as PersistentMedia).IdAux : string.Empty,
-                    idProgramme = (media is PersistentMedia) ? (media as PersistentMedia).idProgramme : 0L,
+                    IdProgramme = (media is PersistentMedia) ? (media as PersistentMedia).IdProgramme : 0L,
                     MediaType = (media.MediaType == TMediaType.Unknown) ? (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(media.FullPath).ToLowerInvariant()) ? TMediaType.Still : TMediaType.Movie) : media.MediaType,
                     MediaCategory = media.MediaCategory,
                     Parental = media.Parental,

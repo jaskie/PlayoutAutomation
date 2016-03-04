@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Runtime.Remoting.Messaging;
 using System.Diagnostics;
 using TAS.Common;
-using TAS.Data;
+using TAS.Server.Database;
 using TAS.Server.Interfaces;
 using Newtonsoft.Json;
 
@@ -17,8 +17,7 @@ namespace TAS.Server
     public class ServerMedia: PersistentMedia, IServerMedia
     {
 
-        public ServerMedia(ServerDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
-        public ServerMedia(AnimationDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
+        public ServerMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia) { IdPersistentMedia = idPersistentMedia; }
 
         // media properties
         private bool _isPRI;
@@ -48,14 +47,14 @@ namespace TAS.Server
             {
                 if (MediaStatus == TMediaStatus.Deleted)
                 {
-                    if (idPersistentMedia != 0)
+                    if (IdPersistentMedia != 0)
                         result = this.DbDelete();
                 }
                 else
                 {
                     if (Modified)
                     {
-                        if (idPersistentMedia == 0)
+                        if (IdPersistentMedia == 0)
                             result = this.DbInsert();
                         else
                             result = this.DbUpdate();

@@ -8,6 +8,7 @@ namespace TAS.Server.Interfaces
     [System.ServiceModel.ServiceContract]
     public interface IServerDirectory: IMediaDirectory
     {
+        IPlayoutServer Server { get; }
         IServerMedia GetServerMedia(IMedia media, bool searchExisting = true);
     }
 }

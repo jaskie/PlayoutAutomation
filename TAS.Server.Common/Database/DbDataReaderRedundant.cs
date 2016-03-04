@@ -80,7 +80,8 @@ namespace TAS.Server.Database
 
         public TimeSpan GetTimeSpan(string name)
         {
-            return _reader.GetTimeSpan(name);
+            int index = _reader.GetOrdinal(name);
+            return _reader.IsDBNull(index) ? TimeSpan.Zero : _reader.GetTimeSpan(index);
         }
 
         public override decimal GetDecimal(int ordinal)

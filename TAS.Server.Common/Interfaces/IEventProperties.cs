@@ -14,9 +14,9 @@ namespace TAS.Server.Interfaces
         bool IsHold { get; set; }
         bool IsLoop { get; set; }
         string IdAux { get; set; }
-        ulong idProgramme { get; set; }
+        ulong IdProgramme { get; set; }
         VideoLayer Layer { get; set; }
-        Guid MediaGuid { get; }
+        Guid MediaGuid { get; set; }
         TPlayState PlayState { get; set; }
         long Position { get; set; }
         TimeSpan? RequestedStartTime { get; set; }

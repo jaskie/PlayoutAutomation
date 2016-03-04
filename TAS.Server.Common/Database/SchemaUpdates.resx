@@ -130,6 +130,7 @@ CREATE TABLE `params` (
   PRIMARY KEY (`Section`, `Key`));
 UPDATE `engine` SET `idServerSEC`='0', `ServerChannelSEC`='0';
 
+ALTER TABLE `rundownevent` ADD INDEX `idPlayState` (`PlayState` ASC);
 INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', '1');</value>
   </data>
 </root>

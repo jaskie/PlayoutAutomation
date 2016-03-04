@@ -161,7 +161,7 @@
                 <MenuItem Header="{Resx _menu.Rundown.AddEmpty}" Command="{Binding CommandNewRootRundown}"/>
                 <MenuItem Header="{Resx _menu.Rundown.AddContainer}" Command="{Binding CommandNewContainer}"/>
                 <!--<MenuItem Header="_Importuj playlistę" Command="{Binding CommandImportRundown}"/>-->
-                <MenuItem Header="{Resx _menu.Rundown.Restart}" Command="{Binding CommandRestartRundown}"/>
+                <MenuItem Header="{Resx _menu.Rundown.Restart}" Command="{Binding CommandRestart}"/>
             </MenuItem>
             <MenuItem Header="{Resx _menu.Edit}">
                 <MenuItem Header="{Resx _menu.Edit.Copy}" Command="{Binding CommandCopySelected}"/>

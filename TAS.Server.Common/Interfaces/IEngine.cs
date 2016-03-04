@@ -39,7 +39,7 @@ namespace TAS.Server.Interfaces
         void RestartRundown(IEvent ARundown);
         void Schedule(IEvent aEvent);
         void ReScheduleAsync(IEvent aEvent);
-        void RestartLayer(VideoLayer aLayer);
+        void Restart();
 
         DateTime CurrentTime { get; }
         TimeSpan AlignTimeSpan(TimeSpan ts);

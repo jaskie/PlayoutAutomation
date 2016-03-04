@@ -8,6 +8,14 @@ namespace TAS.Client.Model
 {
     public class ServerDirectory : MediaDirectory, IServerDirectory
     {
+        public IPlayoutServer Server
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public IServerMedia GetServerMedia(IMedia media, bool searchExisting = true)
         {
             return Query<ServerMedia>(parameters: new object[] { media, searchExisting });

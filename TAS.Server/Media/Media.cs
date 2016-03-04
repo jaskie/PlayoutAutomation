@@ -20,11 +20,11 @@ namespace TAS.Server
     public abstract class Media : DtoBase, IMedia
     {
 
-        public Media(MediaDirectory directory, Guid mediaGuid = default(Guid))
+        public Media(IMediaDirectory directory, Guid mediaGuid = default(Guid))
         {
-            _directory = directory;
+            _directory = (MediaDirectory)directory;
             _mediaGuid = mediaGuid == default(Guid)? Guid.NewGuid() : mediaGuid;
-            directory.MediaAdd(this);
+            _directory.MediaAdd(this);
         }
 
 #if DEBUG

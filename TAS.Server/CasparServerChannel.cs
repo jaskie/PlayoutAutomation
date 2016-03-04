@@ -26,8 +26,6 @@ namespace TAS.Server
         public string LiveDevice { get; set; }
         #endregion // IPlayoutServerChannel
         protected bool? outputAspectNarrow;
-        [XmlIgnore]
-        public IEngine Engine { get; set; }
 
         private Channel _casparChannel;
         internal Channel CasparChannel
@@ -98,7 +96,7 @@ namespace TAS.Server
                     item.Clipname = LiveDevice ?? "BLACK";
                 item.VideoLayer = (int)aEvent.Layer;
                 item.Loop = false;
-                item.Transition.Duration = (int)(aEvent.TransitionTime.Ticks / Engine.FrameTicks);
+                item.Transition.Duration = (int)(aEvent.TransitionTime.Ticks / aEvent.Engine.FrameTicks);
                 item.Seek = (int)aEvent.MediaSeek;
                 item.Transition.Type = (Svt.Caspar.TransitionType)aEvent.TransitionType;
                 return item;
@@ -329,12 +327,8 @@ namespace TAS.Server
         }
 
 
-        public void ReStart(VideoLayer aVideoLayer)
+        public void ReStart(IEvent ev)
         {
-            Engine engine = Engine as Server.Engine;
-            if (engine == null)
-                return;
-            IEvent ev = engine._visibleEvents[aVideoLayer];
             var channel = _casparChannel;
             if (_checkConnected()
                 && ev != null
@@ -344,7 +338,7 @@ namespace TAS.Server
                 if (item != null)
                 {
                     if (ev.EventType == TEventType.Movie && ev.Media != null)
-                        item.Seek = (int)ev.Position + (int)((ev.ScheduledTc.Ticks - ev.Media.TcPlay.Ticks) / Engine.FrameTicks);
+                        item.Seek = (int)ev.Position + (int)((ev.ScheduledTc.Ticks - ev.Media.TcPlay.Ticks) / ev.Engine.FrameTicks);
                     item.Transition.Duration = 3;
                     item.Transition.Type = TransitionType.MIX;
                     channel.LoadBG(item);
@@ -352,12 +346,6 @@ namespace TAS.Server
                     Debug.WriteLine("CasparChanner.ReStart: restarted {0} from frame {1}", item.Clipname, item.Seek);
                 }
                 IEvent le;
-                engine._loadedNextEvents.TryRemove(aVideoLayer, out le);
-                if (le != null)
-                {
-                    LoadNext(le); // workaround to reload event removed with CasarChanenel.Stop()
-                    Debug.WriteLine("CasparChanner.ReStart: reloaded {0}", le.ToString());
-                }
             }
         }
 

@@ -8,21 +8,75 @@ using System.Diagnostics;
 using System.Runtime.Remoting.Messaging;
 using System.ComponentModel;
 using TAS.Common;
-using TAS.Data;
+using TAS.Server.Database;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
 
 namespace TAS.Server
 {
- 
+
     public class Event : IEvent, IComparable
     {
 
-        public Event(IEngine aEngine)
+        public Event(IEngine engine)
+        {
+            Engine = engine;
+            if (engine != null)
+                engine.AddEvent(this);
+        }
+
+
+        public Event(
+                    IEngine aEngine,
+                    UInt64 idRundownEvent,
+                    VideoLayer videoLayer,
+                    TEventType eventType,
+                    TStartType startType,
+                    TPlayState playState,
+                    DateTime scheduledTime,
+                    TimeSpan duration,
+                    TimeSpan scheduledDelay,
+                    TimeSpan scheduledTC,
+                    Guid mediaGuid,
+                    string eventName,
+                    DateTime startTime,
+                    TimeSpan startTC,
+                    TimeSpan? requestedStartTime,
+                    TimeSpan transitionTime,
+                    TTransitionType transitionType,
+                    decimal? audioVolume,
+                    UInt64 idProgramme,
+                    string idAux,
+                    bool isEnabled,
+                    bool isHold,
+                    bool isLoop,
+                    EventGPI gpi)
         {
             Engine = aEngine;
-            if (aEngine != null)
-                aEngine.AddEvent(this);
+            _idRundownEvent = idRundownEvent;
+            _layer = videoLayer;
+            _eventType = eventType;
+            _startType = startType;
+            _playState = playState;
+            _scheduledTime = scheduledTime;
+            _duration = duration;
+            _scheduledDelay = scheduledDelay;
+            _scheduledTc = scheduledTC;
+            _mediaGuid = mediaGuid;
+            _eventName = eventName;
+            _startTime = startTime;
+            _startTc = startTC;
+            _requestedStartTime = requestedStartTime;
+            _transitionTime = transitionTime;
+            _transitionType = transitionType;
+            _audioVolume = audioVolume;
+            _idProgramme = idProgramme;
+            _idAux = idAux;
+            _isEnabled = isEnabled;
+            _isHold = isHold;
+            _isLoop = isLoop;
+
+            _nextLoaded = false;
         }
 
 #if DEBUG
@@ -40,10 +94,6 @@ namespace TAS.Server
                 if (_idRundownEvent == 0)
                     Save();
                 return _idRundownEvent;
-            }
-            set
-            {
-                _idRundownEvent = value;
             }
         }
         private bool _modified;
@@ -64,25 +114,32 @@ namespace TAS.Server
 
         public IEvent Clone()
         {
-            Event newEvent = new Event(this.Engine);
-            newEvent.Duration = this.Duration;
-            newEvent.IsEnabled = this.IsEnabled;
-            newEvent.EventName = this.EventName;
-            newEvent.EventType = this.EventType;
-            newEvent.IsHold = this.IsHold;
-            newEvent.IdAux = this.IdAux;
-            newEvent.idProgramme = this.idProgramme;
-            newEvent.Layer = this.Layer;
-            newEvent.Media = this.Media;
-            newEvent.AudioVolume = this.AudioVolume; // must be after media
-            newEvent.PlayState = TPlayState.Scheduled;
-            newEvent.ScheduledDelay = this.ScheduledDelay;
-            newEvent.ScheduledTc = this.ScheduledTc;
-            newEvent.ScheduledTime = this.ScheduledTime;
-            newEvent.StartType = this.StartType;
-            newEvent.TransitionTime = this.TransitionTime;
-            newEvent.TransitionType = this.TransitionType;
-            newEvent.GPI = this.GPI;
+            Event newEvent = new Event(
+                Engine,
+                0,
+                _layer,
+                _eventType,
+                _startType,
+                TPlayState.Scheduled,
+                _scheduledTime,
+                _duration,
+                _scheduledDelay,
+                _scheduledTc,
+                _mediaGuid,
+                _eventName,
+                _startTime,
+                _startTc,
+                _requestedStartTime,
+                _transitionTime,
+                _transitionType,
+                _audioVolume,
+                _idProgramme,
+                _idAux,
+                _isEnabled,
+                _isHold,
+                _isLoop,
+                _gPI);
+
             foreach (Event e in SubEvents)
             {
                 IEvent newSubevent = e.Clone();
@@ -145,7 +202,7 @@ namespace TAS.Server
 
         public bool IsFinished { get { return _position >= LengthInFrames; } }
 
-        internal UInt64 idEventBinding
+        public UInt64 IdEventBinding
         {
             get
             {
@@ -164,6 +221,7 @@ namespace TAS.Server
                 return 0;
             }
         }
+
         internal SynchronizedCollection<IEvent> _subEvents;
         public SynchronizedCollection<IEvent> SubEvents
         {
@@ -176,7 +234,12 @@ namespace TAS.Server
                         if (_idRundownEvent == 0)
                             _subEvents = new SynchronizedCollection<IEvent>();
                         else
-                            _subEvents = this.DbReadSubEvents();
+                        {
+                            var se = this.DbReadSubEvents();
+                            foreach (Event e in se)
+                                e._parent = this;
+                            _subEvents = se;
+                        }
                     }
                     return _subEvents;
                 }
@@ -592,9 +655,16 @@ namespace TAS.Server
         internal Guid _mediaGuid;
         public Guid MediaGuid
         {
-            get
+            get { return _mediaGuid; }
+            set
             {
-                return _mediaGuid;
+                if (SetField(ref _mediaGuid, value, "MediaGuid"))
+                {
+                    NotifyPropertyChanged("Media");
+                    _serverMediaPRI = null;
+                    _serverMediaSEC = null;
+                    _serverMediaPRV = null;
+                }
             }
         }
 
@@ -1211,7 +1281,7 @@ namespace TAS.Server
 
 
         internal UInt64 _idProgramme;
-        public UInt64 idProgramme
+        public UInt64 IdProgramme
         {
             get
             {

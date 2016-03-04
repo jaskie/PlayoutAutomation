@@ -268,7 +268,7 @@ namespace TAS.Server
                 if (AudioVolume != 0)
                     _addConversion(new MediaConversion(AudioVolume), ep, vf, af);
                 VideoFormatDescription outputFormatDescription = VideoFormatDescription.Descriptions[OutputFormat];
-                VideoFormatDescription inputFormatDescription = SourceMedia.VideoFormatDescription;
+                VideoFormatDescription inputFormatDescription = inputMedia.VideoFormatDescription;
                 if (outputFormatDescription.ImageSize != inputFormatDescription.ImageSize)
                     vf.Add(string.Format("scale={0}:{1}", outputFormatDescription.ImageSize.Width, outputFormatDescription.ImageSize.Height));
                 vf.Add(string.Format("fps=fps={0}", outputFormatDescription.FrameRate));

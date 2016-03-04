@@ -66,7 +66,6 @@
     <Compile Include="CasparServer.cs" />
     <Compile Include="CasparServerChannel.cs" />
     <Compile Include="ConvertOperation.cs" />
-    <Compile Include="DatabaseConnector.cs" />
     <Compile Include="Dependencies\MediaInfoDLL.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="EngineController.cs" />

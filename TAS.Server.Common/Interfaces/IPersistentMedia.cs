@@ -13,6 +13,9 @@ namespace TAS.Server.Interfaces
         string IdAux { get; set; }
         ObservableSynchronizedCollection<IMediaSegment> MediaSegments { get; }
         IMediaSegment CreateSegment();
+        DateTime KillDate { get; set; }
+        UInt64 IdProgramme { get; set; }
+        UInt64 IdPersistentMedia { get; set; }
         bool Save();
     }
 }

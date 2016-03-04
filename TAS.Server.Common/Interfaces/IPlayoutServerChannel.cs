@@ -9,10 +9,9 @@ namespace TAS.Server.Interfaces
 {
     public interface IPlayoutServerChannel: IPlayoutServerChannelConfig, IInitializable, INotifyPropertyChanged
     {
-        IPlayoutServer OwnerServer { get; }
-        IEngine Engine { get; set; }
-        void ReStart(VideoLayer aVideoLayer);
+        IPlayoutServer OwnerServer { get; set; }
 
+        void ReStart(IEvent ev);
         bool Load(IEvent aEvent);
         bool Load(IServerMedia media, VideoLayer videolayer, long seek, long duration);
         bool Load(System.Drawing.Color color, VideoLayer layer);

@@ -70,8 +70,6 @@ namespace TAS.Server
                     _casparDevice.UpdatedChannels += _casparDevice_UpdatedChannels;
                     _casparDevice.UpdatedTemplates += _onUpdatedTemplates;
                     _connect();
-                    foreach (CasparServerChannel channel in Channels)
-                        channel.OwnerServer = this;
                     _isInitialized = true;
                 }
             }
@@ -168,7 +166,7 @@ namespace TAS.Server
                     && f.Folder == template.Folder);
                 if (media == null)
                 {
-                    media = new ServerMedia(AnimationDirectory as AnimationDirectory)
+                    media = new ServerMedia(AnimationDirectory as AnimationDirectory, Guid.Empty, ulong.MinValue)
                         {
                             MediaType = TMediaType.AnimationFlash,
                             MediaName = template.Name,

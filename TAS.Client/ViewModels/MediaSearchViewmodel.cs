@@ -27,7 +27,7 @@ namespace TAS.Client.ViewModels
         private readonly bool _closeAfterAdd;
         private readonly RationalNumber _frameRate;
         private readonly VideoFormatDescription _videoFormatDescription;
-        private IMediaDirectory _searchDirectory;
+        private IServerDirectory _searchDirectory;
 
 
         public MediaSearchViewmodel(EngineViewmodel engineVM, TMediaType mediaType, bool closeAfterAdd, VideoFormatDescription videoFormatDescription)
@@ -36,14 +36,13 @@ namespace TAS.Client.ViewModels
             _previewViewmodel = engineVM.PreviewViewmodel;
             _frameRate = engineVM.FrameRate;
             _videoFormatDescription = videoFormatDescription;
+            _mediaType = mediaType;
             _previewView = new PreviewView(_frameRate) { DataContext = _previewViewmodel };
             if (_previewViewmodel != null)
                 _previewViewmodel.PropertyChanged += _onPreviewPropertyChanged;
-            _mediaType = mediaType;
-            if (mediaType == TMediaType.AnimationFlash)
-                _searchDirectory = _manager.AnimationDirectoryPRI;
-            else
-                _searchDirectory = _manager.MediaDirectoryPRI;
+            IServerDirectory pri = _manager.MediaDirectoryPRI;
+            IServerDirectory sec = _manager.MediaDirectorySEC;
+            _searchDirectory = pri != null && pri.DirectoryExists() ? pri : sec != null && sec.DirectoryExists() ? sec : null;
             _searchDirectory.MediaAdded += _searchDirectory_MediaAdded;
             _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
             _searchDirectory.MediaVerified += _searchDirectory_MediaVerified;

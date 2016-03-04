@@ -4,17 +4,18 @@ using System.Linq;
 using System.Text;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.Config
 {
-    public class PlayoutServerChannelViewmodel:EditViewmodelBase<CasparServerChannel>
+    public class PlayoutServerChannelViewmodel:EditViewmodelBase<IPlayoutServerChannel>
     {
         private string _channelName;
         private int _channelNumber;
         private decimal _masterVolume;
         private string _liveDevice;
         protected override void OnDispose() { }
-        public PlayoutServerChannelViewmodel(CasparServerChannel channel): base(channel, new PlayoutServerChannelView())
+        public PlayoutServerChannelViewmodel(IPlayoutServerChannel channel): base(channel, new PlayoutServerChannelView())
         {
 
         }

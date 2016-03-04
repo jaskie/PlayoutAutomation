@@ -10,5 +10,6 @@ namespace TAS.Client.Model
 {
     public class ServerMedia : PersistentMedia, IServerMedia
     {
+        public bool DoNotArchive { get { return Get<bool>(); } set { Set(value); } }
     }
 }

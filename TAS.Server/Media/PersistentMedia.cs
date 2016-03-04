@@ -7,9 +7,9 @@ using System.ComponentModel;
 using System.Runtime.Remoting.Messaging;
 using System.Diagnostics;
 using TAS.Common;
-using TAS.Data;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using TAS.Server.Database;
 using Newtonsoft.Json;
 
 namespace TAS.Server
@@ -17,9 +17,10 @@ namespace TAS.Server
     [JsonObject(MemberSerialization.OptIn)]
     public abstract class PersistentMedia: Media, IPersistentMedia
     {
-        public PersistentMedia(MediaDirectory directory) : base(directory) { }
-        public PersistentMedia(MediaDirectory directory, Guid guid) : base(directory, guid) { }
-        public UInt64 idPersistentMedia;
+        public PersistentMedia(IMediaDirectory directory) : base(directory) { }
+        public PersistentMedia(IMediaDirectory directory, Guid guid) : base(directory, guid) { }
+        public PersistentMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid) { IdPersistentMedia = idPersistentMedia; }
+        public UInt64 IdPersistentMedia { get; set; }
 
         // media properties
 
@@ -33,7 +34,7 @@ namespace TAS.Server
 
         // content properties
         [JsonProperty]
-        public UInt64 idProgramme { get; set; }
+        public UInt64 IdProgramme { get; set; }
         internal string _idAux;
         [JsonProperty]
         public string IdAux
@@ -60,7 +61,7 @@ namespace TAS.Server
             get
             {
                 if (_mediaSegments == null)
-                    _mediaSegments = this.DbMediaSegmentsRead();
+                    _mediaSegments = this.DbMediaSegmentsRead<MediaSegment>();
                 return _mediaSegments;
             }
         }
@@ -76,7 +77,7 @@ namespace TAS.Server
             if (fromMedia is PersistentMedia)
             {
                 IdAux = (fromMedia as PersistentMedia).IdAux;
-                idProgramme = (fromMedia as PersistentMedia).idProgramme;
+                IdProgramme = (fromMedia as PersistentMedia).IdProgramme;
                 OriginalMedia = (fromMedia as PersistentMedia).OriginalMedia;
                 MediaEmphasis = (fromMedia as PersistentMedia).MediaEmphasis;
             }

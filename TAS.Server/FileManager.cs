@@ -45,6 +45,12 @@ namespace TAS.Server
             return retList;
         }
 
+        public void Queue(IEnumerable<IFileOperation> operationList, bool toTop = false)
+        {
+            foreach (var operation in operationList)
+                Queue(operation, toTop);
+        }
+
         public void Queue(IFileOperation operation, bool toTop = false)
         {
             ((FileOperation)operation).Owner = this;

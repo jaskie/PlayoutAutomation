@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using TAS.Data;
+using TAS.Server.Database;
 using TAS.Server.Interfaces;
 
 namespace TAS.Server
@@ -74,12 +74,12 @@ namespace TAS.Server
 
         public void Save()
         {
-            this.DbSave();
+            //this.DbSave();
         }
 
         public void Delete()
         {
-            this.DbDelete();
+            //this.DbDelete();
 //            Engine.MediaManager.getTemplates().Remove(this);
         }
 

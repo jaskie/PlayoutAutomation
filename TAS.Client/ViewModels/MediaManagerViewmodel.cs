@@ -83,19 +83,10 @@ namespace TAS.Client.ViewModels
             get { return _selectedMedia; }
             set
             {
-                MediaEditViewmodel oldEditMedia = _editMedia;
-                if (oldEditMedia != null
-                    && oldEditMedia.Modified)
+                if (!_checkEditMediaSaved())
                 {
-                    switch (MessageBox.Show(resources._query_SaveChangedData, resources._caption_Confirmation, MessageBoxButton.YesNo))
-                    {
-                        case MessageBoxResult.Yes:
-                            oldEditMedia.Save();
-                            break;
-                        case MessageBoxResult.No:
-                            oldEditMedia.Revert();
-                            break;
-                    }
+                    NotifyPropertyChanged("SelectedMedia");
+                    return;
                 }
                 var oldSelectedMedia = _selectedMedia;
                 if (SetField(ref _selectedMedia, value, "SelectedMedia"))
@@ -287,14 +278,13 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _ingestSelectedToServer(object o)
+        private bool _checkEditMediaSaved()
         {
-
-            if (EditMedia.Modified)
+            if (EditMedia != null && EditMedia.Modified)
                 switch (MessageBox.Show(resources._query_SaveChangedData, resources._caption_Confirmation, MessageBoxButton.YesNoCancel))
                 {
                     case MessageBoxResult.Cancel:
-                        return;
+                        return false;
                     case MessageBoxResult.Yes:
                         EditMedia.Save();
                         break;
@@ -302,10 +292,23 @@ namespace TAS.Client.ViewModels
                         EditMedia.Revert();
                         break;
                 }
-            if (_mediaDirectory is IIngestDirectory)
-                _ingestSelectionToDir(_mediaManager.MediaDirectoryPRI);
-            else
-                _mediaManager.CopyMediaToPlayout(_getSelections(), true);
+            return true;
+        }
+
+        private void _ingestSelectedToServer(object o)
+        {
+            if (!_checkEditMediaSaved())
+                return;
+            IServerDirectory pri = _mediaManager.MediaDirectoryPRI;
+            IServerDirectory sec = _mediaManager.MediaDirectorySEC;
+            IServerDirectory dir = pri != null && pri.DirectoryExists() ? pri : sec != null && sec.DirectoryExists() ? sec : null;
+            if (dir != null)
+            {
+                if (_mediaDirectory is IIngestDirectory)
+                    _ingestSelectionToDir(dir);
+                else
+                    _mediaManager.CopyMediaToPlayout(_getSelections(), true);
+            }
         }
 
         private bool _canSearch(object o)

@@ -7,5 +7,6 @@ namespace TAS.Server.Interfaces
 {
     public interface IServerMedia: IPersistentMedia
     {
+        bool DoNotArchive { get; set; }
     }
 }

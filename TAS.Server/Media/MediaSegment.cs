@@ -3,21 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using TAS.Data;
 using TAS.Server.Interfaces;
 using TAS.Remoting.Server;
+using TAS.Server.Database;
 
 namespace TAS.Server
 {
     public class MediaSegment : DtoBase, IMediaSegment
     {
-        internal UInt64 idMediaSegment;
-        protected readonly Guid _mediaGuid;
         public MediaSegment(Guid mediaGuid)
         {
             _mediaGuid = mediaGuid;
         }
 
+        public MediaSegment(Guid mediaGuid, UInt64 idMediaSegment)
+        {
+            _mediaGuid = mediaGuid;
+            _idMediaSegment = idMediaSegment;
+        }
+
+        internal UInt64 _idMediaSegment;
+
+        public UInt64 IdMediaSegment
+        {
+            get { return _idMediaSegment; }
+        }
+        
         private string _segmentName;
         public string SegmentName
         {
@@ -39,6 +50,7 @@ namespace TAS.Server
             set { SetField(ref _tcOut, value, "TcOut"); }
         }
 
+        protected readonly Guid _mediaGuid;
         public Guid MediaGuid
         {
             get { return _mediaGuid; }
@@ -47,7 +59,7 @@ namespace TAS.Server
 
         public void Save()
         {
-            this.DbSave();
+            _idMediaSegment = this.DbSave();
         }
 
         public void Delete()
