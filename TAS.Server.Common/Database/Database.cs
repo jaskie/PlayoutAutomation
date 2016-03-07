@@ -45,8 +45,7 @@ namespace TAS.Server.Database
         {
             return DbConnectionRedundant.TestConnect(connectionString);
         }
-
-
+        
         public static bool CreateEmptyDatabase(string connectionString, string collate)
         {
             return DbConnectionRedundant.CreateEmptyDatabase(connectionString, collate);
@@ -56,6 +55,81 @@ namespace TAS.Server.Database
         {
             DbConnectionRedundant.CloneDatabase(connectionStringSource, connectionStringDestination);
             return DbConnectionRedundant.TestConnect(connectionStringDestination);
+        }
+
+        public static bool UpdateRequired()
+        {
+            var command = new DbCommandRedundant("select `value` from `params` where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", _connection);
+            string dbVersionStr;
+            int dbVersionNr = 0; int resVersionNr;
+            try
+            {
+                lock (_connection)
+                    dbVersionStr = (string)command.ExecuteScalar();
+                var regexMatchDB = System.Text.RegularExpressions.Regex.Match(dbVersionStr, @"\d+");
+                if (regexMatchDB.Success)
+                    int.TryParse(regexMatchDB.Value, out dbVersionNr);
+            }
+            catch { }
+            var schemaUpdates = new System.Resources.ResourceManager("TAS.Server.Common.Database.SchemaUpdates", System.Reflection.Assembly.GetExecutingAssembly());
+            var resourceEnumerator = schemaUpdates.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true).GetEnumerator();
+            while (resourceEnumerator.MoveNext())
+            {
+                if (resourceEnumerator.Key is string && resourceEnumerator.Value is string)
+                {
+                    var regexMatchRes = System.Text.RegularExpressions.Regex.Match((string)resourceEnumerator.Key, @"\d+");
+                    if (regexMatchRes.Success
+                        && int.TryParse(regexMatchRes.Value, out resVersionNr)
+                        && resVersionNr > dbVersionNr)
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool UpdateDB()
+        {
+            var command = new DbCommandRedundant("select `value` from `params` where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", _connection);
+            string dbVersionStr;
+            int dbVersionNr = 0; int resVersionNr;
+            try
+            {
+                lock (_connection)
+                    dbVersionStr = (string)command.ExecuteScalar();
+                var regexMatchDB = System.Text.RegularExpressions.Regex.Match(dbVersionStr, @"\d+");
+                if (regexMatchDB.Success)
+                    int.TryParse(regexMatchDB.Value, out dbVersionNr);
+            }
+            catch { }
+            var schemaUpdates = new System.Resources.ResourceManager("TAS.Server.Common.Database.SchemaUpdates", System.Reflection.Assembly.GetExecutingAssembly());
+            var resourceEnumerator = schemaUpdates.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true).GetEnumerator();
+            var updatesPending = new SortedList<int, string>();
+            while (resourceEnumerator.MoveNext())
+            {
+                if (resourceEnumerator.Key is string && resourceEnumerator.Value is string)
+                {
+                    var regexMatchRes = System.Text.RegularExpressions.Regex.Match((string)resourceEnumerator.Key, @"\d+");
+                    if (regexMatchRes.Success
+                        && int.TryParse(regexMatchRes.Value, out resVersionNr)
+                        && resVersionNr > dbVersionNr)
+                        updatesPending.Add(resVersionNr, (string)resourceEnumerator.Value);
+                }
+            }
+            if (updatesPending.Count > 0)
+            {
+                foreach (var kvp in updatesPending)
+                {
+                    var tran = _connection.BeginTransaction();
+                    if (_connection.ExecuteScript(kvp.Value))
+                        tran.Commit();
+                    else
+                    {
+                        tran.Rollback();
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         #endregion //Configuration functions

@@ -124,6 +124,7 @@ namespace TAS.Server.Database
             }
         }
 
+
         #endregion // static methods
 
         public DbConnectionRedundant(string connectionStringPrimary, string connectionStringSecondary)
@@ -175,6 +176,26 @@ namespace TAS.Server.Database
         public new void Dispose()
         {
             Close();
+        }
+
+        public bool ExecuteScript(string script)
+        {
+            MySqlScript scriptPrimary = null;
+            MySqlScript scriptSecondary = null;
+            try
+            {
+
+                if (_connectionPrimary != null)
+                    scriptPrimary = new MySqlScript(_connectionPrimary, script);
+                if (_connectionSecondary != null)
+                    scriptSecondary = new MySqlScript(_connectionSecondary, script);
+                if ((scriptPrimary == null || scriptPrimary.Execute() > 0)
+                    && (scriptSecondary == null || scriptSecondary.Execute() > 0)
+                    && (scriptSecondary != null || scriptPrimary != null))
+                    return true;
+            }
+            catch { }
+            return false;
         }
 
         private void _idleTimeTimerCallback(object o)
@@ -250,7 +271,7 @@ namespace TAS.Server.Database
 
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
-            throw new NotImplementedException();
+            return DbTransactionRedundant.Create(this);
         }
 
         public override void ChangeDatabase(string databaseName)

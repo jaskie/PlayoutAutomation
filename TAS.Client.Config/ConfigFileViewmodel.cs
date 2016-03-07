@@ -88,7 +88,18 @@ namespace TAS.Client.Config
         {
             UiServices.SetBusyState();
             if (Database.TestConnect(tasConnectionString))
-                MessageBox.Show(Window.GetWindow(View), "Connection successful", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
+            {
+                Database.Open(tasConnectionString, tasConnectionStringSecondary);
+                if (Database.UpdateRequired())
+                {
+                    if (MessageBox.Show(Window.GetWindow(View), "Connection successful, but database should be updated. \nUpdate now?", "Connection test", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                        if (Database.UpdateDB())
+                            MessageBox.Show(Window.GetWindow(View), "Database is now up-to-date.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                }
+                else
+                    MessageBox.Show(Window.GetWindow(View), "Connection successful and database is up-to-date.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
             else
                 MessageBox.Show(Window.GetWindow(View), "Connection failed", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
         }
