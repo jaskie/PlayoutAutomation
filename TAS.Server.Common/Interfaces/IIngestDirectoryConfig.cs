@@ -10,6 +10,7 @@ namespace TAS.Server.Interfaces
         bool DeleteSource { get; set; }
         bool DoNotEncode { get; set; }
         string EncodeParams { get; set; }
+        string ExportParams { get; set; }
         bool IsXDCAM { get; set; }
         bool IsWAN { get; set; }
         bool IsRecursive { get; set; }

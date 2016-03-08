@@ -168,7 +168,12 @@ namespace TAS.Client.ViewModels
 
         private void _export(object obj)
         {
-            var selections = _selectedEvents.Where(e => e.Event != null && e.Event.Media != null && e.Event.Media.MediaType == TMediaType.Movie).Select(e => new MediaExport(e.Event.Media, e.Event.ScheduledTc, e.Event.Duration, e.Event.GetAudioVolume()));
+            var selections = _selectedEvents.Where(e => e.Event != null && e.Event.Media != null && e.Event.Media.MediaType == TMediaType.Movie).Select(e => new MediaExport(
+                e.Event.Media, 
+                e.Event.SubEvents.Where(sev => sev.EventType == TEventType.StillImage && sev.Media != null).Select(sev => sev.Media).ToList(),
+                e.Event.ScheduledTc, 
+                e.Event.Duration, 
+                e.Event.GetAudioVolume()));
             using (ExportViewmodel evm = new ExportViewmodel(_engine.MediaManager, selections)) { }
         }
 

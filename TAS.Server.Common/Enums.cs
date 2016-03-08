@@ -85,6 +85,7 @@ namespace TAS.Common
     public enum TxDCAMAudioExportFormat: byte
     {
         Channels4Bits16,
+        Channels8Bits16,
         Channels4Bits24,
     }
 

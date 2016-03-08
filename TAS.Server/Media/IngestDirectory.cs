@@ -85,11 +85,11 @@ namespace TAS.Server
         [JsonProperty]
         public bool IsRecursive { get; set; }
 
-        [JsonProperty]
         public TxDCAMAudioExportFormat XDCAMAudioExportFormat { get; set; }
 
-        [JsonProperty]
         public TxDCAMVideoExportFormat XDCAMVideoExportFormat { get; set; }
+
+        public string ExportParams { get; set; }
 
         [JsonProperty]
         public bool MediaDoNotArchive { get; set; }

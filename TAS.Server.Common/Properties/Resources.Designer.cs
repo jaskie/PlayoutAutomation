@@ -1004,5 +1004,14 @@ namespace TAS.Server.Common.Properties {
                 return ResourceManager.GetString("TxDCAMAudioExportFormat_Channels4Bits24", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 8 channels, 16 bits per sample.
+        /// </summary>
+        public static string TxDCAMAudioExportFormat_Channels8Bits16 {
+            get {
+                return ResourceManager.GetString("TxDCAMAudioExportFormat_Channels8Bits16", resourceCulture);
+            }
+        }
     }
 }

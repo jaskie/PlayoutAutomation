@@ -69,6 +69,8 @@ namespace TAS.Client.Config
         public string EncodeParams { get { return _encodeParams; } set { SetField(ref _encodeParams, value, "EncodeParams"); } }
         bool _doNotEncode;
         public bool DoNotEncode { get { return _doNotEncode; } set { SetField(ref _doNotEncode, value, "DoNotEncode"); } }
+        string _exportParams;
+        public string ExportParams { get { return _exportParams; }  set { SetField(ref _exportParams, value, "ExportParams"); } }
 
 
         string[] _extensions;

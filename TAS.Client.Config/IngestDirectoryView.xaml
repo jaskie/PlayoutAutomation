@@ -76,7 +76,10 @@
                 <Label Content="Export audio format"/>
                 <ComboBox ItemsSource="{Binding XDCAMAudioExportFormats}" SelectedItem="{Binding XDCAMAudioExportFormat}"/>
             </StackPanel>
-
+            <StackPanel Visibility="{Binding IsXDCAM, Converter={StaticResource InvertedBoolToVis}}">
+                <Label Content="Export encode parameters"/>
+                <TextBox Text="{Binding ExportParams, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
+            </StackPanel>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

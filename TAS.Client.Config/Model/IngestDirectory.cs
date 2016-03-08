@@ -44,6 +44,8 @@ namespace TAS.Client.Config.Model
         public string Password { get; set; }
         [DefaultValue(default(string))]
         public string EncodeParams { get; set; }
+        [DefaultValue(default(string))]
+        public string ExportParams { get; set; }
         [XmlArray]
         [XmlArrayItem("Extension")]
         public string[] Extensions { get; set; }

@@ -15,6 +15,7 @@ namespace TAS.Client.Model
         public decimal AudioVolume { get { return Get<decimal>(); } set { Set(value); } }
         public bool DeleteSource { get { return Get<bool>(); } set { Set(value); } }
         public string EncodeParams { get { return Get<string>(); } set { Set(value); } }
+        public string ExportParams { get { return Get<string>(); } set { Set(value); } }
         public string Filter { get { return Get<string>(); } set { Set(value); } }
         public bool IsWAN { get { return Get<bool>(); } set { Set(value); } }
         public bool IsXDCAM { get { return Get<bool>(); } set { Set(value); } }

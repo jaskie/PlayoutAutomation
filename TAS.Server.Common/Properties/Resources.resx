@@ -432,4 +432,7 @@
   <data name="TVideoFormat_NTSC_FHA" xml:space="preserve">
     <value>NTSC (16:9)</value>
   </data>
+  <data name="TxDCAMAudioExportFormat_Channels8Bits16" xml:space="preserve">
+    <value>8 channels, 16 bits per sample</value>
+  </data>
 </root>

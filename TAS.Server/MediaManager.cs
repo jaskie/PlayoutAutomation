@@ -357,7 +357,7 @@ namespace TAS.Server
 
         private void Export(MediaExport export, IIngestDirectory directory)
         {
-            _fileManager.Queue(new XDCAM.ExportOperation() { SourceMedia = export.Media, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory as IngestDirectory });
+            _fileManager.Queue(new XDCAM.ExportOperation() { SourceMedia = export.Media, Logos = export.Logos, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory as IngestDirectory });
         }
 
         public Guid IngestFile(string fileName)
