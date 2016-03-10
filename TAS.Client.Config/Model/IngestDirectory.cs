@@ -10,6 +10,10 @@ namespace TAS.Client.Config.Model
 {
     public class IngestDirectory: TAS.Server.Interfaces.IIngestDirectoryConfig
     {
+        public IngestDirectory()
+        {
+            IsImport = true;
+        }
         [DefaultValue(default(TAspectConversion))]
         public TAspectConversion AspectConversion { get; set; }
         [DefaultValue(0)]
@@ -22,6 +26,10 @@ namespace TAS.Client.Config.Model
         public bool IsWAN { get; set; }
         [DefaultValue(false)]
         public bool IsRecursive { get; set; }
+        [DefaultValue(false)]
+        public bool IsExport { get; set; }
+        [DefaultValue(true)]
+        public bool IsImport { get; set; }
         [DefaultValue(false)]
         public bool DoNotEncode { get; set; }
         [DefaultValue(default(TMediaCategory))]
@@ -44,6 +52,8 @@ namespace TAS.Client.Config.Model
         public string Password { get; set; }
         [DefaultValue(default(string))]
         public string EncodeParams { get; set; }
+        [DefaultValue(default(TMediaExportFormat))]
+        public TMediaExportFormat ExportFormat { get; set; }
         [DefaultValue(default(string))]
         public string ExportParams { get; set; }
         [XmlArray]

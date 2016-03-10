@@ -49,7 +49,7 @@ namespace TAS.Client.ViewModels
             _createCommands();
 
             _mediaDirectories = new List<IMediaDirectory>();
-            mediaManager.IngestDirectories.ForEach(d => _mediaDirectories.Add(d));
+            _mediaDirectories.AddRange(mediaManager.IngestDirectories.Where(d => d.IsImport));
             IArchiveDirectory archiveDirectory = mediaManager.ArchiveDirectory;
             if (archiveDirectory != null)
                 _mediaDirectories.Insert(0, archiveDirectory);
@@ -158,7 +158,7 @@ namespace TAS.Client.ViewModels
 
         bool _canExport(object o)
         {
-            return (_mediaDirectory is IServerDirectory || _mediaDirectory is IArchiveDirectory) && _isSomethingSelected(o) && _mediaManager.IngestDirectories.Any(d => d.IsXDCAM);
+            return (_mediaDirectory is IServerDirectory || _mediaDirectory is IArchiveDirectory) && _isSomethingSelected(o) && _mediaManager.IngestDirectories.Any(d => d.IsExport);
         }
         
         private void _createCommands()

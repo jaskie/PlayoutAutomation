@@ -18,6 +18,7 @@ namespace TAS.Client.ViewModels
         public TimeSpan StartTC { get { return this.MediaExport.StartTC; } set { SetField(ref this.MediaExport.StartTC, value, "StartTC"); } }
         public TimeSpan Duration { get { return this.MediaExport.Duration; } set { SetField(ref this.MediaExport.Duration, value, "Duration"); } }
         public decimal AudioVolume { get { return this.MediaExport.AudioVolume; } set { SetField(ref this.MediaExport.AudioVolume, value, "AudioVolume"); } }
+        public bool ExportWithLogo { get { return this.MediaExport.ExportWithLogo; } set { SetField(ref this.MediaExport.ExportWithLogo, value, "ExportWithLogo"); } }
         protected override void OnDispose() { }
     }
 }

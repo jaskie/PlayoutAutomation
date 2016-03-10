@@ -381,31 +381,52 @@ namespace TAS.Server
 
         private void OnFileCreated(object source, FileSystemEventArgs e)
         {
-            AddFile(e.FullPath);
+            try
+            {
+                AddFile(e.FullPath);
+            }
+            catch { }
         }
 
         private void OnFileDeleted(object source, FileSystemEventArgs e)
         {
-            FileRemoved(e.FullPath);
-            GetVolumeInfo();
+            try
+            {
+                FileRemoved(e.FullPath);
+                GetVolumeInfo();
+            }
+            catch { }
         }
 
         protected virtual void OnFileRenamed(object source, RenamedEventArgs e)
         {
-            Media m = (Media)_files.Values.FirstOrDefault(f => e.OldFullPath == f.FullPath);
-            if (m != null)
+            try
             {
-                m.FullPath = e.FullPath;
-                OnMediaRenamed(m, e.Name);
+                Media m = (Media)_files.Values.FirstOrDefault(f => e.OldFullPath == f.FullPath);
+                if (m == null)
+                {
+                    FileInfo fi = new FileInfo(e.FullPath);
+                    AddFile(e.FullPath, fi.CreationTimeUtc, fi.LastWriteTimeUtc);
+                }
+                else
+                {
+                    m.FullPath = e.FullPath;
+                    OnMediaRenamed(m, e.Name);
+                }
             }
+            catch { }
         }
 
         protected virtual void OnFileChanged(object source, FileSystemEventArgs e)
         {
-            IMedia m = _files.Values.FirstOrDefault(f => e.FullPath == f.FullPath);
-            if (m != null)
-                OnMediaChanged(m);
-            GetVolumeInfo();
+            try
+            {
+                IMedia m = _files.Values.FirstOrDefault(f => e.FullPath == f.FullPath);
+                if (m != null)
+                    OnMediaChanged(m);
+                GetVolumeInfo();
+            }
+            catch { }
         }
 
         protected virtual void OnError(object source, ErrorEventArgs e)

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Xml.Serialization;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
 using TAS.Common;
@@ -28,6 +27,8 @@ namespace TAS.Client.Config
         public Array XDCAMAudioExportFormats { get { return _xDCAMAudioExportFormats; } }
         Array _xDCAMVideoExportFormats = Enum.GetValues(typeof(TxDCAMVideoExportFormat));
         public Array XDCAMVideoExportFormats { get { return _xDCAMVideoExportFormats; } }
+        Array _exportFormats = Enum.GetValues(typeof(TMediaExportFormat));
+        public Array ExportFormats { get { return _exportFormats; } }
         #endregion // Enumerations
 
 
@@ -52,6 +53,10 @@ namespace TAS.Client.Config
         public bool IsWAN { get { return _isWAN; } set { SetField(ref _isWAN, value, "IsWAN"); } }
         bool _isRecursive;
         public bool IsRecursive { get { return _isRecursive; }  set { SetField(ref _isRecursive, value, "IsRecursive"); } }
+        bool _isExport;
+        public bool IsExport { get { return _isExport; }  set { SetField(ref _isExport, value, "IsExport"); } }
+        bool _isImport = true;
+        public bool IsImport { get { return _isImport; } set { SetField(ref _isImport, value, "IsImport"); } }
 
         TMediaCategory _mediaCategory;
         public TMediaCategory MediaCategory { get { return _mediaCategory; } set { SetField(ref _mediaCategory, value, "MediaCategory"); } }
@@ -67,6 +72,8 @@ namespace TAS.Client.Config
         public TxDCAMVideoExportFormat XDCAMVideoExportFormat { get { return _xDCAMVideoExportFormat; } set { SetField(ref _xDCAMVideoExportFormat, value, "XDCAMVideoExportFormat"); } }
         string _encodeParams;
         public string EncodeParams { get { return _encodeParams; } set { SetField(ref _encodeParams, value, "EncodeParams"); } }
+        TMediaExportFormat _exportFormat;
+        public TMediaExportFormat ExportFormat { get { return _exportFormat; } set { SetField(ref _exportFormat, value, "ExportFormat"); } }
         bool _doNotEncode;
         public bool DoNotEncode { get { return _doNotEncode; } set { SetField(ref _doNotEncode, value, "DoNotEncode"); } }
         string _exportParams;

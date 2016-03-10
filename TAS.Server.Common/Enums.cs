@@ -82,7 +82,7 @@ namespace TAS.Common
     }
 
     [TypeConverter(typeof(TxDCAMAudioExportFormatEnumConverter))]
-    public enum TxDCAMAudioExportFormat: byte
+    public enum TxDCAMAudioExportFormat : byte
     {
         Channels4Bits16,
         Channels8Bits16,
@@ -96,13 +96,20 @@ namespace TAS.Common
         { }
     }
 
-
-    public enum TxDCAMVideoExportFormat: byte
+    public enum TxDCAMVideoExportFormat : byte
     {
         IMX50,
         IMX40,
         IMX30
     }
+
+    public enum TMediaExportFormat
+    {
+        mov,
+        mp4,
+        mxf,
+    }
+
 
     [TypeConverter(typeof(TAudioChannelMappingConversionEnumConverter))]
     public enum TAudioChannelMappingConversion : byte

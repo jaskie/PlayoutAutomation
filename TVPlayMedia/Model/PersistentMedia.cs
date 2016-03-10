@@ -22,6 +22,8 @@ namespace TAS.Client.Model
 
         public UInt64 IdPersistentMedia { get { return Get<UInt64>(); } set { Set(value); } }
 
+        public bool Modified { get; set; }
+
         public IMediaSegment CreateSegment()
         {
             return Query<IMediaSegment>();

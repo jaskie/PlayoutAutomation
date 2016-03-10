@@ -28,7 +28,6 @@
             <TextBox Text="{Binding DirectoryName, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Target directory"/>
             <TextBox Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}"/>
-            <CheckBox IsChecked="{Binding IsRecursive}" Content="Recursive, with subdirectories"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -43,42 +42,51 @@
                 <Label Grid.Column="1" Content="Password"/>
                 <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
-            <TextBlock TextWrapping="WrapWithOverflow">
-                Monitored filename extensions (e.g.: .mov;.mxf), <LineBreak/>
-                empty if not filtered, use ";" as separator
-            </TextBlock>
-            <TextBox Text="{Binding Extensions, Converter={StaticResource StringArrayToDelimitedString}, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
-            <CheckBox IsChecked="{Binding DoNotEncode}" Content="Don't re-encode media"/>
-            <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource InvertedBoolToVis}}">
-                <Label Content="Encode parameters (FFmpeg)"/>
-                <TextBox Text="{Binding EncodeParams, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
-                <Label Content="Default aspect conversion"/>
-                <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}"/>
-                <Label Content="Default source field order"/>
-                <ComboBox ItemsSource="{Binding SourceFieldOrders}" SelectedItem="{Binding SourceFieldOrder}"/>
-                <DockPanel Margin="0, 5">
-                    <Label DockPanel.Dock="Left" Content="Audio volume correction"/>
-                    <Label DockPanel.Dock="Right" Content="dB"/>
-                    <TextBox Text="{Binding AudioVolume}"/>
-                </DockPanel>
-            </StackPanel>
-            <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource BoolToVis}}">
-                <Label Content="Default aspect"/>
-                <ComboBox ItemsSource="{Binding AspectConversionsEnforce}" SelectedItem="{Binding AspectConversion}"/>
-            </StackPanel>
-            <Label Content="Default media category"/>
-            <ComboBox ItemsSource="{Binding MediaCategories}" SelectedItem="{Binding MediaCategory}"/>
             <CheckBox Content="On slow link (WAN connection)" IsChecked="{Binding IsWAN}"/>
             <CheckBox Content="Is XDCAM" IsChecked="{Binding IsXDCAM}"/>
-            <StackPanel Visibility="{Binding IsXDCAM, Converter={StaticResource BoolToVis}}">
-                <Label Content="Export video format"/>
-                <ComboBox ItemsSource="{Binding XDCAMVideoExportFormats}" SelectedItem="{Binding XDCAMVideoExportFormat}"/>
-                <Label Content="Export audio format"/>
-                <ComboBox ItemsSource="{Binding XDCAMAudioExportFormats}" SelectedItem="{Binding XDCAMAudioExportFormat}"/>
+            <CheckBox IsChecked="{Binding IsImport}" Content="Allow import from this directory"/>
+            <StackPanel Visibility="{Binding IsImport, Converter={StaticResource BoolToVis}}">
+                <TextBlock TextWrapping="WrapWithOverflow">
+                Monitored filename extensions (e.g.: .mov;.mxf), <LineBreak/>
+                empty if not filtered, use ";" as separator
+                </TextBlock>
+                <TextBox Text="{Binding Extensions, Converter={StaticResource StringArrayToDelimitedString}, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
+                <CheckBox IsChecked="{Binding IsRecursive}" Content="Recursive, with subdirectories"/>
+                <CheckBox IsChecked="{Binding DoNotEncode}" Content="Don't re-encode media"/>
+                <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource InvertedBoolToVis}}">
+                    <Label Content="Encode parameters (FFmpeg)"/>
+                    <TextBox Text="{Binding EncodeParams, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
+                    <Label Content="Default aspect conversion"/>
+                    <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}"/>
+                    <Label Content="Default source field order"/>
+                    <ComboBox ItemsSource="{Binding SourceFieldOrders}" SelectedItem="{Binding SourceFieldOrder}"/>
+                    <DockPanel Margin="0, 5">
+                        <Label DockPanel.Dock="Left" Content="Audio volume correction"/>
+                        <Label DockPanel.Dock="Right" Content="dB"/>
+                        <TextBox Text="{Binding AudioVolume}"/>
+                    </DockPanel>
+                </StackPanel>
+                <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource BoolToVis}}">
+                    <Label Content="Default aspect"/>
+                    <ComboBox ItemsSource="{Binding AspectConversionsEnforce}" SelectedItem="{Binding AspectConversion}"/>
+                </StackPanel>
+                <Label Content="Default media category"/>
+                <ComboBox ItemsSource="{Binding MediaCategories}" SelectedItem="{Binding MediaCategory}"/>
             </StackPanel>
-            <StackPanel Visibility="{Binding IsXDCAM, Converter={StaticResource InvertedBoolToVis}}">
-                <Label Content="Export encode parameters"/>
-                <TextBox Text="{Binding ExportParams, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
+            <CheckBox IsChecked="{Binding IsExport}" Content="Allow export to this directory"/>
+            <StackPanel Visibility="{Binding IsExport, Converter={StaticResource BoolToVis}}">
+                <StackPanel Visibility="{Binding IsXDCAM, Converter={StaticResource BoolToVis}}">
+                    <Label Content="Export video format"/>
+                    <ComboBox ItemsSource="{Binding XDCAMVideoExportFormats}" SelectedItem="{Binding XDCAMVideoExportFormat}"/>
+                    <Label Content="Export audio format"/>
+                    <ComboBox ItemsSource="{Binding XDCAMAudioExportFormats}" SelectedItem="{Binding XDCAMAudioExportFormat}"/>
+                </StackPanel>
+                <StackPanel Visibility="{Binding IsXDCAM, Converter={StaticResource InvertedBoolToVis}}">
+                    <Label Content="Export encode parameters"/>
+                    <TextBox Text="{Binding ExportParams, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
+                    <Label Content="Export file format"/>
+                    <ComboBox ItemsSource="{Binding ExportFormats}" SelectedItem="{Binding ExportFormat}"/>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

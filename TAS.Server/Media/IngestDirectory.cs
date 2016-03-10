@@ -13,12 +13,16 @@ using System.Net.FtpClient;
 using TAS.Server.Interfaces;
 using Newtonsoft.Json;
 using System.Net;
+using System.ComponentModel;
 
 namespace TAS.Server
 {
     public class IngestDirectory : MediaDirectory, IIngestDirectory
     {
-        public IngestDirectory() : base(null) { }
+        public IngestDirectory() : base(null)
+        {
+            IsImport = true;
+        }
 
         private bool _deleteSource;
         public bool DeleteSource
@@ -35,14 +39,13 @@ namespace TAS.Server
             else
                 if (IsXDCAM)
             {
-                Refresh();
                 IsInitialized = true;
             }
             else
             {
                 if (string.IsNullOrWhiteSpace(Username)
                     || _connectToRemoteDirectory())
-                    if (!IsWAN)
+                    if (!IsWAN && IsImport)
                         BeginWatch("*", IsRecursive, TimeSpan.Zero);
                     else
                         IsInitialized = true;
@@ -73,6 +76,8 @@ namespace TAS.Server
         
         public string EncodeParams { get; set; }
 
+        public TMediaExportFormat ExportFormat { get; set; }
+
         [JsonProperty]
         public bool DoNotEncode { get; set; }
         
@@ -84,6 +89,13 @@ namespace TAS.Server
 
         [JsonProperty]
         public bool IsRecursive { get; set; }
+
+        [JsonProperty]
+        public bool IsExport { get; set; }
+
+        [DefaultValue(true)]
+        [JsonProperty]
+        public bool IsImport { get; set; }
 
         public TxDCAMAudioExportFormat XDCAMAudioExportFormat { get; set; }
 
@@ -461,19 +473,29 @@ namespace TAS.Server
 
         protected override void OnFileRenamed(object source, RenamedEventArgs e)
         {
-            if (Path.GetExtension(e.Name).ToLowerInvariant() == ".xml")
+            try
             {
-                string xf = _bMDXmlFiles.FirstOrDefault(s => s == e.OldFullPath);
-                if (xf != null)
+                if (Path.GetExtension(e.Name).ToLowerInvariant() == ".xml")
                 {
-                    _bMDXmlFiles.Remove(xf);
-                    _bMDXmlFiles.Add(e.FullPath);
-                    foreach (Media fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == xf))
-                        ((IngestMedia)fd).XmlFile = e.FullPath;
+                    string xf = _bMDXmlFiles.FirstOrDefault(s => s == e.OldFullPath);
+                    if (xf != null)
+                    {
+                        _bMDXmlFiles.Remove(xf);
+                        _bMDXmlFiles.Add(e.FullPath);
+                        foreach (Media fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == xf))
+                            ((IngestMedia)fd).XmlFile = e.FullPath;
+                    }
                 }
+                else
+                    base.OnFileRenamed(source, e);
             }
-            else
-                base.OnFileRenamed(source, e);
+            catch { }
+        }
+
+        protected override void OnMediaRenamed(Media media, string newName)
+        {
+            if (!Extensions.Any(ext => ext == Path.GetExtension(newName).ToLowerInvariant()))
+                MediaRemove(media);
         }
 
         protected override void OnFileChanged(object source, FileSystemEventArgs e)
@@ -481,6 +503,12 @@ namespace TAS.Server
             if (Path.GetExtension(e.Name).ToLower() == ".xml" && _bMDXmlFiles.Contains(e.FullPath))
             {
                 _scanXML(e.FullPath);
+            }
+            Media m = (Media)_files.Values.FirstOrDefault(f => e.FullPath == f.FullPath);
+            if (m!=null)
+            {
+                if (m.Verified)
+                    m.Verified = false;
             }
         }
 

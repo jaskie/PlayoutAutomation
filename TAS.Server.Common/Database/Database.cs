@@ -884,8 +884,8 @@ VALUES
                 cmd.Parameters.AddWithValue("@LastUpdated", DBNull.Value);
             else
                 cmd.Parameters.AddWithValue("@LastUpdated", media.LastUpdated);
-            cmd.Parameters.AddWithValue("@statusMedia", (Int32)media.MediaStatus);
-            cmd.Parameters.AddWithValue("@typMedia", (Int32)media.MediaType);
+            cmd.Parameters.AddWithValue("@statusMedia", (int)media.MediaStatus);
+            cmd.Parameters.AddWithValue("@typMedia", (int)media.MediaType);
             cmd.Parameters.AddWithValue("@typAudio", (byte)media.AudioChannelMapping);
             cmd.Parameters.AddWithValue("@AudioVolume", media.AudioVolume);
             cmd.Parameters.AddWithValue("@AudioLevelIntegrated", media.AudioLevelIntegrated);
@@ -928,6 +928,7 @@ VALUES
             if (media is IServerMedia)
                 ((IServerMedia)media).DoNotArchive = (flags & 0x1) != 0;
             media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
+            media.Modified = false;
         }
 
         static System.Reflection.ConstructorInfo _serverMediaConstructorInfo;

@@ -9,7 +9,10 @@ namespace TAS.Server.Interfaces
         decimal AudioVolume { get; set; }
         bool DeleteSource { get; set; }
         bool DoNotEncode { get; set; }
+        bool IsExport { get; set; }
+        bool IsImport { get; set; }
         string EncodeParams { get; set; }
+        TMediaExportFormat ExportFormat { get; set; }
         string ExportParams { get; set; }
         bool IsXDCAM { get; set; }
         bool IsWAN { get; set; }

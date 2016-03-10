@@ -29,7 +29,31 @@ namespace TAS.Server.Common
                     arr[i] = '_';
             return new string(arr);
         }
-        
+
+        public static string GetUniqueFileName(string folder, string fileName,  int maxAttempts = 1024)
+        {
+            // get filename base and extension
+            var fileBase = Path.GetFileNameWithoutExtension(fileName);
+            var ext = Path.GetExtension(fileName);
+            // build hash set of filenames for performance
+            var files = new HashSet<string>(Directory.GetFiles(folder));
+
+            for (var index = 0; index < maxAttempts; index++)
+            {
+                // first try with the original filename, else try incrementally adding an index
+                var name = (index == 0)
+                    ? fileName
+                    : String.Format("{0} ({1}){2}", fileBase, index, ext);
+
+                // check if exists
+                var fullPath = Path.Combine(folder, name);
+                if (files.Contains(fullPath))
+                    continue;
+                return name;
+            }
+            throw new ApplicationException("Could not create unique filename in " + maxAttempts + " attempts");
+        }
+
     }
 
     public static class DateTimeExtensions

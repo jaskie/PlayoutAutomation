@@ -85,7 +85,7 @@ namespace TAS.Server
 
         public abstract bool Save();
 
-        internal bool Modified = false;
+        public bool Modified { get; set; }
 
 
         protected override bool SetField<T>(ref T field, T value, string propertyName)

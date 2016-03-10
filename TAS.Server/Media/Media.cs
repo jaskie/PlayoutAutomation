@@ -40,7 +40,11 @@ namespace TAS.Server
         public string Folder
         {
             get { return _folder; }
-            set { SetField(ref _folder, value, "Folder"); }
+            set
+            {
+                if (SetField(ref _folder, value, "Folder"))
+                    NotifyPropertyChanged("FullPath");
+            }
         }
         protected string _fileName = string.Empty;
         [JsonProperty]
@@ -50,7 +54,9 @@ namespace TAS.Server
             set
             {
                 if (SetField(ref _fileName, value, "FileName"))
-                    FullPath = Path.Combine(_directory.Folder, _folder, value);
+                {
+                    NotifyPropertyChanged("FullPath");
+                }
             }
         }
 
@@ -226,20 +232,18 @@ namespace TAS.Server
             get { return _directory; }
         }
 
-        protected string _fullPath;
         [JsonProperty]
-        public virtual string FullPath {
-            get { return _fullPath; }
+        public virtual string FullPath
+        {
+            get
+            {
+                return string.Join(_directory.PathSeparator.ToString(), _directory.Folder, _folder, _fileName);
+            }
             internal set
             {
-                if (SetField(ref _fullPath, value, "FullPath"))
-                {
-                    string relativeName = value.Substring(_directory.Folder.Length);
-                    _fileName = Path.GetFileName(relativeName);
-                    _folder = relativeName.Substring(0, relativeName.Length - _fileName.Length).TrimEnd(_directory.PathSeparator);
-                    NotifyPropertyChanged("FileName");
-                    NotifyPropertyChanged("Folder");
-                };
+                string relativeName = value.Substring(_directory.Folder.Length);
+                _fileName = Path.GetFileName(relativeName);
+                _folder = relativeName.Substring(0, relativeName.Length - _fileName.Length).TrimEnd(_directory.PathSeparator);
             }
         }
 
