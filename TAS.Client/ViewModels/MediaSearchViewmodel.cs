@@ -30,14 +30,20 @@ namespace TAS.Client.ViewModels
         private IServerDirectory _searchDirectory;
 
 
-        public MediaSearchViewmodel(EngineViewmodel engineVM, TMediaType mediaType, bool closeAfterAdd, VideoFormatDescription videoFormatDescription)
+        public MediaSearchViewmodel(PreviewViewmodel preview, IMediaManager manager, TMediaType mediaType, bool closeAfterAdd, VideoFormatDescription videoFormatDescription)
         {
-            _manager = engineVM.Engine.MediaManager;
-            _previewViewmodel = engineVM.PreviewViewmodel;
-            _frameRate = engineVM.FrameRate;
-            _videoFormatDescription = videoFormatDescription;
+            _manager = manager;
+            if (mediaType == TMediaType.Movie)
+            {
+                _previewViewmodel = preview;
+                _videoFormatDescription = manager.FormatDescription;
+                _frameRate = _videoFormatDescription.FrameRate;
+                _previewView = new PreviewView(_frameRate) { DataContext = _previewViewmodel };
+                WindowWidth = _previewViewmodel != null ? 1050 : 750;
+            }
+            else
+                WindowWidth = 750;
             _mediaType = mediaType;
-            _previewView = new PreviewView(_frameRate) { DataContext = _previewViewmodel };
             if (_previewViewmodel != null)
                 _previewViewmodel.PropertyChanged += _onPreviewPropertyChanged;
             IServerDirectory pri = _manager.MediaDirectoryPRI;
@@ -59,9 +65,8 @@ namespace TAS.Client.ViewModels
             _itemsView = CollectionViewSource.GetDefaultView(_items);
             _itemsView.SortDescriptions.Add(new SortDescription("MediaName", ListSortDirection.Ascending));
             _itemsView.Filter += _itemsFilter;
-            WindowWidth = mediaType == TMediaType.Movie && engineVM.PreviewViewmodel != null ? 1050 : 750;
-            _view = new MediaSearchView(engineVM.FrameRate);
-            _view.Owner = Application.Current.MainWindow;
+            _view = new MediaSearchView(_frameRate);
+            _view.Owner = System.Windows.Application.Current.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive);
             _view.DataContext = this;
             _view.Closed += _windowClosed;
             _view.Show();

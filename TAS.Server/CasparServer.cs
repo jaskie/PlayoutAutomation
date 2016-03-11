@@ -13,6 +13,8 @@ using TAS.Common;
 using TAS.Server.Interfaces;
 using System.ComponentModel;
 using TAS.Server.Common;
+using TAS.Remoting.Server;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
@@ -20,18 +22,25 @@ namespace TAS.Server
     public delegate void CommandNotifier(DateTime When, string Command, Event sender);
     public delegate void VolumeChangeNotifier(IPlayoutServerChannel channel, VideoLayer layer, decimal newvalue);
 
-    public class CasparServer : IPlayoutServer, IDisposable 
+    [JsonObject(MemberSerialization.OptIn)]
+    public class CasparServer : DtoBase, IPlayoutServer, IDisposable 
     {
         [XmlIgnore]
+        [JsonProperty]
         public UInt64 Id { get; set; }
+        [JsonProperty]
         public string ServerAddress { get; set; }
+        [JsonProperty]
         public string MediaFolder { get; set; }
         [XmlIgnore]
+        [JsonProperty]
         public IServerDirectory MediaDirectory { get; private set; }
         [XmlIgnore]
+        [JsonProperty]
         public IAnimationDirectory AnimationDirectory { get; private set; }
         protected List<IPlayoutServerChannel> _channels;
         [XmlIgnore]
+        [JsonProperty]
         public MediaManager MediaManager;
 
         [XmlIgnore]
@@ -40,10 +49,6 @@ namespace TAS.Server
             get { return _serChannels.ConvertAll(new Converter<CasparServerChannel, IPlayoutServerChannel>(c => c)); }
         }
         private Svt.Caspar.CasparDevice _casparDevice;
-
-        public CasparServer()
-        {
-        }
 
         protected bool _isInitialized;
         public void Initialize()

@@ -72,6 +72,7 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.IO, Version=2.6.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.1.1.10\lib\net40\System.IO.dll</HintPath>
       <Private>True</Private>
@@ -117,6 +118,7 @@
     <Compile Include="Converters\IMediaDirectoryConverter.cs" />
     <Compile Include="Converters\IMediaSegmentConverter.cs" />
     <Compile Include="Converters\MediaManagerConverter.cs" />
+    <Compile Include="Model\AnimationDirectory.cs" />
     <Compile Include="Model\ConvertOperation.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -133,6 +135,8 @@
     <Compile Include="Model\Media.cs" />
     <Compile Include="Model\MediaDirectory.cs" />
     <Compile Include="Model\MediaManager.cs" />
+    <Compile Include="Model\PlayoutServer.cs" />
+    <Compile Include="Model\PlayoutServerChannel.cs" />
     <Compile Include="Model\ServerDirectory.cs" />
     <Compile Include="Model\ServerMedia.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

@@ -63,6 +63,7 @@
     <Compile Include="ViewModels\EventClipboard.cs" />
     <Compile Include="ViewModels\EventEditViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelViewmodel.cs" />
+    <Compile Include="ViewModels\ExportMediaLogoViewmodel.cs" />
     <Compile Include="ViewModels\ExportViewmodel.cs" />
     <Compile Include="ViewModels\FileManagerViewmodel.cs" />
     <Compile Include="ViewModels\FileOperationViewmodel.cs" />
@@ -70,7 +71,7 @@
     <Compile Include="ViewModels\IngestTrimmerViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditWindowViewmodel.cs" />
-    <Compile Include="ViewModels\MediaExportViewmodel.cs" />
+    <Compile Include="ViewModels\ExportMediaViewmodel.cs" />
     <Compile Include="ViewModels\MediaManagerViewmodel.cs" />
     <Compile Include="ViewModels\MediaSearchViewmodel.cs" />
     <Compile Include="ViewModels\MediaSegmentViewmodel.cs" />

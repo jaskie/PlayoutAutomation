@@ -20,6 +20,8 @@ namespace TAS.Common
         public readonly bool Interlaced;
         [DataMember]
         public readonly RationalNumber SAR;
+        [DataMember]
+        public readonly bool IsWideScreen;
         private VideoFormatDescription(TVideoFormat format)
         {
             this.Format = format;
@@ -30,156 +32,182 @@ namespace TAS.Common
                     ImageSize = new Size(720, 576);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(64, 45);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.PAL:
                     Interlaced = true;
                     ImageSize = new Size(720, 576);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(16, 15);
+                    IsWideScreen = false;
                     break;
                 case TVideoFormat.PAL_FHA_P:
                     Interlaced = false;
                     ImageSize = new Size(720, 576);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(64, 45);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.PAL_P:
                     Interlaced = false;
                     ImageSize = new Size(720, 576);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(16, 15);
+                    IsWideScreen = false;
                     break;
                 case TVideoFormat.NTSC_FHA:
                     Interlaced = true;
                     ImageSize = new Size(640, 486);
                     FrameRate = new RationalNumber(30, 1);
                     SAR = new RationalNumber(40, 33);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.NTSC:
                     Interlaced = true;
                     ImageSize = new Size(640, 486);
                     FrameRate = new RationalNumber(30, 1);
                     SAR = new RationalNumber(10, 11);
+                    IsWideScreen = false;
                     break;
                 case TVideoFormat.HD1080i5000:
                     Interlaced = true;
                     ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD1080i5994:
                     Interlaced = true;
                     ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(2997, 100);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD1080i6000:
                     Interlaced = true;
                     ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(30, 1);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD1080p2398:
                     Interlaced = false;
                     ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(2398, 100);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD1080p2400:
                     Interlaced = false;
                     ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(24, 1);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD1080p2500:
                     Interlaced = false;
                     ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD1080p2997:
                     Interlaced = false;
                     ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(2997, 100);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD1080p3000:
                     Interlaced = false;
                     ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(30, 1);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD1080p5000:
                     Interlaced = false;
                     ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(50, 1);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD1080p5994:
                     Interlaced = false;
                     ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(5994, 100);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD1080p6000:
                     Interlaced = false;
                     ImageSize = new Size(1920, 1080);
                     FrameRate = new RationalNumber(60, 1);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD2160p2398:
                     Interlaced = false;
                     ImageSize = new Size(3840, 2160);
                     FrameRate = new RationalNumber(2398, 100);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD2160p2400:
                     Interlaced = false;
                     ImageSize = new Size(3840, 2160);
                     FrameRate = new RationalNumber(24, 1);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD2160p2500:
                     Interlaced = false;
                     ImageSize = new Size(3840, 2160);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD2160p2997:
                     Interlaced = false;
                     ImageSize = new Size(3840, 2160);
                     FrameRate = new RationalNumber(2997, 100);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD2160p3000:
                     Interlaced = false;
                     ImageSize = new Size(3840, 2160);
                     FrameRate = new RationalNumber(30, 1);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD720p2500:
                     Interlaced = false;
                     ImageSize = new Size(1440, 720);
                     FrameRate = new RationalNumber(25, 1);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD720p5000:
                     Interlaced = false;
                     ImageSize = new Size(1440, 720);
                     FrameRate = new RationalNumber(50, 1);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD720p5994:
                     Interlaced = false;
                     ImageSize = new Size(1440, 720);
                     FrameRate = new RationalNumber(5994, 100);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
                 case TVideoFormat.HD720p6000:
                     Interlaced = false;
                     ImageSize = new Size(1440, 720);
                     FrameRate = new RationalNumber(60, 1);
                     SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
                     break;
             }
         }
@@ -191,6 +219,7 @@ namespace TAS.Common
             ImageSize = imageSize;
             FrameRate = frameRate;
             SAR = sar;
+            IsWideScreen = true;
         }
 
         private VideoFormatDescription() { }

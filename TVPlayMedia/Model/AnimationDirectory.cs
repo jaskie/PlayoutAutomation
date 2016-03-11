@@ -6,14 +6,9 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.Model
 {
-    public class ServerDirectory : MediaDirectory, IServerDirectory
+    public class AnimationDirectory : MediaDirectory, IAnimationDirectory
     {
-        public IPlayoutServer Server { get { return Get<PlayoutServer>(); } set { Set(value); } }
-
-        public IServerMedia GetServerMedia(IMedia media, bool searchExisting = true)
-        {
-            return Query<ServerMedia>(parameters: new object[] { media, searchExisting });
-        }
+        public IPlayoutServer Server { get; set; }
 
         public override IEnumerable<IMedia> GetFiles()
         {
@@ -28,6 +23,5 @@ namespace TAS.Client.Model
             result.Directory = this;
             return result;
         }
-
     }
 }

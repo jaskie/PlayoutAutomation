@@ -23,6 +23,14 @@ namespace TAS.Server
                 else throw new NotImplementedException("Cannot rename on remote directories");
         }
 
+        public override bool FileExists()
+        {
+            if (((IngestDirectory)_directory).AccessType == TDirectoryAccessType.FTP)
+                return true;
+            else
+                return base.FileExists();
+        }
+
         internal XDCAM.NonRealTimeMeta ClipMetadata;
         internal XDCAM.Smil SmilMetadata;
         internal string XmlFile;

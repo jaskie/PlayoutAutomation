@@ -293,7 +293,7 @@ namespace TAS.Client.ViewModels
             var svm = _searchViewmodel;
             if (svm == null)
             {
-                svm = new MediaSearchViewmodel(_engineViewModel, mediaType, true, videoFormatDescription);
+                svm = new MediaSearchViewmodel(_engineViewModel.PreviewViewmodel, _event.Engine.MediaManager, mediaType, true, videoFormatDescription);
                 svm.BaseEvent = baseEvent;
                 svm.NewEventStartType = startType;
                 svm.MediaChoosen += _searchMediaChoosen;
@@ -436,7 +436,7 @@ namespace TAS.Client.ViewModels
             var svm = _searchViewmodel;
             if (ev != null && svm == null)
             {
-                svm = new MediaSearchViewmodel(_engineViewModel, TMediaType.Movie, false, null);
+                svm = new MediaSearchViewmodel(_engineViewModel.PreviewViewmodel, _event.Engine.MediaManager, TMediaType.Movie, false, null);
                 svm.BaseEvent = ev;
                 svm.NewEventStartType = TStartType.With;
                 svm.MediaChoosen += _searchMediaChoosen;
@@ -512,7 +512,7 @@ namespace TAS.Client.ViewModels
             var svm = _searchViewmodel;
             if (ev != null && svm == null)
             {
-                svm = new MediaSearchViewmodel(_engineViewModel, TMediaType.Movie, false, null);
+                svm = new MediaSearchViewmodel(_engineViewModel.PreviewViewmodel, _event.Engine.MediaManager, TMediaType.Movie, false, null);
                 svm.BaseEvent = ev;
                 svm.NewEventStartType = TStartType.After;
                 svm.MediaChoosen += _searchMediaChoosen;

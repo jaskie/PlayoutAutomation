@@ -11,7 +11,8 @@
         d:DataContext="{x:Type vm:ExportViewmodel}"
         d:DesignHeight="400" d:DesignWidth="360" 
         Title="{Resx Window.Title}" 
-        Height="300" Width="400">
+        FontSize="13"
+        Height="400" Width="600">
     <Window.Resources>
         <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
     </Window.Resources>
@@ -24,7 +25,7 @@
             <Label Content="{Resx _destination}" VerticalAlignment="Center"/>
             <ComboBox Margin="10, 3, 110, 3" ItemsSource="{Binding Directories}" SelectedItem="{Binding SelectedDirectory}" />
         </DockPanel>
-        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Width="90" Margin="2">
+        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Width="100" Margin="5, 2">
             <Button Command="{Binding CommandExport}">
                 <StackPanel Orientation="Horizontal" Margin="5, 0">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/xdcam-export.png"/>
@@ -32,14 +33,54 @@
                 </StackPanel>
             </Button>
         </StackPanel>
-        
         <DataGrid Grid.Row="1" ItemsSource="{Binding Items}" AutoGenerateColumns="False" CanUserAddRows="False">
+            <DataGrid.Resources>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="DataGridCell">
+                                <Grid Background="{TemplateBinding Background}">
+                                    <ContentPresenter VerticalAlignment="Center" />
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="{Resx _grid.Header.ClipName, ResxName=TAS.Client.Views.ExportView}" Binding="{Binding MediaName, Mode=OneWay}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="{Resx _grid.Header.ClipName, ResxName=TAS.Client.Views.ExportView}" Binding="{Binding MediaName, Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn Header="{Resx _grid.Header.TCStart, ResxName=TAS.Client.Views.ExportView}" Binding="{Binding StartTC, Converter={StaticResource TimeSpanToSMPTE}}"/>
                 <DataGridTextColumn Header="{Resx _grid.Header.Duration, ResxName=TAS.Client.Views.ExportView}" Binding="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}}"/>
-                <DataGridTextColumn Header="{Resx _grid.Header.AudioVolume, ResxName=TAS.Client.Views.ExportView}" Binding="{Binding AudioVolume, StringFormat=F3}"/>
-                <DataGridCheckBoxColumn Header="{Resx _grid.Header.ExportWithLogo, ResxName=TAS.Client.Views.ExportView}" Binding="{Binding ExportWithLogo}"/>
+                <DataGridTextColumn Header="{Resx _grid.Header.AudioVolume, ResxName=TAS.Client.Views.ExportView}" Binding="{Binding AudioVolume, StringFormat={}{0:0.0 dB}}"/>
+                <DataGridTemplateColumn Header="{Resx _grid.Header.Logos, ResxName=TAS.Client.Views.ExportView}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button ToolTip="{Resx _grid.Logo.Add, ResxName=TAS.Client.Views.ExportView}" Command="{Binding CommandAddLogo}" Height="15" Padding="0" BorderThickness="1" Margin="1">
+                                    <Image Source="/TAS.Client.Common;component/Images/Actions/add-green.png"/>
+                                </Button>
+                                <ItemsControl ItemsSource="{Binding Logos}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
+                                                <Button ToolTip="{Resx _grid.Logo.Remove, ResxName=TAS.Client.Views.ExportView}" Command="{Binding CommandRemove}" Height="15" Padding="0" BorderThickness="1" Margin="1">
+                                                    <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png"/>
+                                                </Button>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
 

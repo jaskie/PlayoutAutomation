@@ -21,6 +21,8 @@ namespace TAS.Client.Converters
                     return new Model.IngestDirectory();
                 if (objectType == typeof(IArchiveDirectory))
                     return new Model.ArchiveDirectory();
+                if (objectType == typeof(IAnimationDirectory))
+                    return new Model.AnimationDirectory();
             }
             return (IMediaDirectory)Activator.CreateInstance(objectType);
         }

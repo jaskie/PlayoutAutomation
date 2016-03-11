@@ -11,22 +11,25 @@ using TAS.Common;
 using TAS.Server.Interfaces;
 using System.Xml.Serialization;
 using System.ComponentModel;
+using TAS.Remoting.Server;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
-    public class CasparServerChannel : IPlayoutServerChannel
+    [JsonObject(MemberSerialization.OptIn)]
+    public class CasparServerChannel : DtoBase, IPlayoutServerChannel
     {
-        public CasparServerChannel()
-        {
-        }
-
         [XmlIgnore]
         public IPlayoutServer OwnerServer { get; set; }
         #region IPlayoutServerChannel
+        [JsonProperty]
         public string ChannelName { get; set; }
+        [JsonProperty]
         public int ChannelNumber { get; set; }
         [DefaultValue(1.0d)]
+        [JsonProperty]
         public decimal MasterVolume { get; set; }
+        [JsonProperty]
         public string LiveDevice { get; set; }
         #endregion // IPlayoutServerChannel
         protected bool? outputAspectNarrow;

@@ -348,16 +348,16 @@ namespace TAS.Server
         }
 
 
-        public void Export(IEnumerable<MediaExport> exportList, IIngestDirectory directory)
+        public void Export(IEnumerable<ExportMedia> exportList, IIngestDirectory directory)
         {
-            foreach (MediaExport e in exportList)
+            foreach (ExportMedia e in exportList)
                 Export(e, directory);
 
         }
 
-        private void Export(MediaExport export, IIngestDirectory directory)
+        private void Export(ExportMedia export, IIngestDirectory directory)
         {
-            _fileManager.Queue(new ExportOperation() { SourceMedia = export.Media, Logos = export.Logos, ExportWithLogo = export.ExportWithLogo, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory as IngestDirectory });
+            _fileManager.Queue(new ExportOperation() { SourceMedia = export.Media, Logos = export.Logos, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory as IngestDirectory });
         }
 
         public Guid IngestFile(string fileName)

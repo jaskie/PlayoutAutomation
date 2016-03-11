@@ -12,20 +12,23 @@ namespace TAS.Client.ViewModels
 {
     public class ExportViewmodel : ViewmodelBase
     {
-        public ObservableCollection<MediaExportViewmodel> Items { get; private set; }
+        public ObservableCollection<ExportMediaViewmodel> Items { get; private set; }
         public ICommand CommandExport { get; private set; }
         readonly IMediaManager _mediaManager;
         Views.ExportView _view;
-        public ExportViewmodel(IMediaManager mediaManager, IEnumerable<MediaExport> exportList)
+        public ExportViewmodel(IMediaManager mediaManager, IEnumerable<ExportMedia> exportList)
         {
-            Items = new ObservableCollection<MediaExportViewmodel>(exportList.Select(m => new MediaExportViewmodel(m)));
+            mediaManager.ReferenceAdd();
+            _mediaManager = mediaManager;
+            Items = new ObservableCollection<ExportMediaViewmodel>(exportList.Select(media => new ExportMediaViewmodel(mediaManager, media)));
             Directories = mediaManager.IngestDirectories.Where(d => d.IsExport).ToList();
             SelectedDirectory = Directories.FirstOrDefault();
             CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
-            _mediaManager = mediaManager;
             this._view = new Views.ExportView() { DataContext = this, Owner = System.Windows.Application.Current.MainWindow, ShowInTaskbar=false };
             _view.ShowDialog();
         }
+
+        
 
         public List<IIngestDirectory> Directories { get; private set; }
 
@@ -68,6 +71,7 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             _view = null;
+            _mediaManager.ReferenceRemove();
         }
     }
 }

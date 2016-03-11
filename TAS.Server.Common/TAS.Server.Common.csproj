@@ -121,7 +121,7 @@
     <Compile Include="MediaDeleteDenyReason.cs" />
     <Compile Include="DtoEventArgs.cs" />
     <Compile Include="MediaDtoEventArgs.cs" />
-    <Compile Include="MediaExport.cs" />
+    <Compile Include="ExportMedia.cs" />
     <Compile Include="ObservableSynchronizedCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

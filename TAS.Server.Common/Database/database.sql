@@ -110,6 +110,7 @@ CREATE TABLE `rundownevent` (
   PRIMARY KEY (`idRundownEvent`),
   KEY `idEventBinding` (`idEventBinding`) USING BTREE,
   KEY `id_ScheduledTime` (`ScheduledTime`) USING BTREE
+  KEY `idPlaystate` (`PlayState`) USING BTREE
 ) ENGINE=InnoDB;
 
 CREATE TABLE `server` (

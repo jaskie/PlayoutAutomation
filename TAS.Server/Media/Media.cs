@@ -237,7 +237,10 @@ namespace TAS.Server
         {
             get
             {
-                return string.Join(_directory.PathSeparator.ToString(), _directory.Folder, _folder, _fileName);
+                return 
+                    string.IsNullOrWhiteSpace(_folder) ?
+                    string.Join(_directory.PathSeparator.ToString(), _directory.Folder.TrimEnd(_directory.PathSeparator), _fileName) :
+                    string.Join(_directory.PathSeparator.ToString(), _directory.Folder.TrimEnd(_directory.PathSeparator), _folder, _fileName);
             }
             internal set
             {
@@ -354,7 +357,7 @@ namespace TAS.Server
             return true;
         }
 
-        public bool FileExists()
+        public virtual bool FileExists()
         {
             return File.Exists(FullPath);
         }
@@ -421,7 +424,7 @@ namespace TAS.Server
                     //this.LastAccess = DateTimeExtensions.FromFileTime(fi.LastAccessTimeUtc, DateTimeKind.Utc);
                     MediaChecker.Check(this);
                 }
-                if (MediaStatus == TMediaStatus.Available)
+                if (SetField(ref _mediaStatus, TMediaStatus.Available, "MediaStatus"))
                 {
                     var dir = _directory;
                     if (dir != null)

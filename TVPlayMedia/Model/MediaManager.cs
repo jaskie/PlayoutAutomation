@@ -21,7 +21,7 @@ namespace TAS.Client.Model
             return Query<List<MediaDeleteDenyReason>>(parameters: mediaList);
         }
 
-        public void Export(IEnumerable<MediaExport> exportList, IIngestDirectory directory)
+        public void Export(IEnumerable<ExportMedia> exportList, IIngestDirectory directory)
         {
             Invoke(parameters: new object[] { exportList, directory });
         }

@@ -106,6 +106,7 @@ namespace TAS.Server
         private UInt64 _volumeFreeSize = 0;
         
         [XmlIgnore]
+        [JsonProperty]
         public virtual UInt64 VolumeFreeSize
         {
             get { return _volumeFreeSize; }
@@ -121,6 +122,7 @@ namespace TAS.Server
 
         private UInt64 _volumeTotalSize = 0;
         [XmlIgnore]
+        [JsonProperty]
         public virtual UInt64 VolumeTotalSize { get { return _volumeTotalSize; } }
 
         public abstract void Refresh();

@@ -38,8 +38,6 @@ namespace TAS.Server
 
         public List<IMedia> Logos { get; set; }
 
-        public bool ExportWithLogo { get; set; }
-
         public override bool Do()
         {
             if (Kind == TFileOperationKind.Export)
@@ -131,11 +129,13 @@ namespace TAS.Server
         {
             Debug.WriteLine(this, "Export encode started");
             _addOutputMessage(string.Format("Encode started to file {0}", outFile));
-            string logoIncludes = ExportWithLogo ? string.Concat(Logos.Select(l => string.Format(" -i \"{0}\"", l.FullPath))) : string.Empty;
-            List<string> complexFilterElements = Logos.Select(l => "overlay").ToList();
+            string logoIncludes = string.Concat(Logos.Select(l => string.Format(" -i \"{0}\"", l.FullPath)));
+            List<string> complexFilterElements = new List<string>();
+            complexFilterElements.Add(SourceMedia.VideoFormatDescription.IsWideScreen ? "setdar=dar=16/9" : "setdar=dar=4/3");
+            complexFilterElements.AddRange(Logos.Select(l => "overlay"));
             if (DestDirectory.IsXDCAM)
                 complexFilterElements.Add(D10_RESCALE_FILTER);
-            string complexFilter = (ExportWithLogo && Logos.Count == 0) || DestDirectory.IsXDCAM ?
+            string complexFilter = (Logos.Count > 0) || DestDirectory.IsXDCAM ?
                 string.Format(" -filter_complex \"{0}\"", string.Join(", ", complexFilterElements)) :
                 string.Empty;
             string command = string.Format(System.Globalization.CultureInfo.InvariantCulture,
