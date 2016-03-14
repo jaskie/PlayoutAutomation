@@ -112,14 +112,12 @@ namespace TAS.Server
                 return null;
         }
 
-        private CasparItem _getItem(IServerMedia media, VideoLayer videolayer, long seek)
+        private CasparItem _getItem(IMedia media, VideoLayer videolayer, long seek)
         {
-            if (media != null)
+            if (media != null && media.MediaType == TMediaType.Movie)
             {
                 CasparItem item = new CasparItem(string.Empty);
-                if (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Movie)
-                    item.Clipname = "\"" + Path.GetFileNameWithoutExtension(media.FileName) + "\"" +
-                        ((media.MediaType == TMediaType.Movie && media.HasExtraLines) ? " FILTER CROP=720:576:0:32" : string.Empty);
+                item.Clipname = string.Format("\"{0}\"", media is ServerMedia ? Path.GetFileNameWithoutExtension(media.FileName) : media.FullPath);                        
                 item.VideoLayer = (int)videolayer;
                 item.Seek = (int)seek;
                 return item;
@@ -196,7 +194,7 @@ namespace TAS.Server
             return false;
         }
 
-        public bool Load(IServerMedia media, VideoLayer videolayer, long seek, long duration)
+        public bool Load(IMedia media, VideoLayer videolayer, long seek, long duration)
         {
             var channel = _casparChannel;
             if (_checkConnected() 

@@ -200,7 +200,7 @@ namespace TAS.Server
             set { SetField(ref _parental, value, "Parental"); }
         }
 
-        protected readonly Guid _mediaGuid;
+        protected Guid _mediaGuid;
         [JsonProperty]
         public virtual Guid MediaGuid
         {
@@ -287,6 +287,7 @@ namespace TAS.Server
             TcPlay = fromMedia.TcPlay;
             VideoFormat = fromMedia.VideoFormat;
             MediaCategory = fromMedia.MediaCategory;
+            _mediaGuid = fromMedia.MediaGuid;
             Parental = fromMedia.Parental;
         }
 

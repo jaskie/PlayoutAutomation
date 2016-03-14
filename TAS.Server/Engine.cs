@@ -386,10 +386,10 @@ namespace TAS.Server
              
         #region Preview Routines
 
-        private IServerMedia _previewMedia;
-        public  IServerMedia PreviewMedia { get { return _previewMedia; } }
+        private IMedia _previewMedia;
+        public  IMedia PreviewMedia { get { return _previewMedia; } }
 
-        public void PreviewLoad(IServerMedia media, long seek, long duration, long position)
+        public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal previewAudioVolume)
         {
             if (media != null)
             {
@@ -400,8 +400,9 @@ namespace TAS.Server
                 PlayoutChannelPRV.SetAspect(VideoLayer.Preview, media.VideoFormat == TVideoFormat.NTSC
                                             || media.VideoFormat == TVideoFormat.PAL
                                             || media.VideoFormat == TVideoFormat.PAL_P);
-                PlayoutChannelPRV.Load(media, VideoLayer.Preview, seek+position, duration-position);
                 PreviewLoaded = true;
+                PreviewAudioLevel = previewAudioVolume;
+                PlayoutChannelPRV.Load(media, VideoLayer.Preview, seek+position, duration-position);
                 PreviewIsPlaying = false;
                 NotifyPropertyChanged("PreviewMedia");
                 NotifyPropertyChanged("PreviewPosition");
@@ -460,13 +461,24 @@ namespace TAS.Server
             }
         }
 
+        private decimal _previewAudioLevel;
+        [XmlIgnore]
+        public decimal PreviewAudioLevel
+        {
+            get { return _previewAudioLevel; }
+            set
+            {
+                if (SetField(ref _previewAudioLevel, value, "PreviewAudioLevel"))
+                    PlayoutChannelPRV.SetVolume(VideoLayer.Preview, (decimal)Math.Pow(10, (double)value / 20));
+            }
+        }
+
         public bool PreviewPlay()
         {
             var channel = PlayoutChannelPRV;
             var media = PreviewMedia;
             if (channel != null && channel.Play(VideoLayer.Preview) && media != null)
             {
-                channel.SetVolume(VideoLayer.Preview, (decimal)Math.Pow(10, (double)media.AudioVolume / 20));
                 PreviewIsPlaying = true;
                 return true;
             }
@@ -1232,6 +1244,7 @@ namespace TAS.Server
         }
 
         private bool _pst2Prv;
+
         [XmlIgnore]
         public bool Pst2Prv
         {

@@ -7,13 +7,14 @@ namespace TAS.Server.Interfaces
 {
     public interface IPreview
     {
-        void PreviewLoad(IServerMedia media, long seek, long duration, long position);
-        IServerMedia PreviewMedia { get; }
+        void PreviewLoad(IMedia media, long seek, long duration, long position, decimal audioLevel);
+        IMedia PreviewMedia { get; }
         void PreviewUnload();
         bool PreviewLoaded { get; }
         bool PreviewIsPlaying { get; }
         long PreviewPosition { get; set; }
         long PreviewSeek { get; }
+        decimal PreviewAudioLevel { get; set; }
         bool PreviewPause();
         bool PreviewPlay();
     }

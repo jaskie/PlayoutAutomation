@@ -45,7 +45,7 @@ namespace TAS.Client.Model
             throw new NotImplementedException();
         }
 
-        public bool Load(IServerMedia media, VideoLayer videolayer, long seek, long duration)
+        public bool Load(IMedia media, VideoLayer videolayer, long seek, long duration)
         {
             throw new NotImplementedException();
         }

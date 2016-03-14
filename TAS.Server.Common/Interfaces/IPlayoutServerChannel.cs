@@ -13,7 +13,7 @@ namespace TAS.Server.Interfaces
 
         void ReStart(IEvent ev);
         bool Load(IEvent aEvent);
-        bool Load(IServerMedia media, VideoLayer videolayer, long seek, long duration);
+        bool Load(IMedia media, VideoLayer videolayer, long seek, long duration);
         bool Load(System.Drawing.Color color, VideoLayer layer);
         bool Seek(VideoLayer videolayer, long position);
         bool LoadNext(IEvent aEvent);
