@@ -1,6 +1,6 @@
 ﻿<UserControl Language="{UICulture}"
              ResxExtension.DefaultResxName="TAS.Client.Views.FileManagerView"
-             x:Class="TAS.Client.FileManagerView"
+             x:Class="TAS.Client.Views.FileManagerView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 

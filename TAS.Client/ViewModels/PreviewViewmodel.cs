@@ -14,28 +14,28 @@ namespace TAS.Client.ViewModels
     {
         private IMedia _media;
         private IEvent _event;
-        private readonly IEngine _engine;
+        private readonly IPreview _preview;
         private readonly IPlayoutServerChannel _channelPRV;
-        private readonly IMediaManager _mediaManager;
         private static readonly int _sliderMaximum = 100;
-        public PreviewViewmodel(IEngine engine)
+        public PreviewViewmodel(IPreview preview)
         {
-            engine.PropertyChanged += this.EnginePropertyChanged;
-            engine.ServerPropertyChanged += this.OnServerPropertyChanged;
-            _channelPRV = engine.PlayoutChannelPRV;
-            _engine = engine;
-            _mediaManager = engine.MediaManager;
+            preview.PropertyChanged += this.PreviewPropertyChanged;
+            _channelPRV = preview.PlayoutChannelPRV;
+            if (_channelPRV != null)
+                _channelPRV.OwnerServer.PropertyChanged += this.OnServerPropertyChanged;
+            _preview = preview;
             CreateCommands();
         }
 
         protected override void OnDispose()
         {
-            _engine.PropertyChanged -= this.EnginePropertyChanged;
-            _engine.ServerPropertyChanged -= this.OnServerPropertyChanged;
+            _preview.PropertyChanged -= this.PreviewPropertyChanged;
+            if (_channelPRV != null)
+                _channelPRV.OwnerServer.PropertyChanged -= this.OnServerPropertyChanged;
             SelectedSegment = null;
         }
 
-        public RationalNumber FrameRate { get { return _engine.FormatDescription.FrameRate; } }
+        public RationalNumber FrameRate { get { return _preview.PreviewFormatDescription.FrameRate; } }
 
         public IMedia Media
         {
@@ -45,7 +45,7 @@ namespace TAS.Client.ViewModels
                 if (_channelPRV != null)
                 {
                     IMedia oldVal = _media;
-                    IMedia newVal = value is IServerMedia ? _mediaManager.GetPRVMedia(value) : value;
+                    IMedia newVal = _preview.FindPreviewMedia(value);
                     if (SetField(ref _media, newVal, "Media"))
                     {
                         if (oldVal != null)
@@ -63,8 +63,18 @@ namespace TAS.Client.ViewModels
 
         private void Media_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "AudioVolume") { }
-                
+            if (e.PropertyName == "AudioVolume" && _preview.PreviewLoaded && _media != null)
+                _preview.PreviewAudioLevel = _media.AudioVolume;
+            if (e.PropertyName == "MediaStatus" && _media != null)
+                InvalidateRequerySuggested();
+        }
+
+        private void Event_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            IEvent ev = _event;
+            IMedia media = ev == null ? null : ev.Media;
+            if (e.PropertyName == "AudioVolume" && _preview.PreviewLoaded && ev != null && media != null)
+                _preview.PreviewAudioLevel = ev.AudioVolume == null? media.AudioVolume : (decimal)ev.AudioVolume;
         }
 
         public IEvent Event
@@ -87,16 +97,15 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void Event_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            
-        }
-
         private IMedia _loadedMedia;
         public IMedia LoadedMedia
         {
             get { return _loadedMedia; }
-            set { SetField(ref _loadedMedia, value, "LoadedMedia"); }
+            private set
+            {
+                if (SetField(ref _loadedMedia, value, "LoadedMedia"))
+                    NotifyPropertyChanged(null);
+            }
         }
 
         private long _loadedSeek;
@@ -138,7 +147,12 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void MediaLoad(bool reloadSegments)
+        private bool _isSegmentsVisible;
+        public bool IsSegmentsVisible { get { return _isSegmentsVisible; } set { SetField(ref _isSegmentsVisible, value, "IsSegmentsVisible"); } }
+
+        public bool IsSegmentsEnabled { get { return _preview.PreviewMedia is IServerMedia; } }
+
+        private void _mediaLoad(bool reloadSegments)
         {
             if (reloadSegments)
             {
@@ -150,23 +164,23 @@ namespace TAS.Client.ViewModels
             IMedia media = _event != null ? _event.ServerMediaPRV : _media;
             decimal audioVolume = _event != null && _event.AudioVolume != null ? (decimal)_event.AudioVolume : media != null ? media.AudioVolume : 0M;
             if (media != null
-                && duration.Ticks >= _engine.FrameTicks)
+                && duration.Ticks >= _preview.PreviewFormatDescription.FrameTicks)
             {
-                LoadedMedia = media;
                 TcIn = tcIn;
-                TcOut = tcIn + duration - TimeSpan.FromTicks(_engine.FrameTicks);
+                TcOut = tcIn + duration - TimeSpan.FromTicks(_preview.PreviewFormatDescription.FrameTicks);
                 if (reloadSegments && media is IServerMedia)
                 {
                     MediaSegments.Clear();
                     foreach (IMediaSegment ms in ((IServerMedia)media).MediaSegments.ToList())
                         MediaSegments.Add(new MediaSegmentViewmodel((IServerMedia)media, ms));
                 }
-                _loadedSeek = (tcIn.Ticks - media.TcStart.Ticks) / _engine.FrameTicks;
-                long newPosition = _engine.PreviewLoaded ? _engine.PreviewSeek + _engine.PreviewPosition - _loadedSeek : 0;
+                _loadedSeek = (tcIn.Ticks - media.TcStart.Ticks) / _preview.PreviewFormatDescription.FrameTicks;
+                long newPosition = _preview.PreviewLoaded ? _preview.PreviewSeek + _preview.PreviewPosition - _loadedSeek : 0;
                 if (newPosition < 0)
                     newPosition = 0;
-                _loadedDuration = duration.Ticks / _engine.FrameTicks;
-                _engine.PreviewLoad(media, _loadedSeek, _loadedDuration, newPosition, audioVolume);
+                _loadedDuration = duration.Ticks / _preview.PreviewFormatDescription.FrameTicks;
+                _loadedMedia = media;
+                _preview.PreviewLoad(media, _loadedSeek, _loadedDuration, newPosition, audioVolume);
             }
             NotifyPropertyChanged(null);
         }
@@ -175,8 +189,7 @@ namespace TAS.Client.ViewModels
         {
             TcIn = TimeSpan.Zero;
             TcOut = TimeSpan.Zero;
-            LoadedMedia = null;
-            _engine.PreviewUnload();
+            _preview.PreviewUnload();
             NotifyPropertyChanged(null);
         }
 
@@ -202,17 +215,17 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public TimeSpan DurationSelection { get { return new TimeSpan(TcOut.Ticks - TcIn.Ticks + _engine.FrameTicks); } }
+        public TimeSpan DurationSelection { get { return new TimeSpan(TcOut.Ticks - TcIn.Ticks + _preview.PreviewFormatDescription.FrameTicks); } }
 
         public TimeSpan Position
         {
             get
             {
-                return _loadedMedia == null ? TimeSpan.Zero : TimeSpan.FromTicks((long)((_engine.PreviewPosition + _engine.PreviewSeek) * TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num + _loadedMedia.TcStart.Ticks));
+                return _preview.PreviewMedia == null ? TimeSpan.Zero : TimeSpan.FromTicks((long)((_preview.PreviewPosition + _preview.PreviewSeek) * TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num + _preview.PreviewMedia.TcStart.Ticks));
             }
             set
             {
-                _engine.PreviewPosition = (value.Ticks - StartTc.Ticks) / _engine.FrameTicks - _loadedSeek;
+                _preview.PreviewPosition = (value.Ticks - StartTc.Ticks) / _preview.PreviewFormatDescription.FrameTicks - _loadedSeek;
                 NotifyPropertyChanged("SliderPosition");
             }
         }
@@ -241,12 +254,12 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                return _loadedDuration <= 1 ? 0 : (_engine.PreviewPosition * _sliderMaximum) / (_loadedDuration-1);
+                return _loadedDuration <= 1 ? 0 : (_preview.PreviewPosition * _sliderMaximum) / (_loadedDuration-1);
             }
             set 
             {
                 long newPos = _loadedSeek + (value * (_loadedDuration -1)) / _sliderMaximum;
-                Position = TimeSpan.FromTicks(newPos * _engine.FrameTicks + StartTc.Ticks);
+                Position = TimeSpan.FromTicks(newPos * _preview.PreviewFormatDescription.FrameTicks + StartTc.Ticks);
                 NotifyPropertyChanged("Position");
             }
         }
@@ -285,7 +298,7 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged("CommandDeleteSegment");
                     NotifyPropertyChanged("SelectedSegmentName");
                     NotifyPropertyChanged("SelectedSegment");
-                    MediaLoad(false);
+                    _mediaLoad(false);
                 }
             }
         }
@@ -344,7 +357,7 @@ namespace TAS.Client.ViewModels
             {
                 if (SetField(ref _playWholeClip, value, "PlayWholeClip"))
                 {
-                    MediaLoad(false);
+                    _mediaLoad(false);
                     NotifyPropertyChanged("SliderPosition");
                 }
             }
@@ -368,13 +381,13 @@ namespace TAS.Client.ViewModels
                 ExecuteDelegate = o =>
                     {
                         if (LoadedMedia == null)
-                            MediaLoad(true);
+                            _mediaLoad(true);
                         else
-                            if (_engine.PreviewIsPlaying)
-                                _engine.PreviewPause();
+                            if (_preview.PreviewIsPlaying)
+                                _preview.PreviewPause();
                             else
                             {
-                                _engine.PreviewPosition = 0;
+                                _preview.PreviewPosition = 0;
                                 NotifyPropertyChanged("Position");
                                 NotifyPropertyChanged("SliderPosition");
                             }
@@ -393,16 +406,16 @@ namespace TAS.Client.ViewModels
                         IMedia loadedMedia = LoadedMedia;
                         if (loadedMedia != null)
                         {
-                            if (_engine.PreviewIsPlaying)
-                                _engine.PreviewPause();
+                            if (_preview.PreviewIsPlaying)
+                                _preview.PreviewPause();
                             else
-                                _engine.PreviewPlay();
+                                _preview.PreviewPlay();
                         }
                         else
                         {
                             CommandPause.Execute(null);
                             if (LoadedMedia != null)
-                                _engine.PreviewPlay();
+                                _preview.PreviewPlay();
                         }
                     },
                 CanExecuteDelegate = o =>
@@ -421,8 +434,8 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = param =>
                     {
-                        if (_engine.PreviewIsPlaying)
-                            _engine.PreviewPause();
+                        if (_preview.PreviewIsPlaying)
+                            _preview.PreviewPause();
                         int seekFrames = 0;
                         switch ((string)param)
                         {
@@ -436,7 +449,7 @@ namespace TAS.Client.ViewModels
                                 seekFrames = -(int)(FrameRate.Num / FrameRate.Den);
                                 break;
                         }
-                        _engine.PreviewPosition = _engine.PreviewPosition + seekFrames;
+                        _preview.PreviewPosition = _preview.PreviewPosition + seekFrames;
                         NotifyPropertyChanged("Position");
                         NotifyPropertyChanged("SliderPosition");
                     },
@@ -537,12 +550,12 @@ namespace TAS.Client.ViewModels
             if (media == null) 
                 return false;
             TimeSpan duration = PlayWholeClip ? media.Duration : (segment == null ? media.Duration : segment.Duration);
-            return duration.Ticks >= _engine.FrameTicks;
+            return duration.Ticks >= _preview.PreviewFormatDescription.FrameTicks;
         }
 
         bool _canLoad(IMedia media)
         {
-            return media != null && media.MediaStatus == TMediaStatus.Available && media.FrameRate.Equals(_engine.FormatDescription.FrameRate);
+            return media != null && media.MediaStatus == TMediaStatus.Available && media.FrameRate.Equals(_preview.PreviewFormatDescription.FrameRate);
         }
 
         private void SegmentPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -550,13 +563,18 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged("CommandSaveSegment");
         }
 
-        private void EnginePropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void PreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "PreviewPosition")
             {
                 NotifyPropertyChanged("Position");
                 NotifyPropertyChanged("SliderPosition");
             }
+            if (e.PropertyName == "PreviewMedia")
+                if (_preview.PreviewMedia != _loadedMedia)
+                {
+                    LoadedMedia = null;
+                }
         }
     }
 }

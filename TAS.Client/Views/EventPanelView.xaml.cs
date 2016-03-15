@@ -17,7 +17,7 @@ using System.Globalization;
 using System.ComponentModel;
 using TAS.Client.Common;
 
-namespace TAS.Client
+namespace TAS.Client.Views
 {
     /// <summary>
     /// Interaction logic for EventPanel.xaml

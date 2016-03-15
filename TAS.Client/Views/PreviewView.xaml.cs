@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using TAS.Common;
 using TAS.Client.Common;
 
-namespace TAS.Client
+namespace TAS.Client.Views
 {
     /// <summary>
     /// Interaction logic for PreviewPlayer.xaml

@@ -1,5 +1,5 @@
 ﻿<UserControl ResxExtension.DefaultResxName="TAS.Client.Views.EventPanelView" Language="{UICulture}" 
-             x:Class="TAS.Client.EventPanelView"
+             x:Class="TAS.Client.Views.EventPanelView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 

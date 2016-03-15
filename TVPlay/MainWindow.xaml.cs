@@ -63,7 +63,7 @@ namespace TAS.Client
                 newtab.Header = engine.EngineName;
                 PreviewViewmodel previewViewmodel = new PreviewViewmodel(engine);
                 Debug.WriteLine(engine, "Creating viewmodel for");
-                var engineViewModel = new EngineViewmodel(engine, previewViewmodel);
+                var engineViewModel = new EngineViewmodel(engine, engine);
                 Debug.WriteLine(engine, "Creating commands for");
                 newtab.Content = engineViewModel.View;
                 tcChannels.Items.Add(newtab);
@@ -71,7 +71,7 @@ namespace TAS.Client
                 Debug.WriteLine(engine.MediaManager, "Creating tab for");
                 TabItem tabIngest = new TabItem();
                 tabIngest.Header = engine.EngineName + " - Media";
-                MediaManagerViewmodel newMediaManagerViewmodel = new MediaManagerViewmodel(engine.MediaManager, previewViewmodel);
+                MediaManagerViewmodel newMediaManagerViewmodel = new MediaManagerViewmodel(engine.MediaManager, engine);
                 tabIngest.Content = newMediaManagerViewmodel.View;
                 tcChannels.Items.Add(tabIngest);
 

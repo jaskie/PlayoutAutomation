@@ -425,14 +425,6 @@ namespace TAS.Server
                     FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = mediaToDelete }, false);
             }
         }
-
-        public IMedia GetPRVMedia(IMedia media)
-        {
-            if (media == null || MediaDirectoryPRV == null)
-                return null;
-            else
-                return ((ServerDirectory)MediaDirectoryPRV).FindMediaByMediaGuid(media.MediaGuid);
-        }
     }
 
 

@@ -33,7 +33,5 @@ namespace TAS.Server.Interfaces
         void SynchronizeSecToPri(bool deleteNotExisted);
 
         void GetLoudness(IEnumerable<IMedia> mediaList);
-        IMedia GetPRVMedia(IMedia media);
-
     }
 }

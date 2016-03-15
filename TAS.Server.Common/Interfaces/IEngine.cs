@@ -15,7 +15,6 @@ namespace TAS.Server.Interfaces
         long FrameTicks { get; }
         IPlayoutServerChannel PlayoutChannelPRI { get; }
         IPlayoutServerChannel PlayoutChannelSEC { get; }
-        IPlayoutServerChannel PlayoutChannelPRV { get; }
         IMediaManager MediaManager { get; }
         bool Pst2Prv { get; set; }
         IGpi LocalGpi { get; }
@@ -60,7 +59,6 @@ namespace TAS.Server.Interfaces
         void SearchMissingEvents();
         IEvent PlayingEvent(VideoLayer layer = VideoLayer.Program);
 
-        event EventHandler<PropertyChangedEventArgs> ServerPropertyChanged;
         event EventHandler EventSaved;
         event EventHandler<EngineTickEventArgs> EngineTick;
         event EventHandler<EngineOperationEventArgs> EngineOperation;

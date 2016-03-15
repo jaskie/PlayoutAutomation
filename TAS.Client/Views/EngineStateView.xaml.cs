@@ -11,7 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace TAS.Client
+namespace TAS.Client.Views
 {
     /// <summary>
     /// Interaction logic for EngineState.xaml

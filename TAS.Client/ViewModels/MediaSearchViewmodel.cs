@@ -21,7 +21,7 @@ namespace TAS.Client.ViewModels
     {
         private readonly IMediaManager _manager;
         private readonly PreviewViewmodel _previewViewmodel;
-        private readonly PreviewView _previewView;
+        private readonly Views.PreviewView _previewView;
         private readonly TMediaType _mediaType;
         private readonly MediaSearchView _view;
         private readonly bool _closeAfterAdd;
@@ -30,15 +30,18 @@ namespace TAS.Client.ViewModels
         private IServerDirectory _searchDirectory;
 
 
-        public MediaSearchViewmodel(PreviewViewmodel preview, IMediaManager manager, TMediaType mediaType, bool closeAfterAdd, VideoFormatDescription videoFormatDescription)
+        public MediaSearchViewmodel(IPreview preview, IMediaManager manager, TMediaType mediaType, bool closeAfterAdd, VideoFormatDescription videoFormatDescription)
         {
             _manager = manager;
             if (mediaType == TMediaType.Movie)
             {
-                _previewViewmodel = preview;
                 _videoFormatDescription = manager.FormatDescription;
                 _frameRate = _videoFormatDescription.FrameRate;
-                _previewView = new PreviewView(_frameRate) { DataContext = _previewViewmodel };
+                if (preview != null)
+                {
+                    _previewViewmodel = new PreviewViewmodel(preview) { IsSegmentsVisible = true };
+                    _previewView = new Views.PreviewView(_frameRate) { DataContext = _previewViewmodel };
+                }
                 WindowWidth = _previewViewmodel != null ? 1050 : 750;
             }
             else
@@ -85,7 +88,7 @@ namespace TAS.Client.ViewModels
             Debug.WriteLine("MediaSearchViewModel disposed");
         }
 
-        public PreviewView PreviewView { get { return _previewView; } }
+        public Views.PreviewView PreviewView { get { return _previewView; } }
 
         public double WindowWidth { get; set; }
 

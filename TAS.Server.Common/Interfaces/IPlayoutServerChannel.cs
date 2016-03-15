@@ -10,7 +10,6 @@ namespace TAS.Server.Interfaces
     public interface IPlayoutServerChannel: IPlayoutServerChannelConfig, IInitializable, INotifyPropertyChanged
     {
         IPlayoutServer OwnerServer { get; set; }
-
         void ReStart(IEvent ev);
         bool Load(IEvent aEvent);
         bool Load(IMedia media, VideoLayer videolayer, long seek, long duration);

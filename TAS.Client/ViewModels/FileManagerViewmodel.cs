@@ -15,7 +15,7 @@ namespace TAS.Client.ViewModels
     {
         private ObservableCollection<FileOperationViewmodel> _operationList;
         private readonly IFileManager _fileManager;
-        public FileManagerView View { get; private set; }
+        public Views.FileManagerView View { get; private set; }
 
         public FileManagerViewmodel(IFileManager fileManager)
         {
@@ -27,7 +27,7 @@ namespace TAS.Client.ViewModels
                 fo.ReferenceAdd();
                 return new FileOperationViewmodel(fo);
             }));
-            View = new FileManagerView() { DataContext = this };
+            View = new Views.FileManagerView() { DataContext = this };
         }
 
         private void FileManager_OperationCompleted(object sender, FileOperationEventArgs e)

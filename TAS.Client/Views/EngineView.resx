@@ -171,8 +171,8 @@
   <data name="_menu.Rundown.Restart" xml:space="preserve">
     <value>R_estart selected event</value>
   </data>
-  <data name="_menu.Show" xml:space="preserve">
-    <value>_Show</value>
+  <data name="_menu.Container" xml:space="preserve">
+    <value>_Container</value>
   </data>
   <data name="_statusbar.Gpi.Active" xml:space="preserve">
     <value>Active</value>

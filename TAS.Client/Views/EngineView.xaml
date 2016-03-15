@@ -6,7 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vievmodels="clr-namespace:TAS.Client.ViewModels" 
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             xmlns:client="clr-namespace:TAS.Client" 
+             xmlns:views="clr-namespace:TAS.Client.Views" 
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DataContext="{x:Type vievmodels:EngineViewmodel}"
@@ -149,7 +149,7 @@
             <RowDefinition Height="28" />
         </Grid.RowDefinitions>
         <Menu IsMainMenu="True" Grid.Row="0">
-            <MenuItem Header="{Resx _menu.Show}" ItemsSource="{Binding Path=RootEventViewModel.Childrens}">
+            <MenuItem Header="{Resx _menu.Container}" Visibility="{Binding IsAnyContainerHidden, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding Path=RootEventViewModel.Childrens}">
                 <MenuItem.ItemContainerStyle>
                     <Style TargetType="MenuItem">
                         <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource InvertedBoolToVis}}"/>
@@ -403,7 +403,7 @@
                 </TreeView.ItemContainerStyle>
                 <TreeView.ItemTemplate >
                     <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" >
-                        <client:EventPanelView />
+                        <views:EventPanelView />
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
             </TreeView>
@@ -411,11 +411,11 @@
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="290"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <ContentControl Content="{Binding EventEditView}"/>
-                <GridSplitter Grid.Row="0" ResizeDirection="Rows" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-                <ContentControl Grid.Row="1" Content="{Binding PreviewView}"/>
+                <GridSplitter Grid.Row="1" ResizeDirection="Rows" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="DarkGray" Height="3" Cursor="SizeNS"/>
+                <ContentControl Grid.Row="1" Margin="3, 3, 0, 0"  Content="{Binding PreviewView}"/>
             </Grid>
         </Grid>
     </Grid>

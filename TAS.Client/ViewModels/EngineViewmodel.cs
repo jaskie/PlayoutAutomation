@@ -24,7 +24,7 @@ namespace TAS.Client.ViewModels
         private readonly IEngine _engine;
         private readonly EngineView _engineView;
         private readonly PreviewViewmodel _previewViewmodel;
-        private readonly PreviewView _previewView;
+        private readonly Views.PreviewView _previewView;
         private readonly EventEditViewmodel _eventEditViewmodel;
         private readonly EventEditView _eventEditView;
 
@@ -62,14 +62,13 @@ namespace TAS.Client.ViewModels
         public ICommand CommandAddGraphics { get { return _eventEditViewmodel.CommandAddGraphics; } }
         public ICommand CommandHide { get { return Selected == null? null : Selected.CommandHide; } }
 
-        public EngineViewmodel(IEngine engine, PreviewViewmodel preview)
+        public EngineViewmodel(IEngine engine, IPreview preview)
         {
             _engine = engine;
             _frameRate = engine.FrameRate;
             
             _engine.EngineTick += this.OnEngineTick;
             _engine.EngineOperation += this._engineOperation;
-            _engine.ServerPropertyChanged += OnServerPropertyChanged;
             _engine.PropertyChanged += this.OnEnginePropertyChanged;
             _engine.VisibleEventsOperation += OnEnginePlayingEventsDictionaryOperation;
             _engine.LoadedNextEventsOperation += OnEngineLoadedEventsDictionaryOperation;
@@ -78,21 +77,28 @@ namespace TAS.Client.ViewModels
             Debug.WriteLine(this, "Creating root EventViewmodel");
             _rootEventViewModel = new EventPanelViewmodel(_engine, this);
 
-            Debug.WriteLine(this, "Creating EventEditViewmodel");
-            _eventEditViewmodel = new EventEditViewmodel(this);
-            _eventEditView = new EventEditView(_frameRate) { DataContext = _eventEditViewmodel };
-            
             Debug.WriteLine(this, "Creating EngineView");
             _engineView = new EngineView(this._frameRate);
             _engineView.DataContext = this;
 
-            _previewViewmodel = preview;
-            _previewView = new PreviewView(this._frameRate) { DataContext = preview };
+            if (preview != null)
+            {
+                _previewViewmodel = new PreviewViewmodel(preview) { IsSegmentsVisible = true };
+                _previewView = new Views.PreviewView(_previewViewmodel.FrameRate) { DataContext = _previewViewmodel };
+            }
+            Debug.WriteLine(this, "Creating EventEditViewmodel");
+            _eventEditViewmodel = new EventEditViewmodel(this, _previewViewmodel);
+            _eventEditView = new EventEditView(_frameRate) { DataContext = _eventEditViewmodel };
 
             _selectedEvents = new ObservableCollection<EventPanelViewmodel>();
             _selectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged += _engineViewmodel_ClipboardChanged;
-
+            if (engine.PlayoutChannelPRI != null)
+                engine.PlayoutChannelPRI.OwnerServer.PropertyChanged += OnPRIServerPropertyChanged;
+            if (engine.PlayoutChannelSEC != null)
+                engine.PlayoutChannelSEC.OwnerServer.PropertyChanged += OnSECServerPropertyChanged;
+            if (engine.PlayoutChannelPRV != null)
+                engine.PlayoutChannelPRV.OwnerServer.PropertyChanged += OnPRVServerPropertyChanged;
             _createCommands();
         }
 
@@ -100,10 +106,15 @@ namespace TAS.Client.ViewModels
         {
             _engine.EngineTick -= this.OnEngineTick;
             _engine.EngineOperation -= this._engineOperation;
-            _engine.ServerPropertyChanged -= this.OnServerPropertyChanged;
             _engine.PropertyChanged -= this.OnEnginePropertyChanged;
             _selectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged -= _engineViewmodel_ClipboardChanged;
+            if (_engine.PlayoutChannelPRI != null)
+                _engine.PlayoutChannelPRI.OwnerServer.PropertyChanged -= OnPRIServerPropertyChanged;
+            if (_engine.PlayoutChannelSEC != null)
+                _engine.PlayoutChannelSEC.OwnerServer.PropertyChanged -= OnSECServerPropertyChanged;
+            if (_engine.PlayoutChannelPRV != null)
+                _engine.PlayoutChannelPRV.OwnerServer.PropertyChanged -= OnPRVServerPropertyChanged;
         }
 
         void _engineViewmodel_ClipboardChanged()
@@ -112,8 +123,7 @@ namespace TAS.Client.ViewModels
         }
 
         public EngineView View { get { return _engineView; } }
-        public PreviewView PreviewView { get { return _previewView; } }
-        public PreviewViewmodel PreviewViewmodel { get { return _previewViewmodel; } }
+        public Views.PreviewView PreviewView { get { return _previewView; } }
         public EventEditView EventEditView { get { return _eventEditView; } }
 
 
@@ -278,11 +288,11 @@ namespace TAS.Client.ViewModels
         {
             if (_debugWindow == null)
             {
-                _debugWindow = new EngineStateView();
+                _debugWindow = new Views.EngineStateView();
                 _debugWindow.DataContext = this;
                 _debugWindow.Closed += (w, e) =>
                 {
-                    var window = w as EngineStateView;
+                    var window = w as Views.EngineStateView;
                     if (window != null)
                         window.DataContext = null;
                     _debugWindow = null;
@@ -370,6 +380,11 @@ namespace TAS.Client.ViewModels
         {
             get { return _timeToAttention; }
             set { SetField(ref _timeToAttention, value, "TimeToAttention"); }
+        }
+
+        public bool IsAnyContainerHidden
+        {
+            get { return _rootEventViewModel.Childrens.Any(evm => !evm.IsVisible); }
         }
 
         public bool ServerConnectedPRI
@@ -501,7 +516,7 @@ namespace TAS.Client.ViewModels
         private ObservableCollection<EventPanelViewmodel> _selectedEvents;
         public ObservableCollection<EventPanelViewmodel> SelectedEvents { get { return _selectedEvents; } }
 
-        private EngineStateView _debugWindow;
+        private Views.EngineStateView _debugWindow;
         public void _searchMissingEvents(object o)
         {
             _engine.SearchMissingEvents();
@@ -566,16 +581,21 @@ namespace TAS.Client.ViewModels
             TimeToAttention = e.TimeToAttention;
         }
 
-        public void OnServerPropertyChanged(object sender, PropertyChangedEventArgs e)
+        public void OnPRIServerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var ch = _engine.PlayoutChannelPRI;
-            if (ch!= null && sender == ch.OwnerServer)
+            if (e.PropertyName == "IsConnected")
                 NotifyPropertyChanged("ServerConnectedPRI");
-            ch = _engine.PlayoutChannelSEC;
-            if (ch != null && sender == ch.OwnerServer)
+        }
+
+        public void OnSECServerPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "IsConnected")
                 NotifyPropertyChanged("ServerConnectedSEC");
-            ch = _engine.PlayoutChannelPRV;
-            if (ch != null && sender == ch.OwnerServer)
+        }
+
+        public void OnPRVServerPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "IsConnected")
                 NotifyPropertyChanged("ServerConnectedPRV");
         }
 

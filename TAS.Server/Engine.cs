@@ -55,6 +55,7 @@ namespace TAS.Server
         internal ObservableSynchronizedCollection<IEvent> _runningEvents = new ObservableSynchronizedCollection<IEvent>(); // list of events loaded and playing 
         internal SimpleDictionary<VideoLayer, IEvent> _loadedNextEvents = new SimpleDictionary<VideoLayer, IEvent>(); // events loaded in backgroud
         private SimpleDictionary<VideoLayer, IEvent> _finishedEvents = new SimpleDictionary<VideoLayer, IEvent>(); // events finished or loaded and not playing
+        readonly SynchronizedCollection<IEvent> _rootEvents = new SynchronizedCollection<IEvent>();
 
         public event EventHandler<EngineTickEventArgs> EngineTick;
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
@@ -74,7 +75,7 @@ namespace TAS.Server
         
 #endregion Fields
 
-#region Constructors
+        #region Constructors
         public Engine()
         {
             _visibleEvents.DictionaryOperation += _visibleEventsOperation;
@@ -86,7 +87,7 @@ namespace TAS.Server
 
 #endregion Constructors
 
-#region IDisposable implementation
+        #region IDisposable implementation
 
         private bool disposed = false;
         public void Dispose()
@@ -314,49 +315,8 @@ namespace TAS.Server
             get { return _gpi != null && _gpi.IsMaster; }
         }
         #endregion // GPI
-
-        [XmlIgnore]
-        public DateTime CurrentTime { get; private set; }
-
-        public bool DateTimeEqal(DateTime dt1, DateTime dt2)
-        {
-            return AlignDateTime(dt1) == AlignDateTime(dt2);
-        }
-
-        public DateTime AlignDateTime(DateTime dt)
-        {
-            return new DateTime((dt.Ticks / _frameTicks) * _frameTicks, dt.Kind);
-        }
-        
-        public TimeSpan AlignTimeSpan(TimeSpan ts)
-        {
-            return new TimeSpan((ts.Ticks / _frameTicks) * _frameTicks);
-        }
-
-        public override string ToString()
-        {
-            return EngineName;
-        }
-
-        
-        readonly SynchronizedCollection<IEvent> _rootEvents = new SynchronizedCollection<IEvent>();
-
-        [XmlIgnore]
-        public SynchronizedCollection<IEvent> RootEvents { get { return _rootEvents; } }
-
-        public IEvent CreateEvent()
-        {
-            return new Event(this);
-        }
-
-        public void AddEvent(IEvent aEvent)
-        {
-            aEvent.Saved += _eventSaved;
-        }
-
-        public enum ArchivePolicyType { NoArchive, ArchivePlayedAndNotUsedWhenDeleteEvent };
-
-        public ArchivePolicyType ArchivePolicy;
+                
+        public TArchivePolicyType ArchivePolicy;
 
         public void RemoveEvent(IEvent aEvent)
         {
@@ -366,7 +326,7 @@ namespace TAS.Server
             if (aEvent.PlayState == TPlayState.Played 
                 && media != null 
                 && media.MediaType == TMediaType.Movie 
-                && ArchivePolicy == Engine.ArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
+                && ArchivePolicy == TArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
                 && MediaManager.ArchiveDirectory != null
                 && CanDeleteMedia(media).Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
                 ThreadPool.QueueUserWorkItem(o => MediaManager.ArchiveMedia(new IMedia[] { media }, true));
@@ -505,9 +465,8 @@ namespace TAS.Server
             get { return _previewLoaded; }
             private set
             {
-                if (value != _previewLoaded)
+                if (SetField(ref _previewLoaded, value, "PreviewLoaded"))
                 {
-                    _previewLoaded = value;
                     decimal vol = (_previewLoaded) ? 0 : _programAudioVolume;
                     if (PlayoutChannelPRV != null)
                         PlayoutChannelPRV.SetVolume(VideoLayer.Program, vol);
@@ -519,90 +478,29 @@ namespace TAS.Server
         [XmlIgnore]
         public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value, "PreviewIsPlaying"); } }
 
+        public IMedia FindPreviewMedia(IMedia media)
+        {
+            IPlayoutServerChannel playoutChannel = _playoutChannelPRV;
+            if (media is ServerMedia)
+            {
+                if (media == null || playoutChannel == null)
+                    return media;
+                else
+                    return ((ServerDirectory)playoutChannel.OwnerServer.MediaDirectory).FindMediaByMediaGuid(media.MediaGuid);
+            }
+            else
+                return media;
+        }
+
+        public VideoFormatDescription PreviewFormatDescription { get
+            {
+                return this.FormatDescription;
+            }
+        }
+
         #endregion // Preview Routines
 
-        private TEngineState _engineState;
-        [XmlIgnore]
-        public TEngineState EngineState
-        {
-            get { return _engineState; }
-            private set
-            {
-                if (SetField(ref _engineState, value, "EngineState"))
-                {
-                    if (value == TEngineState.Hold)
-                        foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished).ToList())
-                        {
-                            _pause(ev, true);
-                            Debug.WriteLine(ev, "Hold: Played");
-                        }
-                    if (value == TEngineState.Idle && _runningEvents.Count>0)
-                    {
-                        foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished).ToList())
-                            {
-                                _pause(ev, true);
-                                Debug.WriteLine(ev, "Idle: Played");
-                            }
-                    }
-                }
-            }
-        }
-
-        private decimal _programAudioVolume = 1;
-        [XmlIgnore]
-        public decimal ProgramAudioVolume
-        {
-            get { return _programAudioVolume; }
-            set 
-            {
-                if (value != _programAudioVolume)
-                {
-                    _programAudioVolume = value;
-                    if (PlayoutChannelPRI != null)
-                        PlayoutChannelPRI.SetVolume(VideoLayer.Program, _programAudioVolume);
-                    if (PlayoutChannelSEC != null && !_previewLoaded)
-                        PlayoutChannelSEC.SetVolume(VideoLayer.Program, _programAudioVolume);
-                    NotifyPropertyChanged("ProgramAudioVolume");
-                }
-            }
-        }
-
-        public void ReScheduleAsync(IEvent aEvent)
-        {
-            ThreadPool.QueueUserWorkItem(o => ReSchedule(aEvent as Event));
-        }
-
-        public object RundownSync = new object();
-        
-        public void ReSchedule(Event aEvent)
-        {
-            lock (RundownSync)
-            {
-                if (aEvent == null)
-                    return;
-                try
-                {
-                    if (aEvent.PlayState == TPlayState.Aborted
-                        || aEvent.PlayState == TPlayState.Played)
-                    {
-                        aEvent.PlayState = TPlayState.Scheduled;
-                        foreach (Event se in aEvent.SubEvents.ToList())
-                            ReSchedule(se);
-                    }
-                    else
-                        aEvent.UpdateScheduledTime(false);
-                    Event ne = aEvent.Next as Event;
-                    if (ne == null)
-                        ne = aEvent.GetSuccessor() as Event;
-                    ReSchedule(ne);
-                }
-                finally
-                {
-                    aEvent.Save();
-                }
-            }
-        }
-
+        #region private methods
         private bool _load(IEvent aEvent)
         {
             if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
@@ -751,87 +649,6 @@ namespace TAS.Server
                 if (_gpi != null)
                     _gpi.AspectNarrow = narrow;
         }
-
-        public void Load(IEvent aEvent)
-        {
-            Debug.WriteLine(aEvent, "Load");
-            lock (_tickLock)
-            {
-                EngineState = TEngineState.Hold;
-                IEnumerable<IEvent> oldEvents = _visibleEvents.Values.ToList().Concat(_finishedEvents.Values.ToList());
-                _visibleEvents.Clear();
-                _finishedEvents.Clear();
-                foreach (Event e in _runningEvents.ToList())
-                {
-                    _runningEvents.Remove(e);
-                    if (e.Position == 0)
-                        e.PlayState = TPlayState.Scheduled;
-                    else
-                        e.PlayState = TPlayState.Aborted;
-                }
-                _load(aEvent);
-                foreach (Event e in oldEvents)
-                    if (_visibleEvents[e.Layer] == null)
-                        Clear(e.Layer);
-            }
-            NotifyEngineOperation(aEvent, TEngineOperation.Load);
-        }
-
-        public void StartLoaded()
-        {
-            Debug.WriteLine("StartLoaded executed");
-            lock (_tickLock)
-                if (EngineState == TEngineState.Hold)
-                {
-                    foreach (Event e in _runningEvents.ToList())
-                    {
-                        if (e.PlayState == TPlayState.Paused || _loadedNextEvents.Values.Contains(e))
-                        {
-                            _play(e, false);
-                            IEvent s = e.GetSuccessor();
-                            if (s != null)
-                                s.UpdateScheduledTime(true);
-                        }
-                    }
-                    EngineState = TEngineState.Running;
-                }
-        }
-
-        public void Start(IEvent aEvent)
-        {
-            Debug.WriteLine(aEvent, "Start");
-            lock (_tickLock)
-            {
-                EngineState = TEngineState.Running;
-                IEnumerable<IEvent> oldEvents = _visibleEvents.Values.ToList().Concat(_finishedEvents.Values.ToList());
-                _visibleEvents.Clear();
-                _finishedEvents.Clear();
-                foreach (Event e in _runningEvents.ToList())
-                {
-                    _runningEvents.Remove(e);
-                    if (e.Position == 0)
-                        e.PlayState = TPlayState.Scheduled;
-                    else
-                        e.PlayState = TPlayState.Aborted;
-                }
-
-                _play(aEvent as Event, true);
-                foreach (Event e in oldEvents)
-                    if (_visibleEvents[e.Layer] == null)
-                        Clear(e.Layer);
-            }
-            NotifyEngineOperation(aEvent, TEngineOperation.Start);
-        }
-
-        public void Schedule(IEvent aEvent)
-        {
-            Debug.WriteLine(aEvent, string.Format("Schedule {0}", aEvent.PlayState));
-            lock (_tickLock)
-                EngineState = TEngineState.Running;
-            _run(aEvent);
-            NotifyEngineOperation(aEvent, TEngineOperation.Schedule);
-        }
-
         private void _run(IEvent aEvent)
         {
             if (aEvent == null)
@@ -922,6 +739,253 @@ namespace TAS.Server
                     PlayoutChannelSEC.Load(System.Drawing.Color.Black, VideoLayer.Preset);
         }
 
+        private void _restartEvent(Event ev)
+        {
+            if (PlayoutChannelPRI != null)
+                PlayoutChannelPRI.ReStart(ev);
+            if (PlayoutChannelSEC != null)
+                PlayoutChannelSEC.ReStart(ev);
+        }
+        private object _tickLock = new object();
+        private void _tick(long nFrames)
+        {
+            lock (_tickLock)
+            {
+                if (EngineState == TEngineState.Running)
+                {
+                    foreach (IEvent e in _runningEvents)
+                        if (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading)
+                            e.Position += nFrames;
+
+                    Event playingEvent = _visibleEvents[VideoLayer.Program] as Event;
+                    if (playingEvent != null)
+                    {
+                        Event succEvent = playingEvent.IsLoop ? playingEvent : playingEvent.GetSuccessor() as Event;
+                        if (succEvent == null)
+                            succEvent = playingEvent.GetVisualRootTrack().FirstOrDefault(e => e.IsLoop) as Event;
+                        if (succEvent != null)
+                        {
+                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
+                            {
+                                if (playingEvent.PlayState == TPlayState.Playing)
+                                {
+                                    playingEvent.PlayState = TPlayState.Fading;
+                                    Debug.WriteLine(playingEvent, "Tick: Fading");
+                                }
+                            }
+                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks
+                                && !_runningEvents.Contains(succEvent))
+                            {
+                                // second: preload next scheduled events
+                                Debug.WriteLine(succEvent, "Tick: LoadNext Running");
+                                _loadNext(succEvent);
+                            }
+                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
+                            {
+                                if (succEvent.PlayState == TPlayState.Scheduled)
+                                {
+                                    if (succEvent.IsHold)
+                                        EngineState = TEngineState.Hold;
+                                    else
+                                    {
+                                        Debug.WriteLine(succEvent, string.Format("Tick: Play current time: {0} scheduled time: {1}", CurrentTime, succEvent.ScheduledTime));
+                                        _play(succEvent, true);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    IEnumerable<IEvent> runningEvents = null;
+                    lock (_runningEvents.SyncRoot)
+                        runningEvents = _runningEvents.Where(e => e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading).ToList();
+                    foreach (IEvent e in runningEvents)
+                        if (e.IsFinished)
+                            _stop(e);
+
+                    lock (_runningEvents.SyncRoot)
+                    {
+                        if (!_runningEvents.Any(e => !e.IsFinished))
+                        {
+                            EngineState = TEngineState.Idle;
+                            return;
+                        }
+                    }
+                }
+
+                // preview controls
+                if (PreviewIsPlaying)
+                {
+                    if (_previewPosition < _previewDuration - 1)
+                    {
+                        if (nFrames > 0)
+                        {
+                            _previewPosition += nFrames;
+                            NotifyPropertyChanged("PreviewPosition");
+                        }
+                    }
+                    else
+                        PreviewPause();
+                }
+            }
+        }
+
+        private void _setGPIGraphics(IGpi gpi, Event ev)
+        {
+            if (ev.GPI.CanTrigger)
+            {
+                gpi.Crawl = (int)ev.GPI.Crawl;
+                gpi.Logo = (int)ev.GPI.Logo;
+                gpi.Parental = (int)ev.GPI.Parental;
+            }
+        }
+
+        private void _onRunningSubEventsChanged(object sender, CollectionOperationEventArgs<IEvent> e)
+        {
+            if (e.Operation == TCollectionOperation.Remove)
+                _stop(e.Item);
+            else
+            {
+                lock (_tickLock)
+                {
+                    TPlayState ps = ((Event)sender).PlayState;
+                    if ((ps == TPlayState.Playing || ps == TPlayState.Paused)
+                        && e.Item.PlayState == TPlayState.Scheduled)
+                    {
+                        e.Item.Position = ((Event)sender).Position;
+                        _play(e.Item as Event, false);
+                    }
+                }
+            }
+        }
+
+        private TimeSpan _getTimeToAttention()
+        {
+            IEvent pe = PlayingEvent();
+            if (pe != null)
+            {
+                TimeSpan result = pe.Length - TimeSpan.FromTicks(pe.Position * _frameTicks);
+                pe = pe.GetSuccessor();
+                while (pe != null)
+                {
+                    TimeSpan? pauseTime = pe.GetAttentionTime();
+                    if (pauseTime != null)
+                        return result + pauseTime.Value - pe.TransitionTime;
+                    result = result + pe.Length - pe.TransitionTime;
+                    pe = pe.GetSuccessor();
+                }
+                return result;
+            }
+            return TimeSpan.Zero;
+        }
+
+        [XmlIgnore]
+        public DateTime CurrentTime { get; private set; }
+
+        public bool DateTimeEqal(DateTime dt1, DateTime dt2)
+        {
+            return AlignDateTime(dt1) == AlignDateTime(dt2);
+        }
+
+        public DateTime AlignDateTime(DateTime dt)
+        {
+            return new DateTime((dt.Ticks / _frameTicks) * _frameTicks, dt.Kind);
+        }
+
+        public TimeSpan AlignTimeSpan(TimeSpan ts)
+        {
+            return new TimeSpan((ts.Ticks / _frameTicks) * _frameTicks);
+        }
+
+        public override string ToString()
+        {
+            return EngineName;
+        }
+
+        #endregion // private methods
+
+        #region IEngine methods
+
+        public void Load(IEvent aEvent)
+        {
+            Debug.WriteLine(aEvent, "Load");
+            lock (_tickLock)
+            {
+                EngineState = TEngineState.Hold;
+                IEnumerable<IEvent> oldEvents = _visibleEvents.Values.ToList().Concat(_finishedEvents.Values.ToList());
+                _visibleEvents.Clear();
+                _finishedEvents.Clear();
+                foreach (Event e in _runningEvents.ToList())
+                {
+                    _runningEvents.Remove(e);
+                    if (e.Position == 0)
+                        e.PlayState = TPlayState.Scheduled;
+                    else
+                        e.PlayState = TPlayState.Aborted;
+                }
+                _load(aEvent);
+                foreach (Event e in oldEvents)
+                    if (_visibleEvents[e.Layer] == null)
+                        Clear(e.Layer);
+            }
+            NotifyEngineOperation(aEvent, TEngineOperation.Load);
+        }
+
+        public void StartLoaded()
+        {
+            Debug.WriteLine("StartLoaded executed");
+            lock (_tickLock)
+                if (EngineState == TEngineState.Hold)
+                {
+                    foreach (Event e in _runningEvents.ToList())
+                    {
+                        if (e.PlayState == TPlayState.Paused || _loadedNextEvents.Values.Contains(e))
+                        {
+                            _play(e, false);
+                            IEvent s = e.GetSuccessor();
+                            if (s != null)
+                                s.UpdateScheduledTime(true);
+                        }
+                    }
+                    EngineState = TEngineState.Running;
+                }
+        }
+
+        public void Start(IEvent aEvent)
+        {
+            Debug.WriteLine(aEvent, "Start");
+            lock (_tickLock)
+            {
+                EngineState = TEngineState.Running;
+                IEnumerable<IEvent> oldEvents = _visibleEvents.Values.ToList().Concat(_finishedEvents.Values.ToList());
+                _visibleEvents.Clear();
+                _finishedEvents.Clear();
+                foreach (Event e in _runningEvents.ToList())
+                {
+                    _runningEvents.Remove(e);
+                    if (e.Position == 0)
+                        e.PlayState = TPlayState.Scheduled;
+                    else
+                        e.PlayState = TPlayState.Aborted;
+                }
+
+                _play(aEvent as Event, true);
+                foreach (Event e in oldEvents)
+                    if (_visibleEvents[e.Layer] == null)
+                        Clear(e.Layer);
+            }
+            NotifyEngineOperation(aEvent, TEngineOperation.Start);
+        }
+
+        public void Schedule(IEvent aEvent)
+        {
+            Debug.WriteLine(aEvent, string.Format("Schedule {0}", aEvent.PlayState));
+            lock (_tickLock)
+                EngineState = TEngineState.Running;
+            _run(aEvent);
+            NotifyEngineOperation(aEvent, TEngineOperation.Schedule);
+        }
+
         public void Clear(VideoLayer aVideoLayer)
         {
             Debug.WriteLine(aVideoLayer, "Clear");
@@ -973,24 +1037,11 @@ namespace TAS.Server
                 EngineState = TEngineState.Idle;
         }
 
-        private void _restartEvent(Event ev)
-        {
-            if (PlayoutChannelPRI != null)
-                PlayoutChannelPRI.ReStart(ev);
-            if (PlayoutChannelSEC != null)
-                PlayoutChannelSEC.ReStart(ev);
-        }
-
         public void Restart()
         {
             foreach (Event e in _visibleEvents.Values.ToList())
                 _restartEvent(e);
         }
-
-        //private void _reRun(Event aEvent)
-        //{
-        //    Debug.WriteLine(aEvent, string.Format("ReRun {0}", aEvent.PlayState));
-        //}
 
         public void RestartRundown(IEvent ARundown)
         {
@@ -1028,99 +1079,6 @@ namespace TAS.Server
             NotifyEngineOperation(ARundown, TEngineOperation.Start);
         }
 
-        private object _tickLock = new object();
-        private void _tick(long nFrames)
-        {
-            lock (_tickLock)
-            {
-                if (EngineState == TEngineState.Running)
-                {
-                    foreach (IEvent e in _runningEvents)
-                        if (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading)
-                            e.Position += nFrames;
-
-                    Event playingEvent = _visibleEvents[VideoLayer.Program] as Event;
-                    if (playingEvent != null)
-                    {
-                        Event succEvent = playingEvent.IsLoop ? playingEvent : playingEvent.GetSuccessor() as Event;
-                        if (succEvent == null)
-                            succEvent = playingEvent.GetVisualRootTrack().FirstOrDefault(e => e.IsLoop) as Event;
-                        if (succEvent != null)
-                        {
-                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
-                            {
-                                if (playingEvent.PlayState == TPlayState.Playing)
-                                {
-                                    playingEvent.PlayState = TPlayState.Fading;
-                                    Debug.WriteLine(playingEvent, "Tick: Fading");
-                                }
-                            }
-                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks  
-                                && !_runningEvents.Contains(succEvent))
-                            {
-                                // second: preload next scheduled events
-                                Debug.WriteLine(succEvent, "Tick: LoadNext Running");
-                                _loadNext(succEvent);
-                            }
-                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
-                            {
-                                if (succEvent.PlayState == TPlayState.Scheduled)
-                                {
-                                    if (succEvent.IsHold)
-                                        EngineState = TEngineState.Hold;
-                                    else
-                                    {
-                                        Debug.WriteLine(succEvent, string.Format("Tick: Play current time: {0} scheduled time: {1}", CurrentTime, succEvent.ScheduledTime));
-                                        _play(succEvent, true);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    IEnumerable<IEvent> runningEvents = null;
-                    lock (_runningEvents.SyncRoot)
-                        runningEvents = _runningEvents.Where(e => e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading).ToList();
-                    foreach (IEvent e in runningEvents)
-                        if (e.IsFinished)
-                            _stop(e);
-                    
-                    lock (_runningEvents.SyncRoot)
-                    {
-                        if (!_runningEvents.Any(e => !e.IsFinished))
-                        {
-                            EngineState = TEngineState.Idle;
-                            return;
-                        }
-                    }
-                }
-
-                // preview controls
-                if (PreviewIsPlaying)
-                {
-                    if (_previewPosition < _previewDuration - 1)
-                    {
-                        if (nFrames > 0)
-                        {
-                            _previewPosition += nFrames;
-                            NotifyPropertyChanged("PreviewPosition");
-                        }
-                    }
-                    else
-                        PreviewPause();
-                }
-            }
-        }
-
-        private void _setGPIGraphics(IGpi gpi, Event ev)
-        {
-            if (ev.GPI.CanTrigger)
-            {
-                gpi.Crawl = (int)ev.GPI.Crawl;
-                gpi.Logo = (int)ev.GPI.Logo;
-                gpi.Parental = (int)ev.GPI.Parental;
-            }
-        }
         
         public MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia)
         {
@@ -1135,6 +1093,106 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
+        public SynchronizedCollection<IEvent> RootEvents { get { return _rootEvents; } }
+
+        public IEvent CreateEvent()
+        {
+            return new Event(this);
+        }
+
+        public void AddEvent(IEvent aEvent)
+        {
+            aEvent.Saved += _eventSaved;
+        }
+
+        private TEngineState _engineState;
+        [XmlIgnore]
+        public TEngineState EngineState
+        {
+            get { return _engineState; }
+            private set
+            {
+                if (SetField(ref _engineState, value, "EngineState"))
+                {
+                    if (value == TEngineState.Hold)
+                        foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished).ToList())
+                        {
+                            _pause(ev, true);
+                            Debug.WriteLine(ev, "Hold: Played");
+                        }
+                    if (value == TEngineState.Idle && _runningEvents.Count > 0)
+                    {
+                        foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished).ToList())
+                        {
+                            _pause(ev, true);
+                            Debug.WriteLine(ev, "Idle: Played");
+                        }
+                    }
+                }
+            }
+        }
+
+        private decimal _programAudioVolume = 1;
+        [XmlIgnore]
+        public decimal ProgramAudioVolume
+        {
+            get { return _programAudioVolume; }
+            set
+            {
+                if (value != _programAudioVolume)
+                {
+                    _programAudioVolume = value;
+                    if (PlayoutChannelPRI != null)
+                        PlayoutChannelPRI.SetVolume(VideoLayer.Program, _programAudioVolume);
+                    if (PlayoutChannelSEC != null && !_previewLoaded)
+                        PlayoutChannelSEC.SetVolume(VideoLayer.Program, _programAudioVolume);
+                    NotifyPropertyChanged("ProgramAudioVolume");
+                }
+            }
+        }
+
+        public void ReScheduleAsync(IEvent aEvent)
+        {
+            ThreadPool.QueueUserWorkItem(o => ReSchedule(aEvent as Event));
+        }
+
+        public object RundownSync = new object();
+
+        public void ReSchedule(Event aEvent)
+        {
+            lock (RundownSync)
+            {
+                if (aEvent == null)
+                    return;
+                try
+                {
+                    if (aEvent.PlayState == TPlayState.Aborted
+                        || aEvent.PlayState == TPlayState.Played)
+                    {
+                        aEvent.PlayState = TPlayState.Scheduled;
+                        foreach (Event se in aEvent.SubEvents.ToList())
+                            ReSchedule(se);
+                    }
+                    else
+                        aEvent.UpdateScheduledTime(false);
+                    Event ne = aEvent.Next as Event;
+                    if (ne == null)
+                        ne = aEvent.GetSuccessor() as Event;
+                    ReSchedule(ne);
+                }
+                finally
+                {
+                    aEvent.Save();
+                }
+            }
+        }
+
+
+        #endregion // IEngine methods
+
+        #region IEngine properties
+
+        [XmlIgnore]
         public ICollection<IEvent> VisibleEvents { get { return _visibleEvents.Values; } }
         [XmlIgnore]
         public ICollection<IEvent> LoadedNextEvents { get { return _loadedNextEvents.Values; } }
@@ -1147,44 +1205,7 @@ namespace TAS.Server
             return true;
         }
 
-        private void _onRunningSubEventsChanged(object sender, CollectionOperationEventArgs<IEvent> e)
-        {
-            if (e.Operation == TCollectionOperation.Remove)
-                _stop(e.Item);
-            else
-            {
-                lock (_tickLock)
-                {
-                    TPlayState ps = ((Event)sender).PlayState;
-                    if ((ps == TPlayState.Playing || ps == TPlayState.Paused)
-                        && e.Item.PlayState == TPlayState.Scheduled)
-                    {
-                        e.Item.Position = ((Event)sender).Position;
-                        _play(e.Item as Event, false);
-                    }
-                }
-            }
-        }
-
-        private TimeSpan _getTimeToAttention()
-        {
-            IEvent pe = PlayingEvent();
-            if (pe != null)
-            {
-                TimeSpan result = pe.Length - TimeSpan.FromTicks(pe.Position * _frameTicks);
-                pe = pe.GetSuccessor();
-                while (pe != null)
-                {
-                    TimeSpan? pauseTime = pe.GetAttentionTime();
-                    if (pauseTime != null)
-                        return result + pauseTime.Value - pe.TransitionTime;
-                    result = result + pe.Length - pe.TransitionTime;
-                    pe = pe.GetSuccessor();
-                }
-                return result;
-            }
-            return TimeSpan.Zero;
-        }
+        #endregion // IEngine properties
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -21,9 +21,11 @@ namespace TAS.Client.ViewModels
     {
         private readonly IEngine _engine;
         private readonly EngineViewmodel _engineViewModel;
-        public EventEditViewmodel(EngineViewmodel engineViewModel)
+        private readonly PreviewViewmodel _previewViewModel;
+        public EventEditViewmodel(EngineViewmodel engineViewModel, PreviewViewmodel previewViewModel)
         {
             _engineViewModel = engineViewModel;
+            _previewViewModel = previewViewModel; 
             _engine = engineViewModel.Engine;
             CommandSaveEdit = new UICommand() { ExecuteDelegate = _save, CanExecuteDelegate = _canSave };
             CommandCancelEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
@@ -293,7 +295,7 @@ namespace TAS.Client.ViewModels
             var svm = _searchViewmodel;
             if (svm == null)
             {
-                svm = new MediaSearchViewmodel(_engineViewModel.PreviewViewmodel, _event.Engine.MediaManager, mediaType, true, videoFormatDescription);
+                svm = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, mediaType, true, videoFormatDescription);
                 svm.BaseEvent = baseEvent;
                 svm.NewEventStartType = startType;
                 svm.MediaChoosen += _searchMediaChoosen;
@@ -436,7 +438,7 @@ namespace TAS.Client.ViewModels
             var svm = _searchViewmodel;
             if (ev != null && svm == null)
             {
-                svm = new MediaSearchViewmodel(_engineViewModel.PreviewViewmodel, _event.Engine.MediaManager, TMediaType.Movie, false, null);
+                svm = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, TMediaType.Movie, false, null);
                 svm.BaseEvent = ev;
                 svm.NewEventStartType = TStartType.With;
                 svm.MediaChoosen += _searchMediaChoosen;
@@ -512,7 +514,7 @@ namespace TAS.Client.ViewModels
             var svm = _searchViewmodel;
             if (ev != null && svm == null)
             {
-                svm = new MediaSearchViewmodel(_engineViewModel.PreviewViewmodel, _event.Engine.MediaManager, TMediaType.Movie, false, null);
+                svm = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, TMediaType.Movie, false, null);
                 svm.BaseEvent = ev;
                 svm.NewEventStartType = TStartType.After;
                 svm.MediaChoosen += _searchMediaChoosen;
@@ -628,11 +630,10 @@ namespace TAS.Client.ViewModels
 
         void _getTCInTCOut(object o)
         {
-            var pwm = _engineViewModel.PreviewViewmodel;
-            if (pwm != null && pwm.IsLoaded)
+            if (_previewViewModel != null && _previewViewModel.IsLoaded)
             {
-                ScheduledTc = pwm.TcIn;
-                Duration = pwm.DurationSelection;
+                ScheduledTc = _previewViewModel.TcIn;
+                Duration = _previewViewModel.DurationSelection;
             }
         }
 
@@ -776,8 +777,7 @@ namespace TAS.Client.ViewModels
         bool _canGetTcInTcOut(object o)
         {
             IEvent ev = _event;
-            var previewVm = _engineViewModel.PreviewViewmodel;
-            var previewMedia = (previewVm != null) ? previewVm.LoadedMedia : null;
+            var previewMedia = (_previewViewModel != null) ? _previewViewModel.LoadedMedia : null;
             return (ev != null)
                 && previewMedia != null
                 && ev.ServerMediaPRV == previewMedia;
@@ -1173,18 +1173,6 @@ namespace TAS.Client.ViewModels
             {
                 NotifyPropertyChanged("IsEditEnabled");
                 NotifyPropertyChanged("IsMovieOrLive");
-                //NotifyPropertyChanged("CommandAddAnimation");
-                //NotifyPropertyChanged("CommandAddGraphics");
-                //NotifyPropertyChanged("CommandAddNextEmptyMovie");
-                //NotifyPropertyChanged("CommandAddNextLive");
-                //NotifyPropertyChanged("CommandAddNextRundown");
-                //NotifyPropertyChanged("CommandAddSubLive");
-                //NotifyPropertyChanged("CommandAddSubMovie");
-                //NotifyPropertyChanged("CommandAddSubRundown");
-                //NotifyPropertyChanged("CommandRemoveSubItems");
-                //NotifyPropertyChanged("CommandReschedule");
-                //NotifyPropertyChanged("CommandToggleEnabled");
-                //NotifyPropertyChanged("CommandToggleHold");
                 InvalidateRequerySuggested();
             }
             if (e.PropertyName == "Next" || e.PropertyName == "Prior")

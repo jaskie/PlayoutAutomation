@@ -203,9 +203,9 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <ContentControl Margin="3, 0, 0, 0" Content="{Binding EditMedia.Editor}" />
-            <GridSplitter Grid.Row="0" Visibility="{Binding PreviewView, Converter={StaticResource NullToVis}}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-            <ContentControl Margin="3, 0, 0, 0" Grid.Row="1" Content="{Binding PreviewView}"/>
+            <ContentControl Content="{Binding EditMedia.Editor}" />
+            <GridSplitter Grid.Row="1" VerticalAlignment="Top" Visibility="{Binding PreviewDisplay, Converter={StaticResource BoolToVis}}" HorizontalAlignment="Stretch" Background="DarkGray" Cursor="SizeNS" Height="3" ShowsPreview="True"/>
+            <ContentControl Visibility="{Binding PreviewDisplay, Converter={StaticResource BoolToVis}}" Margin="3, 3, 0, 0" Grid.Row="1" Content="{Binding PreviewView}" />
         </Grid>
         <ToolBar ToolBarTray.IsLocked="True" Grid.Row="2"  Height="35" >
             <ToolBar.Resources>

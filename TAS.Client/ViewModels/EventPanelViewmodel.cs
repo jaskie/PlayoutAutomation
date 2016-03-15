@@ -893,7 +893,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public EventPanelView View { get; set; }
+        public Views.EventPanelView View { get; set; }
 
         EventPanelViewmodel _rootOwner
         {

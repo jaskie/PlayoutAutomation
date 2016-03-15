@@ -110,6 +110,14 @@ namespace TAS.Common
         mxf,
     }
 
+    public enum TArchivePolicyType { NoArchive, ArchivePlayedAndNotUsedWhenDeleteEvent };
+    class TArchivePolicyTypeConversionEnumConverter : ResourceEnumConverter
+    {
+        public TArchivePolicyTypeConversionEnumConverter()
+            : base(typeof(TArchivePolicyType), TAS.Server.Common.Properties.Resources.ResourceManager)
+        { }
+    }
+
 
     [TypeConverter(typeof(TAudioChannelMappingConversionEnumConverter))]
     public enum TAudioChannelMappingConversion : byte

@@ -1,8 +1,8 @@
 ﻿<UserControl ResxExtension.DefaultResxName="TAS.Client.Views.IngestEditorView" Language="{UICulture}" 
-        x:Class="TAS.Client.IngestEditorView"
+        x:Class="TAS.Client.Views.IngestEditorView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:client="clr-namespace:TAS.Client" 
+        xmlns:views="clr-namespace:TAS.Client.Views" 
         >
     <Grid>
         <DockPanel>
@@ -11,7 +11,7 @@
                     <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.IngestEditorView, Key=_grid.Header.Clip}" Width="*" Binding="{Binding SourceFileName, Mode=OneWay}" />
                 </DataGrid.Columns>
             </DataGrid>
-            <client:ConvertOperationView DataContext="{Binding SelectedOperation}" Width="200" Margin="10"/>
+            <views:ConvertOperationView DataContext="{Binding SelectedOperation}" Width="200" Margin="10"/>
         </DockPanel>
     </Grid>
 </UserControl>

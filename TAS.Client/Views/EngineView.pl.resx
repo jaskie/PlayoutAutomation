@@ -171,9 +171,6 @@
   <data name="_menu.Rundown.Restart" xml:space="preserve">
     <value>_Uruchom ponownie zaznaczoną pozycję</value>
   </data>
-  <data name="_menu.Show" xml:space="preserve">
-    <value>Po_każ</value>
-  </data>
   <data name="_statusbar.Gpi.Active" xml:space="preserve">
     <value>Aktywne</value>
   </data>
@@ -242,5 +239,8 @@
   </data>
   <data name="_menu.Edit.Copy" xml:space="preserve">
     <value>Kopiuj</value>
+  </data>
+  <data name="_menu.Container" xml:space="preserve">
+    <value>_Kontener</value>
   </data>
 </root>

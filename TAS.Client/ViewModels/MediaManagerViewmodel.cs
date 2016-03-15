@@ -40,12 +40,14 @@ namespace TAS.Client.ViewModels
         public ICommand CommandRefresh { get; private set; }
         public ICommand CommandSyncPriToSec { get; private set; }
 
-        public MediaManagerViewmodel(IMediaManager mediaManager, PreviewViewmodel previewVm)
+        public MediaManagerViewmodel(IMediaManager mediaManager, IPreview preview)
         {
             _mediaManager = mediaManager;
-            _previewViewModel = previewVm;
-            if (previewVm != null)
-                _previewView = new PreviewView(previewVm.FrameRate) { DataContext = previewVm };
+            if (preview != null)
+            {
+                _previewViewModel = new PreviewViewmodel(preview);
+                _previewView = new PreviewView(_previewViewModel.FrameRate) { DataContext = _previewViewModel };
+            }
             _createCommands();
 
             _mediaDirectories = new List<IMediaDirectory>();
@@ -76,6 +78,9 @@ namespace TAS.Client.ViewModels
 
         private readonly FileManagerViewmodel _fileManagerVm;
         public FileManagerViewmodel FileManagerVm { get { return _fileManagerVm; } }
+
+        bool _previewDisplay;
+        public bool PreviewDisplay { get { return _previewDisplay; } set { SetField(ref _previewDisplay, value, "PreviewDisplay"); } }
 
         private MediaViewViewmodel _selectedMedia;
         public MediaViewViewmodel SelectedMedia 
@@ -430,6 +435,11 @@ namespace TAS.Client.ViewModels
                             if (!string.IsNullOrEmpty((value as IArchiveDirectory).SearchString))
                                 SearchText = (value as IArchiveDirectory).SearchString;
                     }
+                    PreviewDisplay = _previewViewModel != null 
+                        && value != null 
+                        && (!(value is IIngestDirectory) || (value as IIngestDirectory).AccessType == TDirectoryAccessType.Direct);
+                    if (_previewViewModel != null)
+                        _previewViewModel.IsSegmentsVisible = value is IServerDirectory || value is IArchiveDirectory;
                     _reloadFiles();
                     SelectedMedia = null;
                     NotifyPropertyChanged("MediaDirectory");
