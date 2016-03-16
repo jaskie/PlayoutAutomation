@@ -1251,12 +1251,12 @@ namespace TAS.Server
                 handler(sender, e);
         }
 
-        public event EventHandler EventSaved; 
+        public event EventHandler<IEventEventArgs> EventSaved; 
         private void _eventSaved(object sender, EventArgs e)
         {
             var handler = EventSaved;
             if (handler != null)
-                handler(sender, e);
+                handler(this, new IEventEventArgs(sender as IEvent));
         }
 
         public void SearchMissingEvents()

@@ -62,7 +62,15 @@
     <Compile Include="ViewModels\EngineViewmodel.cs" />
     <Compile Include="ViewModels\EventClipboard.cs" />
     <Compile Include="ViewModels\EventEditViewmodel.cs" />
-    <Compile Include="ViewModels\EventPanelViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelContainerViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelDummyViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelLiveViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelMovieViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelRootViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelRundownElementViewmodelBase.cs" />
+    <Compile Include="ViewModels\EventPanelRundownViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelStillViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelViewmodelBase.cs" />
     <Compile Include="ViewModels\ExportMediaLogoViewmodel.cs" />
     <Compile Include="ViewModels\ExportViewmodel.cs" />
     <Compile Include="ViewModels\FileManagerViewmodel.cs" />
@@ -100,6 +108,7 @@
     <Compile Include="Views\FileManagerView.xaml.cs">
       <DependentUpon>FileManagerView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\EventPanelViewBase.cs" />
     <Compile Include="Views\IngestEditorView.xaml.cs">
       <DependentUpon>IngestEditorView.xaml</DependentUpon>
     </Compile>

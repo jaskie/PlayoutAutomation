@@ -32,7 +32,6 @@ namespace TAS.Client.ViewModels
             CommandDelete = new UICommand() { ExecuteDelegate = _delete, CanExecuteDelegate = _canDelete };
             CommandAddGraphics = new UICommand() { ExecuteDelegate = _addGraphics, CanExecuteDelegate = _canAddGraphics };
             CommandRemoveSubItems = new UICommand() { ExecuteDelegate = _removeSubItems, CanExecuteDelegate = _canRemoveSubitems };
-            CommandAddAnimation = new UICommand() { ExecuteDelegate = _addAnimation, CanExecuteDelegate = _canAddGraphics };
             CommandAddNextMovie = new UICommand() { ExecuteDelegate = _addNextMovie, CanExecuteDelegate = _canAddNextEvent };
             CommandAddNextEmptyMovie = new UICommand() { ExecuteDelegate = _addNextEmptyMovie, CanExecuteDelegate = _canAddNextEvent };
             CommandAddNextRundown = new UICommand() { ExecuteDelegate = _addNextRundown, CanExecuteDelegate = _canAddNextEvent };
@@ -550,7 +549,7 @@ namespace TAS.Client.ViewModels
             if (aEvent != null
                 && MessageBox.Show(resources._query_DeleteAllGraphics, resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                foreach (IEvent ev in aEvent.SubEvents.ToList().Where(e => e.EventType == TEventType.StillImage || e.EventType == TEventType.AnimationFlash))
+                foreach (IEvent ev in aEvent.SubEvents.ToList().Where(e => e.EventType == TEventType.StillImage))
                     ev.Delete();
                 NotifyPropertyChanged("HasSubItemOnLayer1");
                 NotifyPropertyChanged("HasSubItemOnLayer2");
@@ -592,39 +591,6 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("HasSubItemOnLayer1");
                 NotifyPropertyChanged("HasSubItemOnLayer2");
                 NotifyPropertyChanged("HasSubItemOnLayer3");
-            }
-        }
-
-        void _addAnimation(object layer)
-        {
-            IEvent ev = _event;
-            if (ev != null)
-            {
-                IEvent sle = ev.SubEvents.FirstOrDefault(e => e.Layer == (VideoLayer)int.Parse(layer as string) && e.EventType == TEventType.AnimationFlash);
-                if (sle == null)
-                {
-                    _chooseMedia(TMediaType.AnimationFlash, this.Event, TStartType.With, new Action<MediaSearchEventArgs>((e) =>
-                    {
-                        var m = e.Media;
-                        if (m != null)
-                        {
-                            IEvent newEvent = ev.Engine.CreateEvent();
-                            newEvent.EventType = TEventType.AnimationFlash;
-                            newEvent.Media = m;
-                            newEvent.EventName = m.MediaName;
-                            newEvent.Duration = ev.Duration;
-                            newEvent.Layer = (VideoLayer)int.Parse(layer as string);
-                            //newEvent.Save();
-                            ev.InsertUnder(newEvent);
-                        }
-
-                    }));
-                }
-                else
-                {
-                    sle.Delete();
-                }
-                NotifyPropertyChanged("HasAnimation");
             }
         }
 
@@ -1070,14 +1036,6 @@ namespace TAS.Client.ViewModels
                 return (ev == null || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie) ? false : ev.SubEvents.ToList().Any(e => e.EventType == TEventType.StillImage);
             }
         }
-        public bool HasAnimation
-        {
-            get
-            {
-                IEvent ev = Event;
-                return (ev == null) ? false : (ev.EventType == TEventType.AnimationFlash) ? ev.Layer == 0 : ev.SubEvents.ToList().Any(e => e.Layer == 0 && e.EventType == TEventType.AnimationFlash);
-            }
-        }
 
         public bool IsScheduledTimeEnabled
         {
@@ -1200,7 +1158,7 @@ namespace TAS.Client.ViewModels
         private void _onSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
             if (((o as IEvent).EventType == TEventType.Live || (o as IEvent).EventType == TEventType.Movie)
-                && (e.Item.EventType == TEventType.StillImage || e.Item.EventType == TEventType.AnimationFlash))
+                && e.Item.EventType == TEventType.StillImage)
             {
 
                 switch (e.Item.Layer)

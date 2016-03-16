@@ -127,7 +127,6 @@
         <KeyBinding Command="{Binding CommandRescheduleSelected}" Gesture="F4" />
         <KeyBinding Command="{Binding CommandToggleHold}" Gesture="F6" />
         <KeyBinding Command="{Binding CommandToggleEnabled}" Gesture="F7" />
-        <KeyBinding Command="{Binding CommandHide}" Gesture="F9" />
         <KeyBinding Command="{Binding CommandCutSelected}" Gesture="Ctrl+X" />
         <KeyBinding Command="{Binding CommandCopySelected}" Gesture="Ctrl+C" />
         <KeyBinding Command="{Binding CommandPasteSelected}" CommandParameter="After" Gesture="Ctrl+V" />

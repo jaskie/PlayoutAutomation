@@ -27,31 +27,31 @@ namespace TAS.Client.ViewModels
                 h();
         }
 
-        public static void Copy(IEnumerable<EventPanelViewmodel> items)
+        public static void Copy(IEnumerable<EventPanelViewmodelBase> items)
         {
             lock (_clipboard.SyncRoot)
             {
                 _clipboard.Clear();
-                foreach (EventPanelViewmodel e in items)
+                foreach (EventPanelViewmodelBase e in items)
                     _clipboard.Add(e.Event);
                 Operation = ClipboardOperation.Copy;
                 _notifyClipboardChanged();
             }
         }
 
-        public static void Cut(IEnumerable<EventPanelViewmodel> items)
+        public static void Cut(IEnumerable<EventPanelViewmodelBase> items)
         {
             lock (_clipboard.SyncRoot)
             {
                 _clipboard.Clear();
-                foreach (EventPanelViewmodel e in items)
+                foreach (EventPanelViewmodelBase e in items)
                     _clipboard.Add(e.Event);
                 Operation = ClipboardOperation.Cut;
                 _notifyClipboardChanged();
             }
         }
 
-        public static void Paste(EventPanelViewmodel destination, TPasteLocation location)
+        public static void Paste(EventPanelViewmodelBase destination, TPasteLocation location)
         {
             IEvent dest = destination.Event;
             lock(_clipboard.SyncRoot)
@@ -116,7 +116,7 @@ namespace TAS.Client.ViewModels
         }
 
 
-        public static bool CanPaste(EventPanelViewmodel destEventVm, TPasteLocation location)
+        public static bool CanPaste(EventPanelViewmodelBase destEventVm, TPasteLocation location)
         {
             if (destEventVm == null)
                 return false;
@@ -151,9 +151,9 @@ namespace TAS.Client.ViewModels
             {
                 if (destEvent.EventType == TEventType.StillImage)
                     return false;
-                if ((destEvent.EventType == TEventType.Movie || destEvent.EventType == TEventType.Live) && !(sourceEvent.EventType == TEventType.StillImage || sourceEvent.EventType == TEventType.AnimationFlash))
+                if ((destEvent.EventType == TEventType.Movie || destEvent.EventType == TEventType.Live) && !(sourceEvent.EventType == TEventType.StillImage ))
                     return false;
-                if (destEvent.EventType == TEventType.Rundown && (sourceEvent.EventType == TEventType.StillImage || sourceEvent.EventType == TEventType.AnimationFlash || destEvent.SubEvents.Count > 0))
+                if (destEvent.EventType == TEventType.Rundown && (sourceEvent.EventType == TEventType.StillImage || destEvent.SubEvents.Count > 0))
                     return false;
                 if (destEvent.EventType == TEventType.Container && sourceEvent.EventType != TEventType.Rundown)
                     return false;

@@ -60,22 +60,21 @@ namespace TAS.Client.ViewModels
         public ICommand CommandSaveEdit { get { return _eventEditViewmodel.CommandSaveEdit; } }
         public ICommand CommandAddNextMovie { get { return _eventEditViewmodel.CommandAddNextMovie; } }
         public ICommand CommandAddGraphics { get { return _eventEditViewmodel.CommandAddGraphics; } }
-        public ICommand CommandHide { get { return Selected == null? null : Selected.CommandHide; } }
-
         public EngineViewmodel(IEngine engine, IPreview preview)
         {
             _engine = engine;
             _frameRate = engine.FrameRate;
             
-            _engine.EngineTick += this.OnEngineTick;
+            _engine.EngineTick += this._engineTick;
             _engine.EngineOperation += this._engineOperation;
-            _engine.PropertyChanged += this.OnEnginePropertyChanged;
+            _engine.PropertyChanged += this._enginePropertyChanged;
             _engine.VisibleEventsOperation += OnEnginePlayingEventsDictionaryOperation;
             _engine.LoadedNextEventsOperation += OnEngineLoadedEventsDictionaryOperation;
             _engine.RunningEventsOperation += OnEngineRunningEventsOperation;
+            _engine.EventSaved += _engine_EventSaved;
 
             Debug.WriteLine(this, "Creating root EventViewmodel");
-            _rootEventViewModel = new EventPanelViewmodel(_engine, this);
+            _rootEventViewModel = new EventPanelRootViewmodel(this);
 
             Debug.WriteLine(this, "Creating EngineView");
             _engineView = new EngineView(this._frameRate);
@@ -90,7 +89,7 @@ namespace TAS.Client.ViewModels
             _eventEditViewmodel = new EventEditViewmodel(this, _previewViewmodel);
             _eventEditView = new EventEditView(_frameRate) { DataContext = _eventEditViewmodel };
 
-            _selectedEvents = new ObservableCollection<EventPanelViewmodel>();
+            _selectedEvents = new ObservableCollection<EventPanelViewmodelBase>();
             _selectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged += _engineViewmodel_ClipboardChanged;
             if (engine.PlayoutChannelPRI != null)
@@ -102,12 +101,19 @@ namespace TAS.Client.ViewModels
             _createCommands();
         }
 
+        private void _engine_EventSaved(object sender, IEventEventArgs e)
+        {
+            if (RootEventViewModel.Childrens.Any(evm => evm.Event == e.Event))
+                NotifyPropertyChanged("IsAnyContainerHidden");
+        }
+
         protected override void OnDispose()
         {
-            _engine.EngineTick -= this.OnEngineTick;
+            _engine.EngineTick -= this._engineTick;
             _engine.EngineOperation -= this._engineOperation;
-            _engine.PropertyChanged -= this.OnEnginePropertyChanged;
+            _engine.PropertyChanged -= this._enginePropertyChanged;
             _selectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
+            _engine.EventSaved -= _engine_EventSaved;
             EventClipboard.ClipboardChanged -= _engineViewmodel_ClipboardChanged;
             if (_engine.PlayoutChannelPRI != null)
                 _engine.PlayoutChannelPRI.OwnerServer.PropertyChanged -= OnPRIServerPropertyChanged;
@@ -173,7 +179,7 @@ namespace TAS.Client.ViewModels
 
         private bool _canExport(object obj)
         {
-            return _selectedEvents.Any(e => e.Media != null && e.Media.MediaType == TMediaType.Movie) && _engine.MediaManager.IngestDirectories.Any(d => d.IsExport);
+            return _selectedEvents.Any(e => e is EventPanelMovieViewmodel && ((EventPanelMovieViewmodel)e).Media.FileExists()) && _engine.MediaManager.IngestDirectories.Any(d => d.IsExport);
         }
 
         private void _export(object obj)
@@ -193,14 +199,14 @@ namespace TAS.Client.ViewModels
             IEvent ev = _selected == null ? null : _selected.Event;
             return ev != null
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused || ev.PlayState == TPlayState.Aborted)
-                && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie || ev.EventType == TEventType.AnimationFlash);
+                && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie);
         }
         private bool _canLoadSelected(object o)
         {
             IEvent ev = _selected == null ? null : _selected.Event;
             return ev != null
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Aborted)
-                && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie || ev.EventType == TEventType.AnimationFlash);
+                && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie);
         }
         private bool _canScheduleSelected(object o)
         {
@@ -258,7 +264,7 @@ namespace TAS.Client.ViewModels
         private void _deleteSelected(object ob)
         {
             var evmList = _selectedEvents.ToList();
-            var containerList = evmList.Where(evm => evm.IsRootContainer);
+            var containerList = evmList.Where(evm => evm is EventPanelContainerViewmodel);
             if (evmList.Count() > 0
                 && MessageBox.Show(string.Format(resources._query_DeleteSelected, evmList.Count(), evmList.AsString(Environment.NewLine, 20)), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
                 && (containerList.Count() == 0
@@ -272,10 +278,7 @@ namespace TAS.Client.ViewModels
                         {
                             if (evm.Event != null
                                 && (evm.Event.PlayState == TPlayState.Scheduled || evm.Event.PlayState == TPlayState.Played || evm.Event.PlayState == TPlayState.Aborted))
-                            {
                                 evm.Event.Delete();
-                                evm.IsMultiSelected = false;
-                            }
                         }
                     }
                 );
@@ -304,11 +307,11 @@ namespace TAS.Client.ViewModels
         #endregion // Commands
 
 
-        private EventPanelViewmodel _rootEventViewModel;
-        public EventPanelViewmodel RootEventViewModel { get { return _rootEventViewModel; } }
+        private EventPanelViewmodelBase _rootEventViewModel;
+        public EventPanelViewmodelBase RootEventViewModel { get { return _rootEventViewModel; } }
 
-        private EventPanelViewmodel _selected;
-        public EventPanelViewmodel Selected
+        private EventPanelViewmodelBase _selected;
+        public EventPanelViewmodelBase Selected
         {
             get { return _selected; }
             set
@@ -343,10 +346,10 @@ namespace TAS.Client.ViewModels
 
         public EventEditViewmodel EventEditViewmodel { get { return _eventEditViewmodel; } }
 
-        private EventPanelViewmodel _GetEventViewModel(IEvent aEvent)
+        private EventPanelViewmodelBase _GetEventViewModel(IEvent aEvent)
         {
             IEnumerable<IEvent> rt = aEvent.GetVisualRootTrack().Reverse();
-            EventPanelViewmodel evm = _rootEventViewModel;
+            EventPanelViewmodelBase evm = _rootEventViewModel;
             foreach (IEvent ev in rt)
             {
                 if (evm != null)
@@ -384,7 +387,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsAnyContainerHidden
         {
-            get { return _rootEventViewModel.Childrens.Any(evm => !evm.IsVisible); }
+            get { return _rootEventViewModel.Childrens.Any(evm => evm is EventPanelContainerViewmodel && !((EventPanelContainerViewmodel)evm).IsVisible); }
         }
 
         public bool ServerConnectedPRI
@@ -513,8 +516,8 @@ namespace TAS.Client.ViewModels
         private ObservableCollection<IEvent> _runningEvents = new ObservableCollection<IEvent>();
         public IEnumerable<IEvent> RunningEvents { get { return _runningEvents; } }
 
-        private ObservableCollection<EventPanelViewmodel> _selectedEvents;
-        public ObservableCollection<EventPanelViewmodel> SelectedEvents { get { return _selectedEvents; } }
+        private ObservableCollection<EventPanelViewmodelBase> _selectedEvents;
+        public ObservableCollection<EventPanelViewmodelBase> SelectedEvents { get { return _selectedEvents; } }
 
         private Views.EngineStateView _debugWindow;
         public void _searchMissingEvents(object o)
@@ -575,7 +578,7 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged("CommandRescheduleSelected");
         }
 
-        public void OnEngineTick(object sender, EngineTickEventArgs e)
+        public void _engineTick(object sender, EngineTickEventArgs e)
         {
             CurrentTime = e.CurrentTime.ToLocalTime();
             TimeToAttention = e.TimeToAttention;
@@ -649,7 +652,7 @@ namespace TAS.Client.ViewModels
 
         private void _selectedEvents_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (sender is ObservableCollection<EventPanelViewmodel>)
+            if (sender is ObservableCollection<EventPanelViewmodelBase>)
             {
                 NotifyPropertyChanged("CommandDeleteSelected");
                 NotifyPropertyChanged("CommandExport");
@@ -658,7 +661,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void OnEnginePropertyChanged(object o, PropertyChangedEventArgs e)
+        private void _enginePropertyChanged(object o, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "ProgramAudioVolume"
                 || e.PropertyName == "EngineState"

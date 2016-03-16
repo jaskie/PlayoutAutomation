@@ -27,7 +27,7 @@ namespace TAS.Server
 
 
         public Event(
-                    IEngine aEngine,
+                    IEngine engine,
                     UInt64 idRundownEvent,
                     VideoLayer videoLayer,
                     TEventType eventType,
@@ -52,7 +52,7 @@ namespace TAS.Server
                     bool isLoop,
                     EventGPI gpi)
         {
-            Engine = aEngine;
+            Engine = engine;
             _idRundownEvent = idRundownEvent;
             _layer = videoLayer;
             _eventType = eventType;
@@ -75,8 +75,9 @@ namespace TAS.Server
             _isEnabled = isEnabled;
             _isHold = isHold;
             _isLoop = isLoop;
-
             _nextLoaded = false;
+            if (engine != null)
+                engine.AddEvent(this);
         }
 
 #if DEBUG
@@ -516,7 +517,7 @@ namespace TAS.Server
                 {
                     if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
                     {
-                        foreach (Event e in SubEvents.Where(ev => ev.EventType == TEventType.StillImage || ev.EventType == TEventType.AnimationFlash))
+                        foreach (Event e in SubEvents.Where(ev => ev.EventType == TEventType.StillImage))
                         {
                             TimeSpan nd = e._duration + newDuration - this._duration;
                             e.Duration = nd > TimeSpan.Zero ? nd : TimeSpan.Zero;
@@ -709,11 +710,7 @@ namespace TAS.Server
                 Guid mediaGuid = _mediaGuid;
                 if (media == null && mediaGuid != Guid.Empty)
                 {
-                    MediaDirectory dir;
-                    if (_eventType == TEventType.AnimationFlash)
-                        dir = (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRI;
-                    else
-                        dir = (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI;
+                    MediaDirectory dir = (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI;
                     if (dir != null)
                     {
                         var newMedia = dir.FindMediaByMediaGuid(mediaGuid);
@@ -739,11 +736,7 @@ namespace TAS.Server
                 Guid mediaGuid = _mediaGuid;
                 if (media == null && mediaGuid != Guid.Empty)
                 {
-                    MediaDirectory dir;
-                    if (_eventType == TEventType.AnimationFlash)
-                        dir = (MediaDirectory)Engine.MediaManager.AnimationDirectorySEC;
-                    else
-                        dir = (MediaDirectory)Engine.MediaManager.MediaDirectorySEC;
+                    MediaDirectory dir = (MediaDirectory)Engine.MediaManager.MediaDirectorySEC;
                     if (dir != null)
                     {
                         var newMedia = dir.FindMediaByMediaGuid(mediaGuid);
@@ -765,11 +758,7 @@ namespace TAS.Server
                 var media = _serverMediaPRV;
                 if ((media == null || media.MediaStatus == TMediaStatus.Deleted) && mediaGuid != Guid.Empty)
                 {
-                    MediaDirectory dir;
-                    if (_eventType == TEventType.AnimationFlash)
-                        dir = (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRV;
-                    else
-                        dir = (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV;
+                    MediaDirectory dir = (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV;
                     if (dir != null)
                     {
                         var newMedia = dir.FindMediaByMediaGuid(mediaGuid);

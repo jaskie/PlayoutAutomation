@@ -59,7 +59,7 @@ namespace TAS.Server.Interfaces
         void SearchMissingEvents();
         IEvent PlayingEvent(VideoLayer layer = VideoLayer.Program);
 
-        event EventHandler EventSaved;
+        event EventHandler<IEventEventArgs> EventSaved;
         event EventHandler<EngineTickEventArgs> EngineTick;
         event EventHandler<EngineOperationEventArgs> EngineOperation;
         event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> VisibleEventsOperation;

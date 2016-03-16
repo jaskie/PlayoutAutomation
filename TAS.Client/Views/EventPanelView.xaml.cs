@@ -24,48 +24,13 @@ namespace TAS.Client.Views
     /// </summary>
     /// 
 
-    public partial class EventPanelView : UserControl
+    public partial class EventPanelView : EventPanelViewBase
     {
         public EventPanelView()
         {
             InitializeComponent();
         }
-
-#if DEBUG
-        ~EventPanelView()
-        {
-            if (Application.Current != null)
-                Application.Current.Dispatcher.BeginInvoke((Action)(() => System.Diagnostics.Debug.WriteLine(this.DataContext, "View finalized")));
-        }
-#endif // DEBUG
-
-        private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            EventPanelViewmodel vm = e.NewValue as EventPanelViewmodel;
-            if (vm != null)
-            {
-                vm.View = (EventPanelView)sender;
-                if (vm.IsSelected)
-                    this.BringIntoView();
-            }
-        }
-
-
-        internal void SetOnTop()
-        {
-            DependencyObject parent = VisualTreeHelper.GetParent(this);
-            while (parent != null && !(parent is ScrollViewer))
-            {
-                parent = VisualTreeHelper.GetParent(parent);
-            }
-            if (parent != null)
-            {
-                // Scroll to selected Item
-                DispatcherHelper.WaitForPriority();
-                Point offset = TransformToAncestor(parent as ScrollViewer).Transform(new Point(0, 0));
-                (parent as ScrollViewer).ScrollToVerticalOffset(offset.Y + (parent as ScrollViewer).ContentVerticalOffset);
-            }
-        }
+       
     }
 
 }

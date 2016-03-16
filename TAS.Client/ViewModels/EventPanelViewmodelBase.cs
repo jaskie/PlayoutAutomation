@@ -1,0 +1,429 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
+using System.Windows.Data;
+using System.Collections;
+using System.Diagnostics;
+using System.Windows;
+using System.Runtime.Remoting.Messaging;
+using TAS.Common;
+using TAS.Client.Common;
+using TAS.Server.Interfaces;
+using TAS.Server.Common;
+
+namespace TAS.Client.ViewModels
+{
+    public abstract class EventPanelViewmodelBase : ViewmodelBase
+    {
+        protected readonly IEvent _event;
+        protected readonly IEngine _engine;
+        readonly int _level;
+        protected EventPanelViewmodelBase _parent;
+        protected readonly EventPanelRootViewmodel _root;
+        protected readonly EngineViewmodel _engineViewmodel;
+        protected readonly RationalNumber _frameRate;
+        protected ObservableCollection<EventPanelViewmodelBase> _childrens = new ObservableCollection<EventPanelViewmodelBase>();
+        protected static readonly EventPanelViewmodelBase DummyChild = new EventPanelDummyViewmodel();
+       
+        /// <summary>
+        /// Constructor for root event
+        /// </summary>
+        /// <param name="engineViewmodel"></param>
+        public EventPanelViewmodelBase(EngineViewmodel engineViewmodel) : base()
+        {
+            _engineViewmodel = engineViewmodel;
+            _engine = engineViewmodel.Engine;
+            _level = 0;
+            _isExpanded = true;
+            _frameRate = engineViewmodel.FrameRate;
+        }
+
+        /// <summary>
+        /// Constructor for child events
+        /// </summary>
+        /// <param name="aEvent"></param>
+        /// <param name="parent"></param>
+        protected EventPanelViewmodelBase(IEvent aEvent, EventPanelViewmodelBase parent) : base()
+        {
+            if (aEvent == null) // dummy child
+                return;
+            _frameRate = parent._frameRate;
+            _event = aEvent;
+            _parent = parent;
+            _root = parent._root;
+            _engineViewmodel = parent._engineViewmodel;
+            _level = (_parent == null) ? 0 : _parent._level + 1;
+            if (aEvent.SubEvents.Count() > 0)
+                _childrens.Add(DummyChild);
+            _event.PropertyChanged += _onPropertyChanged;
+            _event.Deleted += _eventDeleted;
+            _event.SubEventChanged += _onSubeventChanged;
+            _event.Relocated += _onRelocated;
+            _engine = _event.Engine;
+            _createCommands();
+        }
+
+#if DEBUG
+        ~EventPanelViewmodelBase ()
+        {
+            Debug.WriteLine("{0} for {1} Finalized", GetType(), this);
+        }
+#endif // DEBUG
+
+
+        protected override void OnDispose()
+        {
+            ClearChildrens();
+            if (_parent != null)
+            {
+                _parent._childrens.Remove(this);
+                _parent = null;
+            }
+            if (_event != null)
+            {
+                _event.PropertyChanged -= _onPropertyChanged;
+                _event.Deleted -= _eventDeleted;
+                _event.SubEventChanged -= _onSubeventChanged;
+                _event.Relocated -= _onRelocated;
+            }
+            Debug.WriteLine(this, "EventPanelViewmodel Disposed");
+        }
+
+        protected virtual void _createCommands()
+        {
+        }
+
+        //TODO: change to protected
+        internal EventPanelViewmodelBase CreateChildEventPanelViewmodelForEvent(IEvent ev)
+        {
+            switch (ev.EventType)
+            {
+                case TEventType.Rundown:
+                    return new EventPanelRundownViewmodel(ev, this);
+                case TEventType.Container:
+                    return new EventPanelContainerViewmodel(ev, this);
+                case TEventType.Movie:
+                    return new EventPanelMovieViewmodel(ev, this);
+                case TEventType.Live:
+                    return new EventPanelLiveViewmodel(ev, this);
+                case TEventType.StillImage:
+                    return new EventPanelStillViewmodel(ev, this);
+            }
+            throw new ApplicationException(string.Format("Invalid event type {0} to create panel", ev.EventType));
+        }
+
+        //TODO: remove
+        internal void NotifyPropertyChanged2(string propertyName)
+        {
+            base.NotifyPropertyChanged(propertyName);
+        }
+
+        private void _onRelocated(object sender, EventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)_updateLocation);
+            NotifyPropertyChanged("IsInvalidInSchedule");
+        }
+
+        private void _eventDeleted(object sender, EventArgs e)
+        {
+            _parent.Childrens.Remove(this);
+        }
+
+        protected virtual void _onPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+
+        }
+
+        protected virtual void _onSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                if (e.Operation == TCollectionOperation.Remove && HasDummyChild && _event.SubEvents.Count == 0)
+                    Childrens.Remove(DummyChild);
+            });
+        }
+
+
+        public ObservableCollection<EventPanelViewmodelBase> Childrens
+        {
+            get { return _childrens; }
+        }
+
+        public bool HasDummyChild
+        {
+            get { return _childrens.Contains(DummyChild); }
+        }
+
+        protected void LoadChildrens()
+        {
+            UiServices.SetBusyState();
+            foreach (IEvent se in _event.SubEvents)
+            {
+                _childrens.Add(CreateChildEventPanelViewmodelForEvent(se));
+                IEvent ne = se.Next;
+                while (ne != null)
+                {
+                    _childrens.Add(CreateChildEventPanelViewmodelForEvent(ne));
+                    ne = ne.Next;
+                }
+            }
+        }
+        protected void ClearChildrens()
+        {
+            if (this._childrens.Count() > 0)
+            {
+                if (!HasDummyChild)
+                {
+                    foreach (var c in _childrens.ToList())
+                        c.Dispose();
+                    if (Event.SubEvents.Count() > 0)
+                        _childrens.Add(DummyChild);
+                }
+            }
+        }
+
+        public int Level { get { return _level; } }
+
+        bool _isExpanded;
+        public bool IsExpanded
+        {
+            get { return _isExpanded; }
+            set
+            {
+                if (value != _isExpanded)
+                {
+                    _isExpanded = value;
+
+
+                    // Expand all the way up to the root.
+                    if (value && _parent != null)
+                        _parent.IsExpanded = true;
+
+                    // Lazy load the child items, if necessary.
+                    if (value && this.HasDummyChild)
+                    {
+                        this.Childrens.Remove(DummyChild);
+                        this.LoadChildrens();
+                    }
+
+                    if (!value)
+                        ClearChildrens();
+                    NotifyPropertyChanged("IsExpanded");
+                }
+            }
+        }
+
+        bool _isSelected;
+        public bool IsSelected
+        {
+            get { return _isSelected; }
+            set
+            {
+                if (value != _isSelected)
+                {
+                    _isSelected = value;
+                    if (value && _engineViewmodel != null)
+                        _engineViewmodel.Selected = this;
+
+                    NotifyPropertyChanged("IsSelected");
+                    NotifyPropertyChanged("CommandCut");
+                    NotifyPropertyChanged("CommandCopy");
+                    NotifyPropertyChanged("CommandPaste");
+                }
+            }
+        }
+
+        public EventPanelViewmodelBase Parent
+        {
+            get { return _parent; }
+            set
+            {
+                if (value != _parent)
+                {
+                    _parent._childrens.Remove(this);
+                    _parent = value;
+                    if (_parent != null)
+                    if (_event.Prior != null)
+                        _parent.Childrens.Insert(_parent._childrens.IndexOf(_parent._childrens.FirstOrDefault(evm => evm._event == _event.Prior))+1, this);
+                    else
+                        _parent._childrens.Insert(0, this);
+                }
+            }
+        }
+        
+        public string EventName
+        {
+            get { return (_event == null) ? string.Empty : _event.EventName; }
+        }
+
+
+
+        public UInt64 IdRundownEvent { get { return (_event == null) ? 0 : _event.IdRundownEvent; } }
+
+        public bool HasSubItems
+        {
+            get { return (_event == null || _event.EventType == TEventType.Live || _event.EventType == TEventType.Movie) ? false : _event.SubEvents.ToList().Any(e => e.EventType == TEventType.StillImage); }
+        }
+
+        public EventPanelViewmodelBase Find(IEvent aEvent, bool expandParents = false)
+        {
+            if (expandParents && !IsExpanded)
+                IsExpanded = true;
+            foreach (EventPanelViewmodelBase m in _childrens)
+            {
+                if (m._event == aEvent)
+                    return m;
+                if (m.Contains(aEvent))
+                    return m.Find(aEvent, expandParents);
+            }
+            return null;
+        }
+
+        private void _updateLocation()
+        {
+            if (_event != null)
+            {
+                IEvent prior = _event.Prior;
+                IEvent parent = _event.Parent;
+                IEvent next = _event.Next;
+                IEvent visualParent = _event.VisualParent;
+                if (prior != null)
+                {
+                    int index = _parent._childrens.IndexOf(this);
+                    if (visualParent != _parent._event
+                        || index <= 0
+                        || _parent._childrens[index - 1]._event != prior)
+                    {
+                        EventPanelViewmodelBase priorVm = _root.Find(prior);
+                        if (priorVm != null)
+                        {
+                            EventPanelViewmodelBase newParent = priorVm._parent;
+                            if (_parent == newParent)
+                            {
+                                int priorIndex = newParent._childrens.IndexOf(priorVm);
+                                if (index >= priorIndex)
+                                    newParent._childrens.Move(index, priorIndex + 1);
+                                else
+                                    newParent._childrens.Move(index, priorIndex);
+                            }
+                            else
+                            {
+                                _parent._childrens.Remove(this);
+                                if (!newParent.HasDummyChild)
+                                    newParent._childrens.Insert(newParent._childrens.IndexOf(priorVm) + 1, this);
+                                _parent = newParent;
+                            }
+                        }
+                    }
+                }
+                else
+                if (parent == null && next != null)
+                {
+                    int index = _parent._childrens.IndexOf(this);
+                    if (visualParent != _parent._event
+                        || index <= 0
+                        || _parent._childrens[index]._event != next)
+                    {
+                        EventPanelViewmodelBase nextVm = _root.Find(next);
+                        if (nextVm != null)
+                        {
+                            EventPanelViewmodelBase newParent = nextVm._parent;
+                            if (_parent == newParent)
+                            {
+                                int nextIndex = newParent._childrens.IndexOf(nextVm);
+                                if (index >= nextIndex)
+                                    newParent._childrens.Move(index, nextIndex);
+                                else
+                                    newParent._childrens.Move(index, nextIndex -1);
+                            }
+                            else
+                            {
+                                _parent._childrens.Remove(this);
+                                if (!newParent.HasDummyChild)
+                                    newParent._childrens.Insert(newParent._childrens.IndexOf(nextVm), this);
+                                _parent = newParent;
+                            }
+                        }
+                    }
+                }
+                else
+                if (parent == null)
+                {
+                    _parent._childrens.Remove(this);
+                    _root._childrens.Add(this);
+                    _parent = _root;
+                }
+                else
+                {
+                    EventPanelViewmodelBase parentVm = _root.Find(parent);
+                    if (parentVm != null)
+                    {
+                        if (parentVm == _parent)
+                        {
+                            if (prior == null)
+                                parentVm.Childrens.Move(parentVm.Childrens.IndexOf(this), 0);
+                        }
+                        else
+                            Parent = parentVm;
+                    }
+                }
+                this._bringIntoView();
+            }
+        }
+        
+
+        public bool Contains(IEvent  aEvent)
+        {
+            foreach (EventPanelViewmodelBase m in _childrens)
+            {
+                if (m._event == aEvent)
+                    return true;
+                if (m.Contains(aEvent))
+                    return true;
+            }
+            return false;
+        }
+
+  
+        public IEvent Event { get { return _event; } }
+
+        public override string ToString()
+        {
+            return _event == null ? "null" : _event.ToString();
+        }
+            
+        public Views.EventPanelViewBase View { get; set; }
+
+        protected EventPanelViewmodelBase _rootOwner
+        {
+            get
+            {
+                var result = this;
+                while (result.Parent is EventPanelRundownElementViewmodelBase || result.Parent is EventPanelContainerViewmodel)
+                    result = result.Parent;
+                return result;
+            }
+        }
+
+        public string RootOwnerName { get { return _rootOwner.EventName; } }
+
+        internal virtual void SetOnTop() { }
+
+        protected void _bringIntoView()
+        {
+            var p = Parent;
+            if (p != null)
+                if (p.IsExpanded)
+                {
+                    var v = View;
+                    v.BringIntoView();
+                }
+                else
+                    p._bringIntoView();
+        }
+    }
+}

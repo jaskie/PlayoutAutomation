@@ -245,14 +245,9 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (_checkConnected() && channel != null)
             {
-                if (aEvent.EventType != TEventType.AnimationFlash)
-                {
-                    IMedia m = aEvent.Media;
-                    if (aEvent.EventType == TEventType.Live || m != null)
-                        channel.Play((int)aEvent.Layer);
-                }
-                else
-                    channel.CG.Play((int)aEvent.Layer);
+                IMedia m = aEvent.Media;
+                if (aEvent.EventType == TEventType.Live || m != null)
+                    channel.Play((int)aEvent.Layer);
                 Debug.WriteLine(aEvent, string.Format("CasparPlay Layer {0}", aEvent.Layer));
                 return true;
             }

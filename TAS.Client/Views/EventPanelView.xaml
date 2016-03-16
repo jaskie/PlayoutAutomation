@@ -1,4 +1,4 @@
-﻿<UserControl ResxExtension.DefaultResxName="TAS.Client.Views.EventPanelView" Language="{UICulture}" 
+﻿<local:EventPanelViewBase ResxExtension.DefaultResxName="TAS.Client.Views.EventPanelView" Language="{UICulture}" 
              x:Class="TAS.Client.Views.EventPanelView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,15 +6,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:sys="clr-namespace:System;assembly=System"
              xmlns:c="clr-namespace:TAS.Client"
+             xmlns:local="clr-namespace:TAS.Client.Views"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
-             d:DataContext="{x:Type vm:EventPanelViewmodel}"
+             d:DataContext="{x:Type vm:EventPanelViewmodelBase}"
              FontSize="12" 
-             DataContextChanged="UserControl_DataContextChanged" 
              d:DesignWidth="700"
              >
-    <UserControl.Resources>
+    <local:EventPanelViewBase.Resources>
         <Style x:Key="borderStyle" TargetType="{x:Type Border}">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
@@ -29,8 +29,8 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
-    </UserControl.Resources>
-    <UserControl.ContextMenu>
+    </local:EventPanelViewBase.Resources>
+    <local:EventPanelViewBase.ContextMenu>
         <ContextMenu>
             <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Copy}" Command="{Binding CommandCopy}" />
             <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Cut}" Command="{Binding CommandCut}"/>
@@ -42,7 +42,7 @@
             <Separator/>
             <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Hide}" Command="{Binding CommandHide}" InputGestureText="F9" Visibility="{Binding IsRootContainer, Converter={StaticResource BoolToVis}}"/>
         </ContextMenu>
-    </UserControl.ContextMenu>
+    </local:EventPanelViewBase.ContextMenu>
     <Border x:Name="border" Style="{StaticResource borderStyle}" BorderThickness="0, 0, 0, 1" Margin="0" BorderBrush="Gray" >
         <StackPanel>
             <Border Background="#FFEBBDA0" Height="15" Visibility="{Binding IsStartEvent,  Converter={StaticResource BoolToVis}}">
@@ -242,4 +242,4 @@
             </StackPanel>
         </StackPanel>
     </Border>
-</UserControl>
+</local:EventPanelViewBase>

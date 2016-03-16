@@ -22,11 +22,7 @@ namespace TAS.Client.ViewModels
             _fileManager = fileManager;
             fileManager.OperationAdded += FileManager_OperationAdded;
             fileManager.OperationCompleted += FileManager_OperationCompleted;
-            _operationList = new ObservableCollection<FileOperationViewmodel>(fileManager.GetOperationQueue().Select(fo =>
-            {
-                fo.ReferenceAdd();
-                return new FileOperationViewmodel(fo);
-            }));
+            _operationList = new ObservableCollection<FileOperationViewmodel>(fileManager.GetOperationQueue().Select(fo => new FileOperationViewmodel(fo)));
             View = new Views.FileManagerView() { DataContext = this };
         }
 
@@ -48,7 +44,6 @@ namespace TAS.Client.ViewModels
 
         private void FileManager_OperationAdded(object sender, FileOperationEventArgs e)
         {
-            e.Operation.ReferenceAdd();
             Application.Current.Dispatcher.BeginInvoke((Action)(() =>
                _operationList.Add(new FileOperationViewmodel(e.Operation)))
                 , null);

@@ -17,6 +17,7 @@ namespace TAS.Client.ViewModels
 
         public FileOperationViewmodel(IFileOperation fileOperation)
         {
+            fileOperation.ReferenceAdd();
             _fileOperation = fileOperation;
             _fileOperation.PropertyChanged += OnPropertyChanged;
             CommandAbort = new UICommand() { ExecuteDelegate = o => _fileOperation.Aborted = true, CanExecuteDelegate = o => _fileOperation.OperationStatus == FileOperationStatus.Waiting || _fileOperation.OperationStatus == FileOperationStatus.InProgress };
@@ -50,9 +51,9 @@ namespace TAS.Client.ViewModels
         }
 
         public int Progress { get { return _fileOperation.Progress; } }
-        public DateTime ScheduledTime { get { return _fileOperation.ScheduledTime.ToLocalTime(); } }
-        public DateTime StartTime { get { return _fileOperation.ScheduledTime.ToLocalTime(); } }
-        public DateTime FinishedTime { get { return _fileOperation.FinishedTime.ToLocalTime(); } }
+        public DateTime ScheduledTime { get { return _fileOperation.ScheduledTime; } }
+        public DateTime StartTime { get { return _fileOperation.StartTime; } }
+        public DateTime FinishedTime { get { return _fileOperation.FinishedTime; } }
         public int TryCount { get { return _fileOperation.TryCount; } }
         public bool IsIndeterminate { get { return _fileOperation.IsIndeterminate; } }
 

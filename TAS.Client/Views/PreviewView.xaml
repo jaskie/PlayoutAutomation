@@ -114,7 +114,7 @@
                     <Label Grid.Column="2" Content="Out" HorizontalAlignment="Right" />
                     <common:DelayedBindingTextBox Grid.Column="4" Text="{Binding TcOut, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
                 </Grid>
-                <DockPanel IsEnabled="{Binding }" Visibility="{Binding IsSegmentsVisible, Converter={StaticResource BoolToVis}}">
+                <DockPanel IsEnabled="{Binding IsSegmentsEnabled, Converter={StaticResource BoolToVis}}" Visibility="{Binding IsSegmentsVisible, Converter={StaticResource BoolToVis}}">
                     <DockPanel DockPanel.Dock="Top">
                         <Label DockPanel.Dock="Left" Content="{Resx _name}" Padding="2" VerticalContentAlignment="Center" Margin="4,0"/>
                         <Button DockPanel.Dock="Right" Style="{StaticResource smallButton}" ToolTip="{Resx _delete.ToolTip}" Command="{Binding CommandDeleteSegment}" Margin="5,0" >
