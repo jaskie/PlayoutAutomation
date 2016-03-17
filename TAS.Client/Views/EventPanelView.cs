@@ -9,9 +9,10 @@ using TAS.Client.ViewModels;
 
 namespace TAS.Client.Views
 {
-    public class EventPanelViewBase: UserControl
+    public class EventPanelView: UserControl
     {
-        public EventPanelViewBase()
+        private string _viewName;
+        public EventPanelView()
         {
             this.DataContextChanged += UserControl_DataContextChanged;
         }
@@ -21,18 +22,20 @@ namespace TAS.Client.Views
             EventPanelViewmodelBase vm = e.NewValue as EventPanelViewmodelBase;
             if (vm != null)
             {
-                vm.View = (EventPanelViewBase)sender;
+                vm.View = (EventPanelView)sender;
+                _viewName = vm.EventName;
                 if (vm.IsSelected)
                     this.BringIntoView();
+                this.DataContextChanged -= UserControl_DataContextChanged;
             }
         }
         
 
 #if DEBUG
-        ~EventPanelViewBase()
+        ~EventPanelView()
         {
             if (Application.Current != null)
-                Application.Current.Dispatcher.BeginInvoke((Action)(() => System.Diagnostics.Debug.WriteLine(this.DataContext, "View finalized")));
+                Application.Current.Dispatcher.BeginInvoke((Action)(() => System.Diagnostics.Debug.WriteLine(_viewName, "View finalized")));
         }
 #endif // DEBUG
 

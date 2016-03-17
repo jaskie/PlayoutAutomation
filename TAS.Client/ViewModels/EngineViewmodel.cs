@@ -179,7 +179,16 @@ namespace TAS.Client.ViewModels
 
         private bool _canExport(object obj)
         {
-            return _selectedEvents.Any(e => e is EventPanelMovieViewmodel && ((EventPanelMovieViewmodel)e).Media.FileExists()) && _engine.MediaManager.IngestDirectories.Any(d => d.IsExport);
+            return _selectedEvents.Any(e =>
+                    {
+                        if (e is EventPanelMovieViewmodel)
+                        {
+                            IMedia media = ((EventPanelMovieViewmodel)e).Media;
+                            return media != null && media.FileExists();
+                        }
+                        return false;
+                    })
+                    && _engine.MediaManager.IngestDirectories.Any(d => d.IsExport);
         }
 
         private void _export(object obj)

@@ -34,6 +34,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.IO, Version=2.6.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.1.1.10\lib\net40\System.IO.dll</HintPath>
       <Private>True</Private>
@@ -47,6 +48,7 @@
       <HintPath>..\packages\Microsoft.Bcl.1.1.10\lib\net40\System.Threading.Tasks.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -99,8 +101,20 @@
     <Compile Include="Views\EventEditView.xaml.cs">
       <DependentUpon>EventEditView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\EventPanelView.xaml.cs">
-      <DependentUpon>EventPanelView.xaml</DependentUpon>
+    <Compile Include="Views\EventPanelContainerView.xaml.cs">
+      <DependentUpon>EventPanelContainerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelLiveView.xaml.cs">
+      <DependentUpon>EventPanelLiveView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelRundownView.xaml.cs">
+      <DependentUpon>EventPanelRundownView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelMovieView.xaml.cs">
+      <DependentUpon>EventPanelMovieView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelStillView.xaml.cs">
+      <DependentUpon>EventPanelStillView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ExportView.xaml.cs">
       <DependentUpon>ExportView.xaml</DependentUpon>
@@ -108,7 +122,7 @@
     <Compile Include="Views\FileManagerView.xaml.cs">
       <DependentUpon>FileManagerView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\EventPanelViewBase.cs" />
+    <Compile Include="Views\EventPanelView.cs" />
     <Compile Include="Views\IngestEditorView.xaml.cs">
       <DependentUpon>IngestEditorView.xaml</DependentUpon>
     </Compile>
@@ -166,9 +180,25 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\EventPanelView.xaml">
+    <Page Include="Views\EventPanelContainerView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventPanelLiveView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventPanelRundownView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventPanelMovieView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventPanelStillView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ExportView.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -227,10 +257,10 @@
       <DependentUpon>EventEditView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\EventPanelView.pl.resx">
-      <DependentUpon>EventPanelView.xaml</DependentUpon>
+      <DependentUpon>EventPanelView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\EventPanelView.resx">
-      <DependentUpon>EventPanelView.xaml</DependentUpon>
+      <DependentUpon>EventPanelView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ExportView.pl.resx">
       <DependentUpon>ExportView.xaml</DependentUpon>

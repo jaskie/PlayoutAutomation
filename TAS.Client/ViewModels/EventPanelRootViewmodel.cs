@@ -91,10 +91,6 @@ namespace TAS.Client.ViewModels
                             _addRootEvent(e.Event);
                     }
                 }
-                else //evm != null
-                {
-                    evm.NotifyPropertyChanged2("IsInvalidInSchedule");
-                }
                 if (onUIThread
                     && newVm != null
                     && !(e.Event.EventType == TEventType.StillImage))
@@ -119,6 +115,11 @@ namespace TAS.Client.ViewModels
                     ne = ne.Next;
                 }
             }
+        }
+
+        public IEnumerable<EventPanelContainerViewmodel> Containers
+        {
+            get { return _childrens.Where(c => c is EventPanelContainerViewmodel).Select(c=> c as EventPanelContainerViewmodel); }
         }
 
     }

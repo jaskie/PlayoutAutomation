@@ -1,0 +1,76 @@
+﻿<local:EventPanelView ResxExtension.DefaultResxName="TAS.Client.Views.EventPanelView" Language="{UICulture}" 
+             x:Class="TAS.Client.Views.EventPanelContainerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:sys="clr-namespace:System;assembly=System"
+             xmlns:c="clr-namespace:TAS.Client"
+             xmlns:local="clr-namespace:TAS.Client.Views"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             mc:Ignorable="d" 
+             d:DataContext="{x:Type vm:EventPanelContainerViewmodel}"
+             FontSize="12" 
+             d:DesignWidth="700"
+             >
+    <local:EventPanelView.InputBindings>
+        <KeyBinding Gesture="F9" Command="{Binding CommandHide}"/>
+    </local:EventPanelView.InputBindings>
+    <local:EventPanelView.Resources>
+        <Style x:Key="borderStyle" TargetType="{x:Type Border}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                    <Setter Property="Background" Value="RoyalBlue" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="MyFocusVisualStyle">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="-2" StrokeThickness="1" Stroke="Red"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </local:EventPanelView.Resources>
+    <local:EventPanelView.ContextMenu>
+        <ContextMenu>
+            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste}">
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Under}" Command="{Binding CommandPaste}" CommandParameter="Under" />
+            </MenuItem>
+            <Separator/>
+            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Hide}" Command="{Binding CommandHide}" InputGestureText="F9"/>
+        </ContextMenu>
+    </local:EventPanelView.ContextMenu>
+    <Grid x:Name="grid" Height="59"  >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="33" />
+            <ColumnDefinition Width="33" />
+            <ColumnDefinition Width="33" />
+            <ColumnDefinition Width="0" />
+            <ColumnDefinition Width="80" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="7*" />
+            <RowDefinition Height="4*" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="3" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="15" />
+                <RowDefinition />
+                <RowDefinition Height="15" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Image Grid.Row="1" Grid.Column="1" ToolTip="{Binding EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Container.png"/>
+        </Grid>
+        <TextBlock Grid.Column="5" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0"/>
+    </Grid>
+</local:EventPanelView>

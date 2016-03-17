@@ -59,21 +59,19 @@ namespace TAS.Client.ViewModels
             _level = (_parent == null) ? 0 : _parent._level + 1;
             if (aEvent.SubEvents.Count() > 0)
                 _childrens.Add(DummyChild);
-            _event.PropertyChanged += _onPropertyChanged;
+            _event.PropertyChanged += OnPropertyChanged;
             _event.Deleted += _eventDeleted;
-            _event.SubEventChanged += _onSubeventChanged;
-            _event.Relocated += _onRelocated;
+            _event.SubEventChanged += OnSubeventChanged;
+            _event.Relocated += OnRelocated;
+            _event.Saved += OnEventSaved;
             _engine = _event.Engine;
             _createCommands();
         }
 
-#if DEBUG
-        ~EventPanelViewmodelBase ()
+        protected virtual void OnEventSaved(object sender, EventArgs e)
         {
-            Debug.WriteLine("{0} for {1} Finalized", GetType(), this);
+            
         }
-#endif // DEBUG
-
 
         protected override void OnDispose()
         {
@@ -85,10 +83,11 @@ namespace TAS.Client.ViewModels
             }
             if (_event != null)
             {
-                _event.PropertyChanged -= _onPropertyChanged;
+                _event.PropertyChanged -= OnPropertyChanged;
                 _event.Deleted -= _eventDeleted;
-                _event.SubEventChanged -= _onSubeventChanged;
-                _event.Relocated -= _onRelocated;
+                _event.SubEventChanged -= OnSubeventChanged;
+                _event.Relocated -= OnRelocated;
+                _event.Saved -= OnEventSaved;
             }
             Debug.WriteLine(this, "EventPanelViewmodel Disposed");
         }
@@ -97,7 +96,6 @@ namespace TAS.Client.ViewModels
         {
         }
 
-        //TODO: change to protected
         internal EventPanelViewmodelBase CreateChildEventPanelViewmodelForEvent(IEvent ev)
         {
             switch (ev.EventType)
@@ -116,29 +114,25 @@ namespace TAS.Client.ViewModels
             throw new ApplicationException(string.Format("Invalid event type {0} to create panel", ev.EventType));
         }
 
-        //TODO: remove
-        internal void NotifyPropertyChanged2(string propertyName)
-        {
-            base.NotifyPropertyChanged(propertyName);
-        }
-
-        private void _onRelocated(object sender, EventArgs e)
+        protected virtual void OnRelocated(object sender, EventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)_updateLocation);
-            NotifyPropertyChanged("IsInvalidInSchedule");
         }
 
         private void _eventDeleted(object sender, EventArgs e)
         {
-            _parent.Childrens.Remove(this);
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+            {
+                Dispose();
+            });
         }
 
-        protected virtual void _onPropertyChanged(object sender, PropertyChangedEventArgs e)
+        protected virtual void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
 
         }
 
-        protected virtual void _onSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
+        protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
@@ -228,14 +222,14 @@ namespace TAS.Client.ViewModels
                     _isSelected = value;
                     if (value && _engineViewmodel != null)
                         _engineViewmodel.Selected = this;
-
                     NotifyPropertyChanged("IsSelected");
-                    NotifyPropertyChanged("CommandCut");
-                    NotifyPropertyChanged("CommandCopy");
-                    NotifyPropertyChanged("CommandPaste");
+                    InvalidateRequerySuggested();
                 }
             }
         }
+
+        bool _isVisible = true;
+        public bool IsVisible { get { return _isVisible; }  set { SetField(ref _isVisible, value, "IsVisible"); } }
 
         public EventPanelViewmodelBase Parent
         {
@@ -395,8 +389,8 @@ namespace TAS.Client.ViewModels
         {
             return _event == null ? "null" : _event.ToString();
         }
-            
-        public Views.EventPanelViewBase View { get; set; }
+
+        public Views.EventPanelView View;
 
         protected EventPanelViewmodelBase _rootOwner
         {

@@ -10,11 +10,17 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public abstract class EventPanelRundownElementViewmodelBase: EventPanelViewmodelBase
+    public abstract class EventPanelRundownElementViewmodelBase : EventPanelViewmodelBase
     {
         public EventPanelRundownElementViewmodelBase(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent) {
             Media = ev.Media;
             ev.PositionChanged += _eventPositionChanged;
+        }
+
+        protected override void OnEventSaved(object sender, EventArgs e)
+        {
+            base.OnEventSaved(sender, e);
+            NotifyPropertyChanged("IsInvalidInSchedule");
         }
 
         protected override void OnDispose()
@@ -58,71 +64,43 @@ namespace TAS.Client.ViewModels
             get { return _event != null && (_event.PlayState == TPlayState.Playing); }
         }
 
+        private bool _hasSubItemsOnLayer(VideoLayer layer)
+        {
+            return _event.SubEvents.ToList().Any(e => e.Layer == layer && e.EventType == TEventType.StillImage);
+        }
+
         public bool HasSubItemOnLayer1
         {
-            get { return (_event == null) ? false : (_event.EventType == TEventType.StillImage) ? _event.Layer == VideoLayer.CG1 : _event.SubEvents.ToList().Any(e => e.Layer == VideoLayer.CG1 && e.EventType == TEventType.StillImage); }
+            get { return _hasSubItemsOnLayer(VideoLayer.CG1); }
         }
         public bool HasSubItemOnLayer2
         {
-            get { return (_event == null) ? false : (_event.EventType == TEventType.StillImage) ? _event.Layer == VideoLayer.CG2 : _event.SubEvents.ToList().Any(e => e.Layer == VideoLayer.CG2 && e.EventType == TEventType.StillImage); }
+            get { return _hasSubItemsOnLayer(VideoLayer.CG2); }
         }
         public bool HasSubItemOnLayer3
         {
-            get { return (_event == null) ? false : (_event.EventType == TEventType.StillImage) ? _event.Layer == VideoLayer.CG3 : _event.SubEvents.ToList().Any(e => e.Layer == VideoLayer.CG3 && e.EventType == TEventType.StillImage); }
+            get { return _hasSubItemsOnLayer(VideoLayer.CG3); }
         }
 
-        public string Layer1SubItemMediaName
+        private string _subItemMediaName(VideoLayer layer)
         {
-            get
+            if (_event != null)
             {
-                if (_event != null)
+                IEvent se = _event.SubEvents.ToList().FirstOrDefault(e => e.Layer == layer && e.EventType == TEventType.StillImage);
+                if (se != null)
                 {
-                    IEvent se = _event.SubEvents.ToList().FirstOrDefault(e => e.Layer == VideoLayer.CG1 && e.EventType == TEventType.StillImage);
-                    if (se != null)
-                    {
-                        IMedia m = se.Media;
-                        if (m != null)
-                            return m.MediaName;
-                    }
+                    IMedia m = se.Media;
+                    if (m != null)
+                        return m.MediaName;
                 }
-                return string.Empty;
             }
-        }
-        public string Layer2SubItemMediaName
-        {
-            get
-            {
-                if (_event != null)
-                {
-                    IEvent se = _event.SubEvents.ToList().FirstOrDefault(e => e.Layer == VideoLayer.CG2 && e.EventType == TEventType.StillImage);
-                    if (se != null)
-                    {
-                        IMedia m = se.Media;
-                        if (m != null)
-                            return m.MediaName;
-                    }
-                }
-                return string.Empty;
-            }
-        }
-        public string Layer3SubItemMediaName
-        {
-            get
-            {
-                if (_event != null)
-                {
-                    IEvent se = _event.SubEvents.ToList().FirstOrDefault(e => e.Layer == VideoLayer.CG3 && e.EventType == TEventType.StillImage);
-                    if (se != null)
-                    {
-                        IMedia m = se.Media;
-                        if (m != null)
-                            return m.MediaName;
-                    }
-                }
-                return string.Empty;
-            }
+            return string.Empty;
         }
 
+        public string Layer1SubItemMediaName { get { return _subItemMediaName(VideoLayer.CG1); } }
+        public string Layer2SubItemMediaName { get { return _subItemMediaName(VideoLayer.CG2); } }
+        public string Layer3SubItemMediaName { get { return _subItemMediaName(VideoLayer.CG3); } }
+        
         public bool OffsetVisible { get { return _event != null && _event.RequestedStartTime != null; } }
         public TimeSpan? Offset
         {
@@ -334,9 +312,9 @@ namespace TAS.Client.ViewModels
 
         }
 
-        protected override void _onSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
+        protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
-            base._onSubeventChanged(o, e);
+            base.OnSubeventChanged(o, e);
             switch (e.Item.Layer)
             {
                 case VideoLayer.CG1:
@@ -359,9 +337,9 @@ namespace TAS.Client.ViewModels
             TimeLeft = (e.TimeToFinish == TimeSpan.Zero || _event.PlayState == TPlayState.Scheduled) ? string.Empty : e.TimeToFinish.ToSMPTETimecodeString(_frameRate);
         }
 
-        protected override void _onPropertyChanged(object sender, PropertyChangedEventArgs e)
+        protected override void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            base._onPropertyChanged(sender, e);
+            base.OnPropertyChanged(sender, e);
             if (e.PropertyName == "Duration"
                 || e.PropertyName == "IsEnabled"
                 || e.PropertyName == "IsHold"
@@ -410,17 +388,8 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("GPILogo");
                 NotifyPropertyChanged("GPIParental");
             }
-            if (e.PropertyName == "IsEnabled")
-                NotifyPropertyChanged("IsVisible");
-            EventPanelViewmodelBase parent = _parent;
-            if (e.PropertyName == "EventName" && parent != null)
-            {
-                parent.NotifyPropertyChanged2("Layer1SubItemMediaName");
-                parent.NotifyPropertyChanged2("Layer2SubItemMediaName");
-                parent.NotifyPropertyChanged2("Layer3SubItemMediaName");
-            }
-
         }
+
 
 
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
@@ -14,10 +15,12 @@ namespace TAS.Client.ViewModels
         public EventPanelContainerViewmodel(IEvent ev, EventPanelViewmodelBase parent): base(ev, parent) {
             if (ev.EventType != TEventType.Container)
                 throw new ApplicationException(string.Format("Invalid panel type:{0} for event type:{1}", this.GetType(), ev.EventType));
+            IsVisible = ev.IsEnabled;
         }
 
-        public UICommand CommandHide { get; private set; }
-        public UICommand CommandShow { get; private set; }
+        public ICommand CommandHide { get; private set; }
+        public ICommand CommandShow { get; private set; }
+        public ICommand CommandPaste { get { return _engineViewmodel.CommandPasteSelected; } }
         protected override void _createCommands()
         {
             CommandHide = new UICommand()
@@ -27,7 +30,7 @@ namespace TAS.Client.ViewModels
                     _event.IsEnabled = false;
                     _event.Save();
                 },
-                CanExecuteDelegate = o => _event.IsEnabled == true
+                //CanExecuteDelegate = o => _event.IsEnabled == true
             };
             CommandShow = new UICommand()
             {
@@ -40,10 +43,18 @@ namespace TAS.Client.ViewModels
             };
         }
 
-        public bool IsVisible
+
+        protected override void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            get { return (_event == null) ? true : _event.IsEnabled || _event.EventType != TEventType.Container; }
+            base.OnPropertyChanged(sender, e);
+            if (e.PropertyName == "IsEnabled")
+            {
+                IsVisible = _event.IsEnabled;
+            }
         }
+
+        public TEventType EventType { get { return TEventType.Container; } }
+
 
     }
 }

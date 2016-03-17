@@ -655,7 +655,6 @@ namespace TAS.Server.Database
             if (aEvent.ScheduledTime < _minMySqlDate || aEvent.ScheduledTime > _maxMySQLDate)
             {
                 cmd.Parameters.AddWithValue("@ScheduledTime", DBNull.Value);
-                Debug.WriteLine(aEvent, "null ScheduledTime");
             }
             else
                 cmd.Parameters.AddWithValue("@ScheduledTime", aEvent.ScheduledTime);
