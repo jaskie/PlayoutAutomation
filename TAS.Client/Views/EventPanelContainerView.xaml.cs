@@ -1,4 +1,6 @@
 ﻿
+using System.Diagnostics;
+
 namespace TAS.Client.Views
 {
     /// <summary>
@@ -11,9 +13,17 @@ namespace TAS.Client.Views
         public EventPanelContainerView()
         {
             InitializeComponent();
-            Focusable = true;
         }
-      
+
+        private void grid_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Debug.WriteLine(tb.Focus());
+        }
+
+        private void grid_PreviewLostKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
+        {
+            Debug.WriteLine("Lost!");
+        }
     }
 
 }

@@ -25,12 +25,8 @@ namespace TAS.Client.ViewModels
         {
             CommandHide = new UICommand()
             {
-                ExecuteDelegate = o =>
-                {
-                    _event.IsEnabled = false;
-                    _event.Save();
-                },
-                //CanExecuteDelegate = o => _event.IsEnabled == true
+                ExecuteDelegate = o => IsVisible = false,
+                CanExecuteDelegate = o => _event.IsEnabled == true
             };
             CommandShow = new UICommand()
             {
@@ -43,6 +39,19 @@ namespace TAS.Client.ViewModels
             };
         }
 
+        public bool IsVisible
+        {
+            get { return _event.IsEnabled; }
+            set
+            {
+                if (_event.IsEnabled != value)
+                {
+                    _event.IsEnabled = value;
+                    _event.Save();
+                    NotifyPropertyChanged("IsVisible");
+                }
+            }
+        }
 
         protected override void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {

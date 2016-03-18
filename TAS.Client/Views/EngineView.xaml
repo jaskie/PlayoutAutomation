@@ -290,6 +290,9 @@
                       Background="{x:Null}" 
                       common:TreeViewExtensions.CursorWaitOnGeneratingItems="True"
                       >
+                <TreeView.InputBindings>
+                    <KeyBinding Command="{Binding CommandEventHide}" Gesture="F9" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type TreeView}}, Path=SelectedItem}"/>
+                </TreeView.InputBindings>
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
                         <Setter Property="Template">
@@ -297,7 +300,7 @@
                                 <ControlTemplate TargetType="TreeViewItem">
                                     <Grid MaxWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" MinWidth="19" />
+                                            <ColumnDefinition Width="Auto" MinWidth="20" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <Grid.RowDefinitions>
@@ -308,18 +311,18 @@
                                             <ToggleButton.Style>
                                                 <Style TargetType="ToggleButton">
                                                     <Setter Property="UIElement.Focusable" Value="false" />
-                                                    <Setter Property="FrameworkElement.Width" Value="16" />
-                                                    <Setter Property="FrameworkElement.Height" Value="16" />
+                                                    <Setter Property="FrameworkElement.Width" Value="20" />
+                                                    <Setter Property="FrameworkElement.Height" Value="24" />
                                                     <Setter Property="Control.Template">
                                                         <Setter.Value>
                                                             <ControlTemplate TargetType="ToggleButton">
-                                                                <Border Background="#00FFFFFF" Width="16" Height="16" >
+                                                                <Border Background="#00FFFFFF" Width="20" Height="24" >
                                                                     <Path Fill="#00FFFFFF" Stroke="#FF989898" Name="ExpandPath">
                                                                         <Path.Data>
-                                                                            <PathGeometry Figures="M0,0L0,10L10,0z" />
+                                                                            <PathGeometry Figures="M0,0L0,13L13,0z" />
                                                                         </Path.Data>
                                                                         <Path.RenderTransform>
-                                                                            <RotateTransform Angle="135" CenterX="5" CenterY="5"/>
+                                                                            <RotateTransform Angle="135" CenterX="6" CenterY="7"/>
                                                                         </Path.RenderTransform>
                                                                     </Path>
                                                                 </Border>
@@ -331,7 +334,7 @@
                                                                     <Trigger Property="ToggleButton.IsChecked" Value="True">
                                                                         <Setter TargetName="ExpandPath" Property="UIElement.RenderTransform">
                                                                             <Setter.Value>
-                                                                                <RotateTransform Angle="180" CenterX="5" CenterY="5" />
+                                                                                <RotateTransform Angle="180" CenterX="8" CenterY="7" />
                                                                             </Setter.Value>
                                                                         </Setter>
                                                                         <Setter TargetName="ExpandPath" Property="Shape.Fill" Value="#FF595959" />

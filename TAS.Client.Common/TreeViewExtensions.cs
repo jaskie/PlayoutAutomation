@@ -258,7 +258,7 @@ namespace TAS.Client.Common
 
 		private static TreeViewItem FindTreeViewItem(object obj)
 		{
-			DependencyObject dpObj = obj as DependencyObject;
+            DependencyObject dpObj = obj as Visual;
 			if(dpObj == null)
 				return null;
 			if(dpObj is TreeViewItem)

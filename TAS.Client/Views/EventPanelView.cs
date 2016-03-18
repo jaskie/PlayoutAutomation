@@ -11,10 +11,12 @@ namespace TAS.Client.Views
 {
     public class EventPanelView: UserControl
     {
+
         private string _viewName;
         public EventPanelView()
         {
             this.DataContextChanged += UserControl_DataContextChanged;
+            
         }
 
         protected void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)

@@ -38,13 +38,13 @@
     <local:EventPanelView.ContextMenu>
         <ContextMenu>
             <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste}">
-                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Under}" Command="{Binding CommandPaste}" CommandParameter="Under" />
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Under}" Command="{Binding CommandPaste}" CommandParameter="Under"/>
             </MenuItem>
             <Separator/>
             <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Hide}" Command="{Binding CommandHide}" InputGestureText="F9"/>
         </ContextMenu>
     </local:EventPanelView.ContextMenu>
-    <Grid x:Name="grid" Height="59"  >
+    <Grid Focusable="True" Height="59" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="33" />
             <ColumnDefinition Width="33" />
@@ -71,6 +71,6 @@
             </Grid.ColumnDefinitions>
             <Image Grid.Row="1" Grid.Column="1" ToolTip="{Binding EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Container.png"/>
         </Grid>
-        <TextBlock Grid.Column="5" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0"/>
+        <TextBlock Grid.Column="5" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0" Name="tb" Focusable="True" MouseDown="grid_MouseDown" PreviewLostKeyboardFocus="grid_PreviewLostKeyboardFocus" />
     </Grid>
 </local:EventPanelView>

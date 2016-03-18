@@ -49,6 +49,8 @@ namespace TAS.Client.ViewModels
         public ICommand CommandCutSelected { get; private set; }
         public ICommand CommandExport { get; private set; }
 
+        public ICommand CommandEventHide { get; private set; }
+
         public ICommand CommandAddNewMovie { get { return _eventEditViewmodel.CommandAddNextMovie; } }
         public ICommand CommandAddNewRundown { get { return _eventEditViewmodel.CommandAddNextRundown; } }
         public ICommand CommandAddNewLive { get { return _eventEditViewmodel.CommandAddNextLive; } }
@@ -150,14 +152,22 @@ namespace TAS.Client.ViewModels
             CommandNewRootRundown = new UICommand() { ExecuteDelegate = _newRootRundown };
             CommandNewContainer = new UICommand() { ExecuteDelegate = _newContainer };
             CommandSearchMissingEvents = new UICommand() { ExecuteDelegate = _searchMissingEvents };
-            CommandStartLoaded = new UICommand() { ExecuteDelegate = o => _engine.StartLoaded(), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Hold};
+            CommandStartLoaded = new UICommand() { ExecuteDelegate = o => _engine.StartLoaded(), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Hold };
             CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
             CommandCopySelected = new UICommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _selectedEvents.Any() };
             CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
             CommandPasteSelected = new UICommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
             CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
+            CommandEventHide = new UICommand() { ExecuteDelegate = _eventHide };
         }
 
+        private void _eventHide(object obj)
+        {
+            var ep = obj as EventPanelContainerViewmodel;
+            if (ep != null)
+                ep.IsVisible = false;
+        }
+    
         private void _pasteSelected(object obj)
         {
             UiServices.SetBusyState();

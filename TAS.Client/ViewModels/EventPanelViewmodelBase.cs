@@ -228,8 +228,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        bool _isVisible = true;
-        public bool IsVisible { get { return _isVisible; }  set { SetField(ref _isVisible, value, "IsVisible"); } }
+        //protected bool _isVisible = true;
+        //public virtual bool IsVisible { get { return _isVisible; }  set { SetField(ref _isVisible, value, "IsVisible"); } }
 
         public EventPanelViewmodelBase Parent
         {
