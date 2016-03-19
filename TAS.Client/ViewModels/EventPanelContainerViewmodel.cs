@@ -15,7 +15,6 @@ namespace TAS.Client.ViewModels
         public EventPanelContainerViewmodel(IEvent ev, EventPanelViewmodelBase parent): base(ev, parent) {
             if (ev.EventType != TEventType.Container)
                 throw new ApplicationException(string.Format("Invalid panel type:{0} for event type:{1}", this.GetType(), ev.EventType));
-            IsVisible = ev.IsEnabled;
         }
 
         public ICommand CommandHide { get; private set; }
@@ -30,16 +29,12 @@ namespace TAS.Client.ViewModels
             };
             CommandShow = new UICommand()
             {
-                ExecuteDelegate = o =>
-                {
-                    _event.IsEnabled = true;
-                    _event.Save();
-                },
+                ExecuteDelegate = o => IsVisible = true,
                 CanExecuteDelegate = o => _event.IsEnabled == false
             };
         }
 
-        public bool IsVisible
+        public override bool IsVisible
         {
             get { return _event.IsEnabled; }
             set

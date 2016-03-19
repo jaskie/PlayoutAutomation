@@ -163,7 +163,7 @@ namespace TAS.Client.ViewModels
 
         private void _eventHide(object obj)
         {
-            var ep = obj as EventPanelContainerViewmodel;
+            var ep = Selected as EventPanelContainerViewmodel;
             if (ep != null)
                 ep.IsVisible = false;
         }

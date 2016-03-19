@@ -14,9 +14,6 @@
              FontSize="12" 
              d:DesignWidth="700"
              >
-    <local:EventPanelView.InputBindings>
-        <KeyBinding Gesture="F9" Command="{Binding CommandHide}"/>
-    </local:EventPanelView.InputBindings>
     <local:EventPanelView.Resources>
         <Style x:Key="borderStyle" TargetType="{x:Type Border}">
             <Style.Triggers>
