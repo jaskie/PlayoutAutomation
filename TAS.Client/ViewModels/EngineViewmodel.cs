@@ -50,7 +50,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandExport { get; private set; }
 
         public ICommand CommandEventHide { get; private set; }
-
         public ICommand CommandAddNewMovie { get { return _eventEditViewmodel.CommandAddNextMovie; } }
         public ICommand CommandAddNewRundown { get { return _eventEditViewmodel.CommandAddNextRundown; } }
         public ICommand CommandAddNewLive { get { return _eventEditViewmodel.CommandAddNextLive; } }

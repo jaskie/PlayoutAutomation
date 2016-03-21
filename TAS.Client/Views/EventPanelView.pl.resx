@@ -151,4 +151,10 @@
     <value>Należy do:
 {0}</value>
   </data>
+  <data name="_addSubRundown.ToolTip" xml:space="preserve">
+    <value>Dodaj playlistę wewnątrz</value>
+  </data>
+  <data name="_childrenCount" xml:space="preserve">
+    <value>Playlist: {0}</value>
+  </data>
 </root>

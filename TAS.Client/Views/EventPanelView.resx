@@ -151,4 +151,10 @@
     <value>Belongs to:
 {0}</value>
   </data>
+  <data name="_addSubRundown.ToolTip" xml:space="preserve">
+    <value>Add new rundown inside</value>
+  </data>
+  <data name="_childrenCount" xml:space="preserve">
+    <value>Rundowns: {0}</value>
+  </data>
 </root>

@@ -14,60 +14,32 @@
              FontSize="12" 
              d:DesignWidth="700"
              >
-    <local:EventPanelView.Resources>
-        <Style x:Key="borderStyle" TargetType="{x:Type Border}">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                    <Setter Property="Background" Value="RoyalBlue" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="MyFocusVisualStyle">
-            <Setter Property="Control.Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Rectangle Margin="-2" StrokeThickness="1" Stroke="Red"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </local:EventPanelView.Resources>
-    <local:EventPanelView.ContextMenu>
-        <ContextMenu>
-            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste}">
-                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Under}" Command="{Binding CommandPaste}" CommandParameter="Under"/>
-            </MenuItem>
-            <Separator/>
-            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Hide}" Command="{Binding CommandHide}" InputGestureText="F9"/>
-        </ContextMenu>
-    </local:EventPanelView.ContextMenu>
-    <Grid Focusable="True" Height="59" >
+    <Grid Height="30">
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                <GradientStop Color="#60B0B0B0" Offset="0.0"/>
+                <GradientStop Color="#50909090" Offset="0.5"/>
+                <GradientStop Color="#60B0B0B0" Offset="1.0"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+        <Grid.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste}" Command="{Binding CommandPaste}" CommandParameter="Under"/>
+                <Separator/>
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Hide}" Command="{Binding CommandHide}" InputGestureText="F9"/>
+            </ContextMenu>
+        </Grid.ContextMenu>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="33" />
-            <ColumnDefinition Width="33" />
-            <ColumnDefinition Width="33" />
-            <ColumnDefinition Width="0" />
+            <ColumnDefinition Width="30" />
+            <ColumnDefinition Width="100"/>
             <ColumnDefinition Width="80" />
             <ColumnDefinition />
-            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="7*" />
-            <RowDefinition Height="4*" />
-        </Grid.RowDefinitions>
-        <Grid Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="3" >
-            <Grid.RowDefinitions>
-                <RowDefinition Height="15" />
-                <RowDefinition />
-                <RowDefinition Height="15" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Image Grid.Row="1" Grid.Column="1" ToolTip="{Binding EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Container.png"/>
-        </Grid>
-        <TextBlock Grid.Column="5" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0" Name="tb" Focusable="True" MouseDown="grid_MouseDown" PreviewLostKeyboardFocus="grid_PreviewLostKeyboardFocus" />
+        <Image Margin="5" ToolTip="{Binding EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Container.png"/>
+        <TextBlock Grid.Column="1" Text="{Binding ChildrenCount, StringFormat={Resx _childrenCount, ResxName=TAS.Client.Views.EventPanelView}}" TextAlignment="Center" VerticalAlignment="Center"/>
+        <Button Grid.Column="2" Margin="1" Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" ToolTip="{Resx _addSubRundown.ToolTip}" Command="{Binding CommandAddSubRundown}">
+            <Image Source="/TAS.Client.Common;component/Images/EventActions/new-sub-rundown.png"/>
+        </Button>
+        <TextBlock Grid.Column="3" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" />
     </Grid>
 </local:EventPanelView>

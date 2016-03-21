@@ -6,7 +6,10 @@ using System.Text;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
+using TAS.Server.Common;
 using TAS.Server.Interfaces;
+using resources = TAS.Client.Common.Properties.Resources;
+
 
 namespace TAS.Client.ViewModels
 {
@@ -20,6 +23,8 @@ namespace TAS.Client.ViewModels
         public ICommand CommandHide { get; private set; }
         public ICommand CommandShow { get; private set; }
         public ICommand CommandPaste { get { return _engineViewmodel.CommandPasteSelected; } }
+        public ICommand CommandAddSubRundown { get; private set; }
+
         protected override void _createCommands()
         {
             CommandHide = new UICommand()
@@ -31,6 +36,10 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o => IsVisible = true,
                 CanExecuteDelegate = o => _event.IsEnabled == false
+            };
+            CommandAddSubRundown = new UICommand()
+            {
+                ExecuteDelegate = _addSubRundown
             };
         }
 
@@ -44,20 +53,38 @@ namespace TAS.Client.ViewModels
                     _event.IsEnabled = value;
                     _event.Save();
                     NotifyPropertyChanged("IsVisible");
+                    if (!value)
+                        IsSelected = false;
                 }
             }
+        }
+
+        void _addSubRundown(object o)
+        {
+            IEvent newEvent = _engine.CreateEvent();
+            newEvent.EventType = TEventType.Rundown;
+            newEvent.EventName = resources._title_NewRundown;
+            newEvent.StartType = TStartType.Manual;
+            newEvent.ScheduledTime = DateTime.Now.ToUniversalTime();
+            _event.InsertUnder(newEvent);
         }
 
         protected override void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             base.OnPropertyChanged(sender, e);
             if (e.PropertyName == "IsEnabled")
-            {
                 IsVisible = _event.IsEnabled;
-            }
+        }
+
+        protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
+        {
+            base.OnSubeventChanged(o, e);
+            NotifyPropertyChanged("ChildrenCount");
         }
 
         public TEventType EventType { get { return TEventType.Container; } }
+
+        public int ChildrenCount { get { return _event.SubEvents.Count; } }
 
 
     }

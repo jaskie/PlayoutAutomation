@@ -14,16 +14,6 @@ namespace TAS.Client.Views
         {
             InitializeComponent();
         }
-
-        private void grid_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            Debug.WriteLine(tb.Focus());
-        }
-
-        private void grid_PreviewLostKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
-        {
-            Debug.WriteLine("Lost!");
-        }
     }
 
 }
