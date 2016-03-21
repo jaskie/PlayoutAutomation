@@ -137,7 +137,9 @@ namespace TAS.Client.Common
 
 		static void RealSelectedChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
 		{
-			TreeViewItem item = (TreeViewItem)sender;
+			TreeViewItem item = sender as TreeViewItem;
+            if (item == null)
+                return;
             var selectedItems = GetSelectedItems(GetTree(item));
 			if(selectedItems != null)
 			{

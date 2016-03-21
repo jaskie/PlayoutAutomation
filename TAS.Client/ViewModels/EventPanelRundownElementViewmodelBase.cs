@@ -267,20 +267,6 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        bool _isMultiSelected;
-        public bool IsMultiSelected
-        {
-            get { return _isMultiSelected; }
-            set
-            {
-                if (_isMultiSelected != value)
-                {
-                    _isMultiSelected = value;
-                    NotifyPropertyChanged("IsMultiSelected");
-                }
-            }
-        }
-
         private void _onMediaPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if ((_event != null)

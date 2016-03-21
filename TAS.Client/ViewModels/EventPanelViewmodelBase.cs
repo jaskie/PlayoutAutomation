@@ -230,6 +230,20 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        bool _isMultiSelected;
+        public bool IsMultiSelected
+        {
+            get { return _isMultiSelected; }
+            set
+            {
+                if (_isMultiSelected != value)
+                {
+                    _isMultiSelected = value;
+                    NotifyPropertyChanged("IsMultiSelected");
+                }
+            }
+        }
+
         public virtual bool IsVisible { get { return true; } set { } }
 
         //protected bool _isVisible = true;

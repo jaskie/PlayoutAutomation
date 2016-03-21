@@ -316,28 +316,27 @@
                                                         <Setter.Value>
                                                             <ControlTemplate TargetType="ToggleButton">
                                                                 <Border Background="#00FFFFFF" Width="20" Height="24" >
-                                                                    <Path Fill="#00FFFFFF" Stroke="#FF989898" Name="ExpandPath">
+                                                                    <Path Fill="#00FFFFFF" Stroke="#FF4D4D4D" Name="ExpandPath">
                                                                         <Path.Data>
                                                                             <PathGeometry Figures="M0,0L0,13L13,0z" />
                                                                         </Path.Data>
                                                                         <Path.RenderTransform>
-                                                                            <RotateTransform Angle="135" CenterX="6" CenterY="7"/>
+                                                                            <RotateTransform Angle="135" CenterX="6" CenterY="9"/>
                                                                         </Path.RenderTransform>
                                                                     </Path>
                                                                 </Border>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="UIElement.IsMouseOver" Value="True">
-                                                                        <Setter TargetName="ExpandPath" Property="Shape.Stroke" Value="#FF1BBBFA" />
-                                                                        <Setter TargetName="ExpandPath" Property="Shape.Fill" Value="#00FFFFFF" />
+                                                                        <Setter TargetName="ExpandPath" Property="Shape.Stroke" Value="#FF0E8FFB" />
                                                                     </Trigger>
                                                                     <Trigger Property="ToggleButton.IsChecked" Value="True">
                                                                         <Setter TargetName="ExpandPath" Property="UIElement.RenderTransform">
                                                                             <Setter.Value>
-                                                                                <RotateTransform Angle="180" CenterX="8" CenterY="7" />
+                                                                                <RotateTransform Angle="180" CenterX="8" CenterY="9" />
                                                                             </Setter.Value>
                                                                         </Setter>
-                                                                        <Setter TargetName="ExpandPath" Property="Shape.Fill" Value="#FF595959" />
-                                                                        <Setter TargetName="ExpandPath" Property="Shape.Stroke" Value="#FF262626" />
+                                                                        <Setter TargetName="ExpandPath" Property="Shape.Fill" Value="#FF0E8FFB" />
+                                                                        <Setter TargetName="ExpandPath" Property="Shape.Stroke" Value="#FF0E8FFB" />
                                                                     </Trigger>
                                                                 </ControlTemplate.Triggers>
                                                             </ControlTemplate>
@@ -391,11 +390,15 @@
                         <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
                         <Setter Property="Visibility" Value="{Binding IsVisible, Mode=TwoWay, Converter={StaticResource BoolToVis}}"/>
+                        <Setter Property="common:TreeViewExtensions.IsSelected" Value="{Binding IsMultiSelected, Mode=OneWayToSource}"/>
                         <Setter Property="Margin" Value="0"/>
                         <Style.Triggers>
                             <Trigger Property="common:TreeViewExtensions.IsSelected"  Value="True" >
                                 <Setter Property="Background" Value="LightSkyBlue"></Setter>
                             </Trigger>
+                            <!--<Trigger Property="Visibility" Value="Collapsed">
+                                <Setter Property="common:TreeViewExtensions.IsSelected" Value="False"/>
+                            </Trigger>-->
                         </Style.Triggers>
                     </Style>
                 </TreeView.ItemContainerStyle>
