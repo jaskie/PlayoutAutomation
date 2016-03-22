@@ -129,7 +129,8 @@ namespace TAS.Client.ViewModels
 
         protected virtual void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-
+            if (e.PropertyName == "EventName")
+                NotifyPropertyChanged(e.PropertyName);
         }
 
         protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
@@ -245,9 +246,6 @@ namespace TAS.Client.ViewModels
         }
 
         public virtual bool IsVisible { get { return true; } set { } }
-
-        //protected bool _isVisible = true;
-        //public virtual bool IsVisible { get { return _isVisible; }  set { SetField(ref _isVisible, value, "IsVisible"); } }
 
         public EventPanelViewmodelBase Parent
         {

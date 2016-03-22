@@ -104,7 +104,7 @@ namespace TAS.Client.ViewModels
                         value.PropertyChanged += _eventPropertyChanged;
                         value.SubEventChanged += _onSubeventChanged;
                         value.Relocated += _onRelocated;
-                        var svm = _searchViewmodel;
+                        var svm = _engineViewModel.MediaSearchViewModel;
                         if (svm != null)
                         {
                             svm.BaseEvent = value;
@@ -287,11 +287,9 @@ namespace TAS.Client.ViewModels
             return validationResult;
         }
 
-        private MediaSearchViewmodel _searchViewmodel;
-
         private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType, Action<MediaSearchEventArgs> executeOnChoose, VideoFormatDescription videoFormatDescription = null)
         {
-            var svm = _searchViewmodel;
+            var svm = _engineViewModel.MediaSearchViewModel;
             if (svm == null)
             {
                 svm = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, mediaType, true, videoFormatDescription);
@@ -300,7 +298,7 @@ namespace TAS.Client.ViewModels
                 svm.MediaChoosen += _searchMediaChoosen;
                 svm.SearchWindowClosed += _searchWindowClosed;
                 svm.ExecuteAction = executeOnChoose;
-                _searchViewmodel = svm;
+                _engineViewModel.MediaSearchViewModel = svm;
             }
         }
 
@@ -315,8 +313,8 @@ namespace TAS.Client.ViewModels
             MediaSearchViewmodel mvs = (MediaSearchViewmodel)sender;
             mvs.MediaChoosen -= _searchMediaChoosen;
             mvs.SearchWindowClosed -= _searchWindowClosed;
-            _searchViewmodel.Dispose();
-            _searchViewmodel = null;
+            _engineViewModel.MediaSearchViewModel.Dispose();
+            _engineViewModel.MediaSearchViewModel = null;
         }        
 
         private void _delete(object ob)
@@ -434,7 +432,7 @@ namespace TAS.Client.ViewModels
         void _addSubMovie(object o)
         {
             IEvent ev = _event;
-            var svm = _searchViewmodel;
+            var svm = _engineViewModel.MediaSearchViewModel;
             if (ev != null && svm == null)
             {
                 svm = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, TMediaType.Movie, false, null);
@@ -464,7 +462,7 @@ namespace TAS.Client.ViewModels
                         svm.NewEventStartType = TStartType.After;
                     }
                 });
-                _searchViewmodel = svm;
+                _engineViewModel.MediaSearchViewModel = svm;
             }
         }
 
@@ -510,7 +508,7 @@ namespace TAS.Client.ViewModels
         void _addNextMovie(object o)
         {
             IEvent ev = _event;
-            var svm = _searchViewmodel;
+            var svm = _engineViewModel.MediaSearchViewModel;
             if (ev != null && svm == null)
             {
                 svm = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, TMediaType.Movie, false, null);
@@ -539,7 +537,7 @@ namespace TAS.Client.ViewModels
                             ev = newEvent;
                         }
                     });
-                _searchViewmodel = svm;
+                _engineViewModel.MediaSearchViewModel = svm;
             }
         }
 

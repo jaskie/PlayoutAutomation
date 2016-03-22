@@ -15,15 +15,6 @@
              d:DesignWidth="700"
              common:TreeViewExtensions.IsSelected="{Binding IsMultiSelected, Mode=TwoWay}"
              >
-    <local:EventPanelView.Resources>
-        <Style x:Key="borderStyle" TargetType="{x:Type Border}">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                    <Setter Property="Background" Value="RoyalBlue" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-    </local:EventPanelView.Resources>
     <local:EventPanelView.ContextMenu>
         <ContextMenu>
             <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Copy}" Command="{Binding CommandCopy}" />
@@ -35,83 +26,103 @@
             </MenuItem>
         </ContextMenu>
     </local:EventPanelView.ContextMenu>
-    <Border x:Name="border" Style="{StaticResource borderStyle}" BorderThickness="0, 0, 0, 1" Margin="0" BorderBrush="Gray" >
-        <StackPanel>
-            <Border Background="#FFEBBDA0" Height="15" Visibility="{Binding IsStartEvent,  Converter={StaticResource BoolToVis}}">
-                <TextBlock Text="{Resx _blockBegin}" FontSize="10" Margin="50, 0" />
-            </Border>
-            <StackPanel Opacity="{Binding IsEnabled, Converter={StaticResource EnabledToOpacity}}" >
-                <Border Background="OrangeRed" Height="6" Visibility="{Binding IsHold,  Converter={StaticResource BoolToVis}}" />
-                <Grid Height="59" Background="{Binding IsPlaying, Converter={StaticResource BoolToBrush}, ConverterParameter=#4040FF00}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="33" />
-                        <ColumnDefinition Width="33" />
-                        <ColumnDefinition Width="33" />
-                        <ColumnDefinition Width="0" />
-                        <ColumnDefinition Width="80" />
-                        <ColumnDefinition />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="7*" />
-                        <RowDefinition Height="4*" />
-                    </Grid.RowDefinitions>
-                    <Grid Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="3" >
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="15" />
-                            <RowDefinition />
-                            <RowDefinition Height="15" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Image Grid.Row="1" Grid.Column="1" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Rundown.gif"/>
-                        <Border Grid.Column="0" Grid.RowSpan="3" Background="Red" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isInvalidInSchedule}" />
-                        <Image Grid.Column="0" Grid.Row="0" Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected}" />
-                        <Image Grid.Column="2" Grid.Row="1" ToolTip="{Binding PlayState}">
-                            <Image.Style>
-                                <Style TargetType="Image">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding PlayState}" Value="Played">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Played.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding PlayState}" Value="Playing">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Playing.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding PlayState}" Value="Paused">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Paused.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding PlayState}" Value="Aborted">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Aborted.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding PlayState}" Value="Fading">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Fading.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding PlayState}" Value="Scheduled">
-                                            <Setter Property="Source" Value="{x:Null}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Image.Style>
-                        </Image>
-                    </Grid>
-                    <StackPanel Grid.Column="4" Grid.RowSpan="2">
-                        <TextBlock Text="{Binding ScheduledTime}" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" FontWeight="SemiBold" Foreground="DarkGreen" Visibility="{Binding OffsetVisible, Converter={StaticResource BoolToVis}}" />
-                        <TextBlock Text="{Binding Duration}" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}"  FontWeight="Bold" />
-                        <Image Height="14" Source="/TAS.Client.Common;component/Images/Indicators/loop.png" Stretch="Uniform" Visibility="{Binding IsLoop, Converter={StaticResource BoolToVis}}" />
-                    </StackPanel>
-                    <TextBlock Grid.Column="5" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0">
-                        <TextBlock.ToolTip>
-                            <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
-                        </TextBlock.ToolTip>
+    <StackPanel>
+        <StackPanel.Resources>
+            <Style TargetType="TextBlock" BasedOn="{StaticResource EventPanelTextBlock}"/>
+        </StackPanel.Resources>
+        <Border Background="#FFEBBDA0" Height="15" Visibility="{Binding IsStartEvent,  Converter={StaticResource BoolToVis}}">
+            <TextBlock Text="{Resx _blockBegin}" FontSize="10" Margin="50, 0" />
+        </Border>
+        <Border Background="OrangeRed" Height="6" Visibility="{Binding IsHold,  Converter={StaticResource BoolToVis}}" />
+        <Border Style="{StaticResource EventPanelStyle}">
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsPlaying}"  Value="True">
+                                <Setter Property="Background" Value="#4040FF00"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsMultiSelected}" Value="True">
+                                <Setter Property="Background" Value="RoyalBlue"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                    <Grid.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Margin" Value="1"/>
+                        </Style>
+                    </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="33" />
+                    <ColumnDefinition Width="31" />
+                    <ColumnDefinition Width="30" />
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35" />
+                    <RowDefinition Height="26" />
+                </Grid.RowDefinitions>
+                <Image Grid.Column="0" Grid.RowSpan="2" Margin="3" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Rundown.gif" Style="{StaticResource EventPanelImage}" />
+                <!--<Border Grid.Column="0" Grid.RowSpan="3" Background="Red" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isInvalidInSchedule}" />-->
+                <Image Grid.Column="0" Grid.Row="0" Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected}" />
+                <Image Grid.Column="1" Grid.RowSpan="2" ToolTip="{Binding PlayState}">
+                    <Image.Style>
+                        <Style TargetType="Image" BasedOn="{StaticResource EventPanelImage}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding PlayState}" Value="Played">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Played.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding PlayState}" Value="Playing">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Playing.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding PlayState}" Value="Paused">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Paused.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding PlayState}" Value="Aborted">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Aborted.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding PlayState}" Value="Fading">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Fading.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding PlayState}" Value="Scheduled">
+                                    <Setter Property="Source" Value="{x:Null}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
+                <Border Grid.Column="2"  Grid.RowSpan="2" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" Background="Red" ToolTip="{Resx _isInvalidInSchedule}"/>
+                <StackPanel Grid.Column="3" Grid.RowSpan="2">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource EventPanelTextBlock}">
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <TextBlock Text="{Binding ScheduledTime}" />
+                    <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" Foreground="DarkGreen" Visibility="{Binding OffsetVisible, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock Text="{Binding Duration}" />
+                    <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}" />
+                    <Image Height="14" Source="/TAS.Client.Common;component/Images/Indicators/loop.png" Stretch="Uniform" Visibility="{Binding IsLoop, Converter={StaticResource BoolToVis}}" Style="{StaticResource EventPanelImage}"/>
+                </StackPanel>
+                <TextBlock Grid.Column="4" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0">
+                    <TextBlock.ToolTip>
+                        <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
+                    </TextBlock.ToolTip>
                     </TextBlock>
-                    <TextBlock Grid.Column="6" Text="{Binding TimeLeft}" FontSize="26" VerticalAlignment="Center" Margin="5, 0" />
-                </Grid>
-            </StackPanel>
-        </StackPanel>
-    </Border>
+                <TextBlock Grid.Column="5" Text="{Binding TimeLeft}" FontSize="26" VerticalAlignment="Center" Margin="5, 0" />
+                <StackPanel Orientation="Horizontal" Grid.Column="4" Grid.Row="2">
+                    <Button Command="{Binding CommandAddSubRundown}" Style="{StaticResource EventPanelCommandButton}" ToolTip="{Resx _addSubRundown.ToolTip}">
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-rundown.png"/>
+                    </Button>
+                    <Button Command="{Binding CommandAddSubMovie}" Style="{StaticResource EventPanelCommandButton}" ToolTip="{Resx _addSubMovie.ToolTip}" >
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-movie.png"/>
+                    </Button>
+                </StackPanel>
+
+            </Grid>
+        </Border>
+    </StackPanel>
 </local:EventPanelView>

@@ -14,15 +14,8 @@
              FontSize="12" 
              d:DesignWidth="700"
              >
-    <Border Grid.ColumnSpan="4" x:Name="border" BorderThickness="0, 0, 0, 1" Margin="0" BorderBrush="Gray">
+    <Border Style="{StaticResource EventPanelStyle}">
         <Grid Height="30">
-            <Grid.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="#60B0B0B0" Offset="0.0"/>
-                    <GradientStop Color="#40404040" Offset="0.5"/>
-                    <GradientStop Color="#60B0B0B0" Offset="1.0"/>
-                </LinearGradientBrush>
-            </Grid.Background>
             <Grid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste}" Command="{Binding CommandPaste}" CommandParameter="Under"/>
@@ -39,7 +32,7 @@
             <Image Margin="3" ToolTip="{Binding EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Container.png"/>
             <Image Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected}" />
             <TextBlock Grid.Column="1" Text="{Binding ChildrenCount, StringFormat={Resx _childrenCount, ResxName=TAS.Client.Views.EventPanelView}}" TextAlignment="Center" VerticalAlignment="Center"/>
-            <Button Grid.Column="2" Margin="1" Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" ToolTip="{Resx _addSubRundown.ToolTip}" Command="{Binding CommandAddSubRundown}">
+            <Button Grid.Column="2" Margin="2" Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" ToolTip="{Resx _addSubRundown.ToolTip}" Command="{Binding CommandAddSubRundown}" Style="{StaticResource EventPanelCommandButton}">
                 <Image Source="/TAS.Client.Common;component/Images/EventActions/new-sub-rundown.png"/>
             </Button>
             <TextBlock Grid.Column="3" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" />

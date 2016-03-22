@@ -324,6 +324,55 @@ namespace TAS.Client.ViewModels
 
         #endregion // Commands
 
+        #region MediaSearch
+        private MediaSearchViewmodel _mediaSearchViewModel;
+        public void AddMediaEvent(IEvent baseEvent, TStartType startType, TMediaType mediaType)
+        {
+            if (baseEvent != null && _mediaSearchViewModel == null)
+            {
+                _mediaSearchViewModel = new MediaSearchViewmodel(_engine, _engine.MediaManager, mediaType, false, _engine.FormatDescription);
+                _mediaSearchViewModel.BaseEvent = baseEvent;
+                _mediaSearchViewModel.NewEventStartType = startType;
+                _mediaSearchViewModel.MediaChoosen += (o, e) =>
+                {
+                    if (((MediaSearchViewmodel)o).ExecuteAction != null)
+                        ((MediaSearchViewmodel)o).ExecuteAction(e);
+                };
+                _mediaSearchViewModel.SearchWindowClosed += (o, e) =>
+                {
+                    MediaSearchViewmodel mvs = (MediaSearchViewmodel)o;
+                    _mediaSearchViewModel.Dispose();
+                    _mediaSearchViewModel = null;
+                };
+                _mediaSearchViewModel.ExecuteAction = new Action<MediaSearchEventArgs>((e) =>
+                {
+                    if (e.Media != null)
+                    {
+                        IEvent newEvent = _engine.CreateEvent();
+                        newEvent.EventType = TEventType.Movie;
+                        newEvent.Media = e.Media;
+                        newEvent.EventName = e.MediaName;
+                        newEvent.ScheduledTc = e.TCIn;
+                        newEvent.Duration = e.Duration;
+                        newEvent.Layer = VideoLayer.Program;
+                        newEvent.GPI = new EventGPI {
+                            CanTrigger = false,
+                            Crawl = e.Media.MediaCategory == TMediaCategory.Show? TCrawl.Normal: TCrawl.NoCrawl,
+                            Logo = e.Media.MediaCategory == TMediaCategory.Fill || e.Media.MediaCategory == TMediaCategory.Show || e.Media.MediaCategory == TMediaCategory.Promo ? TLogo.Normal : TLogo.NoLogo,
+                            Parental = e.Media.Parental
+                        };
+
+                        if (_mediaSearchViewModel.NewEventStartType == TStartType.After)
+                            _mediaSearchViewModel.BaseEvent.InsertAfter(newEvent);
+                        if (_mediaSearchViewModel.NewEventStartType == TStartType.With)
+                            _mediaSearchViewModel.BaseEvent.InsertUnder(newEvent);
+                        baseEvent = newEvent;
+                    }
+                });
+            }
+        }
+
+        #endregion // MediaSearch
 
         private EventPanelViewmodelBase _rootEventViewModel;
         public EventPanelViewmodelBase RootEventViewModel { get { return _rootEventViewModel; } }
