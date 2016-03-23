@@ -36,5 +36,6 @@
                 <Setter Property="Background" Value="{Binding Path=Background, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}}"/>
             </DataTrigger>
         </Style.Triggers>
+        <Setter Property="Margin" Value="1"/>
     </Style>
 </ResourceDictionary>

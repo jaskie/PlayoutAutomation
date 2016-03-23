@@ -40,40 +40,7 @@ namespace TAS.Client.ViewModels
 
         private void _addSubMovie(object obj)
         {
-            IEvent ev = _event;
-            var svm =  _engineViewmodel.MediaSearchViewModel;
-            if (ev != null && svm == null)
-            {
-                svm = new MediaSearchViewmodel(_engineViewmodel.Engine, _event.Engine.MediaManager, TMediaType.Movie, false, null);
-                svm.BaseEvent = ev;
-                svm.NewEventStartType = TStartType.With;
-                svm.MediaChoosen += _searchMediaChoosen;
-                svm.SearchWindowClosed += _searchWindowClosed;
-                svm.ExecuteAction = new Action<MediaSearchEventArgs>((e) =>
-                {
-                    if (e.Media != null)
-                    {
-                        IEvent newEvent = ev.Engine.CreateEvent();
-                        newEvent.EventType = TEventType.Movie;
-                        newEvent.Media = e.Media;
-                        newEvent.EventName = e.MediaName;
-                        newEvent.ScheduledTc = e.TCIn;
-                        newEvent.Duration = e.Duration;
-                        newEvent.Layer = VideoLayer.Program;
-                        newEvent.GPI = _setGPI(e.Media);
-
-                        //newEvent.Save();
-                        if (svm.NewEventStartType == TStartType.After)
-                            svm.BaseEvent.InsertAfter(newEvent);
-                        if (svm.NewEventStartType == TStartType.With)
-                            svm.BaseEvent.InsertUnder(newEvent);
-                        ev = newEvent;
-                        svm.NewEventStartType = TStartType.After;
-                    }
-                });
-                _engineViewmodel.MediaSearchViewModel = svm;
-            }
-
+            _engineViewmodel.AddMediaEvent(_event, TStartType.With, TMediaType.Movie);
         }
 
         public ICommand CommandAddSubRundown { get; private set; }

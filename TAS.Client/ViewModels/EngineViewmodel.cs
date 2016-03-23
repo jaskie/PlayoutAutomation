@@ -333,18 +333,13 @@ namespace TAS.Client.ViewModels
                 _mediaSearchViewModel = new MediaSearchViewmodel(_engine, _engine.MediaManager, mediaType, false, _engine.FormatDescription);
                 _mediaSearchViewModel.BaseEvent = baseEvent;
                 _mediaSearchViewModel.NewEventStartType = startType;
-                _mediaSearchViewModel.MediaChoosen += (o, e) =>
-                {
-                    if (((MediaSearchViewmodel)o).ExecuteAction != null)
-                        ((MediaSearchViewmodel)o).ExecuteAction(e);
-                };
                 _mediaSearchViewModel.SearchWindowClosed += (o, e) =>
                 {
                     MediaSearchViewmodel mvs = (MediaSearchViewmodel)o;
                     _mediaSearchViewModel.Dispose();
                     _mediaSearchViewModel = null;
                 };
-                _mediaSearchViewModel.ExecuteAction = new Action<MediaSearchEventArgs>((e) =>
+                _mediaSearchViewModel.MediaChoosen += (o, e) =>
                 {
                     if (e.Media != null)
                     {
@@ -357,7 +352,7 @@ namespace TAS.Client.ViewModels
                         newEvent.Layer = VideoLayer.Program;
                         newEvent.GPI = new EventGPI {
                             CanTrigger = false,
-                            Crawl = e.Media.MediaCategory == TMediaCategory.Show? TCrawl.Normal: TCrawl.NoCrawl,
+                            Crawl = e.Media.MediaCategory == TMediaCategory.Show ? TCrawl.Normal : TCrawl.NoCrawl,
                             Logo = e.Media.MediaCategory == TMediaCategory.Fill || e.Media.MediaCategory == TMediaCategory.Show || e.Media.MediaCategory == TMediaCategory.Promo ? TLogo.Normal : TLogo.NoLogo,
                             Parental = e.Media.Parental
                         };
@@ -366,9 +361,10 @@ namespace TAS.Client.ViewModels
                             _mediaSearchViewModel.BaseEvent.InsertAfter(newEvent);
                         if (_mediaSearchViewModel.NewEventStartType == TStartType.With)
                             _mediaSearchViewModel.BaseEvent.InsertUnder(newEvent);
-                        baseEvent = newEvent;
+                        _mediaSearchViewModel.NewEventStartType = TStartType.After;
+                        _mediaSearchViewModel.BaseEvent = newEvent;
                     }
-                });
+                };
             }
         }
 

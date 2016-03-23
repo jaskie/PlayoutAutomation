@@ -157,4 +157,34 @@
   <data name="_childrenCount" xml:space="preserve">
     <value>Playlist: {0}</value>
   </data>
+  <data name="_addSubMovie.ToolTip" xml:space="preserve">
+    <value>Dodaj klip wewnątrz tej playlisty</value>
+  </data>
+  <data name="_addNextEmptyMovie.ToolTip" xml:space="preserve">
+    <value>Dodaj pusty klip</value>
+  </data>
+  <data name="_addNextLive.ToolTip" xml:space="preserve">
+    <value>Dodaj następny live</value>
+  </data>
+  <data name="_addNextMovie.ToolTip" xml:space="preserve">
+    <value>Dodaj następny klip</value>
+  </data>
+  <data name="_addNextRundown.ToolTip" xml:space="preserve">
+    <value>Dodaj następną playlistę</value>
+  </data>
+  <data name="_duration" xml:space="preserve">
+    <value>Długość</value>
+  </data>
+  <data name="_endTime" xml:space="preserve">
+    <value>Czas końca</value>
+  </data>
+  <data name="_offsetTime" xml:space="preserve">
+    <value>Nad/niedoczas</value>
+  </data>
+  <data name="_scheduledTime" xml:space="preserve">
+    <value>Zaplanowany na</value>
+  </data>
+  <data name="_toggleLayer" xml:space="preserve">
+    <value>Włącz/wyłącz grafikę na tej warstwie</value>
+  </data>
 </root>

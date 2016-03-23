@@ -10,7 +10,7 @@ namespace TAS.Server.Interfaces
 {
     public interface IEvent: IEventProperties, INotifyPropertyChanged
     {
-        UInt64 IdRundownEvent { get; }
+        UInt64 IdRundownEvent { get; set; }
         UInt64 IdEventBinding { get; }
         IServerMedia ServerMediaPRI { get; }
         IServerMedia ServerMediaSEC { get; }

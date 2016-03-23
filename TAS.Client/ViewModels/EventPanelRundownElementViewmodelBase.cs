@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
+using TAS.Client.Common;
 using TAS.Common;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
@@ -35,7 +36,43 @@ namespace TAS.Client.ViewModels
         public ICommand CommandPaste { get { return _engineViewmodel.CommandPasteSelected; } }
         public ICommand CommandToggleHold { get; private set; }
 
+        public ICommand CommandToggleLayer { get; private set; }
+        public ICommand CommandAddNextRundown { get; private set; }
+        public ICommand CommandAddNextMovie { get; private set; }
+        public ICommand CommandAddNextEmptyMovie { get; private set; }
+        public ICommand CommandAddNextLive { get; private set; }
 
+        protected override void _createCommands()
+        {
+            base._createCommands();
+            CommandToggleHold = new UICommand()
+            {
+                ExecuteDelegate = (o) =>
+                {
+                    _event.IsHold = !_event.IsHold;
+                    _event.Save();
+                },
+                CanExecuteDelegate = (o) => _event.PlayState == TPlayState.Scheduled
+            };
+            CommandToggleLayer = new UICommand()
+            {
+                ExecuteDelegate = (l) =>
+                {
+                    VideoLayer layer = (VideoLayer)sbyte.Parse((string)l);
+                    if (_hasSubItemsOnLayer(layer))
+                    {
+                        var layerEvent = _event.SubEvents.ToList().FirstOrDefault(e => e.Layer == layer);
+                        if (layerEvent != null)
+                            layerEvent.Delete();
+                    }
+                    else
+                    {
+                        //TODO: add event here
+                    }
+                },
+                CanExecuteDelegate = (o) => _event.PlayState == TPlayState.Scheduled || _event.PlayState == TPlayState.Playing || _event.PlayState == TPlayState.Paused
+            };
+        }
 
         private string _timeLeft = string.Empty;
         public string TimeLeft

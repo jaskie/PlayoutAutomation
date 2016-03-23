@@ -104,12 +104,6 @@ namespace TAS.Client.ViewModels
                         value.PropertyChanged += _eventPropertyChanged;
                         value.SubEventChanged += _onSubeventChanged;
                         value.Relocated += _onRelocated;
-                        var svm = _engineViewModel.MediaSearchViewModel;
-                        if (svm != null)
-                        {
-                            svm.BaseEvent = value;
-                            svm.NewEventStartType = TStartType.After;
-                        }
                     }
                     _load(null);
                 }
@@ -287,34 +281,26 @@ namespace TAS.Client.ViewModels
             return validationResult;
         }
 
+        MediaSearchViewmodel _mediaSearchViewModel;
         private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType, Action<MediaSearchEventArgs> executeOnChoose, VideoFormatDescription videoFormatDescription = null)
         {
-            var svm = _engineViewModel.MediaSearchViewModel;
-            if (svm == null)
+            if (_mediaSearchViewModel == null)
             {
-                svm = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, mediaType, true, videoFormatDescription);
-                svm.BaseEvent = baseEvent;
-                svm.NewEventStartType = startType;
-                svm.MediaChoosen += _searchMediaChoosen;
-                svm.SearchWindowClosed += _searchWindowClosed;
-                svm.ExecuteAction = executeOnChoose;
-                _engineViewModel.MediaSearchViewModel = svm;
+                _mediaSearchViewModel = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, mediaType, true, videoFormatDescription);
+                _mediaSearchViewModel.BaseEvent = baseEvent;
+                _mediaSearchViewModel.NewEventStartType = startType;
+                _mediaSearchViewModel.MediaChoosen += new EventHandler<MediaSearchEventArgs>((o, e) => executeOnChoose(e));
+                _mediaSearchViewModel.SearchWindowClosed += _searchWindowClosed;
             }
         }
 
-        private void _searchMediaChoosen(object sender, MediaSearchEventArgs e)
-        {
-            if (((MediaSearchViewmodel)sender).ExecuteAction != null)
-                ((MediaSearchViewmodel)sender).ExecuteAction(e);
-        }
 
         private void _searchWindowClosed(object sender, EventArgs e)
         {
             MediaSearchViewmodel mvs = (MediaSearchViewmodel)sender;
-            mvs.MediaChoosen -= _searchMediaChoosen;
             mvs.SearchWindowClosed -= _searchWindowClosed;
-            _engineViewModel.MediaSearchViewModel.Dispose();
-            _engineViewModel.MediaSearchViewModel = null;
+            _mediaSearchViewModel.Dispose();
+            _mediaSearchViewModel = null;
         }        
 
         private void _delete(object ob)
@@ -431,39 +417,39 @@ namespace TAS.Client.ViewModels
 
         void _addSubMovie(object o)
         {
-            IEvent ev = _event;
-            var svm = _engineViewModel.MediaSearchViewModel;
-            if (ev != null && svm == null)
-            {
-                svm = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, TMediaType.Movie, false, null);
-                svm.BaseEvent = ev;
-                svm.NewEventStartType = TStartType.With;
-                svm.MediaChoosen += _searchMediaChoosen;
-                svm.SearchWindowClosed += _searchWindowClosed;
-                svm.ExecuteAction = new Action<MediaSearchEventArgs>((e) =>
-                {
-                    if (e.Media != null)
-                    {
-                        IEvent newEvent = ev.Engine.CreateEvent();
-                        newEvent.EventType = TEventType.Movie;
-                        newEvent.Media = e.Media;
-                        newEvent.EventName = e.MediaName;
-                        newEvent.ScheduledTc = e.TCIn;
-                        newEvent.Duration = e.Duration;
-                        newEvent.Layer = VideoLayer.Program;
-                        newEvent.GPI = _setGPI(e.Media);
+            _engineViewModel.AddMediaEvent(_event, TStartType.With, TMediaType.Movie);
+            //IEvent ev = _event;
+            //if (ev != null && svm == null)
+            //{
+            //    svm = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, TMediaType.Movie, false, null);
+            //    svm.BaseEvent = ev;
+            //    svm.NewEventStartType = TStartType.With;
+            //    svm.MediaChoosen += _searchMediaChoosen;
+            //    svm.SearchWindowClosed += _searchWindowClosed;
+            //    svm.ExecuteAction = new Action<MediaSearchEventArgs>((e) =>
+            //    {
+            //        if (e.Media != null)
+            //        {
+            //            IEvent newEvent = ev.Engine.CreateEvent();
+            //            newEvent.EventType = TEventType.Movie;
+            //            newEvent.Media = e.Media;
+            //            newEvent.EventName = e.MediaName;
+            //            newEvent.ScheduledTc = e.TCIn;
+            //            newEvent.Duration = e.Duration;
+            //            newEvent.Layer = VideoLayer.Program;
+            //            newEvent.GPI = _setGPI(e.Media);
                         
-                        //newEvent.Save();
-                        if (svm.NewEventStartType == TStartType.After)
-                            svm.BaseEvent.InsertAfter(newEvent);
-                        if (svm.NewEventStartType == TStartType.With)
-                            svm.BaseEvent.InsertUnder(newEvent);
-                        ev = newEvent;
-                        svm.NewEventStartType = TStartType.After;
-                    }
-                });
-                _engineViewModel.MediaSearchViewModel = svm;
-            }
+            //            //newEvent.Save();
+            //            if (svm.NewEventStartType == TStartType.After)
+            //                svm.BaseEvent.InsertAfter(newEvent);
+            //            if (svm.NewEventStartType == TStartType.With)
+            //                svm.BaseEvent.InsertUnder(newEvent);
+            //            ev = newEvent;
+            //            svm.NewEventStartType = TStartType.After;
+            //        }
+            //    });
+            //    _engineViewModel.MediaSearchViewModel = svm;
+            //}
         }
 
         void _addNextLive(object o)
@@ -507,38 +493,39 @@ namespace TAS.Client.ViewModels
 
         void _addNextMovie(object o)
         {
-            IEvent ev = _event;
-            var svm = _engineViewModel.MediaSearchViewModel;
-            if (ev != null && svm == null)
-            {
-                svm = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, TMediaType.Movie, false, null);
-                svm.BaseEvent = ev;
-                svm.NewEventStartType = TStartType.After;
-                svm.MediaChoosen += _searchMediaChoosen;
-                svm.SearchWindowClosed += _searchWindowClosed;
-                svm.ExecuteAction = new Action<MediaSearchEventArgs>((e) =>
-                    {
-                        if (e.Media != null)
-                        {
-                            IEvent newEvent = ev.Engine.CreateEvent();
-                            newEvent.EventType = TEventType.Movie;
-                            newEvent.Media = e.Media;
-                            newEvent.EventName = e.MediaName;
-                            newEvent.ScheduledTc = e.TCIn;
-                            newEvent.Duration = e.Duration;
-                            newEvent.Layer = VideoLayer.Program;
-                            newEvent.GPI = _setGPI(e.Media);
+            _engineViewModel.AddMediaEvent(_event, TStartType.With, TMediaType.Movie);
+            //IEvent ev = _event;
+            //var svm = _engineViewModel.MediaSearchViewModel;
+            //if (ev != null && svm == null)
+            //{
+            //    svm = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, TMediaType.Movie, false, null);
+            //    svm.BaseEvent = ev;
+            //    svm.NewEventStartType = TStartType.After;
+            //    svm.MediaChoosen += _searchMediaChoosen;
+            //    svm.SearchWindowClosed += _searchWindowClosed;
+            //    svm.ExecuteAction = new Action<MediaSearchEventArgs>((e) =>
+            //        {
+            //            if (e.Media != null)
+            //            {
+            //                IEvent newEvent = ev.Engine.CreateEvent();
+            //                newEvent.EventType = TEventType.Movie;
+            //                newEvent.Media = e.Media;
+            //                newEvent.EventName = e.MediaName;
+            //                newEvent.ScheduledTc = e.TCIn;
+            //                newEvent.Duration = e.Duration;
+            //                newEvent.Layer = VideoLayer.Program;
+            //                newEvent.GPI = _setGPI(e.Media);
 
-                            //newEvent.Save();
-                            if (svm.NewEventStartType == TStartType.After)
-                                svm.BaseEvent.InsertAfter(newEvent);
-                            if (svm.NewEventStartType == TStartType.With)
-                                svm.BaseEvent.InsertUnder(newEvent);
-                            ev = newEvent;
-                        }
-                    });
-                _engineViewModel.MediaSearchViewModel = svm;
-            }
+            //                //newEvent.Save();
+            //                if (svm.NewEventStartType == TStartType.After)
+            //                    svm.BaseEvent.InsertAfter(newEvent);
+            //                if (svm.NewEventStartType == TStartType.With)
+            //                    svm.BaseEvent.InsertUnder(newEvent);
+            //                ev = newEvent;
+            //            }
+            //        });
+            //    _engineViewModel.MediaSearchViewModel = svm;
+            //}
         }
 
         void _removeSubItems(object o)

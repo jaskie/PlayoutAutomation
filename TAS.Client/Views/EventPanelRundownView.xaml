@@ -27,14 +27,15 @@
         </ContextMenu>
     </local:EventPanelView.ContextMenu>
     <StackPanel>
-        <StackPanel.Resources>
-            <Style TargetType="TextBlock" BasedOn="{StaticResource EventPanelTextBlock}"/>
-        </StackPanel.Resources>
         <Border Background="#FFEBBDA0" Height="15" Visibility="{Binding IsStartEvent,  Converter={StaticResource BoolToVis}}">
             <TextBlock Text="{Resx _blockBegin}" FontSize="10" Margin="50, 0" />
         </Border>
         <Border Background="OrangeRed" Height="6" Visibility="{Binding IsHold,  Converter={StaticResource BoolToVis}}" />
         <Border Style="{StaticResource EventPanelStyle}">
+            <Border.Resources>
+                <Style TargetType="TextBlock" BasedOn="{StaticResource EventPanelTextBlock}"/>
+                <Style TargetType="Button" BasedOn="{StaticResource EventPanelCommandButton}"/>
+            </Border.Resources>
             <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
@@ -66,8 +67,7 @@
                     <RowDefinition Height="26" />
                 </Grid.RowDefinitions>
                 <Image Grid.Column="0" Grid.RowSpan="2" Margin="3" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Rundown.gif" Style="{StaticResource EventPanelImage}" />
-                <!--<Border Grid.Column="0" Grid.RowSpan="3" Background="Red" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isInvalidInSchedule}" />-->
-                <Image Grid.Column="0" Grid.Row="0" Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected}" />
+                <Image Grid.Column="0" Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected}" />
                 <Image Grid.Column="1" Grid.RowSpan="2" ToolTip="{Binding PlayState}">
                     <Image.Style>
                         <Style TargetType="Image" BasedOn="{StaticResource EventPanelImage}">
@@ -95,16 +95,17 @@
                     </Image.Style>
                 </Image>
                 <Border Grid.Column="2"  Grid.RowSpan="2" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" Background="Red" ToolTip="{Resx _isInvalidInSchedule}"/>
+                
                 <StackPanel Grid.Column="3" Grid.RowSpan="2">
                     <StackPanel.Resources>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource EventPanelTextBlock}">
                             <Setter Property="VerticalAlignment" Value="Center"/>
                         </Style>
                     </StackPanel.Resources>
-                    <TextBlock Text="{Binding ScheduledTime}" />
-                    <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" Foreground="DarkGreen" Visibility="{Binding OffsetVisible, Converter={StaticResource BoolToVis}}" />
-                    <TextBlock Text="{Binding Duration}" />
-                    <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}" />
+                    <TextBlock Text="{Binding ScheduledTime}" ToolTip="{Resx _scheduledTime}" />
+                    <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" Foreground="DarkGreen" Visibility="{Binding OffsetVisible, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _offsetTime}"/>
+                    <TextBlock Text="{Binding Duration}" ToolTip="{Resx _duration}"/>
+                    <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}" ToolTip="{Resx _endTime}" />
                     <Image Height="14" Source="/TAS.Client.Common;component/Images/Indicators/loop.png" Stretch="Uniform" Visibility="{Binding IsLoop, Converter={StaticResource BoolToVis}}" Style="{StaticResource EventPanelImage}"/>
                 </StackPanel>
                 <TextBlock Grid.Column="4" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0">
@@ -114,11 +115,24 @@
                     </TextBlock>
                 <TextBlock Grid.Column="5" Text="{Binding TimeLeft}" FontSize="26" VerticalAlignment="Center" Margin="5, 0" />
                 <StackPanel Orientation="Horizontal" Grid.Column="4" Grid.Row="2">
-                    <Button Command="{Binding CommandAddSubRundown}" Style="{StaticResource EventPanelCommandButton}" ToolTip="{Resx _addSubRundown.ToolTip}">
+                    <Button Command="{Binding CommandAddSubMovie}" ToolTip="{Resx _addSubMovie.ToolTip}" >
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-movie.png"/>
+                    </Button>
+                    <Button Command="{Binding CommandAddSubRundown}" ToolTip="{Resx _addSubRundown.ToolTip}">
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-rundown.png"/>
                     </Button>
-                    <Button Command="{Binding CommandAddSubMovie}" Style="{StaticResource EventPanelCommandButton}" ToolTip="{Resx _addSubMovie.ToolTip}" >
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-movie.png"/>
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+                    <Button Command="{Binding CommandAddNextMovie}" ToolTip="{Resx _addNextMovie.ToolTip}" >
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-movie.png"/>
+                    </Button>
+                    <Button Command="{Binding CommandAddNextEmptyMovie}" ToolTip="{Resx _addNextEmptyMovie.ToolTip}" >
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-empty-movie.png"/>
+                    </Button>
+                    <Button Command="{Binding CommandAddNextRundown}" ToolTip="{Resx _addNextRundown.ToolTip}">
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-rundown.png"/>
+                    </Button>
+                    <Button Command="{Binding CommandAddNextLive}" ToolTip="{Resx _addNextLive.ToolTip}" >
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-next-live.png"/>
                     </Button>
                 </StackPanel>
 

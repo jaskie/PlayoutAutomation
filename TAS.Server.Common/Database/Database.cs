@@ -698,7 +698,7 @@ namespace TAS.Server.Database
             return cmd.ExecuteNonQuery() == 1;
         }
 
-        public static UInt64 DbInsert(this IEvent aEvent)
+        public static bool DbInsert(this IEvent aEvent)
         {
             lock (_connection)
             {
@@ -709,9 +709,13 @@ VALUES
 (@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent);";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
                 if (_EventFillParamsAndExecute(cmd, aEvent))
-                    return (UInt64)cmd.LastInsertedId;
+                {
+                    aEvent.IdRundownEvent = (ulong)cmd.LastInsertedId;
+                    Debug.WriteLine("Event DbInsert Id={0}, EventName={1}", aEvent.IdRundownEvent, aEvent.EventName);
+                    return true;
+                }
             }
-            return UInt64.MinValue;
+            return false;
         }
 
         public static Boolean DbUpdate(this IEvent aEvent)
@@ -746,7 +750,7 @@ WHERE idRundownEvent=@idRundownEvent;";
                 cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.IdRundownEvent);
                 if (_EventFillParamsAndExecute(cmd, aEvent))
                 {
-                    Debug.WriteLine(aEvent, "Event DbUpdate");
+                    Debug.WriteLine("Event DbUpdate Id={0}, EventName={1}", aEvent.IdRundownEvent, aEvent.EventName);
                     return true;
                 }
             }
@@ -763,7 +767,7 @@ WHERE idRundownEvent=@idRundownEvent;";
                 cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.IdRundownEvent);
                 cmd.ExecuteNonQuery();
                 success = true;
-                Debug.WriteLine(aEvent, "Event DbDelete");
+                Debug.WriteLine("Event DbDelete Id={0}, EventName={1}", aEvent.IdRundownEvent, aEvent.EventName);
             }
             return success;
         }

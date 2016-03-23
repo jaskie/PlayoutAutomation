@@ -96,6 +96,7 @@ namespace TAS.Server
                     Save();
                 return _idRundownEvent;
             }
+            set { _idRundownEvent = value; }
         }
         private bool _modified;
         public bool Modified

@@ -157,4 +157,34 @@
   <data name="_childrenCount" xml:space="preserve">
     <value>Rundowns: {0}</value>
   </data>
+  <data name="_addSubMovie.ToolTip" xml:space="preserve">
+    <value>Add new movie inside</value>
+  </data>
+  <data name="_addNextEmptyMovie.ToolTip" xml:space="preserve">
+    <value>Add next, empty movie</value>
+  </data>
+  <data name="_addNextLive.ToolTip" xml:space="preserve">
+    <value>Add next live</value>
+  </data>
+  <data name="_addNextMovie.ToolTip" xml:space="preserve">
+    <value>Add next movie</value>
+  </data>
+  <data name="_addNextRundown.ToolTip" xml:space="preserve">
+    <value>Add next rundown</value>
+  </data>
+  <data name="_duration" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+  <data name="_endTime" xml:space="preserve">
+    <value>End time</value>
+  </data>
+  <data name="_offsetTime" xml:space="preserve">
+    <value>Over/under time</value>
+  </data>
+  <data name="_scheduledTime" xml:space="preserve">
+    <value>Scheduled at</value>
+  </data>
+  <data name="_toggleLayer" xml:space="preserve">
+    <value>Add/remove graphics on this layer</value>
+  </data>
 </root>
