@@ -13,9 +13,8 @@ namespace TAS.Server
 {
     public static class MediaChecker
     {
-        internal static void Check(Media media)
+        internal static TMediaStatus Check(Media media)
         {
-
             if (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Unknown)
             {
                 TimeSpan videoDuration;
@@ -56,11 +55,11 @@ namespace TAS.Server
                     Rational sar = ffmpeg.GetSAR();
                     if (h == 608 && w == 720)
                     {
-                        media._hasExtraLines = true;
+                        media.HasExtraLines = true;
                         h = 576;
                     }
                     else
-                        media._hasExtraLines = false;
+                        media.HasExtraLines = false;
 
                     RationalNumber sAR = (h == 576 && ((sar.Num == 608 && sar.Den == 405) || (sar.Num == 1 && sar.Den == 1))) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL_FHA].SAR
                         : (sar.Num == 152 && sar.Den == 135) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL].SAR
@@ -74,23 +73,24 @@ namespace TAS.Server
                     if (media is TempMedia)
                         ((TempMedia)media).StreamInfo = ffmpeg.GetStreamInfo();
 
+                    Debug.WriteLine("Check of {0} finished with status {1}. It took {2} milliseconds", media.FullPath, media.MediaStatus, Environment.TickCount - startTickCunt);
+
                     if (videoDuration > TimeSpan.Zero)
                     {
                         media.MediaType = TMediaType.Movie;
                         if (Math.Abs(videoDuration.Ticks - audioDuration.Ticks) >= TimeSpan.TicksPerSecond / 2
                             && audioDuration != TimeSpan.Zero)
                             // when more than 0.5 sec difference
-                            media.MediaStatus = TMediaStatus.ValidationError;
+                            return TMediaStatus.ValidationError;
                         else
-                            media.MediaStatus = TMediaStatus.Available;
+                            return TMediaStatus.Available;
                     }
                     else
-                        media.MediaStatus = TMediaStatus.ValidationError;
+                        return TMediaStatus.ValidationError;
                 }
-                Debug.WriteLine("Check of {0} finished with status {1}. It took {2} milliseconds", media.FullPath, media.MediaStatus, Environment.TickCount - startTickCunt);
             }
             else
-                media.MediaStatus = TMediaStatus.Available;
+                return TMediaStatus.Available;
         }
     }
 }

@@ -247,15 +247,10 @@ namespace TAS.Server
             }
             else
             {
+                #region Audio
                 ep = new StringBuilder(((IngestDirectory)SourceMedia.Directory).EncodeParams).Append(" -ar 48000");
-                if (inputMedia.HasExtraLines)
-                {
-                    vf.Add("crop=720:576:0:32");
-                    vf.Add("setdar=dar=16/9");
-                }
                 if (inputStreams.Count(s => s.StreamType == StreamType.AUDIO) > 8)
                     af.Add("aformat=channel_layouts=0xFFFF");
-                _addConversion(MediaConversion.AspectConversions[AspectConversion], ep, vf, af);
                 _addConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], ep, vf, af);
                 MediaConversion audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
                 if (inputStreams.Count(s => s.StreamType == StreamType.AUDIO) >= 2 && !audiChannelMappingConversion.OutputFormat.Equals(TAudioChannelMapping.Unknown))
@@ -267,10 +262,36 @@ namespace TAS.Server
                 _addConversion(audiChannelMappingConversion, ep, vf, af);
                 if (AudioVolume != 0)
                     _addConversion(new MediaConversion(AudioVolume), ep, vf, af);
+                #endregion // audio
+                #region Video
                 VideoFormatDescription outputFormatDescription = VideoFormatDescription.Descriptions[OutputFormat];
                 VideoFormatDescription inputFormatDescription = inputMedia.VideoFormatDescription;
+                if (inputMedia.HasExtraLines)
+                {
+                    vf.Add("crop=720:576:0:32");
+                    if (AspectConversion == TAspectConversion.NoConversion)
+                    {
+                        if (inputFormatDescription.IsWideScreen)
+                            vf.Add("setdar=dar=16/9");
+                        else
+                            vf.Add("setdar=dar=4/3");
+                    }
+                }
                 if (outputFormatDescription.ImageSize != inputFormatDescription.ImageSize)
+                {
                     vf.Add(string.Format("scale={0}:{1}", outputFormatDescription.ImageSize.Width, outputFormatDescription.ImageSize.Height));
+                    if (AspectConversion == TAspectConversion.NoConversion)
+                    {
+                        if (inputFormatDescription.IsWideScreen)
+                            vf.Add("setdar=dar=16/9");
+                        else
+                            vf.Add("setdar=dar=4/3");
+                    }
+                }
+                if (AspectConversion != TAspectConversion.NoConversion)
+                    _addConversion(MediaConversion.AspectConversions[AspectConversion], ep, vf, af);
+                if (inputFormatDescription.FrameRate / outputFormatDescription.FrameRate == 2 && outputFormatDescription.Interlaced)
+                    vf.Add("tinterlace=interleave_top");
                 vf.Add(string.Format("fps=fps={0}", outputFormatDescription.FrameRate));
                 if (outputFormatDescription.Interlaced)
                 {
@@ -285,6 +306,7 @@ namespace TAS.Server
                     ep.AppendFormat(" -filter:v \"{0}\"", string.Join(",", vf));
                 if (af.Any())
                     ep.AppendFormat(" -filter:a \"{0}\"", string.Join(",", af));
+                #endregion // Video
             }
             return ep.ToString();
         }

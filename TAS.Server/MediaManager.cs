@@ -136,7 +136,6 @@ namespace TAS.Server
             if (media is ServerMedia
                 && !string.IsNullOrEmpty(e.PropertyName)
                    && (e.PropertyName == "DoNotArchive"
-                    || e.PropertyName == "HasExtraLines"
                     || e.PropertyName == "IdAux"
                     || e.PropertyName == "idFormat"
                     || e.PropertyName == "idProgramme"

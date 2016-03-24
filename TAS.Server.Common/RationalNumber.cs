@@ -65,5 +65,58 @@ namespace TAS.Common
             return string.Format("{0}/{1}", _num, _den);
         }
 
-    }   
+        #region Operators
+
+        public static bool operator == (RationalNumber r1, RationalNumber r2)
+        {
+            return r1.Equals(r2);
+        }
+
+        public static bool operator != (RationalNumber r1, RationalNumber r2)
+        {
+            return !r1.Equals(r2);
+        }
+
+        public static RationalNumber operator /(RationalNumber r1, RationalNumber r2)
+        {
+            if (r1.IsZero)
+            {
+                return RationalNumber.Zero;
+            }
+            else if (r2.IsZero)
+            {
+                throw new DivideByZeroException();
+            }
+            return new RationalNumber(r1.Num * r2.Den,
+                                r1.Den * r2.Num);
+        }
+        public static RationalNumber operator *(RationalNumber r1, RationalNumber r2)
+        {
+            if (r1.IsZero || r2.IsZero)
+            {
+                return Zero;
+            }
+            return new RationalNumber(r1.Num * r2.Num,
+                                r1.Den * r2.Den);
+        }
+
+        static public implicit operator double(RationalNumber value)
+        {
+            return (double)value.Num / value.Den;
+        }
+
+        static public implicit operator long(RationalNumber value)
+        {
+            return value.Num / value.Den;
+        }
+        static public implicit operator int(RationalNumber value)
+        {
+            return (int)(value.Num / value.Den);
+        }
+
+        #endregion // Operators
+
+
+
+    }
 }

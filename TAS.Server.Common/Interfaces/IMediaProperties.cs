@@ -27,6 +27,5 @@ namespace TAS.Server.Interfaces
         bool Verified { get; set; }
         TVideoFormat VideoFormat { get; set; }
         VideoFormatDescription VideoFormatDescription { get; }
-        bool HasExtraLines { get; }
     }
 }

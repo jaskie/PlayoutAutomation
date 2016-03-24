@@ -207,9 +207,6 @@ namespace TAS.Server
             get { return _mediaGuid; }
         }
 
-        internal bool _hasExtraLines; // IMX extral VBI lines
-        public bool HasExtraLines { get { return _hasExtraLines; } }
-
         protected VideoFormatDescription _videoFormatDescription;
         [JsonProperty]
         public VideoFormatDescription VideoFormatDescription
@@ -273,6 +270,8 @@ namespace TAS.Server
             get { return _mediaStatus; }
             set { SetField(ref _mediaStatus, value, "MediaStatus"); }
         }
+
+        internal bool HasExtraLines; // VBI lines that shouldn't be displayed
 
         public virtual void CloneMediaProperties(IMedia fromMedia)
         {
@@ -423,14 +422,14 @@ namespace TAS.Server
                     FileSize = (UInt64)fi.Length;
                     LastUpdated = DateTimeExtensions.FromFileTime(fi.LastWriteTimeUtc, DateTimeKind.Utc);
                     //this.LastAccess = DateTimeExtensions.FromFileTime(fi.LastAccessTimeUtc, DateTimeKind.Utc);
-                    MediaChecker.Check(this);
-                }
-                if (SetField(ref _mediaStatus, TMediaStatus.Available, "MediaStatus"))
-                {
-                    var dir = _directory;
-                    if (dir != null)
-                        dir.OnMediaVerified(this);
-                }
+
+                    if (SetField(ref _mediaStatus, MediaChecker.Check(this), "MediaStatus"))
+                    {
+                        var dir = _directory;
+                        if (dir != null)
+                            dir.OnMediaVerified(this);
+                    }                    
+                }                
                 Verified = true;
             }
             catch (Exception e)
