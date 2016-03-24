@@ -28,7 +28,7 @@ namespace TAS.Client.ViewModels
         protected readonly RationalNumber _frameRate;
         protected ObservableCollection<EventPanelViewmodelBase> _childrens = new ObservableCollection<EventPanelViewmodelBase>();
         protected static readonly EventPanelViewmodelBase DummyChild = new EventPanelDummyViewmodel();
-       
+
         /// <summary>
         /// Constructor for root event
         /// </summary>
@@ -40,6 +40,7 @@ namespace TAS.Client.ViewModels
             _level = 0;
             _isExpanded = true;
             _frameRate = engineViewmodel.FrameRate;
+            _root = (EventPanelRootViewmodel)this;
         }
 
         /// <summary>

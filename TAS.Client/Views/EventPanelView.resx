@@ -120,17 +120,17 @@
   <data name="_blockBegin" xml:space="preserve">
     <value>Block begin</value>
   </data>
-  <data name="_isInvalidInSchedule" xml:space="preserve">
+  <data name="_isInvalidInSchedule.ToolTip" xml:space="preserve">
     <value>Invalid placement in schedule. Application behavior error.</value>
   </data>
-  <data name="_isSelected" xml:space="preserve">
+  <data name="_isSelected.ToolTip" xml:space="preserve">
     <value>This item is selected</value>
   </data>
   <data name="_popupMenu.Copy" xml:space="preserve">
-    <value>_Copy (Ctrl+C)</value>
+    <value>_Copy</value>
   </data>
   <data name="_popupMenu.Cut" xml:space="preserve">
-    <value>C_ut (Ctrl+X)</value>
+    <value>C_ut</value>
   </data>
   <data name="_popupMenu.Hide" xml:space="preserve">
     <value>Hide</value>
@@ -139,7 +139,7 @@
     <value>_Paste...</value>
   </data>
   <data name="_popupMenu.Paste.After" xml:space="preserve">
-    <value>_After (Ctrl+V)</value>
+    <value>_After</value>
   </data>
   <data name="_popupMenu.Paste.Before" xml:space="preserve">
     <value>_Before</value>
@@ -172,19 +172,28 @@
   <data name="_addNextRundown.ToolTip" xml:space="preserve">
     <value>Add next rundown</value>
   </data>
-  <data name="_duration" xml:space="preserve">
+  <data name="_duration.ToolTip" xml:space="preserve">
     <value>Duration</value>
   </data>
-  <data name="_endTime" xml:space="preserve">
+  <data name="_endTime.ToolTip" xml:space="preserve">
     <value>End time</value>
   </data>
-  <data name="_offsetTime" xml:space="preserve">
+  <data name="_offsetTime.ToolTip" xml:space="preserve">
     <value>Over/under time</value>
   </data>
-  <data name="_scheduledTime" xml:space="preserve">
+  <data name="_scheduledTime.ToolTip" xml:space="preserve">
     <value>Scheduled at</value>
   </data>
-  <data name="_toggleLayer" xml:space="preserve">
+  <data name="_toggleLayer.ToolTip" xml:space="preserve">
     <value>Add/remove graphics on this layer</value>
+  </data>
+  <data name="_delete.ToolTip" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="_moveDown.ToolTip" xml:space="preserve">
+    <value>Move down</value>
+  </data>
+  <data name="_moveUp.ToolTip" xml:space="preserve">
+    <value>Move up</value>
   </data>
 </root>

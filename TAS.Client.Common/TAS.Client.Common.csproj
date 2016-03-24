@@ -321,16 +321,16 @@
     <Resource Include="Images\Parentals\BO.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Layers\Layer1.png" />
+    <Resource Include="Images\Layers\layer1.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Layers\Layer2.png" />
+    <Resource Include="Images\Layers\layer2.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Layers\Layer3.png" />
+    <Resource Include="Images\Layers\layer3.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Layers\LayerA.png" />
+    <Resource Include="Images\Layers\layerA.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Actions\undo.png" />
@@ -410,6 +410,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Actions\add-green.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Layers\layer1-active.png" />
+    <Resource Include="Images\Layers\layer2-active.png" />
+    <Resource Include="Images\Layers\layer3-active.png" />
+    <Resource Include="Images\Layers\layerA-active.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

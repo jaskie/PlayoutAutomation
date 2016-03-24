@@ -49,11 +49,6 @@
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
-                    <Grid.Resources>
-                        <Style TargetType="Button">
-                            <Setter Property="Margin" Value="1"/>
-                        </Style>
-                    </Grid.Resources>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="33" />
                     <ColumnDefinition Width="31" />
@@ -67,7 +62,7 @@
                     <RowDefinition Height="26" />
                 </Grid.RowDefinitions>
                 <Image Grid.Column="0" Grid.RowSpan="2" Margin="3" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Rundown.gif" Style="{StaticResource EventPanelImage}" />
-                <Image Grid.Column="0" Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected}" />
+                <Image Grid.Column="0" Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected.ToolTip}" />
                 <Image Grid.Column="1" Grid.RowSpan="2" ToolTip="{Binding PlayState}">
                     <Image.Style>
                         <Style TargetType="Image" BasedOn="{StaticResource EventPanelImage}">
@@ -94,7 +89,7 @@
                         </Style>
                     </Image.Style>
                 </Image>
-                <Border Grid.Column="2"  Grid.RowSpan="2" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" Background="Red" ToolTip="{Resx _isInvalidInSchedule}"/>
+                <Border Grid.Column="2"  Grid.RowSpan="2" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" Background="Red" ToolTip="{Resx _isInvalidInSchedule.ToolTip}"/>
                 
                 <StackPanel Grid.Column="3" Grid.RowSpan="2">
                     <StackPanel.Resources>
@@ -102,10 +97,10 @@
                             <Setter Property="VerticalAlignment" Value="Center"/>
                         </Style>
                     </StackPanel.Resources>
-                    <TextBlock Text="{Binding ScheduledTime}" ToolTip="{Resx _scheduledTime}" />
-                    <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" Foreground="DarkGreen" Visibility="{Binding OffsetVisible, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _offsetTime}"/>
-                    <TextBlock Text="{Binding Duration}" ToolTip="{Resx _duration}"/>
-                    <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}" ToolTip="{Resx _endTime}" />
+                    <TextBlock Text="{Binding ScheduledTime}" ToolTip="{Resx _scheduledTime.ToolTip}" />
+                    <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" Foreground="DarkGreen" Visibility="{Binding OffsetVisible, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _offsetTime.ToolTip}"/>
+                    <TextBlock Text="{Binding Duration}" ToolTip="{Resx _duration.ToolTip}"/>
+                    <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}" ToolTip="{Resx _endTime.ToolTip}" />
                     <Image Height="14" Source="/TAS.Client.Common;component/Images/Indicators/loop.png" Stretch="Uniform" Visibility="{Binding IsLoop, Converter={StaticResource BoolToVis}}" Style="{StaticResource EventPanelImage}"/>
                 </StackPanel>
                 <TextBlock Grid.Column="4" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0">
@@ -113,8 +108,7 @@
                         <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
                     </TextBlock.ToolTip>
                     </TextBlock>
-                <TextBlock Grid.Column="5" Text="{Binding TimeLeft}" FontSize="26" VerticalAlignment="Center" Margin="5, 0" />
-                <StackPanel Orientation="Horizontal" Grid.Column="4" Grid.Row="2">
+                <StackPanel Orientation="Horizontal" Grid.Column="4" Grid.Row="2" Grid.ColumnSpan="2">
                     <Button Command="{Binding CommandAddSubMovie}" ToolTip="{Resx _addSubMovie.ToolTip}" >
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-movie.png"/>
                     </Button>
@@ -134,8 +128,19 @@
                     <Button Command="{Binding CommandAddNextLive}" ToolTip="{Resx _addNextLive.ToolTip}" >
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-next-live.png"/>
                     </Button>
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
+                    <Button ToolTip="{Resx _moveUp.ToolTip}" Command="{Binding CommandMoveUp}">
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-up.png" />
+                    </Button>
+                    <Button ToolTip="{Resx _moveDown.ToolTip}" Command="{Binding CommandMoveDown}">
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-down.png" />
+                    </Button>
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
+                    <Button ToolTip="{Resx _delete.ToolTip}" Command="{Binding CommandDelete}">
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/delete.png" />
+                    </Button>
                 </StackPanel>
-
+                <TextBlock Grid.Column="5" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" />
             </Grid>
         </Border>
     </StackPanel>

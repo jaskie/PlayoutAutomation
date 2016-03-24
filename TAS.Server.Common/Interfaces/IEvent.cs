@@ -36,6 +36,7 @@ namespace TAS.Server.Interfaces
         void Remove();
         void Save();
         void Delete();
+        bool AllowDelete();
         IEvent Clone();
 
         bool Modified { get; }

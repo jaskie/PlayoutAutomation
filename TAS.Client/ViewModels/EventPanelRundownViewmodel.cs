@@ -40,7 +40,7 @@ namespace TAS.Client.ViewModels
 
         private void _addSubMovie(object obj)
         {
-            _engineViewmodel.AddMediaEvent(_event, TStartType.With, TMediaType.Movie);
+            _engineViewmodel.AddMediaEvent(_event, TStartType.With, TMediaType.Movie, VideoLayer.Program, false);
         }
 
         public ICommand CommandAddSubRundown { get; private set; }

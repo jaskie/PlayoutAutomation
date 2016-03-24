@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
+using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
@@ -31,10 +33,15 @@ namespace TAS.Client.ViewModels
             _event.PositionChanged -= _eventPositionChanged;
         }
 
+        #region Commands
         public ICommand CommandCut { get { return _engineViewmodel.CommandCutSelected; } }
         public ICommand CommandCopy { get { return _engineViewmodel.CommandCopySelected; } }
         public ICommand CommandPaste { get { return _engineViewmodel.CommandPasteSelected; } }
         public ICommand CommandToggleHold { get; private set; }
+        public ICommand CommandMoveUp { get; private set; }
+        public ICommand CommandMoveDown { get; private set; }
+        public ICommand CommandDelete { get; private set; }
+
 
         public ICommand CommandToggleLayer { get; private set; }
         public ICommand CommandAddNextRundown { get; private set; }
@@ -66,13 +73,35 @@ namespace TAS.Client.ViewModels
                             layerEvent.Delete();
                     }
                     else
-                    {
-                        //TODO: add event here
-                    }
+                        _engineViewmodel.AddMediaEvent(_event, TStartType.With, TMediaType.Still, layer, true);
                 },
                 CanExecuteDelegate = (o) => _event.PlayState == TPlayState.Scheduled || _event.PlayState == TPlayState.Playing || _event.PlayState == TPlayState.Paused
             };
+            CommandMoveUp = new UICommand() { ExecuteDelegate = (o) => _event.MoveUp(), CanExecuteDelegate = _canMoveUp };
+            CommandMoveDown = new UICommand() { ExecuteDelegate = o => _event.MoveDown(), CanExecuteDelegate = _canMoveDown };
+            CommandDelete = new UICommand
+            {
+                ExecuteDelegate = o =>
+                {
+                    if (MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+                        _event.Delete();
+                },
+                CanExecuteDelegate = o => _event.AllowDelete()
+            };
         }
+
+        bool _canMoveUp(object o)
+        {
+            IEvent prior = _event.Prior;
+            return prior != null && prior.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled;
+        }
+
+        bool _canMoveDown(object o)
+        {
+            IEvent next = _event.Next;
+            return next != null && next.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled;
+        }
+        #endregion // Commands
 
         private string _timeLeft = string.Empty;
         public string TimeLeft

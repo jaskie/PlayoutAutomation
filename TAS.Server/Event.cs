@@ -111,8 +111,8 @@ namespace TAS.Server
             if (obj == null) return -1;
             int timecomp = this.ScheduledTime.CompareTo((obj as Event).ScheduledTime);
             timecomp = (timecomp == 0) ? this.ScheduledDelay.CompareTo((obj as Event).ScheduledDelay) : timecomp;
-            return (timecomp==0) ? this.IdRundownEvent.CompareTo((obj as Event).IdRundownEvent) : timecomp;
-         }
+            return (timecomp == 0) ? this.IdRundownEvent.CompareTo((obj as Event).IdRundownEvent) : timecomp;
+        }
 
         public IEvent Clone()
         {
@@ -190,7 +190,9 @@ namespace TAS.Server
         public long Position // in frames
         {
             get { return _position; }
-            set { if (_position != value)
+            set
+            {
+                if (_position != value)
                 {
                     _position = value;
                     var h = PositionChanged;
@@ -212,14 +214,14 @@ namespace TAS.Server
                     return (Parent == null) ? 0 : Parent.IdRundownEvent;
                 else
                     if (StartType == TStartType.After)
-                        return (Prior == null) ? 0 : Prior.IdRundownEvent;
-                    else
+                    return (Prior == null) ? 0 : Prior.IdRundownEvent;
+                else
                         if (StartType == TStartType.Manual)
-                        {
-                            Event parent = Parent as Event;
-                            if (parent != null && parent.EventType == TEventType.Container)
-                                return parent.IdRundownEvent;
-                        }
+                {
+                    Event parent = Parent as Event;
+                    if (parent != null && parent.EventType == TEventType.Container)
+                        return parent.IdRundownEvent;
+                }
                 return 0;
             }
         }
@@ -285,10 +287,10 @@ namespace TAS.Server
                 return ev.Parent;
             }
         }
-        
+
         public bool IsBefore(IEvent aEvent)
         {
-            return (Prior == null) ? false : (Prior == aEvent)? true : Prior.IsBefore(aEvent);
+            return (Prior == null) ? false : (Prior == aEvent) ? true : Prior.IsBefore(aEvent);
         }
 
         public IEngine Engine { get; private set; }
@@ -296,13 +298,13 @@ namespace TAS.Server
         internal VideoLayer _layer = VideoLayer.None;
         public VideoLayer Layer
         {
-            get 
+            get
             {
-                return (_layer == VideoLayer.None) ? ((Parent == null) ? VideoLayer.Program : Parent.Layer) : _layer; 
+                return (_layer == VideoLayer.None) ? ((Parent == null) ? VideoLayer.Program : Parent.Layer) : _layer;
             }
             set { SetField(ref _layer, value, "Layer"); }
         }
-        
+
         internal TEventType _eventType;
         public TEventType EventType
         {
@@ -410,7 +412,7 @@ namespace TAS.Server
             {
                 lock (this)
                 {
-                    if (_playState == TPlayState.Scheduled 
+                    if (_playState == TPlayState.Scheduled
                         || _startTime == default(DateTime))
                         return _scheduledTime;
                     else
@@ -432,13 +434,13 @@ namespace TAS.Server
                 }
             }
         }
-        
+
 
         public TimeSpan Length
         {
-            get 
+            get
             {
-                return _isEnabled ? _duration + _scheduledDelay : TimeSpan.Zero; 
+                return _isEnabled ? _duration + _scheduledDelay : TimeSpan.Zero;
             }
         }
 
@@ -476,8 +478,8 @@ namespace TAS.Server
         public bool IsLoop { get { return _isLoop; } set { SetField(ref _isLoop, value, "IsLoop"); } }
 
         internal DateTime _startTime;
-        public DateTime StartTime 
-        { 
+        public DateTime StartTime
+        {
             get
             {
                 return _startTime;
@@ -494,8 +496,8 @@ namespace TAS.Server
                             succ.UpdateScheduledTime(true);
                     }
                 }
-            } 
-        } 
+            }
+        }
 
         internal TimeSpan _scheduledDelay;
         public TimeSpan ScheduledDelay
@@ -507,9 +509,9 @@ namespace TAS.Server
         internal TimeSpan _duration;
         public TimeSpan Duration
         {
-            get 
-            { 
-                return _duration; 
+            get
+            {
+                return _duration;
             }
             set
             {
@@ -557,7 +559,7 @@ namespace TAS.Server
                     return _duration;
             }
         }
-        
+
         private void DurationChanged()
         {
             if (_eventType == TEventType.Movie || _eventType == TEventType.Rundown || _eventType == TEventType.Live)
@@ -633,12 +635,12 @@ namespace TAS.Server
                     return parent.TransitionTime;
                 return _transitionTime;
             }
-            set  
-            { 
+            set
+            {
                 value = Engine.AlignTimeSpan(value);
                 if (SetField(ref _transitionTime, value, "TransitionTime"))
                     UpdateScheduledTime(true);
-            } 
+            }
         }
 
         internal TTransitionType _transitionType;
@@ -672,7 +674,7 @@ namespace TAS.Server
 
         public IMedia Media
         {
-            get 
+            get
             {
                 return ServerMediaPRI;
             }
@@ -699,7 +701,7 @@ namespace TAS.Server
             if (e.PropertyName == "AudioVolume" && this.AudioVolume == null)
                 NotifyPropertyChanged("AudioVolume");
         }
-        
+
         private ServerMedia _serverMediaPRI;
         public IServerMedia ServerMediaPRI
         {
@@ -796,7 +798,7 @@ namespace TAS.Server
                 return 0;
             }
         }
- 
+
         internal string _eventName;
         public string EventName
         {
@@ -816,7 +818,7 @@ namespace TAS.Server
         }
 
         private Event _prior;
-        public IEvent Prior 
+        public IEvent Prior
         {
             get
             {
@@ -849,7 +851,8 @@ namespace TAS.Server
                 }
                 return _next;
             }
-            protected set {
+            protected set
+            {
                 if (SetField(ref _next, value as Event, "Next"))
                 {
                     _nextLoaded = true;
@@ -863,7 +866,7 @@ namespace TAS.Server
         {
             Event eventToInsert = e as Event;
             if (eventToInsert != null)
-            lock ((Engine as Engine).RundownSync)
+                lock ((Engine as Engine).RundownSync)
                 {
                     Event oldParent = eventToInsert.Parent as Event;
                     Event oldPrior = eventToInsert.Prior as Event;
@@ -1160,10 +1163,10 @@ namespace TAS.Server
             if (_eventType == TEventType.Movie)
             {
                 IMedia m = Media;
-                if (m == null 
+                if (m == null
                     || m.MediaStatus != TMediaStatus.Available
-                    || _scheduledTc<m.TcStart 
-                    || _duration+_scheduledTc > m.Duration+m.TcStart)
+                    || _scheduledTc < m.TcStart
+                    || _duration + _scheduledTc > m.Duration + m.TcStart)
                     return TimeSpan.Zero;
             }
             if (_eventType == TEventType.Rundown)
@@ -1217,18 +1220,40 @@ namespace TAS.Server
                 }
             }
         }
+
+        public bool AllowDelete()
+        {
+            lock (this)
+            {
+                if (_playState == TPlayState.Fading || _playState == TPlayState.Paused || _playState == TPlayState.Playing)
+                    return false;
+                foreach (IEvent se in this.SubEvents.ToList())
+                {
+                    IEvent ne = se;
+                    while (ne != null)
+                    {
+                        if (!ne.AllowDelete())
+                            return false;
+                        ne = ne.Next;
+                    }
+                }
+                return true;
+            }
+        }
+    
+
         private bool _isDeleted = false;
         public bool IsDeleted { get { return _isDeleted; } }
         public void Delete()
         {
             lock (this)
             {
-                if (!IsDeleted)
+                if (!IsDeleted && AllowDelete())
                 {
                     Remove();
-                    foreach (Event se in this.SubEvents.ToList())
+                    foreach (IEvent se in this.SubEvents.ToList())
                     {
-                        IEvent ne = se.Next;
+                        IEvent ne = se;
                         while (ne != null)
                         {
                             var next = ne.Next;

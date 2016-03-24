@@ -15,18 +15,17 @@
              d:DesignWidth="700"
              common:TreeViewExtensions.IsSelected="{Binding IsMultiSelected, Mode=TwoWay}"
              >
-    <local:EventPanelView.ContextMenu>
-        <ContextMenu>
-            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Copy}" Command="{Binding CommandCopy}" />
-            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Cut}" Command="{Binding CommandCut}"/>
-            <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste}">
-                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Before}" Command="{Binding CommandPaste}" CommandParameter="Before" />
-                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.After}" Command="{Binding CommandPaste}" CommandParameter="After" />
-                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Under}" Command="{Binding CommandPaste}" CommandParameter="Under" />
-            </MenuItem>
-        </ContextMenu>
-    </local:EventPanelView.ContextMenu>
     <StackPanel>
+        <StackPanel.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Copy}" Command="{Binding CommandCopy}" InputGestureText="Ctrl-C" />
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Cut}" Command="{Binding CommandCut}" InputGestureText="Ctrl-X"  />
+                <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste}">
+                    <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.Before}" Command="{Binding CommandPaste}" CommandParameter="Before" />
+                    <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Paste.After}" Command="{Binding CommandPaste}" CommandParameter="After" InputGestureText="Ctrl-V" />
+                </MenuItem>
+            </ContextMenu>
+        </StackPanel.ContextMenu>
         <Border Background="#FFEBBDA0" Height="15" Visibility="{Binding IsStartEvent,  Converter={StaticResource BoolToVis}}">
             <TextBlock Text="{Resx _blockBegin}" FontSize="10" Margin="50, 0" />
         </Border>
@@ -65,7 +64,7 @@
                 </Grid.RowDefinitions>
                 <Border Grid.RowSpan="1" Background="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}"/>
                 <Image Grid.Column="0" Grid.RowSpan="2" Margin="3" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Movie.png" Style="{StaticResource EventPanelImage}" />
-                <Image Grid.Column="0" Grid.Row="0" Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected}" />
+                <Image Grid.Column="0" Grid.Row="0" Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected.ToolTip}" />
                 <Image Grid.Column="0" Grid.Row="1" Stretch="None" VerticalAlignment="Bottom">
                     <Image.Style>
                         <Style TargetType="Image">
@@ -115,7 +114,7 @@
                         </Style>
                     </Image.Style>
                 </Image>
-                <Border Grid.Column="2"  Grid.RowSpan="2" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" Background="Red" ToolTip="{Resx _isInvalidInSchedule}"/>
+                <Border Grid.Column="2"  Grid.RowSpan="2" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" Background="Red" ToolTip="{Resx _isInvalidInSchedule.ToolTip}"/>
                 <Image Grid.Column="2"  Grid.RowSpan="2" ToolTip="{Binding MediaErrorInfo}" HorizontalAlignment="Left" Margin="3,1,0,0" >
                     <Image.Style>
                         <Style TargetType="Image">
@@ -139,10 +138,10 @@
                             <Setter Property="VerticalAlignment" Value="Center"/>
                         </Style>
                     </StackPanel.Resources>
-                    <TextBlock Text="{Binding ScheduledTime}" ToolTip="{Resx _scheduledTime}" />
-                    <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" Foreground="DarkGreen" Visibility="{Binding OffsetVisible, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _offsetTime}"/>
-                    <TextBlock Text="{Binding Duration}" ToolTip="{Resx _duration}" />
-                    <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}" ToolTip="{Resx _endTime}"/>
+                    <TextBlock Text="{Binding ScheduledTime}" ToolTip="{Resx _scheduledTime.ToolTip}" />
+                    <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" Foreground="DarkGreen" Visibility="{Binding OffsetVisible, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _offsetTime.ToolTip}"/>
+                    <TextBlock Text="{Binding Duration}" ToolTip="{Resx _duration.ToolTip}" />
+                    <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}" ToolTip="{Resx _endTime.ToolTip}"/>
                     <Image Height="14" Source="/TAS.Client.Common;component/Images/Indicators/loop.png" Stretch="Uniform" Visibility="{Binding IsLoop, Converter={StaticResource BoolToVis}}" Style="{StaticResource EventPanelImage}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="4" Grid.Row="0" >
@@ -153,7 +152,6 @@
                     </TextBlock>
                     <TextBlock Text="{Binding MediaFileName}" FontWeight="Normal" FontSize="8"/>
                 </StackPanel>
-                <TextBlock Grid.Column="5" Text="{Binding TimeLeft}" FontSize="26" VerticalAlignment="Center" Margin="5, 0" />
                 <StackPanel Grid.Column="4" Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" >
                     <Button Command="{Binding CommandAddNextMovie}" ToolTip="{Resx _addNextMovie.ToolTip}" >
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-movie.png"/>
@@ -167,10 +165,25 @@
                     <Button Command="{Binding CommandAddNextLive}" ToolTip="{Resx _addNextLive.ToolTip}" >
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-next-live.png"/>
                     </Button>
-                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
+                    <Button ToolTip="{Resx _moveUp.ToolTip}" Command="{Binding CommandMoveUp}">
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-up.png" />
+                    </Button>
+                    <Button ToolTip="{Resx _moveDown.ToolTip}" Command="{Binding CommandMoveDown}">
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-down.png" />
+                    </Button>
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
+                    <Button ToolTip="{Resx _delete.ToolTip}" Command="{Binding CommandDelete}">
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/delete.png" />
+                    </Button>
                 </StackPanel>
                 <StackPanel Grid.Column="4" Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right"  Margin="5, 0" >
-                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Visibility="{Binding GPICanTrigger, Converter={StaticResource BoolToVis}}">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource EventPanelTextBlock}">
+                            <Setter Property="FontSize" Value="10"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding GPICanTrigger, Converter={StaticResource BoolToVis}}">
                         <Image Width="20" Margin="1">
                             <Image.Style>
                                 <Style TargetType="Image">
@@ -198,177 +211,80 @@
                             </Image.Style>
                         </Image>
                         <TextBlock TextAlignment="Center" VerticalAlignment="Center" Width="60" Text="{Binding GPILogo}"/>
-                        <TextBlock TextAlignment="Center" VerticalAlignment="Center" Width="60" Text="{Binding GPICrawl}"/>
+                        <Rectangle Width="40" Height="10" VerticalAlignment="Center" RadiusX="3" RadiusY="3" >
+                            <Rectangle.Style>
+                                <Style TargetType="Rectangle">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding GPICrawl}" Value="Normal">
+                                            <Setter Property="Fill" Value="White"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding GPICrawl}" Value="Urgent">
+                                            <Setter Property="Fill" Value="Red"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding GPICrawl}" Value="Sport">
+                                            <Setter Property="Fill" Value="Green"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Rectangle.Style>
+                        </Rectangle>
                     </StackPanel>
-                    <Button Command="{Binding CommandToggleLayer}" CommandParameter="1" ToolTip="{Resx _toggleLayer}">
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer1.png" />
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
+                    <Button Command="{Binding CommandToggleLayer}" CommandParameter="1" ToolTip="{Resx _toggleLayer.ToolTip}">
+                        <Image>
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasSubItemOnLayer1}" Value="False">
+                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Layers/layer1.png"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding HasSubItemOnLayer1}" Value="True">
+                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Layers/layer1-active.png"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
                     </Button>
                     <TextBlock Text="{Binding Layer1SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
-                    <Button Command="{Binding CommandToggleLayer}" CommandParameter="2">
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer2.png" />
+                    <Button Command="{Binding CommandToggleLayer}" CommandParameter="2" ToolTip="{Resx _toggleLayer.ToolTip}">
+                        <Image>
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasSubItemOnLayer2}" Value="False">
+                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Layers/layer2.png"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding HasSubItemOnLayer2}" Value="True">
+                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Layers/layer2-active.png"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+
                     </Button>
                     <TextBlock Text="{Binding Layer2SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
-                    <Button Command="{Binding CommandToggleLayer}" CommandParameter="3">
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer3.png"/>
+                    <Button Command="{Binding CommandToggleLayer}" CommandParameter="3" ToolTip="{Resx _toggleLayer.ToolTip}">
+                        <Image>
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasSubItemOnLayer3}" Value="False">
+                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Layers/layer3.png"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding HasSubItemOnLayer3}" Value="True">
+                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Layers/layer3-active.png"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
                     </Button>
                     <TextBlock Text="{Binding Layer3SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
                 </StackPanel>
-
+                <TextBlock Grid.Column="5" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" />
             </Grid>
         </Border>
     </StackPanel>
-    <!--<Border x:Name="border" Style="{StaticResource borderStyle}" BorderThickness="0, 0, 0, 1" Margin="0" BorderBrush="Gray" >
-        <StackPanel>
-            <Border Background="#FFEBBDA0" Height="15" Visibility="{Binding IsStartEvent,  Converter={StaticResource BoolToVis}}">
-                <TextBlock Text="{Resx _blockBegin}" FontSize="10" Margin="50, 0" />
-            </Border>
-            <StackPanel Opacity="{Binding IsEnabled, Converter={StaticResource EnabledToOpacity}}" >
-            <Border Background="OrangeRed" Height="6" Visibility="{Binding IsHold,  Converter={StaticResource BoolToVis}}" />
-                <Grid Height="59" Background="{Binding IsPlaying, Converter={StaticResource BoolToBrush}, ConverterParameter=#4040FF00}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="33" />
-                        <ColumnDefinition Width="33" />
-                        <ColumnDefinition Width="33" />
-                        <ColumnDefinition Width="0" />
-                        <ColumnDefinition Width="80" />
-                        <ColumnDefinition />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="7*" />
-                        <RowDefinition Height="4*" />
-                    </Grid.RowDefinitions>
-                    <Grid Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="3" >
-                        <Grid.Style>
-                            <Style TargetType="Grid">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Show">
-                                        <Setter Property="Background" Value="PaleGreen" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Commercial">
-                                        <Setter Property="Background" Value="Tomato" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Grid.Style>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="15" />
-                            <RowDefinition />
-                            <RowDefinition Height="15" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.RowSpan="3" Grid.Column="1" Background="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}"/>
-                        <Image Grid.Row="1" Grid.Column="1" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Movie.png"/>
-                        <Image Grid.Row="2" Grid.Column="1" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Image.Style>
-                                <Style TargetType="Image">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding VideoFormat}" Value="PAL_FHA">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/FHA.png" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding VideoFormat}" Value="Other">
-                                            <Setter Property="Source" Value="{x:Null}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding VideoFormat}" Value="HD1080i5000">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/HD.png" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding VideoFormat}" Value="HD1080p2500">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/HD.png" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding VideoFormat}" Value="PAL">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/VideoFormats/4-3.png" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Image.Style>
-                        </Image>
-                        <Border Grid.Column="0" Grid.RowSpan="3" Background="Red" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isInvalidInSchedule}" />
-                        <Image Grid.Column="0" Grid.Row="0" Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected}" />
-                        <Image Grid.Column="2" Grid.Row="1" ToolTip="{Binding PlayState}">
-                            <Image.Style>
-                                <Style TargetType="Image">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding PlayState}" Value="Played">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Played.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding PlayState}" Value="Playing">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Playing.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding PlayState}" Value="Paused">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Paused.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding PlayState}" Value="Aborted">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Aborted.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding PlayState}" Value="Fading">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Fading.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding PlayState}" Value="Scheduled">
-                                            <Setter Property="Source" Value="{x:Null}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Image.Style>
-                        </Image>
-                    </Grid>
-                    <StackPanel Grid.Column="4" Grid.RowSpan="2">
-                        <TextBlock Text="{Binding ScheduledTime}" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" FontWeight="SemiBold" Foreground="DarkGreen" Visibility="{Binding OffsetVisible, Converter={StaticResource BoolToVis}}" />
-                        <TextBlock Text="{Binding Duration}" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}"  FontWeight="Bold" />
-                        <Image Height="14" Source="/TAS.Client.Common;component/Images/Indicators/loop.png" Stretch="Uniform" Visibility="{Binding IsLoop, Converter={StaticResource BoolToVis}}" />
-                    </StackPanel>
-                    <TextBlock Grid.Column="5" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0">
-                        <TextBlock.ToolTip>
-                            <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
-                        </TextBlock.ToolTip>
-                    </TextBlock>
-                    <TextBlock Grid.Column="6" Text="{Binding TimeLeft}" FontSize="26" VerticalAlignment="Center" Margin="5, 0" />
-                    <DockPanel Grid.Column="5" Grid.Row="1" Grid.ColumnSpan="2" FlowDirection="RightToLeft" Margin="5, 0" >
-                        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Visibility="{Binding GPICanTrigger, Converter={StaticResource BoolToVis}}">
-                            <Image Width="20" Margin="1">
-                                <Image.Style>
-                                    <Style TargetType="Image">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding GPIParental}" Value="None">
-                                                <Setter Property="Source" Value="{x:Null}" />
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding GPIParental}" Value="NoLimit">
-                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/BO.png" />
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding GPIParental}" Value="Limit07">
-                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/7.png" />
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding GPIParental}" Value="Limit12">
-                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/12.png" />
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding GPIParental}" Value="Limit16">
-                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/16.png" />
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding GPIParental}" Value="Limit18">
-                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/18.png" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Image.Style>
-                            </Image>
-                            <TextBlock TextAlignment="Center" VerticalAlignment="Center" Width="60" Text="{Binding GPILogo}"/>
-                            <TextBlock TextAlignment="Center" VerticalAlignment="Center" Width="60" Text="{Binding GPICrawl}"/>
-                        </StackPanel>
-                        <TextBlock Text="{Binding Layer3SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
-                        <Image Source="/TAS.Client.Common;component/Images/Layers/Layer3.png" Visibility="{Binding HasSubItemOnLayer3, Converter={StaticResource BoolToVis}}"/>
-                        <TextBlock Text="{Binding Layer2SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
-                        <Image Source="/TAS.Client.Common;component/Images/Layers/Layer2.png" Visibility="{Binding HasSubItemOnLayer2, Converter={StaticResource BoolToVis}}"/>
-                        <TextBlock Text="{Binding Layer1SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
-                        <Image Source="/TAS.Client.Common;component/Images/Layers/Layer1.png" Visibility="{Binding HasSubItemOnLayer1, Converter={StaticResource BoolToVis}}"/>
-                        <TextBlock Grid.Column="5" Grid.Row="1" Text="{Binding MediaFileName}" VerticalAlignment="Center" HorizontalAlignment="Right" FlowDirection="LeftToRight" />
-                    </DockPanel>
-                </Grid>
-            </StackPanel>
-        </StackPanel>
-    </Border>-->
 </local:EventPanelView>

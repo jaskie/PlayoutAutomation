@@ -417,39 +417,7 @@ namespace TAS.Client.ViewModels
 
         void _addSubMovie(object o)
         {
-            _engineViewModel.AddMediaEvent(_event, TStartType.With, TMediaType.Movie);
-            //IEvent ev = _event;
-            //if (ev != null && svm == null)
-            //{
-            //    svm = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, TMediaType.Movie, false, null);
-            //    svm.BaseEvent = ev;
-            //    svm.NewEventStartType = TStartType.With;
-            //    svm.MediaChoosen += _searchMediaChoosen;
-            //    svm.SearchWindowClosed += _searchWindowClosed;
-            //    svm.ExecuteAction = new Action<MediaSearchEventArgs>((e) =>
-            //    {
-            //        if (e.Media != null)
-            //        {
-            //            IEvent newEvent = ev.Engine.CreateEvent();
-            //            newEvent.EventType = TEventType.Movie;
-            //            newEvent.Media = e.Media;
-            //            newEvent.EventName = e.MediaName;
-            //            newEvent.ScheduledTc = e.TCIn;
-            //            newEvent.Duration = e.Duration;
-            //            newEvent.Layer = VideoLayer.Program;
-            //            newEvent.GPI = _setGPI(e.Media);
-                        
-            //            //newEvent.Save();
-            //            if (svm.NewEventStartType == TStartType.After)
-            //                svm.BaseEvent.InsertAfter(newEvent);
-            //            if (svm.NewEventStartType == TStartType.With)
-            //                svm.BaseEvent.InsertUnder(newEvent);
-            //            ev = newEvent;
-            //            svm.NewEventStartType = TStartType.After;
-            //        }
-            //    });
-            //    _engineViewModel.MediaSearchViewModel = svm;
-            //}
+            _engineViewModel.AddMediaEvent(_event, TStartType.With, TMediaType.Movie, VideoLayer.Program, false);
         }
 
         void _addNextLive(object o)
@@ -493,39 +461,7 @@ namespace TAS.Client.ViewModels
 
         void _addNextMovie(object o)
         {
-            _engineViewModel.AddMediaEvent(_event, TStartType.With, TMediaType.Movie);
-            //IEvent ev = _event;
-            //var svm = _engineViewModel.MediaSearchViewModel;
-            //if (ev != null && svm == null)
-            //{
-            //    svm = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, TMediaType.Movie, false, null);
-            //    svm.BaseEvent = ev;
-            //    svm.NewEventStartType = TStartType.After;
-            //    svm.MediaChoosen += _searchMediaChoosen;
-            //    svm.SearchWindowClosed += _searchWindowClosed;
-            //    svm.ExecuteAction = new Action<MediaSearchEventArgs>((e) =>
-            //        {
-            //            if (e.Media != null)
-            //            {
-            //                IEvent newEvent = ev.Engine.CreateEvent();
-            //                newEvent.EventType = TEventType.Movie;
-            //                newEvent.Media = e.Media;
-            //                newEvent.EventName = e.MediaName;
-            //                newEvent.ScheduledTc = e.TCIn;
-            //                newEvent.Duration = e.Duration;
-            //                newEvent.Layer = VideoLayer.Program;
-            //                newEvent.GPI = _setGPI(e.Media);
-
-            //                //newEvent.Save();
-            //                if (svm.NewEventStartType == TStartType.After)
-            //                    svm.BaseEvent.InsertAfter(newEvent);
-            //                if (svm.NewEventStartType == TStartType.With)
-            //                    svm.BaseEvent.InsertUnder(newEvent);
-            //                ev = newEvent;
-            //            }
-            //        });
-            //    _engineViewModel.MediaSearchViewModel = svm;
-            //}
+            _engineViewModel.AddMediaEvent(_event, TStartType.With, TMediaType.Movie, VideoLayer.Program, false);
         }
 
         void _removeSubItems(object o)

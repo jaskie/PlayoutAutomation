@@ -326,11 +326,11 @@ namespace TAS.Client.ViewModels
 
         #region MediaSearch
         private MediaSearchViewmodel _mediaSearchViewModel;
-        public void AddMediaEvent(IEvent baseEvent, TStartType startType, TMediaType mediaType)
+        public void AddMediaEvent(IEvent baseEvent, TStartType startType, TMediaType mediaType, VideoLayer layer, bool closeAfterAdd)
         {
             if (baseEvent != null && _mediaSearchViewModel == null)
             {
-                _mediaSearchViewModel = new MediaSearchViewmodel(_engine, _engine.MediaManager, mediaType, false, _engine.FormatDescription);
+                _mediaSearchViewModel = new MediaSearchViewmodel(_engine, _engine.MediaManager, mediaType, closeAfterAdd, _engine.FormatDescription);
                 _mediaSearchViewModel.BaseEvent = baseEvent;
                 _mediaSearchViewModel.NewEventStartType = startType;
                 _mediaSearchViewModel.SearchWindowClosed += (o, e) =>
@@ -344,19 +344,28 @@ namespace TAS.Client.ViewModels
                     if (e.Media != null)
                     {
                         IEvent newEvent = _engine.CreateEvent();
-                        newEvent.EventType = TEventType.Movie;
                         newEvent.Media = e.Media;
                         newEvent.EventName = e.MediaName;
-                        newEvent.ScheduledTc = e.TCIn;
-                        newEvent.Duration = e.Duration;
-                        newEvent.Layer = VideoLayer.Program;
-                        newEvent.GPI = new EventGPI {
-                            CanTrigger = false,
-                            Crawl = e.Media.MediaCategory == TMediaCategory.Show ? TCrawl.Normal : TCrawl.NoCrawl,
-                            Logo = e.Media.MediaCategory == TMediaCategory.Fill || e.Media.MediaCategory == TMediaCategory.Show || e.Media.MediaCategory == TMediaCategory.Promo ? TLogo.Normal : TLogo.NoLogo,
-                            Parental = e.Media.Parental
-                        };
-
+                        newEvent.Layer = layer;
+                        if (mediaType == TMediaType.Still)
+                        {
+                            newEvent.EventType = TEventType.StillImage;
+                            newEvent.Duration = baseEvent.Duration;
+                        }
+                        else
+                        if (mediaType == TMediaType.Movie)
+                        {
+                            newEvent.EventType = TEventType.Movie;
+                            newEvent.ScheduledTc = e.TCIn;
+                            newEvent.Duration = e.Duration;
+                            newEvent.GPI = new EventGPI
+                            {
+                                CanTrigger = false,
+                                Crawl = e.Media.MediaCategory == TMediaCategory.Show ? TCrawl.Normal : TCrawl.NoCrawl,
+                                Logo = e.Media.MediaCategory == TMediaCategory.Fill || e.Media.MediaCategory == TMediaCategory.Show || e.Media.MediaCategory == TMediaCategory.Promo ? TLogo.Normal : TLogo.NoLogo,
+                                Parental = e.Media.Parental
+                            };
+                        }
                         if (_mediaSearchViewModel.NewEventStartType == TStartType.After)
                             _mediaSearchViewModel.BaseEvent.InsertAfter(newEvent);
                         if (_mediaSearchViewModel.NewEventStartType == TStartType.With)
