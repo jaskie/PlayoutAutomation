@@ -345,7 +345,6 @@ namespace TAS.Server
                     channel.Play(item.VideoLayer);
                     Debug.WriteLine("CasparChanner.ReStart: restarted {0} from frame {1}", item.Clipname, item.Seek);
                 }
-                IEvent le;
             }
         }
 

@@ -27,7 +27,7 @@ namespace TAS.Client.ViewModels
 
         private void _onEventSaved(object o, IEventEventArgs e) // when new event was created
         {
-            Application.Current.Dispatcher.BeginInvoke((Action<bool>)delegate (bool onUIThread)
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
             {
                 EventPanelViewmodelBase evm = this.Find(e.Event);
                 EventPanelViewmodelBase newVm = null;
@@ -91,13 +91,14 @@ namespace TAS.Client.ViewModels
                             _addRootEvent(e.Event);
                     }
                 }
-                if (onUIThread
-                    && newVm != null
-                    && !(e.Event.EventType == TEventType.StillImage))
+                if (newVm != null
+                    && !(e.Event.EventType == TEventType.StillImage)
+                    && e.Event == _engineViewmodel.LastAddedEvent)
                 {
+                    _engineViewmodel.Selected = newVm;
                     newVm.IsSelected = true;
                 }
-            }, System.Windows.Threading.Dispatcher.FromThread(System.Threading.Thread.CurrentThread) != null); // current thread is uiThread
+            });
         }
 
         private void _addRootEvent(IEvent e)

@@ -133,7 +133,7 @@
     <value>Revert</value>
   </data>
   <data name="_buttonSave.Caption" xml:space="preserve">
-    <value>OK</value>
+    <value>Save</value>
   </data>
   <data name="_buttonSave.ToolTip" xml:space="preserve">
     <value>Save changes (Ctrl+S)</value>

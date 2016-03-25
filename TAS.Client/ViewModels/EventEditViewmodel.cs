@@ -29,24 +29,12 @@ namespace TAS.Client.ViewModels
             _engine = engineViewModel.Engine;
             CommandSaveEdit = new UICommand() { ExecuteDelegate = _save, CanExecuteDelegate = _canSave };
             CommandCancelEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
-            CommandDelete = new UICommand() { ExecuteDelegate = _delete, CanExecuteDelegate = _canDelete };
-            CommandAddGraphics = new UICommand() { ExecuteDelegate = _addGraphics, CanExecuteDelegate = _canAddGraphics };
-            CommandRemoveSubItems = new UICommand() { ExecuteDelegate = _removeSubItems, CanExecuteDelegate = _canRemoveSubitems };
-            CommandAddNextMovie = new UICommand() { ExecuteDelegate = _addNextMovie, CanExecuteDelegate = _canAddNextEvent };
-            CommandAddNextEmptyMovie = new UICommand() { ExecuteDelegate = _addNextEmptyMovie, CanExecuteDelegate = _canAddNextEvent };
-            CommandAddNextRundown = new UICommand() { ExecuteDelegate = _addNextRundown, CanExecuteDelegate = _canAddNextEvent };
-            CommandAddNextLive = new UICommand() { ExecuteDelegate = _addNextLive, CanExecuteDelegate = _canAddNextEvent };
-            CommandAddSubMovie = new UICommand() { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = _canAddSubMovie };
-            CommandAddSubRundown = new UICommand() { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = _canAddSubRundown };
-            CommandAddSubLive = new UICommand() { ExecuteDelegate = _addSubLive, CanExecuteDelegate = _canAddSubMovie };
             CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _isEditableMovie };
             CommandEditMovie = new UICommand() { ExecuteDelegate = _editMovie, CanExecuteDelegate = _isEditableMovie };
             CommandGetTCInTCOut = new UICommand() { ExecuteDelegate =_getTCInTCOut, CanExecuteDelegate = _canGetTcInTcOut};
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume };
             CommandToggleEnabled = new UICommand() { ExecuteDelegate = _toggleEnabled, CanExecuteDelegate = _canToggleEnabled };
             CommandToggleHold = new UICommand() { ExecuteDelegate = _toggleHold, CanExecuteDelegate = _canToggleEnabled };
-            CommandMoveUp = new UICommand() { ExecuteDelegate = _moveUp, CanExecuteDelegate = _canMoveUp };
-            CommandMoveDown = new UICommand() { ExecuteDelegate = _moveDown, CanExecuteDelegate = _canMoveDown };
         }
 
         protected override void OnDispose()
@@ -57,26 +45,12 @@ namespace TAS.Client.ViewModels
 
         public UICommand CommandCancelEdit { get; private set; }
         public UICommand CommandSaveEdit { get; private set; }
-        public UICommand CommandDelete { get; private set; } 
-        public UICommand CommandAddGraphics { get; private set; }
-        public UICommand CommandAddAnimation { get; private set; }
-        public UICommand CommandRemoveSubItems { get; private set; }
-        public UICommand CommandAddNextMovie { get; private set; }
-        public UICommand CommandAddNextEmptyMovie { get; private set; }
-        public UICommand CommandAddNextRundown { get; private set; }
-        public UICommand CommandAddNextLive { get; private set; }
-        public UICommand CommandAddSubMovie { get; private set; }
-        public UICommand CommandAddSubRundown { get; private set; }
-        public UICommand CommandAddSubLive { get; private set; }
         public UICommand CommandChangeMovie { get; private set; }
         public UICommand CommandEditMovie { get; private set; }
         public UICommand CommandGetTCInTCOut { get; private set; }
         public UICommand CommandCheckVolume { get; private set; }
         public UICommand CommandToggleEnabled { get; private set; }
         public UICommand CommandToggleHold { get; private set; }
-        public UICommand CommandMoveUp { get; private set; }
-        public UICommand CommandMoveDown { get; private set; }
-
         
         private IEvent _event;
         public IEvent Event
@@ -303,28 +277,6 @@ namespace TAS.Client.ViewModels
             _mediaSearchViewModel = null;
         }        
 
-        private void _delete(object ob)
-        {
-            IEvent ev = _event;
-            if (ev != null
-                && MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-            {
-                Modified = false;
-                UiServices.SetBusyState();
-                ThreadPool.QueueUserWorkItem(
-                o =>
-                {
-                    try
-                    {
-                        ev.Delete();
-                    }
-                    catch (Exception e)
-                    {
-                        MessageBox.Show(string.Format(resources._message_CommandFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                });
-            }
-        }
 
         private IMedia _media;
         public IMedia Media
@@ -367,41 +319,7 @@ namespace TAS.Client.ViewModels
         private void _editMovie(object obj)
         {
             using (var evm = new MediaEditWindowViewmodel(_event.Media, _engine.MediaManager))
-            {
                 evm.ShowDialog();
-            }
-        }
-
-        void _addSubLive(object o)
-        {
-            IEvent ev = _event;
-            if (ev != null)
-            {
-                IEvent newEvent = ev.Engine.CreateEvent();
-                newEvent.EventType = TEventType.Live;
-                newEvent.EventName = resources._title_NewLive;
-                newEvent.Duration = new TimeSpan(1, 0, 0);
-                //newEvent.Save();
-                ev.InsertUnder(newEvent);
-            }
-        }
-
-        void _addSubRundown(object o)
-        {
-            IEvent ev = _event;
-            if (ev != null)
-            {
-                IEvent newEvent = ev.Engine.CreateEvent();
-                newEvent.EventType = TEventType.Rundown;
-                newEvent.EventName = resources._title_NewRundown;
-                if (ev.EventType == TEventType.Container)
-                {
-                    newEvent.StartType = TStartType.Manual;
-                    newEvent.ScheduledTime = DateTime.Now.ToUniversalTime();
-                }
-                //newEvent.Save();
-                ev.InsertUnder(newEvent);
-            }
         }
 
         EventGPI _setGPI(IMedia media)
@@ -413,106 +331,6 @@ namespace TAS.Client.ViewModels
                 ? TLogo.Normal : TLogo.NoLogo;
             GPI.Parental = media != null ? media.Parental : TParental.None;
             return GPI;
-        }
-
-        void _addSubMovie(object o)
-        {
-            _engineViewModel.AddMediaEvent(_event, TStartType.With, TMediaType.Movie, VideoLayer.Program, false);
-        }
-
-        void _addNextLive(object o)
-        {
-            IEvent ev = _event;
-            if (ev != null)
-            {
-                IEvent newEvent = ev.Engine.CreateEvent();
-                newEvent.EventType = TEventType.Live;
-                newEvent.EventName = resources._title_NewLive;
-                newEvent.Duration = new TimeSpan(1, 0, 0);
-                //newEvent.Save();
-                ev.InsertAfter(newEvent);
-            }
-        }
-
-        void _addNextRundown(object o)
-        {
-            IEvent ev = _event;
-            if (ev != null)
-            {
-                IEvent newEvent = ev.Engine.CreateEvent();
-                newEvent.EventType = TEventType.Rundown;
-                newEvent.EventName = resources._title_NewRundown;
-                //newEvent.Save();
-                ev.InsertAfter(newEvent);
-            }
-        }
-
-        void _addNextEmptyMovie(object o)
-        {
-            IEvent ev = _event;
-            if (ev != null)
-            {
-                IEvent newEvent = ev.Engine.CreateEvent();
-                newEvent.EventType = TEventType.Movie;
-                newEvent.EventName = resources._title_EmptyMovie;
-                ev.InsertAfter(newEvent);
-            }
-        }
-
-        void _addNextMovie(object o)
-        {
-            _engineViewModel.AddMediaEvent(_event, TStartType.With, TMediaType.Movie, VideoLayer.Program, false);
-        }
-
-        void _removeSubItems(object o)
-        {
-            IEvent aEvent = _event;
-            if (aEvent != null
-                && MessageBox.Show(resources._query_DeleteAllGraphics, resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-            {
-                foreach (IEvent ev in aEvent.SubEvents.ToList().Where(e => e.EventType == TEventType.StillImage))
-                    ev.Delete();
-                NotifyPropertyChanged("HasSubItemOnLayer1");
-                NotifyPropertyChanged("HasSubItemOnLayer2");
-                NotifyPropertyChanged("HasSubItemOnLayer3");
-            }
-        }
-
-        private void _addGraphics(object layer)
-        {
-            IEvent ev = _event;
-            if (ev != null)
-            {
-                IEvent sle = ev.SubEvents.FirstOrDefault(e => e.Layer == (VideoLayer)int.Parse(layer as string) && e.EventType == TEventType.StillImage);
-                if (sle == null)
-                {
-                    IMedia media = ev.Media;
-                    VideoFormatDescription format = media == null ? null : media.VideoFormatDescription;
-                    _chooseMedia(TMediaType.Still, this.Event, TStartType.With, new Action<MediaSearchEventArgs>((e) =>
-                        {
-                            var m = e.Media;
-                            if (m != null)
-                            {
-                                IEvent newEvent = ev.Engine.CreateEvent();
-                                newEvent.EventType = TEventType.StillImage;
-                                newEvent.Media = m;
-                                newEvent.EventName = m.MediaName;
-                                newEvent.Duration = ev.Duration;
-                                newEvent.Layer = (VideoLayer)int.Parse(layer as string);
-                                //newEvent.Save();
-                                ev.InsertUnder(newEvent);
-                            }
-
-                        }), format);
-                }
-                else
-                {
-                    sle.Delete();
-                }
-                NotifyPropertyChanged("HasSubItemOnLayer1");
-                NotifyPropertyChanged("HasSubItemOnLayer2");
-                NotifyPropertyChanged("HasSubItemOnLayer3");
-            }
         }
 
         void _getTCInTCOut(object o)
@@ -571,72 +389,11 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        void _moveUp(object o)
-        {
-            IEvent ev = _event;
-            if (ev != null)
-                ev.MoveUp();
-        }
-
-        void _moveDown(object o)
-        {
-            IEvent ev = _event;
-            if (ev != null)
-                ev.MoveDown();
-        }
-
-        bool _canAddNextEvent(object o)
-        {
-            IEvent ev = _event;
-            return ev != null
-                && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Playing)
-                && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live)
-                && (!ev.IsLoop);
-        }
-        
-        bool _canAddSubMovie(object o)
-        {
-            IEvent ev = _event;
-            return ev != null
-                && ev.PlayState == TPlayState.Scheduled
-                && ev.EventType == TEventType.Rundown
-                && ev.SubEvents.Count == 0;
-        }
-
-        bool _canAddSubRundown(object o)
-        {
-            IEvent ev = _event;
-            return ev != null
-                && ((ev.PlayState == TPlayState.Scheduled && ev.EventType == TEventType.Rundown && ev.SubEvents.Count == 0) || ev.EventType == TEventType.Container);
-        }
-
-        
-        bool _canAddGraphics(object o)
-        {
-            IEvent ev = _event;
-            return ev != null
-                && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused || ev.PlayState == TPlayState.Playing || ev.PlayState == TPlayState.Fading)
-                && (ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live);
-        }
-
-        bool _canRemoveSubitems(object o)
-        {
-            IEvent ev = _event;
-            return ev != null
-                && ev.PlayState == TPlayState.Scheduled
-                && ev.SubEvents.Any(e => e.EventType == TEventType.StillImage);
-        }
         bool _canReschedule(object o)
         {
             IEvent ev = _event;
             return ev != null
                 && (ev.PlayState == TPlayState.Played || ev.PlayState == TPlayState.Aborted);
-        }
-        bool _canDelete(object o)
-        {
-            IEvent ev = _event;
-            return ev != null
-                && (ev.PlayState == TPlayState.Played || ev.PlayState == TPlayState.Aborted || ev.PlayState == TPlayState.Scheduled);
         }
         bool _canToggleEnabled(object o)
         {
@@ -669,18 +426,6 @@ namespace TAS.Client.ViewModels
                 && previewMedia != null
                 && ev.ServerMediaPRV == previewMedia;
         }
-        bool _canMoveUp(object o)
-        {
-            IEvent ev = _event;
-            IEvent prior = ev == null ? null : ev.Prior;
-            return prior != null && prior.PlayState == TPlayState.Scheduled && ev.PlayState == TPlayState.Scheduled;
-        }
-        bool _canMoveDown(object o)
-        {
-            IEvent ev = _event;
-            IEvent next = ev == null ? null : ev.Next;
-            return next != null && next.PlayState == TPlayState.Scheduled && ev.PlayState == TPlayState.Scheduled;
-        }
 
         private bool _isVolumeChecking;
         public bool IsVolumeChecking { get { return _isVolumeChecking; }
@@ -690,7 +435,6 @@ namespace TAS.Client.ViewModels
                 {
                     _isVolumeChecking = value;
                     NotifyPropertyChanged("IsVolumeChecking");
-                    NotifyPropertyChanged("CommandCheckVolume");
                     InvalidateRequerySuggested();
                 }
             }
@@ -1025,7 +769,7 @@ namespace TAS.Client.ViewModels
         internal void _previewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Media")
-                NotifyPropertyChanged("CommandGetTCInTCOut");
+                InvalidateRequerySuggested();
         }
 
         private void _eventPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -1047,17 +791,11 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("GPILogo");
                 NotifyPropertyChanged("GPICrawl");
             }
-
             if (e.PropertyName == "PlayState")
             {
                 NotifyPropertyChanged("IsEditEnabled");
                 NotifyPropertyChanged("IsMovieOrLive");
                 InvalidateRequerySuggested();
-            }
-            if (e.PropertyName == "Next" || e.PropertyName == "Prior")
-            {
-                NotifyPropertyChanged("CommandMoveDown");
-                NotifyPropertyChanged("CommandMoveUp");
             }
             if (e.PropertyName == "AudioVolume")
             {
@@ -1078,23 +816,6 @@ namespace TAS.Client.ViewModels
 
         private void _onSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
-            if (((o as IEvent).EventType == TEventType.Live || (o as IEvent).EventType == TEventType.Movie)
-                && e.Item.EventType == TEventType.StillImage)
-            {
-
-                switch (e.Item.Layer)
-                {
-                    case VideoLayer.CG1:
-                        NotifyPropertyChanged("HasSubItemOnLayer1");
-                        break;
-                    case VideoLayer.CG2:
-                        NotifyPropertyChanged("HasSubItemOnLayer2");
-                        break;
-                    case VideoLayer.CG3:
-                        NotifyPropertyChanged("HasSubItemOnLayer3");
-                        break;
-                }
-            }
         }
 
         private void _onRelocated(object o, EventArgs e)
@@ -1103,30 +824,6 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged("BoundEventName");
             NotifyPropertyChanged("ScheduledTime");
         }
-
-        //public void EventOperation(object sender, EventOperationEventArgs a)
-        //{
-        //    if (sender == _event && Application.Current != null)
-        //    {
-        //        //if (a.Operation == TEventOperation.Delete)
-        //        //{
-        //        //    Application.Current.Dispatcher.BeginInvoke((Action)delegate()
-        //        //    {
-        //        //        Event = null;
-        //        //    });
-        //        //}
-
-        //        if (a.Operation == TEventOperation.PlayStateChanged || a.Operation == TEventOperation.Modify || a.Operation == TEventOperation.Save)
-        //        {
-        //            Application.Current.Dispatcher.BeginInvoke((Action)delegate() 
-        //            {
-        //                lock (this)
-        //                    _setCommandsCanExecute();
-        //            });
-        //            NotifyPropertyChanged("IsEditEnabled");
-        //        }
-        //    }
-        //}
 
     }
 

@@ -10,7 +10,7 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DataContext="{x:Type vm:EventEditViewmodel}"
-             d:DesignHeight="400" d:DesignWidth="360"
+             d:DesignWidth="360"
              >
     <UserControl.Resources>
         <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
@@ -29,96 +29,51 @@
     <UserControl.InputBindings>
         <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="Ctrl+S" />
         <KeyBinding Command="{Binding CommandCancelEdit}" Gesture="Ctrl+U" />
-        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="1" Gesture="Ctrl+D1" />
-        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="2" Gesture="Ctrl+D2" />
-        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="3" Gesture="Ctrl+D3" />
-        <KeyBinding Command="{Binding CommandRemoveSubItems}" Gesture="Ctrl+D0" />
-        <KeyBinding Command="{Binding CommandAddSubMovie}" Gesture="Ctrl+Shift+N" />
-        <KeyBinding Command="{Binding CommandAddNextMovie}" Gesture="Ctrl+N" />
         <KeyBinding Command="{Binding CommandDelete}" Gesture="Ctrl+Del" />
     </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="36" />
-            <RowDefinition Height="36" />
-            <RowDefinition Height="362*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <StackPanel.Resources>
-                <Style TargetType="Button">
-                    <Setter Property="Margin" Value="3"/>
-                </Style>
-            </StackPanel.Resources>
-            <Button ToolTip="{Resx _toolbar.AddNextMovie}" Command="{Binding CommandAddNextMovie}">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-movie.png" />
-            </Button>
-            <Button ToolTip="{Resx _toolbar.AddNextEmptyMovie}" Command="{Binding CommandAddNextEmptyMovie}">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-empty-movie.png" />
-            </Button>
-            <Button ToolTip="{Resx _toolbar.AddNextRundown}" Command="{Binding CommandAddNextRundown}">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-rundown.png" />
-            </Button>
-            <Button ToolTip="{Resx _toolbar.AddNextLive}" Command="{Binding CommandAddNextLive}">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-next-live.png" />
-            </Button>
-            <Button ToolTip="{Resx _toolbar.AddSubMovie}" Command="{Binding CommandAddSubMovie}">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-movie.png" />
-            </Button>
-            <Button ToolTip="{Resx _toolbar.AddSubRundown}" Command="{Binding CommandAddSubRundown}">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-rundown.png" />
-            </Button>
-            <Button ToolTip="_toolbar.AddSubLive" Command="{Binding CommandAddSubLive}">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-live.png" />
-            </Button>
-            <Button ToolTip="{Resx _toolbar.MoveUp}" Command="{Binding CommandMoveUp}">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-up.png" />
-            </Button>
-            <Button ToolTip="{Resx _toolbar.MoveDown}" Command="{Binding CommandMoveDown}">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-down.png" />
-            </Button>
-        </StackPanel>
-        <Grid Grid.Row="1" >
+        <Grid Grid.Row="0" >
             <Grid.Resources>
                 <Style TargetType="Button">
                     <Setter Property="Margin" Value="3"/>
                 </Style>
             </Grid.Resources>
-            <StackPanel Orientation="Horizontal" >
-                <Button ToolTip="{Resx _toolbar.AddGraphics1}" 
-                        Command="{Binding CommandAddGraphics}" CommandParameter="1" >
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer1.png" IsEnabled="{Binding HasSubItemOnLayer1}" />
+            <StackPanel FlowDirection="RightToLeft" Orientation="Horizontal" Height="37">
+                <StackPanel.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Margin" Value="5" />
+                        <Setter Property="Width" Value="80" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="FlowDirection" Value="LeftToRight"/>
+                    </Style>
+                    <Style TargetType="Label">
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                        <Setter Property="Padding" Value="0"/>
+                    </Style>
+                    <Style TargetType="Image" >
+                        <Setter Property="Margin" Value="5, 0"/>
+                    </Style>
+                </StackPanel.Resources>
+                <Button IsDefault="True" ToolTip="{Resx _buttonSave.ToolTip}" Command="{Binding CommandSaveEdit}" >
+                    <DockPanel>
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png"/>
+                        <Label Content="{Resx _buttonSave.Caption}" />
+                    </DockPanel>
                 </Button>
-                <Button ToolTip="{Resx _toolbar.AddGraphics2}" 
-                        Command="{Binding CommandAddGraphics}" CommandParameter="2" >
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer2.png"  IsEnabled="{Binding HasSubItemOnLayer2}" />
-                </Button>
-                <Button ToolTip="{Resx _toolbar.AddGraphics3}" 
-                        Command="{Binding CommandAddGraphics}" CommandParameter="3" >
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer3.png"  IsEnabled="{Binding HasSubItemOnLayer3}"/>
-                </Button>
-                <!--<Button Margin="10,5" ToolTip="Dodaj/usuń animację" 
-                        Command="{Binding CommandAddAnimation}" CommandParameter="0" >
-                    <common:AutoGreyableImage Source="../Glyphs/Circle_A.png"  IsEnabled="{Binding HasAnimation}"/>
-                </Button>-->
-                <Button ToolTip="{Resx _toolbar.RemoveSubItems}" 
-                        Command="{Binding CommandRemoveSubItems}" >
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png" />
-                </Button>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft">
-                <Button ToolTip="{Resx _toolbar.Save}" Command="{Binding CommandSaveEdit}">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png" />
-                </Button>
-                <Button ToolTip="{Resx _toolbar.CancelEdit}" Command="{Binding CommandCancelEdit}">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/Undo.png" />
-                </Button>
-                <Button ToolTip="{Resx _toolbar.Delete}" Command="{Binding CommandDelete}" >
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/delete.png"  />
+                <Button IsCancel="True" ToolTip="{Resx _buttonCancel.ToolTip}" Command="{Binding CommandCancelEdit}">
+                    <DockPanel>
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png"/>
+                        <Label Content="{Resx _buttonRevert.Caption}" />
+                    </DockPanel>
                 </Button>
             </StackPanel>
         </Grid>
-
-        <ScrollViewer Grid.Row="2" Padding="2" >
+        <ScrollViewer Grid.Row="1" Padding="2" VerticalScrollBarVisibility="Auto" >
             <ScrollViewer.Resources>
                 <Style TargetType="Label">
                     <Setter Property="Width" Value="88"/>
@@ -157,7 +112,7 @@
                     <Label Content="{Resx _name}"/>
                     <TextBox Name="EventName" Text="{Binding EventName, UpdateSourceTrigger=PropertyChanged}" />
                 </DockPanel>
-                <StackPanel Visibility="{Binding IsNotContainer, Converter={StaticResource BoolToVis}}">
+                <StackPanel Visibility="{Binding IsNotContainer, Converter={StaticResource BoolToVis}}" >
                     <DockPanel>
                         <CheckBox Content="{Resx _starting}" IsChecked="{Binding IsEnabled}" HorizontalContentAlignment="Right" VerticalAlignment="Center" ToolTip="{Resx _starting.ToolTip}" />
                         <TextBox Text="{Binding StartType}" IsEnabled="False" />

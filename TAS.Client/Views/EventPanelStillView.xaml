@@ -14,23 +14,23 @@
              FontSize="12" 
              d:DesignWidth="700"
              >
-    <Border x:Name="border" BorderThickness="0, 0, 0, 1" Margin="0" BorderBrush="Gray" >
+    <Border x:Name="border" Style="{StaticResource EventPanelStyle}">
         <StackPanel >
             <StackPanel Opacity="{Binding IsEnabled, Converter={StaticResource EnabledToOpacity}}" >
                 <Grid Height="20" Background="{Binding IsPlaying, Converter={StaticResource BoolToBrush}, ConverterParameter=#4040FF00}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="20"/>
                         <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="20"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="100"/>
                     </Grid.ColumnDefinitions>
-                    <Image Grid.Column="0" ToolTip="{Binding MediaErrorInfo}" HorizontalAlignment="Left" Margin="3,1,0,0" >
+                    <Image Grid.Column="0" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/StillImage.png"/>
+                    <Image Grid.Column="0" ToolTip="{Binding MediaErrorInfo}" >
                         <Image.Style>
                             <Style TargetType="Image">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding MediaErrorInfo}" Value="Missing">
-                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaErrorInfo/Missing.png"/>
+                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/error-overlay.png"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding MediaErrorInfo}" Value="NoError">
                                         <Setter Property="Source" Value="{x:Null}"/>
@@ -39,8 +39,7 @@
                             </Style>
                         </Image.Style>
                     </Image>
-                    <Image Grid.Column="1" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/StillImage.png"/>
-                    <Image Grid.Column="2" ToolTip="{Binding PlayState}">
+                    <Image Grid.Column="1" ToolTip="{Binding PlayState}">
                         <Image.Style>
                             <Style TargetType="Image">
                                 <Style.Triggers>
@@ -66,12 +65,12 @@
                             </Style>
                         </Image.Style>
                     </Image>
-                    <TextBlock Grid.Column="3" Text="{Binding EventName}" FontSize="15" VerticalAlignment="Center" Margin="5, 0">
+                    <TextBlock Grid.Column="2" Text="{Binding EventName}" FontSize="15" VerticalAlignment="Center" Margin="5, 0">
                         <TextBlock.ToolTip>
                             <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
                         </TextBlock.ToolTip>
                     </TextBlock>
-                    <TextBlock Grid.Column="4" Text="{Binding TimeLeft}" FontSize="15" VerticalAlignment="Center" Margin="5, 0" />
+                    <TextBlock Grid.Column="3" Text="{Binding TimeLeft}" FontSize="15" VerticalAlignment="Center" Margin="5, 0" />
                 </Grid>
             </StackPanel>
         </StackPanel>

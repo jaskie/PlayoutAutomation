@@ -88,6 +88,60 @@ namespace TAS.Client.ViewModels
                 },
                 CanExecuteDelegate = o => _event.AllowDelete()
             };
+            CommandAddNextRundown = new UICommand()
+            {
+                ExecuteDelegate = o =>
+                {
+                    IEvent newEvent = _event.Engine.CreateEvent();
+                    newEvent.EventType = TEventType.Rundown;
+                    newEvent.EventName = resources._title_NewRundown;
+                    _event.InsertAfter(newEvent);
+                },
+                CanExecuteDelegate = _canAddNextItem
+            };
+            CommandAddNextEmptyMovie = new UICommand()
+            {
+                ExecuteDelegate = o =>
+                {
+                    IEvent newEvent = _event.Engine.CreateEvent();
+                    newEvent.EventType = TEventType.Movie;
+                    newEvent.EventName = resources._title_EmptyMovie;
+                    _event.InsertAfter(newEvent);
+                },
+                CanExecuteDelegate = canAddNextMovie
+            };
+            CommandAddNextLive = new UICommand()
+            {
+                ExecuteDelegate = o =>
+                {
+                    IEvent newEvent = _event.Engine.CreateEvent();
+                    newEvent.EventType = TEventType.Live;
+                    newEvent.EventName = resources._title_NewLive;
+                    newEvent.Duration = new TimeSpan(0, 1, 0);
+                    _event.InsertAfter(newEvent);
+                },
+                CanExecuteDelegate = canAddNewLive
+            };
+            CommandAddNextMovie = new UICommand()
+            {
+                ExecuteDelegate = o => _engineViewmodel.AddMediaEvent(_event, TStartType.After, TMediaType.Movie, VideoLayer.Program, false),
+                CanExecuteDelegate = canAddNextMovie
+            };
+        }
+
+        protected virtual bool canAddNextMovie(object o)
+        {
+            return _canAddNextItem(o);
+        }
+
+        protected virtual bool canAddNewLive(object o)
+        {
+            return _canAddNextItem(o);
+        }
+
+        bool _canAddNextItem(object o)
+        {
+            return _event.PlayState != TPlayState.Played && !_event.IsLoop;
         }
 
         bool _canMoveUp(object o)

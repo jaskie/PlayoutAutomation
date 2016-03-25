@@ -123,6 +123,18 @@
   <data name="_audioVolume.ToolTip" xml:space="preserve">
     <value>If not checked, will get volume from clip properties</value>
   </data>
+  <data name="_buttonCancel.ToolTip" xml:space="preserve">
+    <value>Rollback changes  | Ctrl+U</value>
+  </data>
+  <data name="_buttonRevert.Caption" xml:space="preserve">
+    <value>Revert</value>
+  </data>
+  <data name="_buttonSave.Caption" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="_buttonSave.ToolTip" xml:space="preserve">
+    <value>Save changes | Ctrl+S</value>
+  </data>
   <data name="_changeMovie.ToolTip" xml:space="preserve">
     <value>Change clip</value>
   </data>
@@ -182,54 +194,6 @@
   </data>
   <data name="_starting.ToolTip" xml:space="preserve">
     <value>Instant change - F7</value>
-  </data>
-  <data name="_toolbar.AddGraphics1" xml:space="preserve">
-    <value>Add/remove graphisc in first layer (Ctrl+1)</value>
-  </data>
-  <data name="_toolbar.AddGraphics2" xml:space="preserve">
-    <value>Add/remove graphisc in second layer (Ctrl+2)</value>
-  </data>
-  <data name="_toolbar.AddGraphics3" xml:space="preserve">
-    <value>Add/remove graphisc in third layer (Ctrl+3)</value>
-  </data>
-  <data name="_toolbar.AddNextEmptyMovie" xml:space="preserve">
-    <value>Add new next, empty clip event</value>
-  </data>
-  <data name="_toolbar.AddNextLive" xml:space="preserve">
-    <value>Add next live</value>
-  </data>
-  <data name="_toolbar.AddNextMovie" xml:space="preserve">
-    <value>Add next clip (Ctrl+N)</value>
-  </data>
-  <data name="_toolbar.AddNextRundown" xml:space="preserve">
-    <value>Add next rundown</value>
-  </data>
-  <data name="_toolbar.AddSubLive" xml:space="preserve">
-    <value>Add live in this rundown</value>
-  </data>
-  <data name="_toolbar.AddSubMovie" xml:space="preserve">
-    <value>Add clip in this rundown (Ctrl+Shift+N)</value>
-  </data>
-  <data name="_toolbar.AddSubRundown" xml:space="preserve">
-    <value>Add sub rundown</value>
-  </data>
-  <data name="_toolbar.CancelEdit" xml:space="preserve">
-    <value>Rollback changes (Ctrl+U)</value>
-  </data>
-  <data name="_toolbar.Delete" xml:space="preserve">
-    <value>Delete event and all its subs</value>
-  </data>
-  <data name="_toolbar.MoveDown" xml:space="preserve">
-    <value>Move down</value>
-  </data>
-  <data name="_toolbar.MoveUp" xml:space="preserve">
-    <value>Move up</value>
-  </data>
-  <data name="_toolbar.RemoveSubItems" xml:space="preserve">
-    <value>Delete graphics in all layers (Ctrl+0)</value>
-  </data>
-  <data name="_toolbar.Save" xml:space="preserve">
-    <value>Save changes (Ctrl+S)</value>
   </data>
   <data name="_transitionLength" xml:space="preserve">
     <value>length</value>

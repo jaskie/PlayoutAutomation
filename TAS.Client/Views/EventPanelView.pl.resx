@@ -121,7 +121,8 @@
     <value>Początek bloku</value>
   </data>
   <data name="_isInvalidInSchedule.ToolTip" xml:space="preserve">
-    <value>Nieprawidłowe położenie na playliście.&amp;#x0A;Konieczny kontakt z autorem aplikacji, tel. 601600516</value>
+    <value>Nieprawidłowe położenie na playliście.
+Konieczny kontakt z autorem aplikacji, tel. 601600516</value>
   </data>
   <data name="_isSelected.ToolTip" xml:space="preserve">
     <value>Element jest zaznaczony</value>
@@ -188,12 +189,12 @@
     <value>Włącz/wyłącz grafikę na tej warstwie</value>
   </data>
   <data name="_delete.ToolTip" xml:space="preserve">
-    <value>Usuń</value>
-  </data>
-  <data name="_moveDown.ToolTip" xml:space="preserve">
-    <value>Przesuń do góry</value>
+    <value>Usuń | Ctrl + Del</value>
   </data>
   <data name="_moveUp.ToolTip" xml:space="preserve">
-    <value>Przesuń w dół</value>
+    <value>Przesuń do góry | Alt + strzałka w górę</value>
+  </data>
+  <data name="_moveDown.ToolTip" xml:space="preserve">
+    <value>Przesuń w dół | Alt + strzałka w dół</value>
   </data>
 </root>

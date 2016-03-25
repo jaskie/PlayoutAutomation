@@ -123,6 +123,18 @@
   <data name="_audioVolume.ToolTip" xml:space="preserve">
     <value>Jeśli nie zaznaczone, pobierze głośność z właściwości klipu</value>
   </data>
+  <data name="_buttonCancel.ToolTip" xml:space="preserve">
+    <value>Cofnij zmiany | Ctrl+U</value>
+  </data>
+  <data name="_buttonRevert.Caption" xml:space="preserve">
+    <value>Cofnij</value>
+  </data>
+  <data name="_buttonSave.Caption" xml:space="preserve">
+    <value>Zapisz</value>
+  </data>
+  <data name="_buttonSave.ToolTip" xml:space="preserve">
+    <value>Zapisz zmiany | Ctrl+S</value>
+  </data>
   <data name="_changeMovie.ToolTip" xml:space="preserve">
     <value>Zmień</value>
   </data>
@@ -182,54 +194,6 @@
   </data>
   <data name="_starting.ToolTip" xml:space="preserve">
     <value>Natychmisatowa zmiana - F7</value>
-  </data>
-  <data name="_toolbar.AddGraphics1" xml:space="preserve">
-    <value>Dodaj/usuń grafikę w warstwie pierwszej (Ctrl+1)</value>
-  </data>
-  <data name="_toolbar.AddGraphics2" xml:space="preserve">
-    <value>Dodaj/usuń grafikę w warstwie pierwszej (Ctrl+2)</value>
-  </data>
-  <data name="_toolbar.AddGraphics3" xml:space="preserve">
-    <value>Dodaj/usuń grafikę w warstwie pierwszej (Ctrl+3)</value>
-  </data>
-  <data name="_toolbar.AddNextEmptyMovie" xml:space="preserve">
-    <value>Dodaj następny, pusty klip</value>
-  </data>
-  <data name="_toolbar.AddNextLive" xml:space="preserve">
-    <value>Dodaj następny live</value>
-  </data>
-  <data name="_toolbar.AddNextMovie" xml:space="preserve">
-    <value>Dodaj następny klip (Ctrl+N)</value>
-  </data>
-  <data name="_toolbar.AddNextRundown" xml:space="preserve">
-    <value>Dodaj następną playlistę</value>
-  </data>
-  <data name="_toolbar.AddSubLive" xml:space="preserve">
-    <value>Dodaj live w tej playliście</value>
-  </data>
-  <data name="_toolbar.AddSubMovie" xml:space="preserve">
-    <value>Dodaj klip w tej playliście (Ctrl+Shift+N)</value>
-  </data>
-  <data name="_toolbar.AddSubRundown" xml:space="preserve">
-    <value>Dodaj playlistę podrzędną</value>
-  </data>
-  <data name="_toolbar.CancelEdit" xml:space="preserve">
-    <value>Cofnij zmiany (Ctrl+U)</value>
-  </data>
-  <data name="_toolbar.Delete" xml:space="preserve">
-    <value>Usuń całą akcję i wszystkie podrzędne</value>
-  </data>
-  <data name="_toolbar.MoveDown" xml:space="preserve">
-    <value>Przesuń w dół</value>
-  </data>
-  <data name="_toolbar.MoveUp" xml:space="preserve">
-    <value>Przesuń w górę</value>
-  </data>
-  <data name="_toolbar.RemoveSubItems" xml:space="preserve">
-    <value>Usuń grafikę we wsystkich warstwach (Ctrl+0)</value>
-  </data>
-  <data name="_toolbar.Save" xml:space="preserve">
-    <value>Zapisz zmiany (Ctrl+S)</value>
   </data>
   <data name="_transitionLength" xml:space="preserve">
     <value>o długości</value>

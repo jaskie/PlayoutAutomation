@@ -15,7 +15,7 @@ namespace TAS.Client.ViewModels
     {
         public EventPanelRundownViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
         {
-            CommandAddSubMovie = new UICommand() { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = (o) => _event.SubEvents.Count == 0 };
+            CommandAddSubMovie = new UICommand() { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = (o) => _event.SubEvents.Count == 0};
             CommandAddSubRundown = new UICommand() { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = (o) => _event.SubEvents.Count == 0 };
         }
         protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
@@ -24,18 +24,23 @@ namespace TAS.Client.ViewModels
             InvalidateRequerySuggested();
         }
 
+        protected override bool canAddNextMovie(object o)
+        {
+            return _parent is EventPanelRundownViewmodel && base.canAddNextMovie(o);
+        }
+        protected override bool canAddNewLive(object o)
+        {
+            return _parent is EventPanelRundownViewmodel && base.canAddNewLive(o);
+        }
+
         private void _addSubRundown(object obj)
         {
-            IEvent ev = _event;
-            if (ev != null)
-            {
-                IEvent newEvent = ev.Engine.CreateEvent();
-                newEvent.EventType = TEventType.Rundown;
-                newEvent.EventName = resources._title_NewRundown;
-                newEvent.StartType = TStartType.Manual;
-                newEvent.ScheduledTime = DateTime.Now.ToUniversalTime();
-                ev.InsertUnder(newEvent);
-            }
+            IEvent newEvent = _event.Engine.CreateEvent();
+            newEvent.EventType = TEventType.Rundown;
+            newEvent.EventName = resources._title_NewRundown;
+            newEvent.StartType = TStartType.Manual;
+            newEvent.ScheduledTime = DateTime.Now.ToUniversalTime();
+            _event.InsertUnder(newEvent);
         }
 
         private void _addSubMovie(object obj)

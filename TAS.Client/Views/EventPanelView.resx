@@ -188,12 +188,12 @@
     <value>Add/remove graphics on this layer</value>
   </data>
   <data name="_delete.ToolTip" xml:space="preserve">
-    <value>Delete</value>
+    <value>Delete | Ctrl + Del</value>
   </data>
   <data name="_moveDown.ToolTip" xml:space="preserve">
-    <value>Move down</value>
+    <value>Move down | Alt + Down arrow</value>
   </data>
   <data name="_moveUp.ToolTip" xml:space="preserve">
-    <value>Move up</value>
+    <value>Move up | Alt + Up arrow</value>
   </data>
 </root>

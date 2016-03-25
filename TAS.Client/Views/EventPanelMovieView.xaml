@@ -53,7 +53,6 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="33" />
                     <ColumnDefinition Width="31" />
-                    <ColumnDefinition Width="30" />
                     <ColumnDefinition Width="80" />
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
@@ -88,6 +87,23 @@
                         </Style>
                     </Image.Style>
                 </Image>
+                <Image Grid.Column="0"  Grid.RowSpan="2" ToolTip="{Binding MediaErrorInfo}" HorizontalAlignment="Right" >
+                    <Image.Style>
+                        <Style TargetType="Image">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding MediaErrorInfo}" Value="Missing">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/error-overlay.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding MediaErrorInfo}" Value="TooShort">
+                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/warning-overlay.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding MediaErrorInfo}" Value="NoError">
+                                    <Setter Property="Source" Value="{x:Null}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
                 <Image Grid.Column="1" Grid.RowSpan="2" ToolTip="{Binding PlayState}">
                     <Image.Style>
                         <Style TargetType="Image" BasedOn="{StaticResource EventPanelImage}">
@@ -115,24 +131,7 @@
                     </Image.Style>
                 </Image>
                 <Border Grid.Column="2"  Grid.RowSpan="2" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" Background="Red" ToolTip="{Resx _isInvalidInSchedule.ToolTip}"/>
-                <Image Grid.Column="2"  Grid.RowSpan="2" ToolTip="{Binding MediaErrorInfo}" HorizontalAlignment="Left" Margin="3,1,0,0" >
-                    <Image.Style>
-                        <Style TargetType="Image">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding MediaErrorInfo}" Value="Missing">
-                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaErrorInfo/Missing.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding MediaErrorInfo}" Value="TooShort">
-                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaErrorInfo/TooShort.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding MediaErrorInfo}" Value="NoError">
-                                    <Setter Property="Source" Value="{x:Null}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Image.Style>
-                </Image>
-                <StackPanel Grid.Column="3" Grid.RowSpan="2">
+                <StackPanel Grid.Column="2" Grid.RowSpan="2">
                     <StackPanel.Resources>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource EventPanelTextBlock}">
                             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -144,7 +143,7 @@
                     <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}" ToolTip="{Resx _endTime.ToolTip}"/>
                     <Image Height="14" Source="/TAS.Client.Common;component/Images/Indicators/loop.png" Stretch="Uniform" Visibility="{Binding IsLoop, Converter={StaticResource BoolToVis}}" Style="{StaticResource EventPanelImage}"/>
                 </StackPanel>
-                <StackPanel Grid.Column="4" Grid.Row="0" >
+                <StackPanel Grid.Column="3" Grid.Row="0" >
                     <TextBlock Text="{Binding EventName}" FontSize="20" >
                         <TextBlock.ToolTip>
                             <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
@@ -152,7 +151,7 @@
                     </TextBlock>
                     <TextBlock Text="{Binding MediaFileName}" FontWeight="Normal" FontSize="8"/>
                 </StackPanel>
-                <StackPanel Grid.Column="4" Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" >
+                <StackPanel Grid.Column="3" Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" >
                     <Button Command="{Binding CommandAddNextMovie}" ToolTip="{Resx _addNextMovie.ToolTip}" >
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-movie.png"/>
                     </Button>
@@ -166,7 +165,7 @@
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-next-live.png"/>
                     </Button>
                     <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
-                    <Button ToolTip="{Resx _moveUp.ToolTip}" Command="{Binding CommandMoveUp}">
+                    <Button ToolTip="{Resx _moveUp.ToolTip}" Command="{Binding CommandMoveUp}" >
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-up.png" />
                     </Button>
                     <Button ToolTip="{Resx _moveDown.ToolTip}" Command="{Binding CommandMoveDown}">
@@ -177,7 +176,7 @@
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/delete.png" />
                     </Button>
                 </StackPanel>
-                <StackPanel Grid.Column="4" Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right"  Margin="5, 0" >
+                <StackPanel Grid.Column="3" Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right"  Margin="5, 0" >
                     <StackPanel.Resources>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource EventPanelTextBlock}">
                             <Setter Property="FontSize" Value="10"/>
@@ -283,7 +282,7 @@
                     </Button>
                     <TextBlock Text="{Binding Layer3SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
                 </StackPanel>
-                <TextBlock Grid.Column="5" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" />
+                <TextBlock Grid.Column="4" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" />
             </Grid>
         </Border>
     </StackPanel>

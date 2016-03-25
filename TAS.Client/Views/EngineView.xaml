@@ -44,6 +44,8 @@
         <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="2" Gesture="Ctrl+NumPad2"/>
         <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="3" Gesture="Ctrl+NumPad3"/>
         <KeyBinding Command="{Binding CommandEventHide}" Gesture="F9"/>
+        <KeyBinding Command="{Binding CommandMoveUp}" Gesture="Alt+Up"/>
+        <KeyBinding Command="{Binding CommandMoveDown}" Gesture="Alt+Down"/>
     </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>

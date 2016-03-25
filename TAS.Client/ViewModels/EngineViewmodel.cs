@@ -49,18 +49,23 @@ namespace TAS.Client.ViewModels
         public ICommand CommandCutSelected { get; private set; }
         public ICommand CommandExport { get; private set; }
 
+        #region Selected commands
         public ICommand CommandEventHide { get; private set; }
-        public ICommand CommandAddNewMovie { get { return _eventEditViewmodel.CommandAddNextMovie; } }
-        public ICommand CommandAddNewRundown { get { return _eventEditViewmodel.CommandAddNextRundown; } }
-        public ICommand CommandAddNewLive { get { return _eventEditViewmodel.CommandAddNextLive; } }
-        public ICommand CommandAddSubMovie { get { return _eventEditViewmodel.CommandAddSubMovie; } }
-        public ICommand CommandAddSubRundown { get { return _eventEditViewmodel.CommandAddSubRundown; } }
-        public ICommand CommandAddSubLive { get { return _eventEditViewmodel.CommandAddSubLive; } }
-        public ICommand CommandToggleEnabled { get { return _eventEditViewmodel.CommandToggleEnabled; } }
-        public ICommand CommandToggleHold { get { return _eventEditViewmodel.CommandToggleHold; } }
-        public ICommand CommandSaveEdit { get { return _eventEditViewmodel.CommandSaveEdit; } }
-        public ICommand CommandAddNextMovie { get { return _eventEditViewmodel.CommandAddNextMovie; } }
-        public ICommand CommandAddGraphics { get { return _eventEditViewmodel.CommandAddGraphics; } }
+        public ICommand CommandAddNewMovie { get; private set; }
+        public ICommand CommandAddNewRundown { get; private set; }
+        public ICommand CommandAddNewLive { get; private set; }
+        public ICommand CommandAddSubMovie { get; private set; }
+        public ICommand CommandAddSubRundown { get; private set; }
+        public ICommand CommandAddSubLive { get; private set; }
+        public ICommand CommandToggleEnabled { get; private set; }
+        public ICommand CommandToggleHold { get; private set; }
+        public ICommand CommandSaveEdit { get; private set; }
+        public ICommand CommandAddNextMovie { get; private set; }
+        public ICommand CommandAddGraphics { get; private set; }
+        public ICommand CommandMoveUp { get; private set; }
+        public ICommand CommandMoveDown { get; private set; }
+        #endregion // Selected commands
+
         public EngineViewmodel(IEngine engine, IPreview preview)
         {
             _engine = engine;
@@ -158,13 +163,29 @@ namespace TAS.Client.ViewModels
             CommandPasteSelected = new UICommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
             CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
             CommandEventHide = new UICommand() { ExecuteDelegate = _eventHide };
+            CommandMoveUp = new UICommand() { ExecuteDelegate = _moveUp };
+            CommandMoveDown = new UICommand() { ExecuteDelegate = _moveDown };
+        }
+
+        private void _moveDown(object obj)
+        {
+            var ep = Selected as EventPanelRundownElementViewmodelBase;
+            if (ep != null)
+                ep.CommandMoveDown.Execute(null);
+        }
+
+        private void _moveUp(object obj)
+        {
+            var ep = Selected as EventPanelRundownElementViewmodelBase;
+            if (ep != null)
+                ep.CommandMoveUp.Execute(null);
         }
 
         private void _eventHide(object obj)
         {
             var ep = Selected as EventPanelContainerViewmodel;
             if (ep != null)
-                ep.IsVisible = false;
+                ep.CommandHide.Execute(null);
         }
     
         private void _pasteSelected(object obj)
@@ -372,11 +393,15 @@ namespace TAS.Client.ViewModels
                             _mediaSearchViewModel.BaseEvent.InsertUnder(newEvent);
                         _mediaSearchViewModel.NewEventStartType = TStartType.After;
                         _mediaSearchViewModel.BaseEvent = newEvent;
+                        LastAddedEvent = newEvent;
                     }
                 };
             }
         }
-
+        /// <summary>
+        /// Used to determine if it should be selected when it's viewmodel is created
+        /// </summary>
+        public IEvent LastAddedEvent { get; private set; }
         #endregion // MediaSearch
 
         private EventPanelViewmodelBase _rootEventViewModel;

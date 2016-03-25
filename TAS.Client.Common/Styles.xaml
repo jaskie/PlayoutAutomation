@@ -38,5 +38,6 @@
         </Style.Triggers>
         <Setter Property="Margin" Value="1"/>
         <Setter Property="Width" Value="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"/>
+        <Setter Property="Focusable" Value="False"/>
     </Style>
 </ResourceDictionary>
