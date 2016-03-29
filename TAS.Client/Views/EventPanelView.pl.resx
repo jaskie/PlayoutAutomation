@@ -162,16 +162,16 @@ Konieczny kontakt z autorem aplikacji, tel. 601600516</value>
     <value>Dodaj klip wewnątrz tej playlisty</value>
   </data>
   <data name="_addNextEmptyMovie.ToolTip" xml:space="preserve">
-    <value>Dodaj pusty klip</value>
+    <value>Dodaj następny, pusty klip | Shift-Ctrl-M</value>
   </data>
   <data name="_addNextLive.ToolTip" xml:space="preserve">
-    <value>Dodaj następny live</value>
+    <value>Dodaj następny live | Ctrl-L</value>
   </data>
   <data name="_addNextMovie.ToolTip" xml:space="preserve">
-    <value>Dodaj następny klip</value>
+    <value>Dodaj następny klip | Ctrl-M</value>
   </data>
   <data name="_addNextRundown.ToolTip" xml:space="preserve">
-    <value>Dodaj następną playlistę</value>
+    <value>Dodaj następną playlistę | Ctrl-R</value>
   </data>
   <data name="_duration.ToolTip" xml:space="preserve">
     <value>Długość</value>

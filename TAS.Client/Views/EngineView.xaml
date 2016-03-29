@@ -36,7 +36,11 @@
         <KeyBinding Command="{Binding CommandPasteSelected}" CommandParameter="After" Gesture="Ctrl+V" />
         <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="F12" />
         <KeyBinding Command="{Binding CommandDeleteSelected}" Gesture="Ctrl+Delete" />
-        <KeyBinding Command="{Binding CommandAddNextMovie}" Gesture="Ctrl+N"/>
+
+        <KeyBinding Command="{Binding CommandAddNextMovie}" Gesture="Ctrl+M"/>
+        <KeyBinding Command="{Binding CommandAddNextEmptyMovie}" Gesture="Shift+Ctrl+M"/>
+        <KeyBinding Command="{Binding CommandAddNextLive}" Gesture="Ctrl+L"/>
+        <KeyBinding Command="{Binding CommandAddNextRundown}" Gesture="Ctrl+R"/>
         <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="1" Gesture="Ctrl+1"/>
         <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="2" Gesture="Ctrl+2"/>
         <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="3" Gesture="Ctrl+3"/>
@@ -79,9 +83,9 @@
                 </MenuItem>
                 <Separator />
                 <MenuItem Header="{Resx _menu.Edit.AddNext}" >
-                    <MenuItem Header="{Resx _menu.Edit.AddNext.Movie}" Command="{Binding CommandAddNewMovie}" />
-                    <MenuItem Header="{Resx _menu.Edit.AddNext.Rundown}" Command="{Binding CommandAddNewRundown}" />
-                    <MenuItem Header="{Resx _menu.Edit.AddNext.Live}" Command="{Binding CommandAddNewLive}" />
+                    <MenuItem Header="{Resx _menu.Edit.AddNext.Movie}" Command="{Binding CommandAddNextMovie}" />
+                    <MenuItem Header="{Resx _menu.Edit.AddNext.Rundown}" Command="{Binding CommandAddNextRundown}" />
+                    <MenuItem Header="{Resx _menu.Edit.AddNext.Live}" Command="{Binding CommandAddNextLive}" />
                 </MenuItem>
                 <MenuItem Header="{Resx _menu.Edit.AddUnder}">
                     <MenuItem Header="{Resx _menu.Edit.AddNext.Movie}" Command="{Binding CommandAddSubMovie}" />

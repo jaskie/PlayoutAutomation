@@ -49,22 +49,22 @@ namespace TAS.Client.ViewModels
         public ICommand CommandCutSelected { get; private set; }
         public ICommand CommandExport { get; private set; }
 
-        #region Selected commands
+        #region Single selected commands
         public ICommand CommandEventHide { get; private set; }
-        public ICommand CommandAddNewMovie { get; private set; }
-        public ICommand CommandAddNewRundown { get; private set; }
-        public ICommand CommandAddNewLive { get; private set; }
+        public ICommand CommandAddNextMovie { get; private set; }
+        public ICommand CommandAddNextEmptyMovie { get; private set; }
+        public ICommand CommandAddNextRundown { get; private set; }
+        public ICommand CommandAddNextLive { get; private set; }
         public ICommand CommandAddSubMovie { get; private set; }
         public ICommand CommandAddSubRundown { get; private set; }
         public ICommand CommandAddSubLive { get; private set; }
         public ICommand CommandToggleEnabled { get; private set; }
         public ICommand CommandToggleHold { get; private set; }
         public ICommand CommandSaveEdit { get; private set; }
-        public ICommand CommandAddNextMovie { get; private set; }
         public ICommand CommandAddGraphics { get; private set; }
         public ICommand CommandMoveUp { get; private set; }
         public ICommand CommandMoveDown { get; private set; }
-        #endregion // Selected commands
+        #endregion // Single selected commands
 
         public EngineViewmodel(IEngine engine, IPreview preview)
         {
@@ -162,9 +162,66 @@ namespace TAS.Client.ViewModels
             CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
             CommandPasteSelected = new UICommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
             CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
+
             CommandEventHide = new UICommand() { ExecuteDelegate = _eventHide };
             CommandMoveUp = new UICommand() { ExecuteDelegate = _moveUp };
             CommandMoveDown = new UICommand() { ExecuteDelegate = _moveDown };
+            CommandAddNextMovie = new UICommand { ExecuteDelegate = _addNextMovie };
+            CommandAddNextEmptyMovie = new UICommand { ExecuteDelegate = _addNextEmptyMovie };
+            CommandAddNextRundown = new UICommand { ExecuteDelegate = _addNextRundown };
+            CommandAddNextLive = new UICommand { ExecuteDelegate = _addNextLive };
+            CommandAddSubMovie = new UICommand { ExecuteDelegate = _addSubMovie };
+            CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown };
+            CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive };
+        }
+
+        private void _addSubLive(object obj)
+        {
+            var ep = Selected as EventPanelRundownViewmodel;
+            if (ep != null)
+                ep.CommandAddSubLive.Execute(null);
+        }
+
+        private void _addSubRundown(object obj)
+        {
+            var ep = Selected as EventPanelRundownViewmodel;
+            if (ep != null)
+                ep.CommandAddSubRundown.Execute(null);
+        }
+
+        private void _addSubMovie(object obj)
+        {
+            var ep = Selected as EventPanelRundownViewmodel;
+            if (ep != null)
+                ep.CommandAddSubMovie.Execute(null);
+        }
+
+        private void _addNextLive(object obj)
+        {
+            var ep = Selected as EventPanelRundownElementViewmodelBase;
+            if (ep != null)
+                ep.CommandAddNextLive.Execute(null);
+        }
+
+        private void _addNextRundown(object obj)
+        {
+            var ep = Selected as EventPanelRundownElementViewmodelBase;
+            if (ep != null)
+                ep.CommandAddNextRundown.Execute(null);
+        }
+
+        private void _addNextEmptyMovie(object obj)
+        {
+            var ep = Selected as EventPanelRundownElementViewmodelBase;
+            if (ep != null)
+                ep.CommandAddNextEmptyMovie.Execute(null);
+        }
+
+        private void _addNextMovie(object obj)
+        {
+            var ep = Selected as EventPanelRundownElementViewmodelBase;
+            if (ep != null)
+                ep.CommandAddNextMovie.Execute(null);
         }
 
         private void _moveDown(object obj)
@@ -751,10 +808,9 @@ namespace TAS.Client.ViewModels
         {
             if (sender is ObservableCollection<EventPanelViewmodelBase>)
             {
-                NotifyPropertyChanged("CommandDeleteSelected");
-                NotifyPropertyChanged("CommandExport");
                 NotifyPropertyChanged("SelectedCount");
                 NotifyPropertyChanged("SelectedTime");
+                InvalidateRequerySuggested();
             }
         }
 

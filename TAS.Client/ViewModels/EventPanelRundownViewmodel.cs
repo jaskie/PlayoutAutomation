@@ -17,7 +17,17 @@ namespace TAS.Client.ViewModels
         {
             CommandAddSubMovie = new UICommand() { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = (o) => _event.SubEvents.Count == 0};
             CommandAddSubRundown = new UICommand() { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = (o) => _event.SubEvents.Count == 0 };
+            CommandAddSubLive = new UICommand() { ExecuteDelegate = _addSubLive, CanExecuteDelegate = (o) => _event.SubEvents.Count == 0 };
         }
+
+        private void _addSubLive(object obj)
+        {
+            IEvent newEvent = _event.Engine.CreateEvent();
+            newEvent.EventType = TEventType.Live;
+            newEvent.EventName = resources._title_NewLive;
+            _event.InsertUnder(newEvent);
+        }
+
         protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
             base.OnSubeventChanged(o, e);
@@ -38,8 +48,6 @@ namespace TAS.Client.ViewModels
             IEvent newEvent = _event.Engine.CreateEvent();
             newEvent.EventType = TEventType.Rundown;
             newEvent.EventName = resources._title_NewRundown;
-            newEvent.StartType = TStartType.Manual;
-            newEvent.ScheduledTime = DateTime.Now.ToUniversalTime();
             _event.InsertUnder(newEvent);
         }
 
@@ -50,5 +58,6 @@ namespace TAS.Client.ViewModels
 
         public ICommand CommandAddSubRundown { get; private set; }
         public ICommand CommandAddSubMovie { get; private set; }
+        public ICommand CommandAddSubLive { get; private set; }
     }
 }

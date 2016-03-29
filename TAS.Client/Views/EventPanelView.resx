@@ -161,16 +161,16 @@
     <value>Add new movie inside</value>
   </data>
   <data name="_addNextEmptyMovie.ToolTip" xml:space="preserve">
-    <value>Add next, empty movie</value>
+    <value>Add next, empty movie | Shift-Ctrl-M</value>
   </data>
   <data name="_addNextLive.ToolTip" xml:space="preserve">
-    <value>Add next live</value>
+    <value>Add next live | Ctrl-L</value>
   </data>
   <data name="_addNextMovie.ToolTip" xml:space="preserve">
-    <value>Add next movie</value>
+    <value>Add next movie | Ctrl-M</value>
   </data>
   <data name="_addNextRundown.ToolTip" xml:space="preserve">
-    <value>Add next rundown</value>
+    <value>Add next rundown | Ctrl-R</value>
   </data>
   <data name="_duration.ToolTip" xml:space="preserve">
     <value>Duration</value>
