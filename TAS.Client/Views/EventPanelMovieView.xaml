@@ -151,7 +151,7 @@
                     </TextBlock>
                     <TextBlock Text="{Binding MediaFileName}" FontWeight="Normal" FontSize="8"/>
                 </StackPanel>
-                <StackPanel Grid.Column="3" Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" >
+                <StackPanel Grid.Column="3" Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Visibility="{Binding IsSelected,Converter={StaticResource BoolToVis}}">
                     <Button Command="{Binding CommandAddNextMovie}" ToolTip="{Resx _addNextMovie.ToolTip}" >
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-movie.png"/>
                     </Button>

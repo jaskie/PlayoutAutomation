@@ -106,7 +106,7 @@
                         <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
                     </TextBlock.ToolTip>
                     </TextBlock>
-                <StackPanel Orientation="Horizontal" Grid.Column="3" Grid.Row="2" Grid.ColumnSpan="2">
+                <StackPanel Orientation="Horizontal" Grid.Column="3" Grid.Row="2" Grid.ColumnSpan="2" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}">
                     <Button Command="{Binding CommandAddSubMovie}" ToolTip="{Resx _addSubMovie.ToolTip}" >
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-movie.png"/>
                     </Button>
