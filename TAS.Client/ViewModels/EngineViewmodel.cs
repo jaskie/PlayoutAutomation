@@ -61,7 +61,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandToggleEnabled { get; private set; }
         public ICommand CommandToggleHold { get; private set; }
         public ICommand CommandSaveEdit { get; private set; }
-        public ICommand CommandAddGraphics { get; private set; }
+        public ICommand CommandToggleLayer { get; private set; }
         public ICommand CommandMoveUp { get; private set; }
         public ICommand CommandMoveDown { get; private set; }
         #endregion // Single selected commands
@@ -173,76 +173,84 @@ namespace TAS.Client.ViewModels
             CommandAddSubMovie = new UICommand { ExecuteDelegate = _addSubMovie };
             CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown };
             CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive };
+            CommandToggleLayer = new UICommand { ExecuteDelegate = _toggleLayer };
+        }
+
+        private void _toggleLayer(object obj)
+        {
+            var ep = Selected as EventPanelRundownElementViewmodelBase;
+            if (ep != null)
+                ep.CommandToggleLayer.Execute(obj);
         }
 
         private void _addSubLive(object obj)
         {
             var ep = Selected as EventPanelRundownViewmodel;
             if (ep != null)
-                ep.CommandAddSubLive.Execute(null);
+                ep.CommandAddSubLive.Execute(obj);
         }
 
         private void _addSubRundown(object obj)
         {
             var ep = Selected as EventPanelRundownViewmodel;
             if (ep != null)
-                ep.CommandAddSubRundown.Execute(null);
+                ep.CommandAddSubRundown.Execute(obj);
         }
 
         private void _addSubMovie(object obj)
         {
             var ep = Selected as EventPanelRundownViewmodel;
             if (ep != null)
-                ep.CommandAddSubMovie.Execute(null);
+                ep.CommandAddSubMovie.Execute(obj);
         }
 
         private void _addNextLive(object obj)
         {
             var ep = Selected as EventPanelRundownElementViewmodelBase;
             if (ep != null)
-                ep.CommandAddNextLive.Execute(null);
+                ep.CommandAddNextLive.Execute(obj);
         }
 
         private void _addNextRundown(object obj)
         {
             var ep = Selected as EventPanelRundownElementViewmodelBase;
             if (ep != null)
-                ep.CommandAddNextRundown.Execute(null);
+                ep.CommandAddNextRundown.Execute(obj);
         }
 
         private void _addNextEmptyMovie(object obj)
         {
             var ep = Selected as EventPanelRundownElementViewmodelBase;
             if (ep != null)
-                ep.CommandAddNextEmptyMovie.Execute(null);
+                ep.CommandAddNextEmptyMovie.Execute(obj);
         }
 
         private void _addNextMovie(object obj)
         {
             var ep = Selected as EventPanelRundownElementViewmodelBase;
             if (ep != null)
-                ep.CommandAddNextMovie.Execute(null);
+                ep.CommandAddNextMovie.Execute(obj);
         }
 
         private void _moveDown(object obj)
         {
             var ep = Selected as EventPanelRundownElementViewmodelBase;
             if (ep != null)
-                ep.CommandMoveDown.Execute(null);
+                ep.CommandMoveDown.Execute(obj);
         }
 
         private void _moveUp(object obj)
         {
             var ep = Selected as EventPanelRundownElementViewmodelBase;
             if (ep != null)
-                ep.CommandMoveUp.Execute(null);
+                ep.CommandMoveUp.Execute(obj);
         }
 
         private void _eventHide(object obj)
         {
             var ep = Selected as EventPanelContainerViewmodel;
             if (ep != null)
-                ep.CommandHide.Execute(null);
+                ep.CommandHide.Execute(obj);
         }
     
         private void _pasteSelected(object obj)

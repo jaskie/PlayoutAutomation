@@ -32,7 +32,6 @@
         <Border Background="OrangeRed" Height="6" Visibility="{Binding IsHold,  Converter={StaticResource BoolToVis}}" />
         <Border Style="{StaticResource EventPanelStyle}">
             <Border.Resources>
-                <Style TargetType="TextBlock" BasedOn="{StaticResource EventPanelTextBlock}"/>
                 <Style TargetType="Button" BasedOn="{StaticResource EventPanelCommandButton}"/>
             </Border.Resources>
             <Grid>
@@ -104,7 +103,7 @@
                     <Image Height="14" Source="/TAS.Client.Common;component/Images/Indicators/loop.png" Stretch="Uniform" Visibility="{Binding IsLoop, Converter={StaticResource BoolToVis}}" Style="{StaticResource EventPanelImage}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="3" Grid.Row="0" VerticalAlignment="Center" >
-                    <TextBlock Text="{Binding EventName}" FontSize="20" >
+                    <TextBlock Text="{Binding EventName}" FontSize="20" Style="{StaticResource EventPanelTextBlock}" >
                         <TextBlock.ToolTip>
                             <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
                         </TextBlock.ToolTip>
@@ -186,8 +185,8 @@
                                 </Style>
                             </Rectangle.Style>
                         </Rectangle>
+                        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
                     </StackPanel>
-                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
                     <Button Command="{Binding CommandToggleLayer}" CommandParameter="1" ToolTip="{Resx _toggleLayer.ToolTip}">
                         <Image>
                             <Image.Style>
@@ -241,7 +240,7 @@
                     </Button>
                     <TextBlock Text="{Binding Layer3SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
                 </StackPanel>
-                <TextBlock Grid.Column="4" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" />
+                <TextBlock Grid.Column="4" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
             </Grid>
         </Border>
     </StackPanel>

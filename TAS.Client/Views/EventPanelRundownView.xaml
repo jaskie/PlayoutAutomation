@@ -33,7 +33,6 @@
         <Border Background="OrangeRed" Height="6" Visibility="{Binding IsHold,  Converter={StaticResource BoolToVis}}" />
         <Border Style="{StaticResource EventPanelStyle}">
             <Border.Resources>
-                <Style TargetType="TextBlock" BasedOn="{StaticResource EventPanelTextBlock}"/>
                 <Style TargetType="Button" BasedOn="{StaticResource EventPanelCommandButton}"/>
             </Border.Resources>
             <Grid>
@@ -101,7 +100,7 @@
                     <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}" ToolTip="{Resx _endTime.ToolTip}" />
                     <Image Height="14" Source="/TAS.Client.Common;component/Images/Indicators/loop.png" Stretch="Uniform" Visibility="{Binding IsLoop, Converter={StaticResource BoolToVis}}" Style="{StaticResource EventPanelImage}"/>
                 </StackPanel>
-                <TextBlock Grid.Column="3" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0">
+                <TextBlock Grid.Column="3" Grid.Row="0" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}">
                     <TextBlock.ToolTip>
                         <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
                     </TextBlock.ToolTip>
@@ -138,7 +137,7 @@
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/delete.png" />
                     </Button>
                 </StackPanel>
-                <TextBlock Grid.Column="4" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" />
+                <TextBlock Grid.Column="4" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
             </Grid>
         </Border>
     </StackPanel>

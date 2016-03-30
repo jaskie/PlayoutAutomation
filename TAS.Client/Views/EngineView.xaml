@@ -34,19 +34,19 @@
         <KeyBinding Command="{Binding CommandCutSelected}" Gesture="Ctrl+X" />
         <KeyBinding Command="{Binding CommandCopySelected}" Gesture="Ctrl+C" />
         <KeyBinding Command="{Binding CommandPasteSelected}" CommandParameter="After" Gesture="Ctrl+V" />
-        <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="F12" />
+        <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="Ctrl+S" />
         <KeyBinding Command="{Binding CommandDeleteSelected}" Gesture="Ctrl+Delete" />
 
         <KeyBinding Command="{Binding CommandAddNextMovie}" Gesture="Ctrl+M"/>
         <KeyBinding Command="{Binding CommandAddNextEmptyMovie}" Gesture="Shift+Ctrl+M"/>
         <KeyBinding Command="{Binding CommandAddNextLive}" Gesture="Ctrl+L"/>
         <KeyBinding Command="{Binding CommandAddNextRundown}" Gesture="Ctrl+R"/>
-        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="1" Gesture="Ctrl+1"/>
-        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="2" Gesture="Ctrl+2"/>
-        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="3" Gesture="Ctrl+3"/>
-        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="1" Gesture="Ctrl+NumPad1"/>
-        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="2" Gesture="Ctrl+NumPad2"/>
-        <KeyBinding Command="{Binding CommandAddGraphics}" CommandParameter="3" Gesture="Ctrl+NumPad3"/>
+        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="1" Gesture="Ctrl+1"/>
+        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="2" Gesture="Ctrl+2"/>
+        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="3" Gesture="Ctrl+3"/>
+        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="1" Gesture="Ctrl+NumPad1"/>
+        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="2" Gesture="Ctrl+NumPad2"/>
+        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="3" Gesture="Ctrl+NumPad3"/>
         <KeyBinding Command="{Binding CommandEventHide}" Gesture="F9"/>
         <KeyBinding Command="{Binding CommandMoveUp}" Gesture="Alt+Up"/>
         <KeyBinding Command="{Binding CommandMoveDown}" Gesture="Alt+Down"/>
