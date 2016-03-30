@@ -31,11 +31,14 @@
         <KeyBinding Command="{Binding CommandRescheduleSelected}" Gesture="F4" />
         <KeyBinding Command="{Binding CommandToggleHold}" Gesture="F6" />
         <KeyBinding Command="{Binding CommandToggleEnabled}" Gesture="F7" />
+
         <KeyBinding Command="{Binding CommandCutSelected}" Gesture="Ctrl+X" />
         <KeyBinding Command="{Binding CommandCopySelected}" Gesture="Ctrl+C" />
         <KeyBinding Command="{Binding CommandPasteSelected}" CommandParameter="After" Gesture="Ctrl+V" />
-        <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="Ctrl+S" />
         <KeyBinding Command="{Binding CommandDeleteSelected}" Gesture="Ctrl+Delete" />
+
+        <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="Ctrl+S" />
+        <KeyBinding Command="{Binding CommandUndoEdit}" Gesture="Ctrl+U" />
 
         <KeyBinding Command="{Binding CommandAddNextMovie}" Gesture="Ctrl+M"/>
         <KeyBinding Command="{Binding CommandAddNextEmptyMovie}" Gesture="Shift+Ctrl+M"/>
@@ -58,7 +61,7 @@
             <RowDefinition Height="*"  />
             <RowDefinition Height="28" />
         </Grid.RowDefinitions>
-        <Menu IsMainMenu="True" Grid.Row="0">
+        <Menu IsMainMenu="True" Grid.Row="0" Height="23" VerticalAlignment="Top">
             <MenuItem Header="{Resx _menu.Container}" Visibility="{Binding IsAnyContainerHidden, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding Path=RootEventViewModel.Containers}">
                 <MenuItem.ItemContainerStyle>
                     <Style TargetType="MenuItem">
@@ -212,29 +215,51 @@
         </Grid>
         <StatusBar Name="sbChannelStatus" VerticalAlignment="Bottom" Grid.Row="3" >
             <StatusBar.Resources>
-                <Style TargetType="common:StatusIndicator">
-                    <Setter Property="Height" Value="12"/>
-                </Style>
                 <Style TargetType="CheckBox">
                     <Setter Property="VerticalAlignment" Value="Center"/>
                 </Style>
                 <Style TargetType="Label">
                     <Setter Property="VerticalAlignment" Value="Center"/>
                 </Style>
+                <Style TargetType="common:StatusIndicator">
+                    <Setter Property="Height" Value="14"/>
+                </Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Margin" Value="5,0"/>
+                </Style>
             </StatusBar.Resources>
             <StatusBarItem>
                 <StackPanel Orientation="Horizontal" >
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Indicators/on-air.png" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding GPIIsMaster}" />
-                    <StackPanel Orientation="Horizontal">
-                        <common:StatusIndicator IsGreen="{Binding ServerConnectedPRI}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
-                        <Label Content="PRI" Padding="5, 0" />
-                        <common:StatusIndicator IsGreen="{Binding ServerConnectedSEC}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
-                        <Label Content="SEC" Padding="5, 0" />
-                        <CheckBox Content="Next" Margin="5, 0" IsChecked="{Binding Pst2Prv}"/>
-                    </StackPanel>
+                    <Menu Margin="5, 0" VerticalAlignment="Center">
+                        <MenuItem Margin="0" Padding="0" >
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <common:StatusIndicator IsGreen="{Binding NoAlarms}"/>
+                                    <TextBlock Visibility="{Binding NoAlarms, Converter={StaticResource BoolToVis}}" Text="{Resx _statusbar.Indicator.NoAlarms}"/>
+                                    <TextBlock Visibility="{Binding NoAlarms, Converter={StaticResource InvertedBoolToVis}}" Text="{Resx _statusbar.Indicator.Alarm}"/>
+                                </StackPanel>
+                            </MenuItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <common:StatusIndicator IsGreen="{Binding ServerConnectedPRI}"/>
+                                <TextBlock Visibility="{Binding ServerConnectedPRI, Converter={StaticResource BoolToVis}}" Text="{Resx _statusbar.Indicator.PRIConnected}"/>
+                                <TextBlock Visibility="{Binding ServerConnectedPRI, Converter={StaticResource InvertedBoolToVis}}" Text="{Resx _statusbar.Indicator.PRIDisconnected}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <common:StatusIndicator IsGreen="{Binding ServerConnectedSEC}"/>
+                                <TextBlock Visibility="{Binding ServerConnectedSEC, Converter={StaticResource BoolToVis}}" Text="{Resx _statusbar.Indicator.SECConnected}"/>
+                                <TextBlock Visibility="{Binding ServerConnectedSEC, Converter={StaticResource InvertedBoolToVis}}" Text="{Resx _statusbar.Indicator.SECDisconnected}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <common:StatusIndicator IsGreen="{Binding ServerConnectedPRV}"/>
+                                <TextBlock Visibility="{Binding ServerConnectedPRV, Converter={StaticResource BoolToVis}}" Text="{Resx _statusbar.Indicator.PRVConnected}"/>
+                                <TextBlock Visibility="{Binding ServerConnectedPRV, Converter={StaticResource InvertedBoolToVis}}" Text="{Resx _statusbar.Indicator.PRVDisconnected}"/>
+                            </StackPanel>
+                        </MenuItem>
+                    </Menu>
                     <StackPanel Orientation="Horizontal" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}">
                         <Separator Width="5"  Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
-                        <common:StatusIndicator IsGreen="{Binding GPIConnected}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,2,0,2"/>
+                        <common:StatusIndicator Height="14" IsGreen="{Binding GPIConnected}" />
                         <Label Content="GPI" Padding="5, 0, 0, 0"/>
                         <StackPanel Orientation="Horizontal" Visibility="{Binding GPIConnected, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding GPIIsMaster}">
                             <CheckBox Margin="10, 0" Content="{Resx _statusbar.Gpi.Active}" IsChecked="{Binding GPIEnabled}"/>

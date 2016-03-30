@@ -243,4 +243,28 @@
   <data name="_menu.Container" xml:space="preserve">
     <value>_Kontener</value>
   </data>
+  <data name="_statusbar.Indicator.Alarm" xml:space="preserve">
+    <value>Alarm!</value>
+  </data>
+  <data name="_statusbar.Indicator.NoAlarms" xml:space="preserve">
+    <value>Bez alarmów</value>
+  </data>
+  <data name="_statusbar.Indicator.PRIConnected" xml:space="preserve">
+    <value>Kanał podstawowy OK</value>
+  </data>
+  <data name="_statusbar.Indicator.PRIDisconnected" xml:space="preserve">
+    <value>Kanał podstawowy odłączony</value>
+  </data>
+  <data name="_statusbar.Indicator.PRVConnected" xml:space="preserve">
+    <value>Kanał podglądu OK</value>
+  </data>
+  <data name="_statusbar.Indicator.PRVDisconnected" xml:space="preserve">
+    <value>Kanał podglądu odłączony</value>
+  </data>
+  <data name="_statusbar.Indicator.SECConnected" xml:space="preserve">
+    <value>Kanał rezerwowy OK</value>
+  </data>
+  <data name="_statusbar.Indicator.SECDisconnected" xml:space="preserve">
+    <value>Kanał rezerwowy odłączony</value>
+  </data>
 </root>

@@ -40,7 +40,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandToggleHold { get; private set; }
         public ICommand CommandMoveUp { get; private set; }
         public ICommand CommandMoveDown { get; private set; }
-        public ICommand CommandDelete { get; private set; }
 
 
         public ICommand CommandToggleLayer { get; private set; }
@@ -79,15 +78,6 @@ namespace TAS.Client.ViewModels
             };
             CommandMoveUp = new UICommand() { ExecuteDelegate = (o) => _event.MoveUp(), CanExecuteDelegate = _canMoveUp };
             CommandMoveDown = new UICommand() { ExecuteDelegate = o => _event.MoveDown(), CanExecuteDelegate = _canMoveDown };
-            CommandDelete = new UICommand
-            {
-                ExecuteDelegate = o =>
-                {
-                    if (MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-                        _event.Delete();
-                },
-                CanExecuteDelegate = o => _event.AllowDelete()
-            };
             CommandAddNextRundown = new UICommand()
             {
                 ExecuteDelegate = o =>

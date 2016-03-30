@@ -28,7 +28,7 @@ namespace TAS.Client.ViewModels
             _previewViewModel = previewViewModel; 
             _engine = engineViewModel.Engine;
             CommandSaveEdit = new UICommand() { ExecuteDelegate = _save, CanExecuteDelegate = _canSave };
-            CommandCancelEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
+            CommandUndoEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
             CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _isEditableMovie };
             CommandEditMovie = new UICommand() { ExecuteDelegate = _editMovie, CanExecuteDelegate = _isEditableMovie };
             CommandGetTCInTCOut = new UICommand() { ExecuteDelegate =_getTCInTCOut, CanExecuteDelegate = _canGetTcInTcOut};
@@ -43,7 +43,7 @@ namespace TAS.Client.ViewModels
                 Event = null;
         }
 
-        public UICommand CommandCancelEdit { get; private set; }
+        public UICommand CommandUndoEdit { get; private set; }
         public UICommand CommandSaveEdit { get; private set; }
         public UICommand CommandChangeMovie { get; private set; }
         public UICommand CommandEditMovie { get; private set; }

@@ -205,6 +205,7 @@ namespace TAS.Server
         public virtual Guid MediaGuid
         {
             get { return _mediaGuid; }
+            protected set { SetField(ref _mediaGuid, value, "MediaGuid"); }
         }
 
         protected VideoFormatDescription _videoFormatDescription;
@@ -286,7 +287,7 @@ namespace TAS.Server
             TcPlay = fromMedia.TcPlay;
             VideoFormat = fromMedia.VideoFormat;
             MediaCategory = fromMedia.MediaCategory;
-            _mediaGuid = fromMedia.MediaGuid;
+            MediaGuid = fromMedia.MediaGuid;
             Parental = fromMedia.Parental;
         }
 

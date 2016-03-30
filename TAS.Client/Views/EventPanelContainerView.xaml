@@ -26,13 +26,13 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="30" />
                 <ColumnDefinition Width="100"/>
-                <ColumnDefinition Width="80" />
+                <ColumnDefinition Width="40" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Image Margin="3" ToolTip="{Binding EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Container.png"/>
             <Image Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected}" />
             <TextBlock Grid.Column="1" Text="{Binding ChildrenCount, StringFormat={Resx _childrenCount, ResxName=TAS.Client.Views.EventPanelView}}" TextAlignment="Center" VerticalAlignment="Center"/>
-            <Button Grid.Column="2" Margin="2" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _addSubRundown.ToolTip}" Command="{Binding CommandAddSubRundown}" Style="{StaticResource EventPanelCommandButton}">
+            <Button Grid.Column="2" Margin="3" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _addSubRundown.ToolTip}" Command="{Binding CommandAddSubRundown}" Style="{StaticResource EventPanelCommandButton}">
                 <Image Source="/TAS.Client.Common;component/Images/EventActions/new-sub-rundown.png"/>
             </Button>
             <TextBlock Grid.Column="3" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" />

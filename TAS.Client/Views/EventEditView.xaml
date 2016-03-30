@@ -26,11 +26,6 @@
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <UserControl.InputBindings>
-        <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="Ctrl+S" />
-        <KeyBinding Command="{Binding CommandCancelEdit}" Gesture="Ctrl+U" />
-        <KeyBinding Command="{Binding CommandDelete}" Gesture="Ctrl+Del" />
-    </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="36" />
@@ -65,7 +60,7 @@
                         <Label Content="{Resx _buttonSave.Caption}" />
                     </DockPanel>
                 </Button>
-                <Button IsCancel="True" ToolTip="{Resx _buttonCancel.ToolTip}" Command="{Binding CommandCancelEdit}">
+                <Button IsCancel="True" ToolTip="{Resx _buttonCancel.ToolTip}" Command="{Binding CommandUndoEdit}">
                     <DockPanel>
                         <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png"/>
                         <Label Content="{Resx _buttonRevert.Caption}" />

@@ -2,6 +2,11 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     x:Name="this">
+    <UserControl.Style>
+        <Style TargetType="UserControl">
+            <Setter Property="Width" Value="{Binding ActualHeight, ElementName=this}"/>
+        </Style>
+    </UserControl.Style>
     <UserControl.Template>
         <ControlTemplate TargetType="{x:Type UserControl}">
             <ControlTemplate.Triggers>

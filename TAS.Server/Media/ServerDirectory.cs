@@ -30,10 +30,7 @@ namespace TAS.Server
             Debug.WriteLine(this, "Directory initialized");
         }
 
-        public override void Refresh()
-        {
-
-        }
+        public override void Refresh() { }
 
         protected override IMedia CreateMedia(string fullPath, Guid guid)
         {
@@ -41,6 +38,13 @@ namespace TAS.Server
             {
                 FullPath = fullPath,
             };
+
+        }
+
+        protected override bool AcceptFile(string fullPath)
+        {
+            string ext = Path.GetExtension(fullPath).ToLowerInvariant();
+            return FileUtils.VideoFileTypes.Contains(ext) || FileUtils.StillFileTypes.Contains(ext);
         }
 
         public event EventHandler<MediaDtoEventArgs> MediaSaved;

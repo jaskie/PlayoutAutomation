@@ -60,11 +60,14 @@ namespace TAS.Client.ViewModels
         public ICommand CommandAddSubLive { get; private set; }
         public ICommand CommandToggleEnabled { get; private set; }
         public ICommand CommandToggleHold { get; private set; }
-        public ICommand CommandSaveEdit { get; private set; }
         public ICommand CommandToggleLayer { get; private set; }
         public ICommand CommandMoveUp { get; private set; }
         public ICommand CommandMoveDown { get; private set; }
         #endregion // Single selected commands
+        #region Editor commands
+        public ICommand CommandSaveEdit { get; private set; }
+        public ICommand CommandUndoEdit { get; private set; }
+        #endregion // Editor commands
 
         public EngineViewmodel(IEngine engine, IPreview preview)
         {
@@ -174,6 +177,9 @@ namespace TAS.Client.ViewModels
             CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown };
             CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive };
             CommandToggleLayer = new UICommand { ExecuteDelegate = _toggleLayer };
+
+            CommandSaveEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandSaveEdit.Execute };
+            CommandUndoEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandUndoEdit.Execute };
         }
 
         private void _toggleLayer(object obj)
@@ -552,6 +558,16 @@ namespace TAS.Client.ViewModels
             get { return _rootEventViewModel.Childrens.Any(evm => evm is EventPanelContainerViewmodel && !((EventPanelContainerViewmodel)evm).IsVisible); }
         }
 
+        public bool NoAlarms
+        {
+            get
+            {
+                return ServerConnectedPRI
+                       && ServerConnectedSEC
+                       && ServerConnectedPRV;
+            }
+        }
+
         public bool ServerConnectedPRI
         {
             get
@@ -749,19 +765,28 @@ namespace TAS.Client.ViewModels
         public void OnPRIServerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "IsConnected")
+            {
                 NotifyPropertyChanged("ServerConnectedPRI");
+                NotifyPropertyChanged("NoAlarms");
+            }
         }
 
         public void OnSECServerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "IsConnected")
+            {
                 NotifyPropertyChanged("ServerConnectedSEC");
+                NotifyPropertyChanged("NoAlarms");
+            }
         }
 
         public void OnPRVServerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "IsConnected")
+            {
                 NotifyPropertyChanged("ServerConnectedPRV");
+                NotifyPropertyChanged("NoAlarms");
+            }
         }
 
         public decimal ProgramAudioVolume //decibels

@@ -170,7 +170,7 @@ namespace TAS.Client.ViewModels
         {
             CommandSearch = new UICommand() { ExecuteDelegate = _search, CanExecuteDelegate = _canSearch };
             CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = _isSomethingSelected };
-            CommandMoveSelectedToArchive = new UICommand() { ExecuteDelegate = _moveSelectedToArchive, CanExecuteDelegate = o => _mediaDirectory is IServerDirectory && _isSomethingSelected() };
+            CommandMoveSelectedToArchive = new UICommand() { ExecuteDelegate = _moveSelectedToArchive, CanExecuteDelegate = o => _mediaDirectory is IServerDirectory && _isSomethingSelected(o) };
             CommandCopySelectedToArchive = new UICommand() { ExecuteDelegate = _copySelectedToArchive, CanExecuteDelegate = _isSomethingSelected };
             CommandIngestSelectedToServer = new UICommand() { ExecuteDelegate = _ingestSelectedToServer, CanExecuteDelegate = _canIngestSelectedToServer };
 
@@ -488,10 +488,6 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged("MediaItems");
         }
 
-        private bool _isSomethingSelected()
-        {
-            return _selectedMediaList != null && _selectedMediaList.Count > 0;
-        }
 
         private void MediaAdded(object source, DtoEventArgs e)
         {

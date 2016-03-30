@@ -223,7 +223,7 @@
     <value>Start selected (Ctrl+F3)</value>
   </data>
   <data name="_toolbar.TimeToAttention" xml:space="preserve">
-    <value>Attention for</value>
+    <value>Attention at</value>
   </data>
   <data name="_toolbar.Track" xml:space="preserve">
     <value>Track</value>
@@ -242,5 +242,29 @@
   </data>
   <data name="_menu.Edit.Copy" xml:space="preserve">
     <value>Copy</value>
+  </data>
+  <data name="_statusbar.Indicator.Alarm" xml:space="preserve">
+    <value>Alarm!</value>
+  </data>
+  <data name="_statusbar.Indicator.NoAlarms" xml:space="preserve">
+    <value>No alarms</value>
+  </data>
+  <data name="_statusbar.Indicator.PRIConnected" xml:space="preserve">
+    <value>Primary channel OK</value>
+  </data>
+  <data name="_statusbar.Indicator.PRIDisconnected" xml:space="preserve">
+    <value>Primary channel disconnected</value>
+  </data>
+  <data name="_statusbar.Indicator.PRVConnected" xml:space="preserve">
+    <value>Preview channel OK</value>
+  </data>
+  <data name="_statusbar.Indicator.PRVDisconnected" xml:space="preserve">
+    <value>Preview channel disconnected</value>
+  </data>
+  <data name="_statusbar.Indicator.SECConnected" xml:space="preserve">
+    <value>Secondary channel OK</value>
+  </data>
+  <data name="_statusbar.Indicator.SECDisconnected" xml:space="preserve">
+    <value>Secondary channel disconnected</value>
   </data>
 </root>

@@ -34,7 +34,6 @@ namespace TAS.Client.Common
             }
         }
 
-
         public StatusIndicator()
         {
             InitializeComponent();

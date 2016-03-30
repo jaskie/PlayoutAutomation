@@ -14,6 +14,8 @@ using TAS.Common;
 using TAS.Client.Common;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using resources = TAS.Client.Common.Properties.Resources;
+
 
 namespace TAS.Client.ViewModels
 {
@@ -28,6 +30,8 @@ namespace TAS.Client.ViewModels
         protected readonly RationalNumber _frameRate;
         protected ObservableCollection<EventPanelViewmodelBase> _childrens = new ObservableCollection<EventPanelViewmodelBase>();
         protected static readonly EventPanelViewmodelBase DummyChild = new EventPanelDummyViewmodel();
+        public ICommand CommandDelete { get; private set; }
+
 
         /// <summary>
         /// Constructor for root event
@@ -95,6 +99,15 @@ namespace TAS.Client.ViewModels
 
         protected virtual void _createCommands()
         {
+            CommandDelete = new UICommand
+            {
+                ExecuteDelegate = o =>
+                {
+                    if (_event != null && MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+                        _event.Delete();
+                },
+                CanExecuteDelegate = o => _event != null && _event.AllowDelete()
+            };
         }
 
         internal EventPanelViewmodelBase CreateChildEventPanelViewmodelForEvent(IEvent ev)

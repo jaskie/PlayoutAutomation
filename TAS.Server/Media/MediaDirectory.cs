@@ -204,11 +204,16 @@ namespace TAS.Server
 
         public abstract void SweepStaleMedia();
 
+        protected virtual bool AcceptFile(string fullPath)
+        {
+            return true;
+        }
+
         protected virtual IMedia AddFile(string fullPath, DateTime created = default(DateTime), DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
             Media newMedia;
             newMedia = (Media)_files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath));
-            if (newMedia == null)
+            if (newMedia == null && AcceptFile(fullPath))
             {
                 newMedia = (Media)CreateMedia(fullPath, guid);
                 newMedia.MediaName = Path.GetFileName(fullPath);
