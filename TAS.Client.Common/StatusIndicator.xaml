@@ -4,7 +4,7 @@
     x:Name="this">
     <UserControl.Style>
         <Style TargetType="UserControl">
-            <Setter Property="Width" Value="{Binding ActualHeight, ElementName=this}"/>
+            <Setter Property="Width" Value="{Binding ActualHeight, RelativeSource={RelativeSource Self}}"/>
         </Style>
     </UserControl.Style>
     <UserControl.Template>

@@ -257,7 +257,7 @@
         <ContentControl Grid.Row="4" Content="{Binding FileManagerVm.View}" />
         <StatusBar Grid.Row="5" Grid.ColumnSpan="2" Height="22">
             <StackPanel Orientation="Horizontal" Visibility="{Binding DisplayDirectoryInfo, Converter={StaticResource BoolToVis}}" >
-                <common:StatusIndicator IsGreen="{Binding DirectoryFreeOver20Percent}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" Margin="10,0,0,0"/>
+                <common:StatusIndicator IsGreen="{Binding DirectoryFreeOver20Percent}" Margin="10,0,0,0"/>
                 <TextBlock Text="{Resx _statusbar.TotalItems}" Margin="5, 0"/>
                 <TextBlock Text="{Binding ItemsCount}" />
                 <TextBlock Text="{Resx _statusbar.VolumeSize}" Margin="5, 0"/>
