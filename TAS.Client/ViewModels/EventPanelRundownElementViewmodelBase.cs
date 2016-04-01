@@ -82,7 +82,7 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o =>
                 {
-                    IEvent newEvent = _event.Engine.CreateEvent();
+                    IEvent newEvent = _event.Engine.CreateNewEvent();
                     newEvent.EventType = TEventType.Rundown;
                     newEvent.EventName = resources._title_NewRundown;
                     _event.InsertAfter(newEvent);
@@ -93,7 +93,7 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o =>
                 {
-                    IEvent newEvent = _event.Engine.CreateEvent();
+                    IEvent newEvent = _event.Engine.CreateNewEvent();
                     newEvent.EventType = TEventType.Movie;
                     newEvent.EventName = resources._title_EmptyMovie;
                     _event.InsertAfter(newEvent);
@@ -104,7 +104,7 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o =>
                 {
-                    IEvent newEvent = _event.Engine.CreateEvent();
+                    IEvent newEvent = _event.Engine.CreateNewEvent();
                     newEvent.EventType = TEventType.Live;
                     newEvent.EventName = resources._title_NewLive;
                     newEvent.Duration = new TimeSpan(0, 1, 0);

@@ -267,4 +267,7 @@
   <data name="_statusbar.Indicator.SECDisconnected" xml:space="preserve">
     <value>Secondary channel disconnected</value>
   </data>
+  <data name="_toolbar.ForceNext" xml:space="preserve">
+    <value>Force as next to play</value>
+  </data>
 </root>

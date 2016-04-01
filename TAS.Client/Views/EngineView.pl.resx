@@ -267,4 +267,7 @@
   <data name="_statusbar.Indicator.SECDisconnected" xml:space="preserve">
     <value>Kanał rezerwowy odłączony</value>
   </data>
+  <data name="_toolbar.ForceNext" xml:space="preserve">
+    <value>Wymuś jako następny</value>
+  </data>
 </root>

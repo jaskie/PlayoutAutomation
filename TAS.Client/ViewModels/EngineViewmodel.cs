@@ -33,6 +33,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandClearLayer { get; private set; }
         public ICommand CommandRestart { get; private set; }
         public ICommand CommandStartSelected { get; private set; }
+        public ICommand CommandForcenextSelected { get; private set; }
         public ICommand CommandStartLoaded { get; private set; }
         public ICommand CommandLoadSelected { get; private set; }
         public ICommand CommandScheduleSelected { get; private set; }
@@ -153,6 +154,7 @@ namespace TAS.Client.ViewModels
             CommandLoadSelected = new UICommand() { ExecuteDelegate = o => _engine.Load(_selected.Event), CanExecuteDelegate = _canLoadSelected };
             CommandScheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.Schedule(_selected.Event), CanExecuteDelegate = _canScheduleSelected };
             CommandRescheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.ReScheduleAsync(_selected.Event), CanExecuteDelegate = _canRescheduleSelected };
+            CommandForcenextSelected = new UICommand() { ExecuteDelegate = o => _engine.ForcedNext = _selected.Event, CanExecuteDelegate = _canLoadSelected };
             CommandTrackingToggle = new UICommand() { ExecuteDelegate = o => TrackPlayingEvent = !TrackPlayingEvent };
             CommandDebugToggle = new UICommand() { ExecuteDelegate = _debugShow };
             CommandRestartRundown = new UICommand() { ExecuteDelegate = _restartRundown };
@@ -351,7 +353,7 @@ namespace TAS.Client.ViewModels
 
         private void _newRootRundown(object o)
         {
-            IEvent newEvent = _engine.CreateEvent();
+            IEvent newEvent = _engine.CreateNewEvent();
             newEvent.EventType = TEventType.Rundown;
             newEvent.EventName = resources._title_NewRundown;
             newEvent.Duration = TimeSpan.Zero;
@@ -363,7 +365,7 @@ namespace TAS.Client.ViewModels
         
         private void _newContainer(object o)
         {
-            IEvent newEvent = _engine.CreateEvent();
+            IEvent newEvent = _engine.CreateNewEvent();
             newEvent.EventType = TEventType.Container;
             newEvent.EventName = resources._title_NewContainer;
             newEvent.StartType = TStartType.None;
@@ -435,7 +437,7 @@ namespace TAS.Client.ViewModels
                 {
                     if (e.Media != null)
                     {
-                        IEvent newEvent = _engine.CreateEvent();
+                        IEvent newEvent = _engine.CreateNewEvent();
                         newEvent.Media = e.Media;
                         newEvent.EventName = e.MediaName;
                         newEvent.Layer = layer;

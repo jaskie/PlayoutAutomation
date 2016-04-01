@@ -110,7 +110,7 @@
                 </MenuItem>-->
             </MenuItem>
         </Menu>
-        <Grid Name="gToolbox" Grid.Row="1">
+        <Grid Grid.Row="1">
             <Grid.Resources>
                 <Style TargetType="Label">
                     <Setter Property="Padding" Value="0"/>
@@ -134,7 +134,7 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{Resx Key=_toolbar.clockWidth, DefaultValue='160'}"/>
-                <ColumnDefinition Width="230"/>
+                <ColumnDefinition Width="280"/>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="170"/>
                 <ColumnDefinition Width="*"/>
@@ -150,6 +150,9 @@
                 </Button>
                 <Button Command="{Binding CommandStartLoaded}" ToolTip="{Resx _toolbar.StartLoaded}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/play-pause.png" Stretch="None" />
+                </Button>
+                <Button ToolTip="{Resx _toolbar.ForceNext}" >
+                    
                 </Button>
                 <Button Command="{Binding CommandRescheduleSelected}" ToolTip="{Resx _toolbar.Reschedule}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png" Stretch="None" />
@@ -251,18 +254,39 @@
                             </MenuItem.Header>
                             <StackPanel Orientation="Horizontal">
                                 <common:StatusIndicator IsGreen="{Binding ServerConnectedPRI}"/>
-                                <TextBlock Visibility="{Binding ServerConnectedPRI, Converter={StaticResource BoolToVis}}" Text="{Resx _statusbar.Indicator.PRIConnected}"/>
-                                <TextBlock Visibility="{Binding ServerConnectedPRI, Converter={StaticResource InvertedBoolToVis}}" Text="{Resx _statusbar.Indicator.PRIDisconnected}"/>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <Binding Path="ServerConnectedPRI">
+                                            <Binding.Converter>
+                                                <common:BoolToStringConverter FalseValue="{Resx _statusbar.Indicator.PRIDisConnected, ResxName=TAS.Client.Views.EngineView}" TrueValue="{Resx _statusbar.Indicator.PRIConnected, ResxName=TAS.Client.Views.EngineView}" />
+                                            </Binding.Converter>
+                                        </Binding>
+                                    </TextBlock.Text>
+                                </TextBlock>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <common:StatusIndicator IsGreen="{Binding ServerConnectedSEC}"/>
-                                <TextBlock Visibility="{Binding ServerConnectedSEC, Converter={StaticResource BoolToVis}}" Text="{Resx _statusbar.Indicator.SECConnected}"/>
-                                <TextBlock Visibility="{Binding ServerConnectedSEC, Converter={StaticResource InvertedBoolToVis}}" Text="{Resx _statusbar.Indicator.SECDisconnected}"/>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <Binding Path="ServerConnectedSEC">
+                                            <Binding.Converter>
+                                                <common:BoolToStringConverter FalseValue="{Resx _statusbar.Indicator.SECDisConnected, ResxName=TAS.Client.Views.EngineView}" TrueValue="{Resx _statusbar.Indicator.SECConnected, ResxName=TAS.Client.Views.EngineView}" />
+                                            </Binding.Converter>
+                                        </Binding>
+                                    </TextBlock.Text>
+                                </TextBlock>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <common:StatusIndicator IsGreen="{Binding ServerConnectedPRV}"/>
-                                <TextBlock Visibility="{Binding ServerConnectedPRV, Converter={StaticResource BoolToVis}}" Text="{Resx _statusbar.Indicator.PRVConnected}"/>
-                                <TextBlock Visibility="{Binding ServerConnectedPRV, Converter={StaticResource InvertedBoolToVis}}" Text="{Resx _statusbar.Indicator.PRVDisconnected}"/>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <Binding Path="ServerConnectedPRV">
+                                            <Binding.Converter>
+                                                <common:BoolToStringConverter FalseValue="{Resx _statusbar.Indicator.PRVDisConnected, ResxName=TAS.Client.Views.EngineView}" TrueValue="{Resx _statusbar.Indicator.PRVConnected, ResxName=TAS.Client.Views.EngineView}" />
+                                            </Binding.Converter>
+                                        </Binding>
+                                    </TextBlock.Text>
+                                </TextBlock>
                             </StackPanel>
                         </MenuItem>
                     </Menu>

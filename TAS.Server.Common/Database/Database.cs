@@ -304,7 +304,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbReadRootEvents<T>(this IEngine engine) where T : IEvent
+        public static void DbReadRootEvents(this IEngine engine)
         {
             lock (_connection)
             {
@@ -313,12 +313,12 @@ namespace TAS.Server.Database
                 cmd.Parameters.AddWithValue("@StartTypeManual", (byte)TStartType.Manual);
                 cmd.Parameters.AddWithValue("@StartTypeOnFixedTime", (byte)TStartType.OnFixedTime);
                 cmd.Parameters.AddWithValue("@StartTypeNone", (byte)TStartType.None);
-                T NewEvent;
+                IEvent NewEvent;
                 using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
                     {
-                        NewEvent = (T)_eventRead<T>(engine, dataReader);
+                        NewEvent = _eventRead(engine, dataReader);
                         engine.RootEvents.Add(NewEvent);
                     }
                     dataReader.Close();
@@ -327,7 +327,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbSearchMissing<T>(this IEngine engine) where T : IEvent
+        public static void DbSearchMissing(this IEngine engine) 
         {
             {
                 lock (_connection)
@@ -342,13 +342,13 @@ namespace TAS.Server.Database
                         {
                             if (!engine.RootEvents.Any(e => e.IdRundownEvent == dataReader.GetUInt64("idRundownEvent")))
                             {
-                                newEvent = _eventRead<T>(engine, dataReader);
+                                newEvent = _eventRead(engine, dataReader);
                                 foundEvents.Add(newEvent);
                             }
                         }
                         dataReader.Close();
                     }
-                    foreach (T e in foundEvents)
+                    foreach (IEvent e in foundEvents)
                     {
                         e.StartType = TStartType.Manual;
                         e.Save();
@@ -357,6 +357,48 @@ namespace TAS.Server.Database
                 }
             }
         }
+
+        public static List<IEvent> DbSearchPlaying(this IEngine engine)
+        {
+            {
+                lock (_connection)
+                {
+                    DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM rundownevent WHERE idEngine=@idEngine and PlayState=@PlayState", _connection);
+                    cmd.Parameters.AddWithValue("@idEngine", engine.Id);
+                    cmd.Parameters.AddWithValue("@PlayState", TPlayState.Playing);
+                    IEvent newEvent;
+                    List<IEvent> foundEvents = new List<IEvent>();
+                    using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                    {
+                        while (dataReader.Read())
+                        {
+                            newEvent = _eventRead(engine, dataReader);
+                            foundEvents.Add(newEvent);
+                        }
+                        dataReader.Close();
+                    }
+                    return foundEvents;
+                }
+            }
+        }
+
+        public static MediaDeleteDenyReason DbMediaInUse(this IEngine engine, IServerMedia serverMedia)
+        {
+            MediaDeleteDenyReason reason = MediaDeleteDenyReason.NoDeny;
+            lock (_connection)
+            {
+                string query = "select * from rundownevent where MediaGuid=@MediaGuid and ADDTIME(ScheduledTime, Duration) > UTC_TIMESTAMP();";
+                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                cmd.Parameters.AddWithValue("@MediaGuid", serverMedia.MediaGuid);
+                using (DbDataReaderRedundant reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                        return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Media = serverMedia, Event = _eventRead(engine, reader) };
+                }
+            }
+            return reason;
+        }
+
 
         #endregion //IEngine
 
@@ -520,7 +562,7 @@ namespace TAS.Server.Database
         #endregion // ArchiveDirectory
 
         #region IEvent
-        public static SynchronizedCollection<IEvent> DbReadSubEvents<T>(this T eventOwner) where T: IEvent
+        public static SynchronizedCollection<IEvent> DbReadSubEvents(this IEngine engine, IEvent eventOwner)
         {
             lock (_connection)
             {
@@ -534,14 +576,14 @@ namespace TAS.Server.Database
                         cmd.Parameters.AddWithValue("@StartType", TStartType.Manual);
                     else
                         cmd.Parameters.AddWithValue("@StartType", TStartType.With);
-                    T NewEvent;
+                    IEvent NewEvent;
                     using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                     {
                         try
                         {
                             while (dataReader.Read())
                             {
-                                NewEvent = _eventRead<T>(eventOwner.Engine, dataReader);
+                                NewEvent = _eventRead(engine, dataReader);
                                 EventList.Add(NewEvent);
                             }
                         }
@@ -555,7 +597,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static T DbReadNext<T>(this T aEvent) where T: IEvent
+        public static IEvent DbReadNext(this IEngine engine, IEvent aEvent) 
         {
             lock (_connection)
             {
@@ -568,51 +610,22 @@ namespace TAS.Server.Database
                     try
                     {
                         if (reader.Read())
-                            return _eventRead<T>(aEvent.Engine, reader);
+                            return _eventRead(engine, reader);
                     }
                     finally
                     {
                         reader.Close();
                     }
                 }
-                return default(T);
+                return null;
             }
         }
 
-        private static System.Reflection.ConstructorInfo _eventConstructorInfo;
 
-        private static T _eventRead<T>(IEngine engine, DbDataReaderRedundant dataReader) where T: IEvent
+        private static IEvent _eventRead(IEngine engine, DbDataReaderRedundant dataReader)
         {
-            if (_eventConstructorInfo == null)
-                _eventConstructorInfo = typeof(T).GetConstructor(new[] {
-                    typeof(IEngine),
-                    typeof(UInt64), // idRundownEvent
-                    typeof(VideoLayer),
-                    typeof(TEventType),
-                    typeof(TStartType),
-                    typeof(TPlayState),
-                    typeof(DateTime), // ScheduledTime
-                    typeof(TimeSpan), // Duration
-                    typeof(TimeSpan), // ScheduledDelay
-                    typeof(TimeSpan), // ScheduledTC
-                    typeof(Guid), // MediaGuid
-                    typeof(string), // EventName
-                    typeof(DateTime), // StartTime 
-                    typeof(TimeSpan), // StartTC
-                    typeof(TimeSpan?), // RequestedStartTime
-                    typeof(TimeSpan), // TransitionTime
-                    typeof(TTransitionType), 
-                    typeof(decimal?), // AudioVolume
-                    typeof(UInt64), // IdProgramme
-                    typeof(string), // IdAux
-                    typeof(bool), // IsEnabled
-                    typeof(bool), // IsHold
-                    typeof(bool), // IsLoop
-                    typeof(EventGPI)
-                });
             uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flagsEvent")) ? 0 : dataReader.GetUInt32("flagsEvent");
-            T newEvent = (T)_eventConstructorInfo.Invoke(new object[] {
-                engine,
+            IEvent newEvent = engine.AddEvent(
                 dataReader.GetUInt64("idRundownEvent"),
                 (VideoLayer)dataReader.GetSByte("Layer"),
                 (TEventType)dataReader.GetByte("typEvent"),
@@ -636,7 +649,7 @@ namespace TAS.Server.Database
                 (flags & (1 << 1)) != 0, // IsHold
                 (flags & (1 << 2)) != 0, // IsLoop
                 EventGPI.FromUInt64((flags >> 4) & EventGPI.Mask)
-        });            
+                );            
             return newEvent;
         }
 
@@ -1144,22 +1157,6 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             return success;
         }
 
-        public static MediaDeleteDenyReason DbMediaInUse<T>(this IServerMedia serverMedia) where T: IEvent
-        {
-            MediaDeleteDenyReason reason = MediaDeleteDenyReason.NoDeny;
-            lock (_connection)
-            {
-                string query = "select * from rundownevent where MediaGuid=@MediaGuid and ADDTIME(ScheduledTime, Duration) > UTC_TIMESTAMP();";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                cmd.Parameters.AddWithValue("@MediaGuid", serverMedia.MediaGuid);
-                using (DbDataReaderRedundant reader = cmd.ExecuteReader())
-                {
-                    if (reader.Read())
-                        return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Media = serverMedia, Event = _eventRead<T>(null, reader) };
-                }
-            }
-            return reason;
-        }
 
         #endregion // Media
 

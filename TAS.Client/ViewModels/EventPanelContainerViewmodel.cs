@@ -61,7 +61,7 @@ namespace TAS.Client.ViewModels
 
         void _addSubRundown(object o)
         {
-            IEvent newEvent = _engine.CreateEvent();
+            IEvent newEvent = _engine.CreateNewEvent();
             newEvent.EventType = TEventType.Rundown;
             newEvent.EventName = resources._title_NewRundown;
             newEvent.StartType = TStartType.Manual;

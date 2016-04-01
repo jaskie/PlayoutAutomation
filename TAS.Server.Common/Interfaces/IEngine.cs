@@ -11,7 +11,7 @@ namespace TAS.Server.Interfaces
 {
     public interface IEngine : IEngineConfig, IPreview, INotifyPropertyChanged
     {
-        VideoFormatDescription FormatDescription { get; } 
+        VideoFormatDescription FormatDescription { get; }
         long FrameTicks { get; }
         IPlayoutServerChannel PlayoutChannelPRI { get; }
         IPlayoutServerChannel PlayoutChannelSEC { get; }
@@ -26,9 +26,33 @@ namespace TAS.Server.Interfaces
         RationalNumber FrameRate { get; }
         SynchronizedCollection<IEvent> RootEvents { get; }
 
-        void AddEvent(IEvent ev);
+        IEvent AddEvent(
+                    UInt64 idRundownEvent,
+                    VideoLayer videoLayer,
+                    TEventType eventType,
+                    TStartType startType,
+                    TPlayState playState,
+                    DateTime scheduledTime,
+                    TimeSpan duration,
+                    TimeSpan scheduledDelay,
+                    TimeSpan scheduledTC,
+                    Guid mediaGuid,
+                    string eventName,
+                    DateTime startTime,
+                    TimeSpan startTC,
+                    TimeSpan? requestedStartTime,
+                    TimeSpan transitionTime,
+                    TTransitionType transitionType,
+                    decimal? audioVolume,
+                    UInt64 idProgramme,
+                    string idAux,
+                    bool isEnabled,
+                    bool isHold,
+                    bool isLoop,
+                    EventGPI gpi);
+
         void RemoveEvent(IEvent aEvent);
-        IEvent CreateEvent();
+        IEvent CreateNewEvent();
 
         void Load(IEvent aEvent);
         void StartLoaded();
@@ -36,6 +60,7 @@ namespace TAS.Server.Interfaces
         void Clear();
         void Clear(VideoLayer aVideoLayer);
         void RestartRundown(IEvent ARundown);
+        IEvent ForcedNext { get; set; }
         void Schedule(IEvent aEvent);
         void ReScheduleAsync(IEvent aEvent);
         void Restart();

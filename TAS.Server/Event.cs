@@ -21,8 +21,6 @@ namespace TAS.Server
         public Event(IEngine engine)
         {
             Engine = engine;
-            if (engine != null)
-                engine.AddEvent(this);
         }
 
 
@@ -76,8 +74,6 @@ namespace TAS.Server
             _isHold = isHold;
             _isLoop = isLoop;
             _nextLoaded = false;
-            if (engine != null)
-                engine.AddEvent(this);
         }
 
 #if DEBUG
@@ -239,7 +235,7 @@ namespace TAS.Server
                             _subEvents = new SynchronizedCollection<IEvent>();
                         else
                         {
-                            var se = this.DbReadSubEvents();
+                            var se = Engine.DbReadSubEvents(this);
                             foreach (Event e in se)
                                 e._parent = this;
                             _subEvents = se;
@@ -840,7 +836,7 @@ namespace TAS.Server
                     {
                         if (next == null)
                         {
-                            next = this.DbReadNext();
+                            next = (Event)Engine.DbReadNext(this);
                             if (next != null)
                                 next._prior = this;
                             _next = next;
