@@ -26,33 +26,32 @@ namespace TAS.Server.Interfaces
         RationalNumber FrameRate { get; }
         SynchronizedCollection<IEvent> RootEvents { get; }
 
-        IEvent AddEvent(
-                    UInt64 idRundownEvent,
-                    VideoLayer videoLayer,
-                    TEventType eventType,
-                    TStartType startType,
-                    TPlayState playState,
-                    DateTime scheduledTime,
-                    TimeSpan duration,
-                    TimeSpan scheduledDelay,
-                    TimeSpan scheduledTC,
-                    Guid mediaGuid,
-                    string eventName,
-                    DateTime startTime,
-                    TimeSpan startTC,
-                    TimeSpan? requestedStartTime,
-                    TimeSpan transitionTime,
-                    TTransitionType transitionType,
-                    decimal? audioVolume,
-                    UInt64 idProgramme,
-                    string idAux,
-                    bool isEnabled,
-                    bool isHold,
-                    bool isLoop,
-                    EventGPI gpi);
+        IEvent AddNewEvent(
+                    UInt64 idRundownEvent = 0,
+                    VideoLayer videoLayer = VideoLayer.None,
+                    TEventType eventType = TEventType.Rundown,
+                    TStartType startType = TStartType.None,
+                    TPlayState playState = TPlayState.Scheduled,
+                    DateTime scheduledTime = default(DateTime),
+                    TimeSpan duration = default(TimeSpan),
+                    TimeSpan scheduledDelay = default(TimeSpan),
+                    TimeSpan scheduledTC = default(TimeSpan),
+                    Guid mediaGuid = default(Guid),
+                    string eventName = "",
+                    DateTime startTime = default(DateTime),
+                    TimeSpan startTC = default(TimeSpan),
+                    TimeSpan? requestedStartTime = null,
+                    TimeSpan transitionTime = default(TimeSpan),
+                    TTransitionType transitionType = TTransitionType.Cut,
+                    decimal? audioVolume = null,
+                    UInt64 idProgramme = 0,
+                    string idAux = "",
+                    bool isEnabled = true,
+                    bool isHold = false,
+                    bool isLoop = false,
+                    EventGPI gpi = default(EventGPI));
 
         void RemoveEvent(IEvent aEvent);
-        IEvent CreateNewEvent();
 
         void Load(IEvent aEvent);
         void StartLoaded();
@@ -83,6 +82,7 @@ namespace TAS.Server.Interfaces
         MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia);
         void SearchMissingEvents();
         IEvent PlayingEvent(VideoLayer layer = VideoLayer.Program);
+        IEvent NextToPlay { get; }
 
         event EventHandler<IEventEventArgs> EventSaved;
         event EventHandler<EngineTickEventArgs> EngineTick;

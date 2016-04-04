@@ -139,10 +139,10 @@
     <value>_Wytnij...</value>
   </data>
   <data name="_menu.Edit.Cut.FromThis" xml:space="preserve">
-    <value>_Od tego elementu (Ctrl+Shift+X)</value>
+    <value>_Od tego elementu</value>
   </data>
   <data name="_menu.Edit.Cut.OnlyThis" xml:space="preserve">
-    <value>_Tylko ten element (Ctrl+X)</value>
+    <value>_Tylko ten element</value>
   </data>
   <data name="_menu.Edit.DeleteSelected" xml:space="preserve">
     <value>_Usuń zaznaczone</value>
@@ -151,7 +151,7 @@
     <value>W_klej...</value>
   </data>
   <data name="_menu.Edit.Paste.After" xml:space="preserve">
-    <value>_Za (Ctrl+V)</value>
+    <value>_Za</value>
   </data>
   <data name="_menu.Edit.Paste.Before" xml:space="preserve">
     <value>_Przed</value>
@@ -187,7 +187,7 @@
     <value>Wybrane {0}, </value>
   </data>
   <data name="_toolbar.ClearAll" xml:space="preserve">
-    <value>Stop wszystko (Shift+Pause/Break)</value>
+    <value>Stop wszystko | Shift+Pause/Break</value>
   </data>
   <data name="_toolbar.ClearCG1" xml:space="preserve">
     <value>Czyść grafikę 1</value>
@@ -199,7 +199,7 @@
     <value>Czyść grafikę 3</value>
   </data>
   <data name="_toolbar.Load" xml:space="preserve">
-    <value>Załaduj (F2)</value>
+    <value>Załaduj | F2</value>
   </data>
   <data name="_toolbar.NextEvent.ToolTip" xml:space="preserve">
     <value>Następny: {0}</value>
@@ -211,13 +211,13 @@
     <value>Restart (od bieżącego położenia)</value>
   </data>
   <data name="_toolbar.Reschedule" xml:space="preserve">
-    <value>Zaplanuj ponownie (F4)</value>
+    <value>Zaplanuj ponownie | F4</value>
   </data>
   <data name="_toolbar.StartLoaded" xml:space="preserve">
-    <value>Start załadowanego (F3)</value>
+    <value>Start załadowanego | F3</value>
   </data>
   <data name="_toolbar.StartSelected" xml:space="preserve">
-    <value>Start zaznaczonego (Ctrl+F3)</value>
+    <value>Start zaznaczonego | Ctrl+F3</value>
   </data>
   <data name="_toolbar.TimeToAttention" xml:space="preserve">
     <value>Uwaga za</value>
@@ -268,6 +268,9 @@
     <value>Kanał rezerwowy odłączony</value>
   </data>
   <data name="_toolbar.ForceNext" xml:space="preserve">
-    <value>Wymuś jako następny</value>
+    <value>Wymuś jako następny | Ctrl+F2</value>
+  </data>
+  <data name="_toolbar.Next" xml:space="preserve">
+    <value>Następny</value>
   </data>
 </root>

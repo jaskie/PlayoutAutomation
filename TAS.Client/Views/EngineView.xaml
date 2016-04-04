@@ -57,11 +57,11 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="23" />
-            <RowDefinition Height="58"  />
+            <RowDefinition Height="63"  />
             <RowDefinition Height="*"  />
             <RowDefinition Height="28" />
         </Grid.RowDefinitions>
-        <Menu IsMainMenu="True" Grid.Row="0" Height="23" VerticalAlignment="Top">
+        <Menu IsMainMenu="True" Grid.Row="0" Height="23" Width="430" HorizontalAlignment="Left" VerticalAlignment="Top">
             <MenuItem Header="{Resx _menu.Container}" Visibility="{Binding IsAnyContainerHidden, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding Path=RootEventViewModel.Containers}">
                 <MenuItem.ItemContainerStyle>
                     <Style TargetType="MenuItem">
@@ -77,18 +77,18 @@
                 <MenuItem Header="{Resx _menu.Rundown.Restart}" Command="{Binding CommandRestart}"/>
             </MenuItem>
             <MenuItem Header="{Resx _menu.Edit}">
-                <MenuItem Header="{Resx _menu.Edit.Copy}" Command="{Binding CommandCopySelected}"/>
-                <MenuItem Header="{Resx _menu.Edit.Cut}" Command="{Binding CommandCutSelected}"/>
+                <MenuItem Header="{Resx _menu.Edit.Copy}" Command="{Binding CommandCopySelected}" InputGestureText="Ctrl+C"/>
+                <MenuItem Header="{Resx _menu.Edit.Cut}" Command="{Binding CommandCutSelected}" InputGestureText="Ctrl+X"/>
                 <MenuItem Header="{Resx _menu.Edit.Paste}">
                     <MenuItem Header="{Resx _menu.Edit.Paste.Before}" Command="{Binding CommandPasteSelected}" CommandParameter="Before"/>
-                    <MenuItem Header="{Resx _menu.Edit.Paste.After}" Command="{Binding CommandPasteSelected}" CommandParameter="After"/>
+                    <MenuItem Header="{Resx _menu.Edit.Paste.After}" Command="{Binding CommandPasteSelected}" CommandParameter="After" InputGestureText="Ctrl+V"/>
                     <MenuItem Header="{Resx _menu.Edit.Paste.Under}" Command="{Binding CommandPasteSelected}" CommandParameter="Under"/>
                 </MenuItem>
                 <Separator />
                 <MenuItem Header="{Resx _menu.Edit.AddNext}" >
-                    <MenuItem Header="{Resx _menu.Edit.AddNext.Movie}" Command="{Binding CommandAddNextMovie}" />
-                    <MenuItem Header="{Resx _menu.Edit.AddNext.Rundown}" Command="{Binding CommandAddNextRundown}" />
-                    <MenuItem Header="{Resx _menu.Edit.AddNext.Live}" Command="{Binding CommandAddNextLive}" />
+                    <MenuItem Header="{Resx _menu.Edit.AddNext.Movie}" Command="{Binding CommandAddNextMovie}" InputGestureText="Ctrl+M"/>
+                    <MenuItem Header="{Resx _menu.Edit.AddNext.Rundown}" Command="{Binding CommandAddNextRundown}" InputGestureText="Ctrl+R"/>
+                    <MenuItem Header="{Resx _menu.Edit.AddNext.Live}" Command="{Binding CommandAddNextLive}" InputGestureText="Ctrl+L" />
                 </MenuItem>
                 <MenuItem Header="{Resx _menu.Edit.AddUnder}">
                     <MenuItem Header="{Resx _menu.Edit.AddNext.Movie}" Command="{Binding CommandAddSubMovie}" />
@@ -96,7 +96,7 @@
                     <MenuItem Header="{Resx _menu.Edit.AddNext.Live}" Command="{Binding CommandAddSubLive}" />
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="{Resx _menu.Edit.DeleteSelected}" Command="{Binding CommandDeleteSelected}" />
+                <MenuItem Header="{Resx _menu.Edit.DeleteSelected}" Command="{Binding CommandDeleteSelected}" InputGestureText="Ctrl+Delete" />
             </MenuItem>
             <MenuItem Header="{Resx _menu.Tools}">
                 <MenuItem Header="{Resx _menu.Tools.Export}" Command="{Binding CommandExport}"/>
@@ -110,38 +110,40 @@
                 </MenuItem>-->
             </MenuItem>
         </Menu>
-        <Grid Grid.Row="1">
+        <Grid Grid.RowSpan="2">
             <Grid.Resources>
                 <Style TargetType="Label">
                     <Setter Property="Padding" Value="0"/>
                     <Setter Property="Margin" Value="5, 0"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
                 </Style>
                 <Style TargetType="TextBlock">
                     <Setter Property="Padding" Value="0"/>
                     <Setter Property="Margin" Value="5, 0"/>
-                    <Setter Property="FontSize" Value="28" />
+                    <Setter Property="FontSize" Value="22" />
                     <Setter Property="HorizontalAlignment" Value="Left"/>
                     <Setter Property="VerticalAlignment" Value="Center"/>
                 </Style>
                 <Style TargetType="Button">
                     <Setter Property="Width" Value="40"/>
+                    <Setter Property="Height" Value="40"/>
                     <Setter Property="Margin" Value="8"/>
                 </Style>
             </Grid.Resources>
             <Grid.RowDefinitions>
                 <RowDefinition Height="19"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="19"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{Resx Key=_toolbar.clockWidth, DefaultValue='160'}"/>
-                <ColumnDefinition Width="280"/>
-                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="430"/>
                 <ColumnDefinition Width="170"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="30"/>
-                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="70"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal" FocusManager.IsFocusScope="True">
+            <StackPanel Grid.Row="1" Grid.Column="1" Grid.RowSpan="3" Orientation="Horizontal" FocusManager.IsFocusScope="True">
                 <Button Command="{Binding CommandStartSelected}" ToolTip="{Resx _toolbar.StartSelected}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/play.png" Stretch="None" />
                 </Button>
@@ -151,19 +153,12 @@
                 <Button Command="{Binding CommandStartLoaded}" ToolTip="{Resx _toolbar.StartLoaded}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/play-pause.png" Stretch="None" />
                 </Button>
-                <Button ToolTip="{Resx _toolbar.ForceNext}" >
-                    
+                <Button Command="{Binding CommandForceNextSelected}" ToolTip="{Resx _toolbar.ForceNext}" >
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/force-next.png" />
                 </Button>
                 <Button Command="{Binding CommandRescheduleSelected}" ToolTip="{Resx _toolbar.Reschedule}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png" Stretch="None" />
                 </Button>
-            </StackPanel>
-
-            <Grid Grid.Column="2" Grid.RowSpan="2" >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
                 <ComboBox Margin="2" SelectedIndex="0" Grid.Column="0" Padding="5" >
                     <ComboBoxItem ToolTip="{Resx _toolbar.ClearAll}" >
                         <Button Command="{Binding CommandClearAll}" Style="{StaticResource controlPanelButtons}">
@@ -186,7 +181,7 @@
                         </Button>
                     </ComboBoxItem>
                 </ComboBox>
-                <StackPanel Grid.Column="2">
+                <StackPanel>
                     <ToggleButton Margin="2" Height="22" IsChecked="{Binding TrackPlayingEvent}" Background="{Binding TrackPlayingEvent, Converter={StaticResource BoolToBrush}, ConverterParameter=LightCoral}" HorizontalContentAlignment="Left" >
                         <StackPanel Orientation="Horizontal">
                             <Image Source="/TAS.Client.Common;component/Images/Actions/go-down.png" />
@@ -194,14 +189,15 @@
                         </StackPanel>
                     </ToggleButton>
                 </StackPanel>
-            </Grid>
-            <TextBlock FontSize="13" Text="{Binding CurrentTime, StringFormat=d}" />
-            <TextBlock FontSize="13" HorizontalAlignment="Right" Text="{Binding CurrentTime, StringFormat=(ddd)}" />
-            <TextBlock Grid.Row="1" Text="{Binding CurrentTime, StringFormat=T}" />
-            <Label Content="{Resx _toolbar.TimeToAttention}" Grid.Column="3" />
-            <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding TimeToAttention, Converter={StaticResource TimeSpanToSMPTE}, ConverterParameter=HIDE_ZERO_VALUE}" Background="{Binding EngineState, Converter={StaticResource EngineStateToBrush}}"/>
-            <Label Content="{Resx _toolbar.NowPlaying}" Grid.Column="4" />
-            <TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding PlayingEventName}">
+            </StackPanel>
+
+            <TextBlock Grid.Row="1" FontSize="13" Text="{Binding CurrentTime, StringFormat=d}" />
+            <TextBlock Grid.Row="1" FontSize="13" HorizontalAlignment="Right" Text="{Binding CurrentTime, StringFormat=(ddd)}" />
+            <TextBlock Grid.Row="2" Text="{Binding CurrentTime, StringFormat=T}" />
+            <Label Grid.Column="2" Content="{Resx _toolbar.TimeToAttention}" />
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding TimeToAttention, Converter={StaticResource TimeSpanToSMPTE}, ConverterParameter=HIDE_ZERO_VALUE}" Background="{Binding EngineState, Converter={StaticResource EngineStateToBrush}}"/>
+            <Label Grid.Column="3" Content="{Resx _toolbar.NowPlaying}"  />
+            <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding PlayingEventName}">
                 <TextBlock.ToolTip>
                     <TextBlock FontSize="12" Text="{Binding PlayingEvent.NextEventName, StringFormat={Resx _toolbar.NextEvent.ToolTip, ResxName=TAS.Client.Views.EngineView}}" />
                 </TextBlock.ToolTip>
@@ -211,10 +207,20 @@
                     </ContextMenu>
                 </TextBlock.ContextMenu>
             </TextBlock>
+            <Label Grid.Row="2" Grid.Column="3" Content="{Resx _toolbar.Next}"  />
+            <TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding NextToPlay}"/>
             <!--<c:PlayingEventUC Grid.Column="4" Grid.RowSpan="2" DataContext="{Binding PlayingEvent}"/>-->
-            <Slider Grid.Column="5" Grid.RowSpan="2" Orientation="Vertical" Value="{Binding ProgramAudioVolume}" Minimum="-15" Maximum="15"/>
-            <Label Grid.Column="6" Content="dB" HorizontalAlignment="Center"/>
-            <TextBox Grid.Column="6" Grid.Row="1" Text="{Binding ProgramAudioVolume, StringFormat={}{0:0.0}}" Margin="4, 8"/>
+            <Grid Grid.Column="4" Grid.Row="1" Grid.RowSpan="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Slider Orientation="Vertical" Value="{Binding ProgramAudioVolume}" Minimum="-15" Maximum="15"/>
+                <StackPanel Grid.Column="1">
+                    <Label Content="dB" HorizontalAlignment="Center"/>
+                    <TextBox Text="{Binding ProgramAudioVolume, StringFormat={}{0:0.0}}" Margin="4, 8"/>
+                </StackPanel>
+            </Grid>
         </Grid>
         <StatusBar Name="sbChannelStatus" VerticalAlignment="Bottom" Grid.Row="3" >
             <StatusBar.Resources>

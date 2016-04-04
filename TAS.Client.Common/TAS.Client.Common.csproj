@@ -241,12 +241,6 @@
     <Resource Include="Images\Config\database_config.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Actions\media-ingest.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Actions\xdcam-export.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Actions\archive-export-delete.png" />
     <Resource Include="Images\Actions\archive-export.png" />
     <Resource Include="Images\Actions\volume-measure.png" />
@@ -414,6 +408,15 @@
   <ItemGroup>
     <Resource Include="Images\Indicators\error-overlay.png" />
     <Resource Include="Images\Indicators\warning-overlay.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\EventActions\force-next.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\media-ingest.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\media-export.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

@@ -33,7 +33,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandClearLayer { get; private set; }
         public ICommand CommandRestart { get; private set; }
         public ICommand CommandStartSelected { get; private set; }
-        public ICommand CommandForcenextSelected { get; private set; }
+        public ICommand CommandForceNextSelected { get; private set; }
         public ICommand CommandStartLoaded { get; private set; }
         public ICommand CommandLoadSelected { get; private set; }
         public ICommand CommandScheduleSelected { get; private set; }
@@ -154,7 +154,7 @@ namespace TAS.Client.ViewModels
             CommandLoadSelected = new UICommand() { ExecuteDelegate = o => _engine.Load(_selected.Event), CanExecuteDelegate = _canLoadSelected };
             CommandScheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.Schedule(_selected.Event), CanExecuteDelegate = _canScheduleSelected };
             CommandRescheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.ReScheduleAsync(_selected.Event), CanExecuteDelegate = _canRescheduleSelected };
-            CommandForcenextSelected = new UICommand() { ExecuteDelegate = o => _engine.ForcedNext = _selected.Event, CanExecuteDelegate = _canLoadSelected };
+            CommandForceNextSelected = new UICommand() { ExecuteDelegate = o => _engine.ForcedNext = _selected.Event, CanExecuteDelegate = _canForceNextSelected };
             CommandTrackingToggle = new UICommand() { ExecuteDelegate = o => TrackPlayingEvent = !TrackPlayingEvent };
             CommandDebugToggle = new UICommand() { ExecuteDelegate = _debugShow };
             CommandRestartRundown = new UICommand() { ExecuteDelegate = _restartRundown };
@@ -182,6 +182,11 @@ namespace TAS.Client.ViewModels
 
             CommandSaveEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandSaveEdit.Execute };
             CommandUndoEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandUndoEdit.Execute };
+        }
+
+        private bool _canForceNextSelected(object obj)
+        {
+            return _engine.EngineState == TEngineState.Running && _canLoadSelected(obj);
         }
 
         private void _toggleLayer(object obj)
@@ -353,22 +358,20 @@ namespace TAS.Client.ViewModels
 
         private void _newRootRundown(object o)
         {
-            IEvent newEvent = _engine.CreateNewEvent();
-            newEvent.EventType = TEventType.Rundown;
-            newEvent.EventName = resources._title_NewRundown;
-            newEvent.Duration = TimeSpan.Zero;
-            newEvent.StartType = TStartType.Manual;
-            newEvent.ScheduledTime = _currentTime;
+            IEvent newEvent = _engine.AddNewEvent(
+                eventType: TEventType.Rundown,
+                eventName: resources._title_NewRundown,
+                startType: TStartType.Manual,
+                scheduledTime: _currentTime);
             _engine.RootEvents.Add(newEvent);
             newEvent.Save();
         }
         
         private void _newContainer(object o)
         {
-            IEvent newEvent = _engine.CreateNewEvent();
-            newEvent.EventType = TEventType.Container;
-            newEvent.EventName = resources._title_NewContainer;
-            newEvent.StartType = TStartType.None;
+            IEvent newEvent = _engine.AddNewEvent(
+                eventType: TEventType.Container,
+                eventName: resources._title_NewContainer);
             _engine.RootEvents.Add(newEvent);
             newEvent.Save();
         }
@@ -437,10 +440,10 @@ namespace TAS.Client.ViewModels
                 {
                     if (e.Media != null)
                     {
-                        IEvent newEvent = _engine.CreateNewEvent();
+                        IEvent newEvent = _engine.AddNewEvent(
+                            eventName: e.MediaName,
+                            videoLayer: layer);
                         newEvent.Media = e.Media;
-                        newEvent.EventName = e.MediaName;
-                        newEvent.Layer = layer;
                         if (mediaType == TMediaType.Still)
                         {
                             newEvent.EventType = TEventType.StillImage;
@@ -624,6 +627,15 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        public string NextToPlay
+        {
+            get
+            {
+                var e = _engine.NextToPlay;
+                return e == null ? string.Empty : e.EventName;
+            }
+        }
+
         public int SelectedCount
         {
             get { return _selectedEvents.Count; }
@@ -726,6 +738,7 @@ namespace TAS.Client.ViewModels
                                 SetOnTopView(pe);
                         }, null);
                     NotifyPropertyChanged("PlayingEventName");
+                    NotifyPropertyChanged("NextToPlay");
                 }
                 NotifyPropertyChanged("VisibleEvents");
             }
@@ -734,9 +747,13 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("CommandStartLoaded");
 
             if (a.Operation == TEngineOperation.Stop || a.Operation == TEngineOperation.Clear)
+            {
                 NotifyPropertyChanged("PlayingEventName");
+                NotifyPropertyChanged("NextToPlay");
+            }
 
-            if (a.Event != null
+
+                if (a.Event != null
                 && _selected != null
                 && a.Event == _selected.Event)
                 Application.Current.Dispatcher.BeginInvoke((Action)_onSelectedChanged, null);
@@ -860,6 +877,7 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == "GPIParental"
                 || e.PropertyName == "GPIIsMaster"
                 || e.PropertyName == "GPIEnabled"
+                || e.PropertyName == "NextToPlay"
             )
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == "GPIIsMaster")

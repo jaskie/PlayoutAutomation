@@ -625,7 +625,7 @@ namespace TAS.Server.Database
         private static IEvent _eventRead(IEngine engine, DbDataReaderRedundant dataReader)
         {
             uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flagsEvent")) ? 0 : dataReader.GetUInt32("flagsEvent");
-            IEvent newEvent = engine.AddEvent(
+            IEvent newEvent = engine.AddNewEvent(
                 dataReader.GetUInt64("idRundownEvent"),
                 (VideoLayer)dataReader.GetSByte("Layer"),
                 (TEventType)dataReader.GetByte("typEvent"),

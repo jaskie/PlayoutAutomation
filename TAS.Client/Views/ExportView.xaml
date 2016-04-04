@@ -28,7 +28,7 @@
         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Width="100" Margin="5, 2">
             <Button Command="{Binding CommandExport}">
                 <StackPanel Orientation="Horizontal" Margin="5, 0">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/xdcam-export.png"/>
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-export.png"/>
                     <Label Content="{Resx _export}" Padding="0" VerticalContentAlignment="Center" Margin="5, 0"/>
                 </StackPanel>
             </Button>

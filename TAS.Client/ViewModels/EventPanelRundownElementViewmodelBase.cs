@@ -82,9 +82,9 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o =>
                 {
-                    IEvent newEvent = _event.Engine.CreateNewEvent();
-                    newEvent.EventType = TEventType.Rundown;
-                    newEvent.EventName = resources._title_NewRundown;
+                    IEvent newEvent = _event.Engine.AddNewEvent(
+                        eventType: TEventType.Rundown,
+                        eventName: resources._title_NewRundown);
                     _event.InsertAfter(newEvent);
                 },
                 CanExecuteDelegate = _canAddNextItem
@@ -93,9 +93,9 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o =>
                 {
-                    IEvent newEvent = _event.Engine.CreateNewEvent();
-                    newEvent.EventType = TEventType.Movie;
-                    newEvent.EventName = resources._title_EmptyMovie;
+                    IEvent newEvent = _event.Engine.AddNewEvent(
+                        eventType: TEventType.Movie,
+                        eventName: resources._title_EmptyMovie);
                     _event.InsertAfter(newEvent);
                 },
                 CanExecuteDelegate = canAddNextMovie
@@ -104,10 +104,10 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o =>
                 {
-                    IEvent newEvent = _event.Engine.CreateNewEvent();
-                    newEvent.EventType = TEventType.Live;
-                    newEvent.EventName = resources._title_NewLive;
-                    newEvent.Duration = new TimeSpan(0, 1, 0);
+                    IEvent newEvent = _event.Engine.AddNewEvent(
+                        eventType: TEventType.Live,
+                        eventName: resources._title_NewLive,
+                        duration: new TimeSpan(0, 1, 0));
                     _event.InsertAfter(newEvent);
                 },
                 CanExecuteDelegate = canAddNewLive
@@ -399,7 +399,7 @@ namespace TAS.Client.ViewModels
         {
             var p = Parent;
             if (p != null)
-                if (p.IsExpanded)
+                if (p.IsExpanded && View != null)
                 {
                     View.SetOnTop();
                 }

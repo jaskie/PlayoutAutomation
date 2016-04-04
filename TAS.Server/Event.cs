@@ -18,12 +18,6 @@ namespace TAS.Server
     public class Event : IEvent, IComparable
     {
 
-        public Event(IEngine engine)
-        {
-            Engine = engine;
-        }
-
-
         public Event(
                     IEngine engine,
                     UInt64 idRundownEvent,
@@ -73,9 +67,8 @@ namespace TAS.Server
             _isEnabled = isEnabled;
             _isHold = isHold;
             _isLoop = isLoop;
-            _nextLoaded = false;
         }
-
+        
 #if DEBUG
         ~Event()
         {
@@ -823,7 +816,7 @@ namespace TAS.Server
             protected set { SetField(ref _prior, value as Event, "Prior"); }
         }
 
-        internal bool _nextLoaded = true;
+        internal bool _nextLoaded = false;
         private Event _next;
         public IEvent Next
         {
@@ -1181,7 +1174,6 @@ namespace TAS.Server
             return null;
         }
 
-
         public void Save()
         {
             if (_modified)
@@ -1194,6 +1186,17 @@ namespace TAS.Server
                 _modified = false;
                 NotifySaved();
             }
+        }
+
+        internal Event FindRunningSubEvent()
+        {
+            if (_eventType != TEventType.Rundown)
+                throw new InvalidOperationException("FindRunningSubEvent: EventType is not Rundown");
+            var se = SubEvents.FirstOrDefault(e => ((e.EventType == TEventType.Live || e.EventType == TEventType.Movie) && e.Layer == VideoLayer.Program) || e.EventType == TEventType.Rundown) as Event;
+            if (se != null && se.EventType == TEventType.Rundown)
+                return se.FindRunningSubEvent();
+            else
+                return se;
         }
 
         public void SaveLoadedTree()

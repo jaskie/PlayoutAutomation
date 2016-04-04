@@ -139,10 +139,10 @@
     <value>_Cut...</value>
   </data>
   <data name="_menu.Edit.Cut.FromThis" xml:space="preserve">
-    <value>_All items from this (Ctrl+Shift+X)</value>
+    <value>_All items from this</value>
   </data>
   <data name="_menu.Edit.Cut.OnlyThis" xml:space="preserve">
-    <value>Only _this item (Ctrl+X)</value>
+    <value>Only _this item</value>
   </data>
   <data name="_menu.Edit.DeleteSelected" xml:space="preserve">
     <value>Delete _selected</value>
@@ -190,7 +190,7 @@
     <value>Selected {0}, </value>
   </data>
   <data name="_toolbar.ClearAll" xml:space="preserve">
-    <value>Clear all (Shift+Pause/Break)</value>
+    <value>Clear all | Shift+Pause/Break</value>
   </data>
   <data name="_toolbar.ClearCG1" xml:space="preserve">
     <value>Clear image 1</value>
@@ -202,7 +202,7 @@
     <value>Clear image 3</value>
   </data>
   <data name="_toolbar.Load" xml:space="preserve">
-    <value>Load (F2)</value>
+    <value>Load | F2</value>
   </data>
   <data name="_toolbar.NextEvent.ToolTip" xml:space="preserve">
     <value>Next: {0}</value>
@@ -214,13 +214,13 @@
     <value>Restart (from current location)</value>
   </data>
   <data name="_toolbar.Reschedule" xml:space="preserve">
-    <value>Reschedule (F4)</value>
+    <value>Reschedule | F4</value>
   </data>
   <data name="_toolbar.StartLoaded" xml:space="preserve">
-    <value>Start loaded (F3)</value>
+    <value>Start loaded | F3</value>
   </data>
   <data name="_toolbar.StartSelected" xml:space="preserve">
-    <value>Start selected (Ctrl+F3)</value>
+    <value>Start selected | Ctrl+F3</value>
   </data>
   <data name="_toolbar.TimeToAttention" xml:space="preserve">
     <value>Attention at</value>
@@ -268,6 +268,9 @@
     <value>Secondary channel disconnected</value>
   </data>
   <data name="_toolbar.ForceNext" xml:space="preserve">
-    <value>Force as next to play</value>
+    <value>Force as next to play | Ctrl+F2</value>
+  </data>
+  <data name="_toolbar.Next" xml:space="preserve">
+    <value>Next</value>
   </data>
 </root>
