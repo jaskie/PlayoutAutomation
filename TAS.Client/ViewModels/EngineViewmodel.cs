@@ -636,6 +636,11 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        public IEvent NextWithRequestedStartTime
+        {
+            get { return _engine.NextWithRequestedStartTime; }
+        }
+
         public int SelectedCount
         {
             get { return _selectedEvents.Count; }
@@ -739,6 +744,7 @@ namespace TAS.Client.ViewModels
                         }, null);
                     NotifyPropertyChanged("PlayingEventName");
                     NotifyPropertyChanged("NextToPlay");
+                    NotifyPropertyChanged("NextWithRequestedStartTime");
                 }
                 NotifyPropertyChanged("VisibleEvents");
             }
@@ -750,10 +756,11 @@ namespace TAS.Client.ViewModels
             {
                 NotifyPropertyChanged("PlayingEventName");
                 NotifyPropertyChanged("NextToPlay");
+                NotifyPropertyChanged("NextWithRequestedStartTime");
             }
 
 
-                if (a.Event != null
+            if (a.Event != null
                 && _selected != null
                 && a.Event == _selected.Event)
                 Application.Current.Dispatcher.BeginInvoke((Action)_onSelectedChanged, null);

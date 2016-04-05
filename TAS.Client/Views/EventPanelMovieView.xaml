@@ -137,7 +137,7 @@
                         </Style>
                     </StackPanel.Resources>
                     <TextBlock Text="{Binding ScheduledTime}" ToolTip="{Resx _scheduledTime.ToolTip}" />
-                    <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" Foreground="DarkGreen" Visibility="{Binding OffsetVisible, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _offsetTime.ToolTip}"/>
+                    <TextBlock Text="{Binding Offset, Converter={StaticResource TimeSpanToSignedString}}" Foreground="DarkGreen" Visibility="{Binding Offset, Converter={StaticResource NullToVis}}" ToolTip="{Resx _offsetTime.ToolTip}"/>
                     <TextBlock Text="{Binding Duration}" ToolTip="{Resx _duration.ToolTip}" />
                     <TextBlock Text="{Binding EndTime}" Visibility="{Binding IsLoop, Converter={StaticResource InvertedBoolToVis}}" ToolTip="{Resx _endTime.ToolTip}"/>
                     <Image Height="14" Source="/TAS.Client.Common;component/Images/Indicators/loop.png" Stretch="Uniform" Visibility="{Binding IsLoop, Converter={StaticResource BoolToVis}}" Style="{StaticResource EventPanelImage}"/>

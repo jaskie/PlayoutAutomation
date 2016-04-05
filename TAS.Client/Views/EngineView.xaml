@@ -61,7 +61,7 @@
             <RowDefinition Height="*"  />
             <RowDefinition Height="28" />
         </Grid.RowDefinitions>
-        <Menu IsMainMenu="True" Grid.Row="0" Height="23" Width="430" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Menu IsMainMenu="True" Height="23" HorizontalAlignment="Left" VerticalAlignment="Top">
             <MenuItem Header="{Resx _menu.Container}" Visibility="{Binding IsAnyContainerHidden, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding Path=RootEventViewModel.Containers}">
                 <MenuItem.ItemContainerStyle>
                     <Style TargetType="MenuItem">
@@ -198,9 +198,6 @@
             <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding TimeToAttention, Converter={StaticResource TimeSpanToSMPTE}, ConverterParameter=HIDE_ZERO_VALUE}" Background="{Binding EngineState, Converter={StaticResource EngineStateToBrush}}"/>
             <Label Grid.Column="3" Content="{Resx _toolbar.NowPlaying}"  />
             <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding PlayingEventName}">
-                <TextBlock.ToolTip>
-                    <TextBlock FontSize="12" Text="{Binding PlayingEvent.NextEventName, StringFormat={Resx _toolbar.NextEvent.ToolTip, ResxName=TAS.Client.Views.EngineView}}" />
-                </TextBlock.ToolTip>
                 <TextBlock.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="{Resx _toolbar.playingEventName.Menu.Restart, ResxName=TAS.Client.Views.EngineView}" Command="{Binding CommandRestartLayer}" CommandParameter="0"/>
@@ -209,8 +206,14 @@
             </TextBlock>
             <Label Grid.Row="2" Grid.Column="3" Content="{Resx _toolbar.Next}"  />
             <TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding NextToPlay}"/>
-            <!--<c:PlayingEventUC Grid.Column="4" Grid.RowSpan="2" DataContext="{Binding PlayingEvent}"/>-->
-            <Grid Grid.Column="4" Grid.Row="1" Grid.RowSpan="2">
+            <Label Grid.Row="2" Grid.Column="2" Content="{Resx _toolbar.NextWithRequestedStartTime}"/>
+            <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding NextWithRequestedStartTime.Offset, Converter={StaticResource TimeSpanToSignedString}}">
+                <TextBlock.ToolTip>
+                    <Run Text="{Binding NextWithRequestedStartTime.EventName}"/>
+                </TextBlock.ToolTip>
+            </TextBlock>
+            <Label Grid.Column="4" Content="Audio"/>
+            <Grid Grid.Column="4" Grid.Row="1" Grid.RowSpan="3">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
@@ -264,7 +267,7 @@
                                     <TextBlock.Text>
                                         <Binding Path="ServerConnectedPRI">
                                             <Binding.Converter>
-                                                <common:BoolToStringConverter FalseValue="{Resx _statusbar.Indicator.PRIDisConnected, ResxName=TAS.Client.Views.EngineView}" TrueValue="{Resx _statusbar.Indicator.PRIConnected, ResxName=TAS.Client.Views.EngineView}" />
+                                                <common:BoolToStringConverter FalseValue="{Resx _statusbar.Indicator.PRIDisconnected, ResxName=TAS.Client.Views.EngineView}" TrueValue="{Resx _statusbar.Indicator.PRIConnected, ResxName=TAS.Client.Views.EngineView}" />
                                             </Binding.Converter>
                                         </Binding>
                                     </TextBlock.Text>
@@ -276,7 +279,7 @@
                                     <TextBlock.Text>
                                         <Binding Path="ServerConnectedSEC">
                                             <Binding.Converter>
-                                                <common:BoolToStringConverter FalseValue="{Resx _statusbar.Indicator.SECDisConnected, ResxName=TAS.Client.Views.EngineView}" TrueValue="{Resx _statusbar.Indicator.SECConnected, ResxName=TAS.Client.Views.EngineView}" />
+                                                <common:BoolToStringConverter FalseValue="{Resx _statusbar.Indicator.SECDisconnected, ResxName=TAS.Client.Views.EngineView}" TrueValue="{Resx _statusbar.Indicator.SECConnected, ResxName=TAS.Client.Views.EngineView}" />
                                             </Binding.Converter>
                                         </Binding>
                                     </TextBlock.Text>
@@ -288,7 +291,7 @@
                                     <TextBlock.Text>
                                         <Binding Path="ServerConnectedPRV">
                                             <Binding.Converter>
-                                                <common:BoolToStringConverter FalseValue="{Resx _statusbar.Indicator.PRVDisConnected, ResxName=TAS.Client.Views.EngineView}" TrueValue="{Resx _statusbar.Indicator.PRVConnected, ResxName=TAS.Client.Views.EngineView}" />
+                                                <common:BoolToStringConverter FalseValue="{Resx _statusbar.Indicator.PRVDisconnected, ResxName=TAS.Client.Views.EngineView}" TrueValue="{Resx _statusbar.Indicator.PRVConnected, ResxName=TAS.Client.Views.EngineView}" />
                                             </Binding.Converter>
                                         </Binding>
                                     </TextBlock.Text>
@@ -297,7 +300,7 @@
                         </MenuItem>
                     </Menu>
                     <StackPanel Orientation="Horizontal" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}">
-                        <Separator Width="5"  Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+                        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
                         <common:StatusIndicator Height="14" IsGreen="{Binding GPIConnected}" />
                         <Label Content="GPI" Padding="5, 0, 0, 0"/>
                         <StackPanel Orientation="Horizontal" Visibility="{Binding GPIConnected, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding GPIIsMaster}">
@@ -329,7 +332,19 @@
                                         </Style.Triggers>
                                     </Style>
                                 </StackPanel.Resources>
-                                <CheckBox IsChecked="{Binding GPIAspectNarrow}" Content="{Binding GPIAspectNarrow, Converter={StaticResource BooleanToAspectDescriptionConverter}}" Padding="5, 0" Width="50"/>
+                                <CheckBox IsChecked="{Binding GPIAspectNarrow}" Margin="5, 0" Width="50" HorizontalContentAlignment="Left">
+                                    <CheckBox.Content>
+                                        <TextBlock>
+                                            <TextBlock.Text>
+                                                <Binding Path="GPIAspectNarrow">
+                                                    <Binding.Converter>
+                                                        <common:BoolToStringConverter FalseValue="16:9" TrueValue="4:3" />
+                                                    </Binding.Converter>
+                                                </Binding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                    </CheckBox.Content>
+                                </CheckBox>
                                 <Label Padding="5, 0" Content="{Resx _statusbar.Gpi.Crawl}"/>
                                 <ComboBox Width="90" ItemsSource="{Binding GPICrawls}" SelectedValue="{Binding GPICrawl}" />
                                 <Label Padding="5, 0" Content="{Resx _statusbar.Gpi.Logo}"/>

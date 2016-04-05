@@ -201,9 +201,6 @@
   <data name="_toolbar.Load" xml:space="preserve">
     <value>Załaduj | F2</value>
   </data>
-  <data name="_toolbar.NextEvent.ToolTip" xml:space="preserve">
-    <value>Następny: {0}</value>
-  </data>
   <data name="_toolbar.NowPlaying" xml:space="preserve">
     <value>Teraz odtwarza</value>
   </data>
@@ -272,5 +269,8 @@
   </data>
   <data name="_toolbar.Next" xml:space="preserve">
     <value>Następny</value>
+  </data>
+  <data name="_toolbar.NextWithRequestedStartTime" xml:space="preserve">
+    <value>Następny wymagany</value>
   </data>
 </root>

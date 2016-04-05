@@ -370,6 +370,19 @@ namespace TAS.Server
                 return null;
             }
         }
+
+        public IEvent NextWithRequestedStartTime
+        {
+            get
+            {
+                IEvent e = PlayingEvent();
+                if (e != null)
+                    do
+                        e = e.GetSuccessor();
+                    while (e != null && e.RequestedStartTime == null);
+                return e;
+            }
+        }
     
         #region Preview Routines
 
@@ -1170,6 +1183,7 @@ namespace TAS.Server
 
         public IEvent AddNewEvent(
                     UInt64 idRundownEvent = 0,
+                    UInt64 idEventBinding = 0,
                     VideoLayer videoLayer = VideoLayer.None,
                     TEventType eventType = TEventType.Rundown,
                     TStartType startType = TStartType.None,
@@ -1196,7 +1210,7 @@ namespace TAS.Server
             IEvent result;
             if (!_events.TryGetValue(idRundownEvent, out result))
             {
-                result = new Event( this, idRundownEvent, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionType, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, gpi );
+                result = new Event( this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionType, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, gpi );
                 if (_events.TryAdd(idRundownEvent, result))
                     result.Saved += _eventSaved;
             }

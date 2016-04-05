@@ -211,20 +211,7 @@ namespace TAS.Client.ViewModels
         public string Layer2SubItemMediaName { get { return _subItemMediaName(VideoLayer.CG2); } }
         public string Layer3SubItemMediaName { get { return _subItemMediaName(VideoLayer.CG3); } }
         
-        public bool OffsetVisible { get { return _event != null && _event.RequestedStartTime != null; } }
-        public TimeSpan? Offset
-        {
-            get
-            {
-                if (_event != null)
-                {
-                    var rrt = _event.RequestedStartTime;
-                    if (rrt != null)
-                        return _event.ScheduledTime.ToLocalTime().TimeOfDay - rrt;
-                }
-                return null;
-            }
-        }
+        public TimeSpan? Offset { get { return _event.Offset; } }
 
         public bool IsInvalidInSchedule
         {
@@ -440,7 +427,8 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == "IsEnabled"
                 || e.PropertyName == "IsHold"
                 || e.PropertyName == "EventName"
-                || e.PropertyName == "IsLoop")
+                || e.PropertyName == "IsLoop"
+                || e.PropertyName == "Offset")
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == "ScheduledTC" || e.PropertyName == "Duration")
             {
@@ -459,15 +447,9 @@ namespace TAS.Client.ViewModels
             {
                 NotifyPropertyChanged(e.PropertyName);
                 NotifyPropertyChanged("EndTime");
-                NotifyPropertyChanged("Offset");
             }
             if (e.PropertyName == "StartType")
                 NotifyPropertyChanged("IsStartEvent");
-            if (e.PropertyName == "RequestedStartTime")
-            {
-                NotifyPropertyChanged("Offset");
-                NotifyPropertyChanged("OffsetVisible");
-            }
             if (e.PropertyName == "Media")
             {
                 Media = _event.Media;

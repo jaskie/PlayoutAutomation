@@ -21,6 +21,7 @@ namespace TAS.Server
         public Event(
                     IEngine engine,
                     UInt64 idRundownEvent,
+                    UInt64 idEventBinding,
                     VideoLayer videoLayer,
                     TEventType eventType,
                     TStartType startType,
@@ -46,6 +47,7 @@ namespace TAS.Server
         {
             Engine = engine;
             _idRundownEvent = idRundownEvent;
+            _idEventBinding = idEventBinding;
             _layer = videoLayer;
             _eventType = eventType;
             _startType = startType;
@@ -76,7 +78,7 @@ namespace TAS.Server
         }
 #endif // DEBUG
 
-        internal UInt64 _idRundownEvent = 0;
+        UInt64 _idRundownEvent = 0;
         public UInt64 IdRundownEvent
         {
             get
@@ -87,6 +89,8 @@ namespace TAS.Server
             }
             set { _idRundownEvent = value; }
         }
+        UInt64 _idEventBinding;
+
         private bool _modified;
         public bool Modified
         {
@@ -107,6 +111,7 @@ namespace TAS.Server
         {
             Event newEvent = new Event(
                 Engine,
+                0,
                 0,
                 _layer,
                 _eventType,
@@ -147,31 +152,27 @@ namespace TAS.Server
             return newEvent;
         }
 
-        internal TPlayState _playState = TPlayState.Scheduled;
+         TPlayState _playState = TPlayState.Scheduled;
         public TPlayState PlayState
         {
             get { return _playState; }
             set
             {
-                if (value != _playState)
-                    lock (this)
+                if (SetField(ref _playState, value, "PlayState"))
+                {
+                    if (value == TPlayState.Playing)
                     {
-                        if (SetField(ref _playState, value, "PlayState"))
-                        {
-                            if (value == TPlayState.Playing)
-                            {
-                                StartTime = Engine.CurrentTime;
-                                StartTc = ScheduledTc + TimeSpan.FromTicks(_position * Engine.FrameTicks);
-                            }
-                            if (value == TPlayState.Scheduled)
-                            {
-                                StartTime = default(DateTime);
-                                StartTc = ScheduledTc;
-                                Position = 0;
-                                UpdateScheduledTime(false);
-                            }
-                        }
+                        StartTime = Engine.CurrentTime;
+                        StartTc = ScheduledTc + TimeSpan.FromTicks(_position * Engine.FrameTicks);
                     }
+                    if (value == TPlayState.Scheduled)
+                    {
+                        StartTime = default(DateTime);
+                        StartTc = ScheduledTc;
+                        Position = 0;
+                        UpdateScheduledTime(false);
+                    }
+                }
             }
         }
 
@@ -195,47 +196,28 @@ namespace TAS.Server
 
         public bool IsFinished { get { return _position >= LengthInFrames; } }
 
-        public UInt64 IdEventBinding
-        {
-            get
-            {
-                if (StartType == TStartType.With)
-                    return (Parent == null) ? 0 : Parent.IdRundownEvent;
-                else
-                    if (StartType == TStartType.After)
-                    return (Prior == null) ? 0 : Prior.IdRundownEvent;
-                else
-                        if (StartType == TStartType.Manual)
-                {
-                    Event parent = Parent as Event;
-                    if (parent != null && parent.EventType == TEventType.Container)
-                        return parent.IdRundownEvent;
-                }
-                return 0;
-            }
-        }
+        public UInt64 IdEventBinding { get { return _idEventBinding; } }
 
-        internal SynchronizedCollection<IEvent> _subEvents;
+        bool _subeventsLoaded;
+        SynchronizedCollection<IEvent> _subEvents = new SynchronizedCollection<IEvent>();
         public SynchronizedCollection<IEvent> SubEvents
         {
             get
             {
-                lock (this)
+                lock (_subEvents.SyncRoot)
                 {
-                    if (_subEvents == null)
+                    if (!_subeventsLoaded)
                     {
-                        if (_idRundownEvent == 0)
-                            _subEvents = new SynchronizedCollection<IEvent>();
-                        else
+                        if (_idRundownEvent != 0)
                         {
-                            var se = Engine.DbReadSubEvents(this);
-                            foreach (Event e in se)
+                            Engine.DbReadSubEvents(this, _subEvents);
+                            foreach (Event e in _subEvents)
                                 e._parent = this;
-                            _subEvents = se;
                         }
+                        _subeventsLoaded = true;
                     }
-                    return _subEvents;
                 }
+                return _subEvents;
             }
         }
 
@@ -277,24 +259,16 @@ namespace TAS.Server
             }
         }
 
-        public bool IsBefore(IEvent aEvent)
-        {
-            return (Prior == null) ? false : (Prior == aEvent) ? true : Prior.IsBefore(aEvent);
-        }
-
         public IEngine Engine { get; private set; }
 
-        internal VideoLayer _layer = VideoLayer.None;
+         VideoLayer _layer = VideoLayer.None;
         public VideoLayer Layer
         {
-            get
-            {
-                return (_layer == VideoLayer.None) ? ((Parent == null) ? VideoLayer.Program : Parent.Layer) : _layer;
-            }
+            get { return _layer; }
             set { SetField(ref _layer, value, "Layer"); }
         }
 
-        internal TEventType _eventType;
+         TEventType _eventType;
         public TEventType EventType
         {
             get { return _eventType; }
@@ -310,7 +284,7 @@ namespace TAS.Server
             }
         }
 
-        internal TStartType _startType;
+        TStartType _startType;
         public TStartType StartType
         {
             get { return _startType; }
@@ -390,36 +364,32 @@ namespace TAS.Server
                     if (ne != null)
                         ne.UpdateScheduledTime(true);
                 }
+                NotifyPropertyChanged("Offset");
             }
         }
 
 
-        internal DateTime _scheduledTime;
+        DateTime _scheduledTime;
         public DateTime ScheduledTime
         {
             get
             {
-                lock (this)
-                {
-                    if (_playState == TPlayState.Scheduled
-                        || _startTime == default(DateTime))
-                        return _scheduledTime;
-                    else
-                        return _startTime;
-                }
+                if (_playState == TPlayState.Scheduled
+                    || _startTime == default(DateTime))
+                    return _scheduledTime;
+                else
+                    return _startTime;
             }
             set
             {
-                lock (this)
+                value = Engine.AlignDateTime(value);
+                if (SetField(ref _scheduledTime, value, "ScheduledTime"))
                 {
-                    value = Engine.AlignDateTime(value);
-                    if (SetField(ref _scheduledTime, value, "ScheduledTime"))
-                    {
-                        if (_next != null)
-                            _next.UpdateScheduledTime(true);  // trigger update all next events
-                        foreach (Event ev in SubEvents) //update all sub-events
-                            ev.UpdateScheduledTime(true);
-                    }
+                    if (_next != null)
+                        _next.UpdateScheduledTime(true);  // trigger update all next events
+                    foreach (Event ev in SubEvents) //update all sub-events
+                        ev.UpdateScheduledTime(true);
+                    NotifyPropertyChanged("Offset");
                 }
             }
         }
@@ -433,7 +403,7 @@ namespace TAS.Server
             }
         }
 
-        internal bool _isEnabled = true;
+        bool _isEnabled = true;
         public bool IsEnabled
         {
             get
@@ -451,7 +421,7 @@ namespace TAS.Server
             }
         }
 
-        internal bool _isHold;
+        bool _isHold;
         public bool IsHold
         {
             get
@@ -463,10 +433,10 @@ namespace TAS.Server
             set { SetField(ref _isHold, value, "IsHold"); }
         }
 
-        internal bool _isLoop;
+        bool _isLoop;
         public bool IsLoop { get { return _isLoop; } set { SetField(ref _isLoop, value, "IsLoop"); } }
 
-        internal DateTime _startTime;
+        DateTime _startTime;
         public DateTime StartTime
         {
             get
@@ -488,14 +458,14 @@ namespace TAS.Server
             }
         }
 
-        internal TimeSpan _scheduledDelay;
+        TimeSpan _scheduledDelay;
         public TimeSpan ScheduledDelay
         {
             get { return _scheduledDelay; }
             set { SetField(ref _scheduledDelay, Engine.AlignTimeSpan(value), "ScheduledDelay"); }
         }
 
-        internal TimeSpan _duration;
+        TimeSpan _duration;
         public TimeSpan Duration
         {
             get
@@ -523,30 +493,27 @@ namespace TAS.Server
 
         private TimeSpan ComputedDuration()
         {
-            lock (this)
+            if (_eventType == TEventType.Rundown)
             {
-                if (_eventType == TEventType.Rundown)
+                long maxlen = 0;
+                foreach (IEvent e in SubEvents)
                 {
-                    long maxlen = 0;
-                    foreach (IEvent e in SubEvents)
+                    IEvent n = e;
+                    long len = 0;
+                    while (n != null)
                     {
-                        IEvent n = e;
-                        long len = 0;
-                        while (n != null)
-                        {
-                            len += n.Length.Ticks;
-                            n = n.Next;
-                            if (n != null) // first item's transition time doesn't count
-                                len -= n.IsEnabled ? n.TransitionTime.Ticks : 0;
-                        }
-                        if (len > maxlen)
-                            maxlen = len;
+                        len += n.Length.Ticks;
+                        n = n.Next;
+                        if (n != null) // first item's transition time doesn't count
+                            len -= n.IsEnabled ? n.TransitionTime.Ticks : 0;
                     }
-                    return Engine.AlignTimeSpan(TimeSpan.FromTicks(maxlen));
+                    if (len > maxlen)
+                        maxlen = len;
                 }
-                else
-                    return _duration;
+                return Engine.AlignTimeSpan(TimeSpan.FromTicks(maxlen));
             }
+            else
+                return _duration;
         }
 
         private void DurationChanged()
@@ -569,7 +536,7 @@ namespace TAS.Server
             }
         }
 
-        internal TimeSpan _scheduledTc = TimeSpan.Zero;
+        TimeSpan _scheduledTc = TimeSpan.Zero;
         public TimeSpan ScheduledTc
         {
             get
@@ -583,7 +550,7 @@ namespace TAS.Server
             }
         }
 
-        internal TimeSpan _startTc = TimeSpan.Zero;
+        TimeSpan _startTc = TimeSpan.Zero;
         public TimeSpan StartTc
         {
             get
@@ -597,14 +564,20 @@ namespace TAS.Server
             }
         }
 
-        internal TimeSpan? _requestedStartTime;
+        TimeSpan? _requestedStartTime;
         public TimeSpan? RequestedStartTime  // informational only: when it should run according to schedule. Usefull when adding or removing previous events
         {
             get
             {
                 return _requestedStartTime;
             }
-            set { SetField(ref _requestedStartTime, value, "RequestedStartTime"); }
+            set
+            {
+                if (SetField(ref _requestedStartTime, value, "RequestedStartTime"))
+                {
+                    NotifyPropertyChanged("Offset");
+                }
+            }
         }
 
         public long LengthInFrames
@@ -612,7 +585,7 @@ namespace TAS.Server
             get { return Length.Ticks / Engine.FrameTicks; }
         }
 
-        internal TimeSpan _transitionTime;
+        TimeSpan _transitionTime;
         public TimeSpan TransitionTime
         {
             get
@@ -632,7 +605,7 @@ namespace TAS.Server
             }
         }
 
-        internal TTransitionType _transitionType;
+        TTransitionType _transitionType;
         public TTransitionType TransitionType
         {
             get
@@ -645,7 +618,7 @@ namespace TAS.Server
             set { SetField(ref _transitionType, value, "TransitionType"); }
         }
 
-        internal Guid _mediaGuid;
+        Guid _mediaGuid;
         public Guid MediaGuid
         {
             get { return _mediaGuid; }
@@ -762,19 +735,6 @@ namespace TAS.Server
             }
         }
 
-        private ITemplate _template;
-        internal ITemplate Template
-        {
-            get
-            {
-                //Guid mediaGuid = _mediaGuid;
-                //if (_template == null)
-                //    _template = Engine.MediaManager.Templates.FirstOrDefault(t => t.MediaGuid == this.MediaGuid);
-                //return _template;
-                throw new NotImplementedException();
-            }
-        }
-
         public long MediaSeek
         {
             get
@@ -788,55 +748,93 @@ namespace TAS.Server
             }
         }
 
-        internal string _eventName;
+        string _eventName;
         public string EventName
         {
             get { return _eventName; }
             set { SetField(ref _eventName, value, "EventName"); }
         }
 
-
-        internal Event _parent;
+        bool _parentLoaded;
+        Event _parent;
         public IEvent Parent
         {
             get
             {
+                if (_parentLoaded)
+                {
+                    if (_startType == TStartType.With && _idEventBinding > 0)
+                        _parent = (Event)Engine.DbReadEvent(_idEventBinding);
+                    _parentLoaded = true;
+                }
                 return _parent;
             }
-            protected set { SetField(ref _parent, value as Event, "Parent"); }
+            protected set
+            {
+                if (SetField(ref _parent, value as Event, "Parent"))
+                {
+                    _priorLoaded = true;
+                    if (value != null)
+                    {
+                        StartType = TStartType.With;
+                        _idEventBinding = value.IdRundownEvent;
+                    }
+                    else
+                        _idEventBinding = 0;
+                }
+            }
         }
 
+        bool _priorLoaded;
         private Event _prior;
         public IEvent Prior
         {
             get
             {
+                if (!_priorLoaded)
+                {
+                    if (_startType == TStartType.After && _idEventBinding > 0)
+                        _prior = (Event)Engine.DbReadEvent(_idEventBinding);
+                    _priorLoaded = true;
+                }
                 return _prior;
             }
-            protected set { SetField(ref _prior, value as Event, "Prior"); }
+            protected set
+            {
+                if (SetField(ref _prior, value as Event, "Prior"))
+                {
+                    _priorLoaded = true;
+                    if (value != null)
+                    {
+                        StartType = TStartType.After;
+                        _idEventBinding = value.IdRundownEvent;
+                    }
+                    else
+                        _idEventBinding = 0;
+                }
+            }
         }
 
-        internal bool _nextLoaded = false;
+        bool _nextLoaded;
         private Event _next;
         public IEvent Next
         {
             get
             {
-                Event next = _next as Event;
-                lock (this)
+                Event next = _next;
+                if (!_nextLoaded)
                 {
-                    if (!_nextLoaded)
+                    if (next == null)
                     {
-                        if (next == null)
+                        next = (Event)Engine.DbReadNext(this);
+                        if (next != null)
                         {
-                            next = (Event)Engine.DbReadNext(this);
-                            if (next != null)
-                                next._prior = this;
-                            _next = next;
-                            NotifyPropertyChanged("Next");
+                            next._prior = this;
+                            next._priorLoaded = true;
                         }
-                        _nextLoaded = true;
+                        _next = next;
                     }
+                    _nextLoaded = true;
                 }
                 return _next;
             }
@@ -1174,6 +1172,18 @@ namespace TAS.Server
             return null;
         }
 
+        public TimeSpan? Offset
+        {
+            get
+            {
+                var rrt = _requestedStartTime;
+                if (rrt != null)
+                    return _scheduledTime.TimeOfDay - rrt;
+                return null;
+            }
+        }
+
+
         public void Save()
         {
             if (_modified)
@@ -1222,8 +1232,6 @@ namespace TAS.Server
 
         public bool AllowDelete()
         {
-            lock (this)
-            {
                 if (_playState == TPlayState.Fading || _playState == TPlayState.Paused || _playState == TPlayState.Playing)
                     return false;
                 foreach (IEvent se in this.SubEvents.ToList())
@@ -1237,7 +1245,6 @@ namespace TAS.Server
                     }
                 }
                 return true;
-            }
         }
     
 
@@ -1245,28 +1252,25 @@ namespace TAS.Server
         public bool IsDeleted { get { return _isDeleted; } }
         public void Delete()
         {
-            lock (this)
+            if (!IsDeleted && AllowDelete())
             {
-                if (!IsDeleted && AllowDelete())
+                Remove();
+                foreach (IEvent se in this.SubEvents.ToList())
                 {
-                    Remove();
-                    foreach (IEvent se in this.SubEvents.ToList())
+                    IEvent ne = se;
+                    while (ne != null)
                     {
-                        IEvent ne = se;
-                        while (ne != null)
-                        {
-                            var next = ne.Next;
-                            ne.Delete();
-                            ne = next;
-                        }
-                        se.Delete();
+                        var next = ne.Next;
+                        ne.Delete();
+                        ne = next;
                     }
-                    _isDeleted = true;
-                    this.DbDelete();
-                    Engine.RemoveEvent(this);
-                    NotifyDeleted();
-                    _modified = false;
+                    se.Delete();
                 }
+                _isDeleted = true;
+                this.DbDelete();
+                Engine.RemoveEvent(this);
+                NotifyDeleted();
+                _modified = false;
             }
         }
 
@@ -1294,7 +1298,7 @@ namespace TAS.Server
         }
 
 
-        internal UInt64 _idProgramme;
+        UInt64 _idProgramme;
         public UInt64 IdProgramme
         {
             get
@@ -1304,7 +1308,7 @@ namespace TAS.Server
             set { SetField(ref _idProgramme, value, "IdProgramme"); }
         }    
         
-        internal string _idAux; // auxiliary Id from external system
+        string _idAux; // auxiliary Id from external system
         public string IdAux
         {
             get
@@ -1314,7 +1318,7 @@ namespace TAS.Server
             set { SetField(ref _idAux, value, "IdAux"); }
         }
 
-        internal decimal? _audioVolume;
+        decimal? _audioVolume;
         public decimal? AudioVolume
         {
             get
@@ -1324,7 +1328,7 @@ namespace TAS.Server
             set { SetField(ref _audioVolume, value, "AudioVolume"); }
         }
 
-        internal EventGPI _gPI;
+        EventGPI _gPI;
         public EventGPI GPI
         {
             get { return _gPI; }

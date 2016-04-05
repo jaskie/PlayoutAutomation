@@ -562,11 +562,10 @@ namespace TAS.Server.Database
         #endregion // ArchiveDirectory
 
         #region IEvent
-        public static SynchronizedCollection<IEvent> DbReadSubEvents(this IEngine engine, IEvent eventOwner)
+        public static void DbReadSubEvents(this IEngine engine, IEvent eventOwner, IList<IEvent> subevents)
         {
             lock (_connection)
             {
-                var EventList = new SynchronizedCollection<IEvent>();
                 DbCommandRedundant cmd;
                 if (eventOwner != null)
                 {
@@ -576,15 +575,15 @@ namespace TAS.Server.Database
                         cmd.Parameters.AddWithValue("@StartType", TStartType.Manual);
                     else
                         cmd.Parameters.AddWithValue("@StartType", TStartType.With);
-                    IEvent NewEvent;
+                    IEvent newEvent;
                     using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                     {
                         try
                         {
                             while (dataReader.Read())
-                            {
-                                NewEvent = _eventRead(engine, dataReader);
-                                EventList.Add(NewEvent);
+                            { 
+                                newEvent = _eventRead(engine, dataReader);
+                                subevents.Add(newEvent);
                             }
                         }
                         finally
@@ -593,7 +592,6 @@ namespace TAS.Server.Database
                         }
                     }
                 }
-                return EventList;
             }
         }
 
@@ -621,12 +619,35 @@ namespace TAS.Server.Database
             }
         }
 
+        public static IEvent DbReadEvent(this IEngine engine, UInt64 idRundownEvent)
+        {
+            lock (_connection)
+            {
+                if (idRundownEvent > 0)
+                {
+                    DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where idRundownEvent = @idRundownEvent", _connection);
+                    cmd.Parameters.AddWithValue("@idRundownEvent", idRundownEvent);
+                    DbDataReaderRedundant reader = cmd.ExecuteReader();
+                    try
+                    {
+                        if (reader.Read())
+                            return _eventRead(engine, reader);
+                    }
+                    finally
+                    {
+                        reader.Close();
+                    }
+                }
+                return null;
+            }
+        }
 
         private static IEvent _eventRead(IEngine engine, DbDataReaderRedundant dataReader)
         {
             uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flagsEvent")) ? 0 : dataReader.GetUInt32("flagsEvent");
             IEvent newEvent = engine.AddNewEvent(
                 dataReader.GetUInt64("idRundownEvent"),
+                dataReader.GetUInt64("idEventBinding"),
                 (VideoLayer)dataReader.GetSByte("Layer"),
                 (TEventType)dataReader.GetByte("typEvent"),
                 (TStartType)dataReader.GetByte("typStart"),

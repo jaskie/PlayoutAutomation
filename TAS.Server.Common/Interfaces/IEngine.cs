@@ -28,6 +28,7 @@ namespace TAS.Server.Interfaces
 
         IEvent AddNewEvent(
                     UInt64 idRundownEvent = 0,
+                    UInt64 idEventBinding = 0,
                     VideoLayer videoLayer = VideoLayer.None,
                     TEventType eventType = TEventType.Rundown,
                     TStartType startType = TStartType.None,
@@ -83,6 +84,7 @@ namespace TAS.Server.Interfaces
         void SearchMissingEvents();
         IEvent PlayingEvent(VideoLayer layer = VideoLayer.Program);
         IEvent NextToPlay { get; }
+        IEvent NextWithRequestedStartTime { get; }
 
         event EventHandler<IEventEventArgs> EventSaved;
         event EventHandler<EngineTickEventArgs> EngineTick;

@@ -21,6 +21,7 @@ namespace TAS.Server.Interfaces
         bool IsFinished { get; }
         TimeSpan Length { get; }
         DateTime EndTime { get; }
+        TimeSpan? Offset { get; }
 
         IEvent Next { get; }
         IEvent Prior { get; }
@@ -45,7 +46,6 @@ namespace TAS.Server.Interfaces
         IEvent GetSuccessor();
         IEnumerable<IEvent> GetVisualRootTrack();
         bool IsContainedIn(IEvent parent);
-        bool IsBefore(IEvent aEvent);
         decimal GetAudioVolume();
         TimeSpan? GetAttentionTime();
         void UpdateScheduledTime(bool updateSuccessors);
