@@ -387,7 +387,8 @@ namespace TAS.Client.ViewModels
             var m = item as MediaViewViewmodel;
             string mediaName = m.MediaName == null ? string.Empty:  m.MediaName.ToLower();
             return (_mediaCategory as TMediaCategory? == null || m.MediaCategory == (TMediaCategory)_mediaCategory)
-               && (_searchTextSplit.All(s => mediaName.Contains(s)));;
+               && (_searchTextSplit.All(s => mediaName.Contains(s)))
+               && (_mediaType as TMediaType? == null || m.Media.MediaType == (TMediaType)_mediaType);
         }
 
         readonly IEnumerable<object> _mediaCategories = (new List<object>(){resources._all_}).Concat(Enum.GetValues(typeof(TMediaCategory)).Cast<object>());
@@ -399,11 +400,22 @@ namespace TAS.Client.ViewModels
             get { return _mediaCategory; }
             set
             {
-                if (_mediaCategory != value)
-                {
-                    _mediaCategory = value;
+                if (SetField(ref _mediaCategory, value, "MediaCategory"))
                     _search(null);
-                }
+            }
+        }
+
+        readonly IEnumerable<object> _mediaTypes = (new List<object>() { resources._all_ }).Concat(Enum.GetValues(typeof(TMediaType)).Cast<object>());
+        public IEnumerable<object> MediaTypes { get { return _mediaTypes; } }
+
+        private object _mediaType = TMediaType.Movie;
+        public object MediaType
+        {
+            get { return _mediaType; }
+            set
+            {
+                if (SetField(ref _mediaType, value, "MediaType"))
+                    _search(null);
             }
         }
 
@@ -445,8 +457,17 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged("MediaDirectory");
                     NotifyPropertyChanged("DisplayDirectoryInfo");
                     NotifyPropertyChanged("CommandRefresh");
+                    NotifyPropertyChanged("IsDisplayFolder");
                     _notifyDirectoryPropertiesChanged();
                 }
+            }
+        }
+
+        public bool IsDisplayFolder
+        {
+            get
+            {
+                return _mediaDirectory is IArchiveDirectory || (_mediaDirectory is IIngestDirectory && ((IIngestDirectory)_mediaDirectory).IsRecursive);
             }
         }
 

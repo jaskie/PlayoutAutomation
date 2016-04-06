@@ -7,7 +7,7 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:System="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
-             d:DesignHeight="800" d:DesignWidth="1000"
+             d:DesignHeight="800" d:DesignWidth="1200"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels;assembly=TAS.Client"
              xmlns:client="clr-namespace:TAS.Client.Views"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
@@ -61,25 +61,30 @@
                 <MenuItem Header="{Resx _menu.Tools.SynchronizeSecToPri}" Command="{Binding CommandSyncPriToSec}"/>
             </MenuItem>
         </Menu>
-        <Grid Grid.Row="1" Height="30">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="85" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="120" />
-                <ColumnDefinition Width="130" />
-            </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="{Resx _search}"  Margin="10, 0" VerticalAlignment="Center" />
-            <TextBox Grid.Column="1" VerticalAlignment="Center" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
-            <ComboBox Grid.Column="2" Margin="5, 3" ItemsSource="{Binding MediaDirectories}" SelectedValue="{Binding MediaDirectory}" />
-            <ComboBox Grid.Column="3" Margin="5, 3" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" />
-            <Button Grid.Column="4"  HorizontalAlignment="Left" ToolTip="{Resx _refresh}" Command="{Binding CommandRefresh}">
+        <DockPanel x:Name="dockPanel" Grid.Row="1" Margin="2">
+            <DockPanel.Resources>
+                <Style TargetType="ComboBox">
+                    <Setter Property="Width" Value="120"/>
+                    <Setter Property="Margin" Value="5, 0"/>
+                </Style>
+            </DockPanel.Resources>
+            <Label DockPanel.Dock="Left" Content="{Resx _searchFor}"  VerticalAlignment="Center" />
+            <Button DockPanel.Dock="Right" ToolTip="{Resx _refresh}" Command="{Binding CommandRefresh}">
                 <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
             </Button>
-            <Button Grid.Column="4" Name="btnSearch" Content="{Resx _find}" IsDefault="True" Margin="40,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="25" 
-                    Command="{Binding CommandSearch}" Width="80" />
-        </Grid>
-        <DataGrid Name="fileList" Grid.Row="3" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItems}" SelectedItem="{Binding Path=SelectedMedia, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
+            <ComboBox DockPanel.Dock="Right" ItemsSource="{Binding MediaDirectories}" SelectedValue="{Binding MediaDirectory}" DisplayMemberPath="DirectoryName" ToolTip="{Binding MediaDirectory.Folder}" >
+                <ComboBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ComboBoxItem}">
+                        <Setter Property="ToolTip" Value="{Binding Folder}" />
+                    </Style>
+                </ComboBox.ItemContainerStyle>
+            </ComboBox>
+            <ComboBox DockPanel.Dock="Right" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" />
+            <ComboBox DockPanel.Dock="Right" ItemsSource="{Binding MediaTypes}"  SelectedValue="{Binding MediaType}" />
+            <Button DockPanel.Dock="Right" Content="{Resx _search}" IsDefault="True" Command="{Binding CommandSearch}" Width="80" />
+            <TextBox VerticalAlignment="Center" Margin="5, 0" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+        </DockPanel>
+        <DataGrid Grid.Row="3" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItems}" SelectedItem="{Binding Path=SelectedMedia, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
             <i:Interaction.Behaviors>
                 <common:BindableSelectedItems SelectedItems="{Binding SelectedMediaList, Mode=OneWayToSource}"/>
             </i:Interaction.Behaviors>
@@ -152,10 +157,11 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipName}" Width="2*" Binding="{Binding MediaName, Mode=OneWay}" IsReadOnly="True" />
+                <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipName}" Width="*" Binding="{Binding MediaName, Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn x:Name="tCStartColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.TcPlay}" Width="80" Binding="{Binding sTcPlay, Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.DurationPlay}"  Width="90" Binding="{Binding sDurationPlay, Mode=OneWay}" IsReadOnly="True" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.Folder}" Visibility="{Binding DataContext.IsDisplayFolder,  Source={x:Reference Name=dockPanel}, Converter={StaticResource BoolToVis}}" Width="*" Binding="{Binding Folder, Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.FileName}" Width="*" Binding="{Binding FileName, Mode=OneWay}" IsReadOnly="True" />
             </DataGrid.Columns>
             <DataGrid.RowDetailsTemplate>

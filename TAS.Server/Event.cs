@@ -780,6 +780,7 @@ namespace TAS.Server
                 if (value != _parent.Value)
                 {
                     _parent = new Lazy<Event>(() => value as Event);
+                    NotifyPropertyChanged("Parent");
                     if (value != null)
                     {
                         StartType = TStartType.With;
@@ -815,10 +816,7 @@ namespace TAS.Server
         private Lazy<Event> _next;
         public IEvent Next
         {
-            get
-            {
-                return _next.Value;
-            }
+            get { return _next.Value; }
             protected set
             {
                 if (value != _next.Value)
