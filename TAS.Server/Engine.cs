@@ -208,12 +208,11 @@ namespace TAS.Server
                 foreach (IEvent e in playingEvents)
                 {
                     //TODO: restart the events
-                    if (CurrentTicks < (e.ScheduledTime + e.Duration).Ticks)
+                    if (CurrentTicks < (e.ScheduledTime + e.Duration).Ticks && e.EventType != TEventType.Rundown)
                     {
                         e.Position = (CurrentTicks - e.ScheduledTime.Ticks) / _frameTicks;
                         _runningEvents.Add(e);
-                        if (e.EventType != TEventType.Container && e.EventType != TEventType.Rundown)
-                            _visibleEvents[e.Layer] = e;
+                        _visibleEvents[e.Layer] = e;
                         _engineState = TEngineState.Running;
                     }
                     else
@@ -362,7 +361,7 @@ namespace TAS.Server
                     if (e != null)
                     {
                         if (e.EventType == TEventType.Rundown)
-                            return e.FindRunningSubEvent();
+                            return e.FindVisibleSubEvent();
                         else
                             return e;
                     }

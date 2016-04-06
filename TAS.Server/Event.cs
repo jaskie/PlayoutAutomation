@@ -69,6 +69,43 @@ namespace TAS.Server
             _isEnabled = isEnabled;
             _isHold = isHold;
             _isLoop = isLoop;
+
+             _subEvents = new Lazy<SynchronizedCollection<IEvent>>(() =>
+             {
+                 var result = new SynchronizedCollection<IEvent>();
+                 if (_idRundownEvent != 0)
+                 {
+                     Engine.DbReadSubEvents(this, result);
+                     foreach (Event e in result)
+                     {
+                         e._startType = TStartType.With;
+                         e.Parent = this;
+                     }
+                 }
+                 return result;
+             });
+
+            _next = new Lazy<Event>(() =>
+            {
+                var next = (Event)Engine.DbReadNext(this);
+                if (next != null)
+                    next.Prior = this;
+                return next;
+            });
+            _prior = new Lazy<Event>(() =>
+            {
+                Event prior = null;
+                if (_startType == TStartType.After && _idEventBinding > 0)
+                    prior = (Event)Engine.DbReadEvent(_idEventBinding);
+                return prior;
+            });
+
+            _parent = new Lazy<Event>(() =>
+            {
+                if (_startType == TStartType.With && _idEventBinding > 0)
+                    return (Event)Engine.DbReadEvent(_idEventBinding);
+                return null;
+            });
         }
         
 #if DEBUG
@@ -198,28 +235,8 @@ namespace TAS.Server
 
         public UInt64 IdEventBinding { get { return _idEventBinding; } }
 
-        bool _subeventsLoaded;
-        SynchronizedCollection<IEvent> _subEvents = new SynchronizedCollection<IEvent>();
-        public SynchronizedCollection<IEvent> SubEvents
-        {
-            get
-            {
-                lock (_subEvents.SyncRoot)
-                {
-                    if (!_subeventsLoaded)
-                    {
-                        if (_idRundownEvent != 0)
-                        {
-                            Engine.DbReadSubEvents(this, _subEvents);
-                            foreach (Event e in _subEvents)
-                                e._parent = this;
-                        }
-                        _subeventsLoaded = true;
-                    }
-                }
-                return _subEvents;
-            }
-        }
+        Lazy<SynchronizedCollection<IEvent>> _subEvents;
+        public SynchronizedCollection<IEvent> SubEvents { get { return _subEvents.Value; } }
 
         public bool IsContainedIn(IEvent parent)
         {
@@ -386,7 +403,7 @@ namespace TAS.Server
                 if (SetField(ref _scheduledTime, value, "ScheduledTime"))
                 {
                     if (_next != null)
-                        _next.UpdateScheduledTime(true);  // trigger update all next events
+                        _next.Value.UpdateScheduledTime(true);  // trigger update all next events
                     foreach (Event ev in SubEvents) //update all sub-events
                         ev.UpdateScheduledTime(true);
                     NotifyPropertyChanged("Offset");
@@ -416,7 +433,7 @@ namespace TAS.Server
                 {
                     DurationChanged();
                     if (Next != null)
-                        _next.UpdateScheduledTime(true);
+                        _next.Value.UpdateScheduledTime(true);
                 }
             }
         }
@@ -592,7 +609,7 @@ namespace TAS.Server
             {
                 if (_isHold)
                     return TimeSpan.Zero;
-                Event parent = _parent;
+                Event parent = _parent.Value;
                 if (_eventType == TEventType.StillImage && parent != null && _scheduledDelay == TimeSpan.Zero)
                     return parent.TransitionTime;
                 return _transitionTime;
@@ -610,7 +627,7 @@ namespace TAS.Server
         {
             get
             {
-                Event parent = _parent;
+                Event parent = _parent.Value;
                 if (_eventType == TEventType.StillImage && parent != null && _scheduledDelay == TimeSpan.Zero)
                     return parent._transitionType;
                 return _transitionType;
@@ -755,25 +772,14 @@ namespace TAS.Server
             set { SetField(ref _eventName, value, "EventName"); }
         }
 
-        bool _parentLoaded;
-        Event _parent;
+        Lazy<Event> _parent;
         public IEvent Parent
         {
-            get
-            {
-                if (_parentLoaded)
+            get { return _parent.Value; }
+            protected set            {
+                if (value != _parent.Value)
                 {
-                    if (_startType == TStartType.With && _idEventBinding > 0)
-                        _parent = (Event)Engine.DbReadEvent(_idEventBinding);
-                    _parentLoaded = true;
-                }
-                return _parent;
-            }
-            protected set
-            {
-                if (SetField(ref _parent, value as Event, "Parent"))
-                {
-                    _priorLoaded = true;
+                    _parent = new Lazy<Event>(() => value as Event);
                     if (value != null)
                     {
                         StartType = TStartType.With;
@@ -785,25 +791,16 @@ namespace TAS.Server
             }
         }
 
-        bool _priorLoaded;
-        private Event _prior;
+        private Lazy<Event> _prior;
         public IEvent Prior
         {
-            get
-            {
-                if (!_priorLoaded)
-                {
-                    if (_startType == TStartType.After && _idEventBinding > 0)
-                        _prior = (Event)Engine.DbReadEvent(_idEventBinding);
-                    _priorLoaded = true;
-                }
-                return _prior;
-            }
+            get { return _prior.Value; }
             protected set
             {
-                if (SetField(ref _prior, value as Event, "Prior"))
+                if (value != _prior.Value)
                 {
-                    _priorLoaded = true;
+                    _prior = new Lazy<Event>(() => value as Event);
+                    NotifyPropertyChanged("Prior");
                     if (value != null)
                     {
                         StartType = TStartType.After;
@@ -815,34 +812,19 @@ namespace TAS.Server
             }
         }
 
-        bool _nextLoaded;
-        private Event _next;
+        private Lazy<Event> _next;
         public IEvent Next
         {
             get
             {
-                Event next = _next;
-                if (!_nextLoaded)
-                {
-                    if (next == null)
-                    {
-                        next = (Event)Engine.DbReadNext(this);
-                        if (next != null)
-                        {
-                            next._prior = this;
-                            next._priorLoaded = true;
-                        }
-                        _next = next;
-                    }
-                    _nextLoaded = true;
-                }
-                return _next;
+                return _next.Value;
             }
             protected set
             {
-                if (SetField(ref _next, value as Event, "Next"))
+                if (value != _next.Value)
                 {
-                    _nextLoaded = true;
+                    _next = new Lazy<Event>(() => value as Event);
+                    NotifyPropertyChanged("Next");
                     if (value != null)
                         IsLoop = false;
                 }
@@ -902,10 +884,7 @@ namespace TAS.Server
                     if (oldParent != null)
                         oldParent._subEventsRemove(eventToInsert);
                     if (oldPrior != null)
-                    {
                         oldPrior.Next = null;
-                        oldPrior._nextLoaded = true;
-                    }
 
                     eventToInsert.StartType = _startType;
                     if (prior == null)
@@ -914,7 +893,7 @@ namespace TAS.Server
                     if (parent != null)
                     {
                         parent.SubEvents.Remove(this);
-                        parent._subEvents.Add(eventToInsert);
+                        parent._subEvents.Value.Add(eventToInsert);
                         parent.NotifySubEventChanged(eventToInsert, TCollectionOperation.Insert);
                         Parent = null;
                     }
@@ -950,10 +929,7 @@ namespace TAS.Server
                     if (oldParent != null)
                         oldParent._subEventsRemove(subEventToAdd);
                     if (oldPrior != null)
-                    {
                         oldPrior.Next = null;
-                        oldPrior._nextLoaded = true;
-                    }
                     if (EventType == TEventType.Container)
                         subEventToAdd.StartType = TStartType.Manual;
                     else
@@ -1013,7 +989,7 @@ namespace TAS.Server
                 {
                     parent._subEventsRemove(this);
                     if (next != null)
-                        parent._subEvents.Add(next);
+                        parent._subEvents.Value.Add(next);
                     if (parent.SetField(ref parent._duration, parent.ComputedDuration(), "Duration"))
                         parent.DurationChanged();
                     if (next != null)
@@ -1046,9 +1022,9 @@ namespace TAS.Server
                 TStartType e2startType = e2.StartType;
                 if (e1parent != null)
                 {
-                    e1parent._subEvents.Remove(e2);
+                    e1parent._subEvents.Value.Remove(e2);
                     e1parent.NotifySubEventChanged(e2, TCollectionOperation.Remove);
-                    e1parent._subEvents.Add(this);
+                    e1parent._subEvents.Value.Add(this);
                     e1parent.NotifySubEventChanged(this, TCollectionOperation.Insert);
                 }
                 if (e1prior != null)
@@ -1086,9 +1062,9 @@ namespace TAS.Server
                 TStartType e2startType = StartType;
                 if (e1parent != null)
                 {
-                    e1parent._subEvents.Remove(this);
+                    e1parent._subEvents.Value.Remove(this);
                     e1parent.NotifySubEventChanged(this, TCollectionOperation.Remove);
-                    e1parent._subEvents.Add(e3);
+                    e1parent._subEvents.Value.Add(e3);
                     e1parent.NotifySubEventChanged(e3, TCollectionOperation.Insert);
                 }
                 if (e1prior != null)
@@ -1198,13 +1174,13 @@ namespace TAS.Server
             }
         }
 
-        internal Event FindRunningSubEvent()
+        internal Event FindVisibleSubEvent()
         {
             if (_eventType != TEventType.Rundown)
-                throw new InvalidOperationException("FindRunningSubEvent: EventType is not Rundown");
+                throw new InvalidOperationException("FindVisibleSubEvent: EventType is not Rundown");
             var se = SubEvents.FirstOrDefault(e => ((e.EventType == TEventType.Live || e.EventType == TEventType.Movie) && e.Layer == VideoLayer.Program) || e.EventType == TEventType.Rundown) as Event;
             if (se != null && se.EventType == TEventType.Rundown)
-                return se.FindRunningSubEvent();
+                return se.FindVisibleSubEvent();
             else
                 return se;
         }
@@ -1214,7 +1190,7 @@ namespace TAS.Server
             if (Modified && Engine != null)
                 Save();
             Media = null;
-            var se = _subEvents;
+            var se = _subEvents.Value;
             if (se != null)
             {
                 foreach (Event e in se)
@@ -1223,7 +1199,7 @@ namespace TAS.Server
                     do
                     {
                         ce.SaveLoadedTree();
-                        Event ne = ce._next;
+                        Event ne = ce._next.Value;
                         ce = ne;
                     } while (ce != null);
                 }
@@ -1285,14 +1261,14 @@ namespace TAS.Server
                     return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Event = nev, Media = media };
                 if (nev._subEvents != null)
                 {
-                    foreach (Event se in nev._subEvents.ToList())
+                    foreach (Event se in nev._subEvents.Value.ToList())
                     {
                         MediaDeleteDenyReason reason = se.CheckCanDeleteMedia(media);
                         if (reason.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
                             return reason;
                     }
                 }
-                nev = nev._next;
+                nev = nev.Next as Event;
             }
             return MediaDeleteDenyReason.NoDeny;
         }
