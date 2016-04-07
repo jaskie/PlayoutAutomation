@@ -153,4 +153,7 @@
   <data name="_sourceFileName" xml:space="preserve">
     <value>Plik źródłowy</value>
   </data>
+  <data name="_videoFormat" xml:space="preserve">
+    <value>Format video</value>
+  </data>
 </root>

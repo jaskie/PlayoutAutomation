@@ -100,10 +100,10 @@ namespace TAS.Server
                 {
                     MediaName = media.MediaName,
                     FullPath = (media is IngestMedia) ? 
-                            Path.Combine(Folder, (FileUtils.VideoFileTypes.Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + FileUtils.DefaultFileExtension(media.MediaType)) 
+                            Path.Combine(Folder, ((media.MediaType == TMediaType.Still ? FileUtils.StillFileTypes : media.MediaType == TMediaType.Audio ? FileUtils.AudioFileTypes : FileUtils.VideoFileTypes).Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + FileUtils.DefaultFileExtension(media.MediaType)) 
                             : 
                             Path.Combine(Folder, media.FileName),
-                    MediaType = (media.MediaType == TMediaType.Unknown) ? (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(media.FullPath).ToLowerInvariant()) ? TMediaType.Still : TMediaType.Movie) : media.MediaType,
+                    MediaType = media.MediaType == TMediaType.Unknown ? TMediaType.Movie : media.MediaType,
                     MediaStatus = TMediaStatus.Required,
                     TcStart = media.TcStart,
                     TcPlay = media.TcPlay,

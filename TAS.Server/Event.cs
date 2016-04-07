@@ -402,8 +402,9 @@ namespace TAS.Server
                 value = Engine.AlignDateTime(value);
                 if (SetField(ref _scheduledTime, value, "ScheduledTime"))
                 {
-                    if (_next != null)
-                        _next.Value.UpdateScheduledTime(true);  // trigger update all next events
+                    Event ne = _next.Value;
+                    if (ne != null)
+                        ne.UpdateScheduledTime(true);  // trigger update all next events
                     foreach (Event ev in SubEvents) //update all sub-events
                         ev.UpdateScheduledTime(true);
                     NotifyPropertyChanged("Offset");
@@ -432,8 +433,9 @@ namespace TAS.Server
                 if (SetField(ref _isEnabled, value, "IsEnabled"))
                 {
                     DurationChanged();
-                    if (Next != null)
-                        _next.Value.UpdateScheduledTime(true);
+                    Event ne = _next.Value;
+                    if (ne != null)
+                        ne.UpdateScheduledTime(true);
                 }
             }
         }

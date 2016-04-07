@@ -10,7 +10,8 @@ namespace TAS.Server.Common
     public static class FileUtils
     {
         public readonly static string[] VideoFileTypes = { ".mov", ".mxf", ".mkv", ".mp4", ".wmv", ".avi", ".lxf" };
-        public readonly static string[] StillFileTypes = { ".tif", ".tga", ".png", ".tiff", ".jpg", ".gif", ".bmp" };
+        public readonly static string[] StillFileTypes = { ".png", ".tif", ".tga", ".tiff", ".jpg", ".gif", ".bmp" };
+        public readonly static string[] AudioFileTypes = { ".mp3" };
 
         public static string DefaultFileExtension(TMediaType type)
         {
@@ -18,6 +19,8 @@ namespace TAS.Server.Common
                 return VideoFileTypes[0];
             if (type == TMediaType.Still)
                 return StillFileTypes[0];
+            if (type == TMediaType.Audio)
+                return AudioFileTypes[0];
             throw new NotImplementedException(string.Format("MediaDirectory:DefaultFileExtension {0}", type));
         }
 

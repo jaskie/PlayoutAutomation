@@ -61,7 +61,7 @@
                 <MenuItem Header="{Resx _menu.Tools.SynchronizeSecToPri}" Command="{Binding CommandSyncPriToSec}"/>
             </MenuItem>
         </Menu>
-        <DockPanel x:Name="dockPanel" Grid.Row="1" Margin="2">
+        <DockPanel Grid.Row="1" Margin="2">
             <DockPanel.Resources>
                 <Style TargetType="ComboBox">
                     <Setter Property="Width" Value="120"/>
@@ -98,6 +98,9 @@
                     <Setter Property="Background" Value="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}" />
                 </Style>
             </DataGrid.RowStyle>
+            <DataGrid.Resources>
+                <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
+            </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" CanUserSort="False" Width="20">
                     <DataGridTemplateColumn.CellTemplate>
@@ -161,7 +164,7 @@
                 <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn x:Name="tCStartColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.TcPlay}" Width="80" Binding="{Binding sTcPlay, Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.DurationPlay}"  Width="90" Binding="{Binding sDurationPlay, Mode=OneWay}" IsReadOnly="True" />
-                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.Folder}" Visibility="{Binding DataContext.IsDisplayFolder,  Source={x:Reference Name=dockPanel}, Converter={StaticResource BoolToVis}}" Width="*" Binding="{Binding Folder, Mode=OneWay}" IsReadOnly="True" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.Folder}" Visibility="{Binding Data.IsDisplayFolder,  Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" Width="*" Binding="{Binding Folder, Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.FileName}" Width="*" Binding="{Binding FileName, Mode=OneWay}" IsReadOnly="True" />
             </DataGrid.Columns>
             <DataGrid.RowDetailsTemplate>

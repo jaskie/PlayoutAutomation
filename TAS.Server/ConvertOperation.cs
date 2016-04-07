@@ -17,6 +17,9 @@ using TAS.Common;
 using resources = TAS.Client.Common.Properties.Resources;
 using TAS.Server.Interfaces;
 using Newtonsoft.Json;
+using System.Drawing;
+using System.Drawing.Imaging;
+using TAS.Server.Common;
 
 namespace TAS.Server
 {
@@ -168,7 +171,10 @@ namespace TAS.Server
                                 _localSourceMedia.Verify();
                                 try
                                 {
-                                    success = _do(_localSourceMedia, _localSourceMedia.StreamInfo);
+                                    if (DestMedia.MediaType == TMediaType.Still)
+                                        success = _convertStill(_localSourceMedia);
+                                    else
+                                        success = _convertMovie(_localSourceMedia, _localSourceMedia.StreamInfo);
                                 }
                                 finally
                                 {
@@ -186,7 +192,10 @@ namespace TAS.Server
                     {
                         if (sourceMedia is IngestMedia && sourceMedia.Verified)
                         {
-                            success = _do(sourceMedia, ((IngestMedia)sourceMedia).StreamInfo);
+                            if (DestMedia.MediaType == TMediaType.Still)
+                                success = _convertStill(sourceMedia);
+                            else
+                                success = _convertMovie(sourceMedia, ((IngestMedia)sourceMedia).StreamInfo);
                             if (!success)
                                 TryCount--;
                         }
@@ -218,6 +227,26 @@ namespace TAS.Server
             }
         }
 
+        private bool _convertStill(Media _localSourceMedia)
+        {
+            Size destSize = DestMedia.VideoFormat == TVideoFormat.Other ? VideoFormatDescription.Descriptions[TVideoFormat.HD1080i5000].ImageSize : DestMedia.VideoFormatDescription.ImageSize;
+            Image bmp = new Bitmap(destSize.Width, destSize.Height, PixelFormat.Format32bppArgb);
+            Graphics graphics = Graphics.FromImage(bmp);
+            graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            graphics.DrawImage(new Bitmap(_localSourceMedia.FullPath), 0, 0, destSize.Width, destSize.Height);
+            ImageCodecInfo imageCodecInfo = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FilenameExtension.Split(';').Select(se => se.Trim('*')).Contains(FileUtils.DefaultFileExtension(TMediaType.Still).ToUpperInvariant()));
+            System.Drawing.Imaging.Encoder encoder = System.Drawing.Imaging.Encoder.Quality;
+            EncoderParameter encoderParameter = new EncoderParameter(encoder, 90L);
+            EncoderParameters encoderParameters = new EncoderParameters(1);
+            encoderParameters.Param[0] = encoderParameter;
+            bmp.Save(DestMedia.FullPath, imageCodecInfo, encoderParameters);
+            DestMedia.MediaStatus = TMediaStatus.Copied;
+            ((Media)DestMedia).Verify();
+            OperationStatus = FileOperationStatus.Finished;
+            return true;
+        }
+
+        #region Movie conversion
         private void _addConversion(MediaConversion conversion, StringBuilder parameters, List<string> videoFilters, List<string> audioFilters)
         {
             if (conversion != null)
@@ -311,7 +340,7 @@ namespace TAS.Server
             return ep.ToString();
         }
 
-        private bool _do(Media media, StreamInfo[] streams)
+        private bool _convertMovie(Media media, StreamInfo[] streams)
         {
             _progressDuration = media.Duration;
             Debug.WriteLine(this, "Convert operation started");
@@ -355,6 +384,7 @@ namespace TAS.Server
             Debug.WriteLine("FFmpeg rewraper Do(): Failed for {0}. Command line was {1}", (object)SourceMedia, Params);
             return false;
         }
+        #endregion //Movie conversion
 
         protected override void ProcOutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {

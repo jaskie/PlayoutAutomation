@@ -30,8 +30,7 @@ namespace TAS.Client.ViewModels
             _convertOperation.DestMedia.PropertyChanged -= OnDestMediaPropertyChanged;
             base.OnDispose();
         }
-
-        
+                
         static readonly Array _categories = Enum.GetValues(typeof(TMediaCategory)); 
         public Array Categories { get { return _categories; } }
         public TMediaCategory DestCategory { get { return _convertOperation.DestMedia.MediaCategory; } set { _convertOperation.DestMedia.MediaCategory = value; } }
@@ -45,6 +44,15 @@ namespace TAS.Client.ViewModels
         public TMediaEmphasis DestMediaEmphasis { 
             get { return _convertOperation.DestMedia is IPersistentMedia ? ((IPersistentMedia)_convertOperation.DestMedia).MediaEmphasis : TMediaEmphasis.None; }
             set { if (_convertOperation.DestMedia is IPersistentMedia) ((IPersistentMedia)_convertOperation.DestMedia).MediaEmphasis = value; }
+        }
+
+        static readonly Array _videoFormats = Enum.GetValues(typeof(TVideoFormat));
+        public Array VideoFormats { get { return _videoFormats; } }
+
+        public TVideoFormat DestMediaVideoFormat
+        {
+            get { return _convertOperation.DestMedia.VideoFormat; }
+            set { _convertOperation.DestMedia.VideoFormat = value; }
         }
 
         static readonly Array _aspectConversions = Enum.GetValues(typeof(TAspectConversion));
@@ -185,11 +193,32 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("DestCategory");
             if (e.PropertyName == "Parental")
                 NotifyPropertyChanged("DestParental");
+            if (e.PropertyName == "MediaType")
+                NotifyPropertyChanged("IsMovie");
+            if (e.PropertyName == "VideoFormat")
+                NotifyPropertyChanged("DestMediaVideoFormat");
         }
 
         public bool IsValid
         {
             get { return (from pi in this.GetType().GetProperties() select this[pi.Name]).Where(s => !string.IsNullOrEmpty(s)).Count() == 0; }
+        }
+
+        public bool IsMovie
+        {
+            get
+            {
+                var media = _convertOperation.DestMedia;
+                return (media != null && media.MediaType == TMediaType.Movie);
+            }
+        }
+        public bool IsStill
+        {
+            get
+            {
+                var media = _convertOperation.DestMedia;
+                return (media != null && media.MediaType == TMediaType.Still);
+            }
         }
 
         public string Error

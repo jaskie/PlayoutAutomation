@@ -94,6 +94,7 @@
     <Compile Include="AutoGreyableImage.cs" />
     <Compile Include="BindableSelectedItem.cs" />
     <Compile Include="BindableSelectedItems.cs" />
+    <Compile Include="BindingProxy.cs" />
     <Compile Include="DelayedBindingTextBox.cs" />
     <Compile Include="DispatcherHelper.cs" />
     <Compile Include="EditViewModelBase.cs" />

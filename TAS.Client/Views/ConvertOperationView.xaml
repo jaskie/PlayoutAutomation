@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              d:DataContext="{x:Type vm:ConvertOperationViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="300">
@@ -26,40 +27,46 @@
         <TextBox Text="{Binding DestMediaName, UpdateSourceTrigger=PropertyChanged}" />
         <Label Content="{Resx _destFileName}" />
         <TextBox Text="{Binding DestFileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
-        <Label Content="{Resx _category}" />
-        <ComboBox ItemsSource="{Binding Categories}" SelectedValue="{Binding DestCategory}" />
-        <Label Content="{Resx _emphasis}"/>
-        <ComboBox ItemsSource="{Binding MediaEmphasises}" SelectedValue="{Binding DestMediaEmphasis}" >
-            <ComboBox.ItemContainerStyle>
-                <Style TargetType="{x:Type ComboBoxItem}">
-                    <Setter Property="Background" Value="{Binding Color, Converter={StaticResource ColorToBrush}}" />
-                </Style>
-            </ComboBox.ItemContainerStyle>
-        </ComboBox>
-        <Label Content="{Resx _parental}" />
-        <ComboBox ItemsSource="{Binding Parentals}" SelectedValue="{Binding DestParental}"  />
-        <Label Content="{Resx _idAux}"/>
-        <TextBox Text="{Binding IdAux, UpdateSourceTrigger=PropertyChanged}"/>
-        <Expander IsExpanded="False" Header="{Resx _conversions}">
-            <StackPanel>
-                <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource InvertedBoolToVis}}">
-                    <Label Content="{Resx _aspectCorrection}" />
-                    <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}" />
-                    <Label Content="{Resx _fieldOrder}" />
-                    <ComboBox ItemsSource="{Binding SourceFieldOrderEnforceConversions}"  SelectedItem="{Binding SourceFieldOrderEnforceConversion}" />
-                    <Label Content="{Resx _audioChannelMix}" />
-                    <ComboBox ItemsSource="{Binding AudioChannelMappingConversions}" SelectedItem="{Binding AudioChannelMappingConversion}" />
-                    <Label Content="{Resx _audioLevelCorrection}" />
-                    <DockPanel>
-                        <TextBox Margin="4" MinWidth="45" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
-                        <Slider Margin="2" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
-                    </DockPanel>
+        <StackPanel Visibility="{Binding IsStill, Converter={StaticResource BoolToVis}}">
+            <Label Content="{Resx _videoFormat}" />
+            <ComboBox ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding DestMediaVideoFormat}"  />
+        </StackPanel>
+        <StackPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
+            <Label Content="{Resx _category}" />
+            <ComboBox ItemsSource="{Binding Categories}" SelectedValue="{Binding DestCategory}" />
+            <Label Content="{Resx _emphasis}"/>
+            <ComboBox ItemsSource="{Binding MediaEmphasises}" SelectedValue="{Binding DestMediaEmphasis}" >
+                <ComboBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ComboBoxItem}">
+                        <Setter Property="Background" Value="{Binding Color, Converter={StaticResource ColorToBrush}}" />
+                    </Style>
+                </ComboBox.ItemContainerStyle>
+            </ComboBox>
+            <Label Content="{Resx _parental}" />
+            <ComboBox ItemsSource="{Binding Parentals}" SelectedValue="{Binding DestParental}"  />
+            <Label Content="{Resx _idAux}"/>
+            <TextBox Text="{Binding IdAux, UpdateSourceTrigger=PropertyChanged}"/>
+            <Expander IsExpanded="False" Header="{Resx _conversions}">
+                <StackPanel>
+                    <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource InvertedBoolToVis}}">
+                        <Label Content="{Resx _aspectCorrection}" />
+                        <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}" />
+                        <Label Content="{Resx _fieldOrder}" />
+                        <ComboBox ItemsSource="{Binding SourceFieldOrderEnforceConversions}"  SelectedItem="{Binding SourceFieldOrderEnforceConversion}" />
+                        <Label Content="{Resx _audioChannelMix}" />
+                        <ComboBox ItemsSource="{Binding AudioChannelMappingConversions}" SelectedItem="{Binding AudioChannelMappingConversion}" />
+                        <Label Content="{Resx _audioLevelCorrection}" />
+                        <DockPanel>
+                            <TextBox Margin="4" MinWidth="45" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
+                            <Slider Margin="2" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
+                        </DockPanel>
+                    </StackPanel>
+                    <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource BoolToVis}}">
+                        <Label Content="{Resx _aspectCorrection}" />
+                        <ComboBox ItemsSource="{Binding AspectConversionsEnforce}" SelectedItem="{Binding AspectConversion}" />
+                    </StackPanel>
                 </StackPanel>
-                <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource BoolToVis}}">
-                    <Label Content="{Resx _aspectCorrection}" />
-                    <ComboBox ItemsSource="{Binding AspectConversionsEnforce}" SelectedItem="{Binding AspectConversion}" />
-                </StackPanel>
-            </StackPanel>
-        </Expander>
+            </Expander>
+        </StackPanel>
     </StackPanel>
 </UserControl>
