@@ -401,7 +401,10 @@ namespace TAS.Client.ViewModels
             set
             {
                 if (SetField(ref _mediaCategory, value, "MediaCategory"))
+                {
+                    NotifyPropertyChanged("IsDisplayMediaCategory");
                     _search(null);
+                }
             }
         }
 
@@ -468,6 +471,15 @@ namespace TAS.Client.ViewModels
             get
             {
                 return _mediaDirectory is IArchiveDirectory || (_mediaDirectory is IIngestDirectory && ((IIngestDirectory)_mediaDirectory).IsRecursive);
+            }
+        }
+
+        public bool IsDisplayMediaCategory
+        {
+            get
+            {
+                return (_mediaDirectory is IServerDirectory || _mediaDirectory is IArchiveDirectory) && 
+                    !(_mediaCategory is TMediaCategory);
             }
         }
 

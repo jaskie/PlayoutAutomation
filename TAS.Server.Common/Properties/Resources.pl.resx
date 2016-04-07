@@ -196,7 +196,7 @@
     <value>Wypełniacz</value>
   </data>
   <data name="TMediaCategory_Promo" xml:space="preserve">
-    <value>Oprawa</value>
+    <value>Autopromocja</value>
   </data>
   <data name="TMediaCategory_Show" xml:space="preserve">
     <value>Audycja</value>
@@ -437,5 +437,8 @@
   </data>
   <data name="TxDCAMAudioExportFormat_Channels8Bits16" xml:space="preserve">
     <value>8 kanałów, 16 bitów na próbkę</value>
+  </data>
+  <data name="TMediaCategory_Insert" xml:space="preserve">
+    <value>Wstawka</value>
   </data>
 </root>

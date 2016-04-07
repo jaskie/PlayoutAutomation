@@ -199,10 +199,9 @@ namespace TAS.Client.ViewModels
         {
             get { return _mediaCategory; }
             set {
-                if (_mediaCategory != value)
+                if (SetField(ref _mediaCategory, value, "MediaCategory"))
                 {
-                    _mediaCategory = value;
-                    NotifyPropertyChanged("MediaCategory");
+                    NotifyPropertyChanged("IsDisplayMediaCategory");
                     _itemsView.Refresh();
                 }
             }
@@ -353,6 +352,16 @@ namespace TAS.Client.ViewModels
         }
 
         public bool IsMovie { get { return _mediaType == TMediaType.Movie; } }
+
+        public bool IsDisplayMediaCategory
+        {
+            get
+            {
+                return (_mediaType == TMediaType.Movie) &&
+                    !(_mediaCategory is TMediaCategory);
+            }
+        }
+
 
         private string _okButtonText = "OK";
         public string OkButtonText { get { return _okButtonText; }

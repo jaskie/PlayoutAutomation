@@ -520,6 +520,15 @@ namespace TAS.Server.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Insert.
+        /// </summary>
+        public static string TMediaCategory_Insert {
+            get {
+                return ResourceManager.GetString("TMediaCategory_Insert", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Promo.
         /// </summary>
         public static string TMediaCategory_Promo {

@@ -435,4 +435,7 @@
   <data name="TxDCAMAudioExportFormat_Channels8Bits16" xml:space="preserve">
     <value>8 channels, 16 bits per sample</value>
   </data>
+  <data name="TMediaCategory_Insert" xml:space="preserve">
+    <value>Insert</value>
+  </data>
 </root>

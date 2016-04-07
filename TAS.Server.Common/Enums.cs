@@ -192,6 +192,7 @@ namespace TAS.Common
         Promo,
         Sponsored,
         Fill,
+        Insert
     };
     class TMediaCategoryEnumConverter : ResourceEnumConverter
     {
