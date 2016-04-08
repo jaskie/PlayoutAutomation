@@ -79,5 +79,10 @@ namespace TAS.Client.Model
         {
             Invoke(parameters: deleteNotExisted);
         }
+
+        public void Export(IEnumerable<ExportMedia> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory)
+        {
+            Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory });
+        }
     }
 }

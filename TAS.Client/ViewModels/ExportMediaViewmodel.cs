@@ -26,7 +26,7 @@ namespace TAS.Client.ViewModels
         internal void Remove(ExportMediaLogoViewmodel exportMediaLogoViewModel)
         {
             _logos.Remove(exportMediaLogoViewModel);
-            MediaExport.Logos.Remove(exportMediaLogoViewModel.Logo);
+            MediaExport.RemoveLogo(exportMediaLogoViewModel.Logo);
         }
 
         public string MediaName { get { return this.MediaExport.Media.MediaName; } }
@@ -54,7 +54,7 @@ namespace TAS.Client.ViewModels
                 svm.ExecuteAction = (e) =>
                 {
                     _logos.Add(new ExportMediaLogoViewmodel(this, e.Media));
-                    MediaExport.Logos.Add(e.Media);
+                    MediaExport.AddLogo(e.Media);
                 };
                 _searchViewmodel = svm;
             }

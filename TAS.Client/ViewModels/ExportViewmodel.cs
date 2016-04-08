@@ -58,7 +58,7 @@ namespace TAS.Client.ViewModels
                 _checking = false;
                 NotifyPropertyChanged("CommandExport");
             }
-            _mediaManager.Export(Items.Select(mevm => mevm.MediaExport), SelectedDirectory);
+            _mediaManager.Export(Items.Select(mevm => mevm.MediaExport), false, string.Empty, SelectedDirectory);
             _view.Close();
         }
 
@@ -67,6 +67,9 @@ namespace TAS.Client.ViewModels
         {
             return !_checking && Items.Count > 0 && SelectedDirectory != null;
         }
+
+        public int ExportMediaCount { get { return Items.Count; } }
+        public TimeSpan TotalTime { get { return TimeSpan.FromTicks(Items.Sum(m => m.Duration.Ticks)); } }
 
         protected override void OnDispose()
         {

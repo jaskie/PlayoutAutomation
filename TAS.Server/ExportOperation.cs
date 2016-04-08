@@ -7,6 +7,7 @@ using TAS.Server;
 using TAS.Common;
 using System.IO;
 using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace TAS.Server
 {
@@ -28,6 +29,17 @@ namespace TAS.Server
             TryCount = 1;
         }
 
+        private readonly List<ExportMedia> _exportMediaList = new List<ExportMedia>();
+        public IEnumerable<ExportMedia> ExportMediaList
+        {
+            get { return _exportMediaList; }
+            set
+            {
+                _exportMediaList.Clear();
+                _exportMediaList.AddRange(value);
+            }
+        }
+
         public TimeSpan StartTC { get; set; }
         
         public TimeSpan Duration { get; set; }
@@ -35,8 +47,6 @@ namespace TAS.Server
         public decimal AudioVolume { get; set; }
 
         public IngestDirectory DestDirectory { get; set; }
-
-        public List<IMedia> Logos { get; set; }
 
         public override bool Do()
         {
@@ -49,7 +59,7 @@ namespace TAS.Server
                 {
 
                     bool success = false;
-                    success = _do(SourceMedia);
+                    success = _do();
                     if (!success)
                         TryCount--;
                     else
@@ -66,7 +76,7 @@ namespace TAS.Server
             return false;
         }
 
-        private bool _do(IMedia inputMedia)
+        private bool _do()
         {
             bool result = false;
             _progressDuration = SourceMedia.Duration;
@@ -87,12 +97,12 @@ namespace TAS.Server
             }
             if (DestDirectory.AccessType == TDirectoryAccessType.FTP)
             {
-                using (TempMedia localDestMedia = Owner.TempDirectory.CreateMedia(inputMedia, "MXF"))
+                using (TempMedia localDestMedia = Owner.TempDirectory.CreateMedia(null, "MXF"))
                 {
                     DestMedia.PropertyChanged += DestMedia_PropertyChanged;
                     try
                     {
-                        result = _encode(inputMedia.FullPath, localDestMedia.FullPath);
+                        result = _encode(localDestMedia.FullPath);
                         if (result)
                         {
                             _progressFileSize = (UInt64)(new FileInfo(localDestMedia.FullPath)).Length;
@@ -107,7 +117,7 @@ namespace TAS.Server
                 }
             }
             else
-                result = _encode(inputMedia.FullPath, DestMedia.FullPath);
+                result = _encode(DestMedia.FullPath);
             if (result)
                 DestMedia.MediaStatus = result ? TMediaStatus.Available : TMediaStatus.CopyError;
             if (result) OperationStatus = FileOperationStatus.Finished;
@@ -123,25 +133,44 @@ namespace TAS.Server
                     Progress = (int)(((sender as Media).FileSize * 100ul) / fs);
             }
         }
-
-
-        bool _encode(string inputFile, string outFile)
+        
+        bool _encode(string outFile)
         {
+            
             Debug.WriteLine(this, "Export encode started");
             _addOutputMessage(string.Format("Encode started to file {0}", outFile));
-            string logoIncludes = string.Concat(Logos.Select(l => string.Format(" -i \"{0}\"", l.FullPath)));
+            StringBuilder files = new StringBuilder();
+            int index = 0;
             List<string> complexFilterElements = new List<string>();
-            complexFilterElements.Add(SourceMedia.VideoFormatDescription.IsWideScreen ? "setdar=dar=16/9" : "setdar=dar=4/3");
-            complexFilterElements.AddRange(Logos.Select(l => "overlay"));
+            List<string> volumeFilterElements = new List<string>();
+            StringBuilder overlayOutputs = new StringBuilder();
+            foreach (var e in _exportMediaList)
+            {
+                files.AppendFormat(" -i \"{0}\"", e.Media.FullPath);
+                string videoOutputName = string.Format("[v{0}]", index);
+                complexFilterElements.Add(string.Format(SourceMedia.VideoFormatDescription.IsWideScreen ? "[{0}]setdar=dar=16/9[t{1}], [t{2}]trim=start={3}:duration={4}[v{5}]" : "[{0}]setdar=dar=4/3[t{1}], [t{2}]trim=start={3}:duration={4}[v{5}]", index, index, index, index, e.StartTC - e.Media.TcStart, e.Duration, index));
+                int audioIndex = index;
+                complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, "[{0}]volume={1:F3}dB[a{2}], [a{3}]atrim=start={4}:duration={5}[b{6}]", audioIndex, e.AudioVolume, audioIndex, audioIndex, e.StartTC - e.Media.TcStart, e.Duration, audioIndex));
+                index++;
+                for (int i = 0; i < e.Logos.Length; i++)
+                {
+                    files.Append(string.Format(" -i \"{0}\"", e.Logos[i].FullPath));
+                    string newOutputName = string.Format("[v{0}]", index);
+                    complexFilterElements.Add(string.Format("[{0}][{1}]overlay[{2}]", videoOutputName, index, newOutputName));
+                    videoOutputName = newOutputName;
+                    index++;
+                }
+                overlayOutputs.AppendFormat("{0}[a{1}]", videoOutputName, audioIndex);
+            }
+            complexFilterElements.Add(string.Format("{0}concat=n={1}:v=1:a=1"));            
             if (DestDirectory.IsXDCAM)
                 complexFilterElements.Add(D10_RESCALE_FILTER);
-            string complexFilter = (Logos.Count > 0) || DestDirectory.IsXDCAM ?
+            string complexFilter = complexFilterElements.Count > 0 ?
                 string.Format(" -filter_complex \"{0}\"", string.Join(", ", complexFilterElements)) :
                 string.Empty;
             string command = string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                "-i \"{0}\"{1}{2} {3} -filter:a \"volume={4:F3}dB\" -ss {5} -t {6} -timecode {7} -f {8} -y \"{9}\"",
-                inputFile,
-                logoIncludes,
+                "{0}{1} {3} -filter:a \"volume={4:F3}dB\" -ss {5} -t {6} -timecode {7} -f {8} -y \"{9}\"",
+                files.ToString(),
                 complexFilter,
                 DestDirectory.IsXDCAM ? 
                     String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0} {1}", 
@@ -154,7 +183,6 @@ namespace TAS.Server
                             : PCM16LE8CH)
                     :
                     DestDirectory.ExportParams,
-                AudioVolume,
                 StartTC - SourceMedia.TcStart,
                 TimeSpan.FromTicks((Duration.Ticks/(40*TimeSpan.TicksPerMillisecond))*(40*TimeSpan.TicksPerMillisecond)), // rounding down to nearest PAL frame time
                 StartTC.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[DestMedia.VideoFormat].FrameRate),
@@ -166,13 +194,23 @@ namespace TAS.Server
                 _addOutputMessage("Encode finished successfully");
                 return true;
             }
-            Debug.WriteLine("FFmpeg _encode(): Failed for {0}", inputFile);
+            Debug.WriteLine("FFmpeg _encode(): Failed for {0}", outFile);
             return false;
         }
 
         public override string ToString()
         {
             return string.Format("{0} -> {1}", SourceMedia.MediaName, DestDirectory.DirectoryName);
+        }
+
+        private class ExportMediaIndexed: ExportMedia
+        {
+            public ExportMediaIndexed(IMedia media, List<IMedia> logos, TimeSpan startTC, TimeSpan duration, decimal audioVolume): base(media, logos, startTC, duration, audioVolume)
+            {
+                LogoIndexes = new int[logos.Count];
+            }
+            public int FileIndex;
+            public readonly int[] LogoIndexes;
         }
     }
 }

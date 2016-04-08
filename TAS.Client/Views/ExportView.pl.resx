@@ -147,4 +147,7 @@
   <data name="_grid.Logo.Remove" xml:space="preserve">
     <value>Usuń</value>
   </data>
+  <data name="_statusBar.StringFormat" xml:space="preserve">
+    <value>Klipy: {0}, łączny czas trwania: {1}</value>
+  </data>
 </root>
