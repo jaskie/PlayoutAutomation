@@ -351,7 +351,7 @@ namespace TAS.Server
         {
             if (asSingleFile)
             {
-                _fileManager.Queue(new ExportOperation() { ExportMediaList = exportList, DestDirectory = directory as IngestDirectory });
+                _fileManager.Queue(new ExportOperation() { ExportMediaList = exportList, DestMediaName = singleFilename, DestDirectory = directory as IngestDirectory });
             }
             else
                 foreach (ExportMedia e in exportList)
@@ -360,7 +360,7 @@ namespace TAS.Server
 
         private void Export(ExportMedia export, IIngestDirectory directory)
         {
-            _fileManager.Queue(new ExportOperation() { SourceMedia = export.Media, ExportMediaList = new[] { export }, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory as IngestDirectory });
+            _fileManager.Queue(new ExportOperation() { ExportMediaList = new[] { export }, DestMediaName = export.Media.MediaName, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory as IngestDirectory });
         }
 
         public Guid IngestFile(string fileName)

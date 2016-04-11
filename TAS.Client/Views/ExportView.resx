@@ -120,6 +120,9 @@
   <data name="Window.Title" xml:space="preserve">
     <value>Export to device</value>
   </data>
+  <data name="_concatMedia" xml:space="preserve">
+    <value>Concat items</value>
+  </data>
   <data name="_destination" xml:space="preserve">
     <value>Destination</value>
   </data>

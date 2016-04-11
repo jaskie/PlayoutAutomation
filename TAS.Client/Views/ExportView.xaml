@@ -27,6 +27,10 @@
             </Button>
             <ComboBox Margin="10, 5" ItemsSource="{Binding Directories}" SelectedItem="{Binding SelectedDirectory}" />
         </DockPanel>
+        <DockPanel DockPanel.Dock="Top" Visibility="{Binding CanConcatMedia, Converter={StaticResource BoolToVis}}">
+            <CheckBox IsChecked="{Binding ConcatMedia}" Margin="4" Content="{Resx _concatMedia}" VerticalAlignment="Center"/>
+            <TextBox Text="{Binding ConcatMediaName, UpdateSourceTrigger=PropertyChanged}" Margin="10, 2" Visibility="{Binding IsConcatMediaNameVisible, Converter={StaticResource BoolToVis}}"/>
+        </DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
                 <StatusBarItem.Content>

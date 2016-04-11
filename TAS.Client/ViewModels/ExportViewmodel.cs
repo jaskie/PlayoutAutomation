@@ -27,9 +27,7 @@ namespace TAS.Client.ViewModels
             this._view = new Views.ExportView() { DataContext = this, Owner = System.Windows.Application.Current.MainWindow, ShowInTaskbar=false };
             _view.ShowDialog();
         }
-
         
-
         public List<IIngestDirectory> Directories { get; private set; }
 
         IIngestDirectory _selectedDirectory;
@@ -40,10 +38,42 @@ namespace TAS.Client.ViewModels
             {
                 if (SetField(ref _selectedDirectory, value, "SelectedDirectory"))
                 {
-                    NotifyPropertyChanged("CommandExport");
+                    NotifyPropertyChanged("IsConcatMediaNameVisible");
+                    InvalidateRequerySuggested();
                 }
             }
         }
+
+        private bool _concatMedia;
+        public bool ConcatMedia
+        {
+            get { return _concatMedia; }
+            set
+            {
+                if (SetField(ref _concatMedia, value, "ConcatMedia"))
+                {
+                    NotifyPropertyChanged("IsConcatMediaNameVisible");
+                }
+            }
+        }
+
+        private string _concatMediaName;
+        public string ConcatMediaName
+        {
+            get { return _concatMediaName; }
+            set
+            {
+                if (SetField(ref _concatMediaName, value, "ConcatMediaName"))
+                    InvalidateRequerySuggested();
+            }
+        }
+
+        public bool IsConcatMediaNameVisible
+        {
+            get { return _concatMedia && !_selectedDirectory.IsXDCAM; }
+        }
+
+        public bool CanConcatMedia { get { return Items.Count > 1; } }
 
         void _export (object o)
         {
@@ -58,14 +88,16 @@ namespace TAS.Client.ViewModels
                 _checking = false;
                 NotifyPropertyChanged("CommandExport");
             }
-            _mediaManager.Export(Items.Select(mevm => mevm.MediaExport), false, string.Empty, SelectedDirectory);
+            _mediaManager.Export(Items.Select(mevm => mevm.MediaExport), _concatMedia, _concatMediaName, SelectedDirectory);
             _view.Close();
         }
 
         bool _checking;
         bool _canExport(object o)
         {
-            return !_checking && Items.Count > 0 && SelectedDirectory != null;
+            return !_checking && Items.Count > 0
+                && SelectedDirectory != null
+                && (!IsConcatMediaNameVisible || !string.IsNullOrWhiteSpace(_concatMediaName));
         }
 
         public int ExportMediaCount { get { return Items.Count; } }

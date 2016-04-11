@@ -48,6 +48,8 @@ namespace TAS.Server
 
         public IngestDirectory DestDirectory { get; set; }
 
+        public string DestMediaName { get; set; }
+
         public override bool Do()
         {
             if (Kind == TFileOperationKind.Export)
@@ -79,7 +81,7 @@ namespace TAS.Server
         private bool _do()
         {
             bool result = false;
-            _progressDuration = SourceMedia.Duration;
+            _progressDuration = TimeSpan.FromTicks(_exportMediaList.Sum(e => e.Duration.Ticks));
             _addOutputMessage("Refreshing destination directory content");
             DestDirectory.Refresh();
             if (DestDirectory.IsXDCAM)
@@ -91,8 +93,8 @@ namespace TAS.Server
             else
             {
                 DestMedia = new IngestMedia(DestDirectory) {
-                    MediaName = SourceMedia.MediaName,
-                    FileName = Common.FileUtils.GetUniqueFileName(DestDirectory.Folder, string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(SourceMedia.FileName), DestDirectory.ExportFormat)),
+                    MediaName = DestMediaName,
+                    FileName = Common.FileUtils.GetUniqueFileName(DestDirectory.Folder, string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(DestMediaName), DestDirectory.ExportFormat)),
                     MediaStatus = TMediaStatus.Copying };
             }
             if (DestDirectory.AccessType == TDirectoryAccessType.FTP)
@@ -144,32 +146,34 @@ namespace TAS.Server
             List<string> complexFilterElements = new List<string>();
             List<string> volumeFilterElements = new List<string>();
             StringBuilder overlayOutputs = new StringBuilder();
-            foreach (var e in _exportMediaList)
+            List<ExportMedia> exportMedia = _exportMediaList.ToList();
+            TimeSpan startTimecode = exportMedia.First().StartTC;
+            foreach (var e in exportMedia)
             {
-                files.AppendFormat(" -i \"{0}\"", e.Media.FullPath);
+                files.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1} -i \"{2}\"", (e.StartTC - e.Media.TcStart).TotalSeconds, e.Duration.TotalSeconds, e.Media.FullPath);
                 string videoOutputName = string.Format("[v{0}]", index);
-                complexFilterElements.Add(string.Format(SourceMedia.VideoFormatDescription.IsWideScreen ? "[{0}]setdar=dar=16/9[t{1}], [t{2}]trim=start={3}:duration={4}[v{5}]" : "[{0}]setdar=dar=4/3[t{1}], [t{2}]trim=start={3}:duration={4}[v{5}]", index, index, index, index, e.StartTC - e.Media.TcStart, e.Duration, index));
+                complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, e.Media.VideoFormatDescription.IsWideScreen ? "[{0}]setdar=dar=16/9[v{1}]" : "[{0}]setdar=dar=4/3[v{1}]", index, index));
                 int audioIndex = index;
-                complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, "[{0}]volume={1:F3}dB[a{2}], [a{3}]atrim=start={4}:duration={5}[b{6}]", audioIndex, e.AudioVolume, audioIndex, audioIndex, e.StartTC - e.Media.TcStart, e.Duration, audioIndex));
+                complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, "[{0}]volume={1:F3}dB[a{1}]", audioIndex, audioIndex));
                 index++;
                 for (int i = 0; i < e.Logos.Length; i++)
                 {
                     files.Append(string.Format(" -i \"{0}\"", e.Logos[i].FullPath));
                     string newOutputName = string.Format("[v{0}]", index);
-                    complexFilterElements.Add(string.Format("[{0}][{1}]overlay[{2}]", videoOutputName, index, newOutputName));
+                    complexFilterElements.Add(string.Format("{0}[{1}]overlay{2}", videoOutputName, index, newOutputName));
                     videoOutputName = newOutputName;
                     index++;
                 }
                 overlayOutputs.AppendFormat("{0}[a{1}]", videoOutputName, audioIndex);
             }
-            complexFilterElements.Add(string.Format("{0}concat=n={1}:v=1:a=1"));            
+            complexFilterElements.Add(string.Format("{0}concat=n={1}:v=1:a=1", string.Join(string.Empty, overlayOutputs), exportMedia.Count));            
             if (DestDirectory.IsXDCAM)
                 complexFilterElements.Add(D10_RESCALE_FILTER);
             string complexFilter = complexFilterElements.Count > 0 ?
                 string.Format(" -filter_complex \"{0}\"", string.Join(", ", complexFilterElements)) :
                 string.Empty;
             string command = string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                "{0}{1} {3} -filter:a \"volume={4:F3}dB\" -ss {5} -t {6} -timecode {7} -f {8} -y \"{9}\"",
+                "{0}{1} {2} -timecode {3} -f {4} -y \"{5}\"",
                 files.ToString(),
                 complexFilter,
                 DestDirectory.IsXDCAM ? 
@@ -183,9 +187,8 @@ namespace TAS.Server
                             : PCM16LE8CH)
                     :
                     DestDirectory.ExportParams,
-                StartTC - SourceMedia.TcStart,
-                TimeSpan.FromTicks((Duration.Ticks/(40*TimeSpan.TicksPerMillisecond))*(40*TimeSpan.TicksPerMillisecond)), // rounding down to nearest PAL frame time
-                StartTC.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[DestMedia.VideoFormat].FrameRate),
+//                TimeSpan.FromTicks((Duration.Ticks/(40*TimeSpan.TicksPerMillisecond))*(40*TimeSpan.TicksPerMillisecond)), // rounding down to nearest PAL frame time
+                startTimecode.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[DestMedia.VideoFormat].FrameRate),
                 DestDirectory.IsXDCAM? "mxf_d10": DestDirectory.ExportFormat.ToString(),
                 outFile);
             if (RunProcess(command))
@@ -200,7 +203,7 @@ namespace TAS.Server
 
         public override string ToString()
         {
-            return string.Format("{0} -> {1}", SourceMedia.MediaName, DestDirectory.DirectoryName);
+            return string.Format("{0} -> {1}:{2}", string.Concat(", ", _exportMediaList), DestDirectory.DirectoryName, DestMediaName);
         }
 
         private class ExportMediaIndexed: ExportMedia
