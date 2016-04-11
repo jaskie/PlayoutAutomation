@@ -13,10 +13,10 @@ namespace TAS.Server
 {
     public class ExportOperation: FFMpegOperation
     {
-        const string D10_RESCALE_FILTER = "scale=720:576, pad=720:608:0:32";
-        const string D10_PAL_IMX50 = "-vsync cfr -pix_fmt yuv422p -vcodec mpeg2video -minrate 50000k -maxrate 50000k -b:v 50000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 3 -bufsize 2000000 -rc_init_occupancy 2000000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx5p";
-        const string D10_PAL_IMX40 = "-vsync cfr -pix_fmt yuv422p -vcodec mpeg2video -minrate 40000k -maxrate 40000k -b:v 40000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 3 -bufsize 1600000 -rc_init_occupancy 1600000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx4p";
-        const string D10_PAL_IMX30 = "-vsync cfr -pix_fmt yuv422p -vcodec mpeg2video -minrate 30000k -maxrate 30000k -b:v 30000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 8 -bufsize 1200000 -rc_init_occupancy 1200000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx3p";
+        const string D10_RESCALE_FILTER = "scale=720:576[vs], [vs]pad=720:608:0:32";
+        const string D10_PAL_IMX50 = "-vsync cfr -r 25 -pix_fmt yuv422p -vcodec mpeg2video -minrate 50000k -maxrate 50000k -b:v 50000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 3 -bufsize 2000000 -rc_init_occupancy 2000000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx5p";
+        const string D10_PAL_IMX40 = "-vsync cfr -r 25 -pix_fmt yuv422p -vcodec mpeg2video -minrate 40000k -maxrate 40000k -b:v 40000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 3 -bufsize 1600000 -rc_init_occupancy 1600000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx4p";
+        const string D10_PAL_IMX30 = "-vsync cfr -r 25 -pix_fmt yuv422p -vcodec mpeg2video -minrate 30000k -maxrate 30000k -b:v 30000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 8 -bufsize 1200000 -rc_init_occupancy 1200000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx3p";
         const string PCM24LE4CH = "-acodec pcm_s24le -ar 48000 -ac 2 -d10_channelcount 4";
         const string PCM16LE4CH = "-acodec pcm_s16le -ar 48000 -ac 2 -d10_channelcount 4";
         const string PCM16LE8CH = "-acodec pcm_s16le -ar 48000 -ac 2 -d10_channelcount 8";
@@ -166,14 +166,15 @@ namespace TAS.Server
                 }
                 overlayOutputs.AppendFormat("{0}[a{1}]", videoOutputName, audioIndex);
             }
-            complexFilterElements.Add(string.Format("{0}concat=n={1}:v=1:a=1", string.Join(string.Empty, overlayOutputs), exportMedia.Count));            
             if (DestDirectory.IsXDCAM)
-                complexFilterElements.Add(D10_RESCALE_FILTER);
+                complexFilterElements.Add(string.Format("{0}concat=n={1}:v=1:a=1[vr][ac], [vr]setpts=PTS-STARTPTS[vp], [ac]asetpts=PTS-STARTPTS[a], [vp]{2}[v]", string.Join(string.Empty, overlayOutputs), exportMedia.Count, D10_RESCALE_FILTER));            
+            else
+                complexFilterElements.Add(string.Format("{0}concat=n={1}:v=1:a=1[v][a]", string.Join(string.Empty, overlayOutputs), exportMedia.Count));
             string complexFilter = complexFilterElements.Count > 0 ?
                 string.Format(" -filter_complex \"{0}\"", string.Join(", ", complexFilterElements)) :
                 string.Empty;
             string command = string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                "{0}{1} {2} -timecode {3} -f {4} -y \"{5}\"",
+                "{0}{1} -map \"[v]\" -map \"[a]\" {2} -timecode {3} -f {4} -y \"{5}\"",
                 files.ToString(),
                 complexFilter,
                 DestDirectory.IsXDCAM ? 
@@ -187,7 +188,6 @@ namespace TAS.Server
                             : PCM16LE8CH)
                     :
                     DestDirectory.ExportParams,
-//                TimeSpan.FromTicks((Duration.Ticks/(40*TimeSpan.TicksPerMillisecond))*(40*TimeSpan.TicksPerMillisecond)), // rounding down to nearest PAL frame time
                 startTimecode.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[DestMedia.VideoFormat].FrameRate),
                 DestDirectory.IsXDCAM? "mxf_d10": DestDirectory.ExportFormat.ToString(),
                 outFile);
