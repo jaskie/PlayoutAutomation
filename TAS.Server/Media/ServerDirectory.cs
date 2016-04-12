@@ -105,23 +105,9 @@ namespace TAS.Server
                             Path.Combine(Folder, media.FileName),
                     MediaType = media.MediaType == TMediaType.Unknown ? TMediaType.Movie : media.MediaType,
                     MediaStatus = TMediaStatus.Required,
-                    TcStart = media.TcStart,
-                    TcPlay = media.TcPlay,
-                    Duration = media.Duration,
-                    DurationPlay = media.DurationPlay,
-                    VideoFormat = media.VideoFormat,
-                    AudioChannelMapping = media.AudioChannelMapping,
-                    AudioVolume = media.AudioVolume,
-                    AudioLevelIntegrated = media.AudioLevelIntegrated,
-                    AudioLevelPeak = media.AudioLevelPeak,
-                    KillDate = default(DateTime),
-                    DoNotArchive = (media is ServerMedia && (media as ServerMedia).DoNotArchive),
-                    MediaCategory = media.MediaCategory,
-                    Parental = media.Parental,
-                    IdAux = (media is PersistentMedia) ? (media as PersistentMedia).IdAux : string.Empty,
-                    IdProgramme = (media is PersistentMedia) ? (media as PersistentMedia).IdProgramme : 0L,
                     OriginalMedia = media,
                 });
+                fm.CloneMediaProperties(media);
                 NotifyMediaAdded(fm);
                 fm.PropertyChanged += MediaPropertyChanged;
             }

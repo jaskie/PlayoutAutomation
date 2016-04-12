@@ -468,7 +468,6 @@ namespace TAS.Server.Database
             byte typVideo = dataReader.IsDBNull(dataReader.GetOrdinal("typVideo")) ? (byte)0 : dataReader.GetByte("typVideo");
             T media = (T)_archiveMediaConstructorInfo.Invoke(new object[] { dir, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idArchiveMedia") });
             media._mediaReadFields(dataReader);
-            media.ReVerify();
             return media;
         }
 

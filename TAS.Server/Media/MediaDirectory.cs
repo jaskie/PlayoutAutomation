@@ -219,7 +219,6 @@ namespace TAS.Server
                 newMedia.MediaName = Path.GetFileName(fullPath);
                 newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
                 newMedia.MediaType = (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Still : (FileUtils.VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Movie : TMediaType.Unknown;
-                NotifyMediaAdded(newMedia);
             }
             return newMedia;
         }
@@ -227,6 +226,7 @@ namespace TAS.Server
         public virtual void MediaAdd(IMedia media)
         {
             _files[media.DtoGuid] = media;
+            NotifyMediaAdded(media);
         }
 
         public virtual void MediaRemove(IMedia media)

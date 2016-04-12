@@ -10,8 +10,8 @@ namespace TAS.Server
 {
     public class ArchiveMedia : PersistentMedia, IArchiveMedia
     {
-        public ArchiveMedia(ArchiveDirectory directory) : base(directory) { }
-        public ArchiveMedia(ArchiveDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
+        public ArchiveMedia(IArchiveDirectory directory) : base(directory) { }
+        public ArchiveMedia(IArchiveDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
         public override bool Save()
         {
             if (MediaStatus == TMediaStatus.Available)
