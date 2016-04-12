@@ -81,6 +81,7 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == "OperationStatus"
                 || e.PropertyName == "OperationOutput"
                 || e.PropertyName == "OperationWarning"
+                || e.PropertyName == "Title"
                 )
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == "OperationStatus")

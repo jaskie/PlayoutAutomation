@@ -76,7 +76,9 @@ namespace TAS.Server
         
         public string EncodeParams { get; set; }
 
-        public TMediaExportFormat ExportFormat { get; set; }
+        public TMediaExportContainerFormat ExportContainerFormat { get; set; }
+
+        public TVideoFormat ExportVideoFormat { get; set; }
 
         [JsonProperty]
         public bool DoNotEncode { get; set; }

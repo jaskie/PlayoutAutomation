@@ -103,7 +103,7 @@ namespace TAS.Common
         IMX30
     }
 
-    public enum TMediaExportFormat
+    public enum TMediaExportContainerFormat
     {
         mov,
         mp4,

@@ -12,7 +12,7 @@ namespace TAS.Server.Interfaces
         bool IsExport { get; set; }
         bool IsImport { get; set; }
         string EncodeParams { get; set; }
-        TMediaExportFormat ExportFormat { get; set; }
+        TMediaExportContainerFormat ExportContainerFormat { get; set; }
         string ExportParams { get; set; }
         bool IsXDCAM { get; set; }
         bool IsWAN { get; set; }
@@ -26,5 +26,6 @@ namespace TAS.Server.Interfaces
         TFieldOrder SourceFieldOrder { get; set; }
         TxDCAMAudioExportFormat XDCAMAudioExportFormat { get; set; }
         TxDCAMVideoExportFormat XDCAMVideoExportFormat { get; set; }
+        TVideoFormat ExportVideoFormat { get; set; }
     }
 }

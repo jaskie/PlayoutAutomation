@@ -21,7 +21,8 @@ namespace TAS.Server
         [JsonProperty]
         public TFileOperationKind Kind { get; set; }
         public IMedia SourceMedia { get; set; }
-        public IMedia DestMedia { get; set; }
+        protected IMedia _destMedia;
+        public IMedia DestMedia { get { return _destMedia; } set { SetField(ref _destMedia, value, "Title"); } }
         public event EventHandler Success;
         public event EventHandler Failure;
         public event EventHandler Finished;
@@ -274,7 +275,7 @@ namespace TAS.Server
         }
         
         [JsonProperty]
-        public string Title
+        public virtual string Title
         {
             get
             {

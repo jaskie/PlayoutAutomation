@@ -13,7 +13,7 @@ namespace TAS.Server
 {
     public class ExportOperation: FFMpegOperation
     {
-        const string D10_RESCALE_FILTER = "scale=720:576[vs], [vs]pad=720:608:0:32";
+        const string D10_PAD_FILTER = "pad=720:608:0:32";
         const string D10_PAL_IMX50 = "-vsync cfr -r 25 -pix_fmt yuv422p -vcodec mpeg2video -minrate 50000k -maxrate 50000k -b:v 50000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 3 -bufsize 2000000 -rc_init_occupancy 2000000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx5p";
         const string D10_PAL_IMX40 = "-vsync cfr -r 25 -pix_fmt yuv422p -vcodec mpeg2video -minrate 40000k -maxrate 40000k -b:v 40000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 3 -bufsize 1600000 -rc_init_occupancy 1600000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx4p";
         const string D10_PAL_IMX30 = "-vsync cfr -r 25 -pix_fmt yuv422p -vcodec mpeg2video -minrate 30000k -maxrate 30000k -b:v 30000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 8 -bufsize 1200000 -rc_init_occupancy 1200000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx3p";
@@ -94,7 +94,7 @@ namespace TAS.Server
             {
                 DestMedia = new IngestMedia(DestDirectory) {
                     MediaName = DestMediaName,
-                    FileName = Common.FileUtils.GetUniqueFileName(DestDirectory.Folder, string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(DestMediaName), DestDirectory.ExportFormat)),
+                    FileName = Common.FileUtils.GetUniqueFileName(DestDirectory.Folder, string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(DestMediaName), DestDirectory.ExportContainerFormat)),
                     MediaStatus = TMediaStatus.Copying };
             }
             if (DestDirectory.AccessType == TDirectoryAccessType.FTP)
@@ -148,13 +148,16 @@ namespace TAS.Server
             StringBuilder overlayOutputs = new StringBuilder();
             List<ExportMedia> exportMedia = _exportMediaList.ToList();
             TimeSpan startTimecode = exportMedia.First().StartTC;
+            VideoFormatDescription outputFormatDesc = VideoFormatDescription.Descriptions[DestDirectory.IsXDCAM ? TVideoFormat.PAL : DestDirectory.ExportVideoFormat];
+            string scaleFilter = string.Format("scale={0}:{1}", outputFormatDesc.ImageSize.Width, outputFormatDesc.ImageSize.Height);
             foreach (var e in exportMedia)
             {
                 files.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1} -i \"{2}\"", (e.StartTC - e.Media.TcStart).TotalSeconds, e.Duration.TotalSeconds, e.Media.FullPath);
                 string videoOutputName = string.Format("[v{0}]", index);
-                complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, e.Media.VideoFormatDescription.IsWideScreen ? "[{0}]setdar=dar=16/9[v{1}]" : "[{0}]setdar=dar=4/3[v{1}]", index, index));
+                complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, e.Media.VideoFormatDescription.IsWideScreen ? "[{0}]setdar=dar=16/9[d{1}]" : "[{0}]setdar=dar=4/3[d{1}]", index, index));
+                complexFilterElements.Add(string.Format("[d{0}]{1}[v{2}]", index, scaleFilter, index));
                 int audioIndex = index;
-                complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, "[{0}]volume={1:F3}dB[a{1}]", audioIndex, audioIndex));
+                complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, "[{0}]volume={1:F3}dB[a{0}]", audioIndex, e.AudioVolume));
                 index++;
                 for (int i = 0; i < e.Logos.Length; i++)
                 {
@@ -167,14 +170,15 @@ namespace TAS.Server
                 overlayOutputs.AppendFormat("{0}[a{1}]", videoOutputName, audioIndex);
             }
             if (DestDirectory.IsXDCAM)
-                complexFilterElements.Add(string.Format("{0}concat=n={1}:v=1:a=1[vr][ac], [vr]setpts=PTS-STARTPTS[vp], [ac]asetpts=PTS-STARTPTS[a], [vp]{2}[v]", string.Join(string.Empty, overlayOutputs), exportMedia.Count, D10_RESCALE_FILTER));            
+                complexFilterElements.Add(string.Format("{0}concat=n={1}:v=1:a=1[vr][p], [vr]{2}[v]", string.Join(string.Empty, overlayOutputs), exportMedia.Count, D10_PAD_FILTER));            
             else
-                complexFilterElements.Add(string.Format("{0}concat=n={1}:v=1:a=1[v][a]", string.Join(string.Empty, overlayOutputs), exportMedia.Count));
+                complexFilterElements.Add(string.Format("{0}concat=n={1}:v=1:a=1[v][p]", string.Join(string.Empty, overlayOutputs), exportMedia.Count));
+            complexFilterElements.Add("[p]apad=pad_len=1024[a]");
             string complexFilter = complexFilterElements.Count > 0 ?
                 string.Format(" -filter_complex \"{0}\"", string.Join(", ", complexFilterElements)) :
                 string.Empty;
             string command = string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                "{0}{1} -map \"[v]\" -map \"[a]\" {2} -timecode {3} -f {4} -y \"{5}\"",
+                "{0}{1} -map \"[v]\" -map \"[a]\" {2} -timecode {3} -shortest -f {4} -y \"{5}\"",
                 files.ToString(),
                 complexFilter,
                 DestDirectory.IsXDCAM ? 
@@ -189,7 +193,7 @@ namespace TAS.Server
                     :
                     DestDirectory.ExportParams,
                 startTimecode.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[DestMedia.VideoFormat].FrameRate),
-                DestDirectory.IsXDCAM? "mxf_d10": DestDirectory.ExportFormat.ToString(),
+                DestDirectory.IsXDCAM? "mxf_d10": DestDirectory.ExportContainerFormat.ToString(),
                 outFile);
             if (RunProcess(command))
             {
@@ -201,19 +205,12 @@ namespace TAS.Server
             return false;
         }
 
-        public override string ToString()
+        public override string Title
         {
-            return string.Format("{0} -> {1}:{2}", string.Concat(", ", _exportMediaList), DestDirectory.DirectoryName, DestMediaName);
-        }
-
-        private class ExportMediaIndexed: ExportMedia
-        {
-            public ExportMediaIndexed(IMedia media, List<IMedia> logos, TimeSpan startTC, TimeSpan duration, decimal audioVolume): base(media, logos, startTC, duration, audioVolume)
+            get
             {
-                LogoIndexes = new int[logos.Count];
+                return string.Format("Export {0} -> {1}", string.Join(", ", _exportMediaList), DestMedia == null ? DestDirectory.DirectoryName : DestMedia.ToString());
             }
-            public int FileIndex;
-            public readonly int[] LogoIndexes;
         }
     }
 }

@@ -40,5 +40,9 @@ namespace TAS.Server.Common
             logos.Remove(logo);
             Logos = logos.ToArray();
         }
+        public override string ToString()
+        {
+            return Media.MediaName;
+        }
     }
 }

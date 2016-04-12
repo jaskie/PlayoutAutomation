@@ -84,8 +84,10 @@
                 <StackPanel Visibility="{Binding IsXDCAM, Converter={StaticResource InvertedBoolToVis}}">
                     <Label Content="Export encode parameters"/>
                     <TextBox Text="{Binding ExportParams, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
+                    <Label Content="Export video format"/>
+                    <ComboBox ItemsSource="{Binding ExportVideoFormats}" SelectedItem="{Binding ExportVideoFormat}"/>
                     <Label Content="Export file format"/>
-                    <ComboBox ItemsSource="{Binding ExportFormats}" SelectedItem="{Binding ExportFormat}"/>
+                    <ComboBox ItemsSource="{Binding ExportContainerFormats}" SelectedItem="{Binding ExportContainerFormat}"/>
                 </StackPanel>
             </StackPanel>
         </StackPanel>

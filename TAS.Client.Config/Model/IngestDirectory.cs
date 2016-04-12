@@ -52,8 +52,10 @@ namespace TAS.Client.Config.Model
         public string Password { get; set; }
         [DefaultValue(default(string))]
         public string EncodeParams { get; set; }
-        [DefaultValue(default(TMediaExportFormat))]
-        public TMediaExportFormat ExportFormat { get; set; }
+        [DefaultValue(default(TMediaExportContainerFormat))]
+        public TMediaExportContainerFormat ExportContainerFormat { get; set; }
+        [DefaultValue(default(TVideoFormat))]
+        public TVideoFormat ExportVideoFormat { get; set; }
         [DefaultValue(default(string))]
         public string ExportParams { get; set; }
         [XmlArray]
