@@ -301,7 +301,12 @@ namespace TAS.Server
             if (DestMedia != null)
                 DestMedia.Delete();
             Debug.WriteLine(this, "File simple operation failed - TryCount is zero");
-        }       
+        }
+
+        public override string ToString()
+        {
+            return Title;
+        }
 
     }
 }

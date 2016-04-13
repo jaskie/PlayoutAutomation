@@ -231,7 +231,7 @@ namespace TAS.Server
         }
 
         [JsonProperty]
-        public virtual string FullPath
+        public string FullPath
         {
             get
             {
@@ -243,8 +243,8 @@ namespace TAS.Server
             internal set
             {
                 string relativeName = value.Substring(_directory.Folder.Length);
-                _fileName = Path.GetFileName(relativeName);
-                _folder = relativeName.Substring(0, relativeName.Length - _fileName.Length).TrimEnd(_directory.PathSeparator);
+                FileName = Path.GetFileName(relativeName);
+                Folder = relativeName.Substring(0, relativeName.Length - _fileName.Length).Trim(_directory.PathSeparator);
             }
         }
 

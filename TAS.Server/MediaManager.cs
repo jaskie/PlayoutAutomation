@@ -244,13 +244,14 @@ namespace TAS.Server
                 m.GetLoudness();
         }
 
-        public void ArchiveMedia(IEnumerable<IMedia> mediaList, bool deleteAfter)
+        public void ArchiveMedia(IEnumerable<IServerMedia> mediaList, bool deleteAfter)
         {
-            if (ArchiveDirectory == null)
+            IArchiveDirectory adir = ArchiveDirectory;
+            if (adir == null)
                 return;
-            foreach (IMedia media in mediaList)
+            foreach (IServerMedia media in mediaList)
                 if (media is ServerMedia)
-                    ArchiveDirectory.ArchiveSave(media, _engine.VideoFormat, deleteAfter);
+                    adir.ArchiveSave(media, deleteAfter);
         }
 
         private ServerMedia _findComplementaryMedia(ServerMedia originalMedia)

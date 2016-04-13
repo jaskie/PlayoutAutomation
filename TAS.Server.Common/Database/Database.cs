@@ -461,7 +461,7 @@ namespace TAS.Server.Database
 
         private static System.Reflection.ConstructorInfo _archiveMediaConstructorInfo;
 
-        private static IArchiveMedia _readArchiveMedia<T>(DbDataReaderRedundant dataReader, IArchiveDirectory dir) where T: IArchiveMedia
+        private static T _readArchiveMedia<T>(DbDataReaderRedundant dataReader, IArchiveDirectory dir) where T: IArchiveMedia
         {
             if (_archiveMediaConstructorInfo == null)
                 _archiveMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IArchiveDirectory), typeof(Guid), typeof(UInt64) });
@@ -535,9 +535,9 @@ namespace TAS.Server.Database
             return returnList;
         }
 
-        public static IArchiveMedia DbMediaFind<T>(this IArchiveDirectory dir, IMedia media) where T: IArchiveMedia
+        public static T DbMediaFind<T>(this IArchiveDirectory dir, IMedia media) where T: IArchiveMedia
         {
-            IArchiveMedia result = null;
+            T result = default(T);
             lock (_connection)
             {
                 DbCommandRedundant cmd;

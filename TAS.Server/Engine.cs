@@ -1229,7 +1229,7 @@ namespace TAS.Server
                 && ArchivePolicy == TArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
                 && MediaManager.ArchiveDirectory != null
                 && CanDeleteMedia(media).Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
-                ThreadPool.QueueUserWorkItem(o => MediaManager.ArchiveMedia(new IMedia[] { media }, true));
+                ThreadPool.QueueUserWorkItem(o => MediaManager.ArchiveMedia(new List<IServerMedia>(new [] { media }), true));
         }
 
         private TEngineState _engineState;

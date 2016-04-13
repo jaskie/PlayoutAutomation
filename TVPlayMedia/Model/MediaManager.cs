@@ -11,7 +11,7 @@ namespace TAS.Client.Model
 {
     public class MediaManager : ProxyBase, IMediaManager
     {
-        public void ArchiveMedia(IEnumerable<IMedia> mediaList, bool deleteAfter)
+        public void ArchiveMedia(IEnumerable<IServerMedia> mediaList, bool deleteAfter)
         {
             Invoke(parameters: new object[] { mediaList, deleteAfter });
         }

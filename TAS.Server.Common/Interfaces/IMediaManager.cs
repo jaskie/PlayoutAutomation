@@ -25,7 +25,7 @@ namespace TAS.Server.Interfaces
         TVideoFormat VideoFormat { get; }
 
         void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false);
-        void ArchiveMedia(IEnumerable<IMedia> mediaList, bool deleteAfter);
+        void ArchiveMedia(IEnumerable<IServerMedia> mediaList, bool deleteAfter);
         void Export(IEnumerable<ExportMedia> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory);
         IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList);
 

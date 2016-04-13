@@ -77,8 +77,9 @@ namespace TAS.Server
 
         internal virtual void OnMediaPropertyChanged(object o, PropertyChangedEventArgs e)
         {
-            if (this.MediaPropertyChanged != null)
-                this.MediaPropertyChanged(o, e);
+            var handler = MediaPropertyChanged;
+            if (handler != null)
+                handler(o, e);
         }
 
         public override void SweepStaleMedia()

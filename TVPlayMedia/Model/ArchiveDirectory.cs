@@ -20,9 +20,9 @@ namespace TAS.Client.Model
             Invoke(parameters: new object[] { srcMedia, destMedia, toTop });
         }
 
-        public void ArchiveSave(IMedia media, TVideoFormat outputFormat, bool deleteAfterSuccess)
+        public void ArchiveSave(IServerMedia media, bool deleteAfterSuccess)
         {
-            Invoke(parameters: new object[] { media, outputFormat, deleteAfterSuccess});
+            Invoke(parameters: new object[] { media, deleteAfterSuccess});
         }
 
         public IArchiveMedia Find(IMedia media)
@@ -32,7 +32,7 @@ namespace TAS.Client.Model
             return ret;
         }
 
-        public IArchiveMedia GetArchiveMedia(IMedia media, bool searchExisting = true)
+        public IArchiveMedia GetArchiveMedia(IServerMedia media, bool searchExisting = true)
         {
             var ret = Query<ArchiveMedia>(parameters: new object[] { media, searchExisting });
             ret.Directory = this;

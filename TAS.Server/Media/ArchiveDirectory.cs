@@ -112,54 +112,28 @@ namespace TAS.Server
             ((ArchiveMedia)media).Save();
         }
 
-        public IArchiveMedia GetArchiveMedia(IMedia media, bool searchExisting = true)
+        public IArchiveMedia GetArchiveMedia(IServerMedia media, bool searchExisting = true)
         {
-            IArchiveMedia result = null;
+            ArchiveMedia result = null;
             if (searchExisting)
                 result = this.DbMediaFind<ArchiveMedia>(media);
             if (result == null)
+            {
+                string path = Path.Combine(Folder, GetCurrentFolder());
                 result = new ArchiveMedia(this, media.MediaGuid, 0)
                 {
-                    AudioChannelMapping = media.AudioChannelMapping,
-                    AudioVolume = media.AudioVolume,
-                    AudioLevelIntegrated = media.AudioLevelIntegrated,
-                    AudioLevelPeak = media.AudioLevelPeak,
-                    Duration = media.Duration,
-                    DurationPlay = media.DurationPlay,
-                    FullPath = Path.Combine(
-                            Folder, 
-                            GetCurrentFolder(), 
-                            (media is IngestMedia) ? Path.GetFileNameWithoutExtension(media.FileName) + FileUtils.DefaultFileExtension(media.MediaType) : media.FileName),
-                    FileSize = media.FileSize,
-                    LastUpdated = media.LastUpdated,
-                    MediaName = media.MediaName,
-                    MediaStatus = TMediaStatus.Required,
-                    TcStart = media.TcStart,
-                    TcPlay = media.TcPlay,
-                    VideoFormat = media.VideoFormat,
-                    KillDate = (media is PersistentMedia) ? (media as PersistentMedia).KillDate : (media is IngestMedia ? media.LastUpdated + TimeSpan.FromDays(((IngestDirectory)media.Directory).MediaRetnentionDays) : default(DateTime)),
-                    IdAux = (media is PersistentMedia) ? (media as PersistentMedia).IdAux : string.Empty,
-                    IdProgramme = (media is PersistentMedia) ? (media as PersistentMedia).IdProgramme : 0L,
-                    MediaType = (media.MediaType == TMediaType.Unknown) ? (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(media.FullPath).ToLowerInvariant()) ? TMediaType.Still : TMediaType.Movie) : media.MediaType,
-                    MediaCategory = media.MediaCategory,
-                    Parental = media.Parental,
-                    OriginalMedia = media,
+                    FullPath = Path.Combine(path, FileUtils.GetUniqueFileName(path, media.FileName)),
+                    MediaType = media.MediaType,
                 };
+                result.CloneMediaProperties(media);
+            }
             return result;
         }
 
-        public void ArchiveSave(IMedia media, TVideoFormat outputFormat, bool deleteAfterSuccess)
+        public void ArchiveSave(IServerMedia media, bool deleteAfterSuccess)
         {
             IArchiveMedia toMedia = GetArchiveMedia(media);
-            if (media is ServerMedia)
-            {
-                _archiveCopy((Media)media, (Media)toMedia, deleteAfterSuccess, false);
-            }
-            if (media is IngestMedia)
-            {
-                ConvertOperation operation = new ConvertOperation { SourceMedia = media, DestMedia = toMedia, OutputFormat = outputFormat };
-                MediaManager.FileManager.Queue(operation, false);
-            }
+            _archiveCopy((Media)media, (Media)toMedia, deleteAfterSuccess, false);
         }
 
         public void ArchiveRestore(IArchiveMedia srcMedia, IServerMedia destMedia, bool toTop)

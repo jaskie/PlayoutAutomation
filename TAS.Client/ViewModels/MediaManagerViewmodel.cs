@@ -171,7 +171,7 @@ namespace TAS.Client.ViewModels
             CommandSearch = new UICommand() { ExecuteDelegate = _search, CanExecuteDelegate = _canSearch };
             CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = _isSomethingSelected };
             CommandMoveSelectedToArchive = new UICommand() { ExecuteDelegate = _moveSelectedToArchive, CanExecuteDelegate = o => _mediaDirectory is IServerDirectory && _isSomethingSelected(o) };
-            CommandCopySelectedToArchive = new UICommand() { ExecuteDelegate = _copySelectedToArchive, CanExecuteDelegate = _isSomethingSelected };
+            CommandCopySelectedToArchive = new UICommand() { ExecuteDelegate = _copySelectedToArchive, CanExecuteDelegate = o => _mediaDirectory is IServerDirectory && _isSomethingSelected(o) };
             CommandIngestSelectedToServer = new UICommand() { ExecuteDelegate = _ingestSelectedToServer, CanExecuteDelegate = _canIngestSelectedToServer };
 
             CommandRefresh = new UICommand()
@@ -236,7 +236,7 @@ namespace TAS.Client.ViewModels
             _mediaManager.GetLoudness(_getSelections());
         }
 
-        private void _ingestSelectionToDir(IMediaDirectory directory)
+        private void _ingestSelectionToDir(IServerDirectory directory)
         {
             IMediaDirectory currentDir = _mediaDirectory;
             if (currentDir is IIngestDirectory)
@@ -249,10 +249,7 @@ namespace TAS.Client.ViewModels
                         && !sourceMedia.Verified)
                             sourceMedia.ReVerify();
                     IMedia destMedia = null;
-                    if (directory is IServerDirectory)
-                        destMedia = (directory as IServerDirectory).GetServerMedia(sourceMedia, false);
-                    if (directory is IArchiveDirectory)
-                        destMedia = (directory as IArchiveDirectory).GetArchiveMedia(sourceMedia, false);
+                    destMedia = (directory as IServerDirectory).GetServerMedia(sourceMedia, false);
                     if (destMedia != null)
                     {
                         ingestList.Add(
@@ -371,12 +368,12 @@ namespace TAS.Client.ViewModels
 
         private void _moveSelectedToArchive(object o)
         {
-            _mediaManager.ArchiveMedia(_getSelections(), true);
+            _mediaManager.ArchiveMedia(_getSelections().Where(m => m is IServerMedia).Cast<IServerMedia>() , true);
         }
 
         private void _copySelectedToArchive(object o)
         {
-            _mediaManager.ArchiveMedia(_getSelections(), false);
+            _mediaManager.ArchiveMedia(_getSelections().Where(m => m is IServerMedia).Cast<IServerMedia>(), false);
         }
 
         private bool _filter(object item)

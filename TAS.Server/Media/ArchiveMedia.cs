@@ -14,22 +14,25 @@ namespace TAS.Server
         public ArchiveMedia(IArchiveDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
         public override bool Save()
         {
-            if (MediaStatus == TMediaStatus.Available)
+            bool result = false;
+            if (MediaStatus != TMediaStatus.Unknown)
             {
-                if (Modified)
+                if (MediaStatus == TMediaStatus.Deleted)
+                {
+                    if (IdPersistentMedia != 0)
+                        result = this.DbDelete();
+                }
+                else
                 {
                     if (IdPersistentMedia == 0)
-                        return this.DbInsert();
+                        result = this.DbInsert();
                     else
-                        return this.DbUpdate();
+                    if (Modified)
+                        result = this.DbUpdate();
+                    Modified = false;
                 }
             }
-            if (MediaStatus == TMediaStatus.Deleted)
-            {
-                if (IdPersistentMedia != 0)
-                    return this.DbDelete();
-            }
-        return false;
+            return result;
         }
     }
 }

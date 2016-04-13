@@ -22,8 +22,9 @@ namespace TAS.Server
                 int startTickCunt = Environment.TickCount;
                 using (FFMpegWrapper ffmpeg = new FFMpegWrapper(media.FullPath))
                 {
-                    Rational frameRate = ffmpeg.GetFrameRate();
-                    videoDuration = ffmpeg.GetFrameCount().SMPTEFramesToTimeSpan(new RationalNumber(frameRate.Num, frameRate.Den));
+                    Rational r = ffmpeg.GetFrameRate();
+                    RationalNumber frameRate = new RationalNumber(r.Num, r.Den);
+                    videoDuration = ffmpeg.GetFrameCount().SMPTEFramesToTimeSpan(frameRate);
                     audioDuration = (TimeSpan)ffmpeg.GetAudioDuration();
                     if (videoDuration == TimeSpan.Zero)
                     {
@@ -45,10 +46,10 @@ namespace TAS.Server
                             mi.Close();
                         }
                     }
-
-                    media.Duration = videoDuration;
-                    if (media.DurationPlay == TimeSpan.Zero || media.DurationPlay > videoDuration)
-                        media.DurationPlay = videoDuration;
+                    var mediaDuration = ((videoDuration > audioDuration) && (audioDuration > TimeSpan.Zero) ? audioDuration : videoDuration).Round(frameRate);
+                    media.Duration = mediaDuration;
+                    if (media.DurationPlay == TimeSpan.Zero || media.DurationPlay > mediaDuration)
+                        media.DurationPlay = mediaDuration;
                     int w = ffmpeg.GetWidth();
                     int h = ffmpeg.GetHeight();
                     FieldOrder order = ffmpeg.GetFieldOrder();
@@ -73,7 +74,7 @@ namespace TAS.Server
                     if (media is TempMedia)
                         ((TempMedia)media).StreamInfo = ffmpeg.GetStreamInfo();
 
-                    Debug.WriteLine("Check of {0} finished with status {1}. It took {2} milliseconds", media.FullPath, media.MediaStatus, Environment.TickCount - startTickCunt);
+                    Debug.WriteLine("FFmpeg check of {0} finished. It took {1} milliseconds", media.FullPath, Environment.TickCount - startTickCunt);
 
                     if (videoDuration > TimeSpan.Zero)
                     {
