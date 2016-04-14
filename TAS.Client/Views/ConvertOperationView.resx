@@ -138,6 +138,9 @@
   <data name="_destMediaName" xml:space="preserve">
     <value>Clip name</value>
   </data>
+  <data name="_duration" xml:space="preserve">
+    <value>Duration</value>
+  </data>
   <data name="_emphasis" xml:space="preserve">
     <value>Emphasis</value>
   </data>
@@ -152,6 +155,12 @@
   </data>
   <data name="_sourceFileName" xml:space="preserve">
     <value>Source file</value>
+  </data>
+  <data name="_startTC" xml:space="preserve">
+    <value>From TC</value>
+  </data>
+  <data name="_trim" xml:space="preserve">
+    <value>Trim movie</value>
   </data>
   <data name="_videoFormat" xml:space="preserve">
     <value>Video format</value>

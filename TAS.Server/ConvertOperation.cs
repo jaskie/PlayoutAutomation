@@ -143,6 +143,14 @@ namespace TAS.Server
                 NotifyPropertyChanged("IdAux");
             }
         }
+        [JsonProperty]
+        public TimeSpan StartTC { get; set; }
+        [JsonProperty]
+        public TimeSpan Duration { get; set; }
+        [JsonProperty]
+        public bool Trim { get; set; }
+
+
 
         #endregion // IConvertOperation implementation
 
@@ -340,6 +348,11 @@ namespace TAS.Server
             return ep.ToString();
         }
 
+        private bool _is_trimmed()
+        {
+            return Trim && Duration > TimeSpan.Zero && !((IngestDirectory)SourceMedia.Directory).DoNotEncode;
+        }
+
         private bool _convertMovie(Media media, StreamInfo[] streams)
         {
             _progressDuration = media.Duration;
@@ -349,12 +362,15 @@ namespace TAS.Server
             DestMedia.MediaStatus = TMediaStatus.Copying;
             CheckInputFile(media);
             string encodeParams = _encodeParameters(media, streams);
-            string Params = string.Format("-i \"{0}\" -vsync cfr {1} -timecode {2} -y \"{3}\"",
+            string ingestRegion = _is_trimmed() ?
+                string.Format(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1}", StartTC - SourceMedia.TcStart, Duration) : string.Empty;
+            string Params = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                    " -i \"{1}\"{0} -vsync cfr {2} -timecode {3} -y \"{4}\"",
+                    ingestRegion,
                     media.FullPath,
                     encodeParams,
-                    DestMedia.TcStart.ToSMPTETimecodeString(formatDescription.FrameRate),
+                    StartTC.ToSMPTETimecodeString(formatDescription.FrameRate),
                     DestMedia.FullPath);
-
             if (DestMedia is ArchiveMedia && !Directory.Exists(Path.GetDirectoryName(DestMedia.FullPath)))
                 Directory.CreateDirectory(Path.GetDirectoryName(DestMedia.FullPath));
             DestMedia.AudioChannelMapping = (TAudioChannelMapping)MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion].OutputFormat;
@@ -363,7 +379,7 @@ namespace TAS.Server
             {
                 DestMedia.MediaStatus = TMediaStatus.Copied;
                 ((Media)DestMedia).Verify();
-                if (Math.Abs(DestMedia.Duration.Ticks - media.Duration.Ticks) > TimeSpan.TicksPerSecond / 2)
+                if (Math.Abs(DestMedia.Duration.Ticks - (_is_trimmed() ? Duration.Ticks : media.Duration.Ticks)) > TimeSpan.TicksPerSecond / 2)
                 {
                     DestMedia.MediaStatus = TMediaStatus.CopyError;
                     if (DestMedia is PersistentMedia)

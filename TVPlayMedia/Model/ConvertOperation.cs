@@ -16,5 +16,7 @@ namespace TAS.Client.Model
         public TVideoFormat OutputFormat { get { return Get<TVideoFormat>(); } set { Set(value); } }
         public TFieldOrder SourceFieldOrderEnforceConversion { get { return Get<TFieldOrder>(); } set { Set(value); } }
         public string IdAux { get { return Get<string>(); } set { Set(value); } }
+        public TimeSpan StartTC { get { return Get<TimeSpan>(); } set { Set(value); } }
+        public TimeSpan Duration { get { return Get<TimeSpan>(); } set { Set(value); } }
     }
 }

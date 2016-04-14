@@ -8,8 +8,9 @@
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              d:DataContext="{x:Type vm:ConvertOperationViewModel}"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="300">
+             d:DesignHeight="360" DataContextChanged="UserControl_DataContextChanged">
     <UserControl.Resources>
+        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <Style TargetType="TextBox">
             <Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="true">
@@ -20,53 +21,116 @@
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <StackPanel>
-        <Label Content="{Resx _sourceFileName}"/>
-        <TextBox Text="{Binding SourceFileName, Mode=OneWay}" IsReadOnly="True" IsEnabled="False" />
-        <Label Content="{Resx _destMediaName}"/>
-        <TextBox Text="{Binding DestMediaName, UpdateSourceTrigger=PropertyChanged}" />
-        <Label Content="{Resx _destFileName}" />
-        <TextBox Text="{Binding DestFileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
-        <StackPanel Visibility="{Binding IsStill, Converter={StaticResource BoolToVis}}">
-            <Label Content="{Resx _videoFormat}" />
-            <ComboBox ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding DestMediaVideoFormat}"  />
+    <StackPanel Orientation="Horizontal">
+        <StackPanel Width="250">
+            <Label Content="{Resx _sourceFileName}"/>
+            <TextBox Text="{Binding SourceFileName, Mode=OneWay}" IsReadOnly="True" IsEnabled="False" />
+            <Label Content="{Resx _destMediaName}"/>
+            <TextBox Text="{Binding DestMediaName, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Content="{Resx _destFileName}" />
+            <TextBox Text="{Binding DestFileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+            <StackPanel Visibility="{Binding IsStill, Converter={StaticResource BoolToVis}}">
+                <Label Content="{Resx _videoFormat}" />
+                <ComboBox ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding DestMediaVideoFormat}"  />
+            </StackPanel>
+            <StackPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
+                <Label Content="{Resx _category}" />
+                <ComboBox ItemsSource="{Binding Categories}" SelectedValue="{Binding DestCategory}" >
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Width="12">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding}" Value="Show">
+                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/show.png"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding}" Value="Commercial">
+                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/commercial.png"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding}" Value="Promo">
+                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/promo.png"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding}" Value="Sponsored">
+                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/sponsored.png"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding}" Value="Fill">
+                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/fill.png"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding}" Value="Insert">
+                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/insert.png"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                                <TextBlock Margin="2, 0, 0, 0" Text="{Binding}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+
+                </ComboBox>
+                <Label Content="{Resx _emphasis}"/>
+                <ComboBox ItemsSource="{Binding MediaEmphasises}" SelectedValue="{Binding DestMediaEmphasis}" >
+                    <ComboBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type ComboBoxItem}">
+                            <Setter Property="Background" Value="{Binding Color, Converter={StaticResource ColorToBrush}}" />
+                        </Style>
+                    </ComboBox.ItemContainerStyle>
+                </ComboBox>
+                <Label Content="{Resx _parental}" />
+                <ComboBox ItemsSource="{Binding Parentals}" SelectedValue="{Binding DestParental}"  />
+                <Label Content="{Resx _idAux}"/>
+                <TextBox Text="{Binding IdAux, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
         </StackPanel>
-        <StackPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
-            <Label Content="{Resx _category}" />
-            <ComboBox ItemsSource="{Binding Categories}" SelectedValue="{Binding DestCategory}" />
-            <Label Content="{Resx _emphasis}"/>
-            <ComboBox ItemsSource="{Binding MediaEmphasises}" SelectedValue="{Binding DestMediaEmphasis}" >
-                <ComboBox.ItemContainerStyle>
-                    <Style TargetType="{x:Type ComboBoxItem}">
-                        <Setter Property="Background" Value="{Binding Color, Converter={StaticResource ColorToBrush}}" />
-                    </Style>
-                </ComboBox.ItemContainerStyle>
-            </ComboBox>
-            <Label Content="{Resx _parental}" />
-            <ComboBox ItemsSource="{Binding Parentals}" SelectedValue="{Binding DestParental}"  />
-            <Label Content="{Resx _idAux}"/>
-            <TextBox Text="{Binding IdAux, UpdateSourceTrigger=PropertyChanged}"/>
-            <Expander IsExpanded="False" Header="{Resx _conversions}">
-                <StackPanel>
-                    <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource InvertedBoolToVis}}">
-                        <Label Content="{Resx _aspectCorrection}" />
-                        <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}" />
-                        <Label Content="{Resx _fieldOrder}" />
-                        <ComboBox ItemsSource="{Binding SourceFieldOrderEnforceConversions}"  SelectedItem="{Binding SourceFieldOrderEnforceConversion}" />
-                        <Label Content="{Resx _audioChannelMix}" />
-                        <ComboBox ItemsSource="{Binding AudioChannelMappingConversions}" SelectedItem="{Binding AudioChannelMappingConversion}" />
-                        <Label Content="{Resx _audioLevelCorrection}" />
-                        <DockPanel>
-                            <TextBox Margin="4" MinWidth="45" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
-                            <Slider Margin="2" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
-                        </DockPanel>
-                    </StackPanel>
-                    <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource BoolToVis}}">
-                        <Label Content="{Resx _aspectCorrection}" />
-                        <ComboBox ItemsSource="{Binding AspectConversionsEnforce}" SelectedItem="{Binding AspectConversion}" />
-                    </StackPanel>
+        <Expander IsExpanded="False" ExpandDirection="Right">
+            <Expander.Header>
+                <Label Content="{Resx _conversions}">
+                    <Label.LayoutTransform>
+                        <TransformGroup>
+                            <RotateTransform Angle="-90" />
+                        </TransformGroup>
+                    </Label.LayoutTransform>
+                </Label>
+            </Expander.Header>
+            <StackPanel Width="250">
+                <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource InvertedBoolToVis}}">
+                    <Label Content="{Resx _aspectCorrection}" />
+                    <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}" />
+                    <Label Content="{Resx _fieldOrder}" />
+                    <ComboBox ItemsSource="{Binding SourceFieldOrderEnforceConversions}"  SelectedItem="{Binding SourceFieldOrderEnforceConversion}" />
+                    <Label Content="{Resx _audioChannelMix}" />
+                    <ComboBox ItemsSource="{Binding AudioChannelMappingConversions}" SelectedItem="{Binding AudioChannelMappingConversion}" />
+                    <Label Content="{Resx _audioLevelCorrection}" />
+                    <DockPanel>
+                        <TextBox Margin="4" MinWidth="45" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
+                        <Slider Margin="2" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
+                    </DockPanel>
                 </StackPanel>
-            </Expander>
-        </StackPanel>
+                <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource BoolToVis}}">
+                    <Label Content="{Resx _aspectCorrection}" />
+                    <ComboBox ItemsSource="{Binding AspectConversionsEnforce}" SelectedItem="{Binding AspectConversion}" />
+                </StackPanel>
+                <StackPanel Visibility="{Binding CanTrim}">
+                    <CheckBox IsChecked="{Binding Trim}" Content="{Resx _trim}" Margin="0, 5, 0, 0"/>
+                    <Grid Visibility="{Binding Trim, Converter={StaticResource BoolToVis}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <Label Content="{Resx _startTC}" />
+                            <common:DelayedBindingTextBox Text="{Binding StartTC, UpdateSourceTrigger=LostFocus, Converter={StaticResource TimeSpanToSMPTE}}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <Label Content="{Resx _duration}" />
+                            <common:DelayedBindingTextBox Text="{Binding Duration, UpdateSourceTrigger=LostFocus, Converter={StaticResource TimeSpanToSMPTE}}" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </StackPanel>
+        </Expander>
     </StackPanel>
 </UserControl>

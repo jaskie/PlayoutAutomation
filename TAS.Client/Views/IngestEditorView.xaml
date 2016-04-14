@@ -11,7 +11,7 @@
                     <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.IngestEditorView, Key=_grid.Header.Clip}" Width="*" Binding="{Binding SourceFileName, Mode=OneWay}" />
                 </DataGrid.Columns>
             </DataGrid>
-            <views:ConvertOperationView DataContext="{Binding SelectedOperation}" Width="200" Margin="10"/>
+            <views:ConvertOperationView DataContext="{Binding SelectedOperation}" Margin="5"/>
         </DockPanel>
     </Grid>
 </UserControl>

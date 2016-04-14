@@ -71,6 +71,12 @@ namespace TAS.Client.ViewModels
             return IsValid;
         }
 
+        protected override void Ok(object o)
+        {
+            foreach (ConvertOperationViewModel c in _conversionList)
+                c.Apply();
+            base.Ok(o);
+        }
 
 
     }

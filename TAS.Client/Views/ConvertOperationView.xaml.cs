@@ -12,6 +12,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TAS.Client.Common;
+using TAS.Client.ViewModels;
+using TAS.Common;
 
 namespace TAS.Client.Views
 {
@@ -20,10 +22,19 @@ namespace TAS.Client.Views
     /// </summary>
     public partial class ConvertOperationView : UserControl
     {
+
         public ConvertOperationView()
         {
             InitializeComponent();
         }
+
+        private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            ConvertOperationViewModel vm = e.NewValue as ConvertOperationViewModel;
+            if (vm != null)
+                ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = vm.SourceMediaFrameRate;
+        }
+
 
 #if DEBUG
         ~ConvertOperationView()
@@ -31,6 +42,7 @@ namespace TAS.Client.Views
             if (Application.Current != null)
                 Application.Current.Dispatcher.BeginInvoke((Action)(() => System.Diagnostics.Debug.WriteLine(this.DataContext, "View finalized")));
         }
+
 #endif // DEBUG
 
     }

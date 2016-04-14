@@ -14,5 +14,8 @@ namespace TAS.Server.Interfaces
         TVideoFormat OutputFormat { get; set; }
         decimal AudioVolume { get; set; }
         string IdAux { get; set; }
+        bool Trim { get; set; }
+        TimeSpan StartTC { get; set; }
+        TimeSpan Duration { get; set; }
     }
 }

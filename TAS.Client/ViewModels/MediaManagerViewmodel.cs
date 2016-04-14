@@ -252,6 +252,8 @@ namespace TAS.Client.ViewModels
                     destMedia = (directory as IServerDirectory).GetServerMedia(sourceMedia, false);
                     if (destMedia != null)
                     {
+                        destMedia.Duration = sourceMedia.DurationPlay;
+                        destMedia.TcStart = sourceMedia.TcPlay;
                         ingestList.Add(
                             FileManagerVm.CreateConvertOperation(
                             sourceMedia,

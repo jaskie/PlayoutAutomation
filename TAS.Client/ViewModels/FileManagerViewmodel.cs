@@ -86,6 +86,8 @@ namespace TAS.Client.ViewModels
             result.AudioVolume = audioVolume;
             result.SourceFieldOrderEnforceConversion = sourceFieldOrderEnforceConversion;
             result.AspectConversion = aspectConversion;
+            result.StartTC = sourceMedia.TcPlay;
+            result.Duration = sourceMedia.DurationPlay;
             return result;
         }
 

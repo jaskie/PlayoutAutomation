@@ -78,7 +78,6 @@
     <Compile Include="ViewModels\FileManagerViewmodel.cs" />
     <Compile Include="ViewModels\FileOperationViewmodel.cs" />
     <Compile Include="ViewModels\IngestEditViewmodel.cs" />
-    <Compile Include="ViewModels\IngestTrimmerViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditWindowViewmodel.cs" />
     <Compile Include="ViewModels\ExportMediaViewmodel.cs" />
