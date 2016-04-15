@@ -113,7 +113,7 @@
                     <Label Content="{Resx _aspectCorrection}" />
                     <ComboBox ItemsSource="{Binding AspectConversionsEnforce}" SelectedItem="{Binding AspectConversion}" />
                 </StackPanel>
-                <StackPanel Visibility="{Binding CanTrim}">
+                <StackPanel Visibility="{Binding CanTrim, Converter={StaticResource BoolToVis}}">
                     <CheckBox IsChecked="{Binding Trim}" Content="{Resx _trim}" Margin="0, 5, 0, 0"/>
                     <Grid Visibility="{Binding Trim, Converter={StaticResource BoolToVis}}">
                         <Grid.ColumnDefinitions>

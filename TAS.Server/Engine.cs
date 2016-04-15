@@ -870,11 +870,8 @@ namespace TAS.Server
                 {
                     if (_previewPosition < _previewDuration - 1)
                     {
-                        if (nFrames > 0)
-                        {
                             _previewPosition += nFrames;
                             NotifyPropertyChanged("PreviewPosition");
-                        }
                     }
                     else
                         PreviewPause();
