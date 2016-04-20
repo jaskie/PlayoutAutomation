@@ -79,7 +79,7 @@
                     </Style>
                 </ComboBox.ItemContainerStyle>
             </ComboBox>
-            <ComboBox DockPanel.Dock="Right" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" >
+            <ComboBox Visibility="{Binding IsDisplayMediaCategory, Converter={StaticResource BoolToVis}}" DockPanel.Dock="Right" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" >
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -226,6 +226,23 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="10" x:Name="isArchivedColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsDisplayIsArchived, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image>
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsArchived}" Value="True">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/show.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipName}" Width="*" Binding="{Binding MediaName, Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn x:Name="tCStartColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.TcPlay}" Width="80" Binding="{Binding sTcPlay, Mode=OneWay}" IsReadOnly="True" />
@@ -259,6 +276,11 @@
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                                 <GridViewColumn Width="{Binding ElementName=categoryColumn, Path=ActualWidth}" >
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate />
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Width="{Binding ElementName=isArchivedColumn, Path=ActualWidth}" >
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate />
                                     </GridViewColumn.CellTemplate>

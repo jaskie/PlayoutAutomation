@@ -557,6 +557,22 @@ namespace TAS.Server.Database
             return result;
         }
 
+        public static bool DbArchiveContainsMedia(this IArchiveDirectory dir, IMedia media)
+        {
+            lock (_connection)
+            {
+                DbCommandRedundant cmd;
+                if (media.MediaGuid != Guid.Empty)
+                {
+                    cmd = new DbCommandRedundant("SELECT count(*) FROM archivemedia WHERE idArchive=@idArchive && MediaGuid=@MediaGuid;", _connection);
+                    cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);
+                    cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                    object result = cmd.ExecuteScalar();
+                    return result != null && (long)result > 0;
+                }
+                return false;
+            }
+        }
 
         #endregion // ArchiveDirectory
 

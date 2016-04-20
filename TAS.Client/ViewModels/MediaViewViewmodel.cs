@@ -16,9 +16,11 @@ namespace TAS.Client.ViewModels
     public class MediaViewViewmodel: ViewmodelBase
     {
         public readonly IMedia Media;
-        public MediaViewViewmodel(IMedia media)
+        public readonly IMediaManager MediaManager;
+        public MediaViewViewmodel(IMedia media, IMediaManager manager)
         {
             Media = media;
+            MediaManager = manager;
             Media.PropertyChanged += OnMediaPropertyChanged;
             if (Media is IPersistentMedia)
             {
@@ -56,6 +58,7 @@ namespace TAS.Client.ViewModels
         public int SegmentCount { get { return (Media is IPersistentMedia) ? (Media as IPersistentMedia).MediaSegments.Count : 0; } }
         public bool HasSegments { get { return SegmentCount != 0; } }
         public bool IsTrimmed { get { return TcPlay != TcStart || Duration != DurationPlay; } }
+        public bool IsArchived { get { return MediaManager.IsArchived(Media); } }
         private bool _isExpanded;
         public bool IsExpanded
         {

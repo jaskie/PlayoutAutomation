@@ -385,7 +385,7 @@ namespace TAS.Client.ViewModels
                 return true;
             var m = item as MediaViewViewmodel;
             string mediaName = m.MediaName == null ? string.Empty:  m.MediaName.ToLower();
-            return (_mediaCategory as TMediaCategory? == null || m.MediaCategory == (TMediaCategory)_mediaCategory)
+            return (!(_mediaDirectory is IServerDirectory || _mediaDirectory is IArchiveDirectory) || _mediaCategory as TMediaCategory? == null || m.MediaCategory == (TMediaCategory)_mediaCategory)
                && (_searchTextSplit.All(s => mediaName.Contains(s)))
                && (_mediaType as TMediaType? == null || m.Media.MediaType == (TMediaType)_mediaType);
         }
@@ -460,6 +460,8 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged("DisplayDirectoryInfo");
                     NotifyPropertyChanged("CommandRefresh");
                     NotifyPropertyChanged("IsDisplayFolder");
+                    NotifyPropertyChanged("IsDisplayIsArchived");
+                    NotifyPropertyChanged("IsDisplayMediaCategory");
                     _notifyDirectoryPropertiesChanged();
                 }
             }
@@ -481,6 +483,8 @@ namespace TAS.Client.ViewModels
                     !(_mediaCategory is TMediaCategory);
             }
         }
+
+        public bool IsDisplayIsArchived { get { return _mediaDirectory is IServerDirectory; } }
 
         private void MediaDirectoryPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -505,9 +509,9 @@ namespace TAS.Client.ViewModels
             _mediaItems = new ObservableCollection<MediaViewViewmodel>();
             IEnumerable<MediaViewViewmodel> itemsToLoad;
             if (_mediaDirectory is IServerDirectory)
-                itemsToLoad = _mediaDirectory.GetFiles().Where(f => (f.MediaType == TMediaType.Movie || f.MediaType == TMediaType.Still)).Select(f => new MediaViewViewmodel(f));
+                itemsToLoad = _mediaDirectory.GetFiles().Where(f => (f.MediaType == TMediaType.Movie || f.MediaType == TMediaType.Still)).Select(f => new MediaViewViewmodel(f, _mediaManager));
             else
-                itemsToLoad = _mediaDirectory.GetFiles().Select(f => new MediaViewViewmodel(f));
+                itemsToLoad = _mediaDirectory.GetFiles().Select(f => new MediaViewViewmodel(f, _mediaManager));
             foreach (MediaViewViewmodel mvm in itemsToLoad)
                 _mediaItems.Add(mvm);
             _mediaView = CollectionViewSource.GetDefaultView(_mediaItems);
@@ -530,7 +534,7 @@ namespace TAS.Client.ViewModels
                     return;
                 if (!(MediaDirectory is IServerDirectory) || (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Still))
                 {
-                    _mediaItems.Add(new MediaViewViewmodel(media));
+                    _mediaItems.Add(new MediaViewViewmodel(media, _mediaManager));
                     _mediaView.Refresh();
                     _notifyDirectoryPropertiesChanged();
                 }

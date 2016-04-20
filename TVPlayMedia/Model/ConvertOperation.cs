@@ -18,5 +18,6 @@ namespace TAS.Client.Model
         public string IdAux { get { return Get<string>(); } set { Set(value); } }
         public TimeSpan StartTC { get { return Get<TimeSpan>(); } set { Set(value); } }
         public TimeSpan Duration { get { return Get<TimeSpan>(); } set { Set(value); } }
+        public bool Trim { get { return Get<bool>(); } set { Set(value); } }
     }
 }

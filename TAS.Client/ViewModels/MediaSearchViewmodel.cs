@@ -64,7 +64,7 @@ namespace TAS.Client.ViewModels
             _createCommands();
             _items = new ObservableCollection<MediaViewViewmodel>(_searchDirectory.GetFiles()
                 .Where(m => _canAddMediaToCollection(m, mediaType, _frameRate, videoFormatDescription))
-                .Select(m => new MediaViewViewmodel(m)));
+                .Select(m => new MediaViewViewmodel(m, _manager)));
             _itemsView = CollectionViewSource.GetDefaultView(_items);
             _itemsView.SortDescriptions.Add(new SortDescription("MediaName", ListSortDirection.Ascending));
             _itemsView.Filter += _itemsFilter;
@@ -129,7 +129,7 @@ namespace TAS.Client.ViewModels
                 IMedia media = _searchDirectory.FindMediaByDto(e.DtoGuid);
                 if (media != null 
                     && _canAddMediaToCollection(media, _mediaType, _frameRate, _videoFormatDescription))
-                    Items.Add(new MediaViewViewmodel(media));
+                    Items.Add(new MediaViewViewmodel(media, _manager));
             });
         }
 

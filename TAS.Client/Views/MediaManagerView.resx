@@ -160,7 +160,7 @@
     <value>Size:</value>
   </data>
   <data name="_toolbar.ArchiveDelete" xml:space="preserve">
-    <value>Archive (delete after)</value>
+    <value>Archive, then delete</value>
   </data>
   <data name="_toolbar.ArchiveDelete.ToolTip" xml:space="preserve">
     <value>Archive selected files (delete from current folder)</value>

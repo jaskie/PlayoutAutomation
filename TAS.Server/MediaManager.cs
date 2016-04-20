@@ -395,6 +395,12 @@ namespace TAS.Server
             return Guid.Empty;            
         }
 
+        public bool IsArchived(IMedia media)
+        {
+            ArchiveDirectory dir = ArchiveDirectory as ArchiveDirectory;
+            return dir != null && dir.DbArchiveContainsMedia(media);
+        }
+
         private void _mediaPRIVerified(object o, MediaDtoEventArgs e)
         {
             if (MediaDirectorySEC != null

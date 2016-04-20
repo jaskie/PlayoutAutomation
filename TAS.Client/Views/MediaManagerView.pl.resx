@@ -160,7 +160,7 @@
     <value>Rozmiar:</value>
   </data>
   <data name="_toolbar.ArchiveDelete" xml:space="preserve">
-    <value>Archiwizuj (usuń)</value>
+    <value>Archiwizuj i usuń</value>
   </data>
   <data name="_toolbar.ArchiveDelete.ToolTip" xml:space="preserve">
     <value>Archiwizuj wskazane klipy (usuń z bieżącego folderu)</value>
