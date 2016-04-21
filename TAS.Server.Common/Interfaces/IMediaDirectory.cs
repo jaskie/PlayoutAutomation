@@ -26,5 +26,6 @@ namespace TAS.Server.Interfaces
         event EventHandler<MediaDtoEventArgs> MediaAdded;
         event EventHandler<MediaDtoEventArgs> MediaRemoved;
         event EventHandler<MediaDtoEventArgs> MediaVerified;
+        event EventHandler<MediaDtoEventArgs> MediaDeleted;
     }
 }

@@ -90,8 +90,18 @@ namespace TAS.Server
 
         public override bool DeleteMedia(IMedia media)
         {
-            if (base.DeleteMedia(media))
+            var m = media as ArchiveMedia;
+            if (m != null)
             {
+                try
+                {
+                    File.Delete(m.FullPath);
+                }
+                catch
+                {
+                    return false;
+                }
+                OnMediaDeleted(m);
                 MediaRemove(media);
                 return true;
             }
@@ -132,8 +142,19 @@ namespace TAS.Server
 
         public void ArchiveSave(IServerMedia media, bool deleteAfterSuccess)
         {
-            IArchiveMedia toMedia = GetArchiveMedia(media);
-            _archiveCopy((Media)media, (Media)toMedia, deleteAfterSuccess, false);
+            ArchiveMedia archived;
+            if (media.IsArchived 
+                && (archived = this.DbMediaFind<ArchiveMedia>(media)) != null
+                && archived.FileExists())
+            {
+                if (deleteAfterSuccess)
+                    MediaManager.FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = media}, false);
+            }
+            else
+            {
+                IArchiveMedia toMedia = GetArchiveMedia(media);
+                _archiveCopy((Media)media, (Media)toMedia, deleteAfterSuccess, false);
+            }
         }
 
         public void ArchiveRestore(IArchiveMedia srcMedia, IServerMedia destMedia, bool toTop)
@@ -149,22 +170,23 @@ namespace TAS.Server
 
         private void _archiveCopy(Media fromMedia, Media toMedia, bool deleteAfterSuccess, bool toTop)
         {
-            if (fromMedia.MediaGuid == toMedia.MediaGuid && fromMedia.FilePropertiesEqual(toMedia))
-            {
-                if (deleteAfterSuccess)
-                {
-                    FileOperation operation;
-                    operation = new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = fromMedia };
-                    MediaManager.FileManager.Queue(operation, toTop);
-                }
-            }
-            else
-            {
-                if (!Directory.Exists(Path.GetDirectoryName(toMedia.FullPath)))
-                    Directory.CreateDirectory(Path.GetDirectoryName(toMedia.FullPath));
-                MediaManager.FileManager.Queue(new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestMedia = toMedia }, toTop);
-            }
-        }    
+            if (!Directory.Exists(Path.GetDirectoryName(toMedia.FullPath)))
+                Directory.CreateDirectory(Path.GetDirectoryName(toMedia.FullPath));
+            FileOperation operation = new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestMedia = toMedia };
+            operation.Success += Archived;
+            MediaManager.FileManager.Queue(operation, toTop);
+        }
 
+        private void Archived(object sender, EventArgs e)
+        {
+            var operation = sender as FileOperation;
+            if (operation != null)
+            {
+                var sourceMedia = operation.SourceMedia as ServerMedia;
+                if (sourceMedia != null)
+                    sourceMedia.IsArchived = true;
+                operation.Success -= Archived;
+            }
+        }
     }
 }

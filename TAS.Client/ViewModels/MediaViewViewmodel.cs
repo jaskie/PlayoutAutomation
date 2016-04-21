@@ -58,7 +58,7 @@ namespace TAS.Client.ViewModels
         public int SegmentCount { get { return (Media is IPersistentMedia) ? (Media as IPersistentMedia).MediaSegments.Count : 0; } }
         public bool HasSegments { get { return SegmentCount != 0; } }
         public bool IsTrimmed { get { return TcPlay != TcStart || Duration != DurationPlay; } }
-        public bool IsArchived { get { return MediaManager.IsArchived(Media); } }
+        public bool IsArchived { get { return Media is IServerMedia ? ((IServerMedia)Media).IsArchived : false; } }
         private bool _isExpanded;
         public bool IsExpanded
         {

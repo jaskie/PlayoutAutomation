@@ -51,16 +51,24 @@ namespace TAS.Server
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public void Initialize()
         {
+            ArchiveDirectory = this.LoadArchiveDirectory<ArchiveDirectory>(_engine.IdArchive);
             MediaDirectoryPRI = (_engine.PlayoutChannelPRI == null) ? null : _engine.PlayoutChannelPRI.OwnerServer.MediaDirectory;
             MediaDirectorySEC = (_engine.PlayoutChannelSEC == null) ? null : _engine.PlayoutChannelSEC.OwnerServer.MediaDirectory;
             MediaDirectoryPRV = (_engine.PlayoutChannelPRV == null) ? null : _engine.PlayoutChannelPRV.OwnerServer.MediaDirectory;
             AnimationDirectoryPRI = (_engine.PlayoutChannelPRI == null) ? null : _engine.PlayoutChannelPRI.OwnerServer.AnimationDirectory;
             AnimationDirectorySEC = (_engine.PlayoutChannelSEC == null) ? null : _engine.PlayoutChannelSEC.OwnerServer.AnimationDirectory;
             AnimationDirectoryPRV = (_engine.PlayoutChannelPRV == null) ? null : _engine.PlayoutChannelPRV.OwnerServer.AnimationDirectory;
-
-            ArchiveDirectory = this.LoadArchiveDirectory<ArchiveDirectory>(_engine.IdArchive);
-            if (this.ArchiveDirectory != null)
-                this.ArchiveDirectory.Initialize();
+            if (MediaDirectoryPRI != null)
+                MediaDirectoryPRI.Initialize();
+            if (MediaDirectorySEC != null)
+                MediaDirectorySEC.Initialize();
+            if (MediaDirectoryPRV != null)
+                MediaDirectoryPRV.Initialize();
+            if (ArchiveDirectory != null)
+            {
+                ArchiveDirectory.Initialize();
+                ArchiveDirectory.MediaDeleted += ArchiveDirectory_MediaDeleted;
+            }
             Debug.WriteLine(this, "Begin initializing");
             ServerDirectory sdir = MediaDirectoryPRI as ServerDirectory;
             if (sdir != null)
@@ -84,6 +92,16 @@ namespace TAS.Server
             LoadIngestDirs(ConfigurationManager.AppSettings["IngestFolders"]);
             _fileManager.VolumeReferenceLoudness =  Convert.ToDecimal(VolumeReferenceLoudness);
             Debug.WriteLine(this, "End initializing");
+        }
+
+        private void ArchiveDirectory_MediaDeleted(object sender, MediaDtoEventArgs e)
+        {
+            if (MediaDirectoryPRI != null)
+            {
+                var m = ((ServerDirectory)MediaDirectoryPRI).FindMediaByMediaGuid(e.MediaGuid) as ServerMedia;
+                if (m != null)
+                    m.IsArchived = false;
+            }
         }
 
         private List<IIngestDirectory> _ingestDirectories;
@@ -155,6 +173,7 @@ namespace TAS.Server
                     || e.PropertyName == "AudioChannelMapping"
                     || e.PropertyName == "AudioLevelIntegrated"
                     || e.PropertyName == "AudioLevelPeak"
+                    || e.PropertyName == "IsArchived"
                     ))
             {
                 ServerMedia compMedia = _findComplementaryMedia(media as ServerMedia);
@@ -393,12 +412,6 @@ namespace TAS.Server
                 }
             }
             return Guid.Empty;            
-        }
-
-        public bool IsArchived(IMedia media)
-        {
-            ArchiveDirectory dir = ArchiveDirectory as ArchiveDirectory;
-            return dir != null && dir.DbArchiveContainsMedia(media);
         }
 
         private void _mediaPRIVerified(object o, MediaDtoEventArgs e)

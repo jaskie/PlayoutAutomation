@@ -29,6 +29,7 @@ namespace TAS.Server
         public event EventHandler<MediaDtoEventArgs> MediaAdded;
         public event EventHandler<MediaDtoEventArgs> MediaRemoved;
         public event EventHandler<MediaDtoEventArgs> MediaVerified;
+        public event EventHandler<MediaDtoEventArgs> MediaDeleted;
 
         protected bool _isInitialized = false;
 
@@ -194,6 +195,7 @@ namespace TAS.Server
                 else
                 {
                     MediaRemove(media);
+                    OnMediaDeleted(media);
                     return true;
                 }
             }
@@ -243,7 +245,10 @@ namespace TAS.Server
         protected virtual void FileRemoved(string fullPath)
         {
             foreach (Media m in _files.Values.Where(m => fullPath == m.FullPath && m.MediaStatus != TMediaStatus.Required).ToList())
+            {
                 MediaRemove(m);
+                OnMediaDeleted(m);
+            }
         }
 
         protected virtual void OnMediaRenamed(Media media, string newName) { }
@@ -260,8 +265,16 @@ namespace TAS.Server
         {
             var h = MediaVerified;
             if (h != null)
-                h(media, new MediaDtoEventArgs(media.DtoGuid, media.MediaGuid));
+                h(this, new MediaDtoEventArgs(media.DtoGuid, media.MediaGuid));
         }
+
+        protected virtual void OnMediaDeleted(IMedia media)
+        {
+            var h = MediaDeleted;
+            if (h != null)
+                h(this, new MediaDtoEventArgs(media.DtoGuid, media.MediaGuid));
+        }
+
 
         protected virtual void EnumerateFiles(string directory, string filter, bool includeSubdirectories, CancellationToken cancelationToken)
         {

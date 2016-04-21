@@ -1021,13 +1021,13 @@ VALUES
             }
         }
 
-        public static void Load<T>(this IServerDirectory directory) where T : IServerMedia
+        public static void Load<T>(this IServerDirectory directory, IArchiveDirectory archiveDirectory) where T : IServerMedia
         {
             Debug.WriteLine(directory, "ServerLoadMediaDirectory started");
             lock (_connection)
             {
                 if (_serverMediaConstructorInfo == null)
-                    _serverMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IMediaDirectory), typeof(Guid), typeof(UInt64) });
+                    _serverMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IMediaDirectory), typeof(Guid), typeof(UInt64), typeof(IArchiveDirectory) });
 
                 DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM serverMedia WHERE idServer=@idServer and typMedia in (@typMediaMovie, @typMediaStill)", _connection);
                 cmd.Parameters.AddWithValue("@idServer", directory.Server.Id);
@@ -1039,7 +1039,7 @@ VALUES
                     {
                         while (dataReader.Read())
                         {
-                            T nm = (T)_serverMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia") });
+                            T nm = (T)_serverMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia"), archiveDirectory});
                             nm._mediaReadFields(dataReader);
                             if (nm.MediaStatus != TMediaStatus.Available)
                             {

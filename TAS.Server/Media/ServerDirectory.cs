@@ -25,7 +25,7 @@ namespace TAS.Server
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {
-            this.Load<ServerMedia>();
+            this.Load<ServerMedia>(MediaManager.ArchiveDirectory);
             base.Initialize();
             Debug.WriteLine(this, "Directory initialized");
         }
@@ -34,7 +34,7 @@ namespace TAS.Server
 
         protected override IMedia CreateMedia(string fullPath, Guid guid)
         {
-            return new ServerMedia(this, guid, 0)
+            return new ServerMedia(this, guid, 0, MediaManager.ArchiveDirectory)
             {
                 FullPath = fullPath,
             };
@@ -97,7 +97,7 @@ namespace TAS.Server
             ServerMedia fm = (ServerMedia)FindMediaByMediaGuid(media.MediaGuid); // check if need to select new Guid
             if (fm == null || !searchExisting)
             {
-                fm = (new ServerMedia(this, fm == null ? media.MediaGuid : Guid.NewGuid(), 0) // in case file with the same GUID already exists and we need to get new one
+                fm = (new ServerMedia(this, fm == null ? media.MediaGuid : Guid.NewGuid(), 0, MediaManager.ArchiveDirectory) // in case file with the same GUID already exists and we need to get new one
                 {
                     MediaName = media.MediaName,
                     FullPath = (media is IngestMedia) ? 

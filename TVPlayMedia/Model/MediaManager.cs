@@ -84,10 +84,6 @@ namespace TAS.Client.Model
         {
             Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory });
         }
-
-        public bool IsArchived(IMedia media)
-        {
-            return Query<bool>(parameters: media);
-        }
+        
     }
 }

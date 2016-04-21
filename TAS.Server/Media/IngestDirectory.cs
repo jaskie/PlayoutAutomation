@@ -411,7 +411,7 @@ namespace TAS.Server
         {
             IMedia m = null;
             if (Extensions == null
-             || Extensions.Count() == 0
+             || Extensions.Length == 0
              || Extensions.Any(ext => ext == Path.GetExtension(fullPath).ToLowerInvariant())
              || (IsXDCAM && Path.GetExtension(fullPath).ToLowerInvariant() == XDCAM.Smil.FileExtension)
             )
@@ -496,7 +496,7 @@ namespace TAS.Server
 
         protected override void OnMediaRenamed(Media media, string newName)
         {
-            if (!Extensions.Any(ext => ext == Path.GetExtension(newName).ToLowerInvariant()))
+            if (!(Extensions.Length == 0 || Extensions.Any(ext => ext == Path.GetExtension(newName).ToLowerInvariant())))
                 MediaRemove(media);
         }
 

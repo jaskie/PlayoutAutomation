@@ -16,8 +16,13 @@ namespace TAS.Server
     [JsonObject(MemberSerialization.OptIn)]
     public class ServerMedia: PersistentMedia, IServerMedia
     {
-
-        public ServerMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia) { IdPersistentMedia = idPersistentMedia; }
+        readonly IArchiveDirectory _archiveDirectory;
+        public ServerMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia, IArchiveDirectory archiveDirectory) : base(directory, guid, idPersistentMedia)
+        {
+            IdPersistentMedia = idPersistentMedia;
+            _archiveDirectory = archiveDirectory;
+            _isArchived = new Lazy<bool>(() => _archiveDirectory == null ? false :_archiveDirectory.DbArchiveContainsMedia(this));
+        }
 
         // media properties
         private bool _isPRI;
@@ -28,6 +33,17 @@ namespace TAS.Server
         {
             get { return _doNotArchive; }
             set { SetField(ref _doNotArchive, value, "DoNotArchive"); }
+        }
+
+        Lazy<bool> _isArchived;
+        public bool IsArchived
+        {
+            get { return _isArchived.Value; }
+            set
+            {
+                if (_isArchived.IsValueCreated && _isArchived.Value != value)
+                    SetField(ref _isArchived, new Lazy<bool>(() => value), "IsArchived");
+            }
         }
 
         public override void CloneMediaProperties(IMedia fromMedia)

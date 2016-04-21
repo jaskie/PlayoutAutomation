@@ -134,6 +134,8 @@
             </DataGrid.RowStyle>
             <DataGrid.Resources>
                 <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
+                <common:BoolToStringConverter x:Key="isArchivedConverter" TrueValue="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.IsArchived}" />
+                <common:BoolToStringConverter x:Key="isTrimmedConverter" TrueValue="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.IsTrimmed}" />
             </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" CanUserSort="False" Width="20">
@@ -146,58 +148,65 @@
                 <DataGridTemplateColumn Width="10" CanUserResize="False" x:Name="trimmedColumn" >
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image x:Name="trimmedImage" />
-                            <DataTemplate.Triggers>
-                                <DataTrigger Binding="{Binding IsTrimmed}" Value="True">
-                                    <Setter Property="Source" TargetName="trimmedImage" Value="/TAS.Client.Common;component/Images/Indicators/scizors.png" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsTrimmed}" Value="False">
-                                    <Setter Property="Source" TargetName="trimmedImage" Value="{x:Null}" />
-                                </DataTrigger>
-                            </DataTemplate.Triggers>
+                            <Image ToolTip="{Binding IsTrimmed, Converter={StaticResource isTrimmedConverter}}">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsTrimmed}" Value="True">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/scizors.png" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTemplateColumn Width="10" CanUserSort="True" CanUserResize="False" x:Name="stateColumn">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image x:Name="stateImage" />
-                            <DataTemplate.Triggers>
-                                <DataTrigger Binding="{Binding MediaStatus}" Value="Available">
-                                    <Setter Property="Source" TargetName="stateImage" Value="/TAS.Client.Common;component/Images/MediaStates/available.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding MediaStatus}" Value="Copied">
-                                    <Setter Property="Source" TargetName="stateImage" Value="/TAS.Client.Common;component/Images/MediaStates/copied.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding MediaStatus}" Value="CopyError">
-                                    <Setter Property="Source" TargetName="stateImage" Value="/TAS.Client.Common;component/Images/MediaStates/copy-error.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding MediaStatus}" Value="ValidationError">
-                                    <Setter Property="Source" TargetName="stateImage" Value="/TAS.Client.Common;component/Images/MediaStates/validation-error.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding MediaStatus}" Value="Copying">
-                                    <Setter Property="Source" TargetName="stateImage" Value="/TAS.Client.Common;component/Images/MediaStates/copying.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding MediaStatus}" Value="CopyPending">
-                                    <Setter Property="Source" TargetName="stateImage" Value="/TAS.Client.Common;component/Images/MediaStates/copy-pending.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding MediaStatus}" Value="Deleted">
-                                    <Setter Property="Source" TargetName="stateImage" Value="/TAS.Client.Common;component/Images/MediaStates/deleted.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding MediaStatus}" Value="Required">
-                                    <Setter Property="Source" TargetName="stateImage" Value="/TAS.Client.Common;component/Images/MediaStates/required.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding MediaStatus}" Value="Unknown">
-                                    <Setter Property="Source" TargetName="stateImage" Value="/TAS.Client.Common;component/Images/MediaStates/unknown.png"/>
-                                </DataTrigger>
-                            </DataTemplate.Triggers>
+                            <Image ToolTip="{Binding MediaStatus}">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding MediaStatus}" Value="Available">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/available.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding MediaStatus}" Value="Copied">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/copied.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding MediaStatus}" Value="CopyError">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/copy-error.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding MediaStatus}" Value="ValidationError">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/validation-error.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding MediaStatus}" Value="Copying">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/copying.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding MediaStatus}" Value="CopyPending">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/copy-pending.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding MediaStatus}" Value="Deleted">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/deleted.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding MediaStatus}" Value="Required">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/required.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding MediaStatus}" Value="Unknown">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaStates/unknown.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsDisplayMediaCategory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image>
+                            <Image ToolTip="{Binding MediaCategory}">
                                 <Image.Style>
                                     <Style TargetType="Image">
                                         <Style.Triggers>
@@ -229,12 +238,12 @@
                 <DataGridTemplateColumn Width="10" x:Name="isArchivedColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsDisplayIsArchived, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image>
+                            <Image ToolTip="{Binding IsArchived, Converter={StaticResource isArchivedConverter}}">
                                 <Image.Style>
                                     <Style TargetType="Image">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsArchived}" Value="True">
-                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/show.png"/>
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/archive.png"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>

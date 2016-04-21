@@ -135,6 +135,12 @@
   <data name="_grid.Header.TcPlay" xml:space="preserve">
     <value>TC Start</value>
   </data>
+  <data name="_grid.IsArchived" xml:space="preserve">
+    <value>Zarchiwizowany</value>
+  </data>
+  <data name="_grid.IsTrimmed" xml:space="preserve">
+    <value>Przycięty</value>
+  </data>
   <data name="_menu.Tools" xml:space="preserve">
     <value>Narzędzia</value>
   </data>

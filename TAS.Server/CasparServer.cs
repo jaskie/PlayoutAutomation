@@ -61,9 +61,7 @@ namespace TAS.Server
                     MediaDirectory = new Server.ServerDirectory(this, MediaManager);
                     AnimationDirectory = new Server.AnimationDirectory(this, MediaManager);
                     MediaDirectory.Folder = MediaFolder;
-                    MediaDirectory.Initialize();
                     AnimationDirectory.Folder = MediaFolder;
-                    AnimationDirectory.Initialize();
                     _casparDevice = new Svt.Caspar.CasparDevice();
                     _casparDevice.ConnectionStatusChanged += _casparDevice_ConnectionStatusChanged;
                     _casparDevice.UpdatedChannels += _casparDevice_UpdatedChannels;
@@ -167,7 +165,7 @@ namespace TAS.Server
                     && f.Folder == template.Folder);
                 if (media == null)
                 {
-                    media = new ServerMedia(AnimationDirectory as AnimationDirectory, Guid.Empty, ulong.MinValue)
+                    media = new ServerMedia(AnimationDirectory as AnimationDirectory, Guid.Empty, ulong.MinValue, MediaManager.ArchiveDirectory)
                         {
                             MediaType = TMediaType.AnimationFlash,
                             MediaName = template.Name,

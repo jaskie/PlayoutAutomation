@@ -23,7 +23,6 @@ namespace TAS.Server.Interfaces
         IFileManager FileManager { get; }
         VideoFormatDescription FormatDescription { get; }
         TVideoFormat VideoFormat { get; }
-        bool IsArchived(IMedia media);
 
         void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false);
         void ArchiveMedia(IEnumerable<IServerMedia> mediaList, bool deleteAfter);
