@@ -61,6 +61,22 @@ namespace TAS.Client.Model
                 EventRemove(_mediaRemoved);
             }
         }
+
+        event EventHandler<MediaDtoEventArgs> _mediaDeleted;
+        public event EventHandler<MediaDtoEventArgs> MediaDeleted
+        {
+            add
+            {
+                EventAdd(_mediaDeleted);
+                _mediaDeleted += value;
+            }
+            remove
+            {
+                _mediaDeleted -= value;
+                EventRemove(_mediaDeleted);
+            }
+        }
+
         event EventHandler<MediaDtoEventArgs> _mediaVerified;
         public event EventHandler<MediaDtoEventArgs> MediaVerified
         {
@@ -110,7 +126,7 @@ namespace TAS.Client.Model
 
         public bool DirectoryExists()
         {
-            return Get<bool>();
+            return Query<bool>();
         }
 
         public abstract IMedia FindMediaByDto(Guid dtoGuid);

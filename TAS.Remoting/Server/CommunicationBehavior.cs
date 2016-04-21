@@ -68,6 +68,8 @@ namespace TAS.Remoting.Server
                                     Send(Serialize(message));
                                 }
                             }
+                            else
+                                throw new ApplicationException(string.Format("Server: unknown method: {0}:{1}", objectToInvoke, message.MemberName));
                         }
                         else
                         if (message.MessageType == WebSocketMessage.WebSocketMessageType.Get
@@ -89,8 +91,12 @@ namespace TAS.Remoting.Server
                                         _deserializeContent(ref message.Parameters, new Type[] { property.PropertyType });
                                         property.SetValue(objectToInvoke, message.Parameters[0], null);
                                     }
+                                    else
+                                        throw new ApplicationException(string.Format("Server: not writable property: {0}:{1}", objectToInvoke, message.MemberName));
                                 }
                             }
+                            else
+                                throw new ApplicationException(string.Format("Server: unknown property: {0}:{1}", objectToInvoke, message.MemberName));
                         }
                         else
                         if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventAdd
@@ -112,6 +118,8 @@ namespace TAS.Remoting.Server
                                 if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventRemove)
                                     _removeDelegate(objectToInvoke, ei);
                             }
+                            else
+                                throw new ApplicationException(string.Format("Server: unknown event: {0}:{1}", objectToInvoke, message.MemberName));
                         }
                         else
                         if (message.MessageType == WebSocketMessage.WebSocketMessageType.ObjectRemove)
