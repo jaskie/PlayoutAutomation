@@ -39,7 +39,8 @@ namespace TAS.Client
                     new Converters.IMediaSegmentConverter(_client),
                     new Converters.IMediaDirectoryConverter(_client),
                     new Converters.IFileManagerConverter(_client),
-                    new Converters.MediaManagerConverter(_client)
+                    new Converters.IPlayoutServerConverter(_client),
+                    new Converters.IMediaManagerConverter(_client),
                     };
                 _client.Initialize();
                 Model.MediaManager mm = _client.GetInitalObject<Model.MediaManager>();

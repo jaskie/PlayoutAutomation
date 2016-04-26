@@ -69,10 +69,10 @@ namespace TAS.Server
                 else
                 {
                     if (IdPersistentMedia == 0)
-                        result = this.DbInsert();
+                        result = this.DbInsert(((ServerDirectory)_directory).Server.Id);
                     else
                     if (Modified)
-                        result = this.DbUpdate();
+                        result = this.DbUpdate(((ServerDirectory)_directory).Server.Id);
                     Modified = false;
                 }
             }

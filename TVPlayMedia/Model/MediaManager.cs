@@ -26,9 +26,9 @@ namespace TAS.Client.Model
             Invoke(parameters: new object[] { exportList, directory });
         }
 
-        public IAnimationDirectory AnimationDirectoryPRI { get; set; }
-        public IAnimationDirectory AnimationDirectorySEC { get; set; }
-        public IAnimationDirectory AnimationDirectoryPRV { get; set; }
+        public IAnimationDirectory AnimationDirectoryPRI { get { return Get<AnimationDirectory>(); } set { Set(value); } }
+        public IAnimationDirectory AnimationDirectorySEC { get { return Get<AnimationDirectory>(); } set { Set(value); } }
+        public IAnimationDirectory AnimationDirectoryPRV { get { return Get<AnimationDirectory>(); } set { Set(value); } }
 
         public IArchiveDirectory ArchiveDirectory { get { return Get<ArchiveDirectory>(); } set { Set(value); } }
 

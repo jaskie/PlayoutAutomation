@@ -112,12 +112,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converters\IPlayoutServerChannelConverter.cs" />
+    <Compile Include="Converters\IPlayoutServerConverter.cs" />
     <Compile Include="Converters\IFileManagerConverter.cs" />
     <Compile Include="Converters\IFileOperationConverter.cs" />
     <Compile Include="Converters\IMediaConverter.cs" />
     <Compile Include="Converters\IMediaDirectoryConverter.cs" />
     <Compile Include="Converters\IMediaSegmentConverter.cs" />
-    <Compile Include="Converters\MediaManagerConverter.cs" />
+    <Compile Include="Converters\IMediaManagerConverter.cs" />
     <Compile Include="Model\AnimationDirectory.cs" />
     <Compile Include="Model\ConvertOperation.cs" />
     <Compile Include="MainWindow.xaml.cs">

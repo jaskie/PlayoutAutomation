@@ -55,16 +55,22 @@ namespace TAS.Client.Common
                     {
                         ExecuteDelegate(parameter);
                     }
-                catch (Exception e)
+                    catch (Exception e)
                     {
                         Debug.WriteLine(e);
-                        System.Windows.MessageBox.Show(string.Format(Properties.Resources._message_CommandFailed, e.Message), Properties.Resources._caption_Error, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                        System.Windows.MessageBox.Show(string.Format(Properties.Resources._message_CommandFailed,
+#if DEBUG
+                            e
+#else
+                            e.Message
+#endif
+                            ), Properties.Resources._caption_Error, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                     }
                 else
-                ExecuteDelegate(parameter);
+                    ExecuteDelegate(parameter);
             }
         }
 
-        #endregion
+#endregion
     }
 }

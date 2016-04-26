@@ -893,7 +893,7 @@ VALUES
         #endregion // IEvent
 
         #region Media
-        private static Boolean _mediaFillParamsAndExecute(DbCommandRedundant cmd, IPersistentMedia media)
+        private static Boolean _mediaFillParamsAndExecute(DbCommandRedundant cmd, IPersistentMedia media, ulong serverId)
         {
             cmd.Parameters.AddWithValue("@idProgramme", media.IdProgramme);
             cmd.Parameters.AddWithValue("@idAux", media.IdAux);
@@ -913,12 +913,12 @@ VALUES
             cmd.Parameters.AddWithValue("@flags", flags);
             if (media is IServerMedia && media.Directory is IServerDirectory)
             {
-                cmd.Parameters.AddWithValue("@idServer", ((media as IServerMedia).Directory as IServerDirectory).Server.Id);
+                cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
             }
             if (media is IServerMedia && media.Directory is IAnimationDirectory)
             {
-                cmd.Parameters.AddWithValue("@idServer", ((media as IServerMedia).Directory as IAnimationDirectory).Server.Id);
+                cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typVideo", DBNull.Value);
             }
             if (media is IArchiveMedia && media.Directory is IArchiveDirectory)
@@ -984,7 +984,7 @@ VALUES
         }
 
         static System.Reflection.ConstructorInfo _serverMediaConstructorInfo;
-        public static void Load<T>(this IAnimationDirectory directory) where T: IServerMedia
+        public static void Load<T>(this IAnimationDirectory directory, ulong serverId) where T: IServerMedia
         {
             Debug.WriteLine(directory, "ServerLoadMediaDirectory animation started");
             lock (_connection)
@@ -993,7 +993,7 @@ VALUES
                     _serverMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IMediaDirectory), typeof(Guid), typeof(UInt64) });
 
                 DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM serverMedia WHERE idServer=@idServer and typMedia = @typMedia", _connection);
-                cmd.Parameters.AddWithValue("@idServer", directory.Server.Id);
+                cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typMedia", TMediaType.AnimationFlash);
                 try
                 {
@@ -1021,7 +1021,7 @@ VALUES
             }
         }
 
-        public static void Load<T>(this IServerDirectory directory, IArchiveDirectory archiveDirectory) where T : IServerMedia
+        public static void Load<T>(this IServerDirectory directory, IArchiveDirectory archiveDirectory, ulong serverId) where T : IServerMedia
         {
             Debug.WriteLine(directory, "ServerLoadMediaDirectory started");
             lock (_connection)
@@ -1030,7 +1030,7 @@ VALUES
                     _serverMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IMediaDirectory), typeof(Guid), typeof(UInt64), typeof(IArchiveDirectory) });
 
                 DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM serverMedia WHERE idServer=@idServer and typMedia in (@typMediaMovie, @typMediaStill)", _connection);
-                cmd.Parameters.AddWithValue("@idServer", directory.Server.Id);
+                cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typMediaMovie", TMediaType.Movie);
                 cmd.Parameters.AddWithValue("@typMediaStill", TMediaType.Still);
                 try
@@ -1058,7 +1058,7 @@ VALUES
             }
         }
 
-        public static Boolean DbInsert(this IServerMedia serverMedia)
+        public static Boolean DbInsert(this IServerMedia serverMedia, ulong serverId)
         {
             Boolean success = false;
             lock (_connection)
@@ -1069,7 +1069,7 @@ VALUES
 VALUES 
 (@idServer, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                _mediaFillParamsAndExecute(cmd, serverMedia);
+                _mediaFillParamsAndExecute(cmd, serverMedia, serverId);
                 serverMedia.IdPersistentMedia = (UInt64)cmd.LastInsertedId;
                 success = true;
                 Debug.WriteLineIf(success, serverMedia, "ServerMediaInserte-d");
@@ -1077,7 +1077,7 @@ VALUES
             return success;
         }
 
-        public static Boolean DbInsert(this IArchiveMedia archiveMedia)
+        public static Boolean DbInsert(this IArchiveMedia archiveMedia, ulong serverid)
         {
             Boolean success = false;
             lock (_connection)
@@ -1088,7 +1088,7 @@ VALUES
 VALUES 
 (@idArchive, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                _mediaFillParamsAndExecute(cmd, archiveMedia);
+                _mediaFillParamsAndExecute(cmd, archiveMedia, serverid);
                 archiveMedia.IdPersistentMedia = (UInt64)cmd.LastInsertedId;
                 success = true;
             }
@@ -1117,7 +1117,7 @@ VALUES
             }
         }
 
-        public static Boolean DbUpdate(this IServerMedia serverMedia)
+        public static Boolean DbUpdate(this IServerMedia serverMedia, ulong serverId)
         {
             Boolean success = false;
             lock (_connection)
@@ -1149,13 +1149,13 @@ flags=@flags
 WHERE idServerMedia=@idServerMedia;";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
                 cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.IdPersistentMedia);
-                success = _mediaFillParamsAndExecute(cmd, serverMedia);
+                success = _mediaFillParamsAndExecute(cmd, serverMedia, serverId);
                 Debug.WriteLineIf(success, serverMedia, "ServerMediaUpdate-d");
             }
             return success;
         }
 
-        public static Boolean DbUpdate(this IArchiveMedia archiveMedia)
+        public static Boolean DbUpdate(this IArchiveMedia archiveMedia, ulong serverId)
         {
             Boolean success = false;
             lock (_connection)
@@ -1187,7 +1187,7 @@ flags=@flags
 WHERE idArchiveMedia=@idArchiveMedia;";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
                 cmd.Parameters.AddWithValue("@idArchiveMedia", archiveMedia.IdPersistentMedia);
-                success = _mediaFillParamsAndExecute(cmd, archiveMedia);
+                success = _mediaFillParamsAndExecute(cmd, archiveMedia, serverId);
                 Debug.WriteLineIf(success, archiveMedia, "ArchiveMediaUpdate-d");
             }
             return success;

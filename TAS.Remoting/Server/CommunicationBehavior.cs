@@ -61,7 +61,6 @@ namespace TAS.Remoting.Server
                                 ParameterInfo[] methodParameters = methodToInvoke.GetParameters();
                                 _deserializeContent(ref message.Parameters, methodParameters.Select(p => p.ParameterType).ToArray());
                                 object response = methodToInvoke.Invoke(objectToInvoke, BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.Public, null, message.Parameters, null);
-                                Debug.WriteLine(methodToInvoke.Name, "Invoked");
                                 if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query)
                                 {
                                     message.ConvertToResponse(response);
@@ -123,12 +122,10 @@ namespace TAS.Remoting.Server
                         }
                         else
                         if (message.MessageType == WebSocketMessage.WebSocketMessageType.ObjectRemove)
-                        {
                             _removeObject(message.DtoGuid);
-                        }
                     }
                     else
-                        throw new ApplicationException(string.Format("Server: unknown DTO: {0}", message.DtoGuid));
+                        throw new ApplicationException(string.Format("Server: unknown DTO: {0} on {1}", message.DtoGuid, message));
                 }
             }
             catch (Exception ex)
@@ -211,7 +208,8 @@ namespace TAS.Remoting.Server
             {
                 object input = inputArray[i];
                 Type type = inputTypes[i];
-                if (input.GetType() != type)
+                if (input != null 
+                    && input.GetType() != type)
                 {
                     if (type.IsEnum)
                         input = Enum.Parse(type, input.ToString());

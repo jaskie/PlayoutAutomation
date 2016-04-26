@@ -14,18 +14,17 @@ namespace TAS.Server
 {
     public class ServerDirectory : MediaDirectory, IServerDirectory
     {
-        private readonly IPlayoutServer _server;
-        public IPlayoutServer Server { get { return _server; } }
+        internal readonly IPlayoutServer Server;
         public ServerDirectory(IPlayoutServer server, MediaManager manager)
             : base(manager)
         {
-            _server = server;
+            Server = server;
         }
 
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {
-            this.Load<ServerMedia>(MediaManager.ArchiveDirectory);
+            this.Load<ServerMedia>(MediaManager.ArchiveDirectory, Server.Id);
             base.Initialize();
             Debug.WriteLine(this, "Directory initialized");
         }

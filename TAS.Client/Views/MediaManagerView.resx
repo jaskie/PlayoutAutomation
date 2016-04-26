@@ -187,7 +187,7 @@
     <value>Export</value>
   </data>
   <data name="_toolbar.Export.ToolTip" xml:space="preserve">
-    <value>Export to XDCAM device</value>
+    <value>Export to folder or XDCAM device</value>
   </data>
   <data name="_toolbar.GetLoudness" xml:space="preserve">
     <value>Volume</value>

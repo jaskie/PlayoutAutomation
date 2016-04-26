@@ -7,10 +7,6 @@ namespace TAS.Remoting
     [JsonObject(MemberSerialization.OptIn)]
     public class WebSocketMessage
     {
-        public WebSocketMessage()
-        {
-            MessageGuid = Guid.NewGuid();
-        }
         public enum WebSocketMessageType
         {
             RootQuery,
@@ -24,12 +20,24 @@ namespace TAS.Remoting
             ObjectRemove,
             Exception
         }
+
+
+        public WebSocketMessage()
+        {
+            MessageGuid = Guid.NewGuid();
+        }
         [JsonProperty]
         public readonly Guid MessageGuid;
         [JsonProperty]
         public Guid DtoGuid;
         [JsonProperty]
         public WebSocketMessageType MessageType;
+
+#if DEBUG
+        [JsonProperty]
+        public string DtoName;
+#endif
+
         /// <summary>
         /// Object member (method, property or event) name
         /// </summary>

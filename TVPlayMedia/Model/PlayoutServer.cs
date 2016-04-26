@@ -10,15 +10,15 @@ namespace TAS.Client.Model
 {
     public class PlayoutServer : ProxyBase, IPlayoutServer
     {
-        public IAnimationDirectory AnimationDirectory { get { return Get<AnimationDirectory>(); } set { Set(value); } }
+        public IAnimationDirectory AnimationDirectory { get { return Get<AnimationDirectory>(); } protected set { Set(value); } }
 
-        public List<IPlayoutServerChannel> Channels { get; set; }
+        public List<IPlayoutServerChannel> Channels { get { return Get<List<PlayoutServerChannel>>().Cast<IPlayoutServerChannel>().ToList(); } protected set { Set(value); } }
 
-        public ulong Id { get { return Get<ulong>(); } set { Set(value); } }
+        public ulong Id { get { return Get<ulong>(); }  set { Set(value); } }
 
-        public bool IsConnected { get { return Get<bool>(); } set { Set(value); } }
+        public bool IsConnected { get { return Get<bool>(); } protected set { Set(value); } }
 
-        public IServerDirectory MediaDirectory { get { return Get<ServerDirectory>(); } set { Set(value); } }
+        public IServerDirectory MediaDirectory { get { return Get<ServerDirectory>(); } protected set { Set(value); } }
 
         public string MediaFolder { get { return Get<string>(); } set { Set(value); } }
 

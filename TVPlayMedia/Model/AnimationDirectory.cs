@@ -8,8 +8,6 @@ namespace TAS.Client.Model
 {
     public class AnimationDirectory : MediaDirectory, IAnimationDirectory
     {
-        public IPlayoutServer Server { get; set; }
-
         public override IEnumerable<IMedia> GetFiles()
         {
             var list = Query<List<ServerMedia>>();

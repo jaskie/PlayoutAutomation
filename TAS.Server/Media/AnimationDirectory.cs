@@ -16,11 +16,6 @@ namespace TAS.Server
     {
         private readonly IPlayoutServer _server;
 
-        public IPlayoutServer Server
-        {
-            get { return _server; }
-        }
-
         public AnimationDirectory(IPlayoutServer server, MediaManager manager): base(manager)
         {
             _server = server;
@@ -29,10 +24,13 @@ namespace TAS.Server
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {
-            _isInitialized = false; // to avoid subsequent reinitializations
-            DirectoryName = "Animacje";
-            this.Load<ServerMedia>();
-            Debug.WriteLine(Server.MediaFolder, "AnimationDirectory initialized");
+            if (!_isInitialized)
+            {
+                DirectoryName = "Animacje";
+                this.Load<ServerMedia>(_server.Id);
+                Debug.WriteLine(_server.MediaFolder, "AnimationDirectory initialized");
+                IsInitialized = true;
+            }
         }
 
         protected override void Reinitialize()

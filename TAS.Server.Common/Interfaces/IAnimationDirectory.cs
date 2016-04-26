@@ -7,6 +7,5 @@ namespace TAS.Server.Interfaces
 {
     public interface IAnimationDirectory: IMediaDirectory
     {
-        IPlayoutServer Server { get; }
     }
 }

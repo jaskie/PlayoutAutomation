@@ -8,10 +8,10 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.Converters
 {
-    class MediaManagerConverter: DtoCreationConverter<MediaManager>
+    class IMediaManagerConverter: DtoCreationConverter<IMediaManager>
     {
-        public MediaManagerConverter(IRemoteClient client): base(client) { }
-        public override MediaManager Create(Type objectType)
+        public IMediaManagerConverter(IRemoteClient client): base(client) { }
+        public override IMediaManager Create(Type objectType)
         {
             return new MediaManager();
         }
