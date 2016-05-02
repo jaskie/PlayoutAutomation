@@ -45,7 +45,7 @@ namespace TAS.Server
             return retList;
         }
 
-        public void Queue(IEnumerable<IFileOperation> operationList, bool toTop = false)
+        public void QueueList(IEnumerable<IFileOperation> operationList, bool toTop = false)
         {
             foreach (var operation in operationList)
                 Queue(operation, toTop);
@@ -54,6 +54,9 @@ namespace TAS.Server
         public void Queue(IFileOperation operation, bool toTop = false)
         {
             ((FileOperation)operation).Owner = this;
+            FileOperation op = operation as FileOperation;
+            op.ScheduledTime = DateTime.UtcNow;
+
             if ((operation.Kind == TFileOperationKind.Copy || operation.Kind == TFileOperationKind.Move || operation.Kind == TFileOperationKind.Convert)
                 && operation.DestMedia != null)
                 operation.DestMedia.MediaStatus = TMediaStatus.CopyPending;

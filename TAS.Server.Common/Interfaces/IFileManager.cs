@@ -15,7 +15,7 @@ namespace TAS.Server.Interfaces
         IFileOperation CreateFileOperation();
         event EventHandler<FileOperationEventArgs> OperationAdded;
         event EventHandler<FileOperationEventArgs> OperationCompleted;
-        void Queue(IEnumerable<IFileOperation> operationList, bool toTop);
+        void QueueList(IEnumerable<IFileOperation> operationList, bool toTop);
         void Queue(IFileOperation operation, bool toTop);
     }
 }

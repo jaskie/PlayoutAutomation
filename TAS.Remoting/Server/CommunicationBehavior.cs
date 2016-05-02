@@ -133,6 +133,7 @@ namespace TAS.Remoting.Server
                 message.MessageType = WebSocketMessage.WebSocketMessageType.Exception;
                 message.Response = ex;
                 Send(Serialize(message));
+                Debug.WriteLine(ex);
             }
 
         }
@@ -148,8 +149,8 @@ namespace TAS.Remoting.Server
                     Delegate delegateToRemove;
                     if (_delegates.TryRemove(d, out delegateToRemove))
                         ei.RemoveEventHandler(havingDelegate, delegateToRemove);
+                    }
                 }
-            }
             _converter.Clear();
             Debug.WriteLine("Server: connection closed.");
         }
@@ -190,7 +191,7 @@ namespace TAS.Remoting.Server
             Delegate delegateToRemove;
             if (_delegates.TryRemove(signature, out delegateToRemove))
                 ei.RemoveEventHandler(objectToInvoke, delegateToRemove);
-        }
+            }
 
         public static Delegate ConvertDelegate(Delegate originalDelegate, Type targetDelegateType)
         {
@@ -249,7 +250,16 @@ namespace TAS.Remoting.Server
             IDto dto = o as IDto;
             if (dto == null)
                 return;
-            WebSocketMessage message = new WebSocketMessage() { DtoGuid = dto.DtoGuid, Response = e, MessageType = WebSocketMessage.WebSocketMessageType.EventNotification, MemberName = eventName };
+            WebSocketMessage message = new WebSocketMessage()
+            {
+                DtoGuid = dto.DtoGuid,
+                Response = e,
+                MessageType = WebSocketMessage.WebSocketMessageType.EventNotification,
+                MemberName = eventName,
+#if DEBUG
+                DtoName = dto.ToString(),
+#endif
+            };
             Send(Serialize(message));
             Debug.WriteLine("Server: Notification {0} on {1} sent", eventName, dto);
         }
@@ -271,8 +281,8 @@ namespace TAS.Remoting.Server
                     Delegate delegateToRemove;
                     if (_delegates.TryRemove(d, out delegateToRemove))
                         ei.RemoveEventHandler(objectToRemove, delegateToRemove);
-                }
-            }
+    }
+}
         }
 
     }

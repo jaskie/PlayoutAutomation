@@ -29,8 +29,6 @@ namespace TAS.Server
         internal FileManager Owner;
         public FileOperation()
         {
-            ScheduledTime = DateTime.UtcNow;
-            _addOutputMessage("Operation scheduled");
         }
 
 #if DEBUG
@@ -61,8 +59,17 @@ namespace TAS.Server
             }
         }
 
+        private DateTime _scheduledTime;
         [JsonProperty]
-        public DateTime ScheduledTime { get; private set; }
+        public DateTime ScheduledTime
+        {
+            get { return _scheduledTime; }
+            internal set
+            {
+                if (SetField(ref _scheduledTime, value, "ScheduledTime"))
+                    _addOutputMessage("Operation scheduled");
+            }
+        }
         private DateTime _startTime;
         [JsonProperty]
         public DateTime StartTime

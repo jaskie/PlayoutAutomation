@@ -10,7 +10,7 @@ namespace TAS.Client.Converters
 {
     class IMediaSegmentConverter: DtoCreationConverter<IMediaSegment>
     {
-        public IMediaSegmentConverter(IRemoteClient client) : base(client) { }
+        public IMediaSegmentConverter(RemoteClient client) : base(client) { }
         public override IMediaSegment Create(Type objectType)
         {
             return new MediaSegment();

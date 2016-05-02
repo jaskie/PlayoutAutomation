@@ -10,7 +10,7 @@ namespace TAS.Client.Converters
 {
     class IFileManagerConverter : DtoCreationConverter<IFileManager>
     {
-        public IFileManagerConverter(IRemoteClient client) : base(client) { }
+        public IFileManagerConverter(RemoteClient client) : base(client) { }
         public override IFileManager Create(Type objectType)
         {
             return new FileManager();

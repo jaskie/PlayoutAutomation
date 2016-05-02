@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿#undef DEBUG
+
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,15 +17,13 @@ namespace TAS.Remoting.Client
     {
         [JsonProperty]
         public Guid DtoGuid { get; set; }
-        IRemoteClient _client;
-        ConcurrentDictionary<Guid, IDto> _objectList;
-        internal void SetClient(IRemoteClient client, ConcurrentDictionary<Guid, IDto> objectList)
+        RemoteClient _client;
+        internal void SetClient(RemoteClient client)
         {
             if (_client != null)
                 return;
             client.EventNotification += _onEventNotificationMessage;
             _client = client;
-            _objectList = objectList;
         }
 
         protected T Get<T>([CallerMemberName] string propertyName = null)
@@ -88,7 +88,7 @@ namespace TAS.Remoting.Client
             }
         }
 
-        protected bool SetField(object value, string propertyName)
+        protected bool SetField(object value, [CallerMemberName] string propertyName = null)
         {
             object oldValue;
             if (!_properties.TryGetValue(propertyName, out oldValue)  // here values may be boxed
@@ -108,7 +108,7 @@ namespace TAS.Remoting.Client
                 Debug.WriteLine("ProxyBase: {1} on {0}", this, e.Message.MemberName);
                 if (e.Message.MemberName == "PropertyChanged")
                 {
-                    PropertyChangedEventArgs ea = (sender as IRemoteClient).Deserialize<PropertyChangedEventArgs>(e.Message);
+                    PropertyChangedEventArgs ea = (sender as RemoteClient).Deserialize<PropertyChangedEventArgs>(e.Message);
                     NotifyPropertyChanged(ea.PropertyName);
                     object o;
                     _properties.TryRemove(ea.PropertyName, out o);
@@ -153,11 +153,7 @@ namespace TAS.Remoting.Client
             {
                 var client = _client;
                 if (client != null)
-                {
                     client.ObjectRemove(this);
-                    IDto removed;
-                    _objectList.TryRemove(DtoGuid, out removed);
-                }
             }
         }
 

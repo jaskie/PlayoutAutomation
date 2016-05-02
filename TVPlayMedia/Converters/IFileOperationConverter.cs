@@ -11,7 +11,7 @@ namespace TAS.Client.Converters
 {
     class IFileOperationConverter : DtoCreationConverter<IFileOperation>
     {
-        public IFileOperationConverter(IRemoteClient client) : base(client) { }
+        public IFileOperationConverter(RemoteClient client) : base(client) { }
         public override IFileOperation Create(Type objectType)
         {
             if (objectType.IsInterface)

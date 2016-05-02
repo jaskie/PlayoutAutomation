@@ -80,7 +80,7 @@ namespace TAS.Client.Model
 
       
 
-        public void Queue(IEnumerable<IFileOperation> operationList, bool toTop)
+        public void QueueList(IEnumerable<IFileOperation> operationList, bool toTop)
         {
             Invoke(parameters: new object[] { operationList, toTop });
         }

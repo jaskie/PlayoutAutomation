@@ -10,7 +10,7 @@ namespace TAS.Client.Converters
 {
     class IMediaDirectoryConverter : DtoCreationConverter<IMediaDirectory>
     {
-        public IMediaDirectoryConverter(IRemoteClient client) : base(client) { }
+        public IMediaDirectoryConverter(RemoteClient client) : base(client) { }
         public override IMediaDirectory Create(Type objectType)
         {
             if (objectType.IsInterface)

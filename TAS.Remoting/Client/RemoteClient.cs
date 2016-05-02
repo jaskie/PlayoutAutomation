@@ -1,4 +1,4 @@
-﻿//#undef DEBUG
+﻿#undef DEBUG
 
 using System;
 using System.Collections.Concurrent;
@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 
 namespace TAS.Remoting.Client
 {
-    public class RemoteClient: IRemoteClient
+    public class RemoteClient
     {
         readonly string _address;
         WebSocket _clientSocket;
@@ -22,6 +22,7 @@ namespace TAS.Remoting.Client
         readonly JsonSerializer _serializer;
         ConcurrentDictionary<Guid, WebSocketMessage> _receivedMessages = new ConcurrentDictionary<Guid, WebSocketMessage>();
         const int query_timeout = 150000;
+        readonly ConcurrentDictionary<Guid, IDto> _knownDtos = new ConcurrentDictionary<Guid, IDto>();
 
         public event EventHandler<WebSocketMessageEventArgs> EventNotification;
         public event EventHandler OnOpen;
@@ -32,7 +33,7 @@ namespace TAS.Remoting.Client
             _address = host;
             _serializer = JsonSerializer.CreateDefault(SerializationSettings.SerializerSettings);
         }
-        
+
         public JsonConverter[] CreationConverters
         {
             set
@@ -269,6 +270,26 @@ namespace TAS.Remoting.Client
 #endif
             };
             _clientSocket.Send(JsonConvert.SerializeObject(query));
+
+            IDto removed;
+            _knownDtos.TryRemove(dto.DtoGuid, out removed);
+        }
+
+        public bool TryGetObject(Guid guid, out IDto dto)
+        {
+            if (_knownDtos.TryGetValue(guid, out dto))
+                return true;
+            else
+            {
+                dto = null;
+                return false;
+            }
+        }
+
+        public void SetObject(ProxyBase proxy)
+        {
+            _knownDtos[proxy.DtoGuid] = proxy;
+            proxy.SetClient(this);
         }
 
     }

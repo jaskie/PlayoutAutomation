@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using TAS.Remoting;
 
 namespace TAS.Remoting.Server
@@ -49,6 +50,7 @@ namespace TAS.Remoting.Server
 
         public bool TryRemove(Guid guid, out IDto value)
         {
+            Debug.WriteLine(guid, "Server: DtoSerializationConverter: Dto removed");
             return _dtos.TryRemove(guid, out value);
         }
     }

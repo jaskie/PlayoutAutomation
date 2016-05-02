@@ -10,7 +10,7 @@ namespace TAS.Client.Converters
 {
     class IPlayoutServerConverter : DtoCreationConverter<IPlayoutServer>
     {
-        public IPlayoutServerConverter(IRemoteClient client) : base(client) { }
+        public IPlayoutServerConverter(RemoteClient client) : base(client) { }
         public override IPlayoutServer Create(Type objectType)
         {
             return new PlayoutServer();

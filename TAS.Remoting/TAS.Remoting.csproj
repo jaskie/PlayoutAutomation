@@ -60,7 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client\DtoCreationConverter.cs" />
-    <Compile Include="Client\IRemoteClient.cs" />
     <Compile Include="Client\ProxyBase.cs" />
     <Compile Include="Client\RemoteClient.cs" />
     <Compile Include="IDto.cs" />

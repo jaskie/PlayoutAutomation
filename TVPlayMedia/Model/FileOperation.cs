@@ -16,29 +16,29 @@ namespace TAS.Client.Model
 
         public IMedia DestMedia { get { return Get<Media>(); } set { Set(value); } }
 
-        public DateTime FinishedTime { get { return Get<DateTime>(); } set { Set(value); } }
+        public DateTime FinishedTime { get { return Get<DateTime>(); } set { SetField(value); } }
 
-        public bool IsIndeterminate { get { return Get<bool>(); } set { Set(value); } }
+        public bool IsIndeterminate { get { return Get<bool>(); } set { SetField(value); } }
 
-        public TFileOperationKind Kind { get { return Get<TFileOperationKind>(); } set { Set(value); } }
+        public TFileOperationKind Kind { get { return Get<TFileOperationKind>(); } set { SetField(value); } }
 
-        public List<string> OperationOutput { get { return Get<List<string>>(); } set { Set(value); } }
+        public List<string> OperationOutput { get { return Get<List<string>>(); } set { SetField(value); } }
 
-        public FileOperationStatus OperationStatus { get { return Get<FileOperationStatus>(); } set { Set(value); } }
+        public FileOperationStatus OperationStatus { get { return Get<FileOperationStatus>(); } set { SetField(value); } }
 
-        public List<string> OperationWarning { get { return Get<List<string>>(); } set { Set(value); } }
+        public List<string> OperationWarning { get { return Get<List<string>>(); } set { SetField(value); } }
 
-        public int Progress { get { return Get<int>(); } set { Set(value); } }
+        public int Progress { get { return Get<int>(); } set { SetField(value); } }
 
-        public DateTime ScheduledTime { get { return Get<DateTime>(); } set { Set(value); } }
+        public DateTime ScheduledTime { get { return Get<DateTime>(); } set { SetField(value); } }
 
         public IMedia SourceMedia { get { return Get<Media>(); } set { Set(value); } }
 
-        public DateTime StartTime { get { return Get<DateTime>(); } set { Set(value); } }
+        public DateTime StartTime { get { return Get<DateTime>(); } set { SetField(value); } }
 
-        public int TryCount { get { return Get<int>(); } set { Set(value); } }
+        public int TryCount { get { return Get<int>(); } set { SetField(value); } }
 
-        public string Title { get { return Get<string>(); } set { Set(value); } }
+        public string Title { get { return Get<string>(); } set { SetField(value); } }
 
         private event EventHandler _finished;
         public event EventHandler Finished

@@ -10,7 +10,7 @@ namespace TAS.Client.Converters
 {
     class IMediaManagerConverter: DtoCreationConverter<IMediaManager>
     {
-        public IMediaManagerConverter(IRemoteClient client): base(client) { }
+        public IMediaManagerConverter(RemoteClient client): base(client) { }
         public override IMediaManager Create(Type objectType)
         {
             return new MediaManager();
