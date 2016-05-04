@@ -12,8 +12,12 @@ namespace TAS.Server.XDCAM
         public static T Deserialize(XmlDocument document)
         {
             XmlReader reader = new XmlNodeReader(document);
-            XmlSerializer ser = new XmlSerializer(typeof(T), document.DocumentElement.FirstChild.NamespaceURI);
-            return (T)ser.Deserialize(reader);
+            if (document.DocumentElement != null)
+            {
+                XmlSerializer ser = new XmlSerializer(typeof(T), document.DocumentElement.FirstChild.NamespaceURI);
+                return (T)ser.Deserialize(reader);
+            }
+            return default(T);
         }
     }
 }

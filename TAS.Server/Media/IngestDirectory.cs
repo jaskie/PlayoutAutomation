@@ -291,13 +291,20 @@ namespace TAS.Server
         {
             XmlDocument xMLDoc = new XmlDocument();
             if (AccessType == TDirectoryAccessType.Direct)
-                xMLDoc.Load(Path.Combine(_folder, documentName));
+            {
+                string fileName = Path.Combine(_folder, documentName);
+                if (File.Exists(fileName))
+                    xMLDoc.Load(fileName);
+            }
             if (AccessType == TDirectoryAccessType.FTP)
             {
-                using (Stream stream = client.OpenRead(documentName))
+                try
                 {
-                    xMLDoc.Load(stream);
+                    using (Stream stream = client.OpenRead(documentName))
+                        xMLDoc.Load(stream);
                 }
+                catch (FtpCommandException)
+                { }
             }
             Debug.WriteLineIf(xMLDoc == null, string.Format("_readXMLDocument didn\'t read {0}", documentName));
             return xMLDoc;
@@ -316,7 +323,7 @@ namespace TAS.Server
                         try
                         {
                             XDCAM.Index.Meta xmlClipFileNameMeta = clip.meta.FirstOrDefault(m => m.type == "PD-Meta");
-                            var alias = _xDCAMAlias.clipTable.FirstOrDefault(a => a.clipId == clip.clipId);
+                            var alias = _xDCAMAlias == null ? null : _xDCAMAlias.clipTable.FirstOrDefault(a => a.clipId == clip.clipId);
                             string clipFileName = alias == null ? clip.clipId : alias.value;
                             if (!string.IsNullOrWhiteSpace(clipFileName))
                                 clip.ClipMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument(string.Format(@"Clip/{0}M01.XML", clipFileName), client));
@@ -325,7 +332,7 @@ namespace TAS.Server
                                 IngestMedia newMedia = AddFile(string.Join(this.PathSeparator.ToString(), _folder, "Clip", clipFileName + ".MXF"), clip.ClipMeta.CreationDate.Value, clip.ClipMeta.lastUpdate, new Guid(clip.ClipMeta.TargetMaterial.umidRef.Substring(32, 32))) as IngestMedia;
                                 if (newMedia != null)
                                 {
-                                    newMedia.MediaName = alias == null ? clip.clipId: alias.value;
+                                    newMedia.MediaName = clip.ClipMeta.Title == null ? clipFileName : string.IsNullOrWhiteSpace(clip.ClipMeta.Title.international) ? clip.ClipMeta.Title.usAscii : clip.ClipMeta.Title.international;
                                     newMedia.Duration = ((long)clip.dur).SMPTEFramesToTimeSpan(clip.fps);
                                     newMedia.DurationPlay = newMedia.Duration;
                                     if (clip.aspectRatio == "4:3")
