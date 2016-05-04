@@ -98,6 +98,7 @@
     <Compile Include="RemoteHost.cs" />
     <Compile Include="Template.cs" />
     <Compile Include="ExportOperation.cs" />
+    <Compile Include="XDCAM\Alias.cs" />
     <Compile Include="XDCAM\Index.cs" />
     <Compile Include="XDCAM\NonRealTimeMeta.cs" />
     <Compile Include="XDCAM\SerializationHelper.cs" />

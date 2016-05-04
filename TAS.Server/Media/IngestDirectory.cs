@@ -259,6 +259,7 @@ namespace TAS.Server
         }
 
         private XDCAM.Index _xDCAMIndex;
+        private XDCAM.Alias _xDCAMAlias;
 
         internal void LockXDCAM(bool value)
         {
@@ -310,18 +311,21 @@ namespace TAS.Server
                 if (_xDCAMIndex != null)
                 {
                     ClearFiles();
+                    _xDCAMAlias = XDCAM.SerializationHelper<XDCAM.Alias>.Deserialize(_readXMLDocument("ALIAS.XML", client));
                     foreach (XDCAM.Index.Clip clip in _xDCAMIndex.clipTable.clipTable)
                         try
                         {
                             XDCAM.Index.Meta xmlClipFileNameMeta = clip.meta.FirstOrDefault(m => m.type == "PD-Meta");
-                            if (xmlClipFileNameMeta != null && !string.IsNullOrWhiteSpace(xmlClipFileNameMeta.file))
-                                clip.ClipMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument(@"Clip/" + xmlClipFileNameMeta.file, client));
+                            var alias = _xDCAMAlias.clipTable.FirstOrDefault(a => a.clipId == clip.clipId);
+                            string clipFileName = alias == null ? clip.clipId : alias.value;
+                            if (!string.IsNullOrWhiteSpace(clipFileName))
+                                clip.ClipMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument(string.Format(@"Clip/{0}M01.XML", clipFileName), client));
                             if (clip.ClipMeta != null)
                             {
-                                IngestMedia newMedia = AddFile(string.Join(this.PathSeparator.ToString(), _folder, "Clip", clip.clipId + ".MXF"), clip.ClipMeta.CreationDate.Value, clip.ClipMeta.lastUpdate, new Guid(clip.ClipMeta.TargetMaterial.umidRef.Substring(32, 32))) as IngestMedia;
+                                IngestMedia newMedia = AddFile(string.Join(this.PathSeparator.ToString(), _folder, "Clip", clipFileName + ".MXF"), clip.ClipMeta.CreationDate.Value, clip.ClipMeta.lastUpdate, new Guid(clip.ClipMeta.TargetMaterial.umidRef.Substring(32, 32))) as IngestMedia;
                                 if (newMedia != null)
                                 {
-                                    newMedia.MediaName = clip.clipId;
+                                    newMedia.MediaName = alias == null ? clip.clipId: alias.value;
                                     newMedia.Duration = ((long)clip.dur).SMPTEFramesToTimeSpan(clip.fps);
                                     newMedia.DurationPlay = newMedia.Duration;
                                     if (clip.aspectRatio == "4:3")
