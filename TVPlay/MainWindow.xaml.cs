@@ -57,6 +57,7 @@ namespace TAS.Client
         
         private void AppMainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            return;
             foreach (Engine engine in App.EngineController.Engines)
             {
                 TabItem newtab = new TabItem();

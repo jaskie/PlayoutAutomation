@@ -12,11 +12,13 @@ using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using TAS.Server.Database;
 using System.Collections.Concurrent;
+using TAS.Remoting.Server;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
-
-    public class Engine : IEngine, IDisposable
+    [JsonObject(MemberSerialization.OptIn)]
+    public class Engine : DtoBase, IEngine, IDisposable
     {
         public UInt64 Id { get; set; }
         public UInt64 Instance { get; set; }
@@ -28,6 +30,7 @@ namespace TAS.Server
         public ulong IdServerPRV { get; set; }
         public int ServerChannelPRV { get; set; }
         string _engineName;
+        [JsonProperty]
         public string EngineName
         {
             get { return _engineName; }
@@ -122,6 +125,7 @@ namespace TAS.Server
         public IPlayoutServerChannel PlayoutChannelSEC { get { return _playoutChannelSEC; } }
 
         private IPlayoutServerChannel _playoutChannelPRV;
+
         [XmlIgnore]
         public IPlayoutServerChannel PlayoutChannelPRV { get { return _playoutChannelPRV; } }
 
@@ -531,6 +535,7 @@ namespace TAS.Server
                 return media;
         }
 
+        [JsonProperty]
         public VideoFormatDescription PreviewFormatDescription { get
             {
                 return this.FormatDescription;

@@ -18,7 +18,7 @@ namespace TAS.Client.Model
 
         public decimal MasterVolume { get { return Get<decimal>(); } set { Set(value); } }
 
-        public IPlayoutServer OwnerServer { get; set; }
+        public IPlayoutServer OwnerServer { get { return Get<IPlayoutServer>(); } set { SetField(value); } }
 
         public void Clear()
         {

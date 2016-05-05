@@ -25,7 +25,7 @@ namespace TAS.Server
             try
             {
                 _server = new WebSocketServer(string.Format("ws://{0}", EndpointAddress));
-                _server.AddWebSocketService<CommunicationBehavior>("/MediaManager", () => new CommunicationBehavior(engine.MediaManager as MediaManager));
+                _server.AddWebSocketService<CommunicationBehavior>("/Engine", () => new CommunicationBehavior(engine as Engine));
                 _server.Start();
                 return true;
             }

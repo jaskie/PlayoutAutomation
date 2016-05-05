@@ -96,13 +96,15 @@ namespace TAS.Server
             ServerMedia fm = (ServerMedia)FindMediaByMediaGuid(media.MediaGuid); // check if need to select new Guid
             if (fm == null || !searchExisting)
             {
+                string newFileName = Path.Combine(_folder, 
+                    FileUtils.GetUniqueFileName(_folder, 
+                        media is IngestMedia 
+                            ? ((media.MediaType == TMediaType.Still ? FileUtils.StillFileTypes : media.MediaType == TMediaType.Audio ? FileUtils.AudioFileTypes : FileUtils.VideoFileTypes).Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + FileUtils.DefaultFileExtension(media.MediaType)
+                            : media.FileName));
                 fm = (new ServerMedia(this, fm == null ? media.MediaGuid : Guid.NewGuid(), 0, MediaManager.ArchiveDirectory) // in case file with the same GUID already exists and we need to get new one
                 {
                     MediaName = media.MediaName,
-                    FullPath = (media is IngestMedia) ? 
-                            Path.Combine(Folder, ((media.MediaType == TMediaType.Still ? FileUtils.StillFileTypes : media.MediaType == TMediaType.Audio ? FileUtils.AudioFileTypes : FileUtils.VideoFileTypes).Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + FileUtils.DefaultFileExtension(media.MediaType)) 
-                            : 
-                            Path.Combine(Folder, media.FileName),
+                    FullPath = newFileName,
                     MediaType = media.MediaType == TMediaType.Unknown ? TMediaType.Movie : media.MediaType,
                     MediaStatus = TMediaStatus.Required,
                     OriginalMedia = media,

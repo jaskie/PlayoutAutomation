@@ -55,7 +55,7 @@ namespace TAS.Remoting.Client
                     _clientSocket.OnClose -= _clientSocket_OnClose;  
                     _clientSocket.OnMessage -= _clientSocket_OnMessage;
                 }
-                _clientSocket = new WebSocket(string.Format("ws://{0}/MediaManager", _address));
+                _clientSocket = new WebSocket(string.Format("ws://{0}/Engine", _address));
                 _clientSocket.OnOpen += _clientSocket_OnOpen;
                 _clientSocket.OnClose += _clientSocket_OnClose;
                 _clientSocket.OnMessage += _clientSocket_OnMessage;

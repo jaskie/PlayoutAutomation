@@ -112,6 +112,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converters\IEngineConverter.cs" />
     <Compile Include="Converters\IPlayoutServerChannelConverter.cs" />
     <Compile Include="Converters\IPlayoutServerConverter.cs" />
     <Compile Include="Converters\IFileManagerConverter.cs" />
@@ -127,6 +128,7 @@
     </Compile>
     <Compile Include="Model\ArchiveDirectory.cs" />
     <Compile Include="Model\ArchiveMedia.cs" />
+    <Compile Include="Model\Engine.cs" />
     <Compile Include="Model\FileManager.cs" />
     <Compile Include="Model\FileOperation.cs" />
     <Compile Include="Model\IngestDirectory.cs" />

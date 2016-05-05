@@ -8,6 +8,6 @@ namespace TAS.Client.Model
 {
     public class ArchiveMedia: PersistentMedia, IArchiveMedia
     {
-
+        public override IMediaDirectory Directory { get { return Get<IArchiveDirectory>(); } set { SetField(value); } }
     }
 }
