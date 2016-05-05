@@ -140,23 +140,6 @@ namespace TAS.Remoting.Client
                 h(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private int _referenceCount = 0;
-        public void ReferenceAdd()
-        {
-            _referenceCount++;
-        }
-
-        public void ReferenceRemove()
-        {
-            int current = --_referenceCount;
-            if (current == 0)
-            {
-                var client = _client;
-                if (client != null)
-                    client.ObjectRemove(this);
-            }
-        }
-
         private ConcurrentDictionary<string, object> _properties = new ConcurrentDictionary<string, object>();
 
         private event PropertyChangedEventHandler _propertyChanged;

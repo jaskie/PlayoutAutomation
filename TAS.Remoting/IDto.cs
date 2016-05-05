@@ -8,7 +8,5 @@ namespace TAS.Remoting
     public interface IDto
     {
         Guid DtoGuid { get; }
-        void ReferenceAdd();
-        void ReferenceRemove();
     }
 }

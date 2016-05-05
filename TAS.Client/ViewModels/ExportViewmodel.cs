@@ -18,7 +18,6 @@ namespace TAS.Client.ViewModels
         Views.ExportView _view;
         public ExportViewmodel(IMediaManager mediaManager, IEnumerable<ExportMedia> exportList)
         {
-            mediaManager.ReferenceAdd();
             _mediaManager = mediaManager;
             Items = new ObservableCollection<ExportMediaViewmodel>(exportList.Select(media => new ExportMediaViewmodel(mediaManager, media)));
             Directories = mediaManager.IngestDirectories.Where(d => d.IsExport).ToList();
@@ -106,7 +105,6 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             _view = null;
-            _mediaManager.ReferenceRemove();
         }
     }
 }

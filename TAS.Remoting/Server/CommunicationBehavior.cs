@@ -40,7 +40,8 @@ namespace TAS.Remoting.Server
         protected override void OnMessage(MessageEventArgs e)
         {
             WebSocketMessage message = Deserialize<WebSocketMessage>(e.Data);
-            try {
+            try
+            {
                 if (message.MessageType == WebSocketMessage.WebSocketMessageType.RootQuery)
                 {
                     message.ConvertToResponse(_initialObject);
@@ -120,9 +121,6 @@ namespace TAS.Remoting.Server
                             else
                                 throw new ApplicationException(string.Format("Server: unknown event: {0}:{1}", objectToInvoke, message.MemberName));
                         }
-                        else
-                        if (message.MessageType == WebSocketMessage.WebSocketMessageType.ObjectRemove)
-                            _removeObject(message.DtoGuid);
                     }
                     else
                         throw new ApplicationException(string.Format("Server: unknown DTO: {0} on {1}", message.DtoGuid, message));
@@ -149,8 +147,8 @@ namespace TAS.Remoting.Server
                     Delegate delegateToRemove;
                     if (_delegates.TryRemove(d, out delegateToRemove))
                         ei.RemoveEventHandler(havingDelegate, delegateToRemove);
-                    }
                 }
+            }
             _converter.Clear();
             Debug.WriteLine("Server: connection closed.");
         }
@@ -161,7 +159,7 @@ namespace TAS.Remoting.Server
             {
                 _serializer.Serialize(writer, message);
                 return writer.ToString();
-            }                
+            }
         }
 
         T Deserialize<T>(string s)
@@ -191,7 +189,7 @@ namespace TAS.Remoting.Server
             Delegate delegateToRemove;
             if (_delegates.TryRemove(signature, out delegateToRemove))
                 ei.RemoveEventHandler(objectToInvoke, delegateToRemove);
-            }
+        }
 
         public static Delegate ConvertDelegate(Delegate originalDelegate, Type targetDelegateType)
         {
@@ -209,7 +207,7 @@ namespace TAS.Remoting.Server
             {
                 object input = inputArray[i];
                 Type type = inputTypes[i];
-                if (input != null 
+                if (input != null
                     && input.GetType() != type)
                 {
                     if (type.IsEnum)
@@ -269,21 +267,5 @@ namespace TAS.Remoting.Server
             Debug.WriteLine(e.Exception);
             base.OnError(e);
         }
-
-        void _removeObject(Guid dtoGuid)
-        {
-            IDto objectToRemove;
-            if (_converter.TryRemove(dtoGuid, out objectToRemove))
-            {
-                foreach (delegateKey d in _delegates.Keys.Where(k => k.Item1 == dtoGuid).ToList())
-                {
-                    EventInfo ei = objectToRemove.GetType().GetEvent(d.Item2);
-                    Delegate delegateToRemove;
-                    if (_delegates.TryRemove(d, out delegateToRemove))
-                        ei.RemoveEventHandler(objectToRemove, delegateToRemove);
-    }
-}
-        }
-
     }
 }

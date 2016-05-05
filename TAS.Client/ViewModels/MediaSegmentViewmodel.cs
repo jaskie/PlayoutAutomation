@@ -22,7 +22,6 @@ namespace TAS.Client.ViewModels
             _frameRate = media.FrameRate;
             mediaSegment.PropertyChanged += OnPropertyChanged;
             Load();
-            mediaSegment.ReferenceAdd();
         }
 
         public MediaSegmentViewmodel(IPersistentMedia media) : this(media, media.CreateSegment()) { }
@@ -30,7 +29,6 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             _mediaSegment.PropertyChanged -= OnPropertyChanged;
-            _mediaSegment.ReferenceRemove();
         }
 
         private string _segmentName;

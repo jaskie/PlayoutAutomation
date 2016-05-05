@@ -259,22 +259,6 @@ namespace TAS.Remoting.Client
             _clientSocket.Send(JsonConvert.SerializeObject(query));
         }
 
-        public void ObjectRemove(ProxyBase dto)
-        {
-            WebSocketMessage query = new WebSocketMessage()
-            {
-                DtoGuid = dto.DtoGuid,
-                MessageType = WebSocketMessage.WebSocketMessageType.ObjectRemove,
-#if DEBUG
-                DtoName = dto.ToString()
-#endif
-            };
-            _clientSocket.Send(JsonConvert.SerializeObject(query));
-
-            IDto removed;
-            _knownDtos.TryRemove(dto.DtoGuid, out removed);
-        }
-
         public bool TryGetObject(Guid guid, out IDto dto)
         {
             if (_knownDtos.TryGetValue(guid, out dto))

@@ -13,8 +13,5 @@ namespace TAS.Remoting.Server
         [JsonProperty]
         public Guid DtoGuid { get { return _guidDto; } }
 
-        public void ReferenceAdd() { }
-
-        public void ReferenceRemove() { }
     }
 }
