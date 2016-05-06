@@ -23,7 +23,7 @@ namespace TAS.Remoting.Server
             _initialObject = initialObject;
             _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
             Debug.WriteLine(initialObject, "Server: created behavior for");
-            _serializer = JsonSerializer.CreateDefault(SerializationSettings.SerializerSettings);
+            _serializer = JsonSerializer.Create();
             _converter = new DtoSerializationConverter();
             _serializer.Converters.Add(_converter);
         }

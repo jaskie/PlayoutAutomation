@@ -68,11 +68,14 @@ namespace TAS.Server
                 }
                 else
                 {
-                    if (IdPersistentMedia == 0)
-                        result = this.DbInsert(((ServerDirectory)_directory).Server.Id);
-                    else
-                    if (Modified)
-                        result = this.DbUpdate(((ServerDirectory)_directory).Server.Id);
+                    if (Directory is ServerDirectory)
+                    {
+                        if (IdPersistentMedia == 0)
+                            result = this.DbInsert(((ServerDirectory)_directory).Server.Id);
+                        else
+                        if (Modified)
+                            result = this.DbUpdate(((ServerDirectory)_directory).Server.Id);
+                    }
                     Modified = false;
                 }
             }

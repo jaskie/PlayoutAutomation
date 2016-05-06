@@ -11,9 +11,9 @@ namespace TAS.Common
     [DataContract]
     public struct RationalNumber : IEquatable<RationalNumber>
     {
-        [DataMember]
+        [DataMember(Name ="Num")]
         private readonly long _num;
-        [DataMember]
+        [DataMember(Name ="Den")]
         private readonly long _den;
 
         public RationalNumber(long numerator, long denominator)

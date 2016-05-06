@@ -6,7 +6,6 @@ using System.Text;
 
 namespace TAS.Remoting.Server
 {
-    [JsonObject(MemberSerialization.OptIn)]
     public abstract class DtoBase: IDto
     {
         private readonly Guid _guidDto = Guid.NewGuid();

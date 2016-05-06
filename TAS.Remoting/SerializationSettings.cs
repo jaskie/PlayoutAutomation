@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace TAS.Remoting
@@ -13,7 +15,6 @@ namespace TAS.Remoting
             NullValueHandling = NullValueHandling.Include,
             MissingMemberHandling = MissingMemberHandling.Ignore,
             TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple,
-            TypeNameHandling = TypeNameHandling.Objects
         };
     }
 }

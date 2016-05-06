@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using WebSocketSharp;
 using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace TAS.Remoting.Client
 {
@@ -34,15 +35,7 @@ namespace TAS.Remoting.Client
             _serializer = JsonSerializer.CreateDefault(SerializationSettings.SerializerSettings);
         }
 
-        public JsonConverter[] CreationConverters
-        {
-            set
-            {
-                _serializer.Converters.Clear();
-                foreach (JsonConverter c in value)
-                    _serializer.Converters.Add(c);
-            }
-        }
+        public SerializationBinder Binder { get { return _serializer.Binder; }  set { _serializer.Binder = value; } }
 
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public void Initialize()
@@ -83,7 +76,10 @@ namespace TAS.Remoting.Client
         private void _clientSocket_OnMessage(object sender, MessageEventArgs e)
         {
             Debug.WriteLine(e.Data);
-            WebSocketMessage message = JsonConvert.DeserializeObject<WebSocketMessage>(e.Data);
+            WebSocketMessage message;
+            using (StringReader stringReader = new StringReader(e.Data))
+                using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
+                    message = _serializer.Deserialize<WebSocketMessage>(jsonReader);
             if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventNotification)
             {
                 var h = EventNotification;
@@ -137,7 +133,13 @@ namespace TAS.Remoting.Client
                 if (message.Response is Newtonsoft.Json.Linq.JContainer)
                     using (StringReader stringReader = new StringReader(message.Response.ToString()))
                     using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
-                        return _serializer.Deserialize<T>(jsonReader);
+                    {
+                        T r = _serializer.Deserialize<T>(jsonReader);
+                        var p = r as ProxyBase;
+                        if (p != null)
+                            p.SetClient(this);
+                        return r;
+                    }
                 //Type resultType = typeof(T);
                 T result = default(T);
                 if (result is Enum)
@@ -149,7 +151,10 @@ namespace TAS.Remoting.Client
                 if (typeof(T) == typeof(TimeSpan))
                     result = (T)(object)TimeSpan.Parse((string)message.Response, System.Globalization.CultureInfo.InvariantCulture);
                 else
-                    result = (T)Convert.ChangeType(message.Response, typeof(T));
+                    result = (T)message.Response;
+                var proxy = result as ProxyBase;
+                if (proxy != null)
+                    proxy.SetClient(this);
                 return result;
             }
         }

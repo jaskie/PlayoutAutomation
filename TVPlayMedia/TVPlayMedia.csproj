@@ -110,6 +110,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="TypeNameBinder.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Converters\IEngineConverter.cs" />

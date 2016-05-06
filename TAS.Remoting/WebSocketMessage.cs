@@ -44,7 +44,7 @@ namespace TAS.Remoting
         public string MemberName;
         [JsonProperty]
         public object[] Parameters;
-        [JsonProperty]
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
         public object Response;
         public void ConvertToResponse(object response)
         {

@@ -31,8 +31,10 @@ namespace TAS.Remoting.Server
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            JToken t = JToken.FromObject(value);
-            t.WriteTo(writer);
+            JObject o = JObject.FromObject(value);
+            Type t = value.GetType();
+            o.AddFirst(new JProperty("$type", string.Join(", ", t.FullName, t.Assembly.GetName())));
+            o.WriteTo(writer);
             IDto dto = value as IDto;
             if (dto != null)
                 _dtos[dto.DtoGuid] = dto;
