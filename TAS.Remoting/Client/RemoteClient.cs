@@ -32,7 +32,7 @@ namespace TAS.Remoting.Client
         public RemoteClient(string host)
         {
             _address = host;
-            _serializer = JsonSerializer.CreateDefault(SerializationSettings.SerializerSettings);
+            _serializer = JsonSerializer.Create(SerializationSettings.SerializerSettings);
         }
 
         public SerializationBinder Binder { get { return _serializer.Binder; }  set { _serializer.Binder = value; } }
@@ -120,45 +120,6 @@ namespace TAS.Remoting.Client
             return resultFunc.EndInvoke(funcAsyncResult);
         }
 
-        public T Deserialize<T>(WebSocketMessage message)
-        {
-            if (message.MessageType == WebSocketMessage.WebSocketMessageType.Exception)
-            {
-                using (StringReader stringReader = new StringReader(message.Response.ToString()))
-                using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
-                    throw new ApplicationException(_serializer.Deserialize<Exception>(jsonReader).Message);
-            }
-            else
-            {
-                if (message.Response is Newtonsoft.Json.Linq.JContainer)
-                    using (StringReader stringReader = new StringReader(message.Response.ToString()))
-                    using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
-                    {
-                        T r = _serializer.Deserialize<T>(jsonReader);
-                        var p = r as ProxyBase;
-                        if (p != null)
-                            p.SetClient(this);
-                        return r;
-                    }
-                //Type resultType = typeof(T);
-                T result = default(T);
-                if (result is Enum)
-                    result = (T)Enum.Parse(typeof(T), message.Response.ToString());
-                else
-                if (result is Guid)
-                    result = (T)(object)(new Guid((string)message.Response));
-                else
-                if (typeof(T) == typeof(TimeSpan))
-                    result = (T)(object)TimeSpan.Parse((string)message.Response, System.Globalization.CultureInfo.InvariantCulture);
-                else
-                    result = (T)message.Response;
-                var proxy = result as ProxyBase;
-                if (proxy != null)
-                    proxy.SetClient(this);
-                return result;
-            }
-        }
-
         public void Update(object serialized, object target)
         {
             if (serialized is Newtonsoft.Json.Linq.JContainer)
@@ -170,7 +131,7 @@ namespace TAS.Remoting.Client
         {
             WebSocketMessage query = new WebSocketMessage() { MessageType = WebSocketMessage.WebSocketMessageType.RootQuery };
             _clientSocket.Send(JsonConvert.SerializeObject(query));
-            return Deserialize<T>(WaitForResponse(query));
+            return (T)WaitForResponse(query).Response;
         }
 
         public T Query<T>(ProxyBase dto, string methodName, params object[] parameters)
@@ -186,7 +147,7 @@ namespace TAS.Remoting.Client
 #endif
             };
             _clientSocket.Send(JsonConvert.SerializeObject(query));
-            return Deserialize<T>(WaitForResponse(query));
+            return (T)WaitForResponse(query).Response;
         }
 
         public T Get<T>(ProxyBase dto, string propertyName)
@@ -201,7 +162,7 @@ namespace TAS.Remoting.Client
 #endif
             };
             _clientSocket.Send(JsonConvert.SerializeObject(query));
-            return Deserialize<T>(WaitForResponse(query));
+            return (T)WaitForResponse(query).Response;
         }
 
         public void Invoke(ProxyBase dto, string methodName, params object[] parameters)

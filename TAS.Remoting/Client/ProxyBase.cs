@@ -108,7 +108,7 @@ namespace TAS.Remoting.Client
                 Debug.WriteLine("ProxyBase: {1} on {0}", this, e.Message.MemberName);
                 if (e.Message.MemberName == "PropertyChanged")
                 {
-                    PropertyChangedEventArgs ea = (sender as RemoteClient).Deserialize<PropertyChangedEventArgs>(e.Message);
+                    PropertyChangedEventArgs ea = (PropertyChangedEventArgs)e.Message.Response;
                     NotifyPropertyChanged(ea.PropertyName);
                     object o;
                     _properties.TryRemove(ea.PropertyName, out o);
@@ -126,11 +126,7 @@ namespace TAS.Remoting.Client
 
         protected T ConvertEventArgs<T>(WebSocketMessageEventArgs e) where T : EventArgs
         {
-            T value = default(T);
-            var client = _client;
-            if (client != null)
-                value = client.Deserialize<T>(e.Message);
-            return value;
+            return (T)e.Message.Response;
         }
 
         void NotifyPropertyChanged(string propertyName)
