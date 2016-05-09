@@ -17,14 +17,14 @@ namespace TAS.Remoting.Server
     {
         readonly JsonSerializer _serializer;
         readonly IDto _initialObject;
-        readonly DtoSerializationConverter _converter;
+        readonly ServerSerializationConverter _converter;
         public CommunicationBehavior(IDto initialObject)
         {
             _initialObject = initialObject;
             _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
             Debug.WriteLine(initialObject, "Server: created behavior for");
             _serializer = JsonSerializer.Create();
-            _converter = new DtoSerializationConverter();
+            _converter = new ServerSerializationConverter();
             _serializer.Converters.Add(_converter);
         }
 

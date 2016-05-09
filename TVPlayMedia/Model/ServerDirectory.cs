@@ -13,13 +13,6 @@ namespace TAS.Client.Model
             return Query<ServerMedia>(parameters: new object[] { media, searchExisting });
         }
 
-        public override IEnumerable<IMedia> GetFiles()
-        {
-            var list = Query<List<ServerMedia>>();
-            list.ForEach(m => m.Directory = this);
-            return list.Cast<IMedia>().ToList(); ;
-        }
-
         public override IMedia FindMediaByDto(Guid dtoGuid)
         {
             ServerMedia result = Query<ServerMedia>(parameters: new[] { dtoGuid });

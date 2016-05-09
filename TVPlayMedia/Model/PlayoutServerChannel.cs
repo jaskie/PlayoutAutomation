@@ -10,13 +10,13 @@ namespace TAS.Client.Model
 {
     public class PlayoutServerChannel : ProxyBase, IPlayoutServerChannel
     {
-        public string ChannelName { get { return Get<string>(); } set { Set(value); } }
+        public string ChannelName { get { return Get<string>(); } set { SetField(value); } }
 
-        public int ChannelNumber { get { return Get<int>(); } set { Set(value); } }
+        public int ChannelNumber { get { return Get<int>(); } set { SetField(value); } }
 
-        public string LiveDevice { get { return Get<string>(); } set { Set(value); } }
+        public string LiveDevice { get { return Get<string>(); } set { SetField(value); } }
 
-        public decimal MasterVolume { get { return Get<decimal>(); } set { Set(value); } }
+        public decimal MasterVolume { get { return Get<decimal>(); } set { SetField(value); } }
 
         public IPlayoutServer OwnerServer { get { return Get<IPlayoutServer>(); } set { SetField(value); } }
 

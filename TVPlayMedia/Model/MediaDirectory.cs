@@ -20,7 +20,12 @@ namespace TAS.Client.Model
         }
         public TDirectoryAccessType AccessType { get; set; }
         public string DirectoryName { get { return Get<string>(); } set { Set(value); } }
-        public abstract IEnumerable<IMedia> GetFiles();
+        public  ICollection<IMedia> GetFiles()
+        {
+            var list = Query<ICollection<IMedia>>().ToList();
+            list.ForEach(m => (m as Media).Directory = this);
+            return list.Cast<IMedia>().ToList(); 
+        }
 
         public string Folder { get { return Get<string>(); } set { Set(value); } }
 
@@ -28,9 +33,9 @@ namespace TAS.Client.Model
 
         public bool IsInitialized { get; set; }
 
-        public ulong VolumeFreeSize { get { return Get<ulong>(); } internal set { Set(value); } }
+        public long VolumeFreeSize { get { return Get<long>(); } internal set { Set(value); } }
 
-        public ulong VolumeTotalSize { get { return Get<ulong>(); } internal set { Set(value); } }
+        public long VolumeTotalSize { get { return Get<long>(); } internal set { Set(value); } }
 
         event EventHandler<MediaDtoEventArgs> _mediaAdded;
         public event EventHandler<MediaDtoEventArgs> MediaAdded

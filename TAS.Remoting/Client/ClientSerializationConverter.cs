@@ -5,9 +5,9 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using TAS.Remoting;
 
-namespace TAS.Remoting.Server
+namespace TAS.Remoting.Client
 {
-    public class DtoSerializationConverter : JsonConverter
+    public class ClientSerializationConverter : JsonConverter
     {
         private readonly Type iDtoType = typeof(IDto);
         private readonly ConcurrentDictionary<Guid, IDto> _dtos = new ConcurrentDictionary<Guid, IDto>();
@@ -18,7 +18,7 @@ namespace TAS.Remoting.Server
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            object deserialized = new ReceivedDto();
+            object deserialized = Activator.CreateInstance(objectType);
             serializer.Populate(reader, deserialized);
             if (deserialized != null)
             {
@@ -26,14 +26,14 @@ namespace TAS.Remoting.Server
                 if (_dtos.TryGetValue(((IDto)deserialized).DtoGuid, out oldObject))
                     return oldObject;
             }
-            throw new ApplicationException("DtoSerializationConverter: Dto not found");
+            throw new ApplicationException("ClientSerializationConverter: Dto not found");
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             JObject o = JObject.FromObject(value);
             Type t = value.GetType();
-            o.AddFirst(new JProperty("$type", string.Join(", ", t.FullName, t.Assembly.GetName())));
+            o.AddFirst(new JProperty("$type", string.Join(", ", t.Name, t.Assembly.GetName())));
             o.WriteTo(writer);
             IDto dto = value as IDto;
             if (dto != null)

@@ -535,7 +535,7 @@ namespace TAS.Server
                 return media;
         }
 
-        [JsonProperty]
+        //[JsonProperty]
         public VideoFormatDescription PreviewFormatDescription { get
             {
                 return this.FormatDescription;

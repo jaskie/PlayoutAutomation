@@ -148,7 +148,7 @@ namespace System.Net.FtpClient
         /// Read free disc space from device
         /// </summary>
         /// <returns>Free disc space on the device, 0 if unknown</returns>
-        public UInt64 GetFreeDiscSpace()
+        public long GetFreeDiscSpace()
         {
             try
             {
@@ -162,7 +162,7 @@ namespace System.Net.FtpClient
                             string response = reader.ReadLine();
                             if (response.StartsWith("others"))
                             {
-                                return UInt64.Parse(response.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries)[1]);
+                                return long.Parse(response.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries)[1]);
                             }
                         }
                         return 0L;

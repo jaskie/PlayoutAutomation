@@ -33,14 +33,11 @@ namespace TAS.Server
         [JsonProperty]
         public string MediaFolder { get; set; }
         [XmlIgnore]
-        [JsonProperty]
         public IServerDirectory MediaDirectory { get; private set; }
         [XmlIgnore]
-        [JsonProperty]
         public IAnimationDirectory AnimationDirectory { get; private set; }
         protected List<IPlayoutServerChannel> _channels;
         [XmlIgnore]
-        [JsonProperty]
         public MediaManager MediaManager;
 
         [XmlIgnore]

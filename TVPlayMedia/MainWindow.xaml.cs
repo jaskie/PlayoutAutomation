@@ -34,17 +34,6 @@ namespace TAS.Client
             try
             {
                 _client = new RemoteClient(ConfigurationManager.AppSettings["Host"]);
-                //_client.CreationConverters = new Newtonsoft.Json.JsonConverter[] {
-                //    new Converters.IMediaConverter(_client),
-                //    new Converters.IFileOperationConverter(_client),
-                //    new Converters.IMediaSegmentConverter(_client),
-                //    new Converters.IMediaDirectoryConverter(_client),
-                //    new Converters.IFileManagerConverter(_client),
-                //    new Converters.IPlayoutServerConverter(_client),
-                //    new Converters.IPlayoutServerChannelConverter(_client),
-                //    new Converters.IMediaManagerConverter(_client),
-                //    new Converters.IEngineConverter(_client),
-                //    };
                 _client.Binder = new TypeNameBinder();
                 _client.Initialize();
                 IEngine engine = _client.GetInitalObject<IEngine>();

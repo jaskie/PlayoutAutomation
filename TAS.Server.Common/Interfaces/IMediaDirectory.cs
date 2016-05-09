@@ -14,13 +14,13 @@ namespace TAS.Server.Interfaces
         bool FileExists(string filename, string subfolder = null);
         bool DirectoryExists();
         bool IsInitialized { get; }
-        IEnumerable<IMedia> GetFiles();
+        ICollection<IMedia> GetFiles();
         void Initialize();
         void Refresh();
         void SweepStaleMedia();
         IMedia FindMediaByDto(Guid guidDto);
-        UInt64 VolumeTotalSize { get; }
-        UInt64 VolumeFreeSize { get; }
+        long VolumeTotalSize { get; }
+        long VolumeFreeSize { get; }
         char PathSeparator { get; }
 
         event EventHandler<MediaDtoEventArgs> MediaAdded;

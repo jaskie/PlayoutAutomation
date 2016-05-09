@@ -45,13 +45,6 @@ namespace TAS.Client.Model
             Invoke();
         }
 
-        public override IEnumerable<IMedia> GetFiles()
-        {
-            var list = Query<List<ArchiveMedia>>();
-            list.ForEach(m => m.Directory = this);
-            return list.Cast<IMedia>().ToList();
-        }
-
         public override IMedia FindMediaByDto(Guid dtoGuid)
         {
             ArchiveMedia result = Query<ArchiveMedia>(parameters: new[] { dtoGuid });

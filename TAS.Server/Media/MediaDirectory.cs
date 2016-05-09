@@ -89,14 +89,19 @@ namespace TAS.Server
 
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool GetDiskFreeSpaceEx(string lpDirectoryName, out UInt64 lpFreeBytesAvailable, out UInt64 lpTotalNumberOfBytes, out UInt64 lpTotalNumberOfFreeBytes);
+        private static extern bool GetDiskFreeSpaceEx(string lpDirectoryName, out ulong lpFreeBytesAvailable, out ulong lpTotalNumberOfBytes, out ulong lpTotalNumberOfFreeBytes);
 
         protected virtual void GetVolumeInfo()
         {
             _volumeTotalSize = 0;
-            UInt64 dummy = 0;
-            if (GetDiskFreeSpaceEx(Folder, out _volumeFreeSize, out _volumeTotalSize, out dummy))
-                NotifyPropertyChanged("VolumeFreeSize");
+            ulong dummy;
+            ulong free;
+            ulong total;
+            if (GetDiskFreeSpaceEx(Folder, out free, out total, out dummy))
+            {
+                VolumeFreeSize = (long)free;
+                VolumeTotalSize = (long)total;
+            }
         }
 
         public bool DirectoryExists()
@@ -104,11 +109,11 @@ namespace TAS.Server
             return Directory.Exists(Folder);
         }
 
-        private UInt64 _volumeFreeSize = 0;
+        private long _volumeFreeSize = 0;
         
         [XmlIgnore]
         [JsonProperty]
-        public virtual UInt64 VolumeFreeSize
+        public virtual long VolumeFreeSize
         {
             get { return _volumeFreeSize; }
             protected set
@@ -121,16 +126,26 @@ namespace TAS.Server
             }
         }
 
-        private UInt64 _volumeTotalSize = 0;
+        private long _volumeTotalSize = 0;
         [XmlIgnore]
         [JsonProperty]
-        public virtual UInt64 VolumeTotalSize { get { return _volumeTotalSize; } }
-
+        public virtual long VolumeTotalSize
+        {
+            get { return _volumeTotalSize; }
+            protected set
+            {
+                if (_volumeTotalSize != value)
+                {
+                    _volumeTotalSize = value;
+                    NotifyPropertyChanged("VolumeTotalSize");
+                }
+            }
+        }
         public abstract void Refresh();
 
-        public virtual IEnumerable<IMedia> GetFiles()
+        public virtual ICollection<IMedia> GetFiles()
         {
-            return _files.Values;
+            return _files.Values.ToList();
         }
 
         protected string _folder;

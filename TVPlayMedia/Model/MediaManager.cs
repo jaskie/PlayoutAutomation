@@ -26,25 +26,25 @@ namespace TAS.Client.Model
             Invoke(parameters: new object[] { exportList, directory });
         }
 
-        public IAnimationDirectory AnimationDirectoryPRI { get { return Get<AnimationDirectory>(); } set { Set(value); } }
-        public IAnimationDirectory AnimationDirectorySEC { get { return Get<AnimationDirectory>(); } set { Set(value); } }
-        public IAnimationDirectory AnimationDirectoryPRV { get { return Get<AnimationDirectory>(); } set { Set(value); } }
+        public IAnimationDirectory AnimationDirectoryPRI { get { return Get<AnimationDirectory>(); } set { SetField(value); } }
+        public IAnimationDirectory AnimationDirectorySEC { get { return Get<AnimationDirectory>(); } set { SetField(value); } }
+        public IAnimationDirectory AnimationDirectoryPRV { get { return Get<AnimationDirectory>(); } set { SetField(value); } }
 
-        public IArchiveDirectory ArchiveDirectory { get { return Get<ArchiveDirectory>(); } set { Set(value); } }
+        public IArchiveDirectory ArchiveDirectory { get { return Get<ArchiveDirectory>(); } set { SetField(value); } }
 
         public IEngine getEngine()
         {
             throw new NotImplementedException();
         }
 
-        public IFileManager FileManager { get { return Get<IFileManager>(); }  set { Set(value); } }
+        public IFileManager FileManager { get { return Get<IFileManager>(); }  set { SetField(value); } }
 
-        public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { Set(value); } }
+        public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetField(value); } }
 
         public List<IIngestDirectory> IngestDirectories
         {
-            get { return Get<List<IIngestDirectory>>(); }
-            set { Set(value); }
+            get { return Get<List<IngestDirectory>>().Cast<IIngestDirectory>().ToList(); }
+            set { SetField(value); }
         }
 
         public void GetLoudness(IEnumerable<IMedia> mediaList)
@@ -52,16 +52,16 @@ namespace TAS.Client.Model
             Invoke(parameters: mediaList);
         }
 
-        public IServerDirectory MediaDirectoryPRI { get { return Get<ServerDirectory>(); } set { Set(value); } }
-        public IServerDirectory MediaDirectorySEC { get { return Get<ServerDirectory>(); } set { Set(value); } }
-        public IServerDirectory MediaDirectoryPRV { get { return Get<ServerDirectory>(); } set { Set(value); } }
+        public IServerDirectory MediaDirectoryPRI { get { return Get<ServerDirectory>(); } set { SetField(value); } }
+        public IServerDirectory MediaDirectorySEC { get { return Get<ServerDirectory>(); } set { SetField(value); } }
+        public IServerDirectory MediaDirectoryPRV { get { return Get<ServerDirectory>(); } set { SetField(value); } }
 
         public IMedia GetPRVMedia(IMedia media)
         {
             return Query<Media>(parameters: media);
         }
 
-        public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { Set(value); } }
+        public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { SetField(value); } }
 
         public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool toTop) { Invoke(parameters: new object[] { mediaList, toTop }); }
         

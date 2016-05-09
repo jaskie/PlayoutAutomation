@@ -8,13 +8,6 @@ namespace TAS.Client.Model
 {
     public class AnimationDirectory : MediaDirectory, IAnimationDirectory
     {
-        public override IEnumerable<IMedia> GetFiles()
-        {
-            var list = Query<List<ServerMedia>>();
-            list.ForEach(m => m.Directory = this);
-            return list.Cast<IMedia>().ToList(); ;
-        }
-
         public override IMedia FindMediaByDto(Guid dtoGuid)
         {
             ServerMedia result = Query<ServerMedia>(parameters: new[] { dtoGuid });

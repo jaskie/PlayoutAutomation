@@ -20,7 +20,7 @@ namespace TAS.Client.Model
 
         public UInt64 IdProgramme { get { return Get<UInt64>(); } set { Set(value); } }
 
-        public UInt64 IdPersistentMedia { get { return Get<UInt64>(); } set { Set(value); } }
+        public UInt64 IdPersistentMedia { get; set; }
 
         public bool Modified { get; set; }
 

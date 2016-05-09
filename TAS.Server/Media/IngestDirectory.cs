@@ -123,8 +123,8 @@ namespace TAS.Server
         [JsonProperty]
         public TAspectConversion AspectConversion { get; set; }
 
-        [JsonProperty]
         protected string _filter;
+        [JsonProperty]
         public string Filter
         {
             get { return _filter; }

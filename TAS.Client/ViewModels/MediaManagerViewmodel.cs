@@ -573,7 +573,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                UInt64 totalSize = _mediaDirectory == null ? 0 : _mediaDirectory.VolumeTotalSize;
+                long totalSize = _mediaDirectory == null ? 0 : _mediaDirectory.VolumeTotalSize;
                 return (totalSize == 0) ? 0F : _mediaDirectory.VolumeFreeSize * 100F / _mediaDirectory.VolumeTotalSize;
             }
         }

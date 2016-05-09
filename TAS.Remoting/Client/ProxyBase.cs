@@ -8,16 +8,17 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Text;
 using WebSocketSharp;
 
 namespace TAS.Remoting.Client
 {
-    public abstract class ProxyBase: IDto, INotifyPropertyChanged
+    public abstract class ProxyBase : IDto, INotifyPropertyChanged
     {
         [JsonProperty]
         public Guid DtoGuid { get; set; }
-        RemoteClient _client;
+        private RemoteClient _client;
         internal void SetClient(RemoteClient client)
         {
             if (_client != null)
@@ -58,7 +59,7 @@ namespace TAS.Remoting.Client
             if (client != null)
                 client.Invoke(this, methodName, parameters);
         }
-        protected T Query<T> ([CallerMemberName] string methodName = "", params object[] parameters)
+        protected T Query<T>([CallerMemberName] string methodName = "", params object[] parameters)
         {
             var client = _client;
             if (client != null)
@@ -98,7 +99,7 @@ namespace TAS.Remoting.Client
                 NotifyPropertyChanged(propertyName);
                 return true;
             }
-            return false; 
+            return false;
         }
 
         void _onEventNotificationMessage(object sender, WebSocketMessageEventArgs e)
@@ -152,7 +153,6 @@ namespace TAS.Remoting.Client
                 EventRemove(_propertyChanged);
             }
         }
-
 
     }
 }
