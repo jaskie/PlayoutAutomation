@@ -18,13 +18,15 @@ namespace TAS.Remoting.Client
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            object deserialized = Activator.CreateInstance(objectType);
+            IDto deserialized = (IDto)Activator.CreateInstance(objectType);
             serializer.Populate(reader, deserialized);
             if (deserialized != null)
             {
                 IDto oldObject;
                 if (_dtos.TryGetValue(((IDto)deserialized).DtoGuid, out oldObject))
                     return oldObject;
+                _dtos[deserialized.DtoGuid] = deserialized;
+                return deserialized;
             }
             throw new ApplicationException("ClientSerializationConverter: Dto not found");
         }

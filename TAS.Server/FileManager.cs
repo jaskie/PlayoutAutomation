@@ -17,6 +17,8 @@ namespace TAS.Server
     [JsonObject(MemberSerialization.OptIn)]
     public class FileManager: DtoBase, IFileManager
     {
+        [JsonProperty]
+        private readonly string Name = "test";
         private SynchronizedCollection<IFileOperation> _queueSimpleOperation = new SynchronizedCollection<IFileOperation>();
         private SynchronizedCollection<IFileOperation> _queueConvertOperation = new SynchronizedCollection<IFileOperation>();
         private SynchronizedCollection<IFileOperation> _queueExportOperation = new SynchronizedCollection<IFileOperation>();

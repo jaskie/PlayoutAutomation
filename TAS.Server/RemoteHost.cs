@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
 using System.Xml.Serialization;
@@ -18,6 +19,7 @@ namespace TAS.Server
         [XmlIgnore]
         public TAS.Server.Engine Engine { get; private set; }
         WebSocketServer _server;
+        static SerializationBinder TypeBinder = new RemoteBinder();
         public bool Initialize(TAS.Server.Engine engine)
         {
             if (string.IsNullOrEmpty(EndpointAddress))
@@ -25,7 +27,7 @@ namespace TAS.Server
             try
             {
                 _server = new WebSocketServer(string.Format("ws://{0}", EndpointAddress));
-                _server.AddWebSocketService<CommunicationBehavior>("/Engine", () => new CommunicationBehavior(engine as Engine));
+                _server.AddWebSocketService<CommunicationBehavior>("/Engine", () => new CommunicationBehavior(engine as Engine) {Binder = TypeBinder});
                 _server.Start();
                 return true;
             }

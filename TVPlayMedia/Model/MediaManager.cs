@@ -43,7 +43,7 @@ namespace TAS.Client.Model
 
         public List<IIngestDirectory> IngestDirectories
         {
-            get { return Get<List<IngestDirectory>>().Cast<IIngestDirectory>().ToList(); }
+            get { return Get<List<IIngestDirectory>>(); }
             set { SetField(value); }
         }
 

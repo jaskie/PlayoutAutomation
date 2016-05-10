@@ -9,8 +9,7 @@ namespace TAS.Remoting.Server
     public abstract class DtoBase: IDto
     {
         private readonly Guid _guidDto = Guid.NewGuid();
-        [JsonProperty]
+        [JsonProperty("$id")]
         public Guid DtoGuid { get { return _guidDto; } }
-
     }
 }

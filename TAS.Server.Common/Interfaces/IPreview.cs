@@ -9,7 +9,6 @@ namespace TAS.Server.Interfaces
         IMedia PreviewMedia { get; }
         IPlayoutServerChannel PlayoutChannelPRV { get; }
         VideoFormatDescription PreviewFormatDescription { get; }
-        IMedia FindPreviewMedia(IMedia media);
         void PreviewUnload();
         bool PreviewLoaded { get; }
         bool PreviewIsPlaying { get; }

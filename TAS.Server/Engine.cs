@@ -394,7 +394,8 @@ namespace TAS.Server
 
         public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal previewAudioVolume)
         {
-            if (media != null)
+            IMedia mediaToLoad = FindPreviewMedia(media);
+            if (mediaToLoad != null)
             {
                 _previewDuration = duration;
                 _previewSeek = seek;
@@ -405,7 +406,7 @@ namespace TAS.Server
                                             || media.VideoFormat == TVideoFormat.PAL_P);
                 PreviewLoaded = true;
                 PreviewAudioLevel = previewAudioVolume;
-                PlayoutChannelPRV.Load(media, VideoLayer.Preview, seek+position, duration-position);
+                PlayoutChannelPRV.Load(mediaToLoad, VideoLayer.Preview, seek+position, duration-position);
                 PreviewIsPlaying = false;
                 NotifyPropertyChanged("PreviewMedia");
                 NotifyPropertyChanged("PreviewPosition");
@@ -781,7 +782,7 @@ namespace TAS.Server
             IEvent ev = NextToPlay;
             if (ev != null && PlayoutChannelPRV != null)
             {
-                IMedia media = ev.ServerMediaPRV;
+                IMedia media = ((Event)ev).ServerMediaPRV;
                 if (media != null)
                 {
                     PlayoutChannelPRV.Load(media, VideoLayer.Preset, 0, -1);

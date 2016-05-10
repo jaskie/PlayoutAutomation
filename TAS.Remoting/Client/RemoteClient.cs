@@ -33,7 +33,11 @@ namespace TAS.Remoting.Client
         {
             _address = host;
             _serializer = JsonSerializer.CreateDefault();
+            _serializer.Context = new StreamingContext(StreamingContextStates.Remoting, this);
+            _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+            _serializer.ReferenceResolver = new ReferenceResolver(); 
             //_serializer.Converters.Add(new ClientSerializationConverter());
+            //_serializer.ContractResolver = new ClientContractResolver();
         }
 
         public SerializationBinder Binder { get { return _serializer.Binder; }  set { _serializer.Binder = value; } }
@@ -82,7 +86,7 @@ namespace TAS.Remoting.Client
             using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
             {
                 message = _serializer.Deserialize<WebSocketMessage>(jsonReader);
-                _registerResponse(ref message.Response);
+                //_registerResponse(ref message.Response);
             }
             if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventNotification)
             {
@@ -167,9 +171,13 @@ namespace TAS.Remoting.Client
             };
             _clientSocket.Send(JsonConvert.SerializeObject(query));
             object response = WaitForResponse(query).Response;
+            if (typeof(T).IsEnum)
+                response = Enum.Parse(typeof(T), response.ToString());
             if (response is long)
                 return (T)Convert.ChangeType(response, typeof(T));
-            
+            if (typeof(T) == typeof(TimeSpan)
+                && response is string)
+                response = TimeSpan.Parse((string)response);
             return (T)response;
         }
 

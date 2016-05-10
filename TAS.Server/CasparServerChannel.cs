@@ -88,7 +88,7 @@ namespace TAS.Server
 
         public event VolumeChangeNotifier OnVolumeChanged;
 
-        private CasparItem _getItem(IEvent aEvent)
+        private CasparItem _getItem(Event aEvent)
         {
             CasparItem item = new CasparItem(string.Empty);
             IServerMedia media = (aEvent.Engine.PlayoutChannelPRI == this) ? aEvent.ServerMediaPRI : aEvent.ServerMediaSEC;
@@ -141,7 +141,7 @@ namespace TAS.Server
             {
                 if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
                 {
-                    CasparItem item = _getItem(aEvent);
+                    CasparItem item = _getItem((Event)aEvent);
                     if (item != null)
                     {
                         channel.LoadBG(item);
@@ -170,7 +170,7 @@ namespace TAS.Server
             {
                 if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
                 {
-                    CasparItem item = _getItem(aEvent);
+                    CasparItem item = _getItem((Event)aEvent);
                     if (item != null)
                     {
                         channel.Load(item);
@@ -334,7 +334,7 @@ namespace TAS.Server
                 && ev != null
                 && channel != null)
             {
-                CasparItem item = _getItem(ev);
+                CasparItem item = _getItem((Event)ev);
                 if (item != null)
                 {
                     if (ev.EventType == TEventType.Movie && ev.Media != null)

@@ -45,7 +45,7 @@ namespace TAS.Client.ViewModels
                 if (_channelPRV != null)
                 {
                     IMedia oldVal = _media;
-                    IMedia newVal = _preview.FindPreviewMedia(value);
+                    IMedia newVal = value;
                     if (SetField(ref _media, newVal, "Media"))
                     {
                         if (oldVal != null)
@@ -121,7 +121,7 @@ namespace TAS.Client.ViewModels
                     return _playWholeClip ? _media.TcStart : _media.TcPlay;
                 if (_event != null)
                 {
-                    IServerMedia media = _event.ServerMediaPRV;
+                    IMedia media = _event.Media;
                     if (media != null)
                         return _playWholeClip ? media.TcStart : _event.ScheduledTc;
                 }
@@ -139,7 +139,7 @@ namespace TAS.Client.ViewModels
                     return _playWholeClip ? _media.Duration : _media.DurationPlay;
                 if (_event != null)
                 {
-                    IServerMedia media = _event.ServerMediaPRV;
+                    IMedia media = _event.Media;
                     if (media != null)
                         return _playWholeClip ? media.Duration : _event.Duration;
                 }
@@ -161,7 +161,7 @@ namespace TAS.Client.ViewModels
             }
             TimeSpan duration = Duration;
             TimeSpan tcIn = StartTc;
-            IMedia media = _event != null ? _event.ServerMediaPRV : _media;
+            IMedia media = _event != null ? _event.Media: Media;
             decimal audioVolume = _event != null && _event.AudioVolume != null ? (decimal)_event.AudioVolume : media != null ? media.AudioVolume : 0M;
             if (media != null
                 && duration.Ticks >= _preview.PreviewFormatDescription.FrameTicks)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using TAS.Common;
 
 namespace TAS.Client
 {
@@ -12,54 +13,50 @@ namespace TAS.Client
         {
             switch (typeName)
             {
-                case "ServerMedia":
+                case "TAS.Server.ServerMedia":
                     return typeof(Model.ServerMedia);
-                case "IngestMedia":
+                case "TAS.Server.IngestMedia":
                     return typeof(Model.IngestMedia);
-                case "ArchiveMedia":
+                case "TAS.Server.ArchiveMedia":
                     return typeof(Model.ArchiveMedia);
-
-                case "ServerDirectory":
+                case "TAS.Server.ServerDirectory":
                     return typeof(Model.ServerDirectory);
-                case "IngestDirectory":
+                case "TAS.Server.IngestDirectory":
                     return typeof(Model.IngestDirectory);
-                case "ArchiveDirectory":
+                case "TAS.Server.ArchiveDirectory":
                     return typeof(Model.ArchiveDirectory);
-                case "FileManager":
+                case "TAS.Server.FileManager":
                     return typeof(Model.FileManager);
-                case "MediaSegment":
+                case "TAS.Server.MediaSegment":
                     return typeof(Model.MediaSegment);
-                case "ConvertOperation":
+                case "TAS.Server.ConvertOperation":
                     return typeof(Model.ConvertOperation);
-                case "FileOperation":
+                case "TAS.Server.FileOperation":
                     return typeof(Model.ConvertOperation);
 
 
-                case "Engine":
+                case "TAS.Server.Engine":
                     return typeof(Model.Engine);
-                case "MediaManager":
+                case "TAS.Server.MediaManager":
                     return typeof(Model.MediaManager);
-                case "CasparServerChannel":
+                case "TAS.Server.CasparServerChannel":
                     return typeof(Model.PlayoutServerChannel);
-                case "CasparServer":
+                case "TAS.Server.CasparServer":
                     return typeof(Model.PlayoutServer);
 
-                case "TAS.Server.Interfaces.IIngestDirectory":
+                case "Interfaces.IIngestDirectory":
                     return typeof(Model.IngestDirectory);
                 case "System.ComponentModel.PropertyChangedEventArgs":
                     return typeof(System.ComponentModel.PropertyChangedEventArgs);
-                case "System.Collections.Generic.List`1[[TAS.Server.Interfaces.IIngestDirectory, TAS.Server.Common]]":
-                    return typeof(List<Model.IngestDirectory>);
+                case "TAS.Common.VideoFormatDescription":
+                    return typeof(VideoFormatDescription);
+
                 default:
                     if (assemblyName == "System")
                         return Type.GetType(typeName, true);
                     else
                         return Type.GetType(string.Format("{0}, {1}", typeName, assemblyName), true);
             }
-        }
-        public override void BindToName(Type serializedType, out string assemblyName, out string typeName)
-        {
-            base.BindToName(serializedType, out assemblyName, out typeName);
         }
     }
 }

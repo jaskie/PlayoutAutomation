@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using delegateKey = System.Tuple<System.Guid, string>;
@@ -17,16 +18,23 @@ namespace TAS.Remoting.Server
     {
         readonly JsonSerializer _serializer;
         readonly IDto _initialObject;
-        readonly ServerSerializationConverter _converter;
+        readonly ReferenceResolver _referenceResolver;
+        //readonly ServerSerializationConverter _converter;
         public CommunicationBehavior(IDto initialObject)
         {
             _initialObject = initialObject;
             _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
             Debug.WriteLine(initialObject, "Server: created behavior for");
-            _serializer = JsonSerializer.Create();
-            _converter = new ServerSerializationConverter();
-            _serializer.Converters.Add(_converter);
+            _serializer = JsonSerializer.CreateDefault();
+            _referenceResolver = new ReferenceResolver();
+            _serializer.ReferenceResolver = _referenceResolver;
+            _serializer.TypeNameHandling = TypeNameHandling.None;
+            _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+            //_converter = new ServerSerializationConverter();
+            //_serializer.Converters.Add(_converter);
         }
+
+        public SerializationBinder Binder { get { return _serializer.Binder; } set { _serializer.Binder = value; } }
 
 #if DEBUG
         ~CommunicationBehavior()
@@ -49,9 +57,9 @@ namespace TAS.Remoting.Server
                 }
                 else // method of particular object
                 {
-                    IDto objectToInvoke;
-                    if (_converter.TryGetValue(message.DtoGuid, out objectToInvoke))
-                    {
+                    IDto objectToInvoke = _referenceResolver.ResolveReference(message.DtoGuid);
+                    if (objectToInvoke != null)
+                    { 
                         if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query
                             || message.MessageType == WebSocketMessage.WebSocketMessageType.Invoke)
                         {
@@ -140,8 +148,8 @@ namespace TAS.Remoting.Server
         {
             foreach (delegateKey d in _delegates.Keys)
             {
-                IDto havingDelegate;
-                if (_converter.TryGetValue(d.Item1, out havingDelegate))
+                IDto havingDelegate = _referenceResolver.ResolveReference(d.Item1);
+                if (havingDelegate != null)
                 {
                     EventInfo ei = havingDelegate.GetType().GetEvent(d.Item2);
                     Delegate delegateToRemove;
@@ -149,7 +157,6 @@ namespace TAS.Remoting.Server
                         ei.RemoveEventHandler(havingDelegate, delegateToRemove);
                 }
             }
-            _converter.Clear();
             Debug.WriteLine("Server: connection closed.");
         }
 

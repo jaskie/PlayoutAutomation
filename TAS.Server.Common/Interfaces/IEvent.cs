@@ -12,9 +12,6 @@ namespace TAS.Server.Interfaces
     {
         UInt64 IdRundownEvent { get; set; }
         UInt64 IdEventBinding { get; }
-        IServerMedia ServerMediaPRI { get; }
-        IServerMedia ServerMediaSEC { get; }
-        IServerMedia ServerMediaPRV { get; }
         IMedia Media { get; set; }
         IEngine Engine { get; }
         long MediaSeek { get; }

@@ -20,7 +20,6 @@ namespace TAS.Remoting
             Exception
         }
 
-
         public WebSocketMessage()
         {
             MessageGuid = Guid.NewGuid();

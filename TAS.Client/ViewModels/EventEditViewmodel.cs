@@ -424,7 +424,7 @@ namespace TAS.Client.ViewModels
             var previewMedia = (_previewViewModel != null) ? _previewViewModel.LoadedMedia : null;
             return (ev != null)
                 && previewMedia != null
-                && ev.ServerMediaPRV == previewMedia;
+                && ev.Media == previewMedia;
         }
 
         private bool _isVolumeChecking;
