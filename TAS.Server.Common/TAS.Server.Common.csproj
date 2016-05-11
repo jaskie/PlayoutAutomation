@@ -34,6 +34,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MySql.Data, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL" />
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -117,11 +121,10 @@
     <Compile Include="Interfaces\ITemplate.cs" />
     <Compile Include="Interfaces\ITempMedia.cs" />
     <Compile Include="Database\DbSchema.cs" />
+    <Compile Include="MediaEventArgs.cs" />
     <Compile Include="ValueEventArgs.cs" />
     <Compile Include="MediaConversion.cs" />
     <Compile Include="MediaDeleteDenyReason.cs" />
-    <Compile Include="DtoEventArgs.cs" />
-    <Compile Include="MediaDtoEventArgs.cs" />
     <Compile Include="ExportMedia.cs" />
     <Compile Include="ObservableSynchronizedCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

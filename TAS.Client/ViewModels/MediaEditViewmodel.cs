@@ -351,6 +351,13 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        private bool _protected;
+        public bool Protected
+        {
+            get { return _protected; }
+            set { SetField(ref _protected, value, "Protected"); }
+        }
+
         public TMediaStatus MediaStatus { get { return Model.MediaStatus; }}
         public Guid MediaGuid { get { return Model.MediaGuid; }}
 

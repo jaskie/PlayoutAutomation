@@ -16,10 +16,9 @@ namespace TAS.Remoting.Client
 {
     public abstract class ProxyBase : IDto, INotifyPropertyChanged
     {
-        [JsonProperty("$id")]
         public Guid DtoGuid { get; set; }
         private RemoteClient _client;
-        internal void SetClient(RemoteClient client)
+        private void SetClient(RemoteClient client)
         {
             if (_client != null)
                 return;
@@ -69,7 +68,7 @@ namespace TAS.Remoting.Client
 
         protected void EventAdd<T>(T handler, [CallerMemberName] string eventName = null)
         {
-            if (handler == null)
+            if (handler == null && !DtoGuid.Equals(Guid.Empty))
             {
                 var client = _client;
                 if (client != null)
@@ -81,7 +80,7 @@ namespace TAS.Remoting.Client
 
         protected void EventRemove<T>(T handler, [CallerMemberName] string eventName = null)
         {
-            if (handler == null)
+            if (handler == null && !DtoGuid.Equals(Guid.Empty))
             {
                 var client = _client;
                 if (client != null)
@@ -157,7 +156,7 @@ namespace TAS.Remoting.Client
         [OnDeserialized]
         internal void OnDeserializedMethod(StreamingContext context)
         {
-            _client = (RemoteClient)context.Context;
+            SetClient((RemoteClient)context.Context);
         }
 
     }

@@ -16,7 +16,6 @@ using TAS.Remoting.Server;
 
 namespace TAS.Server
 {
-    [JsonObject(MemberSerialization.OptIn)]
     public abstract class Media : DtoBase, IMedia
     {
 
@@ -221,10 +220,8 @@ namespace TAS.Server
             }
             internal set { _videoFormatDescription = value; }
         }
-        
-        protected readonly MediaDirectory _directory;
 
-        [JsonIgnore]
+        protected readonly MediaDirectory _directory;
         public IMediaDirectory Directory
         {
             get { return _directory; }

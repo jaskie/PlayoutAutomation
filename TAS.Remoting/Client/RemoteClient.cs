@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿//#undef DEBUG
 
 using System;
 using System.Collections.Concurrent;
@@ -23,7 +23,6 @@ namespace TAS.Remoting.Client
         readonly JsonSerializer _serializer;
         ConcurrentDictionary<Guid, WebSocketMessage> _receivedMessages = new ConcurrentDictionary<Guid, WebSocketMessage>();
         const int query_timeout = 150000;
-        readonly ConcurrentDictionary<Guid, ProxyBase> _knownDtos = new ConcurrentDictionary<Guid, ProxyBase>();
 
         public event EventHandler<WebSocketMessageEventArgs> EventNotification;
         public event EventHandler OnOpen;
@@ -35,9 +34,8 @@ namespace TAS.Remoting.Client
             _serializer = JsonSerializer.CreateDefault();
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting, this);
             _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-            _serializer.ReferenceResolver = new ReferenceResolver(); 
-            //_serializer.Converters.Add(new ClientSerializationConverter());
-            //_serializer.ContractResolver = new ClientContractResolver();
+            _serializer.ReferenceResolver = new ReferenceResolver();
+            _serializer.TypeNameHandling = TypeNameHandling.None;
         }
 
         public SerializationBinder Binder { get { return _serializer.Binder; }  set { _serializer.Binder = value; } }
@@ -78,6 +76,15 @@ namespace TAS.Remoting.Client
                 h(this, e);
         }
 
+        private string Serialize(object o)
+        {
+            using (System.IO.StringWriter writer = new System.IO.StringWriter())
+            {
+                _serializer.Serialize(writer, o);
+                return writer.ToString();
+            }
+        }
+
         private void _clientSocket_OnMessage(object sender, MessageEventArgs e)
         {
             Debug.WriteLine(e.Data);
@@ -86,7 +93,6 @@ namespace TAS.Remoting.Client
             using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
             {
                 message = _serializer.Deserialize<WebSocketMessage>(jsonReader);
-                //_registerResponse(ref message.Response);
             }
             if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventNotification)
             {
@@ -138,8 +144,8 @@ namespace TAS.Remoting.Client
         public T GetInitalObject<T>()
         {
             WebSocketMessage query = new WebSocketMessage() { MessageType = WebSocketMessage.WebSocketMessageType.RootQuery };
-            _clientSocket.Send(JsonConvert.SerializeObject(query));
-            return (T)WaitForResponse(query).Response;
+            _clientSocket.Send(Serialize(query));
+            return MethodParametersAlignment.AlignType<T>(WaitForResponse(query).Response);
         }
 
         public T Query<T>(ProxyBase dto, string methodName, params object[] parameters)
@@ -154,8 +160,8 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            _clientSocket.Send(JsonConvert.SerializeObject(query));
-            return (T)WaitForResponse(query).Response;
+            _clientSocket.Send(Serialize(query));
+            return MethodParametersAlignment.AlignType<T>(WaitForResponse(query).Response);
         }
 
         public T Get<T>(ProxyBase dto, string propertyName)
@@ -169,16 +175,8 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            _clientSocket.Send(JsonConvert.SerializeObject(query));
-            object response = WaitForResponse(query).Response;
-            if (typeof(T).IsEnum)
-                response = Enum.Parse(typeof(T), response.ToString());
-            if (response is long)
-                return (T)Convert.ChangeType(response, typeof(T));
-            if (typeof(T) == typeof(TimeSpan)
-                && response is string)
-                response = TimeSpan.Parse((string)response);
-            return (T)response;
+            _clientSocket.Send(Serialize(query));
+            return MethodParametersAlignment.AlignType<T>(WaitForResponse(query).Response);
         }
 
         public void Invoke(ProxyBase dto, string methodName, params object[] parameters)
@@ -193,7 +191,7 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            _clientSocket.Send(JsonConvert.SerializeObject(query));
+            _clientSocket.Send(Serialize(query));
         }
 
         public void Set(ProxyBase dto, object value, string propertyName)
@@ -208,7 +206,7 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            _clientSocket.Send(JsonConvert.SerializeObject(query));
+            _clientSocket.Send(Serialize(query));
         }
 
         public void EventAdd(ProxyBase dto, string eventName)
@@ -222,7 +220,7 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            _clientSocket.Send(JsonConvert.SerializeObject(query));
+            _clientSocket.Send(Serialize(query));
             if (eventName == "PropertyChanged")
                 Update(WaitForResponse(query).Response, dto);
         }
@@ -238,48 +236,8 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            _clientSocket.Send(JsonConvert.SerializeObject(query));
+            _clientSocket.Send(Serialize(query));
         }
-
-        public bool TryGetObject(Guid guid, out ProxyBase dto)
-        {
-            if (_knownDtos.TryGetValue(guid, out dto))
-                return true;
-            else
-            {
-                dto = null;
-                return false;
-            }
-        }
-
-        public void SetObject(ProxyBase proxy)
-        {
-            _knownDtos[proxy.DtoGuid] = proxy;
-            proxy.SetClient(this);
-        }
-
-        private void _registerResponse(ref object response)
-        {
-            ProxyBase proxy = response as ProxyBase;
-            if (proxy != null)
-            {
-                ProxyBase oldObject;
-                if (TryGetObject(proxy.DtoGuid, out oldObject))
-                    response = oldObject;
-                else
-                    SetObject(proxy);
-            }
-            System.Collections.IList list = response as System.Collections.IList;
-            if (list != null)
-                for (int i = 0; i < list.Count; i++)
-                {
-                    object listElement = list[i];
-                    _registerResponse(ref listElement);
-                    list[i] = listElement;
-                }
-        }
-
-
     }
 
 

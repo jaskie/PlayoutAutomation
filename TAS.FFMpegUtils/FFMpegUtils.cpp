@@ -25,7 +25,7 @@ namespace TAS {
 		{
 			if (pFormatCtx)
 				for (unsigned int i=0; i<pFormatCtx->nb_streams; i++)
-					if(pFormatCtx->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO) 
+					if(pFormatCtx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_VIDEO) 
 						if (pFormatCtx->streams[i]->nb_frames > 0)
 								return pFormatCtx->streams[i]->nb_frames; 
 			// if not found
@@ -54,7 +54,7 @@ namespace TAS {
 			if (pFormatCtx)
 			{
 				for (unsigned int i=0; i<pFormatCtx->nb_streams; i++)
-					if(pFormatCtx->streams[i]->codec->codec_type==AVMEDIA_TYPE_AUDIO) 
+					if(pFormatCtx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_AUDIO) 
 						//result is in AV_TIME_BASE units
 						return (pFormatCtx->streams[i]->duration * pFormatCtx->streams[i]->time_base.num * AV_TIME_BASE) / pFormatCtx->streams[i]->time_base.den; 
 			} 
@@ -213,7 +213,7 @@ namespace TAS {
 			{
 				for (unsigned int i = 0; i<pFormatCtx->nb_streams; i++)
 				{
-					if (pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO)
+					if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
 						return av_stream_get_r_frame_rate(pFormatCtx->streams[i]);
 				}
 			}
@@ -235,7 +235,7 @@ namespace TAS {
 				ret->StreamType = (StreamType)pFormatCtx->streams[streamIndex]->codec->codec_type;
 				ret->Id = pFormatCtx->streams[streamIndex]->id;
 				ret->Index = pFormatCtx->streams[streamIndex]->index;
-				ret->ChannelCount = pFormatCtx->streams[streamIndex]->codec->channels;
+				ret->ChannelCount = pFormatCtx->streams[streamIndex]->codecpar->channels;
 			}
 			return ret;
 		}

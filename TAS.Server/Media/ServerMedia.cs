@@ -13,7 +13,6 @@ using Newtonsoft.Json;
 
 namespace TAS.Server
 {
-    [JsonObject(MemberSerialization.OptIn)]
     public class ServerMedia: PersistentMedia, IServerMedia
     {
         readonly IArchiveDirectory _archiveDirectory;

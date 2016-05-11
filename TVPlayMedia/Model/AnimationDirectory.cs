@@ -8,11 +8,5 @@ namespace TAS.Client.Model
 {
     public class AnimationDirectory : MediaDirectory, IAnimationDirectory
     {
-        public override IMedia FindMediaByDto(Guid dtoGuid)
-        {
-            ServerMedia result = Query<ServerMedia>(parameters: new[] { dtoGuid });
-            result.Directory = this;
-            return result;
-        }
     }
 }

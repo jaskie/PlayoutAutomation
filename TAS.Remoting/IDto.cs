@@ -7,6 +7,6 @@ namespace TAS.Remoting
 {
     public interface IDto
     {
-        Guid DtoGuid { get; }
+        Guid DtoGuid { get; set; }
     }
 }

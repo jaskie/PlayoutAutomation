@@ -11,7 +11,6 @@ using TAS.FFMpegUtils;
 
 namespace TAS.Server
 {
-    [JsonObject(MemberSerialization.OptIn)]
     public class IngestMedia : Media, IIngestMedia
     {
         public IngestMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }

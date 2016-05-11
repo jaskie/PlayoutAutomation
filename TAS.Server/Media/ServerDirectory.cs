@@ -46,12 +46,12 @@ namespace TAS.Server
             return FileUtils.VideoFileTypes.Contains(ext) || FileUtils.StillFileTypes.Contains(ext);
         }
 
-        public event EventHandler<MediaDtoEventArgs> MediaSaved;
+        public event EventHandler<MediaEventArgs> MediaSaved;
         internal virtual void OnMediaSaved(Media media)
         {
             var handler = MediaSaved;
             if (handler != null)
-                handler(media, new MediaDtoEventArgs(media.DtoGuid, media.MediaGuid));
+                handler(this, new MediaEventArgs(media));
         }
 
         public override void MediaAdd(IMedia media)

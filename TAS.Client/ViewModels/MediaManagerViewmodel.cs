@@ -59,7 +59,7 @@ namespace TAS.Client.ViewModels
             if (serverDirectoryPRI != null)
                 _mediaDirectories.Insert(0, serverDirectoryPRI);
             IServerDirectory serverDirectorySEC = mediaManager.MediaDirectorySEC;
-            if (serverDirectorySEC != null && serverDirectorySEC.DtoGuid!= serverDirectoryPRI.DtoGuid)
+            if (serverDirectorySEC != null && serverDirectorySEC != serverDirectoryPRI)
                 _mediaDirectories.Insert(1, serverDirectorySEC);
 
             _mediaCategory = _mediaCategories.FirstOrDefault();
@@ -498,6 +498,7 @@ namespace TAS.Client.ViewModels
             if (e.PropertyName == "VolumeFreeSize")
                 _notifyDirectoryPropertiesChanged();
         }
+
         private void _reloadFiles()
         {
             UiServices.SetBusyState();
@@ -525,13 +526,11 @@ namespace TAS.Client.ViewModels
         }
 
 
-        private void MediaAdded(object source, DtoEventArgs e)
+        private void MediaAdded(object source, MediaEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                IMedia media = MediaDirectory.FindMediaByDto(e.DtoGuid);
-                if (media == null)
-                    return;
+                IMedia media = e.Media;
                 if (!(MediaDirectory is IServerDirectory) || (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Still))
                 {
                     _mediaItems.Add(new MediaViewViewmodel(media, _mediaManager));
@@ -542,11 +541,11 @@ namespace TAS.Client.ViewModels
                 , null);
         }
 
-        private void MediaRemoved(object source, DtoEventArgs e)
+        private void MediaRemoved(object source, MediaEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                MediaViewViewmodel vm = _mediaItems.FirstOrDefault(v => v.Media.DtoGuid == e.DtoGuid);
+                MediaViewViewmodel vm = _mediaItems.FirstOrDefault(v => v.Media == e.Media);
                 if (vm != null)
                 {
                     _mediaItems.Remove(vm);

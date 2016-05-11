@@ -11,7 +11,6 @@ using Newtonsoft.Json;
 
 namespace TAS.Server
 {
-    [JsonObject(MemberSerialization.OptIn)]
     public class AnimationDirectory: MediaDirectory, IAnimationDirectory
     {
         private readonly IPlayoutServer _server;

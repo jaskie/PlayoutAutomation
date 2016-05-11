@@ -18,14 +18,13 @@ namespace TAS.Server.Interfaces
         void Initialize();
         void Refresh();
         void SweepStaleMedia();
-        IMedia FindMediaByDto(Guid guidDto);
         long VolumeTotalSize { get; }
         long VolumeFreeSize { get; }
         char PathSeparator { get; }
 
-        event EventHandler<MediaDtoEventArgs> MediaAdded;
-        event EventHandler<MediaDtoEventArgs> MediaRemoved;
-        event EventHandler<MediaDtoEventArgs> MediaVerified;
-        event EventHandler<MediaDtoEventArgs> MediaDeleted;
+        event EventHandler<MediaEventArgs> MediaAdded;
+        event EventHandler<MediaEventArgs> MediaRemoved;
+        event EventHandler<MediaEventArgs> MediaVerified;
+        event EventHandler<MediaEventArgs> MediaDeleted;
     }
 }

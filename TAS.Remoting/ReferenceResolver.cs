@@ -12,9 +12,11 @@ namespace TAS.Remoting
         readonly ConcurrentDictionary<Guid, IDto> _knownDtos = new ConcurrentDictionary<Guid, IDto>();
         public void AddReference(object context, string reference, object value)
         {
-            if (value is IDto)
+            IDto p = value as IDto;
+            if (p != null && p.DtoGuid.Equals(Guid.Empty))
             {
                 Guid id = new Guid(reference);
+                p.DtoGuid = id;
                 _knownDtos[id] = (IDto)value;
             }
         }
@@ -24,6 +26,8 @@ namespace TAS.Remoting
             IDto p = value as IDto;
             if (p != null)
             {
+                if (p.DtoGuid == Guid.Empty)
+                    p.DtoGuid = Guid.NewGuid();
                 _knownDtos[p.DtoGuid] = p;
                 return p.DtoGuid.ToString();
             }
@@ -33,7 +37,7 @@ namespace TAS.Remoting
         public bool IsReferenced(object context, object value)
         {
             IDto p = value as IDto;
-            if (p != null)
+            if (p != null && !p.DtoGuid.Equals(Guid.Empty))
                 return _knownDtos.ContainsKey(p.DtoGuid);
             return false;
         }

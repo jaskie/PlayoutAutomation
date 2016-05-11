@@ -12,6 +12,7 @@ namespace TAS.Server.Common
         {
             Operation = operation;
         }
+        [Newtonsoft.Json.JsonProperty(ItemIsReference = true)]
         public IFileOperation Operation { get; private set; }
     }
 }

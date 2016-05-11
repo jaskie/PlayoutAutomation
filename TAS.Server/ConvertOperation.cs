@@ -23,7 +23,6 @@ using TAS.Server.Common;
 
 namespace TAS.Server
 {
-    [JsonObject(MemberSerialization.OptIn)]
     public class ConvertOperation : FFMpegOperation, IConvertOperation
     {
         

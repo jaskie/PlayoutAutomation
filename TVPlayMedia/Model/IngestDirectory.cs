@@ -35,13 +35,5 @@ namespace TAS.Client.Model
         public NetworkCredential NetworkCredential { get { return null; } }
         public string Password { get; set; }
         public string Username { get; set; }
-
-
-        public override IMedia FindMediaByDto(Guid dtoGuid)
-        {
-            IngestMedia result = Query<IngestMedia>(parameters: new[] { dtoGuid });
-            result.Directory = this;
-            return result;
-        }
     }
 }

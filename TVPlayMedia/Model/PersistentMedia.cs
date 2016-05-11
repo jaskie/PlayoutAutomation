@@ -24,6 +24,8 @@ namespace TAS.Client.Model
 
         public bool Modified { get; set; }
 
+        public bool Protected { get { return Get<bool>(); } set { Set(value); } }
+
         public IMediaSegment CreateSegment()
         {
             return Query<IMediaSegment>();

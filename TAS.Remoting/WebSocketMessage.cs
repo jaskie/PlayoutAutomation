@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
-
+using System.Collections.Generic;
 
 namespace TAS.Remoting
 {
@@ -30,12 +30,10 @@ namespace TAS.Remoting
         public Guid DtoGuid;
         [JsonProperty]
         public WebSocketMessageType MessageType;
-
 #if DEBUG
         [JsonProperty]
         public string DtoName;
 #endif
-
         /// <summary>
         /// Object member (method, property or event) name
         /// </summary>
@@ -43,7 +41,7 @@ namespace TAS.Remoting
         public string MemberName;
         [JsonProperty]
         public object[] Parameters;
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Auto, ItemTypeNameHandling = TypeNameHandling.Auto)]
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Auto, ItemTypeNameHandling = TypeNameHandling.Auto, IsReference = true, ItemIsReference = true)]
         public object Response;
         public void ConvertToResponse(object response)
         {

@@ -15,7 +15,6 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    [JsonObject(MemberSerialization.OptIn)]
     class LoudnessOperation : FFMpegOperation, ILoudnessOperation
     {
 

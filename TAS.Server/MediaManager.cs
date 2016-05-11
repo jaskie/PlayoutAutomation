@@ -21,7 +21,6 @@ using TAS.Remoting.Server;
 namespace TAS.Server
 {
 
-    [JsonObject(MemberSerialization.OptIn)]
     public class MediaManager: DtoBase, IMediaManager
     {
         readonly Engine _engine;
@@ -94,11 +93,11 @@ namespace TAS.Server
             Debug.WriteLine(this, "End initializing");
         }
 
-        private void ArchiveDirectory_MediaDeleted(object sender, MediaDtoEventArgs e)
+        private void ArchiveDirectory_MediaDeleted(object sender, MediaEventArgs e)
         {
             if (MediaDirectoryPRI != null)
             {
-                var m = ((ServerDirectory)MediaDirectoryPRI).FindMediaByMediaGuid(e.MediaGuid) as ServerMedia;
+                var m = ((ServerDirectory)MediaDirectoryPRI).FindMediaByMediaGuid(e.Media.MediaGuid) as ServerMedia;
                 if (m != null)
                     m.IsArchived = false;
             }
@@ -206,7 +205,7 @@ namespace TAS.Server
             }
         }
 
-        private void _onServerDirectoryMediaSaved(object media, MediaDtoEventArgs e)
+        private void _onServerDirectoryMediaSaved(object media, MediaEventArgs e)
         {
             ServerMedia priMedia = media as ServerMedia;
             if (priMedia != null && priMedia.MediaStatus != TMediaStatus.Deleted)
@@ -414,15 +413,13 @@ namespace TAS.Server
             return Guid.Empty;            
         }
 
-        private void _mediaPRIVerified(object o, MediaDtoEventArgs e)
+        private void _mediaPRIVerified(object o, MediaEventArgs e)
         {
             if (MediaDirectorySEC != null
                 && MediaDirectorySEC != MediaDirectoryPRI
                 && MediaDirectorySEC.IsInitialized)
             {
-                IMedia pRIMedia = MediaDirectoryPRI.FindMediaByDto(e.DtoGuid);
-                if (pRIMedia == null)
-                    return;
+                IMedia pRIMedia = e.Media;
                 IServerMedia media = MediaDirectorySEC.GetServerMedia(pRIMedia, true);
                 if (media.FileSize == pRIMedia.FileSize
                     && media.FileName == pRIMedia.FileName
@@ -437,13 +434,13 @@ namespace TAS.Server
             }
         }
 
-        private void _mediaPRIRemoved(object o, MediaDtoEventArgs e)
+        private void _mediaPRIRemoved(object o, MediaEventArgs e)
         {
             if (MediaDirectorySEC != null
                 && MediaDirectorySEC != MediaDirectoryPRI
                 && MediaDirectorySEC.IsInitialized)
             {
-                IMedia mediaToDelete = ((MediaDirectory)MediaDirectorySEC).FindMediaByMediaGuid(e.MediaGuid);
+                IMedia mediaToDelete = ((MediaDirectory)MediaDirectorySEC).FindMediaByMediaGuid(e.Media.MediaGuid);
                 if (mediaToDelete != null && mediaToDelete.FileExists())
                     FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = mediaToDelete }, false);
             }

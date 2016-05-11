@@ -19,17 +19,16 @@ using TAS.Remoting.Server;
 
 namespace TAS.Server
 {
-    [JsonObject(MemberSerialization.OptIn)]
     public abstract class MediaDirectory : DtoBase, IMediaDirectory
     { 
         private FileSystemWatcher _watcher;
         protected ConcurrentDictionary<Guid, IMedia> _files = new ConcurrentDictionary<Guid, IMedia>();
         internal MediaManager MediaManager;
 
-        public event EventHandler<MediaDtoEventArgs> MediaAdded;
-        public event EventHandler<MediaDtoEventArgs> MediaRemoved;
-        public event EventHandler<MediaDtoEventArgs> MediaVerified;
-        public event EventHandler<MediaDtoEventArgs> MediaDeleted;
+        public event EventHandler<MediaEventArgs> MediaAdded;
+        public event EventHandler<MediaEventArgs> MediaRemoved;
+        public event EventHandler<MediaEventArgs> MediaVerified;
+        public event EventHandler<MediaEventArgs> MediaDeleted;
 
         protected bool _isInitialized = false;
 
@@ -242,18 +241,18 @@ namespace TAS.Server
 
         public virtual void MediaAdd(IMedia media)
         {
-            _files[media.DtoGuid] = media;
+            _files[media.MediaGuid] = media;
             NotifyMediaAdded(media);
         }
 
         public virtual void MediaRemove(IMedia media)
         {
             IMedia removed;
-            if (_files.TryRemove(media.DtoGuid, out removed))
+            if (_files.TryRemove(media.MediaGuid, out removed))
             {
                 var h = MediaRemoved;
                 if (h != null)
-                    h(this, new MediaDtoEventArgs(media.DtoGuid, media.MediaGuid));
+                    h(this, new MediaEventArgs(media));
             }
         }
 
@@ -280,14 +279,14 @@ namespace TAS.Server
         {
             var h = MediaVerified;
             if (h != null)
-                h(this, new MediaDtoEventArgs(media.DtoGuid, media.MediaGuid));
+                h(this, new MediaEventArgs(media));
         }
 
         protected virtual void OnMediaDeleted(IMedia media)
         {
             var h = MediaDeleted;
             if (h != null)
-                h(this, new MediaDtoEventArgs(media.DtoGuid, media.MediaGuid));
+                h(this, new MediaEventArgs(media));
         }
 
 
@@ -312,13 +311,8 @@ namespace TAS.Server
 
         public virtual IMedia FindMediaByMediaGuid(Guid mediaGuid)
         {
-            return _files.Values.FirstOrDefault(m => m.MediaGuid == mediaGuid);
-        }
-
-        public virtual IMedia FindMediaByDto(Guid guidDto)
-        {
             IMedia result;
-            _files.TryGetValue(guidDto, out result);
+            _files.TryGetValue(mediaGuid, out result);
             return result;
         }
 
@@ -488,7 +482,7 @@ namespace TAS.Server
         {
             var h = MediaAdded;
             if (h != null)
-                h(this, new MediaDtoEventArgs(media.DtoGuid, media.MediaGuid));
+                h(this, new MediaEventArgs(media));
         }
     }
 

@@ -906,6 +906,7 @@ VALUES
             else
                 cmd.Parameters.AddWithValue("@KillDate", media.KillDate);
             uint flags = ((media is IServerMedia && (media as IServerMedia).DoNotArchive) ? (uint)0x1 : (uint)0x0)
+                        | (media.Protected ? (uint)0x2 : (uint)0x0)
                         | ((uint)(media.MediaCategory) << 4) // bits 4-7 of 1st byte
                         | ((uint)media.MediaEmphasis << 8) // bits 1-3 of second byte
                         | ((uint)media.Parental << 12) // bits 4-7 of second byte
@@ -979,6 +980,7 @@ VALUES
             media.Parental = (TParental)((flags >> 12) & 0xF);
             if (media is IServerMedia)
                 ((IServerMedia)media).DoNotArchive = (flags & 0x1) != 0;
+            media.Protected = (flags & 0x2) != 0;
             media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
             media.Modified = false;
         }

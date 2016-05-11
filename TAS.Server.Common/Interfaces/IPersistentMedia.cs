@@ -16,6 +16,7 @@ namespace TAS.Server.Interfaces
         DateTime KillDate { get; set; }
         UInt64 IdProgramme { get; set; }
         UInt64 IdPersistentMedia { get; set; }
+        bool Protected { get; set; }
         bool Modified { get; set; }
         bool Save();
     }

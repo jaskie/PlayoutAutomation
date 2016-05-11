@@ -22,7 +22,6 @@ namespace TAS.Server
     public delegate void CommandNotifier(DateTime When, string Command, Event sender);
     public delegate void VolumeChangeNotifier(IPlayoutServerChannel channel, VideoLayer layer, decimal newvalue);
 
-    [JsonObject(MemberSerialization.OptIn)]
     public class CasparServer : DtoBase, IPlayoutServer, IDisposable 
     {
         [XmlIgnore]

@@ -20,11 +20,13 @@ namespace TAS.Client.Model
         }
         public TDirectoryAccessType AccessType { get; set; }
         public string DirectoryName { get { return Get<string>(); } set { Set(value); } }
+
+        private List<IMedia> _files;
         public  ICollection<IMedia> GetFiles()
         {
-            var list = Query<ICollection<IMedia>>().ToList();
-            list.ForEach(m => (m as Media).Directory = this);
-            return list.Cast<IMedia>().ToList(); 
+            _files = Query<List<IMedia>>();
+            _files.ForEach(m => (m as Media).Directory = this);
+            return _files;
         }
 
         public string Folder { get { return Get<string>(); } set { Set(value); } }
@@ -37,8 +39,8 @@ namespace TAS.Client.Model
 
         public long VolumeTotalSize { get { return Get<long>(); } internal set { Set(value); } }
 
-        event EventHandler<MediaDtoEventArgs> _mediaAdded;
-        public event EventHandler<MediaDtoEventArgs> MediaAdded
+        event EventHandler<MediaEventArgs> _mediaAdded;
+        public event EventHandler<MediaEventArgs> MediaAdded
         {
             add
             {
@@ -52,8 +54,8 @@ namespace TAS.Client.Model
             }
         }
 
-        event EventHandler<MediaDtoEventArgs> _mediaRemoved;
-        public event EventHandler<MediaDtoEventArgs> MediaRemoved
+        event EventHandler<MediaEventArgs> _mediaRemoved;
+        public event EventHandler<MediaEventArgs> MediaRemoved
         {
             add
             {
@@ -67,8 +69,8 @@ namespace TAS.Client.Model
             }
         }
 
-        event EventHandler<MediaDtoEventArgs> _mediaDeleted;
-        public event EventHandler<MediaDtoEventArgs> MediaDeleted
+        event EventHandler<MediaEventArgs> _mediaDeleted;
+        public event EventHandler<MediaEventArgs> MediaDeleted
         {
             add
             {
@@ -82,8 +84,8 @@ namespace TAS.Client.Model
             }
         }
 
-        event EventHandler<MediaDtoEventArgs> _mediaVerified;
-        public event EventHandler<MediaDtoEventArgs> MediaVerified
+        event EventHandler<MediaEventArgs> _mediaVerified;
+        public event EventHandler<MediaEventArgs> MediaVerified
         {
             add
             {
@@ -103,19 +105,19 @@ namespace TAS.Client.Model
             {
                 var h = _mediaAdded;
                 if (h != null)
-                    h(this, ConvertEventArgs<MediaDtoEventArgs>(e));
+                    h(this, ConvertEventArgs<MediaEventArgs>(e));
             }
             if (e.Message.MemberName == "MediaRemoved")
             {
                 var h = _mediaRemoved;
                 if (h != null)
-                    h(this, ConvertEventArgs<MediaDtoEventArgs>(e));
+                    h(this, ConvertEventArgs<MediaEventArgs>(e));
             }
             if (e.Message.MemberName == "MediaVerified")
             {
                 var h = _mediaVerified;
                 if (h != null)
-                    h(this, ConvertEventArgs<MediaDtoEventArgs>(e));
+                    h(this, ConvertEventArgs<MediaEventArgs>(e));
             }
         }
 
@@ -133,8 +135,6 @@ namespace TAS.Client.Model
         {
             return Query<bool>();
         }
-
-        public abstract IMedia FindMediaByDto(Guid dtoGuid);
 
         public void Initialize()
         {

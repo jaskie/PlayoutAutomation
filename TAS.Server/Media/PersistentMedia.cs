@@ -14,7 +14,6 @@ using Newtonsoft.Json;
 
 namespace TAS.Server
 {
-    [JsonObject(MemberSerialization.OptIn)]
     public abstract class PersistentMedia: Media, IPersistentMedia
     {
         public PersistentMedia(IMediaDirectory directory) : base(directory) { }
@@ -51,7 +50,14 @@ namespace TAS.Server
             set { SetField(ref _mediaEmphasis, value, "MediaEmphasis"); }
         }
 
-        
+        protected bool _protected;
+        [JsonProperty]
+        public bool Protected
+        {
+            get { return _protected; }
+            set { SetField(ref _protected, value, "Protected"); }
+        }
+
         public IMedia OriginalMedia { get; set; }
 
         private ObservableSynchronizedCollection<IMediaSegment> _mediaSegments;
@@ -86,7 +92,6 @@ namespace TAS.Server
         public abstract bool Save();
 
         public bool Modified { get; set; }
-
 
         protected override bool SetField<T>(ref T field, T value, string propertyName)
         {

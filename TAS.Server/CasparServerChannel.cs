@@ -16,7 +16,6 @@ using Newtonsoft.Json;
 
 namespace TAS.Server
 {
-    [JsonObject(MemberSerialization.OptIn)]
     public class CasparServerChannel : DtoBase, IPlayoutServerChannel
     {
         [XmlIgnore]

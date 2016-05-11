@@ -32,8 +32,9 @@ namespace TAS.Client
                 case "TAS.Server.ConvertOperation":
                     return typeof(Model.ConvertOperation);
                 case "TAS.Server.FileOperation":
-                    return typeof(Model.ConvertOperation);
-
+                    return typeof(Model.FileOperation);
+                case "TAS.Server.LoudnessOperation":
+                    return typeof(Model.LoudnessOperation);
 
                 case "TAS.Server.Engine":
                     return typeof(Model.Engine);

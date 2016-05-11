@@ -243,8 +243,6 @@ namespace TAS.Remoting.Server
                             }
                         }
                     }
-                    else
-                        input = Deserialize<IDto>((input as JContainer).ToString());
                     inputArray[i] = input;
                 }
             }
@@ -265,7 +263,8 @@ namespace TAS.Remoting.Server
                 DtoName = dto.ToString(),
 #endif
             };
-            Send(Serialize(message));
+            string s = Serialize(message);
+            Send(s);
             Debug.WriteLine("Server: Notification {0} on {1} sent", eventName, dto);
         }
 

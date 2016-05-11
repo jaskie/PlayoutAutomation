@@ -39,6 +39,8 @@ namespace TAS.Server.Common
             var fileBase = Path.GetFileNameWithoutExtension(fileName);
             var ext = Path.GetExtension(fileName);
             // build hash set of filenames for performance
+            if (!Directory.Exists(folder))
+                return fileName;
             var files = new HashSet<string>(Directory.GetFiles(folder));
 
             for (var index = 0; index < maxAttempts; index++)

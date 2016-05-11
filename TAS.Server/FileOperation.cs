@@ -14,14 +14,14 @@ using TAS.Remoting.Server;
 
 namespace TAS.Server
 {
-
-    [JsonObject(MemberSerialization.OptIn)]
     public class FileOperation : DtoBase, IFileOperation
     {
         [JsonProperty]
         public TFileOperationKind Kind { get; set; }
+
         public IMedia SourceMedia { get; set; }
         protected IMedia _destMedia;
+
         public IMedia DestMedia { get { return _destMedia; } set { SetField(ref _destMedia, value, "Title"); } }
         public event EventHandler Success;
         public event EventHandler Failure;

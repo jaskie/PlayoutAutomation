@@ -38,19 +38,10 @@ namespace TAS.Client.Model
             ret.Directory = this;
             return ret;
         }
-
-
+        
         public void Search()
         {
             Invoke();
         }
-
-        public override IMedia FindMediaByDto(Guid dtoGuid)
-        {
-            ArchiveMedia result = Query<ArchiveMedia>(parameters: new[] { dtoGuid });
-            result.Directory = this;
-            return result;
-        }
-
     }
 }

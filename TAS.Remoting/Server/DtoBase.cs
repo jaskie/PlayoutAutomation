@@ -6,10 +6,9 @@ using System.Text;
 
 namespace TAS.Remoting.Server
 {
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.Objects, IsReference = true, ItemIsReference = true, MemberSerialization = MemberSerialization.OptIn)]
     public abstract class DtoBase: IDto
     {
-        private readonly Guid _guidDto = Guid.NewGuid();
-        [JsonProperty("$id")]
-        public Guid DtoGuid { get { return _guidDto; } }
+        public Guid DtoGuid { get; set; }
     }
 }
