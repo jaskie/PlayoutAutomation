@@ -24,12 +24,9 @@ namespace TAS.Server
         #region IPlayoutServerChannel
         [JsonProperty]
         public string ChannelName { get; set; }
-        [JsonProperty]
         public int ChannelNumber { get; set; }
         [DefaultValue(1.0d)]
-        [JsonProperty]
         public decimal MasterVolume { get; set; }
-        [JsonProperty]
         public string LiveDevice { get; set; }
         #endregion // IPlayoutServerChannel
         protected bool? outputAspectNarrow;

@@ -4,7 +4,7 @@ using System;
 
 namespace TAS.Remoting
 {
-    [JsonObject(MemberSerialization.OptIn)]
+    [JsonObject(MemberSerialization.OptIn, IsReference = false)]
     public class WebSocketMessage
     {
         public enum WebSocketMessageType
