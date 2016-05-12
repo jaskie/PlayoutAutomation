@@ -67,6 +67,7 @@
                     <Style TargetType="MenuItem">
                         <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource InvertedBoolToVis}}"/>
                         <Setter Property="Command" Value="{Binding CommandShow}"/>
+                        <Setter Property="Header" Value="{Binding EventName}"/>
                     </Style>
                 </MenuItem.ItemContainerStyle>
             </MenuItem>

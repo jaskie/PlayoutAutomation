@@ -776,14 +776,12 @@ namespace TAS.Server
                 if (value != _parent.Value)
                 {
                     _parent = new Lazy<Event>(() => value as Event);
-                    NotifyPropertyChanged("Parent");
                     if (value != null)
                     {
                         StartType = TStartType.With;
                         _idEventBinding = value.IdRundownEvent;
                     }
-                    else
-                        _idEventBinding = 0;
+                    NotifyPropertyChanged("Parent");
                 }
             }
         }
@@ -797,14 +795,12 @@ namespace TAS.Server
                 if (value != _prior.Value)
                 {
                     _prior = new Lazy<Event>(() => value as Event);
-                    NotifyPropertyChanged("Prior");
                     if (value != null)
                     {
                         StartType = TStartType.After;
                         _idEventBinding = value.IdRundownEvent;
                     }
-                    else
-                        _idEventBinding = 0;
+                    NotifyPropertyChanged("Prior");
                 }
             }
         }
@@ -997,6 +993,7 @@ namespace TAS.Server
                 Next = null;
                 Prior = null;
                 Parent = null;
+                _idEventBinding = 0;
                 StartType = TStartType.None;
             }
         }
@@ -1011,25 +1008,22 @@ namespace TAS.Server
                 Debug.Assert(e2 != null, "Cannot move up - it's the first event");
                 if (e2 == null)
                     return;
-                Event e1parent = e2.Parent as Event;
-                Event e1prior = e2.Prior as Event;
-                TStartType e2startType = e2.StartType;
-                if (e1parent != null)
+                Event e2parent = e2.Parent as Event;
+                Event e2prior = e2.Prior as Event;
+                if (e2parent != null)
                 {
-                    e1parent._subEvents.Value.Remove(e2);
-                    e1parent.NotifySubEventChanged(e2, TCollectionOperation.Remove);
-                    e1parent._subEvents.Value.Add(this);
-                    e1parent.NotifySubEventChanged(this, TCollectionOperation.Insert);
+                    e2parent._subEvents.Value.Remove(e2);
+                    e2parent.NotifySubEventChanged(e2, TCollectionOperation.Remove);
+                    e2parent._subEvents.Value.Add(this);
+                    e2parent.NotifySubEventChanged(this, TCollectionOperation.Insert);
                 }
-                if (e1prior != null)
-                    e1prior.Next = this;
-                StartType = e2startType;
-                Prior = e1prior;
-                Parent = e1parent;
+                if (e2prior != null)
+                    e2prior.Next = this;
+                Prior = e2prior;
+                Parent = e2parent;
                 Next = e2;
                 e2.Prior = this;
                 e2.Next = e4;
-                e2.StartType = TStartType.After;
                 if (e4 != null)
                     e4.Prior = e2;
                 UpdateScheduledTime(true);
@@ -1053,7 +1047,6 @@ namespace TAS.Server
                 Event e4 = e3.Next as Event;
                 Event e1parent = Parent as Event;
                 Event e1prior = Prior as Event;
-                TStartType e2startType = StartType;
                 if (e1parent != null)
                 {
                     e1parent._subEvents.Value.Remove(this);
@@ -1063,13 +1056,11 @@ namespace TAS.Server
                 }
                 if (e1prior != null)
                     e1prior.Next = e3;
-                e3.StartType = e2startType;
                 e3.Prior = e1prior;
                 e3.Parent = e1parent;
                 e3.Next = this;
                 Prior = e3;
                 Next = e4;
-                StartType = TStartType.After;
                 if (e4 != null)
                     e4.Prior = this;
                 e3.UpdateScheduledTime(true);
@@ -1225,7 +1216,7 @@ namespace TAS.Server
             if (!IsDeleted && AllowDelete())
             {
                 Remove();
-                foreach (IEvent se in this.SubEvents.ToList())
+                foreach (IEvent se in SubEvents.ToList())
                 {
                     IEvent ne = se;
                     while (ne != null)
@@ -1253,7 +1244,7 @@ namespace TAS.Server
                     && nev.Media == media
                     && nev.ScheduledTime >= Engine.CurrentTime)
                     return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Event = nev, Media = media };
-                if (nev._subEvents != null)
+                if (nev.SubEvents != null)
                 {
                     foreach (Event se in nev._subEvents.Value.ToList())
                     {

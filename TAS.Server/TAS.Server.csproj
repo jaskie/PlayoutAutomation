@@ -95,7 +95,7 @@
     <Compile Include="Media\TempDirectory.cs" />
     <Compile Include="Media\TempMedia.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RemoteBinder.cs" />
+    <Compile Include="ServerBinder.cs" />
     <Compile Include="RemoteHost.cs" />
     <Compile Include="Template.cs" />
     <Compile Include="ExportOperation.cs" />

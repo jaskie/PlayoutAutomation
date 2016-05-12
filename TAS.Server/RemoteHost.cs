@@ -19,7 +19,7 @@ namespace TAS.Server
         [XmlIgnore]
         public TAS.Server.Engine Engine { get; private set; }
         WebSocketServer _server;
-        static SerializationBinder TypeBinder = new RemoteBinder();
+        static SerializationBinder ServerBinder = new ServerBinder();
         public bool Initialize(TAS.Server.Engine engine)
         {
             if (string.IsNullOrEmpty(EndpointAddress))
@@ -27,7 +27,7 @@ namespace TAS.Server
             try
             {
                 _server = new WebSocketServer(string.Format("ws://{0}", EndpointAddress));
-                _server.AddWebSocketService<CommunicationBehavior>("/Engine", () => new CommunicationBehavior(engine as Engine) {Binder = TypeBinder});
+                _server.AddWebSocketService<CommunicationBehavior>("/Engine", () => new CommunicationBehavior(engine as Engine) {Binder = ServerBinder});
                 _server.Start();
                 return true;
             }
