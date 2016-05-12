@@ -11,11 +11,12 @@ using TAS.Common;
 using TAS.Server.Database;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using TAS.Remoting.Server;
 
 namespace TAS.Server
 {
 
-    public class Event : IEvent, IComparable
+    public class Event : DtoBase, IEvent, IComparable
     {
 
         public Event(
@@ -108,13 +109,6 @@ namespace TAS.Server
             });
         }
         
-#if DEBUG
-        ~Event()
-        {
-            Debug.WriteLine(this, "Event Finalized");
-        }
-#endif // DEBUG
-
         UInt64 _idRundownEvent = 0;
         public UInt64 IdRundownEvent
         {

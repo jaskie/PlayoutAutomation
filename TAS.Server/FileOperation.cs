@@ -31,13 +31,6 @@ namespace TAS.Server
         {
         }
 
-#if DEBUG
-        ~FileOperation()
-        {
-            Debug.WriteLine(this, "FileOperation Finalized");
-        }
-#endif // DEBUG
-
         private int _tryCount = 15;
         [JsonProperty]
         public int TryCount

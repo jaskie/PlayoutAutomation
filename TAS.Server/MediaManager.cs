@@ -50,6 +50,7 @@ namespace TAS.Server
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public void Initialize()
         {
+            Debug.WriteLine(this, "Begin initializing");
             ArchiveDirectory = this.LoadArchiveDirectory<ArchiveDirectory>(_engine.IdArchive);
             MediaDirectoryPRI = (_engine.PlayoutChannelPRI == null) ? null : _engine.PlayoutChannelPRI.OwnerServer.MediaDirectory;
             MediaDirectorySEC = (_engine.PlayoutChannelSEC == null) ? null : _engine.PlayoutChannelSEC.OwnerServer.MediaDirectory;
@@ -57,18 +58,12 @@ namespace TAS.Server
             AnimationDirectoryPRI = (_engine.PlayoutChannelPRI == null) ? null : _engine.PlayoutChannelPRI.OwnerServer.AnimationDirectory;
             AnimationDirectorySEC = (_engine.PlayoutChannelSEC == null) ? null : _engine.PlayoutChannelSEC.OwnerServer.AnimationDirectory;
             AnimationDirectoryPRV = (_engine.PlayoutChannelPRV == null) ? null : _engine.PlayoutChannelPRV.OwnerServer.AnimationDirectory;
-            if (MediaDirectoryPRI != null)
-                MediaDirectoryPRI.Initialize();
-            if (MediaDirectorySEC != null)
-                MediaDirectorySEC.Initialize();
-            if (MediaDirectoryPRV != null)
-                MediaDirectoryPRV.Initialize();
+            IMediaDirectory[] initializationList = new IMediaDirectory[] { MediaDirectoryPRI, MediaDirectorySEC, MediaDirectoryPRV, ArchiveDirectory };
+            foreach (IMediaDirectory dir in initializationList.OfType<IMediaDirectory>().Distinct())
+                dir.Initialize();
             if (ArchiveDirectory != null)
-            {
-                ArchiveDirectory.Initialize();
                 ArchiveDirectory.MediaDeleted += ArchiveDirectory_MediaDeleted;
-            }
-            Debug.WriteLine(this, "Begin initializing");
+
             ServerDirectory sdir = MediaDirectoryPRI as ServerDirectory;
             if (sdir != null)
             {

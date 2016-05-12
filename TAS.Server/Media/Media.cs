@@ -26,13 +26,6 @@ namespace TAS.Server
             _directory.MediaAdd(this);
         }
 
-#if DEBUG
-        ~Media()
-        {
-            Debug.WriteLine(this, "Media Finalized");
-        }
-#endif // DEBUG
-
         // file properties
         protected string _folder = string.Empty;
         [JsonProperty()]
