@@ -1168,16 +1168,24 @@ namespace TAS.Server
         }
 
         
-        public MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia)
+        public MediaDeleteDenyReason CanDeleteMedia(PersistentMedia media)
         {
             MediaDeleteDenyReason reason = MediaDeleteDenyReason.NoDeny;
-            foreach (Event e in _rootEvents.ToList())
+            if (media is PersistentMedia && ((PersistentMedia)media).Protected)
+                return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.Protected, Media = media };
+            ServerMedia serverMedia = media as ServerMedia;
+            if (serverMedia == null)
+                return reason;
+            else
             {
-                reason = e.CheckCanDeleteMedia(serverMedia);
-                if (reason.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
-                    return reason;
+                foreach (Event e in _rootEvents.ToList())
+                {
+                    reason = e.CheckCanDeleteMedia(serverMedia);
+                    if (reason.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
+                        return reason;
+                }
+                return this.DbMediaInUse(serverMedia);
             }
-            return this.DbMediaInUse(serverMedia);
         }
 
         [XmlIgnore]

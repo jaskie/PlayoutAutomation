@@ -173,6 +173,7 @@ namespace TAS.Server
                     || e.PropertyName == "AudioLevelIntegrated"
                     || e.PropertyName == "AudioLevelPeak"
                     || e.PropertyName == "IsArchived"
+                    || e.PropertyName == "Protected"
                     ))
             {
                 ServerMedia compMedia = _findComplementaryMedia(media as ServerMedia);
@@ -242,7 +243,7 @@ namespace TAS.Server
 
         private MediaDeleteDenyReason deleteMedia(IMedia media)
         {
-            MediaDeleteDenyReason reason = (media is ServerMedia) ? _engine.CanDeleteMedia(media as ServerMedia) : MediaDeleteDenyReason.NoDeny;
+            MediaDeleteDenyReason reason = (media is PersistentMedia) ? _engine.CanDeleteMedia(media as PersistentMedia) : MediaDeleteDenyReason.NoDeny;
             if (reason.Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
                 _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = media });
             return reason;

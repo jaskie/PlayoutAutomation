@@ -144,6 +144,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Media is delete-protected.
+        /// </summary>
+        public static string _message_MediaDeleteDenyReason_Protected {
+            get {
+                return ResourceManager.GetString("_message_MediaDeleteDenyReason_Protected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Item is scheduled in {0} at {1}.
         /// </summary>
         public static string _message_MediaDeleteDenyReason_Scheduled {
@@ -162,8 +171,7 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Delete of {0} not allowed due to following reason:
-        ///{1}.
+        ///   Looks up a localized string similar to Delete not allowed due to following reason(s):.
         /// </summary>
         public static string _message_MediaDeleteNotAllowed {
             get {

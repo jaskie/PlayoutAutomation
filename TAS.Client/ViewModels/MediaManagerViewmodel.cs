@@ -358,12 +358,26 @@ namespace TAS.Client.ViewModels
                 var reasons = _mediaManager.DeleteMedia(selection).Where(r => r.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny);
                 if (reasons.Any())
                 {
+                    StringBuilder reasonMsg = new StringBuilder();
                     foreach (var reason in reasons)
                     {
-                        string reasonMsg = reason.Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule ? string.Format(resources._message_MediaDeleteDenyReason_Scheduled, reason.Event == null ? resources._unknown_ : reason.Event.EventName, reason.Event == null ? resources._unknown_ : reason.Event.ScheduledTime.ToLocalTime().ToString())
-                            : resources._message_MediaDeleteDenyReason_Unknown;
-                        MessageBox.Show(string.Format(resources._message_MediaDeleteNotAllowed, reason.Media.MediaName, reasonMsg), resources._caption_Error, MessageBoxButton.OK);
+                        switch (reason.Reason)
+                        {
+                            case MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny:
+                                break;
+                            case MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule:
+                                reasonMsg.AppendLine().Append(reason.Media.MediaName).Append(": ").AppendFormat(resources._message_MediaDeleteDenyReason_Scheduled, reason.Event == null ? resources._unknown_ : reason.Event.EventName, reason.Event == null ? resources._unknown_ : reason.Event.ScheduledTime.ToLocalTime().ToString());
+                                break;
+                            case MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.Protected:
+                                reasonMsg.AppendLine().Append(reason.Media.MediaName).Append(": ").Append(resources._message_MediaDeleteDenyReason_Protected);
+                                break;
+                            default:
+                                reasonMsg.AppendLine().Append(reason.Media.MediaName).Append(": ").Append(resources._message_MediaDeleteDenyReason_Unknown);
+                                break;
+                        }
                     }
+                    if (reasonMsg.Length > 0)
+                        MessageBox.Show(String.Join(Environment.NewLine, resources._message_MediaDeleteNotAllowed, reasonMsg.ToString()), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

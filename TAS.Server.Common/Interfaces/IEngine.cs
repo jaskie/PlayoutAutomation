@@ -81,7 +81,7 @@ namespace TAS.Server.Interfaces
         bool GPIIsMaster { get; }
         #endregion // GPI
 
-        MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia);
+        //MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia);
         void SearchMissingEvents();
         IEvent PlayingEvent(VideoLayer layer = VideoLayer.Program);
         IEvent NextToPlay { get; }

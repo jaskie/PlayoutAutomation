@@ -146,6 +146,9 @@
     <value>Unable to refresh directory. Following error occurred:
 {0}</value>
   </data>
+  <data name="_message_MediaDeleteDenyReason_Protected" xml:space="preserve">
+    <value>Media is delete-protected</value>
+  </data>
   <data name="_message_MediaDeleteDenyReason_Scheduled" xml:space="preserve">
     <value>Item is scheduled in {0} at {1}</value>
   </data>
@@ -153,8 +156,7 @@
     <value>Unknown reason</value>
   </data>
   <data name="_message_MediaDeleteNotAllowed" xml:space="preserve">
-    <value>Delete of {0} not allowed due to following reason:
-{1}</value>
+    <value>Delete not allowed due to following reason(s):</value>
   </data>
   <data name="_moreItems" xml:space="preserve">
     <value>and {0} items more</value>

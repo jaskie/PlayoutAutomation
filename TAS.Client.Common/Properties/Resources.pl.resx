@@ -146,6 +146,9 @@
     <value>Odświeżenie katalogu nie powiodło się. Błąd, który wystąpił:
 {0}</value>
   </data>
+  <data name="_message_MediaDeleteDenyReason_Protected" xml:space="preserve">
+    <value>Klip jest zabezpieczony przed usunięciem</value>
+  </data>
   <data name="_message_MediaDeleteDenyReason_Scheduled" xml:space="preserve">
     <value>Zaplanowany w {0} o {1}</value>
   </data>
@@ -153,8 +156,7 @@
     <value>Przyczyna nieznana</value>
   </data>
   <data name="_message_MediaDeleteNotAllowed" xml:space="preserve">
-    <value>Nie można usunąć {0} z powodu:
-{1}</value>
+    <value>Nie można usunąć klipów, ponieważ:</value>
   </data>
   <data name="_moreItems" xml:space="preserve">
     <value>i jeszcze {0} elementów</value>

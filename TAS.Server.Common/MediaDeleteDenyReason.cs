@@ -16,6 +16,7 @@ namespace TAS.Common
         {
             NoDeny,
             MediaInFutureSchedule,
+            Protected,
             Unknown,
         }
         [DataMember]

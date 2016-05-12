@@ -180,6 +180,9 @@
   <data name="_play" xml:space="preserve">
     <value>Odtwarzanie</value>
   </data>
+  <data name="_protect" xml:space="preserve">
+    <value>Zabezpieczony przed usunięciem</value>
+  </data>
   <data name="_status" xml:space="preserve">
     <value>Status pliku</value>
   </data>
