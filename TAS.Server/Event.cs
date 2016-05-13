@@ -1024,6 +1024,7 @@ namespace TAS.Server
                 Next = e2;
                 e2.Prior = this;
                 e2.Next = e4;
+                e2.Parent = null;
                 if (e4 != null)
                     e4.Prior = e2;
                 UpdateScheduledTime(true);
@@ -1045,20 +1046,21 @@ namespace TAS.Server
                 if (e3 == null)
                     return;
                 Event e4 = e3.Next as Event;
-                Event e1parent = Parent as Event;
-                Event e1prior = Prior as Event;
-                if (e1parent != null)
+                Event e2parent = Parent as Event;
+                Event e2prior = Prior as Event;
+                if (e2parent != null)
                 {
-                    e1parent._subEvents.Value.Remove(this);
-                    e1parent.NotifySubEventChanged(this, TCollectionOperation.Remove);
-                    e1parent._subEvents.Value.Add(e3);
-                    e1parent.NotifySubEventChanged(e3, TCollectionOperation.Insert);
+                    e2parent._subEvents.Value.Remove(this);
+                    e2parent.NotifySubEventChanged(this, TCollectionOperation.Remove);
+                    e2parent._subEvents.Value.Add(e3);
+                    e2parent.NotifySubEventChanged(e3, TCollectionOperation.Insert);
                 }
-                if (e1prior != null)
-                    e1prior.Next = e3;
-                e3.Prior = e1prior;
-                e3.Parent = e1parent;
+                if (e2prior != null)
+                    e2prior.Next = e3;
+                e3.Prior = e2prior;
+                e3.Parent = e2parent;
                 e3.Next = this;
+                Parent = null;
                 Prior = e3;
                 Next = e4;
                 if (e4 != null)
@@ -1147,16 +1149,12 @@ namespace TAS.Server
 
         public void Save()
         {
-            if (_modified)
-            {
-                //_saveMutex.WaitOne();
-                if (_idRundownEvent == 0)
-                    this.DbInsert();
-                else
-                    this.DbUpdate();
-                _modified = false;
-                NotifySaved();
-            }
+            if (_idRundownEvent == 0)
+                this.DbInsert();
+            else
+                this.DbUpdate();
+            _modified = false;
+            NotifySaved();
         }
 
         internal Event FindVisibleSubEvent()

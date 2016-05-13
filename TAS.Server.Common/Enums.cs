@@ -38,11 +38,15 @@ namespace TAS.Common
         CG1 = Program | 1,
         CG2 = Program | 2,
         CG3 = Program | 3,
-        Preset = 9,
-        Preview = 10,
+        CG4 = Program | 4,
+        CG5 = Program | 5,
+        Preset = 10,
+        Preview = 0xF,
         PreviewCG1 = Preview | CG1,
         PreviewCG2 = Preview | CG2,
         PreviewCG3 = Preview | CG3,
+        PreviewCG4 = Preview | CG4,
+        PreviewCG5 = Preview | CG5,
     }
     public enum TEngineOperation { Start, Play, Pause, Stop, Clear, Load, Schedule }
     public enum TEngineState { NotInitialized, Idle, Running, Hold }

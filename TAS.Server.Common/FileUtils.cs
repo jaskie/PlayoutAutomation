@@ -48,7 +48,7 @@ namespace TAS.Server.Common
                 // first try with the original filename, else try incrementally adding an index
                 var name = (index == 0)
                     ? fileName
-                    : String.Format("{0} ({1}){2}", fileBase, index, ext);
+                    : String.Format("{0}_{1}{2}", fileBase, index, ext);
 
                 // check if exists
                 var fullPath = Path.Combine(folder, name);

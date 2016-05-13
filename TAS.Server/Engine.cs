@@ -1221,7 +1221,9 @@ namespace TAS.Server
             if (!_events.TryGetValue(idRundownEvent, out result))
             {
                 result = new Event( this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionType, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, gpi );
-                if (_events.TryAdd(idRundownEvent, result))
+                if (idRundownEvent == 0)
+                    result.Save();
+                if (_events.TryAdd(result.IdRundownEvent, result))
                     result.Saved += _eventSaved;
             }
             return result;

@@ -14,6 +14,7 @@ using TAS.Server.Interfaces;
 using Newtonsoft.Json;
 using System.Net;
 using System.ComponentModel;
+using TAS.Server.Common;
 
 namespace TAS.Server
 {
@@ -420,7 +421,7 @@ namespace TAS.Server
 
         protected override IMedia AddFile(string fullPath, DateTime created = default(DateTime), DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
-            IMedia m = null;
+            IMedia media = null;
             if (Extensions == null
              || Extensions.Length == 0
              || Extensions.Any(ext => ext == Path.GetExtension(fullPath).ToLowerInvariant())
@@ -431,18 +432,13 @@ namespace TAS.Server
                     _bMDXmlFiles.Add(fullPath);
                 else
                 {
-                    m = base.AddFile(fullPath, created, lastWriteTime, guid);
-                    if (Extensions != null && Extensions.Length >0)
-                    {
-                        string mediaExtension = Path.GetExtension(fullPath).ToLowerInvariant();
-                        if (Extensions.Contains(mediaExtension))
-                            m.MediaName = Path.GetFileNameWithoutExtension(fullPath);
-                    }
-                    if (IsXDCAM)
-                        m.MediaName = Path.GetFileNameWithoutExtension(fullPath);
+                    media = base.AddFile(fullPath, created, lastWriteTime, guid);
+                    string ext = Path.GetExtension(fullPath).ToLowerInvariant();
+                    if (IsXDCAM || FileUtils.VideoFileTypes.Contains(ext) || FileUtils.AudioFileTypes.Contains(ext) || FileUtils.StillFileTypes.Contains(ext))
+                        media.MediaName = Path.GetFileNameWithoutExtension(fullPath);
                 }
             }
-            return m;
+            return media;
         }
 
         protected override IMedia CreateMedia(string fullPath, Guid guid = default(Guid))
@@ -507,8 +503,13 @@ namespace TAS.Server
 
         protected override void OnMediaRenamed(Media media, string newName)
         {
-            if (!(Extensions.Length == 0 || Extensions.Any(ext => ext == Path.GetExtension(newName).ToLowerInvariant())))
+            if (!(Extensions.Length == 0 || Extensions.Any(e => e == Path.GetExtension(newName).ToLowerInvariant())))
                 MediaRemove(media);
+            string ext = Path.GetExtension(newName).ToLowerInvariant();
+            if (FileUtils.VideoFileTypes.Contains(ext) || FileUtils.AudioFileTypes.Contains(ext) || FileUtils.StillFileTypes.Contains(ext))
+                media.MediaName = Path.GetFileNameWithoutExtension(newName);
+            else
+                media.MediaName = newName;
         }
 
         protected override void OnFileChanged(object source, FileSystemEventArgs e)
