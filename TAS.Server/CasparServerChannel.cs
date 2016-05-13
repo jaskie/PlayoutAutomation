@@ -78,7 +78,10 @@ namespace TAS.Server
                 if (channel != null
                     && OwnerServer != null
                     && OwnerServer.IsConnected)
+                {
+                    channel.CustomCommand(string.Format("MIXER {0} CLEAR", ChannelNumber));
                     channel.CustomCommand(string.Format(CultureInfo.InvariantCulture, "MIXER {0} MASTERVOLUME {1:F3}", ChannelNumber, MasterVolume));
+                }
             }
         }
 

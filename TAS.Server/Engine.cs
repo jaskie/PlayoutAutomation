@@ -622,6 +622,7 @@ namespace TAS.Server
                             e.PlayState = TPlayState.Played;
                         else
                             e.PlayState = TPlayState.Aborted;
+                        _rootEvents.Remove(e);
                     });                        
             }
             _run(aEvent);
@@ -827,7 +828,7 @@ namespace TAS.Server
                                 }
                             }
                             if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks
-                                && !_runningEvents.Contains(succEvent))
+                                && !_loadedNextEvents.Values.Contains(succEvent))
                             {
                                 // second: preload next scheduled events
                                 Debug.WriteLine(succEvent, "Tick: LoadNext Running");

@@ -179,9 +179,25 @@ namespace TAS.Client.ViewModels
             CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown };
             CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive };
             CommandToggleLayer = new UICommand { ExecuteDelegate = _toggleLayer };
+            CommandToggleEnabled = new UICommand { ExecuteDelegate = _toggleEnabled };
+            CommandToggleHold = new UICommand { ExecuteDelegate = _toggleHold };
 
             CommandSaveEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandSaveEdit.Execute };
             CommandUndoEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandUndoEdit.Execute };
+        }
+
+        private void _toggleHold(object obj)
+        {
+            var ep = Selected as EventPanelRundownElementViewmodelBase;
+            if (ep != null)
+                ep.CommandToggleHold.Execute(obj);
+        }
+
+        private void _toggleEnabled(object obj)
+        {
+            var ep = Selected as EventPanelRundownElementViewmodelBase;
+            if (ep != null)
+                ep.CommandToggleEnabled.Execute(obj);
         }
 
         private bool _canForceNextSelected(object obj)

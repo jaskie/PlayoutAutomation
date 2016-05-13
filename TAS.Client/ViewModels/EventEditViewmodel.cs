@@ -33,8 +33,6 @@ namespace TAS.Client.ViewModels
             CommandEditMovie = new UICommand() { ExecuteDelegate = _editMovie, CanExecuteDelegate = _isEditableMovie };
             CommandGetTCInTCOut = new UICommand() { ExecuteDelegate =_getTCInTCOut, CanExecuteDelegate = _canGetTcInTcOut};
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume };
-            CommandToggleEnabled = new UICommand() { ExecuteDelegate = _toggleEnabled, CanExecuteDelegate = _canToggleEnabled };
-            CommandToggleHold = new UICommand() { ExecuteDelegate = _toggleHold, CanExecuteDelegate = _canToggleEnabled };
         }
 
         protected override void OnDispose()
@@ -369,37 +367,11 @@ namespace TAS.Client.ViewModels
             AudioVolume = e.AudioVolume;
         }
 
-        void _toggleEnabled(object o)
-        {
-            IEvent ev = Event;
-            if (ev != null && ev.EventType != TEventType.Container)
-            {
-                ev.IsEnabled = !ev.IsEnabled;
-                ev.Save();
-            }
-        }
-
-        void _toggleHold(object o)
-        {
-            IEvent ev = Event;
-            if (ev != null && ev.EventType != TEventType.Container)
-            {
-                ev.IsHold = !ev.IsHold;
-                ev.Save();
-            }
-        }
-
         bool _canReschedule(object o)
         {
             IEvent ev = _event;
             return ev != null
                 && (ev.PlayState == TPlayState.Played || ev.PlayState == TPlayState.Aborted);
-        }
-        bool _canToggleEnabled(object o)
-        {
-            IEvent ev = _event;
-            return ev != null
-                && (ev.PlayState == TPlayState.Scheduled);
         }
         bool _isEditableMovie(object o)
         {

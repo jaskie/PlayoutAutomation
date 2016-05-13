@@ -38,6 +38,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandCopy { get { return _engineViewmodel.CommandCopySelected; } }
         public ICommand CommandPaste { get { return _engineViewmodel.CommandPasteSelected; } }
         public ICommand CommandToggleHold { get; private set; }
+        public ICommand CommandToggleEnabled { get; private set; }
         public ICommand CommandMoveUp { get; private set; }
         public ICommand CommandMoveDown { get; private set; }
 
@@ -56,6 +57,15 @@ namespace TAS.Client.ViewModels
                 ExecuteDelegate = (o) =>
                 {
                     _event.IsHold = !_event.IsHold;
+                    _event.Save();
+                },
+                CanExecuteDelegate = (o) => _event.PlayState == TPlayState.Scheduled
+            };
+            CommandToggleEnabled = new UICommand()
+            {
+                ExecuteDelegate = (o) =>
+                {
+                    _event.IsEnabled = !_event.IsEnabled;
                     _event.Save();
                 },
                 CanExecuteDelegate = (o) => _event.PlayState == TPlayState.Scheduled
@@ -107,7 +117,7 @@ namespace TAS.Client.ViewModels
                     IEvent newEvent = _event.Engine.AddNewEvent(
                         eventType: TEventType.Live,
                         eventName: resources._title_NewLive,
-                        duration: new TimeSpan(0, 1, 0));
+                        duration: new TimeSpan(0, 0, 1));
                     _event.InsertAfter(newEvent);
                 },
                 CanExecuteDelegate = canAddNewLive
