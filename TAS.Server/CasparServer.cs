@@ -163,7 +163,7 @@ namespace TAS.Server
                 {
                     media = new ServerMedia(AnimationDirectory as AnimationDirectory, Guid.Empty, ulong.MinValue, MediaManager.ArchiveDirectory)
                         {
-                            MediaType = TMediaType.AnimationFlash,
+                            MediaType = TMediaType.Animation,
                             MediaName = template.Name,
                             FullPath = Path.Combine(AnimationDirectory.Folder, template.Folder, template.Name),
                             FileSize = (UInt64)template.Size,

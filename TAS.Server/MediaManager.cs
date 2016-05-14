@@ -34,7 +34,6 @@ namespace TAS.Server
         public IAnimationDirectory AnimationDirectorySEC { get; private set; }
         public IAnimationDirectory AnimationDirectoryPRV { get; private set; }
         public IArchiveDirectory ArchiveDirectory { get; private set; }
-        public readonly ObservableSynchronizedCollection<ITemplate> _templates = new ObservableSynchronizedCollection<ITemplate>();
         //[JsonProperty]
         public VideoFormatDescription FormatDescription { get { return _engine.FormatDescription; } }
         [JsonProperty]

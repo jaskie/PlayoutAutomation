@@ -14,7 +14,6 @@ namespace TAS.Server
     public class AnimationDirectory: MediaDirectory, IAnimationDirectory
     {
         private readonly IPlayoutServer _server;
-
         public AnimationDirectory(IPlayoutServer server, MediaManager manager): base(manager)
         {
             _server = server;
@@ -26,15 +25,10 @@ namespace TAS.Server
             if (!_isInitialized)
             {
                 DirectoryName = "Animacje";
-                this.Load<ServerMedia>(_server.Id);
+                this.Load<TemplatedMedia>(_server.Id);
                 Debug.WriteLine(_server.MediaFolder, "AnimationDirectory initialized");
                 IsInitialized = true;
             }
-        }
-
-        protected override void Reinitialize()
-        {
-
         }
 
         public override void Refresh()
@@ -44,16 +38,17 @@ namespace TAS.Server
 
         protected override IMedia CreateMedia(string fullPath, Guid guid)
         {
-            throw new NotImplementedException();
+            return new TemplatedMedia(this, guid, 0) { FullPath = fullPath };
         }
 
         public override void MediaRemove(IMedia media)
         {
-            if (media is ServerMedia)
+            var tm = media as TemplatedMedia;
+            if (tm != null)
             {
-                ((ServerMedia)media).MediaStatus = TMediaStatus.Deleted;
-                ((ServerMedia)media).Verified = false;
-                ((ServerMedia)media).Save();
+                tm.MediaStatus = TMediaStatus.Deleted;
+                tm.Verified = false;
+                tm.Save();
             }
             base.MediaRemove(media);
         }

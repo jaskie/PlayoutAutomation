@@ -346,7 +346,7 @@ namespace TAS.Client.ViewModels
                         && ((NewEventStartType == TStartType.With && be.PlayState == TPlayState.Scheduled) 
                             || (NewEventStartType == TStartType.After && be.PlayState != TPlayState.Played && be.PlayState != TPlayState.Fading)))
                     || ((be.EventType == TEventType.Movie || be.EventType == TEventType.Live) 
-                        && (_mediaType == TMediaType.Still || _mediaType == TMediaType.AnimationFlash)
+                        && (_mediaType == TMediaType.Still || _mediaType == TMediaType.Animation)
                         && NewEventStartType == TStartType.With)
                     );
         }

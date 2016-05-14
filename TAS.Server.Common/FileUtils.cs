@@ -12,16 +12,24 @@ namespace TAS.Server.Common
         public readonly static string[] VideoFileTypes = { ".mov", ".mxf", ".mkv", ".mp4", ".wmv", ".avi", ".lxf" };
         public readonly static string[] StillFileTypes = { ".png", ".tif", ".tga", ".tiff", ".jpg", ".gif", ".bmp" };
         public readonly static string[] AudioFileTypes = { ".mp3" };
+        public readonly static string[] AnimationFileTypes = { ".ft" };
 
         public static string DefaultFileExtension(TMediaType type)
         {
-            if (type == TMediaType.Movie || type == TMediaType.Unknown)
-                return VideoFileTypes[0];
-            if (type == TMediaType.Still)
-                return StillFileTypes[0];
-            if (type == TMediaType.Audio)
-                return AudioFileTypes[0];
-            throw new NotImplementedException(string.Format("MediaDirectory:DefaultFileExtension {0}", type));
+            switch (type)
+            {
+                case TMediaType.Movie:
+                case TMediaType.Unknown:
+                    return VideoFileTypes[0];
+                case TMediaType.Still:
+                    return StillFileTypes[0];
+                case TMediaType.Audio:
+                    return AudioFileTypes[0];
+                case TMediaType.Animation:
+                    return AnimationFileTypes[0];
+                default:
+                    throw new NotImplementedException(string.Format("MediaDirectory:DefaultFileExtension {0}", type));
+            }
         }
 
         public static string SanitizeFileName(string text)

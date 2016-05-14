@@ -986,7 +986,7 @@ VALUES
         }
 
         static System.Reflection.ConstructorInfo _serverMediaConstructorInfo;
-        public static void Load<T>(this IAnimationDirectory directory, ulong serverId) where T: IServerMedia
+        public static void Load<T>(this IAnimationDirectory directory, ulong serverId) where T: IServerMedia, ITemplated
         {
             Debug.WriteLine(directory, "ServerLoadMediaDirectory animation started");
             lock (_connection)
@@ -996,7 +996,7 @@ VALUES
 
                 DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM serverMedia WHERE idServer=@idServer and typMedia = @typMedia", _connection);
                 cmd.Parameters.AddWithValue("@idServer", serverId);
-                cmd.Parameters.AddWithValue("@typMedia", TMediaType.AnimationFlash);
+                cmd.Parameters.AddWithValue("@typMedia", TMediaType.Animation);
                 try
                 {
                     using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())

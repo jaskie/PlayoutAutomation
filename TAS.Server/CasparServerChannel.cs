@@ -125,10 +125,10 @@ namespace TAS.Server
                 return null;
         }
 
-        private CasparCGDataCollection GetContainerData(Template template)
+        private CasparCGDataCollection GetContainerData(ITemplated template)
         {
             var data =  new CasparCGDataCollection();
-            foreach (var field in template.TemplateFields)
+            foreach (var field in template.Fields)
                 data.DataPairs.Add(new CGDataPair(field.Key, new CGTextFieldData(field.Value)));
             return data;
         }

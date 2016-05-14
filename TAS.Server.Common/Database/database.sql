@@ -83,6 +83,12 @@ CREATE TABLE `mediasegments` (
   KEY `ixMediaGuid` (`MediaGuid`)
 ) ENGINE=InnoDB;
 
+CREATE TABLE `media_templated` (
+  `MediaGuid` binary(16) NOT NULL,
+  `Fields` text,
+  PRIMARY KEY (`MediaGuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `rundownevent` (
   `idRundownEvent` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `idEngine` bigint(20) unsigned DEFAULT NULL,
@@ -112,6 +118,12 @@ CREATE TABLE `rundownevent` (
   KEY `id_ScheduledTime` (`ScheduledTime`) USING BTREE
   KEY `idPlaystate` (`PlayState`) USING BTREE
 ) ENGINE=InnoDB;
+
+CREATE TABLE `rundownevent_templated` (
+  `idrundownevent_templated` int(11) NOT NULL,
+  `Fields` text,
+  PRIMARY KEY (`idrundownevent_templated`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `server` (
   `idServer` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -150,21 +162,10 @@ CREATE TABLE `servermedia` (
   KEY `idxMediaGuid` (`MediaGuid`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `template` (
-  `idTemplate` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `idEngine` bigint(20) unsigned DEFAULT NULL,
-  `MediaGuid` binary(16) DEFAULT NULL,
-  `Layer` int(11) DEFAULT NULL,
-  `TemplateName` varchar(100) DEFAULT NULL,
-  `TemplateFields` text COLLATE `utf8_general_ci`,
-  PRIMARY KEY (`idTemplate`),
-  KEY `ixMediaGuid` (`MediaGuid`)
-) ENGINE=InnoDB;
-
 CREATE TABLE `params` (
   `Section` VARCHAR(50) NOT NULL,
   `Key` VARCHAR(50) NOT NULL,
   `Value` VARCHAR(100) NULL,
   PRIMARY KEY (`Section`, `Key`));
 
-INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', 'V1');
+INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', 'V2');

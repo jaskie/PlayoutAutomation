@@ -229,7 +229,7 @@ namespace TAS.Common
         Movie,
         Still,
         Audio,
-        AnimationFlash,
+        Animation,
     };
     class TMediaTypeEnumConverter : ResourceEnumConverter
     {
@@ -296,6 +296,7 @@ namespace TAS.Common
         StillImage = 2,
         Live = 4,
         Container = 5,
+        Template = 6
     };
     class TEventTypeEnumConverter : ResourceEnumConverter
     {

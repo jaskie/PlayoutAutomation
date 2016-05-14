@@ -402,7 +402,7 @@ namespace TAS.Server
                 FileInfo fi = new FileInfo(FullPath);
                 if (fi.Length == 0L)
                     return;
-                if ((MediaType != TMediaType.AnimationFlash)
+                if ((MediaType != TMediaType.Animation)
                     &&
                     (MediaStatus == TMediaStatus.Unknown
                     || MediaStatus == TMediaStatus.Deleted

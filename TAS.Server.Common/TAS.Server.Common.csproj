@@ -118,7 +118,7 @@
     <Compile Include="Interfaces\ILocalDevices.cs" />
     <Compile Include="Interfaces\IMediaDirectoryConfig.cs" />
     <Compile Include="Interfaces\IServerMedia.cs" />
-    <Compile Include="Interfaces\ITemplate.cs" />
+    <Compile Include="Interfaces\ITemplated.cs" />
     <Compile Include="Interfaces\ITempMedia.cs" />
     <Compile Include="Database\DbSchema.cs" />
     <Compile Include="MediaEventArgs.cs" />

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#undef DEBUG
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;

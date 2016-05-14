@@ -93,12 +93,13 @@
     <Compile Include="Media\ServerDirectory.cs" />
     <Compile Include="Media\ServerMedia.cs" />
     <Compile Include="Media\TempDirectory.cs" />
+    <Compile Include="Media\TemplatedMedia.cs" />
     <Compile Include="Media\TempMedia.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerBinder.cs" />
     <Compile Include="RemoteHost.cs" />
-    <Compile Include="Template.cs" />
     <Compile Include="ExportOperation.cs" />
+    <Compile Include="TemplatedEvent.cs" />
     <Compile Include="XDCAM\Alias.cs" />
     <Compile Include="XDCAM\Index.cs" />
     <Compile Include="XDCAM\NonRealTimeMeta.cs" />

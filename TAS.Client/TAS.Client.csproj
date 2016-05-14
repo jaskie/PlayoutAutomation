@@ -86,8 +86,6 @@
     <Compile Include="ViewModels\MediaSegmentViewmodel.cs" />
     <Compile Include="ViewModels\MediaViewViewmodel.cs" />
     <Compile Include="ViewModels\PreviewViewmodel.cs" />
-    <Compile Include="ViewModels\TemplatesViewmodel.cs" />
-    <Compile Include="ViewModels\TemplateViewmodel.cs" />
     <Compile Include="Views\ConvertOperationView.xaml.cs">
       <DependentUpon>ConvertOperationView.xaml</DependentUpon>
     </Compile>
