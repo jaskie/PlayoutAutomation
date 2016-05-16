@@ -19,7 +19,7 @@ namespace TAS.Server
     public class Event : DtoBase, IEvent, IComparable
     {
 
-        public Event(
+        internal Event(
                     IEngine engine,
                     UInt64 idRundownEvent,
                     UInt64 idEventBinding,
@@ -140,8 +140,7 @@ namespace TAS.Server
 
         public IEvent Clone()
         {
-            Event newEvent = new Event(
-                Engine,
+            IEvent newEvent = Engine.AddNewEvent(
                 0,
                 0,
                 _layer,
