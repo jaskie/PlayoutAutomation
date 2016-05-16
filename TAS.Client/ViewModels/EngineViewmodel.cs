@@ -536,7 +536,7 @@ namespace TAS.Client.ViewModels
                     }
                     _previewViewmodel.Event = newSelected;
                     _eventEditViewmodel.Event = newSelected;
-                    _onSelectedChanged();
+                    InvalidateRequerySuggested();
                 }
             }
         }
@@ -748,9 +748,9 @@ namespace TAS.Client.ViewModels
 
         private void _onSelectedEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var selected = _selected; 
+            var selected = _selected;
             if (selected != null && sender == selected.Event && e.PropertyName == "PlayState")
-                Application.Current.Dispatcher.BeginInvoke((Action)_onSelectedChanged, null);
+                InvalidateRequerySuggested();
         }
 
         private void _engineOperation(object sender, EngineOperationEventArgs a)
@@ -787,7 +787,7 @@ namespace TAS.Client.ViewModels
             if (a.Event != null
                 && _selected != null
                 && a.Event == _selected.Event)
-                Application.Current.Dispatcher.BeginInvoke((Action)_onSelectedChanged, null);
+                InvalidateRequerySuggested();
         }
 
         private void SetOnTopView(IEvent pe)
@@ -795,15 +795,6 @@ namespace TAS.Client.ViewModels
             var evm = _GetEventViewModel(pe);
             if (evm != null)
                 evm.SetOnTop();
-        }
-
-        
-        private void _onSelectedChanged()
-        {
-            NotifyPropertyChanged("CommandStartSelected");
-            NotifyPropertyChanged("CommandLoadSelected");
-            NotifyPropertyChanged("CommandScheduleSelected");
-            NotifyPropertyChanged("CommandRescheduleSelected");
         }
 
         public void _engineTick(object sender, EngineTickEventArgs e)

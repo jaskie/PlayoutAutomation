@@ -364,6 +364,7 @@ namespace TAS.Client.Model
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
         public event EventHandler<EngineTickEventArgs> EngineTick;
         public event EventHandler<IEventEventArgs> EventSaved;
+        public event EventHandler<IEventEventArgs> EventDeleted;
         public event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> LoadedNextEventsOperation;
         public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         public event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> VisibleEventsOperation;

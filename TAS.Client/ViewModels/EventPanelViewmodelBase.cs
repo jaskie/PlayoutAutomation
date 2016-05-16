@@ -237,8 +237,6 @@ namespace TAS.Client.ViewModels
                     _isSelected = value;
                     if (value)
                         _engineViewmodel.Selected = this;
-                    else
-                        _engineViewmodel.Selected = null;
                     NotifyPropertyChanged("IsSelected");
                     InvalidateRequerySuggested();
                 }
