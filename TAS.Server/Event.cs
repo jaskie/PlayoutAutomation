@@ -973,7 +973,6 @@ namespace TAS.Server
                     next.StartType = startType;
                     if (prior == null)
                         next.UpdateScheduledTime(true);
-                    next.Save();
                 }
                 if (parent != null)
                 {
@@ -990,6 +989,8 @@ namespace TAS.Server
                     prior.Next = next;
                     prior.DurationChanged();
                 }
+                if (next != null)
+                    next.Save();
                 Next = null;
                 Prior = null;
                 Parent = null;
@@ -1227,7 +1228,6 @@ namespace TAS.Server
                 }
                 _isDeleted = true;
                 this.DbDelete();
-                Engine.RemoveEvent(this);
                 NotifyDeleted();
                 _modified = false;
             }

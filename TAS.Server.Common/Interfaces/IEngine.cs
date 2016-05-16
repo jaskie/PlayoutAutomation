@@ -53,8 +53,6 @@ namespace TAS.Server.Interfaces
                     bool isLoop = false,
                     EventGPI gpi = default(EventGPI));
 
-        void RemoveEvent(IEvent aEvent);
-
         void Load(IEvent aEvent);
         void StartLoaded();
         void Start(IEvent aEvent);
@@ -88,6 +86,7 @@ namespace TAS.Server.Interfaces
         IEvent NextWithRequestedStartTime { get; }
 
         event EventHandler<IEventEventArgs> EventSaved;
+        event EventHandler<IEventEventArgs> EventDeleted;
         event EventHandler<EngineTickEventArgs> EngineTick;
         event EventHandler<EngineOperationEventArgs> EngineOperation;
         event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> VisibleEventsOperation;

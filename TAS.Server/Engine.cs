@@ -1221,21 +1221,25 @@ namespace TAS.Server
             IEvent result;
             if (!_events.TryGetValue(idRundownEvent, out result))
             {
-                result = new Event( this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionType, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, gpi );
+                result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionType, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, gpi);
                 if (idRundownEvent == 0)
                     result.Save();
                 if (_events.TryAdd(result.IdRundownEvent, result))
+                {
                     result.Saved += _eventSaved;
+                    result.Deleted += _eventDeleted;
+                }
             }
             return result;
         }
 
-        public void RemoveEvent(IEvent aEvent)
+        private void _removeEvent(IEvent aEvent)
         {
             _rootEvents.Remove(aEvent);
             IEvent eventToRemove;
             _events.TryRemove(aEvent.IdRundownEvent, out eventToRemove);
             aEvent.Saved -= _eventSaved;
+            aEvent.Deleted -= _eventDeleted;
             ServerMedia media = (ServerMedia)aEvent.Media;
             if (aEvent.PlayState == TPlayState.Played
                 && media != null
@@ -1396,6 +1400,15 @@ namespace TAS.Server
         private void _eventSaved(object sender, EventArgs e)
         {
             var handler = EventSaved;
+            if (handler != null)
+                handler(this, new IEventEventArgs(sender as IEvent));
+        }
+
+        public event EventHandler<IEventEventArgs> EventDeleted;
+        private void _eventDeleted(object sender, EventArgs e)
+        {
+            _removeEvent(sender as Event);
+            var handler = EventDeleted;
             if (handler != null)
                 handler(this, new IEventEventArgs(sender as IEvent));
         }

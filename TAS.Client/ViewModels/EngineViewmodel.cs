@@ -82,6 +82,7 @@ namespace TAS.Client.ViewModels
             _engine.LoadedNextEventsOperation += OnEngineLoadedEventsDictionaryOperation;
             _engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _engine.EventSaved += _engine_EventSaved;
+            _engine.EventDeleted += _engine_EventDeleted;
 
             Debug.WriteLine(this, "Creating root EventViewmodel");
             _rootEventViewModel = new EventPanelRootViewmodel(this);
@@ -117,6 +118,19 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("IsAnyContainerHidden");
         }
 
+        private void _engine_EventDeleted(object sender, IEventEventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            {
+                if (e.Event == Selected.Event)
+                    Selected = null;
+                var evm = SelectedEvents.FirstOrDefault(ev => ev.Event == e.Event);
+                if (evm != null)
+                    SelectedEvents.Remove(evm);
+                NotifyPropertyChanged("SelectedEvents");
+            }));
+        }
+
         protected override void OnDispose()
         {
             _engine.EngineTick -= this._engineTick;
@@ -124,6 +138,7 @@ namespace TAS.Client.ViewModels
             _engine.PropertyChanged -= this._enginePropertyChanged;
             _selectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
             _engine.EventSaved -= _engine_EventSaved;
+            _engine.EventDeleted -= _engine_EventDeleted;
             EventClipboard.ClipboardChanged -= _engineViewmodel_ClipboardChanged;
             if (_engine.PlayoutChannelPRI != null)
                 _engine.PlayoutChannelPRI.OwnerServer.PropertyChanged -= OnPRIServerPropertyChanged;
@@ -511,14 +526,12 @@ namespace TAS.Client.ViewModels
                     if (oldSelectedEvent != null)
                     {
                         oldSelectedEvent.PropertyChanged -= _onSelectedEventPropertyChanged;
-                        oldSelectedEvent.Deleted -= _selectedEvent_Deleted;
                     }
                     _selected = value;
                     IEvent newSelected = value == null ? null : value.Event;
                     if (newSelected != null)
                     {
                         newSelected.PropertyChanged += _onSelectedEventPropertyChanged;
-                        newSelected.Deleted += _selectedEvent_Deleted;
                         oldSelectedEvent = value.Event;
                     }
                     _previewViewmodel.Event = newSelected;
@@ -526,11 +539,6 @@ namespace TAS.Client.ViewModels
                     _onSelectedChanged();
                 }
             }
-        }
-
-        private void _selectedEvent_Deleted(object sender, EventArgs e)
-        {
-            Application.Current.Dispatcher.BeginInvoke((Action)(() => Selected = null));
         }
 
         public EventEditViewmodel EventEditViewmodel { get { return _eventEditViewmodel; } }
