@@ -43,6 +43,7 @@ namespace TAS.Server.Interfaces
         IEvent GetSuccessor();
         IEnumerable<IEvent> GetVisualRootTrack();
         bool IsContainedIn(IEvent parent);
+        bool IsForcedNext { get; }
         decimal GetAudioVolume();
         TimeSpan? GetAttentionTime();
         void UpdateScheduledTime(bool updateSuccessors);

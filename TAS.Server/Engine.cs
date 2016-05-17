@@ -1066,10 +1066,15 @@ namespace TAS.Server
 
                 lock (_tickLock)
                 {
+                    var oldForcedNext = _forcedNext as Event;
                     if (SetField(ref _forcedNext, value, "ForcedNext"))
                     {
                         Debug.WriteLine(value, "ForcedNext");
                         NotifyPropertyChanged("NextToPlay");
+                        if (value != null)
+                            ((Event)value).IsForcedNext = true;
+                        if (oldForcedNext != null)
+                            oldForcedNext.IsForcedNext = false;
                     }
                 }
             }
@@ -1109,12 +1114,10 @@ namespace TAS.Server
         public void Clear()
         {
             _clearRunning();
-            foreach (Event e in _loadedNextEvents.Values.ToList())
-                e.PlayState = TPlayState.Scheduled;
             _visibleEvents.Clear();
             _loadedNextEvents.Clear();
             _finishedEvents.Clear();
-            PreviewUnload(); 
+            ForcedNext = null;
             if (PlayoutChannelPRI != null)
                 PlayoutChannelPRI.Clear();
             if (PlayoutChannelSEC != null)

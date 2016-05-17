@@ -186,19 +186,64 @@ namespace TAS.Client.ViewModels
             CommandEventHide = new UICommand() { ExecuteDelegate = _eventHide };
             CommandMoveUp = new UICommand() { ExecuteDelegate = _moveUp };
             CommandMoveDown = new UICommand() { ExecuteDelegate = _moveDown };
-            CommandAddNextMovie = new UICommand { ExecuteDelegate = _addNextMovie };
-            CommandAddNextEmptyMovie = new UICommand { ExecuteDelegate = _addNextEmptyMovie };
-            CommandAddNextRundown = new UICommand { ExecuteDelegate = _addNextRundown };
-            CommandAddNextLive = new UICommand { ExecuteDelegate = _addNextLive };
-            CommandAddSubMovie = new UICommand { ExecuteDelegate = _addSubMovie };
-            CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown };
-            CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive };
+            CommandAddNextMovie = new UICommand { ExecuteDelegate = _addNextMovie, CanExecuteDelegate = _canAddNextMovie  };
+            CommandAddNextEmptyMovie = new UICommand { ExecuteDelegate = _addNextEmptyMovie, CanExecuteDelegate = _canAddNextEmptyMovie };
+            CommandAddNextRundown = new UICommand { ExecuteDelegate = _addNextRundown, CanExecuteDelegate = _canAddNextRundown };
+            CommandAddNextLive = new UICommand { ExecuteDelegate = _addNextLive, CanExecuteDelegate = _canAddNextLive };
+            CommandAddSubMovie = new UICommand { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = _canAddSubMovie };
+            CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = _canAddSubRundown };
+            CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive, CanExecuteDelegate = _canAddSubLive };
             CommandToggleLayer = new UICommand { ExecuteDelegate = _toggleLayer };
             CommandToggleEnabled = new UICommand { ExecuteDelegate = _toggleEnabled };
             CommandToggleHold = new UICommand { ExecuteDelegate = _toggleHold };
 
             CommandSaveEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandSaveEdit.Execute };
             CommandUndoEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandUndoEdit.Execute };
+        }
+
+        private bool _canAddSubLive(object obj)
+        {
+            var ep = Selected as EventPanelRundownViewmodel;
+            return ep != null && ep.CommandAddSubLive.CanExecute(obj);
+        }
+
+        private bool _canAddSubRundown(object obj)
+        {
+            var ep = Selected as EventPanelRundownViewmodel;
+            if (ep != null)
+                return ep.CommandAddSubRundown.CanExecute(obj);
+            var ec = Selected as EventPanelContainerViewmodel;
+            return ec != null && ec.CommandAddSubRundown.CanExecute(obj);
+        }
+
+        private bool _canAddSubMovie(object obj)
+        {
+            var ep = Selected as EventPanelRundownViewmodel;
+            return ep != null && ep.CommandAddSubMovie.CanExecute(obj);
+        }
+
+        private bool _canAddNextLive(object obj)
+        {
+            var ep = Selected as EventPanelRundownElementViewmodelBase;
+            return ep != null && ep.CommandAddNextLive.CanExecute(obj);
+        }
+
+        private bool _canAddNextRundown(object obj)
+        {
+            var ep = Selected as EventPanelRundownElementViewmodelBase;
+            return ep != null && ep.CommandAddNextRundown.CanExecute(obj);
+        }
+
+        private bool _canAddNextEmptyMovie(object obj)
+        {
+            var ep = Selected as EventPanelRundownElementViewmodelBase;
+            return ep != null && ep.CommandAddNextEmptyMovie.CanExecute(obj);
+        }
+
+        private bool _canAddNextMovie(object obj)
+        {
+            var ep = Selected as EventPanelRundownElementViewmodelBase;
+            return ep != null && ep.CommandAddNextMovie.CanExecute(obj);
         }
 
         private void _toggleHold(object obj)
@@ -247,6 +292,9 @@ namespace TAS.Client.ViewModels
             var ep = Selected as EventPanelRundownViewmodel;
             if (ep != null)
                 ep.CommandAddSubRundown.Execute(obj);
+            var ec = Selected as EventPanelContainerViewmodel;
+            if (ec != null)
+                ec.CommandAddSubRundown.Execute(obj);
         }
 
         private void _addSubMovie(object obj)

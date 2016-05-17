@@ -41,6 +41,9 @@
                             <DataTrigger Binding="{Binding IsPlaying}"  Value="True">
                                 <Setter Property="Background" Value="#4040FF00"/>
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding IsForcedNext}" Value="True">
+                                <Setter Property="Background" Value="LightPink"/>
+                            </DataTrigger>
                             <DataTrigger Binding="{Binding IsMultiSelected}" Value="True">
                                 <Setter Property="Background" Value="RoyalBlue"/>
                             </DataTrigger>

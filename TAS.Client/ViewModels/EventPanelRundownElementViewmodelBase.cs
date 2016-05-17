@@ -181,7 +181,12 @@ namespace TAS.Client.ViewModels
 
         public bool IsPlaying
         {
-            get { return _event != null && (_event.PlayState == TPlayState.Playing); }
+            get { return _event != null && _event.PlayState == TPlayState.Playing; }
+        }
+
+        public bool IsForcedNext
+        {
+            get { return _event != null && _event.IsForcedNext; }
         }
 
         private bool _hasSubItemsOnLayer(VideoLayer layer)
@@ -438,7 +443,8 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == "IsHold"
                 || e.PropertyName == "EventName"
                 || e.PropertyName == "IsLoop"
-                || e.PropertyName == "Offset")
+                || e.PropertyName == "Offset"
+                || e.PropertyName == "IsForcedNext")
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == "ScheduledTC" || e.PropertyName == "Duration")
             {

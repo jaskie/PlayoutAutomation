@@ -445,6 +445,9 @@ namespace TAS.Server
         bool _isLoop;
         public bool IsLoop { get { return _isLoop; } set { SetField(ref _isLoop, value, "IsLoop"); } }
 
+        bool _isForcedNext;
+        public bool IsForcedNext { get { return _isForcedNext; } set { SetField(ref _isForcedNext, value, "IsForcedNext"); } }
+
         DateTime _startTime;
         public DateTime StartTime
         {
