@@ -93,6 +93,7 @@ namespace TAS.Client.ViewModels
                 _event.SubEventChanged -= OnSubeventChanged;
                 _event.Relocated -= OnRelocated;
                 _event.Saved -= OnEventSaved;
+                _engineViewmodel.SelectedEvents.Remove(this);
             }
             Debug.WriteLine(this, "EventPanelViewmodel Disposed");
         }

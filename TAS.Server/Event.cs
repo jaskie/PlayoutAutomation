@@ -78,10 +78,7 @@ namespace TAS.Server
                  {
                      Engine.DbReadSubEvents(this, result);
                      foreach (Event e in result)
-                     {
-                         e._startType = TStartType.With;
                          e.Parent = this;
-                     }
                  }
                  return result;
              });
@@ -776,10 +773,7 @@ namespace TAS.Server
                 {
                     _parent = new Lazy<Event>(() => value as Event);
                     if (value != null)
-                    {
-                        StartType = TStartType.With;
                         _idEventBinding = value.IdRundownEvent;
-                    }
                     NotifyPropertyChanged("Parent");
                 }
             }
@@ -795,10 +789,7 @@ namespace TAS.Server
                 {
                     _prior = new Lazy<Event>(() => value as Event);
                     if (value != null)
-                    {
-                        StartType = TStartType.After;
                         _idEventBinding = value.IdRundownEvent;
-                    }
                     NotifyPropertyChanged("Prior");
                 }
             }
@@ -1019,10 +1010,13 @@ namespace TAS.Server
                 }
                 if (e2prior != null)
                     e2prior.Next = this;
+                StartType = e2._startType;
                 Prior = e2prior;
                 Parent = e2parent;
                 Next = e2;
+                _idEventBinding = e2._idEventBinding;
                 e2.Prior = this;
+                e2.StartType = TStartType.After;
                 e2.Next = e4;
                 e2.Parent = null;
                 if (e4 != null)
@@ -1057,8 +1051,11 @@ namespace TAS.Server
                 }
                 if (e2prior != null)
                     e2prior.Next = e3;
+                e3.StartType = _startType;
                 e3.Prior = e2prior;
                 e3.Parent = e2parent;
+                e3._idEventBinding = _idEventBinding;
+                StartType = TStartType.After;
                 e3.Next = this;
                 Parent = null;
                 Prior = e3;
@@ -1173,17 +1170,20 @@ namespace TAS.Server
             if (Modified && Engine != null)
                 Save();
             Media = null;
-            var se = _subEvents.Value;
-            if (se != null)
+            var se = _subEvents;
+            if (se != null && se.IsValueCreated && se.Value != null)
             {
-                foreach (Event e in se)
+                foreach (Event e in se.Value)
                 {
                     Event ce = e;
                     do
                     {
                         ce.SaveLoadedTree();
-                        Event ne = ce._next.Value;
-                        ce = ne;
+                        var lne = ce._next;
+                        if (lne != null && lne.IsValueCreated)
+                            ce = lne.Value;
+                        else
+                            ce = null;
                     } while (ce != null);
                 }
             }

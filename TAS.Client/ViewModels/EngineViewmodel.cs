@@ -169,7 +169,7 @@ namespace TAS.Client.ViewModels
             CommandLoadSelected = new UICommand() { ExecuteDelegate = o => _engine.Load(_selected.Event), CanExecuteDelegate = _canLoadSelected };
             CommandScheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.Schedule(_selected.Event), CanExecuteDelegate = _canScheduleSelected };
             CommandRescheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.ReScheduleAsync(_selected.Event), CanExecuteDelegate = _canRescheduleSelected };
-            CommandForceNextSelected = new UICommand() { ExecuteDelegate = o => _engine.ForcedNext = _selected.Event, CanExecuteDelegate = _canForceNextSelected };
+            CommandForceNextSelected = new UICommand() { ExecuteDelegate = _forceNext, CanExecuteDelegate = _canForceNextSelected };
             CommandTrackingToggle = new UICommand() { ExecuteDelegate = o => TrackPlayingEvent = !TrackPlayingEvent };
             CommandDebugToggle = new UICommand() { ExecuteDelegate = _debugShow };
             CommandRestartRundown = new UICommand() { ExecuteDelegate = _restartRundown };
@@ -215,9 +215,17 @@ namespace TAS.Client.ViewModels
                 ep.CommandToggleEnabled.Execute(obj);
         }
 
+        private void _forceNext(object obj)
+        {
+            if (IsForcedNext)
+                _engine.ForcedNext = null;
+            else
+                _engine.ForcedNext = _selected.Event;
+        }
+
         private bool _canForceNextSelected(object obj)
         {
-            return _engine.EngineState == TEngineState.Running && _canLoadSelected(obj);
+            return _engine.EngineState == TEngineState.Running && (_canLoadSelected(obj) || IsForcedNext);
         }
 
         private void _toggleLayer(object obj)
@@ -675,6 +683,11 @@ namespace TAS.Client.ViewModels
             get { return TimeSpan.FromTicks(_selectedEvents.Sum(e => e.Event.Duration.Ticks)); }
         }
 
+        public bool IsForcedNext
+        {
+            get { return _engine.ForcedNext != null; }
+        }
+
         #region GPI
         public bool GPIExists
         {
@@ -904,15 +917,10 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == "GPIIsMaster")
                 NotifyPropertyChanged("GPIEnabled");
+            if (e.PropertyName == "ForcedNext")
+                NotifyPropertyChanged("IsForcedNext");
             if (e.PropertyName == "EngineState")
-            {
-                NotifyPropertyChanged("CommandStartSelected");
-                NotifyPropertyChanged("CommandLoadSelected");
-                NotifyPropertyChanged("CommandScheduleSelected");
-                NotifyPropertyChanged("CommandRescheduleSelected");
-                NotifyPropertyChanged("CommandStartLoaded");
                 InvalidateRequerySuggested();
-            }
         }
 
         private bool _trackPlayingEvent = true;

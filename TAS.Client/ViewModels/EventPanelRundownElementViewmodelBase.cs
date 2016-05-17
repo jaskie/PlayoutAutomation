@@ -176,7 +176,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsStartEvent
         {
-            get { return (_event != null && (_event.StartType == TStartType.Manual || _event.StartType == TStartType.OnFixedTime)); }
+            get { return _event != null && (_event.StartType == TStartType.Manual || _event.StartType == TStartType.OnFixedTime); }
         }
 
         public bool IsPlaying

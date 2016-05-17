@@ -154,9 +154,9 @@
                 <Button Command="{Binding CommandStartLoaded}" ToolTip="{Resx _toolbar.StartLoaded}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/play-pause.png" Stretch="None" />
                 </Button>
-                <Button Command="{Binding CommandForceNextSelected}" ToolTip="{Resx _toolbar.ForceNext}" >
+                <ToggleButton Command="{Binding CommandForceNextSelected}" IsChecked="{Binding IsForcedNext}" ToolTip="{Resx _toolbar.ForceNext}" Width="40" Height="40" Margin="8">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/force-next.png" />
-                </Button>
+                </ToggleButton>
                 <Button Command="{Binding CommandRescheduleSelected}" ToolTip="{Resx _toolbar.Reschedule}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png" Stretch="None" />
                 </Button>
