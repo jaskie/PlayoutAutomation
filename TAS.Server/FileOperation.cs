@@ -87,6 +87,37 @@ namespace TAS.Server
             {
                 if (SetField(ref _operationStatus, value, "OperationStatus"))
                 {
+                    IngestMedia im = SourceMedia as IngestMedia;
+                    if (im != null)
+                        switch (value)
+                        {
+                            case FileOperationStatus.Finished:
+                                im.IngestState = TIngestStatus.Ready;
+                                break;
+                            case FileOperationStatus.Waiting:
+                            case FileOperationStatus.InProgress:
+                                im.IngestState = TIngestStatus.InProgress;
+                                break;
+                            default:
+                                im.IngestState = TIngestStatus.Unknown;
+                                break;
+                        }
+                    ArchiveMedia am = SourceMedia as ArchiveMedia;
+                    if (am != null)
+                        switch (value)
+                        {
+                            case FileOperationStatus.Finished:
+                                am.IngestState = TIngestStatus.Ready;
+                                break;
+                            case FileOperationStatus.Waiting:
+                            case FileOperationStatus.InProgress:
+                                am.IngestState = TIngestStatus.InProgress;
+                                break;
+                            default:
+                                am.IngestState = TIngestStatus.Unknown;
+                                break;
+                        }
+
                     EventHandler h;
                     if (value == FileOperationStatus.Finished)
                     {

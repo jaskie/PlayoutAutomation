@@ -94,11 +94,12 @@ namespace TAS.Client.ViewModels
 
         bool _canAddMediaToCollection(IMedia media, TMediaType requiredMediaType, RationalNumber requiredFrameRate, VideoFormatDescription requiredFormatDescription)
         {
-            return 
+            return
                 media != null
                 && media.MediaType == requiredMediaType
-                && (requiredFormatDescription == null || media.VideoFormatDescription.SAR.Equals(requiredFormatDescription.SAR))
-                && (media.MediaType != TMediaType.Movie || media.VideoFormatDescription.FrameRate.Equals(requiredFrameRate));
+                &&
+                   (requiredMediaType == TMediaType.Still && media.VideoFormatDescription.SAR.Equals(requiredFormatDescription.SAR)
+                 || media.MediaType == TMediaType.Movie && media.VideoFormatDescription.FrameRate.Equals(requiredFrameRate));
         }
 
         void _searchDirectory_MediaVerified(object sender, MediaEventArgs e)

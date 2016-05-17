@@ -117,7 +117,7 @@ namespace TAS.Client.ViewModels
                     IEvent newEvent = _event.Engine.AddNewEvent(
                         eventType: TEventType.Live,
                         eventName: resources._title_NewLive,
-                        duration: new TimeSpan(0, 0, 1));
+                        duration: new TimeSpan(0, 10, 0));
                     _event.InsertAfter(newEvent);
                 },
                 CanExecuteDelegate = canAddNewLive

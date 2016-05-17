@@ -457,6 +457,42 @@ namespace TAS.Server.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ingest in progress.
+        /// </summary>
+        public static string TIngestStatus_InProgress {
+            get {
+                return ResourceManager.GetString("TIngestStatus_InProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not ingested yet.
+        /// </summary>
+        public static string TIngestStatus_NotReady {
+            get {
+                return ResourceManager.GetString("TIngestStatus_NotReady", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Already ingested.
+        /// </summary>
+        public static string TIngestStatus_Ready {
+            get {
+                return ResourceManager.GetString("TIngestStatus_Ready", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown.
+        /// </summary>
+        public static string TIngestStatus_Unknown {
+            get {
+                return ResourceManager.GetString("TIngestStatus_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Live.
         /// </summary>
         public static string TLogo_Live {

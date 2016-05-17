@@ -11,9 +11,12 @@ namespace TAS.Common
 
     public enum TDirectoryAccessType { Direct, FTP };
 
+    public enum TFileOperationKind { None, Copy, Move, Convert, Export, Delete, Loudness };
+
     [TypeConverter(typeof(FileOperationStatusEnumConverter))]
     public enum FileOperationStatus
     {
+        Unknown,
         Waiting,
         InProgress,
         Finished,
@@ -21,12 +24,25 @@ namespace TAS.Common
         Aborted
     };
 
-    public enum TFileOperationKind { None, Copy, Move, Convert, Export, Delete, Loudness };
-
     class FileOperationStatusEnumConverter : ResourceEnumConverter
     {
         public FileOperationStatusEnumConverter()
             : base(typeof(FileOperationStatus), TAS.Server.Common.Properties.Resources.ResourceManager)
+        { }
+    }
+
+    [TypeConverter(typeof(IngestStatusEnumConverter))]
+    public enum TIngestStatus
+    {
+        Unknown,
+        NotReady,
+        InProgress,
+        Ready
+    }
+    class IngestStatusEnumConverter : ResourceEnumConverter
+    {
+        public IngestStatusEnumConverter()
+            : base(typeof(TIngestStatus), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 

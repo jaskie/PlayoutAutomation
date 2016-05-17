@@ -252,6 +252,26 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="10" x:Name="isIngesteddColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsDisplayIngestState, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image ToolTip="{Binding IngestState}">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IngestState}" Value="InProgress">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/IngestStates/InProgress.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IngestState}" Value="Ready">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/IngestStates/Ready.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipName}" Width="*" Binding="{Binding MediaName, Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" IsReadOnly="True" />
                 <DataGridTextColumn x:Name="tCStartColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.TcPlay}" Width="80" Binding="{Binding sTcPlay, Mode=OneWay}" IsReadOnly="True" />
@@ -290,6 +310,11 @@
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                                 <GridViewColumn Width="{Binding ElementName=isArchivedColumn, Path=ActualWidth}" >
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate />
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Width="{Binding ElementName=isIngestedColumn, Path=ActualWidth}" >
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate />
                                     </GridViewColumn.CellTemplate>

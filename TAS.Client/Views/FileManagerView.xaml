@@ -28,24 +28,29 @@
                 <DataGridTemplateColumn x:Name="operationState" Width="10" CanUserSort="False">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image x:Name="stateImage" ToolTip="{Binding OperationStatus}"/>
-                            <DataTemplate.Triggers>
-                                <DataTrigger Binding="{Binding OperationStatus}" Value="Waiting">
-                                    <Setter Property="Source" TargetName="stateImage" Value="/TAS.Client.Common;component/Images/FileOperationStates/Waiting.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding OperationStatus}" Value="Aborted">
-                                    <Setter Property="Source" TargetName="stateImage" Value="/TAS.Client.Common;component/Images/FileOperationStates/Aborted.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding OperationStatus}" Value="Failed">
-                                    <Setter Property="Source" TargetName="stateImage" Value="/TAS.Client.Common;component/Images/FileOperationStates/Failed.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding OperationStatus}" Value="InProgress">
-                                    <Setter Property="Source" TargetName="stateImage" Value="/TAS.Client.Common;component/Images/FileOperationStates/InProgress.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding OperationStatus}" Value="Finished">
-                                    <Setter Property="Source" TargetName="stateImage" Value="/TAS.Client.Common;component/Images/FileOperationStates/Finished.png"/>
-                                </DataTrigger>
-                            </DataTemplate.Triggers>
+                            <Image ToolTip="{Binding OperationStatus}">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding OperationStatus}" Value="Waiting">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/FileOperationStates/Waiting.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding OperationStatus}" Value="Aborted">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/FileOperationStates/Aborted.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding OperationStatus}" Value="Failed">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/FileOperationStates/Failed.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding OperationStatus}" Value="InProgress">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/FileOperationStates/InProgress.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding OperationStatus}" Value="Finished">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/FileOperationStates/Finished.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

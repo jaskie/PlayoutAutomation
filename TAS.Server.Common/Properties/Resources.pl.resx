@@ -441,4 +441,16 @@
   <data name="TMediaCategory_Insert" xml:space="preserve">
     <value>Wstawka</value>
   </data>
+  <data name="TIngestStatus_InProgress" xml:space="preserve">
+    <value>Ingest w toku</value>
+  </data>
+  <data name="TIngestStatus_NotReady" xml:space="preserve">
+    <value>Nie zaingestowany</value>
+  </data>
+  <data name="TIngestStatus_Ready" xml:space="preserve">
+    <value>Gotowy na serwerze</value>
+  </data>
+  <data name="TIngestStatus_Unknown" xml:space="preserve">
+    <value>Nieznany</value>
+  </data>
 </root>

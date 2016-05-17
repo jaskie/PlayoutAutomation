@@ -1194,19 +1194,20 @@ namespace TAS.Server
 
         public bool AllowDelete()
         {
-                if (_playState == TPlayState.Fading || _playState == TPlayState.Paused || _playState == TPlayState.Playing)
-                    return false;
-                foreach (IEvent se in this.SubEvents.ToList())
+            if ((_playState == TPlayState.Fading || _playState == TPlayState.Paused || _playState == TPlayState.Playing) &&
+                (_eventType == TEventType.Live || _eventType == TEventType.Movie || _eventType == TEventType.Rundown))
+                return false;
+            foreach (IEvent se in this.SubEvents.ToList())
+            {
+                IEvent ne = se;
+                while (ne != null)
                 {
-                    IEvent ne = se;
-                    while (ne != null)
-                    {
-                        if (!ne.AllowDelete())
-                            return false;
-                        ne = ne.Next;
-                    }
+                    if (!ne.AllowDelete())
+                        return false;
+                    ne = ne.Next;
                 }
-                return true;
+            }
+            return true;
         }
     
 

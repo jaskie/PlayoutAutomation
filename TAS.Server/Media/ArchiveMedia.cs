@@ -12,6 +12,27 @@ namespace TAS.Server
     {
         public ArchiveMedia(IArchiveDirectory directory) : base(directory) { }
         public ArchiveMedia(IArchiveDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
+
+        private TIngestStatus _ingestState;
+        public TIngestStatus IngestState
+        {
+            get
+            {
+                if (_ingestState == TIngestStatus.Unknown)
+                {
+                    var sdir = _directory.MediaManager.MediaDirectoryPRI as ServerDirectory;
+                    if (sdir != null)
+                    {
+                        var media = sdir.FindMediaByMediaGuid(_mediaGuid);
+                        if (media != null && media.MediaStatus == TMediaStatus.Available)
+                            _ingestState = TIngestStatus.Ready;
+                    }
+                }
+                return _ingestState;
+            }
+            internal set { SetField(ref _ingestState, value, "IngestState"); }
+        }
+
         public override bool Save()
         {
             bool result = false;
