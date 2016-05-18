@@ -279,7 +279,6 @@ namespace TAS.Server
             TcPlay = fromMedia.TcPlay;
             VideoFormat = fromMedia.VideoFormat;
             MediaCategory = fromMedia.MediaCategory;
-            MediaGuid = fromMedia.MediaGuid;
             Parental = fromMedia.Parental;
         }
 

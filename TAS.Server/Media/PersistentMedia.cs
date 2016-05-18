@@ -58,8 +58,6 @@ namespace TAS.Server
             set { SetField(ref _protected, value, "Protected"); }
         }
 
-        public IMedia OriginalMedia { get; set; }
-
         private ObservableSynchronizedCollection<IMediaSegment> _mediaSegments;
 
         public ObservableSynchronizedCollection<IMediaSegment> MediaSegments
@@ -84,7 +82,6 @@ namespace TAS.Server
             {
                 IdAux = (fromMedia as PersistentMedia).IdAux;
                 IdProgramme = (fromMedia as PersistentMedia).IdProgramme;
-                OriginalMedia = (fromMedia as PersistentMedia).OriginalMedia;
                 MediaEmphasis = (fromMedia as PersistentMedia).MediaEmphasis;
             }
         }
