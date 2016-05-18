@@ -618,11 +618,14 @@ namespace TAS.Server
                 _runningEvents.ToList().ForEach(
                     e =>
                     {
-                        if (e.IsFinished)
-                            e.PlayState = TPlayState.Played;
-                        else
-                            e.PlayState = TPlayState.Aborted;
-                        _rootEvents.Remove(e);
+                        if (e.PlayState == TPlayState.Playing)
+                        {
+                            if (e.IsFinished)
+                                e.PlayState = TPlayState.Played;
+                            else
+                                e.PlayState = TPlayState.Aborted;
+                            _rootEvents.Remove(e);
+                        }
                     });                        
             }
             _run(aEvent);
@@ -838,7 +841,7 @@ namespace TAS.Server
                             {
                                 if (succEvent.PlayState == TPlayState.Scheduled)
                                 {
-                                    if (succEvent.IsHold)
+                                    if (succEvent.IsHold && succEvent != _forcedNext )
                                         EngineState = TEngineState.Hold;
                                     else
                                     {

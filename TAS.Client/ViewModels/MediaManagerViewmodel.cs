@@ -130,14 +130,7 @@ namespace TAS.Client.ViewModels
             {
                 _selectedMediaList = value;
                 if (value != null)
-                {
-                    NotifyPropertyChanged("CommandIngestSelectedToServer");
-                    NotifyPropertyChanged("CommandDeleteSelected");
-                    NotifyPropertyChanged("CommandMoveSelectedToArchive");
-                    NotifyPropertyChanged("CommandCopySelectedToArchive");
-                    NotifyPropertyChanged("CommandGetLoudness");
-                    NotifyPropertyChanged("CommandExport");
-                }
+                    InvalidateRequerySuggested();
             }
         }
 

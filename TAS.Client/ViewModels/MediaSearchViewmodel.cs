@@ -79,7 +79,10 @@ namespace TAS.Client.ViewModels
         {
             BaseEvent = null;
             if (_previewViewmodel != null)
+            {
                 _previewViewmodel.PropertyChanged -= _onPreviewPropertyChanged;
+                _previewViewmodel.Dispose();
+            }
             _searchDirectory.MediaAdded -= _searchDirectory_MediaAdded;
             _searchDirectory.MediaRemoved -= _searchDirectory_MediaRemoved;
             _searchDirectory.MediaVerified -= _searchDirectory_MediaVerified;

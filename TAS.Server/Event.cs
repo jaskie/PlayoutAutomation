@@ -12,10 +12,10 @@ using TAS.Server.Database;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using TAS.Remoting.Server;
+using System.Xml.Serialization;
 
 namespace TAS.Server
 {
-
     public class Event : DtoBase, IEvent, IComparable
     {
 
@@ -107,6 +107,7 @@ namespace TAS.Server
         }
         
         UInt64 _idRundownEvent = 0;
+        [XmlIgnore]
         public UInt64 IdRundownEvent
         {
             get

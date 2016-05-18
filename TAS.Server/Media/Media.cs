@@ -354,15 +354,6 @@ namespace TAS.Server
             return File.Exists(FullPath);
         }
 
-        public bool FilePropertiesEqual(IMedia m)
-        {
-            return m.FileExists() 
-                && this.FileExists()
-                && m.FileSize == this.FileSize
-                && m.FileName == this.FileName
-                && m.LastUpdated == this.LastUpdated;
-        }
-
         public void Remove()
         {
             ((MediaDirectory)Directory).MediaRemove(this);

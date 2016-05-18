@@ -29,6 +29,8 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
+            if (LoadedMedia == _preview.PreviewMedia)
+                _preview.PreviewUnload();
             _preview.PropertyChanged -= this.PreviewPropertyChanged;
             if (_channelPRV != null)
                 _channelPRV.OwnerServer.PropertyChanged -= this.OnServerPropertyChanged;

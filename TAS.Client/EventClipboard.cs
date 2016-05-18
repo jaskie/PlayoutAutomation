@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TAS.Client.ViewModels;
 using TAS.Common;
 using TAS.Server.Interfaces;
 
-namespace TAS.Client.ViewModels
+namespace TAS.Client
 {
     internal static class EventClipboard
     {

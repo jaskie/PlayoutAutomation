@@ -48,7 +48,8 @@ namespace TAS.Client.ViewModels
         public ICommand CommandCopySelected { get; private set; }
         public ICommand CommandPasteSelected { get; private set; }
         public ICommand CommandCutSelected { get; private set; }
-        public ICommand CommandExport { get; private set; }
+        public ICommand CommandExportMedia { get; private set; }
+        public ICommand CommandSaveRundown { get; private set; }
 
         #region Single selected commands
         public ICommand CommandEventHide { get; private set; }
@@ -181,11 +182,12 @@ namespace TAS.Client.ViewModels
             CommandCopySelected = new UICommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _selectedEvents.Any() };
             CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
             CommandPasteSelected = new UICommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
-            CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
+            CommandExportMedia = new UICommand() { ExecuteDelegate = _exportMedia, CanExecuteDelegate = _canExportMedia };
 
-            CommandEventHide = new UICommand() { ExecuteDelegate = _eventHide };
-            CommandMoveUp = new UICommand() { ExecuteDelegate = _moveUp };
-            CommandMoveDown = new UICommand() { ExecuteDelegate = _moveDown };
+
+            CommandEventHide = new UICommand { ExecuteDelegate = _eventHide };
+            CommandMoveUp = new UICommand { ExecuteDelegate = _moveUp };
+            CommandMoveDown = new UICommand { ExecuteDelegate = _moveDown };
             CommandAddNextMovie = new UICommand { ExecuteDelegate = _addNextMovie, CanExecuteDelegate = _canAddNextMovie  };
             CommandAddNextEmptyMovie = new UICommand { ExecuteDelegate = _addNextEmptyMovie, CanExecuteDelegate = _canAddNextEmptyMovie };
             CommandAddNextRundown = new UICommand { ExecuteDelegate = _addNextRundown, CanExecuteDelegate = _canAddNextRundown };
@@ -199,6 +201,13 @@ namespace TAS.Client.ViewModels
 
             CommandSaveEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandSaveEdit.Execute };
             CommandUndoEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandUndoEdit.Execute };
+
+            CommandSaveRundown = new UICommand { ExecuteDelegate = _saveRundown, CanExecuteDelegate = o => Selected != null && Selected.Event.EventType == TEventType.Rundown };
+        }
+
+        private void _saveRundown(object obj)
+        {
+            throw new NotImplementedException();
         }
 
         private bool _canAddSubLive(object obj)
@@ -372,7 +381,7 @@ namespace TAS.Client.ViewModels
         }
 
 
-        private bool _canExport(object obj)
+        private bool _canExportMedia(object obj)
         {
             return _selectedEvents.Any(e =>
                     {
@@ -386,7 +395,7 @@ namespace TAS.Client.ViewModels
                     && _engine.MediaManager.IngestDirectories.Any(d => d.IsExport);
         }
 
-        private void _export(object obj)
+        private void _exportMedia(object obj)
         {
             var selections = _selectedEvents.Where(e => e.Event != null && e.Event.Media != null && e.Event.Media.MediaType == TMediaType.Movie).Select(e => new ExportMedia(
                 e.Event.Media, 

@@ -77,7 +77,7 @@ namespace TAS.Client.ViewModels
         void _export (object o)
         {
             _checking = true;
-            NotifyPropertyChanged("CommandExport");
+            InvalidateRequerySuggested();
             try
             {
                 //TODO: check if exporting files fit in device free space
@@ -85,7 +85,7 @@ namespace TAS.Client.ViewModels
             finally
             {
                 _checking = false;
-                NotifyPropertyChanged("CommandExport");
+                InvalidateRequerySuggested();
             }
             _mediaManager.Export(Items.Select(mevm => mevm.MediaExport), _concatMedia, _concatMediaName, SelectedDirectory);
             _view.Close();

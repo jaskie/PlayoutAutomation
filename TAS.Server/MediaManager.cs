@@ -295,19 +295,19 @@ namespace TAS.Server
                    {
                        if (pRImedia.MediaStatus == TMediaStatus.Available && pRImedia.FileExists())
                        {
-                           ServerMedia pRVmedia = (ServerMedia)((MediaDirectory)MediaDirectoryPRV).FindMediaByMediaGuid(pRImedia.MediaGuid);
-                           if (pRVmedia == null)
+                           ServerMedia secMedia = (ServerMedia)((MediaDirectory)MediaDirectoryPRV).FindMediaByMediaGuid(pRImedia.MediaGuid);
+                           if (secMedia == null)
                            {
-                               pRVmedia = (ServerMedia)((ServerDirectory)MediaDirectoryPRV).FindMediaFirst(m => m.FileExists() && m.FileSize == pRImedia.FileSize && m.FileName == pRImedia.FileName && m.LastUpdated.DateTimeEqualToDays(pRImedia.LastUpdated));
-                               if (pRVmedia != null)
+                               secMedia = (ServerMedia)((ServerDirectory)MediaDirectoryPRV).FindMediaFirst(m => m.FileExists() && m.FileSize == pRImedia.FileSize && m.FileName == pRImedia.FileName && m.LastUpdated.DateTimeEqualToDays(pRImedia.LastUpdated));
+                               if (secMedia != null)
                                {
-                                   pRVmedia.CloneMediaProperties(pRImedia);
-                                   pRVmedia.Verify();
+                                   secMedia.CloneMediaProperties(pRImedia);
+                                   secMedia.Verify();
                                }
                                else
                                {
-                                   pRVmedia = (ServerMedia)MediaDirectoryPRV.GetServerMedia(pRImedia, true);
-                                   _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = pRImedia, DestMedia = pRVmedia });
+                                   secMedia = (ServerMedia)MediaDirectoryPRV.GetServerMedia(pRImedia, true);
+                                   _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = pRImedia, DestMedia = secMedia });
                                }
                            }
                        }
