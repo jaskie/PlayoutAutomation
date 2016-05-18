@@ -113,6 +113,9 @@ namespace TAS.Server
         public int MediaRetnentionDays { get; set; }
 
         [JsonProperty]
+        public bool MediaLoudnessCheckAfterIngest { get; set; }
+
+        [JsonProperty]
         public TMediaCategory MediaCategory { get; set; }
 
         [JsonProperty]

@@ -15,6 +15,7 @@ namespace TAS.Server.Interfaces
         decimal AudioVolume { get; set; }
         string IdAux { get; set; }
         bool Trim { get; set; }
+        bool LoudnessCheck { get; set; }
         TimeSpan StartTC { get; set; }
         TimeSpan Duration { get; set; }
     }

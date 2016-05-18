@@ -261,7 +261,8 @@ namespace TAS.Client.ViewModels
                             _mediaManager.VideoFormat,
                             (sourceMedia.Directory is IIngestDirectory)? ((IIngestDirectory)sourceMedia.Directory).AudioVolume : 0,
                             (sourceMedia.Directory is IIngestDirectory) ? ((IIngestDirectory)sourceMedia.Directory).SourceFieldOrder : TFieldOrder.Unknown,
-                            (sourceMedia.Directory is IIngestDirectory) ? ((IIngestDirectory)sourceMedia.Directory).AspectConversion : TAspectConversion.NoConversion
+                            (sourceMedia.Directory is IIngestDirectory) ? ((IIngestDirectory)sourceMedia.Directory).AspectConversion : TAspectConversion.NoConversion,
+                            (sourceMedia.Directory is IIngestDirectory) ? ((IIngestDirectory)sourceMedia.Directory).MediaLoudnessCheckAfterIngest: false
                             ));
                     }
                 }

@@ -23,6 +23,7 @@ namespace TAS.Server.Interfaces
         TMediaCategory MediaCategory { get; set; }
         bool MediaDoNotArchive { get; set; }
         int MediaRetnentionDays { get; set; }
+        bool MediaLoudnessCheckAfterIngest { get; set; }
         TFieldOrder SourceFieldOrder { get; set; }
         TxDCAMAudioExportFormat XDCAMAudioExportFormat { get; set; }
         TxDCAMVideoExportFormat XDCAMVideoExportFormat { get; set; }

@@ -72,6 +72,7 @@
                 </StackPanel>
                 <Label Content="Default media category"/>
                 <ComboBox ItemsSource="{Binding MediaCategories}" SelectedItem="{Binding MediaCategory}"/>
+                <CheckBox IsChecked="{Binding MediaLoudnessCheckAfterIngest}" Content="Start loudness checking after file ingest"/>
             </StackPanel>
             <CheckBox IsChecked="{Binding IsExport}" Content="Allow export to this directory"/>
             <StackPanel Visibility="{Binding IsExport, Converter={StaticResource BoolToVis}}">

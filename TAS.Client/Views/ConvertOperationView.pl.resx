@@ -150,6 +150,9 @@
   <data name="_idAux" xml:space="preserve">
     <value>Identyfikator audycji</value>
   </data>
+  <data name="_loudnessCheck" xml:space="preserve">
+    <value>Sprawdź głośność po zakończeniu</value>
+  </data>
   <data name="_parental" xml:space="preserve">
     <value>Kategoria wiekowa</value>
   </data>

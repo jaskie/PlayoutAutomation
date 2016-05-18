@@ -24,6 +24,7 @@ namespace TAS.Client.ViewModels
             _duration = operation.Duration;
             _startTC = operation.StartTC;
             _trim = operation.Trim;
+            _loudnessCheck = operation.LoudnessCheck;
             operation.SourceMedia.PropertyChanged += OnSourceMediaPropertyChanged;
             operation.DestMedia.PropertyChanged += OnDestMediaPropertyChanged;
             Array.Copy(_aspectConversions, _aspectConversionsEnforce, 3);
@@ -136,7 +137,14 @@ namespace TAS.Client.ViewModels
         {
             get { return !DoNotEncode && _convertOperation.SourceMedia.MediaStatus == TMediaStatus.Available && _convertOperation.SourceMedia.Duration > TimeSpan.Zero; }
         }
-        
+
+        bool _loudnessCheck;
+        public bool LoudnessCheck {
+            get { return _loudnessCheck; }
+            set { SetField(ref _loudnessCheck, value, "LoudnessCheck"); }
+        }
+
+
         public string this[string propertyName]
         {
             get
@@ -265,6 +273,7 @@ namespace TAS.Client.ViewModels
             _convertOperation.StartTC = _startTC;
             _convertOperation.Duration = _duration;
             _convertOperation.Trim = _trim;
+            _convertOperation.LoudnessCheck = _loudnessCheck;
         }
 
         internal RationalNumber SourceMediaFrameRate { get { return _convertOperation.SourceMedia.FrameRate; } }

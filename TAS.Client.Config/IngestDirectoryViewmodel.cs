@@ -66,6 +66,8 @@ namespace TAS.Client.Config
         public bool MediaDoNotArchive { get { return _mediaDoNotArchive; } set { SetField(ref _mediaDoNotArchive, value, "MediaDoNotArchive"); } }
         int _mediaRetentionDays;
         public int MediaRetnentionDays { get { return _mediaRetentionDays; } set { SetField(ref _mediaRetentionDays, value, "MediaRetnentionDays"); } }
+        bool _mediaLoudnessCheckAfterIngest;
+        public bool MediaLoudnessCheckAfterIngest { get { return _mediaLoudnessCheckAfterIngest; } set { SetField(ref _mediaLoudnessCheckAfterIngest, value, "MediaLoudnessCheckAfterIngest"); } }
         TFieldOrder _sourceFieldOrder;
         public TFieldOrder SourceFieldOrder { get { return _sourceFieldOrder; } set { SetField(ref _sourceFieldOrder, value, "SourceFieldOrder"); } }
         TxDCAMAudioExportFormat _xDCAMAudioExportFormat;

@@ -38,6 +38,8 @@ namespace TAS.Client.Config.Model
         public bool MediaDoNotArchive { get; set; }
         [DefaultValue(default(int))]
         public int MediaRetnentionDays { get; set; }
+        [DefaultValue(false)]
+        public bool MediaLoudnessCheckAfterIngest { get; set; }
         [DefaultValue(default(TFieldOrder))]
         public TFieldOrder SourceFieldOrder { get; set; }
         [DefaultValue(default(TxDCAMAudioExportFormat))]

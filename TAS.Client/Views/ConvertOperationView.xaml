@@ -83,6 +83,7 @@
                 <ComboBox ItemsSource="{Binding Parentals}" SelectedValue="{Binding DestParental}"  />
                 <Label Content="{Resx _idAux}"/>
                 <TextBox Text="{Binding IdAux, UpdateSourceTrigger=PropertyChanged}"/>
+                <CheckBox IsChecked="{Binding LoudnessCheck}"  Margin="5" Content="{Resx _loudnessCheck}"/>
             </StackPanel>
         </StackPanel>
         <Expander IsExpanded="False" ExpandDirection="Right">

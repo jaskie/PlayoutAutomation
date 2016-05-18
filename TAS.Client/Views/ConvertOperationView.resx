@@ -150,6 +150,9 @@
   <data name="_idAux" xml:space="preserve">
     <value>External Id</value>
   </data>
+  <data name="_loudnessCheck" xml:space="preserve">
+    <value>Check loudness after finish</value>
+  </data>
   <data name="_parental" xml:space="preserve">
     <value>Parental control</value>
   </data>

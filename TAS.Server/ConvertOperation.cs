@@ -149,6 +149,8 @@ namespace TAS.Server
         [JsonProperty]
         public bool Trim { get; set; }
 
+        [JsonProperty]
+        public bool LoudnessCheck { get; set; }
 
 
         #endregion // IConvertOperation implementation
@@ -394,6 +396,8 @@ namespace TAS.Server
                     Debug.WriteLine(this, "Convert operation succeed");
                 }
                 OperationStatus = FileOperationStatus.Finished;
+                if (LoudnessCheck)
+                    Owner.Queue(new LoudnessOperation() { SourceMedia = this.DestMedia });
                 return true;
             }
             Debug.WriteLine("FFmpeg rewraper Do(): Failed for {0}. Command line was {1}", (object)SourceMedia, Params);

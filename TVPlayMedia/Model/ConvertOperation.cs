@@ -19,5 +19,6 @@ namespace TAS.Client.Model
         public TimeSpan StartTC { get { return Get<TimeSpan>(); } set { Set(value); } }
         public TimeSpan Duration { get { return Get<TimeSpan>(); } set { Set(value); } }
         public bool Trim { get { return Get<bool>(); } set { Set(value); } }
+        public bool LoudnessCheck { get { return Get<bool>(); } set { Set(value); } }
     }
 }
