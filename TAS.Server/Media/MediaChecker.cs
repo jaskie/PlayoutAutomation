@@ -79,7 +79,7 @@ namespace TAS.Server
                     if (videoDuration > TimeSpan.Zero)
                     {
                         media.MediaType = TMediaType.Movie;
-                        if (Math.Abs(videoDuration.Ticks - audioDuration.Ticks) >= TimeSpan.TicksPerSecond / 2
+                        if (Math.Abs(videoDuration.Ticks - audioDuration.Ticks) >= TimeSpan.TicksPerSecond
                             && audioDuration != TimeSpan.Zero)
                             // when more than 0.5 sec difference
                             return TMediaStatus.ValidationError;

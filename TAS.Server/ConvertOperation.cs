@@ -281,33 +281,35 @@ namespace TAS.Server
             else
             {
                 #region Audio
-                StreamInfo firstAudioStream = inputStreams.FirstOrDefault(s => s.StreamType == StreamType.AUDIO);
-                if (firstAudioStream != null)
+                StreamInfo[] audioStreams = inputStreams.Where(s => s.StreamType == StreamType.AUDIO).ToArray();
+                if (audioStreams.Length > 0)
                 {
                     MediaConversion audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
-                    int inputTotalChannels = inputStreams.Where(s => s.StreamType == StreamType.AUDIO).Sum(s => s.ChannelCount);
+                    int inputTotalChannels = audioStreams.Sum(s => s.ChannelCount);
                     int requiredOutputChannels;
                     switch ((TAudioChannelMappingConversion)audiChannelMappingConversion.OutputFormat)
                     {
                         case TAudioChannelMappingConversion.FirstTwoChannels:
-                        case TAudioChannelMappingConversion.SecondTwoChannels:
-                            requiredOutputChannels = 2;
-                            break;
-                        case TAudioChannelMappingConversion.FirstChannelOnly:
                         case TAudioChannelMappingConversion.SecondChannelOnly:
                         case TAudioChannelMappingConversion.Combine1plus2:
+                            requiredOutputChannels = 2;
+                            break;
+                        case TAudioChannelMappingConversion.SecondTwoChannels:
                         case TAudioChannelMappingConversion.Combine3plus4:
+                            requiredOutputChannels = 4;
+                            break;
+                        case TAudioChannelMappingConversion.FirstChannelOnly:
                             requiredOutputChannels = 1;
                             break;
                         default:
                             requiredOutputChannels = 0;
                             break;
                     }
-                    if (requiredOutputChannels != firstAudioStream.ChannelCount)
+                    if (audioStreams.Length > 1 && requiredOutputChannels > audioStreams[0].ChannelCount)
                     {
                         int audio_stream_count = 0;
                         StringBuilder pf = new StringBuilder();
-                        foreach (StreamInfo stream in inputStreams.Where(s => s.StreamType == StreamType.AUDIO))
+                        foreach (StreamInfo stream in audioStreams)
                         {
                             pf.AppendFormat("[0:{0}]", stream.Index);
                             audio_stream_count += stream.ChannelCount;

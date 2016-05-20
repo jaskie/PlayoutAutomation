@@ -62,16 +62,16 @@ namespace TAS.Common
                     FFMpegFilter = "pan=stereo|c0=c0|c1=c0";
                     break;
                 case TAudioChannelMappingConversion.SecondChannelOnly:
-                    OutputFormat = TAudioChannelMapping.Mono;
-                    FFMpegFilter = "pan=mono|c0=c1";
+                    OutputFormat = TAudioChannelMapping.Stereo;
+                    FFMpegFilter = "pan=stereo|c0=c1|c1=c0";
                     break;
                 case TAudioChannelMappingConversion.Combine1plus2:
-                    OutputFormat = TAudioChannelMapping.Mono;
-                    FFMpegFilter = "pan=mono|c0=0.5*c0+0.5*c1";
+                    OutputFormat = TAudioChannelMapping.Stereo;
+                    FFMpegFilter = "pan=stereo|c0=0.5*c0+0.5*c1|c1=0.5*c0+0.5*c1";
                     break;
                 case TAudioChannelMappingConversion.Combine3plus4:
-                    OutputFormat = TAudioChannelMapping.Mono;
-                    FFMpegFilter = "pan=mono|c0=0.5*c2+0.5*c3";
+                    OutputFormat = TAudioChannelMapping.Stereo;
+                    FFMpegFilter = "pan=stereo|c0=0.5*c2+0.5*c3|c1=0.5*c2+0.5*c3";
                     break;
             }
         }
