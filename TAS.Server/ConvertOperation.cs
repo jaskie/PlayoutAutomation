@@ -256,27 +256,22 @@ namespace TAS.Server
         }
 
         #region Movie conversion
-        private void _addConversion(MediaConversion conversion, StringBuilder parameters, List<string> videoFilters, List<string> audioFilters)
+        private void _addConversion(MediaConversion conversion, List<string> filters)
         {
             if (conversion != null)
             {
-                if (!string.IsNullOrWhiteSpace(conversion.FFMpegParameter))
-                    parameters.AppendFormat(" -{0}", conversion.FFMpegParameter);
-                if (!string.IsNullOrWhiteSpace(conversion.FFMpegAudioFilter))
-                    audioFilters.Add(conversion.FFMpegAudioFilter);
-                if (!string.IsNullOrWhiteSpace(conversion.FFMpegVideoFilter))
-                    videoFilters.Add(conversion.FFMpegVideoFilter);
+                if (!string.IsNullOrWhiteSpace(conversion.FFMpegFilter))
+                    filters.Add(conversion.FFMpegFilter);
             }
         }
 
         private string _encodeParameters(Media inputMedia, StreamInfo[] inputStreams)
         {
-            List<string> vf = new List<string>();
-            List<string> af = new List<string>();
-            StringBuilder ep;
+            List<string> filter_complex = new List<string>();
+            StringBuilder ep = new StringBuilder();
             if (((IngestDirectory)SourceMedia.Directory).DoNotEncode)
             {
-                ep = new StringBuilder("-c:v copy -c:a copy");
+                ep.Append(" -c:v copy -c:a copy");
                 if (AspectConversion == TAspectConversion.Force16_9)
                     ep.Append(" -aspect 16/9");
                 else
@@ -286,64 +281,93 @@ namespace TAS.Server
             else
             {
                 #region Audio
-                ep = new StringBuilder(((IngestDirectory)SourceMedia.Directory).EncodeParams).Append(" -ar 48000");
-                if (inputStreams.Count(s => s.StreamType == StreamType.AUDIO) > 8)
-                    af.Add("aformat=channel_layouts=0xFFFF");
-                _addConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], ep, vf, af);
-                MediaConversion audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
-                if (inputStreams.Count(s => s.StreamType == StreamType.AUDIO) >= 2 && !audiChannelMappingConversion.OutputFormat.Equals(TAudioChannelMapping.Unknown))
+                StreamInfo firstAudioStream = inputStreams.FirstOrDefault(s => s.StreamType == StreamType.AUDIO);
+                if (firstAudioStream != null)
                 {
-                    foreach (StreamInfo stream in inputStreams.Where(s => s.StreamType == StreamType.AUDIO))
-                        for (int i = 0; i < stream.ChannelCount; i++)
-                            ep.AppendFormat(" -map_channel 0.{0}.{1}", stream.Index, i);
+                    MediaConversion audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
+                    int inputTotalChannels = inputStreams.Where(s => s.StreamType == StreamType.AUDIO).Sum(s => s.ChannelCount);
+                    int requiredOutputChannels;
+                    switch ((TAudioChannelMappingConversion)audiChannelMappingConversion.OutputFormat)
+                    {
+                        case TAudioChannelMappingConversion.FirstTwoChannels:
+                        case TAudioChannelMappingConversion.SecondTwoChannels:
+                            requiredOutputChannels = 2;
+                            break;
+                        case TAudioChannelMappingConversion.FirstChannelOnly:
+                        case TAudioChannelMappingConversion.SecondChannelOnly:
+                        case TAudioChannelMappingConversion.Combine1plus2:
+                        case TAudioChannelMappingConversion.Combine3plus4:
+                            requiredOutputChannels = 1;
+                            break;
+                        default:
+                            requiredOutputChannels = 0;
+                            break;
+                    }
+                    if (requiredOutputChannels != firstAudioStream.ChannelCount)
+                    {
+                        int audio_stream_count = 0;
+                        StringBuilder pf = new StringBuilder();
+                        foreach (StreamInfo stream in inputStreams.Where(s => s.StreamType == StreamType.AUDIO))
+                        {
+                            pf.AppendFormat("[0:{0}]", stream.Index);
+                            audio_stream_count += stream.ChannelCount;
+                        }
+                        filter_complex.Add(string.Format("{0}amerge=inputs={1}", pf.ToString(), audio_stream_count));
+                    }
+                    _addConversion(audiChannelMappingConversion, filter_complex);
+                    if (AudioVolume != 0)
+                        _addConversion(new MediaConversion(AudioVolume), filter_complex);
+                    int lastFilterIndex = filter_complex.Count() - 1;
+                    if (lastFilterIndex >= 0)
+                    {
+                        filter_complex[lastFilterIndex] = string.Format("{0}[a]", filter_complex[lastFilterIndex]);
+                        ep.Append(" -map \"[a]\"");
+                    }
+                    ep.Append(" ").Append(((IngestDirectory)SourceMedia.Directory).EncodeParams).Append(" -ar 48000");
                 }
-                _addConversion(audiChannelMappingConversion, ep, vf, af);
-                if (AudioVolume != 0)
-                    _addConversion(new MediaConversion(AudioVolume), ep, vf, af);
                 #endregion // audio
                 #region Video
                 VideoFormatDescription outputFormatDescription = VideoFormatDescription.Descriptions[OutputFormat];
                 VideoFormatDescription inputFormatDescription = inputMedia.VideoFormatDescription;
+                _addConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], filter_complex);
                 if (inputMedia.HasExtraLines)
                 {
-                    vf.Add("crop=720:576:0:32");
+                    filter_complex.Add("crop=720:576:0:32");
                     if (AspectConversion == TAspectConversion.NoConversion)
                     {
                         if (inputFormatDescription.IsWideScreen)
-                            vf.Add("setdar=dar=16/9");
+                            filter_complex.Add("setdar=dar=16/9");
                         else
-                            vf.Add("setdar=dar=4/3");
+                            filter_complex.Add("setdar=dar=4/3");
                     }
                 }
                 if (outputFormatDescription.ImageSize != inputFormatDescription.ImageSize)
                 {
-                    vf.Add(string.Format("scale={0}:{1}", outputFormatDescription.ImageSize.Width, outputFormatDescription.ImageSize.Height));
+                    filter_complex.Add(string.Format("scale={0}:{1}", outputFormatDescription.ImageSize.Width, outputFormatDescription.ImageSize.Height));
                     if (AspectConversion == TAspectConversion.NoConversion)
                     {
                         if (inputFormatDescription.IsWideScreen)
-                            vf.Add("setdar=dar=16/9");
+                            filter_complex.Add("setdar=dar=16/9");
                         else
-                            vf.Add("setdar=dar=4/3");
+                            filter_complex.Add("setdar=dar=4/3");
                     }
                 }
                 if (AspectConversion != TAspectConversion.NoConversion)
-                    _addConversion(MediaConversion.AspectConversions[AspectConversion], ep, vf, af);
+                    _addConversion(MediaConversion.AspectConversions[AspectConversion], filter_complex);
                 if (inputFormatDescription.FrameRate / outputFormatDescription.FrameRate == 2 && outputFormatDescription.Interlaced)
-                    vf.Add("tinterlace=interleave_top");
-                vf.Add(string.Format("fps=fps={0}", outputFormatDescription.FrameRate));
+                    filter_complex.Add("tinterlace=interleave_top");
+                filter_complex.Add(string.Format("fps=fps={0}", outputFormatDescription.FrameRate));
                 if (outputFormatDescription.Interlaced)
                 {
-                    vf.Add("fieldorder=tff");
+                    filter_complex.Add("fieldorder=tff");
                     ep.Append(" -flags +ildct+ilme");
                 }
                 else
                 {
-                    vf.Add("w3fdif");
+                    filter_complex.Add("w3fdif");
                 }
-                if (vf.Any())
-                    ep.AppendFormat(" -filter:v \"{0}\"", string.Join(",", vf));
-                if (af.Any())
-                    ep.AppendFormat(" -filter:a \"{0}\"", string.Join(",", af));
+                if (filter_complex.Any())
+                    ep.AppendFormat(" -filter_complex \"{0}\"", string.Join(",", filter_complex));
                 #endregion // Video
             }
             return ep.ToString();
@@ -366,7 +390,7 @@ namespace TAS.Server
             string ingestRegion = _is_trimmed() ?
                 string.Format(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1}", StartTC - SourceMedia.TcStart, Duration) : string.Empty;
             string Params = string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    " -i \"{1}\"{0} -vsync cfr {2} -timecode {3} -y \"{4}\"",
+                    " -i \"{1}\"{0} -vsync cfr{2} -timecode {3} -y \"{4}\"",
                     ingestRegion,
                     media.FullPath,
                     encodeParams,
