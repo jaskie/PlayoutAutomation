@@ -453,4 +453,7 @@
   <data name="TIngestStatus_Unknown" xml:space="preserve">
     <value>Nieznany</value>
   </data>
+  <data name="TMediaType_Animation" xml:space="preserve">
+    <value>Animacja</value>
+  </data>
 </root>

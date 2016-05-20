@@ -781,6 +781,15 @@ namespace TAS.Server.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Animation.
+        /// </summary>
+        public static string TMediaType_Animation {
+            get {
+                return ResourceManager.GetString("TMediaType_Animation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Flash animation.
         /// </summary>
         public static string TMediaType_AnimationFlash {
