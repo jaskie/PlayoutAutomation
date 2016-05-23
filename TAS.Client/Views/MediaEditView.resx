@@ -126,9 +126,6 @@
   <data name="_buttonCancel.ToolTip" xml:space="preserve">
     <value>Abadon changes</value>
   </data>
-  <data name="_buttonGetTC.ToolTip" xml:space="preserve">
-    <value>Get play times ftom preview window</value>
-  </data>
   <data name="_buttonRevert.Caption" xml:space="preserve">
     <value>Revert</value>
   </data>

@@ -63,9 +63,7 @@ namespace TAS.Client.Common
 
         protected override void OnModified()
         {
-            NotifyPropertyChanged("CommandApply");
-            NotifyPropertyChanged("CommandOK");
-            NotifyPropertyChanged("CommandClose");
+            InvalidateRequerySuggested();
         }
 
 

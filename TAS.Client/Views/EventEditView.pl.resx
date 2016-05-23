@@ -147,9 +147,6 @@
   <data name="_duration" xml:space="preserve">
     <value>Czas trwania</value>
   </data>
-  <data name="_duration.GetTcInTcOut.ToolTip" xml:space="preserve">
-    <value>Pobierz TC i czas trwania z okienka podglądu</value>
-  </data>
   <data name="_editMovie.ToolTip" xml:space="preserve">
     <value>Właściwości</value>
   </data>

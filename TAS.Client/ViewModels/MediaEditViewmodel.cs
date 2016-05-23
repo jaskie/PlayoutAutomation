@@ -26,7 +26,6 @@ namespace TAS.Client.ViewModels
             CommandSaveEdit = new UICommand() { ExecuteDelegate = Save, CanExecuteDelegate = o => Modified && IsValid };
             CommandCancelEdit = new UICommand() { ExecuteDelegate = Load, CanExecuteDelegate = o => Modified };
             CommandRefreshStatus = new UICommand() { ExecuteDelegate = _refreshStatus };
-            CommandGetTcFromPreview = new UICommand() { ExecuteDelegate = _getTcFromPreview, CanExecuteDelegate = _canGetTcFormPreview };
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = (o) => !_isVolumeChecking };
             _previewVm = previewVm;
             _mediaManager = mediaManager;
@@ -46,7 +45,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandSaveEdit { get; private set; }
         public ICommand CommandCancelEdit { get; private set; }
         public ICommand CommandRefreshStatus { get; private set; }
-        public ICommand CommandGetTcFromPreview { get; private set; }
         public ICommand CommandCheckVolume { get; private set; }
 
         public override void Save(object destObject = null)
@@ -85,16 +83,6 @@ namespace TAS.Client.ViewModels
             Model.ReVerify();
         }
 
-
-        void _getTcFromPreview(object o)
-        {
-            if (_previewVm != null)
-            {
-                IMedia previewMedia = _previewVm.LoadedMedia;
-                TcPlay = _previewVm.TcIn;
-                DurationPlay = _previewVm.DurationSelection;
-            }
-        }
 
         AutoResetEvent _checkVolumeSignal;
         void _checkVolume(object o)
@@ -177,8 +165,13 @@ namespace TAS.Client.ViewModels
 
         private void _onPreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "LoadedMedia")
-                NotifyPropertyChanged("CommandGetTcFromPreview");
+            if (_previewVm.LoadedMedia == Model
+                && (e.PropertyName == "TcIn"
+                 || e.PropertyName == "TcOut"))
+            {
+                TcPlay = _previewVm.TcIn;
+                DurationPlay = _previewVm.DurationSelection;
+            }
         }
 
         private bool _isVolumeChecking;
@@ -191,7 +184,7 @@ namespace TAS.Client.ViewModels
                 {
                     _isVolumeChecking = value;
                     NotifyPropertyChanged("IsVolumeChecking");
-                    NotifyPropertyChanged("CommandCheckVolume");
+                    InvalidateRequerySuggested();
                 }
             }
         }
@@ -426,13 +419,6 @@ namespace TAS.Client.ViewModels
             {
                 return (Model is IPersistentMedia && Model.MediaStatus != TMediaStatus.Required);
             }
-        }
-
-        private bool _canGetTcFormPreview(object o)
-        {
-            return _previewVm != null
-                && _previewVm.LoadedMedia != null
-                && Model.MediaGuid.Equals(_previewVm.LoadedMedia.MediaGuid);
         }
 
         public string Error

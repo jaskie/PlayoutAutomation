@@ -151,7 +151,7 @@ namespace TAS.Client.ViewModels
                     if (b != null)
                         b.PropertyChanged -= _onBaseEventPropertyChanged;
                     _baseEvent = value;
-                    NotifyPropertyChanged("CommandAdd");
+                    InvalidateRequerySuggested();
                     if (value != null)
                         value.PropertyChanged += _onBaseEventPropertyChanged;
                 }
@@ -299,7 +299,7 @@ namespace TAS.Client.ViewModels
                         media.ReVerify();
                     if (_previewViewmodel != null)
                         _previewViewmodel.Media = media;
-                    NotifyPropertyChanged("CommandAdd");
+                    InvalidateRequerySuggested();
                 }
             } 
         }
@@ -381,13 +381,13 @@ namespace TAS.Client.ViewModels
         private void _onBaseEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "PlayState")
-                NotifyPropertyChanged("CommandAdd");
+                InvalidateRequerySuggested();
         }
 
         private void _onPreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "LoadedMedia")
-                NotifyPropertyChanged("CommandAdd");
+                InvalidateRequerySuggested();
         }
 
         private  void _add(object param)

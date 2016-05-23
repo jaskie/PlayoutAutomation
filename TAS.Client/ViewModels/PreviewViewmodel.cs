@@ -56,8 +56,7 @@ namespace TAS.Client.ViewModels
                             newVal.PropertyChanged += Media_PropertyChanged;
                         _event = null;
                         NotifyPropertyChanged("Event");
-                        NotifyPropertyChanged("CommandPause");
-                        NotifyPropertyChanged("CommandPlay");
+                        InvalidateRequerySuggested();
                     }
                 }
             }
@@ -93,8 +92,7 @@ namespace TAS.Client.ViewModels
                         value.PropertyChanged += Event_PropertyChanged;
                     _media = null;
                     NotifyPropertyChanged("Media");
-                    NotifyPropertyChanged("CommandPause");
-                    NotifyPropertyChanged("CommandPlay");
+                    InvalidateRequerySuggested();
                 }
             }
         }
@@ -189,6 +187,7 @@ namespace TAS.Client.ViewModels
 
         void _mediaUnload()
         {
+            LoadedMedia = null;
             TcIn = TimeSpan.Zero;
             TcOut = TimeSpan.Zero;
             _preview.PreviewUnload();
@@ -202,7 +201,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 if (SetField(ref _tcIn, value, "TcIn"))
-                    NotifyPropertyChanged("CommandSaveSegment");
+                    InvalidateRequerySuggested();
             }
         }
 
@@ -213,7 +212,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 if (SetField(ref _tcOut, value, "TcOut"))
-                    NotifyPropertyChanged("CommandSaveSegment");
+                    InvalidateRequerySuggested();
             }
         }
 
@@ -296,10 +295,9 @@ namespace TAS.Client.ViewModels
                     }
                     else
                         SelectedSegmentName = string.Empty;
-                    NotifyPropertyChanged("CommandSaveSegment");
-                    NotifyPropertyChanged("CommandDeleteSegment");
                     NotifyPropertyChanged("SelectedSegmentName");
                     NotifyPropertyChanged("SelectedSegment");
+                    InvalidateRequerySuggested();
                     _mediaLoad(false);
                 }
             }
@@ -316,7 +314,7 @@ namespace TAS.Client.ViewModels
                 {
                     _selectedSegmentName = value;
                     NotifyPropertyChanged("SelectedSegmentName");
-                    NotifyPropertyChanged("CommandSaveSegment");
+                    InvalidateRequerySuggested();
                 }
             }
         }
@@ -562,7 +560,7 @@ namespace TAS.Client.ViewModels
 
         private void SegmentPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            NotifyPropertyChanged("CommandSaveSegment");
+            InvalidateRequerySuggested();
         }
 
         private void PreviewPropertyChanged(object sender, PropertyChangedEventArgs e)

@@ -15,7 +15,8 @@ namespace TAS.Client.ViewModels
     public class ConvertOperationViewModel: FileOperationViewmodel, IDataErrorInfo
     {
         private readonly IConvertOperation _convertOperation;
-        public ConvertOperationViewModel(IConvertOperation operation)
+        private readonly PreviewViewmodel _previewVm;
+        public ConvertOperationViewModel(IConvertOperation operation, IPreview preview)
             : base(operation)
         {
             _convertOperation = operation;
@@ -28,15 +29,37 @@ namespace TAS.Client.ViewModels
             operation.SourceMedia.PropertyChanged += OnSourceMediaPropertyChanged;
             operation.DestMedia.PropertyChanged += OnDestMediaPropertyChanged;
             Array.Copy(_aspectConversions, _aspectConversionsEnforce, 3);
+            if (preview != null)
+            {
+                _previewVm = new PreviewViewmodel(preview) { Media = operation.SourceMedia };
+                _previewVm.PropertyChanged += _previewVm_PropertyChanged;
+            }
         }
 
         protected override void OnDispose()
         {
             _convertOperation.SourceMedia.PropertyChanged -= OnSourceMediaPropertyChanged;
             _convertOperation.DestMedia.PropertyChanged -= OnDestMediaPropertyChanged;
+            if (_previewVm != null)
+            {
+                _previewVm.PropertyChanged -= _previewVm_PropertyChanged;
+                _previewVm.Dispose();
+            }
             base.OnDispose();
         }
-                
+
+        private void _previewVm_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (_trim
+                && _previewVm.LoadedMedia == _convertOperation.SourceMedia
+                && (e.PropertyName == "TcIn"
+                 || e.PropertyName == "TcOut"))
+            {
+                StartTC = _previewVm.TcIn;
+                Duration = _previewVm.DurationSelection;
+            }
+        }
+
         static readonly Array _categories = Enum.GetValues(typeof(TMediaCategory)); 
         public Array Categories { get { return _categories; } }
         public TMediaCategory DestCategory { get { return _convertOperation.DestMedia.MediaCategory; } set { _convertOperation.DestMedia.MediaCategory = value; } }
@@ -136,6 +159,14 @@ namespace TAS.Client.ViewModels
         public bool CanTrim
         {
             get { return !DoNotEncode && _convertOperation.SourceMedia.MediaStatus == TMediaStatus.Available && _convertOperation.SourceMedia.Duration > TimeSpan.Zero; }
+        }
+
+        public PreviewViewmodel Preview { get { return _previewVm; } }
+        public Views.PreviewView View { get { return new Views.PreviewView(_convertOperation.SourceMedia.FrameRate) { DataContext = _previewVm }; } }
+
+        public bool CanPreview
+        {
+            get { return (_previewVm != null && ((IIngestDirectory)_convertOperation.SourceMedia.Directory).AccessType == TDirectoryAccessType.Direct); }
         }
 
         bool _loudnessCheck;

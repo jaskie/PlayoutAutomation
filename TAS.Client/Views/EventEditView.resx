@@ -147,9 +147,6 @@
   <data name="_duration" xml:space="preserve">
     <value>Duration</value>
   </data>
-  <data name="_duration.GetTcInTcOut.ToolTip" xml:space="preserve">
-    <value>Get start TC and duration from preview</value>
-  </data>
   <data name="_editMovie.ToolTip" xml:space="preserve">
     <value>Properties</value>
   </data>

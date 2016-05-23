@@ -83,7 +83,7 @@ namespace TAS.Client.ViewModels
                 )
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == "OperationStatus")
-                NotifyPropertyChanged("CommandAbort");
+                InvalidateRequerySuggested();
             if (e.PropertyName == "OperationWarning")
                 IsWarning = true;
         }

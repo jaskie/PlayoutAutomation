@@ -26,12 +26,13 @@ namespace TAS.Client.ViewModels
         {
             _engineViewModel = engineViewModel;
             _previewViewModel = previewViewModel; 
+            if (previewViewModel != null)
+                previewViewModel.PropertyChanged += PreviewViewModel_PropertyChanged;
             _engine = engineViewModel.Engine;
             CommandSaveEdit = new UICommand() { ExecuteDelegate = _save, CanExecuteDelegate = _canSave };
             CommandUndoEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
             CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _isEditableMovie };
             CommandEditMovie = new UICommand() { ExecuteDelegate = _editMovie, CanExecuteDelegate = _isEditableMovie };
-            CommandGetTCInTCOut = new UICommand() { ExecuteDelegate =_getTCInTCOut, CanExecuteDelegate = _canGetTcInTcOut};
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume };
         }
 
@@ -39,13 +40,25 @@ namespace TAS.Client.ViewModels
         {
             if (_event != null)
                 Event = null;
+            if (_previewViewModel != null)
+                _previewViewModel.PropertyChanged -= PreviewViewModel_PropertyChanged;
         }
 
+        private void PreviewViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (_previewViewModel.LoadedMedia == this.Media
+                && (e.PropertyName == "TcIn"
+                 || e.PropertyName == "TcOut"))
+            {
+                ScheduledTc = _previewViewModel.TcIn;
+                Duration = _previewViewModel.DurationSelection;
+            }
+        }
+        
         public UICommand CommandUndoEdit { get; private set; }
         public UICommand CommandSaveEdit { get; private set; }
         public UICommand CommandChangeMovie { get; private set; }
         public UICommand CommandEditMovie { get; private set; }
-        public UICommand CommandGetTCInTCOut { get; private set; }
         public UICommand CommandCheckVolume { get; private set; }
         public UICommand CommandToggleEnabled { get; private set; }
         public UICommand CommandToggleHold { get; private set; }
@@ -331,15 +344,6 @@ namespace TAS.Client.ViewModels
             return GPI;
         }
 
-        void _getTCInTCOut(object o)
-        {
-            if (_previewViewModel != null && _previewViewModel.IsLoaded)
-            {
-                ScheduledTc = _previewViewModel.TcIn;
-                Duration = _previewViewModel.DurationSelection;
-            }
-        }
-
         private void _checkVolume(object obj)
         {
             if (_media == null)
@@ -389,14 +393,6 @@ namespace TAS.Client.ViewModels
             IEvent ev = _event;
             return ev != null
                 && (Modified || ev.Modified);
-        }
-        bool _canGetTcInTcOut(object o)
-        {
-            IEvent ev = _event;
-            var previewMedia = (_previewViewModel != null) ? _previewViewModel.LoadedMedia : null;
-            return (ev != null)
-                && previewMedia != null
-                && ev.Media == previewMedia;
         }
 
         private bool _isVolumeChecking;

@@ -43,6 +43,7 @@ namespace TAS.Client.ViewModels
         public MediaManagerViewmodel(IMediaManager mediaManager, IPreview preview)
         {
             _mediaManager = mediaManager;
+            _preview = preview;
             if (preview != null)
             {
                 _previewViewModel = new PreviewViewmodel(preview);
@@ -69,7 +70,7 @@ namespace TAS.Client.ViewModels
                 _fileManagerVm = new FileManagerViewmodel(mediaManager.FileManager);
         }
 
-
+        private readonly IPreview _preview;
         private readonly PreviewViewmodel _previewViewModel;
         private readonly PreviewView _previewView;
         public PreviewView PreviewView { get { return _previewView; } }
@@ -261,7 +262,7 @@ namespace TAS.Client.ViewModels
                 }
                 if (ingestList.Count != 0)
                 {
-                    using (IngestEditViewmodel ievm = new IngestEditViewmodel(ingestList))
+                    using (IngestEditViewmodel ievm = new IngestEditViewmodel(ingestList, _preview))
                     {
                         if (ievm.ShowDialog() == true)
                         {
@@ -466,11 +467,11 @@ namespace TAS.Client.ViewModels
                     SelectedMedia = null;
                     NotifyPropertyChanged("MediaDirectory");
                     NotifyPropertyChanged("DisplayDirectoryInfo");
-                    NotifyPropertyChanged("CommandRefresh");
                     NotifyPropertyChanged("IsDisplayFolder");
                     NotifyPropertyChanged("IsDisplayIsArchived");
                     NotifyPropertyChanged("IsDisplayMediaCategory");
                     NotifyPropertyChanged("IsDisplayIngestState");
+                    InvalidateRequerySuggested();
                     _notifyDirectoryPropertiesChanged();
                 }
             }

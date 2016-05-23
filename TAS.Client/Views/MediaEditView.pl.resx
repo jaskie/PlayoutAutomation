@@ -126,9 +126,6 @@
   <data name="_buttonCancel.ToolTip" xml:space="preserve">
     <value>Porzuć zmiany</value>
   </data>
-  <data name="_buttonGetTC.ToolTip" xml:space="preserve">
-    <value>Pobierz czasy z okienka podglądu</value>
-  </data>
   <data name="_buttonRevert.Caption" xml:space="preserve">
     <value>Cofnij</value>
   </data>

@@ -129,17 +129,20 @@
                         <Label Content="{Resx _requiredAt}" />
                         <common:DelayedBindingTextBox Text="{Binding RequestedStartTime, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" ToolTip="{Resx _requiredAt.ToolTip}"/>
                     </DockPanel>
-                    <DockPanel>
-                        <Label Content="{Resx _duration}" />
-                        <Button DockPanel.Dock="Right" HorizontalAlignment="Right" ToolTip="{Resx _duration.GetTcInTcOut.ToolTip}" Command="{Binding CommandGetTCInTCOut}" >
-                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy-small.png" />
-                        </Button>
-                        <common:DelayedBindingTextBox Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsDurationEnabled}" />
-                    </DockPanel>
-                    <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
-                        <Label Content="{Resx _scheduledTC}" />
-                        <common:DelayedBindingTextBox Text="{Binding ScheduledTc, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
-                    </DockPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <DockPanel>
+                            <Label Content="{Resx _duration}" />
+                            <common:DelayedBindingTextBox Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsDurationEnabled}" MinWidth="80" />
+                        </DockPanel>
+                        <DockPanel Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
+                            <Label Content="{Resx _scheduledTC}" />
+                            <common:DelayedBindingTextBox Text="{Binding ScheduledTc, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" MinWidth="80"/>
+                        </DockPanel>
+                    </Grid>
                     <DockPanel>
                         <Label Content="{Resx _clip}" />
                         <Button DockPanel.Dock="Right" ToolTip="{Resx _changeMovie.ToolTip}" Command="{Binding CommandChangeMovie}">

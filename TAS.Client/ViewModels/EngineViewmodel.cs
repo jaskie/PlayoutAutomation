@@ -151,7 +151,7 @@ namespace TAS.Client.ViewModels
 
         void _engineViewmodel_ClipboardChanged()
         {
-            NotifyPropertyChanged("CommandPasteSelected");
+            InvalidateRequerySuggested();
         }
 
         public EngineView View { get { return _engineView; } }
@@ -844,7 +844,7 @@ namespace TAS.Client.ViewModels
             }
 
             if (a.Operation == TEngineOperation.Load)
-                NotifyPropertyChanged("CommandStartLoaded");
+                InvalidateRequerySuggested();
 
             if (a.Operation == TEngineOperation.Stop || a.Operation == TEngineOperation.Clear)
             {

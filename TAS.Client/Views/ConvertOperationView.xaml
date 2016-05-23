@@ -96,7 +96,7 @@
                     </Label.LayoutTransform>
                 </Label>
             </Expander.Header>
-            <StackPanel Width="250">
+            <StackPanel MinWidth="250">
                 <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource InvertedBoolToVis}}">
                     <Label Content="{Resx _aspectCorrection}" />
                     <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}" />
@@ -131,6 +131,7 @@
                         </StackPanel>
                     </Grid>
                 </StackPanel>
+                <ContentControl Content="{Binding View}"/>
             </StackPanel>
         </Expander>
     </StackPanel>
