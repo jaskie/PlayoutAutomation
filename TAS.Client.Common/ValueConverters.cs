@@ -107,6 +107,56 @@ namespace TAS.Client.Common
         }
     }
 
+    [ValueConversion(typeof(TimeSpan?), typeof(string))]
+    public class TimeOfDayToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is TimeSpan? && ((TimeSpan?)value).HasValue)
+            {
+                TimeSpan result = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now) + ((TimeSpan?)value).Value;
+                if (result > TimeSpan.FromDays(1))
+                    result -= TimeSpan.FromDays(1);
+                if (result < TimeSpan.Zero)
+                    result += TimeSpan.FromDays(1);
+                return result.ToString();
+            }
+            return string.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            TimeSpan result = TimeSpan.Zero;
+            if (value is string && TimeSpan.TryParse((string)value, out result))
+            {
+                result -= TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+                if (result > TimeSpan.FromDays(1))
+                    result -= TimeSpan.FromDays(1);
+                if (result < TimeSpan.Zero)
+                    result += TimeSpan.FromDays(1);
+                return result;
+            }
+            return null;
+        }
+    }
+
+    [ValueConversion(typeof(TimeSpan), typeof(Brush))]
+    public class TimeSpanToRedGreenBrushConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is TimeSpan && (TimeSpan)value >= TimeSpan.Zero)
+                return Brushes.Red;
+            else
+                return Brushes.Green;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     [ValueConversion(typeof(DateTime), typeof(string))]
     public class DateTimeToSMPTEConverter : IValueConverter
     {

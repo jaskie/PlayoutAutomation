@@ -127,7 +127,7 @@
                     </DockPanel>
                     <DockPanel>
                         <Label Content="{Resx _requiredAt}" />
-                        <common:DelayedBindingTextBox Text="{Binding RequestedStartTime, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" ToolTip="{Resx _requiredAt.ToolTip}"/>
+                        <common:DelayedBindingTextBox Text="{Binding RequestedStartTime, Converter={StaticResource TimeOfDayToStringConverter}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" ToolTip="{Resx _requiredAt.ToolTip}"/>
                     </DockPanel>
                     <Grid>
                         <Grid.ColumnDefinitions>

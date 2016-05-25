@@ -178,7 +178,8 @@
     <value>Requied at</value>
   </data>
   <data name="_requiredAt.ToolTip" xml:space="preserve">
-    <value>The time the clip should start according to the scenario.&amp;#x0a;The difference to the specified time will be shown in the tree of the times of events in green (undertime) or red (overtime).</value>
+    <value>The time the clip should start according to the scenario.
+The difference to the specified time will be shown in the tree of the times of events in green (undertime) or red (overtime).</value>
   </data>
   <data name="_scheduledTC" xml:space="preserve">
     <value>TC Start</value>
