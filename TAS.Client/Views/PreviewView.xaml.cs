@@ -18,12 +18,5 @@ namespace TAS.Client.Views
             InitializeComponent();
             ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
         }
-
-        //private void DataGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
-        //{
-        //    if (((PropertyDescriptor)e.PropertyDescriptor).IsBrowsable == false)
-        //        e.Cancel = true;
-        //    e.Column.Header = ((PropertyDescriptor)e.PropertyDescriptor).DisplayName;
-        //}
     }
 }

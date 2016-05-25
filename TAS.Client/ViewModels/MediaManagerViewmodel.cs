@@ -485,14 +485,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsDisplayMediaCategory
-        {
-            get
-            {
-                return (_mediaDirectory is IServerDirectory || _mediaDirectory is IArchiveDirectory) && 
-                    !(_mediaCategory is TMediaCategory);
-            }
-        }
+        public bool IsDisplayMediaCategory { get { return (_mediaDirectory is IServerDirectory || _mediaDirectory is IArchiveDirectory); } }
 
         public bool IsDisplayIsArchived { get { return _mediaDirectory is IServerDirectory; } }
         public bool IsDisplayIngestState { get { return _mediaDirectory is IIngestDirectory || _mediaDirectory is IArchiveDirectory; } }

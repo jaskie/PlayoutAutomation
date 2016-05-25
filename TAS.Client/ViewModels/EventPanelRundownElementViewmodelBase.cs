@@ -105,7 +105,8 @@ namespace TAS.Client.ViewModels
                 {
                     IEvent newEvent = _event.Engine.AddNewEvent(
                         eventType: TEventType.Movie,
-                        eventName: resources._title_EmptyMovie);
+                        eventName: resources._title_EmptyMovie,
+                        videoLayer: VideoLayer.Program);
                     _event.InsertAfter(newEvent);
                 },
                 CanExecuteDelegate = canAddNextMovie

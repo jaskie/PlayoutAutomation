@@ -106,7 +106,7 @@
                     <ComboBox ItemsSource="{Binding AudioChannelMappingConversions}" SelectedItem="{Binding AudioChannelMappingConversion}" />
                     <Label Content="{Resx _audioLevelCorrection}" />
                     <DockPanel>
-                        <TextBox Margin="4" MinWidth="45" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
+                        <TextBox Margin="0, 4" MinWidth="45" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
                         <Slider Margin="2" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
                     </DockPanel>
                 </StackPanel>
@@ -123,11 +123,11 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <Label Content="{Resx _startTC}" />
-                            <common:DelayedBindingTextBox Text="{Binding StartTC, UpdateSourceTrigger=LostFocus, Converter={StaticResource TimeSpanToSMPTE}}" />
+                            <common:DelayedBindingTextBox Text="{Binding StartTC, UpdateSourceTrigger=LostFocus, Converter={StaticResource TimeSpanToSMPTE}}" Margin="0, 0, 4, 0" />
                         </StackPanel>
                         <StackPanel Grid.Column="1">
                             <Label Content="{Resx _duration}" />
-                            <common:DelayedBindingTextBox Text="{Binding Duration, UpdateSourceTrigger=LostFocus, Converter={StaticResource TimeSpanToSMPTE}}" />
+                            <common:DelayedBindingTextBox Text="{Binding Duration, UpdateSourceTrigger=LostFocus, Converter={StaticResource TimeSpanToSMPTE}}" Margin="4, 0, 0, 0" />
                         </StackPanel>
                     </Grid>
                 </StackPanel>

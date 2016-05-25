@@ -38,12 +38,6 @@
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsPlaying}"  Value="True">
-                                <Setter Property="Background" Value="#4040FF00"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsForcedNext}" Value="True">
-                                <Setter Property="Background" Value="LightPink"/>
-                            </DataTrigger>
                             <DataTrigger Binding="{Binding IsMultiSelected}" Value="True">
                                 <Setter Property="Background" Value="RoyalBlue"/>
                             </DataTrigger>
@@ -64,6 +58,20 @@
                     <RowDefinition Height="26" />
                 </Grid.RowDefinitions>
                 <Border Grid.RowSpan="1" Background="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}"/>
+                <Border Grid.RowSpan="2" Grid.Column="2" Grid.ColumnSpan="3">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsPlaying}"  Value="True">
+                                    <Setter Property="Background" Value="#4040FF00"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsForcedNext}" Value="True">
+                                    <Setter Property="Background" Value="LightPink"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
                 <Image Grid.Column="0" Grid.RowSpan="2" Margin="3" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Live.png" Style="{StaticResource EventPanelImage}" />
                 <Image Grid.Column="0" Grid.Row="0" Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected.ToolTip}" />
                 <Image Grid.Column="1" Grid.RowSpan="2" ToolTip="{Binding PlayState}">

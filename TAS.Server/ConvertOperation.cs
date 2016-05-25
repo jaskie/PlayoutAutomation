@@ -242,7 +242,13 @@ namespace TAS.Server
             Image bmp = new Bitmap(destSize.Width, destSize.Height, PixelFormat.Format32bppArgb);
             Graphics graphics = Graphics.FromImage(bmp);
             graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-            graphics.DrawImage(new Bitmap(_localSourceMedia.FullPath), 0, 0, destSize.Width, destSize.Height);
+            if (Path.GetExtension(_localSourceMedia.FileName).ToLowerInvariant() == ".tga")
+            {
+                var tgaImage = new Paloma.TargaImage(_localSourceMedia.FullPath);
+                graphics.DrawImage(tgaImage.Image, 0, 0, destSize.Width, destSize.Height);
+            }
+            else
+                graphics.DrawImage(new Bitmap(_localSourceMedia.FullPath), 0, 0, destSize.Width, destSize.Height);
             ImageCodecInfo imageCodecInfo = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FilenameExtension.Split(';').Select(se => se.Trim('*')).Contains(FileUtils.DefaultFileExtension(TMediaType.Still).ToUpperInvariant()));
             System.Drawing.Imaging.Encoder encoder = System.Drawing.Imaging.Encoder.Quality;
             EncoderParameter encoderParameter = new EncoderParameter(encoder, 90L);

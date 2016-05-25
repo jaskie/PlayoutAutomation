@@ -55,7 +55,7 @@ namespace TAS.Client.ViewModels
         public int TryCount { get { return _fileOperation.TryCount; } }
         public bool IsIndeterminate { get { return _fileOperation.IsIndeterminate; } }
 
-        public bool Finished { get { return _fileOperation.OperationStatus != FileOperationStatus.Waiting && _fileOperation.OperationStatus != FileOperationStatus.InProgress; } }
+        public bool Finished { get { return _fileOperation.OperationStatus == FileOperationStatus.Failed || _fileOperation.OperationStatus == FileOperationStatus.Aborted || _fileOperation.OperationStatus == FileOperationStatus.Finished; } }
 
         public FileOperationStatus OperationStatus { get { return _fileOperation.OperationStatus; } }
         public string OperationOutput { get { return string.Join(Environment.NewLine, _fileOperation.OperationOutput); } }
