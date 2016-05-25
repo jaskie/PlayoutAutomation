@@ -207,7 +207,8 @@ namespace TAS.Client.ViewModels
 
         private void _saveRundown(object obj)
         {
-            throw new NotImplementedException();
+            EventProxy proxy = EventProxy.FromEvent(Selected.Event);
+            Debug.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(proxy));
         }
 
         private bool _canAddSubLive(object obj)

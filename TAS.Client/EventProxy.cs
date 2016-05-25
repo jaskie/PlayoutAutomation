@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using TAS.Common;
@@ -22,8 +23,6 @@ namespace TAS.Client
         public bool IsLoop { get; set; }
         public VideoLayer Layer { get; set; }
         public Guid MediaGuid { get; set; }
-        public TPlayState PlayState { get; set; }
-        public long Position { get; set; }
         public TimeSpan? RequestedStartTime { get; set; }
         public TimeSpan ScheduledDelay { get; set; }
         public TimeSpan ScheduledTc { get; set; }
@@ -33,8 +32,54 @@ namespace TAS.Client
         public TStartType StartType { get; set; }
         public TimeSpan TransitionTime { get; set; }
         public TTransitionType TransitionType { get; set; }
+        public EventProxy[] SubEvents { get; set; }
+        public static EventProxy FromEvent(IEvent source){
+            return new EventProxy()
+            {
+                AudioVolume = source.AudioVolume,
+                Duration = source.Duration,
+                EventName = source.EventName,
+                EventType = source.EventType,
+                GPI = source.GPI,
+                IdAux = source.IdAux,
+                IdProgramme = source.IdProgramme,
+                IsEnabled = source.IsEnabled,
+                IsHold = source.IsHold,
+                IsLoop = source.IsLoop,
+                Layer = source.Layer,
+                MediaGuid = source.MediaGuid,
+                RequestedStartTime = source.RequestedStartTime,
+                ScheduledDelay = source.ScheduledDelay,
+                ScheduledTc = source.ScheduledTc,
+                ScheduledTime = source.ScheduledTime,
+                StartTc = source.StartTc,
+                StartTime = source.StartTime,
+                StartType = source.StartType,
+                TransitionTime = source.TransitionTime,
+                TransitionType = source.TransitionType,
+                SubEvents = source.AllSubEvents().Select(e => FromEvent(e)).ToArray(),                
+            };
+        }
+        public override string ToString()
+        {
+            return string.Format("{0}:{1}", EventName, SubEvents.Length);
+        }
+    }
 
-        public IEventProperties[] SubEvents { get; set; }
-
+    static class IEventExtensions
+    {
+        public static IEnumerable<IEvent> AllSubEvents(this IEvent e)
+        {
+            IEnumerable<IEvent> sel = e.SubEvents;
+            foreach (IEvent selItem in sel)
+            {
+                yield return selItem;
+                IEvent nextItem = selItem;
+                while ((nextItem = nextItem.Next)!= null)
+                {
+                    yield return nextItem;
+                }
+            }
+        }
     }
 }

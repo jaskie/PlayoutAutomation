@@ -12,6 +12,8 @@ namespace TAS.Server.Interfaces
     {
         UInt64 IdRundownEvent { get; set; }
         UInt64 IdEventBinding { get; }
+        TPlayState PlayState { get; set; }
+        long Position { get; set; }
         IMedia Media { get; set; }
         IEngine Engine { get; }
         long MediaSeek { get; }

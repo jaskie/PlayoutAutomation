@@ -17,8 +17,6 @@ namespace TAS.Server.Interfaces
         ulong IdProgramme { get; set; }
         VideoLayer Layer { get; set; }
         Guid MediaGuid { get; set; }
-        TPlayState PlayState { get; set; }
-        long Position { get; set; }
         TimeSpan? RequestedStartTime { get; set; }
         TimeSpan ScheduledDelay { get; set; }
         TimeSpan ScheduledTc { get; set; }
