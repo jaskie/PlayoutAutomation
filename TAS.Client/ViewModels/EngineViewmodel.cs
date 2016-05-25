@@ -50,6 +50,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandCutSelected { get; private set; }
         public ICommand CommandExportMedia { get; private set; }
         public ICommand CommandSaveRundown { get; private set; }
+        public ICommand CommandLoadRundown { get; private set; }
 
         #region Single selected commands
         public ICommand CommandEventHide { get; private set; }
@@ -203,12 +204,45 @@ namespace TAS.Client.ViewModels
             CommandUndoEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandUndoEdit.Execute };
 
             CommandSaveRundown = new UICommand { ExecuteDelegate = _saveRundown, CanExecuteDelegate = o => Selected != null && Selected.Event.EventType == TEventType.Rundown };
+            CommandLoadRundown = new UICommand { ExecuteDelegate = _loadRundown, CanExecuteDelegate = o => (string)o == "Under" ? _canAddSubRundown(o) : _canAddNextRundown(o) };
+        }
+
+        private void _loadRundown(object obj)
+        {
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                DefaultExt = FileUtils.RundownFileExtension,
+                Filter = string.Format("{0}|*{1}|{2}|*.*", resources._rundowns, FileUtils.RundownFileExtension, resources._allFiles)
+            };
+            if (dlg.ShowDialog() == true)
+            {
+                using (var reader = System.IO.File.OpenText(dlg.FileName))
+                using (var jreader = new Newtonsoft.Json.JsonTextReader(reader))
+                {
+                    var proxy = (new Newtonsoft.Json.JsonSerializer()).Deserialize<EventProxy>(jreader);
+                    if (obj.Equals("Under"))
+                        proxy.InsertUnder(Selected.Event);
+                    else
+                        proxy.InsertAfter(Selected.Event);
+                }
+            }
         }
 
         private void _saveRundown(object obj)
         {
             EventProxy proxy = EventProxy.FromEvent(Selected.Event);
-            Debug.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(proxy));
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog()
+            {
+                FileName = proxy.EventName,
+                DefaultExt = FileUtils.RundownFileExtension,
+                Filter = string.Format("{0}|*{1}|{2}|*.*", resources._rundowns, FileUtils.RundownFileExtension, resources._allFiles)
+            };
+            if (dlg.ShowDialog() == true)
+            {
+                using (var writer = System.IO.File.CreateText(dlg.FileName))
+                    new Newtonsoft.Json.JsonSerializer() { Formatting = Newtonsoft.Json.Formatting.Indented }
+                    .Serialize(writer, proxy);
+            }
         }
 
         private bool _canAddSubLive(object obj)

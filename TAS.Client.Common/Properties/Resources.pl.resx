@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="_allFiles" xml:space="preserve">
+    <value>Wszystkie pliki</value>
+  </data>
   <data name="_all_" xml:space="preserve">
     <value>Wszystkie</value>
   </data>
@@ -202,6 +205,9 @@ Jeśli jego poprzednia kopia nie odpowiada i chcesz uruchomić nową, naciśnij 
     <value>Ten program został skonfigurowany jako zapasowy dla instalacji na innym komputerze i powinien być uruchomiony TYLKO w razie awarii.
 Jednoczesna praca na obydwu komputerach nie jest dozwolona.
 Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
+  </data>
+  <data name="_rundowns" xml:space="preserve">
+    <value>Playlisty</value>
   </data>
   <data name="_title_Delete" xml:space="preserve">
     <value>Usuń: {0}:{1}</value>

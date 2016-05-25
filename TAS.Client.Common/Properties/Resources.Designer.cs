@@ -70,6 +70,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to All files.
+        /// </summary>
+        public static string _allFiles {
+            get {
+                return ResourceManager.GetString("_allFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add.
         /// </summary>
         public static string _button_Add {
@@ -293,6 +302,15 @@ namespace TAS.Client.Common.Properties {
         public static string _query_StartBackupInstance {
             get {
                 return ResourceManager.GetString("_query_StartBackupInstance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rundowns.
+        /// </summary>
+        public static string _rundowns {
+            get {
+                return ResourceManager.GetString("_rundowns", resourceCulture);
             }
         }
         

@@ -13,6 +13,7 @@ namespace TAS.Server.Common
         public readonly static string[] StillFileTypes = { ".png", ".tif", ".tga", ".tiff", ".jpg", ".gif", ".bmp" };
         public readonly static string[] AudioFileTypes = { ".mp3" };
         public readonly static string[] AnimationFileTypes = { ".ft" };
+        public readonly static string RundownFileExtension = ".rundown";
 
         public static string DefaultFileExtension(TMediaType type)
         {

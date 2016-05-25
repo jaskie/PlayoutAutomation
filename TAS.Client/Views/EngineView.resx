@@ -154,7 +154,7 @@
     <value>_After</value>
   </data>
   <data name="_menu.Edit.Paste.Before" xml:space="preserve">
-    <value>P_rzed</value>
+    <value>_Before</value>
   </data>
   <data name="_menu.Edit.Paste.Under" xml:space="preserve">
     <value>_Under</value>
@@ -272,5 +272,17 @@
   </data>
   <data name="_toolbar.NextWithRequestedStartTime" xml:space="preserve">
     <value>Next required time</value>
+  </data>
+  <data name="_menu.Rundown.Load" xml:space="preserve">
+    <value>_Load from file</value>
+  </data>
+  <data name="_menu.Rundown.Load.After" xml:space="preserve">
+    <value>_After</value>
+  </data>
+  <data name="_menu.Rundown.Load.Under" xml:space="preserve">
+    <value>_Under</value>
+  </data>
+  <data name="_menu.Rundown.Save" xml:space="preserve">
+    <value>_Save to file</value>
   </data>
 </root>

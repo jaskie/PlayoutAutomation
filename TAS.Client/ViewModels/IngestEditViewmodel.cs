@@ -14,7 +14,6 @@ namespace TAS.Client.ViewModels
     class IngestEditViewmodel : OkCancelViewmodelBase<IList<IConvertOperation>>
     {
         private readonly ObservableCollection<ConvertOperationViewModel> _conversionList;
-        private readonly PreviewViewmodel _previewVM;
         public IngestEditViewmodel(IList<IConvertOperation> convertionList, IPreview preview): base(convertionList, new Views.IngestEditorView(), resources._window_IngestAs)
         {
             _conversionList = new ObservableCollection<ConvertOperationViewModel>(from op in convertionList select new ConvertOperationViewModel(op, preview));

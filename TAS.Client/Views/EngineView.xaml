@@ -78,7 +78,11 @@
                 <!--<MenuItem Header="_Importuj playlistę" Command="{Binding CommandImportRundown}"/>-->
                 <MenuItem Header="{Resx _menu.Rundown.Restart}" Command="{Binding CommandRestart}"/>
                 <Separator/>
-                <MenuItem Header="Save" Command="{Binding CommandSaveRundown}"/>
+                <MenuItem Header="{Resx _menu.Rundown.Save}" Command="{Binding CommandSaveRundown}"/>
+                <MenuItem Header="{Resx _menu.Rundown.Load}" >
+                    <MenuItem Header="{Resx _menu.Rundown.Load.After}" Command="{Binding CommandLoadRundown}" CommandParameter="After"/>
+                    <MenuItem Header="{Resx _menu.Rundown.Load.Under}" Command="{Binding CommandLoadRundown}" CommandParameter="Under"/>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="{Resx _menu.Edit}">
                 <MenuItem Header="{Resx _menu.Edit.Copy}" Command="{Binding CommandCopySelected}" InputGestureText="Ctrl+C"/>

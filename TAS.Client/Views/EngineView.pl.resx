@@ -273,4 +273,16 @@
   <data name="_toolbar.NextWithRequestedStartTime" xml:space="preserve">
     <value>Czas wymaganego</value>
   </data>
+  <data name="_menu.Rundown.Load" xml:space="preserve">
+    <value>Ł_aduj z pliku</value>
+  </data>
+  <data name="_menu.Rundown.Load.After" xml:space="preserve">
+    <value>_Za</value>
+  </data>
+  <data name="_menu.Rundown.Load.Under" xml:space="preserve">
+    <value>_Pod</value>
+  </data>
+  <data name="_menu.Rundown.Save" xml:space="preserve">
+    <value>Zapi_sz do pliku</value>
+  </data>
 </root>
