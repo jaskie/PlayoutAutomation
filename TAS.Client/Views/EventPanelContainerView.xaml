@@ -36,7 +36,6 @@
                 <Image Source="/TAS.Client.Common;component/Images/EventActions/new-sub-rundown.png"/>
             </Button>
             <TextBlock Grid.Column="3" Text="{Binding EventName}" FontSize="22" VerticalAlignment="Center" />
-
         </Grid>
     </Border>
 </local:EventPanelView>

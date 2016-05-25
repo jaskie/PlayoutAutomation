@@ -35,17 +35,6 @@
                 <Style TargetType="Button" BasedOn="{StaticResource EventPanelCommandButton}"/>
             </Border.Resources>
             <Grid>
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsMultiSelected}" Value="True">
-                                <Setter Property="Background" Value="RoyalBlue"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Style>
-                <Grid.Resources>
-                </Grid.Resources>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="33" />
                     <ColumnDefinition Width="31" />

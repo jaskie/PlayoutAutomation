@@ -95,8 +95,8 @@ namespace TAS.Client.ViewModels
                     && !(e.Event.EventType == TEventType.StillImage)
                     && e.Event == _engineViewmodel.LastAddedEvent)
                 {
-                    _engineViewmodel.Selected = newVm;
                     newVm.IsSelected = true;
+                    newVm.IsMultiSelected = true;
                 }
             });
         }
