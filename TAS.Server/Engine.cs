@@ -34,14 +34,7 @@ namespace TAS.Server
         public string EngineName
         {
             get { return _engineName; }
-            set
-            {
-                if (value != _engineName)
-                {
-                    _engineName = value;
-                    NotifyPropertyChanged("EngineName");
-                }
-            }
+            set { SetField(ref _engineName, value, "EngineName"); }
         }
         #region Fields
 
@@ -67,6 +60,7 @@ namespace TAS.Server
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
         public event EventHandler<PropertyChangedEventArgs> ServerPropertyChanged;
 
+        public bool EnableGPIForNewEvents { get; set; }
         [XmlElement("Gpi")]
         public GPINotifier _serGpi { get { return null; } set { _gpi = value; } }
         private GPINotifier _gpi;

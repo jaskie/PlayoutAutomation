@@ -19,13 +19,13 @@ namespace TAS.Client.Common
             CommandClose = new UICommand() { CanExecuteDelegate = CanClose, ExecuteDelegate = Close };
             CommandApply = new UICommand() { CanExecuteDelegate = CanApply, ExecuteDelegate = o => Save() };
             CommandOK = new UICommand() { CanExecuteDelegate = CanOK, ExecuteDelegate = Ok };
-            View = new OkCancelView() { 
-                DataContext = this, 
-                Title = windowTitle, 
-                Owner = System.Windows.Application.Current.MainWindow, 
-                WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner, 
-                MaxHeight = System.Windows.Application.Current.MainWindow.Height,
-                MaxWidth = System.Windows.Application.Current.MainWindow.Width,
+            View = new OkCancelView() {
+                DataContext = this,
+                Title = windowTitle,
+                Owner = System.Windows.Application.Current.MainWindow,
+                WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner,
+                MaxHeight = System.Windows.SystemParameters.PrimaryScreenHeight,
+                MaxWidth = System.Windows.SystemParameters.PrimaryScreenWidth,
                 ShowInTaskbar = false };
         }
 

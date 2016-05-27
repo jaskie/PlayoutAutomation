@@ -336,9 +336,9 @@ namespace TAS.Client.ViewModels
         EventGPI _setGPI(IMedia media)
         {
             EventGPI GPI = new EventGPI();
-            GPI.CanTrigger = false;
+            GPI.CanTrigger = _engine.EnableGPIForNewEvents;
             GPI.Logo = (media != null
-                && (media.MediaCategory == TMediaCategory.Fill || media.MediaCategory == TMediaCategory.Show || media.MediaCategory == TMediaCategory.Promo))
+                && (media.MediaCategory == TMediaCategory.Fill || media.MediaCategory == TMediaCategory.Show || media.MediaCategory == TMediaCategory.Promo || media.MediaCategory == TMediaCategory.Insert))
                 ? TLogo.Normal : TLogo.NoLogo;
             GPI.Parental = media != null ? media.Parental : TParental.None;
             return GPI;

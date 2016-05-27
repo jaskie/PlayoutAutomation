@@ -105,9 +105,11 @@
                 <ColumnDefinition Width="*"/>                    
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <ContentControl x:Name="_preview" Grid.Column="1" DockPanel.Dock="Right" Content="{Binding PreviewView}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" Width="330"/>
+            <StackPanel Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
+                <CheckBox Margin="5" IsChecked="{Binding EnableGPIForNewEvents}" Content="{Resx _enableGPIForNewEvents}" Visibility="{Binding CanEnableGPI, Converter={StaticResource BoolToVis}}"/>
+                <ContentControl x:Name="_preview" Content="{Binding PreviewView}" Width="330"/>
+            </StackPanel>
             <DataGrid 
-                DockPanel.Dock="Left"
                 x:Name="gSearch" 
                 SelectionUnit="FullRow" 
                 SelectionMode="Single" 

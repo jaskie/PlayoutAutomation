@@ -18,8 +18,6 @@ namespace TAS.Server.Interfaces
         IPlayoutServerChannel PlayoutChannelSEC { get; }
         IMediaManager MediaManager { get; }
         bool Pst2Prv { get; set; }
-        IGpi LocalGpi { get; }
-        IGpi Gpi { get; }
 
         decimal ProgramAudioVolume { get; set; }
         TEngineState EngineState { get; }
@@ -70,6 +68,9 @@ namespace TAS.Server.Interfaces
         bool DateTimeEqal(DateTime dt1, DateTime dt2);
 
         #region GPI
+        IGpi LocalGpi { get; }
+        IGpi Gpi { get; }
+
         bool GPIConnected { get; }
         bool GPIEnabled { get; set; }
         bool GPIAspectNarrow { get; set; }

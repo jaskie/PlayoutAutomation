@@ -27,12 +27,15 @@ namespace TAS.Client.ViewModels
         private readonly bool _closeAfterAdd;
         private readonly RationalNumber _frameRate;
         private readonly VideoFormatDescription _videoFormatDescription;
+        private readonly IEngine _engine;
         private IServerDirectory _searchDirectory;
+
 
 
         public MediaSearchViewmodel(IPreview preview, IMediaManager manager, TMediaType mediaType, bool closeAfterAdd, VideoFormatDescription videoFormatDescription)
         {
             _manager = manager;
+            _engine = manager.getEngine();
             if (mediaType == TMediaType.Movie)
             {
                 _videoFormatDescription = manager.FormatDescription;
@@ -366,7 +369,9 @@ namespace TAS.Client.ViewModels
             }
         }
 
-
+        public bool EnableGPIForNewEvents { get { return _engine.EnableGPIForNewEvents; } set { _engine.EnableGPIForNewEvents = value; } }
+        public bool CanEnableGPI { get { return  _engine.LocalGpi != null || _engine.Gpi != null; } } 
+        
         private string _okButtonText = "OK";
         public string OkButtonText { get { return _okButtonText; }
             set {

@@ -588,9 +588,9 @@ namespace TAS.Client.ViewModels
                             newEvent.Duration = e.Duration;
                             newEvent.GPI = new EventGPI
                             {
-                                CanTrigger = false,
+                                CanTrigger = _engine.EnableGPIForNewEvents,
                                 Crawl = e.Media.MediaCategory == TMediaCategory.Show ? TCrawl.Normal : TCrawl.NoCrawl,
-                                Logo = e.Media.MediaCategory == TMediaCategory.Fill || e.Media.MediaCategory == TMediaCategory.Show || e.Media.MediaCategory == TMediaCategory.Promo ? TLogo.Normal : TLogo.NoLogo,
+                                Logo = e.Media.MediaCategory == TMediaCategory.Fill || e.Media.MediaCategory == TMediaCategory.Show || e.Media.MediaCategory == TMediaCategory.Promo || e.Media.MediaCategory == TMediaCategory.Insert ? TLogo.Normal : TLogo.NoLogo,
                                 Parental = e.Media.Parental
                             };
                         }

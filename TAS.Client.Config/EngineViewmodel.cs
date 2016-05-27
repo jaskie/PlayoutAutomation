@@ -14,6 +14,7 @@ namespace TAS.Client.Config
         private int _timeCorrection;
         private TVideoFormat _videoFormat;
         private double _volumeReferenceLoudness;
+        private bool _enableGPIForNewEvents;
         private ulong _instance;
         public EngineViewmodel(Model.Engine engine)
             : base(engine, new EngineView())
@@ -78,6 +79,8 @@ namespace TAS.Client.Config
         public TVideoFormat VideoFormat { get { return _videoFormat; } set { SetField(ref _videoFormat, value, "VideoFormat"); } }
         public ulong Instance { get { return _instance; } set { SetField(ref _instance, value, "Instance"); } }
         public double VolumeReferenceLoudness { get { return _volumeReferenceLoudness; } set { SetField(ref _volumeReferenceLoudness, value, "VolumeReferenceLoudness"); } }
+        public bool EnableGPIForNewEvents { get { return _enableGPIForNewEvents; } set { SetField(ref _enableGPIForNewEvents, value, "EnableGPIForNewEvents"); } }
+
 
         readonly List<object> _channels;
         public List<object> Channels { get { return _channels; } }

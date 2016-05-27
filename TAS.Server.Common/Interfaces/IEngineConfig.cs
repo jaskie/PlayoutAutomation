@@ -11,6 +11,7 @@ namespace TAS.Server.Interfaces
         int TimeCorrection { get; set; }
         TVideoFormat VideoFormat { get; set; }
         double VolumeReferenceLoudness { get; set; }
+        bool EnableGPIForNewEvents { get; set; }
         [XmlIgnore]
         ulong Instance { get; set; }
         [XmlIgnore]
