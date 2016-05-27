@@ -6,6 +6,7 @@ using System.Text;
 using TAS.Common;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
+using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client
 {
@@ -37,40 +38,88 @@ namespace TAS.Client
 
         public void InsertAfter(IEvent prior)
         {
-            IEvent newEvent = _toEvent(prior.Engine, this);
+            IEvent newEvent = _toEvent(prior.Engine);
             prior.InsertAfter(newEvent);
         }
 
         public void InsertUnder(IEvent parent)
         {
-            IEvent newEvent = _toEvent(parent.Engine, this);
+            IEvent newEvent = _toEvent(parent.Engine);
             parent.InsertUnder(newEvent);
         }
 
-        private static IEvent _toEvent(IEngine engine, EventProxy proxy)
+        private IEvent _toEvent(IEngine engine)
         {
-            return engine.AddNewEvent(
-                    videoLayer: proxy.Layer,
-                    eventType: proxy.EventType,
-                    startType: proxy.StartType,
-                    playState: TPlayState.Scheduled,
-                    scheduledTime: proxy.ScheduledTime,
-                    duration: proxy.Duration,
-                    scheduledDelay: proxy.ScheduledDelay,
-                    scheduledTC: proxy.ScheduledTc,
-                    mediaGuid: proxy.MediaGuid,
-                    eventName: proxy.EventName,
-                    requestedStartTime: proxy.RequestedStartTime,
-                    transitionTime: proxy.TransitionTime,
-                    transitionType: proxy.TransitionType,
-                    audioVolume: proxy.AudioVolume,
-                    idProgramme: proxy.IdProgramme,
-                    idAux: proxy.IdAux,
-                    isEnabled: proxy.IsEnabled,
-                    isHold: proxy.IsHold,
-                    isLoop: proxy.IsLoop,
-                    gpi: proxy.GPI
-                );
+            IEvent result = null;
+            try {
+                result = engine.AddNewEvent(
+                        videoLayer: Layer,
+                        eventType: EventType,
+                        startType: StartType,
+                        playState: TPlayState.Scheduled,
+                        scheduledTime: ScheduledTime,
+                        duration: Duration,
+                        scheduledDelay: ScheduledDelay,
+                        scheduledTC: ScheduledTc,
+                        mediaGuid: MediaGuid,
+                        eventName: EventName,
+                        requestedStartTime: RequestedStartTime,
+                        transitionTime: TransitionTime,
+                        transitionType: TransitionType,
+                        audioVolume: AudioVolume,
+                        idProgramme: IdProgramme,
+                        idAux: IdAux,
+                        isEnabled: IsEnabled,
+                        isHold: IsHold,
+                        isLoop: IsLoop,
+                        gpi: GPI
+                    );
+                // find media if Guid not set
+                if (MediaGuid.Equals(Guid.Empty) && Media != null)
+                {
+                    var mediaFiles = engine.MediaManager.MediaDirectoryPRI.GetFiles();
+                    result.Media = mediaFiles.FirstOrDefault(m => m is IPersistentMedia ? ((IPersistentMedia)m).IdAux == Media.IdAux : false);
+                    if (result.Media == null)
+                        result.Media = mediaFiles.FirstOrDefault(m => 
+                               m.MediaName == Media.MediaName 
+                            && m.MediaType == Media.MediaType
+                            && m.TcStart == Media.TcStart 
+                            && m.Duration == Media.Duration);
+                    if (result.Media == null)
+                        result.Media = mediaFiles.FirstOrDefault(m => m.FileName == Media.FileName && m.FileSize == Media.FileSize);
+                }
+                // add subevents
+                IEvent ne = null;
+                foreach (EventProxy seProxy in SubEvents)
+                {
+                    switch (seProxy.StartType)
+                    {
+                        case TStartType.With:
+                            ne = seProxy._toEvent(engine);
+                            result.InsertUnder(ne);
+                            break;
+                        case TStartType.After:
+                            if (ne != null)
+                            {
+                                IEvent e = seProxy._toEvent(engine);
+                                ne.InsertAfter(e);
+                                ne = e;
+                            }
+                            else
+                                throw new ApplicationException(string.Format(resources._exception_EventProxy_PreviousEventNotFound, seProxy));
+                            break;
+                        default:
+                            throw new ApplicationException(string.Format(resources._exception_EventProxy_InvalidStartType, seProxy));
+                    }
+                }
+            }
+            catch 
+            {
+                if (result != null)
+                    result.Delete();
+                throw;
+            }
+            return result;
         }
 
         public static EventProxy FromEvent(IEvent source)
@@ -120,17 +169,16 @@ namespace TAS.Client
             public string FileName { get; set; }
             public ulong FileSize { get; set; }
             public string Folder { get; set; }
-            public string FullPath { get; }
             public DateTime LastUpdated { get; set; }
             public TMediaCategory MediaCategory { get; set; }
             public TParental Parental { get; set; }
-            public Guid MediaGuid { get; }
             public string MediaName { get; set; }
             public TMediaStatus MediaStatus { get; set; }
             public TMediaType MediaType { get; set; }
             public TimeSpan TcPlay { get; set; }
             public TimeSpan TcStart { get; set; }
             public TVideoFormat VideoFormat { get; set; }
+            public string IdAux { get; set; }
             internal static MediaProxy FromMedia(IMedia media)
             {
                 return new MediaProxy()
@@ -152,7 +200,8 @@ namespace TAS.Client
                     Parental = media.Parental,
                     TcPlay = media.TcPlay,
                     TcStart = media.TcStart,
-                    VideoFormat = media.VideoFormat
+                    VideoFormat = media.VideoFormat,
+                    IdAux = media is IPersistentMedia ? ((IPersistentMedia)media).IdAux : string.Empty,
                 };
             }
         }

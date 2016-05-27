@@ -38,6 +38,8 @@ namespace TAS.Server
                     NotifyPropertyChanged("FullPath");
             }
         }
+
+        #region IMediaProperties
         protected string _fileName = string.Empty;
         [JsonProperty]
         public string FileName
@@ -192,6 +194,8 @@ namespace TAS.Server
             set { SetField(ref _parental, value, "Parental"); }
         }
 
+        #endregion //IMediaProperties
+
         protected Guid _mediaGuid;
         [JsonProperty]
         public virtual Guid MediaGuid
@@ -199,6 +203,7 @@ namespace TAS.Server
             get { return _mediaGuid; }
             protected set { SetField(ref _mediaGuid, value, "MediaGuid"); }
         }
+
 
         protected VideoFormatDescription _videoFormatDescription;
         [JsonProperty]

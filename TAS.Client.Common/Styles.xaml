@@ -40,4 +40,22 @@
         <Setter Property="Width" Value="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"/>
         <Setter Property="Focusable" Value="False"/>
     </Style>
+    <Style TargetType="Border" x:Key="EventPanelIsHoldBorder">
+        <Setter Property="Height" Value="6"/>
+        <Setter Property="Visibility" Value="{Binding IsHold, Converter={StaticResource BoolToVis}}"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="True">
+                <Setter Property="Background" Value="OrangeRed"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                <Setter Property="Background" Value="DimGray"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style TargetType="Border" x:Key="EventPanelIsStartBorder">
+        <Setter Property="Background" Value="#FFEBBDA0"/>
+        <Setter Property="Height" Value="15"/>
+        <Setter Property="Visibility" Value="{Binding IsStartEvent,  Converter={StaticResource BoolToVis}}"/>
+        <Setter Property="Padding" Value="50, 0"/>
+    </Style>
 </ResourceDictionary>

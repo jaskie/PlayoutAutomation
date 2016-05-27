@@ -26,10 +26,10 @@
                 </MenuItem>
             </ContextMenu>
         </StackPanel.ContextMenu>
-        <Border Background="#FFEBBDA0" Height="15" Visibility="{Binding IsStartEvent,  Converter={StaticResource BoolToVis}}">
-            <TextBlock Text="{Resx _blockBegin}" FontSize="10" Margin="50, 0" />
+        <Border Style="{StaticResource EventPanelIsStartBorder}">
+            <TextBlock Text="{Resx _blockBegin}" FontSize="10" />
         </Border>
-        <Border Background="OrangeRed" Height="6" Visibility="{Binding IsHold,  Converter={StaticResource BoolToVis}}" />
+        <Border Style="{StaticResource EventPanelIsHoldBorder}"/>
         <Border Style="{StaticResource EventPanelStyle}">
             <Border.Resources>
                 <Style TargetType="Button" BasedOn="{StaticResource EventPanelCommandButton}"/>

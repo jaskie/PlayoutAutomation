@@ -141,6 +141,12 @@
   <data name="_encodeWarningFFmpeg" xml:space="preserve">
     <value>Following error was announced by FFmpeg: {0}</value>
   </data>
+  <data name="_exception_EventProxy_InvalidStartType" xml:space="preserve">
+    <value>Invalid start type of {0}</value>
+  </data>
+  <data name="_exception_EventProxy_PreviousEventNotFound" xml:space="preserve">
+    <value>Previous item for {0} not found</value>
+  </data>
   <data name="_message_CommandFailed" xml:space="preserve">
     <value>Command failed. Following error occurred:
 {0}</value>
