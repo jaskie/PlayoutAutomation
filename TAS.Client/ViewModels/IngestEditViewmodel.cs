@@ -8,6 +8,7 @@ using System.ComponentModel;
 using TAS.Server.Interfaces;
 using TAS.Client.Common;
 using resources = TAS.Client.Common.Properties.Resources;
+using System.Windows.Input;
 
 namespace TAS.Client.ViewModels
 {
@@ -20,6 +21,24 @@ namespace TAS.Client.ViewModels
             SelectedOperation = _conversionList.FirstOrDefault();
             foreach (var c in _conversionList)
                 c.PropertyChanged += new PropertyChangedEventHandler(_convertOperationPropertyChanged);
+            CommandDeleteOperation = new UICommand { ExecuteDelegate = _deleteOperation };
+        }
+
+        private void _deleteOperation(object obj)
+        {
+            var operation = obj as ConvertOperationViewModel;
+            int operaionIndex = _conversionList.IndexOf(operation);
+            var destMedia = operation.FileOperation.DestMedia;
+            if (OperationList.Remove(operation))
+            {
+                operation.PropertyChanged -= new PropertyChangedEventHandler(_convertOperationPropertyChanged);
+                operation.Dispose();
+                OnModified();
+                if (destMedia != null)
+                    destMedia.Delete();
+                SelectedOperation = _conversionList[Math.Min(_conversionList.Count - 1, operaionIndex)];
+                NotifyPropertyChanged("ShowMediaList");
+            }
         }
 
         void _convertOperationPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -36,6 +55,8 @@ namespace TAS.Client.ViewModels
             get { return _selectedOperation; }
             set { SetField(ref _selectedOperation, value, "SelectedOperation"); }
         }
+
+        public ICommand CommandDeleteOperation { get; private set; }
 
         public bool ShowMediaList
         {

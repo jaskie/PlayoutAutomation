@@ -555,7 +555,10 @@ namespace TAS.Client.ViewModels
 
         bool _canLoad(IMedia media)
         {
-            return media != null && media.MediaStatus == TMediaStatus.Available && media.FrameRate.Equals(_preview.PreviewFormatDescription.FrameRate);
+            return media != null 
+                && (media.Directory is IServerDirectory || media.Directory is IArchiveDirectory || (media.Directory is IIngestDirectory && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct))
+                && media.MediaStatus == TMediaStatus.Available 
+                && media.FrameRate.Equals(_preview.PreviewFormatDescription.FrameRate);
         }
 
         private void SegmentPropertyChanged(object sender, PropertyChangedEventArgs e)

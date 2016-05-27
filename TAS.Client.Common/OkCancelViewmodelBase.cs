@@ -24,8 +24,11 @@ namespace TAS.Client.Common
                 Title = windowTitle, 
                 Owner = System.Windows.Application.Current.MainWindow, 
                 WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner, 
+                MaxHeight = System.Windows.Application.Current.MainWindow.Height,
+                MaxWidth = System.Windows.Application.Current.MainWindow.Width,
                 ShowInTaskbar = false };
         }
+
 
         protected virtual void Ok(object o)
         {
