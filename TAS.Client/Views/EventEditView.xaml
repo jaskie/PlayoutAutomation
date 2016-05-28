@@ -143,7 +143,7 @@
                             <common:DelayedBindingTextBox Text="{Binding ScheduledTc, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" MinWidth="80"/>
                         </DockPanel>
                     </Grid>
-                    <DockPanel>
+                    <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _clip}" />
                         <Button DockPanel.Dock="Right" ToolTip="{Resx _changeMovie.ToolTip}" Command="{Binding CommandChangeMovie}">
                             <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/select.png" />
@@ -169,26 +169,26 @@
                             <TextBox DockPanel.Dock="Right" Grid.Column="2" Width="40" Text="{Binding AudioVolumeLevel, StringFormat={}{0:0.0}, UpdateSourceTrigger=LostFocus}"/>
                             <Slider  VerticalAlignment="Stretch" Margin="5, 0" Minimum="-18" Maximum="18" Value="{Binding AudioVolumeLevel}"/>
                         </DockPanel>
-                        <Grid Visibility="{Binding IsGPIEnabled, Converter={StaticResource BoolToVis}}" >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="59*"/>
-                                <ColumnDefinition Width="280*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Visibility="{Binding GPICanTrigger, Converter={StaticResource BoolToVis}}" Grid.ColumnSpan="2">
-                                <StackPanel Orientation="Horizontal">
-                                    <Label Content="{Resx _gpiLogo}" />
-                                    <ComboBox ItemsSource="{Binding GPILogos}" SelectedValue="{Binding GPILogo}"/>
-                                    <Label Content="{Resx _gpiCrawl}" Width="44"/>
-                                    <ComboBox ItemsSource="{Binding GPICrawls}" SelectedValue="{Binding GPICrawl}"/>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <Label Content="{Resx _gpiParental}"/>
-                                    <ComboBox ItemsSource="{Binding GPIParentals}" SelectedValue="{Binding GPIParental}" />
-                                </StackPanel>
-                            </StackPanel>
-                            <CheckBox Content="GPI" IsChecked="{Binding GPICanTrigger}" VerticalAlignment="Top" Margin="10,3,0,0" Grid.ColumnSpan="2" />
-                        </Grid>
                     </StackPanel>
+                    <Grid Visibility="{Binding IsGPIEnabled, Converter={StaticResource BoolToVis}}" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="59*"/>
+                            <ColumnDefinition Width="280*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Visibility="{Binding GPICanTrigger, Converter={StaticResource BoolToVis}}" Grid.ColumnSpan="2">
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{Resx _gpiLogo}" />
+                                <ComboBox ItemsSource="{Binding GPILogos}" SelectedValue="{Binding GPILogo}"/>
+                                <Label Content="{Resx _gpiCrawl}" Width="44"/>
+                                <ComboBox ItemsSource="{Binding GPICrawls}" SelectedValue="{Binding GPICrawl}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{Resx _gpiParental}"/>
+                                <ComboBox ItemsSource="{Binding GPIParentals}" SelectedValue="{Binding GPIParental}" />
+                            </StackPanel>
+                        </StackPanel>
+                        <CheckBox Content="GPI" IsChecked="{Binding GPICanTrigger}" VerticalAlignment="Top" Margin="10,3,0,0" Grid.ColumnSpan="2" />
+                    </Grid>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

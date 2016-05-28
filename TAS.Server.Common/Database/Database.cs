@@ -121,12 +121,16 @@ namespace TAS.Server.Database
                 {
                     var tran = _connection.BeginTransaction();
                     if (_connection.ExecuteScript(kvp.Value))
-                        tran.Commit();
-                    else
                     {
-                        tran.Rollback();
-                        return false;
+                        var cmdUpdateVersion = new DbCommandRedundant(string.Format("update `params` set `value` = \"{0}\" where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", kvp.Key), _connection);
+                        if (cmdUpdateVersion.ExecuteNonQuery() > 0)
+                        {
+                            tran.Commit();
+                            continue;
+                        }
                     }
+                    tran.Rollback();
+                    return false;
                 }
             }
             return true;

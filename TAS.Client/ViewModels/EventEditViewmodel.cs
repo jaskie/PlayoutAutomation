@@ -791,6 +791,7 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged("StartType");
             NotifyPropertyChanged("BoundEventName");
             NotifyPropertyChanged("ScheduledTime");
+            NotifyPropertyChanged("IsScheduledTimeEnabled");
         }
 
     }
