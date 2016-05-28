@@ -28,9 +28,19 @@ namespace TAS.Server.Database
                 _connectionStringSecondary = connectionStringSecondary;
             }
             _connection = new DbConnectionRedundant(_connectionStringPrimary, _connectionStringSecondary);
+            _connection.StateRedundantChange += _connection_StateRedundantChange;
             _connection.Open();
             //_connection.Update();
         }
+
+        private static void _connection_StateRedundantChange(object sender, RedundantConnectionStateEventArgs e)
+        {
+            var h = ConnectionStateChanged;
+            if (h != null)
+                h(sender, e);
+        }
+
+        public static event StateRedundantChangeEventHandler ConnectionStateChanged;
 
         public static void Close()
         {
@@ -39,6 +49,8 @@ namespace TAS.Server.Database
 
         public static string ConnectionStringPrimary { get { return _connectionStringPrimary; } }
         public static string ConnectionStringSecondary { get { return _connectionStringSecondary; } }
+
+        public static ConnectionStateRedundant ConnectionState { get { return _connection.StateRedundant; } }
 
         #region Configuration Functions
         public static bool TestConnect(string connectionString)

@@ -285,4 +285,10 @@
   <data name="_menu.Rundown.Save" xml:space="preserve">
     <value>Zapi_sz do pliku</value>
   </data>
+  <data name="_statusbar.Indicator.DatabaseError" xml:space="preserve">
+    <value>Błąd bazy danych</value>
+  </data>
+  <data name="_statusbar.Indicator.DatabaseOK" xml:space="preserve">
+    <value>Baza danych OK</value>
+  </data>
 </root>

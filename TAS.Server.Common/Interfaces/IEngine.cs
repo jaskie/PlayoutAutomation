@@ -17,6 +17,7 @@ namespace TAS.Server.Interfaces
         IPlayoutServerChannel PlayoutChannelPRI { get; }
         IPlayoutServerChannel PlayoutChannelSEC { get; }
         IMediaManager MediaManager { get; }
+        ConnectionStateRedundant DatabaseConnectionState { get; }
         bool Pst2Prv { get; set; }
 
         decimal ProgramAudioVolume { get; set; }
@@ -93,5 +94,6 @@ namespace TAS.Server.Interfaces
         event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> VisibleEventsOperation;
         event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> LoadedNextEventsOperation;
         event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
+        event StateRedundantChangeEventHandler DatabaseConnectionStateChanged;
     }
 }

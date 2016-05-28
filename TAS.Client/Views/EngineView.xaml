@@ -305,6 +305,19 @@
                                     </TextBlock.Text>
                                 </TextBlock>
                             </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <common:StatusIndicator IsGreen="{Binding DatabaseOK}"/>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <Binding Path="DatabaseOK">
+                                            <Binding.Converter>
+                                                <common:BoolToStringConverter FalseValue="{Resx _statusbar.Indicator.DatabaseError, ResxName=TAS.Client.Views.EngineView}" TrueValue="{Resx _statusbar.Indicator.DatabaseOK, ResxName=TAS.Client.Views.EngineView}" />
+                                            </Binding.Converter>
+                                        </Binding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </StackPanel>
+
                         </MenuItem>
                     </Menu>
                     <StackPanel Orientation="Horizontal" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}">

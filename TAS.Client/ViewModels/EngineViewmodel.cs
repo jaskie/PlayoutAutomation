@@ -85,6 +85,7 @@ namespace TAS.Client.ViewModels
             _engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _engine.EventSaved += _engine_EventSaved;
             _engine.EventDeleted += _engine_EventDeleted;
+            _engine.DatabaseConnectionStateChanged += _engine_DatabaseConnectionStateChanged;
 
             Debug.WriteLine(this, "Creating root EventViewmodel");
             _rootEventViewModel = new EventPanelRootViewmodel(this);
@@ -114,6 +115,11 @@ namespace TAS.Client.ViewModels
             _createCommands();
         }
 
+        private void _engine_DatabaseConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         private void _engine_EventSaved(object sender, IEventEventArgs e)
         {
             if (RootEventViewModel.Childrens.Any(evm => evm.Event == e.Event))
@@ -141,6 +147,7 @@ namespace TAS.Client.ViewModels
             _selectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
             _engine.EventSaved -= _engine_EventSaved;
             _engine.EventDeleted -= _engine_EventDeleted;
+            _engine.DatabaseConnectionStateChanged -= _engine_DatabaseConnectionStateChanged;
             EventClipboard.ClipboardChanged -= _engineViewmodel_ClipboardChanged;
             if (_engine.PlayoutChannelPRI != null)
                 _engine.PlayoutChannelPRI.OwnerServer.PropertyChanged -= OnPRIServerPropertyChanged;
@@ -699,7 +706,8 @@ namespace TAS.Client.ViewModels
             {
                 return ServerConnectedPRI
                        && ServerConnectedSEC
-                       && ServerConnectedPRV;
+                       && ServerConnectedPRV
+                       && DatabaseOK;
             }
         }
 
@@ -746,6 +754,11 @@ namespace TAS.Client.ViewModels
                 }
                 return false;
             }
+        }
+
+        public bool DatabaseOK
+        {
+            get { return _engine.DatabaseConnectionState == ConnectionStateRedundant.Open; } 
         }
 
         public string PlayingEventName

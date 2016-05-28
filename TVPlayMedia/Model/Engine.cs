@@ -276,6 +276,13 @@ namespace TAS.Client.Model
             }
         }
 
+        public ConnectionStateRedundant DatabaseConnectionState
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         public IEvent AddNewEvent(ulong idRundownEvent = 0, ulong idEventBinding = 0, VideoLayer videoLayer = (VideoLayer)(-1), TEventType eventType = TEventType.Rundown, TStartType startType = TStartType.None, TPlayState playState = TPlayState.Scheduled, DateTime scheduledTime = default(DateTime), TimeSpan duration = default(TimeSpan), TimeSpan scheduledDelay = default(TimeSpan), TimeSpan scheduledTC = default(TimeSpan), Guid mediaGuid = default(Guid), string eventName = "", DateTime startTime = default(DateTime), TimeSpan startTC = default(TimeSpan), TimeSpan? requestedStartTime = default(TimeSpan?), TimeSpan transitionTime = default(TimeSpan), TTransitionType transitionType = TTransitionType.Cut, decimal? audioVolume = default(decimal?), ulong idProgramme = 0, string idAux = "", bool isEnabled = true, bool isHold = false, bool isLoop = false, EventGPI gpi = default(EventGPI))
         {
@@ -369,5 +376,6 @@ namespace TAS.Client.Model
         public event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> LoadedNextEventsOperation;
         public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         public event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> VisibleEventsOperation;
+        public event StateRedundantChangeEventHandler DatabaseConnectionStateChanged;
     }
 }

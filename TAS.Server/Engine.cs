@@ -75,7 +75,7 @@ namespace TAS.Server
 
         #endregion Fields
 
-        #region Constructors
+        #region Constructor
         public Engine()
         {
             _visibleEvents.DictionaryOperation += _visibleEventsOperation;
@@ -83,9 +83,10 @@ namespace TAS.Server
             _runningEvents.CollectionOperation += _runningEventsOperation;
             EngineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
+            Database.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
         }
 
-        #endregion Constructors
+        #endregion Constructor
 
         #region IDisposable implementation
 
@@ -105,6 +106,7 @@ namespace TAS.Server
                 var remote = Remote;
                 if (remote != null)
                     remote.Dispose();
+                Database.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
             }
         }
 
@@ -277,6 +279,22 @@ namespace TAS.Server
 
             Debug.WriteLine(this, "Engine uninitialized");
         }
+
+        #region Database
+        private void _database_ConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
+        {
+            var h = DatabaseConnectionStateChanged;
+            if (h != null)
+                h(this, e);
+        }
+
+        public ConnectionStateRedundant DatabaseConnectionState
+        {
+            get { return Database.Database.ConnectionState; }
+        }
+
+        public event StateRedundantChangeEventHandler DatabaseConnectionStateChanged;
+        #endregion //Database
 
         #region GPI
 

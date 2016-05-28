@@ -9,17 +9,20 @@ using System.Threading;
 using System.ComponentModel;
 using MySql.Data.MySqlClient;
 using System.IO;
+using TAS.Server.Common;
 
 namespace TAS.Server.Database
 {
 
+
     [DesignerCategory("Code")]
-    public class DbConnectionRedundant: DbConnection
+    public class DbConnectionRedundant : DbConnection
     {
         MySqlConnection _connectionPrimary;
         Timer _idleTimeTimerPrimary;
         MySqlConnection _connectionSecondary;
         Timer _idleTimeTimerSecondary;
+
 
         #region static methods
         public static bool TestConnect(string connectionString)
@@ -132,13 +135,21 @@ namespace TAS.Server.Database
             if (!string.IsNullOrWhiteSpace(connectionStringPrimary))
             {
                 _connectionPrimary = new MySqlConnection(connectionStringPrimary);
+                _connectionPrimary.StateChange += _connection_StateChange;
                 _idleTimeTimerPrimary = new Timer(_idleTimeTimerCallback, _connectionPrimary, TimeSpan.FromHours(1), TimeSpan.FromHours(1));
             }
             if (!string.IsNullOrWhiteSpace(connectionStringSecondary))
             {
                 _connectionSecondary = new MySqlConnection(connectionStringSecondary);
+                _connectionSecondary.StateChange += _connection_StateChange;
                 _idleTimeTimerSecondary = new Timer(_idleTimeTimerCallback, _connectionSecondary, TimeSpan.FromHours(1), TimeSpan.FromHours(1));
             }
+        }
+
+        private void _connection_StateChange(object sender, StateChangeEventArgs e)
+        {
+            if (sender == _connectionPrimary && _stateRedundant != ConnectionStateRedundant.Desynchronized)
+                StateRedundant = (ConnectionStateRedundant)e.CurrentState;
         }
 
         public override void Open()
@@ -162,6 +173,7 @@ namespace TAS.Server.Database
                 {
                     _idleTimeTimerPrimary.Dispose();
                     _idleTimeTimerPrimary = null;
+                    _connectionPrimary.StateChange -= _connection_StateChange;
                     _connectionPrimary.Close();
                 }
             if (_connectionSecondary != null)
@@ -169,6 +181,7 @@ namespace TAS.Server.Database
                 {
                     _idleTimeTimerSecondary.Dispose();
                     _idleTimeTimerSecondary = null;
+                    _connectionSecondary.StateChange -= _connection_StateChange;
                     _connectionSecondary.Close();
                 }
         }
@@ -269,6 +282,23 @@ namespace TAS.Server.Database
             }
         }
 
+        private ConnectionStateRedundant _stateRedundant;
+        public ConnectionStateRedundant StateRedundant
+        {
+            get { return _stateRedundant; }
+            internal set
+            {
+                if (value != _stateRedundant)
+                {
+                    var oldState = _stateRedundant;
+                    _stateRedundant = value;
+                    var h = StateRedundantChange;
+                    if (h != null)
+                        h(this, new RedundantConnectionStateEventArgs(oldState, value));
+                }
+            }
+        }
+
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
             return DbTransactionRedundant.Create(this);
@@ -290,23 +320,10 @@ namespace TAS.Server.Database
         public ConnectionState ConnectionStatePrimary { get { return _connectionPrimary.State; } }
         public ConnectionState ConnectionStateSecondary { get { return _connectionSecondary.State; } }
 
-        private bool _isConnectionSync = true;
-        public bool IsConnetionSync
-        {
-            get { return _isConnectionSync; }
-            internal set
-            {
-                if (_isConnectionSync != value)
-                {
-                    _isConnectionSync = value;
-                    var h = OnConnectionSyncChanged;
-                    if (h != null)
-                        h(this, EventArgs.Empty);
-                }
-            }
-        }
-
-        public event EventHandler OnConnectionSyncChanged;
-
+        public event StateRedundantChangeEventHandler StateRedundantChange;
     }
+    
+
+
 }
+

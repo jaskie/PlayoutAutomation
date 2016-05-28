@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using MySql.Data.MySqlClient;
+using TAS.Server.Common;
 
 namespace TAS.Server.Database
 {
@@ -33,6 +34,7 @@ namespace TAS.Server.Database
 
         public DbCommandRedundant(string commandText, DbConnectionRedundant connection)
         {
+            _dbConnection = connection;
             CommandText = commandText;
             _commandPrimary = new MySqlCommand(commandText, connection.ConnectionPrimary);
             _commandSecondary = new MySqlCommand(commandText, connection.ConnectionSecondary);
@@ -40,6 +42,7 @@ namespace TAS.Server.Database
 
         internal DbCommandRedundant(DbConnectionRedundant connection)
         {
+            _dbConnection = connection;
             _commandPrimary = new MySqlCommand() { Connection = connection.ConnectionPrimary };
             _commandSecondary = new MySqlCommand() { Connection = connection.ConnectionSecondary };
         }
@@ -186,17 +189,18 @@ namespace TAS.Server.Database
             }
         }
 
-        private DbConnection _dbConnection;
+        private DbConnectionRedundant _dbConnection;
         protected override DbConnection DbConnection
         {
             get { return _dbConnection; }
             set
             {
-                if (_dbConnection != value && value is DbConnectionRedundant)
+                var connectionRedundant = value as DbConnectionRedundant;
+                if (_dbConnection != value && connectionRedundant != null)
                 {
-                    _dbConnection = value;
-                    _commandPrimary.Connection = (value as DbConnectionRedundant).ConnectionPrimary;
-                    _commandSecondary.Connection = (value as DbConnectionRedundant).ConnectionSecondary;
+                    _dbConnection = connectionRedundant;
+                    _commandPrimary.Connection = connectionRedundant.ConnectionPrimary;
+                    _commandSecondary.Connection = connectionRedundant.ConnectionSecondary;
                 }
             }
         }
@@ -229,23 +233,34 @@ namespace TAS.Server.Database
         public override int ExecuteNonQuery()
         {
             _fillParameters();
-            int ret = 0;
+            int retPrimary = 0;
             if (_isConnectionValid(_commandPrimary.Connection))
-                ret = _commandPrimary.ExecuteNonQuery();
+                retPrimary = _commandPrimary.ExecuteNonQuery();
             if (_statementType != StatementType.Select && _isConnectionValid(_commandSecondary.Connection))
-                _commandSecondary.ExecuteNonQuery();
-            return ret;
+            {
+                int retSecondary = 0;
+                retSecondary = _commandSecondary.ExecuteNonQuery();
+                if (retSecondary != retPrimary)
+                    _dbConnection.StateRedundant = ConnectionStateRedundant.Desynchronized;
+            }
+            return retPrimary;
         }
 
         public override object ExecuteScalar()
         {
             _fillParameters();
-            object ret = null;
+            object retPrimary = null;
             if (_isConnectionValid(_commandPrimary.Connection))
-                ret = _commandPrimary.ExecuteScalar();
+                retPrimary = _commandPrimary.ExecuteScalar();
             if (_statementType != StatementType.Select && _isConnectionValid(_commandSecondary.Connection))
+            {
+                object retSecondary = 0;
+                retSecondary = _commandSecondary.ExecuteScalar();
+                if (retSecondary != retPrimary)
+                    _dbConnection.StateRedundant = ConnectionStateRedundant.Desynchronized;
                 _commandSecondary.ExecuteScalar();
-            return ret;
+            }
+            return retPrimary;
         }
 
         public override void Prepare()
@@ -294,8 +309,8 @@ namespace TAS.Server.Database
             get
             {
                 var primaryId = _commandPrimary.LastInsertedId;
-                if (_commandPrimary.LastInsertedId != primaryId)
-                    throw new ApplicationException("LastInsertedId mismatch");
+                if (_isConnectionValid(_commandSecondary.Connection) && _commandSecondary.LastInsertedId != primaryId)
+                    _dbConnection.StateRedundant = ConnectionStateRedundant.Desynchronized;
                 return primaryId;
             }
         }
