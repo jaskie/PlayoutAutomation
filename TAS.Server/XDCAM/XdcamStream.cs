@@ -52,10 +52,7 @@ namespace TAS.Server.XDCAM
                 {
                     var stream = _currentStream;
                     if (stream != null)
-                    {
                         stream.Flush();
-                        stream.Dispose();
-                    }
                     _client.Dispose();
                 }
             }
