@@ -224,53 +224,6 @@ namespace TAS.Client.Common
         }
     }
 
-    [ValueConversion(typeof(TStartType), typeof(int))]
-    public class StartTypeToIntConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (int)value;
-        }
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (TStartType)value;
-        }
-    }
-
-    [ValueConversion(typeof(TEventType), typeof(int))]
-    public class EventTypeToIntConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (int)value;
-        }
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (TEventType)value;
-        }
-    }
-
-    [ValueConversion(typeof(TEngineState), typeof(Brush))]
-    public class EngineStateToBrushConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            switch ((TEngineState)value)
-            {
-                case TEngineState.Running:
-                    return Brushes.LightPink;
-                case TEngineState.Hold:
-                    return Brushes.PaleGreen;
-                default:
-                    return null;
-            }
-        }
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return Binding.DoNothing;
-        }
-    }
-
     [ValueConversion(typeof(int), typeof(string))]
     public class IntToStringNoZeroConverter : IValueConverter
     {

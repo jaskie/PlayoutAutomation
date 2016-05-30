@@ -4,7 +4,6 @@
     <common:BoolToBrushButtonConverter x:Key="BoolToBrushButton" />
     <common:BoolToBrushConverter x:Key="BoolToBrush"/>
     <BooleanToVisibilityConverter x:Key="BoolToVis" />
-    <common:EventTypeToIntConverter x:Key="EventToInt" />
     <common:ColorToBrushConverter x:Key="ColorToBrush" />
     <common:EnabledBoolToOpacityConverter x:Key="EnabledToOpacity" />
     <common:TimeSpanToSignedStringConverter x:Key="TimeSpanToSignedString" />

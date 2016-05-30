@@ -14,7 +14,6 @@
              FontSize="13"
              >
     <UserControl.Resources>
-        <common:EngineStateToBrushConverter x:Key="EngineStateToBrush" />
         <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <Style x:Key="controlPanelButtons" TargetType="Button" >
             <Setter Property="Padding" Value="4" />
@@ -203,7 +202,20 @@
             <TextBlock Grid.Row="1" FontSize="13" HorizontalAlignment="Right" Text="{Binding CurrentTime, StringFormat=(ddd)}" />
             <TextBlock Grid.Row="2" Text="{Binding CurrentTime, StringFormat=T}" />
             <Label Grid.Column="2" Content="{Resx _toolbar.TimeToAttention}" />
-            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding TimeToAttention, Converter={StaticResource TimeSpanToSMPTE}, ConverterParameter=HIDE_ZERO_VALUE}" Background="{Binding EngineState, Converter={StaticResource EngineStateToBrush}}"/>
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding TimeToAttention, Converter={StaticResource TimeSpanToSMPTE}, ConverterParameter=HIDE_ZERO_VALUE}" VerticalAlignment="Center" FontSize="22" Margin="5, 0">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding EngineState}" Value="Running">
+                                <Setter Property="Background" Value="LightPink"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding EngineState}" Value="Hold">
+                                <Setter Property="Background" Value="PaleGreen"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
             <Label Grid.Column="3" Content="{Resx _toolbar.NowPlaying}"  />
             <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding PlayingEventName}">
                 <TextBlock.ContextMenu>
