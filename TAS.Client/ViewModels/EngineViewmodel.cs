@@ -117,7 +117,8 @@ namespace TAS.Client.ViewModels
 
         private void _engine_DatabaseConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
         {
-            throw new NotImplementedException();
+            NotifyPropertyChanged("NoAlarms");
+            NotifyPropertyChanged("DatabaseOK");
         }
 
         private void _engine_EventSaved(object sender, IEventEventArgs e)

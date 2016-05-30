@@ -13,22 +13,22 @@ using System.ComponentModel.Composition.Hosting;
 
 namespace TAS.Server
 {
-    public class EngineController: IDisposable
+    public static class EngineController
     {
-        public readonly List<CasparServer> Servers;
-        public readonly List<Engine> Engines;
+        public static readonly List<CasparServer> Servers;
+        public static readonly List<Engine> Engines;
         [Import]
-        ILocalDevices _localGPIDevices = null;
-        public readonly CompositionContainer ServerContainer;
+        static ILocalDevices _localGPIDevices = null;
+        public static readonly CompositionContainer ServerContainer;
 
-        public EngineController()
+        static EngineController()
         {
             try
             {
                 DirectoryCatalog catalog = new DirectoryCatalog(".", "TAS.Server.*.dll");
                 ServerContainer = new CompositionContainer(catalog);
                 ServerContainer.ComposeExportedValue("LocalDevicesConfigurationFile", ConfigurationManager.AppSettings["LocalDevices"]);
-                ServerContainer.SatisfyImportsOnce(this);
+                _localGPIDevices = ServerContainer.GetExportedValueOrDefault<ILocalDevices>();
             }
             catch (Exception e)
             {
@@ -37,7 +37,7 @@ namespace TAS.Server
             if (_localGPIDevices != null)
                 _localGPIDevices.Initialize();
 
-            Debug.WriteLine(this, "Initializing database connector");
+            Debug.WriteLine("Initializing database connector");
             ConnectionStringSettings connectionStringPrimary = ConfigurationManager.ConnectionStrings["tasConnectionString"];
             ConnectionStringSettings connectionStringSecondary = ConfigurationManager.ConnectionStrings["tasConnectionStringSecondary"];
             Database.Database.Open(connectionStringPrimary == null ? string.Empty : connectionStringPrimary.ConnectionString,
@@ -47,26 +47,16 @@ namespace TAS.Server
             Engines = Database.Database.DbLoadEngines<Engine>(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]));
             foreach (Engine E in Engines)
             {
-                IGpi engineGpi = _localGPIDevices == null ? null : _localGPIDevices.Select(E.Id); 
+                IGpi engineGpi = _localGPIDevices == null ? null : _localGPIDevices.Select(E.Id);
                 E.Initialize(Servers, engineGpi);
             }
-            Debug.WriteLine(this, "Created");
+            Debug.WriteLine("EngineController Created");
         }
 
-        private bool _disposed;
-        public void Dispose()
+        public static void ShutDown()
         {
-            if (!_disposed)
-                DoDispose();
-        }
-
-        protected void DoDispose()
-        {
-            _disposed = true;
-            foreach (Engine E in Engines)
-                E.Dispose();
-            if (_localGPIDevices != null)
-                _localGPIDevices.Dispose();
+            foreach (Engine e in Engines)
+                e.Dispose();
         }
     }
 }

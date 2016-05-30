@@ -260,9 +260,9 @@ namespace TAS.Server.Database
                         engines.Add(engine);
                     }
                     dataReader.Close();
+                    return engines;
                 }
             }
-            return engines;
         }
 
         public static void DbInsertEngine(this IEngineConfig engine) 

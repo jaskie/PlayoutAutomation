@@ -295,10 +295,7 @@ namespace TAS.Server.Database
 
         public override ConnectionState State
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            get { return _connectionPrimary.State; }
         }
 
         private ConnectionStateRedundant _stateRedundant;

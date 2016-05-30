@@ -17,7 +17,6 @@ namespace TAS.Client
     public partial class App : Application
     {
 
-        public static EngineController EngineController;
 
         public App()
         {
@@ -30,12 +29,11 @@ namespace TAS.Client
                 CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
             else
                 CultureManager.UICulture = new System.Globalization.CultureInfo(uiCulture);
-            EngineController = new EngineController();
         }
         protected override void OnExit(ExitEventArgs e)
         {
-            EngineController.Dispose();
             base.OnExit(e);
+            EngineController.ShutDown();
         }
     }
 }

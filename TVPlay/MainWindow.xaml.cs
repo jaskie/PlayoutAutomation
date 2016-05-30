@@ -54,43 +54,6 @@ namespace TAS.Client
             }
         }
 
-        
-        private void AppMainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            foreach (Engine engine in App.EngineController.Engines)
-            {
-                TabItem newtab = new TabItem();
-                newtab.Header = engine.EngineName;
-                PreviewViewmodel previewViewmodel = new PreviewViewmodel(engine);
-                Debug.WriteLine(engine, "Creating viewmodel for");
-                var engineViewModel = new EngineViewmodel(engine, engine);
-                Debug.WriteLine(engine, "Creating commands for");
-                newtab.Content = engineViewModel.View;
-                tcChannels.Items.Add(newtab);
-
-                Debug.WriteLine(engine.MediaManager, "Creating tab for");
-                TabItem tabIngest = new TabItem();
-                tabIngest.Header = engine.EngineName + " - Media";
-                MediaManagerViewmodel newMediaManagerViewmodel = new MediaManagerViewmodel(engine.MediaManager, engine);
-                tabIngest.Content = newMediaManagerViewmodel.View;
-                tcChannels.Items.Add(tabIngest);
-
-                //Debug.WriteLine(engine.Templates, "Creating tab for");
-                //TabItem tabTemplates = new TabItem();
-                //tabTemplates.Header = engine.EngineName + " - Animacje";
-                //TemplatesView newTemplatesView = new TemplatesView();
-                //TemplatesViewmodel newTemplatesViewmodel = new TemplatesViewmodel(engine);
-                //newTemplatesView.DataContext = newTemplatesViewmodel;
-                //tabTemplates.Content = newTemplatesView;
-                //tcChannels.Items.Add(tabTemplates);
-            }
-            tcChannels.SelectedIndex = 0;
-        }
-
-        private void AppMainWindow_Closed(object sender, EventArgs e)
-        {
-        }
-
         private void AppMainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
 #if DEBUG == false
@@ -109,5 +72,6 @@ namespace TAS.Client
             }
 #endif // DEBUG
         }
+
     }
 }
