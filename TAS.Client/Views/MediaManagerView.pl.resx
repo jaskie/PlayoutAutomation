@@ -144,6 +144,12 @@
   <data name="_grid.IsTrimmed" xml:space="preserve">
     <value>Przycięty</value>
   </data>
+  <data name="_mediaCategory" xml:space="preserve">
+    <value>Kategoria</value>
+  </data>
+  <data name="_mediaType" xml:space="preserve">
+    <value>Rodzaj</value>
+  </data>
   <data name="_menu.Tools" xml:space="preserve">
     <value>Narzędzia</value>
   </data>
@@ -151,7 +157,7 @@
     <value>Synchronizuj zawartość serwerów</value>
   </data>
   <data name="_refresh" xml:space="preserve">
-    <value>Odśwież</value>
+    <value>Odśwież | F5</value>
   </data>
   <data name="_search" xml:space="preserve">
     <value>Szukaj</value>

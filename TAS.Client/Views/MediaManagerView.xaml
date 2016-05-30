@@ -44,6 +44,9 @@
             <Setter Property="Template" Value="{StaticResource toggleButtonTemplate}" />
         </Style>
     </UserControl.Resources>
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding CommandRefresh}"/>
+    </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -70,17 +73,17 @@
                 </Style>
             </DockPanel.Resources>
             <Label Content="{Resx _directory}"/>
-            <ComboBox ItemsSource="{Binding MediaDirectories}" SelectedValue="{Binding MediaDirectory}" DisplayMemberPath="DirectoryName" ToolTip="{Binding MediaDirectory.Folder}" >
+            <ComboBox ItemsSource="{Binding MediaDirectories}" SelectedValue="{Binding MediaDirectory}" DisplayMemberPath="DirectoryName" ToolTip="{Binding MediaDirectory.Folder}" Margin="0, 1" >
                 <ComboBox.ItemContainerStyle>
                     <Style TargetType="{x:Type ComboBoxItem}">
                         <Setter Property="ToolTip" Value="{Binding Folder}" />
                     </Style>
                 </ComboBox.ItemContainerStyle>
             </ComboBox>
-            <Button ToolTip="{Resx _refresh}" Command="{Binding CommandRefresh}">
+            <Button ToolTip="{Resx _refresh}" Command="{Binding CommandRefresh}" Margin="1">
                 <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
             </Button>
-            <ComboBox Visibility="{Binding IsDisplayMediaCategory, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" >
+            <ComboBox Visibility="{Binding IsDisplayMediaCategory, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" ToolTip="{Resx _mediaCategory}">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -115,7 +118,7 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <ComboBox ItemsSource="{Binding MediaTypes}"  SelectedValue="{Binding MediaType}" Margin="0,1,5,1" />
+            <ComboBox ItemsSource="{Binding MediaTypes}"  SelectedValue="{Binding MediaType}" Margin="0,1" ToolTip="{Resx _mediaType}"/>
             <Button DockPanel.Dock="Right" Content="{Resx _search}" IsDefault="True" Command="{Binding CommandSearch}" Width="80" />
             <Label Content="{Resx _searchFor}"  VerticalAlignment="Center" />
             <TextBox VerticalAlignment="Center" Margin="5,2" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" />

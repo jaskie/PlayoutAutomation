@@ -144,6 +144,12 @@
   <data name="_grid.IsTrimmed" xml:space="preserve">
     <value>Trimmed</value>
   </data>
+  <data name="_mediaCategory" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="_mediaType" xml:space="preserve">
+    <value>Type</value>
+  </data>
   <data name="_menu.Tools" xml:space="preserve">
     <value>Tools</value>
   </data>
@@ -151,7 +157,7 @@
     <value>Synchronize content between servers</value>
   </data>
   <data name="_refresh" xml:space="preserve">
-    <value>Refresh</value>
+    <value>Refresh | F5</value>
   </data>
   <data name="_search" xml:space="preserve">
     <value>Search</value>
