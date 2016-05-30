@@ -116,10 +116,20 @@ namespace TAS.Client.Config
         private void _clonePrimaryDatabase(object obj)
         {
             UiServices.SetBusyState();
+            if (Database.TestConnect(tasConnectionStringSecondary))
+            {
+                if (MessageBox.Show(Window.GetWindow(View), "Secondary database already exists. Delete it first?", "Warning - database exists", MessageBoxButton.YesNo, MessageBoxImage.Hand) != MessageBoxResult.Yes)
+                    return;
+                if (!Database.DropDatabase(tasConnectionStringSecondary))
+                {
+                    MessageBox.Show(Window.GetWindow(View), "Database delete failed, cannot proceed.", "Database clone", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
             if (Database.CloneDatabase(tasConnectionString, tasConnectionStringSecondary))
-                MessageBox.Show(Window.GetWindow(View), "Database clone successful", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(Window.GetWindow(View), "Database clone successful", "Database clone", MessageBoxButton.OK, MessageBoxImage.Information);
             else
-                MessageBox.Show(Window.GetWindow(View), "Database clonning failed", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Window.GetWindow(View), "Database clonning failed", "Database clone", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         string _ingestFolders;

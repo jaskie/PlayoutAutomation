@@ -51,7 +51,7 @@ namespace TAS.Server.Database
             using (MySqlConnection connection = new MySqlConnection(csb.ConnectionString))
             {
                 connection.Open();
-                using (var createCommand = new MySqlCommand(string.Format("CREATE DATABASE {0} CHARACTER SET = {1} COLLATE = {2};", databaseName, charset, collate), connection))
+                using (var createCommand = new MySqlCommand(string.Format("CREATE DATABASE `{0}` CHARACTER SET = {1} COLLATE = {2};", databaseName, charset, collate), connection))
                 {
                     if (createCommand.ExecuteNonQuery() == 1)
                     {
@@ -67,6 +67,25 @@ namespace TAS.Server.Database
                             }
                         }
                     }
+                }
+                return false;
+            }
+        }
+
+        public static bool DropDatabase(string connectionString)
+        {
+            MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder(connectionString);
+            string databaseName = csb.Database;
+            if (string.IsNullOrWhiteSpace(databaseName))
+                return false;
+            csb.Remove("Database");
+            using (MySqlConnection connection = new MySqlConnection(csb.ConnectionString))
+            {
+                connection.Open();
+                using (var dropCommand = new MySqlCommand(string.Format("DROP DATABASE `{0}`;", databaseName), connection))
+                {
+                    if (dropCommand.ExecuteNonQuery() > 0)
+                        return true;
                 }
                 return false;
             }
@@ -101,7 +120,7 @@ namespace TAS.Server.Database
                 using (MySqlConnection conn = new MySqlConnection(csb.ConnectionString))
                 {
                     conn.Open();
-                    using (var createCommand = new MySqlCommand(string.Format("CREATE DATABASE {0} CHARACTER SET = {1};", databaseName, charset), conn))
+                    using (var createCommand = new MySqlCommand(string.Format("CREATE DATABASE `{0}` CHARACTER SET = {1};", databaseName, charset), conn))
                     {
                         if (createCommand.ExecuteNonQuery() == 1)
                         {

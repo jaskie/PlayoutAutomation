@@ -63,12 +63,17 @@ namespace TAS.Server.Database
             return DbConnectionRedundant.CreateEmptyDatabase(connectionString, collate);
         }
 
+        public static bool DropDatabase(string connectionString)
+        {
+            return DbConnectionRedundant.DropDatabase(connectionString);
+        }
+
         public static bool CloneDatabase(string connectionStringSource, string connectionStringDestination)
         {
             DbConnectionRedundant.CloneDatabase(connectionStringSource, connectionStringDestination);
             return DbConnectionRedundant.TestConnect(connectionStringDestination);
         }
-
+                
         public static bool UpdateRequired()
         {
             var command = new DbCommandRedundant("select `value` from `params` where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", _connection);

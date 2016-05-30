@@ -47,8 +47,8 @@ namespace TAS.Client.ViewModels
         private void PreviewViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (_previewViewModel.LoadedMedia == this.Media
-                && (e.PropertyName == "TcIn"
-                 || e.PropertyName == "TcOut"))
+                && (e.PropertyName == "TcIn" || e.PropertyName == "TcOut")
+                && _previewViewModel.SelectedSegment == null)
             {
                 ScheduledTc = _previewViewModel.TcIn;
                 Duration = _previewViewModel.DurationSelection;
