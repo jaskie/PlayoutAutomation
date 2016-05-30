@@ -12,7 +12,8 @@
              xmlns:client="clr-namespace:TAS.Client.Views"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              d:DataContext="{x:Type vm:MediaManagerViewmodel}"
-             FontSize="13" KeyUp="UserControl_KeyUp" >
+             FontSize="13" KeyUp="UserControl_KeyUp"
+             >
     <UserControl.Resources>
         <Style x:Key="fieldNameLabels" TargetType="Label" >
             <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -65,21 +66,21 @@
             <DockPanel.Resources>
                 <Style TargetType="ComboBox">
                     <Setter Property="Width" Value="120"/>
-                    <Setter Property="Margin" Value="5, 0"/>
+                    <Setter Property="Margin" Value="5, 1"/>
                 </Style>
             </DockPanel.Resources>
-            <Label DockPanel.Dock="Left" Content="{Resx _searchFor}"  VerticalAlignment="Center" />
-            <Button DockPanel.Dock="Right" ToolTip="{Resx _refresh}" Command="{Binding CommandRefresh}">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
-            </Button>
-            <ComboBox DockPanel.Dock="Right" ItemsSource="{Binding MediaDirectories}" SelectedValue="{Binding MediaDirectory}" DisplayMemberPath="DirectoryName" ToolTip="{Binding MediaDirectory.Folder}" >
+            <Label Content="{Resx _directory}"/>
+            <ComboBox ItemsSource="{Binding MediaDirectories}" SelectedValue="{Binding MediaDirectory}" DisplayMemberPath="DirectoryName" ToolTip="{Binding MediaDirectory.Folder}" >
                 <ComboBox.ItemContainerStyle>
                     <Style TargetType="{x:Type ComboBoxItem}">
                         <Setter Property="ToolTip" Value="{Binding Folder}" />
                     </Style>
                 </ComboBox.ItemContainerStyle>
             </ComboBox>
-            <ComboBox Visibility="{Binding IsDisplayMediaCategory, Converter={StaticResource BoolToVis}}" DockPanel.Dock="Right" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" >
+            <Button ToolTip="{Resx _refresh}" Command="{Binding CommandRefresh}">
+                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
+            </Button>
+            <ComboBox Visibility="{Binding IsDisplayMediaCategory, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" >
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -114,9 +115,10 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <ComboBox DockPanel.Dock="Right" ItemsSource="{Binding MediaTypes}"  SelectedValue="{Binding MediaType}" />
+            <ComboBox ItemsSource="{Binding MediaTypes}"  SelectedValue="{Binding MediaType}" Margin="0,1,5,1" />
             <Button DockPanel.Dock="Right" Content="{Resx _search}" IsDefault="True" Command="{Binding CommandSearch}" Width="80" />
-            <TextBox VerticalAlignment="Center" Margin="5, 0" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Content="{Resx _searchFor}"  VerticalAlignment="Center" />
+            <TextBox VerticalAlignment="Center" Margin="5,2" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" />
         </DockPanel>
         <DataGrid Grid.Row="3" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItems}" SelectedItem="{Binding Path=SelectedMedia, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
             <i:Interaction.Behaviors>
