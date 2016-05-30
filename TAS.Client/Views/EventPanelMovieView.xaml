@@ -46,7 +46,21 @@
                     <RowDefinition Height="35" />
                     <RowDefinition Height="26" />
                 </Grid.RowDefinitions>
-                <Border Grid.RowSpan="2" Background="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}"/>
+                <Border Grid.RowSpan="2">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding MediaCategory}" Value="Show">
+                                    <Setter Property="Background" Value="LightGreen"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding MediaCategory}" Value="Commercial">
+                                    <Setter Property="Background" Value="#FFF05B5B"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Border Background="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}"/>
+                </Border>
                 <Border Grid.RowSpan="2" Grid.Column="2" Grid.ColumnSpan="3">
                     <Border.Style>
                         <Style TargetType="Border">
