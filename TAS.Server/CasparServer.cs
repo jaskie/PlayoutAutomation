@@ -98,13 +98,12 @@ namespace TAS.Server
         protected void _connect()
         {
             string[] address = ServerAddress.Split(':');
-            if (address.Length == 1)
-                address[1] = "5250";
-            if (address.Length == 2)
-            {
-                if (_casparDevice != null && !_casparDevice.IsConnected)
-                    _casparDevice.Connect(address[0], UInt16.Parse(address[1]), true);
-            }
+            string host = address.Length > 0 ? address[0] : "localhost";
+            int port;
+            if (!(address.Length > 1 && int.TryParse(address[1], out port)))
+                port = 5250;
+            if (_casparDevice != null && !_casparDevice.IsConnected)
+                _casparDevice.Connect(host, port, true);
             else throw new Exception(string.Format("Invalid server address: {0}", ServerAddress));
         }
 

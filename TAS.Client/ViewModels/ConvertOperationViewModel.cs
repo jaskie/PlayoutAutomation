@@ -303,6 +303,10 @@ namespace TAS.Client.ViewModels
             _convertOperation.DestMedia.FileName = _destFileName;
             _convertOperation.StartTC = _startTC;
             _convertOperation.Duration = _duration;
+            _convertOperation.DestMedia.TcStart = _startTC;
+            _convertOperation.DestMedia.TcPlay = _startTC;
+            _convertOperation.DestMedia.Duration = _duration;
+            _convertOperation.DestMedia.DurationPlay = _duration;
             _convertOperation.Trim = _trim;
             _convertOperation.LoudnessCheck = _loudnessCheck;
         }

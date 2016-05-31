@@ -59,7 +59,7 @@ namespace TAS.Common
 
         public static TimeSpan Round (this TimeSpan t, RationalNumber frameRate)
         {
-            if (frameRate.IsInvalid)
+            if (frameRate.IsInvalid || frameRate.IsZero)
                 return TimeSpan.Zero;
             return TimeSpan.FromTicks((t.Ticks * frameRate.Num / (TimeSpan.TicksPerSecond * frameRate.Den)) * TimeSpan.TicksPerSecond * frameRate.Den / frameRate.Num);
         }

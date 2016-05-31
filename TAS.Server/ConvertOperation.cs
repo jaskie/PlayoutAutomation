@@ -65,9 +65,9 @@ namespace TAS.Server
                                 Match m_tc = reg_tc.Match(m_tcs.Value);
                                 if (m_tc.Success)
                                 {
-                                    DestMedia.TcStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan(mf.VideoFormatDescription.FrameRate);
-                                    if (DestMedia.TcPlay == TimeSpan.Zero)
-                                        DestMedia.TcPlay = DestMedia.TcStart;
+                                    mf.TcStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan(mf.VideoFormatDescription.FrameRate);
+                                    if (mf.TcPlay == TimeSpan.Zero)
+                                        mf.TcPlay = mf.TcStart;
                                     break;
                                 }
                             }
@@ -90,9 +90,9 @@ namespace TAS.Server
                             Match m_tc = re.Match(miOutputLines[i + 1]);
                             if (m_tc.Success)
                             {
-                                DestMedia.TcStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan(mf.VideoFormatDescription.FrameRate);
-                                if (DestMedia.TcPlay == TimeSpan.Zero)
-                                    DestMedia.TcPlay = DestMedia.TcStart;
+                                mf.TcStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan(mf.VideoFormatDescription.FrameRate);
+                                if (mf.TcPlay == TimeSpan.Zero)
+                                    mf.TcPlay = mf.TcStart;
                                 break;
                             }
                         }
@@ -395,6 +395,7 @@ namespace TAS.Server
             DestMedia.MediaStatus = TMediaStatus.Copying;
             CheckInputFile(media);
             string encodeParams = _encodeParameters(media, streams);
+            //TimeSpan outStartTC = _is_trimmed() ? 
             string ingestRegion = _is_trimmed() ?
                 string.Format(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1}", StartTC - SourceMedia.TcStart, Duration) : string.Empty;
             string Params = string.Format(System.Globalization.CultureInfo.InvariantCulture,

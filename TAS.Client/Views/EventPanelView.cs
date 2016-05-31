@@ -53,7 +53,7 @@ namespace TAS.Client.Views
                 // Scroll to selected Item
                 DispatcherHelper.WaitForPriority();
                 Point offset = TransformToAncestor(parent as ScrollViewer).Transform(new Point(0, 0));
-                (parent as ScrollViewer).ScrollToVerticalOffset(offset.Y + (parent as ScrollViewer).ContentVerticalOffset);
+                (parent as ScrollViewer).ScrollToVerticalOffset(offset.Y + (parent as ScrollViewer).ContentVerticalOffset - ActualHeight);
             }
         }
 

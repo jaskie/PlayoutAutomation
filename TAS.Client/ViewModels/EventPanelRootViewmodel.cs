@@ -115,6 +115,8 @@ namespace TAS.Client.ViewModels
                     Debug.WriteLine(ne, "Reading next for");
                     ne = ne.Next;
                 }
+                if (e.EventType == TEventType.Container)
+                    NotifyPropertyChanged("Containers");
             }
         }
 
