@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Controls;
@@ -17,8 +18,9 @@ namespace TAS.Client
         readonly List<TabItem> _tabs;
 
         CompositionContainer _uiContainer;
+
         [ImportMany]
-        IEnumerable<UiPlugin> _plugins;
+        IEnumerable<IUiPlugin> _plugins;
 
         public MainWindowViewmodel()
         {
@@ -61,9 +63,13 @@ namespace TAS.Client
         {
             try
             {
-                DirectoryCatalog catalog = new DirectoryCatalog(".\\Plugins", "*.dll");
-                _uiContainer = new CompositionContainer(catalog);
-                _uiContainer.SatisfyImportsOnce(this);
+                var pluginPath = Path.GetFullPath(".\\Plugins");
+                if (Directory.Exists(pluginPath))
+                {
+                    DirectoryCatalog catalog = new DirectoryCatalog(pluginPath);
+                    _uiContainer = new CompositionContainer(catalog);
+                    _uiContainer.SatisfyImportsOnce(this);
+                }
             }
             catch (Exception e)
             {

@@ -320,7 +320,7 @@ namespace TAS.Server
                             pf.AppendFormat("[0:{0}]", stream.Index);
                             audio_stream_count += stream.ChannelCount;
                         }
-                        filter_complex.Add(string.Format("{0}amerge=inputs={1}", pf.ToString(), audio_stream_count));
+                        filter_complex.Add(string.Format("{0}amerge=inputs={1}", pf.ToString(), audioStreams.Length));
                     }
                     _addConversion(audiChannelMappingConversion, filter_complex);
                     if (AudioVolume != 0)

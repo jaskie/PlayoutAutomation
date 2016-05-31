@@ -36,3 +36,4 @@ help
 /MediaInfo
 /*.opendb
 /*.db
+*.user

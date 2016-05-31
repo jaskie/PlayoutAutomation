@@ -6,8 +6,8 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.Common.Plugin
 {
-    public interface UiPlugin: IUiMenuItem
+    public interface IUiPlugin: IUiMenuItem
     {
-        bool AppliesToEngine(IEngine engine);
+        bool Engine { get; set; }
     }
 }
