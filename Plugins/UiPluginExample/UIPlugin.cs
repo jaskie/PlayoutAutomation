@@ -15,34 +15,11 @@ namespace UiPluginExample
         {
             Debug.WriteLine("Plugin");
         }
-        public bool Engine
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public bool Engine { get; set; }
+        
+        public string Header { get { return System.Reflection.Assembly.GetExecutingAssembly().FullName; } }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public string Header
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public IEnumerable<IUiMenuItem> Items
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public IEnumerable<IUiMenuItem> Items { get { return null; } }
 
         public event EventHandler CanExecuteChanged;
 

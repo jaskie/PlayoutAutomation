@@ -855,14 +855,14 @@ namespace TAS.Client.ViewModels
 
         public TEngineState EngineState { get { return _engine.EngineState; } }
 
-        private ObservableCollection<IEvent> _visibleEvents = new ObservableCollection<IEvent>();
+        private readonly ObservableCollection<IEvent> _visibleEvents = new ObservableCollection<IEvent>();
         public IEnumerable<IEvent> VisibleEvents { get { return _visibleEvents; } }
-        private ObservableCollection<IEvent> _loadedNextEvents = new ObservableCollection<IEvent>();
+        private readonly ObservableCollection<IEvent> _loadedNextEvents = new ObservableCollection<IEvent>();
         public IEnumerable<IEvent> LoadedNextEvents { get { return _loadedNextEvents; } }
-        private ObservableCollection<IEvent> _runningEvents = new ObservableCollection<IEvent>();
+        private readonly ObservableCollection<IEvent> _runningEvents = new ObservableCollection<IEvent>();
         public IEnumerable<IEvent> RunningEvents { get { return _runningEvents; } }
 
-        private ObservableCollection<EventPanelViewmodelBase> _selectedEvents;
+        private readonly ObservableCollection<EventPanelViewmodelBase> _selectedEvents;
         public ObservableCollection<EventPanelViewmodelBase> SelectedEvents { get { return _selectedEvents; } }
 
         private Views.EngineStateView _debugWindow;
@@ -1005,12 +1005,9 @@ namespace TAS.Client.ViewModels
 
         private void _selectedEvents_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (sender is ObservableCollection<EventPanelViewmodelBase>)
-            {
-                NotifyPropertyChanged("SelectedCount");
-                NotifyPropertyChanged("SelectedTime");
-                InvalidateRequerySuggested();
-            }
+            NotifyPropertyChanged("SelectedCount");
+            NotifyPropertyChanged("SelectedTime");
+            InvalidateRequerySuggested();
         }
 
         private void _enginePropertyChanged(object o, PropertyChangedEventArgs e)
