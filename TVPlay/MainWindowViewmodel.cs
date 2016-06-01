@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -17,17 +15,12 @@ namespace TAS.Client
     {
         readonly List<TabItem> _tabs;
 
-        CompositionContainer _uiContainer;
-
-        [ImportMany]
-        IEnumerable<IUiPlugin> _plugins;
 
         public MainWindowViewmodel()
         {
             _tabs = new List<TabItem>();
             if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject()))
             {
-                _composePlugins();
                 var engines = EngineController.Engines;
                 if (engines != null)
                     foreach (Engine engine in engines)
@@ -36,7 +29,6 @@ namespace TAS.Client
                         newtab.Header = engine.EngineName;
                         Debug.WriteLine(engine, "Creating viewmodel for");
                         var engineViewModel = new EngineViewmodel(engine, engine);
-                        Debug.WriteLine(engine, "Creating commands for");
                         newtab.Content = engineViewModel.View;
                         _tabs.Add(newtab);
 
@@ -59,24 +51,6 @@ namespace TAS.Client
             }
         }
 
-        private void _composePlugins()
-        {
-            try
-            {
-                var pluginPath = Path.GetFullPath(".\\Plugins");
-                if (Directory.Exists(pluginPath))
-                {
-                    DirectoryCatalog catalog = new DirectoryCatalog(pluginPath);
-                    _uiContainer = new CompositionContainer(catalog);
-                    _uiContainer.SatisfyImportsOnce(this);
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e);
-            }
-
-        }
 
         public IEnumerable<TabItem> Tabs { get { return _tabs; } }
 

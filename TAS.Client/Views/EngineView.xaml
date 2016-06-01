@@ -62,18 +62,20 @@
             <RowDefinition Height="28" />
         </Grid.RowDefinitions>
         <Menu IsMainMenu="True" Height="23" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <MenuItem Header="{Resx _menu.Container}" Visibility="{Binding IsAnyContainerHidden, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding Path=RootEventViewModel.Containers}">
-                <MenuItem.ItemContainerStyle>
-                    <Style TargetType="MenuItem">
-                        <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource InvertedBoolToVis}}"/>
-                        <Setter Property="Command" Value="{Binding CommandShow}"/>
-                        <Setter Property="Header" Value="{Binding EventName}"/>
-                    </Style>
-                </MenuItem.ItemContainerStyle>
+            <MenuItem Header="{Resx _menu.Container}">
+                <MenuItem Header="{Resx _menu.Container.AddContainer}" Command="{Binding CommandNewContainer}"/>
+                <MenuItem Header="{Resx _menu.Container.Show}" Visibility="{Binding IsAnyContainerHidden, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding Path=RootEventViewModel.Containers}">
+                    <MenuItem.ItemContainerStyle>
+                        <Style TargetType="MenuItem">
+                            <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource InvertedBoolToVis}}"/>
+                            <Setter Property="Command" Value="{Binding CommandShow}"/>
+                            <Setter Property="Header" Value="{Binding EventName}"/>
+                        </Style>
+                    </MenuItem.ItemContainerStyle>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="{Resx _menu.Rundown}">
                 <MenuItem Header="{Resx _menu.Rundown.AddEmpty}" Command="{Binding CommandNewRootRundown}"/>
-                <MenuItem Header="{Resx _menu.Rundown.AddContainer}" Command="{Binding CommandNewContainer}"/>
                 <!--<MenuItem Header="_Importuj playlistę" Command="{Binding CommandImportRundown}"/>-->
                 <MenuItem Header="{Resx _menu.Rundown.Restart}" Command="{Binding CommandRestart}"/>
                 <Separator/>
@@ -108,8 +110,16 @@
             <MenuItem Header="{Resx _menu.Tools}">
                 <MenuItem Header="{Resx _menu.Tools.Export}" Command="{Binding CommandExportMedia}"/>
                 <Separator/>
-                <MenuItem Header="Find unlinked events" Command="{Binding CommandSearchMissingEvents}" />
-                <MenuItem Header="_Debug window" Command="{Binding CommandDebugToggle}" />
+                <MenuItem Header="{Resx _menu.Tools.FindUnlinkedEvents}" Command="{Binding CommandSearchMissingEvents}" />
+                <MenuItem Header="{Resx _menu.Tools.DebugWindow}" Command="{Binding CommandDebugToggle}" />
+                <MenuItem Header="{Resx _menu.Tools.Plugins}" Visibility="{Binding IsAnyPluginActive, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding Plugins}">
+                    <MenuItem.ItemContainerStyle>
+                        <Style TargetType="MenuItem">
+                            <Setter Property="Command" Value="{Binding}"/>
+                            <Setter Property="Header" Value="{Binding Header}"/>
+                        </Style>
+                    </MenuItem.ItemContainerStyle>
+                </MenuItem>
 
                 <!--<MenuItem Header="Playout">
                     <MenuItem Header="Wznów" Command="{Binding CommandResume}" />

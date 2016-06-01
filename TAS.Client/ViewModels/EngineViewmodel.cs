@@ -15,7 +15,11 @@ using TAS.Client.Common;
 using System.Configuration;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using System.ComponentModel.Composition.Hosting;
+using System.ComponentModel.Composition;
+using TAS.Client.Common.Plugin;
 using resources = TAS.Client.Common.Properties.Resources;
+using System.IO;
 
 namespace TAS.Client.ViewModels
 {
@@ -76,7 +80,6 @@ namespace TAS.Client.ViewModels
         {
             _engine = engine;
             _frameRate = engine.FrameRate;
-            
             _engine.EngineTick += this._engineTick;
             _engine.EngineOperation += this._engineOperation;
             _engine.PropertyChanged += this._enginePropertyChanged;
@@ -86,6 +89,7 @@ namespace TAS.Client.ViewModels
             _engine.EventSaved += _engine_EventSaved;
             _engine.EventDeleted += _engine_EventDeleted;
             _engine.DatabaseConnectionStateChanged += _engine_DatabaseConnectionStateChanged;
+            _composePlugins();
 
             Debug.WriteLine(this, "Creating root EventViewmodel");
             _rootEventViewModel = new EventPanelRootViewmodel(this);
@@ -103,6 +107,8 @@ namespace TAS.Client.ViewModels
             _eventEditViewmodel = new EventEditViewmodel(this, _previewViewmodel);
             _eventEditView = new EventEditView(_frameRate) { DataContext = _eventEditViewmodel };
 
+            _createCommands();
+
             _selectedEvents = new ObservableCollection<EventPanelViewmodelBase>();
             _selectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged += _engineViewmodel_ClipboardChanged;
@@ -112,7 +118,6 @@ namespace TAS.Client.ViewModels
                 engine.PlayoutChannelSEC.OwnerServer.PropertyChanged += OnSECServerPropertyChanged;
             if (engine.PlayoutChannelPRV != null)
                 engine.PlayoutChannelPRV.OwnerServer.PropertyChanged += OnPRVServerPropertyChanged;
-            _createCommands();
         }
 
         private void _engine_DatabaseConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
@@ -651,6 +656,7 @@ namespace TAS.Client.ViewModels
                         _mediaSearchViewModel.NewEventStartType = TStartType.After;
                     }
                     InvalidateRequerySuggested();
+                    _updatePluginCanExecute();
                 }
             }
         }
@@ -800,6 +806,50 @@ namespace TAS.Client.ViewModels
             get { return _engine.ForcedNext != null; }
         }
 
+        #region Plugin
+        CompositionContainer _uiContainer;
+
+        [ImportMany]
+        IUiPlugin[] _plugins = null;
+
+        public IList<Common.Plugin.IUiPlugin> Plugins { get { return _plugins; } }
+
+        public bool IsAnyPluginActive { get { return _plugins != null && _plugins.Length > 0; } }
+
+        private void _composePlugins()
+        {
+            try
+            {
+                var pluginPath = Path.GetFullPath(".\\Plugins");
+                if (Directory.Exists(pluginPath))
+                {
+                    DirectoryCatalog catalog = new DirectoryCatalog(pluginPath);
+                    _uiContainer = new CompositionContainer(catalog);
+                    _uiContainer.ComposeExportedValue<Func<PluginExecuteContext>>(_getPluginContext);
+                    _uiContainer.SatisfyImportsOnce(this);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
+
+        }
+
+        private void _updatePluginCanExecute()
+        {
+            if (_plugins != null)
+                foreach (var p in _plugins)
+                    p.NotifyExecuteChanged();
+        }
+
+        [Export]
+        private PluginExecuteContext _getPluginContext()
+        {
+            return new PluginExecuteContext { Engine = _engine, Event = _selected == null ? null : _selected.Event };
+        }
+
+        #endregion // Plugin
         #region GPI
         public bool GPIExists
         {

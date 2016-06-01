@@ -6,8 +6,15 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.Common.Plugin
 {
-    public interface IUiPlugin: IUiMenuItem
+    public interface IUiPlugin : IUiMenuItem
     {
-        bool Engine { get; set; }
+        Func<PluginExecuteContext> ExecutionContext { get; set; }
+        void NotifyExecuteChanged();
+    }
+
+    public struct PluginExecuteContext
+    {
+        public IEngine Engine;
+        public IEvent Event;
     }
 }

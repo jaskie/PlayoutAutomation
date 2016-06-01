@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using TAS.Client.Common.Plugin;
+using TAS.Server.Interfaces;
 
 namespace UiPluginExample
 {
@@ -15,22 +16,38 @@ namespace UiPluginExample
         {
             Debug.WriteLine("Plugin");
         }
-        public bool Engine { get; set; }
+        private PluginExecuteContext _executionContext()
+        {
+            var h = ExecutionContext;
+            return h == null ? new PluginExecuteContext { } : h();
+        }
         
-        public string Header { get { return System.Reflection.Assembly.GetExecutingAssembly().FullName; } }
+        public string Header { get { return "Play"; } }
 
         public IEnumerable<IUiMenuItem> Items { get { return null; } }
-
+        
         public event EventHandler CanExecuteChanged;
-
+                
         public bool CanExecute(object parameter)
         {
-            throw new NotImplementedException();
+            var ec = _executionContext();
+            return ec.Event != null && ec.Event.EventType == TAS.Common.TEventType.Rundown;
         }
 
         public void Execute(object parameter)
         {
-            throw new NotImplementedException();
+            var ec = _executionContext();
+            ec.Engine.Start(ec.Event);
         }
+
+        public void NotifyExecuteChanged()
+        {
+            var h = CanExecuteChanged;
+            if (h != null)
+                h(this, EventArgs.Empty);
+        }
+
+        [Import]
+        public Func<PluginExecuteContext> ExecutionContext { get; set; }
     }
 }

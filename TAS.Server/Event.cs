@@ -52,7 +52,7 @@ namespace TAS.Server
             _layer = videoLayer;
             _eventType = eventType;
             _startType = startType;
-            _playState = playState;
+            _playState = playState == TPlayState.Paused ? TPlayState.Scheduled: playState;
             _scheduledTime = scheduledTime;
             _duration = duration;
             _scheduledDelay = scheduledDelay;

@@ -706,7 +706,7 @@ namespace TAS.Server.Database
                 (flags & (1 << 1)) != 0, // IsHold
                 (flags & (1 << 2)) != 0, // IsLoop
                 EventGPI.FromUInt64((flags >> 4) & EventGPI.Mask)
-                );            
+                );  
             return newEvent;
         }
 

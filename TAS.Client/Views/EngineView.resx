@@ -162,7 +162,7 @@
   <data name="_menu.Rundown" xml:space="preserve">
     <value>_Rundown</value>
   </data>
-  <data name="_menu.Rundown.AddContainer" xml:space="preserve">
+  <data name="_menu.Container.AddContainer" xml:space="preserve">
     <value>Add _container</value>
   </data>
   <data name="_menu.Rundown.AddEmpty" xml:space="preserve">
@@ -290,5 +290,17 @@
   </data>
   <data name="_statusbar.Indicator.DatabaseOK" xml:space="preserve">
     <value>Database OK</value>
+  </data>
+  <data name="_menu.Container.Show" xml:space="preserve">
+    <value>Show</value>
+  </data>
+  <data name="_menu.Tools.DebugWindow" xml:space="preserve">
+    <value>Debug window</value>
+  </data>
+  <data name="_menu.Tools.FindUnlinkedEvents" xml:space="preserve">
+    <value>Find unlinked events in database</value>
+  </data>
+  <data name="_menu.Tools.Plugins" xml:space="preserve">
+    <value>Plugins</value>
   </data>
 </root>
