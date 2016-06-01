@@ -25,8 +25,8 @@ namespace TAS.Server.Interfaces
         int MediaRetnentionDays { get; set; }
         bool MediaLoudnessCheckAfterIngest { get; set; }
         TFieldOrder SourceFieldOrder { get; set; }
-        TxDCAMAudioExportFormat XDCAMAudioExportFormat { get; set; }
-        TxDCAMVideoExportFormat XDCAMVideoExportFormat { get; set; }
+        TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
+        TmXFVideoExportFormat MXFVideoExportFormat { get; set; }
         TVideoFormat ExportVideoFormat { get; set; }
     }
 }

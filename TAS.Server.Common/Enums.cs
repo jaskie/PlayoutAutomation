@@ -101,22 +101,22 @@ namespace TAS.Common
         { }
     }
 
-    [TypeConverter(typeof(TxDCAMAudioExportFormatEnumConverter))]
-    public enum TxDCAMAudioExportFormat : byte
+    [TypeConverter(typeof(TmXFAudioExportFormatEnumConverter))]
+    public enum TmXFAudioExportFormat : byte
     {
         Channels4Bits16,
         Channels8Bits16,
         Channels4Bits24,
     }
 
-    class TxDCAMAudioExportFormatEnumConverter : ResourceEnumConverter
+    class TmXFAudioExportFormatEnumConverter : ResourceEnumConverter
     {
-        public TxDCAMAudioExportFormatEnumConverter()
-            : base(typeof(TxDCAMAudioExportFormat), TAS.Server.Common.Properties.Resources.ResourceManager)
+        public TmXFAudioExportFormatEnumConverter()
+            : base(typeof(TmXFAudioExportFormat), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
 
-    public enum TxDCAMVideoExportFormat : byte
+    public enum TmXFVideoExportFormat : byte
     {
         IMX50,
         IMX40,

@@ -23,10 +23,10 @@ namespace TAS.Client.Config
         public Array MediaCategories { get { return _mediaCategories; } }
         Array _sourceFieldOrders = Enum.GetValues(typeof(TFieldOrder));
         public Array SourceFieldOrders { get { return _sourceFieldOrders; } }
-        Array _xDCAMAudioExportFormats = Enum.GetValues(typeof(TxDCAMAudioExportFormat));
-        public Array XDCAMAudioExportFormats { get { return _xDCAMAudioExportFormats; } }
-        Array _xDCAMVideoExportFormats = Enum.GetValues(typeof(TxDCAMVideoExportFormat));
-        public Array XDCAMVideoExportFormats { get { return _xDCAMVideoExportFormats; } }
+        Array _mXFAudioExportFormats = Enum.GetValues(typeof(TmXFAudioExportFormat));
+        public Array MXFAudioExportFormats { get { return _mXFAudioExportFormats; } }
+        Array _mXFVideoExportFormats = Enum.GetValues(typeof(TmXFVideoExportFormat));
+        public Array MXFVideoExportFormats { get { return _mXFVideoExportFormats; } }
         Array _exportContainerFormats = Enum.GetValues(typeof(TMediaExportContainerFormat));
         public Array ExportContainerFormats { get { return _exportContainerFormats; } }
         Array _exportVideoFormats = Enum.GetValues(typeof(TVideoFormat));
@@ -50,7 +50,15 @@ namespace TAS.Client.Config
         bool _deleteSource;
         public bool DeleteSource { get { return _deleteSource; } set { SetField(ref _deleteSource, value, "DeleteSource"); } }
         bool _isXDCAM;
-        public bool IsXDCAM { get { return _isXDCAM; } set { SetField(ref _isXDCAM, value, "IsXDCAM"); } }
+        public bool IsXDCAM
+        {
+            get { return _isXDCAM; }
+            set
+            {
+                if (SetField(ref _isXDCAM, value, "IsXDCAM"))
+                    NotifyPropertyChanged("IsMXF");
+            }
+        }
         bool _isWAN;
         public bool IsWAN { get { return _isWAN; } set { SetField(ref _isWAN, value, "IsWAN"); } }
         bool _isRecursive;
@@ -70,27 +78,34 @@ namespace TAS.Client.Config
         public bool MediaLoudnessCheckAfterIngest { get { return _mediaLoudnessCheckAfterIngest; } set { SetField(ref _mediaLoudnessCheckAfterIngest, value, "MediaLoudnessCheckAfterIngest"); } }
         TFieldOrder _sourceFieldOrder;
         public TFieldOrder SourceFieldOrder { get { return _sourceFieldOrder; } set { SetField(ref _sourceFieldOrder, value, "SourceFieldOrder"); } }
-        TxDCAMAudioExportFormat _xDCAMAudioExportFormat;
-        public TxDCAMAudioExportFormat XDCAMAudioExportFormat { get { return _xDCAMAudioExportFormat; } set { SetField(ref _xDCAMAudioExportFormat, value, "XDCAMAudioExportFormat"); } }
-        TxDCAMVideoExportFormat _xDCAMVideoExportFormat;
-        public TxDCAMVideoExportFormat XDCAMVideoExportFormat { get { return _xDCAMVideoExportFormat; } set { SetField(ref _xDCAMVideoExportFormat, value, "XDCAMVideoExportFormat"); } }
+        TmXFAudioExportFormat _mXFAudioExportFormat;
+        public TmXFAudioExportFormat MXFAudioExportFormat { get { return _mXFAudioExportFormat; } set { SetField(ref _mXFAudioExportFormat, value, "MXFAudioExportFormat"); } }
+        TmXFVideoExportFormat _mXFVideoExportFormat;
+        public TmXFVideoExportFormat MXFVideoExportFormat { get { return _mXFVideoExportFormat; } set { SetField(ref _mXFVideoExportFormat, value, "MXFVideoExportFormat"); } }
         string _encodeParams;
         public string EncodeParams { get { return _encodeParams; } set { SetField(ref _encodeParams, value, "EncodeParams"); } }
         TMediaExportContainerFormat _exportFormat;
-        public TMediaExportContainerFormat ExportContainerFormat { get { return _exportFormat; } set { SetField(ref _exportFormat, value, "ExportContainerFormat"); } }
+        public TMediaExportContainerFormat ExportContainerFormat
+        {
+            get { return _exportFormat; }
+            set
+            {
+                if (SetField(ref _exportFormat, value, "ExportContainerFormat"))
+                    NotifyPropertyChanged("IsMXF");
+            }
+        }
         TVideoFormat _exportVideoFormat;
         public TVideoFormat ExportVideoFormat { get { return _exportVideoFormat; } set { SetField(ref _exportVideoFormat, value, "ExportVideoFormat"); } }
         bool _doNotEncode;
         public bool DoNotEncode { get { return _doNotEncode; } set { SetField(ref _doNotEncode, value, "DoNotEncode"); } }
         string _exportParams;
         public string ExportParams { get { return _exportParams; }  set { SetField(ref _exportParams, value, "ExportParams"); } }
-
-
         string[] _extensions;
         public string[] Extensions { get { return _extensions; } set { SetField(ref _extensions, value, "Extensions"); } }
-
         #endregion // IIngestDirectory
-        
+
+        public bool IsMXF { get { return IsXDCAM || (!IsXDCAM && ExportContainerFormat == TMediaExportContainerFormat.mxf); } }
+
         protected override void OnDispose() { }
 
         public override string ToString()

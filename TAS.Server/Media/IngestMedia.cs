@@ -67,7 +67,7 @@ namespace TAS.Server
                             if (((IngestDirectory)_directory).IsXDCAM)
                                 return new XDCAM.XdcamStream(this, forWrite);
                             else
-                                return new FtpMediaStream(this);
+                                return new FtpMediaStream(this, forWrite);
                         }
             }
             throw new NotImplementedException("Access types other than Direct and readonly FTP not implemented");

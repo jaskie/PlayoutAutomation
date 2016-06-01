@@ -42,10 +42,10 @@ namespace TAS.Client.Config.Model
         public bool MediaLoudnessCheckAfterIngest { get; set; }
         [DefaultValue(default(TFieldOrder))]
         public TFieldOrder SourceFieldOrder { get; set; }
-        [DefaultValue(default(TxDCAMAudioExportFormat))]
-        public TxDCAMAudioExportFormat XDCAMAudioExportFormat { get; set; }
-        [DefaultValue(default(TxDCAMVideoExportFormat))]
-        public TxDCAMVideoExportFormat XDCAMVideoExportFormat { get; set; }
+        [DefaultValue(default(TmXFAudioExportFormat))]
+        public TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
+        [DefaultValue(default(TmXFVideoExportFormat))]
+        public TmXFVideoExportFormat MXFVideoExportFormat { get; set; }
         public string DirectoryName { get; set; }
         public string Folder { get; set; }
         [DefaultValue(default(string))]

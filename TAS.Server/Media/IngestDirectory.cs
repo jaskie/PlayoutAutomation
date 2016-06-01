@@ -100,9 +100,9 @@ namespace TAS.Server
         [JsonProperty]
         public bool IsImport { get; set; }
 
-        public TxDCAMAudioExportFormat XDCAMAudioExportFormat { get; set; }
+        public TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
 
-        public TxDCAMVideoExportFormat XDCAMVideoExportFormat { get; set; }
+        public TmXFVideoExportFormat MXFVideoExportFormat { get; set; }
 
         public string ExportParams { get; set; }
 

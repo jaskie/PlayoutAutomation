@@ -11,7 +11,7 @@ namespace TAS.Server
         private readonly IngestMedia _media;
         private readonly System.Net.FtpClient.FtpClient _client;
         private readonly Stream _ftpStream;
-        public FtpMediaStream(IngestMedia media)
+        public FtpMediaStream(IngestMedia media, bool forWrite)
         {
             _media = media;
             if (media == null || media.Directory == null)
@@ -23,7 +23,10 @@ namespace TAS.Server
             try
             {
                 _client.Connect();
-                _ftpStream = _client.OpenRead(uri.LocalPath);
+                if (forWrite)
+                    _ftpStream = _client.OpenWrite(uri.LocalPath);
+                else
+                    _ftpStream = _client.OpenRead(uri.LocalPath);
             }
             catch
             {

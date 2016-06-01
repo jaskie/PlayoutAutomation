@@ -27,8 +27,8 @@ namespace TAS.Client.Model
         public int MediaRetnentionDays { get { return Get<int>(); } set { SetField(value); } }
         public bool MediaLoudnessCheckAfterIngest { get { return Get<bool>(); }  set { Set(value); } }
         public TFieldOrder SourceFieldOrder { get { return Get<TFieldOrder>(); } set { SetField(value); } }
-        public TxDCAMAudioExportFormat XDCAMAudioExportFormat { get; set; }
-        public TxDCAMVideoExportFormat XDCAMVideoExportFormat { get; set; }
+        public TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
+        public TmXFVideoExportFormat MXFVideoExportFormat { get; set; }
         public TMediaExportContainerFormat ExportContainerFormat { get; set; }
         public TVideoFormat ExportVideoFormat { get; set; }
 

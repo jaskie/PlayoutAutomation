@@ -835,6 +835,33 @@ namespace TAS.Server.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 4 channels, 16 bits per sample.
+        /// </summary>
+        public static string TmXFAudioExportFormat_Channels4Bits16 {
+            get {
+                return ResourceManager.GetString("TmXFAudioExportFormat_Channels4Bits16", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 4 channels, 24 bits per sample.
+        /// </summary>
+        public static string TmXFAudioExportFormat_Channels4Bits24 {
+            get {
+                return ResourceManager.GetString("TmXFAudioExportFormat_Channels4Bits24", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 8 channels, 16 bits per sample.
+        /// </summary>
+        public static string TmXFAudioExportFormat_Channels8Bits16 {
+            get {
+                return ResourceManager.GetString("TmXFAudioExportFormat_Channels8Bits16", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 7.
         /// </summary>
         public static string TParental_Limit07 {
@@ -1038,33 +1065,6 @@ namespace TAS.Server.Common.Properties {
         public static string TVideoFormat_PAL_P {
             get {
                 return ResourceManager.GetString("TVideoFormat_PAL_P", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 4 channels, 16 bits per sample.
-        /// </summary>
-        public static string TxDCAMAudioExportFormat_Channels4Bits16 {
-            get {
-                return ResourceManager.GetString("TxDCAMAudioExportFormat_Channels4Bits16", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 4 channels, 24 bits per sample.
-        /// </summary>
-        public static string TxDCAMAudioExportFormat_Channels4Bits24 {
-            get {
-                return ResourceManager.GetString("TxDCAMAudioExportFormat_Channels4Bits24", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 8 channels, 16 bits per sample.
-        /// </summary>
-        public static string TxDCAMAudioExportFormat_Channels8Bits16 {
-            get {
-                return ResourceManager.GetString("TxDCAMAudioExportFormat_Channels8Bits16", resourceCulture);
             }
         }
     }

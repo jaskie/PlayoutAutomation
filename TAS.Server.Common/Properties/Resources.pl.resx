@@ -393,10 +393,10 @@
   <data name="TAspectConversion_Force4_3" xml:space="preserve">
     <value>Brak, wymuś 4:3</value>
   </data>
-  <data name="TxDCAMAudioExportFormat_Channels4Bits16" xml:space="preserve">
+  <data name="TmXFAudioExportFormat_Channels4Bits16" xml:space="preserve">
     <value>4 kanały, 16 bitów na próbkę</value>
   </data>
-  <data name="TxDCAMAudioExportFormat_Channels4Bits24" xml:space="preserve">
+  <data name="TmXFAudioExportFormat_Channels4Bits24" xml:space="preserve">
     <value>4 kanały, 24 bity na próbkę</value>
   </data>
   <data name="TMediaErrorInfo_Missing" xml:space="preserve">
@@ -435,7 +435,7 @@
   <data name="TVideoFormat_NTSC_FHA" xml:space="preserve">
     <value>NTSC (16:9)</value>
   </data>
-  <data name="TxDCAMAudioExportFormat_Channels8Bits16" xml:space="preserve">
+  <data name="TmXFAudioExportFormat_Channels8Bits16" xml:space="preserve">
     <value>8 kanałów, 16 bitów na próbkę</value>
   </data>
   <data name="TMediaCategory_Insert" xml:space="preserve">
