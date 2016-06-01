@@ -370,7 +370,7 @@ namespace TAS.Client.ViewModels
         }
 
         public bool EnableGPIForNewEvents { get { return _engine.EnableGPIForNewEvents; } set { _engine.EnableGPIForNewEvents = value; } }
-        public bool CanEnableGPI { get { return  _engine.LocalGpi != null || _engine.Gpi != null; } } 
+        public bool CanEnableGPI { get { return _engine.LocalGpi != null || _engine.Gpi != null && _mediaType == TMediaType.Movie; } } 
         
         private string _okButtonText = "OK";
         public string OkButtonText { get { return _okButtonText; }

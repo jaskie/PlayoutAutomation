@@ -62,7 +62,7 @@
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" Content="{Resx _search}" HorizontalAlignment="Center" VerticalAlignment="Center" />
             <TextBox Name="tbSearch" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="tbSearch_KeyDown" />
-            <Button Grid.Column="4" HorizontalAlignment="Right" Content="{Binding OkButtonText}" Margin="5,3" Width="70" Command="{Binding CommandAdd}" IsDefault="True" />
+            <Button Grid.Column="4" HorizontalAlignment="Right" Content="{Binding OkButtonText}" Margin="5,3" Width="70" Command="{Binding CommandAdd}" Click="ButtonOK_Click"  IsDefault="True" />
             <Button Grid.Column="4" HorizontalAlignment="Left" Content="{Resx _cancel}" Margin="5,3" Width="70" IsCancel="True" Click="ButtonCancel_Click" />
             <ComboBox Grid.Column="3" Margin="5,3" VerticalAlignment="Center" ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" >
                 <ComboBox.ItemTemplate>
@@ -102,14 +102,15 @@
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>                    
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="295"/>
+                <ColumnDefinition Width="16.5"/>
+                <ColumnDefinition Width="18.5"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
-                <CheckBox Margin="5" IsChecked="{Binding EnableGPIForNewEvents}" Content="{Resx _enableGPIForNewEvents}" Visibility="{Binding CanEnableGPI, Converter={StaticResource BoolToVis}}"/>
-                <ContentControl x:Name="_preview" Content="{Binding PreviewView}" Width="330"/>
-            </StackPanel>
-            <DataGrid 
+            <ContentControl Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" Content="{Binding PreviewView}" Width="330" Grid.ColumnSpan="3"/>
+            <DockPanel>
+                <CheckBox DockPanel.Dock="Top" Margin="5" IsChecked="{Binding EnableGPIForNewEvents}" Content="{Resx _enableGPIForNewEvents}" Visibility="{Binding CanEnableGPI, Converter={StaticResource BoolToVis}}"/>
+                <DataGrid 
                 x:Name="gSearch" 
                 SelectionUnit="FullRow" 
                 SelectionMode="Single" 
@@ -120,120 +121,121 @@
                 SelectionChanged="DataGrid_SelectionChanged" 
                 IsReadOnly="True"
                 RowHeaderWidth="0">
-                <DataGrid.Resources>
-                    <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
-                </DataGrid.Resources>
-                <DataGrid.RowStyle>
-                    <Style TargetType="DataGridRow">
-                        <Style.Resources>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Navy"/>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="White"/>
-                        </Style.Resources>
-                        <Setter Property="DetailsVisibility" Value="{Binding IsExpanded, Converter={StaticResource BoolToVis}}" />
-                        <Setter Property="common:MouseDoubleClick.Command" Value="{Binding ElementName=gSearch, Path=DataContext.CommandAdd}" />
-                        <Setter Property="Background" Value="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}" />
-                    </Style>
-                </DataGrid.RowStyle>
-                <DataGrid.Columns>
-                    <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" CanUserSort="False" Width="20" Visibility="{Binding Data.IsDisplayMediaCategory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <ToggleButton Visibility="{Binding HasSegments, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsExpanded, UpdateSourceTrigger=PropertyChanged}" Width="14" Height="14" Style="{StaticResource toggleButtonStyle}"  />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTemplateColumn x:Name="isTrimmedColumn" Width="20" CanUserResize="False" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Image x:Name="trimmedImage" Height="16" />
-                                <DataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding IsTrimmed}" Value="True">
-                                        <Setter Property="Source" TargetName="trimmedImage" Value="/TAS.Client.Common;component/Images/Indicators/scizors.png" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsTrimmed}" Value="False">
-                                        <Setter Property="Source" TargetName="trimmedImage" Value="{x:Null}" />
-                                    </DataTrigger>
-                                </DataTemplate.Triggers>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsDisplayMediaCategory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Image>
-                                    <Image.Style>
-                                        <Style TargetType="Image">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding MediaCategory}" Value="Show">
-                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/show.png"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding MediaCategory}" Value="Commercial">
-                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/commercial.png"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding MediaCategory}" Value="Promo">
-                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/promo.png"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding MediaCategory}" Value="Sponsored">
-                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/sponsored.png"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding MediaCategory}" Value="Fill">
-                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/fill.png"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding MediaCategory}" Value="Insert">
-                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/insert.png"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Image.Style>
-                                </Image>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.ClipName}" Width="3*" Binding="{Binding MediaName, Mode=OneWay}" />
-                    <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.IngestDate}" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" />
-                    <DataGridTextColumn x:Name="tcStartColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.TCStart}" Binding="{Binding TcPlay, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" />
-                    <DataGridTextColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Binding="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}"/>
-                    <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.File}" Binding="{Binding FileName, Mode=OneWay}" Width="2*" />
-                </DataGrid.Columns>
-                <DataGrid.RowDetailsTemplate >
-                    <DataTemplate>
-                        <ListView ItemsSource="{Binding MediaSegments}" SelectionMode="Single" SelectedItem="{Binding SelectedSegment}" Background="#FFE0EFFF" BorderThickness="0" SelectionChanged="ListView_SelectionChanged">
-                            <ListView.View>
-                                <GridView >
-                                    <GridView.ColumnHeaderContainerStyle>
-                                        <Style TargetType="GridViewColumnHeader">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </Style>
-                                    </GridView.ColumnHeaderContainerStyle>
-                                    <GridViewColumn Width="{Binding ElementName=toggleColumn, Path=ActualWidth}" >
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate />
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                    <GridViewColumn Width="{Binding ElementName=categoryColumn, Path=ActualWidth}" >
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate />
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                    <GridViewColumn Width="{Binding ElementName=isTrimmedColumn, Path=ActualWidth}"  >
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate />
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                    <GridViewColumn DisplayMemberBinding="{Binding SegmentName, Mode=OneWay}" Width="{Binding ElementName=clipNameColumn, Path=ActualWidth}" TextBlock.TextAlignment="Left" />
-                                    <GridViewColumn Width="{Binding ElementName=ingestDateColumn, Path=ActualWidth}">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate />
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                    <GridViewColumn DisplayMemberBinding="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Width="{Binding ElementName=tcStartColumn, Path=ActualWidth}" TextBlock.TextAlignment="Left" />
-                                    <GridViewColumn DisplayMemberBinding="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Width="{Binding ElementName=durationColumn, Path=ActualWidth}" TextBlock.TextAlignment="Left" />
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
-                    </DataTemplate>
-                </DataGrid.RowDetailsTemplate>
-            </DataGrid>
+                    <DataGrid.Resources>
+                        <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
+                    </DataGrid.Resources>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Resources>
+                                <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Navy"/>
+                                <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="White"/>
+                            </Style.Resources>
+                            <Setter Property="DetailsVisibility" Value="{Binding IsExpanded, Converter={StaticResource BoolToVis}}" />
+                            <Setter Property="common:MouseDoubleClick.Command" Value="{Binding ElementName=gSearch, Path=DataContext.CommandAdd}" />
+                            <Setter Property="Background" Value="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}" />
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" CanUserSort="False" Width="20" Visibility="{Binding Data.IsDisplayMediaCategory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ToggleButton Visibility="{Binding HasSegments, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsExpanded, UpdateSourceTrigger=PropertyChanged}" Width="14" Height="14" Style="{StaticResource toggleButtonStyle}"  />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn x:Name="isTrimmedColumn" Width="20" CanUserResize="False" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Image x:Name="trimmedImage" Height="16" />
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsTrimmed}" Value="True">
+                                            <Setter Property="Source" TargetName="trimmedImage" Value="/TAS.Client.Common;component/Images/Indicators/scizors.png" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsTrimmed}" Value="False">
+                                            <Setter Property="Source" TargetName="trimmedImage" Value="{x:Null}" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsDisplayMediaCategory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Image>
+                                        <Image.Style>
+                                            <Style TargetType="Image">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Show">
+                                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/show.png"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Commercial">
+                                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/commercial.png"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Promo">
+                                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/promo.png"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Sponsored">
+                                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/sponsored.png"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Fill">
+                                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/fill.png"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Insert">
+                                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/insert.png"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.ClipName}" Width="3*" Binding="{Binding MediaName, Mode=OneWay}" />
+                        <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.IngestDate}" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" />
+                        <DataGridTextColumn x:Name="tcStartColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.TCStart}" Binding="{Binding TcPlay, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" />
+                        <DataGridTextColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Binding="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}"/>
+                        <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.File}" Binding="{Binding FileName, Mode=OneWay}" Width="2*" />
+                    </DataGrid.Columns>
+                    <DataGrid.RowDetailsTemplate >
+                        <DataTemplate>
+                            <ListView ItemsSource="{Binding MediaSegments}" SelectionMode="Single" SelectedItem="{Binding SelectedSegment}" Background="#FFE0EFFF" BorderThickness="0" SelectionChanged="ListView_SelectionChanged">
+                                <ListView.View>
+                                    <GridView >
+                                        <GridView.ColumnHeaderContainerStyle>
+                                            <Style TargetType="GridViewColumnHeader">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </Style>
+                                        </GridView.ColumnHeaderContainerStyle>
+                                        <GridViewColumn Width="{Binding ElementName=toggleColumn, Path=ActualWidth}" >
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate />
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="{Binding ElementName=categoryColumn, Path=ActualWidth}" >
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate />
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="{Binding ElementName=isTrimmedColumn, Path=ActualWidth}"  >
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate />
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn DisplayMemberBinding="{Binding SegmentName, Mode=OneWay}" Width="{Binding ElementName=clipNameColumn, Path=ActualWidth}" TextBlock.TextAlignment="Left" />
+                                        <GridViewColumn Width="{Binding ElementName=ingestDateColumn, Path=ActualWidth}">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate />
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn DisplayMemberBinding="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Width="{Binding ElementName=tcStartColumn, Path=ActualWidth}" TextBlock.TextAlignment="Left" />
+                                        <GridViewColumn DisplayMemberBinding="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Width="{Binding ElementName=durationColumn, Path=ActualWidth}" TextBlock.TextAlignment="Left" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </DataTemplate>
+                    </DataGrid.RowDetailsTemplate>
+                </DataGrid>
+            </DockPanel>
         </Grid>
     </Grid>
 </Window>

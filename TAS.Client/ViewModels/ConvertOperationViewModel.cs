@@ -131,8 +131,18 @@ namespace TAS.Client.ViewModels
             set
             {
                 if (SetField(ref _destMediaName, value, "DestMediaName"))
-                    DestFileName = FileUtils.SanitizeFileName(value) + FileUtils.DefaultFileExtension(_convertOperation.DestMedia.MediaType);
+                    _makeFileName();
             }
+        }
+
+        void _makeFileName()
+        {
+            List<string> filenameParts = new List<string>();
+            if (!string.IsNullOrWhiteSpace(DestExternalId))
+                filenameParts.Add(DestExternalId);
+            if (!string.IsNullOrWhiteSpace(DestMediaName))
+                filenameParts.Add(DestMediaName);
+            DestFileName = FileUtils.SanitizeFileName(string.Join(" ", filenameParts)) + FileUtils.DefaultFileExtension(_convertOperation.DestMedia.MediaType);
         }
 
         private TimeSpan _startTC;
@@ -149,6 +159,16 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _duration, value, "Duration"); }
         }
 
+        string _destExternalId;
+        public string DestExternalId
+        {
+            get { return _destExternalId; }
+            set
+            {
+                if (SetField(ref _destExternalId, value, "DestExternalId"))
+                    _makeFileName();
+            }
+        }
 
         string _destFileName;
         public string DestFileName { 
@@ -300,6 +320,8 @@ namespace TAS.Client.ViewModels
         public void Apply()
         {
             _convertOperation.DestMedia.MediaName = _destMediaName;
+            if (_convertOperation.DestMedia is IPersistentMedia)
+                ((IPersistentMedia)_convertOperation.DestMedia).IdAux = _destExternalId;
             _convertOperation.DestMedia.FileName = _destFileName;
             _convertOperation.StartTC = _startTC;
             _convertOperation.Duration = _duration;

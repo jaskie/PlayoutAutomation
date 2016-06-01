@@ -71,5 +71,10 @@ namespace TAS.Client
         private void MediaSearchWindow_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
         }
+
+        private void ButtonOK_Click(object sender, RoutedEventArgs e)
+        {
+            tbSearch.SelectAll();
+        }
     }
 }

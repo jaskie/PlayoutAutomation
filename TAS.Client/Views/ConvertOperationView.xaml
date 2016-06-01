@@ -27,6 +27,8 @@
             <TextBox Text="{Binding SourceFileName, Mode=OneWay}" IsReadOnly="True" IsEnabled="False" />
             <Label Content="{Resx _destMediaName}"/>
             <TextBox Text="{Binding DestMediaName, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Content="{Resx _destExternalId}"/>
+            <TextBox Text="{Binding DestExternalId, UpdateSourceTrigger=PropertyChanged}" />
             <Label Content="{Resx _destFileName}" />
             <TextBox Text="{Binding DestFileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
             <StackPanel Visibility="{Binding IsStill, Converter={StaticResource BoolToVis}}">

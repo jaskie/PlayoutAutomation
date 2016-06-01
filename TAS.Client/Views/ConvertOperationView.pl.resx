@@ -132,6 +132,9 @@
   <data name="_conversions" xml:space="preserve">
     <value>Konwersje</value>
   </data>
+  <data name="_destExternalId" xml:space="preserve">
+    <value>Zewnętrzne ID (ZDP)</value>
+  </data>
   <data name="_destFileName" xml:space="preserve">
     <value>Nazwa pliku</value>
   </data>
