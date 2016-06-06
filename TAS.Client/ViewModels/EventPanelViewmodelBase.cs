@@ -170,7 +170,6 @@ namespace TAS.Client.ViewModels
 
         protected void LoadChildrens()
         {
-            UiServices.SetBusyState();
             foreach (IEvent se in _event.SubEvents)
             {
                 _childrens.Add(CreateChildEventPanelViewmodelForEvent(se));

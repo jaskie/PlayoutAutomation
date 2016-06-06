@@ -438,40 +438,45 @@ namespace TAS.Client.ViewModels
             get { return _mediaDirectory; }
             set 
             {
-                if (_mediaDirectory != value)
+                if (_checkEditMediaSaved())
                 {
-                    if (_mediaDirectory != null)
+                    if (_mediaDirectory != value)
                     {
-                        _mediaDirectory.MediaAdded -= MediaAdded;
-                        _mediaDirectory.MediaRemoved -= MediaRemoved;
-                        _mediaDirectory.PropertyChanged -= MediaDirectoryPropertyChanged;
+                        if (_mediaDirectory != null)
+                        {
+                            _mediaDirectory.MediaAdded -= MediaAdded;
+                            _mediaDirectory.MediaRemoved -= MediaRemoved;
+                            _mediaDirectory.PropertyChanged -= MediaDirectoryPropertyChanged;
+                        }
+                        _mediaDirectory = value;
+                        if (value != null)
+                        {
+                            value.MediaAdded += MediaAdded;
+                            value.MediaRemoved += MediaRemoved;
+                            value.PropertyChanged += MediaDirectoryPropertyChanged;
+                            if (value is IArchiveDirectory)
+                                if (!string.IsNullOrEmpty((value as IArchiveDirectory).SearchString))
+                                    SearchText = (value as IArchiveDirectory).SearchString;
+                        }
+                        PreviewDisplay = _previewViewModel != null
+                            && value != null
+                            && (!(value is IIngestDirectory) || (value as IIngestDirectory).AccessType == TDirectoryAccessType.Direct);
+                        if (_previewViewModel != null)
+                            _previewViewModel.IsSegmentsVisible = value is IServerDirectory || value is IArchiveDirectory;
+                        _reloadFiles();
+                        SelectedMedia = null;
+                        NotifyPropertyChanged("MediaDirectory");
+                        NotifyPropertyChanged("DisplayDirectoryInfo");
+                        NotifyPropertyChanged("IsDisplayFolder");
+                        NotifyPropertyChanged("IsDisplayIsArchived");
+                        NotifyPropertyChanged("IsDisplayMediaCategory");
+                        NotifyPropertyChanged("IsDisplayIngestStatus");
+                        InvalidateRequerySuggested();
+                        _notifyDirectoryPropertiesChanged();
                     }
-                    _mediaDirectory = value;
-                    if (value != null)
-                    {
-                        value.MediaAdded += MediaAdded;
-                        value.MediaRemoved += MediaRemoved;
-                        value.PropertyChanged += MediaDirectoryPropertyChanged;
-                        if (value is IArchiveDirectory)
-                            if (!string.IsNullOrEmpty((value as IArchiveDirectory).SearchString))
-                                SearchText = (value as IArchiveDirectory).SearchString;
-                    }
-                    PreviewDisplay = _previewViewModel != null 
-                        && value != null 
-                        && (!(value is IIngestDirectory) || (value as IIngestDirectory).AccessType == TDirectoryAccessType.Direct);
-                    if (_previewViewModel != null)
-                        _previewViewModel.IsSegmentsVisible = value is IServerDirectory || value is IArchiveDirectory;
-                    _reloadFiles();
-                    SelectedMedia = null;
-                    NotifyPropertyChanged("MediaDirectory");
-                    NotifyPropertyChanged("DisplayDirectoryInfo");
-                    NotifyPropertyChanged("IsDisplayFolder");
-                    NotifyPropertyChanged("IsDisplayIsArchived");
-                    NotifyPropertyChanged("IsDisplayMediaCategory");
-                    NotifyPropertyChanged("IsDisplayIngestStatus");
-                    InvalidateRequerySuggested();
-                    _notifyDirectoryPropertiesChanged();
                 }
+                else
+                    Application.Current.Dispatcher.BeginInvoke((Action)delegate () { NotifyPropertyChanged("MediaDirectory"); }); //revert folder display
             }
         }
 

@@ -86,7 +86,6 @@ namespace TAS.Client.Config
 
         private void _testConnectivity(object obj)
         {
-            UiServices.SetBusyState();
             if (Database.TestConnect(tasConnectionString))
             {
                 Database.Open(tasConnectionString, tasConnectionStringSecondary);
@@ -106,7 +105,6 @@ namespace TAS.Client.Config
 
         private void _testConnectivitySecondary(object obj)
         {
-            UiServices.SetBusyState();
             if (Database.TestConnect(tasConnectionStringSecondary))
                 MessageBox.Show(Window.GetWindow(View), "Connection successful", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
             else
@@ -115,7 +113,6 @@ namespace TAS.Client.Config
 
         private void _clonePrimaryDatabase(object obj)
         {
-            UiServices.SetBusyState();
             if (Database.TestConnect(tasConnectionStringSecondary))
             {
                 if (MessageBox.Show(Window.GetWindow(View), "Secondary database already exists. Delete it first?", "Warning - database exists", MessageBoxButton.YesNo, MessageBoxImage.Hand) != MessageBoxResult.Yes)

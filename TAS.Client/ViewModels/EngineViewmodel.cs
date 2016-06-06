@@ -412,19 +412,16 @@ namespace TAS.Client.ViewModels
     
         private void _pasteSelected(object obj)
         {
-            UiServices.SetBusyState();
             EventClipboard.Paste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), (string)obj, true));
         }
 
         private void _copySelected(object obj)
         {
-            UiServices.SetBusyState();
             EventClipboard.Copy(_selectedEvents);
         }
 
         private void _cutSelected(object obj)
         {
-            UiServices.SetBusyState();
             EventClipboard.Cut(_selectedEvents);
         }
 
@@ -529,7 +526,6 @@ namespace TAS.Client.ViewModels
                 && (containerList.Count() == 0
                     || MessageBox.Show(string.Format(resources._query_DeleteSelectedContainers, containerList.Count(), containerList.AsString(Environment.NewLine, 20)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
             {
-                UiServices.SetBusyState();
                 ThreadPool.QueueUserWorkItem(
                     o =>
                     {
