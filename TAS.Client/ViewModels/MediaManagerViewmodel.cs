@@ -468,7 +468,7 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged("IsDisplayFolder");
                     NotifyPropertyChanged("IsDisplayIsArchived");
                     NotifyPropertyChanged("IsDisplayMediaCategory");
-                    NotifyPropertyChanged("IsDisplayIngestState");
+                    NotifyPropertyChanged("IsDisplayIngestStatus");
                     InvalidateRequerySuggested();
                     _notifyDirectoryPropertiesChanged();
                 }
@@ -486,7 +486,7 @@ namespace TAS.Client.ViewModels
         public bool IsDisplayMediaCategory { get { return (_mediaDirectory is IServerDirectory || _mediaDirectory is IArchiveDirectory); } }
 
         public bool IsDisplayIsArchived { get { return _mediaDirectory is IServerDirectory; } }
-        public bool IsDisplayIngestState { get { return _mediaDirectory is IIngestDirectory || _mediaDirectory is IArchiveDirectory; } }
+        public bool IsDisplayIngestStatus { get { return _mediaDirectory is IIngestDirectory || _mediaDirectory is IArchiveDirectory; } }
 
         private void MediaDirectoryPropertyChanged(object sender, PropertyChangedEventArgs e)
         {

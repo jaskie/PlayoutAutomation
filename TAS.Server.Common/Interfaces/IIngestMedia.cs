@@ -8,6 +8,6 @@ namespace TAS.Server.Interfaces
 {
     public interface IIngestMedia : IMedia
     {
-        TIngestStatus IngestState { get; }
+        TIngestStatus IngestStatus { get; }
     }
 }

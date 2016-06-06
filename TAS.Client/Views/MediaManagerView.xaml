@@ -257,17 +257,17 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="10" x:Name="isIngesteddColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsDisplayIngestState, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                <DataGridTemplateColumn Width="10" x:Name="isIngesteddColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsDisplayIngestStatus, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image ToolTip="{Binding IngestState}">
+                            <Image ToolTip="{Binding IngestStatus}">
                                 <Image.Style>
                                     <Style TargetType="Image">
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IngestState}" Value="InProgress">
+                                            <DataTrigger Binding="{Binding IngestStatus}" Value="InProgress">
                                                 <Setter Property="Source" Value="/TAS.Client.Common;component/Images/IngestStates/InProgress.png"/>
                                             </DataTrigger>
-                                            <DataTrigger Binding="{Binding IngestState}" Value="Ready">
+                                            <DataTrigger Binding="{Binding IngestStatus}" Value="Ready">
                                                 <Setter Property="Source" Value="/TAS.Client.Common;component/Images/IngestStates/Ready.png"/>
                                             </DataTrigger>
                                         </Style.Triggers>

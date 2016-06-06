@@ -8,6 +8,6 @@ namespace TAS.Server.Interfaces
 {
     public interface IArchiveMedia: IPersistentMedia
     {
-        TIngestStatus IngestState { get; }
+        TIngestStatus IngestStatus { get; }
     }
 }

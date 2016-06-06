@@ -10,6 +10,6 @@ namespace TAS.Client.Model
     public class ArchiveMedia: PersistentMedia, IArchiveMedia
     {
         public override IMediaDirectory Directory { get { return Get<IArchiveDirectory>(); } set { SetField(value); } }
-        public TIngestStatus IngestState { get { return Get<TIngestStatus>(); } set { SetField(value); } }
+        public TIngestStatus IngestStatus { get { return Get<TIngestStatus>(); } set { SetField(value); } }
     }
 }

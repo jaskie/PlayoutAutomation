@@ -57,7 +57,7 @@ namespace TAS.Client.ViewModels
         public bool HasSegments { get { return SegmentCount != 0; } }
         public bool IsTrimmed { get { return TcPlay != TcStart || Duration != DurationPlay; } }
         public bool IsArchived { get { return Media is IServerMedia ? ((IServerMedia)Media).IsArchived : false; } }
-        public TIngestStatus IngestState { get { return Media is IIngestMedia ? ((IIngestMedia)Media).IngestState : Media is IArchiveMedia ? ((IArchiveMedia)Media).IngestState : TIngestStatus.NotReady; } }
+        public TIngestStatus IngestStatus { get { return Media is IIngestMedia ? ((IIngestMedia)Media).IngestStatus : Media is IArchiveMedia ? ((IArchiveMedia)Media).IngestStatus : TIngestStatus.NotReady; } }
         private bool _isExpanded;
         public bool IsExpanded
         {
@@ -127,8 +127,8 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("sDuration");
             if (e.PropertyName == "DurationPlay")
                 NotifyPropertyChanged("sDurationPlay");
-            if (e.PropertyName == "IngestState")
-                NotifyPropertyChanged("IngestState");
+            if (e.PropertyName == "IngestStatus")
+                NotifyPropertyChanged("IngestStatus");
             if (e.PropertyName == "FrameRate")
             {
                 NotifyPropertyChanged("sTcPlay");

@@ -92,14 +92,14 @@ namespace TAS.Server
                         switch (value)
                         {
                             case FileOperationStatus.Finished:
-                                im.IngestState = TIngestStatus.Ready;
+                                im.IngestStatus = TIngestStatus.Ready;
                                 break;
                             case FileOperationStatus.Waiting:
                             case FileOperationStatus.InProgress:
-                                im.IngestState = TIngestStatus.InProgress;
+                                im.IngestStatus = TIngestStatus.InProgress;
                                 break;
                             default:
-                                im.IngestState = TIngestStatus.Unknown;
+                                im.IngestStatus = TIngestStatus.Unknown;
                                 break;
                         }
                     ArchiveMedia am = SourceMedia as ArchiveMedia;
@@ -107,14 +107,14 @@ namespace TAS.Server
                         switch (value)
                         {
                             case FileOperationStatus.Finished:
-                                am.IngestState = TIngestStatus.Ready;
+                                am.IngestStatus = TIngestStatus.Ready;
                                 break;
                             case FileOperationStatus.Waiting:
                             case FileOperationStatus.InProgress:
-                                am.IngestState = TIngestStatus.InProgress;
+                                am.IngestStatus = TIngestStatus.InProgress;
                                 break;
                             default:
-                                am.IngestState = TIngestStatus.Unknown;
+                                am.IngestStatus = TIngestStatus.Unknown;
                                 break;
                         }
 

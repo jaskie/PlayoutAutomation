@@ -13,24 +13,24 @@ namespace TAS.Server
         public ArchiveMedia(IArchiveDirectory directory) : base(directory) { }
         public ArchiveMedia(IArchiveDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
 
-        private TIngestStatus _ingestState;
-        public TIngestStatus IngestState
+        private TIngestStatus _ingestStatus;
+        public TIngestStatus IngestStatus
         {
             get
             {
-                if (_ingestState == TIngestStatus.Unknown)
+                if (_ingestStatus == TIngestStatus.Unknown)
                 {
                     var sdir = _directory.MediaManager.MediaDirectoryPRI as ServerDirectory;
                     if (sdir != null)
                     {
                         var media = sdir.FindMediaByMediaGuid(_mediaGuid);
                         if (media != null && media.MediaStatus == TMediaStatus.Available)
-                            _ingestState = TIngestStatus.Ready;
+                            _ingestStatus = TIngestStatus.Ready;
                     }
                 }
-                return _ingestState;
+                return _ingestStatus;
             }
-            internal set { SetField(ref _ingestState, value, "IngestState"); }
+            internal set { SetField(ref _ingestStatus, value, "IngestStatus"); }
         }
 
         public override bool Save()
