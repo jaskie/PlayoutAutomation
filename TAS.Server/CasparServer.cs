@@ -131,7 +131,6 @@ namespace TAS.Server
                     C.CasparChannel = channels.Find(csc => csc.ID == C.ChannelNumber);
                     C.Initialize();
                 }
-                NotifyPropertyChanged("IsConnected");
             }
         }
         private void _casparDevice_ConnectionStatusChanged(object sender, Svt.Network.ConnectionEventArgs e)

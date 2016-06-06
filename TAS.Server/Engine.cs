@@ -58,7 +58,6 @@ namespace TAS.Server
 
         public event EventHandler<EngineTickEventArgs> EngineTick;
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
-        public event EventHandler<PropertyChangedEventArgs> ServerPropertyChanged;
 
         public bool EnableGPIForNewEvents { get; set; }
         [XmlElement("Gpi")]
@@ -153,24 +152,22 @@ namespace TAS.Server
             _frameTicks = FormatDescription.FrameTicks;
             _frameRate = FormatDescription.FrameRate;
             var chPRI = PlayoutChannelPRI;
-            Debug.WriteLine(chPRI, "About to initialize");
-            Debug.Assert(chPRI != null && chPRI.OwnerServer != null, "Null primary channel or its server");
             var chSEC = PlayoutChannelSEC;
             if (chSEC != null
-                && chSEC != chPRI
-                && chSEC.OwnerServer != null)
+                && chSEC != chPRI)
             {
                 ((CasparServer)chSEC.OwnerServer).MediaManager = this.MediaManager as MediaManager;
                 chSEC.OwnerServer.Initialize();
                 chSEC.OwnerServer.MediaDirectory.DirectoryName = chSEC.ChannelName;
+                chSEC.OwnerServer.PropertyChanged += _server_PropertyChanged;
             }
 
-            if (chPRI != null
-                && chPRI.OwnerServer != null)
+            if (chPRI != null)
             {
                 ((CasparServer)chPRI.OwnerServer).MediaManager = this.MediaManager as MediaManager;
                 chPRI.OwnerServer.Initialize();
                 chPRI.OwnerServer.MediaDirectory.DirectoryName = chPRI.ChannelName;
+                chPRI.OwnerServer.PropertyChanged += _server_PropertyChanged;
             }
 
             MediaManager.Initialize();
@@ -251,13 +248,18 @@ namespace TAS.Server
 
         internal void UnInitialize()
         {
-            Debug.WriteLine(this, "Begin uninitializing");
-
-            var ch = PlayoutChannelPRI;
             Debug.WriteLine(this, "Aborting engine thread");
             _engineThread.Abort();
             _engineThread.Join();
             EngineState = TEngineState.NotInitialized;
+
+            var chPRI = PlayoutChannelPRI;
+            var chSEC = PlayoutChannelSEC;
+            if (chSEC != null
+                && chSEC != chPRI)
+                chSEC.OwnerServer.PropertyChanged -= _server_PropertyChanged;
+            if (chPRI != null)
+                chPRI.OwnerServer.PropertyChanged -= _server_PropertyChanged;
 
             if (Remote != null)
             {
@@ -287,6 +289,39 @@ namespace TAS.Server
             if (h != null)
                 h(this, e);
         }
+
+        private void _server_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Action<IPlayoutServerChannel, List<IEvent>> channelConnected = (channel, ve) =>
+            {
+                foreach (Event ev in ve)
+                {
+                    channel.ReStart(ev);
+                    channel.SetVolume(VideoLayer.Program, _programAudioVolume);
+                    if (ev.Layer == VideoLayer.Program || ev.Layer == VideoLayer.Preset)
+                    {
+                        IMedia media = ev.Media;
+                        bool narrow = media != null && (media.VideoFormat == TVideoFormat.PAL || media.VideoFormat == TVideoFormat.NTSC || media.VideoFormat == TVideoFormat.PAL_P);
+                        if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
+                            channel.SetAspect(VideoLayer.Program, narrow);
+                    }
+                }
+            };
+
+            if (e.PropertyName == "IsConnected" && ((IPlayoutServer)sender).IsConnected)
+            {
+                var ve = _visibleEvents.Values.ToList();
+                if (PlayoutChannelPRI != null
+                    && sender == PlayoutChannelPRI.OwnerServer)
+                    channelConnected(PlayoutChannelPRI, ve);
+                if (PlayoutChannelSEC != null
+                    && sender == PlayoutChannelSEC.OwnerServer
+                    && PlayoutChannelSEC != PlayoutChannelPRI)
+                    channelConnected(PlayoutChannelSEC, ve);
+            }
+        }
+
+
 
         public ConnectionStateRedundant DatabaseConnectionState
         {
@@ -356,9 +391,6 @@ namespace TAS.Server
 
         private void _onServerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var handler = ServerPropertyChanged;
-            if (handler != null)
-                handler(sender, e);
         }
 
         public IEvent PlayingEvent(VideoLayer layer = VideoLayer.Program)
