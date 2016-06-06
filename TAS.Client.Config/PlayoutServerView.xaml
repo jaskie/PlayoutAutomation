@@ -31,6 +31,8 @@
                     <TextBox Text="{Binding ServerAddress, UpdateSourceTrigger=PropertyChanged}" />
                     <Label Content="Media folder"/>
                     <TextBox Text="{Binding MediaFolder, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Label Content="Animation folder"/>
+                    <TextBox Text="{Binding AnimationFolder, UpdateSourceTrigger=PropertyChanged}"/>
                     <Label Content="Server type"/>
                     <ComboBox SelectedItem="{Binding ServerType}" ItemsSource="{Binding ServerTypes}"/>
                 </StackPanel>

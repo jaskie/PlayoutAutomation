@@ -8,7 +8,7 @@ using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IEvent: IEventProperties, INotifyPropertyChanged
+    public interface IEvent: IEventProperties, INotifyPropertyChanged, ICloneable
     {
         UInt64 IdRundownEvent { get; set; }
         UInt64 IdEventBinding { get; }
@@ -37,8 +37,6 @@ namespace TAS.Server.Interfaces
         void Save();
         void Delete();
         bool AllowDelete();
-        IEvent Clone();
-
         bool Modified { get; }
         bool IsDeleted { get; }
         MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media);

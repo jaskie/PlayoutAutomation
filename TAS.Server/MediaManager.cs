@@ -57,7 +57,7 @@ namespace TAS.Server
             AnimationDirectoryPRI = (_engine.PlayoutChannelPRI == null) ? null : _engine.PlayoutChannelPRI.OwnerServer.AnimationDirectory;
             AnimationDirectorySEC = (_engine.PlayoutChannelSEC == null) ? null : _engine.PlayoutChannelSEC.OwnerServer.AnimationDirectory;
             AnimationDirectoryPRV = (_engine.PlayoutChannelPRV == null) ? null : _engine.PlayoutChannelPRV.OwnerServer.AnimationDirectory;
-            IMediaDirectory[] initializationList = new IMediaDirectory[] { MediaDirectoryPRI, MediaDirectorySEC, MediaDirectoryPRV, ArchiveDirectory };
+            IMediaDirectory[] initializationList = new IMediaDirectory[] { MediaDirectoryPRI, MediaDirectorySEC, MediaDirectoryPRV, AnimationDirectoryPRI, AnimationDirectorySEC, AnimationDirectoryPRV, ArchiveDirectory };
             foreach (IMediaDirectory dir in initializationList.OfType<IMediaDirectory>().Distinct())
                 dir.Initialize();
             if (ArchiveDirectory != null)
@@ -282,10 +282,10 @@ namespace TAS.Server
         public void SynchronizeSecToPri(bool deleteNotExisted)
         {
             if (MediaDirectoryPRI != null
-                && MediaDirectoryPRV != null
-                && MediaDirectoryPRI != MediaDirectoryPRV
+                && MediaDirectorySEC != null
+                && MediaDirectoryPRI != MediaDirectorySEC
                 && MediaDirectoryPRI.IsInitialized
-                && MediaDirectoryPRV.IsInitialized)
+                && MediaDirectorySEC.IsInitialized)
             {
                 ThreadPool.QueueUserWorkItem(o =>
                {
@@ -295,10 +295,10 @@ namespace TAS.Server
                    {
                        if (pRImedia.MediaStatus == TMediaStatus.Available && pRImedia.FileExists())
                        {
-                           ServerMedia secMedia = (ServerMedia)((MediaDirectory)MediaDirectoryPRV).FindMediaByMediaGuid(pRImedia.MediaGuid);
+                           ServerMedia secMedia = (ServerMedia)((MediaDirectory)MediaDirectorySEC).FindMediaByMediaGuid(pRImedia.MediaGuid);
                            if (secMedia == null)
                            {
-                               secMedia = (ServerMedia)((ServerDirectory)MediaDirectoryPRV).FindMediaFirst(m => m.FileExists() && m.FileSize == pRImedia.FileSize && m.FileName == pRImedia.FileName && m.LastUpdated.DateTimeEqualToDays(pRImedia.LastUpdated));
+                               secMedia = (ServerMedia)((ServerDirectory)MediaDirectorySEC).FindMediaFirst(m => m.FileExists() && m.FileSize == pRImedia.FileSize && m.FileName == pRImedia.FileName && m.LastUpdated.DateTimeEqualToDays(pRImedia.LastUpdated));
                                if (secMedia != null)
                                {
                                    secMedia.CloneMediaProperties(pRImedia);
@@ -306,7 +306,7 @@ namespace TAS.Server
                                }
                                else
                                {
-                                   secMedia = (ServerMedia)MediaDirectoryPRV.GetServerMedia(pRImedia, true);
+                                   secMedia = (ServerMedia)MediaDirectorySEC.GetServerMedia(pRImedia, true);
                                    _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = pRImedia, DestMedia = secMedia });
                                }
                            }
@@ -314,15 +314,15 @@ namespace TAS.Server
                    }
                    if (deleteNotExisted)
                    {
-                       var prvMediaList = MediaDirectoryPRV.GetFiles().ToList();
-                       foreach (ServerMedia prvMedia in prvMediaList)
+                       var secMediaList = MediaDirectorySEC.GetFiles().ToList();
+                       foreach (ServerMedia secMedia in secMediaList)
                        {
-                           if ((ServerMedia)((MediaDirectory)MediaDirectoryPRI).FindMediaByMediaGuid(prvMedia.MediaGuid) == null)
-                               _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = prvMedia });
+                           if ((ServerMedia)((MediaDirectory)MediaDirectoryPRI).FindMediaByMediaGuid(secMedia.MediaGuid) == null)
+                               _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = secMedia });
                        }
-                       var duplicatesList = prvMediaList.Where(m => prvMediaList.FirstOrDefault(d => d.MediaGuid == m.MediaGuid && ((ServerMedia)d).IdPersistentMedia != ((ServerMedia)m).IdPersistentMedia) != null).Select(m => m.MediaGuid).Distinct();
+                       var duplicatesList = secMediaList.Where(m => secMediaList.FirstOrDefault(d => d.MediaGuid == m.MediaGuid && ((ServerMedia)d).IdPersistentMedia != ((ServerMedia)m).IdPersistentMedia) != null).Select(m => m.MediaGuid).Distinct();
                        foreach(var mediaGuid in duplicatesList)
-                           ((MediaDirectory)MediaDirectoryPRV)
+                           ((MediaDirectory)MediaDirectorySEC)
                            .FindMediaList(m => m.MediaGuid == mediaGuid)
                            .Skip(1).ToList()
                            .ForEach(m => m.Delete());

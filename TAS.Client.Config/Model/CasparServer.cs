@@ -20,6 +20,7 @@ namespace TAS.Client.Config.Model
         public bool IsNew = true;
         public string ServerAddress { get; set; }
         public string MediaFolder { get; set; }
+        public string AnimationFolder { get; set; }
         [XmlIgnore]
         public ulong Id { get; set; }
         public TServerType ServerType { get; set; }

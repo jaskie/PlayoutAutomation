@@ -100,7 +100,7 @@ namespace TAS.Client.Common
         //makes sure a binding can proceed
         private bool BindingCanProceed(BindingExpression bindingExpression)
         {
-            Boolean canProceed = false;
+            bool canProceed = false;
 
             //cant update if there is no BindingExpression
             if (bindingExpression == null) { }

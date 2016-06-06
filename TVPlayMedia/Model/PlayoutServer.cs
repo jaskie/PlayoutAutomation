@@ -22,6 +22,8 @@ namespace TAS.Client.Model
 
         public string MediaFolder { get { return Get<string>(); } set { SetField(value); } }
 
+        public string AnimationFolder { get { return Get<string>(); } set { SetField(value); } }
+
         public string ServerAddress { get { return Get<string>(); } set { SetField(value); } }
 
         public void Initialize()

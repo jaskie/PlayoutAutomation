@@ -38,15 +38,6 @@ namespace TAS.Client
                         MediaManagerViewmodel newMediaManagerViewmodel = new MediaManagerViewmodel(engine.MediaManager, engine);
                         tabIngest.Content = newMediaManagerViewmodel.View;
                         _tabs.Add(tabIngest);
-
-                        //Debug.WriteLine(engine.Templates, "Creating tab for");
-                        //TabItem tabTemplates = new TabItem();
-                        //tabTemplates.Header = engine.EngineName + " - Animacje";
-                        //TemplatesView newTemplatesView = new TemplatesView();
-                        //TemplatesViewmodel newTemplatesViewmodel = new TemplatesViewmodel(engine);
-                        //newTemplatesView.DataContext = newTemplatesViewmodel;
-                        //tabTemplates.Content = newTemplatesView;
-                        //tcChannels.Items.Add(tabTemplates);
                     }
             }
         }

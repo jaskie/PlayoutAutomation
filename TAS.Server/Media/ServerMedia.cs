@@ -58,6 +58,7 @@ namespace TAS.Server
         {
 
             bool result = false;
+            var directory = Directory as ServerDirectory;
             if (MediaStatus != TMediaStatus.Unknown)
             {
                 if (MediaStatus == TMediaStatus.Deleted)
@@ -67,19 +68,19 @@ namespace TAS.Server
                 }
                 else
                 {
-                    if (Directory is ServerDirectory)
+                    if (directory != null)
                     {
                         if (IdPersistentMedia == 0)
-                            result = this.DbInsert(((ServerDirectory)_directory).Server.Id);
+                            result = this.DbInsert(directory.Server.Id);
                         else
                         if (Modified)
-                            result = this.DbUpdate(((ServerDirectory)_directory).Server.Id);
+                            result = this.DbUpdate(directory.Server.Id);
                     }
                     Modified = false;
                 }
             }
-            if (result && _directory is ServerDirectory)
-                (_directory as ServerDirectory).OnMediaSaved(this);
+            if (result && directory != null)
+                directory.OnMediaSaved(this);
             return result;
         }
 

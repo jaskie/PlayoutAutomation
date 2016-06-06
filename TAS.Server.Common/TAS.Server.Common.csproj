@@ -105,6 +105,7 @@
     <Compile Include="Interfaces\IMediaManager.cs" />
     <Compile Include="Interfaces\IMediaProperties.cs" />
     <Compile Include="Interfaces\IMediaSegment.cs" />
+    <Compile Include="Interfaces\IAnimatedMedia.cs" />
     <Compile Include="Interfaces\IPersistent.cs" />
     <Compile Include="Interfaces\IPersistentMedia.cs" />
     <Compile Include="Interfaces\IPlayoutServer.cs" />

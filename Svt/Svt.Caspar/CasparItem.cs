@@ -121,7 +121,7 @@ namespace Svt.Caspar
 
 			string loop = reader["loop"];
 			bool bLoop = false;
-			Boolean.TryParse(loop, out bLoop);
+			bool.TryParse(loop, out bLoop);
 			Loop = bLoop;
 
 			reader.ReadStartElement();

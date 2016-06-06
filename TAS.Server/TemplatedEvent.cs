@@ -37,32 +37,22 @@ namespace TAS.Server
                         scheduledDelay,
                         TimeSpan.Zero,
                         mediaGuid,
-                        eventName, 
+                        eventName,
                         startTime,
                         TimeSpan.Zero,
                         null,
                         TimeSpan.Zero,
                         TTransitionType.Cut,
-                        0, 
+                        0,
                         0,
                         string.Empty,
                         isEnabled,
                         false,
-                        false, 
+                        false,
                         gpi
                         )
         { }
-        public Dictionary<string, string> Fields
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public Dictionary<string, string> Fields { get; set; }
     }
 }

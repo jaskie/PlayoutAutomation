@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 
 namespace TAS.Server
 {
-    public class GPIState  
+    public class GPIState
     {
         [XmlIgnore]
         public object SyncRoot = new object();

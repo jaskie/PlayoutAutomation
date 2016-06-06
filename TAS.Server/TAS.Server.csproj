@@ -94,7 +94,7 @@
     <Compile Include="Media\ServerDirectory.cs" />
     <Compile Include="Media\ServerMedia.cs" />
     <Compile Include="Media\TempDirectory.cs" />
-    <Compile Include="Media\TemplatedMedia.cs" />
+    <Compile Include="Media\AnimatedMedia.cs" />
     <Compile Include="Media\TempMedia.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerBinder.cs" />

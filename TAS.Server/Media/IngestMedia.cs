@@ -13,7 +13,7 @@ namespace TAS.Server
 {
     public class IngestMedia : Media, IIngestMedia
     {
-        public IngestMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
+        internal IngestMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
 
         public override bool RenameTo(string newFileName)
         {

@@ -136,7 +136,7 @@ namespace TAS.Server
             return (timecomp == 0) ? this.IdRundownEvent.CompareTo((obj as Event).IdRundownEvent) : timecomp;
         }
 
-        public IEvent Clone()
+        public object Clone()
         {
             IEvent newEvent = Engine.AddNewEvent(
                 0,
@@ -166,12 +166,12 @@ namespace TAS.Server
 
             foreach (Event e in SubEvents)
             {
-                IEvent newSubevent = e.Clone();
+                IEvent newSubevent = (IEvent)e.Clone();
                 newEvent.InsertUnder(newSubevent);
                 IEvent ne = e.Next;
                 while (ne != null)
                 {
-                    IEvent nec = ne.Clone();
+                    IEvent nec = (IEvent)ne.Clone();
                     newSubevent.InsertAfter(nec);
                     newSubevent = nec;
                     ne = ne.Next;

@@ -73,7 +73,7 @@
                 </Style>
             </DockPanel.Resources>
             <Label Content="{Resx _directory}"/>
-            <ComboBox ItemsSource="{Binding MediaDirectories}" SelectedValue="{Binding MediaDirectory}" DisplayMemberPath="DirectoryName" ToolTip="{Binding MediaDirectory.Folder}" Margin="0, 1" >
+            <ComboBox ItemsSource="{Binding MediaDirectories}" SelectedValue="{Binding SelectedDirectory}" DisplayMemberPath="DirectoryName" ToolTip="{Binding SelectedDirectory.Folder}" Margin="0, 1" >
                 <ComboBox.ItemContainerStyle>
                     <Style TargetType="{x:Type ComboBoxItem}">
                         <Setter Property="ToolTip" Value="{Binding Folder}" />

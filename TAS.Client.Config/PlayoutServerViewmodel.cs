@@ -18,6 +18,7 @@ namespace TAS.Client.Config
         }
         private string _serverAddress;
         private string _mediaFolder;
+        private string _animationFolder;
         private TServerType _serverType;
         private PlayoutServerChannelViewmodel _selectedPlayoutServerChannel;
         static readonly Array _serverTypes = Enum.GetValues(typeof(TServerType));
@@ -69,6 +70,7 @@ namespace TAS.Client.Config
 
         public string ServerAddress { get { return _serverAddress; } set { SetField(ref _serverAddress, value, "ServerAddress"); } }
         public string MediaFolder { get { return _mediaFolder; } set { SetField(ref _mediaFolder, value, "MediaFolder"); } }
+        public string AnimationFolder { get { return _animationFolder; } set { SetField(ref _animationFolder, value, "AnimationFolder"); } }
         public TServerType ServerType { get { return _serverType; } set { SetField(ref _serverType, value, "ServerType"); } }
         public Array ServerTypes { get { return _serverTypes; } }
 
