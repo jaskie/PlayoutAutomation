@@ -23,6 +23,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel Visibility="{Binding ShowButtons, Converter={StaticResource BoolToVis}}" FlowDirection="RightToLeft" Orientation="Horizontal" Height="37">
             <StackPanel.Resources>
@@ -252,5 +253,27 @@
                 </DockPanel>
             </StackPanel>
         </ScrollViewer>
+        <DockPanel Grid.Row="2" Height="120" Visibility="{Binding IsAnimatedMedia, Converter={StaticResource BoolToVis}}">
+            <ToolBar DockPanel.Dock="Top">
+                <ToolBarPanel Height="24" Orientation="Horizontal">
+                    <Button Command="{Binding CommandAddField}" Padding="0">
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
+                    </Button>
+                    <Button Command="{Binding CommandEditField}" Padding="0">
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
+                    </Button>
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+                    <Button Command="{Binding CommandDeleteField}" Padding="0">
+                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
+                    </Button>
+                </ToolBarPanel>
+            </ToolBar>
+            <DataGrid ItemsSource="{Binding Fields}" SelectedItem="{Binding SelectedField}" IsReadOnly="True" AutoGenerateColumns="False" >
+                <DataGrid.Columns>
+                    <DataGridTextColumn Width="*" Header="{Resx _fields.Key, ResxName=TAS.Client.Views.MediaEditView}" Binding="{Binding Key}"/>
+                    <DataGridTextColumn Width="2*" Header="{Resx _fields.Value, ResxName=TAS.Client.Views.MediaEditView}" Binding="{Binding Value}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
     </Grid>
 </UserControl>

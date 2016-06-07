@@ -8,6 +8,7 @@
         d:DataContext="{x:Type common:OkCancelViewmodelBase`1}"
         MinHeight="100"
         MinWidth="180"
+        Title="{Binding Title}"
         SizeToContent="WidthAndHeight"
         >
     <DockPanel>

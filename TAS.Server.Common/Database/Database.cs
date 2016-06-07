@@ -489,6 +489,7 @@ namespace TAS.Server.Database
             byte typVideo = dataReader.IsDBNull(dataReader.GetOrdinal("typVideo")) ? (byte)0 : dataReader.GetByte("typVideo");
             T media = (T)_archiveMediaConstructorInfo.Invoke(new object[] { dir, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idArchiveMedia") });
             media._mediaReadFields(dataReader);
+            media.Modified = false;
             return media;
         }
 
@@ -1003,7 +1004,6 @@ VALUES
                 ((IServerMedia)media).DoNotArchive = (flags & 0x1) != 0;
             media.Protected = (flags & 0x2) != 0;
             media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
-            media.Modified = false;
         }
 
         static System.Reflection.ConstructorInfo _serverMediaConstructorInfo;
@@ -1016,7 +1016,7 @@ VALUES
                 if (_animatedMediaConstructorInfo == null)
                     _animatedMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IMediaDirectory), typeof(Guid), typeof(UInt64) });
 
-                DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM serverMedia WHERE idServer=@idServer and typMedia = @typMedia", _connection);
+                DbCommandRedundant cmd = new DbCommandRedundant("SELECT servermedia.*, media_templated.`Fields` FROM serverMedia LEFT JOIN media_templated ON servermedia.MediaGuid = media_templated.MediaGuid WHERE idServer=@idServer and typMedia = @typMedia", _connection);
                 cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typMedia", TMediaType.Animation);
                 try
@@ -1028,6 +1028,15 @@ VALUES
 
                             T nm = (T)_animatedMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia")});
                             nm._mediaReadFields(dataReader);
+                            string templateFields = dataReader.GetString("Fields");
+                            if (!string.IsNullOrWhiteSpace(templateFields))
+                            {
+                                var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
+                                if (fieldsDeserialized != null)
+                                    foreach (var field in fieldsDeserialized)
+                                        nm.Fields.Add(field);
+                            }
+                            nm.Modified = false;
                             if (nm.MediaStatus != TMediaStatus.Available)
                             {
                                 nm.MediaStatus = TMediaStatus.Unknown;
@@ -1065,6 +1074,7 @@ VALUES
                         {
                             T nm = (T)_serverMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia"), archiveDirectory});
                             nm._mediaReadFields(dataReader);
+                            nm.Modified = false;
                             if (nm.MediaStatus != TMediaStatus.Available)
                             {
                                 nm.MediaStatus = TMediaStatus.Unknown;
@@ -1082,10 +1092,86 @@ VALUES
             }
         }
 
+        private static bool _insert_media_templated(IAnimatedMedia media)
+        {
+            lock(_connection)
+            {
+                try
+                {
+                    string query = @"INSERT INTO media_templated (MediaGuid, Fields) VALUES (@MediaGuid, @Fields);";
+                    DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                    cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                    cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("_insert_media_templated failed with {0}", e.Message, null);
+                    return false;
+                }
+            }
+        }
+
+        private static bool _update_media_templated(IAnimatedMedia media)
+        {
+            lock (_connection)
+            {
+                try
+                {
+                    string query = @"UPDATE media_templated SET Fields = @Fields WHERE MediaGuid = @MediaGuid;";
+                    DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                    cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                    cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("_update_media_templated failed with {0}", e.Message, null);
+                    return false;
+                }
+            }
+        }
+
+        private static bool _delete_media_templated(IAnimatedMedia media)
+        {
+            lock (_connection)
+            {
+                try
+                {
+                    string query = @"DELETE FROM media_templated WHERE MediaGuid = @MediaGuid;";
+                    DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                    cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("_delete_media_templated failed with {0}", e.Message, null);
+                    return false;
+                }
+            }
+        }
 
         public static bool DbInsert(this IAnimatedMedia animatedMedia, ulong serverId )
         {
-            return _dbInsert(animatedMedia, serverId);
+            bool result = false;
+            var transaction = _connection.BeginTransaction();
+            try
+            {
+                result = _dbInsert(animatedMedia, serverId);
+                if (result)
+                    result = _insert_media_templated(animatedMedia);
+            }
+            finally
+            {
+                if (result)
+                    transaction.Commit();
+                else
+                    transaction.Rollback();
+            }
+            return result;
         }
 
         public static bool DbInsert(this IServerMedia serverMedia, ulong serverId)
@@ -1137,7 +1223,22 @@ VALUES
 
         public static bool DbDelete(this IAnimatedMedia animatedMedia)
         {
-            return _dbDelete(animatedMedia);
+            bool result = false;
+            var transaction = _connection.BeginTransaction();
+            try
+            {
+                result = _dbDelete(animatedMedia);
+                if (result)
+                    result = _delete_media_templated(animatedMedia);
+            }
+            finally
+            {
+                if (result)
+                    transaction.Commit();
+                else
+                    transaction.Rollback();
+            }
+            return result;
         }
 
 
@@ -1165,7 +1266,22 @@ VALUES
 
         public static bool DbUpdate(this IAnimatedMedia animatedMedia, ulong serverId)
         {
-            return _dbUpdate(animatedMedia, serverId);
+            bool result = false;
+            var transaction = _connection.BeginTransaction();
+            try
+            {
+                result = _dbUpdate(animatedMedia, serverId);
+                if (result)
+                    result = _update_media_templated(animatedMedia);
+            }
+            finally
+            {
+                if (result)
+                    transaction.Commit();
+                else
+                    transaction.Rollback();
+            }
+            return result;
         }
 
 

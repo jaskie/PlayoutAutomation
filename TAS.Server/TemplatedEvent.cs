@@ -51,8 +51,17 @@ namespace TAS.Server
                         false,
                         gpi
                         )
-        { }
+        {
+            _fields = new SimpleDictionary<string, string>();
+            _fields.DictionaryOperation += _fields_DictionaryOperation;
+        }
 
-        public Dictionary<string, string> Fields { get; set; }
+        private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
+        {
+            Modified = true;
+        }
+
+        private readonly SimpleDictionary<string, string> _fields;
+        public IDictionary<string, string> Fields { get; }
     }
 }

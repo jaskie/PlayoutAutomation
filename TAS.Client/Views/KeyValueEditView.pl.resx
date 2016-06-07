@@ -117,85 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="_audioChannelMappings" xml:space="preserve">
-    <value>Rodzaj audio</value>
-  </data>
-  <data name="_audioVolume" xml:space="preserve">
-    <value>Kokrekta dźwięku</value>
-  </data>
-  <data name="_buttonCancel.ToolTip" xml:space="preserve">
-    <value>Porzuć zmiany</value>
-  </data>
-  <data name="_buttonRevert.Caption" xml:space="preserve">
-    <value>Cofnij</value>
-  </data>
-  <data name="_buttonSave.Caption" xml:space="preserve">
-    <value>Zapisz</value>
-  </data>
-  <data name="_buttonSave.ToolTip" xml:space="preserve">
-    <value>Zapisz zmiany (Ctrl+S)</value>
-  </data>
-  <data name="_category" xml:space="preserve">
-    <value>Kategoria</value>
-  </data>
-  <data name="_checkStatus.ToolTip" xml:space="preserve">
-    <value>Sprawdź ponownie</value>
-  </data>
-  <data name="_checkVolume.ToolTip" xml:space="preserve">
-    <value>Sprawdź głośność bieżącego fragmentu</value>
-  </data>
-  <data name="_clip" xml:space="preserve">
-    <value>Klip</value>
-  </data>
-  <data name="_clipName" xml:space="preserve">
-    <value>Nazwa klipu</value>
-  </data>
-  <data name="_duration" xml:space="preserve">
-    <value>Czas trwania</value>
-  </data>
-  <data name="_emphasis" xml:space="preserve">
-    <value>Wyróżnienie</value>
-  </data>
-  <data name="_externalId" xml:space="preserve">
-    <value>Zewnętrzne ID</value>
-  </data>
-  <data name="_fields.Key" xml:space="preserve">
+  <data name="_key" xml:space="preserve">
     <value>Klucz</value>
   </data>
-  <data name="_fields.Value" xml:space="preserve">
+  <data name="_value" xml:space="preserve">
     <value>Wartość</value>
-  </data>
-  <data name="_fileName" xml:space="preserve">
-    <value>Plik</value>
-  </data>
-  <data name="_ingestTime" xml:space="preserve">
-    <value>Data i czas ingestu</value>
-  </data>
-  <data name="_mediaGuid" xml:space="preserve">
-    <value>Id pliku</value>
-  </data>
-  <data name="_mediaType" xml:space="preserve">
-    <value>Typ pliku</value>
-  </data>
-  <data name="_parental" xml:space="preserve">
-    <value>Kategoria wiekowa</value>
-  </data>
-  <data name="_play" xml:space="preserve">
-    <value>Odtwarzanie</value>
-  </data>
-  <data name="_protect" xml:space="preserve">
-    <value>Zabezpieczony przed usunięciem</value>
-  </data>
-  <data name="_status" xml:space="preserve">
-    <value>Status pliku</value>
-  </data>
-  <data name="_tCStart" xml:space="preserve">
-    <value>Początkowy TC</value>
-  </data>
-  <data name="_times" xml:space="preserve">
-    <value>Czasy</value>
-  </data>
-  <data name="_videoFormat" xml:space="preserve">
-    <value>Format video</value>
   </data>
 </root>

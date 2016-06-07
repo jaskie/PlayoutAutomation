@@ -19,9 +19,9 @@ namespace TAS.Client.Common
             CommandClose = new UICommand() { CanExecuteDelegate = CanClose, ExecuteDelegate = Close };
             CommandApply = new UICommand() { CanExecuteDelegate = CanApply, ExecuteDelegate = o => Save() };
             CommandOK = new UICommand() { CanExecuteDelegate = CanOK, ExecuteDelegate = Ok };
+            _title = windowTitle;
             View = new OkCancelView() {
                 DataContext = this,
-                Title = windowTitle,
                 Owner = System.Windows.Application.Current.MainWindow,
                 WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner,
                 MaxHeight = System.Windows.SystemParameters.PrimaryScreenHeight,
@@ -29,6 +29,8 @@ namespace TAS.Client.Common
                 ShowInTaskbar = false };
         }
 
+        private string _title;
+        public string Title { get { return _title; } set { SetField(ref _title, value, "Title"); } }
 
         protected virtual void Ok(object o)
         {
@@ -56,7 +58,7 @@ namespace TAS.Client.Common
 
         protected virtual bool CanOK(object parameter)
         {
-            return Modified == true;
+            return Modified == true && (OKCallback == null || OKCallback(this));
         }
 
         protected virtual bool CanApply(object parameter)
@@ -74,6 +76,6 @@ namespace TAS.Client.Common
         public ICommand CommandApply { get; protected set; }
         public ICommand CommandOK { get; protected set; }
 
-       
+        public Func<object, bool> OKCallback;
     }
 }

@@ -8,6 +8,6 @@ namespace TAS.Server.Interfaces
 {
     public interface ITemplated
     {
-        Dictionary<string, string> Fields { get; set; }
+        IDictionary<string, string> Fields { get; }
     }
 }

@@ -13,6 +13,7 @@ using System.Threading;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using resources = TAS.Client.Common.Properties.Resources;
+using System.Collections.ObjectModel;
 
 namespace TAS.Client.ViewModels
 {
@@ -33,6 +34,20 @@ namespace TAS.Client.ViewModels
             if (previewVm != null)
                 previewVm.PropertyChanged += _onPreviewPropertyChanged;
             media.PropertyChanged += OnMediaPropertyChanged;
+            var animatedMedia = media as IAnimatedMedia;
+            if (animatedMedia != null)
+            {
+                _fields = new ObservableDictionary<string, string>(animatedMedia.Fields);
+                _fields.CollectionChanged += _fields_CollectionChanged;
+                CommandAddField = new UICommand { ExecuteDelegate = _addField, CanExecuteDelegate = _canAddField };
+                CommandDeleteField = new UICommand { ExecuteDelegate = _deleteField, CanExecuteDelegate = _canDeleteField };
+                CommandEditField = new UICommand { ExecuteDelegate = _editField, CanExecuteDelegate = _canDeleteField };
+            }
+        }
+
+        private void _fields_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            Modified = true;
         }
 
         protected override void OnDispose()
@@ -40,12 +55,17 @@ namespace TAS.Client.ViewModels
             Model.PropertyChanged -= OnMediaPropertyChanged;
             if (_previewVm != null)
                 _previewVm.PropertyChanged -= _onPreviewPropertyChanged;
+            if (_fields != null)
+                _fields.CollectionChanged -= _fields_CollectionChanged;
         }
 
         public ICommand CommandSaveEdit { get; private set; }
         public ICommand CommandCancelEdit { get; private set; }
         public ICommand CommandRefreshStatus { get; private set; }
         public ICommand CommandCheckVolume { get; private set; }
+        public ICommand CommandAddField { get; private set; }
+        public ICommand CommandDeleteField { get; private set; }
+        public ICommand CommandEditField { get; private set; }
 
         public override void Save(object destObject = null)
         {
@@ -56,6 +76,17 @@ namespace TAS.Client.ViewModels
                 {
                     if (copyPi.Name == "FileName")
                         Model.RenameTo(FileName);
+                    else
+                    if (copyPi.Name == "Fields")
+                    {
+                        var animatedMedia = Model as IAnimatedMedia;
+                        if (animatedMedia != null && _fields != null)
+                        {
+                            animatedMedia.Fields.Clear();
+                            foreach (var field in _fields)
+                                animatedMedia.Fields.Add(field);
+                        }
+                    }
                     else
                     {
                         PropertyInfo destPi = (destObject ?? Model).GetType().GetProperty(copyPi.Name);
@@ -78,11 +109,48 @@ namespace TAS.Client.ViewModels
             Load(source);
         }
 
+        #region Command methods
+
+        private bool _canDeleteField(object obj)
+        {
+            return SelectedField != null;
+        }
+
+        private void _deleteField(object obj)
+        {
+            SelectedField = null;
+        }
+
+        private bool _canAddField(object obj)
+        {
+            return IsAnimatedMedia;
+        }
+
+        private void _addField(object obj)
+        {
+            KeyValueEditViewmodel kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), false);
+            kve.OKCallback = (o) => {
+                var co = o as KeyValueEditViewmodel;
+                return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
+            };
+            if (kve.ShowDialog() == true)
+                _fields.Add(kve.Result);
+        }
+
+        private void _editField(object obj)
+        {
+            if (SelectedField != null)
+            {
+                KeyValueEditViewmodel kve = new KeyValueEditViewmodel(((KeyValuePair<string, string>)SelectedField), true);
+                if (kve.ShowDialog() == true)
+                    _fields[kve.Key] = kve.Value;
+            }
+        }
+
         void _refreshStatus(object o)
         {
             Model.ReVerify();
         }
-
 
         AutoResetEvent _checkVolumeSignal;
         void _checkVolume(object o)
@@ -121,6 +189,8 @@ namespace TAS.Client.ViewModels
             if (signal != null)
                 signal.Set();
         }
+
+        #endregion //Command methods
 
         private void OnMediaPropertyChanged(object media, PropertyChangedEventArgs e)
         {
@@ -397,6 +467,9 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged("IsNoAutoSave");
             }
         }
+        private ObservableDictionary<string, string> _fields;
+        public IDictionary<string, string> Fields { get { return _fields; } }
+        public object SelectedField { get; set; }
 
         public bool IsNoAutoSave
         {
@@ -411,6 +484,11 @@ namespace TAS.Client.ViewModels
         public bool IsServerMedia
         {
             get { return Model is IServerMedia; }
+        }
+
+        public bool IsAnimatedMedia
+        {
+            get { return Model is IAnimatedMedia; }
         }
 
         public bool IsIngestDataShown

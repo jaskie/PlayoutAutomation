@@ -124,6 +124,7 @@ namespace TAS.Server
         public bool Modified
         {
             get { return _modified; }
+            protected set { SetField(ref _modified, value, "Modified"); }
         }
 
         public int CompareTo(object obj)

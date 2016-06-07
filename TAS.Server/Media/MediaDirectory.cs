@@ -248,12 +248,10 @@ namespace TAS.Server
         public virtual void MediaRemove(IMedia media)
         {
             IMedia removed;
-            if (_files.TryRemove(media.MediaGuid, out removed))
-            {
-                var h = MediaRemoved;
-                if (h != null)
-                    h(this, new MediaEventArgs(media));
-            }
+            _files.TryRemove(media.MediaGuid, out removed);
+            var h = MediaRemoved;
+            if (h != null)
+                h(this, new MediaEventArgs(media));
         }
 
         protected virtual void FileRemoved(string fullPath)

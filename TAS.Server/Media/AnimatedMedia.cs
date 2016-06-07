@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TAS.Common;
+using TAS.Server.Common;
 using TAS.Server.Database;
 using TAS.Server.Interfaces;
 
@@ -9,10 +11,20 @@ namespace TAS.Server
 {
     public class AnimatedMedia : PersistentMedia, IAnimatedMedia
     {
-        public AnimatedMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
+        public AnimatedMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia)
+        {
+            _fields = new SimpleDictionary<string, string>();
+            _fields.DictionaryOperation += _fields_DictionaryOperation;
+        }
 
-        public Dictionary<string, string> Fields { get; set; }
+        private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
+        {
+            Modified = true;
+        }
 
+        private readonly SimpleDictionary<string, string> _fields;
+
+        public IDictionary<string, string> Fields { get { return _fields; } }
 
         public override bool Save()
         {
@@ -20,6 +32,12 @@ namespace TAS.Server
             var directory = Directory as AnimationDirectory;
             if (directory != null)
             {
+                if (MediaStatus == TMediaStatus.Deleted)
+                {
+                    if (IdPersistentMedia != 0)
+                        result = this.DbDelete();
+                }
+                else
                 if (IdPersistentMedia == 0)
                     result = this.DbInsert(directory.Server.Id);
                 else

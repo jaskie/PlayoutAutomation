@@ -84,6 +84,7 @@
     <Compile Include="ViewModels\FileManagerViewmodel.cs" />
     <Compile Include="ViewModels\FileOperationViewmodel.cs" />
     <Compile Include="ViewModels\IngestEditViewmodel.cs" />
+    <Compile Include="ViewModels\KeyValueEditViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditWindowViewmodel.cs" />
     <Compile Include="ViewModels\ExportMediaViewmodel.cs" />
@@ -128,6 +129,9 @@
     <Compile Include="Views\EventPanelView.cs" />
     <Compile Include="Views\IngestEditorView.xaml.cs">
       <DependentUpon>IngestEditorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\KeyValueEditView.xaml.cs">
+      <DependentUpon>KeyValueEditView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MediaEditView.xaml.cs">
       <DependentUpon>MediaEditView.xaml</DependentUpon>
@@ -215,6 +219,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\KeyValueEditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MediaEditView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -282,6 +290,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\IngestEditorView.resx">
       <DependentUpon>IngestEditorView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\KeyValueEditView.pl.resx" >
+      <DependentUpon>KeyValueEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\KeyValueEditView.resx">
+      <DependentUpon>KeyValueEditView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\MediaEditView.pl.resx">
       <DependentUpon>MediaEditView.xaml</DependentUpon>
