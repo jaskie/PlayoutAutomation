@@ -529,9 +529,6 @@ namespace TAS.Client.ViewModels
                 if (serverDirectory == _mediaManager.MediaDirectorySEC)
                     animationDirectory = _mediaManager.AnimationDirectorySEC;
                 else
-                if (serverDirectory == _mediaManager.MediaDirectoryPRV)
-                    animationDirectory = _mediaManager.AnimationDirectoryPRV;
-                else
                     animationDirectory = null;
                 if (animationDirectory != null)
                     itemsToLoad = itemsToLoad.Concat(animationDirectory.GetFiles().Select(f => new MediaViewViewmodel(f, _mediaManager)));

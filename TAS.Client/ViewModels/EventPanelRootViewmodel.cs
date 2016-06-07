@@ -96,11 +96,7 @@ namespace TAS.Client.ViewModels
                     && e.Event == _engineViewmodel.LastAddedEvent)
                 {
                     newVm.IsSelected = true;
-                    foreach (var oldMultiSelected in _engineViewmodel.SelectedEvents)
-                        oldMultiSelected.IsMultiSelected = false;
-                    _engineViewmodel.SelectedEvents.Clear();
-                    newVm.IsMultiSelected = true;
-                    _engineViewmodel.SelectedEvents.Add(newVm);
+                    _engineViewmodel.ClearSelection();
                 }
             });
         }

@@ -87,7 +87,6 @@ namespace TAS.Client.ViewModels
             _engine.LoadedNextEventsOperation += OnEngineLoadedEventsDictionaryOperation;
             _engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _engine.EventSaved += _engine_EventSaved;
-            _engine.EventDeleted += _engine_EventDeleted;
             _engine.DatabaseConnectionStateChanged += _engine_DatabaseConnectionStateChanged;
             _composePlugins();
 
@@ -132,19 +131,6 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("IsAnyContainerHidden");
         }
 
-        private void _engine_EventDeleted(object sender, IEventEventArgs e)
-        {
-            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
-            {
-                if (e.Event == Selected.Event)
-                    Selected = null;
-                var evm = SelectedEvents.FirstOrDefault(ev => ev.Event == e.Event);
-                if (evm != null)
-                    SelectedEvents.Remove(evm);
-                NotifyPropertyChanged("SelectedEvents");
-            }));
-        }
-
         protected override void OnDispose()
         {
             _engine.EngineTick -= this._engineTick;
@@ -152,7 +138,6 @@ namespace TAS.Client.ViewModels
             _engine.PropertyChanged -= this._enginePropertyChanged;
             _selectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
             _engine.EventSaved -= _engine_EventSaved;
-            _engine.EventDeleted -= _engine_EventDeleted;
             _engine.DatabaseConnectionStateChanged -= _engine_DatabaseConnectionStateChanged;
             EventClipboard.ClipboardChanged -= _engineViewmodel_ClipboardChanged;
             if (_engine.PlayoutChannelPRI != null)
@@ -909,7 +894,21 @@ namespace TAS.Client.ViewModels
         public IEnumerable<IEvent> RunningEvents { get { return _runningEvents; } }
 
         private readonly ObservableCollection<EventPanelViewmodelBase> _selectedEvents;
-        public ObservableCollection<EventPanelViewmodelBase> SelectedEvents { get { return _selectedEvents; } }
+        public IEnumerable<EventPanelViewmodelBase> SelectedEvents { get { return _selectedEvents; } }
+
+        public void ClearSelection()
+        {
+            foreach (var evm in _selectedEvents)
+                evm.IsMultiSelected = false;
+            _selectedEvents.Clear();
+        }
+
+        public void RemoveSelected(EventPanelViewmodelBase evm)
+        {
+            if (_selectedEvents.Contains(evm))
+                _selectedEvents.Remove(evm);
+        }
+
 
         private Views.EngineStateView _debugWindow;
         public void _searchMissingEvents(object o)
