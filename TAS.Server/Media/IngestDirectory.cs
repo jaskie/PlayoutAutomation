@@ -32,7 +32,6 @@ namespace TAS.Server
             set { _deleteSource = value; }
         }
 
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {
             if (_folder.StartsWith("ftp://"))

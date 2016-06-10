@@ -21,12 +21,14 @@ namespace TAS.Server
             Server = server;
         }
 
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {
-            this.Load<ServerMedia>(MediaManager.ArchiveDirectory, Server.Id);
-            base.Initialize();
-            Debug.WriteLine(this, "Directory initialized");
+            if (!_isInitialized)
+            {
+                this.Load<ServerMedia>(MediaManager.ArchiveDirectory, Server.Id);
+                base.Initialize();
+                Debug.WriteLine(this, "Directory initialized");
+            }
         }
 
         public override void Refresh() { }

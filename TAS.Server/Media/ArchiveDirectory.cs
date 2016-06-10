@@ -22,7 +22,6 @@ namespace TAS.Server
             _folder = folder;
         }
         
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public override void Initialize()
         {
             _isInitialized = false; // to avoid subsequent reinitializations

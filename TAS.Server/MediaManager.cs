@@ -46,7 +46,6 @@ namespace TAS.Server
             _fileManager = new FileManager() { TempDirectory = new TempDirectory(this) };
         }
 
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public void Initialize()
         {
             Debug.WriteLine(this, "Begin initializing");

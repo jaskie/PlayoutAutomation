@@ -37,7 +37,6 @@ namespace TAS.Server
             MediaManager = mediaManager;
         }
 
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         public virtual void Initialize()
         {
             if (!_isInitialized)

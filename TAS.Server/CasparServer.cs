@@ -56,14 +56,12 @@ namespace TAS.Server
             {
                 if (!_isInitialized)
                 {
-                    MediaDirectory = new Server.ServerDirectory(this, MediaManager);
-                    AnimationDirectory = new Server.AnimationDirectory(this, MediaManager);
-                    MediaDirectory.Folder = MediaFolder;
-                    AnimationDirectory.Folder = MediaFolder;
+                    MediaDirectory = new Server.ServerDirectory(this, MediaManager) { Folder = MediaFolder };
+                    if (!string.IsNullOrWhiteSpace(AnimationFolder))
+                        AnimationDirectory = new Server.AnimationDirectory(this, MediaManager) { Folder = AnimationFolder };
                     _casparDevice = new Svt.Caspar.CasparDevice();
                     _casparDevice.ConnectionStatusChanged += _casparDevice_ConnectionStatusChanged;
                     _casparDevice.UpdatedChannels += _casparDevice_UpdatedChannels;
-                    _casparDevice.UpdatedTemplates += _onUpdatedTemplates;
                     _connect();
                     _isInitialized = true;
                 }
@@ -148,54 +146,6 @@ namespace TAS.Server
             }
             Debug.WriteLine(e.Connected, "Caspar connected");
             NotifyPropertyChanged("IsConnected");
-        }
-
-        public void RefreshTemplates()
-        {
-            var files = AnimationDirectory.GetFiles();
-            var templates = _casparDevice.Templates.All.ToList();
-            foreach (Svt.Caspar.TemplateInfo template in templates)
-            {
-                AnimatedMedia media = (AnimatedMedia)files.FirstOrDefault(f => f is AnimatedMedia
-                    && f.FileName == template.Name
-                    && f.Folder == template.Folder);
-                if (media == null)
-                {
-                    media = new AnimatedMedia(AnimationDirectory as AnimationDirectory, Guid.Empty, ulong.MinValue)
-                    {
-                        MediaType = TMediaType.Animation,
-                        MediaName = template.Name,
-                        FullPath = Path.Combine(AnimationDirectory.Folder, template.Folder, template.Name),
-                        FileSize = (UInt64)template.Size,
-                        MediaStatus = TMediaStatus.Available,
-                        LastUpdated = DateTimeExtensions.FromFileTime(template.LastUpdated.ToUniversalTime(), DateTimeKind.Utc),
-                    };
-                    media.Save();
-                }
-                else // media != null
-                {
-                    if (media.FileSize != (UInt64)template.Size
-                        || media.LastUpdated != DateTimeExtensions.FromFileTime(template.LastUpdated.ToUniversalTime(), DateTimeKind.Utc))
-                    {
-                        media.FileSize = (UInt64)template.Size;
-                        media.LastUpdated = DateTimeExtensions.FromFileTime(template.LastUpdated.ToUniversalTime(), DateTimeKind.Utc);
-                        media.Save();
-                    }
-                }
-            }
-            foreach (Media media in files)
-            {
-                Svt.Caspar.TemplateInfo i = templates.FirstOrDefault(t => media.FileName == t.Name && media.Folder == t.Folder);
-                if (i == null)
-                    ((AnimationDirectory)AnimationDirectory).MediaRemove(media);
-            }
-        }
-
-        private void _onUpdatedTemplates(object o, EventArgs e)
-        {
-            if (AnimationDirectory.IsInitialized)
-                RefreshTemplates();
-            
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -389,7 +389,6 @@ namespace TAS.Server
             ThreadPool.QueueUserWorkItem((o) => Verify());
         }
 
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         internal virtual void Verify()
         {
             if (Verified || (_mediaStatus == TMediaStatus.Copying) || (_mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required))
