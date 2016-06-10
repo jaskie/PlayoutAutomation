@@ -119,7 +119,7 @@
                     <DockPanel>
                         <Label/>
                         <CheckBox Content="{Resx _hold}" IsChecked="{Binding IsHold}" IsEnabled="{Binding CanHold}" ToolTip="{Resx _hold.ToolTip}"  Margin="1,3" Width="100"/>
-                        <!--<CheckBox Content="{Resx _loop}" IsChecked="{Binding IsLoop}" IsEnabled="{Binding CanLoop}"/>-->
+                        <CheckBox Content="{Resx _loop}" IsChecked="{Binding IsLoop}" IsEnabled="{Binding CanLoop}"/>
                     </DockPanel>
                     <DockPanel>
                         <Label Content="{Resx _scheduledTime}" />

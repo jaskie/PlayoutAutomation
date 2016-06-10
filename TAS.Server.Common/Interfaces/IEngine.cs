@@ -92,7 +92,7 @@ namespace TAS.Server.Interfaces
         event EventHandler<EngineTickEventArgs> EngineTick;
         event EventHandler<EngineOperationEventArgs> EngineOperation;
         event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> VisibleEventsOperation;
-        event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> LoadedNextEventsOperation;
+        event EventHandler<CollectionOperationEventArgs<IEvent>> PreloadedEventsOperation;
         event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         event StateRedundantChangeEventHandler DatabaseConnectionStateChanged;
     }

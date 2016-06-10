@@ -149,14 +149,14 @@ namespace TAS.Client.ViewModels
         bool _canMoveUp(object o)
         {
             IEvent prior = _event.Prior;
-            return prior != null && prior.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled
+            return prior != null && prior.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled && !IsLoop
                 && (prior.StartType == TStartType.After || !IsHold);
         }
 
         bool _canMoveDown(object o)
         {
             IEvent next = _event.Next;
-            return next != null && next.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled
+            return next != null && next.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled && !next.IsLoop
                 && (_event.StartType == TStartType.After || !next.IsHold);
         }
         #endregion // Commands

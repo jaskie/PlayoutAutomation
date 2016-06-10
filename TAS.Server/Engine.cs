@@ -50,7 +50,7 @@ namespace TAS.Server
         private TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
         readonly SimpleDictionary<VideoLayer, IEvent> _visibleEvents = new SimpleDictionary<VideoLayer, IEvent>(); // list of visible events
         readonly ObservableSynchronizedCollection<IEvent> _runningEvents = new ObservableSynchronizedCollection<IEvent>(); // list of events loaded and playing 
-        readonly SimpleDictionary<VideoLayer, IEvent> _loadedNextEvents = new SimpleDictionary<VideoLayer, IEvent>(); // events loaded in backgroud
+        readonly ObservableSynchronizedCollection<IEvent> _preloadedEvents = new ObservableSynchronizedCollection<IEvent>(); // events loaded in backgroud
         readonly SimpleDictionary<VideoLayer, IEvent> _finishedEvents = new SimpleDictionary<VideoLayer, IEvent>(); // events finished or loaded and not playing
         readonly SynchronizedCollection<IEvent> _rootEvents = new SynchronizedCollection<IEvent>();
         readonly ConcurrentDictionary<ulong, IEvent> _events = new ConcurrentDictionary<ulong, IEvent>();
@@ -78,7 +78,7 @@ namespace TAS.Server
         public Engine()
         {
             _visibleEvents.DictionaryOperation += _visibleEventsOperation;
-            _loadedNextEvents.DictionaryOperation += _loadedNextEventsOperation;
+            _preloadedEvents.CollectionOperation += _loadedNextEventsOperation;
             _runningEvents.CollectionOperation += _runningEventsOperation;
             EngineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
@@ -96,7 +96,7 @@ namespace TAS.Server
             {
                 disposed = true;
                 _visibleEvents.DictionaryOperation -= _visibleEventsOperation;
-                _loadedNextEvents.DictionaryOperation -= _loadedNextEventsOperation;
+                _preloadedEvents.CollectionOperation -= _loadedNextEventsOperation;
                 _runningEvents.CollectionOperation -= _runningEventsOperation;
                 foreach (Event e in _rootEvents)
                     e.SaveLoadedTree();
@@ -600,12 +600,11 @@ namespace TAS.Server
             if (aEvent.EventType != TEventType.Rundown)
             {
                 if (PlayoutChannelPRI != null)
-                    PlayoutChannelPRI.Load(aEvent);
+                    _playoutChannelPRI.Load(aEvent);
                 if (PlayoutChannelSEC != null)
-                    PlayoutChannelSEC.Load(aEvent);
+                    _playoutChannelSEC.Load(aEvent);
                 _visibleEvents[aEvent.Layer] = aEvent;
                 _finishedEvents[aEvent.Layer] = null;
-                _loadedNextEvents[aEvent.Layer] = null;
                 _setAspectRatio(aEvent);
             }
             _run(aEvent);
@@ -624,13 +623,13 @@ namespace TAS.Server
             Debug.WriteLine(aEvent, "LoadNext");
             if (aEvent.PlayState == TPlayState.Scheduled || aEvent.PlayState == TPlayState.Played || aEvent.PlayState == TPlayState.Aborted)
                 aEvent.PlayState = TPlayState.Scheduled;
+            _preloadedEvents.Add(aEvent);
             if (aEvent.EventType != TEventType.Rundown)
             {
                 if (PlayoutChannelPRI != null)
                     PlayoutChannelPRI.LoadNext(aEvent);
                 if (PlayoutChannelSEC != null)
                     PlayoutChannelSEC.LoadNext(aEvent);
-                _loadedNextEvents[aEvent.Layer] = aEvent;
                 if (_gpi != null
                     && GPIEnabled
                     && _gpi.GraphicsStartDelay < 0)
@@ -677,13 +676,12 @@ namespace TAS.Server
                 aEvent.Position = 0;
             if (aEvent.EventType != TEventType.Rundown)
             {
-                if (_visibleEvents[aEvent.Layer] != aEvent && !(_loadedNextEvents[aEvent.Layer] == aEvent)) 
+                if (_visibleEvents[aEvent.Layer] != aEvent && !_preloadedEvents.Contains(aEvent)) 
                     _loadNext(aEvent);
                 if (PlayoutChannelPRI != null)
                     PlayoutChannelPRI.Play(aEvent);
                 if (PlayoutChannelSEC != null)
                     PlayoutChannelSEC.Play(aEvent);
-                _loadedNextEvents[aEvent.Layer] = null;
                 _finishedEvents[aEvent.Layer] = null;
                 _visibleEvents[aEvent.Layer] = aEvent;
                 if (aEvent.Layer == VideoLayer.Program)
@@ -708,6 +706,7 @@ namespace TAS.Server
                     }
                 }
             }
+            _preloadedEvents.Remove(aEvent);
             aEvent.PlayState = TPlayState.Playing;
             foreach (Event e in aEvent.SubEvents.ToList())
                 if (e.ScheduledDelay.Ticks < _frameTicks)
@@ -776,7 +775,7 @@ namespace TAS.Server
             lock (_visibleEvents)
                 if (_visibleEvents[aEvent.Layer] == aEvent)
                 {
-                    var le = _loadedNextEvents[aEvent.Layer];
+                    var le = _preloadedEvents.FirstOrDefault(e => e.Layer == aEvent.Layer);
                     if (aEvent.EventType != TEventType.Live
                         && (le == null || (le.ScheduledTime.Ticks - CurrentTicks >= _frameTicks)))
                     {
@@ -875,7 +874,7 @@ namespace TAS.Server
                                 }
                             }
                             if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks
-                                && !_loadedNextEvents.Values.Contains(succEvent))
+                                && !_preloadedEvents.Contains(succEvent))
                             {
                                 // second: preload next scheduled events
                                 Debug.WriteLine(succEvent, "Tick: LoadNext Running");
@@ -883,15 +882,12 @@ namespace TAS.Server
                             }
                             if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
                             {
-                                if (succEvent.PlayState == TPlayState.Scheduled)
+                                if (succEvent.IsHold && succEvent != _forcedNext)
+                                    EngineState = TEngineState.Hold;
+                                else
                                 {
-                                    if (succEvent.IsHold && succEvent != _forcedNext )
-                                        EngineState = TEngineState.Hold;
-                                    else
-                                    {
-                                        Debug.WriteLine(succEvent, string.Format("Tick: Play current time: {0} scheduled time: {1}", CurrentTime, succEvent.ScheduledTime));
-                                        _play(succEvent, true);
-                                    }
+                                    Debug.WriteLine(succEvent, string.Format("Tick: Play current time: {0} scheduled time: {1}", CurrentTime, succEvent.ScheduledTime));
+                                    _play(succEvent, true);
                                 }
                             }
                         }
@@ -1057,7 +1053,7 @@ namespace TAS.Server
                 {
                     foreach (Event e in _runningEvents.ToList())
                     {
-                        if (e.PlayState == TPlayState.Paused || _loadedNextEvents.Values.Contains(e))
+                        if (e.PlayState == TPlayState.Paused || _preloadedEvents.Contains(e))
                         {
                             _play(e, false);
                             IEvent s = e.GetSuccessor();
@@ -1130,12 +1126,10 @@ namespace TAS.Server
         public void Clear(VideoLayer aVideoLayer)
         {
             Debug.WriteLine(aVideoLayer, "Clear");
-            IEvent ev;
-            _loadedNextEvents.TryRemove(aVideoLayer, out ev);
+            IEvent ev = _preloadedEvents.FirstOrDefault(e => e.Layer == aVideoLayer);
             if (ev != null)
             {
-                ev.PlayState = TPlayState.Scheduled;
-                ev.Save();
+                _preloadedEvents.Remove(ev);
                 _runningEvents.Remove(ev);
             }
             _visibleEvents.TryRemove(aVideoLayer, out ev);
@@ -1162,7 +1156,7 @@ namespace TAS.Server
         {
             _clearRunning();
             _visibleEvents.Clear();
-            _loadedNextEvents.Clear();
+            _preloadedEvents.Clear();
             _finishedEvents.Clear();
             ForcedNext = null;
             if (PlayoutChannelPRI != null)
@@ -1390,7 +1384,7 @@ namespace TAS.Server
         [XmlIgnore]
         public ICollection<IEvent> VisibleEvents { get { return _visibleEvents.Values; } }
         [XmlIgnore]
-        public ICollection<IEvent> LoadedNextEvents { get { return _loadedNextEvents.Values; } }
+        public ICollection<IEvent> PreLoadedEvents { get { return _preloadedEvents; } }
 
         protected bool SetField<T>(ref T field, T value, string propertyName)
         {
@@ -1426,10 +1420,10 @@ namespace TAS.Server
                 handler(o, e);
         }
 
-        public event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> LoadedNextEventsOperation;
-        private void _loadedNextEventsOperation(object o, DictionaryOperationEventArgs<VideoLayer, IEvent> e)
+        public event EventHandler<CollectionOperationEventArgs<IEvent>> PreloadedEventsOperation;
+        private void _loadedNextEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
         {
-            var handler = LoadedNextEventsOperation;
+            var handler = PreloadedEventsOperation;
             if (handler != null)
                 handler(o, e);
         }

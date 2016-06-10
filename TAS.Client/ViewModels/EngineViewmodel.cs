@@ -84,7 +84,7 @@ namespace TAS.Client.ViewModels
             _engine.EngineOperation += this._engineOperation;
             _engine.PropertyChanged += this._enginePropertyChanged;
             _engine.VisibleEventsOperation += OnEnginePlayingEventsDictionaryOperation;
-            _engine.LoadedNextEventsOperation += OnEngineLoadedEventsDictionaryOperation;
+            _engine.PreloadedEventsOperation +=  OnEnginePreloadedEventsOperation;
             _engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _engine.EventSaved += _engine_EventSaved;
             _engine.DatabaseConnectionStateChanged += _engine_DatabaseConnectionStateChanged;
@@ -1025,14 +1025,14 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        private void OnEngineLoadedEventsDictionaryOperation(object o, DictionaryOperationEventArgs<VideoLayer, IEvent> e)
+        private void OnEnginePreloadedEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                if (e.Operation == TDictionaryOperation.Add)
-                    _loadedNextEvents.Add(e.Value);
+                if (e.Operation == TCollectionOperation.Insert)
+                    _loadedNextEvents.Add(e.Item);
                 else
-                    _loadedNextEvents.Remove(e.Value);
+                    _loadedNextEvents.Remove(e.Item);
             });
         }
 

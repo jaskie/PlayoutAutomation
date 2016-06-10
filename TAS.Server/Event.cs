@@ -70,6 +70,7 @@ namespace TAS.Server
             _isEnabled = isEnabled;
             _isHold = isHold;
             _isLoop = isLoop;
+            _gPI = gpi;
 
              _subEvents = new Lazy<SynchronizedCollection<IEvent>>(() =>
              {
