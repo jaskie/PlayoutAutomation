@@ -171,7 +171,7 @@ namespace TAS.Client.ViewModels
 
         protected void LoadChildrens()
         {
-            foreach (IEvent se in _event.SubEvents)
+            foreach (IEvent se in _event.SubEvents.ToList())
             {
                 _childrens.Add(CreateChildEventPanelViewmodelForEvent(se));
                 IEvent ne = se.Next;

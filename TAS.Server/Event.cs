@@ -106,7 +106,14 @@ namespace TAS.Server
                 return null;
             });
         }
-        
+
+#if DEBUG
+        ~Event()
+        {
+            Debug.WriteLine("{0} finalized: {1}", GetType(), this);
+        }
+#endif
+
         UInt64 _idRundownEvent = 0;
         [XmlIgnore]
         public UInt64 IdRundownEvent
@@ -166,7 +173,7 @@ namespace TAS.Server
                 _isLoop,
                 _gPI);
 
-            foreach (Event e in SubEvents)
+            foreach (Event e in SubEvents.ToList())
             {
                 IEvent newSubevent = (IEvent)e.Clone();
                 newEvent.InsertUnder(newSubevent);
@@ -312,7 +319,7 @@ namespace TAS.Server
                     {
                         if (_eventType == TEventType.Rundown)
                         {
-                            foreach (IEvent se in SubEvents)
+                            foreach (IEvent se in SubEvents.ToList())
                             {
                                 IEvent le = se;
                                 IEvent le_n = le.Next;
@@ -360,7 +367,7 @@ namespace TAS.Server
             }
             if (SetField(ref _scheduledTime, nt, "ScheduledTime"))
             {
-                foreach (Event ev in SubEvents) //update all sub-events
+                foreach (Event ev in SubEvents.ToList()) //update all sub-events
                     ev.UpdateScheduledTime(true);
                 if (updateSuccessors)
                 {
@@ -398,7 +405,7 @@ namespace TAS.Server
                     Event ne = _next.Value;
                     if (ne != null)
                         ne.UpdateScheduledTime(true);  // trigger update all next events
-                    foreach (Event ev in SubEvents) //update all sub-events
+                    foreach (Event ev in SubEvents.ToList()) //update all sub-events
                         ev.UpdateScheduledTime(true);
                     NotifyPropertyChanged("Offset");
                 }
@@ -494,7 +501,7 @@ namespace TAS.Server
                 {
                     if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
                     {
-                        foreach (Event e in SubEvents.Where(ev => ev.EventType == TEventType.StillImage))
+                        foreach (Event e in SubEvents.ToList().Where(ev => ev.EventType == TEventType.StillImage))
                         {
                             TimeSpan nd = e._duration + newDuration - this._duration;
                             e.Duration = nd > TimeSpan.Zero ? nd : TimeSpan.Zero;
@@ -511,7 +518,7 @@ namespace TAS.Server
             if (_eventType == TEventType.Rundown)
             {
                 long maxlen = 0;
-                foreach (IEvent e in SubEvents)
+                foreach (IEvent e in SubEvents.ToList())
                 {
                     IEvent n = e;
                     long len = 0;
@@ -1125,7 +1132,7 @@ namespace TAS.Server
             if (_eventType == TEventType.Rundown)
             {
                 TimeSpan pauseTime = TimeSpan.Zero;
-                IEvent ev = SubEvents.FirstOrDefault(e => e.EventType == TEventType.Movie || e.EventType == TEventType.Live || e.EventType == TEventType.Rundown);
+                IEvent ev = SubEvents.ToList().FirstOrDefault(e => e.EventType == TEventType.Movie || e.EventType == TEventType.Live || e.EventType == TEventType.Rundown);
                 while (ev != null)
                 {
                     TimeSpan? pt = ev.GetAttentionTime();
@@ -1164,7 +1171,7 @@ namespace TAS.Server
         {
             if (_eventType != TEventType.Rundown)
                 throw new InvalidOperationException("FindVisibleSubEvent: EventType is not Rundown");
-            var se = SubEvents.FirstOrDefault(e => ((e.EventType == TEventType.Live || e.EventType == TEventType.Movie) && e.Layer == VideoLayer.Program) || e.EventType == TEventType.Rundown) as Event;
+            var se = SubEvents.ToList().FirstOrDefault(e => ((e.EventType == TEventType.Live || e.EventType == TEventType.Movie) && e.Layer == VideoLayer.Program) || e.EventType == TEventType.Rundown) as Event;
             if (se != null && se.EventType == TEventType.Rundown)
                 return se.FindVisibleSubEvent();
             else
@@ -1219,24 +1226,30 @@ namespace TAS.Server
         public void Delete()
         {
             if (!IsDeleted && AllowDelete())
+                _delete();
+        }
+
+        protected void _delete()
+        {
+            Remove();
+            foreach (IEvent se in SubEvents.ToList())
             {
-                Remove();
-                foreach (IEvent se in SubEvents.ToList())
+                Event ne = se as Event;
+                while (ne != null)
                 {
-                    IEvent ne = se;
-                    while (ne != null)
-                    {
-                        var next = ne.Next;
-                        ne.Delete();
-                        ne = next;
-                    }
-                    se.Delete();
+                    var next = ne.Next as Event;
+                    ne._delete();
+                    ne = next;
                 }
-                _isDeleted = true;
-                this.DbDelete();
-                NotifyDeleted();
-                _modified = false;
+                ((Event)se)._delete();
             }
+            var media = _serverMediaPRI;
+            if (media != null)
+                media.PropertyChanged -= _serverMediaPRI_PropertyChanged;
+            _isDeleted = true;
+            this.DbDelete();
+            NotifyDeleted();
+            _modified = false;
         }
 
         public MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media)
@@ -1261,7 +1274,6 @@ namespace TAS.Server
             }
             return MediaDeleteDenyReason.NoDeny;
         }
-
 
         UInt64 _idProgramme;
         public UInt64 IdProgramme

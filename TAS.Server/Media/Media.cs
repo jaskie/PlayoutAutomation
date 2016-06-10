@@ -26,6 +26,13 @@ namespace TAS.Server
             _directory.MediaAdd(this);
         }
 
+#if DEBUG
+        ~Media()
+        {
+            Debug.WriteLine("{0} finalized: {1}", GetType(), this);
+        }
+#endif
+
         // file properties
         protected string _folder = string.Empty;
         [JsonProperty()]
@@ -39,7 +46,7 @@ namespace TAS.Server
             }
         }
 
-        #region IMediaProperties
+#region IMediaProperties
         protected string _fileName = string.Empty;
         [JsonProperty]
         public string FileName
@@ -194,7 +201,7 @@ namespace TAS.Server
             set { SetField(ref _parental, value, "Parental"); }
         }
 
-        #endregion //IMediaProperties
+#endregion //IMediaProperties
 
         protected Guid _mediaGuid;
         [JsonProperty]

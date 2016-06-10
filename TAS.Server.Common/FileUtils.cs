@@ -9,10 +9,10 @@ namespace TAS.Server.Common
 {
     public static class FileUtils
     {
-        public readonly static string[] VideoFileTypes = { ".mov", ".mxf", ".mkv", ".mp4", ".wmv", ".avi", ".lxf" };
+        public readonly static string[] VideoFileTypes = { ".mov", ".mxf", ".mkv", ".mp4", ".wmv", ".avi", ".lxf", ".mpg", ".mpeg" };
         public readonly static string[] StillFileTypes = { ".png", ".tif", ".tga", ".tiff", ".jpg", ".gif", ".bmp" };
         public readonly static string[] AudioFileTypes = { ".mp3" };
-        public readonly static string[] AnimationFileTypes = { ".ft" };
+        public readonly static string[] AnimationFileTypes = { ".ft", ".htm", ".html" };
         public readonly static string RundownFileExtension = ".rundown";
 
         public static string DefaultFileExtension(TMediaType type)

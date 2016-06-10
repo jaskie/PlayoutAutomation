@@ -609,7 +609,7 @@ namespace TAS.Server
             }
             _run(aEvent);
             aEvent.PlayState = TPlayState.Paused;
-            foreach (Event se in (aEvent.SubEvents.Where(e => e.ScheduledDelay == TimeSpan.Zero)).ToList())
+            foreach (Event se in (aEvent.SubEvents.ToList().Where(e => e.ScheduledDelay == TimeSpan.Zero)).ToList())
                 _load(se);
             return true;
         }
