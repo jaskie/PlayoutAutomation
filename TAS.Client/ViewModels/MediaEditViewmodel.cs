@@ -33,11 +33,9 @@ namespace TAS.Client.ViewModels
             _showButtons = showButtons;
             if (previewVm != null)
                 previewVm.PropertyChanged += _onPreviewPropertyChanged;
-            media.PropertyChanged += OnMediaPropertyChanged;
-            var animatedMedia = media as IAnimatedMedia;
-            if (animatedMedia != null)
+            Model.PropertyChanged += OnMediaPropertyChanged;
+            if (Model is IAnimatedMedia)
             {
-                _fields = new ObservableDictionary<string, string>(animatedMedia.Fields);
                 _fields.CollectionChanged += _fields_CollectionChanged;
                 CommandAddField = new UICommand { ExecuteDelegate = _addField, CanExecuteDelegate = _canAddField };
                 CommandDeleteField = new UICommand { ExecuteDelegate = _deleteField, CanExecuteDelegate = _canDeleteField };
@@ -55,7 +53,7 @@ namespace TAS.Client.ViewModels
             Model.PropertyChanged -= OnMediaPropertyChanged;
             if (_previewVm != null)
                 _previewVm.PropertyChanged -= _onPreviewPropertyChanged;
-            if (_fields != null)
+            if (_fields != null && Model is IAnimatedMedia)
                 _fields.CollectionChanged -= _fields_CollectionChanged;
         }
 
@@ -104,6 +102,17 @@ namespace TAS.Client.ViewModels
                 ((IPersistentMedia)Model).Save();
         }
 
+        protected override void Load(object source = null)
+        {
+            var am = Model as IAnimatedMedia;
+            if (am != null)
+            {
+                _fields.Clear();
+                _fields.AddRange(am.Fields);
+            }
+            base.Load(source);
+        }
+
         public void Revert(object source = null)
         {
             Load(source);
@@ -118,7 +127,12 @@ namespace TAS.Client.ViewModels
 
         private void _deleteField(object obj)
         {
-            SelectedField = null;
+            if (SelectedField != null)
+            {
+                var selected = (KeyValuePair<string, string>)SelectedField;
+                Fields.Remove(selected.Key);
+                SelectedField = null;
+            }
         }
 
         private bool _canAddField(object obj)
@@ -467,7 +481,7 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged("IsNoAutoSave");
             }
         }
-        private ObservableDictionary<string, string> _fields;
+        private ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
         public IDictionary<string, string> Fields { get { return _fields; } }
         public object SelectedField { get; set; }
 
@@ -497,6 +511,11 @@ namespace TAS.Client.ViewModels
             {
                 return (Model is IPersistentMedia && Model.MediaStatus != TMediaStatus.Required);
             }
+        }
+
+        public bool IsMovie
+        {
+            get { return Model.MediaType == TMediaType.Movie; }
         }
 
         public string Error

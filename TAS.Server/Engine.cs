@@ -214,7 +214,8 @@ namespace TAS.Server
                     }
                     else
                         e.PlayState = TPlayState.Aborted;
-                    Debug.WriteLine(e);
+                    e.Save();
+                    Debug.WriteLine(e, "Playing event found");
                 }
                 while (!disposed)
                 {

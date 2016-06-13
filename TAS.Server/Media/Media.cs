@@ -208,7 +208,7 @@ namespace TAS.Server
         public virtual Guid MediaGuid
         {
             get { return _mediaGuid; }
-            protected set { SetField(ref _mediaGuid, value, "MediaGuid"); }
+            internal set { SetField(ref _mediaGuid, value, "MediaGuid"); }
         }
 
 

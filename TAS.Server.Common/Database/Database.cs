@@ -1094,8 +1094,6 @@ VALUES
 
         private static bool _insert_media_templated(IAnimatedMedia media)
         {
-            lock(_connection)
-            {
                 try
                 {
                     string query = @"INSERT INTO media_templated (MediaGuid, Fields) VALUES (@MediaGuid, @Fields);";
@@ -1110,91 +1108,85 @@ VALUES
                     Debug.WriteLine("_insert_media_templated failed with {0}", e.Message, null);
                     return false;
                 }
-            }
         }
 
         private static bool _update_media_templated(IAnimatedMedia media)
         {
-            lock (_connection)
+            try
             {
-                try
-                {
-                    string query = @"UPDATE media_templated SET Fields = @Fields WHERE MediaGuid = @MediaGuid;";
-                    DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                    cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
-                    cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
-                    cmd.ExecuteNonQuery();
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine("_update_media_templated failed with {0}", e.Message, null);
-                    return false;
-                }
+                string query = @"UPDATE media_templated SET Fields = @Fields WHERE MediaGuid = @MediaGuid;";
+                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("_update_media_templated failed with {0}", e.Message, null);
+                return false;
             }
         }
 
         private static bool _delete_media_templated(IAnimatedMedia media)
         {
-            lock (_connection)
+            try
             {
-                try
-                {
-                    string query = @"DELETE FROM media_templated WHERE MediaGuid = @MediaGuid;";
-                    DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                    cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
-                    cmd.ExecuteNonQuery();
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine("_delete_media_templated failed with {0}", e.Message, null);
-                    return false;
-                }
+                string query = @"DELETE FROM media_templated WHERE MediaGuid = @MediaGuid;";
+                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("_delete_media_templated failed with {0}", e.Message, null);
+                return false;
             }
         }
 
         public static bool DbInsert(this IAnimatedMedia animatedMedia, ulong serverId )
         {
             bool result = false;
-            var transaction = _connection.BeginTransaction();
-            try
+            lock (_connection)
             {
-                result = _dbInsert(animatedMedia, serverId);
-                if (result)
-                    result = _insert_media_templated(animatedMedia);
-            }
-            finally
-            {
-                if (result)
-                    transaction.Commit();
-                else
-                    transaction.Rollback();
+                var transaction = _connection.BeginTransaction();
+                try
+                {
+                    result = _dbInsert(animatedMedia, serverId);
+                    if (result)
+                        result = _insert_media_templated(animatedMedia);
+                }
+                finally
+                {
+                    if (result)
+                        transaction.Commit();
+                    else
+                        transaction.Rollback();
+                }
             }
             return result;
         }
 
         public static bool DbInsert(this IServerMedia serverMedia, ulong serverId)
         {
-            return _dbInsert(serverMedia, serverId);
+            lock (_connection)
+                return _dbInsert(serverMedia, serverId);
         }
 
         private static bool _dbInsert(IPersistentMedia media, ulong serverId)
         {
             bool success = false;
-            lock (_connection)
-            {
-                string query =
+            string query =
 @"INSERT INTO servermedia 
 (idServer, MediaName, Folder, FileName, FileSize, LastUpdated, Duration, DurationPlay, idProgramme, statusMedia, typMedia, typAudio, typVideo, TCStart, TCPlay, AudioVolume, AudioLevelIntegrated, AudioLevelPeak, idAux, KillDate, MediaGuid, flags) 
 VALUES 
 (@idServer, @MediaName, @Folder, @FileName, @FileSize, @LastUpdated, @Duration, @DurationPlay, @idProgramme, @statusMedia, @typMedia, @typAudio, @typVideo, @TCStart, @TCPlay, @AudioVolume, @AudioLevelIntegrated, @AudioLevelPeak, @idAux, @KillDate, @MediaGuid, @flags);";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                _mediaFillParamsAndExecute(cmd, media, serverId);
-                media.IdPersistentMedia = (UInt64)cmd.LastInsertedId;
-                success = true;
-                Debug.WriteLineIf(success, media, "ServerMediaInserte-d");
-            }
+            DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+            _mediaFillParamsAndExecute(cmd, media, serverId);
+            media.IdPersistentMedia = (UInt64)cmd.LastInsertedId;
+            success = true;
+            Debug.WriteLineIf(success, media, "ServerMediaInserte-d");
             return success;
         }
 
@@ -1218,39 +1210,40 @@ VALUES
 
         public static bool DbDelete(this IServerMedia serverMedia)
         {
-            return _dbDelete(serverMedia);
+            lock (_connection)
+                return _dbDelete(serverMedia);
         }
 
         public static bool DbDelete(this IAnimatedMedia animatedMedia)
         {
-            bool result = false;
-            var transaction = _connection.BeginTransaction();
-            try
+            lock (_connection)
             {
-                result = _dbDelete(animatedMedia);
-                if (result)
-                    result = _delete_media_templated(animatedMedia);
+                bool result = false;
+                var transaction = _connection.BeginTransaction();
+                try
+                {
+                    result = _dbDelete(animatedMedia);
+                    if (result)
+                        result = _delete_media_templated(animatedMedia);
+                }
+                finally
+                {
+                    if (result)
+                        transaction.Commit();
+                    else
+                        transaction.Rollback();
+                }
+                return result;
             }
-            finally
-            {
-                if (result)
-                    transaction.Commit();
-                else
-                    transaction.Rollback();
-            }
-            return result;
         }
 
 
         private static bool _dbDelete(IPersistentMedia serverMedia)
         {
-            lock (_connection)
-            {
-                string query = "DELETE FROM ServerMedia WHERE idServerMedia=@idServerMedia;";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.IdPersistentMedia);
-                return cmd.ExecuteNonQuery() == 1;
-            }
+            string query = "DELETE FROM ServerMedia WHERE idServerMedia=@idServerMedia;";
+            DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+            cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.IdPersistentMedia);
+            return cmd.ExecuteNonQuery() == 1;
         }
 
         public static bool DbDelete(this IArchiveMedia archiveMedia)
@@ -1267,19 +1260,22 @@ VALUES
         public static bool DbUpdate(this IAnimatedMedia animatedMedia, ulong serverId)
         {
             bool result = false;
-            var transaction = _connection.BeginTransaction();
-            try
+            lock (_connection)
             {
-                result = _dbUpdate(animatedMedia, serverId);
-                if (result)
-                    result = _update_media_templated(animatedMedia);
-            }
-            finally
-            {
-                if (result)
-                    transaction.Commit();
-                else
-                    transaction.Rollback();
+                var transaction = _connection.BeginTransaction();
+                try
+                {
+                    result = _dbUpdate(animatedMedia, serverId);
+                    if (result)
+                        result = _update_media_templated(animatedMedia);
+                }
+                finally
+                {
+                    if (result)
+                        transaction.Commit();
+                    else
+                        transaction.Rollback();
+                }
             }
             return result;
         }
@@ -1287,7 +1283,8 @@ VALUES
 
         public static bool DbUpdate(this IServerMedia serverMedia, ulong serverId)
         {
-            return _dbUpdate(serverMedia, serverId);
+            lock (_connection)
+                return _dbUpdate(serverMedia, serverId);
         }
 
         private static bool _dbUpdate(IPersistentMedia serverMedia, ulong serverId)

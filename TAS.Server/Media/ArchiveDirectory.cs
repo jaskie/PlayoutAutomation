@@ -24,9 +24,9 @@ namespace TAS.Server
         
         public override void Initialize()
         {
-            _isInitialized = false; // to avoid subsequent reinitializations
             DirectoryName = "Archiwum";
             GetVolumeInfo();
+            IsInitialized = true;
             Debug.WriteLine("ArchiveDirectory {0} initialized", Folder, null);
         }
         public UInt64 idArchive { get; set; }

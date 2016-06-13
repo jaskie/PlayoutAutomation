@@ -14,8 +14,8 @@ namespace TAS.Server
 {
     public class AnimationDirectory : MediaDirectory, IAnimationDirectory
     {
-        public readonly IPlayoutServer Server;
-        public AnimationDirectory(IPlayoutServer server, MediaManager manager) : base(manager)
+        public readonly CasparServer Server;
+        public AnimationDirectory(CasparServer server, MediaManager manager) : base(manager)
         {
             Server = server;
         }
@@ -26,7 +26,6 @@ namespace TAS.Server
             {
                 DirectoryName = "Animacje";
                 this.Load<AnimatedMedia>(Server.Id);
-                var server = Server as CasparServer;
                 base.Initialize();
                 Debug.WriteLine(Server.AnimationFolder, "AnimationDirectory initialized");
             }
@@ -44,21 +43,22 @@ namespace TAS.Server
 
         protected override IMedia AddFile(string fullPath, DateTime created = default(DateTime), DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
-            Media newMedia;
-            newMedia = (Media)_files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath));
+            AnimatedMedia newMedia = _files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath)) as AnimatedMedia;
             if (newMedia == null && AcceptFile(fullPath))
             {
-                newMedia = (Media)CreateMedia(fullPath, guid);
+                newMedia = (AnimatedMedia)CreateMedia(fullPath, guid);
                 newMedia.MediaName = Path.GetFileNameWithoutExtension(fullPath).ToUpper();
                 newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
                 newMedia.MediaType = TMediaType.Animation;
+                newMedia.MediaStatus = TMediaStatus.Available;
+                newMedia.Save();
             }
             return newMedia;
         }
 
         protected override IMedia CreateMedia(string fullPath, Guid guid)
         {
-            return new AnimatedMedia(this, guid, 0) { FullPath = fullPath };
+            return new AnimatedMedia(this, guid, 0) { FullPath = fullPath, Verified = true };
         }
 
         public override void MediaRemove(IMedia media)

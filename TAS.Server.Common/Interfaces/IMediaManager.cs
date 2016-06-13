@@ -30,8 +30,9 @@ namespace TAS.Server.Interfaces
         IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList);
 
         void ReloadIngestDirs();
-        void SynchronizeSecToPri(bool deleteNotExisted);
+        void SynchronizeMediaSecToPri(bool deleteNotExisted);
+        void SynchronizeAnimationsSecToPri();
 
-        void GetLoudness(IEnumerable<IMedia> mediaList);
+        void MeasureLoudness(IEnumerable<IMedia> mediaList);
     }
 }

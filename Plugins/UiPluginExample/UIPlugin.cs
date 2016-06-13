@@ -14,7 +14,7 @@ namespace UiPluginExample
     {
         public UIPlugin()
         {
-            Debug.WriteLine("Plugin");
+            Debug.WriteLine(this, "Plugin created");
         }
         private PluginExecuteContext _executionContext()
         {

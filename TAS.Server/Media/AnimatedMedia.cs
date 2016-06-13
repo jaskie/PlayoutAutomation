@@ -47,5 +47,26 @@ namespace TAS.Server
             Modified = false;
             return result;
         }
+
+        public override void CloneMediaProperties(IMedia fromMedia)
+        {
+            base.CloneMediaProperties(fromMedia);
+            var a = fromMedia as AnimatedMedia;
+            if (a != null)
+            {
+                _fields.Clear();
+                foreach (var field in a.Fields)
+                    _fields.Add(field);
+            }
+        }
+
+        internal override void Verify()
+        {
+            if (FileExists())
+            {
+                Verified = true;
+                MediaStatus = TMediaStatus.Available;
+            }
+        }
     }
 }

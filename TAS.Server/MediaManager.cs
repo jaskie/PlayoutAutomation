@@ -80,6 +80,9 @@ namespace TAS.Server
             IAnimationDirectory adir = AnimationDirectoryPRI;
             if (adir != null)
                 adir.PropertyChanged += _onAnimationDirectoryPropertyChanged;
+            adir = AnimationDirectorySEC;
+            if (adir != null)
+                adir.PropertyChanged += _onAnimationDirectoryPropertyChanged;
 
             LoadIngestDirs(ConfigurationManager.AppSettings["IngestFolders"]);
             _fileManager.VolumeReferenceLoudness =  Convert.ToDecimal(VolumeReferenceLoudness);
@@ -188,14 +191,14 @@ namespace TAS.Server
         private void _onServerDirectoryPropertyChanged(object dir, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "IsInitialized")
-                SynchronizeSecToPri(false);
+                SynchronizeMediaSecToPri(false);
         }
 
         private void _onAnimationDirectoryPropertyChanged(object dir, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "IsInitialized")
             {
-                ThreadPool.QueueUserWorkItem((o) => _syncAnimations());
+                ThreadPool.QueueUserWorkItem((o) => SynchronizeAnimationsSecToPri());
             }
         }
 
@@ -250,7 +253,7 @@ namespace TAS.Server
             return result;
         }
 
-        public void GetLoudness(IEnumerable<IMedia> mediaList)
+        public void MeasureLoudness(IEnumerable<IMedia> mediaList)
         {
             foreach (IMedia m in mediaList)
                 m.GetLoudness();
@@ -278,79 +281,110 @@ namespace TAS.Server
             return null;
         }
 
-        public void SynchronizeSecToPri(bool deleteNotExisted)
+        object _synchronizeMediaSecToPriLock = new object();
+        public void SynchronizeMediaSecToPri(bool deleteNotExisted)
         {
-            if (MediaDirectoryPRI != null
-                && MediaDirectorySEC != null
-                && MediaDirectoryPRI != MediaDirectorySEC
-                && MediaDirectoryPRI.IsInitialized
-                && MediaDirectorySEC.IsInitialized)
+            var pri = MediaDirectoryPRI;
+            var sec = MediaDirectorySEC;
+            if (pri != null && sec != null
+                && pri != sec
+                && pri.IsInitialized
+                && sec.IsInitialized)
             {
                 ThreadPool.QueueUserWorkItem(o =>
                {
-                   Debug.WriteLine(this, "SynchronizeSecToPri started");
-                   var pRIMediaList = MediaDirectoryPRI.GetFiles().ToList();
-                   foreach (ServerMedia pRImedia in pRIMediaList)
-                   {
-                       if (pRImedia.MediaStatus == TMediaStatus.Available && pRImedia.FileExists())
+                   if (Monitor.TryEnter(_synchronizeMediaSecToPriLock))
+                       try
                        {
-                           ServerMedia secMedia = (ServerMedia)((MediaDirectory)MediaDirectorySEC).FindMediaByMediaGuid(pRImedia.MediaGuid);
-                           if (secMedia == null)
+                           Debug.WriteLine(this, "SynchronizeMediaSecToPri started");
+                           var pRIMediaList = pri.GetFiles();
+                           foreach (ServerMedia pRImedia in pRIMediaList)
                            {
-                               secMedia = (ServerMedia)((ServerDirectory)MediaDirectorySEC).FindMediaFirst(m => m.FileExists() && m.FileSize == pRImedia.FileSize && m.FileName == pRImedia.FileName && m.LastUpdated.DateTimeEqualToDays(pRImedia.LastUpdated));
-                               if (secMedia != null)
+                               if (pRImedia.MediaStatus == TMediaStatus.Available && pRImedia.FileExists())
                                {
-                                   secMedia.CloneMediaProperties(pRImedia);
-                                   secMedia.Verify();
-                               }
-                               else
-                               {
-                                   secMedia = (ServerMedia)MediaDirectorySEC.GetServerMedia(pRImedia, true);
-                                   _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = pRImedia, DestMedia = secMedia });
+                                   ServerMedia secMedia = (ServerMedia)((MediaDirectory)sec).FindMediaByMediaGuid(pRImedia.MediaGuid);
+                                   if (secMedia == null)
+                                   {
+                                       secMedia = (ServerMedia)((ServerDirectory)sec).FindMediaFirst(m => m.FileExists() && m.FileSize == pRImedia.FileSize && m.FileName == pRImedia.FileName && m.LastUpdated.DateTimeEqualToDays(pRImedia.LastUpdated));
+                                       if (secMedia != null)
+                                       {
+                                           secMedia.CloneMediaProperties(pRImedia);
+                                           secMedia.MediaGuid = pRImedia.MediaGuid;
+                                           secMedia.Verify();
+                                       }
+                                       else
+                                       {
+                                           secMedia = (ServerMedia)sec.GetServerMedia(pRImedia, true);
+                                           _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = pRImedia, DestMedia = secMedia });
+                                       }
+                                   }
                                }
                            }
+                           if (deleteNotExisted)
+                           {
+                               var secMediaList = sec.GetFiles().ToList();
+                               foreach (ServerMedia secMedia in secMediaList)
+                               {
+                                   if ((ServerMedia)((MediaDirectory)pri).FindMediaByMediaGuid(secMedia.MediaGuid) == null)
+                                       _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = secMedia });
+                               }
+                               var duplicatesList = secMediaList.Where(m => secMediaList.FirstOrDefault(d => d.MediaGuid == m.MediaGuid && ((ServerMedia)d).IdPersistentMedia != ((ServerMedia)m).IdPersistentMedia) != null).Select(m => m.MediaGuid).Distinct();
+                               foreach (var mediaGuid in duplicatesList)
+                                   ((MediaDirectory)sec)
+                                   .FindMediaList(m => m.MediaGuid == mediaGuid)
+                                   .Skip(1).ToList()
+                                   .ForEach(m => m.Delete());
+                           }
                        }
-                   }
-                   if (deleteNotExisted)
-                   {
-                       var secMediaList = MediaDirectorySEC.GetFiles().ToList();
-                       foreach (ServerMedia secMedia in secMediaList)
+                       finally
                        {
-                           if ((ServerMedia)((MediaDirectory)MediaDirectoryPRI).FindMediaByMediaGuid(secMedia.MediaGuid) == null)
-                               _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = secMedia });
+                           Monitor.Exit(_synchronizeMediaSecToPriLock);
                        }
-                       var duplicatesList = secMediaList.Where(m => secMediaList.FirstOrDefault(d => d.MediaGuid == m.MediaGuid && ((ServerMedia)d).IdPersistentMedia != ((ServerMedia)m).IdPersistentMedia) != null).Select(m => m.MediaGuid).Distinct();
-                       foreach(var mediaGuid in duplicatesList)
-                           ((MediaDirectory)MediaDirectorySEC)
-                           .FindMediaList(m => m.MediaGuid == mediaGuid)
-                           .Skip(1).ToList()
-                           .ForEach(m => m.Delete());
-                   }
                });
             }
         }
 
-        private void _syncAnimations()
+
+        object _synchronizeAnimationsSecToPriLock = new object();
+        public void SynchronizeAnimationsSecToPri()
         {
-            Debug.WriteLine(this, "_syncAnimations");
-            if (AnimationDirectoryPRI != null
-                && AnimationDirectorySEC != null
-                && AnimationDirectorySEC != AnimationDirectoryPRV
-                && AnimationDirectoryPRI.IsInitialized
-                && AnimationDirectorySEC.IsInitialized)
+            var pri = AnimationDirectoryPRI;
+            var sec = AnimationDirectorySEC;
+            if (pri != null && sec != null
+                && pri != sec
+                && pri.IsInitialized
+                && sec.IsInitialized)
             {
-                foreach (ServerMedia pRImedia in AnimationDirectoryPRI.GetFiles())
+                ThreadPool.QueueUserWorkItem(o =>
                 {
-                    if (pRImedia.MediaStatus == TMediaStatus.Available)
-                    {
-                        var sECmedia = (ServerMedia)MediaDirectorySEC.GetFiles().FirstOrDefault(m => m.Folder == pRImedia.Folder && m.FileName == pRImedia.FileName && m.LastUpdated.DateTimeEqualToDays(pRImedia.LastUpdated));
-                        if (sECmedia != null)
+                    if (Monitor.TryEnter(_synchronizeAnimationsSecToPriLock))
+                        try
                         {
-                            sECmedia.CloneMediaProperties(pRImedia);
-                            sECmedia.Save();
+                            Debug.WriteLine(this, "SynchronizeAnimationsSecToPri started");
+                            foreach (AnimatedMedia priAnimation in pri.GetFiles())
+                            {
+                                if (priAnimation.MediaStatus == TMediaStatus.Available)
+                                {
+                                    AnimatedMedia sECAnimation = (AnimatedMedia)((AnimationDirectory)sec).FindMediaByMediaGuid(priAnimation.MediaGuid);
+                                    if (sECAnimation == null)
+                                    {
+                                        sECAnimation = (AnimatedMedia)((MediaDirectory)sec).FindMediaFirst(m => m.Folder == priAnimation.Folder && m.FileName == priAnimation.FileName);
+                                        if (sECAnimation != null)
+                                        {
+                                            sECAnimation.CloneMediaProperties(priAnimation);
+                                            sECAnimation.MediaGuid = priAnimation.MediaGuid;
+                                            sECAnimation.Save();
+                                            Debug.WriteLine(sECAnimation, "Updated");
+                                        }
+                                    }
+                                }
+                            }
                         }
-                    }
-                }
+                        finally
+                        {
+                            Monitor.Exit(_synchronizeAnimationsSecToPriLock);
+                        }
+                });
             }
         }
         

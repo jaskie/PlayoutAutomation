@@ -338,7 +338,7 @@
                 </DataTemplate>
             </DataGrid.RowDetailsTemplate>
         </DataGrid>
-        <GridSplitter Grid.Column="1" ResizeDirection="Columns" Grid.RowSpan="4" VerticalAlignment="Stretch" HorizontalAlignment="Left"  Background="DarkGray" Width="3" Cursor="SizeWE" />
+        <GridSplitter Grid.Column="1" ResizeDirection="Columns" Grid.RowSpan="5" VerticalAlignment="Stretch" HorizontalAlignment="Left"  Background="DarkGray" Width="3" Cursor="SizeWE" />
         <Grid Grid.Column="1" Grid.RowSpan="5" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>

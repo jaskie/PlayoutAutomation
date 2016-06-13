@@ -121,7 +121,8 @@ namespace TAS.Server.Common
 
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            foreach (var i in _dict)
+                array[arrayIndex++] = i;
         }
 
         public bool Remove(KeyValuePair<TKey, TValue> item)

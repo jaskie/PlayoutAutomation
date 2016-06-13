@@ -47,7 +47,7 @@ namespace TAS.Client.Model
             set { SetField(value); }
         }
 
-        public void GetLoudness(IEnumerable<IMedia> mediaList)
+        public void MeasureLoudness(IEnumerable<IMedia> mediaList)
         {
             Invoke(parameters: mediaList);
         }
@@ -75,15 +75,20 @@ namespace TAS.Client.Model
             Invoke();
         }
 
-        public void SynchronizeSecToPri(bool deleteNotExisted)
+        public void SynchronizeMediaSecToPri(bool deleteNotExisted)
         {
             Invoke(parameters: deleteNotExisted);
+        }
+
+        public void SynchronizeAnimationsSecToPri()
+        {
+            Invoke();
         }
 
         public void Export(IEnumerable<ExportMedia> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory)
         {
             Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory });
         }
-        
+
     }
 }

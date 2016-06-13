@@ -10,7 +10,7 @@ namespace TAS.Server
 {
     public class ArchiveMedia : PersistentMedia, IArchiveMedia
     {
-        internal ArchiveMedia(IArchiveDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
+        public ArchiveMedia(IArchiveDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
 
         private TIngestStatus _ingestStatus;
         public TIngestStatus IngestStatus
