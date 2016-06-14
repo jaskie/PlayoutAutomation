@@ -83,7 +83,7 @@ namespace TAS.Server.Interfaces
 
         //MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia);
         void SearchMissingEvents();
-        IEvent PlayingEvent(VideoLayer layer = VideoLayer.Program);
+        IEvent Playing { get; }
         IEvent NextToPlay { get; }
         IEvent NextWithRequestedStartTime { get; }
 
@@ -91,8 +91,7 @@ namespace TAS.Server.Interfaces
         event EventHandler<IEventEventArgs> EventDeleted;
         event EventHandler<EngineTickEventArgs> EngineTick;
         event EventHandler<EngineOperationEventArgs> EngineOperation;
-        event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> VisibleEventsOperation;
-        event EventHandler<CollectionOperationEventArgs<IEvent>> PreloadedEventsOperation;
+        event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
         event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         event StateRedundantChangeEventHandler DatabaseConnectionStateChanged;
     }

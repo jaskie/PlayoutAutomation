@@ -6,10 +6,6 @@
     <DockPanel>
         <Label DockPanel.Dock="Top" Content="{Binding EngineState}"/>
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
@@ -25,18 +21,7 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </DockPanel>
-            <DockPanel Grid.Row="1">
-                <Label  DockPanel.Dock="Top" Content="Loaded next events"/>
-                <DataGrid ItemsSource="{Binding LoadedNextEvents}" AutoGenerateColumns="False" IsReadOnly="True">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Layer" Binding="{Binding Layer, Mode=OneWay}" />
-                        <DataGridTextColumn Header="Name" Binding="{Binding EventName}" />
-                        <DataGridTextColumn Header="PlayState" Binding="{Binding PlayState}" />
-                        <DataGridTextColumn Header="ScheduledTime" Binding="{Binding ScheduledTime, Mode=OneWay}" />
-                    </DataGrid.Columns>
-                </DataGrid>
-            </DockPanel>
-            <DockPanel Grid.Column="1" Grid.RowSpan="2" >
+            <DockPanel Grid.Column="1" >
                 <Label DockPanel.Dock="Top" Content="Running events"/>
                 <DataGrid ItemsSource="{Binding RunningEvents}" AutoGenerateColumns="False" IsReadOnly="True">
                     <DataGrid.Columns>

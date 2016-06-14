@@ -48,10 +48,9 @@ namespace TAS.Server
         internal long CurrentTicks;
 
         private TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
-        readonly SimpleDictionary<VideoLayer, IEvent> _visibleEvents = new SimpleDictionary<VideoLayer, IEvent>(); // list of visible events
-        readonly ObservableSynchronizedCollection<IEvent> _runningEvents = new ObservableSynchronizedCollection<IEvent>(); // list of events loaded and playing 
-        readonly ObservableSynchronizedCollection<IEvent> _preloadedEvents = new ObservableSynchronizedCollection<IEvent>(); // events loaded in backgroud
-        readonly SimpleDictionary<VideoLayer, IEvent> _finishedEvents = new SimpleDictionary<VideoLayer, IEvent>(); // events finished or loaded and not playing
+        readonly ObservableSynchronizedCollection<Event> _visibleEvents = new ObservableSynchronizedCollection<Event>(); // list of visible events
+        readonly ObservableSynchronizedCollection<Event> _runningEvents = new ObservableSynchronizedCollection<Event>(); // list of events loaded and playing 
+        readonly ConcurrentDictionary<VideoLayer, Event> _preloadedEvents = new ConcurrentDictionary<VideoLayer, Event>();
         readonly SynchronizedCollection<IEvent> _rootEvents = new SynchronizedCollection<IEvent>();
         readonly ConcurrentDictionary<ulong, IEvent> _events = new ConcurrentDictionary<ulong, IEvent>();
         private IEvent _forcedNext;
@@ -77,8 +76,7 @@ namespace TAS.Server
         #region Constructor
         public Engine()
         {
-            _visibleEvents.DictionaryOperation += _visibleEventsOperation;
-            _preloadedEvents.CollectionOperation += _loadedNextEventsOperation;
+            _visibleEvents.CollectionOperation += _visibleEventsOperation;
             _runningEvents.CollectionOperation += _runningEventsOperation;
             EngineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
@@ -95,8 +93,7 @@ namespace TAS.Server
             if (!disposed)
             {
                 disposed = true;
-                _visibleEvents.DictionaryOperation -= _visibleEventsOperation;
-                _preloadedEvents.CollectionOperation -= _loadedNextEventsOperation;
+                _visibleEvents.CollectionOperation -= _visibleEventsOperation;
                 _runningEvents.CollectionOperation -= _runningEventsOperation;
                 foreach (Event e in _rootEvents)
                     e.SaveLoadedTree();
@@ -111,15 +108,15 @@ namespace TAS.Server
 
         #endregion //IDisposable
 
-        private IPlayoutServerChannel _playoutChannelPRI;
+        private CasparServerChannel _playoutChannelPRI;
         [XmlIgnore]
         public IPlayoutServerChannel PlayoutChannelPRI { get { return _playoutChannelPRI; } }
 
-        private IPlayoutServerChannel _playoutChannelSEC;
+        private CasparServerChannel _playoutChannelSEC;
         [XmlIgnore]
         public IPlayoutServerChannel PlayoutChannelSEC { get { return _playoutChannelSEC; } }
 
-        private IPlayoutServerChannel _playoutChannelPRV;
+        private CasparServerChannel _playoutChannelPRV;
 
         [XmlIgnore]
         public IPlayoutServerChannel PlayoutChannelPRV { get { return _playoutChannelPRV; } }
@@ -140,11 +137,11 @@ namespace TAS.Server
             Debug.WriteLine(this, "Begin initializing");
 
             var sPRI = servers.FirstOrDefault(S => S.Id == IdServerPRI);
-            _playoutChannelPRI = sPRI == null ? null : sPRI.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelPRI);
+            _playoutChannelPRI = sPRI == null ? null : (CasparServerChannel)sPRI.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelPRI);
             var sSEC = servers.FirstOrDefault(S => S.Id == IdServerSEC);
-            _playoutChannelSEC = sSEC == null ? null : sSEC.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelSEC);
+            _playoutChannelSEC = sSEC == null ? null : (CasparServerChannel)sSEC.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelSEC);
             var sPRV = servers.FirstOrDefault(S => S.Id == IdServerPRV);
-            _playoutChannelPRV = sPRV == null ? null : sPRV.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelPRV);
+            _playoutChannelPRV = sPRV == null ? null : (CasparServerChannel)sPRV.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelPRV);
 
 
             LocalGpi = localGpi;
@@ -202,21 +199,35 @@ namespace TAS.Server
                 CurrentTicks = CurrentTime.Ticks;
 
                 List<IEvent> playingEvents = this.DbSearchPlaying();
-                foreach (IEvent e in playingEvents)
+                IEvent playing = playingEvents.FirstOrDefault(e => e.Layer == VideoLayer.Program && (e.EventType == TEventType.Live || e.EventType == TEventType.Movie));
+                if (playing != null)
                 {
-                    //TODO: restart the events
-                    if (CurrentTicks < (e.ScheduledTime + e.Duration).Ticks && e.EventType != TEventType.Rundown)
+                    Debug.WriteLine(playing, "Playing event found");
+                    if (CurrentTicks < (playing.ScheduledTime + playing.Duration).Ticks)
                     {
-                        e.Position = (CurrentTicks - e.ScheduledTime.Ticks) / _frameTicks;
-                        _runningEvents.Add(e);
-                        _visibleEvents[e.Layer] = e;
+                        foreach (Event e in playingEvents)
+                        {
+                            e.Position = (CurrentTicks - e.ScheduledTime.Ticks) / _frameTicks;
+                            _runningEvents.Add(e);
+                            _visibleEvents.Add(e);
+                        }
                         _engineState = TEngineState.Running;
+                        Playing = playing;
                     }
                     else
-                        e.PlayState = TPlayState.Aborted;
-                    e.Save();
-                    Debug.WriteLine(e, "Playing event found");
+                        foreach (IEvent e in playingEvents)
+                        {
+                            e.PlayState = TPlayState.Aborted;
+                            e.Save();
+                        }
                 }
+                else
+                    foreach (IEvent e in playingEvents)
+                    {
+                        e.PlayState = TPlayState.Aborted;
+                        e.Save();
+                    }
+
                 while (!disposed)
                 {
                     try
@@ -293,7 +304,7 @@ namespace TAS.Server
 
         private void _server_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Action<IPlayoutServerChannel, List<IEvent>> channelConnected = (channel, ve) =>
+            Action<CasparServerChannel, List<Event>> channelConnected = (channel, ve) =>
             {
                 foreach (Event ev in ve)
                 {
@@ -311,14 +322,14 @@ namespace TAS.Server
 
             if (e.PropertyName == "IsConnected" && ((IPlayoutServer)sender).IsConnected)
             {
-                var ve = _visibleEvents.Values.ToList();
+                var ve = _visibleEvents.ToList();
                 if (PlayoutChannelPRI != null
                     && sender == PlayoutChannelPRI.OwnerServer)
-                    channelConnected(PlayoutChannelPRI, ve);
+                    channelConnected(_playoutChannelPRI, ve);
                 if (PlayoutChannelSEC != null
                     && sender == PlayoutChannelSEC.OwnerServer
                     && PlayoutChannelSEC != PlayoutChannelPRI)
-                    channelConnected(PlayoutChannelSEC, ve);
+                    channelConnected(_playoutChannelSEC, ve);
             }
         }
 
@@ -394,16 +405,15 @@ namespace TAS.Server
         {
         }
 
-        public IEvent PlayingEvent(VideoLayer layer = VideoLayer.Program)
-        {
-            return _visibleEvents[layer];
-        }
+        private Event _playing;
+        [XmlIgnore]
+        public IEvent Playing { get { return _playing; } private set { SetField(ref _playing, (Event)value, "Playing"); } }
 
         public IEvent NextToPlay
         {
             get
             {
-                var e = _visibleEvents[VideoLayer.Program] as Event;
+                var e = _playing as Event;
                 if (e != null)
                 {
                     e = _successor(e);
@@ -423,7 +433,7 @@ namespace TAS.Server
         {
             get
             {
-                IEvent e = PlayingEvent();
+                IEvent e = _playing;
                 if (e != null)
                     do
                         e = e.GetSuccessor();
@@ -439,19 +449,19 @@ namespace TAS.Server
 
         public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal previewAudioVolume)
         {
-            IMedia mediaToLoad = FindPreviewMedia(media);
+            Media mediaToLoad = FindPreviewMedia(media);
             if (mediaToLoad != null)
             {
                 _previewDuration = duration;
                 _previewSeek = seek;
                 _previewPosition = position;
                 _previewMedia = media;
-                PlayoutChannelPRV.SetAspect(VideoLayer.Preview, media.VideoFormat == TVideoFormat.NTSC
+                _playoutChannelPRV.SetAspect(VideoLayer.Preview, media.VideoFormat == TVideoFormat.NTSC
                                             || media.VideoFormat == TVideoFormat.PAL
                                             || media.VideoFormat == TVideoFormat.PAL_P);
                 PreviewLoaded = true;
                 PreviewAudioLevel = previewAudioVolume;
-                PlayoutChannelPRV.Load(mediaToLoad, VideoLayer.Preview, seek+position, duration-position);
+                _playoutChannelPRV.Load(mediaToLoad, VideoLayer.Preview, seek+position, duration-position);
                 PreviewIsPlaying = false;
                 NotifyPropertyChanged("PreviewMedia");
                 NotifyPropertyChanged("PreviewPosition");
@@ -461,7 +471,7 @@ namespace TAS.Server
 
         public void PreviewUnload()
         {
-            var channel = PlayoutChannelPRV;
+            var channel = _playoutChannelPRV;
             if (channel != null)
             {
                 if (_previewMedia != null)
@@ -494,7 +504,7 @@ namespace TAS.Server
             get { return _previewPosition; }
             set
             {
-                if (PlayoutChannelPRV != null && _previewMedia!=null)
+                if (_playoutChannelPRV != null && _previewMedia!=null)
                 {
                     PreviewPause();
                     long newSeek = value < 0 ? 0 : value;
@@ -503,7 +513,7 @@ namespace TAS.Server
                         newSeek = maxSeek;
                     if (newSeek != _previewPosition)
                     {
-                        PlayoutChannelPRV.Seek(VideoLayer.Preview, _previewSeek + newSeek);
+                        _playoutChannelPRV.Seek(VideoLayer.Preview, _previewSeek + newSeek);
                         _previewPosition = newSeek;
                     }
                 }
@@ -518,13 +528,13 @@ namespace TAS.Server
             set
             {
                 if (SetField(ref _previewAudioLevel, value, "PreviewAudioLevel"))
-                    PlayoutChannelPRV.SetVolume(VideoLayer.Preview, (decimal)Math.Pow(10, (double)value / 20));
+                    _playoutChannelPRV.SetVolume(VideoLayer.Preview, (decimal)Math.Pow(10, (double)value / 20));
             }
         }
 
         public bool PreviewPlay()
         {
-            var channel = PlayoutChannelPRV;
+            var channel = _playoutChannelPRV;
             var media = PreviewMedia;
             if (channel != null && channel.Play(VideoLayer.Preview) && media != null)
             {
@@ -537,7 +547,7 @@ namespace TAS.Server
 
         public bool PreviewPause()
         {
-            var channel = PlayoutChannelPRV;
+            var channel = _playoutChannelPRV;
             if (channel != null && channel.Pause(VideoLayer.Preview))
             {
                 PreviewIsPlaying = false;
@@ -557,8 +567,8 @@ namespace TAS.Server
                 if (SetField(ref _previewLoaded, value, "PreviewLoaded"))
                 {
                     decimal vol = (_previewLoaded) ? 0 : _programAudioVolume;
-                    if (PlayoutChannelPRV != null)
-                        PlayoutChannelPRV.SetVolume(VideoLayer.Program, vol);
+                    if (_playoutChannelPRV != null)
+                        _playoutChannelPRV.SetVolume(VideoLayer.Program, vol);
                 }
             }
         }
@@ -567,18 +577,18 @@ namespace TAS.Server
         [XmlIgnore]
         public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value, "PreviewIsPlaying"); } }
 
-        public IMedia FindPreviewMedia(IMedia media)
+        public Media FindPreviewMedia(IMedia media)
         {
             IPlayoutServerChannel playoutChannel = _playoutChannelPRV;
             if (media is ServerMedia)
             {
                 if (media == null || playoutChannel == null)
-                    return media;
+                    return (Media)media;
                 else
                     return ((ServerDirectory)playoutChannel.OwnerServer.MediaDirectory).FindMediaByMediaGuid(media.MediaGuid);
             }
             else
-                return media;
+                return (Media)media;
         }
 
         //[JsonProperty]
@@ -591,10 +601,10 @@ namespace TAS.Server
         #endregion // Preview Routines
 
         #region private methods
-        private bool _load(IEvent aEvent)
+        private bool _load(Event aEvent)
         {
             if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
-                aEvent = aEvent.GetSuccessor();
+                aEvent = (Event)aEvent.GetSuccessor();
             if (aEvent == null)
                 return false;
             Debug.WriteLine(aEvent, "Load");
@@ -604,9 +614,12 @@ namespace TAS.Server
                     _playoutChannelPRI.Load(aEvent);
                 if (PlayoutChannelSEC != null)
                     _playoutChannelSEC.Load(aEvent);
-                _visibleEvents[aEvent.Layer] = aEvent;
-                _finishedEvents[aEvent.Layer] = null;
-                _setAspectRatio(aEvent);
+                _visibleEvents.Add(aEvent);
+                if (aEvent.Layer == VideoLayer.Program)
+                {
+                    Playing = aEvent;
+                    _setAspectRatio(aEvent);
+                }
             }
             _run(aEvent);
             aEvent.PlayState = TPlayState.Paused;
@@ -624,13 +637,13 @@ namespace TAS.Server
             Debug.WriteLine(aEvent, "LoadNext");
             if (aEvent.PlayState == TPlayState.Scheduled || aEvent.PlayState == TPlayState.Played || aEvent.PlayState == TPlayState.Aborted)
                 aEvent.PlayState = TPlayState.Scheduled;
-            _preloadedEvents.Add(aEvent);
+            _preloadedEvents[aEvent.Layer] = aEvent;
             if (aEvent.EventType != TEventType.Rundown)
             {
-                if (PlayoutChannelPRI != null)
-                    PlayoutChannelPRI.LoadNext(aEvent);
-                if (PlayoutChannelSEC != null)
-                    PlayoutChannelSEC.LoadNext(aEvent);
+                if (_playoutChannelPRI != null)
+                    _playoutChannelPRI.LoadNext(aEvent);
+                if (_playoutChannelSEC != null)
+                    _playoutChannelSEC.LoadNext(aEvent);
                 if (_gpi != null
                     && GPIEnabled
                     && _gpi.GraphicsStartDelay < 0)
@@ -668,8 +681,9 @@ namespace TAS.Server
                                 e.PlayState = TPlayState.Played;
                             else
                                 e.PlayState = TPlayState.Aborted;
-                            _rootEvents.Remove(e);
+                            _runningEvents.Remove(e);
                         }
+                        e.Save();
                     });                        
             }
             _run(aEvent);
@@ -677,37 +691,35 @@ namespace TAS.Server
                 aEvent.Position = 0;
             if (aEvent.EventType != TEventType.Rundown)
             {
-                if (_visibleEvents[aEvent.Layer] != aEvent && !_preloadedEvents.Contains(aEvent)) 
-                    _loadNext(aEvent);
-                if (PlayoutChannelPRI != null)
-                    PlayoutChannelPRI.Play(aEvent);
-                if (PlayoutChannelSEC != null)
-                    PlayoutChannelSEC.Play(aEvent);
-                _finishedEvents[aEvent.Layer] = null;
-                _visibleEvents[aEvent.Layer] = aEvent;
+                if (_playoutChannelPRI != null)
+                    _playoutChannelPRI.Play(aEvent);
+                if (_playoutChannelSEC != null)
+                    _playoutChannelSEC.Play(aEvent);
+                _visibleEvents.Add(aEvent);
                 if (aEvent.Layer == VideoLayer.Program)
                 {
                     decimal volumeDB = (decimal)Math.Pow(10, (double)aEvent.GetAudioVolume() / 20);
                     ProgramAudioVolume = volumeDB;
-                }
-                _setAspectRatio(aEvent);
-                if (LocalGpi != null && GPIEnabled)
-                    _setGPIGraphics(LocalGpi, aEvent);
-                if (_gpi != null && GPIEnabled)
-                {
-                    if (_gpi.GraphicsStartDelay <= 0)
-                        _setGPIGraphics(_gpi, aEvent);
-                    if (_gpi.GraphicsStartDelay > 0)
+                    Playing = aEvent;
+                    _setAspectRatio(aEvent);
+                    if (LocalGpi != null && GPIEnabled)
+                        _setGPIGraphics(LocalGpi, aEvent);
+                    if (_gpi != null && GPIEnabled)
                     {
-                        ThreadPool.QueueUserWorkItem(o =>
-                        {
-                            Thread.Sleep(_gpi.GraphicsStartDelay);
+                        if (_gpi.GraphicsStartDelay <= 0)
                             _setGPIGraphics(_gpi, aEvent);
-                        });
+                        if (_gpi.GraphicsStartDelay > 0)
+                        {
+                            ThreadPool.QueueUserWorkItem(o =>
+                            {
+                                Thread.Sleep(_gpi.GraphicsStartDelay);
+                                _setGPIGraphics(_gpi, aEvent);
+                            });
+                        }
                     }
                 }
             }
-            _preloadedEvents.Remove(aEvent);
+            _preloadedEvents[aEvent.Layer] = null;
             aEvent.PlayState = TPlayState.Playing;
             foreach (Event e in aEvent.SubEvents.ToList())
                 if (e.ScheduledDelay.Ticks < _frameTicks)
@@ -745,17 +757,17 @@ namespace TAS.Server
             bool narrow = media != null && (media.VideoFormat == TVideoFormat.PAL || media.VideoFormat == TVideoFormat.NTSC || media.VideoFormat == TVideoFormat.PAL_P);
             if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
             {
-                if (PlayoutChannelPRI != null)
-                    PlayoutChannelPRI.SetAspect(VideoLayer.Program, narrow);
-                if (PlayoutChannelSEC != null)
-                    PlayoutChannelSEC.SetAspect(VideoLayer.Program, narrow);
+                if (_playoutChannelPRI != null)
+                    _playoutChannelPRI.SetAspect(aEvent.Layer, narrow);
+                if (_playoutChannelSEC != null)
+                    _playoutChannelSEC.SetAspect(aEvent.Layer, narrow);
             }
             if (AspectRatioControl == TAspectRatioControl.GPI || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
                 if (_gpi != null)
                     _gpi.AspectNarrow = narrow;
         }
 
-        private void _run(IEvent aEvent)
+        private void _run(Event aEvent)
         {
             if (aEvent == null)
                 return;
@@ -769,48 +781,43 @@ namespace TAS.Server
             }
         }
 
-        private void _stop(IEvent aEvent)
+        private void _stop(Event aEvent)
         {
-            aEvent.PlayState = TPlayState.Played;
+            aEvent.PlayState = aEvent.IsFinished ? TPlayState.Played : TPlayState.Aborted;
             aEvent.Save();
-            lock (_visibleEvents)
-                if (_visibleEvents[aEvent.Layer] == aEvent)
+            lock (_visibleEvents.SyncRoot)
+                if (_visibleEvents.Contains(aEvent))
                 {
-                    var le = _preloadedEvents.FirstOrDefault(e => e.Layer == aEvent.Layer);
-                    if (aEvent.EventType != TEventType.Live
-                        && (le == null || (le.ScheduledTime.Ticks - CurrentTicks >= _frameTicks)))
+                    if (aEvent.EventType != TEventType.Live)
                     {
                         Debug.WriteLine(aEvent, "Stop");
-                        if (PlayoutChannelPRI != null)
-                            PlayoutChannelPRI.Stop(aEvent);
-                        if (PlayoutChannelSEC != null)
-                            PlayoutChannelSEC.Stop(aEvent);
+                        if (_playoutChannelPRI != null)
+                            _playoutChannelPRI.Stop(aEvent);
+                        if (_playoutChannelSEC != null)
+                            _playoutChannelSEC.Stop(aEvent);
                     }
-                    _visibleEvents[aEvent.Layer] = null;
+                    _visibleEvents.Remove(aEvent);
                 }
             _runningEvents.Remove(aEvent);
             NotifyEngineOperation(aEvent, TEngineOperation.Stop);
         }
 
-        private void _pause(IEvent aEvent, bool finish)
+        private void _pause(Event aEvent, bool finish)
         {
             lock (_visibleEvents)
-                if (_visibleEvents[aEvent.Layer] == aEvent)
+                if (_visibleEvents.Contains(aEvent))
                 {
                     Debug.WriteLine(aEvent, "Pause");
                     if (aEvent.EventType != TEventType.Live)
                     {
-                        if (PlayoutChannelPRI != null)
-                            PlayoutChannelPRI.Pause(aEvent);
-                        if (PlayoutChannelSEC != null)
-                            PlayoutChannelSEC.Pause(aEvent);
+                        if (_playoutChannelPRI != null)
+                            _playoutChannelPRI.Pause(aEvent);
+                        if (_playoutChannelSEC != null)
+                            _playoutChannelSEC.Pause(aEvent);
                     }
                     if (finish)
-                    {
-                        _visibleEvents[aEvent.Layer] = null;
-                        _finishedEvents[aEvent.Layer] = aEvent;
-                    }
-                    foreach (IEvent se in aEvent.SubEvents.ToList())
+                        _visibleEvents.Remove(aEvent);
+                    foreach (Event se in aEvent.SubEvents.ToList())
                         _pause(se, finish);
                 }
             if (finish)
@@ -826,26 +833,25 @@ namespace TAS.Server
 
         private void _loadPST()
         {
-            var currEvent = PlayingEvent();
             IEvent ev = NextToPlay;
             if (ev != null && PlayoutChannelPRV != null)
             {
-                IMedia media = ((Event)ev).ServerMediaPRV;
+                Media media = ((Event)ev).ServerMediaPRV;
                 if (media != null)
                 {
-                    PlayoutChannelPRV.Load(media, VideoLayer.Preset, 0, -1);
+                    _playoutChannelPRV.Load(media, VideoLayer.Preset, 0, -1);
                     return;
                 }
             }
-            PlayoutChannelPRV.Load(System.Drawing.Color.Black, VideoLayer.Preset);
+            _playoutChannelPRV.Load(System.Drawing.Color.Black, VideoLayer.Preset);
         }
 
         private void _restartEvent(Event ev)
         {
-            if (PlayoutChannelPRI != null)
-                PlayoutChannelPRI.ReStart(ev);
-            if (PlayoutChannelSEC != null)
-                PlayoutChannelSEC.ReStart(ev);
+            if (_playoutChannelPRI != null)
+                _playoutChannelPRI.ReStart(ev);
+            if (_playoutChannelSEC != null)
+                _playoutChannelSEC.ReStart(ev);
         }
 
         private object _tickLock = new object();
@@ -859,7 +865,7 @@ namespace TAS.Server
                         if (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading)
                             e.Position += nFrames;
 
-                    Event playingEvent = _visibleEvents[VideoLayer.Program] as Event;
+                    Event playingEvent = _playing;
                     Event succEvent = null;
                     if (playingEvent != null)
                     {
@@ -875,7 +881,7 @@ namespace TAS.Server
                                 }
                             }
                             if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks
-                                && !_preloadedEvents.Contains(succEvent))
+                                && !(_preloadedEvents[succEvent.Layer] ==  succEvent))
                             {
                                 // second: preload next scheduled events
                                 Debug.WriteLine(succEvent, "Tick: LoadNext Running");
@@ -892,12 +898,19 @@ namespace TAS.Server
                                 }
                             }
                         }
+                        else // end of rundown - no successor
+                        {
+                            if (playingEvent.IsFinished)
+                            {
+                                _pause(playingEvent, true);
+                            }
+                        }
                     }
 
-                    IEnumerable<IEvent> runningEvents = null;
+                    IEnumerable<Event> runningEvents;
                     lock (_runningEvents.SyncRoot)
                         runningEvents = _runningEvents.Where(e => e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading).ToList();
-                    foreach (IEvent e in runningEvents)
+                    foreach (Event e in runningEvents)
                         if (e.IsFinished)
                         {
                             if (succEvent == null)
@@ -958,7 +971,7 @@ namespace TAS.Server
         private void _onRunningSubEventsChanged(object sender, CollectionOperationEventArgs<IEvent> e)
         {
             if (e.Operation == TCollectionOperation.Remove)
-                _stop(e.Item);
+                _stop((Event)e.Item);
             else
             {
                 lock (_tickLock)
@@ -976,7 +989,7 @@ namespace TAS.Server
 
         private TimeSpan _getTimeToAttention()
         {
-            IEvent pe = PlayingEvent();
+            IEvent pe = _playing;
             if (pe != null)
             {
                 TimeSpan result = pe.Length - TimeSpan.FromTicks(pe.Position * _frameTicks);
@@ -1027,21 +1040,10 @@ namespace TAS.Server
             lock (_tickLock)
             {
                 EngineState = TEngineState.Hold;
-                IEnumerable<IEvent> oldEvents = _visibleEvents.Values.ToList().Concat(_finishedEvents.Values.ToList());
-                _visibleEvents.Clear();
-                _finishedEvents.Clear();
-                foreach (Event e in _runningEvents.ToList())
-                {
-                    _runningEvents.Remove(e);
-                    if (e.Position == 0)
-                        e.PlayState = TPlayState.Scheduled;
-                    else
-                        e.PlayState = TPlayState.Aborted;
-                }
-                _load(aEvent);
+                IEnumerable<Event> oldEvents = _visibleEvents.ToList();
                 foreach (Event e in oldEvents)
-                    if (_visibleEvents[e.Layer] == null)
-                        Clear(e.Layer);
+                        _stop(e);
+                _load((Event)aEvent);
             }
             NotifyEngineOperation(aEvent, TEngineOperation.Load);
         }
@@ -1054,7 +1056,7 @@ namespace TAS.Server
                 {
                     foreach (Event e in _runningEvents.ToList())
                     {
-                        if (e.PlayState == TPlayState.Paused || _preloadedEvents.Contains(e))
+                        if (e.PlayState == TPlayState.Paused)
                         {
                             _play(e, false);
                             IEvent s = e.GetSuccessor();
@@ -1072,9 +1074,8 @@ namespace TAS.Server
             lock (_tickLock)
             {
                 EngineState = TEngineState.Running;
-                IEnumerable<IEvent> oldEvents = _visibleEvents.Values.ToList().Concat(_finishedEvents.Values.ToList());
-                _visibleEvents.Clear();
-                _finishedEvents.Clear();
+                foreach (Event e in _visibleEvents.ToList())
+                    _stop(e);
                 foreach (Event e in _runningEvents.ToList())
                 {
                     _runningEvents.Remove(e);
@@ -1085,9 +1086,6 @@ namespace TAS.Server
                 }
 
                 _play(aEvent as Event, true);
-                foreach (Event e in oldEvents)
-                    if (_visibleEvents[e.Layer] == null)
-                        Clear(e.Layer);
             }
             NotifyEngineOperation(aEvent, TEngineOperation.Start);
         }
@@ -1097,7 +1095,7 @@ namespace TAS.Server
             Debug.WriteLine(aEvent, string.Format("Schedule {0}", aEvent.PlayState));
             lock (_tickLock)
                 EngineState = TEngineState.Running;
-            _run(aEvent);
+            _run((Event)aEvent);
             NotifyEngineOperation(aEvent, TEngineOperation.Schedule);
         }
 
@@ -1127,43 +1125,37 @@ namespace TAS.Server
         public void Clear(VideoLayer aVideoLayer)
         {
             Debug.WriteLine(aVideoLayer, "Clear");
-            IEvent ev = _preloadedEvents.FirstOrDefault(e => e.Layer == aVideoLayer);
-            if (ev != null)
-            {
-                _preloadedEvents.Remove(ev);
-                _runningEvents.Remove(ev);
-            }
-            _visibleEvents.TryRemove(aVideoLayer, out ev);
+            Event ev;
+            lock (_visibleEvents.SyncRoot)
+                ev = _visibleEvents.FirstOrDefault(e => e.Layer == aVideoLayer);
             if (ev != null)
             {
                 ev.PlayState = TPlayState.Aborted;
                 ev.Save();
+                _visibleEvents.Remove(ev);
                 _runningEvents.Remove(ev);
             }
-            _finishedEvents.TryRemove(aVideoLayer, out ev);
             if (ev != null)
             {
                 ev.PlayState = TPlayState.Scheduled;
                 ev.Save();
                 _runningEvents.Remove(ev);
             }
-            if (PlayoutChannelPRI != null)
-                PlayoutChannelPRI.Clear(aVideoLayer);
-            if (PlayoutChannelSEC != null)
-                PlayoutChannelSEC.Clear(aVideoLayer);
+            if (_playoutChannelPRI != null)
+                _playoutChannelPRI.Clear(aVideoLayer);
+            if (_playoutChannelSEC != null)
+                _playoutChannelSEC.Clear(aVideoLayer);
         }
         
         public void Clear()
         {
             _clearRunning();
             _visibleEvents.Clear();
-            _preloadedEvents.Clear();
-            _finishedEvents.Clear();
             ForcedNext = null;
-            if (PlayoutChannelPRI != null)
-                PlayoutChannelPRI.Clear();
-            if (PlayoutChannelSEC != null)
-                PlayoutChannelSEC.Clear();
+            if (_playoutChannelPRI != null)
+                _playoutChannelPRI.Clear();
+            if (_playoutChannelSEC != null)
+                _playoutChannelSEC.Clear();
             NotifyEngineOperation(null, TEngineOperation.Clear);
             _programAudioVolume = 1.0m;
             NotifyPropertyChanged("ProgramAudioVolume");
@@ -1173,7 +1165,7 @@ namespace TAS.Server
 
         public void Restart()
         {
-            foreach (Event e in _visibleEvents.Values.ToList())
+            foreach (Event e in _visibleEvents.ToList())
                 _restartEvent(e);
         }
 
@@ -1185,7 +1177,7 @@ namespace TAS.Server
                         _runningEvents.Add(aEvent);
                     if (aEvent.EventType != TEventType.Rundown)
                     {
-                        _visibleEvents[aEvent.Layer] = aEvent;
+                        _visibleEvents.Add(aEvent);
                         _restartEvent(aEvent);
                     }
                 };
@@ -1266,7 +1258,10 @@ namespace TAS.Server
             IEvent result;
             if (!_events.TryGetValue(idRundownEvent, out result))
             {
-                result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionType, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, gpi);
+                if (eventType == TEventType.Animation)
+                    result = new TemplatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, gpi);
+                else
+                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionType, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, gpi);
                 if (idRundownEvent == 0)
                     result.Save();
                 if (_events.TryAdd(result.IdRundownEvent, result))
@@ -1332,10 +1327,10 @@ namespace TAS.Server
                 if (value != _programAudioVolume)
                 {
                     _programAudioVolume = value;
-                    if (PlayoutChannelPRI != null)
-                        PlayoutChannelPRI.SetVolume(VideoLayer.Program, _programAudioVolume);
-                    if (PlayoutChannelSEC != null && !_previewLoaded)
-                        PlayoutChannelSEC.SetVolume(VideoLayer.Program, _programAudioVolume);
+                    if (_playoutChannelPRI != null)
+                        _playoutChannelPRI.SetVolume(VideoLayer.Program, _programAudioVolume);
+                    if (_playoutChannelSEC != null && !_previewLoaded)
+                        _playoutChannelSEC.SetVolume(VideoLayer.Program, _programAudioVolume);
                     NotifyPropertyChanged("ProgramAudioVolume");
                 }
             }
@@ -1383,9 +1378,7 @@ namespace TAS.Server
         #region IEngine properties
 
         [XmlIgnore]
-        public ICollection<IEvent> VisibleEvents { get { return _visibleEvents.Values; } }
-        [XmlIgnore]
-        public ICollection<IEvent> PreLoadedEvents { get { return _preloadedEvents; } }
+        public ICollection<IEvent> VisibleEvents { get { return _visibleEvents.Cast<IEvent>().ToList(); } }
 
         protected bool SetField<T>(ref T field, T value, string propertyName)
         {
@@ -1413,12 +1406,12 @@ namespace TAS.Server
                 handler(this, new EngineOperationEventArgs(aEvent, operation));
         }
 
-        public event EventHandler<DictionaryOperationEventArgs<VideoLayer, IEvent>> VisibleEventsOperation;
-        private void _visibleEventsOperation(object o, DictionaryOperationEventArgs<VideoLayer, IEvent> e)
+        public event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
+        private void _visibleEventsOperation(object o, CollectionOperationEventArgs<Event> e)
         {
             var handler = VisibleEventsOperation;
             if (handler != null)
-                handler(o, e);
+                handler(o, new CollectionOperationEventArgs<IEvent>(e.Item, e.Operation));
         }
 
         public event EventHandler<CollectionOperationEventArgs<IEvent>> PreloadedEventsOperation;
@@ -1430,7 +1423,7 @@ namespace TAS.Server
         }
 
         public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
-        private void _runningEventsOperation(object sender, CollectionOperationEventArgs<IEvent> e)
+        private void _runningEventsOperation(object sender, CollectionOperationEventArgs<Event> e)
         {
             if (e.Operation == TCollectionOperation.Insert)
                 e.Item.SubEventChanged += _onRunningSubEventsChanged;
@@ -1438,7 +1431,7 @@ namespace TAS.Server
                 e.Item.SubEventChanged -= _onRunningSubEventsChanged;
             var handler = RunningEventsOperation;
             if (handler  != null)
-                handler(sender, e);
+                handler(sender, new CollectionOperationEventArgs<IEvent>(e.Item, e.Operation));
         }
 
         public event EventHandler<IEventEventArgs> EventSaved; 
@@ -1476,8 +1469,8 @@ namespace TAS.Server
                     if (value)
                         _loadPST();
                     else
-                        if (PlayoutChannelPRV != null)
-                            PlayoutChannelPRV.Clear(VideoLayer.Preset);
+                        if (_playoutChannelPRV != null)
+                            _playoutChannelPRV.Clear(VideoLayer.Preset);
                 }
             }
         }

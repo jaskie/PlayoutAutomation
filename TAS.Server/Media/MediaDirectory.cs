@@ -22,7 +22,7 @@ namespace TAS.Server
     public abstract class MediaDirectory : DtoBase, IMediaDirectory
     { 
         private FileSystemWatcher _watcher;
-        protected ConcurrentDictionary<Guid, IMedia> _files = new ConcurrentDictionary<Guid, IMedia>();
+        protected ConcurrentDictionary<Guid, Media> _files = new ConcurrentDictionary<Guid, Media>();
         internal MediaManager MediaManager;
 
         public event EventHandler<MediaEventArgs> MediaAdded;
@@ -143,7 +143,7 @@ namespace TAS.Server
 
         public virtual ICollection<IMedia> GetFiles()
         {
-            return _files.Values.ToList();
+            return _files.Values.Cast<IMedia>().ToList();
         }
 
         protected string _folder;
@@ -238,7 +238,7 @@ namespace TAS.Server
             return newMedia;
         }
 
-        public virtual void MediaAdd(IMedia media)
+        public virtual void MediaAdd(Media media)
         {
             _files[media.MediaGuid] = media;
             NotifyMediaAdded(media);
@@ -246,7 +246,7 @@ namespace TAS.Server
 
         public virtual void MediaRemove(IMedia media)
         {
-            IMedia removed;
+            Media removed;
             _files.TryRemove(media.MediaGuid, out removed);
             var h = MediaRemoved;
             if (h != null)
@@ -306,9 +306,9 @@ namespace TAS.Server
 
         public bool Exists { get { return Directory.Exists(_folder); } }
 
-        public virtual IMedia FindMediaByMediaGuid(Guid mediaGuid)
+        public virtual Media FindMediaByMediaGuid(Guid mediaGuid)
         {
-            IMedia result;
+            Media result;
             _files.TryGetValue(mediaGuid, out result);
             return result;
         }

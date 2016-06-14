@@ -687,7 +687,7 @@ namespace TAS.Server
         }
 
         private ServerMedia _serverMediaPRI;
-        public IServerMedia ServerMediaPRI
+        public ServerMedia ServerMediaPRI
         {
             get
             {
@@ -713,7 +713,7 @@ namespace TAS.Server
         }
 
         private ServerMedia _serverMediaSEC;
-        public IServerMedia ServerMediaSEC
+        public ServerMedia ServerMediaSEC
         {
             get
             {
@@ -737,7 +737,7 @@ namespace TAS.Server
 
 
         private ServerMedia _serverMediaPRV;
-        public IServerMedia ServerMediaPRV
+        public ServerMedia ServerMediaPRV
         {
             get
             {

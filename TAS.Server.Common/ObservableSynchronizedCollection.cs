@@ -29,6 +29,7 @@ namespace TAS.Server.Common
                 NotifyCollectionOperation(item, TCollectionOperation.Remove);
         }
 
+       
         protected override void SetItem(int index, T item)
         {
             lock (SyncRoot)
@@ -53,6 +54,25 @@ namespace TAS.Server.Common
             if (handler != null)
                 handler(this, new CollectionOperationEventArgs<T>(item, operation));
         }
+
+        public List<T> ToList()
+        {
+            lock(SyncRoot)
+                return new List<T>(this);
+        }
+
+        public bool RemoveWhere(Func<T, bool> predicate)
+        {
+            lock (SyncRoot)
+            {
+                List<T> itemsToRemove = this.Where(predicate).ToList();
+                if (itemsToRemove.Count > 0)
+                    return itemsToRemove.All(i => Remove(i));
+                else
+                    return false;
+            }
+        }
+
     }
 
     public class CollectionOperationEventArgs<T> : EventArgs

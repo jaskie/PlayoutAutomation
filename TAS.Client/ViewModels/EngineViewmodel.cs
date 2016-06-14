@@ -83,8 +83,7 @@ namespace TAS.Client.ViewModels
             _engine.EngineTick += this._engineTick;
             _engine.EngineOperation += this._engineOperation;
             _engine.PropertyChanged += this._enginePropertyChanged;
-            _engine.VisibleEventsOperation += OnEnginePlayingEventsDictionaryOperation;
-            _engine.PreloadedEventsOperation +=  OnEnginePreloadedEventsOperation;
+            _engine.VisibleEventsOperation += _onEngineVisibleEventsOperation;
             _engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _engine.EventSaved += _engine_EventSaved;
             _engine.DatabaseConnectionStateChanged += _engine_DatabaseConnectionStateChanged;
@@ -133,9 +132,12 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
-            _engine.EngineTick -= this._engineTick;
-            _engine.EngineOperation -= this._engineOperation;
-            _engine.PropertyChanged -= this._enginePropertyChanged;
+            _engine.EngineTick -= _engineTick;
+            _engine.EngineOperation -= _engineOperation;
+            _engine.PropertyChanged -= _enginePropertyChanged;
+            _engine.VisibleEventsOperation -= _onEngineVisibleEventsOperation;
+            _engine.RunningEventsOperation -= OnEngineRunningEventsOperation;
+
             _selectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
             _engine.EventSaved -= _engine_EventSaved;
             _engine.DatabaseConnectionStateChanged -= _engine_DatabaseConnectionStateChanged;
@@ -753,7 +755,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                var e = _engine.PlayingEvent();
+                var e = _engine.Playing;
                 return e == null ? string.Empty : e.EventName;
             }
         }
@@ -888,8 +890,6 @@ namespace TAS.Client.ViewModels
 
         private readonly ObservableCollection<IEvent> _visibleEvents = new ObservableCollection<IEvent>();
         public IEnumerable<IEvent> VisibleEvents { get { return _visibleEvents; } }
-        private readonly ObservableCollection<IEvent> _loadedNextEvents = new ObservableCollection<IEvent>();
-        public IEnumerable<IEvent> LoadedNextEvents { get { return _loadedNextEvents; } }
         private readonly ObservableCollection<IEvent> _runningEvents = new ObservableCollection<IEvent>();
         public IEnumerable<IEvent> RunningEvents { get { return _runningEvents; } }
 
@@ -932,7 +932,7 @@ namespace TAS.Client.ViewModels
                     if (_trackPlayingEvent)
                         Application.Current.Dispatcher.BeginInvoke((Action)delegate()
                         {
-                            var pe = _engine.PlayingEvent();
+                            var pe = _engine.Playing;
                             if (pe != null)
                                 SetOnTopView(pe);
                         }, null);
@@ -1014,25 +1014,14 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void OnEnginePlayingEventsDictionaryOperation(object o, DictionaryOperationEventArgs<VideoLayer, IEvent> e)
-        {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate()
-            {
-                if (e.Operation == TDictionaryOperation.Add)
-                    _visibleEvents.Add(e.Value);
-                else
-                    _visibleEvents.Remove(e.Value);
-            });
-        }
-
-        private void OnEnginePreloadedEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
+        private void _onEngineVisibleEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
                 if (e.Operation == TCollectionOperation.Insert)
-                    _loadedNextEvents.Add(e.Item);
+                    _visibleEvents.Add(e.Item);
                 else
-                    _loadedNextEvents.Remove(e.Item);
+                    _visibleEvents.Remove(e.Item);
             });
         }
 
@@ -1089,7 +1078,7 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged("TrackPlayingEvent");
                     if (_trackPlayingEvent)
                     {
-                        IEvent cp = _engine.PlayingEvent();
+                        IEvent cp = _engine.Playing;
                         if (cp != null)
                             SetOnTopView(cp);
                     }

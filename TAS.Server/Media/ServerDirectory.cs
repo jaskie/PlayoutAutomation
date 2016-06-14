@@ -56,7 +56,7 @@ namespace TAS.Server
                 handler(this, new MediaEventArgs(media));
         }
 
-        public override void MediaAdd(IMedia media)
+        public override void MediaAdd(Media media)
         {
             base.MediaAdd(media);
             media.PropertyChanged += OnMediaPropertyChanged;

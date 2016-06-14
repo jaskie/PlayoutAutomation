@@ -10,21 +10,5 @@ namespace TAS.Server.Interfaces
     public interface IPlayoutServerChannel: Remoting.IDto, IPlayoutServerChannelConfig, IInitializable, INotifyPropertyChanged
     {
         IPlayoutServer OwnerServer { get; set; }
-        void ReStart(IEvent ev);
-        bool Load(IEvent aEvent);
-        bool Load(IMedia media, VideoLayer videolayer, long seek, long duration);
-        bool Load(System.Drawing.Color color, VideoLayer layer);
-        bool Seek(VideoLayer videolayer, long position);
-        bool LoadNext(IEvent aEvent);
-        bool Play(IEvent aEvent);
-        bool Play(VideoLayer videolayer);
-        bool Stop(IEvent aEvent);
-        bool Stop(VideoLayer videolayer);
-        bool Pause(IEvent aEvent);
-        bool Pause(VideoLayer videolayer);
-        void Clear(VideoLayer aVideoLayer);
-        void Clear();
-        void SetVolume(VideoLayer videolayer, decimal volume);
-        void SetAspect(VideoLayer layer, bool narrow);
     }
 }

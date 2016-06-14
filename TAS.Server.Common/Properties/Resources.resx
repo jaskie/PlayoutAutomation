@@ -150,7 +150,7 @@
   <data name="TCrawl_Urgent" xml:space="preserve">
     <value>Urgent</value>
   </data>
-  <data name="TEventType_AnimationFlash" xml:space="preserve">
+  <data name="TEventType_Animation" xml:space="preserve">
     <value>Animation</value>
   </data>
   <data name="TEventType_Container" xml:space="preserve">

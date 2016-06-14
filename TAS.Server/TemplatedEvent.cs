@@ -29,7 +29,7 @@ namespace TAS.Server
                         idRundownEvent,
                         idEventBinding,
                         videoLayer,
-                        TEventType.Template,
+                        TEventType.Animation,
                         startType,
                         playState,
                         scheduledTime,

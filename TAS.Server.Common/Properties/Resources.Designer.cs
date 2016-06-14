@@ -369,9 +369,9 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Animation.
         /// </summary>
-        public static string TEventType_AnimationFlash {
+        public static string TEventType_Animation {
             get {
-                return ResourceManager.GetString("TEventType_AnimationFlash", resourceCulture);
+                return ResourceManager.GetString("TEventType_Animation", resourceCulture);
             }
         }
         

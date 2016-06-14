@@ -21,7 +21,7 @@ namespace TAS.Server
             throw new NotImplementedException();
         }
 
-        public override void MediaAdd(IMedia media)
+        public override void MediaAdd(Media media)
         {
             // do not add to _files
         }
