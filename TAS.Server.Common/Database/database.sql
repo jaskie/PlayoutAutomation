@@ -85,6 +85,8 @@ CREATE TABLE `mediasegments` (
 
 CREATE TABLE `media_templated` (
   `MediaGuid` binary(16) NOT NULL,
+  `Method` TINYINT NULL,
+  `TemplateLayer` INT NULL,
   `Fields` text,
   PRIMARY KEY (`MediaGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -121,6 +123,8 @@ CREATE TABLE `rundownevent` (
 
 CREATE TABLE `rundownevent_templated` (
   `idrundownevent_templated` int(11) NOT NULL,
+  `Method` TINYINT NULL,
+  `TemplateLayer` INT NULL,
   `Fields` text,
   PRIMARY KEY (`idrundownevent_templated`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

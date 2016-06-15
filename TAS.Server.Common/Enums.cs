@@ -66,6 +66,7 @@ namespace TAS.Common
     }
     public enum TEngineOperation { Start, Play, Pause, Stop, Clear, Load, Schedule }
     public enum TEngineState { NotInitialized, Idle, Running, Hold }
+    public enum TemplateMethod: byte { Add, Play, Stop, Next, Remove, Clear, Update, Invoke }
 
     [Flags]
     [TypeConverter(typeof(TAspectRatioControlEnumConverter))]

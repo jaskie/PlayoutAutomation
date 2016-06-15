@@ -29,6 +29,15 @@ namespace TAS.Server.Database
         public override bool IsClosed { get { return _reader.IsClosed; } }
         public override int RecordsAffected { get { return _reader.RecordsAffected; } }
         public override void Close() { _reader.Close(); }
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                _reader.Dispose();
+                _command.Dispose();
+            }
+        }
 
         #region field values
         public override bool GetBoolean(int ordinal)
@@ -118,6 +127,13 @@ namespace TAS.Server.Database
         {
             return _reader.GetInt16(ordinal);
         }
+
+        public short GetInt16(string name)
+        {
+            int index = _reader.GetOrdinal(name);
+            return _reader.IsDBNull(index) ? (short)0 : _reader.GetInt16(index);
+        }
+
 
         public override int GetInt32(int ordinal)
         {

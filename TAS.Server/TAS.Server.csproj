@@ -100,7 +100,7 @@
     <Compile Include="ServerBinder.cs" />
     <Compile Include="RemoteHost.cs" />
     <Compile Include="ExportOperation.cs" />
-    <Compile Include="TemplatedEvent.cs" />
+    <Compile Include="AnimatedEvent.cs" />
     <Compile Include="XDCAM\Alias.cs" />
     <Compile Include="XDCAM\Index.cs" />
     <Compile Include="XDCAM\NonRealTimeMeta.cs" />

@@ -607,7 +607,7 @@ namespace TAS.Server
                 aEvent = (Event)aEvent.GetSuccessor();
             if (aEvent == null)
                 return false;
-            Debug.WriteLine(aEvent, "Load");
+            Debug.WriteLine("{0} Load: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
             if (aEvent.EventType != TEventType.Rundown)
             {
                 if (PlayoutChannelPRI != null)
@@ -634,12 +634,12 @@ namespace TAS.Server
                 aEvent = aEvent.GetSuccessor() as Event;
             if (aEvent == null)
                 return false;
-            Debug.WriteLine(aEvent, "LoadNext");
             if (aEvent.PlayState == TPlayState.Scheduled || aEvent.PlayState == TPlayState.Played || aEvent.PlayState == TPlayState.Aborted)
                 aEvent.PlayState = TPlayState.Scheduled;
             _preloadedEvents[aEvent.Layer] = aEvent;
             if (aEvent.EventType != TEventType.Rundown)
             {
+                Debug.WriteLine("{0} LoadNext: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
                 if (_playoutChannelPRI != null)
                     _playoutChannelPRI.LoadNext(aEvent);
                 if (_playoutChannelSEC != null)
@@ -668,7 +668,7 @@ namespace TAS.Server
                 aEvent = aEvent.GetSuccessor() as Event;
             if (aEvent == null)
                 return false;
-            Debug.WriteLine("Play {1}: {0}", aEvent, CurrentTime.TimeOfDay);
+            Debug.WriteLine("{0} Play: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
             if (aEvent == _forcedNext)
             {
                 ForcedNext = null;
@@ -677,10 +677,7 @@ namespace TAS.Server
                     {
                         if (e.PlayState == TPlayState.Playing)
                         {
-                            if (e.IsFinished)
-                                e.PlayState = TPlayState.Played;
-                            else
-                                e.PlayState = TPlayState.Aborted;
+                            e.PlayState = e.IsFinished ? TPlayState.Played : TPlayState.Aborted;
                             _runningEvents.Remove(e);
                         }
                         e.Save();
@@ -719,7 +716,8 @@ namespace TAS.Server
                     }
                 }
             }
-            _preloadedEvents[aEvent.Layer] = null;
+            Event removed;
+            _preloadedEvents.TryRemove(aEvent.Layer, out removed);
             aEvent.PlayState = TPlayState.Playing;
             foreach (Event e in aEvent.SubEvents.ToList())
                 if (e.ScheduledDelay.Ticks < _frameTicks)
@@ -783,14 +781,14 @@ namespace TAS.Server
 
         private void _stop(Event aEvent)
         {
-            aEvent.PlayState = aEvent.IsFinished ? TPlayState.Played : TPlayState.Aborted;
+            aEvent.PlayState = aEvent.Position == 0 ? TPlayState.Scheduled : aEvent.IsFinished ? TPlayState.Played : TPlayState.Aborted;
             aEvent.Save();
             lock (_visibleEvents.SyncRoot)
                 if (_visibleEvents.Contains(aEvent))
                 {
                     if (aEvent.EventType != TEventType.Live)
                     {
-                        Debug.WriteLine(aEvent, "Stop");
+                        Debug.WriteLine("{0} Stop: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
                         if (_playoutChannelPRI != null)
                             _playoutChannelPRI.Stop(aEvent);
                         if (_playoutChannelSEC != null)
@@ -807,7 +805,7 @@ namespace TAS.Server
             lock (_visibleEvents)
                 if (_visibleEvents.Contains(aEvent))
                 {
-                    Debug.WriteLine(aEvent, "Pause");
+                    Debug.WriteLine("{0} Pause: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
                     if (aEvent.EventType != TEventType.Live)
                     {
                         if (_playoutChannelPRI != null)
@@ -815,8 +813,6 @@ namespace TAS.Server
                         if (_playoutChannelSEC != null)
                             _playoutChannelSEC.Pause(aEvent);
                     }
-                    if (finish)
-                        _visibleEvents.Remove(aEvent);
                     foreach (Event se in aEvent.SubEvents.ToList())
                         _pause(se, finish);
                 }
@@ -861,9 +857,10 @@ namespace TAS.Server
             {
                 if (EngineState == TEngineState.Running)
                 {
-                    foreach (IEvent e in _runningEvents)
-                        if (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading)
-                            e.Position += nFrames;
+                    lock( _runningEvents.SyncRoot)
+                        foreach (IEvent e in _runningEvents)
+                            if (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading)
+                                e.Position += nFrames;
 
                     Event playingEvent = _playing;
                     Event succEvent = null;
@@ -875,34 +872,18 @@ namespace TAS.Server
                             if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
                             {
                                 if (playingEvent.PlayState == TPlayState.Playing)
-                                {
                                     playingEvent.PlayState = TPlayState.Fading;
-                                    Debug.WriteLine(playingEvent, "Tick: Fading");
-                                }
                             }
+                            Event preloaded;
                             if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks
-                                && !(_preloadedEvents[succEvent.Layer] ==  succEvent))
-                            {
-                                // second: preload next scheduled events
-                                Debug.WriteLine(succEvent, "Tick: LoadNext Running");
+                                && !(_preloadedEvents.TryGetValue(succEvent.Layer, out preloaded) && preloaded ==  succEvent))
                                 _loadNext(succEvent);
-                            }
                             if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
                             {
                                 if (succEvent.IsHold && succEvent != _forcedNext)
                                     EngineState = TEngineState.Hold;
                                 else
-                                {
-                                    Debug.WriteLine(succEvent, string.Format("Tick: Play current time: {0} scheduled time: {1}", CurrentTime, succEvent.ScheduledTime));
                                     _play(succEvent, true);
-                                }
-                            }
-                        }
-                        else // end of rundown - no successor
-                        {
-                            if (playingEvent.IsFinished)
-                            {
-                                _pause(playingEvent, true);
                             }
                         }
                     }
@@ -1040,7 +1021,7 @@ namespace TAS.Server
             lock (_tickLock)
             {
                 EngineState = TEngineState.Hold;
-                IEnumerable<Event> oldEvents = _visibleEvents.ToList();
+                IEnumerable<Event> oldEvents = _runningEvents.ToList();
                 foreach (Event e in oldEvents)
                         _stop(e);
                 _load((Event)aEvent);
@@ -1259,7 +1240,7 @@ namespace TAS.Server
             if (!_events.TryGetValue(idRundownEvent, out result))
             {
                 if (eventType == TEventType.Animation)
-                    result = new TemplatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, gpi);
+                    result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, gpi);
                 else
                     result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionType, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, gpi);
                 if (idRundownEvent == 0)
@@ -1297,23 +1278,24 @@ namespace TAS.Server
             get { return _engineState; }
             private set
             {
+                lock (_runningEvents.SyncRoot)
                 if (SetField(ref _engineState, value, "EngineState"))
-                {
-                    if (value == TEngineState.Hold)
-                        foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished).ToList())
-                        {
-                            _pause(ev, true);
-                            Debug.WriteLine(ev, "Hold: Played");
-                        }
-                    if (value == TEngineState.Idle && _runningEvents.Count > 0)
                     {
-                        foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished).ToList())
+                        if (value == TEngineState.Hold)
+                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished).ToList())
+                            {
+                                _pause(ev, true);
+                                Debug.WriteLine(ev, "Hold: Played");
+                            }
+                        if (value == TEngineState.Idle && _runningEvents.Count > 0)
                         {
-                            _pause(ev, true);
-                            Debug.WriteLine(ev, "Idle: Played");
+                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished).ToList())
+                            {
+                                _pause(ev, true);
+                                Debug.WriteLine(ev, "Idle: Played");
+                            }
                         }
                     }
-                }
             }
         }
 

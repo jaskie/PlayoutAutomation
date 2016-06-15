@@ -84,6 +84,7 @@
     <Compile Include="FileOperationEventArgs.cs" />
     <Compile Include="FileUtils.cs" />
     <Compile Include="IEventEventArgs.cs" />
+    <Compile Include="Interfaces\IAnimatedEvent.cs" />
     <Compile Include="Interfaces\IAnimationDirectory.cs" />
     <Compile Include="Interfaces\IArchiveDirectory.cs" />
     <Compile Include="Interfaces\IArchiveDirectoryConfig.cs" />

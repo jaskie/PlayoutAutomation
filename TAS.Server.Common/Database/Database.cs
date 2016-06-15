@@ -1,4 +1,5 @@
-﻿using System;
+﻿#undef DEBUG
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -137,17 +138,25 @@ namespace TAS.Server.Database
                 foreach (var kvp in updatesPending)
                 {
                     var tran = _connection.BeginTransaction();
-                    if (_connection.ExecuteScript(kvp.Value))
+                    try
                     {
-                        var cmdUpdateVersion = new DbCommandRedundant(string.Format("update `params` set `value` = \"{0}\" where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", kvp.Key), _connection);
-                        if (cmdUpdateVersion.ExecuteNonQuery() > 0)
+                        if (_connection.ExecuteScript(kvp.Value))
                         {
+                            var cmdUpdateVersion = new DbCommandRedundant(string.Format("update `params` set `value` = \"{0}\" where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", kvp.Key), _connection);
+                            cmdUpdateVersion.ExecuteNonQuery();
                             tran.Commit();
-                            continue;
+                        }
+                        else
+                        {
+                            tran.Rollback();
+                            return false;
                         }
                     }
-                    tran.Rollback();
-                    return false;
+                    catch
+                    {
+                        tran.Rollback();
+                        throw;
+                    }
                 }
             }
             return true;
@@ -371,6 +380,8 @@ namespace TAS.Server.Database
                     }
                     foreach (IEvent e in foundEvents)
                     {
+                        if (e is IAnimatedEvent)
+                            _readAnimatedEvent(e as IAnimatedEvent);
                         e.StartType = TStartType.Manual;
                         e.Save();
                         engine.RootEvents.Add(e);
@@ -398,6 +409,9 @@ namespace TAS.Server.Database
                         }
                         dataReader.Close();
                     }
+                    foreach (var ev in foundEvents)
+                        if (ev is IAnimatedEvent)
+                            _readAnimatedEvent(ev as IAnimatedEvent);
                     return foundEvents;
                 }
             }
@@ -411,11 +425,14 @@ namespace TAS.Server.Database
                 string query = "select * from rundownevent where MediaGuid=@MediaGuid and ADDTIME(ScheduledTime, Duration) > UTC_TIMESTAMP();";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
                 cmd.Parameters.AddWithValue("@MediaGuid", serverMedia.MediaGuid);
+                IEvent futureScheduled = null;
                 using (DbDataReaderRedundant reader = cmd.ExecuteReader())
-                {
                     if (reader.Read())
-                        return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Media = serverMedia, Event = _eventRead(engine, reader) };
-                }
+                        futureScheduled = _eventRead(engine, reader);
+                if (futureScheduled is IAnimatedEvent)
+                    _readAnimatedEvent(futureScheduled as IAnimatedEvent);
+                if (futureScheduled != null)
+                    return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Media = serverMedia, Event = futureScheduled };
             }
             return reason;
         }
@@ -612,22 +629,15 @@ namespace TAS.Server.Database
                         cmd.Parameters.AddWithValue("@StartType", TStartType.Manual);
                     else
                         cmd.Parameters.AddWithValue("@StartType", TStartType.With);
-                    IEvent newEvent;
+                    subevents.Clear();
                     using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                     {
-                        try
-                        {
-                            while (dataReader.Read())
-                            { 
-                                newEvent = _eventRead(engine, dataReader);
-                                subevents.Add(newEvent);
-                            }
-                        }
-                        finally
-                        {
-                            dataReader.Close();
-                        }
+                        while (dataReader.Read())
+                            subevents.Add(_eventRead(engine, dataReader));
                     }
+                    foreach (var e in subevents)
+                        if (e is IAnimatedEvent)
+                            _readAnimatedEvent(e as IAnimatedEvent);
                 }
             }
         }
@@ -638,21 +648,42 @@ namespace TAS.Server.Database
             {
                 if (aEvent != null)
                 {
+                    IEvent next = null;
                     DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where idEventBinding = @idEventBinding and typStart=@StartType;", _connection);
                     cmd.Parameters.AddWithValue("@idEventBinding", aEvent.IdRundownEvent);
                     cmd.Parameters.AddWithValue("@StartType", TStartType.After);
-                    DbDataReaderRedundant reader = cmd.ExecuteReader();
-                    try
+                    using (DbDataReaderRedundant reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
-                            return _eventRead(engine, reader);
+                            next = _eventRead(engine, reader);
                     }
-                    finally
-                    {
-                        reader.Close();
-                    }
+                    if (next is IAnimatedEvent)
+                        _readAnimatedEvent(next as IAnimatedEvent);
+                    return next;
                 }
                 return null;
+            }
+        }
+
+        private static void _readAnimatedEvent(IAnimatedEvent animatedEvent)
+        {
+            DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM `rundownevent_templated` where `idrundownevent_templated` = @id;", _connection);
+            cmd.Parameters.AddWithValue("@id", animatedEvent.IdRundownEvent);
+            using (DbDataReaderRedundant reader = cmd.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    animatedEvent.Method = (TemplateMethod)reader.GetByte("Method");
+                    animatedEvent.TemplateLayer = reader.GetInt16("TemplateLayer");
+                    string templateFields = reader.GetString("Fields");
+                    if (!string.IsNullOrWhiteSpace(templateFields))
+                    {
+                        var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
+                        if (fieldsDeserialized != null)
+                            foreach (var field in fieldsDeserialized)
+                                animatedEvent.Fields.Add(field);
+                    }
+                }
             }
         }
 
@@ -662,18 +693,16 @@ namespace TAS.Server.Database
             {
                 if (idRundownEvent > 0)
                 {
+                    IEvent result = null;
                     DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where idRundownEvent = @idRundownEvent", _connection);
                     cmd.Parameters.AddWithValue("@idRundownEvent", idRundownEvent);
-                    DbDataReaderRedundant reader = cmd.ExecuteReader();
-                    try
+                    using (DbDataReaderRedundant reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
-                            return _eventRead(engine, reader);
+                            result = _eventRead(engine, reader);
                     }
-                    finally
-                    {
-                        reader.Close();
-                    }
+                    if (result is IAnimatedEvent)
+                        _readAnimatedEvent(result as IAnimatedEvent);
                 }
                 return null;
             }
@@ -707,14 +736,14 @@ namespace TAS.Server.Database
                 (flags & (1 << 1)) != 0, // IsHold
                 (flags & (1 << 2)) != 0, // IsLoop
                 EventGPI.FromUInt64((flags >> 4) & EventGPI.Mask)
-                );  
+                );
             return newEvent;
         }
 
         private static DateTime _minMySqlDate = new DateTime(1000, 01, 01);
         private static DateTime _maxMySQLDate = new DateTime(9999, 12, 31, 23, 59, 59);
 
-        private static bool _EventFillParamsAndExecute(DbCommandRedundant cmd, IEvent aEvent)
+        private static bool _eventFillParamsAndExecute(DbCommandRedundant cmd, IEvent aEvent)
         {
 
             Debug.WriteLineIf(aEvent.Duration.Days > 1, aEvent, "Duration extremely long");
@@ -769,21 +798,43 @@ namespace TAS.Server.Database
             return cmd.ExecuteNonQuery() == 1;
         }
 
+        private static void _eventAnimatedSave(IAnimatedEvent e, bool inserting)
+        {
+            string query = inserting ?
+                @"INSERT INTO `rundownevent_templated` (`idrundownevent_templated`, `Method`, `TemplateLayer`, `Fields`) VALUES (@idrundownevent_templated, @Method, @TemplateLayer, @Fields);" :
+                @"UPDATE `rundownevent_templated` SET  `Method`=@Method, `TemplateLayer`=@TemplateLayer, `Fields`=@Fields WHERE `idrundownevent_templated`=@idrundownevent_templated;";
+            using (DbCommandRedundant cmd = new DbCommandRedundant(query, _connection))
+            {
+                cmd.Parameters.AddWithValue("@idrundownevent_templated", e.IdRundownEvent);
+                cmd.Parameters.AddWithValue("@Method", (byte)e.Method);
+                cmd.Parameters.AddWithValue("@TemplateLayer", e.TemplateLayer);
+                cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(e.Fields));
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+
         public static bool DbInsert(this IEvent aEvent)
         {
             lock (_connection)
             {
-                string query =
+                using (var transaction = _connection.BeginTransaction())
+                {
+                    string query =
 @"INSERT INTO RundownEvent 
 (idEngine, idEventBinding, Layer, typEvent, typStart, ScheduledTime, ScheduledDelay, Duration, ScheduledTC, MediaGuid, EventName, PlayState, StartTime, StartTC, RequestedStartTime, TransitionTime, typTransition, AudioVolume, idProgramme, flagsEvent) 
 VALUES 
 (@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent);";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                if (_EventFillParamsAndExecute(cmd, aEvent))
-                {
-                    aEvent.IdRundownEvent = (ulong)cmd.LastInsertedId;
-                    Debug.WriteLine("Event DbInsert Id={0}, EventName={1}", aEvent.IdRundownEvent, aEvent.EventName);
-                    return true;
+                    using (DbCommandRedundant cmd = new DbCommandRedundant(query, _connection))
+                        if (_eventFillParamsAndExecute(cmd, aEvent))
+                        {
+                            aEvent.IdRundownEvent = (ulong)cmd.LastInsertedId;
+                            Debug.WriteLine("Event DbInsert Id={0}, EventName={1}", aEvent.IdRundownEvent, aEvent.EventName);
+                            if (aEvent is IAnimatedEvent)
+                                _eventAnimatedSave(aEvent as IAnimatedEvent, true);
+                            transaction.Commit();
+                            return true;
+                        }
                 }
             }
             return false;
@@ -793,7 +844,9 @@ VALUES
         {
             lock (_connection)
             {
-                string query =
+                using (var transaction = _connection.BeginTransaction())
+                {
+                    string query =
 @"UPDATE RundownEvent 
 SET 
 idEngine=@idEngine, 
@@ -817,12 +870,18 @@ AudioVolume=@AudioVolume,
 idProgramme=@idProgramme, 
 flagsEvent=@flagsEvent 
 WHERE idRundownEvent=@idRundownEvent;";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.IdRundownEvent);
-                if (_EventFillParamsAndExecute(cmd, aEvent))
-                {
-                    Debug.WriteLine("Event DbUpdate Id={0}, EventName={1}", aEvent.IdRundownEvent, aEvent.EventName);
-                    return true;
+                    using (DbCommandRedundant cmd = new DbCommandRedundant(query, _connection))
+                    {
+                        cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.IdRundownEvent);
+                        if (_eventFillParamsAndExecute(cmd, aEvent))
+                        {
+                            Debug.WriteLine("Event DbUpdate Id={0}, EventName={1}", aEvent.IdRundownEvent, aEvent.EventName);
+                            if (aEvent is IAnimatedEvent)
+                                _eventAnimatedSave(aEvent as IAnimatedEvent, true);
+                            transaction.Commit();
+                            return true;
+                        }
+                    }
                 }
             }
             return false;
@@ -1043,7 +1102,6 @@ VALUES
                                 nm.ReVerify();
                             }
                         }
-                        dataReader.Close();
                     }
                     Debug.WriteLine(directory, "Directory loaded");
                 }
@@ -1081,7 +1139,6 @@ VALUES
                                 nm.ReVerify();
                             }
                         }
-                        dataReader.Close();
                     }
                     Debug.WriteLine(directory, "Directory loaded");
                 }
@@ -1094,29 +1151,34 @@ VALUES
 
         private static bool _insert_media_templated(IAnimatedMedia media)
         {
-                try
-                {
-                    string query = @"INSERT INTO media_templated (MediaGuid, Fields) VALUES (@MediaGuid, @Fields);";
-                    DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                    cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
-                    cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
-                    cmd.ExecuteNonQuery();
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine("_insert_media_templated failed with {0}", e.Message, null);
-                    return false;
-                }
+            try
+            {
+                string query = @"INSERT INTO media_templated (MediaGuid, Fields, TemplateLayer, Method) VALUES (@MediaGuid, @Fields, @TemplateLayer, @Method);";
+                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                cmd.Parameters.AddWithValue("@TemplateLayer", media.TemplateLayer);
+                cmd.Parameters.AddWithValue("@Method", (byte)media.Method);
+                cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
+
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("_insert_media_templated failed with {0}", e.Message, null);
+                return false;
+            }
         }
 
         private static bool _update_media_templated(IAnimatedMedia media)
         {
             try
             {
-                string query = @"UPDATE media_templated SET Fields = @Fields WHERE MediaGuid = @MediaGuid;";
+                string query = @"UPDATE media_templated SET Fields = @Fields, TemplateLayer=@TemplateLayer, Method=@Method WHERE MediaGuid = @MediaGuid;";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
                 cmd.Parameters.AddWithValue("@MediaGuid", media.MediaGuid);
+                cmd.Parameters.AddWithValue("@TemplateLayer", media.TemplateLayer);
+                cmd.Parameters.AddWithValue("@Method", (byte)media.Method);
                 cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
                 cmd.ExecuteNonQuery();
                 return true;

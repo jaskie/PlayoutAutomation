@@ -146,4 +146,12 @@ CREATE TABLE `rundownevent_templated` (
   PRIMARY KEY (`idrundownevent_templated`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;</value>
   </data>
+  <data name="V3" xml:space="preserve">
+    <value>ALTER TABLE `media_templated` 
+ADD COLUMN `Method` TINYINT NULL AFTER `MediaGuid`,
+ ADD COLUMN `TemplateLayer` INT NULL AFTER `Method`;
+ALTER TABLE `rundownevent_templated` 
+ADD COLUMN `Method` TINYINT NULL AFTER `idrundownevent_templated`, 
+ADD COLUMN `TemplateLayer` INT NULL AFTER `Method`;</value>
+  </data>
 </root>

@@ -299,7 +299,8 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (_checkConnected() && channel != null)
             {
-                if (_visible[aEvent.Layer] == aEvent)
+                Event playing;
+                if (_visible.TryGetValue(aEvent.Layer, out playing) && playing == aEvent)
                 {
                     channel.Stop((int)aEvent.Layer);
                     Event removed;
@@ -333,7 +334,8 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (_checkConnected() && channel != null)
             {
-                if (_visible[aEvent.Layer] == aEvent)
+                Event playing;
+                if (_visible.TryGetValue(aEvent.Layer, out playing) && playing == aEvent)
                 {
                     channel.CustomCommand(string.Format("PAUSE {0}-{1}", ChannelNumber, (int)aEvent.Layer));
                     Event removed;
@@ -441,7 +443,8 @@ namespace TAS.Server
 
         public bool IsPreloaded(Event aEvent)
         {
-            return _loadedNext[aEvent.Layer] == aEvent;
+            Event loaded;
+            return _loadedNext.TryGetValue(aEvent.Layer, out loaded) && loaded == aEvent;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

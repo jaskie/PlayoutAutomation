@@ -26,6 +26,12 @@ namespace TAS.Server
 
         public IDictionary<string, string> Fields { get { return _fields; } }
 
+        private TemplateMethod _method;
+        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value, "Method"); } }
+
+        private int _templateLayer;
+        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, "TemplateLayer"); } }
+
         public override bool Save()
         {
             bool result = false;

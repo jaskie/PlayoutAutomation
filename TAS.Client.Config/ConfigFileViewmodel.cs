@@ -94,6 +94,8 @@ namespace TAS.Client.Config
                     if (MessageBox.Show(Window.GetWindow(View), "Connection successful, but database should be updated. \nUpdate now?", "Connection test", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                         if (Database.UpdateDB())
                             MessageBox.Show(Window.GetWindow(View), "Database is now up-to-date.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
+                        else 
+                            MessageBox.Show(Window.GetWindow(View), "Database update failed.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
 
                 }
                 else
