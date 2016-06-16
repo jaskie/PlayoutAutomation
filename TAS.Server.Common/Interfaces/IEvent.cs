@@ -27,7 +27,8 @@ namespace TAS.Server.Interfaces
         IEvent Parent { get; }
         IEvent VisualParent { get; }
 
-        SynchronizedCollection<IEvent> SubEvents { get; }
+        IList<IEvent> SubEvents { get; }
+        int SubEventsCount { get; }
         void InsertAfter(IEvent e);
         void InsertBefore(IEvent e);
         void InsertUnder(IEvent se);

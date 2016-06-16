@@ -62,7 +62,7 @@ namespace TAS.Client.ViewModels
             _root = parent._root;
             _engineViewmodel = parent._engineViewmodel;
             _level = (_parent == null) ? 0 : _parent._level + 1;
-            if (aEvent.SubEvents.Count() > 0)
+            if (aEvent.SubEventsCount > 0)
                 _childrens.Add(DummyChild);
             _event.PropertyChanged += OnPropertyChanged;
             _event.Deleted += _eventDeleted;
@@ -153,7 +153,7 @@ namespace TAS.Client.ViewModels
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                if (e.Operation == TCollectionOperation.Remove && HasDummyChild && _event.SubEvents.Count == 0)
+                if (e.Operation == TCollectionOperation.Remove && HasDummyChild && _event.SubEventsCount == 0)
                     Childrens.Remove(DummyChild);
             });
         }
@@ -171,7 +171,7 @@ namespace TAS.Client.ViewModels
 
         protected void LoadChildrens()
         {
-            foreach (IEvent se in _event.SubEvents.ToList())
+            foreach (IEvent se in _event.SubEvents)
             {
                 _childrens.Add(CreateChildEventPanelViewmodelForEvent(se));
                 IEvent ne = se.Next;
@@ -190,7 +190,7 @@ namespace TAS.Client.ViewModels
                 {
                     foreach (var c in _childrens.ToList())
                         c.Dispose();
-                    if (Event.SubEvents.Count() > 0)
+                    if (Event.SubEventsCount > 0)
                         _childrens.Add(DummyChild);
                 }
             }
@@ -289,7 +289,7 @@ namespace TAS.Client.ViewModels
 
         public bool HasSubItems
         {
-            get { return (_event == null || _event.EventType == TEventType.Live || _event.EventType == TEventType.Movie) ? false : _event.SubEvents.ToList().Any(e => e.EventType == TEventType.StillImage); }
+            get { return (_event == null || _event.EventType == TEventType.Live || _event.EventType == TEventType.Movie) ? false : _event.SubEvents.Any(e => e.EventType == TEventType.StillImage); }
         }
 
         public EventPanelViewmodelBase Find(IEvent aEvent, bool expandParents = false)

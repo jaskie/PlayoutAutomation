@@ -181,6 +181,9 @@
     <value>Czas, o którym klip powinien wystartować zgodnie ze scenariuszem.
 Różnica do podanego czasu będzie pokazana wśród czasów w drzewie zdarzeń w kolorze zielonym (niedoczas) lub czerwonym (przekroczenie czasu).</value>
   </data>
+  <data name="_scheduledDelay" xml:space="preserve">
+    <value>Opóźnienie</value>
+  </data>
   <data name="_scheduledTC" xml:space="preserve">
     <value>Start TC</value>
   </data>
@@ -192,6 +195,9 @@ Różnica do podanego czasu będzie pokazana wśród czasów w drzewie zdarzeń 
   </data>
   <data name="_starting.ToolTip" xml:space="preserve">
     <value>Natychmisatowa zmiana - F7</value>
+  </data>
+  <data name="_templateLayer" xml:space="preserve">
+    <value>Warstwa grafiki</value>
   </data>
   <data name="_transitionLength" xml:space="preserve">
     <value>o długości</value>

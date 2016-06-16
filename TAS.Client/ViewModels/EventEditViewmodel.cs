@@ -14,6 +14,7 @@ using TAS.Client.Common;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using resources = TAS.Client.Common.Properties.Resources;
+using System.Collections.ObjectModel;
 
 namespace TAS.Client.ViewModels
 {
@@ -34,6 +35,9 @@ namespace TAS.Client.ViewModels
             CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _isEditableMovie };
             CommandEditMovie = new UICommand() { ExecuteDelegate = _editMovie, CanExecuteDelegate = _isEditableMovie };
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume };
+            CommandAddField = new UICommand { ExecuteDelegate = _addField, CanExecuteDelegate = _canAddField };
+            CommandDeleteField = new UICommand { ExecuteDelegate = _deleteField, CanExecuteDelegate = _canDeleteField };
+            CommandEditField = new UICommand { ExecuteDelegate = _editField, CanExecuteDelegate = _canDeleteField };
         }
 
         protected override void OnDispose()
@@ -55,14 +59,18 @@ namespace TAS.Client.ViewModels
             }
         }
         
-        public UICommand CommandUndoEdit { get; private set; }
-        public UICommand CommandSaveEdit { get; private set; }
-        public UICommand CommandChangeMovie { get; private set; }
-        public UICommand CommandEditMovie { get; private set; }
-        public UICommand CommandCheckVolume { get; private set; }
-        public UICommand CommandToggleEnabled { get; private set; }
-        public UICommand CommandToggleHold { get; private set; }
-        
+        public ICommand CommandUndoEdit { get; private set; }
+        public ICommand CommandSaveEdit { get; private set; }
+        public ICommand CommandChangeMovie { get; private set; }
+        public ICommand CommandEditMovie { get; private set; }
+        public ICommand CommandCheckVolume { get; private set; }
+        public ICommand CommandToggleEnabled { get; private set; }
+        public ICommand CommandToggleHold { get; private set; }
+        public ICommand CommandAddField { get; private set; }
+        public ICommand CommandDeleteField { get; private set; }
+        public ICommand CommandEditField { get; private set; }
+
+
         private IEvent _event;
         public IEvent Event
         {
@@ -200,6 +208,7 @@ namespace TAS.Client.ViewModels
                 switch (propertyName)
                 {
                     case "Duration":
+                    case "ScheduledDelay":
                         validationResult = _validateDuration();
                         break;
                     case "ScheduledTc":
@@ -299,6 +308,49 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        #region Command methods
+        private bool _canDeleteField(object obj)
+        {
+            return SelectedField != null;
+        }
+
+        private void _deleteField(object obj)
+        {
+            if (SelectedField != null)
+            {
+                var selected = (KeyValuePair<string, string>)SelectedField;
+                Fields.Remove(selected.Key);
+                SelectedField = null;
+            }
+        }
+
+        private bool _canAddField(object obj)
+        {
+            return IsAnimation;
+        }
+
+        private void _addField(object obj)
+        {
+            KeyValueEditViewmodel kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), false);
+            kve.OKCallback = (o) => {
+                var co = o as KeyValueEditViewmodel;
+                return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
+            };
+            if (kve.ShowDialog() == true)
+                _fields.Add(kve.Result);
+        }
+
+        private void _editField(object obj)
+        {
+            if (SelectedField != null)
+            {
+                KeyValueEditViewmodel kve = new KeyValueEditViewmodel(((KeyValuePair<string, string>)SelectedField), true);
+                if (kve.ShowDialog() == true)
+                    _fields[kve.Key] = kve.Value;
+            }
+        }
+
+
         void _changeMovie(object o)
         {
             IEvent ev = _event;
@@ -317,7 +369,7 @@ namespace TAS.Client.ViewModels
                                 AudioVolume = null;
                                 EventName = e.MediaName;
                                 _gpi = _setGPI(e.Media);
-                                NotifyPropertyChanged("GPICanTrigger");
+                                NotifyPropertyChanged("CanTriggerGPI");
                                 NotifyPropertyChanged("GPICrawl");
                                 NotifyPropertyChanged("GPILogo");
                                 NotifyPropertyChanged("GPIParental");
@@ -331,17 +383,6 @@ namespace TAS.Client.ViewModels
         {
             using (var evm = new MediaEditWindowViewmodel(_event.Media, _engine.MediaManager))
                 evm.ShowDialog();
-        }
-
-        EventGPI _setGPI(IMedia media)
-        {
-            EventGPI GPI = new EventGPI();
-            GPI.CanTrigger = _engine.EnableGPIForNewEvents;
-            GPI.Logo = (media != null
-                && (media.MediaCategory == TMediaCategory.Fill || media.MediaCategory == TMediaCategory.Show || media.MediaCategory == TMediaCategory.Promo || media.MediaCategory == TMediaCategory.Insert))
-                ? TLogo.Normal : TLogo.NoLogo;
-            GPI.Parental = media != null ? media.Parental : TParental.None;
-            return GPI;
         }
 
         private void _checkVolume(object obj)
@@ -381,7 +422,7 @@ namespace TAS.Client.ViewModels
         {
             IEvent ev = _event;
             return ev != null
-                && ev.PlayState == TPlayState.Scheduled 
+                && ev.PlayState == TPlayState.Scheduled
                 && ev.EventType == TEventType.Movie;
         }
         bool _canCheckVolume(object o)
@@ -394,21 +435,31 @@ namespace TAS.Client.ViewModels
             return ev != null
                 && (Modified || ev.Modified);
         }
-
-        private bool _isVolumeChecking;
-        public bool IsVolumeChecking { get { return _isVolumeChecking; }
-            set
-            {
-                if (_isVolumeChecking != value)
-                {
-                    _isVolumeChecking = value;
-                    NotifyPropertyChanged("IsVolumeChecking");
-                    InvalidateRequerySuggested();
-                }
-            }
+        
+        EventGPI _setGPI(IMedia media)
+        {
+            EventGPI GPI = new EventGPI();
+            GPI.CanTrigger = _engine.EnableGPIForNewEvents;
+            GPI.Logo = (media != null
+                && (media.MediaCategory == TMediaCategory.Fill || media.MediaCategory == TMediaCategory.Show || media.MediaCategory == TMediaCategory.Promo || media.MediaCategory == TMediaCategory.Insert))
+                ? TLogo.Normal : TLogo.NoLogo;
+            GPI.Parental = media != null ? media.Parental : TParental.None;
+            return GPI;
         }
 
+        #endregion // command methods
 
+        private bool _isVolumeChecking;
+        public bool IsVolumeChecking
+        {
+            get { return _isVolumeChecking; }
+            set
+            {
+                if (base.SetField(ref _isVolumeChecking, value, "IsVolumeChecking")) //not set Modified
+                    InvalidateRequerySuggested();
+            }
+        }
+        
         private bool _modified;
         public bool Modified
         {
@@ -455,6 +506,35 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        public bool IsOverlay
+        {
+            get
+            {
+                var ev = _event;
+                return ev != null
+                    && (ev.EventType == TEventType.StillImage || ev.EventType == TEventType.Animation);
+            }
+        }
+
+
+        public bool IsAnimation
+        {
+            get
+            {
+                var ev = _event;
+                return ev != null
+                    && ev is IAnimatedEvent; 
+            }
+        }
+
+        private int _templateLayer;
+        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, "TemplateLayer"); } }
+
+        private ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
+        public IDictionary<string, string> Fields { get { return _fields; } }
+        public object SelectedField { get; set; }
+
+
         public bool IsMovie
         {
             get
@@ -462,6 +542,16 @@ namespace TAS.Client.ViewModels
                 var ev = _event;
                 return ev != null 
                     && ev.EventType == TEventType.Movie;
+            }
+        }
+
+        public bool IsStillImage
+        {
+            get
+            {
+                var ev = _event;
+                return ev != null
+                    && ev.EventType == TEventType.StillImage;
             }
         }
 
@@ -641,7 +731,7 @@ namespace TAS.Client.ViewModels
             get
             {
                 IEvent ev = Event;
-                return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG1 : ev.SubEvents.ToList().Any(e => e.Layer == VideoLayer.CG1 && e.EventType == TEventType.StillImage);
+                return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG1 : ev.SubEvents.Any(e => e.Layer == VideoLayer.CG1 && e.EventType == TEventType.StillImage);
             }
         }
         public bool HasSubItemOnLayer2
@@ -649,7 +739,7 @@ namespace TAS.Client.ViewModels
             get
             {
                 IEvent ev = Event;
-                return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG2 : ev.SubEvents.ToList().Any(e => e.Layer == VideoLayer.CG2 && e.EventType == TEventType.StillImage);
+                return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG2 : ev.SubEvents.Any(e => e.Layer == VideoLayer.CG2 && e.EventType == TEventType.StillImage);
             }
         }
         public bool HasSubItemOnLayer3
@@ -657,7 +747,7 @@ namespace TAS.Client.ViewModels
             get
             {
                 IEvent ev = Event;
-                return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG3 : ev.SubEvents.ToList().Any(e => e.Layer == VideoLayer.CG3 && e.EventType == TEventType.StillImage);
+                return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG3 : ev.SubEvents.Any(e => e.Layer == VideoLayer.CG3 && e.EventType == TEventType.StillImage);
             }
         }
 
@@ -666,7 +756,7 @@ namespace TAS.Client.ViewModels
             get
             {
                 IEvent ev = Event;
-                return (ev == null || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie) ? false : ev.SubEvents.ToList().Any(e => e.EventType == TEventType.StillImage);
+                return (ev == null || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie) ? false : ev.SubEvents.Any(e => e.EventType == TEventType.StillImage);
             }
         }
 
@@ -695,17 +785,24 @@ namespace TAS.Client.ViewModels
             get
             {
                 IEvent ev = Event;
-                return (ev != null && (ev.Engine.Gpi != null || ev.Engine.LocalGpi != null));
+                if (ev != null)
+                {
+                    IEngine engine = ev.Engine;
+                    return (engine != null
+                        && (ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie)
+                        && (engine.Gpi != null || engine.LocalGpi != null));
+                }
+                return false;
             }
         }
 
         private EventGPI _gpi;
         public EventGPI GPI { get { return _gpi; } set { _gpi = value; } }
 
-        public bool GPICanTrigger
+        public bool CanTriggerGPI
         {
             get { return _gpi.CanTrigger; }
-            set { SetField(ref _gpi.CanTrigger, value, "GPICanTrigger"); }
+            set { SetField(ref _gpi.CanTrigger, value, "CanTriggerGPI"); }
         }
 
         readonly Array _gPIParentals = Enum.GetValues(typeof(TParental));
@@ -754,7 +851,7 @@ namespace TAS.Client.ViewModels
             });
             if (e.PropertyName == "GPI")
             {
-                NotifyPropertyChanged("GPICanTrigger");
+                NotifyPropertyChanged("CanTriggerGPI");
                 NotifyPropertyChanged("GPIParental");
                 NotifyPropertyChanged("GPILogo");
                 NotifyPropertyChanged("GPICrawl");

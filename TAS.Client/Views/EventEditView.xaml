@@ -98,16 +98,16 @@
                 </Style>
             </ScrollViewer.Resources>
 
-            <StackPanel Grid.Row="2" IsEnabled="{Binding IsEditEnabled}">
-                <DockPanel>
+            <DockPanel Grid.Row="2" IsEnabled="{Binding IsEditEnabled}">
+                <DockPanel DockPanel.Dock="Top">
                     <Label Content="{Resx _eventType}"/>
                     <TextBox Name="EventType"  Text="{Binding EventType}" IsEnabled="False" />
                 </DockPanel>
-                <DockPanel>
+                <DockPanel DockPanel.Dock="Top">
                     <Label Content="{Resx _name}"/>
                     <TextBox Name="EventName" Text="{Binding EventName, UpdateSourceTrigger=PropertyChanged}" />
                 </DockPanel>
-                <StackPanel Visibility="{Binding IsNotContainer, Converter={StaticResource BoolToVis}}" >
+                <StackPanel DockPanel.Dock="Top" Visibility="{Binding IsNotContainer, Converter={StaticResource BoolToVis}}" >
                     <DockPanel>
                         <CheckBox Content="{Resx _starting}" IsChecked="{Binding IsEnabled}" HorizontalContentAlignment="Right" VerticalAlignment="Center" ToolTip="{Resx _starting.ToolTip}" />
                         <TextBox Text="{Binding StartType}" IsEnabled="False" />
@@ -125,24 +125,10 @@
                         <Label Content="{Resx _scheduledTime}" />
                         <common:DelayedBindingTextBox Text="{Binding ScheduledTime, Converter={StaticResource DateTimeToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsScheduledTimeEnabled}" />
                     </DockPanel>
-                    <DockPanel>
+                    <DockPanel Visibility="{Binding IsMovieOrLive, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _requiredAt}" />
                         <common:DelayedBindingTextBox Text="{Binding RequestedStartTime, Converter={StaticResource TimeOfDayToStringConverter}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" ToolTip="{Resx _requiredAt.ToolTip}"/>
                     </DockPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <DockPanel>
-                            <Label Content="{Resx _duration}" />
-                            <common:DelayedBindingTextBox Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsDurationEnabled}" MinWidth="80" />
-                        </DockPanel>
-                        <DockPanel Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
-                            <Label Content="{Resx _scheduledTC}" />
-                            <common:DelayedBindingTextBox Text="{Binding ScheduledTc, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" MinWidth="80"/>
-                        </DockPanel>
-                    </Grid>
                     <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _clip}" />
                         <Button DockPanel.Dock="Right" ToolTip="{Resx _changeMovie.ToolTip}" Command="{Binding CommandChangeMovie}">
@@ -154,6 +140,20 @@
                         <TextBox Text="{Binding Media.FileName, Mode=OneWay}" IsReadOnly="True" VerticalContentAlignment="Center" Background="#F0F0F0" />
                     </DockPanel>
                     <StackPanel Visibility="{Binding IsMovieOrLive, Converter={StaticResource BoolToVis}}" >
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <DockPanel>
+                                <Label Content="{Resx _duration}" />
+                                <common:DelayedBindingTextBox Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsDurationEnabled}"  />
+                            </DockPanel>
+                            <DockPanel Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
+                                <Label Content="{Resx _scheduledTC}" />
+                                <common:DelayedBindingTextBox Text="{Binding ScheduledTc, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
+                            </DockPanel>
+                        </Grid>
                         <DockPanel>
                             <Label Content="{Resx _transitionType}" />
                             <ComboBox ItemsSource="{Binding TransitionTypes}" SelectedValue="{Binding TransitionType}" />
@@ -169,28 +169,75 @@
                             <TextBox DockPanel.Dock="Right" Grid.Column="2" Width="40" Text="{Binding AudioVolumeLevel, StringFormat={}{0:0.0}, UpdateSourceTrigger=LostFocus}"/>
                             <Slider  VerticalAlignment="Stretch" Margin="5, 0" Minimum="-18" Maximum="18" Value="{Binding AudioVolumeLevel}"/>
                         </DockPanel>
-                    </StackPanel>
-                    <Grid Visibility="{Binding IsGPIEnabled, Converter={StaticResource BoolToVis}}" >
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="59*"/>
-                            <ColumnDefinition Width="280*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Visibility="{Binding GPICanTrigger, Converter={StaticResource BoolToVis}}" Grid.ColumnSpan="2">
-                            <StackPanel Orientation="Horizontal">
-                                <Label Content="{Resx _gpiLogo}" />
-                                <ComboBox ItemsSource="{Binding GPILogos}" SelectedValue="{Binding GPILogo}"/>
-                                <Label Content="{Resx _gpiCrawl}" Width="44"/>
-                                <ComboBox ItemsSource="{Binding GPICrawls}" SelectedValue="{Binding GPICrawl}"/>
+                        <Grid Visibility="{Binding IsGPIEnabled, Converter={StaticResource BoolToVis}}" >
+                            <StackPanel Visibility="{Binding CanTriggerGPI, Converter={StaticResource BoolToVis}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="{Resx _gpiLogo}" />
+                                    <ComboBox ItemsSource="{Binding GPILogos}" SelectedValue="{Binding GPILogo}"/>
+                                    <Label Content="{Resx _gpiCrawl}" Width="44"/>
+                                    <ComboBox ItemsSource="{Binding GPICrawls}" SelectedValue="{Binding GPICrawl}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="{Resx _gpiParental}"/>
+                                    <ComboBox ItemsSource="{Binding GPIParentals}" SelectedValue="{Binding GPIParental}" />
+                                </StackPanel>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Label Content="{Resx _gpiParental}"/>
-                                <ComboBox ItemsSource="{Binding GPIParentals}" SelectedValue="{Binding GPIParental}" />
-                            </StackPanel>
-                        </StackPanel>
-                        <CheckBox Content="GPI" IsChecked="{Binding GPICanTrigger}" VerticalAlignment="Top" Margin="10,3,0,0" Grid.ColumnSpan="2" />
-                    </Grid>
+                            <CheckBox Content="GPI" IsChecked="{Binding CanTriggerGPI}" VerticalAlignment="Top" Margin="10,3,0,0" />
+                        </Grid>
+                    </StackPanel>        
                 </StackPanel>
-            </StackPanel>
+                <Grid DockPanel.Dock="Top" Visibility="{Binding IsStillImage, Converter={StaticResource BoolToVis}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <DockPanel>
+                        <Label Content="{Resx _duration}" />
+                        <common:DelayedBindingTextBox Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsDurationEnabled}"  />
+                    </DockPanel>
+                    <DockPanel Grid.Column="1">
+                        <Label Content="{Resx _scheduledDelay}" />
+                        <common:DelayedBindingTextBox Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
+                    </DockPanel>
+                </Grid>
+                <DockPanel Visibility="{Binding IsAnimation, Converter={StaticResource BoolToVis}}">
+                    <Grid DockPanel.Dock="Top">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <DockPanel>
+                            <Label Content="{Resx _scheduledDelay}"/>
+                            <TextBox Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
+                        </DockPanel>
+                        <DockPanel Grid.Column="1">
+                            <Label Content="{Resx _templateLayer}"/>
+                            <TextBox Text="{Binding TemplateLayer}"/>
+                        </DockPanel>
+                    </Grid>
+                    <ToolBar DockPanel.Dock="Top">
+                        <ToolBarPanel Height="24" Orientation="Horizontal">
+                            <Button Command="{Binding CommandAddField}" Padding="0">
+                                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
+                            </Button>
+                            <Button Command="{Binding CommandEditField}" Padding="0">
+                                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
+                            </Button>
+                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
+                            <Button Command="{Binding CommandDeleteField}" Padding="0">
+                                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
+                            </Button>
+                        </ToolBarPanel>
+                    </ToolBar>
+                    <DataGrid ItemsSource="{Binding Fields}" SelectedItem="{Binding SelectedField}" IsReadOnly="True" AutoGenerateColumns="False" MinHeight="50" >
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Width="*" Header="{Resx _fields.Key, ResxName=TAS.Client.Views.MediaEditView}" Binding="{Binding Key}"/>
+                            <DataGridTextColumn Width="2*" Header="{Resx _fields.Value, ResxName=TAS.Client.Views.MediaEditView}" Binding="{Binding Value}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                </DockPanel>
+            </DockPanel>
         </ScrollViewer>
     </Grid>
 </UserControl>

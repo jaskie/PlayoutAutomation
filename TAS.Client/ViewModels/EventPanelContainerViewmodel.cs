@@ -84,7 +84,7 @@ namespace TAS.Client.ViewModels
 
         public TEventType EventType { get { return TEventType.Container; } }
 
-        public int ChildrenCount { get { return _event.SubEvents.Count; } }
+        public int ChildrenCount { get { return _event.SubEventsCount; } }
 
 
     }

@@ -471,24 +471,9 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _idAux, value, "IdAux"); }
         }
 
-        private bool _isAutoSave;
-        public bool IsAutoSave
-        {
-            get { return _isAutoSave; }
-            set
-            {
-                if (SetField(ref _isAutoSave, value, "IsAutoSave"))
-                    NotifyPropertyChanged("IsNoAutoSave");
-            }
-        }
         private ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
         public IDictionary<string, string> Fields { get { return _fields; } }
         public object SelectedField { get; set; }
-
-        public bool IsNoAutoSave
-        {
-            get { return !_isAutoSave; }
-        }
 
         public bool IsPersistentMedia
         {

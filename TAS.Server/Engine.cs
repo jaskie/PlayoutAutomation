@@ -400,11 +400,7 @@ namespace TAS.Server
 
         public TArchivePolicyType ArchivePolicy;
 
-
-        private void _onServerPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-        }
-
+        
         private Event _playing;
         [XmlIgnore]
         public IEvent Playing { get { return _playing; } private set { SetField(ref _playing, (Event)value, "Playing"); } }
@@ -623,7 +619,7 @@ namespace TAS.Server
             }
             _run(aEvent);
             aEvent.PlayState = TPlayState.Paused;
-            foreach (Event se in (aEvent.SubEvents.ToList().Where(e => e.ScheduledDelay == TimeSpan.Zero)).ToList())
+            foreach (Event se in (aEvent.SubEvents.Where(e => e.ScheduledDelay == TimeSpan.Zero)))
                 _load(se);
             return true;
         }
@@ -634,12 +630,12 @@ namespace TAS.Server
                 aEvent = aEvent.GetSuccessor() as Event;
             if (aEvent == null)
                 return false;
-            if (aEvent.PlayState == TPlayState.Scheduled || aEvent.PlayState == TPlayState.Played || aEvent.PlayState == TPlayState.Aborted)
-                aEvent.PlayState = TPlayState.Scheduled;
-            _preloadedEvents[aEvent.Layer] = aEvent;
-            if (aEvent.EventType != TEventType.Rundown)
+            Event preloaded;
+            if (aEvent.EventType != TEventType.Rundown && 
+                !(_preloadedEvents.TryGetValue(aEvent.Layer, out preloaded) && preloaded == aEvent))
             {
                 Debug.WriteLine("{0} LoadNext: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
+                _preloadedEvents[aEvent.Layer] = aEvent;
                 if (_playoutChannelPRI != null)
                     _playoutChannelPRI.LoadNext(aEvent);
                 if (_playoutChannelSEC != null)
@@ -655,10 +651,14 @@ namespace TAS.Server
                     });
                 }
             }
+            if (aEvent.SubEventsCount > 0)
+                foreach (Event se in aEvent.SubEvents)
+                {
+                    se.PlayState = TPlayState.Scheduled;
+                    if (se.ScheduledDelay < _preloadTime)
+                        _loadNext(se);
+                }
             _run(aEvent);
-            foreach (Event e in aEvent.SubEvents.ToList())
-                if (e.ScheduledDelay.Ticks  < _frameTicks)
-                    _loadNext(e);
             return true;
         }
 
@@ -719,9 +719,10 @@ namespace TAS.Server
             Event removed;
             _preloadedEvents.TryRemove(aEvent.Layer, out removed);
             aEvent.PlayState = TPlayState.Playing;
-            foreach (Event e in aEvent.SubEvents.ToList())
-                if (e.ScheduledDelay.Ticks < _frameTicks)
-                    _play(e, fromBeginning);
+            if (aEvent.SubEventsCount > 0)
+                foreach (Event se in aEvent.SubEvents)
+                    if (se.ScheduledDelay == TimeSpan.Zero)
+                        _play(se, fromBeginning);
             aEvent.Save();
             if (_pst2Prv)
                 _loadPST();
@@ -813,7 +814,7 @@ namespace TAS.Server
                         if (_playoutChannelSEC != null)
                             _playoutChannelSEC.Pause(aEvent);
                     }
-                    foreach (Event se in aEvent.SubEvents.ToList())
+                    foreach (Event se in aEvent.SubEvents)
                         _pause(se, finish);
                 }
             if (finish)
@@ -874,9 +875,7 @@ namespace TAS.Server
                                 if (playingEvent.PlayState == TPlayState.Playing)
                                     playingEvent.PlayState = TPlayState.Fading;
                             }
-                            Event preloaded;
-                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks
-                                && !(_preloadedEvents.TryGetValue(succEvent.Layer, out preloaded) && preloaded ==  succEvent))
+                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks)
                                 _loadNext(succEvent);
                             if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
                             {
@@ -884,6 +883,22 @@ namespace TAS.Server
                                     EngineState = TEngineState.Hold;
                                 else
                                     _play(succEvent, true);
+                            }
+                        }
+
+                        playingEvent = _playing; // in case when succEvent just started 
+                        if (playingEvent != null && playingEvent.SubEventsCount > 0)
+                        {
+                            TimeSpan playingEventPosition = TimeSpan.FromTicks(playingEvent.Position * _frameTicks);
+                            var sel = playingEvent.SubEvents.Where(e => e.PlayState == TPlayState.Scheduled);
+                            foreach (Event se in sel)
+                            {
+                                Event preloaded;
+                                if (playingEventPosition > se.ScheduledDelay - _preloadTime - se.TransitionTime
+                                    && !(_preloadedEvents.TryGetValue(se.Layer, out preloaded) && se == preloaded))
+                                    _loadNext(se);
+                                if (playingEventPosition > se.ScheduledDelay - se.TransitionTime)
+                                    _play(se, true);
                             }
                         }
                     }
@@ -1337,7 +1352,7 @@ namespace TAS.Server
                         || aEvent.PlayState == TPlayState.Played)
                     {
                         aEvent.PlayState = TPlayState.Scheduled;
-                        foreach (Event se in aEvent.SubEvents.ToList())
+                        foreach (Event se in aEvent.SubEvents)
                             ReSchedule(se);
                     }
                     else

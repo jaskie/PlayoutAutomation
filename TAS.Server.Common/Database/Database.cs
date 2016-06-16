@@ -960,7 +960,7 @@ VALUES
                     cmd.Parameters.AddWithValue("@Duration", e.Duration);
                     cmd.Parameters.AddWithValue("@idProgramme", e.IdProgramme);
                     cmd.Parameters.AddWithValue("@idAuxRundown", e.IdAux);
-                    cmd.Parameters.AddWithValue("@SecEvents", string.Join(";", e.SubEvents.ToList().Select(se => se.EventName)));
+                    cmd.Parameters.AddWithValue("@SecEvents", string.Join(";", e.SubEvents.Select(se => se.EventName)));
                     cmd.ExecuteNonQuery();
                 }
                 Debug.WriteLine(e, "AsRunLog written for");

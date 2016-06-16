@@ -181,6 +181,9 @@
     <value>The time the clip should start according to the scenario.
 The difference to the specified time will be shown in the tree of the times of events in green (undertime) or red (overtime).</value>
   </data>
+  <data name="_scheduledDelay" xml:space="preserve">
+    <value>Start delay</value>
+  </data>
   <data name="_scheduledTC" xml:space="preserve">
     <value>TC Start</value>
   </data>
@@ -192,6 +195,9 @@ The difference to the specified time will be shown in the tree of the times of e
   </data>
   <data name="_starting.ToolTip" xml:space="preserve">
     <value>Instant change - F7</value>
+  </data>
+  <data name="_templateLayer" xml:space="preserve">
+    <value>CG layer</value>
   </data>
   <data name="_transitionLength" xml:space="preserve">
     <value>length</value>

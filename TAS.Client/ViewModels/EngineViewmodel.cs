@@ -431,7 +431,7 @@ namespace TAS.Client.ViewModels
         {
             var selections = _selectedEvents.Where(e => e.Event != null && e.Event.Media != null && e.Event.Media.MediaType == TMediaType.Movie).Select(e => new ExportMedia(
                 e.Event.Media, 
-                e.Event.SubEvents.ToList().Where(sev => sev.EventType == TEventType.StillImage && sev.Media != null).Select(sev => sev.Media).ToList(),
+                e.Event.SubEvents.Where(sev => sev.EventType == TEventType.StillImage && sev.Media != null).Select(sev => sev.Media).ToList(),
                 e.Event.ScheduledTc, 
                 e.Event.Duration, 
                 e.Event.GetAudioVolume()));

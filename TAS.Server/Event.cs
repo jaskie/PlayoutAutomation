@@ -174,7 +174,7 @@ namespace TAS.Server
                 _isLoop,
                 _gPI);
 
-            foreach (Event e in SubEvents.ToList())
+            foreach (Event e in SubEvents)
             {
                 IEvent newSubevent = (IEvent)e.Clone();
                 newEvent.InsertUnder(newSubevent);
@@ -202,6 +202,7 @@ namespace TAS.Server
                     {
                         StartTime = Engine.CurrentTime;
                         StartTc = ScheduledTc + TimeSpan.FromTicks(_position * Engine.FrameTicks);
+                        Position++;
                     }
                     if (value == TPlayState.Scheduled)
                     {
@@ -237,7 +238,9 @@ namespace TAS.Server
         public UInt64 IdEventBinding { get { return _idEventBinding; } }
 
         Lazy<SynchronizedCollection<IEvent>> _subEvents;
-        public SynchronizedCollection<IEvent> SubEvents { get { return _subEvents.Value; } }
+        public IList<IEvent> SubEvents { get { lock (_subEvents.Value.SyncRoot)  return _subEvents.Value.ToList(); } }
+
+        public int SubEventsCount { get { return _subEvents.Value.Count; } }
 
         public bool IsContainedIn(IEvent parent)
         {
@@ -320,7 +323,7 @@ namespace TAS.Server
                     {
                         if (_eventType == TEventType.Rundown)
                         {
-                            foreach (IEvent se in SubEvents.ToList())
+                            foreach (IEvent se in SubEvents)
                             {
                                 IEvent le = se;
                                 IEvent le_n = le.Next;
@@ -364,11 +367,11 @@ namespace TAS.Server
             {
                 pev = VisualParent;
                 if (pev != null && pev.EventType != TEventType.Container)
-                    nt = Engine.AlignDateTime(pev.ScheduledTime + _scheduledDelay);
+                    nt = Engine.AlignDateTime(pev.ScheduledTime);
             }
             if (SetField(ref _scheduledTime, nt, "ScheduledTime"))
             {
-                foreach (Event ev in SubEvents.ToList()) //update all sub-events
+                foreach (Event ev in SubEvents) //update all sub-events
                     ev.UpdateScheduledTime(true);
                 if (updateSuccessors)
                 {
@@ -406,7 +409,7 @@ namespace TAS.Server
                     Event ne = _next.Value;
                     if (ne != null)
                         ne.UpdateScheduledTime(true);  // trigger update all next events
-                    foreach (Event ev in SubEvents.ToList()) //update all sub-events
+                    foreach (Event ev in SubEvents) //update all sub-events
                         ev.UpdateScheduledTime(true);
                     NotifyPropertyChanged("Offset");
                 }
@@ -418,7 +421,7 @@ namespace TAS.Server
         {
             get
             {
-                return _isEnabled ? _duration + _scheduledDelay : TimeSpan.Zero;
+                return _isEnabled ? _duration : TimeSpan.Zero;
             }
         }
 
@@ -502,7 +505,7 @@ namespace TAS.Server
                 {
                     if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
                     {
-                        foreach (Event e in SubEvents.ToList().Where(ev => ev.EventType == TEventType.StillImage))
+                        foreach (Event e in SubEvents.Where(ev => ev.EventType == TEventType.StillImage))
                         {
                             TimeSpan nd = e._duration + newDuration - this._duration;
                             e.Duration = nd > TimeSpan.Zero ? nd : TimeSpan.Zero;
@@ -519,7 +522,7 @@ namespace TAS.Server
             if (_eventType == TEventType.Rundown)
             {
                 long maxlen = 0;
-                foreach (IEvent e in SubEvents.ToList())
+                foreach (IEvent e in SubEvents)
                 {
                     IEvent n = e;
                     long len = 0;
@@ -615,9 +618,6 @@ namespace TAS.Server
             {
                 if (_isHold)
                     return TimeSpan.Zero;
-                Event parent = _parent.Value;
-                if (_eventType == TEventType.StillImage && parent != null && _scheduledDelay == TimeSpan.Zero)
-                    return parent.TransitionTime;
                 return _transitionTime;
             }
             set
@@ -631,13 +631,7 @@ namespace TAS.Server
         TTransitionType _transitionType;
         public TTransitionType TransitionType
         {
-            get
-            {
-                Event parent = _parent.Value;
-                if (_eventType == TEventType.StillImage && parent != null && _scheduledDelay == TimeSpan.Zero)
-                    return parent._transitionType;
-                return _transitionType;
-            }
+            get { return _transitionType; }
             set { SetField(ref _transitionType, value, "TransitionType"); }
         }
 
@@ -886,7 +880,7 @@ namespace TAS.Server
 
                     if (parent != null)
                     {
-                        parent.SubEvents.Remove(this);
+                        parent._subEvents.Value.Remove(this);
                         parent._subEvents.Value.Add(eventToInsert);
                         parent.NotifySubEventChanged(eventToInsert, TCollectionOperation.Insert);
                         Parent = null;
@@ -930,7 +924,7 @@ namespace TAS.Server
                         subEventToAdd.StartType = TStartType.With;
                     subEventToAdd.Parent = this;
                     subEventToAdd.IsHold = false;
-                    SubEvents.Add(subEventToAdd);
+                    _subEvents.Value.Add(subEventToAdd);
                     NotifySubEventChanged(subEventToAdd, TCollectionOperation.Insert);
                     Duration = ComputedDuration();
                     Event prior = subEventToAdd.Prior as Event;
@@ -955,7 +949,7 @@ namespace TAS.Server
 
         private void _subEventsRemove(Event subEventToRemove)
         {
-            if (SubEvents.Remove(subEventToRemove))
+            if (_subEvents.Value.Remove(subEventToRemove))
             {
                 Duration = ComputedDuration();
                 NotifySubEventChanged(subEventToRemove, TCollectionOperation.Remove);
@@ -1133,7 +1127,7 @@ namespace TAS.Server
             if (_eventType == TEventType.Rundown)
             {
                 TimeSpan pauseTime = TimeSpan.Zero;
-                IEvent ev = SubEvents.ToList().FirstOrDefault(e => e.EventType == TEventType.Movie || e.EventType == TEventType.Live || e.EventType == TEventType.Rundown);
+                IEvent ev = SubEvents.FirstOrDefault(e => e.EventType == TEventType.Movie || e.EventType == TEventType.Live || e.EventType == TEventType.Rundown);
                 while (ev != null)
                 {
                     TimeSpan? pt = ev.GetAttentionTime();
@@ -1172,7 +1166,7 @@ namespace TAS.Server
         {
             if (_eventType != TEventType.Rundown)
                 throw new InvalidOperationException("FindVisibleSubEvent: EventType is not Rundown");
-            var se = SubEvents.ToList().FirstOrDefault(e => ((e.EventType == TEventType.Live || e.EventType == TEventType.Movie) && e.Layer == VideoLayer.Program) || e.EventType == TEventType.Rundown) as Event;
+            var se = SubEvents.FirstOrDefault(e => ((e.EventType == TEventType.Live || e.EventType == TEventType.Movie) && e.Layer == VideoLayer.Program) || e.EventType == TEventType.Rundown) as Event;
             if (se != null && se.EventType == TEventType.Rundown)
                 return se.FindVisibleSubEvent();
             else
@@ -1208,7 +1202,7 @@ namespace TAS.Server
             if ((_playState == TPlayState.Fading || _playState == TPlayState.Paused || _playState == TPlayState.Playing) &&
                 (_eventType == TEventType.Live || _eventType == TEventType.Movie || _eventType == TEventType.Rundown))
                 return false;
-            foreach (IEvent se in this.SubEvents.ToList())
+            foreach (IEvent se in this.SubEvents)
             {
                 IEvent ne = se;
                 while (ne != null)
@@ -1233,7 +1227,7 @@ namespace TAS.Server
         protected void _delete()
         {
             Remove();
-            foreach (IEvent se in SubEvents.ToList())
+            foreach (IEvent se in SubEvents)
             {
                 Event ne = se as Event;
                 while (ne != null)
@@ -1262,14 +1256,11 @@ namespace TAS.Server
                     && nev.Media == media
                     && nev.ScheduledTime >= Engine.CurrentTime)
                     return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Event = nev, Media = media };
-                if (nev.SubEvents != null)
+                foreach (Event se in nev._subEvents.Value.ToList())
                 {
-                    foreach (Event se in nev._subEvents.Value.ToList())
-                    {
-                        MediaDeleteDenyReason reason = se.CheckCanDeleteMedia(media);
-                        if (reason.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
-                            return reason;
-                    }
+                    MediaDeleteDenyReason reason = se.CheckCanDeleteMedia(media);
+                    if (reason.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
+                        return reason;
                 }
                 nev = nev.Next as Event;
             }

@@ -211,7 +211,7 @@ namespace TAS.Client
     {
         public static IEnumerable<IEvent> AllSubEvents(this IEvent e)
         {
-            IEnumerable<IEvent> sel = e.SubEvents.ToList();
+            IEnumerable<IEvent> sel = e.SubEvents;
             foreach (IEvent selItem in sel)
             {
                 yield return selItem;
