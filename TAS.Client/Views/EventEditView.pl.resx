@@ -197,7 +197,7 @@ Różnica do podanego czasu będzie pokazana wśród czasów w drzewie zdarzeń 
     <value>Natychmisatowa zmiana - F7</value>
   </data>
   <data name="_templateLayer" xml:space="preserve">
-    <value>Warstwa grafiki</value>
+    <value>Warstwa CG</value>
   </data>
   <data name="_transitionLength" xml:space="preserve">
     <value>o długości</value>

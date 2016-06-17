@@ -48,6 +48,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandAddNextMovie { get; private set; }
         public ICommand CommandAddNextEmptyMovie { get; private set; }
         public ICommand CommandAddNextLive { get; private set; }
+        public ICommand CommandAddAnimation { get; private set; }
 
         protected override void _createCommands()
         {
@@ -128,6 +129,10 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o => _engineViewmodel.AddMediaEvent(_event, TStartType.After, TMediaType.Movie, VideoLayer.Program, false),
                 CanExecuteDelegate = canAddNextMovie
+            };
+            CommandAddAnimation = new UICommand()
+            {
+                ExecuteDelegate = o => _engineViewmodel.AddMediaEvent(_event, TStartType.With, TMediaType.Animation, VideoLayer.Animation, true)
             };
         }
 
@@ -263,6 +268,7 @@ namespace TAS.Client.ViewModels
                 return (media == null) ? ((_event.EventType == TEventType.Movie || _event.EventType == TEventType.StillImage) ? _event.MediaGuid.ToString() : string.Empty) : media.FileName;
             }
         }
+
         public TMediaErrorInfo MediaErrorInfo
         {
             get
@@ -351,7 +357,7 @@ namespace TAS.Client.ViewModels
             get { return _event.Duration.ToSMPTETimecodeString(_frameRate); }
         }
 
-        public bool IsEnabled
+        public virtual bool IsEnabled
         {
             get { return _event.IsEnabled && Event.Duration > TimeSpan.Zero; }
         }

@@ -278,6 +278,9 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   <data name="_validate_FileNameCanNotContainSpecialCharacters" xml:space="preserve">
     <value>Nazwa pliku nie może zawierać znaków specjalnych</value>
   </data>
+  <data name="_validate_ScheduledDelayInvalid" xml:space="preserve">
+    <value>Suma długości i opóźnienia przekracza czas trwania elementu</value>
+  </data>
   <data name="_validate_StartTCAfterFile" xml:space="preserve">
     <value>Timecode startu jest za klipem (końcowy TC klipu to {0})</value>
   </data>

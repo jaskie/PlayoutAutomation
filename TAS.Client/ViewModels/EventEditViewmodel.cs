@@ -30,6 +30,8 @@ namespace TAS.Client.ViewModels
             if (previewViewModel != null)
                 previewViewModel.PropertyChanged += PreviewViewModel_PropertyChanged;
             _engine = engineViewModel.Engine;
+            _fields = new ObservableDictionary<string, string>();
+            _fields.CollectionChanged += _fields_CollectionChanged;
             CommandSaveEdit = new UICommand() { ExecuteDelegate = _save, CanExecuteDelegate = _canSave };
             CommandUndoEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
             CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _isEditableMovie };
@@ -40,12 +42,18 @@ namespace TAS.Client.ViewModels
             CommandEditField = new UICommand { ExecuteDelegate = _editField, CanExecuteDelegate = _canDeleteField };
         }
 
+        private void _fields_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            Modified = true;
+        }
+
         protected override void OnDispose()
         {
             if (_event != null)
                 Event = null;
             if (_previewViewModel != null)
                 _previewViewModel.PropertyChanged -= PreviewViewModel_PropertyChanged;
+            _fields.CollectionChanged -= _fields_CollectionChanged;
         }
 
         private void PreviewViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -143,7 +151,9 @@ namespace TAS.Client.ViewModels
                         PropertyInfo sourcePi = e2Load.GetType().GetProperty(copyPi.Name);
                         if (sourcePi != null 
                             && copyPi.Name != "Modified"
-                            && sourcePi.PropertyType.Equals(copyPi.PropertyType))
+                            && sourcePi.PropertyType.Equals(copyPi.PropertyType)
+                            && copyPi.CanWrite
+                            && sourcePi.CanRead)
                             copyPi.SetValue(this, sourcePi.GetValue(e2Load, null), null);
                     }
                 }
@@ -208,7 +218,6 @@ namespace TAS.Client.ViewModels
                 switch (propertyName)
                 {
                     case "Duration":
-                    case "ScheduledDelay":
                         validationResult = _validateDuration();
                         break;
                     case "ScheduledTc":
@@ -220,9 +229,24 @@ namespace TAS.Client.ViewModels
                     case "TransitionTime":
                         validationResult = _validateTransitionTime();
                         break;
+                    case "ScheduledDelay":
+                        validationResult = _validateScheduledDelay();
+                        break;
                 }
                 return validationResult;
             }
+        }
+
+        private string _validateScheduledDelay()
+        {
+            var ev = _event;
+            if (ev != null && ev.EventType == TEventType.StillImage)
+            {
+                IEvent parent = ev.Parent;
+                if (parent != null && _duration + _scheduledDelay > parent.Duration)
+                    return resources._validate_ScheduledDelayInvalid;
+            }
+            return null;
         }
 
         private string _validateScheduledTime()
@@ -236,7 +260,6 @@ namespace TAS.Client.ViewModels
 
         private string _validateScheduledTc()
         {
-            string validationResult = string.Empty;
             IEvent ev = _event;
             if (ev != null)
             {
@@ -244,26 +267,31 @@ namespace TAS.Client.ViewModels
                 if (ev.EventType == TEventType.Movie && media != null)
                 {
                     if (_scheduledTc > media.Duration + media.TcStart)
-                        validationResult = string.Format(resources._validate_StartTCAfterFile, (media.Duration + media.TcStart).ToSMPTETimecodeString(_engine.VideoFormat));
+                        return string.Format(resources._validate_StartTCAfterFile, (media.Duration + media.TcStart).ToSMPTETimecodeString(_engine.VideoFormat));
                     if (_scheduledTc < media.TcStart)
-                        validationResult = string.Format(resources._validate_StartTCBeforeFile, media.TcStart.ToSMPTETimecodeString(_engine.VideoFormat));
+                        return string.Format(resources._validate_StartTCBeforeFile, media.TcStart.ToSMPTETimecodeString(_engine.VideoFormat));
                 }
             }
-            return validationResult;
+            return null;
         }
 
         private string _validateDuration()
         {
-            string validationResult = string.Empty;
             IEvent ev = _event;
             if (ev != null)
             {
                 IMedia media = _event.Media;
                 if (ev.EventType == TEventType.Movie && media != null
                     && _duration + _scheduledTc > media.Duration + media.TcStart)
-                    validationResult = resources._validate_DurationInvalid;
+                    return resources._validate_DurationInvalid;
+                if (ev.EventType == TEventType.StillImage)
+                {
+                    IEvent parent = ev.Parent;
+                    if (parent != null && _duration + _scheduledDelay > parent.Duration)
+                        return resources._validate_ScheduledDelayInvalid;
+                }
             }
-            return validationResult;
+            return null;
         }
 
 
@@ -530,8 +558,17 @@ namespace TAS.Client.ViewModels
         private int _templateLayer;
         public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, "TemplateLayer"); } }
 
-        private ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
-        public IDictionary<string, string> Fields { get { return _fields; } }
+        private ObservableDictionary<string, string> _fields;
+        public IDictionary<string, string> Fields
+        {
+            get { return _fields; }
+            set
+            {
+                _fields.Clear();
+                if (value != null)
+                    _fields.AddRange(value);
+            }
+        }
         public object SelectedField { get; set; }
 
 

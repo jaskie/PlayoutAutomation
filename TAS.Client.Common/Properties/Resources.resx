@@ -278,6 +278,9 @@ Do you really want to run this BACKUP play-out?</value>
   <data name="_validate_FileNameCanNotContainSpecialCharacters" xml:space="preserve">
     <value>File name can't contain special characters</value>
   </data>
+  <data name="_validate_ScheduledDelayInvalid" xml:space="preserve">
+    <value>Sum of duration and start delay exceeds item length</value>
+  </data>
   <data name="_validate_StartTCAfterFile" xml:space="preserve">
     <value>Start timecode is behind end of clip (clip ends at {0})</value>
   </data>

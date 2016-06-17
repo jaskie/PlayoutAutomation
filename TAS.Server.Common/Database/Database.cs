@@ -683,6 +683,7 @@ namespace TAS.Server.Database
                             foreach (var field in fieldsDeserialized)
                                 animatedEvent.Fields.Add(field);
                     }
+                    animatedEvent.Modified = false;
                 }
             }
         }
@@ -877,7 +878,7 @@ WHERE idRundownEvent=@idRundownEvent;";
                         {
                             Debug.WriteLine("Event DbUpdate Id={0}, EventName={1}", aEvent.IdRundownEvent, aEvent.EventName);
                             if (aEvent is IAnimatedEvent)
-                                _eventAnimatedSave(aEvent as IAnimatedEvent, true);
+                                _eventAnimatedSave(aEvent as IAnimatedEvent, false);
                             transaction.Commit();
                             return true;
                         }

@@ -93,7 +93,7 @@ namespace TAS.Server
         private CasparItem _getItem(Event aEvent)
         {
             CasparItem item = new CasparItem(string.Empty);
-            IServerMedia media = (aEvent.Engine.PlayoutChannelPRI == this) ? aEvent.ServerMediaPRI : aEvent.ServerMediaSEC;
+            IPersistentMedia media = (aEvent.Engine.PlayoutChannelPRI == this) ? aEvent.ServerMediaPRI : aEvent.ServerMediaSEC;
             if (aEvent.EventType == TEventType.Live || media != null)
             {
                 if (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)

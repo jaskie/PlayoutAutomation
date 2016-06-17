@@ -858,10 +858,9 @@ namespace TAS.Server
             {
                 if (EngineState == TEngineState.Running)
                 {
-                    lock( _runningEvents.SyncRoot)
-                        foreach (IEvent e in _runningEvents)
-                            if (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading)
-                                e.Position += nFrames;
+                    lock (_runningEvents.SyncRoot)
+                        foreach (IEvent e in _runningEvents.Where(ev => ev.PlayState == TPlayState.Playing || ev.PlayState == TPlayState.Fading))
+                            e.Position += nFrames;
 
                     Event playingEvent = _playing;
                     Event succEvent = null;
@@ -885,7 +884,6 @@ namespace TAS.Server
                                     _play(succEvent, true);
                             }
                         }
-
                         playingEvent = _playing; // in case when succEvent just started 
                         if (playingEvent != null && playingEvent.SubEventsCount > 0)
                         {
@@ -894,10 +892,10 @@ namespace TAS.Server
                             foreach (Event se in sel)
                             {
                                 Event preloaded;
-                                if (playingEventPosition > se.ScheduledDelay - _preloadTime - se.TransitionTime
+                                if (playingEventPosition >= se.ScheduledDelay - _preloadTime - se.TransitionTime
                                     && !(_preloadedEvents.TryGetValue(se.Layer, out preloaded) && se == preloaded))
                                     _loadNext(se);
-                                if (playingEventPosition > se.ScheduledDelay - se.TransitionTime)
+                                if (playingEventPosition >= se.ScheduledDelay - se.TransitionTime)
                                     _play(se, true);
                             }
                         }
@@ -915,14 +913,8 @@ namespace TAS.Server
                                 _stop(e);
                         }
 
-                    lock (_runningEvents.SyncRoot)
-                    {
-                        if (!_runningEvents.Any(e => !e.IsFinished))
-                        {
-                            EngineState = TEngineState.Idle;
-                            return;
-                        }
-                    }
+                    if (_runningEvents.Count == 0)
+                        EngineState = TEngineState.Idle;
                 }
 
                 // preview controls

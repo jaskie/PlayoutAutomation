@@ -70,6 +70,7 @@
     <Compile Include="ViewModels\EngineViewmodel.cs" />
     <Compile Include="EventClipboard.cs" />
     <Compile Include="ViewModels\EventEditViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelAnimationViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelContainerViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelDummyViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelLiveViewmodel.cs" />
@@ -116,6 +117,9 @@
     </Compile>
     <Compile Include="Views\EventPanelMovieView.xaml.cs">
       <DependentUpon>EventPanelMovieView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelAnimationView.xaml.cs">
+      <DependentUpon>EventPanelAnimationView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\EventPanelStillView.xaml.cs">
       <DependentUpon>EventPanelStillView.xaml</DependentUpon>
@@ -200,6 +204,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\EventPanelMovieView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventPanelAnimationView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -291,7 +299,7 @@
     <EmbeddedResource Include="Views\IngestEditorView.resx">
       <DependentUpon>IngestEditorView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\KeyValueEditView.pl.resx" >
+    <EmbeddedResource Include="Views\KeyValueEditView.pl.resx">
       <DependentUpon>KeyValueEditView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\KeyValueEditView.resx">

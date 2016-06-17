@@ -62,7 +62,16 @@ namespace TAS.Server
         }
 
         private readonly SimpleDictionary<string, string> _fields;
-        public IDictionary<string, string> Fields { get; }
+        public IDictionary<string, string> Fields
+        {
+            get { return _fields; }
+            set
+            {
+                _fields.Clear();
+                foreach (var kvp in value)
+                    _fields.Add(kvp);
+            }
+        }
 
         private TemplateMethod _method;
         public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value, "Method"); } }

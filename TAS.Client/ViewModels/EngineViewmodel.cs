@@ -80,6 +80,10 @@ namespace TAS.Client.ViewModels
         {
             _engine = engine;
             _frameRate = engine.FrameRate;
+
+            Debug.WriteLine(this, "Creating root EventViewmodel");
+            _rootEventViewModel = new EventPanelRootViewmodel(this);
+
             _engine.EngineTick += this._engineTick;
             _engine.EngineOperation += this._engineOperation;
             _engine.PropertyChanged += this._enginePropertyChanged;
@@ -89,8 +93,6 @@ namespace TAS.Client.ViewModels
             _engine.DatabaseConnectionStateChanged += _engine_DatabaseConnectionStateChanged;
             _composePlugins();
 
-            Debug.WriteLine(this, "Creating root EventViewmodel");
-            _rootEventViewModel = new EventPanelRootViewmodel(this);
 
             Debug.WriteLine(this, "Creating EngineView");
             _engineView = new EngineView(this._frameRate);
@@ -567,29 +569,43 @@ namespace TAS.Client.ViewModels
                 {
                     if (e.Media != null)
                     {
-                        IEvent newEvent = _engine.AddNewEvent(
-                            eventName: e.MediaName,
-                            videoLayer: layer);
+                        IEvent newEvent;
+                        switch (e.Media.MediaType)
+                        {
+                            case TMediaType.Movie:
+                                newEvent = _engine.AddNewEvent(
+                                    eventName: e.MediaName,
+                                    videoLayer: VideoLayer.Program,
+                                    eventType: TEventType.Movie,
+                                    scheduledTC: e.TCIn,
+                                    duration: e.Duration,
+                                    gpi: new EventGPI
+                                    {
+                                        CanTrigger = _engine.EnableGPIForNewEvents,
+                                        Crawl = e.Media.MediaCategory == TMediaCategory.Show ? TCrawl.Normal : TCrawl.NoCrawl,
+                                        Logo = e.Media.MediaCategory == TMediaCategory.Fill || e.Media.MediaCategory == TMediaCategory.Show || e.Media.MediaCategory == TMediaCategory.Promo || e.Media.MediaCategory == TMediaCategory.Insert ? TLogo.Normal : TLogo.NoLogo,
+                                        Parental = e.Media.Parental
+                                    }
+                                    );
+                                break;
+                            case TMediaType.Still:
+                                newEvent = _engine.AddNewEvent(
+                                    eventName: e.MediaName,
+                                    eventType: TEventType.StillImage,
+                                    videoLayer: layer,
+                                    duration: baseEvent.Duration);
+                                break;
+                            case TMediaType.Animation:
+                                newEvent = _engine.AddNewEvent(
+                                    eventName: e.MediaName,
+                                    eventType: TEventType.Animation,
+                                    videoLayer: VideoLayer.Animation);
+                                break;
+                            default:
+                                throw new ApplicationException("Invalid MediaType choosen");
+                                
+                        }
                         newEvent.Media = e.Media;
-                        if (mediaType == TMediaType.Still)
-                        {
-                            newEvent.EventType = TEventType.StillImage;
-                            newEvent.Duration = baseEvent.Duration;
-                        }
-                        else
-                        if (mediaType == TMediaType.Movie)
-                        {
-                            newEvent.EventType = TEventType.Movie;
-                            newEvent.ScheduledTc = e.TCIn;
-                            newEvent.Duration = e.Duration;
-                            newEvent.GPI = new EventGPI
-                            {
-                                CanTrigger = _engine.EnableGPIForNewEvents,
-                                Crawl = e.Media.MediaCategory == TMediaCategory.Show ? TCrawl.Normal : TCrawl.NoCrawl,
-                                Logo = e.Media.MediaCategory == TMediaCategory.Fill || e.Media.MediaCategory == TMediaCategory.Show || e.Media.MediaCategory == TMediaCategory.Promo || e.Media.MediaCategory == TMediaCategory.Insert ? TLogo.Normal : TLogo.NoLogo,
-                                Parental = e.Media.Parental
-                            };
-                        }
                         if (_mediaSearchViewModel.NewEventStartType == TStartType.After)
                             _mediaSearchViewModel.BaseEvent.InsertAfter(newEvent);
                         if (_mediaSearchViewModel.NewEventStartType == TStartType.With)

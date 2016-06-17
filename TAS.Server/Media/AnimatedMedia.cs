@@ -17,6 +17,8 @@ namespace TAS.Server
             _fields.DictionaryOperation += _fields_DictionaryOperation;
         }
 
+        
+
         private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
         {
             Modified = true;
@@ -24,7 +26,16 @@ namespace TAS.Server
 
         private readonly SimpleDictionary<string, string> _fields;
 
-        public IDictionary<string, string> Fields { get { return _fields; } }
+        public IDictionary<string, string> Fields
+        {
+            get { return _fields; }
+            set
+            {
+                _fields.Clear();
+                foreach (var kvp in value)
+                    _fields.Add(kvp);
+            }
+        }
 
         private TemplateMethod _method;
         public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value, "Method"); } }

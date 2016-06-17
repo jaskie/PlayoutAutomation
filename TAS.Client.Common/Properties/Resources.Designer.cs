@@ -513,6 +513,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sum of duration and start delay exceeds item length.
+        /// </summary>
+        public static string _validate_ScheduledDelayInvalid {
+            get {
+                return ResourceManager.GetString("_validate_ScheduledDelayInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Start timecode is behind end of clip (clip ends at {0}).
         /// </summary>
         public static string _validate_StartTCAfterFile {

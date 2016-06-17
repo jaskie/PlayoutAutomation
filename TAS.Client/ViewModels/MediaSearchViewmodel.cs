@@ -28,7 +28,7 @@ namespace TAS.Client.ViewModels
         private readonly RationalNumber _frameRate;
         private readonly VideoFormatDescription _videoFormatDescription;
         private readonly IEngine _engine;
-        private IServerDirectory _searchDirectory;
+        private IMediaDirectory _searchDirectory;
 
 
 
@@ -52,8 +52,8 @@ namespace TAS.Client.ViewModels
             _mediaType = mediaType;
             if (_previewViewmodel != null)
                 _previewViewmodel.PropertyChanged += _onPreviewPropertyChanged;
-            IServerDirectory pri = _manager.MediaDirectoryPRI;
-            IServerDirectory sec = _manager.MediaDirectorySEC;
+            IMediaDirectory pri = mediaType == TMediaType.Animation ? (IMediaDirectory)_manager.AnimationDirectoryPRI : _manager.MediaDirectoryPRI;
+            IMediaDirectory sec = mediaType == TMediaType.Animation ? (IMediaDirectory)_manager.AnimationDirectorySEC : _manager.MediaDirectorySEC;
             _searchDirectory = pri != null && pri.DirectoryExists() ? pri : sec != null && sec.DirectoryExists() ? sec : null;
             _searchDirectory.MediaAdded += _searchDirectory_MediaAdded;
             _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
@@ -105,7 +105,8 @@ namespace TAS.Client.ViewModels
                 && media.MediaType == requiredMediaType
                 &&
                    (requiredMediaType == TMediaType.Still && media.VideoFormatDescription.SAR.Equals(requiredFormatDescription.SAR)
-                 || media.MediaType == TMediaType.Movie && media.VideoFormatDescription.FrameRate.Equals(requiredFrameRate));
+                 || media.MediaType == TMediaType.Movie && media.VideoFormatDescription.FrameRate.Equals(requiredFrameRate)
+                 || media.MediaType == TMediaType.Animation);
         }
 
         void _searchDirectory_MediaVerified(object sender, MediaEventArgs e)

@@ -126,8 +126,11 @@ namespace TAS.Client.ViewModels
                     return new EventPanelLiveViewmodel(ev, this);
                 case TEventType.StillImage:
                     return new EventPanelStillViewmodel(ev, this);
+                case TEventType.Animation:
+                    return new EventPanelAnimationViewmodel(ev, this);
+                default:
+                    throw new ApplicationException(string.Format("Invalid event type {0} to create panel", ev.EventType));
             }
-            throw new ApplicationException(string.Format("Invalid event type {0} to create panel", ev.EventType));
         }
 
         protected virtual void OnRelocated(object sender, EventArgs e)

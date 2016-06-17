@@ -26,12 +26,8 @@
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="36" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="0" >
+    <DockPanel>
+        <Grid DockPanel.Dock="Top">
             <Grid.Resources>
                 <Style TargetType="Button">
                     <Setter Property="Margin" Value="3"/>
@@ -235,9 +231,8 @@
                             <DataGridTextColumn Width="2*" Header="{Resx _fields.Value, ResxName=TAS.Client.Views.MediaEditView}" Binding="{Binding Value}"/>
                         </DataGrid.Columns>
                     </DataGrid>
-
                 </DockPanel>
             </DockPanel>
         </ScrollViewer>
-    </Grid>
+    </DockPanel>
 </UserControl>

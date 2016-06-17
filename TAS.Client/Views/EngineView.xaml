@@ -538,6 +538,9 @@
                     <DataTemplate DataType="{x:Type vievmodels:EventPanelStillViewmodel}" >
                         <views:EventPanelStillView />
                     </DataTemplate>
+                    <DataTemplate DataType="{x:Type vievmodels:EventPanelAnimationViewmodel}" >
+                        <views:EventPanelAnimationView />
+                    </DataTemplate>
                 </TreeView.Resources>
             </TreeView>
             <GridSplitter Grid.Column="0" ResizeDirection="Columns" HorizontalAlignment="Right" Background="DarkGray" Width="3" Cursor="SizeWE"/>

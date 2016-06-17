@@ -72,7 +72,7 @@ namespace TAS.Server
             _isHold = isHold;
             _isLoop = isLoop;
             _gPI = gpi;
-
+            _applyMedia(null);
              _subEvents = new Lazy<SynchronizedCollection<IEvent>>(() =>
              {
                  var result = new SynchronizedCollection<IEvent>();
@@ -133,7 +133,14 @@ namespace TAS.Server
         public bool Modified
         {
             get { return _modified; }
-            protected set { SetField(ref _modified, value, "Modified"); }
+            set
+            {
+                if (_modified != value)
+                {
+                    _modified = value;
+                    NotifyPropertyChanged("Modified");
+                }
+            }
         }
 
         public int CompareTo(object obj)
@@ -202,7 +209,6 @@ namespace TAS.Server
                     {
                         StartTime = Engine.CurrentTime;
                         StartTc = ScheduledTc + TimeSpan.FromTicks(_position * Engine.FrameTicks);
-                        Position++;
                     }
                     if (value == TPlayState.Scheduled)
                     {
@@ -593,16 +599,11 @@ namespace TAS.Server
         TimeSpan? _requestedStartTime;
         public TimeSpan? RequestedStartTime  // informational only: when it should run according to schedule. Usefull when adding or removing previous events
         {
-            get
-            {
-                return _requestedStartTime;
-            }
+            get { return _requestedStartTime; }
             set
             {
                 if (SetField(ref _requestedStartTime, value, "RequestedStartTime"))
-                {
                     NotifyPropertyChanged("Offset");
-                }
             }
         }
 
@@ -642,36 +643,18 @@ namespace TAS.Server
             set
             {
                 if (SetField(ref _mediaGuid, value, "MediaGuid"))
-                {
-                    NotifyPropertyChanged("Media");
-                    _serverMediaPRI = null;
-                    _serverMediaSEC = null;
-                    _serverMediaPRV = null;
-                }
+                    _applyMedia(null);
             }
         }
 
         public IMedia Media
         {
-            get
-            {
-                return ServerMediaPRI;
-            }
+            get { return ServerMediaPRI; }
             set
             {
-                var newMedia = value as ServerMedia;
-                var oldMedia = _serverMediaPRI;
-                if (SetField(ref _serverMediaPRI, newMedia, "Media"))
-                {
-                    _mediaGuid = newMedia == null ? Guid.Empty : newMedia.MediaGuid;
-                    _serverMediaPRV = null;
-                    _serverMediaSEC = null;
-                    if (newMedia != null)
-                        newMedia.PropertyChanged += _serverMediaPRI_PropertyChanged;
-                    if (oldMedia != null)
-                        oldMedia.PropertyChanged -= _serverMediaPRI_PropertyChanged;
-                }
-
+                var newMedia = value as PersistentMedia;
+                if (newMedia != null && newMedia.MediaGuid != _mediaGuid)
+                    _applyMedia(newMedia);
             }
         }
 
@@ -681,74 +664,70 @@ namespace TAS.Server
                 NotifyPropertyChanged("AudioVolume");
         }
 
-        private ServerMedia _serverMediaPRI;
-        public ServerMedia ServerMediaPRI
+        private void _applyMedia(PersistentMedia initialMedia)
         {
-            get
+            var serverMediaPRI = _serverMediaPRI;
+            if (serverMediaPRI != null && serverMediaPRI.IsValueCreated && serverMediaPRI.Value != null)
+                serverMediaPRI.Value.PropertyChanged -= _serverMediaPRI_PropertyChanged;
+            var mediaGuid = _mediaGuid;
+            if (mediaGuid != Guid.Empty)
             {
-                var media = _serverMediaPRI;
-                if (media != null)
-                    return media;
-                Guid mediaGuid = _mediaGuid;
-                if (media == null && mediaGuid != Guid.Empty)
-                {
-                    MediaDirectory dir = (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI;
-                    if (dir != null)
+                _serverMediaPRI = new Lazy<PersistentMedia>(() =>
                     {
-                        var newMedia = dir.FindMediaByMediaGuid(mediaGuid);
-                        if (newMedia is ServerMedia)
-                        {
-                            _serverMediaPRI = (ServerMedia)newMedia;
-                            newMedia.PropertyChanged += _serverMediaPRI_PropertyChanged;
-                        }
-                    }
-                }
-                return _serverMediaPRI;
+                        var media = initialMedia != null ? initialMedia : _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRI : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI);
+                        media.PropertyChanged += _serverMediaPRI_PropertyChanged;
+                        return media;
+                    });
+                _serverMediaSEC = new Lazy<PersistentMedia>(() => _getMediaFromDir(mediaGuid,_eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectorySEC : (MediaDirectory)Engine.MediaManager.MediaDirectorySEC));
+                _serverMediaPRV = new Lazy<PersistentMedia>(() => _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRV : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV));
+                NotifyPropertyChanged("Media");
             }
         }
 
-        private ServerMedia _serverMediaSEC;
-        public ServerMedia ServerMediaSEC
+        private PersistentMedia _getMediaFromDir(Guid mediaGuid, MediaDirectory dir)
+        {
+            if (dir != null)
+            {
+                var newMedia = dir.FindMediaByMediaGuid(mediaGuid);
+                if (newMedia is PersistentMedia)
+                    return (PersistentMedia)newMedia;
+            }
+            return null;
+        }
+
+        private Lazy<PersistentMedia> _serverMediaPRI;
+        public PersistentMedia ServerMediaPRI
         {
             get
             {
-                var media = _serverMediaSEC;
-                if (media != null)
-                    return media;
-                Guid mediaGuid = _mediaGuid;
-                if (media == null && mediaGuid != Guid.Empty)
-                {
-                    MediaDirectory dir = (MediaDirectory)Engine.MediaManager.MediaDirectorySEC;
-                    if (dir != null)
-                    {
-                        var newMedia = dir.FindMediaByMediaGuid(mediaGuid);
-                        if (newMedia is ServerMedia)
-                            _serverMediaSEC = (ServerMedia)newMedia;
-                    }
-                }
-                return _serverMediaSEC;
+                var l = _serverMediaPRI;
+                if (l != null)
+                    return l.Value;
+                return null;
             }
         }
 
-
-        private ServerMedia _serverMediaPRV;
-        public ServerMedia ServerMediaPRV
+        private Lazy<PersistentMedia> _serverMediaSEC;
+        public PersistentMedia ServerMediaSEC
         {
             get
             {
-                Guid mediaGuid = _mediaGuid;
-                var media = _serverMediaPRV;
-                if ((media == null || media.MediaStatus == TMediaStatus.Deleted) && mediaGuid != Guid.Empty)
-                {
-                    MediaDirectory dir = (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV;
-                    if (dir != null)
-                    {
-                        var newMedia = dir.FindMediaByMediaGuid(mediaGuid);
-                        if (newMedia is ServerMedia)
-                            _serverMediaPRV = (ServerMedia)newMedia;
-                    }
-                }
-                return _serverMediaPRV;
+                var l = _serverMediaSEC;
+                if (l != null)
+                    return l.Value;
+                return null;
+            }
+        }
+
+        private Lazy<PersistentMedia> _serverMediaPRV;
+        public PersistentMedia ServerMediaPRV
+        {
+            get
+            {
+                var l = _serverMediaPRV;
+                if (l != null)
+                    return l.Value;
+                return null;
             }
         }
 
@@ -1239,8 +1218,8 @@ namespace TAS.Server
                 ((Event)se)._delete();
             }
             var media = _serverMediaPRI;
-            if (media != null)
-                media.PropertyChanged -= _serverMediaPRI_PropertyChanged;
+            if (media != null && media.IsValueCreated && media.Value != null)
+                media.Value.PropertyChanged -= _serverMediaPRI_PropertyChanged;
             _isDeleted = true;
             this.DbDelete();
             NotifyDeleted();

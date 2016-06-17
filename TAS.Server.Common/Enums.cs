@@ -56,6 +56,7 @@ namespace TAS.Common
         CG3 = Program | 3,
         CG4 = Program | 4,
         CG5 = Program | 5,
+        Animation = Program | 6,
         Preset = 10,
         Preview = 0xF,
         PreviewCG1 = Preview | CG1,
@@ -63,6 +64,7 @@ namespace TAS.Common
         PreviewCG3 = Preview | CG3,
         PreviewCG4 = Preview | CG4,
         PreviewCG5 = Preview | CG5,
+        PreviewAnimation = Preview | Animation,
     }
     public enum TEngineOperation { Start, Play, Pause, Stop, Clear, Load, Schedule }
     public enum TEngineState { NotInitialized, Idle, Running, Hold }

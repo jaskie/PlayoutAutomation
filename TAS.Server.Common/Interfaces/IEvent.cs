@@ -38,7 +38,7 @@ namespace TAS.Server.Interfaces
         void Save();
         void Delete();
         bool AllowDelete();
-        bool Modified { get; }
+        bool Modified { get; set; }
         bool IsDeleted { get; }
         MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media);
         IEvent GetSuccessor();

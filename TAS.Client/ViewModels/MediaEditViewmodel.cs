@@ -42,7 +42,7 @@ namespace TAS.Client.ViewModels
                 CommandEditField = new UICommand { ExecuteDelegate = _editField, CanExecuteDelegate = _canDeleteField };
             }
         }
-
+        
         private void _fields_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             Modified = true;
@@ -75,17 +75,6 @@ namespace TAS.Client.ViewModels
                     if (copyPi.Name == "FileName")
                         Model.RenameTo(FileName);
                     else
-                    if (copyPi.Name == "Fields")
-                    {
-                        var animatedMedia = Model as IAnimatedMedia;
-                        if (animatedMedia != null && _fields != null)
-                        {
-                            animatedMedia.Fields.Clear();
-                            foreach (var field in _fields)
-                                animatedMedia.Fields.Add(field);
-                        }
-                    }
-                    else
                     {
                         PropertyInfo destPi = (destObject ?? Model).GetType().GetProperty(copyPi.Name);
                         if (destPi != null)
@@ -104,12 +93,6 @@ namespace TAS.Client.ViewModels
 
         protected override void Load(object source = null)
         {
-            var am = Model as IAnimatedMedia;
-            if (am != null)
-            {
-                _fields.Clear();
-                _fields.AddRange(am.Fields);
-            }
             base.Load(source);
         }
 
@@ -472,7 +455,19 @@ namespace TAS.Client.ViewModels
         }
 
         private ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
-        public IDictionary<string, string> Fields { get { return _fields; } }
+        public IDictionary<string, string> Fields
+        {
+            get { return _fields; }
+            set
+            {
+                if (_fields != null)
+                {
+                    _fields.Clear();
+                    _fields.AddRange(value);
+                }
+
+            }
+        }
         public object SelectedField { get; set; }
 
         public bool IsPersistentMedia

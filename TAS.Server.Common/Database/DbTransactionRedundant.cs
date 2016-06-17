@@ -13,6 +13,18 @@ namespace TAS.Server.Database
         MySql.Data.MySqlClient.MySqlTransaction _transactionSecondary;
         DbConnectionRedundant _connection;
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                if (_transactionPrimary != null)
+                    _transactionPrimary.Dispose();
+                if (_transactionSecondary != null)
+                    _transactionSecondary.Dispose();
+            }
+        }
+
         public override IsolationLevel IsolationLevel
         {
             get
