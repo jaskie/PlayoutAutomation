@@ -14,6 +14,7 @@ using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using resources = TAS.Client.Common.Properties.Resources;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace TAS.Client.ViewModels
 {

@@ -653,7 +653,7 @@ namespace TAS.Server
             set
             {
                 var newMedia = value as PersistentMedia;
-                if (newMedia != null && newMedia.MediaGuid != _mediaGuid)
+                if (newMedia != null && SetField(ref _mediaGuid, newMedia.MediaGuid, "MediaGuid"))
                     _applyMedia(newMedia);
             }
         }

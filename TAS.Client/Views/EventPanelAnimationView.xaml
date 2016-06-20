@@ -15,64 +15,64 @@
              d:DesignWidth="700"
              >
     <Border x:Name="border" Style="{StaticResource EventPanelStyle}">
-        <StackPanel >
-            <StackPanel Opacity="{Binding IsEnabled, Converter={StaticResource EnabledToOpacity}}" >
-                <Grid Height="20" Background="{Binding IsPlaying, Converter={StaticResource BoolToBrush}, ConverterParameter=#4040FF00}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="100"/>
-                    </Grid.ColumnDefinitions>
-                    <Image Grid.Column="0" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/StillImage.png"/>
-                    <Image Grid.Column="0" ToolTip="{Binding MediaErrorInfo}" >
-                        <Image.Style>
-                            <Style TargetType="Image">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding MediaErrorInfo}" Value="Missing">
-                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/error-overlay.png"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding MediaErrorInfo}" Value="NoError">
-                                        <Setter Property="Source" Value="{x:Null}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Image.Style>
-                    </Image>
-                    <Image Grid.Column="1" ToolTip="{Binding PlayState}">
-                        <Image.Style>
-                            <Style TargetType="Image">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding PlayState}" Value="Played">
-                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Played.png"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding PlayState}" Value="Playing">
-                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Playing.png"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding PlayState}" Value="Paused">
-                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Paused.png"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding PlayState}" Value="Aborted">
-                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Aborted.png"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding PlayState}" Value="Fading">
-                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Fading.png"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding PlayState}" Value="Scheduled">
-                                        <Setter Property="Source" Value="{x:Null}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Image.Style>
-                    </Image>
-                    <TextBlock Grid.Column="2" Text="{Binding EventName}" FontSize="15" VerticalAlignment="Center" Margin="5, 0">
-                        <TextBlock.ToolTip>
-                            <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
-                        </TextBlock.ToolTip>
+        <Grid Opacity="{Binding IsEnabled, Converter={StaticResource EnabledToOpacity}}" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Image ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Animation.png"/>
+            <Image ToolTip="{Binding MediaErrorInfo}" >
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding MediaErrorInfo}" Value="Missing">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Indicators/error-overlay.png"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding MediaErrorInfo}" Value="NoError">
+                                <Setter Property="Source" Value="{x:Null}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+            <Image Grid.Column="1" ToolTip="{Binding PlayState}">
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding PlayState}" Value="Played">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Played.png"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding PlayState}" Value="Playing">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Playing.png"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding PlayState}" Value="Paused">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Paused.png"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding PlayState}" Value="Aborted">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Aborted.png"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding PlayState}" Value="Fading">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Fading.png"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding PlayState}" Value="Scheduled">
+                                <Setter Property="Source" Value="{x:Null}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+            <TextBlock Grid.Column="2" Text="{Binding EventName}" FontSize="15" VerticalAlignment="Center" Margin="5, 0">
+                <TextBlock.ToolTip>
+                    <TextBlock Text="{Binding Parent.EventName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
+                </TextBlock.ToolTip>
                     </TextBlock>
-                    <TextBlock Grid.Column="3" Text="{Binding TimeLeft}" FontSize="15" VerticalAlignment="Center" Margin="5, 0" />
-                </Grid>
-            </StackPanel>
-        </StackPanel>
+            <Grid Grid.Column="3" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}" >
+                <Button ToolTip="{Resx _delete.ToolTip}" Command="{Binding CommandDelete}" Style="{StaticResource EventPanelCommandButton}">
+                    <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png"/>
+                </Button>
+            </Grid>
+        </Grid>
     </Border>
 </local:EventPanelView>

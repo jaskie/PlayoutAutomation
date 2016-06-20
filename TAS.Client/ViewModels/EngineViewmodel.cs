@@ -600,6 +600,8 @@ namespace TAS.Client.ViewModels
                                     eventName: e.MediaName,
                                     eventType: TEventType.Animation,
                                     videoLayer: VideoLayer.Animation);
+                                if (newEvent is ITemplated && e.Media is ITemplated)
+                                    ((ITemplated)newEvent).Fields = ((ITemplated)e.Media).Fields;
                                 break;
                             default:
                                 throw new ApplicationException("Invalid MediaType choosen");

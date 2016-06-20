@@ -438,7 +438,9 @@
   <ItemGroup>
     <Resource Include="Images\Indicators\archive.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\EventTypes\Animation.png" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\IngestStates\InProgress.png" />
   </ItemGroup>

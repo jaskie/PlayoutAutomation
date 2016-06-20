@@ -463,7 +463,7 @@ namespace TAS.Server
 
         public override string ToString()
         {
-            return string.Format("{0}:{1} ({2})", this.GetType().Name, DirectoryName, Folder);
+            return string.Format("{0} ({1})", DirectoryName, Folder);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -1268,9 +1268,9 @@ namespace TAS.Server
             _events.TryRemove(aEvent.IdRundownEvent, out eventToRemove);
             aEvent.Saved -= _eventSaved;
             aEvent.Deleted -= _eventDeleted;
-            ServerMedia media = (ServerMedia)aEvent.Media;
-            if (aEvent.PlayState == TPlayState.Played
-                && media != null
+            var media = aEvent.Media as ServerMedia;
+            if (media != null
+                && aEvent.PlayState == TPlayState.Played
                 && media.MediaType == TMediaType.Movie
                 && ArchivePolicy == TArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
                 && MediaManager.ArchiveDirectory != null

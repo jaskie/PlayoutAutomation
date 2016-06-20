@@ -261,7 +261,9 @@
                     </Button>
                 </ToolBarPanel>
             </ToolBar>
-            <DataGrid ItemsSource="{Binding Fields}" SelectedItem="{Binding SelectedField}" IsReadOnly="True" AutoGenerateColumns="False" >
+            <DataGrid ItemsSource="{Binding Fields}" SelectedItem="{Binding SelectedField}" IsReadOnly="True" AutoGenerateColumns="False" 
+                      common:MouseDoubleClick.Command="{Binding CommandEditField}"
+                      >
                 <DataGrid.Columns>
                     <DataGridTextColumn Width="*" Header="{Resx _fields.Key, ResxName=TAS.Client.Views.MediaEditView}" Binding="{Binding Key}"/>
                     <DataGridTextColumn Width="2*" Header="{Resx _fields.Value, ResxName=TAS.Client.Views.MediaEditView}" Binding="{Binding Value}"/>
