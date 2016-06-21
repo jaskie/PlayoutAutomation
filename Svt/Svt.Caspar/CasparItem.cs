@@ -86,6 +86,13 @@ namespace Svt.Caspar
             set { length_ = value; }
         }
 
+        private ChannelLayout _channelLayout;
+        public ChannelLayout ChannelLayout
+        {
+            get { return _channelLayout; }
+            set { _channelLayout = value; }
+        }        
+
 		private Transition transition_ = new Transition();
 		public Transition Transition
 		{
@@ -110,6 +117,10 @@ namespace Svt.Caspar
             string videoLayer = reader["videoLayer"];
             if (!string.IsNullOrEmpty(videoLayer))
                 VideoLayer = Int32.Parse(videoLayer);
+
+            string channelLayout = reader["channel_lyout"];
+            if (!string.IsNullOrEmpty(channelLayout))
+                ChannelLayout = (ChannelLayout)Enum.Parse(typeof(ChannelLayout), channelLayout);
 
             string seek = reader["seek"];
             if (!string.IsNullOrEmpty(seek))
@@ -147,8 +158,8 @@ namespace Svt.Caspar
             writer.WriteAttributeString("videoLayer", VideoLayer.ToString());
             writer.WriteAttributeString("seek", Seek.ToString());
             writer.WriteAttributeString("length", Length.ToString());
-			writer.WriteAttributeString("loop", Loop.ToString());          
-
+			writer.WriteAttributeString("loop", Loop.ToString());
+            writer.WriteAttributeString("channel_layout", ChannelLayout.ToString());
 			writer.WriteStartElement("transition");
 			writer.WriteAttributeString("type", Transition.Type.ToString());
 			writer.WriteAttributeString("duration", Transition.Duration.ToString());

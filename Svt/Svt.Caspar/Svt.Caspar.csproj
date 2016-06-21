@@ -126,6 +126,7 @@
     <Compile Include="CGTextFieldData.cs" />
     <Compile Include="CGXmlData.cs" />
     <Compile Include="Channel.cs" />
+    <Compile Include="ChannelLayout.cs" />
     <Compile Include="Easing.cs" />
     <Compile Include="ICGComponentData.cs" />
     <Compile Include="MediaInfo.cs" />

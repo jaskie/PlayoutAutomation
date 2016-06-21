@@ -80,8 +80,8 @@ namespace TAS.Server
                     && OwnerServer != null
                     && OwnerServer.IsConnected)
                 {
-                    channel.CustomCommand(string.Format("MIXER {0} CLEAR", ChannelNumber));
-                    channel.CustomCommand(string.Format(CultureInfo.InvariantCulture, "MIXER {0} MASTERVOLUME {1:F3}", ChannelNumber, MasterVolume));
+                    channel.ClearMixer();
+                    channel.SetMasterVolume((float)MasterVolume);
                 }
             }
         }
@@ -97,12 +97,11 @@ namespace TAS.Server
             if (aEvent.EventType == TEventType.Live || media != null)
             {
                 if (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
-                {
-                    item.Clipname = "\"" + Path.GetFileNameWithoutExtension(media.FileName) + "\"" +
-                        (media.MediaType == TMediaType.Movie ? " CHANNEL_LAYOUT STEREO" : string.Empty);
-                }
+                    item.Clipname = Path.GetFileNameWithoutExtension(media.FileName);
                 if (aEvent.EventType == TEventType.Live)
                     item.Clipname = LiveDevice ?? "BLACK";
+                if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie)
+                    item.ChannelLayout = ChannelLayout.Stereo;
                 item.VideoLayer = (int)aEvent.Layer;
                 item.Loop = false;
                 item.Transition.Duration = (int)(aEvent.TransitionTime.Ticks / aEvent.Engine.FrameTicks);
@@ -119,7 +118,8 @@ namespace TAS.Server
             if (media != null && media.MediaType == TMediaType.Movie)
             {
                 CasparItem item = new CasparItem(string.Empty);
-                item.Clipname = string.Format("\"{0}\"", media is ServerMedia ? Path.GetFileNameWithoutExtension(media.FileName) : media.FullPath);                        
+                item.Clipname = media is ServerMedia ? Path.GetFileNameWithoutExtension(media.FileName) : media.FullPath;
+                item.ChannelLayout = ChannelLayout.Stereo;                 
                 item.VideoLayer = (int)videolayer;
                 item.Seek = (int)seek;
                 return item;
@@ -248,7 +248,7 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (_checkConnected() && channel != null)
             {
-                channel.CustomCommand(string.Format("CALL {0}-{1} SEEK {2}", ChannelNumber, (int)videolayer, position));
+                channel.Seek((int)videolayer, (uint)position);
                 Debug.WriteLine("CasparSeek Channel {0} Layer {1} Position {2}", ChannelNumber, (int)videolayer, position);
                 return true;
             }
@@ -337,7 +337,7 @@ namespace TAS.Server
                 Event playing;
                 if (_visible.TryGetValue(aEvent.Layer, out playing) && playing == aEvent)
                 {
-                    channel.CustomCommand(string.Format("PAUSE {0}-{1}", ChannelNumber, (int)aEvent.Layer));
+                    channel.Pause((int)aEvent.Layer);
                     Event removed;
                     _loadedNext.TryRemove(aEvent.Layer, out removed);
                     Debug.WriteLine(aEvent, string.Format("CasprarPause {0} layer {1}", aEvent, aEvent.Layer));
@@ -354,7 +354,7 @@ namespace TAS.Server
             if (_checkConnected() && channel != null)
             {
                 {
-                    channel.CustomCommand(string.Format("PAUSE {0}-{1}", ChannelNumber, (int)videolayer));
+                    channel.Pause((int)videolayer);
                     Debug.WriteLine("CasparPause Layer {0}", videolayer);
                     return true;
                 }
@@ -418,7 +418,7 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (_checkConnected() && channel != null)
             {
-                channel.CustomCommand(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} VOLUME {2:F3}", ChannelNumber, (int)videolayer, volume));
+                channel.SetVolume((int)videolayer, (float)volume, 5, Easing.Linear);
                 if (OnVolumeChanged != null)
                     OnVolumeChanged(this, videolayer, volume);
             }
@@ -434,9 +434,9 @@ namespace TAS.Server
             {
                 outputAspectNarrow = narrow;
                 if (narrow)
-                    channel.CustomCommand(string.Format("MIXER {0}-{1} FILL 0.125 0 0.75 1 10", ChannelNumber, (int)layer));
+                    channel.SetGeometry((int)layer, 0.125f, 0f, 0.75f, 1f, 10, Easing.Linear);
                 else
-                    channel.CustomCommand(string.Format("MIXER {0}-{1} FILL 0 0 1 1 10", ChannelNumber, (int)layer));
+                    channel.SetGeometry((int)layer, 0f, 0f, 1f, 1f, 10, Easing.Linear);
                 Debug.WriteLine("SetAspect narrow: {0}", narrow);
             }
         }

@@ -675,7 +675,8 @@ namespace TAS.Server
                 _serverMediaPRI = new Lazy<PersistentMedia>(() =>
                     {
                         var media = initialMedia != null ? initialMedia : _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRI : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI);
-                        media.PropertyChanged += _serverMediaPRI_PropertyChanged;
+                        if (media != null)
+                            media.PropertyChanged += _serverMediaPRI_PropertyChanged;
                         return media;
                     });
                 _serverMediaSEC = new Lazy<PersistentMedia>(() => _getMediaFromDir(mediaGuid,_eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectorySEC : (MediaDirectory)Engine.MediaManager.MediaDirectorySEC));
