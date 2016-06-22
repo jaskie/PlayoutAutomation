@@ -604,7 +604,8 @@ namespace TAS.Server
             if (aEvent == null)
                 return false;
             Debug.WriteLine("{0} Load: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
-            if (aEvent.EventType != TEventType.Rundown)
+            var eventType = aEvent.EventType;
+            if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
                 if (PlayoutChannelPRI != null)
                     _playoutChannelPRI.Load(aEvent);
@@ -630,8 +631,9 @@ namespace TAS.Server
                 aEvent = aEvent.GetSuccessor() as Event;
             if (aEvent == null)
                 return false;
+            var eventType = aEvent.EventType;
             Event preloaded;
-            if (aEvent.EventType != TEventType.Rundown && 
+            if ((eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage) && 
                 !(_preloadedEvents.TryGetValue(aEvent.Layer, out preloaded) && preloaded == aEvent))
             {
                 Debug.WriteLine("{0} LoadNext: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
@@ -664,7 +666,8 @@ namespace TAS.Server
 
         private bool _play(Event aEvent, bool fromBeginning)
         {
-            if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
+            var eventType = aEvent.EventType;
+            if (aEvent != null && (!aEvent.IsEnabled || (aEvent.Length == TimeSpan.Zero && eventType != TEventType.Animation)))
                 aEvent = aEvent.GetSuccessor() as Event;
             if (aEvent == null)
                 return false;
@@ -686,7 +689,7 @@ namespace TAS.Server
             _run(aEvent);
             if (fromBeginning)
                 aEvent.Position = 0;
-            if (aEvent.EventType != TEventType.Rundown)
+            if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
                 if (_playoutChannelPRI != null)
                     _playoutChannelPRI.Play(aEvent);
@@ -715,14 +718,25 @@ namespace TAS.Server
                         }
                     }
                 }
+                Event removed;
+                _preloadedEvents.TryRemove(aEvent.Layer, out removed);
             }
-            Event removed;
-            _preloadedEvents.TryRemove(aEvent.Layer, out removed);
-            aEvent.PlayState = TPlayState.Playing;
-            if (aEvent.SubEventsCount > 0)
-                foreach (Event se in aEvent.SubEvents)
-                    if (se.ScheduledDelay == TimeSpan.Zero)
-                        _play(se, fromBeginning);
+            if (eventType == TEventType.Animation)
+            {
+                if (_playoutChannelPRI != null)
+                    _playoutChannelPRI.Play(aEvent);
+                if (_playoutChannelSEC != null)
+                    _playoutChannelSEC.Play(aEvent);
+                aEvent.PlayState = TPlayState.Played;
+            }
+            else
+            {
+                aEvent.PlayState = TPlayState.Playing;
+                if (aEvent.SubEventsCount > 0)
+                    foreach (Event se in aEvent.SubEvents)
+                        if (se.ScheduledDelay == TimeSpan.Zero)
+                            _play(se, fromBeginning);
+            }
             aEvent.Save();
             if (_pst2Prv)
                 _loadPST();

@@ -82,6 +82,7 @@ namespace TAS.Server
                 {
                     channel.ClearMixer();
                     channel.SetMasterVolume((float)MasterVolume);
+                    channel.CG.Clear();
                 }
             }
         }
@@ -109,8 +110,7 @@ namespace TAS.Server
                 item.Transition.Type = (Svt.Caspar.TransitionType)aEvent.TransitionType;
                 return item;
             }
-            else
-                return null;
+            return null;
         }
 
         private CasparItem _getItem(Media media, VideoLayer videolayer, long seek)
@@ -145,7 +145,8 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (aEvent != null && _checkConnected() && channel != null)
             {
-                if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
+                var eventType = aEvent.EventType;
+                if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
                 {
                     CasparItem item = _getItem(aEvent);
                     if (item != null)
@@ -156,15 +157,6 @@ namespace TAS.Server
                         return true;
                     }
                 }
-                //if (aEvent.EventType == TEventType.AnimationFlash)
-                //{
-                //    var template = aEvent.Template;
-                //    var media = aEvent.Media;
-                //    if (template != null && media != null)
-                //    {
-                //        channel.CG.Add((int)aEvent.Layer, template.Layer, media.FileName, false, GetContainerData(template));
-                //    }
-                //}
             }
             Debug.WriteLine(aEvent, "LoadNext did not load: ");
             return false;
@@ -175,7 +167,8 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (aEvent != null && channel != null && _checkConnected())
             {
-                if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
+                var eventType = aEvent.EventType;
+                if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
                 {
                     CasparItem item = _getItem(aEvent);
                     if (item != null)
@@ -188,16 +181,6 @@ namespace TAS.Server
                         return true;
                     }
                 }
-                //if (aEvent.EventType == TEventType.AnimationFlash)
-                //{
-                //    var template = aEvent.Template;
-                //    var media = aEvent.Media;
-                //    if (template != null && media != null)
-                //    {
-                //        channel.CG.Add((int)aEvent.Layer, template.Layer, media.FileName, false, GetContainerData(template));
-                //        return true;
-                //    }
-                //}
             }
             Debug.WriteLine(aEvent, "CasparLoad did not load: ");
             return false;
@@ -260,19 +243,35 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (_checkConnected() && channel != null)
             {
-                Event playing;
-                if (!(_visible.TryGetValue(aEvent.Layer, out playing) && playing == aEvent))
+                var eventType = aEvent.EventType;
+                if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
                 {
-                    Event loaded;
-                    if (!(_loadedNext.TryGetValue(aEvent.Layer, out loaded) && loaded == aEvent))
-                        channel.Load(_getItem(aEvent));
+                    Event playing;
+                    if (!(_visible.TryGetValue(aEvent.Layer, out playing) && playing == aEvent))
+                    {
+                        Event loaded;
+                        if (!(_loadedNext.TryGetValue(aEvent.Layer, out loaded) && loaded == aEvent))
+                            channel.Load(_getItem(aEvent));
+                    }
+                    channel.Play((int)aEvent.Layer);
+                    _visible[aEvent.Layer] = aEvent;
+                    Event removed;
+                    _loadedNext.TryRemove(aEvent.Layer, out removed);
+                    Debug.WriteLine(aEvent, string.Format("CasparPlay Layer {0}", aEvent.Layer));
+                    return true;
                 }
-                channel.Play((int)aEvent.Layer);
-                _visible[aEvent.Layer] = aEvent;
-                Event removed;
-                _loadedNext.TryRemove(aEvent.Layer, out removed);
-                Debug.WriteLine(aEvent, string.Format("CasparPlay Layer {0}", aEvent.Layer));
-                return true;
+                if (eventType == TEventType.Animation && aEvent is ITemplated)
+                {
+                    var media = (aEvent.Engine.PlayoutChannelPRI == this) ? aEvent.ServerMediaPRI : aEvent.ServerMediaSEC;
+                    if (media != null && media.FileExists())
+                    {
+                        CasparCGDataCollection fields = new CasparCGDataCollection();
+                        foreach (var field in ((ITemplated)aEvent).Fields)
+                            fields.SetData(field.Key, field.Value);
+                        channel.CG.Add((int)aEvent.Layer, ((ITemplated)aEvent).TemplateLayer, Path.GetFileNameWithoutExtension(media.FileName), true, fields);
+                    }
+                }
+
             }
             return false;
         }
