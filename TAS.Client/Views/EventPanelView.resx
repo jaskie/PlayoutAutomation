@@ -196,4 +196,7 @@
   <data name="_moveUp.ToolTip" xml:space="preserve">
     <value>Move up | Alt + Up arrow</value>
   </data>
+  <data name="_scheduledDelay.ToolTip" xml:space="preserve">
+    <value>Delay</value>
+  </data>
 </root>

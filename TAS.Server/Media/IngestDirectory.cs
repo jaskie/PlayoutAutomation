@@ -35,7 +35,10 @@ namespace TAS.Server
         public override void Initialize()
         {
             if (_folder.StartsWith("ftp://"))
+            {
                 AccessType = TDirectoryAccessType.FTP;
+                IsInitialized = true;
+            }
             else
                 if (IsXDCAM)
             {

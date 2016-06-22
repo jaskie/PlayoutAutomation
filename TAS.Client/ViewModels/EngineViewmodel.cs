@@ -573,6 +573,7 @@ namespace TAS.Client.ViewModels
                         switch (e.Media.MediaType)
                         {
                             case TMediaType.Movie:
+                                TMediaCategory category = e.Media.MediaCategory;
                                 newEvent = _engine.AddNewEvent(
                                     eventName: e.MediaName,
                                     videoLayer: VideoLayer.Program,
@@ -582,8 +583,8 @@ namespace TAS.Client.ViewModels
                                     gpi: new EventGPI
                                     {
                                         CanTrigger = _engine.EnableGPIForNewEvents,
-                                        Crawl = e.Media.MediaCategory == TMediaCategory.Show ? TCrawl.Normal : TCrawl.NoCrawl,
-                                        Logo = e.Media.MediaCategory == TMediaCategory.Fill || e.Media.MediaCategory == TMediaCategory.Show || e.Media.MediaCategory == TMediaCategory.Promo || e.Media.MediaCategory == TMediaCategory.Insert ? TLogo.Normal : TLogo.NoLogo,
+                                        Crawl = category == TMediaCategory.Show ? TCrawl.Normal : TCrawl.NoCrawl,
+                                        Logo = category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? TLogo.Normal : TLogo.NoLogo,
                                         Parental = e.Media.Parental
                                     }
                                     );

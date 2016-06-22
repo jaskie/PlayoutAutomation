@@ -468,10 +468,12 @@ namespace TAS.Client.ViewModels
         {
             EventGPI GPI = new EventGPI();
             GPI.CanTrigger = _engine.EnableGPIForNewEvents;
-            GPI.Logo = (media != null
-                && (media.MediaCategory == TMediaCategory.Fill || media.MediaCategory == TMediaCategory.Show || media.MediaCategory == TMediaCategory.Promo || media.MediaCategory == TMediaCategory.Insert))
-                ? TLogo.Normal : TLogo.NoLogo;
-            GPI.Parental = media != null ? media.Parental : TParental.None;
+            if (media != null)
+            {
+                var category = media.MediaCategory;
+                GPI.Logo = category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? TLogo.Normal : TLogo.NoLogo;
+                GPI.Parental = media.Parental;
+            }
             return GPI;
         }
 

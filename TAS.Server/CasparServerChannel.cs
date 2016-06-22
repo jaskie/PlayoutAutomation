@@ -268,7 +268,7 @@ namespace TAS.Server
                         CasparCGDataCollection fields = new CasparCGDataCollection();
                         foreach (var field in ((ITemplated)aEvent).Fields)
                             fields.SetData(field.Key, field.Value);
-                        channel.CG.Add((int)aEvent.Layer, ((ITemplated)aEvent).TemplateLayer, Path.GetFileNameWithoutExtension(media.FileName), true, fields);
+                        channel.CG.Add((int)aEvent.Layer, ((ITemplated)aEvent).TemplateLayer, Path.GetFileNameWithoutExtension(media.FileName).ToUpperInvariant(), true, fields);
                     }
                 }
 

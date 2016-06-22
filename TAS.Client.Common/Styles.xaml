@@ -58,4 +58,29 @@
         <Setter Property="Visibility" Value="{Binding IsStartEvent,  Converter={StaticResource BoolToVis}}"/>
         <Setter Property="Padding" Value="50, 0"/>
     </Style>
+    <Style TargetType="Image" x:Key="MediaCategoryImage">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding}" Value="Show">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/show.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="Commercial">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/commercial.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="Promo">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/promo.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="Sponsored">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/sponsored.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="Fill">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/fill.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="Insert">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/insert.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="Jingle">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/jingle.png"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
 </ResourceDictionary>

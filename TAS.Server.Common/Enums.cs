@@ -66,7 +66,7 @@ namespace TAS.Common
         PreviewCG5 = Preview | CG5,
         PreviewAnimation = Preview | Animation,
     }
-    public enum TEngineOperation { Start, Play, Pause, Stop, Clear, Load, Schedule }
+    public enum TEngineOperation { Play, Pause, Stop, Clear, Load, Schedule }
     public enum TEngineState { NotInitialized, Idle, Running, Hold }
     public enum TemplateMethod: byte { Add, Play, Stop, Next, Remove, Clear, Update, Invoke }
 
@@ -215,7 +215,8 @@ namespace TAS.Common
         Promo,
         Sponsored,
         Fill,
-        Insert
+        Insert,
+        Jingle
     };
     class TMediaCategoryEnumConverter : ResourceEnumConverter
     {

@@ -565,6 +565,15 @@ namespace TAS.Server.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Jingle.
+        /// </summary>
+        public static string TMediaCategory_Jingle {
+            get {
+                return ResourceManager.GetString("TMediaCategory_Jingle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Promo.
         /// </summary>
         public static string TMediaCategory_Promo {

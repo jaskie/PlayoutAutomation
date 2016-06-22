@@ -453,4 +453,7 @@
   <data name="TMediaType_Animation" xml:space="preserve">
     <value>Animation</value>
   </data>
+  <data name="TMediaCategory_Jingle" xml:space="preserve">
+    <value>Jingle</value>
+  </data>
 </root>

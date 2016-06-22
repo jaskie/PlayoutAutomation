@@ -620,6 +620,7 @@ namespace TAS.Server
             }
             _run(aEvent);
             aEvent.PlayState = TPlayState.Paused;
+            NotifyEngineOperation(aEvent, TEngineOperation.Load);
             foreach (Event se in (aEvent.SubEvents.Where(e => e.ScheduledDelay == TimeSpan.Zero)))
                 _load(se);
             return true;
@@ -782,7 +783,7 @@ namespace TAS.Server
 
         private void _run(Event aEvent)
         {
-            if (aEvent == null)
+            if (aEvent == null || aEvent.EventType == TEventType.Animation)
                 return;
             lock (_tickLock)
             {
@@ -1042,12 +1043,18 @@ namespace TAS.Server
             lock (_tickLock)
             {
                 EngineState = TEngineState.Hold;
-                IEnumerable<Event> oldEvents = _runningEvents.ToList();
-                foreach (Event e in oldEvents)
-                        _stop(e);
-                _load((Event)aEvent);
+                foreach (Event e in _visibleEvents.ToList())
+                    _stop(e);
+                foreach (Event e in _runningEvents.ToList())
+                {
+                    _runningEvents.Remove(e);
+                    if (e.Position == 0)
+                        e.PlayState = TPlayState.Scheduled;
+                    else
+                        e.PlayState = TPlayState.Aborted;
+                }
             }
-            NotifyEngineOperation(aEvent, TEngineOperation.Load);
+            _load(aEvent as Event);
         }
 
         public void StartLoaded()
@@ -1058,7 +1065,7 @@ namespace TAS.Server
                 {
                     foreach (Event e in _runningEvents.ToList())
                     {
-                        if (e.PlayState == TPlayState.Paused)
+                        if (e.PlayState == TPlayState.Paused || e.PlayState == TPlayState.Scheduled)
                         {
                             _play(e, false);
                             IEvent s = e.GetSuccessor();
@@ -1086,10 +1093,8 @@ namespace TAS.Server
                     else
                         e.PlayState = TPlayState.Aborted;
                 }
-
                 _play(aEvent as Event, true);
             }
-            NotifyEngineOperation(aEvent, TEngineOperation.Start);
         }
 
         public void Schedule(IEvent aEvent)
@@ -1204,7 +1209,6 @@ namespace TAS.Server
             }
             lock (_tickLock)
                 EngineState = TEngineState.Running;
-            NotifyEngineOperation(ARundown, TEngineOperation.Start);
         }
 
         

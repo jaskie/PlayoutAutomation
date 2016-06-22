@@ -352,6 +352,11 @@ namespace TAS.Client.ViewModels
             get { return _event.ScheduledTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(_frameRate); }
         }
 
+        public string ScheduledDelay
+        {
+            get { return _event.ScheduledDelay.ToSMPTETimecodeString(_frameRate); }
+        }
+
         public string Duration
         {
             get { return _event.Duration.ToSMPTETimecodeString(_frameRate); }

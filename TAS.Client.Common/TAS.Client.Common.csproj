@@ -447,6 +447,9 @@
   <ItemGroup>
     <Resource Include="Images\IngestStates\Ready.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\MediaCategories\jingle.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

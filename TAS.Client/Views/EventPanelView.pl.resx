@@ -197,4 +197,7 @@ Konieczny kontakt z autorem aplikacji, tel. 601600516</value>
   <data name="_moveDown.ToolTip" xml:space="preserve">
     <value>Przesuń w dół | Alt + strzałka w dół</value>
   </data>
+  <data name="_scheduledDelay.ToolTip" xml:space="preserve">
+    <value>Opóźnienie</value>
+  </data>
 </root>
