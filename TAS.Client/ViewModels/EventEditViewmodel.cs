@@ -30,7 +30,6 @@ namespace TAS.Client.ViewModels
             if (previewViewModel != null)
                 previewViewModel.PropertyChanged += PreviewViewModel_PropertyChanged;
             _engine = engineViewModel.Engine;
-            _fields = new ObservableDictionary<string, string>();
             _fields.CollectionChanged += _fields_CollectionChanged;
             CommandSaveEdit = new UICommand() { ExecuteDelegate = _save, CanExecuteDelegate = _canSave };
             CommandUndoEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
@@ -372,7 +371,7 @@ namespace TAS.Client.ViewModels
         {
             if (SelectedField != null)
             {
-                KeyValueEditViewmodel kve = new KeyValueEditViewmodel(((KeyValuePair<string, string>)SelectedField), true);
+                KeyValueEditViewmodel kve = new KeyValueEditViewmodel((KeyValuePair<string, string>)SelectedField, true);
                 if (kve.ShowDialog() == true)
                     _fields[kve.Key] = kve.Value;
             }
@@ -560,7 +559,7 @@ namespace TAS.Client.ViewModels
         private int _templateLayer;
         public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, "TemplateLayer"); } }
 
-        private ObservableDictionary<string, string> _fields;
+        private ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
         public IDictionary<string, string> Fields
         {
             get { return _fields; }
@@ -572,7 +571,6 @@ namespace TAS.Client.ViewModels
             }
         }
         public object SelectedField { get; set; }
-
 
         public bool IsMovie
         {

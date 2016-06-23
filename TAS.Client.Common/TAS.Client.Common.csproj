@@ -103,6 +103,7 @@
     <Compile Include="FilenameEntry.xaml.cs">
       <DependentUpon>FilenameEntry.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ObservableDictionary.cs" />
     <Compile Include="Plugin\IUiMenuItem.cs" />
     <Compile Include="MediaSeekSlider.cs" />
     <Compile Include="MouseDoubleClick.cs" />

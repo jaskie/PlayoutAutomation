@@ -126,7 +126,6 @@
     <Compile Include="Interfaces\ITempMedia.cs" />
     <Compile Include="Database\DbSchema.cs" />
     <Compile Include="MediaEventArgs.cs" />
-    <Compile Include="ObservableDictionary.cs" />
     <Compile Include="RedundantConnectionStateEventArgs.cs" />
     <Compile Include="ValueEventArgs.cs" />
     <Compile Include="MediaConversion.cs" />

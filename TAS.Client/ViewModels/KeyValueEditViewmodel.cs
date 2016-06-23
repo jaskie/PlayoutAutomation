@@ -16,10 +16,10 @@ namespace TAS.Client.ViewModels
         private readonly KeyValueData _keyData = new KeyValueData();
         private readonly bool _keyIsReadOnly;
 
-        public KeyValueEditViewmodel(KeyValuePair<string, string> model, bool keyIsReadOnly): base(model, new Views.KeyValueEditView(), model.Key)
+        public KeyValueEditViewmodel(KeyValuePair<string, string> item, bool keyIsReadOnly): base(item, new Views.KeyValueEditView(), item.Key)
         {
-            _keyData.Key = model.Key;
-            _keyData.Value = model.Value;
+            _keyData.Key = item.Key;
+            _keyData.Value = item.Value;
             _keyIsReadOnly = keyIsReadOnly;
         }
 
