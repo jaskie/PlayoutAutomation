@@ -53,6 +53,7 @@ namespace TAS.Server
         readonly ConcurrentDictionary<VideoLayer, Event> _preloadedEvents = new ConcurrentDictionary<VideoLayer, Event>();
         readonly SynchronizedCollection<IEvent> _rootEvents = new SynchronizedCollection<IEvent>();
         readonly ConcurrentDictionary<ulong, IEvent> _events = new ConcurrentDictionary<ulong, IEvent>();
+
         private IEvent _forcedNext;
 
         public event EventHandler<EngineTickEventArgs> EngineTick;
@@ -235,7 +236,7 @@ namespace TAS.Server
                         CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
                         long nFrames = (CurrentTime.Ticks - CurrentTicks) / _frameTicks;
                         CurrentTicks = CurrentTime.Ticks;
-                        Debug.WriteLineIf(nFrames > 1, this, string.Format("Frame delay - {0}", nFrames));
+                        Debug.WriteLineIf(nFrames > 1, nFrames, "LateFrame");
                         _tick(nFrames);
                         var e = EngineTick;
                         if (e != null)
@@ -398,9 +399,35 @@ namespace TAS.Server
         }
         #endregion // GPI
 
-        public TArchivePolicyType ArchivePolicy;
+        #region FixedStartEvents
 
-        
+        readonly SynchronizedCollection<IEvent> _fixedTimeEvents = new SynchronizedCollection<IEvent>();
+        internal void AddFixedTimeEvent(Event e)
+        {
+            _fixedTimeEvents.Add(e);
+            var h = FixedTimeEventOperation;
+            if (h != null)
+                h(this, new CollectionOperationEventArgs<IEvent>(e, TCollectionOperation.Insert));
+        }
+        internal void RemoveFixedTimeEvent(Event e)
+        {
+            if (_fixedTimeEvents.Remove(e))
+            {
+                var h = FixedTimeEventOperation;
+                if (h != null)
+                    h(this, new CollectionOperationEventArgs<IEvent>(e, TCollectionOperation.Remove));
+            }
+        }
+
+        [XmlIgnore]
+        public List<IEvent> FixedTimeEvents { get { lock(_fixedTimeEvents.SyncRoot) return _fixedTimeEvents.ToList(); } }
+
+        public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
+
+        #endregion // FixedStartEvents
+
+        public TArchivePolicyType ArchivePolicy;
+                
         private Event _playing;
         [XmlIgnore]
         public IEvent Playing { get { return _playing; } private set { SetField(ref _playing, (Event)value, "Playing"); } }
@@ -932,6 +959,18 @@ namespace TAS.Server
                         EngineState = TEngineState.Idle;
                 }
 
+                if (EngineState == TEngineState.Idle)
+                {
+                    lock(_fixedTimeEvents.SyncRoot)
+                    {
+                        var startEvent = _fixedTimeEvents.FirstOrDefault(e => e.StartType == TStartType.OnFixedTime 
+                                                                           && e.PlayState == TPlayState.Scheduled 
+                                                                           && CurrentTime >= e.ScheduledTime
+                                                                           && CurrentTicks < e.ScheduledTime.Ticks + 300 * _frameTicks); // auto start only within 300 frames slot
+                        if (startEvent != null)
+                            Start(startEvent);
+                    }
+                }
                 // preview controls
                 if (PreviewIsPlaying)
                 {
@@ -1275,6 +1314,8 @@ namespace TAS.Server
                     result.Saved += _eventSaved;
                     result.Deleted += _eventDeleted;
                 }
+                if (startType == TStartType.OnFixedTime)
+                    _fixedTimeEvents.Add(result);
             }
             return result;
         }
@@ -1283,9 +1324,13 @@ namespace TAS.Server
         {
             _rootEvents.Remove(aEvent);
             IEvent eventToRemove;
-            _events.TryRemove(aEvent.IdRundownEvent, out eventToRemove);
-            aEvent.Saved -= _eventSaved;
-            aEvent.Deleted -= _eventDeleted;
+            if (_events.TryRemove(aEvent.IdRundownEvent, out eventToRemove))
+            {
+                aEvent.Saved -= _eventSaved;
+                aEvent.Deleted -= _eventDeleted;
+            }
+            if (aEvent.StartType == TStartType.OnFixedTime)
+                RemoveFixedTimeEvent((Event)aEvent);
             var media = aEvent.Media as ServerMedia;
             if (media != null
                 && aEvent.PlayState == TPlayState.Played

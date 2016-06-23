@@ -63,32 +63,7 @@
                 </Border>
                 <Image Grid.Column="0" Grid.RowSpan="2" Margin="3" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Live.png" Style="{StaticResource EventPanelImage}" />
                 <Image Grid.Column="0" Grid.Row="0" Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected.ToolTip}" />
-                <Image Grid.Column="1" Grid.RowSpan="2" ToolTip="{Binding PlayState}">
-                    <Image.Style>
-                        <Style TargetType="Image" BasedOn="{StaticResource EventPanelImage}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding PlayState}" Value="Played">
-                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Played.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding PlayState}" Value="Playing">
-                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Playing.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding PlayState}" Value="Paused">
-                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Paused.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding PlayState}" Value="Aborted">
-                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Aborted.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding PlayState}" Value="Fading">
-                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Fading.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding PlayState}" Value="Scheduled">
-                                    <Setter Property="Source" Value="{x:Null}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Image.Style>
-                </Image>
+                <Image Grid.Column="1" Grid.RowSpan="2" ToolTip="{Binding PlayState}" Style="{StaticResource EventPlayStateImage}"/>
                 <Border Grid.Column="2"  Grid.RowSpan="2" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" Background="Red" ToolTip="{Resx _isInvalidInSchedule.ToolTip}"/>
                 <StackPanel Grid.Column="2" Grid.RowSpan="2">
                     <StackPanel.Resources>

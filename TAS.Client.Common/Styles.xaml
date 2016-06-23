@@ -83,6 +83,29 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
+    <Style TargetType="Image" BasedOn="{StaticResource EventPanelImage}" x:Key="EventPlayStateImage">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding PlayState}" Value="Played">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Played.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding PlayState}" Value="Playing">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Playing.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding PlayState}" Value="Paused">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Paused.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding PlayState}" Value="Aborted">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Aborted.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding PlayState}" Value="Fading">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/PlayStates/Fading.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding PlayState}" Value="Scheduled">
+                <Setter Property="Source" Value="{x:Null}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
     <Style TargetType="{x:Type DataGridCell}" x:Key="InactiveDataGridCell">
         <Style.Triggers>
             <Trigger  Property="IsSelected" Value="false">

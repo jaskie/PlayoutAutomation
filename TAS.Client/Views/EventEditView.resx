@@ -199,6 +199,12 @@ The difference to the specified time will be shown in the tree of the times of e
   <data name="_scheduledTime" xml:space="preserve">
     <value>Scheduled</value>
   </data>
+  <data name="_setStartTypeToFixedTime.ToolTip" xml:space="preserve">
+    <value>Change start type to automatic on preset time</value>
+  </data>
+  <data name="_setStartTypeToManual.ToolTip" xml:space="preserve">
+    <value>Change to manual start</value>
+  </data>
   <data name="_starting" xml:space="preserve">
     <value>Starting</value>
   </data>

@@ -37,6 +37,7 @@ namespace TAS.Client.ViewModels
             CommandEditMovie = new UICommand() { ExecuteDelegate = _editMovie, CanExecuteDelegate = _isEditableMovie };
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume };
             CommandEditField = new UICommand { ExecuteDelegate = _editField };
+            CommandTriggerStartType = new UICommand { ExecuteDelegate = _triggerStartType, CanExecuteDelegate = _canTriggerStartType };
         }
 
         private void _fields_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -72,7 +73,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandToggleEnabled { get; private set; }
         public ICommand CommandToggleHold { get; private set; }
         public ICommand CommandEditField { get; private set; }
-
+        public ICommand CommandTriggerStartType { get; private set; }
 
         private IEvent _event;
         public IEvent Event
@@ -193,7 +194,7 @@ namespace TAS.Client.ViewModels
             if (base.SetField(ref field, value, propertyName))
             {
                 if (!_isLoading &&
-                    (propertyName != "ScheduledTime" || IsScheduledTimeEnabled))
+                    (propertyName != "ScheduledTime" || IsStartEvent))
                     Modified = true;
                 return true;
             }
@@ -332,6 +333,22 @@ namespace TAS.Client.ViewModels
         }
 
         #region Command methods
+
+
+        private void _triggerStartType(object obj)
+        {
+            if (StartType == TStartType.Manual)
+                StartType = TStartType.OnFixedTime;
+            else
+            if (StartType == TStartType.OnFixedTime)
+                StartType = TStartType.Manual;
+        }
+
+        private bool _canTriggerStartType(object obj)
+        {
+            return ScheduledTime > DateTime.Now &&
+                (StartType == TStartType.Manual || StartType == TStartType.OnFixedTime);
+        }
 
         private void _editField(object obj)
         {
@@ -765,12 +782,12 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsScheduledTimeEnabled
+        public bool IsStartEvent
         {
             get
             {
                 IEvent ev = Event;
-                return !((ev == null) || ev.StartType == TStartType.After || ev.StartType == TStartType.With);
+                return ev != null && (ev.StartType == TStartType.OnFixedTime || ev.StartType == TStartType.Manual);
             }
         }
 
@@ -893,7 +910,7 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged("StartType");
             NotifyPropertyChanged("BoundEventName");
             NotifyPropertyChanged("ScheduledTime");
-            NotifyPropertyChanged("IsScheduledTimeEnabled");
+            NotifyPropertyChanged("IsStartEvent");
         }
 
     }

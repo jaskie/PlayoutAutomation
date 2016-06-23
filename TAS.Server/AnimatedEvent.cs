@@ -11,7 +11,7 @@ namespace TAS.Server
     public class AnimatedEvent : Event, IAnimatedEvent
     {
         public AnimatedEvent(
-                    IEngine engine,
+                    Engine engine,
                     UInt64 idRundownEvent,
                     UInt64 idEventBinding,
                     VideoLayer videoLayer,

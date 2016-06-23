@@ -25,6 +25,7 @@ namespace TAS.Server.Interfaces
 
         RationalNumber FrameRate { get; }
         SynchronizedCollection<IEvent> RootEvents { get; }
+        List<IEvent> FixedTimeEvents { get; }
 
         IEvent AddNewEvent(
                     UInt64 idRundownEvent = 0,
@@ -94,5 +95,6 @@ namespace TAS.Server.Interfaces
         event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
         event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         event StateRedundantChangeEventHandler DatabaseConnectionStateChanged;
+        event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
     }
 }

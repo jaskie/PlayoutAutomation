@@ -21,7 +21,7 @@ namespace TAS.Server
     {
 
         internal Event(
-                    IEngine engine,
+                    Engine engine,
                     UInt64 idRundownEvent,
                     UInt64 idEventBinding,
                     VideoLayer videoLayer,
@@ -47,7 +47,7 @@ namespace TAS.Server
                     bool isLoop,
                     EventGPI gpi)
         {
-            Engine = engine;
+            _engine = engine;
             _idRundownEvent = idRundownEvent;
             _idEventBinding = idEventBinding;
             _layer = videoLayer;
@@ -286,7 +286,8 @@ namespace TAS.Server
             }
         }
 
-        public IEngine Engine { get; private set; }
+        private readonly Engine _engine;
+        public IEngine Engine { get { return _engine; } }
 
          VideoLayer _layer = VideoLayer.None;
         public VideoLayer Layer
@@ -315,7 +316,17 @@ namespace TAS.Server
         public TStartType StartType
         {
             get { return _startType; }
-            set { SetField(ref _startType, value, "StartType"); }
+            set
+            {
+                var oldValue = _startType;
+                if (SetField(ref _startType, value, "StartType"))
+                {
+                    if (value == TStartType.OnFixedTime)
+                        _engine.AddFixedTimeEvent(this);
+                    if (oldValue == TStartType.OnFixedTime)
+                        _engine.RemoveFixedTimeEvent(this);
+                }
+            }
         }
 
         public DateTime EndTime

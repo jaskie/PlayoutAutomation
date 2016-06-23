@@ -367,6 +367,8 @@ namespace TAS.Client.ViewModels
             get { return _event.IsEnabled && Event.Duration > TimeSpan.Zero; }
         }
 
+        public bool IsFixedTimeStart { get { return _event.StartType == TStartType.OnFixedTime; } }
+
         public EventPanelViewmodelBase Next
         {
             get
@@ -480,7 +482,10 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged("EndTime");
             }
             if (e.PropertyName == "StartType")
+            {
                 NotifyPropertyChanged("IsStartEvent");
+                NotifyPropertyChanged("IsFixedTimeStart");
+            }
             if (e.PropertyName == "Media")
             {
                 Media = _event.Media;

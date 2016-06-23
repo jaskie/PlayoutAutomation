@@ -106,6 +106,24 @@
                 <StackPanel DockPanel.Dock="Top" Visibility="{Binding IsNotContainer, Converter={StaticResource BoolToVis}}" >
                     <DockPanel>
                         <CheckBox Content="{Resx _starting}" IsChecked="{Binding IsEnabled}" HorizontalContentAlignment="Right" VerticalAlignment="Center" ToolTip="{Resx _starting.ToolTip}" />
+                        <Button DockPanel.Dock="Right" Visibility="{Binding IsStartEvent, Converter={StaticResource BoolToVis}}" Command="{Binding CommandTriggerStartType}">
+                            <Image>
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding StartType}" Value="Manual">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventActions/clock-play.png"/>
+                                                <Setter Property="ToolTip" Value="{Resx _setStartTypeToFixedTime.ToolTip, ResxName=TAS.Client.Views.EventEditView}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding StartType}" Value="OnFixedTime">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventActions/clock-stop.png"/>
+                                                <Setter Property="ToolTip" Value="{Resx _setStartTypeToManual.ToolTip, ResxName=TAS.Client.Views.EventEditView}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image> 
+                        </Button>
                         <TextBox Text="{Binding StartType}" IsEnabled="False" />
                     </DockPanel>
                     <DockPanel>
@@ -119,7 +137,7 @@
                     </DockPanel>
                     <DockPanel>
                         <Label Content="{Resx _scheduledTime}" />
-                        <common:DelayedBindingTextBox Text="{Binding ScheduledTime, Converter={StaticResource DateTimeToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsScheduledTimeEnabled}" />
+                        <common:DelayedBindingTextBox Text="{Binding ScheduledTime, Converter={StaticResource DateTimeToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsStartEvent}" />
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovieOrLive, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _requiredAt}" />
