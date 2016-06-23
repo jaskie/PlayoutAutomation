@@ -33,7 +33,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool KeyIsReadOnly { get { return _keyIsReadOnly; } }
+        public bool KeyIsEnabled { get { return !_keyIsReadOnly; } }
 
         public string Value { get { return _keyData.Value; } set { SetField(ref _keyData.Value, value, "Value"); } }
 

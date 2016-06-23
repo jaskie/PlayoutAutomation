@@ -36,9 +36,7 @@ namespace TAS.Client.ViewModels
             CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _isEditableMovie };
             CommandEditMovie = new UICommand() { ExecuteDelegate = _editMovie, CanExecuteDelegate = _isEditableMovie };
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume };
-            CommandAddField = new UICommand { ExecuteDelegate = _addField, CanExecuteDelegate = _canAddField };
-            CommandDeleteField = new UICommand { ExecuteDelegate = _deleteField, CanExecuteDelegate = _canDeleteField };
-            CommandEditField = new UICommand { ExecuteDelegate = _editField, CanExecuteDelegate = _canDeleteField };
+            CommandEditField = new UICommand { ExecuteDelegate = _editField };
         }
 
         private void _fields_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -73,8 +71,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandCheckVolume { get; private set; }
         public ICommand CommandToggleEnabled { get; private set; }
         public ICommand CommandToggleHold { get; private set; }
-        public ICommand CommandAddField { get; private set; }
-        public ICommand CommandDeleteField { get; private set; }
         public ICommand CommandEditField { get; private set; }
 
 
@@ -336,42 +332,13 @@ namespace TAS.Client.ViewModels
         }
 
         #region Command methods
-        private bool _canDeleteField(object obj)
-        {
-            return SelectedField != null;
-        }
-
-        private void _deleteField(object obj)
-        {
-            if (SelectedField != null)
-            {
-                var selected = (KeyValuePair<string, string>)SelectedField;
-                Fields.Remove(selected.Key);
-                SelectedField = null;
-            }
-        }
-
-        private bool _canAddField(object obj)
-        {
-            return IsAnimation;
-        }
-
-        private void _addField(object obj)
-        {
-            KeyValueEditViewmodel kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), false);
-            kve.OKCallback = (o) => {
-                var co = o as KeyValueEditViewmodel;
-                return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
-            };
-            if (kve.ShowDialog() == true)
-                _fields.Add(kve.Result);
-        }
 
         private void _editField(object obj)
         {
-            if (SelectedField != null)
+            var editObject = obj ?? SelectedField;
+            if (editObject != null)
             {
-                KeyValueEditViewmodel kve = new KeyValueEditViewmodel((KeyValuePair<string, string>)SelectedField, true);
+                KeyValueEditViewmodel kve = new KeyValueEditViewmodel((KeyValuePair<string, string>)editObject, true);
                 if (kve.ShowDialog() == true)
                     _fields[kve.Key] = kve.Value;
             }
@@ -559,6 +526,8 @@ namespace TAS.Client.ViewModels
         private int _templateLayer;
         public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, "TemplateLayer"); } }
 
+        public object SelectedField { get; set; }
+
         private ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
         public IDictionary<string, string> Fields
         {
@@ -570,7 +539,6 @@ namespace TAS.Client.ViewModels
                     _fields.AddRange(value);
             }
         }
-        public object SelectedField { get; set; }
 
         public bool IsMovie
         {

@@ -147,11 +147,20 @@
   <data name="_duration" xml:space="preserve">
     <value>Duration</value>
   </data>
+  <data name="_editKey" xml:space="preserve">
+    <value>Edit text</value>
+  </data>
   <data name="_editMovie.ToolTip" xml:space="preserve">
     <value>Properties</value>
   </data>
   <data name="_eventType" xml:space="preserve">
     <value>Type</value>
+  </data>
+  <data name="_fields.Key" xml:space="preserve">
+    <value>Key</value>
+  </data>
+  <data name="_fields.Value" xml:space="preserve">
+    <value>Value</value>
   </data>
   <data name="_gpiCrawl" xml:space="preserve">
     <value>Crawl</value>

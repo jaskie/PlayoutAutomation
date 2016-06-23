@@ -303,4 +303,7 @@
   <data name="_menu.Tools.Plugins" xml:space="preserve">
     <value>Plugins</value>
   </data>
+  <data name="_toolbar.ClearAnimations" xml:space="preserve">
+    <value>Clear animations</value>
+  </data>
 </root>

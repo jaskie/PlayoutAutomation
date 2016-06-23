@@ -303,4 +303,7 @@
   <data name="_menu.Tools.Plugins" xml:space="preserve">
     <value>Dodatki</value>
   </data>
+  <data name="_toolbar.ClearAnimations" xml:space="preserve">
+    <value>Czyść animacje</value>
+  </data>
 </root>

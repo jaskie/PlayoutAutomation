@@ -197,6 +197,11 @@
                             <Image Source="/TAS.Client.Common;component/Images/Layers/Layer3.png" />
                         </Button>
                     </ComboBoxItem>
+                    <ComboBoxItem ToolTip="{Resx _toolbar.ClearAnimations}" >
+                        <Button Command="{Binding CommandClearLayer}" CommandParameter="6" Style="{StaticResource controlPanelButtons}">
+                            <Image Source="/TAS.Client.Common;component/Images/Layers/LayerA.png" />
+                        </Button>
+                    </ComboBoxItem>
                 </ComboBox>
                 <StackPanel>
                     <ToggleButton Margin="2" Height="22" IsChecked="{Binding TrackPlayingEvent}" Background="{Binding TrackPlayingEvent, Converter={StaticResource BoolToBrush}, ConverterParameter=LightCoral}" HorizontalContentAlignment="Left" >

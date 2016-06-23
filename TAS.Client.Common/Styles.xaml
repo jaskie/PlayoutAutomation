@@ -83,4 +83,12 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
+    <Style TargetType="{x:Type DataGridCell}" x:Key="InactiveDataGridCell">
+        <Style.Triggers>
+            <Trigger  Property="IsSelected" Value="false">
+                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.InactiveBorderBrushKey}}" />
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.InactiveCaptionBrushKey}}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
 </ResourceDictionary>

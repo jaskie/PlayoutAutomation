@@ -21,11 +21,11 @@
         </StackPanel.Resources>
         <DockPanel>
             <Label DockPanel.Dock="Left" Content="{Resx _key}"/>
-            <TextBox Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding KeyIsReadOnly}" />
+            <TextBox Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding KeyIsEnabled}" TabIndex="1" />
         </DockPanel>
         <DockPanel>
             <Label DockPanel.Dock="Left" Content="{Resx _value}"/>
-            <TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" TabIndex="2" />
         </DockPanel>
     </StackPanel>
 </UserControl>
