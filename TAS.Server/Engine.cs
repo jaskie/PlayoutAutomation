@@ -812,13 +812,10 @@ namespace TAS.Server
         {
             if (aEvent == null || aEvent.EventType == TEventType.Animation)
                 return;
-            lock (_tickLock)
+            lock (_runningEvents.SyncRoot)
             {
                 if (!_runningEvents.Contains(aEvent))
-                {
-                    aEvent.PlayState = TPlayState.Scheduled;
                     _runningEvents.Add(aEvent);
-                }
             }
         }
 
@@ -958,18 +955,18 @@ namespace TAS.Server
                     if (_runningEvents.Count == 0)
                         EngineState = TEngineState.Idle;
                 }
-
-                if (EngineState == TEngineState.Idle)
+                var currentTimeOfDayTicks = CurrentTime.TimeOfDay.Ticks;
+                lock (_fixedTimeEvents.SyncRoot)
                 {
-                    lock(_fixedTimeEvents.SyncRoot)
-                    {
-                        var startEvent = _fixedTimeEvents.FirstOrDefault(e => e.StartType == TStartType.OnFixedTime 
-                                                                           && e.PlayState == TPlayState.Scheduled 
-                                                                           && CurrentTime >= e.ScheduledTime
-                                                                           && CurrentTicks < e.ScheduledTime.Ticks + 300 * _frameTicks); // auto start only within 300 frames slot
-                        if (startEvent != null)
-                            Start(startEvent);
-                    }
+                    var startEvent = _fixedTimeEvents.FirstOrDefault(e => e.StartType == TStartType.OnFixedTime
+                                                                       && (EngineState == TEngineState.Idle || (e.AutoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None)
+                                                                       && e.PlayState == TPlayState.Scheduled
+                                                                       && e.IsEnabled
+                                                                       && (e.AutoStartFlags & AutoStartFlags.Daily) != AutoStartFlags.None ? 
+                                                                            currentTimeOfDayTicks >= e.ScheduledTime.TimeOfDay.Ticks && currentTimeOfDayTicks < e.ScheduledTime.TimeOfDay.Ticks + TimeSpan.TicksPerSecond:
+                                                                            CurrentTicks >= e.ScheduledTime.Ticks && CurrentTicks < e.ScheduledTime.Ticks + TimeSpan.TicksPerSecond); // auto start only within 1 second slot
+                    if (startEvent != null)
+                        Start(startEvent);
                 }
                 // preview controls
                 if (PreviewIsPlaying)
@@ -1298,7 +1295,9 @@ namespace TAS.Server
                     bool isEnabled = true,
                     bool isHold = false,
                     bool isLoop = false,
-                    EventGPI gpi = default(EventGPI))
+                    EventGPI gpi = default(EventGPI),
+                    AutoStartFlags autoStartFlags = AutoStartFlags.None
+                    )
         {
             IEvent result;
             if (!_events.TryGetValue(idRundownEvent, out result))
@@ -1306,7 +1305,7 @@ namespace TAS.Server
                 if (eventType == TEventType.Animation)
                     result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, gpi);
                 else
-                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionType, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, gpi);
+                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionType, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, gpi, autoStartFlags);
                 if (idRundownEvent == 0)
                     result.Save();
                 if (_events.TryAdd(result.IdRundownEvent, result))

@@ -123,6 +123,15 @@
   <data name="_audioVolume.ToolTip" xml:space="preserve">
     <value>If not checked, will get volume from clip properties</value>
   </data>
+  <data name="_autoStartEveryday" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="_autoStartForced" xml:space="preserve">
+    <value>Force</value>
+  </data>
+  <data name="_autoStartForced.ToolTip" xml:space="preserve">
+    <value>Force autostart regardless of current playstate</value>
+  </data>
   <data name="_buttonCancel.ToolTip" xml:space="preserve">
     <value>Rollback changes  | Ctrl+U</value>
   </data>

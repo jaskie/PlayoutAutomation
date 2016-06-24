@@ -130,10 +130,15 @@
                         <Label/>
                         <TextBox Text="{Binding BoundEventName, Mode=OneWay}" IsReadOnly="True" Background="#F0F0F0"/>
                     </DockPanel>
+                    <DockPanel Visibility="{Binding IsAutoStartEvent, Converter={StaticResource BoolToVis}}">
+                        <Label Content="Autostart"/>
+                        <CheckBox Content="{Resx _autoStartForced}" ToolTip="{Resx _autoStartForced.ToolTip}" IsChecked="{Binding AutoStartForced}" Margin="1,3" Width="110"/>
+                        <CheckBox Content="{Resx _autoStartEveryday}" IsChecked="{Binding AutoStartDaily}" Margin="1,3" Width="Auto" />
+                    </DockPanel>
                     <DockPanel>
                         <Label/>
-                        <CheckBox Content="{Resx _hold}" IsChecked="{Binding IsHold}" IsEnabled="{Binding CanHold}" ToolTip="{Resx _hold.ToolTip}"  Margin="1,3" Width="100"/>
-                        <CheckBox Content="{Resx _loop}" IsChecked="{Binding IsLoop}" IsEnabled="{Binding CanLoop}"/>
+                        <CheckBox Content="{Resx _hold}" IsChecked="{Binding IsHold}" IsEnabled="{Binding CanHold}" ToolTip="{Resx _hold.ToolTip}"  Margin="1,3" Width="110"/>
+                        <CheckBox Content="{Resx _loop}" IsChecked="{Binding IsLoop}" IsEnabled="{Binding CanLoop}" Margin="1,3" />
                     </DockPanel>
                     <DockPanel>
                         <Label Content="{Resx _scheduledTime}" />

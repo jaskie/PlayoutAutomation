@@ -147,6 +147,9 @@
   <data name="_emphasis" xml:space="preserve">
     <value>Wyróżnienie</value>
   </data>
+  <data name="_endTC" xml:space="preserve">
+    <value>TC końca</value>
+  </data>
   <data name="_fieldOrder" xml:space="preserve">
     <value>Kolejność pól obrazu źródłowego</value>
   </data>

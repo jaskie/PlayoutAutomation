@@ -564,8 +564,32 @@
                         </TreeView.Resources>
                     </TreeView>
                 </TabItem>
-                <TabItem Padding="0, 20" Header="{Resx _tabs.AutoStartEvents}">
-                    <DataGrid/>
+                <TabItem Padding="0, 20" Header="{Resx _tabs.State}">
+                    <Border BorderThickness="2" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}">
+                        <DockPanel>
+                            <Label DockPanel.Dock="Top" Content="{Resx _autoStartEvents}" />
+                            <ListView BorderThickness="0, 2, 0, 0" ItemsSource="{Binding FixedTimeEvents}" SelectedItem="{Binding Selected}" Background="Transparent">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="IsSelected" Value="True"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsSelected}" Value="False">
+                                                <Setter Property="IsSelected" Value="False"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <views:EventPanelAutoStartEventView />
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </DockPanel>
+                    </Border>
                 </TabItem>
             </TabControl>
             <GridSplitter Grid.Column="0" ResizeDirection="Columns" HorizontalAlignment="Right" Background="DarkGray" Width="3" Cursor="SizeWE"/>

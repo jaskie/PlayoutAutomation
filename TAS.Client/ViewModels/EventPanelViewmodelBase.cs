@@ -56,20 +56,23 @@ namespace TAS.Client.ViewModels
         {
             if (aEvent == null) // dummy child
                 return;
-            _frameRate = parent._frameRate;
+            _engine = aEvent.Engine;
+            _frameRate = _engine.FrameRate;
             _event = aEvent;
-            _parent = parent;
-            _root = parent._root;
-            _engineViewmodel = parent._engineViewmodel;
-            _level = (_parent == null) ? 0 : _parent._level + 1;
-            if (aEvent.SubEventsCount > 0)
-                _childrens.Add(DummyChild);
+            if (parent != null)
+            {
+                _parent = parent;
+                _root = parent._root;
+                _engineViewmodel = parent._engineViewmodel;
+                _level = (_parent == null) ? 0 : _parent._level + 1;
+                if (aEvent.SubEventsCount > 0)
+                    _childrens.Add(DummyChild);
+            }
             _event.PropertyChanged += OnPropertyChanged;
             _event.Deleted += _eventDeleted;
             _event.SubEventChanged += OnSubeventChanged;
             _event.Relocated += OnRelocated;
             _event.Saved += OnEventSaved;
-            _engine = _event.Engine;
             _createCommands();
         }
 
@@ -283,10 +286,13 @@ namespace TAS.Client.ViewModels
         
         public string EventName
         {
-            get { return (_event == null) ? string.Empty : _event.EventName; }
+            get { return _event == null ? string.Empty : _event.EventName; }
         }
 
-
+        public object EventType
+        {
+            get { return _event == null ? null : (object)_event.EventType; }
+        }
 
         public UInt64 IdRundownEvent { get { return (_event == null) ? 0 : _event.IdRundownEvent; } }
 

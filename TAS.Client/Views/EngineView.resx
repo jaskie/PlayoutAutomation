@@ -306,10 +306,13 @@
   <data name="_toolbar.ClearAnimations" xml:space="preserve">
     <value>Clear animations</value>
   </data>
-  <data name="_tabs.AutoStartEvents" xml:space="preserve">
-    <value>Autostart</value>
-  </data>
   <data name="_tabs.Rundowns" xml:space="preserve">
     <value>Rundowns</value>
+  </data>
+  <data name="_autoStartEvents" xml:space="preserve">
+    <value>Events started automatically at fixed time</value>
+  </data>
+  <data name="_tabs.State" xml:space="preserve">
+    <value>State</value>
   </data>
 </root>

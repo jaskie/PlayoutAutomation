@@ -123,6 +123,15 @@
   <data name="_audioVolume.ToolTip" xml:space="preserve">
     <value>Jeśli nie zaznaczone, pobierze głośność z właściwości klipu</value>
   </data>
+  <data name="_autoStartEveryday" xml:space="preserve">
+    <value>Codziennie</value>
+  </data>
+  <data name="_autoStartForced" xml:space="preserve">
+    <value>Wymuś</value>
+  </data>
+  <data name="_autoStartForced.ToolTip" xml:space="preserve">
+    <value>Wymusza autostart niezależnie od bieżącego odtwarzania</value>
+  </data>
   <data name="_buttonCancel.ToolTip" xml:space="preserve">
     <value>Cofnij zmiany | Ctrl+U</value>
   </data>

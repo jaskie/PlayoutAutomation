@@ -199,4 +199,22 @@
   <data name="_scheduledDelay.ToolTip" xml:space="preserve">
     <value>Delay</value>
   </data>
+  <data name="TAutoStartPlayState_Disabled" xml:space="preserve">
+    <value>Locked</value>
+  </data>
+  <data name="TAutoStartPlayState_Played" xml:space="preserve">
+    <value>Played</value>
+  </data>
+  <data name="TAutoStartPlayState_Playing" xml:space="preserve">
+    <value>Playing</value>
+  </data>
+  <data name="TAutoStartPlayState_ScheduledFuture" xml:space="preserve">
+    <value>Scheduled</value>
+  </data>
+  <data name="TAutoStartPlayState_ScheduledPast" xml:space="preserve">
+    <value>Missed</value>
+  </data>
+  <data name="_autoStart" xml:space="preserve">
+    <value>Scheduled to start automatically</value>
+  </data>
 </root>

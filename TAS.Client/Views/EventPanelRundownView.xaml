@@ -15,6 +15,11 @@
              d:DesignWidth="700"
              common:TreeViewExtensions.IsSelected="{Binding IsMultiSelected, Mode=TwoWay}"
              >
+    <local:EventPanelView.Resources>
+        <Style TargetType="local:EventPanelView">
+            <Setter Property="Width" Value="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"/>
+        </Style>
+    </local:EventPanelView.Resources>
     <local:EventPanelView.ContextMenu>
         <ContextMenu>
             <MenuItem Header="{Resx ResxName=TAS.Client.Views.EventPanelView, Key=_popupMenu.Copy}" Command="{Binding CommandCopy}" />
@@ -63,7 +68,7 @@
                 </Border>
                 <Image Grid.Column="0" Grid.RowSpan="2" Margin="3" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Rundown.gif" Style="{StaticResource EventPanelImage}" />
                 <Image Grid.Column="0" Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected.ToolTip}" />
-                <Image Grid.Column="0" Grid.Row="1" Source="/TAS.Client.Common;component/Images/Indicators/clock.png" Visibility="{Binding IsFixedTimeStart, Converter={StaticResource BoolToVis}}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="None"/>
+                <Image Grid.Column="0" Grid.Row="1" Source="/TAS.Client.Common;component/Images/Indicators/clock.png" Visibility="{Binding IsFixedTimeStart, Converter={StaticResource BoolToVis}}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="None" ToolTip="{Resx _autoStart}"/>
                 <Image Grid.Column="1" Grid.RowSpan="2" ToolTip="{Binding PlayState}" Style="{StaticResource EventPlayStateImage}"/>
                 <Border Grid.Column="2"  Grid.RowSpan="2" Visibility="{Binding IsInvalidInSchedule, Converter={StaticResource BoolToVis}}" Background="Red" ToolTip="{Resx _isInvalidInSchedule.ToolTip}"/>
                 <StackPanel Grid.Column="2" Grid.RowSpan="2">

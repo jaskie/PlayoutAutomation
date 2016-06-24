@@ -736,7 +736,8 @@ namespace TAS.Server.Database
                 (flags & (1 << 0)) != 0, // IsEnabled
                 (flags & (1 << 1)) != 0, // IsHold
                 (flags & (1 << 2)) != 0, // IsLoop
-                EventGPI.FromUInt64((flags >> 4) & EventGPI.Mask)
+                EventGPI.FromUInt64((flags >> 4) & EventGPI.Mask),
+                (AutoStartFlags)((flags >> 20) & 0x0F)
                 );
             return newEvent;
         }
@@ -794,6 +795,7 @@ namespace TAS.Server.Database
                          | Convert.ToUInt64(aEvent.IsHold) << 1
                          | Convert.ToUInt64(aEvent.IsLoop) << 2
                          | aEvent.GPI.ToUInt64() << 4 // of size EventGPI.Size
+                         | (ulong)aEvent.AutoStartFlags << 20
                          ;
             cmd.Parameters.AddWithValue("@flagsEvent", flags);
             return cmd.ExecuteNonQuery() == 1;

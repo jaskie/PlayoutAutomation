@@ -1,0 +1,60 @@
+﻿<UserControl x:Class="TAS.Client.Views.EventPanelAutoStartEventView"
+             ResxExtension.DefaultResxName="TAS.Client.Views.EventPanelView" Language="{UICulture}" 
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TAS.Client.Views"
+             xmlns:c="clr-namespace:TAS.Client"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             mc:Ignorable="d" 
+             d:DataContext="{x:Type vm:EventPanelAutoStartEventViewmodel}"
+             FontSize="12" 
+             d:DesignWidth="600">
+    <Border Style="{StaticResource EventPanelStyle}">
+        <Grid Height="30">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="33" />
+                <ColumnDefinition Width="33" />
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Image Grid.Column="0" Margin="3" HorizontalAlignment="Center" ToolTip="{Binding Event.EventType}" Style="{StaticResource EventTypeEventTypeImage}" />
+            <Image Grid.Column="1" Margin="3" HorizontalAlignment="Center">
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding AutoStartPlayState}" Value="ScheduledFuture">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/AutoStartPlayStates/ScheduledFuture.png"/>
+                                <Setter Property="ToolTip" Value="{Resx TAutoStartPlayState_ScheduledFuture, ResxName=TAS.Client.Views.EventPanelView}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding AutoStartPlayState}" Value="ScheduledPast">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/AutoStartPlayStates/ScheduledPast.png"/>
+                                <Setter Property="ToolTip" Value="{Resx TAutoStartPlayState_ScheduledPast, ResxName=TAS.Client.Views.EventPanelView}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding AutoStartPlayState}" Value="Playing">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/AutoStartPlayStates/Playing.png"/>
+                                <Setter Property="ToolTip" Value="{Resx TAutoStartPlayState_Playing, ResxName=TAS.Client.Views.EventPanelView}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding AutoStartPlayState}" Value="Played">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/AutoStartPlayStates/Played.png"/>
+                                <Setter Property="ToolTip" Value="{Resx TAutoStartPlayState_Played, ResxName=TAS.Client.Views.EventPanelView}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding AutoStartPlayState}" Value="Disabled">
+                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/AutoStartPlayStates/Disabled.png"/>
+                                <Setter Property="ToolTip" Value="{Resx TAutoStartPlayState_Disabled, ResxName=TAS.Client.Views.EventPanelView}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="{Binding ScheduledDate}" />
+                <TextBlock Text="{Binding ScheduledTime}" />
+            </StackPanel>
+            <TextBlock Grid.Column="3" VerticalAlignment="Center" FontSize="14" Text="{Binding EventName}"/>
+        </Grid>
+    </Border>
+</UserControl>

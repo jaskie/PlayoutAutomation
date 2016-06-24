@@ -156,8 +156,23 @@ namespace TAS.Client.ViewModels
         public TimeSpan Duration
         {
             get { return _duration; }
-            set { SetField(ref _duration, value, "Duration"); }
+            set
+            {
+                if (SetField(ref _duration, value, "Duration"))
+                    NotifyPropertyChanged("EndTC");
+            }
         }
+
+        public TimeSpan EndTC
+        {
+            get { return _startTC+_duration; }
+            set
+            {
+                if (SetField(ref _duration, value - StartTC, "EndTC"))
+                    NotifyPropertyChanged("Duration");
+            }
+        }
+
 
         string _destExternalId;
         public string DestExternalId

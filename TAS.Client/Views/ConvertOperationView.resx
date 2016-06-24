@@ -147,6 +147,9 @@
   <data name="_emphasis" xml:space="preserve">
     <value>Emphasis</value>
   </data>
+  <data name="_endTC" xml:space="preserve">
+    <value>End TC</value>
+  </data>
   <data name="_fieldOrder" xml:space="preserve">
     <value>Source field order</value>
   </data>

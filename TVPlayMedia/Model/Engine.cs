@@ -292,7 +292,15 @@ namespace TAS.Client.Model
             }
         }
 
-        public IEvent AddNewEvent(ulong idRundownEvent = 0, ulong idEventBinding = 0, VideoLayer videoLayer = (VideoLayer)(-1), TEventType eventType = TEventType.Rundown, TStartType startType = TStartType.None, TPlayState playState = TPlayState.Scheduled, DateTime scheduledTime = default(DateTime), TimeSpan duration = default(TimeSpan), TimeSpan scheduledDelay = default(TimeSpan), TimeSpan scheduledTC = default(TimeSpan), Guid mediaGuid = default(Guid), string eventName = "", DateTime startTime = default(DateTime), TimeSpan startTC = default(TimeSpan), TimeSpan? requestedStartTime = default(TimeSpan?), TimeSpan transitionTime = default(TimeSpan), TTransitionType transitionType = TTransitionType.Cut, decimal? audioVolume = default(decimal?), ulong idProgramme = 0, string idAux = "", bool isEnabled = true, bool isHold = false, bool isLoop = false, EventGPI gpi = default(EventGPI))
+        public List<IEvent> FixedTimeEvents
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public IEvent AddNewEvent(ulong idRundownEvent = 0, ulong idEventBinding = 0, VideoLayer videoLayer = (VideoLayer)(-1), TEventType eventType = TEventType.Rundown, TStartType startType = TStartType.None, TPlayState playState = TPlayState.Scheduled, DateTime scheduledTime = default(DateTime), TimeSpan duration = default(TimeSpan), TimeSpan scheduledDelay = default(TimeSpan), TimeSpan scheduledTC = default(TimeSpan), Guid mediaGuid = default(Guid), string eventName = "", DateTime startTime = default(DateTime), TimeSpan startTC = default(TimeSpan), TimeSpan? requestedStartTime = default(TimeSpan?), TimeSpan transitionTime = default(TimeSpan), TTransitionType transitionType = TTransitionType.Cut, decimal? audioVolume = default(decimal?), ulong idProgramme = 0, string idAux = "", bool isEnabled = true, bool isHold = false, bool isLoop = false, EventGPI gpi = default(EventGPI), AutoStartFlags autoStartFlags = AutoStartFlags.None)
         {
             throw new NotImplementedException();
         }
@@ -379,5 +387,6 @@ namespace TAS.Client.Model
         public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         public event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
         public event StateRedundantChangeEventHandler DatabaseConnectionStateChanged;
+        public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
     }
 }

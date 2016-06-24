@@ -83,7 +83,6 @@ namespace TAS.Client.ViewModels
 
             Debug.WriteLine(this, "Creating root EventViewmodel");
             _rootEventViewModel = new EventPanelRootViewmodel(this);
-
             _engine.EngineTick += this._engineTick;
             _engine.EngineOperation += this._engineOperation;
             _engine.PropertyChanged += this._enginePropertyChanged;
@@ -92,6 +91,9 @@ namespace TAS.Client.ViewModels
             _engine.EventSaved += _engine_EventSaved;
             _engine.DatabaseConnectionStateChanged += _engine_DatabaseConnectionStateChanged;
             _composePlugins();
+
+            _fixedTimeEvents = new ObservableCollection<EventPanelAutoStartEventViewmodel>(engine.FixedTimeEvents.Select(e => new EventPanelAutoStartEventViewmodel(e)));
+            engine.FixedTimeEventOperation += _engine_FixedTimeEventOperation;
 
 
             Debug.WriteLine(this, "Creating EngineView");
@@ -120,6 +122,14 @@ namespace TAS.Client.ViewModels
                 engine.PlayoutChannelPRV.OwnerServer.PropertyChanged += OnPRVServerPropertyChanged;
         }
 
+        private void _engine_FixedTimeEventOperation(object sender, CollectionOperationEventArgs<IEvent> e)
+        {
+            if (e.Operation == TCollectionOperation.Insert)
+                _fixedTimeEvents.Add(new EventPanelAutoStartEventViewmodel(e.Item));
+            if (e.Operation == TCollectionOperation.Remove)
+                _fixedTimeEvents.Remove(_fixedTimeEvents.FirstOrDefault(evm => evm.Event == e.Item));
+        }
+
         private void _engine_DatabaseConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
         {
             NotifyPropertyChanged("NoAlarms");
@@ -139,6 +149,8 @@ namespace TAS.Client.ViewModels
             _engine.PropertyChanged -= _enginePropertyChanged;
             _engine.VisibleEventsOperation -= _onEngineVisibleEventsOperation;
             _engine.RunningEventsOperation -= OnEngineRunningEventsOperation;
+            _engine.FixedTimeEventOperation -= _engine_FixedTimeEventOperation;
+
 
             _selectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
             _engine.EventSaved -= _engine_EventSaved;
@@ -626,8 +638,11 @@ namespace TAS.Client.ViewModels
         public IEvent LastAddedEvent { get; private set; }
         #endregion // MediaSearch
 
-        private EventPanelViewmodelBase _rootEventViewModel;
+        readonly EventPanelViewmodelBase _rootEventViewModel;
         public EventPanelViewmodelBase RootEventViewModel { get { return _rootEventViewModel; } }
+
+        readonly ObservableCollection<EventPanelAutoStartEventViewmodel> _fixedTimeEvents;
+        public ObservableCollection<EventPanelAutoStartEventViewmodel> FixedTimeEvents { get { return _fixedTimeEvents; } }
 
         private EventPanelViewmodelBase _selected;
         public EventPanelViewmodelBase Selected

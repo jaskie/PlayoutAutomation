@@ -35,6 +35,7 @@ namespace TAS.Client
         public TimeSpan TransitionTime { get; set; }
         public TTransitionType TransitionType { get; set; }
         public EventProxy[] SubEvents { get; set; }
+        public AutoStartFlags AutoStartFlags { get; set; }
 
         public void InsertAfter(IEvent prior)
         {

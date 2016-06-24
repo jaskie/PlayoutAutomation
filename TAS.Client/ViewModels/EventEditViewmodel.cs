@@ -346,8 +346,7 @@ namespace TAS.Client.ViewModels
 
         private bool _canTriggerStartType(object obj)
         {
-            return ScheduledTime > DateTime.Now &&
-                (StartType == TStartType.Manual || StartType == TStartType.OnFixedTime);
+            return StartType == TStartType.Manual || StartType == TStartType.OnFixedTime;
         }
 
         private void _editField(object obj)
@@ -509,6 +508,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        public bool IsAutoStartEvent { get { return _startType == TStartType.OnFixedTime; } }
+
         public bool IsMovieOrLive
         {
             get
@@ -629,7 +630,49 @@ namespace TAS.Client.ViewModels
         public TStartType StartType
         {
             get { return _startType; }
-            set { SetField(ref _startType, value, "StartType"); }
+            set
+            {
+                if (SetField(ref _startType, value, "StartType"))
+                    NotifyPropertyChanged("IsAutoStartEvent");
+            }
+        }
+
+        private AutoStartFlags _autoStartFlags;
+        public AutoStartFlags AutoStartFlags
+        {
+            get { return _autoStartFlags; }
+            set
+            {
+                if (SetField(ref _autoStartFlags, value, "AutoStartFlags"))
+                {
+                    NotifyPropertyChanged("AutoStartForced");
+                    NotifyPropertyChanged("AutoStartDaily");
+                }
+            }
+        }
+
+        public bool AutoStartForced
+        {
+            get { return (_autoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None; }
+            set
+            {
+                if (value)
+                    AutoStartFlags = AutoStartFlags | AutoStartFlags.Force;
+                else
+                    AutoStartFlags = AutoStartFlags & ~AutoStartFlags.Force;
+            }
+        }
+
+        public bool AutoStartDaily
+        {
+            get { return (_autoStartFlags & AutoStartFlags.Daily) != AutoStartFlags.None; }
+            set
+            {
+                if (value)
+                    AutoStartFlags = AutoStartFlags | AutoStartFlags.Daily;
+                else
+                    AutoStartFlags = AutoStartFlags & ~AutoStartFlags.Daily;
+            }
         }
 
         public string BoundEventName
@@ -898,6 +941,13 @@ namespace TAS.Client.ViewModels
             {
                 IsLoop = false;
                 NotifyPropertyChanged("CanLoop");
+            }
+            if (e.PropertyName == "StartType")
+                NotifyPropertyChanged("IsAutoStartEvent");
+            if (e.PropertyName == "AutoStartFlags")
+            {
+                NotifyPropertyChanged("AutoStartForced");
+                NotifyPropertyChanged("AutoStartDaily");
             }
         }
 

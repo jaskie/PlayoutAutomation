@@ -27,5 +27,6 @@ namespace TAS.Server.Interfaces
         TimeSpan TransitionTime { get; set; }
         TTransitionType TransitionType { get; set; }
         EventGPI GPI { get; set; }
+        AutoStartFlags AutoStartFlags { get; set; }
     }
 }

@@ -21,7 +21,6 @@
                 <Setter Property="Opacity" Value="0.5"/>
             </DataTrigger>
         </Style.Triggers>
-        <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
     <Style TargetType="Image" x:Key="EventPanelImage">
         <Style.Triggers>
@@ -105,6 +104,51 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
+    <Style TargetType="Image" x:Key="EventTypeEventTypeImage">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding EventType}" Value="Rundown">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventTypes/Rundown.gif"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding EventType}" Value="Movie">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventTypes/Movie.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding EventType}" Value="Live">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventTypes/Live.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding EventType}" Value="StillImage">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventTypes/StillImage.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding EventType}" Value="Animation">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventTypes/Animation.png"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding EventType}" Value="Container">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventTypes/Container.png"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style TargetType="Image" x:Key="ParentalImage" BasedOn="{StaticResource EventPanelImage}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding GPIParental}" Value="None">
+                <Setter Property="Source" Value="{x:Null}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding GPIParental}" Value="NoLimit">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/BO.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding GPIParental}" Value="Limit07">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/7.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding GPIParental}" Value="Limit12">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/12.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding GPIParental}" Value="Limit16">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/16.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding GPIParental}" Value="Limit18">
+                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/18.png" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
 
     <Style TargetType="{x:Type DataGridCell}" x:Key="InactiveDataGridCell">
         <Style.Triggers>

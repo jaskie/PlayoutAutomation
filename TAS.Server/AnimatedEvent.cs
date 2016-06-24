@@ -49,7 +49,8 @@ namespace TAS.Server
                         isEnabled,
                         false,
                         false,
-                        gpi
+                        gpi,
+                        AutoStartFlags.None
                         )
         {
             _fields = new SimpleDictionary<string, string>();

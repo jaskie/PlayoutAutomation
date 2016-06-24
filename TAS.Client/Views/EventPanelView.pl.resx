@@ -200,4 +200,22 @@ Konieczny kontakt z autorem aplikacji, tel. 601600516</value>
   <data name="_scheduledDelay.ToolTip" xml:space="preserve">
     <value>Opóźnienie</value>
   </data>
+  <data name="TAutoStartPlayState_Disabled" xml:space="preserve">
+    <value>Zablokowany</value>
+  </data>
+  <data name="TAutoStartPlayState_Played" xml:space="preserve">
+    <value>Odtworzony</value>
+  </data>
+  <data name="TAutoStartPlayState_Playing" xml:space="preserve">
+    <value>Odtwarzany</value>
+  </data>
+  <data name="TAutoStartPlayState_ScheduledFuture" xml:space="preserve">
+    <value>Zaplanowany</value>
+  </data>
+  <data name="TAutoStartPlayState_ScheduledPast" xml:space="preserve">
+    <value>Pominięty</value>
+  </data>
+  <data name="_autoStart" xml:space="preserve">
+    <value>Zaplanowany automatyczny start</value>
+  </data>
 </root>

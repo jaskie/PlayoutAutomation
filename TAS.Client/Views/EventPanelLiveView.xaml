@@ -116,32 +116,7 @@
                         </Style>
                     </StackPanel.Resources>
                     <StackPanel Orientation="Horizontal" Visibility="{Binding GPICanTrigger, Converter={StaticResource BoolToVis}}">
-                        <Image Width="20" Margin="1">
-                            <Image.Style>
-                                <Style TargetType="Image">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding GPIParental}" Value="None">
-                                            <Setter Property="Source" Value="{x:Null}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding GPIParental}" Value="NoLimit">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/BO.png" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding GPIParental}" Value="Limit07">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/7.png" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding GPIParental}" Value="Limit12">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/12.png" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding GPIParental}" Value="Limit16">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/16.png" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding GPIParental}" Value="Limit18">
-                                            <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/18.png" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Image.Style>
-                        </Image>
+                        <Image Width="20" Margin="1" Style="{StaticResource MediaCategoryImage}"/>
                         <TextBlock TextAlignment="Center" VerticalAlignment="Center" Width="60" Text="{Binding GPILogo}"/>
                         <Rectangle Width="40" Height="10" VerticalAlignment="Center" RadiusX="3" RadiusY="3" >
                             <Rectangle.Style>

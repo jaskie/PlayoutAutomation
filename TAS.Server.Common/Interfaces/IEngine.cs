@@ -51,7 +51,9 @@ namespace TAS.Server.Interfaces
                     bool isEnabled = true,
                     bool isHold = false,
                     bool isLoop = false,
-                    EventGPI gpi = default(EventGPI));
+                    EventGPI gpi = default(EventGPI),
+                    AutoStartFlags autoStartFlags = AutoStartFlags.None
+            );
 
         void Load(IEvent aEvent);
         void StartLoaded();

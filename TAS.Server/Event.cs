@@ -45,7 +45,8 @@ namespace TAS.Server
                     bool isEnabled,
                     bool isHold,
                     bool isLoop,
-                    EventGPI gpi)
+                    EventGPI gpi,
+                    AutoStartFlags autoStartFlags)
         {
             _engine = engine;
             _idRundownEvent = idRundownEvent;
@@ -72,6 +73,7 @@ namespace TAS.Server
             _isHold = isHold;
             _isLoop = isLoop;
             _gPI = gpi;
+            _autoStartFlags = autoStartFlags;
             _applyMedia(null);
              _subEvents = new Lazy<SynchronizedCollection<IEvent>>(() =>
              {
@@ -328,6 +330,9 @@ namespace TAS.Server
                 }
             }
         }
+
+        AutoStartFlags _autoStartFlags;
+        public AutoStartFlags AutoStartFlags { get { return _autoStartFlags; } set { SetField(ref _autoStartFlags, value, "AutoStartFlags"); } }
 
         public DateTime EndTime
         {

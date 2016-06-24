@@ -31,6 +31,14 @@ namespace TAS.Common
         { }
     }
 
+    [Flags]
+    public enum AutoStartFlags: byte
+    {
+        None,
+        Force,
+        Daily
+    }
+
     [TypeConverter(typeof(IngestStatusEnumConverter))]
     public enum TIngestStatus
     {
