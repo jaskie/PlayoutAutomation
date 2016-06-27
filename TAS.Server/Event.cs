@@ -199,7 +199,7 @@ namespace TAS.Server
             return newEvent;
         }
 
-         TPlayState _playState = TPlayState.Scheduled;
+        TPlayState _playState;
         public TPlayState PlayState
         {
             get { return _playState; }

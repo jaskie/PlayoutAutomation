@@ -958,13 +958,15 @@ namespace TAS.Server
                 var currentTimeOfDayTicks = CurrentTime.TimeOfDay.Ticks;
                 lock (_fixedTimeEvents.SyncRoot)
                 {
-                    var startEvent = _fixedTimeEvents.FirstOrDefault(e => e.StartType == TStartType.OnFixedTime
-                                                                       && (EngineState == TEngineState.Idle || (e.AutoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None)
-                                                                       && e.PlayState == TPlayState.Scheduled
-                                                                       && e.IsEnabled
-                                                                       && (e.AutoStartFlags & AutoStartFlags.Daily) != AutoStartFlags.None ? 
-                                                                            currentTimeOfDayTicks >= e.ScheduledTime.TimeOfDay.Ticks && currentTimeOfDayTicks < e.ScheduledTime.TimeOfDay.Ticks + TimeSpan.TicksPerSecond:
-                                                                            CurrentTicks >= e.ScheduledTime.Ticks && CurrentTicks < e.ScheduledTime.Ticks + TimeSpan.TicksPerSecond); // auto start only within 1 second slot
+                    var startEvent = _fixedTimeEvents.FirstOrDefault(e =>
+                                                                      e.StartType == TStartType.OnFixedTime
+                                                                   && (EngineState == TEngineState.Idle || (e.AutoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None)
+                                                                   && e.PlayState == TPlayState.Scheduled
+                                                                   && e.IsEnabled
+                                                                   && ((e.AutoStartFlags & AutoStartFlags.Daily) != AutoStartFlags.None ?
+                                                                        currentTimeOfDayTicks >= e.ScheduledTime.TimeOfDay.Ticks && currentTimeOfDayTicks < e.ScheduledTime.TimeOfDay.Ticks + TimeSpan.TicksPerSecond :
+                                                                        CurrentTicks >= e.ScheduledTime.Ticks && CurrentTicks < e.ScheduledTime.Ticks + TimeSpan.TicksPerSecond) // auto start only within 1 second slot
+                        );
                     if (startEvent != null)
                         Start(startEvent);
                 }
