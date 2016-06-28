@@ -8,6 +8,7 @@
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d" 
              d:DataContext="{x:Type vm:EventEditViewmodel}"
              d:DesignWidth="360"
@@ -81,6 +82,9 @@
                     <Setter Property="Height" Value="20"/>
                 </Style>
                 <Style TargetType="common:DelayedBindingTextBox" >
+                    <Setter Property="Margin" Value="1"/>
+                </Style>
+                <Style TargetType="common:TimecodeEdit">
                     <Setter Property="Margin" Value="1"/>
                 </Style>
                 <Style TargetType="TextBox" >
@@ -166,18 +170,18 @@
                             </Grid.ColumnDefinitions>
                             <DockPanel>
                                 <Label Content="{Resx _duration}" />
-                                <common:DelayedBindingTextBox Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsDurationEnabled}"  />
+                                <common:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsDurationEnabled}" Height="21" VerticalAlignment="Top" > </common:TimecodeEdit>
                             </DockPanel>
                             <DockPanel Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                                 <Label Content="{Resx _scheduledTC}" />
-                                <common:DelayedBindingTextBox Text="{Binding ScheduledTc, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
+                                <common:TimecodeEdit Text="{Binding ScheduledTc, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
                             </DockPanel>
                         </Grid>
                         <DockPanel>
                             <Label Content="{Resx _transitionType}" />
                             <ComboBox ItemsSource="{Binding TransitionTypes}" SelectedValue="{Binding TransitionType}" />
                             <Label Content="{Resx _transitionLength}" />
-                            <common:DelayedBindingTextBox Text="{Binding TransitionTime, Converter={StaticResource TimeSpanToFrames}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" />
+                            <xctk:IntegerUpDown Increment="10" BorderThickness="1" Margin="1" Value="{Binding TransitionTime, Converter={StaticResource TimeSpanToFrames}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" />
                         </DockPanel>
                         <DockPanel>
                             <CheckBox Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" IsChecked="{Binding HasAudioVolume}" ToolTip="{Resx _audioVolume.ToolTip}" />
@@ -212,11 +216,11 @@
                     </Grid.ColumnDefinitions>
                     <DockPanel>
                         <Label Content="{Resx _duration}" />
-                        <common:DelayedBindingTextBox Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsDurationEnabled}"  />
+                        <common:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsDurationEnabled}"  />
                     </DockPanel>
                     <DockPanel Grid.Column="1">
                         <Label Content="{Resx _scheduledDelay}" />
-                        <common:DelayedBindingTextBox Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
+                        <common:TimecodeEdit Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
                     </DockPanel>
                 </Grid>
                 <DockPanel Visibility="{Binding IsAnimation, Converter={StaticResource BoolToVis}}">
@@ -227,7 +231,7 @@
                         </Grid.ColumnDefinitions>
                         <DockPanel>
                             <Label Content="{Resx _scheduledDelay}"/>
-                            <TextBox Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
+                            <common:TimecodeEdit Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
                         </DockPanel>
                         <DockPanel Grid.Column="1">
                             <Label Content="{Resx _templateLayer}"/>

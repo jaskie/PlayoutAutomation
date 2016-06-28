@@ -777,6 +777,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        public RationalNumber FrameRate { get { return _engineViewModel.FrameRate; } }
+
         private TimeSpan _scheduledDelay;
         public TimeSpan ScheduledDelay
         {

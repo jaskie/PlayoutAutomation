@@ -28,7 +28,7 @@ namespace TAS.Client.ViewModels
         protected readonly EventPanelRootViewmodel _root;
         protected readonly EngineViewmodel _engineViewmodel;
         protected readonly RationalNumber _frameRate;
-        protected ObservableCollection<EventPanelViewmodelBase> _childrens = new ObservableCollection<EventPanelViewmodelBase>();
+        protected readonly ObservableCollection<EventPanelViewmodelBase> _childrens = new ObservableCollection<EventPanelViewmodelBase>();
         protected static readonly EventPanelViewmodelBase DummyChild = new EventPanelDummyViewmodel();
         public ICommand CommandDelete { get; private set; }
 
@@ -138,7 +138,8 @@ namespace TAS.Client.ViewModels
 
         protected virtual void OnRelocated(object sender, EventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)_updateLocation);
+            if (_parent != null)
+                Application.Current.Dispatcher.BeginInvoke((Action)_updateLocation);
         }
 
         private void _eventDeleted(object sender, EventArgs e)

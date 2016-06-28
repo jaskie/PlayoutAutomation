@@ -1015,6 +1015,7 @@ namespace TAS.Server
                 if (e2prior != null)
                     e2prior.Next = this;
                 StartType = e2._startType;
+                AutoStartFlags = e2.AutoStartFlags;
                 Prior = e2prior;
                 Parent = e2parent;
                 Next = e2;
@@ -1056,6 +1057,7 @@ namespace TAS.Server
                 if (e2prior != null)
                     e2prior.Next = e3;
                 e3.StartType = _startType;
+                e3.AutoStartFlags = _autoStartFlags;
                 e3.Prior = e2prior;
                 e3.Parent = e2parent;
                 e3._idEventBinding = _idEventBinding;
