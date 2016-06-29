@@ -200,6 +200,12 @@ Really delete?</value>
   <data name="_query_ExitApplication" xml:space="preserve">
     <value>Really exit application?</value>
   </data>
+  <data name="_query_LoadWhileRunning" xml:space="preserve">
+    <value>Really load this item now?</value>
+  </data>
+  <data name="_query_PlayWhileRunning" xml:space="preserve">
+    <value>Really play this item now?</value>
+  </data>
   <data name="_query_SaveChangedData" xml:space="preserve">
     <value>Save modified data?</value>
   </data>

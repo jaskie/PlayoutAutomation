@@ -181,8 +181,8 @@ namespace TAS.Client.ViewModels
             CommandClearAll = new UICommand() { ExecuteDelegate = o => _engine.Clear() };
             CommandClearLayer = new UICommand() { ExecuteDelegate = layer => _engine.Clear((VideoLayer)int.Parse((string)layer)) };
             CommandRestart = new UICommand() { ExecuteDelegate = ev => _engine.Restart() };
-            CommandStartSelected = new UICommand() { ExecuteDelegate = o => _engine.Start(_selected.Event), CanExecuteDelegate = _canStartSelected };
-            CommandLoadSelected = new UICommand() { ExecuteDelegate = o => _engine.Load(_selected.Event), CanExecuteDelegate = _canLoadSelected };
+            CommandStartSelected = new UICommand() { ExecuteDelegate = _startSelected, CanExecuteDelegate = _canStartSelected };
+            CommandLoadSelected = new UICommand() { ExecuteDelegate = _loadSelected, CanExecuteDelegate = _canLoadSelected };
             CommandScheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.Schedule(_selected.Event), CanExecuteDelegate = _canScheduleSelected };
             CommandRescheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.ReScheduleAsync(_selected.Event), CanExecuteDelegate = _canRescheduleSelected };
             CommandForceNextSelected = new UICommand() { ExecuteDelegate = _forceNext, CanExecuteDelegate = _canForceNextSelected };
@@ -220,6 +220,7 @@ namespace TAS.Client.ViewModels
             CommandSaveRundown = new UICommand { ExecuteDelegate = _saveRundown, CanExecuteDelegate = o => Selected != null && Selected.Event.EventType == TEventType.Rundown };
             CommandLoadRundown = new UICommand { ExecuteDelegate = _loadRundown, CanExecuteDelegate = o => o.Equals("Under") ? _canAddSubRundown(o) : _canAddNextRundown(o) };
         }
+
 
         private void _loadRundown(object obj)
         {
@@ -452,7 +453,15 @@ namespace TAS.Client.ViewModels
             using (ExportViewmodel evm = new ExportViewmodel(_engine.MediaManager, selections)) { }
         }
 
-       
+        private void _startSelected(object obj)
+        {
+            var eventToStart = Selected.Event;
+            if (_engine.EngineState != TEngineState.Running
+                || MessageBox.Show(string.Format(resources._query_PlayWhileRunning), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
+                )
+                _engine.Start(eventToStart);
+        }
+
         private bool _canStartSelected(object o)
         {
             IEvent ev = _selected == null ? null : _selected.Event;
@@ -460,6 +469,16 @@ namespace TAS.Client.ViewModels
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused || ev.PlayState == TPlayState.Aborted)
                 && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie);
         }
+
+        private void _loadSelected(object obj)
+        {
+            var eventToLoad = Selected.Event;
+            if (_engine.EngineState != TEngineState.Running
+                || MessageBox.Show(string.Format(resources._query_LoadWhileRunning), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
+                )
+                _engine.Load(eventToLoad);
+        }
+
         private bool _canLoadSelected(object o)
         {
             IEvent ev = _selected == null ? null : _selected.Event;

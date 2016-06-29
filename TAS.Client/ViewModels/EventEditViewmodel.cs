@@ -776,21 +776,21 @@ namespace TAS.Client.ViewModels
 
         public DateTime ScheduledDate
         {
-            get { return _scheduledTime.Date; }
+            get { return _scheduledTime.ToLocalTime().Date; }
             set
             {
                 if (!value.Equals(ScheduledDate))
-                    ScheduledTime = value.Date + ScheduledTimeOfDay;
+                    ScheduledTime = (value.Date + ScheduledTimeOfDay).ToUniversalTime();
             }
         }
 
         public TimeSpan ScheduledTimeOfDay
         {
-            get { return _scheduledTime.TimeOfDay; }
+            get { return _scheduledTime.ToLocalTime().TimeOfDay; }
             set
             {
                 if (!value.Equals(ScheduledTimeOfDay))
-                    ScheduledTime = new DateTime(value.Ticks + ScheduledDate.Ticks);
+                    ScheduledTime = new DateTime(value.Ticks + ScheduledDate.Ticks).ToUniversalTime();
             }
         }
 

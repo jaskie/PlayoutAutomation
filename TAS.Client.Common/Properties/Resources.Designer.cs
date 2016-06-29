@@ -294,6 +294,24 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Really load this item now?.
+        /// </summary>
+        public static string _query_LoadWhileRunning {
+            get {
+                return ResourceManager.GetString("_query_LoadWhileRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Really play this item now?.
+        /// </summary>
+        public static string _query_PlayWhileRunning {
+            get {
+                return ResourceManager.GetString("_query_PlayWhileRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Save modified data?.
         /// </summary>
         public static string _query_SaveChangedData {

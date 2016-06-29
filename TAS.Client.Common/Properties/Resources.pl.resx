@@ -200,6 +200,12 @@ Naprawdę usunąć?</value>
   <data name="_query_ExitApplication" xml:space="preserve">
     <value>Zakończyć sterowanie emisją?</value>
   </data>
+  <data name="_query_LoadWhileRunning" xml:space="preserve">
+    <value>Załadować ten element teraz?</value>
+  </data>
+  <data name="_query_PlayWhileRunning" xml:space="preserve">
+    <value>Odtworzyć ten element teraz?</value>
+  </data>
   <data name="_query_SaveChangedData" xml:space="preserve">
     <value>Zapisać zmienione dane?</value>
   </data>
