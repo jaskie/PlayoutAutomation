@@ -126,15 +126,15 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <Label Content="{Resx _startTC}" />
-                            <common:DelayedBindingTextBox Text="{Binding StartTC, UpdateSourceTrigger=LostFocus, Converter={StaticResource TimeSpanToSMPTE}}" Margin="0, 0, 4, 0" />
+                            <common:TimecodeEdit Text="{Binding StartTC, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" Margin="0, 0, 4, 0" />
                         </StackPanel>
                         <StackPanel Grid.Column="1">
                             <Label Content="{Resx _duration}" />
-                            <common:DelayedBindingTextBox Text="{Binding Duration, UpdateSourceTrigger=LostFocus, Converter={StaticResource TimeSpanToSMPTE}}" Margin="4, 0, 0, 0" />
+                            <common:TimecodeEdit Text="{Binding Duration, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" Margin="4, 0, 0, 0" />
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <Label Content="{Resx _endTC}" />
-                            <common:DelayedBindingTextBox Text="{Binding Duration, UpdateSourceTrigger=LostFocus, Converter={StaticResource TimeSpanToSMPTE}}" Margin="4, 0, 0, 0" />
+                            <common:TimecodeEdit Text="{Binding EndTC, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" Margin="4, 0, 0, 0" />
                         </StackPanel>
                     </Grid>
                 </StackPanel>

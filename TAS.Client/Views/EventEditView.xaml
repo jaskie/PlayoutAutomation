@@ -17,15 +17,6 @@
         <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <common:DateTimeToSMPTEConverter x:Key="DateTimeToSMPTE" />
         <common:TimeSpanToFramesConverter x:Key="TimeSpanToFrames"/>
-        <Style TargetType="{x:Type TextBox}">
-            <Style.Triggers>
-                <Trigger Property="Validation.HasError" Value="true">
-                    <Setter Property="ToolTip"
-                Value="{Binding RelativeSource={RelativeSource Self}, 
-                       Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
     </UserControl.Resources>
     <DockPanel>
         <Grid DockPanel.Dock="Top">
@@ -71,7 +62,7 @@
                     <Setter Property="Width" Value="88"/>
                     <Setter Property="Padding" Value="3"/>
                     <Setter Property="HorizontalContentAlignment" Value="Right"/>
-                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
                 </Style>
                 <Style TargetType="ComboBox">
                     <Setter Property="Width" Value="97"/>
@@ -81,14 +72,26 @@
                 <Style TargetType="Button">
                     <Setter Property="Height" Value="20"/>
                 </Style>
-                <Style TargetType="common:DelayedBindingTextBox" >
-                    <Setter Property="Margin" Value="1"/>
-                </Style>
                 <Style TargetType="common:TimecodeEdit">
                     <Setter Property="Margin" Value="1"/>
+                    <Style.Triggers>
+                        <Trigger Property="Validation.HasError" Value="true">
+                            <Setter Property="ToolTip"
+                                    Value="{Binding RelativeSource={RelativeSource Self}, 
+                                    Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
                 <Style TargetType="TextBox" >
                     <Setter Property="Margin" Value="1"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Style.Triggers>
+                        <Trigger Property="Validation.HasError" Value="true">
+                            <Setter Property="ToolTip"
+                                    Value="{Binding RelativeSource={RelativeSource Self}, 
+                                    Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
                 <Style TargetType="CheckBox">
                     <Setter Property="Width" Value="75"/>
@@ -146,11 +149,15 @@
                     </DockPanel>
                     <DockPanel>
                         <Label Content="{Resx _scheduledTime}" />
-                        <common:DelayedBindingTextBox Text="{Binding ScheduledTime, Converter={StaticResource DateTimeToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsStartEvent}" />
+                        <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsStartEvent}">
+                            <TextBox Text="{Binding ScheduledDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                            <Label Content="{Resx _at}" Width="Auto"/>
+                            <common:TimecodeEdit Grid.Column="1" Text="{Binding ScheduledTimeOfDay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovieOrLive, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _requiredAt}" />
-                        <common:DelayedBindingTextBox Text="{Binding RequestedStartTime, Converter={StaticResource TimeOfDayToStringConverter}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" ToolTip="{Resx _requiredAt.ToolTip}"/>
+                        <TextBox Text="{Binding RequestedStartTime, Converter={StaticResource TimeOfDayToStringConverter}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" ToolTip="{Resx _requiredAt.ToolTip}"/>
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _clip}" />
@@ -181,7 +188,7 @@
                             <Label Content="{Resx _transitionType}" />
                             <ComboBox ItemsSource="{Binding TransitionTypes}" SelectedValue="{Binding TransitionType}" />
                             <Label Content="{Resx _transitionLength}" />
-                            <xctk:IntegerUpDown Increment="10" BorderThickness="1" Margin="1" Value="{Binding TransitionTime, Converter={StaticResource TimeSpanToFrames}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" />
+                            <TextBox Text="{Binding TransitionTime, Converter={StaticResource TimeSpanToFrames}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
                         </DockPanel>
                         <DockPanel>
                             <CheckBox Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" IsChecked="{Binding HasAudioVolume}" ToolTip="{Resx _audioVolume.ToolTip}" />
@@ -220,7 +227,7 @@
                     </DockPanel>
                     <DockPanel Grid.Column="1">
                         <Label Content="{Resx _scheduledDelay}" />
-                        <common:TimecodeEdit Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}"/>
+                        <common:TimecodeEdit Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
                     </DockPanel>
                 </Grid>
                 <DockPanel Visibility="{Binding IsAnimation, Converter={StaticResource BoolToVis}}">

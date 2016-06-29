@@ -149,7 +149,11 @@ namespace TAS.Client.ViewModels
         public TimeSpan StartTC
         {
             get { return _startTC; }
-            set { SetField(ref _startTC, value, "StartTC"); }
+            set
+            {
+                if (SetField(ref _startTC, value, "StartTC"))
+                    NotifyPropertyChanged("EndTC");
+            }
         }
 
         private TimeSpan _duration;

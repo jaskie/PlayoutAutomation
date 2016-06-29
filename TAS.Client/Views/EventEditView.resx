@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="_at" xml:space="preserve">
+    <value>at</value>
+  </data>
   <data name="_audioVolume" xml:space="preserve">
     <value>Volume</value>
   </data>
@@ -193,7 +196,7 @@
     <value>Name</value>
   </data>
   <data name="_requiredAt" xml:space="preserve">
-    <value>Requied at</value>
+    <value>Required at</value>
   </data>
   <data name="_requiredAt.ToolTip" xml:space="preserve">
     <value>The time the clip should start according to the scenario.

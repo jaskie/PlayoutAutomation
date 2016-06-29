@@ -412,12 +412,12 @@ namespace TAS.Server
             }
         }
 
-        public void SetVolume(VideoLayer videolayer, decimal volume)
+        public void SetVolume(VideoLayer videolayer, decimal volume, int transitionDuration)
         {
             var channel = _casparChannel;
             if (_checkConnected() && channel != null)
             {
-                channel.SetVolume((int)videolayer, (float)volume, 5, Easing.Linear);
+                channel.SetVolume((int)videolayer, (float)volume, transitionDuration, Easing.Linear);
                 if (OnVolumeChanged != null)
                     OnVolumeChanged(this, videolayer, volume);
             }

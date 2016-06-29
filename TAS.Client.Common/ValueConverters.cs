@@ -84,10 +84,15 @@ namespace TAS.Client.Common
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             long val;
-            if (long.TryParse((string)value, out val))
-                return val.SMPTEFramesToTimeSpan(_frameRate);
-            else
-                return null;
+            if (value is string)
+            {
+                if (long.TryParse((string)value, out val))
+                    return val.SMPTEFramesToTimeSpan(_frameRate);
+                else
+                    return null;
+            }
+            else return ((long)value).SMPTEFramesToTimeSpan(_frameRate);
+
         }
         public RationalNumber FrameRate { get { return _frameRate; } set { _frameRate = value; } }
     }

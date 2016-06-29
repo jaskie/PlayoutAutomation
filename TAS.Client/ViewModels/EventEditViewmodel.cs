@@ -220,6 +220,8 @@ namespace TAS.Client.ViewModels
                         validationResult = _validateScheduledTc();
                         break;
                     case "ScheduledTime":
+                    case "ScheduledTimeOfDay":
+                    case "ScheduledDate":
                         validationResult = _validateScheduledTime();
                         break;
                     case "TransitionTime":
@@ -756,7 +758,34 @@ namespace TAS.Client.ViewModels
         public DateTime ScheduledTime
         {
             get { return _scheduledTime; }
-            set { SetField(ref _scheduledTime, value, "ScheduledTime"); }
+            set
+            {
+                if (SetField(ref _scheduledTime, value, "ScheduledTime"))
+                {
+                    NotifyPropertyChanged("ScheduledDate");
+                    NotifyPropertyChanged("ScheduledTimeOfDay");
+                }
+            }
+        }
+
+        public DateTime ScheduledDate
+        {
+            get { return _scheduledTime.Date; }
+            set
+            {
+                if (!value.Equals(ScheduledDate))
+                    ScheduledTime = value.Date + ScheduledTimeOfDay;
+            }
+        }
+
+        public TimeSpan ScheduledTimeOfDay
+        {
+            get { return _scheduledTime.TimeOfDay; }
+            set
+            {
+                if (!value.Equals(ScheduledTimeOfDay))
+                    ScheduledTime = new DateTime(value.Ticks + ScheduledDate.Ticks);
+            }
         }
 
         private TimeSpan? _requestedStartTime;
@@ -962,6 +991,8 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged("StartType");
             NotifyPropertyChanged("BoundEventName");
             NotifyPropertyChanged("ScheduledTime");
+            NotifyPropertyChanged("ScheduledTimeOfDay");
+            NotifyPropertyChanged("ScheduledDate");
             NotifyPropertyChanged("IsStartEvent");
         }
 

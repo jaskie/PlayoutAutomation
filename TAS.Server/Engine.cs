@@ -310,7 +310,7 @@ namespace TAS.Server
                 foreach (Event ev in ve)
                 {
                     channel.ReStart(ev);
-                    channel.SetVolume(VideoLayer.Program, _programAudioVolume);
+                    channel.SetVolume(VideoLayer.Program, _programAudioVolume, 0);
                     if (ev.Layer == VideoLayer.Program || ev.Layer == VideoLayer.Preset)
                     {
                         IMedia media = ev.Media;
@@ -551,7 +551,7 @@ namespace TAS.Server
             set
             {
                 if (SetField(ref _previewAudioLevel, value, "PreviewAudioLevel"))
-                    _playoutChannelPRV.SetVolume(VideoLayer.Preview, (decimal)Math.Pow(10, (double)value / 20));
+                    _playoutChannelPRV.SetVolume(VideoLayer.Preview, (decimal)Math.Pow(10, (double)value / 20), 0);
             }
         }
 
@@ -591,7 +591,7 @@ namespace TAS.Server
                 {
                     decimal vol = (_previewLoaded) ? 0 : _programAudioVolume;
                     if (_playoutChannelPRV != null)
-                        _playoutChannelPRV.SetVolume(VideoLayer.Program, vol);
+                        _playoutChannelPRV.SetVolume(VideoLayer.Program, vol, 0);
                 }
             }
         }
@@ -726,9 +726,8 @@ namespace TAS.Server
                 _visibleEvents.Add(aEvent);
                 if (aEvent.Layer == VideoLayer.Program)
                 {
-                    decimal volumeDB = (decimal)Math.Pow(10, (double)aEvent.GetAudioVolume() / 20);
-                    ProgramAudioVolume = volumeDB;
                     Playing = aEvent;
+                    ProgramAudioVolume = (decimal)Math.Pow(10, (double)aEvent.GetAudioVolume() / 20); ;
                     _setAspectRatio(aEvent);
                     if (LocalGpi != null && GPIEnabled)
                         _setGPIGraphics(LocalGpi, aEvent);
@@ -1031,7 +1030,7 @@ namespace TAS.Server
         private TimeSpan _getTimeToAttention()
         {
             IEvent pe = _playing;
-            if (pe != null)
+            if (pe != null && pe.PlayState == TPlayState.Playing)
             {
                 TimeSpan result = pe.Length - TimeSpan.FromTicks(pe.Position * _frameTicks);
                 pe = pe.GetSuccessor();
@@ -1377,14 +1376,17 @@ namespace TAS.Server
             get { return _programAudioVolume; }
             set
             {
-                if (value != _programAudioVolume)
+                if (SetField(ref _programAudioVolume, value, "ProgramAudioVolume"))
                 {
-                    _programAudioVolume = value;
-                    if (_playoutChannelPRI != null)
-                        _playoutChannelPRI.SetVolume(VideoLayer.Program, _programAudioVolume);
-                    if (_playoutChannelSEC != null && !_previewLoaded)
-                        _playoutChannelSEC.SetVolume(VideoLayer.Program, _programAudioVolume);
-                    NotifyPropertyChanged("ProgramAudioVolume");
+                    var playing = Playing;
+                    if (playing != null)
+                    {
+                        int transitioDuration = (int)playing.TransitionTime.ToSMPTEFrames(_frameRate);
+                        if (_playoutChannelPRI != null)
+                            _playoutChannelPRI.SetVolume(VideoLayer.Program, value, transitioDuration);
+                        if (_playoutChannelSEC != null && !_previewLoaded)
+                            _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
+                    }
                 }
             }
         }

@@ -67,7 +67,7 @@
                             </Trigger>
                         </Style.Triggers>
                     </Style>
-                    <Style TargetType="common:DelayedBindingTextBox" >
+                    <Style TargetType="common:TimecodeEdit" >
                         <Setter Property="Margin" Value="5, 3" />
                         <Style.Triggers>
                             <Trigger Property="Validation.HasError" Value="true">
@@ -124,8 +124,8 @@
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <common:DelayedBindingTextBox Text="{Binding TcStart, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus}" />
-                            <common:DelayedBindingTextBox Grid.Column="1" Text="{Binding TcPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}" />
+                            <common:TimecodeEdit Text="{Binding TcStart, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
+                            <common:TimecodeEdit Grid.Column="1" Text="{Binding TcPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
                         </Grid>
                     </DockPanel>
                     <DockPanel>
@@ -135,8 +135,8 @@
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <common:DelayedBindingTextBox Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus}" />
-                            <common:DelayedBindingTextBox Grid.Column="1" Text="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}" />
+                            <common:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
+                            <common:TimecodeEdit Grid.Column="1" Text="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
                         </Grid>
                     </DockPanel>
                     <!--<DockPanel Visibility="{Binding IsIngestDataShown, Converter={StaticResource BoolToVis}}">
