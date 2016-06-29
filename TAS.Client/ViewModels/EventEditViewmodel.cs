@@ -250,10 +250,12 @@ namespace TAS.Client.ViewModels
         private string _validateScheduledTime()
         {
             IEvent ev = _event;
-            if (ev != null && (_startType == TStartType.OnFixedTime || _startType == TStartType.Manual) && ev.PlayState == TPlayState.Scheduled && _scheduledTime < ev.Engine.CurrentTime)
+            if (ev != null
+                && (((_startType == TStartType.OnFixedTime && ((_autoStartFlags & AutoStartFlags.Daily) == AutoStartFlags.None))
+                    || _startType == TStartType.Manual)
+                    && ev.PlayState == TPlayState.Scheduled && _scheduledTime < ev.Engine.CurrentTime))
                 return resources._validate_StartTimePassed;
-            else 
-                return string.Empty;
+            return string.Empty;
         }
 
         private string _validateScheduledTc()
@@ -649,6 +651,7 @@ namespace TAS.Client.ViewModels
                 {
                     NotifyPropertyChanged("AutoStartForced");
                     NotifyPropertyChanged("AutoStartDaily");
+                    NotifyPropertyChanged("IsScheduledDateVisible");
                 }
             }
         }
@@ -670,10 +673,13 @@ namespace TAS.Client.ViewModels
             get { return (_autoStartFlags & AutoStartFlags.Daily) != AutoStartFlags.None; }
             set
             {
-                if (value)
-                    AutoStartFlags = AutoStartFlags | AutoStartFlags.Daily;
-                else
-                    AutoStartFlags = AutoStartFlags & ~AutoStartFlags.Daily;
+                if (value != AutoStartDaily)
+                {
+                    if (value)
+                        AutoStartFlags = AutoStartFlags | AutoStartFlags.Daily;
+                    else
+                        AutoStartFlags = AutoStartFlags & ~AutoStartFlags.Daily;
+                }
             }
         }
 
@@ -787,6 +793,8 @@ namespace TAS.Client.ViewModels
                     ScheduledTime = new DateTime(value.Ticks + ScheduledDate.Ticks);
             }
         }
+
+        public bool IsScheduledDateVisible { get { return _startType != TStartType.OnFixedTime || !AutoStartDaily; } }
 
         private TimeSpan? _requestedStartTime;
         public TimeSpan? RequestedStartTime

@@ -150,7 +150,7 @@
                     <DockPanel>
                         <Label Content="{Resx _scheduledTime}" />
                         <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsStartEvent}">
-                            <TextBox Text="{Binding ScheduledDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                            <TextBox Text="{Binding ScheduledDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, StringFormat=d}" Width="100" Visibility="{Binding IsScheduledDateVisible, Converter={StaticResource BoolToVis}}"/>
                             <Label Content="{Resx _at}" Width="Auto"/>
                             <common:TimecodeEdit Grid.Column="1" Text="{Binding ScheduledTimeOfDay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
