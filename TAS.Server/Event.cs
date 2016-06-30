@@ -1338,42 +1338,32 @@ namespace TAS.Server
         public event EventHandler Relocated;
         protected virtual void NotifyRelocated()
         {
-            var handler = Relocated;
-            if (handler != null)
-                handler(this, EventArgs.Empty);
+            Relocated?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler Deleted;
         protected virtual void NotifyDeleted()
         {
-            var handler = Deleted;
-            if (handler != null)
-                handler(this, EventArgs.Empty);
+            Deleted?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler Saved;
         protected virtual void NotifySaved()
         {
-            var handler = Saved;
-            if (handler != null)
-                handler(this, EventArgs.Empty);
+            Saved?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
         protected virtual void NotifySubEventChanged(Event e, TCollectionOperation operation)
         {
-            var handler = SubEventChanged;
-            if (handler != null)
-                handler(this, new CollectionOperationEventArgs<IEvent>(e, operation));
+            SubEventChanged?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, operation));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void NotifyPropertyChanged(string propertyName)
         {
-            var handler = PropertyChanged;
-            if (handler != null)
-                handler(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
     }

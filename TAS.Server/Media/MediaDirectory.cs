@@ -248,9 +248,7 @@ namespace TAS.Server
         {
             Media removed;
             _files.TryRemove(media.MediaGuid, out removed);
-            var h = MediaRemoved;
-            if (h != null)
-                h(this, new MediaEventArgs(media));
+            MediaRemoved?.Invoke(this, new MediaEventArgs(media));
         }
 
         protected virtual void FileRemoved(string fullPath)
@@ -274,16 +272,12 @@ namespace TAS.Server
 
         public virtual void OnMediaVerified(IMedia media)
         {
-            var h = MediaVerified;
-            if (h != null)
-                h(this, new MediaEventArgs(media));
+            MediaVerified?.Invoke(this, new MediaEventArgs(media));
         }
 
         protected virtual void OnMediaDeleted(IMedia media)
         {
-            var h = MediaDeleted;
-            if (h != null)
-                h(this, new MediaEventArgs(media));
+            MediaDeleted?.Invoke(this, new MediaEventArgs(media));
         }
 
 
@@ -470,9 +464,7 @@ namespace TAS.Server
 
         protected virtual void NotifyPropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-                handler(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         internal virtual void NotifyMediaAdded (IMedia media)

@@ -170,6 +170,7 @@ namespace TAS.Server
                     || e.PropertyName == "AudioLevelPeak"
                     || e.PropertyName == "IsArchived"
                     || e.PropertyName == "Protected"
+                    || e.PropertyName == "FieldOrderInverted"
                     ))
             {
                 ServerMedia compMedia = _findComplementaryMedia(media as ServerMedia);

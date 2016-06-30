@@ -51,9 +51,7 @@ namespace TAS.Server
         public event EventHandler<MediaEventArgs> MediaSaved;
         internal virtual void OnMediaSaved(Media media)
         {
-            var handler = MediaSaved;
-            if (handler != null)
-                handler(this, new MediaEventArgs(media));
+            MediaSaved?.Invoke(this, new MediaEventArgs(media));
         }
 
         public override void MediaAdd(Media media)
@@ -78,9 +76,7 @@ namespace TAS.Server
 
         internal virtual void OnMediaPropertyChanged(object o, PropertyChangedEventArgs e)
         {
-            var handler = MediaPropertyChanged;
-            if (handler != null)
-                handler(o, e);
+            MediaPropertyChanged?.Invoke(o, e);
         }
 
         public override void SweepStaleMedia()

@@ -152,9 +152,7 @@ namespace TAS.Server.Common
         public event EventHandler<DictionaryOperationEventArgs<TKey, TValue>> DictionaryOperation;
         private void NotifyDictionaryOperation(TKey key, TValue value, TDictionaryOperation operation)
         {
-            var handler = DictionaryOperation;
-            if (handler != null)
-                handler(this, new DictionaryOperationEventArgs<TKey, TValue>(key, value, operation));
+            DictionaryOperation?.Invoke(this, new DictionaryOperationEventArgs<TKey, TValue>(key, value, operation));
         }
     }
 

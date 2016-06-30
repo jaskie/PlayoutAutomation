@@ -149,8 +149,7 @@ namespace TAS.Server
 
         private void NotifyOperation(EventHandler<FileOperationEventArgs> handler, IFileOperation operation)
         {
-            if (handler != null)
-                handler(this, new FileOperationEventArgs(operation));
+            handler?.Invoke(this, new FileOperationEventArgs(operation));
         }
     }
 

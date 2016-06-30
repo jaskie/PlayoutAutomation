@@ -124,31 +124,25 @@ namespace TAS.Server
                         Progress = 100;
                         FinishedTime = DateTime.UtcNow;
                         h = Success;
-                        if (h != null)
-                            h(this, EventArgs.Empty);
+                        h?.Invoke(this, EventArgs.Empty);
                         h = Finished;
-                        if (h != null)
-                            h(this, EventArgs.Empty);
+                        h?.Invoke(this, EventArgs.Empty);
                     }
                     if (value == FileOperationStatus.Failed)
                     {
                         Progress = 0;
                         h = Failure;
-                        if (h != null)
-                            h(this, EventArgs.Empty);
+                        h?.Invoke(this, EventArgs.Empty);
                         h = Finished;
-                        if (h != null)
-                            h(this, EventArgs.Empty);
+                        h?.Invoke(this, EventArgs.Empty);
                     }
                     if (value == FileOperationStatus.Aborted)
                     {
                         IsIndeterminate = false;
                         h = Failure;
-                        if (h != null)
-                            h(this, EventArgs.Empty);
+                        h?.Invoke(this, EventArgs.Empty);
                         h = Finished;
-                        if (h != null)
-                            h(this, EventArgs.Empty);
+                        h?.Invoke(this, EventArgs.Empty);
                     }
                 }
             }
@@ -321,9 +315,7 @@ namespace TAS.Server
 
         protected virtual void NotifyPropertyChanged(string propertyName)
         {
-            var handler = PropertyChanged;
-            if (handler != null)
-                handler(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public void Fail()

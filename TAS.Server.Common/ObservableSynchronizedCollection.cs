@@ -50,9 +50,7 @@ namespace TAS.Server.Common
         public event EventHandler<CollectionOperationEventArgs<T>> CollectionOperation;
         private void NotifyCollectionOperation(T item, TCollectionOperation operation)
         {
-            var handler = CollectionOperation;
-            if (handler != null)
-                handler(this, new CollectionOperationEventArgs<T>(item, operation));
+            CollectionOperation?.Invoke(this, new CollectionOperationEventArgs<T>(item, operation));
         }
 
         public List<T> ToList()

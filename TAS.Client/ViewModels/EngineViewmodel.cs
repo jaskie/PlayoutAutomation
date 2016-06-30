@@ -1135,6 +1135,7 @@ namespace TAS.Client.ViewModels
             {
                 NotifyPropertyChanged("PlayingEventName");
                 NotifyPropertyChanged("IsPlayingMovie");
+                NotifyPropertyChanged("NextToPlay");
             }
             if (e.PropertyName == "GPIIsMaster")
                 NotifyPropertyChanged("GPIEnabled");

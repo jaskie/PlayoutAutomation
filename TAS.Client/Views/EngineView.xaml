@@ -232,7 +232,7 @@
                 </TextBlock.Style>
             </TextBlock>
             <Label Grid.Column="3" Content="{Resx _toolbar.NowPlaying}"  />
-            <CheckBox Grid.Column="3" Content="{Resx _toolbar.FieldOrderInverted}" IsChecked="{Binding FieldOrderInverted}" FlowDirection="RightToLeft" VerticalAlignment="Center" Margin="5, 0" Padding="3, 0" HorizontalAlignment="Right" IsEnabled="{Binding IsPlayingMovie}"/>
+            <CheckBox Grid.Column="3" Content="{Resx _toolbar.FieldOrderInverted}" IsChecked="{Binding FieldOrderInverted}" VerticalAlignment="Center" Margin="5, 0" HorizontalAlignment="Right" IsEnabled="{Binding IsPlayingMovie}"/>
             <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding PlayingEventName}">
                 <TextBlock.ContextMenu>
                     <ContextMenu>

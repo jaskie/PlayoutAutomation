@@ -405,17 +405,13 @@ namespace TAS.Server
         internal void AddFixedTimeEvent(Event e)
         {
             _fixedTimeEvents.Add(e);
-            var h = FixedTimeEventOperation;
-            if (h != null)
-                h(this, new CollectionOperationEventArgs<IEvent>(e, TCollectionOperation.Insert));
+            FixedTimeEventOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, TCollectionOperation.Insert));
         }
         internal void RemoveFixedTimeEvent(Event e)
         {
             if (_fixedTimeEvents.Remove(e))
             {
-                var h = FixedTimeEventOperation;
-                if (h != null)
-                    h(this, new CollectionOperationEventArgs<IEvent>(e, TCollectionOperation.Remove));
+                FixedTimeEventOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, TCollectionOperation.Remove));
             }
         }
 
@@ -430,7 +426,25 @@ namespace TAS.Server
                 
         private Event _playing;
         [XmlIgnore]
-        public IEvent Playing { get { return _playing; } private set { SetField(ref _playing, (Event)value, "Playing"); } }
+        public IEvent Playing
+        {
+            get { return _playing; }
+            private set
+            {
+                var oldPlaying = _playing;
+                if (SetField(ref _playing, (Event)value, "Playing"))
+                {
+                    if (oldPlaying != null)
+                        oldPlaying.SubEventChanged -= _playingSubEventsChanged;
+                    if (value != null)
+                    {
+                        value.SubEventChanged += _playingSubEventsChanged;
+                        var media = value.Media;
+                        SetField(ref _fieldOrderInverted, media == null ? false : media.FieldOrderInverted, "FieldOrderInverted");
+                    }
+                }
+            }
+        }
 
         public IEvent NextToPlay
         {
@@ -1008,7 +1022,7 @@ namespace TAS.Server
             }
         }
 
-        private void _onRunningSubEventsChanged(object sender, CollectionOperationEventArgs<IEvent> e)
+        private void _playingSubEventsChanged(object sender, CollectionOperationEventArgs<IEvent> e)
         {
             if (e.Operation == TCollectionOperation.Remove)
                 _stop((Event)e.Item);
@@ -1189,6 +1203,9 @@ namespace TAS.Server
                 _playoutChannelPRI.Clear(aVideoLayer);
             if (_playoutChannelSEC != null)
                 _playoutChannelSEC.Clear(aVideoLayer);
+            if (aVideoLayer == VideoLayer.Program)
+                lock(_tickLock)
+                    Playing = null;
         }
         
         public void Clear()
@@ -1201,10 +1218,12 @@ namespace TAS.Server
             if (_playoutChannelSEC != null)
                 _playoutChannelSEC.Clear();
             NotifyEngineOperation(null, TEngineOperation.Clear);
-            _programAudioVolume = 1.0m;
-            NotifyPropertyChanged("ProgramAudioVolume");
+            ProgramAudioVolume = 1.0m;
             lock (_tickLock)
+            {
                 EngineState = TEngineState.Idle;
+                Playing = null;
+            }
         }
 
         public void Restart()
@@ -1465,61 +1484,43 @@ namespace TAS.Server
 
         protected virtual void NotifyPropertyChanged(string propertyName)
         {
-            var handler = PropertyChanged;
-            if (handler != null)
-                handler(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         protected virtual void NotifyEngineOperation(IEvent aEvent, TEngineOperation operation)
         {
-            var handler = EngineOperation; 
-            if (handler != null)
-                handler(this, new EngineOperationEventArgs(aEvent, operation));
+            EngineOperation?.Invoke(this, new EngineOperationEventArgs(aEvent, operation));
         }
 
         public event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
         private void _visibleEventsOperation(object o, CollectionOperationEventArgs<Event> e)
         {
-            var handler = VisibleEventsOperation;
-            if (handler != null)
-                handler(o, new CollectionOperationEventArgs<IEvent>(e.Item, e.Operation));
+            VisibleEventsOperation?.Invoke(o, new CollectionOperationEventArgs<IEvent>(e.Item, e.Operation));
         }
 
         public event EventHandler<CollectionOperationEventArgs<IEvent>> PreloadedEventsOperation;
         private void _loadedNextEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
         {
-            var handler = PreloadedEventsOperation;
-            if (handler != null)
-                handler(o, e);
+            PreloadedEventsOperation?.Invoke(o, e);
         }
 
         public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         private void _runningEventsOperation(object sender, CollectionOperationEventArgs<Event> e)
         {
-            if (e.Operation == TCollectionOperation.Insert)
-                e.Item.SubEventChanged += _onRunningSubEventsChanged;
-            if (e.Operation == TCollectionOperation.Remove)
-                e.Item.SubEventChanged -= _onRunningSubEventsChanged;
-            var handler = RunningEventsOperation;
-            if (handler  != null)
-                handler(sender, new CollectionOperationEventArgs<IEvent>(e.Item, e.Operation));
+            RunningEventsOperation?.Invoke(sender, new CollectionOperationEventArgs<IEvent>(e.Item, e.Operation));
         }
 
         public event EventHandler<IEventEventArgs> EventSaved; 
         private void _eventSaved(object sender, EventArgs e)
         {
-            var handler = EventSaved;
-            if (handler != null)
-                handler(this, new IEventEventArgs(sender as IEvent));
+            EventSaved?.Invoke(this, new IEventEventArgs(sender as IEvent));
         }
 
         public event EventHandler<IEventEventArgs> EventDeleted;
         private void _eventDeleted(object sender, EventArgs e)
         {
             _removeEvent(sender as Event);
-            var handler = EventDeleted;
-            if (handler != null)
-                handler(this, new IEventEventArgs(sender as IEvent));
+            EventDeleted?.Invoke(this, new IEventEventArgs(sender as IEvent));
         }
 
         public void SearchMissingEvents()

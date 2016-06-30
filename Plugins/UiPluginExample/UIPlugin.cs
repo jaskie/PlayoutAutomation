@@ -42,9 +42,7 @@ namespace UiPluginExample
 
         public void NotifyExecuteChanged()
         {
-            var h = CanExecuteChanged;
-            if (h != null)
-                h(this, EventArgs.Empty);
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
 
         [Import]
