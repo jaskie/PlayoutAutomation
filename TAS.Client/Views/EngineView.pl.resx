@@ -315,4 +315,7 @@
   <data name="_autoStartEvents" xml:space="preserve">
     <value>Zdarzenia uruchamiane automatycznie o zadanym czasie</value>
   </data>
+  <data name="_toolbar.FieldOrderInverted" xml:space="preserve">
+    <value>Odwróć pola obrazu</value>
+  </data>
 </root>

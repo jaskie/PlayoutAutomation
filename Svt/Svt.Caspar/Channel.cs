@@ -49,6 +49,8 @@ namespace Svt.Caspar
             if (item.ChannelLayout != ChannelLayout.Default) command.AppendFormat(" CHANNEL_LAYOUT {0}", item.ChannelLayout.ToString().ToUpperInvariant());
             if (item.Transition != null)
                 command.AppendFormat(" {0}", item.Transition);
+            if (item.FieldOrderInverted)
+                command.Append(" FIELD_ORDER_INVERTED");
             Connection.SendString(command.ToString());
             return true;
         }
@@ -65,6 +67,8 @@ namespace Svt.Caspar
             if (item.ChannelLayout != ChannelLayout.Default) command.AppendFormat(" CHANNEL_LAYOUT {0}", item.ChannelLayout.ToString().ToUpperInvariant());
             if (item.Transition != null)
                 command.AppendFormat(" {0}", item.Transition);
+            if (item.FieldOrderInverted)
+                command.Append(" FIELD_ORDER_INVERTED");
             Connection.SendString(command.ToString());
             return true;
         }
@@ -172,6 +176,11 @@ namespace Svt.Caspar
         public void Seek(int videoLayer, uint seek)
         {
             Connection.SendString(string.Format("CALL {0}-{1} SEEK {2}", ID, videoLayer, seek));
+        }
+
+        public void SetInvertedFieldOrder(int videoLayer, bool invert)
+        {
+            Connection.SendString(string.Format("CALL {0}-{1} FIELD_ORDER_INVERTED {2}", ID, videoLayer, invert ? 1 : 0));
         }
 
 		public void Clear()

@@ -159,6 +159,12 @@
   <data name="_externalId" xml:space="preserve">
     <value>External ID</value>
   </data>
+  <data name="_fieldOrderInverted" xml:space="preserve">
+    <value>Invalid (inverted) field order</value>
+  </data>
+  <data name="_fieldOrderInverted.ToolTip" xml:space="preserve">
+    <value>If checked, player will try to correct it</value>
+  </data>
   <data name="_fields.Key" xml:space="preserve">
     <value>Key</value>
   </data>

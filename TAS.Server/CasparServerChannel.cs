@@ -103,6 +103,8 @@ namespace TAS.Server
                     item.Clipname = LiveDevice ?? "BLACK";
                 if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie)
                     item.ChannelLayout = ChannelLayout.Stereo;
+                if (aEvent.EventType == TEventType.Movie)
+                    item.FieldOrderInverted = media.FieldOrderInverted;
                 item.VideoLayer = (int)aEvent.Layer;
                 item.Loop = false;
                 item.Transition.Duration = (int)(aEvent.TransitionTime.Ticks / aEvent.Engine.FrameTicks);
@@ -122,6 +124,7 @@ namespace TAS.Server
                 item.ChannelLayout = ChannelLayout.Stereo;                 
                 item.VideoLayer = (int)videolayer;
                 item.Seek = (int)seek;
+                item.FieldOrderInverted = media.FieldOrderInverted;
                 return item;
             }
             else
@@ -421,6 +424,13 @@ namespace TAS.Server
                 if (OnVolumeChanged != null)
                     OnVolumeChanged(this, videolayer, volume);
             }
+        }
+
+        public void SetFieldOrderInverted(VideoLayer videolayer, bool invert)
+        {
+            var channel = _casparChannel;
+            if (_checkConnected() && channel != null)
+                channel.SetInvertedFieldOrder((int)videolayer, invert);
         }
 
         public void SetAspect(VideoLayer layer, bool narrow)

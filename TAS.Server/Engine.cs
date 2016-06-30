@@ -1391,6 +1391,22 @@ namespace TAS.Server
             }
         }
 
+        bool _fieldOrderInverted;
+        [XmlIgnore]
+        public bool FieldOrderInverted
+        {
+            get { return _fieldOrderInverted; }
+            set { if (SetField(ref _fieldOrderInverted, value, "FieldOrderInverted"))
+                {
+                    if (_playoutChannelPRI != null)
+                        _playoutChannelPRI.SetFieldOrderInverted(VideoLayer.Program, value);
+                    if (_playoutChannelSEC != null && !_previewLoaded)
+                        _playoutChannelSEC.SetFieldOrderInverted(VideoLayer.Program, value);
+                }
+            }
+        }
+
+
         public void ReScheduleAsync(IEvent aEvent)
         {
             ThreadPool.QueueUserWorkItem(o => ReSchedule(aEvent as Event));

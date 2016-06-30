@@ -55,6 +55,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandExportMedia { get; private set; }
         public ICommand CommandSaveRundown { get; private set; }
         public ICommand CommandLoadRundown { get; private set; }
+        public ICommand CommandRestartLayer { get; private set; }
 
         #region Single selected commands
         public ICommand CommandEventHide { get; private set; }
@@ -189,6 +190,7 @@ namespace TAS.Client.ViewModels
             CommandTrackingToggle = new UICommand() { ExecuteDelegate = o => TrackPlayingEvent = !TrackPlayingEvent };
             CommandDebugToggle = new UICommand() { ExecuteDelegate = _debugShow };
             CommandRestartRundown = new UICommand() { ExecuteDelegate = _restartRundown };
+            CommandRestartLayer = new UICommand { ExecuteDelegate = _restartLayer, CanExecuteDelegate = o => IsPlayingMovie };
             CommandNewRootRundown = new UICommand() { ExecuteDelegate = _newRootRundown };
             CommandNewContainer = new UICommand() { ExecuteDelegate = _newContainer };
             CommandSearchMissingEvents = new UICommand() { ExecuteDelegate = _searchMissingEvents };
@@ -220,7 +222,6 @@ namespace TAS.Client.ViewModels
             CommandSaveRundown = new UICommand { ExecuteDelegate = _saveRundown, CanExecuteDelegate = o => Selected != null && Selected.Event.EventType == TEventType.Rundown };
             CommandLoadRundown = new UICommand { ExecuteDelegate = _loadRundown, CanExecuteDelegate = o => o.Equals("Under") ? _canAddSubRundown(o) : _canAddNextRundown(o) };
         }
-
 
         private void _loadRundown(object obj)
         {
@@ -517,6 +518,11 @@ namespace TAS.Client.ViewModels
                 _engine.RestartRundown(ev);
         }
 
+        private void _restartLayer(object obj)
+        {
+            _engine.Restart();
+        }
+
         private void _newRootRundown(object o)
         {
             IEvent newEvent = _engine.AddNewEvent(
@@ -742,6 +748,15 @@ namespace TAS.Client.ViewModels
         {
             get { return _rootEventViewModel.Childrens.Any(evm => evm is EventPanelContainerViewmodel && !((EventPanelContainerViewmodel)evm).IsVisible); }
         }
+
+        public bool IsPlayingMovie
+        {
+            get
+            {
+                var aEvent = _engine.Playing;
+                return aEvent != null && aEvent.Layer == VideoLayer.Program && aEvent.EventType == TEventType.Movie;
+            }
+        }         
 
         public bool NoAlarms
         {
@@ -989,7 +1004,6 @@ namespace TAS.Client.ViewModels
                             if (pe != null)
                                 SetOnTopView(pe);
                         }, null);
-                    NotifyPropertyChanged("PlayingEventName");
                     NotifyPropertyChanged("NextToPlay");
                     NotifyPropertyChanged("NextWithRequestedStartTime");
                 }
@@ -997,11 +1011,13 @@ namespace TAS.Client.ViewModels
             }
 
             if (a.Operation == TEngineOperation.Load)
+            {
                 InvalidateRequerySuggested();
+            }
 
             if (a.Operation == TEngineOperation.Stop || a.Operation == TEngineOperation.Clear)
             {
-                NotifyPropertyChanged("PlayingEventName");
+
                 NotifyPropertyChanged("NextToPlay");
                 NotifyPropertyChanged("NextWithRequestedStartTime");
             }
@@ -1060,11 +1076,14 @@ namespace TAS.Client.ViewModels
             {
                 decimal volumeDB = (decimal)Math.Pow(10, (double)value / 20);
                 if (value != volumeDB)
-                {
                     _engine.ProgramAudioVolume = volumeDB;
-                    NotifyPropertyChanged("ProgramAudioVolume");
-                }
             }
+        }
+
+        public bool FieldOrderInverted
+        {
+            get { return _engine.FieldOrderInverted; }
+            set { _engine.FieldOrderInverted = value; }
         }
 
         private void _onEngineVisibleEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
@@ -1109,8 +1128,14 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == "GPIIsMaster"
                 || e.PropertyName == "GPIEnabled"
                 || e.PropertyName == "NextToPlay"
+                || e.PropertyName == "FieldOrderInverted"
             )
                 NotifyPropertyChanged(e.PropertyName);
+            if (e.PropertyName == "Playing")
+            {
+                NotifyPropertyChanged("PlayingEventName");
+                NotifyPropertyChanged("IsPlayingMovie");
+            }
             if (e.PropertyName == "GPIIsMaster")
                 NotifyPropertyChanged("GPIEnabled");
             if (e.PropertyName == "ForcedNext")

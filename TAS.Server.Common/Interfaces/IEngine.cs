@@ -21,6 +21,7 @@ namespace TAS.Server.Interfaces
         bool Pst2Prv { get; set; }
 
         decimal ProgramAudioVolume { get; set; }
+        bool FieldOrderInverted { get; set; }
         TEngineState EngineState { get; }
 
         RationalNumber FrameRate { get; }

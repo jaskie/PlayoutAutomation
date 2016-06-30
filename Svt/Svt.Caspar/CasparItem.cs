@@ -65,6 +65,14 @@ namespace Svt.Caspar
             get { return auto_; }
             set { auto_ = value; }
         }
+
+        private bool fieldOrderInverted_ = false;
+        public bool FieldOrderInverted
+        {
+            get { return fieldOrderInverted_; }
+            set { fieldOrderInverted_ = value; }
+        }
+        
         private int videoLayer_ = -1;
         public int VideoLayer
         {

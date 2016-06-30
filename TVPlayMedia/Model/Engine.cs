@@ -140,7 +140,10 @@ namespace TAS.Client.Model
         public ulong Instance { get { return Get<ulong>(); } set { SetField(value); } }
 
         public bool EnableGPIForNewEvents { get { return Get<bool>(); } set { Set(value); } }
-        
+
+        public bool FieldOrderInverted { get { return Get<bool>(); } set { Set(value); } }
+
+
         public IMediaManager MediaManager { get { return Get<IMediaManager>(); } set { SetField(value); } }
 
         public IEvent NextToPlay

@@ -152,8 +152,15 @@ namespace TAS.Server
                 }
             }
         }
-        protected TAudioChannelMapping _audioChannelMapping;
+        protected bool _fieldOrderInverted;
+        [JsonProperty]
+        public bool FieldOrderInverted
+        {
+            get { return _fieldOrderInverted; }
+            set { SetField(ref _fieldOrderInverted, value, "FieldOrderInverted"); }
+        }
 
+        protected TAudioChannelMapping _audioChannelMapping;
         [JsonProperty]
         [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public virtual TAudioChannelMapping AudioChannelMapping 

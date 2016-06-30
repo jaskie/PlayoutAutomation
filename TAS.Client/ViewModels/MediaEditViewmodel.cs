@@ -334,7 +334,18 @@ namespace TAS.Client.ViewModels
         public TVideoFormat VideoFormat
         {
             get { return _videoFormat; }
-            set { SetField(ref _videoFormat, value, "VideoFormat"); }
+            set
+            {
+                if (SetField(ref _videoFormat, value, "VideoFormat"))
+                    NotifyPropertyChanged("IsInterlaced");
+            }
+        }
+
+        private bool _fieldOrderInverted;
+        public bool FieldOrderInverted
+        {
+            get { return _fieldOrderInverted; }
+            set { SetField(ref _fieldOrderInverted, value, "FieldOrderInverted"); }
         }
 
         readonly Array _audioChannelMappings = Enum.GetValues(typeof(TAudioChannelMapping)); 
@@ -498,6 +509,11 @@ namespace TAS.Client.ViewModels
         public bool IsMovie
         {
             get { return Model.MediaType == TMediaType.Movie; }
+        }
+
+        public bool IsInterlaced
+        {
+            get { return VideoFormatDescription.Descriptions[VideoFormat].Interlaced; }
         }
 
         public string Error

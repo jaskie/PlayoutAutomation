@@ -59,6 +59,8 @@ namespace TAS.Client.Model
 
         public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { Set(value); } }
 
+        public bool FieldOrderInverted { get { return Get<bool>(); } set { Set(value); } }
+
         public VideoFormatDescription VideoFormatDescription { get { return Get<VideoFormatDescription>(); } set { Set(value); } }
 
         public bool Delete()

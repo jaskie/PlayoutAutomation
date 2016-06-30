@@ -104,6 +104,7 @@
                     <ComboBox  ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding VideoFormat}" />
                 </DockPanel>
                 <StackPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
+                    <CheckBox Visibility="{Binding IsInterlaced, Converter={StaticResource BoolToVis}}" IsChecked="{Binding FieldOrderInverted}" Content="{Resx _fieldOrderInverted}" ToolTip="{Resx _fieldOrderInverted.ToolTip}"/>
                     <DockPanel >
                         <Label Content="{Resx _times}"/>
                         <Grid>

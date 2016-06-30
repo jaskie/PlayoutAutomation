@@ -180,6 +180,7 @@ namespace TAS.Client
             public TimeSpan TcStart { get; set; }
             public TVideoFormat VideoFormat { get; set; }
             public string IdAux { get; set; }
+            public bool FieldOrderInverted { get; set; }
             internal static MediaProxy FromMedia(IMedia media)
             {
                 return new MediaProxy()

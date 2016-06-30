@@ -315,4 +315,7 @@
   <data name="_tabs.State" xml:space="preserve">
     <value>State</value>
   </data>
+  <data name="_toolbar.FieldOrderInverted" xml:space="preserve">
+    <value>Invert field order</value>
+  </data>
 </root>
