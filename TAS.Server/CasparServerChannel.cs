@@ -254,7 +254,11 @@ namespace TAS.Server
                     {
                         Event loaded;
                         if (!(_loadedNext.TryGetValue(aEvent.Layer, out loaded) && loaded == aEvent))
-                            channel.Load(_getItem(aEvent));
+                        {
+                            var item = _getItem(aEvent);
+                            if (item != null)
+                                channel.Load(item);
+                        }
                     }
                     channel.Play((int)aEvent.Layer);
                     _visible[aEvent.Layer] = aEvent;

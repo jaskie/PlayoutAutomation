@@ -107,7 +107,6 @@ namespace TAS.Client.Model
                 _mediaRemoved?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
             if (e.Message.MemberName == "MediaVerified")
                 _mediaVerified?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
-            }
         }
 
         public bool DeleteMedia(IMedia media)

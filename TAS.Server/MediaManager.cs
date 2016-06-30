@@ -150,8 +150,7 @@ namespace TAS.Server
                 && !string.IsNullOrEmpty(e.PropertyName)
                    && (e.PropertyName == "DoNotArchive"
                     || e.PropertyName == "IdAux"
-                    || e.PropertyName == "idFormat"
-                    || e.PropertyName == "idProgramme"
+                    || e.PropertyName == "IdProgramme"
                     || e.PropertyName == "KillDate"
                     || e.PropertyName == "OriginalMedia"
                     || e.PropertyName == "AudioVolume"
