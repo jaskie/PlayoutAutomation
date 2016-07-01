@@ -623,12 +623,18 @@ namespace TAS.Server.Database
                 DbCommandRedundant cmd;
                 if (eventOwner != null)
                 {
-                    cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where idEventBinding = @idEventBinding and typStart=@StartType;", _connection);
-                    cmd.Parameters.AddWithValue("@idEventBinding", eventOwner.IdRundownEvent);
+                    cmd = new DbCommandRedundant("SELECT * FROM RundownEvent WHERE idEventBinding = @idEventBinding AND (typStart=@StartTypeManual OR typStart=@StartTypeOnFixedTime);", _connection);
                     if (eventOwner.EventType == TEventType.Container)
-                        cmd.Parameters.AddWithValue("@StartType", TStartType.Manual);
+                    {
+                        cmd.Parameters.AddWithValue("@StartTypeManual", TStartType.Manual);
+                        cmd.Parameters.AddWithValue("@StartTypeOnFixedTime", TStartType.OnFixedTime);
+                    }
                     else
+                    {
+                        cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where idEventBinding = @idEventBinding and typStart=@StartType;", _connection);
                         cmd.Parameters.AddWithValue("@StartType", TStartType.With);
+                    }
+                    cmd.Parameters.AddWithValue("@idEventBinding", eventOwner.IdRundownEvent);
                     subevents.Clear();
                     using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                     {

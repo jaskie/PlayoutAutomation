@@ -762,56 +762,37 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                return ServerConnectedPRI
-                       && ServerConnectedSEC
-                       && ServerConnectedPRV
+                return (ServerConnectedPRI || !ServerPRIExists)
+                       && (ServerConnectedSEC || !ServerSECExists)
+                       && (ServerConnectedPRV || !ServerPRVExists)
                        && DatabaseOK;
             }
         }
 
+        public bool ServerPRIExists
+        {
+            get { return _engine?.PlayoutChannelPRI != null; }
+        }
+
         public bool ServerConnectedPRI
         {
-            get
-            {
-                var channel = _engine.PlayoutChannelPRI;
-                if (channel != null)
-                {
-                    var server = channel.OwnerServer;
-                    if (server != null)
-                        return server.IsConnected;
-                }
-                return false;
-            }
+            get { return _engine?.PlayoutChannelPRI?.OwnerServer?.IsConnected == true; }
         }
-
+        public bool ServerSECExists
+        {
+            get { return _engine?.PlayoutChannelSEC != null; }
+        }
         public bool ServerConnectedSEC
         {
-            get
-            {
-                var channel = _engine.PlayoutChannelSEC;
-                if (channel != null)
-                {
-                    var server = channel.OwnerServer;
-                    if (server != null)
-                        return server.IsConnected;
-                }
-                return false;
-            }
+            get { return _engine?.PlayoutChannelSEC?.OwnerServer?.IsConnected == true; }
         }
-
+        public bool ServerPRVExists
+        {
+            get { return _engine?.PlayoutChannelPRV != null; }
+        }
         public bool ServerConnectedPRV
         {
-            get
-            {
-                var channel = _engine.PlayoutChannelPRV;
-                if (channel != null)
-                {
-                    var server = channel.OwnerServer;
-                    if (server != null)
-                        return server.IsConnected;
-                }
-                return false;
-            }
+            get { return _engine?.PlayoutChannelPRV?.OwnerServer?.IsConnected == true; }
         }
 
         public bool DatabaseOK
@@ -1142,7 +1123,15 @@ namespace TAS.Client.ViewModels
             if (e.PropertyName == "ForcedNext")
                 NotifyPropertyChanged("IsForcedNext");
             if (e.PropertyName == "EngineState")
+            {
                 InvalidateRequerySuggested();
+                if (((IEngine)o).EngineState == TEngineState.Idle)
+                {
+                    NotifyPropertyChanged("ServerPRIExists");
+                    NotifyPropertyChanged("ServerSECExists");
+                    NotifyPropertyChanged("ServerPRVExists");
+                }
+            }
         }
 
         private bool _trackPlayingEvent = true;

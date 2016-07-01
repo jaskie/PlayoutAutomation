@@ -17,5 +17,6 @@ namespace TAS.Server.Interfaces
         event EventHandler<FileOperationEventArgs> OperationCompleted;
         void QueueList(IEnumerable<IFileOperation> operationList, bool toTop);
         void Queue(IFileOperation operation, bool toTop);
+        void CancelPending();
     }
 }

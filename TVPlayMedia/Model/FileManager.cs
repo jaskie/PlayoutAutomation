@@ -77,12 +77,16 @@ namespace TAS.Client.Model
         {
             Invoke(parameters: new object[] { operation, toTop });
         }
-
       
 
         public void QueueList(IEnumerable<IFileOperation> operationList, bool toTop)
         {
             Invoke(parameters: new object[] { operationList, toTop });
+        }
+
+        public void CancelPending()
+        {
+            Invoke();
         }
     }
 }

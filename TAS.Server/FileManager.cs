@@ -57,6 +57,7 @@ namespace TAS.Server
             ((FileOperation)operation).Owner = this;
             FileOperation op = operation as FileOperation;
             op.ScheduledTime = DateTime.UtcNow;
+            op.OperationStatus = FileOperationStatus.Waiting;
 
             if ((operation.Kind == TFileOperationKind.Copy || operation.Kind == TFileOperationKind.Move || operation.Kind == TFileOperationKind.Convert)
                 && operation.DestMedia != null)
@@ -110,6 +111,16 @@ namespace TAS.Server
                     }
             }
             NotifyOperation(OperationAdded, operation);
+        }
+
+        public void CancelPending()
+        {
+            lock (_queueSimpleOperation.SyncRoot)
+                _queueSimpleOperation.ToList().ForEach(op => { if (op.OperationStatus == FileOperationStatus.Waiting) op.Abort(); });
+            lock (_queueConvertOperation.SyncRoot)
+                _queueSimpleOperation.ToList().ForEach(op => { if (op.OperationStatus == FileOperationStatus.Waiting) op.Abort(); });
+            lock (_queueExportOperation.SyncRoot)
+                _queueExportOperation.ToList().ForEach(op => { if (op.OperationStatus == FileOperationStatus.Waiting) op.Abort(); });
         }
 
         private void _runOperation(SynchronizedCollection<IFileOperation> queue, ref bool queueRunningIndicator)

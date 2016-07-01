@@ -21,7 +21,7 @@ namespace TAS.Common
         InProgress,
         Finished,
         Failed,
-        Aborted
+        Aborted,
     };
 
     class FileOperationStatusEnumConverter : ResourceEnumConverter

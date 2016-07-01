@@ -79,7 +79,8 @@ namespace TAS.Client
                 if (MediaGuid.Equals(Guid.Empty) && Media != null)
                 {
                     var mediaFiles = engine.MediaManager.MediaDirectoryPRI.GetFiles();
-                    result.Media = mediaFiles.FirstOrDefault(m => m is IPersistentMedia ? ((IPersistentMedia)m).IdAux == Media.IdAux : false);
+                    if (!string.IsNullOrEmpty(Media.IdAux))
+                        result.Media = mediaFiles.FirstOrDefault(m => m is IPersistentMedia ? ((IPersistentMedia)m).IdAux == Media.IdAux : false);
                     if (result.Media == null)
                         result.Media = mediaFiles.FirstOrDefault(m => 
                                m.MediaName == Media.MediaName 
@@ -151,6 +152,7 @@ namespace TAS.Client
                 TransitionTime = source.TransitionTime,
                 TransitionType = source.TransitionType,
                 SubEvents = source.AllSubEvents().Select(e => FromEvent(e)).ToArray(),
+                AutoStartFlags = source.AutoStartFlags
             };
         }
 
@@ -204,6 +206,7 @@ namespace TAS.Client
                     TcStart = media.TcStart,
                     VideoFormat = media.VideoFormat,
                     IdAux = media is IPersistentMedia ? ((IPersistentMedia)media).IdAux : string.Empty,
+                    FieldOrderInverted = media.FieldOrderInverted,
                 };
             }
         }

@@ -21,10 +21,10 @@ namespace TAS.Server.Interfaces
         bool IsIndeterminate { get; }
         int TryCount { get; }
         int Progress { get; }
-        bool Aborted { get; set; }
+        bool Aborted { get; }
         List<string> OperationOutput { get; }
         List<string> OperationWarning { get; }
-        void Fail();
+        void Abort();
         event EventHandler Finished;
     }
 }

@@ -65,9 +65,9 @@ namespace TAS.Client.Model
             }
         }
 
-        public void Fail()
+        public void Abort()
         {
-            throw new NotImplementedException();
+            Invoke();
         }
 
     }

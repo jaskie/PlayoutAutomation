@@ -21,10 +21,16 @@
             <Label Content="{Resx _fileOperations}" Margin="20, 0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10, 0">
                 <CheckBox Content="{Resx _deleteFinished}" Margin="8, 0" VerticalAlignment="Center" IsChecked="{Binding ClearFinished}"/>
-                <Button Margin="5, 3" Command="{Binding CommandClearFinished}">
+                <Button Margin="5,1,5,5" Command="{Binding CommandClearFinished}">
                     <StackPanel Orientation="Horizontal" Margin="5, 0">
                         <client:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
-                        <TextBlock Text="{Resx _clear}" Margin="5, 0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Resx _clearFinished}" Margin="5, 0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Margin="5,1,5,5" Command="{Binding CommandCancelPending}">
+                    <StackPanel Orientation="Horizontal" Margin="5, 0">
+                        <client:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/delete.png"/>
+                        <TextBlock Text="{Resx _cancelPending}" Margin="5, 0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </StackPanel>

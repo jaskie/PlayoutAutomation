@@ -915,7 +915,10 @@ namespace TAS.Server
                     if (oldPrior != null)
                         oldPrior.Next = null;
                     if (EventType == TEventType.Container)
-                        subEventToAdd.StartType = TStartType.Manual;
+                    {
+                        if (!(subEventToAdd.StartType == TStartType.Manual || subEventToAdd.StartType == TStartType.OnFixedTime)) // do not change if valid
+                            subEventToAdd.StartType = TStartType.Manual;
+                    }
                     else
                         subEventToAdd.StartType = TStartType.With;
                     subEventToAdd.Parent = this;

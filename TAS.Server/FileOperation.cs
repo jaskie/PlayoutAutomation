@@ -162,15 +162,21 @@ namespace TAS.Server
         public bool Aborted
         {
             get { return _aborted; }
-            set
+            private set
             {
                 if (SetField(ref _aborted, value, "Aborted"))
                 {
-                    Progress = 0;
+                    if (DestMedia != null && DestMedia.FileExists())
+                        DestMedia.Delete();
                     IsIndeterminate = false;
                     OperationStatus = FileOperationStatus.Aborted;
                 }
             }
+        }
+
+        public virtual void Abort()
+        {
+            Aborted = true;
         }
 
         private SynchronizedCollection<string> _operationOutput = new SynchronizedCollection<string>();
@@ -318,10 +324,10 @@ namespace TAS.Server
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void Fail()
+        internal void Fail()
         {
             OperationStatus = FileOperationStatus.Failed;
-            if (DestMedia != null)
+            if (DestMedia != null && DestMedia.FileExists())
                 DestMedia.Delete();
             Debug.WriteLine(this, "File simple operation failed - TryCount is zero");
         }
