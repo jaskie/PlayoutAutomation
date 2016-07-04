@@ -351,7 +351,7 @@ namespace TAS.Server
                 }
                 if (outputFormatDescription.ImageSize != inputFormatDescription.ImageSize)
                 {
-                    filter_complex.Add(string.Format("scale={0}:{1}", outputFormatDescription.ImageSize.Width, outputFormatDescription.ImageSize.Height));
+                    filter_complex.Add(string.Format("scale={0}:{1}:interl=-1", outputFormatDescription.ImageSize.Width, outputFormatDescription.ImageSize.Height));
                     if (AspectConversion == TAspectConversion.NoConversion)
                     {
                         if (inputFormatDescription.IsWideScreen)
