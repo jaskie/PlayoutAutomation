@@ -12,8 +12,7 @@ CREATE TABLE `archivemedia` (
   `Folder` varchar(255) DEFAULT NULL,
   `FileName` varchar(255) DEFAULT NULL,
   `FileSize` bigint(20) unsigned DEFAULT NULL,
-  `LastUpdated` timestamp NULL DEFAULT NULL,
-  `LastPlayed` timestamp NULL DEFAULT NULL,
+  `LastUpdated` datetime NULL DEFAULT NULL,
   `Duration` time(6) DEFAULT NULL,
   `DurationPlay` time(6) DEFAULT NULL,
   `typVideo` tinyint(3) unsigned DEFAULT NULL,
@@ -36,7 +35,7 @@ CREATE TABLE `archivemedia` (
 
 CREATE TABLE `asrunlog` (
   `idAsRunLog` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `ExecuteTime` timestamp(6) NULL DEFAULT NULL,
+  `ExecuteTime` datetime(3) NULL DEFAULT NULL,
   `MediaName` varchar(100) DEFAULT NULL,
   `StartTC` time(6) DEFAULT NULL,
   `Duration` time(6) DEFAULT NULL,
@@ -98,14 +97,14 @@ CREATE TABLE `rundownevent` (
   `MediaGuid` binary(16) DEFAULT NULL,
   `typEvent` tinyint(3) unsigned DEFAULT NULL,
   `typStart` tinyint(3) unsigned DEFAULT NULL,
-  `ScheduledTime` timestamp(3) NULL DEFAULT NULL,
+  `ScheduledTime` datetime(3) NULL DEFAULT NULL,
   `ScheduledDelay` time(6) DEFAULT NULL,
   `ScheduledTC` time(6) DEFAULT NULL,
   `Duration` time(6) DEFAULT NULL,
   `EventName` varchar(100) DEFAULT NULL,
   `Layer` tinyint(3) DEFAULT NULL,
   `AudioVolume` decimal(4,2) DEFAULT NULL,
-  `StartTime` timestamp(3) NULL DEFAULT NULL,
+  `StartTime` datetime(3) NULL DEFAULT NULL,
   `StartTC` time(6) DEFAULT NULL,
   `RequestedStartTime` time(6) DEFAULT NULL,
   `PlayState` tinyint(3) unsigned DEFAULT NULL,
@@ -144,8 +143,7 @@ CREATE TABLE `servermedia` (
   `Folder` varchar(255) DEFAULT NULL,
   `FileName` varchar(255) DEFAULT NULL,
   `FileSize` bigint(20) unsigned DEFAULT NULL,
-  `LastUpdated` timestamp NULL DEFAULT NULL,
-  `LastPlayed` timestamp NULL DEFAULT NULL,
+  `LastUpdated` datetime NULL DEFAULT NULL,
   `Duration` time(6) DEFAULT NULL,
   `DurationPlay` time(6) DEFAULT NULL,
   `typVideo` tinyint(3) unsigned DEFAULT NULL,
@@ -172,4 +170,4 @@ CREATE TABLE `params` (
   `Value` VARCHAR(100) NULL,
   PRIMARY KEY (`Section`, `Key`));
 
-INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', 'V2');
+INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', 'V4');
