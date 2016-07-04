@@ -1039,9 +1039,10 @@ namespace TAS.Server
                     {
                         e.Item.Position = ((Event)sender).Position;
                         if (ps == TPlayState.Paused)
+                        {
                             if (e.Item.EventType == TEventType.StillImage)
                                 _load(e.Item as Event);
-                            else;
+                        }
                         else
                             _play(e.Item as Event, false);
                     }

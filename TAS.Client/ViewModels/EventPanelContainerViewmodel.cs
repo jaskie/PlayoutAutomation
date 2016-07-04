@@ -82,8 +82,6 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged("ChildrenCount");
         }
 
-        public TEventType EventType { get { return TEventType.Container; } }
-
         public int ChildrenCount { get { return _event.SubEventsCount; } }
 
 

@@ -9,6 +9,7 @@ using TAS.Server.Interfaces;
 using System.IO;
 using Newtonsoft.Json;
 using TAS.Server.Common;
+using System.ComponentModel;
 
 namespace TAS.Server
 {
@@ -49,7 +50,6 @@ namespace TAS.Server
                 newMedia = (AnimatedMedia)CreateMedia(fullPath, guid);
                 newMedia.MediaName = Path.GetFileNameWithoutExtension(fullPath).ToUpper();
                 newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
-                newMedia.MediaType = TMediaType.Animation;
                 newMedia.MediaStatus = TMediaStatus.Available;
                 newMedia.Save();
             }
@@ -61,6 +61,23 @@ namespace TAS.Server
             return new AnimatedMedia(this, guid, 0) { FullPath = fullPath, Verified = true };
         }
 
+        public IAnimatedMedia CloneMedia(IAnimatedMedia source, Guid newMediaGuid)
+        {
+            var result = new AnimatedMedia(this, newMediaGuid, 0);
+            result.FullPath = source.FullPath;
+            result.CloneMediaProperties(source);
+            result.MediaStatus = source.MediaStatus;
+            result.LastUpdated = DateTime.UtcNow;
+            result.Save();
+            return result;
+        }
+
+
+        public override void MediaAdd(Media media)
+        {
+            base.MediaAdd(media);
+            media.PropertyChanged += _onMediaPropertyChanged;
+        }
         public override void MediaRemove(IMedia media)
         {
             var tm = media as AnimatedMedia;
@@ -69,6 +86,7 @@ namespace TAS.Server
                 tm.MediaStatus = TMediaStatus.Deleted;
                 tm.Verified = false;
                 tm.Save();
+                tm.PropertyChanged -= _onMediaPropertyChanged;
             }
             base.MediaRemove(media);
         }
@@ -84,6 +102,13 @@ namespace TAS.Server
         }
 
         public override void SweepStaleMedia() { }
+
+        public event PropertyChangedEventHandler MediaPropertyChanged;
+
+        private void _onMediaPropertyChanged(object o, PropertyChangedEventArgs e)
+        {
+            MediaPropertyChanged?.Invoke(o, e);
+        }
 
     }
 }

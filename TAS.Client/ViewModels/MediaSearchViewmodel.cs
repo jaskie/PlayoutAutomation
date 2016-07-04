@@ -209,7 +209,7 @@ namespace TAS.Client.ViewModels
             set {
                 if (SetField(ref _mediaCategory, value, "MediaCategory"))
                 {
-                    NotifyPropertyChanged("IsDisplayMediaCategory");
+                    NotifyPropertyChanged("IsServerOrArchiveDirectory");
                     _itemsView.Refresh();
                 }
             }
@@ -361,7 +361,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsMovie { get { return _mediaType == TMediaType.Movie; } }
 
-        public bool IsDisplayMediaCategory
+        public bool IsServerOrArchiveDirectory
         {
             get
             {

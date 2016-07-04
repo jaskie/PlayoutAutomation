@@ -139,7 +139,7 @@ namespace TAS.Client.ViewModels
         {
             if (SelectedField != null)
             {
-                KeyValueEditViewmodel kve = new KeyValueEditViewmodel((KeyValuePair<string, string>)SelectedField, true);
+                KeyValueEditViewmodel kve = new KeyValueEditViewmodel((KeyValuePair<string, string>)SelectedField, false);
                 if (kve.ShowDialog() == true)
                     _fields[kve.Key] = kve.Value;
             }

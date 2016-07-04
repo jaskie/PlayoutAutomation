@@ -39,6 +39,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandExport { get; private set; }
         public ICommand CommandRefresh { get; private set; }
         public ICommand CommandSyncPriToSec { get; private set; }
+        public ICommand CommandCloneAnimation { get; private set; }
 
         public MediaManagerViewmodel(IMediaManager mediaManager, IPreview preview)
         {
@@ -194,6 +195,20 @@ namespace TAS.Client.ViewModels
             CommandGetLoudness = new UICommand() { ExecuteDelegate = _getLoudness, CanExecuteDelegate = _isSomethingSelected };
             CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
             CommandSyncPriToSec = new UICommand { ExecuteDelegate = _syncSecToPri, CanExecuteDelegate = o => _selectedDirectory is IServerDirectory };
+            CommandCloneAnimation = new UICommand { ExecuteDelegate = _cloneAnimation, CanExecuteDelegate = _canCloneAnimation };
+        }
+
+        private void _cloneAnimation(object obj)
+        {
+            var dir = _selectedDirectory as IAnimationDirectory;
+            var media = _selectedMedia?.Media as IAnimatedMedia;
+            if (media != null)
+                dir?.CloneMedia(media, Guid.NewGuid());
+        }
+
+        private bool _canCloneAnimation(object obj)
+        {
+            return _selectedMedia?.Media is IAnimatedMedia;
         }
 
         private void _refreshMediaDirectory(IMediaDirectory directory)
@@ -414,7 +429,7 @@ namespace TAS.Client.ViewModels
             {
                 if (SetField(ref _mediaCategory, value, "MediaCategory"))
                 {
-                    NotifyPropertyChanged("IsDisplayMediaCategory");
+                    NotifyPropertyChanged("IsServerOrArchiveDirectory");
                     _search(null);
                 }
             }
@@ -482,9 +497,10 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged("SelectedDirectory");
             NotifyPropertyChanged("DisplayDirectoryInfo");
             NotifyPropertyChanged("IsDisplayFolder");
-            NotifyPropertyChanged("IsDisplayIsArchived");
-            NotifyPropertyChanged("IsDisplayMediaCategory");
-            NotifyPropertyChanged("IsDisplayIngestStatus");
+            NotifyPropertyChanged("IsServerDirectory");
+            NotifyPropertyChanged("IsServerOrArchiveDirectory");
+            NotifyPropertyChanged("IsIngestOrArchiveDirectory");
+            NotifyPropertyChanged("IsAnimationDirectory");
             InvalidateRequerySuggested();
             _notifyDirectoryPropertiesChanged();
         }
@@ -497,10 +513,11 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsDisplayMediaCategory { get { return (_selectedDirectory is IServerDirectory || _selectedDirectory is IArchiveDirectory); } }
+        public bool IsServerOrArchiveDirectory { get { return (_selectedDirectory is IServerDirectory || _selectedDirectory is IArchiveDirectory); } }
+        public bool IsServerDirectory { get { return _selectedDirectory is IServerDirectory; } }
+        public bool IsIngestOrArchiveDirectory { get { return _selectedDirectory is IIngestDirectory || _selectedDirectory is IArchiveDirectory; } }
+        public bool IsAnimationDirectory { get { return _selectedDirectory is IAnimationDirectory; } }
 
-        public bool IsDisplayIsArchived { get { return _selectedDirectory is IServerDirectory; } }
-        public bool IsDisplayIngestStatus { get { return _selectedDirectory is IIngestDirectory || _selectedDirectory is IArchiveDirectory; } }
 
         private void MediaDirectoryPropertyChanged(object sender, PropertyChangedEventArgs e)
         {

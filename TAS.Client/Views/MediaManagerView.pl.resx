@@ -186,6 +186,12 @@
   <data name="_toolbar.ArchiveLeft.ToolTip" xml:space="preserve">
     <value>Archiwizuj wskazane klipy (pozostaw w bieżącym folderze)</value>
   </data>
+  <data name="_toolbar.CloneAnimation" xml:space="preserve">
+    <value>Klonuj animację</value>
+  </data>
+  <data name="_toolbar.CloneAnimation.ToolTip" xml:space="preserve">
+    <value>Utwórz inną animację z tego samego szablonu</value>
+  </data>
   <data name="_toolbar.Delete" xml:space="preserve">
     <value>Usuń</value>
   </data>

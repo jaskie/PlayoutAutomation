@@ -186,6 +186,12 @@
   <data name="_toolbar.ArchiveLeft.ToolTip" xml:space="preserve">
     <value>Archive selected files (leave in current folder)</value>
   </data>
+  <data name="_toolbar.CloneAnimation" xml:space="preserve">
+    <value>Clone animation</value>
+  </data>
+  <data name="_toolbar.CloneAnimation.ToolTip" xml:space="preserve">
+    <value>Create other animation based on the same template</value>
+  </data>
   <data name="_toolbar.Delete" xml:space="preserve">
     <value>Delete</value>
   </data>

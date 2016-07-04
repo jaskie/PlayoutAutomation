@@ -37,10 +37,10 @@ namespace TAS.Client.ViewModels
                 if (_event.PlayState == TPlayState.Played)
                     return TAutoStartPlayState.Played;
                 if (_event.PlayState == TPlayState.Scheduled)
-                    if (_engine.CurrentTime > _event.ScheduledTime)
-                        return TAutoStartPlayState.ScheduledPast;
-                    else
+                    if (_engine.CurrentTime < _event.ScheduledTime || (_event.AutoStartFlags & AutoStartFlags.Daily )!= AutoStartFlags.None)
                         return TAutoStartPlayState.ScheduledFuture;
+                else
+                return TAutoStartPlayState.ScheduledPast;
                 return TAutoStartPlayState.Disabled;
             }
         }

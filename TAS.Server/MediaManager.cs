@@ -79,7 +79,12 @@ namespace TAS.Server
             }
             IAnimationDirectory adir = AnimationDirectoryPRI;
             if (adir != null)
+            {
                 adir.PropertyChanged += _onAnimationDirectoryPropertyChanged;
+                adir.MediaAdded += _onAnimationDirectoryMediaAdded;
+                adir.MediaRemoved += _onAnimationDirectoryMediaRemoved;
+                adir.MediaPropertyChanged += _onAnimationDirectoryMediaPropertyChanged;
+            }
             adir = AnimationDirectorySEC;
             if (adir != null)
                 adir.PropertyChanged += _onAnimationDirectoryPropertyChanged;
@@ -146,7 +151,10 @@ namespace TAS.Server
 
         private void ServerMediaPropertyChanged(object media, PropertyChangedEventArgs e)
         {
+            var adirPri = MediaDirectoryPRI;
+            var adirSec = MediaDirectorySEC;
             if (media is ServerMedia
+                && (adirPri != null && adirSec != null && adirPri != adirSec)
                 && !string.IsNullOrEmpty(e.PropertyName)
                    && (e.PropertyName == "DoNotArchive"
                     || e.PropertyName == "IdAux"
@@ -194,6 +202,8 @@ namespace TAS.Server
                 SynchronizeMediaSecToPri(false);
         }
 
+        #region AnimationDirectory event handlers
+
         private void _onAnimationDirectoryPropertyChanged(object dir, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "IsInitialized")
@@ -201,6 +211,58 @@ namespace TAS.Server
                 ThreadPool.QueueUserWorkItem((o) => SynchronizeAnimationsSecToPri());
             }
         }
+
+        private void _onAnimationDirectoryMediaPropertyChanged(object o, PropertyChangedEventArgs e)
+        {
+            var adirPri = AnimationDirectoryPRI as AnimationDirectory;
+            var adirSec = AnimationDirectorySEC as AnimationDirectory;
+            var media = o as AnimatedMedia;
+            if (media != null
+                && (adirPri != null && adirSec != null && adirPri != adirSec)
+                && !string.IsNullOrEmpty(e.PropertyName)
+                && (e.PropertyName == "DoNotArchive"
+                    || e.PropertyName == "MediaName"
+                    || e.PropertyName == "Fields"
+                ))
+            {
+                AnimatedMedia compMedia = adirSec.FindMediaByMediaGuid(media.MediaGuid) as AnimatedMedia;
+                if (compMedia != null)
+                {
+                    PropertyInfo sourcePi = media.GetType().GetProperty(e.PropertyName);
+                    PropertyInfo destPi = compMedia.GetType().GetProperty(e.PropertyName);
+                    if (sourcePi != null && destPi != null)
+                        destPi.SetValue(compMedia, sourcePi.GetValue(media, null), null);
+                }
+            }
+        }
+
+
+        private void _onAnimationDirectoryMediaRemoved(object sender, MediaEventArgs e)
+        {
+            var adirPri = AnimationDirectoryPRI as AnimationDirectory;
+            var adirSec = AnimationDirectorySEC as AnimationDirectory;
+            var media = e.Media as AnimatedMedia;
+            if (media != null
+                && (adirPri != null && adirSec != null && adirPri != adirSec))
+                adirSec.FindMediaByMediaGuid(media.MediaGuid)?.Delete();
+        }
+
+        private void _onAnimationDirectoryMediaAdded(object sender, MediaEventArgs e)
+        {
+            var adirPri = AnimationDirectoryPRI as AnimationDirectory;
+            var adirSec = AnimationDirectorySEC as AnimationDirectory;
+            var media = e.Media as AnimatedMedia;
+            if (media != null
+                && (adirPri != null && adirSec != null && adirPri != adirSec))
+            {
+                var compMedia = adirSec.FindMediaByMediaGuid(media.MediaGuid);
+                if (compMedia == null)
+                    adirSec.CloneMedia(media, media.MediaGuid);
+            }
+        }
+
+
+        #endregion //AnimationDirectory event handlers
 
         private void _onServerDirectoryMediaSaved(object media, MediaEventArgs e)
         {
@@ -448,17 +510,19 @@ namespace TAS.Server
                 && MediaDirectorySEC.IsInitialized)
             {
                 IMedia pRIMedia = e.Media;
-                IServerMedia media = MediaDirectorySEC.GetServerMedia(pRIMedia, true);
-                if (media.FileSize == pRIMedia.FileSize
-                    && media.FileName == pRIMedia.FileName
-                    && media.FileSize == pRIMedia.FileSize
-                    && !media.Verified)
-                    ((Media)media).Verify();
-                if (!(media.MediaStatus == TMediaStatus.Available
-                      || media.MediaStatus == TMediaStatus.Copying
-                      || media.MediaStatus == TMediaStatus.CopyPending
-                      || media.MediaStatus == TMediaStatus.Copied))
-                    FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Copy, SourceMedia = pRIMedia, DestMedia = media }, false);
+                IServerMedia sECMedia = MediaDirectorySEC.GetServerMedia(pRIMedia, true);
+                if (sECMedia.FileSize == pRIMedia.FileSize
+                    && sECMedia.FileName == pRIMedia.FileName
+                    && sECMedia.FileSize == pRIMedia.FileSize
+                    && !sECMedia.Verified)
+                    ((Media)sECMedia).Verify();
+                if (pRIMedia.MediaStatus == TMediaStatus.Available
+                    &&
+                    !(sECMedia.MediaStatus == TMediaStatus.Available
+                      || sECMedia.MediaStatus == TMediaStatus.Copying
+                      || sECMedia.MediaStatus == TMediaStatus.CopyPending
+                      || sECMedia.MediaStatus == TMediaStatus.Copied))
+                    FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Copy, SourceMedia = pRIMedia, DestMedia = sECMedia }, false);
             }
         }
 

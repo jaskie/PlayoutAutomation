@@ -74,7 +74,7 @@ namespace TAS.Server
 
         public event PropertyChangedEventHandler MediaPropertyChanged;
 
-        internal virtual void OnMediaPropertyChanged(object o, PropertyChangedEventArgs e)
+        private void OnMediaPropertyChanged(object o, PropertyChangedEventArgs e)
         {
             MediaPropertyChanged?.Invoke(o, e);
         }

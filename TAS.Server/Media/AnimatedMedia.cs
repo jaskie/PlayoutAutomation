@@ -13,18 +13,16 @@ namespace TAS.Server
     {
         public AnimatedMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia)
         {
-            _fields = new SimpleDictionary<string, string>();
             _fields.DictionaryOperation += _fields_DictionaryOperation;
+            _mediaType = TMediaType.Animation;
         }
-
         
-
         private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
         {
             Modified = true;
         }
 
-        private readonly SimpleDictionary<string, string> _fields;
+        private readonly SimpleDictionary<string, string> _fields = new SimpleDictionary<string, string>();
 
         public IDictionary<string, string> Fields
         {
@@ -68,13 +66,9 @@ namespace TAS.Server
         public override void CloneMediaProperties(IMedia fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
-            var a = fromMedia as AnimatedMedia;
+            var a = (fromMedia as AnimatedMedia);
             if (a != null)
-            {
-                _fields.Clear();
-                foreach (var field in a.Fields)
-                    _fields.Add(field);
-            }
+                Fields = a.Fields;
         }
 
         internal override void Verify()

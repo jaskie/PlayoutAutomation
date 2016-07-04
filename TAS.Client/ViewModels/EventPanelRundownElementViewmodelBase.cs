@@ -464,6 +464,7 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == "EventName"
                 || e.PropertyName == "IsLoop"
                 || e.PropertyName == "Offset"
+                || e.PropertyName == "ScheduledDelay"
                 || e.PropertyName == "IsForcedNext")
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == "ScheduledTC" || e.PropertyName == "Duration")

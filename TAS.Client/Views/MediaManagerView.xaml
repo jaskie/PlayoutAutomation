@@ -83,7 +83,7 @@
             <Button ToolTip="{Resx _refresh}" Command="{Binding CommandRefresh}" Margin="1">
                 <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
             </Button>
-            <ComboBox Visibility="{Binding IsDisplayMediaCategory, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" ToolTip="{Resx _mediaCategory}">
+            <ComboBox Visibility="{Binding IsServerOrArchiveDirectory, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" ToolTip="{Resx _mediaCategory}">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -183,7 +183,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsDisplayMediaCategory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsServerOrArchiveDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Image ToolTip="{Binding MediaCategory}">
@@ -215,7 +215,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="10" x:Name="isArchivedColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsDisplayIsArchived, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                <DataGridTemplateColumn Width="10" x:Name="isArchivedColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsServerDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Image ToolTip="{Binding IsArchived, Converter={StaticResource isArchivedConverter}}">
@@ -232,7 +232,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="10" x:Name="isIngesteddColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsDisplayIngestStatus, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                <DataGridTemplateColumn Width="10" x:Name="isIngesteddColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsIngestOrArchiveDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Image ToolTip="{Binding IngestStatus}">
@@ -329,19 +329,19 @@
                     <Setter Property="Padding" Value="3"/>
                 </Style>
             </ToolBar.Resources>
-            <Button ToolTip="{Resx _toolbar.Ingest.ToolTip}" Margin="10, 0" Command="{Binding CommandIngestSelectedToServer}">
+            <Button ToolTip="{Resx _toolbar.Ingest.ToolTip}" Margin="10, 0" Command="{Binding CommandIngestSelectedToServer}" Visibility="{Binding IsIngestOrArchiveDirectory, Converter={StaticResource BoolToVis}}">
                 <StackPanel  Orientation="Horizontal" >
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-ingest.png" />
                     <Label Content="{Resx _toolbar.Ingest}"/>
                 </StackPanel>
             </Button>
-            <Button ToolTip="{Resx _toolbar.ArchiveDelete.ToolTip}" Margin="10,0" Command="{Binding CommandMoveSelectedToArchive}">
+            <Button ToolTip="{Resx _toolbar.ArchiveDelete.ToolTip}" Margin="10,0" Command="{Binding CommandMoveSelectedToArchive}" Visibility="{Binding IsServerDirectory, Converter={StaticResource BoolToVis}}">
                 <StackPanel Orientation="Horizontal">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/archive-export-delete.png" />
                     <Label Content="{Resx _toolbar.ArchiveDelete}"/>
                 </StackPanel>
             </Button>
-            <Button ToolTip="{Resx _toolbar.ArchiveLeft.ToolTip}" Margin="10,0" Command="{Binding CommandCopySelectedToArchive}">
+            <Button ToolTip="{Resx _toolbar.ArchiveLeft.ToolTip}" Margin="10,0" Command="{Binding CommandCopySelectedToArchive}" Visibility="{Binding IsServerDirectory, Converter={StaticResource BoolToVis}}">
                 <StackPanel Orientation="Horizontal">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/archive-export.png" />
                     <Label Content="{Resx _toolbar.ArchiveLeft}"/>
@@ -353,7 +353,14 @@
                     <Label Content="{Resx _toolbar.GetLoudness}"/>
                 </StackPanel>
             </Button>
-            <Button ToolTip="{Resx _toolbar.Export.ToolTip}" Margin="10,0" Command="{Binding CommandExport}">
+            <Button ToolTip="{Resx _toolbar.CloneAnimation.ToolTip}" Margin="10,0" Command="{Binding CommandCloneAnimation}" Visibility="{Binding IsAnimationDirectory, Converter={StaticResource BoolToVis}}">
+                <StackPanel Orientation="Horizontal">
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy.png"/>
+                    <Label Content="{Resx _toolbar.CloneAnimation}"/>
+                </StackPanel>
+            </Button>
+
+            <Button ToolTip="{Resx _toolbar.Export.ToolTip}" Margin="10,0" Command="{Binding CommandExport}" Visibility="{Binding IsServerOrArchiveDirectory, Converter={StaticResource BoolToVis}}">
                 <StackPanel Orientation="Horizontal">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-export.png"/>
                     <Label Content="{Resx _toolbar.Export}"/>
