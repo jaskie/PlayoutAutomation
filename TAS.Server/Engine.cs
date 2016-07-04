@@ -684,7 +684,8 @@ namespace TAS.Server
                     _playoutChannelPRI.LoadNext(aEvent);
                 if (_playoutChannelSEC != null)
                     _playoutChannelSEC.LoadNext(aEvent);
-                if (_gpi != null
+                if (!aEvent.IsHold
+                    && _gpi != null
                     && GPIEnabled
                     && _gpi.GraphicsStartDelay < 0)
                 {
@@ -749,7 +750,7 @@ namespace TAS.Server
                     {
                         if (_gpi.GraphicsStartDelay <= 0)
                             _setGPIGraphics(_gpi, aEvent);
-                        if (_gpi.GraphicsStartDelay > 0)
+                        else
                         {
                             ThreadPool.QueueUserWorkItem(o =>
                             {
@@ -974,7 +975,7 @@ namespace TAS.Server
                     var startEvent = _fixedTimeEvents.FirstOrDefault(e =>
                                                                       e.StartType == TStartType.OnFixedTime
                                                                    && (EngineState == TEngineState.Idle || (e.AutoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None)
-                                                                   && e.PlayState == TPlayState.Scheduled
+                                                                   && (e.PlayState == TPlayState.Scheduled || (e.PlayState != TPlayState.Playing && (e.AutoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None))
                                                                    && e.IsEnabled
                                                                    && ((e.AutoStartFlags & AutoStartFlags.Daily) != AutoStartFlags.None ?
                                                                         currentTimeOfDayTicks >= e.ScheduledTime.TimeOfDay.Ticks && currentTimeOfDayTicks < e.ScheduledTime.TimeOfDay.Ticks + TimeSpan.TicksPerSecond :
@@ -1024,6 +1025,8 @@ namespace TAS.Server
 
         private void _playingSubEventsChanged(object sender, CollectionOperationEventArgs<IEvent> e)
         {
+            if (_playing != sender)
+                return;
             if (e.Operation == TCollectionOperation.Remove)
                 _stop((Event)e.Item);
             else
@@ -1035,7 +1038,12 @@ namespace TAS.Server
                         && e.Item.PlayState == TPlayState.Scheduled)
                     {
                         e.Item.Position = ((Event)sender).Position;
-                        _play(e.Item as Event, false);
+                        if (ps == TPlayState.Paused)
+                            if (e.Item.EventType == TEventType.StillImage)
+                                _load(e.Item as Event);
+                            else;
+                        else
+                            _play(e.Item as Event, false);
                     }
                 }
             }
@@ -1116,7 +1124,7 @@ namespace TAS.Server
                 {
                     foreach (Event e in _runningEvents.ToList())
                     {
-                        if (e.PlayState == TPlayState.Paused || e.PlayState == TPlayState.Scheduled)
+                        if (e.PlayState != TPlayState.Playing)
                         {
                             _play(e, false);
                             IEvent s = e.GetSuccessor();
