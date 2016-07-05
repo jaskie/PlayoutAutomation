@@ -410,8 +410,8 @@ namespace TAS.Server
         object _synchronizeAnimationsSecToPriLock = new object();
         public void SynchronizeAnimationsSecToPri()
         {
-            var pri = AnimationDirectoryPRI;
-            var sec = AnimationDirectorySEC;
+            var pri = AnimationDirectoryPRI as AnimationDirectory;
+            var sec = AnimationDirectorySEC as AnimationDirectory;
             if (pri != null && sec != null
                 && pri != sec
                 && pri.IsInitialized
@@ -423,20 +423,27 @@ namespace TAS.Server
                         try
                         {
                             Debug.WriteLine(this, "SynchronizeAnimationsSecToPri started");
-                            foreach (AnimatedMedia priAnimation in pri.GetFiles())
+                            var priAnimations = pri.GetFiles().ToList();
+                            foreach (AnimatedMedia priAnimation in priAnimations)
                             {
                                 if (priAnimation.MediaStatus == TMediaStatus.Available)
                                 {
                                     AnimatedMedia sECAnimation = (AnimatedMedia)((AnimationDirectory)sec).FindMediaByMediaGuid(priAnimation.MediaGuid);
                                     if (sECAnimation == null)
                                     {
-                                        sECAnimation = (AnimatedMedia)((MediaDirectory)sec).FindMediaFirst(m => m.Folder == priAnimation.Folder && m.FileName == priAnimation.FileName);
+                                        sECAnimation = (AnimatedMedia)((MediaDirectory)sec).FindMediaFirst(m => m.Folder == priAnimation.Folder && m.FileName == priAnimation.FileName && !priAnimations.Any(a => a.MediaGuid == m.MediaGuid));
                                         if (sECAnimation != null)
                                         {
                                             sECAnimation.CloneMediaProperties(priAnimation);
                                             sECAnimation.MediaGuid = priAnimation.MediaGuid;
                                             sECAnimation.Save();
                                             Debug.WriteLine(sECAnimation, "Updated");
+                                        }
+                                        else
+                                        {
+                                            var secFileName = Path.Combine(sec.Folder, priAnimation.Folder, priAnimation.FileName);
+                                            if (File.Exists(secFileName))
+                                                sec.CloneMedia(priAnimation, priAnimation.MediaGuid);
                                         }
                                     }
                                 }
