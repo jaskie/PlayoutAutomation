@@ -860,7 +860,7 @@ namespace TAS.Server
                 if (_visibleEvents.Contains(aEvent))
                 {
                     Debug.WriteLine("{0} Pause: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
-                    if (aEvent.EventType != TEventType.Live)
+                    if (aEvent.EventType != TEventType.Live && aEvent.EventType != TEventType.StillImage)
                     {
                         if (_playoutChannelPRI != null)
                             _playoutChannelPRI.Pause(aEvent);
@@ -1123,6 +1123,7 @@ namespace TAS.Server
             lock (_tickLock)
                 if (EngineState == TEngineState.Hold)
                 {
+                    _visibleEvents.Where(e => e.PlayState == TPlayState.Played).ToList().ForEach(e => _stop(e));                    
                     foreach (Event e in _runningEvents.ToList())
                     {
                         if (e.PlayState != TPlayState.Playing)
