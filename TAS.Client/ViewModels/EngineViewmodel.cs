@@ -901,7 +901,7 @@ namespace TAS.Client.ViewModels
             set { _engine.GPIAspectNarrow = value; }
         }
 
-        readonly Array _gPICrawls = Enum.GetValues(typeof(TCrawl));
+        static readonly Array _gPICrawls = Enum.GetValues(typeof(TCrawl));
         public Array GPICrawls { get { return _gPICrawls; } }
         
         public TCrawl GPICrawl
@@ -910,7 +910,7 @@ namespace TAS.Client.ViewModels
             set { _engine.GPICrawl = value; }
         }
 
-        readonly Array _gPILogos = Enum.GetValues(typeof(TLogo));
+        static readonly Array _gPILogos = Enum.GetValues(typeof(TLogo));
         public Array GPILogos { get { return _gPILogos; } }
         
         public TLogo GPILogo
@@ -919,7 +919,7 @@ namespace TAS.Client.ViewModels
             set { _engine.GPILogo = value; }
         }
 
-        readonly Array _gPIParentals = Enum.GetValues(typeof(TParental)); 
+        static readonly Array _gPIParentals = Enum.GetValues(typeof(TParental)); 
         public Array GPIParentals { get { return _gPIParentals; } }
         
         public TParental GPIParental

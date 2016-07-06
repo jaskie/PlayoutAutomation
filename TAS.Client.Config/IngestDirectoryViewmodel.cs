@@ -15,21 +15,21 @@ namespace TAS.Client.Config
         }
         
         #region Enumerations
-        Array _aspectConversions = Enum.GetValues(typeof(TAspectConversion));
+        static readonly Array _aspectConversions = Enum.GetValues(typeof(TAspectConversion));
         public Array AspectConversions { get { return _aspectConversions; } }
-        Array _aspectConversionsEnforce = new TAspectConversion[3];
+        static readonly Array _aspectConversionsEnforce = new TAspectConversion[3];
         public Array AspectConversionsEnforce { get { return _aspectConversionsEnforce; } }
-        Array _mediaCategories = Enum.GetValues(typeof(TMediaCategory));
+        static readonly Array _mediaCategories = Enum.GetValues(typeof(TMediaCategory));
         public Array MediaCategories { get { return _mediaCategories; } }
-        Array _sourceFieldOrders = Enum.GetValues(typeof(TFieldOrder));
+        static readonly Array _sourceFieldOrders = Enum.GetValues(typeof(TFieldOrder));
         public Array SourceFieldOrders { get { return _sourceFieldOrders; } }
-        Array _mXFAudioExportFormats = Enum.GetValues(typeof(TmXFAudioExportFormat));
+        static readonly Array _mXFAudioExportFormats = Enum.GetValues(typeof(TmXFAudioExportFormat));
         public Array MXFAudioExportFormats { get { return _mXFAudioExportFormats; } }
-        Array _mXFVideoExportFormats = Enum.GetValues(typeof(TmXFVideoExportFormat));
+        static readonly Array _mXFVideoExportFormats = Enum.GetValues(typeof(TmXFVideoExportFormat));
         public Array MXFVideoExportFormats { get { return _mXFVideoExportFormats; } }
-        Array _exportContainerFormats = Enum.GetValues(typeof(TMediaExportContainerFormat));
+        static readonly Array _exportContainerFormats = Enum.GetValues(typeof(TMediaExportContainerFormat));
         public Array ExportContainerFormats { get { return _exportContainerFormats; } }
-        Array _exportVideoFormats = Enum.GetValues(typeof(TVideoFormat));
+        static readonly Array _exportVideoFormats = Enum.GetValues(typeof(TVideoFormat));
         public Array ExportVideoFormats { get { return _exportVideoFormats; } }
         #endregion // Enumerations
 

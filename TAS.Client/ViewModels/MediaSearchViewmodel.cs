@@ -199,7 +199,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        readonly IEnumerable<object> _mediaCategories = (new List<object>() { resources._all_ }).Concat(Enum.GetValues(typeof(TMediaCategory)).Cast<object>());
+        static readonly IEnumerable<object> _mediaCategories = (new List<object>() { resources._all_ }).Concat(Enum.GetValues(typeof(TMediaCategory)).Cast<object>());
         public IEnumerable<object> MediaCategories { get { return _mediaCategories; } }
 
         private object _mediaCategory = null;

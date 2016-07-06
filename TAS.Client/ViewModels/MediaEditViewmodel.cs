@@ -18,7 +18,7 @@ using System.Diagnostics;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditViewmodel : EditViewmodelBase<IMedia>, IDataErrorInfo
+    public class MediaEditViewmodel: EditViewmodelBase<IMedia>, ITemplatedEdit, IDataErrorInfo
     {
         private readonly PreviewViewmodel _previewVm;
         private readonly bool _showButtons;
@@ -62,9 +62,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandCancelEdit { get; private set; }
         public ICommand CommandRefreshStatus { get; private set; }
         public ICommand CommandCheckVolume { get; private set; }
-        public ICommand CommandAddField { get; private set; }
-        public ICommand CommandDeleteField { get; private set; }
-        public ICommand CommandEditField { get; private set; }
 
         public override void Save(object destObject = null)
         {
@@ -328,7 +325,7 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _tcPlay, value, "TcPlay"); }
         }
 
-        readonly Array _videoFormats = Enum.GetValues(typeof(TVideoFormat));
+        static readonly Array _videoFormats = Enum.GetValues(typeof(TVideoFormat));
         public Array VideoFormats { get { return _videoFormats; } }
         private TVideoFormat _videoFormat;
         public TVideoFormat VideoFormat
@@ -348,7 +345,7 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _fieldOrderInverted, value, "FieldOrderInverted"); }
         }
 
-        readonly Array _audioChannelMappings = Enum.GetValues(typeof(TAudioChannelMapping)); 
+        static readonly Array _audioChannelMappings = Enum.GetValues(typeof(TAudioChannelMapping)); 
         public Array AudioChannelMappings { get { return _audioChannelMappings;} }
         private TAudioChannelMapping _audioChannelMapping;
         public TAudioChannelMapping AudioChannelMapping
@@ -377,7 +374,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        readonly Array _mediaEmphasises = Enum.GetValues(typeof(TMediaEmphasis)); 
+        static readonly Array _mediaEmphasises = Enum.GetValues(typeof(TMediaEmphasis)); 
         public Array MediaEmphasises { get { return _mediaEmphasises;} }
         private TMediaEmphasis _mediaEmphasis;
         public TMediaEmphasis MediaEmphasis
@@ -441,7 +438,7 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _doNotArchive, value, "DoNotArchive"); }
         }
 
-        readonly Array _parentals = Enum.GetValues(typeof(TParental)); 
+        static readonly Array _parentals = Enum.GetValues(typeof(TParental)); 
         public Array Parentals { get { return _parentals; } }
         private TParental _parental;
         public TParental Parental
@@ -450,7 +447,7 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _parental, value, "Parental"); }
         }
 
-        readonly Array _mediaCategories = Enum.GetValues(typeof(TMediaCategory)); 
+        static readonly Array _mediaCategories = Enum.GetValues(typeof(TMediaCategory)); 
         public Array MediaCategories { get { return _mediaCategories; } }
         private TMediaCategory _mediaCategory;
         public TMediaCategory MediaCategory
@@ -465,6 +462,8 @@ namespace TAS.Client.ViewModels
             get { return _idAux; }
             set { SetField(ref _idAux, value, "IdAux"); }
         }
+
+        #region ITemplatedEdit
 
         private ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
         public IDictionary<string, string> Fields
@@ -482,6 +481,22 @@ namespace TAS.Client.ViewModels
             }
         }
         public object SelectedField { get; set; }
+
+        static readonly Array _methods = Enum.GetValues(typeof(TemplateMethod));
+        public Array Methods { get { return _methods; } }
+        private TemplateMethod _method;
+        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value, "Method"); } }
+
+        private int _templateLayer;
+        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, "TemplateLayer"); } }
+        public ICommand CommandEditField { get; private set; }
+        public ICommand CommandAddField { get; private set; }
+        public ICommand CommandDeleteField { get; private set; }
+
+
+        public bool KeyIsReadOnly { get { return false; } }
+
+        #endregion // ITemplatedEdit
 
         public bool IsPersistentMedia
         {

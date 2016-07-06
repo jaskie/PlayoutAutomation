@@ -159,20 +159,11 @@
   <data name="_duration" xml:space="preserve">
     <value>Duration</value>
   </data>
-  <data name="_editKey" xml:space="preserve">
-    <value>Edit text</value>
-  </data>
   <data name="_editMovie.ToolTip" xml:space="preserve">
     <value>Properties</value>
   </data>
   <data name="_eventType" xml:space="preserve">
     <value>Type</value>
-  </data>
-  <data name="_fields.Key" xml:space="preserve">
-    <value>Key</value>
-  </data>
-  <data name="_fields.Value" xml:space="preserve">
-    <value>Value</value>
   </data>
   <data name="_gpiCrawl" xml:space="preserve">
     <value>Crawl</value>
@@ -222,9 +213,6 @@ The difference to the specified time will be shown in the tree of the times of e
   </data>
   <data name="_starting.ToolTip" xml:space="preserve">
     <value>Instant change - F7</value>
-  </data>
-  <data name="_templateLayer" xml:space="preserve">
-    <value>CG layer</value>
   </data>
   <data name="_transitionLength" xml:space="preserve">
     <value>length</value>

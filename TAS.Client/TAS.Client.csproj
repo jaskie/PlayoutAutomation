@@ -116,6 +116,7 @@
     <Compile Include="ViewModels\FileManagerViewmodel.cs" />
     <Compile Include="ViewModels\FileOperationViewmodel.cs" />
     <Compile Include="ViewModels\IngestEditViewmodel.cs" />
+    <Compile Include="ViewModels\ITemplatedEdit.cs" />
     <Compile Include="ViewModels\KeyValueEditViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditWindowViewmodel.cs" />
@@ -185,6 +186,9 @@
     </Compile>
     <Compile Include="Views\PreviewView.xaml.cs">
       <DependentUpon>PreviewView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TemplatedEditView.xaml.cs">
+      <DependentUpon>TemplatedEditView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TemplatesView.xaml.cs">
       <DependentUpon>TemplatesView.xaml</DependentUpon>
@@ -289,6 +293,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\TemplatedEditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\TemplatesView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -366,6 +374,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\PreviewView.resx">
       <DependentUpon>PreviewView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\TemplatedEditView.pl.resx">
+      <DependentUpon>TemplatedEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\TemplatedEditView.resx">
+      <DependentUpon>TemplatedEditView.xaml</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

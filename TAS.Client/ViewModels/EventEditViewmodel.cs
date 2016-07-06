@@ -18,7 +18,7 @@ using System.Collections.ObjectModel;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventEditViewmodel : ViewmodelBase, IDataErrorInfo
+    public class EventEditViewmodel : ViewmodelBase, ITemplatedEdit, IDataErrorInfo
     {
         private readonly IEngine _engine;
         private readonly EngineViewmodel _engineViewModel;
@@ -72,7 +72,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandCheckVolume { get; private set; }
         public ICommand CommandToggleEnabled { get; private set; }
         public ICommand CommandToggleHold { get; private set; }
-        public ICommand CommandEditField { get; private set; }
         public ICommand CommandTriggerStartType { get; private set; }
 
         private IEvent _event;
@@ -545,6 +544,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        #region ITemplatedEdit
+
         private int _templateLayer;
         public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, "TemplateLayer"); } }
 
@@ -561,6 +562,20 @@ namespace TAS.Client.ViewModels
                     _fields.AddRange(value);
             }
         }
+
+        static readonly Array _methods = Enum.GetValues(typeof(TemplateMethod));
+        public Array Methods { get { return _methods; } }
+
+        private TemplateMethod _method;
+        public TemplateMethod Method { get { return _method; }  set { SetField(ref _method, value, "Method"); } }
+
+        public bool KeyIsReadOnly { get { return true; } }
+
+        public ICommand CommandEditField { get; private set; }
+        public ICommand CommandAddField { get; private set; }
+        public ICommand CommandDeleteField { get; private set; }
+
+        #endregion //ITemplatedEdit
 
         public bool IsMovie
         {
@@ -703,7 +718,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        readonly Array _transitionTypes = Enum.GetValues(typeof(TTransitionType));
+        static readonly Array _transitionTypes = Enum.GetValues(typeof(TTransitionType));
         public Array TransitionTypes { get { return _transitionTypes; } }
 
         private TTransitionType _transitionType;
@@ -909,7 +924,7 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _gpi.CanTrigger, value, "CanTriggerGPI"); }
         }
 
-        readonly Array _gPIParentals = Enum.GetValues(typeof(TParental));
+        static readonly Array _gPIParentals = Enum.GetValues(typeof(TParental));
         public Array GPIParentals { get { return _gPIParentals; } }
         public TParental GPIParental
         {
@@ -917,7 +932,7 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _gpi.Parental, value, "GPIParental"); }
         }
 
-        readonly Array _gPILogos = Enum.GetValues(typeof(TLogo));
+        static readonly Array _gPILogos = Enum.GetValues(typeof(TLogo));
         public Array GPILogos { get { return _gPILogos; } }
         public TLogo GPILogo
         {
@@ -925,7 +940,7 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _gpi.Logo, value, "GPILogo"); }
         }
 
-        readonly Array _gPICrawls = Enum.GetValues(typeof(TCrawl));
+        static readonly Array _gPICrawls = Enum.GetValues(typeof(TCrawl));
         public Array GPICrawls { get { return _gPICrawls; } }
         public TCrawl GPICrawl
         {

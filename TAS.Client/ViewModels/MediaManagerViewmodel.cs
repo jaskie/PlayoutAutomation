@@ -418,7 +418,7 @@ namespace TAS.Client.ViewModels
                && (_mediaType as TMediaType? == null || m.Media.MediaType == (TMediaType)_mediaType);
         }
 
-        readonly IEnumerable<object> _mediaCategories = (new List<object>() { resources._all_ }).Concat(Enum.GetValues(typeof(TMediaCategory)).Cast<object>());
+        static readonly IEnumerable<object> _mediaCategories = (new List<object>() { resources._all_ }).Concat(Enum.GetValues(typeof(TMediaCategory)).Cast<object>());
         public IEnumerable<object> MediaCategories { get { return _mediaCategories; } }
 
         private object _mediaCategory;
@@ -435,7 +435,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        readonly IEnumerable<object> _mediaTypes = (new List<object>() { resources._all_ }).Concat(Enum.GetValues(typeof(TMediaType)).Cast<object>());
+        static readonly IEnumerable<object> _mediaTypes = (new List<object>() { resources._all_ }).Concat(Enum.GetValues(typeof(TMediaType)).Cast<object>());
         public IEnumerable<object> MediaTypes { get { return _mediaTypes; } }
 
         private object _mediaType = resources._all_;

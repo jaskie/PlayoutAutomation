@@ -7,6 +7,7 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:views="clr-namespace:TAS.Client.Views"
              xmlns:client="clr-namespace:TAS.Client"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d"
@@ -77,6 +78,7 @@
                     </Style>
                     <Style TargetType="CheckBox">
                         <Setter Property="Margin" Value="103, 2, 2, 2" />
+                        <Setter Property="Padding" Value="8, 0"/>
                     </Style>
                     <Style TargetType="ComboBox" >
                         <Setter Property="Margin" Value="5, 3" />
@@ -209,9 +211,7 @@
                         <TextBox FlowDirection="LeftToRight" Background="#F0F0F0" Text="{Binding MediaStatus, Mode=OneWay}" IsReadOnly="True" />
                     </DockPanel>
                 </DockPanel>
-                <CheckBox Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}" IsChecked="{Binding Protected}">
-                    <TextBlock Margin="8, 2" Text="{Resx _protect}"/>
-                </CheckBox>                
+                <CheckBox Content="{Resx _protect}" Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}" IsChecked="{Binding Protected}" />
                 <DockPanel>
                     <Label Content="{Resx _mediaType}" />
                     <TextBox Background="#F0F0F0" Text="{Binding MediaType, Mode=OneWay}" IsReadOnly="True" />
@@ -222,29 +222,6 @@
                 </DockPanel>
             </StackPanel>
         </ScrollViewer>
-        <DockPanel MinHeight="100" Visibility="{Binding IsAnimatedMedia, Converter={StaticResource BoolToVis}}">
-            <ToolBar DockPanel.Dock="Top">
-                <ToolBarPanel Height="24" Orientation="Horizontal">
-                    <Button Command="{Binding CommandAddField}" Padding="0">
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
-                    </Button>
-                    <Button Command="{Binding CommandEditField}" Padding="0">
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
-                    </Button>
-                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
-                    <Button Command="{Binding CommandDeleteField}" Padding="0">
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
-                    </Button>
-                </ToolBarPanel>
-            </ToolBar>
-            <DataGrid ItemsSource="{Binding Fields}" SelectedItem="{Binding SelectedField}" IsReadOnly="True" AutoGenerateColumns="False" 
-                      common:MouseDoubleClick.Command="{Binding CommandEditField}"
-                      >
-                <DataGrid.Columns>
-                    <DataGridTextColumn Width="*" Header="{Resx _fields.Key, ResxName=TAS.Client.Views.MediaEditView}" Binding="{Binding Key}"/>
-                    <DataGridTextColumn Width="2*" Header="{Resx _fields.Value, ResxName=TAS.Client.Views.MediaEditView}" Binding="{Binding Value}"/>
-                </DataGrid.Columns>
-            </DataGrid>
-        </DockPanel>
+        <views:TemplatedEditView MinHeight="100" Visibility="{Binding IsAnimatedMedia, Converter={StaticResource BoolToVis}}"/>
     </DockPanel>
 </UserControl>

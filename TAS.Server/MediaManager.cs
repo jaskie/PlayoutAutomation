@@ -220,9 +220,10 @@ namespace TAS.Server
             if (media != null
                 && (adirPri != null && adirSec != null && adirPri != adirSec)
                 && !string.IsNullOrEmpty(e.PropertyName)
-                && (e.PropertyName == "DoNotArchive"
-                    || e.PropertyName == "MediaName"
-                    || e.PropertyName == "Fields"
+                && (e.PropertyName == nameof(IAnimatedMedia.MediaName)
+                    || e.PropertyName == nameof(IAnimatedMedia.Fields)
+                    || e.PropertyName == nameof(IAnimatedMedia.Method)
+                    || e.PropertyName == nameof(IAnimatedMedia.TemplateLayer)
                 ))
             {
                 AnimatedMedia compMedia = adirSec.FindMediaByMediaGuid(media.MediaGuid) as AnimatedMedia;

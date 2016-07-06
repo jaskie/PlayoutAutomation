@@ -160,10 +160,10 @@
     <value>External ID</value>
   </data>
   <data name="_fieldOrderInverted" xml:space="preserve">
-    <value>Invalid (inverted) field order</value>
+    <value>Fix field order</value>
   </data>
   <data name="_fieldOrderInverted.ToolTip" xml:space="preserve">
-    <value>If checked, player will try to correct it</value>
+    <value>If checked, player will reverse field order</value>
   </data>
   <data name="_fields.Key" xml:space="preserve">
     <value>Key</value>

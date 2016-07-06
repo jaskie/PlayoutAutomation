@@ -67,10 +67,10 @@ namespace TAS.Client.Config
 
         protected override void OnDispose() { }
 
-        readonly Array _videoFormats = Enum.GetValues(typeof(TVideoFormat));
+        static readonly Array _videoFormats = Enum.GetValues(typeof(TVideoFormat));
         public Array VideoFormats { get { return _videoFormats; } }
 
-        readonly Array _aspectRatioControls = Enum.GetValues(typeof(TAspectRatioControl));
+        static readonly Array _aspectRatioControls = Enum.GetValues(typeof(TAspectRatioControl));
         public Array AspectRatioControls { get { return _aspectRatioControls; } }
 
         public string EngineName { get { return _engineName; } set { SetField(ref _engineName, value, "EngineName"); } }

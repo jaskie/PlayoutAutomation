@@ -1086,7 +1086,7 @@ VALUES
                 if (_animatedMediaConstructorInfo == null)
                     _animatedMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IMediaDirectory), typeof(Guid), typeof(UInt64) });
 
-                DbCommandRedundant cmd = new DbCommandRedundant("SELECT servermedia.*, media_templated.`Fields` FROM serverMedia LEFT JOIN media_templated ON servermedia.MediaGuid = media_templated.MediaGuid WHERE idServer=@idServer and typMedia = @typMedia", _connection);
+                DbCommandRedundant cmd = new DbCommandRedundant("SELECT servermedia.*, media_templated.`Fields`, media_templated.`Method`, media_templated.`TemplateLayer` FROM serverMedia LEFT JOIN media_templated ON servermedia.MediaGuid = media_templated.MediaGuid WHERE idServer=@idServer and typMedia = @typMedia", _connection);
                 cmd.Parameters.AddWithValue("@idServer", serverId);
                 cmd.Parameters.AddWithValue("@typMedia", TMediaType.Animation);
                 try
@@ -1106,6 +1106,8 @@ VALUES
                                     foreach (var field in fieldsDeserialized)
                                         nm.Fields.Add(field);
                             }
+                            nm.Method = (TemplateMethod)dataReader.GetByte("Method");
+                            nm.TemplateLayer = dataReader.GetInt32("TemplateLayer");
                             nm.Modified = false;
                             if (nm.MediaStatus != TMediaStatus.Available)
                             {
