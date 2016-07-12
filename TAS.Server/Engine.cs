@@ -1126,7 +1126,7 @@ namespace TAS.Server
                     _visibleEvents.Where(e => e.PlayState == TPlayState.Played).ToList().ForEach(e => _stop(e));                    
                     foreach (Event e in _runningEvents.ToList())
                     {
-                        if (e.PlayState != TPlayState.Playing)
+                        if (!(e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading))
                         {
                             _play(e, false);
                             IEvent s = e.GetSuccessor();

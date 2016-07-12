@@ -15,11 +15,11 @@ using System.Windows.Shapes;
 namespace TAS.Client.Views
 {
     /// <summary>
-    /// Interaction logic for EngineStateView.xaml
+    /// Interaction logic for ChannelView.xaml
     /// </summary>
-    public partial class EngineStateView : UserControl
+    public partial class ChannelView : UserControl
     {
-        public EngineStateView()
+        public ChannelView()
         {
             InitializeComponent();
         }

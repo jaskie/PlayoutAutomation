@@ -249,11 +249,11 @@
                             </Image.Style>
                         </Image>
                     </Button>
+                    <TextBlock Text="{Binding Layer3SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
                     <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
                     <Button Command="{Binding CommandAddAnimation}">
                         <Image Source="/TAS.Client.Common;component/Images/Layers/layerA.png"/>
                     </Button>
-                    <TextBlock Text="{Binding Layer3SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
                 </StackPanel>
             </Grid>
         </Border>

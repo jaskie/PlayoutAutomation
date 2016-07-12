@@ -306,16 +306,11 @@
   <data name="_toolbar.ClearAnimations" xml:space="preserve">
     <value>Clear animations</value>
   </data>
-  <data name="_tabs.Rundowns" xml:space="preserve">
-    <value>Rundowns</value>
-  </data>
-  <data name="_autoStartEvents" xml:space="preserve">
-    <value>Events started automatically at fixed time</value>
-  </data>
-  <data name="_tabs.State" xml:space="preserve">
-    <value>State</value>
-  </data>
   <data name="_toolbar.FieldOrderInverted" xml:space="preserve">
-    <value>Invert field order</value>
+    <value>Invert fields</value>
+  </data>
+  <data name="_toolbar.FieldOrderInverted.ToolTip" xml:space="preserve">
+    <value>Immediately inverts field order.
+Effective until current clip ends.</value>
   </data>
 </root>

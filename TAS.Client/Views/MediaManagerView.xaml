@@ -378,7 +378,7 @@
         </Button>
         <GridSplitter Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>
         <ContentControl Grid.Row="4" Content="{Binding FileManagerVm.View}" />
-        <StatusBar Grid.Row="5" Grid.ColumnSpan="2" Height="22">
+        <StatusBar Grid.Row="5" Grid.ColumnSpan="2">
             <StackPanel Orientation="Horizontal" Visibility="{Binding DisplayDirectoryInfo, Converter={StaticResource BoolToVis}}" >
                 <common:StatusIndicator IsGreen="{Binding DirectoryFreeOver20Percent}" Margin="10,0,0,0"/>
                 <TextBlock Text="{Resx _statusbar.TotalItems}" Margin="5, 0"/>

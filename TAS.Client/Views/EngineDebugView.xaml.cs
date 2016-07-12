@@ -9,17 +9,16 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace TAS.Client.Views
 {
     /// <summary>
-    /// Interaction logic for EngineStateView.xaml
+    /// Interaction logic for EngineState.xaml
     /// </summary>
-    public partial class EngineStateView : UserControl
+    public partial class EngineDebugView : Window
     {
-        public EngineStateView()
+        public EngineDebugView()
         {
             InitializeComponent();
         }

@@ -631,16 +631,10 @@ namespace TAS.Server
         TimeSpan _transitionTime;
         public TimeSpan TransitionTime
         {
-            get
-            {
-                if (_isHold)
-                    return TimeSpan.Zero;
-                return _transitionTime;
-            }
+            get { return _transitionTime; }
             set
             {
-                value = Engine.AlignTimeSpan(value);
-                if (SetField(ref _transitionTime, value, "TransitionTime"))
+                if (SetField(ref _transitionTime, Engine.AlignTimeSpan(value), "TransitionTime"))
                     UpdateScheduledTime(true);
             }
         }

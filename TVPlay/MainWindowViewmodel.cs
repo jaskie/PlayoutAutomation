@@ -13,37 +13,19 @@ namespace TAS.Client
 {
     public class MainWindowViewmodel : ViewModels.ViewmodelBase
     {
-        readonly List<TabItem> _tabs;
+        readonly List<ChannelViewmodel> _channels;
 
 
         public MainWindowViewmodel()
         {
-            _tabs = new List<TabItem>();
             if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject()))
             {
                 var engines = EngineController.Engines;
-                if (engines != null)
-                    foreach (Engine engine in engines)
-                    {
-                        TabItem newtab = new TabItem();
-                        newtab.Header = engine.EngineName;
-                        Debug.WriteLine(engine, "Creating viewmodel for");
-                        var engineViewModel = new EngineViewmodel(engine, engine);
-                        newtab.Content = engineViewModel.View;
-                        _tabs.Add(newtab);
-
-                        Debug.WriteLine(engine.MediaManager, "Creating tab for");
-                        TabItem tabIngest = new TabItem();
-                        tabIngest.Header = engine.EngineName + " - Media";
-                        MediaManagerViewmodel newMediaManagerViewmodel = new MediaManagerViewmodel(engine.MediaManager, engine);
-                        tabIngest.Content = newMediaManagerViewmodel.View;
-                        _tabs.Add(tabIngest);
-                    }
+                _channels = new List<ChannelViewmodel>(engines.Select(engine => new ChannelViewmodel(engine)));
             }
         }
-
-
-        public IEnumerable<TabItem> Tabs { get { return _tabs; } }
+        
+        public IEnumerable<ChannelViewmodel> Channels { get { return _channels; } }
 
         protected override void OnDispose() { }
     }

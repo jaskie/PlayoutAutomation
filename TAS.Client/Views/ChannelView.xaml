@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="TAS.Client.Views.ChannelView"
+             ResxExtension.DefaultResxName="TAS.Client.Views.ChannelView" Language="{UICulture}"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TAS.Client.Views"
+             xmlns:vievmodels="clr-namespace:TAS.Client.ViewModels" 
+             xmlns:views="clr-namespace:TAS.Client.Views" 
+             mc:Ignorable="d" 
+             d:DataContext="{x:Type vievmodels:ChannelViewmodel}"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.InputBindings>
+        <KeyBinding Gesture="F9" Command="{Binding CommandSwitchTab}"/>
+    </UserControl.InputBindings>
+    <TabControl TabStripPlacement="Bottom" BorderThickness="1" Padding="0" SelectedIndex="{Binding SelectedTab}" >
+        <TabItem Header="{Resx _playlist}" Content="{Binding EngineViewmodel.View}"/>
+        <TabItem Header="{Resx _media}" Content="{Binding MediaManagerViewmodel.View}"/>
+        <!--<TabItem Header="{Resx _state}" Content="{Binding EngineStateViewmodel.View}" />-->
+    </TabControl>
+</UserControl>

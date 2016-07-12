@@ -10,6 +10,17 @@
     <Window.Resources>
         <client:MainWindowViewmodel x:Key="MainWindowVM"/>
     </Window.Resources>
-    <TabControl TabStripPlacement="Bottom" DataContext="{StaticResource MainWindowVM}" ItemsSource="{Binding Tabs}">
+    <TabControl Padding="0" TabStripPlacement="Bottom" BorderThickness="0" DataContext="{StaticResource MainWindowVM}" ItemsSource="{Binding Channels}">
+        <TabControl.ItemContainerStyle>
+            <Style TargetType="{x:Type TabItem}">
+                <Setter Property="Header" Value="{Binding ChannelName}"/>
+                <Setter Property="Content" Value="{Binding View}"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TabControl}}, Path=Items.Count}" Value="1">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </TabControl.ItemContainerStyle>
     </TabControl>
 </Window>

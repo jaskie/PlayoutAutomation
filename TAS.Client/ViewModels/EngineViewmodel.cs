@@ -1,25 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.ComponentModel;
 using System.Windows;
-using System.Runtime.Remoting.Messaging;
 using System.Windows.Input;
 using System.Collections.ObjectModel;
-using System.Windows.Media;
 using System.Diagnostics;
 using TAS.Common;
 using TAS.Client.Common;
-using System.Configuration;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition;
 using TAS.Client.Common.Plugin;
+using TAS.Client.Views;
 using resources = TAS.Client.Common.Properties.Resources;
-using System.IO;
 
 namespace TAS.Client.ViewModels
 {
@@ -93,10 +91,6 @@ namespace TAS.Client.ViewModels
             _engine.DatabaseConnectionStateChanged += _engine_DatabaseConnectionStateChanged;
             _composePlugins();
 
-            _fixedTimeEvents = new ObservableCollection<EventPanelAutoStartEventViewmodel>(engine.FixedTimeEvents.Select(e => new EventPanelAutoStartEventViewmodel(e)));
-            engine.FixedTimeEventOperation += _engine_FixedTimeEventOperation;
-
-
             Debug.WriteLine(this, "Creating EngineView");
             _engineView = new EngineView(this._frameRate);
             _engineView.DataContext = this;
@@ -123,14 +117,6 @@ namespace TAS.Client.ViewModels
                 engine.PlayoutChannelPRV.OwnerServer.PropertyChanged += OnPRVServerPropertyChanged;
         }
 
-        private void _engine_FixedTimeEventOperation(object sender, CollectionOperationEventArgs<IEvent> e)
-        {
-            if (e.Operation == TCollectionOperation.Insert)
-                _fixedTimeEvents.Add(new EventPanelAutoStartEventViewmodel(e.Item));
-            if (e.Operation == TCollectionOperation.Remove)
-                _fixedTimeEvents.Remove(_fixedTimeEvents.FirstOrDefault(evm => evm.Event == e.Item));
-        }
-
         private void _engine_DatabaseConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
         {
             NotifyPropertyChanged("NoAlarms");
@@ -150,8 +136,6 @@ namespace TAS.Client.ViewModels
             _engine.PropertyChanged -= _enginePropertyChanged;
             _engine.VisibleEventsOperation -= _onEngineVisibleEventsOperation;
             _engine.RunningEventsOperation -= OnEngineRunningEventsOperation;
-            _engine.FixedTimeEventOperation -= _engine_FixedTimeEventOperation;
-
 
             _selectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
             _engine.EventSaved -= _engine_EventSaved;
@@ -171,7 +155,7 @@ namespace TAS.Client.ViewModels
         }
 
         public EngineView View { get { return _engineView; } }
-        public Views.PreviewView PreviewView { get { return _previewView; } }
+        public PreviewView PreviewView { get { return _previewView; } }
         public EventEditView EventEditView { get { return _eventEditView; } }
 
 
@@ -572,11 +556,11 @@ namespace TAS.Client.ViewModels
         {
             if (_debugWindow == null)
             {
-                _debugWindow = new Views.EngineStateView();
+                _debugWindow = new Views.EngineDebugView();
                 _debugWindow.DataContext = this;
                 _debugWindow.Closed += (w, e) =>
                 {
-                    var window = w as Views.EngineStateView;
+                    var window = w as Views.EngineDebugView;
                     if (window != null)
                         window.DataContext = null;
                     _debugWindow = null;
@@ -665,9 +649,6 @@ namespace TAS.Client.ViewModels
 
         readonly EventPanelViewmodelBase _rootEventViewModel;
         public EventPanelViewmodelBase RootEventViewModel { get { return _rootEventViewModel; } }
-
-        readonly ObservableCollection<EventPanelAutoStartEventViewmodel> _fixedTimeEvents;
-        public ObservableCollection<EventPanelAutoStartEventViewmodel> FixedTimeEvents { get { return _fixedTimeEvents; } }
 
         private EventPanelViewmodelBase _selected;
         public EventPanelViewmodelBase Selected
@@ -959,7 +940,7 @@ namespace TAS.Client.ViewModels
         }
 
 
-        private Views.EngineStateView _debugWindow;
+        private Views.EngineDebugView _debugWindow;
         public void _searchMissingEvents(object o)
         {
             _engine.SearchMissingEvents();

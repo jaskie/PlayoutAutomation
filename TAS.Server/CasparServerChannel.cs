@@ -177,6 +177,8 @@ namespace TAS.Server
                     if (item != null)
                     {
                         channel.Load(item);
+                        if (eventType == TEventType.Live)
+                            channel.Play(item.VideoLayer);
                         _visible[aEvent.Layer] = aEvent;
                         Event removed;
                         _loadedNext.TryRemove(aEvent.Layer, out removed);
