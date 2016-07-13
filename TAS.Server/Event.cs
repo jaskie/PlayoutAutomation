@@ -38,7 +38,9 @@ namespace TAS.Server
                     TimeSpan startTC,
                     TimeSpan? requestedStartTime,
                     TimeSpan transitionTime,
+                    TimeSpan transitionPauseTime, 
                     TTransitionType transitionType,
+                    TEasing transitionEasing,
                     decimal? audioVolume,
                     UInt64 idProgramme,
                     string idAux,
@@ -65,7 +67,9 @@ namespace TAS.Server
             _startTc = startTC;
             _requestedStartTime = requestedStartTime;
             _transitionTime = transitionTime;
+            _transitionPauseTime = transitionPauseTime;
             _transitionType = transitionType;
+            _transitionEasing = transitionEasing;
             _audioVolume = audioVolume;
             _idProgramme = idProgramme;
             _idAux = idAux;
@@ -174,7 +178,9 @@ namespace TAS.Server
                 _startTc,
                 _requestedStartTime,
                 _transitionTime,
+                _transitionPauseTime,
                 _transitionType,
+                _transitionEasing,
                 _audioVolume,
                 _idProgramme,
                 _idAux,
@@ -387,7 +393,7 @@ namespace TAS.Server
                 nt = Engine.AlignDateTime(pev.EndTime - TransitionTime);
             else
             {
-                pev = VisualParent;
+                pev = Parent;
                 if (pev != null && pev.EventType != TEventType.Container)
                     nt = Engine.AlignDateTime(pev.ScheduledTime);
             }
@@ -425,15 +431,18 @@ namespace TAS.Server
             }
             set
             {
-                value = Engine.AlignDateTime(value);
-                if (SetField(ref _scheduledTime, value, "ScheduledTime"))
+                if (_startType == TStartType.Manual || _startType == TStartType.OnFixedTime)
                 {
-                    Event ne = _next.Value;
-                    if (ne != null)
-                        ne.UpdateScheduledTime(true);  // trigger update all next events
-                    foreach (Event ev in SubEvents) //update all sub-events
-                        ev.UpdateScheduledTime(true);
-                    NotifyPropertyChanged("Offset");
+                    value = Engine.AlignDateTime(value);
+                    if (SetField(ref _scheduledTime, value, "ScheduledTime"))
+                    {
+                        Event ne = _next.Value;
+                        if (ne != null)
+                            ne.UpdateScheduledTime(true);  // trigger update all next events
+                        foreach (Event ev in SubEvents) //update all sub-events
+                            ev.UpdateScheduledTime(true);
+                        NotifyPropertyChanged("Offset");
+                    }
                 }
             }
         }
@@ -635,15 +644,33 @@ namespace TAS.Server
             set
             {
                 if (SetField(ref _transitionTime, Engine.AlignTimeSpan(value), "TransitionTime"))
-                    UpdateScheduledTime(true);
+                {
+                    UpdateScheduledTime(false);
+                    DurationChanged();
+                }
             }
         }
+
+        TimeSpan _transitionPauseTime;
+        public TimeSpan TransitionPauseTime
+        {
+            get { return _transitionPauseTime; }
+            set { SetField(ref _transitionPauseTime, Engine.AlignTimeSpan(value), "TransitionPauseTime"); }
+        }
+
 
         TTransitionType _transitionType;
         public TTransitionType TransitionType
         {
             get { return _transitionType; }
             set { SetField(ref _transitionType, value, "TransitionType"); }
+        }
+
+        TEasing _transitionEasing;
+        public TEasing TransitionEasing
+        {
+            get { return _transitionEasing; }
+            set { SetField(ref _transitionEasing, value, "TransitionEasing"); }
         }
 
         Guid _mediaGuid;

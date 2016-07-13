@@ -168,4 +168,11 @@ CHANGE COLUMN `LastUpdated` `LastUpdated` DATETIME NULL DEFAULT NULL;
 ALTER TABLE `archivemedia` 
 CHANGE COLUMN `LastUpdated` `LastUpdated` DATETIME NULL DEFAULT NULL ;</value>
   </data>
+  <data name="V5" xml:space="preserve">
+    <value>ALTER TABLE `rundownevent`
+ADD COLUMN `TransitionPauseTime` time(3) DEFAULT NULL AFTER `TransitionTime`,
+CHANGE COLUMN `typTransition` `typTransition` SMALLINT UNSIGNED NULL DEFAULT NULL;
+UPDATE `rundownevent` SET `Layer`=`Layer`+16 WHERE `Layer` &gt;= 0;
+UPDATE `rundownevent` SET `Layer`=26 WHERE `typEvent` = 6;</value>
+  </data>
 </root>

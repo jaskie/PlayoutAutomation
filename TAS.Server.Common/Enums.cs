@@ -58,15 +58,15 @@ namespace TAS.Common
     public enum VideoLayer : sbyte
     {
         None = -1,
-        Program = 0,
+        Program = 0x10,
         CG1 = Program | 1,
         CG2 = Program | 2,
         CG3 = Program | 3,
         CG4 = Program | 4,
         CG5 = Program | 5,
-        Animation = Program | 6,
-        Preset = 10,
-        Preview = 0xF,
+        Animation = Program | 0xA,
+        Preset = 0x2F,
+        Preview = 0x30,
         PreviewCG1 = Preview | CG1,
         PreviewCG2 = Preview | CG2,
         PreviewCG3 = Preview | CG3,
@@ -398,7 +398,14 @@ namespace TAS.Common
     }
 
 
-    public enum TTransitionType { Cut = 0, Mix = 1, Push = 2, Slide = 3, Wipe = 4 };
+    public enum TTransitionType {
+        Cut = 0,
+        Mix = 1,
+        Push = 2,
+        Slide = 3,
+        Wipe = 4,
+        Squeeze = 5,
+    };
     
     [TypeConverter(typeof(TParentalEnumConverter))]
     public enum TParental
@@ -444,4 +451,49 @@ namespace TAS.Common
         { }
     }
 
+    public enum TEasing
+    {
+        Linear = 1,
+        None,
+        InQuad,
+        OutQuad,
+        InOutQuad,
+        OutInQuad,
+        InCubic,
+        OutCubic,
+        InOutCubic,
+        OutInCubic,
+        InQuart,
+        OutQuart,
+        InOutQuart,
+        OutInQuart,
+        InQuint,
+        OutQuint,
+        InOutQuint,
+        OutInQuint,
+        InSine,
+        OutSine,
+        InOutSine,
+        OutInSine,
+        InExpo,
+        OutExpo,
+        InOutExpo,
+        OutInExpo,
+        InCirc,
+        OutCirc,
+        InOutCirc,
+        OutInCirc,
+        InElastic,
+        OutElastic,
+        InOutElastic,
+        OutInElastic,
+        InBack,
+        OutBack,
+        InOutBack,
+        OutInBack,
+        OutBounce,
+        InBounce,
+        InOutBounce,
+        OutInBounce
+    }
 }

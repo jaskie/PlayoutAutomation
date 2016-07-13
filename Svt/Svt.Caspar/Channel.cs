@@ -47,8 +47,6 @@ namespace Svt.Caspar
             if (item.Length > 0) command.AppendFormat(" LENGTH {0}", item.Length);
             if (item.Loop) command.Append(" LOOP");
             if (item.ChannelLayout != ChannelLayout.Default) command.AppendFormat(" CHANNEL_LAYOUT {0}", item.ChannelLayout.ToString().ToUpperInvariant());
-            if (item.Transition != null)
-                command.AppendFormat(" {0}", item.Transition);
             if (item.FieldOrderInverted)
                 command.Append(" FIELD_ORDER_INVERTED");
             Connection.SendString(command.ToString());
@@ -65,7 +63,8 @@ namespace Svt.Caspar
             if (item.Length > 0) command.AppendFormat(" LENGTH {0}", item.Length);
             if (item.Loop) command.Append(" LOOP");
             if (item.ChannelLayout != ChannelLayout.Default) command.AppendFormat(" CHANNEL_LAYOUT {0}", item.ChannelLayout.ToString().ToUpperInvariant());
-            if (item.Transition != null)
+            var transition = item.Transition?.Type;
+            if (transition != null && transition != TransitionType.CUT)
                 command.AppendFormat(" {0}", item.Transition);
             if (item.FieldOrderInverted)
                 command.Append(" FIELD_ORDER_INVERTED");

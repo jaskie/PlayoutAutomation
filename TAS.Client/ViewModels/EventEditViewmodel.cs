@@ -226,6 +226,9 @@ namespace TAS.Client.ViewModels
                     case "TransitionTime":
                         validationResult = _validateTransitionTime();
                         break;
+                    case "TransitionPauseTime":
+                        validationResult = _validateTransitionPauseTime();
+                        break;
                     case "ScheduledDelay":
                         validationResult = _validateScheduledDelay();
                         break;
@@ -293,6 +296,13 @@ namespace TAS.Client.ViewModels
             return null;
         }
 
+        private string _validateTransitionPauseTime()
+        {
+            string validationResult = string.Empty;
+            if (_transitionPauseTime > _transitionTime)
+                validationResult = resources._validate_TransitionPauseTimeInvalid;
+            return validationResult;
+        }
 
         private string _validateTransitionTime()
         {
@@ -598,10 +608,12 @@ namespace TAS.Client.ViewModels
         public bool IsTransitionPanelEnabled
         {
             get { 
-                var ev = _event;
-                return ev != null && !_isHold && (ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie);
+                var et = _event?.EventType;
+                return !_isHold && (et == TEventType.Live || et == TEventType.Movie);
                 }
         }
+
+        public bool IsTransitionPropertiesVisible { get { return _transitionType != TTransitionType.Cut; } }
 
         public bool IsNotContainer
         {
@@ -719,11 +731,32 @@ namespace TAS.Client.ViewModels
         static readonly Array _transitionTypes = Enum.GetValues(typeof(TTransitionType));
         public Array TransitionTypes { get { return _transitionTypes; } }
 
+        static readonly Array _transitionEasings = Enum.GetValues(typeof(TEasing));
+        public Array TransitionEasings { get { return _transitionEasings; } }
+
         private TTransitionType _transitionType;
         public TTransitionType TransitionType
         {
             get { return _transitionType; }
-            set { SetField(ref _transitionType, value, "TransitionType"); }
+            set
+            {
+                if (SetField(ref _transitionType, value, "TransitionType"))
+                {
+                    if (value == TTransitionType.Cut)
+                    {
+                        TransitionTime = TimeSpan.Zero;
+                        TransitionPauseTime = TimeSpan.Zero;
+                    }
+                    NotifyPropertyChanged("IsTransitionPropertiesVisible");
+                }
+            }
+        }
+
+        private TEasing _transitionEasing;
+        public TEasing TransitionEasing
+        {
+            get { return _transitionEasing; }
+            set { SetField(ref _transitionEasing, value, "TransitionEasing"); }
         }
 
         private TimeSpan _transitionTime;
@@ -732,6 +765,14 @@ namespace TAS.Client.ViewModels
             get { return _transitionTime; }
             set { SetField(ref _transitionTime, value, "TransitionTime"); }
         }
+
+        private TimeSpan _transitionPauseTime;
+        public TimeSpan TransitionPauseTime
+        {
+            get { return _transitionPauseTime; }
+            set { SetField(ref _transitionPauseTime, value, "TransitionPauseTime"); }
+        }
+
 
         private decimal? _audioVolume;
         public decimal? AudioVolume
@@ -815,6 +856,7 @@ namespace TAS.Client.ViewModels
             get { return _requestedStartTime; }
             set { SetField(ref _requestedStartTime, value, "RequestedStartTime"); }
         }
+
 
         private TimeSpan _duration;
         public TimeSpan Duration

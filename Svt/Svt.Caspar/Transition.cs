@@ -10,7 +10,8 @@ namespace Svt.Caspar
 		MIX,
 		PUSH,
 		SLIDE,
-		WIPE
+		WIPE,
+        SQUEEZE
 	}
 
     public enum TransitionDirection
@@ -26,11 +27,15 @@ namespace Svt.Caspar
 			type_ = TransitionType.CUT;
             direction_ = TransitionDirection.RIGHT;
 			duration_ = 0;
+            pause_ = 0;
+            easing_ = Easing.None;
 		}
-		public Transition(TransitionType type, int duration)
+		public Transition(TransitionType type, int duration, int pause, Easing easing)
 		{
 			type_ = type;
 			duration_ = duration;
+            pause_ = pause;
+            easing_ = easing;
 		}
 
         private TransitionDirection direction_;
@@ -53,9 +58,27 @@ namespace Svt.Caspar
 			set { duration_ = value; }
 		}
 
-		public override string ToString()
+        private int pause_;
+        public int Pause
+        {
+            get { return pause_; }
+            set { pause_ = value; }
+        }
+
+        private Easing easing_;
+        public Easing Easing
+        {
+            get { return easing_; }
+            set { easing_ = value; }
+        }
+
+        public override string ToString()
 		{
-            return Type.ToString() + " " + duration_.ToString() + " " + direction_.ToString();
+            if (type_ == TransitionType.CUT)
+                return string.Empty;
+            StringBuilder sb = new StringBuilder(type_.ToString())
+                .AppendFormat(" {0} {1} {2} {3}", duration_, easing_.ToString().ToUpperInvariant(), direction_, pause_);
+            return sb.ToString();
 		}
 	}
 }

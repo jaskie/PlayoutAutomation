@@ -134,6 +134,11 @@ namespace TAS.Server.Database
             return _reader.IsDBNull(index) ? (short)0 : _reader.GetInt16(index);
         }
 
+        public ushort GetUInt16(string name)
+        {
+            int index = _reader.GetOrdinal(name);
+            return _reader.IsDBNull(index) ? (ushort)0 : _reader.GetUInt16(index);
+        }
 
         public override int GetInt32(int ordinal)
         {

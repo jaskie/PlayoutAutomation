@@ -159,6 +159,9 @@
   <data name="_duration" xml:space="preserve">
     <value>Duration</value>
   </data>
+  <data name="_easingType" xml:space="preserve">
+    <value>Easing</value>
+  </data>
   <data name="_editMovie.ToolTip" xml:space="preserve">
     <value>Properties</value>
   </data>
@@ -215,7 +218,16 @@ The difference to the specified time will be shown in the tree of the times of e
     <value>Instant change - F7</value>
   </data>
   <data name="_transitionLength" xml:space="preserve">
-    <value>length</value>
+    <value>Length</value>
+  </data>
+  <data name="_transitionLength.ToolTip" xml:space="preserve">
+    <value>Transition time, in frames</value>
+  </data>
+  <data name="_transitionPauseLength" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="_transitionPauseLength.ToolTip" xml:space="preserve">
+    <value>Pause in the middle of transition, in frames</value>
   </data>
   <data name="_transitionType" xml:space="preserve">
     <value>Transition</value>

@@ -270,31 +270,34 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
     <value>Nieznany</value>
   </data>
   <data name="_validateStartPlayMustBeInsideFile" xml:space="preserve">
-    <value>Rozpoczęcie odtwarzania musi się zawierać pomiędzy TC początkowym i końcowym klipu</value>
+    <value>Rozpoczęcie odtwarzania musi się zawierać pomiędzy TC początkowym i końcowym klipu.</value>
   </data>
   <data name="_validate_DurationInvalid" xml:space="preserve">
     <value>Czas trwania (z uwzględnieniem TC startu) jest dłuższy, niż klipu.</value>
   </data>
   <data name="_validate_FileAlreadyExists" xml:space="preserve">
-    <value>Plik o takiej nazwie już istnieje</value>
+    <value>Plik o takiej nazwie już istnieje.</value>
   </data>
   <data name="_validate_FileMustHaveExtension" xml:space="preserve">
-    <value>Plik musi mieć rozszerzenie nazwy {0}</value>
+    <value>Plik musi mieć rozszerzenie nazwy {0}.</value>
   </data>
   <data name="_validate_FileNameCanNotContainSpecialCharacters" xml:space="preserve">
-    <value>Nazwa pliku nie może zawierać znaków specjalnych</value>
+    <value>Nazwa pliku nie może zawierać znaków specjalnych.</value>
   </data>
   <data name="_validate_ScheduledDelayInvalid" xml:space="preserve">
-    <value>Suma długości i opóźnienia przekracza czas trwania elementu</value>
+    <value>Suma długości i opóźnienia przekracza czas trwania elementu.</value>
   </data>
   <data name="_validate_StartTCAfterFile" xml:space="preserve">
-    <value>Timecode startu jest za klipem (końcowy TC klipu to {0})</value>
+    <value>Timecode startu jest za klipem (końcowy TC klipu to {0}).</value>
   </data>
   <data name="_validate_StartTCBeforeFile" xml:space="preserve">
-    <value>Timecode startu jest przed klipem (początkowy TC klipu to {0})</value>
+    <value>Timecode startu jest przed klipem (początkowy TC klipu to {0}).</value>
   </data>
   <data name="_validate_StartTimePassed" xml:space="preserve">
     <value>Czas startu już upłynął</value>
+  </data>
+  <data name="_validate_TransitionPauseTimeInvalid" xml:space="preserve">
+    <value>Czas pauzy nie może być dłuższy od czasu przejścia.</value>
   </data>
   <data name="_validate_TransitionTimeInvalid" xml:space="preserve">
     <value>Czas przejścia jest dłuższy, niż czas trwania.</value>

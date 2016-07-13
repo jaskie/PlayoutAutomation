@@ -146,13 +146,18 @@ namespace Svt.Caspar
 			reader.ReadStartElement();
 			if (reader.Name == "transition")
 			{
-				int duration = 0;
-
+				int duration;
+                int pause;
+                Easing easing;
 				string typeString = reader["type"];
 				string durationString = reader["duration"];
-				if (Int32.TryParse(durationString, out duration) && Enum.IsDefined(typeof(TransitionType), typeString.ToUpper()))
+                string pauseString = reader["pause"];
+                int.TryParse(pauseString, out pause);
+                string easingString = reader["easing"];
+                Enum.TryParse<Easing>(easingString, out easing);
+                if (Int32.TryParse(durationString, out duration) && Enum.IsDefined(typeof(TransitionType), typeString.ToUpper()))
 				{
-					transition_ = new Transition((TransitionType)Enum.Parse(typeof(TransitionType), typeString.ToUpper()), duration);
+					transition_ = new Transition((TransitionType)Enum.Parse(typeof(TransitionType), typeString.ToUpper()), duration, pause, easing);
 				}
 				else
 					transition_ = new Transition();
@@ -171,7 +176,9 @@ namespace Svt.Caspar
 			writer.WriteStartElement("transition");
 			writer.WriteAttributeString("type", Transition.Type.ToString());
 			writer.WriteAttributeString("duration", Transition.Duration.ToString());
-			writer.WriteEndElement();
+            writer.WriteAttributeString("easing", Transition.Easing.ToString());
+            writer.WriteAttributeString("pause", Transition.Pause.ToString());
+            writer.WriteEndElement();
 	
 			writer.WriteEndElement();
 		}

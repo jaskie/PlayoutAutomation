@@ -108,9 +108,11 @@ namespace TAS.Server
                     item.FieldOrderInverted = media.FieldOrderInverted;
                 item.VideoLayer = (int)aEvent.Layer;
                 item.Loop = false;
-                item.Transition.Duration = (int)(aEvent.TransitionTime.Ticks / aEvent.Engine.FrameTicks);
-                item.Seek = (int)aEvent.MediaSeek;
                 item.Transition.Type = (Svt.Caspar.TransitionType)aEvent.TransitionType;
+                item.Transition.Duration = (int)((aEvent.TransitionTime.Ticks - aEvent.TransitionPauseTime.Ticks) / aEvent.Engine.FrameTicks);
+                item.Transition.Pause = (int)(aEvent.TransitionPauseTime.Ticks / aEvent.Engine.FrameTicks);
+                item.Transition.Easing = (Easing)aEvent.TransitionEasing; 
+                item.Seek = (int)aEvent.MediaSeek;
                 return item;
             }
             return null;
@@ -260,7 +262,7 @@ namespace TAS.Server
                         {
                             var item = _getItem(aEvent);
                             if (item != null)
-                                channel.Load(item);
+                                channel.LoadBG(item);
                         }
                     }
                     channel.Play((int)aEvent.Layer);

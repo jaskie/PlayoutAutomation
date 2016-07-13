@@ -1318,7 +1318,9 @@ namespace TAS.Server
                     TimeSpan startTC = default(TimeSpan),
                     TimeSpan? requestedStartTime = null,
                     TimeSpan transitionTime = default(TimeSpan),
+                    TimeSpan transitionPauseTime = default(TimeSpan), 
                     TTransitionType transitionType = TTransitionType.Cut,
+                    TEasing transitionEasing = TEasing.Linear,
                     decimal? audioVolume = null,
                     UInt64 idProgramme = 0,
                     string idAux = "",
@@ -1335,7 +1337,7 @@ namespace TAS.Server
                 if (eventType == TEventType.Animation)
                     result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, gpi);
                 else
-                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionType, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, gpi, autoStartFlags);
+                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, gpi, autoStartFlags);
                 if (idRundownEvent == 0)
                     result.Save();
                 if (_events.TryAdd(result.IdRundownEvent, result))

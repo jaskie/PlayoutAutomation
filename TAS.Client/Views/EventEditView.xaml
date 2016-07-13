@@ -187,9 +187,35 @@
                         </Grid>
                         <DockPanel>
                             <Label Content="{Resx _transitionType}" />
-                            <ComboBox ItemsSource="{Binding TransitionTypes}" SelectedValue="{Binding TransitionType}" />
-                            <Label Content="{Resx _transitionLength}" />
-                            <TextBox Text="{Binding TransitionTime, Converter={StaticResource TimeSpanToFrames}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox Width="Auto" ItemsSource="{Binding TransitionTypes}" SelectedValue="{Binding TransitionType}" />
+                                <Grid Grid.Column="1" Grid.ColumnSpan="2" Visibility="{Binding IsTransitionPropertiesVisible,Converter={StaticResource BoolToVis}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Width="Auto" Content="{Resx _easingType}"/>
+                                    <ComboBox Grid.Column="1" Width="Auto" ItemsSource="{Binding TransitionEasings}" SelectedValue="{Binding TransitionEasing}"/>
+                                </Grid>
+                            </Grid>
+                        </DockPanel>
+                        <DockPanel Visibility="{Binding IsTransitionPropertiesVisible,Converter={StaticResource BoolToVis}}">
+                            <Label Content="{Resx _transitionLength}" ToolTip="{Resx _transitionLength.ToolTip}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="{Binding TransitionTime, Converter={StaticResource TimeSpanToFrames}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+                                <Label Grid.Column="1"  Width="Auto" Content="{Resx _transitionPauseLength}" ToolTip="{Resx _transitionPauseLength.ToolTip}" />
+                                <TextBox Grid.Column="2" Text="{Binding TransitionPauseTime, Converter={StaticResource TimeSpanToFrames}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+                            </Grid>
                         </DockPanel>
                         <DockPanel>
                             <CheckBox Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" IsChecked="{Binding HasAudioVolume}" ToolTip="{Resx _audioVolume.ToolTip}" />

@@ -270,34 +270,37 @@ Do you really want to run this BACKUP play-out?</value>
     <value>Unknown</value>
   </data>
   <data name="_validateStartPlayMustBeInsideFile" xml:space="preserve">
-    <value>Start of play must be between start and end clip timecode</value>
+    <value>Start of play must be between start and end clip timecode.</value>
   </data>
   <data name="_validate_DurationInvalid" xml:space="preserve">
-    <value>Duration (considering start TC) is longer than clip</value>
+    <value>Duration (considering start TC) is longer than clip.</value>
   </data>
   <data name="_validate_FileAlreadyExists" xml:space="preserve">
-    <value>File of this name already exists</value>
+    <value>File of this name already exists.</value>
   </data>
   <data name="_validate_FileMustHaveExtension" xml:space="preserve">
-    <value>File must have extension {0}</value>
+    <value>File must have extension {0}.</value>
   </data>
   <data name="_validate_FileNameCanNotContainSpecialCharacters" xml:space="preserve">
-    <value>File name can't contain special characters</value>
+    <value>File name can't contain special characters.</value>
   </data>
   <data name="_validate_ScheduledDelayInvalid" xml:space="preserve">
-    <value>Sum of duration and start delay exceeds item length</value>
+    <value>Sum of duration and start delay exceeds item length.</value>
   </data>
   <data name="_validate_StartTCAfterFile" xml:space="preserve">
-    <value>Start timecode is behind end of clip (clip ends at {0})</value>
+    <value>Start timecode is behind end of clip (clip ends at {0}).</value>
   </data>
   <data name="_validate_StartTCBeforeFile" xml:space="preserve">
-    <value>Start timecode is before start of clip (clip starts at {0})</value>
+    <value>Start timecode is before start of clip (clip starts at {0}).</value>
   </data>
   <data name="_validate_StartTimePassed" xml:space="preserve">
-    <value>Start time passed</value>
+    <value>Start time passed.</value>
+  </data>
+  <data name="_validate_TransitionPauseTimeInvalid" xml:space="preserve">
+    <value>Transition pause cannot be longer than transition itself.</value>
   </data>
   <data name="_validate_TransitionTimeInvalid" xml:space="preserve">
-    <value>Transition time exceeds clip duration</value>
+    <value>Transition time exceeds clip duration.</value>
   </data>
   <data name="_window_IngestAs" xml:space="preserve">
     <value>Ingest as...</value>

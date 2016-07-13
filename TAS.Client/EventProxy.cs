@@ -33,7 +33,9 @@ namespace TAS.Client
         public DateTime StartTime { get; set; }
         public TStartType StartType { get; set; }
         public TimeSpan TransitionTime { get; set; }
+        public TimeSpan TransitionPauseTime { get; set; }
         public TTransitionType TransitionType { get; set; }
+        public TEasing TransitionEasing { get; set; }
         public EventProxy[] SubEvents { get; set; }
         public AutoStartFlags AutoStartFlags { get; set; }
 
@@ -66,7 +68,9 @@ namespace TAS.Client
                         eventName: EventName,
                         requestedStartTime: RequestedStartTime,
                         transitionTime: TransitionTime,
+                        transitionPauseTime: TransitionPauseTime,
                         transitionType: TransitionType,
+                        transitionEasing: TransitionEasing,
                         audioVolume: AudioVolume,
                         idProgramme: IdProgramme,
                         idAux: IdAux,
@@ -150,7 +154,9 @@ namespace TAS.Client
                 StartTime = source.StartTime,
                 StartType = source.StartType,
                 TransitionTime = source.TransitionTime,
+                TransitionPauseTime = source.TransitionPauseTime,
                 TransitionType = source.TransitionType,
+                TransitionEasing = source.TransitionEasing,
                 SubEvents = source.AllSubEvents().Select(e => FromEvent(e)).ToArray(),
                 AutoStartFlags = source.AutoStartFlags
             };

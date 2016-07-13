@@ -108,8 +108,9 @@ CREATE TABLE `rundownevent` (
   `StartTC` time(6) DEFAULT NULL,
   `RequestedStartTime` time(6) DEFAULT NULL,
   `PlayState` tinyint(3) unsigned DEFAULT NULL,
-  `TransitionTime` time(6) DEFAULT NULL,
-  `typTransition` tinyint(3) unsigned DEFAULT NULL,
+  `TransitionTime` time(3) DEFAULT NULL,
+  `TransitionPauseTime` time(3) DEFAULT NULL,
+  `typTransition` smallint unsigned DEFAULT NULL,
   `idProgramme` bigint(20) unsigned DEFAULT NULL,
   `idCustomCommand` bigint(20) unsigned DEFAULT NULL,
   `flagsEvent` int(10) unsigned DEFAULT NULL,
@@ -170,4 +171,4 @@ CREATE TABLE `params` (
   `Value` VARCHAR(100) NULL,
   PRIMARY KEY (`Section`, `Key`));
 
-INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', 'V4');
+INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', 'V5');

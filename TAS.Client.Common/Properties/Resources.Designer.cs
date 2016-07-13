@@ -495,7 +495,7 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Duration (considering start TC) is longer than clip.
+        ///   Looks up a localized string similar to Duration (considering start TC) is longer than clip..
         /// </summary>
         public static string _validate_DurationInvalid {
             get {
@@ -504,7 +504,7 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to File of this name already exists.
+        ///   Looks up a localized string similar to File of this name already exists..
         /// </summary>
         public static string _validate_FileAlreadyExists {
             get {
@@ -513,7 +513,7 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to File must have extension {0}.
+        ///   Looks up a localized string similar to File must have extension {0}..
         /// </summary>
         public static string _validate_FileMustHaveExtension {
             get {
@@ -522,7 +522,7 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to File name can&apos;t contain special characters.
+        ///   Looks up a localized string similar to File name can&apos;t contain special characters..
         /// </summary>
         public static string _validate_FileNameCanNotContainSpecialCharacters {
             get {
@@ -531,7 +531,7 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sum of duration and start delay exceeds item length.
+        ///   Looks up a localized string similar to Sum of duration and start delay exceeds item length..
         /// </summary>
         public static string _validate_ScheduledDelayInvalid {
             get {
@@ -540,7 +540,7 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Start timecode is behind end of clip (clip ends at {0}).
+        ///   Looks up a localized string similar to Start timecode is behind end of clip (clip ends at {0})..
         /// </summary>
         public static string _validate_StartTCAfterFile {
             get {
@@ -549,7 +549,7 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Start timecode is before start of clip (clip starts at {0}).
+        ///   Looks up a localized string similar to Start timecode is before start of clip (clip starts at {0})..
         /// </summary>
         public static string _validate_StartTCBeforeFile {
             get {
@@ -558,7 +558,7 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Start time passed.
+        ///   Looks up a localized string similar to Start time passed..
         /// </summary>
         public static string _validate_StartTimePassed {
             get {
@@ -567,7 +567,16 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Transition time exceeds clip duration.
+        ///   Looks up a localized string similar to Transition pause cannot be longer than transition itself..
+        /// </summary>
+        public static string _validate_TransitionPauseTimeInvalid {
+            get {
+                return ResourceManager.GetString("_validate_TransitionPauseTimeInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transition time exceeds clip duration..
         /// </summary>
         public static string _validate_TransitionTimeInvalid {
             get {
@@ -576,7 +585,7 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Start of play must be between start and end clip timecode.
+        ///   Looks up a localized string similar to Start of play must be between start and end clip timecode..
         /// </summary>
         public static string _validateStartPlayMustBeInsideFile {
             get {

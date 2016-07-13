@@ -159,6 +159,9 @@
   <data name="_duration" xml:space="preserve">
     <value>Czas trwania</value>
   </data>
+  <data name="_easingType" xml:space="preserve">
+    <value>Wygładzanie</value>
+  </data>
   <data name="_editMovie.ToolTip" xml:space="preserve">
     <value>Właściwości</value>
   </data>
@@ -215,7 +218,16 @@ Różnica do podanego czasu będzie pokazana wśród czasów w drzewie zdarzeń 
     <value>Natychmisatowa zmiana - F7</value>
   </data>
   <data name="_transitionLength" xml:space="preserve">
-    <value>o długości</value>
+    <value>Czas</value>
+  </data>
+  <data name="_transitionLength.ToolTip" xml:space="preserve">
+    <value>Czas przejścia, w ramkach</value>
+  </data>
+  <data name="_transitionPauseLength" xml:space="preserve">
+    <value>Pauza</value>
+  </data>
+  <data name="_transitionPauseLength.ToolTip" xml:space="preserve">
+    <value>Zatrzymanie podczas przejścia, w ramkach</value>
   </data>
   <data name="_transitionType" xml:space="preserve">
     <value>Przejście</value>

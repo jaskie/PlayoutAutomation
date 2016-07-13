@@ -718,6 +718,7 @@ namespace TAS.Server.Database
         private static IEvent _eventRead(IEngine engine, DbDataReaderRedundant dataReader)
         {
             uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flagsEvent")) ? 0 : dataReader.GetUInt32("flagsEvent");
+            ushort transitionType = dataReader.GetUInt16("typTransition");
             IEvent newEvent = engine.AddNewEvent(
                 dataReader.GetUInt64("idRundownEvent"),
                 dataReader.GetUInt64("idEventBinding"),
@@ -735,7 +736,9 @@ namespace TAS.Server.Database
                 dataReader.GetTimeSpan("StartTC"),
                 dataReader.IsDBNull(dataReader.GetOrdinal("RequestedStartTime")) ? null : (TimeSpan?)dataReader.GetTimeSpan("RequestedStartTime"),
                 dataReader.GetTimeSpan("TransitionTime"),
-                (TTransitionType)dataReader.GetByte("typTransition"),
+                dataReader.GetTimeSpan("TransitionPauseTime"),
+                (TTransitionType)(transitionType & 0xFF),
+                (TEasing)(transitionType >> 8),
                 dataReader.IsDBNull(dataReader.GetOrdinal("AudioVolume")) ? null : (decimal?)dataReader.GetDecimal("AudioVolume"),
                 dataReader.GetUInt64("idProgramme"),
                 dataReader.GetString("IdAux"),
@@ -791,7 +794,8 @@ namespace TAS.Server.Database
             else
                 cmd.Parameters.AddWithValue("@RequestedStartTime", aEvent.RequestedStartTime);
             cmd.Parameters.AddWithValue("@TransitionTime", aEvent.TransitionTime);
-            cmd.Parameters.AddWithValue("@typTransition", aEvent.TransitionType);
+            cmd.Parameters.AddWithValue("@TransitionPauseTime", aEvent.TransitionPauseTime);
+            cmd.Parameters.AddWithValue("@typTransition", (ushort)aEvent.TransitionType | ((ushort)aEvent.TransitionEasing)<<8);
             cmd.Parameters.AddWithValue("@idProgramme", aEvent.IdProgramme);
             if (aEvent.AudioVolume == null)
                 cmd.Parameters.AddWithValue("@AudioVolume", DBNull.Value);
@@ -831,9 +835,9 @@ namespace TAS.Server.Database
                 {
                     string query =
 @"INSERT INTO RundownEvent 
-(idEngine, idEventBinding, Layer, typEvent, typStart, ScheduledTime, ScheduledDelay, Duration, ScheduledTC, MediaGuid, EventName, PlayState, StartTime, StartTC, RequestedStartTime, TransitionTime, typTransition, AudioVolume, idProgramme, flagsEvent) 
+(idEngine, idEventBinding, Layer, typEvent, typStart, ScheduledTime, ScheduledDelay, Duration, ScheduledTC, MediaGuid, EventName, PlayState, StartTime, StartTC, RequestedStartTime, TransitionTime, TransitionPauseTime, typTransition, AudioVolume, idProgramme, flagsEvent) 
 VALUES 
-(@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent);";
+(@idEngine, @idEventBinding, @Layer, @typEvent, @typStart, @ScheduledTime, @ScheduledDelay, @Duration, @ScheduledTC, @MediaGuid, @EventName, @PlayState, @StartTime, @StartTC, @RequestedStartTime, @TransitionTime, @TransitionPauseTime, @typTransition, @AudioVolume, @idProgramme, @flagsEvent);";
                     using (DbCommandRedundant cmd = new DbCommandRedundant(query, _connection))
                         if (_eventFillParamsAndExecute(cmd, aEvent))
                         {
@@ -874,6 +878,7 @@ StartTime=@StartTime,
 StartTC=@StartTC,
 RequestedStartTime=@RequestedStartTime,
 TransitionTime=@TransitionTime, 
+TransitionPauseTime=@TransitionPauseTime, 
 typTransition=@typTransition, 
 AudioVolume=@AudioVolume, 
 idProgramme=@idProgramme, 
