@@ -156,9 +156,9 @@
                             <common:TimecodeEdit Grid.Column="1" Text="{Binding ScheduledTimeOfDay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                     </DockPanel>
-                    <DockPanel Visibility="{Binding IsMovieOrLive, Converter={StaticResource BoolToVis}}">
+                    <DockPanel Visibility="{Binding IsMovieOrLiveOrRundown, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _requiredAt}" />
-                        <TextBox Text="{Binding RequestedStartTime, Converter={StaticResource TimeOfDayToStringConverter}, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus}" ToolTip="{Resx _requiredAt.ToolTip}"/>
+                        <common:TimecodeEdit Mask="00:00:00" AllowPromptAsInput="True" AutoSelectBehavior="OnFocus" Text="{Binding RequestedStartTime, Converter={StaticResource TimeOfDayToStringConverter}, ValidatesOnDataErrors=True}" ToolTip="{Resx _requiredAt.ToolTip}"/>
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _clip}" />

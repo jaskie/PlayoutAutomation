@@ -654,10 +654,7 @@ namespace TAS.Server
                     _playoutChannelSEC.Load(aEvent);
                 _visibleEvents.Add(aEvent);
                 if (aEvent.Layer == VideoLayer.Program)
-                {
                     Playing = aEvent;
-                    _setAspectRatio(aEvent);
-                }
             }
             _run(aEvent);
             aEvent.PlayState = TPlayState.Paused;
@@ -800,6 +797,8 @@ namespace TAS.Server
                     e.PlayState = TPlayState.Played;
                 if (e.PlayState == TPlayState.Paused)
                     e.PlayState = TPlayState.Scheduled;
+                if (e.Modified)
+                    e.Save();
             }
             _runningEvents.Clear();
         }
@@ -1227,6 +1226,7 @@ namespace TAS.Server
                 _playoutChannelPRI.Clear();
             if (_playoutChannelSEC != null)
                 _playoutChannelSEC.Clear();
+            PreviewUnload();
             NotifyEngineOperation(null, TEngineOperation.Clear);
             ProgramAudioVolume = 1.0m;
             lock (_tickLock)

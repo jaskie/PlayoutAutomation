@@ -14,6 +14,7 @@ using System.ComponentModel;
 using TAS.Remoting.Server;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using TAS.Server.Common;
 
 namespace TAS.Server
 {
@@ -29,7 +30,7 @@ namespace TAS.Server
         public decimal MasterVolume { get; set; }
         public string LiveDevice { get; set; }
         #endregion // IPlayoutServerChannel
-        protected bool? outputAspectNarrow;
+        protected SimpleDictionary<VideoLayer, bool> outputAspectNarrow = new SimpleDictionary<VideoLayer, bool>();
 
         private Channel _casparChannel;
         internal Channel CasparChannel
@@ -412,9 +413,9 @@ namespace TAS.Server
             {
                 channel.Clear();
                 channel.ClearMixer((int)VideoLayer.Program);
+                outputAspectNarrow[VideoLayer.Program] = false;
                 _visible.Clear();
                 _loadedNext.Clear();
-                outputAspectNarrow = false;
                 if (OnVolumeChanged != null)
                     OnVolumeChanged(this, VideoLayer.Program, 1.0m);
                 Debug.WriteLine(this, "CasparClear");
@@ -442,12 +443,12 @@ namespace TAS.Server
         public void SetAspect(VideoLayer layer, bool narrow)
         {
             var channel = _casparChannel;
-            var oldAspectNarrow = outputAspectNarrow;
+            var oldAspectNarrow = outputAspectNarrow[layer];
             if (oldAspectNarrow != narrow
                 && channel != null
                 && _checkConnected())
             {
-                outputAspectNarrow = narrow;
+                outputAspectNarrow[layer] = narrow;
                 if (narrow)
                     channel.SetGeometry((int)layer, 0.125f, 0f, 0.75f, 1f, 10, Easing.Linear);
                 else

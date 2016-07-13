@@ -131,15 +131,21 @@ namespace TAS.Client.Common
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            TimeSpan result = TimeSpan.Zero;
-            if (value is string && TimeSpan.TryParse((string)value, out result))
+            if (value is string)
             {
-                result -= TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
-                if (result > TimeSpan.FromDays(1))
-                    result -= TimeSpan.FromDays(1);
-                if (result < TimeSpan.Zero)
-                    result += TimeSpan.FromDays(1);
-                return result;
+                TimeSpan result;
+                string replaced = ((string)value).Replace('_', '0');
+                if (TimeSpan.TryParse(replaced, out result))
+                {
+                    if (result.Days > 0)
+                        return null;
+                    result -= TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+                    if (result > TimeSpan.FromDays(1))
+                        result -= TimeSpan.FromDays(1);
+                    if (result < TimeSpan.Zero)
+                        result += TimeSpan.FromDays(1);
+                    return result;
+                }
             }
             return null;
         }

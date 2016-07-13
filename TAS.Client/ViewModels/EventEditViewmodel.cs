@@ -517,9 +517,17 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                var ev = _event;
-                return ev != null 
-                    && (ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live);
+                var et = _event?.EventType;
+                return et == TEventType.Movie || et == TEventType.Live;
+            }
+        }
+
+        public bool IsMovieOrLiveOrRundown
+        {
+            get
+            {
+                var et = _event?.EventType;
+                return et == TEventType.Movie || et == TEventType.Live || et == TEventType.Rundown;
             }
         }
 
@@ -527,22 +535,12 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                var ev = _event;
-                return ev != null
-                    && (ev.EventType == TEventType.StillImage || ev.EventType == TEventType.Animation);
+                var et = _event?.EventType;
+                return et == TEventType.StillImage || et == TEventType.Animation;
             }
         }
 
-
-        public bool IsAnimation
-        {
-            get
-            {
-                var ev = _event;
-                return ev != null
-                    && ev is IAnimatedEvent; 
-            }
-        }
+        public bool IsAnimation { get { return _event is IAnimatedEvent; } }
 
         #region ITemplatedEdit
 

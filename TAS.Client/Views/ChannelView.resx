@@ -120,8 +120,14 @@
   <data name="_media" xml:space="preserve">
     <value>Media</value>
   </data>
+  <data name="_media.ToolTip" xml:space="preserve">
+    <value>F12 - tab switch</value>
+  </data>
   <data name="_playlist" xml:space="preserve">
     <value>Playlist</value>
+  </data>
+  <data name="_playlist.ToolTip" xml:space="preserve">
+    <value>F12 - tab switch</value>
   </data>
   <data name="_state" xml:space="preserve">
     <value>State</value>

@@ -11,11 +11,19 @@
              d:DataContext="{x:Type vievmodels:ChannelViewmodel}"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.InputBindings>
-        <KeyBinding Gesture="F9" Command="{Binding CommandSwitchTab}"/>
+        <KeyBinding Gesture="F12" Command="{Binding CommandSwitchTab}"/>
     </UserControl.InputBindings>
     <TabControl TabStripPlacement="Bottom" BorderThickness="1" Padding="0" SelectedIndex="{Binding SelectedTab}" >
-        <TabItem Header="{Resx _playlist}" Content="{Binding EngineViewmodel.View}"/>
-        <TabItem Header="{Resx _media}" Content="{Binding MediaManagerViewmodel.View}"/>
+        <TabItem Content="{Binding EngineViewmodel.View}">
+            <TabItem.Header>
+                <TextBlock  Text="{Resx _playlist}" ToolTip="{Resx _playlist.ToolTip}"/>
+            </TabItem.Header>
+        </TabItem>
+        <TabItem Content="{Binding MediaManagerViewmodel.View}">
+            <TabItem.Header>
+                <TextBlock Text="{Resx _media}" ToolTip="{Resx _media.ToolTip}"/>
+            </TabItem.Header>
+        </TabItem>
         <!--<TabItem Header="{Resx _state}" Content="{Binding EngineStateViewmodel.View}" />-->
     </TabControl>
 </UserControl>
