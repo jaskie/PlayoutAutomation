@@ -739,6 +739,11 @@ namespace TAS.Client.ViewModels
             }
         }         
 
+        public bool IsAnimationDirAvailable
+        {
+            get { return _engine.MediaManager.AnimationDirectoryPRI != null || _engine.MediaManager.AnimationDirectorySEC != null;  }
+        }
+
         public bool NoAlarms
         {
             get

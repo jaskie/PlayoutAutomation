@@ -28,7 +28,7 @@ namespace TAS.Client.ViewModels
         private readonly RationalNumber _frameRate;
         private readonly VideoFormatDescription _videoFormatDescription;
         private readonly IEngine _engine;
-        private IMediaDirectory _searchDirectory;
+        private readonly IMediaDirectory _searchDirectory;
 
 
 
@@ -55,22 +55,25 @@ namespace TAS.Client.ViewModels
             IMediaDirectory pri = mediaType == TMediaType.Animation ? (IMediaDirectory)_manager.AnimationDirectoryPRI : _manager.MediaDirectoryPRI;
             IMediaDirectory sec = mediaType == TMediaType.Animation ? (IMediaDirectory)_manager.AnimationDirectorySEC : _manager.MediaDirectorySEC;
             _searchDirectory = pri != null && pri.DirectoryExists() ? pri : sec != null && sec.DirectoryExists() ? sec : null;
-            _searchDirectory.MediaAdded += _searchDirectory_MediaAdded;
-            _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
-            _searchDirectory.MediaVerified += _searchDirectory_MediaVerified;
+            if (_searchDirectory != null)
+            {
+                _searchDirectory.MediaAdded += _searchDirectory_MediaAdded;
+                _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
+                _searchDirectory.MediaVerified += _searchDirectory_MediaVerified;
 
-            _closeAfterAdd = closeAfterAdd;
-            _mediaCategory = MediaCategories.FirstOrDefault();
-            NewEventStartType = TStartType.After;
-            if (!closeAfterAdd)
-                OkButtonText = resources._button_Add;
-            _createCommands();
-            _items = new ObservableCollection<MediaViewViewmodel>(_searchDirectory.GetFiles()
-                .Where(m => _canAddMediaToCollection(m, mediaType, _frameRate, videoFormatDescription))
-                .Select(m => new MediaViewViewmodel(m, _manager)));
-            _itemsView = CollectionViewSource.GetDefaultView(_items);
-            _itemsView.SortDescriptions.Add(new SortDescription("MediaName", ListSortDirection.Ascending));
-            _itemsView.Filter += _itemsFilter;
+                _closeAfterAdd = closeAfterAdd;
+                _mediaCategory = MediaCategories.FirstOrDefault();
+                NewEventStartType = TStartType.After;
+                if (!closeAfterAdd)
+                    OkButtonText = resources._button_Add;
+                _createCommands();
+                _items = new ObservableCollection<MediaViewViewmodel>(_searchDirectory.GetFiles()
+                    .Where(m => _canAddMediaToCollection(m, mediaType, _frameRate, videoFormatDescription))
+                    .Select(m => new MediaViewViewmodel(m, _manager)));
+                _itemsView = CollectionViewSource.GetDefaultView(_items);
+                _itemsView.SortDescriptions.Add(new SortDescription("MediaName", ListSortDirection.Ascending));
+                _itemsView.Filter += _itemsFilter;
+            }
             _view = new MediaSearchView(_frameRate);
             _view.Owner = System.Windows.Application.Current.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive);
             _view.DataContext = this;

@@ -191,6 +191,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        public bool IsAnimationEnabled { get { return _engineViewmodel.IsAnimationDirAvailable; } }
+
         public bool IsPlaying
         {
             get { return _event != null && _event.PlayState == TPlayState.Playing; }
