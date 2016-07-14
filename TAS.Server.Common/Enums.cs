@@ -443,6 +443,10 @@ namespace TAS.Common
         Violet = 6,
         [Color(0xFFFFA500)]
         Orange = 7,
+        [Color(0xFF98F098)]
+        Green = 8,
+        [Color(0xFFAFEEEE)]
+        Turquoise = 9
     }
     class TMediaEmphasisEnumConverter : ResourceEnumConverter
     {

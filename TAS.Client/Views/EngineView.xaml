@@ -44,12 +44,12 @@
         <KeyBinding Command="{Binding CommandAddNextEmptyMovie}" Gesture="Shift+Ctrl+M"/>
         <KeyBinding Command="{Binding CommandAddNextLive}" Gesture="Ctrl+L"/>
         <KeyBinding Command="{Binding CommandAddNextRundown}" Gesture="Ctrl+R"/>
-        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="1" Gesture="Ctrl+1"/>
-        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="2" Gesture="Ctrl+2"/>
-        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="3" Gesture="Ctrl+3"/>
-        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="1" Gesture="Ctrl+NumPad1"/>
-        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="2" Gesture="Ctrl+NumPad2"/>
-        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="3" Gesture="Ctrl+NumPad3"/>
+        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="17" Gesture="Ctrl+1"/>
+        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="18" Gesture="Ctrl+2"/>
+        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="19" Gesture="Ctrl+3"/>
+        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="17" Gesture="Ctrl+NumPad1"/>
+        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="18" Gesture="Ctrl+NumPad2"/>
+        <KeyBinding Command="{Binding CommandToggleLayer}" CommandParameter="19" Gesture="Ctrl+NumPad3"/>
         <KeyBinding Command="{Binding CommandEventHide}" Gesture="F9"/>
         <KeyBinding Command="{Binding CommandMoveUp}" Gesture="Alt+Up"/>
         <KeyBinding Command="{Binding CommandMoveDown}" Gesture="Alt+Down"/>
@@ -183,22 +183,22 @@
                         </Button>
                     </ComboBoxItem>
                     <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG1}" >
-                        <Button Command="{Binding CommandClearLayer}" CommandParameter="1" Style="{StaticResource controlPanelButtons}">
+                        <Button Command="{Binding CommandClearLayer}" CommandParameter="17" Style="{StaticResource controlPanelButtons}">
                             <Image Source="/TAS.Client.Common;component/Images/Layers/Layer1.png" />
                         </Button>
                     </ComboBoxItem>
                     <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG2}" >
-                        <Button Command="{Binding CommandClearLayer}" CommandParameter="2" Style="{StaticResource controlPanelButtons}">
+                        <Button Command="{Binding CommandClearLayer}" CommandParameter="18" Style="{StaticResource controlPanelButtons}">
                             <Image Source="/TAS.Client.Common;component/Images/Layers/Layer2.png" />
                         </Button>
                     </ComboBoxItem>
                     <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG3}" >
-                        <Button Command="{Binding CommandClearLayer}" CommandParameter="3" Style="{StaticResource controlPanelButtons}">
+                        <Button Command="{Binding CommandClearLayer}" CommandParameter="19" Style="{StaticResource controlPanelButtons}">
                             <Image Source="/TAS.Client.Common;component/Images/Layers/Layer3.png" />
                         </Button>
                     </ComboBoxItem>
                     <ComboBoxItem ToolTip="{Resx _toolbar.ClearAnimations}" >
-                        <Button Command="{Binding CommandClearLayer}" CommandParameter="6" Style="{StaticResource controlPanelButtons}">
+                        <Button Command="{Binding CommandClearLayer}" CommandParameter="26" Style="{StaticResource controlPanelButtons}">
                             <Image Source="/TAS.Client.Common;component/Images/Layers/LayerA.png" />
                         </Button>
                     </ComboBoxItem>
@@ -235,7 +235,7 @@
             <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding PlayingEventName}">
                 <TextBlock.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="{Resx _toolbar.playingEventName.Menu.Restart, ResxName=TAS.Client.Views.EngineView}" Command="{Binding CommandRestartLayer}" CommandParameter="0"/>
+                        <MenuItem Header="{Resx _toolbar.playingEventName.Menu.Restart, ResxName=TAS.Client.Views.EngineView}" Command="{Binding CommandRestartLayer}" CommandParameter="16"/>
                     </ContextMenu>
                 </TextBlock.ContextMenu>
             </TextBlock>

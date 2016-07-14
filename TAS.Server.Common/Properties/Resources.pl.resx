@@ -459,4 +459,10 @@
   <data name="TMediaCategory_Jingle" xml:space="preserve">
     <value>Dżingiel</value>
   </data>
+  <data name="TMediaEmphasis_Green" xml:space="preserve">
+    <value>Zielone</value>
+  </data>
+  <data name="TMediaEmphasis_Turquoise" xml:space="preserve">
+    <value>Turkusowe</value>
+  </data>
 </root>

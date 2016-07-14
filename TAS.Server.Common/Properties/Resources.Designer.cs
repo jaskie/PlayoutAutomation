@@ -619,6 +619,15 @@ namespace TAS.Server.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Green.
+        /// </summary>
+        public static string TMediaEmphasis_Green {
+            get {
+                return ResourceManager.GetString("TMediaEmphasis_Green", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to According to category.
         /// </summary>
         public static string TMediaEmphasis_None {
@@ -660,6 +669,15 @@ namespace TAS.Server.Common.Properties {
         public static string TMediaEmphasis_SkyBlue {
             get {
                 return ResourceManager.GetString("TMediaEmphasis_SkyBlue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Turquoise.
+        /// </summary>
+        public static string TMediaEmphasis_Turquoise {
+            get {
+                return ResourceManager.GetString("TMediaEmphasis_Turquoise", resourceCulture);
             }
         }
         

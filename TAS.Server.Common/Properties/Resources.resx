@@ -456,4 +456,10 @@
   <data name="TMediaCategory_Jingle" xml:space="preserve">
     <value>Jingle</value>
   </data>
+  <data name="TMediaEmphasis_Green" xml:space="preserve">
+    <value>Green</value>
+  </data>
+  <data name="TMediaEmphasis_Turquoise" xml:space="preserve">
+    <value>Turquoise</value>
+  </data>
 </root>
