@@ -238,9 +238,7 @@ namespace TAS.Server
                         CurrentTicks = CurrentTime.Ticks;
                         Debug.WriteLineIf(nFrames > 1, nFrames, "LateFrame");
                         _tick(nFrames);
-                        var e = EngineTick;
-                        if (e != null)
-                            e(this, new EngineTickEventArgs(CurrentTime, _getTimeToAttention()));
+                        EngineTick?.Invoke(this, new EngineTickEventArgs(CurrentTime, _getTimeToAttention()));
                     }
                     catch (Exception e)
                     {
@@ -1052,7 +1050,7 @@ namespace TAS.Server
         private TimeSpan _getTimeToAttention()
         {
             IEvent pe = _playing;
-            if (pe != null && pe.PlayState == TPlayState.Playing)
+            if (pe != null && (pe.PlayState == TPlayState.Playing || pe.PlayState == TPlayState.Paused))
             {
                 TimeSpan result = pe.Length - TimeSpan.FromTicks(pe.Position * _frameTicks);
                 pe = pe.GetSuccessor();
