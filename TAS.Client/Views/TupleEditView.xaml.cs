@@ -17,9 +17,9 @@ namespace TAS.Client.Views
     /// <summary>
     /// Interaction logic for KeyValueEdit.xaml
     /// </summary>
-    public partial class KeyValueEditView : UserControl
+    public partial class TupleEditView : UserControl
     {
-        public KeyValueEditView()
+        public TupleEditView()
         {
             InitializeComponent();
         }

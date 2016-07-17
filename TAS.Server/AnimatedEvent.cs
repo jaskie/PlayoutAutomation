@@ -8,7 +8,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class AnimatedEvent : Event, IAnimatedEvent
+    public class AnimatedEvent : Event, ITemplated
     {
         public AnimatedEvent(
                     Engine engine,

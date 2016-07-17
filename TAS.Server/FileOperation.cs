@@ -297,14 +297,6 @@ namespace TAS.Server
             }
         }
 
-        protected bool SetField<T>(ref T field, T value, string propertyName)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            NotifyPropertyChanged(propertyName);
-            return true;
-        }
-        
         [JsonProperty]
         public virtual string Title
         {
@@ -315,13 +307,6 @@ namespace TAS.Server
                     :
                     string.Format("{0} {1} -> {2}", Kind, SourceMedia, DestMedia);
             }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         internal void Fail()

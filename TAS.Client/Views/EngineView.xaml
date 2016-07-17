@@ -158,7 +158,7 @@
                 <ColumnDefinition Width="430"/>
                 <ColumnDefinition Width="140"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="90"/>
+                <ColumnDefinition Width="100"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Row="1" Grid.Column="1" Grid.RowSpan="3" Orientation="Horizontal" FocusManager.IsFocusScope="True">
                 <Button Command="{Binding CommandStartSelected}" ToolTip="{Resx _toolbar.StartSelected}">

@@ -45,7 +45,6 @@ namespace TAS.Server
                     NotifyPropertyChanged("FullPath");
             }
         }
-
 #region IMediaProperties
         protected string _fileName = string.Empty;
         [JsonProperty]
@@ -360,14 +359,6 @@ namespace TAS.Server
             return string.Format("{0}:{1}", _directory.DirectoryName, MediaName);
         }
 
-        protected virtual bool SetField<T>(ref T field, T value, string propertyName)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            NotifyPropertyChanged(propertyName);
-            return true;
-        }
-
         public virtual bool FileExists()
         {
             return File.Exists(FullPath);
@@ -443,14 +434,6 @@ namespace TAS.Server
         {
             _directory.MediaManager.FileManager.Queue(new LoudnessOperation() { SourceMedia = this, MeasureStart = this.TcPlay - this.TcStart, MeasureDuration = this.DurationPlay }, false);
         }
-        
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
     }
 
 }

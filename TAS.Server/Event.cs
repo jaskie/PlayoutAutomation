@@ -206,27 +206,31 @@ namespace TAS.Server
         }
 
         TPlayState _playState;
-        public TPlayState PlayState
+        public virtual TPlayState PlayState
         {
             get { return _playState; }
-            set
+            set { SetPlayState(value); }
+        }
+
+        protected virtual bool SetPlayState(TPlayState newPlayState)
+        {
+            if (SetField(ref _playState, newPlayState, "PlayState"))
             {
-                if (SetField(ref _playState, value, "PlayState"))
+                if (newPlayState == TPlayState.Playing)
                 {
-                    if (value == TPlayState.Playing)
-                    {
-                        StartTime = Engine.CurrentTime;
-                        StartTc = ScheduledTc + TimeSpan.FromTicks(_position * Engine.FrameTicks);
-                    }
-                    if (value == TPlayState.Scheduled)
-                    {
-                        StartTime = default(DateTime);
-                        StartTc = ScheduledTc;
-                        Position = 0;
-                        UpdateScheduledTime(false);
-                    }
+                    StartTime = Engine.CurrentTime;
+                    StartTc = ScheduledTc + TimeSpan.FromTicks(_position * Engine.FrameTicks);
                 }
+                if (newPlayState == TPlayState.Scheduled)
+                {
+                    StartTime = default(DateTime);
+                    StartTc = ScheduledTc;
+                    Position = 0;
+                    UpdateScheduledTime(false);
+                }
+                return true;
             }
+            return false;
         }
 
         private long _position = 0;
@@ -1345,17 +1349,14 @@ namespace TAS.Server
             return EventName;
         }
 
-        protected bool SetField<T>(ref T field, T value, string propertyName)
+        protected override bool SetField<T>(ref T field, T value, string propertyName)
         {
-            lock (this)
+            if (base.SetField(ref field, value, propertyName))
             {
-                if (EqualityComparer<T>.Default.Equals(field, value))
-                    return false;
-                field = value;
                 _modified = true;
+                return true;
             }
-            NotifyPropertyChanged(propertyName);
-            return true;
+            return false;
         }
 
         public event EventHandler Relocated;
@@ -1381,14 +1382,6 @@ namespace TAS.Server
         {
             SubEventChanged?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, operation));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
     }
 
     public class EventCollectionChangedEventArgs : EventArgs

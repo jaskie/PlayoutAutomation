@@ -460,18 +460,9 @@ namespace TAS.Server
             return string.Format("{0} ({1})", DirectoryName, Folder);
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         internal virtual void NotifyMediaAdded (IMedia media)
         {
-            var h = MediaAdded;
-            if (h != null)
-                h(this, new MediaEventArgs(media));
+            MediaAdded?.Invoke(this, new MediaEventArgs(media));
         }
     }
 

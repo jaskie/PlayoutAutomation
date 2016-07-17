@@ -705,7 +705,7 @@ namespace TAS.Server
         private bool _play(Event aEvent, bool fromBeginning)
         {
             var eventType = aEvent.EventType;
-            if (aEvent != null && (!aEvent.IsEnabled || (aEvent.Length == TimeSpan.Zero && eventType != TEventType.Animation)))
+            if (aEvent != null && (!aEvent.IsEnabled || (aEvent.Length == TimeSpan.Zero && eventType != TEventType.Animation && eventType != TEventType.CommandScript)))
                 aEvent = aEvent.GetSuccessor() as Event;
             if (aEvent == null)
                 return false;
@@ -789,6 +789,12 @@ namespace TAS.Server
             Debug.WriteLine("_clearRunning");
             foreach (Event e in _runningEvents.ToList())
             {
+                if (e.EventType == TEventType.CommandScript)
+                {
+                    var commandScriptEvent = (e as CommandScriptEvent);
+                    if (commandScriptEvent != null)
+                        _executeCommanndScriptItems(commandScriptEvent.ItemsToExecute);
+                }
                 if (e.PlayState == TPlayState.Playing)
                     e.PlayState = TPlayState.Aborted;
                 if (e.PlayState == TPlayState.Fading)
@@ -809,10 +815,8 @@ namespace TAS.Server
             bool narrow = media != null && (media.VideoFormat == TVideoFormat.PAL || media.VideoFormat == TVideoFormat.NTSC || media.VideoFormat == TVideoFormat.PAL_P);
             if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
             {
-                if (_playoutChannelPRI != null)
-                    _playoutChannelPRI.SetAspect(aEvent.Layer, narrow);
-                if (_playoutChannelSEC != null)
-                    _playoutChannelSEC.SetAspect(aEvent.Layer, narrow);
+                _playoutChannelPRI?.SetAspect(aEvent.Layer, narrow);
+                _playoutChannelSEC?.SetAspect(aEvent.Layer, narrow);
             }
             if (AspectRatioControl == TAspectRatioControl.GPI || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
                 if (_gpi != null)
@@ -837,15 +841,21 @@ namespace TAS.Server
             lock (_visibleEvents.SyncRoot)
                 if (_visibleEvents.Contains(aEvent))
                 {
-                    if (aEvent.EventType != TEventType.Live)
+                    var eventType = aEvent.EventType;
+                    if (eventType != TEventType.Live && eventType != TEventType.CommandScript)
                     {
                         Debug.WriteLine("{0} Stop: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
-                        if (_playoutChannelPRI != null)
-                            _playoutChannelPRI.Stop(aEvent);
-                        if (_playoutChannelSEC != null)
-                            _playoutChannelSEC.Stop(aEvent);
+                        _playoutChannelPRI?.Stop(aEvent);
+                        _playoutChannelSEC?.Stop(aEvent);
                     }
-                    _visibleEvents.Remove(aEvent);
+                    if (eventType == TEventType.CommandScript)
+                    {
+                        var commandScriptEvent = (aEvent as CommandScriptEvent);
+                        if (commandScriptEvent != null)
+                            _executeCommanndScriptItems(commandScriptEvent.ItemsToExecute);
+                    }
+                    else
+                        _visibleEvents.Remove(aEvent);
                 }
             _runningEvents.Remove(aEvent);
             NotifyEngineOperation(aEvent, TEngineOperation.Stop);
@@ -859,10 +869,8 @@ namespace TAS.Server
                     Debug.WriteLine("{0} Pause: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
                     if (aEvent.EventType != TEventType.Live && aEvent.EventType != TEventType.StillImage)
                     {
-                        if (_playoutChannelPRI != null)
-                            _playoutChannelPRI.Pause(aEvent);
-                        if (_playoutChannelSEC != null)
-                            _playoutChannelSEC.Pause(aEvent);
+                        _playoutChannelPRI?.Pause(aEvent);
+                        _playoutChannelSEC?.Pause(aEvent);
                     }
                     foreach (Event se in aEvent.SubEvents)
                         _pause(se, finish);
@@ -895,10 +903,8 @@ namespace TAS.Server
 
         private void _restartEvent(Event ev)
         {
-            if (_playoutChannelPRI != null)
-                _playoutChannelPRI.ReStart(ev);
-            if (_playoutChannelSEC != null)
-                _playoutChannelSEC.ReStart(ev);
+            _playoutChannelPRI?.ReStart(ev);
+            _playoutChannelSEC?.ReStart(ev);
         }
 
         private object _tickLock = new object();
@@ -955,6 +961,7 @@ namespace TAS.Server
                     lock (_runningEvents.SyncRoot)
                         runningEvents = _runningEvents.Where(e => e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading).ToList();
                     foreach (Event e in runningEvents)
+                    {
                         if (e.IsFinished)
                         {
                             if (succEvent == null)
@@ -962,36 +969,56 @@ namespace TAS.Server
                             else
                                 _stop(e);
                         }
-
+                        var commandScriptEvent = (e as CommandScriptEvent);
+                        if (commandScriptEvent != null)
+                            _executeCommanndScriptItems(commandScriptEvent.ItemsToExecute);
+                    }
                     if (_runningEvents.Count == 0)
                         EngineState = TEngineState.Idle;
                 }
-                var currentTimeOfDayTicks = CurrentTime.TimeOfDay.Ticks;
-                lock (_fixedTimeEvents.SyncRoot)
-                {
-                    var startEvent = _fixedTimeEvents.FirstOrDefault(e =>
-                                                                      e.StartType == TStartType.OnFixedTime
-                                                                   && (EngineState == TEngineState.Idle || (e.AutoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None)
-                                                                   && (e.PlayState == TPlayState.Scheduled || (e.PlayState != TPlayState.Playing && (e.AutoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None))
-                                                                   && e.IsEnabled
-                                                                   && ((e.AutoStartFlags & AutoStartFlags.Daily) != AutoStartFlags.None ?
-                                                                        currentTimeOfDayTicks >= e.ScheduledTime.TimeOfDay.Ticks && currentTimeOfDayTicks < e.ScheduledTime.TimeOfDay.Ticks + TimeSpan.TicksPerSecond :
-                                                                        CurrentTicks >= e.ScheduledTime.Ticks && CurrentTicks < e.ScheduledTime.Ticks + TimeSpan.TicksPerSecond) // auto start only within 1 second slot
-                        );
-                    if (startEvent != null)
-                        Start(startEvent);
-                }
+
+                _executeAutoStartEvents();
+
                 // preview controls
                 if (PreviewIsPlaying)
                 {
                     if (_previewPosition < _previewDuration - 1)
                     {
-                            _previewPosition += nFrames;
-                            NotifyPropertyChanged("PreviewPosition");
+                        _previewPosition += nFrames;
+                        NotifyPropertyChanged("PreviewPosition");
                     }
                     else
                         PreviewPause();
                 }
+            }
+        }
+
+        private void _executeCommanndScriptItems(IEnumerable<ICommandScriptItem> commandItemsToExecute)
+        {
+            foreach (CommandScriptItem command in commandItemsToExecute)
+            {
+                _playoutChannelPRI?.ExecuteScriptCommandItem(command);
+                _playoutChannelSEC?.ExecuteScriptCommandItem(command);
+                command.IsExecuted = true;
+            }
+        }
+
+        private void _executeAutoStartEvents()
+        {
+            var currentTimeOfDayTicks = CurrentTime.TimeOfDay.Ticks;
+            lock (_fixedTimeEvents.SyncRoot)
+            {
+                var startEvent = _fixedTimeEvents.FirstOrDefault(e =>
+                                                                  e.StartType == TStartType.OnFixedTime
+                                                               && (EngineState == TEngineState.Idle || (e.AutoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None)
+                                                               && (e.PlayState == TPlayState.Scheduled || (e.PlayState != TPlayState.Playing && (e.AutoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None))
+                                                               && e.IsEnabled
+                                                               && ((e.AutoStartFlags & AutoStartFlags.Daily) != AutoStartFlags.None ?
+                                                                    currentTimeOfDayTicks >= e.ScheduledTime.TimeOfDay.Ticks && currentTimeOfDayTicks < e.ScheduledTime.TimeOfDay.Ticks + TimeSpan.TicksPerSecond :
+                                                                    CurrentTicks >= e.ScheduledTime.Ticks && CurrentTicks < e.ScheduledTime.Ticks + TimeSpan.TicksPerSecond) // auto start only within 1 second slot
+                    );
+                if (startEvent != null)
+                    Start(startEvent);
             }
         }
 
@@ -1326,7 +1353,8 @@ namespace TAS.Server
                     bool isHold = false,
                     bool isLoop = false,
                     EventGPI gpi = default(EventGPI),
-                    AutoStartFlags autoStartFlags = AutoStartFlags.None
+                    AutoStartFlags autoStartFlags = AutoStartFlags.None,
+                    IEnumerable<ICommandScriptItem> commands = null
                     )
         {
             IEvent result;
@@ -1334,6 +1362,8 @@ namespace TAS.Server
             {
                 if (eventType == TEventType.Animation)
                     result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, gpi);
+                else if (eventType == TEventType.CommandScript)
+                    result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, playState, scheduledTime, duration, scheduledDelay, eventName, startTime, isEnabled, commands);
                 else
                     result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, gpi, autoStartFlags);
                 if (idRundownEvent == 0)
@@ -1480,22 +1510,8 @@ namespace TAS.Server
         [XmlIgnore]
         public ICollection<IEvent> VisibleEvents { get { return _visibleEvents.Cast<IEvent>().ToList(); } }
 
-        protected bool SetField<T>(ref T field, T value, string propertyName)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            NotifyPropertyChanged(propertyName);
-            return true;
-        }
-
         #endregion // IEngine properties
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
 
         protected virtual void NotifyEngineOperation(IEvent aEvent, TEngineOperation operation)
         {

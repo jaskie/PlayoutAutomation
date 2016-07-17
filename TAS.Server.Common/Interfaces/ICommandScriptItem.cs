@@ -5,7 +5,9 @@ using System.Text;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IAnimatedEvent: IEvent, ITemplated
+    public interface ICommandScriptItem
     {
+        TimeSpan? ExecuteTime { get; set; }
+        string Command { get; set; }
     }
 }

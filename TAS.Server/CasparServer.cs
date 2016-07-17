@@ -148,15 +148,6 @@ namespace TAS.Server
             NotifyPropertyChanged("IsConnected");
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-                handler(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         private bool _disposed = false;
         public virtual void Dispose()
         {

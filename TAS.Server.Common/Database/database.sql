@@ -115,6 +115,7 @@ CREATE TABLE `rundownevent` (
   `idCustomCommand` bigint(20) unsigned DEFAULT NULL,
   `flagsEvent` int(10) unsigned DEFAULT NULL,
   `idAux` varchar(16) COLLATE `utf8_general_ci` DEFAULT NULL,
+  `Commands` TEXT NULL,
   PRIMARY KEY (`idRundownEvent`),
   KEY `idEventBinding` (`idEventBinding`) USING BTREE,
   KEY `id_ScheduledTime` (`ScheduledTime`) USING BTREE,
@@ -122,7 +123,7 @@ CREATE TABLE `rundownevent` (
 ) ENGINE=InnoDB;
 
 CREATE TABLE `rundownevent_templated` (
-  `idrundownevent_templated` int(11) NOT NULL,
+  `idrundownevent_templated` bigint(20) unsigned NOT NULL,
   `Method` TINYINT NULL,
   `TemplateLayer` INT NULL,
   `Fields` text,

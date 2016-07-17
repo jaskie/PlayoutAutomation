@@ -67,22 +67,5 @@ namespace TAS.Server
             this.DbDelete();
         }
 
-        protected bool SetField<T>(ref T field, T value, string propertyName)
-        {
-            lock (this)
-            {
-                if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-                field = value;
-            }
-            NotifyPropertyChanged(propertyName);
-            return true;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

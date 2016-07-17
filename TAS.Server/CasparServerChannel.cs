@@ -82,7 +82,7 @@ namespace TAS.Server
                     && OwnerServer.IsConnected)
                 {
                     channel.ClearMixer();
-                    channel.SetMasterVolume((float)MasterVolume);
+                    channel.MasterVolume((float)MasterVolume);
                     channel.CG.Clear();
                 }
             }
@@ -429,7 +429,7 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (_checkConnected() && channel != null)
             {
-                channel.SetVolume((int)videolayer, (float)volume, transitionDuration, Easing.Linear);
+                channel.Volume((int)videolayer, (float)volume, transitionDuration, Easing.Linear);
                 if (OnVolumeChanged != null)
                     OnVolumeChanged(this, videolayer, volume);
             }
@@ -452,26 +452,20 @@ namespace TAS.Server
             {
                 outputAspectNarrow[layer] = narrow;
                 if (narrow)
-                    channel.SetGeometry((int)layer, 0.125f, 0f, 0.75f, 1f, 10, Easing.Linear);
+                    channel.Fill((int)layer, 0.125f, 0f, 0.75f, 1f, 10, Easing.Linear);
                 else
-                    channel.SetGeometry((int)layer, 0f, 0f, 1f, 1f, 10, Easing.Linear);
+                    channel.Fill((int)layer, 0f, 0f, 1f, 1f, 10, Easing.Linear);
                 Debug.WriteLine("SetAspect narrow: {0}", narrow);
             }
         }
 
-        public bool IsPreloaded(Event aEvent)
+        public bool ExecuteScriptCommandItem(CommandScriptItem item)
         {
-            Event loaded;
-            return _loadedNext.TryGetValue(aEvent.Layer, out loaded) && loaded == aEvent;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-                handler(this, new PropertyChangedEventArgs(propertyName));
+            var channel = _casparChannel;
+            if (channel != null
+               && _checkConnected())
+                return item?.Execute(channel) == true;
+            return false;
         }
     }
 }

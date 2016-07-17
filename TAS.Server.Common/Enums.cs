@@ -324,7 +324,8 @@ namespace TAS.Common
         StillImage = 2,
         Live = 4,
         Container = 5,
-        Animation = 6
+        Animation = 6,
+        CommandScript = 7,
     };
     class TEventTypeEnumConverter : ResourceEnumConverter
     {

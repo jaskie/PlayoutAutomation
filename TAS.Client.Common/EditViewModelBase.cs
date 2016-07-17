@@ -44,7 +44,7 @@ namespace TAS.Client.Common
 
         protected override bool SetField<T>(ref T field, T value, string propertyName)
         {
-            bool modified = base.SetField<T>(ref field, value, propertyName);
+            bool modified = base.SetField(ref field, value, propertyName);
             if (modified)
             {
                 Modified = true;

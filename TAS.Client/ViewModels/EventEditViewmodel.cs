@@ -30,7 +30,8 @@ namespace TAS.Client.ViewModels
             if (previewViewModel != null)
                 previewViewModel.PropertyChanged += PreviewViewModel_PropertyChanged;
             _engine = engineViewModel.Engine;
-            _fields.CollectionChanged += _fields_CollectionChanged;
+            _fields.CollectionChanged += _fields_or_commands_CollectionChanged;
+            _commands.CollectionChanged += _fields_or_commands_CollectionChanged;
             CommandSaveEdit = new UICommand() { ExecuteDelegate = _save, CanExecuteDelegate = _canSave };
             CommandUndoEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
             CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _isEditableMovie };
@@ -38,9 +39,12 @@ namespace TAS.Client.ViewModels
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume };
             CommandEditField = new UICommand { ExecuteDelegate = _editField };
             CommandTriggerStartType = new UICommand { ExecuteDelegate = _triggerStartType, CanExecuteDelegate = _canTriggerStartType };
+            CommandAddCommandScriptItem = new UICommand { ExecuteDelegate = _addCommandScriptItem, CanExecuteDelegate = _canAddCommandScriptItem };
+            CommandDeleteCommandScriptItem = new UICommand { ExecuteDelegate = _deleteCommandScriptItem, CanExecuteDelegate = _canDeleteCommandScriptItem };
+            CommandEditCommandScriptItem = new UICommand { ExecuteDelegate = _editCommandScriptItem, CanExecuteDelegate = _canEditCommandScriptItem };
         }
 
-        private void _fields_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void _fields_or_commands_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             Modified = true;
         }
@@ -51,7 +55,8 @@ namespace TAS.Client.ViewModels
                 Event = null;
             if (_previewViewModel != null)
                 _previewViewModel.PropertyChanged -= PreviewViewModel_PropertyChanged;
-            _fields.CollectionChanged -= _fields_CollectionChanged;
+            _fields.CollectionChanged -= _fields_or_commands_CollectionChanged;
+            _commands.CollectionChanged += _fields_or_commands_CollectionChanged;
         }
 
         private void PreviewViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -367,7 +372,8 @@ namespace TAS.Client.ViewModels
             var editObject = obj ?? SelectedField;
             if (editObject != null)
             {
-                KeyValueEditViewmodel kve = new KeyValueEditViewmodel((KeyValuePair<string, string>)editObject, true);
+                var kv = (KeyValuePair<string, string>)editObject;
+                var kve = new TupleEditViewmodel<string>(kv.Key, kv.Value, true);
                 if (kve.ShowDialog() == true)
                     _fields[kve.Key] = kve.Value;
             }
@@ -550,7 +556,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsAnimation { get { return _event is IAnimatedEvent; } }
+        public bool IsAnimation { get { return _event is ITemplated; } }
 
         #region ITemplatedEdit
 
@@ -559,7 +565,7 @@ namespace TAS.Client.ViewModels
 
         public object SelectedField { get; set; }
 
-        private ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
+        private readonly ObservableDictionary<string, string> _fields = new ObservableDictionary<string, string>();
         public IDictionary<string, string> Fields
         {
             get { return _fields; }
@@ -584,6 +590,48 @@ namespace TAS.Client.ViewModels
         public ICommand CommandDeleteField { get; private set; }
 
         #endregion //ITemplatedEdit
+
+
+        #region ICommandScript
+        public bool IsCommandScript { get { return _event is ICommandScript; } }
+        private readonly ObservableCollection<CommandScriptItemViewmodel> _commands = new ObservableCollection<CommandScriptItemViewmodel>();
+        public ObservableCollection<CommandScriptItemViewmodel> Commands { get { return _commands; } }
+        public ICommand CommandEditCommandScriptItem { get; private set; }
+        public ICommand CommandAddCommandScriptItem { get; private set; }
+        public ICommand CommandDeleteCommandScriptItem { get; private set; }
+
+
+        private bool _canEditCommandScriptItem(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void _editCommandScriptItem(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool _canDeleteCommandScriptItem(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void _deleteCommandScriptItem(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool _canAddCommandScriptItem(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void _addCommandScriptItem(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
 
         public bool IsMovie
         {

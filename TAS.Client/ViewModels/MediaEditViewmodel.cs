@@ -123,20 +123,21 @@ namespace TAS.Client.ViewModels
 
         private void _addField(object obj)
         {
-            KeyValueEditViewmodel kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), false);
+            var kve = new TupleEditViewmodel<string>(string.Empty, string.Empty, false);
             kve.OKCallback = (o) => {
-                var co = o as KeyValueEditViewmodel;
+                var co = o as TupleEditViewmodel<string>;
                 return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
             };
             if (kve.ShowDialog() == true)
-                _fields.Add(kve.Result);
+                _fields.Add(kve.Key, kve.Value);
         }
 
         private void _editField(object obj)
         {
             if (SelectedField != null)
             {
-                KeyValueEditViewmodel kve = new KeyValueEditViewmodel((KeyValuePair<string, string>)SelectedField, false);
+                var selected = (KeyValuePair<string, string>)SelectedField;
+                var kve = new TupleEditViewmodel<string>(selected.Key, selected.Value, false);
                 if (kve.ShowDialog() == true)
                     _fields[kve.Key] = kve.Value;
             }
