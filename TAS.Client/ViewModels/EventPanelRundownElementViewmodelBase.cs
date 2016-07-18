@@ -469,25 +469,20 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == nameof(IEvent.IsLoop)
                 || e.PropertyName == nameof(IEvent.Offset)
                 || e.PropertyName == nameof(IEvent.ScheduledDelay)
-                || e.PropertyName == nameof(IEvent.IsForcedNext))
+                || e.PropertyName == nameof(IEvent.IsForcedNext)
+                || e.PropertyName == nameof(IEvent.EndTime)
+                || e.PropertyName == nameof(IEvent.ScheduledTime))
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == nameof(IEvent.ScheduledTc) || e.PropertyName == nameof(IEvent.Duration))
             {
                 NotifyPropertyChanged(nameof(IsEnabled));
-                NotifyPropertyChanged(nameof(EndTime));
                 NotifyPropertyChanged(nameof(MediaErrorInfo));
             }
             if (e.PropertyName == nameof(IEvent.PlayState))
             {
                 NotifyPropertyChanged(e.PropertyName);
                 NotifyPropertyChanged(nameof(ScheduledTime));
-                NotifyPropertyChanged(nameof(EndTime));
                 NotifyPropertyChanged(nameof(IsPlaying));
-            }
-            if (e.PropertyName == nameof(IEvent.ScheduledTime))
-            {
-                NotifyPropertyChanged(e.PropertyName);
-                NotifyPropertyChanged(nameof(EndTime));
             }
             if (e.PropertyName == nameof(IEvent.StartType))
             {

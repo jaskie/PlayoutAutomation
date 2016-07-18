@@ -285,18 +285,21 @@ namespace TAS.Server
 
         public IEvent VisualParent
         {
-            get
-            {
-                IEvent ev = this;
-                IEvent pev = ev.Prior;
-                while (pev != null)
-                {
-                    ev = ev.Prior;
-                    pev = ev.Prior;
-                }
-                return ev.Parent;
-            }
+            get { return _getVisualParent(); }
         }
+
+        private Event _getVisualParent()
+        {
+            Event ev = this;
+            Event pev = ev._prior.Value;
+            while (pev != null)
+            {
+                ev = ev._prior.Value;
+                pev = ev._prior.Value;
+            }
+            return ev._parent.Value;
+        }
+             
 
         private readonly Engine _engine;
         public IEngine Engine { get { return _engine; } }
@@ -418,6 +421,7 @@ namespace TAS.Server
                         ne.UpdateScheduledTime(true);
                 }
                 NotifyPropertyChanged(nameof(Offset));
+                NotifyPropertyChanged(nameof(EndTime));
             }
         }
 
@@ -515,6 +519,9 @@ namespace TAS.Server
                         if (succ != null)
                             succ.UpdateScheduledTime(true);
                     }
+                    foreach (Event ev in GetVisualRootTrack())
+                        ev.NotifyPropertyChanged(nameof(EndTime));
+                    NotifyPropertyChanged(nameof(ScheduledTime));
                 }
             }
         }

@@ -9,7 +9,7 @@
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              FontSize="13" 
              SnapsToDevicePixels="True"
-             KeyboardNavigation.DirectionalNavigation="Cycle"
+             Focusable="True"
              >
     <UserControl.Resources>
         <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />

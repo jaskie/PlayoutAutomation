@@ -132,14 +132,8 @@
   <data name="_grid.Header.Duration" xml:space="preserve">
     <value>Czas trwania</value>
   </data>
-  <data name="_grid.Header.File" xml:space="preserve">
-    <value>Plik</value>
-  </data>
   <data name="_grid.Header.IngestDate" xml:space="preserve">
     <value>Data ingestu</value>
-  </data>
-  <data name="_grid.Header.TCStart" xml:space="preserve">
-    <value>TC Start</value>
   </data>
   <data name="_search" xml:space="preserve">
     <value>Wyszukaj</value>

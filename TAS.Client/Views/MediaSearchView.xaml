@@ -163,11 +163,15 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.ClipName}" Width="3*" Binding="{Binding MediaName, Mode=OneWay}" />
+                        <DataGridTemplateColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.ClipName}" Width="3*" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding MediaName, Mode=OneWay}" ToolTip="{Binding FileName, Mode=OneWay}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                         <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.IngestDate}" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" />
-                        <DataGridTextColumn x:Name="tcStartColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.TCStart}" Binding="{Binding TcPlay, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" />
                         <DataGridTextColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Binding="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}"/>
-                        <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.File}" Binding="{Binding FileName, Mode=OneWay}" Width="2*" />
                     </DataGrid.Columns>
                     <DataGrid.RowDetailsTemplate >
                         <DataTemplate>
@@ -200,7 +204,6 @@
                                                 <DataTemplate />
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn DisplayMemberBinding="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Width="{Binding ElementName=tcStartColumn, Path=ActualWidth}" TextBlock.TextAlignment="Left" />
                                         <GridViewColumn DisplayMemberBinding="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Width="{Binding ElementName=durationColumn, Path=ActualWidth}" TextBlock.TextAlignment="Left" />
                                     </GridView>
                                 </ListView.View>
