@@ -52,8 +52,8 @@ namespace TAS.Client.ViewModels
         {
             if (_trim
                 && _previewVm.LoadedMedia == _convertOperation.SourceMedia
-                && (e.PropertyName == "TcIn"
-                 || e.PropertyName == "TcOut"))
+                && (e.PropertyName == nameof(PreviewViewmodel.TcIn)
+                 || e.PropertyName == nameof(PreviewViewmodel.TcOut)))
             {
                 StartTC = _previewVm.TcIn;
                 Duration = _previewVm.DurationSelection;
@@ -120,7 +120,7 @@ namespace TAS.Client.ViewModels
         public bool DoNotEncode { get { return ((IIngestDirectory)_convertOperation.SourceMedia.Directory).DoNotEncode; } }
 
         private bool _trim;
-        public bool Trim { get { return _trim; } set { SetField(ref _trim, value, "Trim"); } }
+        public bool Trim { get { return _trim; } set { SetField(ref _trim, value, nameof(Trim)); } }
 
         public string SourceFileName { get { return string.Format("{0}:{1}", _convertOperation.SourceMedia.Directory.DirectoryName, _convertOperation.SourceMedia.FileName); } }
 
@@ -130,7 +130,7 @@ namespace TAS.Client.ViewModels
             get { return _destMediaName; }
             set
             {
-                if (SetField(ref _destMediaName, value, "DestMediaName"))
+                if (SetField(ref _destMediaName, value, nameof(DestMediaName)))
                     _makeFileName();
             }
         }
@@ -151,8 +151,8 @@ namespace TAS.Client.ViewModels
             get { return _startTC; }
             set
             {
-                if (SetField(ref _startTC, value, "StartTC"))
-                    NotifyPropertyChanged("EndTC");
+                if (SetField(ref _startTC, value, nameof(StartTC)))
+                    NotifyPropertyChanged(nameof(EndTC));
             }
         }
 
@@ -162,8 +162,8 @@ namespace TAS.Client.ViewModels
             get { return _duration; }
             set
             {
-                if (SetField(ref _duration, value, "Duration"))
-                    NotifyPropertyChanged("EndTC");
+                if (SetField(ref _duration, value, nameof(Duration)))
+                    NotifyPropertyChanged(nameof(EndTC));
             }
         }
 
@@ -172,8 +172,8 @@ namespace TAS.Client.ViewModels
             get { return _startTC+_duration; }
             set
             {
-                if (SetField(ref _duration, value - StartTC, "EndTC"))
-                    NotifyPropertyChanged("Duration");
+                if (SetField(ref _duration, value - StartTC, nameof(EndTC)))
+                    NotifyPropertyChanged(nameof(Duration));
             }
         }
 
@@ -184,7 +184,7 @@ namespace TAS.Client.ViewModels
             get { return _destExternalId; }
             set
             {
-                if (SetField(ref _destExternalId, value, "DestExternalId"))
+                if (SetField(ref _destExternalId, value, nameof(DestExternalId)))
                     _makeFileName();
             }
         }
@@ -192,7 +192,7 @@ namespace TAS.Client.ViewModels
         string _destFileName;
         public string DestFileName { 
             get { return _destFileName; }
-            set { SetField(ref _destFileName, value, "DestFileName"); }
+            set { SetField(ref _destFileName, value, nameof(DestFileName)); }
         }
 
         public bool CanTrim
@@ -211,7 +211,7 @@ namespace TAS.Client.ViewModels
         bool _loudnessCheck;
         public bool LoudnessCheck {
             get { return _loudnessCheck; }
-            set { SetField(ref _loudnessCheck, value, "LoudnessCheck"); }
+            set { SetField(ref _loudnessCheck, value, nameof(LoudnessCheck)); }
         }
 
 
@@ -222,7 +222,7 @@ namespace TAS.Client.ViewModels
                 string validationResult = null;
                 switch (propertyName)
                 {
-                    case "DestFileName":
+                    case nameof(DestFileName):
                         validationResult = _validateDestFileName();
                         break;
                 }
@@ -263,55 +263,55 @@ namespace TAS.Client.ViewModels
             return validationResult;
         }
         
-        protected override void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        protected override void OnFileOperationPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "AspectConversion"
-                || e.PropertyName == "AudioChannelMappingConversion"
-                || e.PropertyName == "AudioVolume"
-                || e.PropertyName == "SourceFieldOrderEnforceConversion"
-                || e.PropertyName == "OperationOuput"
-                || e.PropertyName == "StartTC"
-                || e.PropertyName == "Duration"
+            if (e.PropertyName == nameof(IConvertOperation.AspectConversion)
+                || e.PropertyName == nameof(IConvertOperation.AudioChannelMappingConversion)
+                || e.PropertyName == nameof(IConvertOperation.AudioVolume)
+                || e.PropertyName == nameof(IConvertOperation.SourceFieldOrderEnforceConversion)
+                || e.PropertyName == nameof(IConvertOperation.OperationOutput)
+                || e.PropertyName == nameof(IConvertOperation.StartTC)
+                || e.PropertyName == nameof(IConvertOperation.Duration)
                 )
                 NotifyPropertyChanged(e.PropertyName);
             else
-                base.OnPropertyChanged(sender, e);
+                base.OnFileOperationPropertyChanged(sender, e);
         }
 
         protected virtual void OnSourceMediaPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "FileName")
-                NotifyPropertyChanged("SourceFileName");
-            if (e.PropertyName == "MediaStatus")
-                NotifyPropertyChanged("CanTrim");
-            if (e.PropertyName == "DurationPlay")
+            if (e.PropertyName == nameof(IMedia.FileName))
+                NotifyPropertyChanged(nameof(SourceFileName));
+            if (e.PropertyName == nameof(IMedia.MediaStatus))
+                NotifyPropertyChanged(nameof(CanTrim));
+            if (e.PropertyName == nameof(IMedia.DurationPlay))
             {
                 Duration = _convertOperation.SourceMedia.DurationPlay;
-                NotifyPropertyChanged("CanTrim");
+                NotifyPropertyChanged(nameof(CanTrim));
             }
-            if (e.PropertyName == "TCPlay")
+            if (e.PropertyName == nameof(IMedia.TcPlay))
                 StartTC = _convertOperation.SourceMedia.TcPlay;
         }
 
         protected virtual void OnDestMediaPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "FileName")
+            if (e.PropertyName == nameof(IMedia.FileName))
             {
-                NotifyPropertyChanged("DestFileName");
-                NotifyPropertyChanged("IsValid");
+                NotifyPropertyChanged(nameof(DestFileName));
+                NotifyPropertyChanged(nameof(IsValid));
             }
-            if (e.PropertyName == "MediaName")
-                NotifyPropertyChanged("DestMediaName");
-            if (e.PropertyName == "MediaEmphasis")
-                NotifyPropertyChanged("DestMediaEmphasis");
-            if (e.PropertyName == "MediaCategory")
-                NotifyPropertyChanged("DestCategory");
-            if (e.PropertyName == "Parental")
-                NotifyPropertyChanged("DestParental");
-            if (e.PropertyName == "MediaType")
-                NotifyPropertyChanged("IsMovie");
-            if (e.PropertyName == "VideoFormat")
-                NotifyPropertyChanged("DestMediaVideoFormat");
+            if (e.PropertyName == nameof(IMedia.MediaName))
+                NotifyPropertyChanged(nameof(DestMediaName));
+            if (e.PropertyName == nameof(IPersistentMedia.MediaEmphasis))
+                NotifyPropertyChanged(nameof(DestMediaEmphasis));
+            if (e.PropertyName == nameof(IPersistentMedia.MediaCategory))
+                NotifyPropertyChanged(nameof(DestCategory));
+            if (e.PropertyName == nameof(IPersistentMedia.Parental))
+                NotifyPropertyChanged(nameof(DestParental));
+            if (e.PropertyName == nameof(IPersistentMedia.MediaType))
+                NotifyPropertyChanged(nameof(IsMovie));
+            if (e.PropertyName == nameof(IPersistentMedia.VideoFormat))
+                NotifyPropertyChanged(nameof(DestMediaVideoFormat));
         }
 
         public bool IsValid

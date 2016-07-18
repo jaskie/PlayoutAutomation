@@ -89,7 +89,7 @@ namespace TAS.Server
                         _connect();
                     else
                         _disconnect();
-                    NotifyPropertyChanged("IsConnected");
+                    NotifyPropertyChanged(nameof(IsConnected));
                 }
             }
         }
@@ -145,7 +145,7 @@ namespace TAS.Server
                     _needUpdateChannels = true;
             }
             Debug.WriteLine(e.Connected, "Caspar connected");
-            NotifyPropertyChanged("IsConnected");
+            NotifyPropertyChanged(nameof(IsConnected));
         }
 
         private bool _disposed = false;

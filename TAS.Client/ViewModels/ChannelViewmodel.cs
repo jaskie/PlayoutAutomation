@@ -36,7 +36,7 @@ namespace TAS.Client.ViewModels
         public string ChannelName { get { return _channelName; } }
 
         private int _selectedTab;
-        public int SelectedTab { get { return _selectedTab; } set { SetField(ref _selectedTab, value, "SelectedTab"); } }
+        public int SelectedTab { get { return _selectedTab; } set { SetField(ref _selectedTab, value, nameof(SelectedTab)); } }
 
         protected override void OnDispose()
         {

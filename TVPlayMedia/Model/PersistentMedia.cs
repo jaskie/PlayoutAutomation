@@ -22,7 +22,7 @@ namespace TAS.Client.Model
 
         public UInt64 IdPersistentMedia { get; set; }
 
-        public bool Modified { get; set; }
+        public bool IsModified { get; set; }
 
         public bool Protected { get { return Get<bool>(); } set { Set(value); } }
 

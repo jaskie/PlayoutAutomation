@@ -51,7 +51,7 @@ namespace TAS.Client.ViewModels
                 WindowWidth = 750;
             _mediaType = mediaType;
             if (_previewViewmodel != null)
-                _previewViewmodel.PropertyChanged += _onPreviewPropertyChanged;
+                _previewViewmodel.PropertyChanged += _onPreviewViewModelPropertyChanged;
             IMediaDirectory pri = mediaType == TMediaType.Animation ? (IMediaDirectory)_manager.AnimationDirectoryPRI : _manager.MediaDirectoryPRI;
             IMediaDirectory sec = mediaType == TMediaType.Animation ? (IMediaDirectory)_manager.AnimationDirectorySEC : _manager.MediaDirectorySEC;
             _searchDirectory = pri != null && pri.DirectoryExists() ? pri : sec != null && sec.DirectoryExists() ? sec : null;
@@ -71,7 +71,7 @@ namespace TAS.Client.ViewModels
                     .Where(m => _canAddMediaToCollection(m, mediaType, _frameRate, videoFormatDescription))
                     .Select(m => new MediaViewViewmodel(m, _manager)));
                 _itemsView = CollectionViewSource.GetDefaultView(_items);
-                _itemsView.SortDescriptions.Add(new SortDescription("MediaName", ListSortDirection.Ascending));
+                _itemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
                 _itemsView.Filter += _itemsFilter;
             }
             _view = new MediaSearchView(_frameRate);
@@ -86,7 +86,7 @@ namespace TAS.Client.ViewModels
             BaseEvent = null;
             if (_previewViewmodel != null)
             {
-                _previewViewmodel.PropertyChanged -= _onPreviewPropertyChanged;
+                _previewViewmodel.PropertyChanged -= _onPreviewViewModelPropertyChanged;
                 _previewViewmodel.Dispose();
             }
             _searchDirectory.MediaAdded -= _searchDirectory_MediaAdded;
@@ -196,7 +196,7 @@ namespace TAS.Client.ViewModels
                     _searchText = value;
                     _searchTextSplit = value.ToLower().Split(' ');
                     SelectedItem = null;
-                    NotifyPropertyChanged("SearchText");
+                    NotifyPropertyChanged(nameof(SearchText));
                     _itemsView.Refresh();
                 }
             }
@@ -210,9 +210,9 @@ namespace TAS.Client.ViewModels
         {
             get { return _mediaCategory; }
             set {
-                if (SetField(ref _mediaCategory, value, "MediaCategory"))
+                if (SetField(ref _mediaCategory, value, nameof(MediaCategory)))
                 {
-                    NotifyPropertyChanged("IsServerOrArchiveDirectory");
+                    NotifyPropertyChanged(nameof(IsServerOrArchiveDirectory));
                     _itemsView.Refresh();
                 }
             }
@@ -382,20 +382,20 @@ namespace TAS.Client.ViewModels
                 if (value != _okButtonText)
                 {
                     _okButtonText = value;
-                    NotifyPropertyChanged("OkButtonText");
+                    NotifyPropertyChanged(nameof(OkButtonText));
                 }
             }
         }
 
         private void _onBaseEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "PlayState")
+            if (e.PropertyName == nameof(IEvent.PlayState))
                 InvalidateRequerySuggested();
         }
 
-        private void _onPreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void _onPreviewViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "LoadedMedia")
+            if (e.PropertyName == nameof(PreviewViewmodel.LoadedMedia))
                 InvalidateRequerySuggested();
         }
 

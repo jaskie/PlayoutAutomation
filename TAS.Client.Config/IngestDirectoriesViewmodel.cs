@@ -124,11 +124,11 @@ namespace TAS.Client.Config
             
         }
         
-        public override bool Modified { get { return _added || _deleted || _moved|| _directories.Any(d => d.Modified); } }
+        public override bool IsModified { get { return _added || _deleted || _moved|| _directories.Any(d => d.IsModified); } }
 
         public override void Save(object parameter)
         {
-            _directories.Where(d => d.Modified).All(d =>
+            _directories.Where(d => d.IsModified).All(d =>
             {
                 d.Save();
                 return true;

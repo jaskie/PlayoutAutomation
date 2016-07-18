@@ -23,7 +23,7 @@ namespace TAS.Client.ViewModels
         protected override void OnEventSaved(object sender, EventArgs e)
         {
             base.OnEventSaved(sender, e);
-            NotifyPropertyChanged("IsInvalidInSchedule");
+            NotifyPropertyChanged(nameof(IsInvalidInSchedule));
         }
 
         protected override void OnDispose()
@@ -49,6 +49,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandAddNextEmptyMovie { get; private set; }
         public ICommand CommandAddNextLive { get; private set; }
         public ICommand CommandAddAnimation { get; private set; }
+        public ICommand CommandAddCommandScript { get; private set; }
 
         protected override void _createCommands()
         {
@@ -134,6 +135,7 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = o => _engineViewmodel.AddMediaEvent(_event, TStartType.With, TMediaType.Animation, VideoLayer.Animation, true)
             };
+            CommandAddCommandScript = new UICommand { ExecuteDelegate = o => _engineViewmodel.AddCommandScriptEvent(_event)};
         }
 
         protected virtual bool canAddNextMovie(object o)
@@ -170,7 +172,7 @@ namespace TAS.Client.ViewModels
         public string TimeLeft
         {
             get { return _timeLeft; }
-            set { SetField(ref _timeLeft, value, "TimeLeft"); }
+            set { SetField(ref _timeLeft, value, nameof(TimeLeft)); }
         }
 
         public string EndTime
@@ -406,13 +408,13 @@ namespace TAS.Client.ViewModels
             if ((_event != null)
                 && (sender is IMedia))
             {
-                if (e.PropertyName == "MediaStatus")
-                    NotifyPropertyChanged("MediaErrorInfo");
-                if (e.PropertyName == "FileName")
-                    NotifyPropertyChanged("MediaFileName");
-                if (e.PropertyName == "MediaCategory"
-                    || e.PropertyName == "VideoFormat"
-                    || e.PropertyName == "MediaEmphasis"
+                if (e.PropertyName == nameof(IMedia.MediaStatus))
+                    NotifyPropertyChanged(nameof(MediaErrorInfo));
+                if (e.PropertyName == nameof(IMedia.FileName))
+                    NotifyPropertyChanged(nameof(MediaFileName));
+                if (e.PropertyName == nameof(IMedia.MediaCategory)
+                    || e.PropertyName == nameof(IMedia.VideoFormat)
+                    || e.PropertyName == nameof(IPersistentMedia.MediaEmphasis)
                     )
                     NotifyPropertyChanged(e.PropertyName);
             }
@@ -438,16 +440,16 @@ namespace TAS.Client.ViewModels
             switch (e.Item.Layer)
             {
                 case VideoLayer.CG1:
-                    NotifyPropertyChanged("HasSubItemOnLayer1");
-                    NotifyPropertyChanged("Layer1SubItemMediaName");
-                    break;
-                case VideoLayer.CG2:
-                    NotifyPropertyChanged("HasSubItemOnLayer2");
-                    NotifyPropertyChanged("Layer2SubItemMediaName");
-                    break;
-                case VideoLayer.CG3:
-                    NotifyPropertyChanged("HasSubItemOnLayer3");
-                    NotifyPropertyChanged("Layer3SubItemMediaName");
+                    NotifyPropertyChanged(nameof(HasSubItemOnLayer1));
+                    NotifyPropertyChanged(nameof(Layer1SubItemMediaName));
+                    break;                
+                case VideoLayer.CG2:      
+                    NotifyPropertyChanged(nameof(HasSubItemOnLayer2));
+                    NotifyPropertyChanged(nameof(Layer2SubItemMediaName));
+                    break;               
+                case VideoLayer.CG3:     
+                    NotifyPropertyChanged(nameof(HasSubItemOnLayer3));
+                    NotifyPropertyChanged(nameof(Layer3SubItemMediaName));
                     break;
             }
         }
@@ -457,56 +459,56 @@ namespace TAS.Client.ViewModels
             TimeLeft = (e.TimeToFinish == TimeSpan.Zero || _event.PlayState == TPlayState.Scheduled) ? string.Empty : e.TimeToFinish.ToSMPTETimecodeString(_frameRate);
         }
 
-        protected override void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        protected override void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            base.OnPropertyChanged(sender, e);
-            if (e.PropertyName == "Duration"
-                || e.PropertyName == "IsEnabled"
-                || e.PropertyName == "IsHold"
-                || e.PropertyName == "EventName"
-                || e.PropertyName == "IsLoop"
-                || e.PropertyName == "Offset"
-                || e.PropertyName == "ScheduledDelay"
-                || e.PropertyName == "IsForcedNext")
+            base.OnEventPropertyChanged(sender, e);
+            if (e.PropertyName == nameof(IEvent.Duration)
+                || e.PropertyName == nameof(IEvent.IsEnabled)
+                || e.PropertyName == nameof(IEvent.IsHold)
+                || e.PropertyName == nameof(IEvent.EventName)
+                || e.PropertyName == nameof(IEvent.IsLoop)
+                || e.PropertyName == nameof(IEvent.Offset)
+                || e.PropertyName == nameof(IEvent.ScheduledDelay)
+                || e.PropertyName == nameof(IEvent.IsForcedNext))
                 NotifyPropertyChanged(e.PropertyName);
-            if (e.PropertyName == "ScheduledTC" || e.PropertyName == "Duration")
+            if (e.PropertyName == nameof(IEvent.ScheduledTc) || e.PropertyName == nameof(IEvent.Duration))
             {
-                NotifyPropertyChanged("IsEnabled");
-                NotifyPropertyChanged("EndTime");
-                NotifyPropertyChanged("MediaErrorInfo");
+                NotifyPropertyChanged(nameof(IsEnabled));
+                NotifyPropertyChanged(nameof(EndTime));
+                NotifyPropertyChanged(nameof(MediaErrorInfo));
             }
-            if (e.PropertyName == "PlayState")
-            {
-                NotifyPropertyChanged(e.PropertyName);
-                NotifyPropertyChanged("ScheduledTime");
-                NotifyPropertyChanged("EndTime");
-                NotifyPropertyChanged("IsPlaying");
-            }
-            if (e.PropertyName == "ScheduledTime")
+            if (e.PropertyName == nameof(IEvent.PlayState))
             {
                 NotifyPropertyChanged(e.PropertyName);
-                NotifyPropertyChanged("EndTime");
+                NotifyPropertyChanged(nameof(ScheduledTime));
+                NotifyPropertyChanged(nameof(EndTime));
+                NotifyPropertyChanged(nameof(IsPlaying));
             }
-            if (e.PropertyName == "StartType")
+            if (e.PropertyName == nameof(IEvent.ScheduledTime))
             {
-                NotifyPropertyChanged("IsStartEvent");
-                NotifyPropertyChanged("IsFixedTimeStart");
+                NotifyPropertyChanged(e.PropertyName);
+                NotifyPropertyChanged(nameof(EndTime));
             }
-            if (e.PropertyName == "Media")
+            if (e.PropertyName == nameof(IEvent.StartType))
+            {
+                NotifyPropertyChanged(nameof(IsStartEvent));
+                NotifyPropertyChanged(nameof(IsFixedTimeStart));
+            }
+            if (e.PropertyName == nameof(IEvent.Media))
             {
                 Media = _event.Media;
-                NotifyPropertyChanged("MediaFileName");
-                NotifyPropertyChanged("MediaCategory");
-                NotifyPropertyChanged("MediaEmphasis");
-                NotifyPropertyChanged("VideoFormat");
-                NotifyPropertyChanged("MediaErrorInfo");
+                NotifyPropertyChanged(nameof(MediaFileName));
+                NotifyPropertyChanged(nameof(MediaCategory));
+                NotifyPropertyChanged(nameof(MediaEmphasis));
+                NotifyPropertyChanged(nameof(VideoFormat));
+                NotifyPropertyChanged(nameof(MediaErrorInfo));
             }
-            if (e.PropertyName == "GPI")
+            if (e.PropertyName == nameof(IEvent.GPI))
             {
-                NotifyPropertyChanged("GPICanTrigger");
-                NotifyPropertyChanged("GPICrawl");
-                NotifyPropertyChanged("GPILogo");
-                NotifyPropertyChanged("GPIParental");
+                NotifyPropertyChanged(nameof(GPICanTrigger));
+                NotifyPropertyChanged(nameof(GPICrawl));
+                NotifyPropertyChanged(nameof(GPILogo));
+                NotifyPropertyChanged(nameof(GPIParental));
             }
         }
     }

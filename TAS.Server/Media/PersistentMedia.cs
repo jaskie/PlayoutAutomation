@@ -26,7 +26,7 @@ namespace TAS.Server
         public DateTime KillDate
         {
             get { return _killDate; }
-            set { SetField(ref _killDate, value, "KillDate"); }
+            set { SetField(ref _killDate, value, nameof(KillDate)); }
         }
 
         // content properties
@@ -37,7 +37,7 @@ namespace TAS.Server
         public string IdAux
         {
             get { return _idAux; }
-            set { SetField(ref _idAux, value, "IdAux"); }
+            set { SetField(ref _idAux, value, nameof(IdAux)); }
         } // auxiliary Id from external system
 
         internal TMediaEmphasis _mediaEmphasis;
@@ -45,7 +45,7 @@ namespace TAS.Server
         public TMediaEmphasis MediaEmphasis
         {
             get { return _mediaEmphasis; }
-            set { SetField(ref _mediaEmphasis, value, "MediaEmphasis"); }
+            set { SetField(ref _mediaEmphasis, value, nameof(MediaEmphasis)); }
         }
 
         protected bool _protected;
@@ -53,7 +53,7 @@ namespace TAS.Server
         public bool Protected
         {
             get { return _protected; }
-            set { SetField(ref _protected, value, "Protected"); }
+            set { SetField(ref _protected, value, nameof(Protected)); }
         }
 
         private ObservableSynchronizedCollection<IMediaSegment> _mediaSegments;
@@ -86,20 +86,20 @@ namespace TAS.Server
 
         public abstract bool Save();
 
-        public bool Modified { get; set; }
+        public bool IsModified { get; set; }
 
         protected override bool SetField<T>(ref T field, T value, string propertyName)
         {
             bool modified = base.SetField<T>(ref field, value, propertyName);
-            if (modified && propertyName != "Verified") 
-                Modified = true; 
+            if (modified && propertyName != nameof(Verified)) 
+                IsModified = true; 
             return modified;
         }
 
         internal override void Verify()
         {
             base.Verify();
-            if (Modified)
+            if (IsModified)
                 Save();
         }
     }

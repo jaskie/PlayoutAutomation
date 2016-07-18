@@ -16,7 +16,7 @@ namespace TAS.Client.Config.Model
             {
                 Database.Open(connectionStringPrimary, connectionStringSecondary);
                 Directories = Database.DbLoadArchiveDirectories<ArchiveDirectory>();
-                Directories.ForEach(d => d.Modified = false);
+                Directories.ForEach(d => d.IsModified = false);
             }
             finally
             {
@@ -40,7 +40,7 @@ namespace TAS.Client.Config.Model
                     if (dir.IsNew)
                         dir.DbInsertArchiveDirectory();
                     else
-                    if (dir.Modified)
+                    if (dir.IsModified)
                         dir.DbUpdateArchiveDirectory();
                 }
             }

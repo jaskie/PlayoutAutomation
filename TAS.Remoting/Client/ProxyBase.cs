@@ -106,7 +106,7 @@ namespace TAS.Remoting.Client
             if (e.Message.DtoGuid == DtoGuid)
             {
                 Debug.WriteLine("ProxyBase: {1} on {0}", this, e.Message.MemberName);
-                if (e.Message.MemberName == "PropertyChanged")
+                if (e.Message.MemberName == nameof(PropertyChanged))
                 {
                     PropertyChangedEventArgs ea = (PropertyChangedEventArgs)e.Message.Response;
                     NotifyPropertyChanged(ea.PropertyName);

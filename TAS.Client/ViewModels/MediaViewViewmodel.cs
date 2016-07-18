@@ -69,7 +69,7 @@ namespace TAS.Client.ViewModels
                     _isExpanded = value;
                     if (!value)
                         SelectedSegment = null;
-                    NotifyPropertyChanged("IsExpanded");
+                    NotifyPropertyChanged(nameof(IsExpanded));
                 }
             }
         }
@@ -90,7 +90,7 @@ namespace TAS.Client.ViewModels
                         if (segment != null)
                             _mediaSegments.Remove(segment);
                     }
-                    NotifyPropertyChanged("HasSegments");
+                    NotifyPropertyChanged(nameof(HasSegments));
                     if ((Media is IPersistentMedia) && (Media as IPersistentMedia).MediaSegments.Count == 0)
                         IsExpanded = false;
                 }));
@@ -105,7 +105,7 @@ namespace TAS.Client.ViewModels
                 if (_selectedSegment != value)
                 {
                     _selectedSegment = value;
-                    NotifyPropertyChanged("SelectedSegment");
+                    NotifyPropertyChanged(nameof(SelectedSegment));
                 }
             }
         }
@@ -114,27 +114,28 @@ namespace TAS.Client.ViewModels
         {
             if (!string.IsNullOrEmpty(e.PropertyName) && GetType().GetProperty(e.PropertyName) != null)
                 NotifyPropertyChanged(e.PropertyName);
-            if (e.PropertyName == "TcPlay"
-                || e.PropertyName == "TcStart"
-                || e.PropertyName == "Duration"
-                || e.PropertyName == "DurationPlay")
-                NotifyPropertyChanged("IsTrimmed");
-            if (e.PropertyName == "TcStart")
-                NotifyPropertyChanged("sTcStart");
-            if (e.PropertyName == "TcPlay")
-                NotifyPropertyChanged("sTcPlay");
-            if (e.PropertyName == "Duration")
-                NotifyPropertyChanged("sDuration");
-            if (e.PropertyName == "DurationPlay")
-                NotifyPropertyChanged("sDurationPlay");
-            if (e.PropertyName == "IngestStatus")
-                NotifyPropertyChanged("IngestStatus");
-            if (e.PropertyName == "FrameRate")
+            if (e.PropertyName == nameof(IMedia.TcPlay)
+                || e.PropertyName == nameof(IMedia.TcStart)
+                || e.PropertyName == nameof(IMedia.Duration)
+                || e.PropertyName == nameof(IMedia.DurationPlay))
+                NotifyPropertyChanged(nameof(IsTrimmed));
+            if (e.PropertyName == nameof(IMedia.TcStart))
+                NotifyPropertyChanged(nameof(sTcStart));
+            if (e.PropertyName == nameof(IMedia.TcPlay))
+                NotifyPropertyChanged(nameof(sTcPlay));
+            if (e.PropertyName == nameof(IMedia.Duration))
+                NotifyPropertyChanged(nameof(sDuration));
+            if (e.PropertyName == nameof(IMedia.DurationPlay))
+                NotifyPropertyChanged(nameof(sDurationPlay));
+            if (e.PropertyName == nameof(IIngestMedia.IngestStatus)
+                || e.PropertyName == nameof(IArchiveMedia.IngestStatus))
+                NotifyPropertyChanged(nameof(IngestStatus));
+            if (e.PropertyName == nameof(IMedia.FrameRate))
             {
-                NotifyPropertyChanged("sTcPlay");
-                NotifyPropertyChanged("sTcStart");
-                NotifyPropertyChanged("sDuration");
-                NotifyPropertyChanged("sDurationPlay");
+                NotifyPropertyChanged(nameof(sTcPlay));
+                NotifyPropertyChanged(nameof(sTcStart));
+                NotifyPropertyChanged(nameof(sDuration));
+                NotifyPropertyChanged(nameof(sDurationPlay));
                 Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                    {
                        foreach (MediaSegmentViewmodel segment in _mediaSegments)

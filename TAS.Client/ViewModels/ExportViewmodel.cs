@@ -35,9 +35,9 @@ namespace TAS.Client.ViewModels
             get { return _selectedDirectory; }
             set
             {
-                if (SetField(ref _selectedDirectory, value, "SelectedDirectory"))
+                if (SetField(ref _selectedDirectory, value, nameof(SelectedDirectory)))
                 {
-                    NotifyPropertyChanged("IsConcatMediaNameVisible");
+                    NotifyPropertyChanged(nameof(IsConcatMediaNameVisible));
                     InvalidateRequerySuggested();
                 }
             }
@@ -49,9 +49,9 @@ namespace TAS.Client.ViewModels
             get { return _concatMedia; }
             set
             {
-                if (SetField(ref _concatMedia, value, "ConcatMedia"))
+                if (SetField(ref _concatMedia, value, nameof(ConcatMedia)))
                 {
-                    NotifyPropertyChanged("IsConcatMediaNameVisible");
+                    NotifyPropertyChanged(nameof(IsConcatMediaNameVisible));
                 }
             }
         }
@@ -62,7 +62,7 @@ namespace TAS.Client.ViewModels
             get { return _concatMediaName; }
             set
             {
-                if (SetField(ref _concatMediaName, value, "ConcatMediaName"))
+                if (SetField(ref _concatMediaName, value, nameof(ConcatMediaName)))
                     InvalidateRequerySuggested();
             }
         }

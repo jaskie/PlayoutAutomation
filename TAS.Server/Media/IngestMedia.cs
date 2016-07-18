@@ -52,7 +52,7 @@ namespace TAS.Server
                 }
                 return _ingestStatus;
             }
-            internal set { SetField(ref _ingestStatus, value, "IngestStatus"); }                
+            internal set { SetField(ref _ingestStatus, value, nameof(IngestStatus)); }                
         }
 
         public override Stream GetFileStream(bool forWrite)

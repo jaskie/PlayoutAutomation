@@ -16,7 +16,7 @@ namespace TAS.Client.Config.Model
         [XmlIgnore]
         public ulong Id { get; set; }
         [XmlIgnore]
-        public bool Modified = false;
+        public bool IsModified = false;
         public TAspectRatioControl AspectRatioControl { get; set; }
         public string EngineName { get; set; }
         public int TimeCorrection { get; set; }

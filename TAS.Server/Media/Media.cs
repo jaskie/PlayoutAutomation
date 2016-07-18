@@ -41,8 +41,8 @@ namespace TAS.Server
             get { return _folder; }
             set
             {
-                if (SetField(ref _folder, value, "Folder"))
-                    NotifyPropertyChanged("FullPath");
+                if (SetField(ref _folder, value, nameof(Folder)))
+                    NotifyPropertyChanged(nameof(FullPath));
             }
         }
 #region IMediaProperties
@@ -53,9 +53,9 @@ namespace TAS.Server
             get { return _fileName; }
             set
             {
-                if (SetField(ref _fileName, value, "FileName"))
+                if (SetField(ref _fileName, value, nameof(FileName)))
                 {
-                    NotifyPropertyChanged("FullPath");
+                    NotifyPropertyChanged(nameof(FullPath));
                 }
             }
         }
@@ -65,7 +65,7 @@ namespace TAS.Server
         public UInt64 FileSize 
         {
             get { return _fileSize; }
-            set { SetField(ref _fileSize, value, "FileSize"); }
+            set { SetField(ref _fileSize, value, nameof(FileSize)); }
         }
 
         protected DateTime _lastUpdated;
@@ -73,7 +73,7 @@ namespace TAS.Server
         public DateTime LastUpdated
         {
             get { return _lastUpdated; }
-            set { SetField(ref _lastUpdated, value, "LastUpdated"); }
+            set { SetField(ref _lastUpdated, value, nameof(LastUpdated)); }
         }
         //// to enable LastAccess: "FSUTIL behavior set disablelastaccess 0" on NTFS volume
         //// not stored in datebase
@@ -97,7 +97,7 @@ namespace TAS.Server
         public virtual string MediaName
         {
             get { return _mediaName; }
-            set { SetField(ref _mediaName, value, "MediaName"); }
+            set { SetField(ref _mediaName, value, nameof(MediaName)); }
         }
 
         protected TMediaType _mediaType;
@@ -105,7 +105,7 @@ namespace TAS.Server
         public virtual TMediaType MediaType
         {
             get { return _mediaType; }
-            set { SetField(ref _mediaType, value, "MediaType"); }
+            set { SetField(ref _mediaType, value, nameof(MediaType)); }
         }
 
         protected TimeSpan _duration;
@@ -113,28 +113,28 @@ namespace TAS.Server
         public virtual TimeSpan Duration
         {
             get { return _duration; }
-            set { SetField(ref _duration, value, "Duration"); }
+            set { SetField(ref _duration, value, nameof(Duration)); }
         }
         protected TimeSpan _durationPlay;
         [JsonProperty]
         public virtual TimeSpan DurationPlay
         {
             get { return _durationPlay; }
-            set { SetField(ref _durationPlay, value, "DurationPlay"); }
+            set { SetField(ref _durationPlay, value, nameof(DurationPlay)); }
         }
         protected TimeSpan _tcStart;
         [JsonProperty]
         public virtual TimeSpan TcStart 
         {
             get { return _tcStart; }
-            set { SetField(ref _tcStart, value, "TcStart"); }
+            set { SetField(ref _tcStart, value, nameof(TcStart)); }
         }
         protected TimeSpan _tcPlay;
         [JsonProperty]
         public virtual TimeSpan TcPlay
         {
             get { return _tcPlay; }
-            set { SetField(ref _tcPlay, value, "TcPlay"); }
+            set { SetField(ref _tcPlay, value, nameof(TcPlay)); }
         }
         protected TVideoFormat _videoFormat;
         [JsonProperty]
@@ -143,11 +143,11 @@ namespace TAS.Server
             get { return _videoFormat; }
             set
             {
-                if (SetField(ref _videoFormat, value, "VideoFormat"))
+                if (SetField(ref _videoFormat, value, nameof(VideoFormat)))
                 {
                     _videoFormatDescription = null;
-                    NotifyPropertyChanged("FrameRate");
-                    NotifyPropertyChanged("VideoFormatDescription");
+                    NotifyPropertyChanged(nameof(FrameRate));
+                    NotifyPropertyChanged(nameof(VideoFormatDescription));
                 }
             }
         }
@@ -156,7 +156,7 @@ namespace TAS.Server
         public bool FieldOrderInverted
         {
             get { return _fieldOrderInverted; }
-            set { SetField(ref _fieldOrderInverted, value, "FieldOrderInverted"); }
+            set { SetField(ref _fieldOrderInverted, value, nameof(FieldOrderInverted)); }
         }
 
         protected TAudioChannelMapping _audioChannelMapping;
@@ -165,14 +165,14 @@ namespace TAS.Server
         public virtual TAudioChannelMapping AudioChannelMapping 
         {
             get { return _audioChannelMapping; }
-            set { SetField(ref _audioChannelMapping, value, "AudioChannelMapping"); }
+            set { SetField(ref _audioChannelMapping, value, nameof(AudioChannelMapping)); }
         }
         protected decimal _audioVolume;
         [JsonProperty]
         public virtual decimal AudioVolume // correction amount on play
         {
             get { return _audioVolume; }
-            set { SetField(ref _audioVolume, value, "AudioVolume"); }
+            set { SetField(ref _audioVolume, value, nameof(AudioVolume)); }
         }
 
         protected decimal _audioLevelIntegrated;
@@ -180,7 +180,7 @@ namespace TAS.Server
         public virtual decimal AudioLevelIntegrated //measured
         {
             get { return _audioLevelIntegrated; }
-            set { SetField(ref _audioLevelIntegrated, value, "AudioLevelIntegrated"); }
+            set { SetField(ref _audioLevelIntegrated, value, nameof(AudioLevelIntegrated)); }
         }
 
         protected decimal _audioLevelPeak;
@@ -188,7 +188,7 @@ namespace TAS.Server
         public virtual decimal AudioLevelPeak //measured
         {
             get { return _audioLevelPeak; }
-            set { SetField(ref _audioLevelPeak, value, "AudioLevelPeak"); }
+            set { SetField(ref _audioLevelPeak, value, nameof(AudioLevelPeak)); }
         }
 
         protected TMediaCategory _mediaCategory;
@@ -196,7 +196,7 @@ namespace TAS.Server
         public virtual TMediaCategory MediaCategory
         {
             get { return _mediaCategory; }
-            set { SetField(ref _mediaCategory, value, "MediaCategory"); }
+            set { SetField(ref _mediaCategory, value, nameof(MediaCategory)); }
         }
 
         protected TParental _parental;
@@ -204,7 +204,7 @@ namespace TAS.Server
         public virtual TParental Parental
         {
             get { return _parental; }
-            set { SetField(ref _parental, value, "Parental"); }
+            set { SetField(ref _parental, value, nameof(Parental)); }
         }
 
 #endregion //IMediaProperties
@@ -214,7 +214,7 @@ namespace TAS.Server
         public virtual Guid MediaGuid
         {
             get { return _mediaGuid; }
-            internal set { SetField(ref _mediaGuid, value, "MediaGuid"); }
+            internal set { SetField(ref _mediaGuid, value, nameof(MediaGuid)); }
         }
 
 
@@ -279,7 +279,7 @@ namespace TAS.Server
         public TMediaStatus MediaStatus
         {
             get { return _mediaStatus; }
-            set { SetField(ref _mediaStatus, value, "MediaStatus"); }
+            set { SetField(ref _mediaStatus, value, nameof(MediaStatus)); }
         }
 
         internal bool HasExtraLines; // VBI lines that shouldn't be displayed
@@ -374,7 +374,7 @@ namespace TAS.Server
         public bool Verified
         {
             get { return _verified; }
-            set { SetField(ref _verified, value, "Verified"); }
+            set { SetField(ref _verified, value, nameof(Verified)); }
         }
 
         [JsonProperty]
@@ -415,7 +415,7 @@ namespace TAS.Server
                     LastUpdated = DateTimeExtensions.FromFileTime(fi.LastWriteTimeUtc, DateTimeKind.Utc);
                     //this.LastAccess = DateTimeExtensions.FromFileTime(fi.LastAccessTimeUtc, DateTimeKind.Utc);
 
-                    if (SetField(ref _mediaStatus, MediaChecker.Check(this), "MediaStatus"))
+                    if (SetField(ref _mediaStatus, MediaChecker.Check(this), nameof(MediaStatus)))
                     {
                         var dir = _directory;
                         if (dir != null)

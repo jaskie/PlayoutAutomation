@@ -66,15 +66,15 @@ namespace TAS.Client.Config
             base.Save(destObject);
         }
 
-        public override bool Modified { get { return  _modified || _isCollectionChanged || _playoutServerChannels.Any(c => c.Modified); } }
+        public override bool IsModified { get { return  _isModified || _isCollectionChanged || _playoutServerChannels.Any(c => c.IsModified); } }
 
-        public string ServerAddress { get { return _serverAddress; } set { SetField(ref _serverAddress, value, "ServerAddress"); } }
-        public string MediaFolder { get { return _mediaFolder; } set { SetField(ref _mediaFolder, value, "MediaFolder"); } }
-        public string AnimationFolder { get { return _animationFolder; } set { SetField(ref _animationFolder, value, "AnimationFolder"); } }
-        public TServerType ServerType { get { return _serverType; } set { SetField(ref _serverType, value, "ServerType"); } }
+        public string ServerAddress { get { return _serverAddress; } set { SetField(ref _serverAddress, value, nameof(ServerAddress)); } }
+        public string MediaFolder { get { return _mediaFolder; } set { SetField(ref _mediaFolder, value, nameof(MediaFolder)); } }
+        public string AnimationFolder { get { return _animationFolder; } set { SetField(ref _animationFolder, value, nameof(AnimationFolder)); } }
+        public TServerType ServerType { get { return _serverType; } set { SetField(ref _serverType, value, nameof(ServerType)); } }
         public Array ServerTypes { get { return _serverTypes; } }
 
-        public PlayoutServerChannelViewmodel SelectedPlayoutServerChannel { get { return _selectedPlayoutServerChannel; } set { SetField(ref _selectedPlayoutServerChannel, value, "SelectedPlayoutServerChannel"); } }
+        public PlayoutServerChannelViewmodel SelectedPlayoutServerChannel { get { return _selectedPlayoutServerChannel; } set { SetField(ref _selectedPlayoutServerChannel, value, nameof(SelectedPlayoutServerChannel)); } }
         public ObservableCollection<PlayoutServerChannelViewmodel> PlayoutServerChannels { get { return _playoutServerChannels; } }
         public ICommand CommandAdd { get { return _commandAdd; } }
         public ICommand CommandDelete { get { return _commandDelete; } }

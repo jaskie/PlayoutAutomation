@@ -44,7 +44,7 @@ namespace TAS.Client.Config.Model
                 Database.Open(ConnectionStringPrimary, ConnectionStringSecondary);
                 _engines.ForEach(e =>
                 {
-                    if (e.Modified)
+                    if (e.IsModified)
                     {
                         if (e.Id == 0)
                             e.DbInsertEngine();

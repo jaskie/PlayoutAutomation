@@ -117,15 +117,15 @@ namespace TAS.Server
         private TVideoFormat _outputFormat;
 
         [JsonProperty]
-        public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value, "AspectConversion"); } }
+        public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value, nameof(AspectConversion)); } }
         [JsonProperty]
-        public TAudioChannelMappingConversion AudioChannelMappingConversion { get { return _audioChannelMappingConversion; } set { SetField(ref _audioChannelMappingConversion, value, "AudioChannelMappingConversion"); } }
+        public TAudioChannelMappingConversion AudioChannelMappingConversion { get { return _audioChannelMappingConversion; } set { SetField(ref _audioChannelMappingConversion, value, nameof(AudioChannelMappingConversion)); } }
         [JsonProperty]
-        public decimal AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value, "AudioVolume"); } }
+        public decimal AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value, nameof(AudioVolume)); } }
         [JsonProperty]
-        public TFieldOrder SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { SetField(ref _sourceFieldOrderEnforceConversion, value, "SourceFieldOrderEnforceConversion"); } }
+        public TFieldOrder SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { SetField(ref _sourceFieldOrderEnforceConversion, value, nameof(SourceFieldOrderEnforceConversion)); } }
         [JsonProperty]
-        public TVideoFormat OutputFormat { get { return _outputFormat; } set { SetField(ref _outputFormat, value, "OutputFormat"); } }
+        public TVideoFormat OutputFormat { get { return _outputFormat; } set { SetField(ref _outputFormat, value, nameof(OutputFormat)); } }
         [JsonProperty]
         public string IdAux
         {
@@ -139,7 +139,7 @@ namespace TAS.Server
                 var media = DestMedia as IPersistentMedia;
                 if (media != null)
                     media.IdAux = value;
-                NotifyPropertyChanged("IdAux");
+                NotifyPropertyChanged(nameof(IdAux));
             }
         }
         [JsonProperty]
@@ -228,7 +228,7 @@ namespace TAS.Server
 
         void _localSourceMedia_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "FileSize")
+            if (e.PropertyName == nameof(IMedia.FileSize))
             {
                 ulong fs = SourceMedia.FileSize;
                 if (fs > 0 && sender is Media)

@@ -9,7 +9,7 @@
              xmlns:client="clr-namespace:TAS.Client"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
-             d:DataContext="{x:Type vm:EventEditViewmodel}"
+             d:DataContext="{x:Type vm:CommandScriptEditViewmodel}"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
@@ -18,6 +18,9 @@
         <ToolBar DockPanel.Dock="Top">
             <ToolBarPanel Height="24" Orientation="Horizontal">
                 <Button Command="{Binding CommandAddCommandScriptItem}" Padding="0" ToolTip="{Resx _addCommand.ToolTip}">
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
+                </Button>
+                <Button Command="{Binding CommandAddEndCommandScriptItem}" Padding="0" ToolTip="{Resx _addCommand.ToolTip}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
                 </Button>
                 <Button Command="{Binding CommandEditCommandScriptItem}" Padding="0" ToolTip="{Resx _editCommand.ToolTip}">

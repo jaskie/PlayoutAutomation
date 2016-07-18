@@ -18,7 +18,7 @@ namespace TAS.Client.ViewModels
         public FileOperationViewmodel(IFileOperation fileOperation)
         {
             _fileOperation = fileOperation;
-            _fileOperation.PropertyChanged += OnPropertyChanged;
+            _fileOperation.PropertyChanged += OnFileOperationPropertyChanged;
             CommandAbort = new UICommand() { ExecuteDelegate = o => _fileOperation.Abort(), CanExecuteDelegate = o => _fileOperation.OperationStatus == FileOperationStatus.Waiting || _fileOperation.OperationStatus == FileOperationStatus.InProgress };
             CommandShowOutput = new UICommand()
             {
@@ -45,7 +45,7 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
-            _fileOperation.PropertyChanged -= OnPropertyChanged;
+            _fileOperation.PropertyChanged -= OnFileOperationPropertyChanged;
         }
 
         public int Progress { get { return _fileOperation.Progress; } }
@@ -61,30 +61,29 @@ namespace TAS.Client.ViewModels
         public string OperationOutput { get { return string.Join(Environment.NewLine, _fileOperation.OperationOutput); } }
         public string OperationWarning { get { return _fileOperation.OperationWarning.AsString(Environment.NewLine); } }
         private bool _isWarning;
-        public bool IsWarning { get { return _isWarning; } set { SetField(ref _isWarning, value, "IsWarning"); } }
+        public bool IsWarning { get { return _isWarning; } set { SetField(ref _isWarning, value, nameof(IsWarning)); } }
         public string Title { get { return _fileOperation.Title; } }
 
         public ICommand CommandAbort { get; private set; }
         public ICommand CommandShowOutput { get; private set; }
         public ICommand CommandShowWarning { get; private set; }
 
-        protected virtual void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        protected virtual void OnFileOperationPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "StartTime" 
-                || e.PropertyName == "FinishedTime" 
-                || e.PropertyName == "CompletedSuccessfully" 
-                || e.PropertyName == "TryCount" 
-                || e.PropertyName == "IsIndeterminate" 
-                || e.PropertyName == "Progress"
-                || e.PropertyName == "OperationStatus"
-                || e.PropertyName == "OperationOutput"
-                || e.PropertyName == "OperationWarning"
-                || e.PropertyName == "Title"
+            if (e.PropertyName == nameof(IFileOperation.StartTime) 
+                || e.PropertyName == nameof(IFileOperation.FinishedTime)
+                || e.PropertyName == nameof(IFileOperation.TryCount)
+                || e.PropertyName == nameof(IFileOperation.IsIndeterminate)
+                || e.PropertyName == nameof(IFileOperation.Progress)
+                || e.PropertyName == nameof(IFileOperation.OperationStatus)
+                || e.PropertyName == nameof(IFileOperation.OperationOutput)
+                || e.PropertyName == nameof(IFileOperation.OperationWarning)
+                || e.PropertyName == nameof(IFileOperation.Title)
                 )
                 NotifyPropertyChanged(e.PropertyName);
-            if (e.PropertyName == "OperationStatus")
+            if (e.PropertyName == nameof(IFileOperation.OperationStatus))
                 InvalidateRequerySuggested();
-            if (e.PropertyName == "OperationWarning")
+            if (e.PropertyName == nameof(IFileOperation.OperationWarning))
                 IsWarning = true;
         }
         public override string ToString()

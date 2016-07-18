@@ -33,7 +33,7 @@ namespace TAS.Server
                     _commands.Clear();
                     _commands.AddRange(value.Select(i => new CommandScriptItem { ExecuteTime = i.ExecuteTime, Command = i.Command }));
                 }
-                NotifyPropertyChanged("Commands");
+                NotifyPropertyChanged(nameof(Commands));
             }
         }
 

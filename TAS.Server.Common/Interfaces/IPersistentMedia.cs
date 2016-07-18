@@ -17,7 +17,7 @@ namespace TAS.Server.Interfaces
         UInt64 IdProgramme { get; set; }
         UInt64 IdPersistentMedia { get; set; }
         bool Protected { get; set; }
-        bool Modified { get; set; }
+        bool IsModified { get; set; }
         bool Save();
     }
 }

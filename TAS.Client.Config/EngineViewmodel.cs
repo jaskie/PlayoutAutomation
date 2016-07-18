@@ -60,7 +60,7 @@ namespace TAS.Client.Config
             {
                 _archiveDirectories = new List<object>() { TAS.Client.Common.Properties.Resources._none_ };
                 _archiveDirectories.AddRange(Model.ArchiveDirectories.Directories);
-                NotifyPropertyChanged("ArchiveDirectories");
+                NotifyPropertyChanged(nameof(ArchiveDirectories));
                 ArchiveDirectory = dialog.SelectedDirectory;
             }
         }
@@ -73,44 +73,44 @@ namespace TAS.Client.Config
         static readonly Array _aspectRatioControls = Enum.GetValues(typeof(TAspectRatioControl));
         public Array AspectRatioControls { get { return _aspectRatioControls; } }
 
-        public string EngineName { get { return _engineName; } set { SetField(ref _engineName, value, "EngineName"); } }
-        public TAspectRatioControl AspectRatioControl { get { return _aspectRatioControl; } set { SetField(ref _aspectRatioControl, value, "AspectRatioControl"); } }
-        public int TimeCorrection { get { return _timeCorrection; } set { SetField(ref _timeCorrection, value, "TimeCorrection"); } }
-        public TVideoFormat VideoFormat { get { return _videoFormat; } set { SetField(ref _videoFormat, value, "VideoFormat"); } }
-        public ulong Instance { get { return _instance; } set { SetField(ref _instance, value, "Instance"); } }
-        public double VolumeReferenceLoudness { get { return _volumeReferenceLoudness; } set { SetField(ref _volumeReferenceLoudness, value, "VolumeReferenceLoudness"); } }
-        public bool EnableGPIForNewEvents { get { return _enableGPIForNewEvents; } set { SetField(ref _enableGPIForNewEvents, value, "EnableGPIForNewEvents"); } }
+        public string EngineName { get { return _engineName; } set { SetField(ref _engineName, value, nameof(EngineName)); } }
+        public TAspectRatioControl AspectRatioControl { get { return _aspectRatioControl; } set { SetField(ref _aspectRatioControl, value, nameof(AspectRatioControl)); } }
+        public int TimeCorrection { get { return _timeCorrection; } set { SetField(ref _timeCorrection, value, nameof(TimeCorrection)); } }
+        public TVideoFormat VideoFormat { get { return _videoFormat; } set { SetField(ref _videoFormat, value, nameof(VideoFormat)); } }
+        public ulong Instance { get { return _instance; } set { SetField(ref _instance, value, nameof(Instance)); } }
+        public double VolumeReferenceLoudness { get { return _volumeReferenceLoudness; } set { SetField(ref _volumeReferenceLoudness, value, nameof(VolumeReferenceLoudness)); } }
+        public bool EnableGPIForNewEvents { get { return _enableGPIForNewEvents; } set { SetField(ref _enableGPIForNewEvents, value, nameof(EnableGPIForNewEvents)); } }
 
 
         readonly List<object> _channels;
         public List<object> Channels { get { return _channels; } }
         private object _channelPRI;
-        public object ChannelPRI { get { return _channelPRI; } set { SetField(ref _channelPRI, value, "ChannelPRI"); } }
+        public object ChannelPRI { get { return _channelPRI; } set { SetField(ref _channelPRI, value, nameof(ChannelPRI)); } }
         private object _channelSEC;
-        public object ChannelSEC { get { return _channelSEC; } set { SetField(ref _channelSEC, value, "ChannelSEC"); } }
+        public object ChannelSEC { get { return _channelSEC; } set { SetField(ref _channelSEC, value, nameof(ChannelSEC)); } }
         private object _channelPRV;
-        public object ChannelPRV { get { return _channelPRV; } set { SetField(ref _channelPRV, value, "ChannelPRV"); } }
+        public object ChannelPRV { get { return _channelPRV; } set { SetField(ref _channelPRV, value, nameof(ChannelPRV)); } }
         private List<object> _archiveDirectories;
         public List<object> ArchiveDirectories { get { return _archiveDirectories; } }
         private object _archiveDirectory;
-        public object ArchiveDirectory { get { return _archiveDirectory; } set { SetField(ref _archiveDirectory, value, "ArchiveDirectory"); } }
+        public object ArchiveDirectory { get { return _archiveDirectory; } set { SetField(ref _archiveDirectory, value, nameof(ArchiveDirectory)); } }
         private bool _gpiEnabled;
-        public bool GpiEnabled { get { return _gpiEnabled; } set { SetField(ref _gpiEnabled, value, "GpiEnabled"); } }
+        public bool GpiEnabled { get { return _gpiEnabled; } set { SetField(ref _gpiEnabled, value, nameof(GpiEnabled)); } }
         private string _gpiAddress;
-        public string GpiAddress { get { return _gpiAddress; } set { SetField(ref _gpiAddress, value, "GpiAddress"); } }
+        public string GpiAddress { get { return _gpiAddress; } set { SetField(ref _gpiAddress, value, nameof(GpiAddress)); } }
         private int _gpiGraphicsStartDelay;
-        public int GpiGraphicsStartDelay { get { return _gpiGraphicsStartDelay; } set { SetField(ref _gpiGraphicsStartDelay, value, "GpiGraphicsStartDelay"); } }
+        public int GpiGraphicsStartDelay { get { return _gpiGraphicsStartDelay; } set { SetField(ref _gpiGraphicsStartDelay, value, nameof(GpiGraphicsStartDelay)); } }
         private bool _remoteHostEnabled;
-        public bool RemoteHostEnabled { get { return _remoteHostEnabled; } set { SetField(ref _remoteHostEnabled, value, "RemoteHostEnabled"); } }
+        public bool RemoteHostEnabled { get { return _remoteHostEnabled; } set { SetField(ref _remoteHostEnabled, value, nameof(RemoteHostEnabled)); } }
         private string _remoteHostEndpointAddress;
-        public string RemoteHostEndpointAddress { get { return _remoteHostEndpointAddress; } set { SetField(ref _remoteHostEndpointAddress, value, "RemoteHostEndpointAddress"); } }
+        public string RemoteHostEndpointAddress { get { return _remoteHostEndpointAddress; } set { SetField(ref _remoteHostEndpointAddress, value, nameof(RemoteHostEndpointAddress)); } }
 
         public UICommand CommandManageArchiveDirectories { get; private set; }
 
 
         public override void Save(object destObject = null)
         {
-            if (Modified)
+            if (IsModified)
             {
                 var playoutServerChannelPRI = _channelPRI as Model.CasparServerChannel;
                 Model.IdServerPRI = playoutServerChannelPRI == null ? 0 : ((Model.CasparServer)playoutServerChannelPRI.Owner).Id;
@@ -124,7 +124,7 @@ namespace TAS.Client.Config
                 Model.Gpi = _gpiEnabled ? new Model.Gpi() { Address = this.GpiAddress, GraphicsStartDelay = this.GpiGraphicsStartDelay } : null;
                 Model.Remote = _remoteHostEnabled ? new Model.RemoteHost() { EndpointAddress = RemoteHostEndpointAddress } : null;
                 Model.IdArchive = _archiveDirectory is Model.ArchiveDirectory ? ((Model.ArchiveDirectory)_archiveDirectory).idArchive : 0;
-                Model.Modified = true;
+                Model.IsModified = true;
             }
             base.Save(destObject);
         }

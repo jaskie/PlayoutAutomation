@@ -63,13 +63,13 @@ namespace TAS.Client.Config
         public ObservableCollection<ArchiveDirectory> Directories { get { return _directories; } }
         ArchiveDirectory _selectedDirectory;
         
-        public ArchiveDirectory SelectedDirectory { get { return _selectedDirectory; } set { SetField(ref _selectedDirectory, value, "SelectedDirectory"); } }
+        public ArchiveDirectory SelectedDirectory { get { return _selectedDirectory; } set { SetField(ref _selectedDirectory, value, nameof(SelectedDirectory)); } }
         
         protected override void OnDispose()
         {
         }
         
-        public override bool Modified { get { return Model.Directories.Any(d => d.Modified || d.IsDeleted | d.IsNew); } }
+        public override bool IsModified { get { return Model.Directories.Any(d => d.IsModified || d.IsDeleted | d.IsNew); } }
 
         public override void Save(object parameter)
         {

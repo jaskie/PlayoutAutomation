@@ -52,7 +52,7 @@ namespace TAS.Client.ViewModels
                 {
                     _event.IsEnabled = value;
                     _event.Save();
-                    NotifyPropertyChanged("IsVisible");
+                    NotifyPropertyChanged(nameof(IsVisible));
                     if (!value)
                         IsSelected = false;
                 }
@@ -69,17 +69,17 @@ namespace TAS.Client.ViewModels
             _event.InsertUnder(newEvent);
         }
 
-        protected override void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        protected override void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            base.OnPropertyChanged(sender, e);
-            if (e.PropertyName == "IsEnabled")
+            base.OnEventPropertyChanged(sender, e);
+            if (e.PropertyName == nameof(IEvent.IsEnabled))
                 IsVisible = _event.IsEnabled;
         }
 
         protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
             base.OnSubeventChanged(o, e);
-            NotifyPropertyChanged("ChildrenCount");
+            NotifyPropertyChanged(nameof(ChildrenCount));
         }
 
         public int ChildrenCount { get { return _event.SubEventsCount; } }

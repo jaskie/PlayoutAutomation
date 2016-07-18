@@ -68,7 +68,7 @@ namespace TAS.Client.ViewModels
                 if (aEvent.SubEventsCount > 0)
                     _childrens.Add(DummyChild);
             }
-            _event.PropertyChanged += OnPropertyChanged;
+            _event.PropertyChanged += OnEventPropertyChanged;
             _event.Deleted += _eventDeleted;
             _event.SubEventChanged += OnSubeventChanged;
             _event.Relocated += OnRelocated;
@@ -91,7 +91,7 @@ namespace TAS.Client.ViewModels
             }
             if (_event != null)
             {
-                _event.PropertyChanged -= OnPropertyChanged;
+                _event.PropertyChanged -= OnEventPropertyChanged;
                 _event.Deleted -= _eventDeleted;
                 _event.SubEventChanged -= OnSubeventChanged;
                 _event.Relocated -= OnRelocated;
@@ -150,9 +150,9 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        protected virtual void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        protected virtual void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "EventName")
+            if (e.PropertyName == nameof(IEvent.EventName))
                 NotifyPropertyChanged(e.PropertyName);
         }
 
@@ -229,7 +229,7 @@ namespace TAS.Client.ViewModels
 
                     if (!value)
                         ClearChildrens();
-                    NotifyPropertyChanged("IsExpanded");
+                    NotifyPropertyChanged(nameof(IsExpanded));
                 }
             }
         }
@@ -245,7 +245,7 @@ namespace TAS.Client.ViewModels
                     _isSelected = value;
                     if (value)
                         _engineViewmodel.Selected = this;
-                    NotifyPropertyChanged("IsSelected");
+                    NotifyPropertyChanged(nameof(IsSelected));
                     InvalidateRequerySuggested();
                 }
             }
@@ -260,7 +260,7 @@ namespace TAS.Client.ViewModels
                 if (_isMultiSelected != value)
                 {
                     _isMultiSelected = value;
-                    NotifyPropertyChanged("IsMultiSelected");
+                    NotifyPropertyChanged(nameof(IsMultiSelected));
                 }
             }
         }

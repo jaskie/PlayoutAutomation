@@ -37,13 +37,13 @@ namespace TAS.Client.ViewModels
                 if (destMedia != null)
                     destMedia.Delete();
                 SelectedOperation = _conversionList[Math.Min(_conversionList.Count - 1, operaionIndex)];
-                NotifyPropertyChanged("ShowMediaList");
+                NotifyPropertyChanged(nameof(ShowMediaList));
             }
         }
 
         void _convertOperationPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "IsValid")
+            if (e.PropertyName == nameof(ConvertOperationViewModel.IsValid))
                 OnModified();
         }
 
@@ -53,7 +53,7 @@ namespace TAS.Client.ViewModels
         public ConvertOperationViewModel SelectedOperation
         {
             get { return _selectedOperation; }
-            set { SetField(ref _selectedOperation, value, "SelectedOperation"); }
+            set { SetField(ref _selectedOperation, value, nameof(SelectedOperation)); }
         }
 
         public ICommand CommandDeleteOperation { get; private set; }

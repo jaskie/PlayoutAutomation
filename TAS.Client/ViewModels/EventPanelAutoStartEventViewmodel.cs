@@ -49,10 +49,10 @@ namespace TAS.Client.ViewModels
         protected override void NotifyPropertyChanged(string propertyName)
         {
             base.NotifyPropertyChanged(propertyName);
-            if (propertyName == "ScheduledTime")
-               NotifyPropertyChanged("ScheduledDate");
-            if (propertyName == "IsEnabled" || propertyName == "PlayState" || propertyName == "ScheduledTime")
-                NotifyPropertyChanged("AutoStartPlayState");
+            if (propertyName == nameof(ScheduledTime))
+               NotifyPropertyChanged(nameof(ScheduledDate));
+            if (propertyName == nameof(IsEnabled) || propertyName == nameof(PlayState) || propertyName == nameof(ScheduledTime))
+                NotifyPropertyChanged(nameof(AutoStartPlayState));
         }
 
     }

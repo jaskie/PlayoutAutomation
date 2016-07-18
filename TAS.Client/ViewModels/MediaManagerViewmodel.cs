@@ -87,7 +87,7 @@ namespace TAS.Client.ViewModels
         public FileManagerViewmodel FileManagerVm { get { return _fileManagerVm; } }
 
         bool _previewDisplay;
-        public bool PreviewDisplay { get { return _previewDisplay; } set { SetField(ref _previewDisplay, value, "PreviewDisplay"); } }
+        public bool PreviewDisplay { get { return _previewDisplay; } set { SetField(ref _previewDisplay, value, nameof(PreviewDisplay)); } }
 
         private MediaViewViewmodel _selectedMedia;
         public MediaViewViewmodel SelectedMedia
@@ -97,11 +97,11 @@ namespace TAS.Client.ViewModels
             {
                 if (!_checkEditMediaSaved())
                 {
-                    NotifyPropertyChanged("SelectedMedia");
+                    NotifyPropertyChanged(nameof(SelectedMedia));
                     return;
                 }
                 var oldSelectedMedia = _selectedMedia;
-                if (SetField(ref _selectedMedia, value, "SelectedMedia"))
+                if (SetField(ref _selectedMedia, value, nameof(SelectedMedia)))
                 {
                     if (oldSelectedMedia != null)
                         oldSelectedMedia.SelectedSegment = null;
@@ -124,7 +124,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 MediaEditViewmodel oldEditMedia = _editMedia;
-                if (SetField(ref _editMedia, value, "EditMedia") && oldEditMedia != null)
+                if (SetField(ref _editMedia, value, nameof(EditMedia)) && oldEditMedia != null)
                     oldEditMedia.Dispose();
             }
         }
@@ -297,7 +297,7 @@ namespace TAS.Client.ViewModels
 
         private bool _checkEditMediaSaved()
         {
-            if (EditMedia != null && EditMedia.Modified)
+            if (EditMedia != null && EditMedia.IsModified)
                 switch (MessageBox.Show(resources._query_SaveChangedData, resources._caption_Confirmation, MessageBoxButton.YesNoCancel))
                 {
                     case MessageBoxResult.Cancel:
@@ -349,7 +349,7 @@ namespace TAS.Client.ViewModels
                 ((IIngestDirectory)_selectedDirectory).Filter = _searchText;
             else
                 _mediaView.Refresh();
-            NotifyPropertyChanged("ItemsCount");
+            NotifyPropertyChanged(nameof(ItemsCount));
         }
 
         private string[] _searchTextSplit = new string[0];
@@ -359,7 +359,7 @@ namespace TAS.Client.ViewModels
             get { return _searchText; }
             set
             {
-                if (SetField(ref _searchText, value, "SearchText"))
+                if (SetField(ref _searchText, value, nameof(SearchText)))
                     _searchTextSplit = value.ToLower().Split(' ');
             }
         }
@@ -427,9 +427,9 @@ namespace TAS.Client.ViewModels
             get { return _mediaCategory; }
             set
             {
-                if (SetField(ref _mediaCategory, value, "MediaCategory"))
+                if (SetField(ref _mediaCategory, value, nameof(MediaCategory)))
                 {
-                    NotifyPropertyChanged("IsServerOrArchiveDirectory");
+                    NotifyPropertyChanged(nameof(IsServerOrArchiveDirectory));
                     _search(null);
                 }
             }
@@ -444,7 +444,7 @@ namespace TAS.Client.ViewModels
             get { return _mediaType; }
             set
             {
-                if (SetField(ref _mediaType, value, "MediaType"))
+                if (SetField(ref _mediaType, value, nameof(MediaType)))
                     _search(null);
             }
         }
@@ -465,7 +465,7 @@ namespace TAS.Client.ViewModels
                         _setSelectdDirectory(value);
                 }
                 else
-                    Application.Current.Dispatcher.BeginInvoke((Action)delegate () { NotifyPropertyChanged("SelectedDirectory"); }); //revert folder display, deferred execution
+                    Application.Current.Dispatcher.BeginInvoke((Action)delegate () { NotifyPropertyChanged(nameof(SelectedDirectory)); }); //revert folder display, deferred execution
             }
         }
 
@@ -494,13 +494,13 @@ namespace TAS.Client.ViewModels
                 _previewViewModel.IsSegmentsVisible = directory is IServerDirectory || directory is IArchiveDirectory;
             _reloadFiles(directory);
             SelectedMedia = null;
-            NotifyPropertyChanged("SelectedDirectory");
-            NotifyPropertyChanged("DisplayDirectoryInfo");
-            NotifyPropertyChanged("IsDisplayFolder");
-            NotifyPropertyChanged("IsServerDirectory");
-            NotifyPropertyChanged("IsServerOrArchiveDirectory");
-            NotifyPropertyChanged("IsIngestOrArchiveDirectory");
-            NotifyPropertyChanged("IsAnimationDirectory");
+            NotifyPropertyChanged(nameof(SelectedDirectory));
+            NotifyPropertyChanged(nameof(DisplayDirectoryInfo));
+            NotifyPropertyChanged(nameof(IsDisplayFolder));
+            NotifyPropertyChanged(nameof(IsServerDirectory));
+            NotifyPropertyChanged(nameof(IsServerOrArchiveDirectory));
+            NotifyPropertyChanged(nameof(IsIngestOrArchiveDirectory));
+            NotifyPropertyChanged(nameof(IsAnimationDirectory));
             InvalidateRequerySuggested();
             _notifyDirectoryPropertiesChanged();
         }
@@ -521,14 +521,14 @@ namespace TAS.Client.ViewModels
 
         private void MediaDirectoryPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "SearchString")
+            if (e.PropertyName == nameof(IArchiveDirectory.SearchString))
             {
                 if (sender is IArchiveDirectory)
                     SearchText = (sender as IArchiveDirectory).SearchString;
             }
-            if (e.PropertyName == "IsInitialized" && (sender as IMediaDirectory).IsInitialized)
+            if (e.PropertyName == nameof(IMediaDirectory.IsInitialized) && (sender as IMediaDirectory).IsInitialized)
                 Application.Current.Dispatcher.BeginInvoke((Action)delegate () { _reloadFiles(_selectedDirectory); });
-            if (e.PropertyName == "VolumeFreeSize")
+            if (e.PropertyName == nameof(IMediaDirectory.VolumeFreeSize))
                 _notifyDirectoryPropertiesChanged();
         }
 
@@ -544,7 +544,7 @@ namespace TAS.Client.ViewModels
                 }
                 MediaItems = new ObservableCollection<MediaViewViewmodel>(directory.GetFiles().Select(f => new MediaViewViewmodel(f, _mediaManager)));
                 _mediaView = CollectionViewSource.GetDefaultView(_mediaItems);
-                _mediaView.SortDescriptions.Add(new SortDescription("MediaName", ListSortDirection.Ascending));
+                _mediaView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
                 if (!(directory is IArchiveDirectory))
                     _mediaView.Filter = _filter;
                 var ingestdir = directory as IIngestDirectory;
@@ -596,11 +596,11 @@ namespace TAS.Client.ViewModels
 
         private void _notifyDirectoryPropertiesChanged()
         {
-            NotifyPropertyChanged("DirectoryFreeOver20Percent");
-            NotifyPropertyChanged("DirectoryFreePercentage");
-            NotifyPropertyChanged("DirectoryTotalSpace");
-            NotifyPropertyChanged("DirectoryFreeSpace");
-            NotifyPropertyChanged("ItemsCount");
+            NotifyPropertyChanged(nameof(DirectoryFreeOver20Percent));
+            NotifyPropertyChanged(nameof(DirectoryFreePercentage));
+            NotifyPropertyChanged(nameof(DirectoryTotalSpace));
+            NotifyPropertyChanged(nameof(DirectoryFreeSpace));
+            NotifyPropertyChanged(nameof(ItemsCount));
         }
 
         public bool DisplayDirectoryInfo { get { return _selectedDirectory is IServerDirectory || _selectedDirectory is IArchiveDirectory || (_selectedDirectory is IIngestDirectory && ((IIngestDirectory)_selectedDirectory).AccessType == TDirectoryAccessType.Direct); } }
@@ -624,7 +624,7 @@ namespace TAS.Client.ViewModels
 
         private ObservableCollection<MediaViewViewmodel> _mediaItems;
 
-        public ObservableCollection<MediaViewViewmodel> MediaItems { get { return _mediaItems; } private set { SetField(ref _mediaItems, value, "MediaItems"); } }
+        public ObservableCollection<MediaViewViewmodel> MediaItems { get { return _mediaItems; } private set { SetField(ref _mediaItems, value, nameof(MediaItems)); } }
 
     }
 }

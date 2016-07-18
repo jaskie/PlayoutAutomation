@@ -59,19 +59,19 @@ namespace TAS.Client.Config
         }
 
         private bool _isCollectionCanged;
-        public override bool Modified
+        public override bool IsModified
         {
             get
             {
                 return _isCollectionCanged 
-                    || (_engines!= null && _engines.Any(e => e.Modified));
+                    || (_engines!= null && _engines.Any(e => e.IsModified));
             }
         }
         readonly ObservableCollection<EngineViewmodel> _engines;
 
         public ObservableCollection<EngineViewmodel> Engines { get { return _engines; } }
         EngineViewmodel _selectedEngine;
-        public EngineViewmodel SelectedEngine { get { return _selectedEngine; } set { SetField(ref _selectedEngine, value, "SelectedEngine"); } }
+        public EngineViewmodel SelectedEngine { get { return _selectedEngine; } set { SetField(ref _selectedEngine, value, nameof(SelectedEngine)); } }
         public ICommand CommandAdd { get { return _commandAdd; } }
         public ICommand CommandDelete { get { return _commandDelete; } }
 

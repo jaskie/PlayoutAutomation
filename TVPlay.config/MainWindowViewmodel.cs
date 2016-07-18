@@ -69,7 +69,7 @@ namespace TAS.Client.Config
         public Model.ConfigFile ConfigFile
         {
             get { return _configFile; }
-            set { SetField(ref _configFile, value, "ConfigFile"); }
+            set { SetField(ref _configFile, value, nameof(ConfigFile)); }
         }
     }
 }

@@ -57,7 +57,7 @@ namespace TAS.Client.Model
 
         protected override void OnEventNotification(WebSocketMessageEventArgs e)
         {
-            if (e.Message.MemberName == "Finished")
+            if (e.Message.MemberName == nameof(Finished))
             {
                 var h = _finished;
                 if (h != null)

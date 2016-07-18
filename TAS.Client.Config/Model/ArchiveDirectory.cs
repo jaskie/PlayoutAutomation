@@ -12,8 +12,8 @@ namespace TAS.Client.Config.Model
         public ulong idArchive { get { return _idArchive; }  set { SetField(ref _idArchive, value); } }
         string _folder;
         public string Folder { get { return _folder; } set { SetField(ref _folder, value); } }
-        protected bool _modified;
-        public bool Modified { get { return _modified; } internal set { _modified = value; } }
+        protected bool _isModified;
+        public bool IsModified { get { return _isModified; } internal set { _isModified = value; } }
         private bool _deleted;
 
         public void Delete()
@@ -29,7 +29,7 @@ namespace TAS.Client.Config.Model
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
             field = value;
-            Modified = true;
+            IsModified = true;
             return true;
         }
 

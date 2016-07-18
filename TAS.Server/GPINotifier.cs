@@ -173,23 +173,23 @@ namespace TAS.Server
                     case (byte)GPICommand.ShowCrawl:
                         CrawlState.CrawlVisible = true;
                         bufferPos++;
-                        NotifyPropertyChanged("Crawl");
+                        NotifyPropertyChanged(nameof(Crawl));
                         break;
                     case (byte)GPICommand.HideCrawl:
                         CrawlState.CrawlVisible = false;
                         bufferPos++;
-                        NotifyPropertyChanged("Crawl");
+                        NotifyPropertyChanged(nameof(Crawl));
                         break;
                     case (byte)GPICommand.SetCrawl:
                     case (byte)GPICommand.ReloadCrawl:
                         if (bufferLength - bufferPos >= 2)
                         {
                             CrawlState.ConfigNr = data[bufferPos + 1];
-                            NotifyPropertyChanged("Crawl");
+                            NotifyPropertyChanged(nameof(Crawl));
                             if (data[bufferPos] == (byte)GPICommand.SetCrawl)
                             {
                                 CrawlState.CrawlVisible = true;
-                                NotifyPropertyChanged("Crawl");
+                                NotifyPropertyChanged(nameof(Crawl));
                             }
                         }
                         bufferPos += 2;
@@ -207,12 +207,12 @@ namespace TAS.Server
                         CrawlState.LogoVisible = true;
                         CrawlState.LogoStyle = (byte)(data[bufferPos] - (byte)GPICommand.ShowLogo0);
                         bufferPos++;
-                        NotifyPropertyChanged("Logo");
+                        NotifyPropertyChanged(nameof(Logo));
                         break;
                     case (byte)GPICommand.HideLogo:
                         CrawlState.LogoVisible = false;
                         bufferPos++;
-                        NotifyPropertyChanged("Logo");
+                        NotifyPropertyChanged(nameof(Logo));
                         break;
                     case (byte)GPICommand.ShowParental0:
                     case (byte)GPICommand.ShowParental0 + 1:
@@ -227,32 +227,32 @@ namespace TAS.Server
                         CrawlState.ParentalVisible = true;
                         CrawlState.ParentalStyle = (byte)(data[bufferPos] - (byte)GPICommand.ShowParental0);
                         bufferPos++;
-                        NotifyPropertyChanged("Parental");
+                        NotifyPropertyChanged(nameof(Parental));
                         break;
                     case (byte)GPICommand.HideParental:
                         CrawlState.ParentalVisible = false;
                         bufferPos++;
-                        NotifyPropertyChanged("Parental");
+                        NotifyPropertyChanged(nameof(Parental));
                         break;
                     case (byte)GPICommand.AspectNarrow:
                         CrawlState.AspectNarrow = true;
                         bufferPos++;
-                        NotifyPropertyChanged("AspectNarrow");
+                        NotifyPropertyChanged(nameof(AspectNarrow));
                         break;
                     case (byte)GPICommand.AspectWide:
                         CrawlState.AspectNarrow = false;
                         bufferPos++;
-                        NotifyPropertyChanged("AspectNarrow");
+                        NotifyPropertyChanged(nameof(AspectNarrow));
                         break;
                     case (byte)GPICommand.MasterTake:
                         _isMaster = true;
                         bufferPos++;
-                        NotifyPropertyChanged("IsMaster");
+                        NotifyPropertyChanged(nameof(IsMaster));
                         break;
                     case (byte)GPICommand.MasterFree:
                         _isMaster = false;
                         bufferPos++;
-                        NotifyPropertyChanged("IsMaster");
+                        NotifyPropertyChanged(nameof(IsMaster));
                         break;
                     case (byte)GPICommand.GetInfo:
                         if (bufferLength - bufferPos >= 6 && data[bufferPos + 1] >= bufferLength - 2)
@@ -273,10 +273,10 @@ namespace TAS.Server
                                 CrawlState.LogoStyle = (byte)(data[6] == 0 ? 0 : data[6] - 1);
                                 CrawlState.Mono = data[7] != 0;
                             }
-                            NotifyPropertyChanged("Logo");
-                            NotifyPropertyChanged("Parental");
-                            NotifyPropertyChanged("AspectNarrow");
-                            NotifyPropertyChanged("Crawl");
+                            NotifyPropertyChanged(nameof(Logo));
+                            NotifyPropertyChanged(nameof(Parental));
+                            NotifyPropertyChanged(nameof(AspectNarrow));
+                            NotifyPropertyChanged(nameof(Crawl));
 //                            NotifyPropertyChanged("CrawlVisible");
                             bufferPos += (byte)(data[bufferPos + 1] + 2);
                         }
@@ -339,8 +339,8 @@ namespace TAS.Server
                 if (value != _connected)
                 {
                     _connected = value; 
-                    NotifyPropertyChanged("Connected");
-                    NotifyPropertyChanged("IsMaster");
+                    NotifyPropertyChanged(nameof(Connected));
+                    NotifyPropertyChanged(nameof(IsMaster));
                 }
             }
         }

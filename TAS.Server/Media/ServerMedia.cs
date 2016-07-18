@@ -31,7 +31,7 @@ namespace TAS.Server
         public bool DoNotArchive
         {
             get { return _doNotArchive; }
-            set { SetField(ref _doNotArchive, value, "DoNotArchive"); }
+            set { SetField(ref _doNotArchive, value, nameof(DoNotArchive)); }
         }
 
         Lazy<bool> _isArchived;
@@ -41,7 +41,7 @@ namespace TAS.Server
             set
             {
                 if (_isArchived.IsValueCreated && _isArchived.Value != value)
-                    SetField(ref _isArchived, new Lazy<bool>(() => value), "IsArchived");
+                    SetField(ref _isArchived, new Lazy<bool>(() => value), nameof(IsArchived));
             }
         }
 
@@ -73,10 +73,10 @@ namespace TAS.Server
                         if (IdPersistentMedia == 0)
                             result = this.DbInsert(directory.Server.Id);
                         else
-                        if (Modified)
+                        if (IsModified)
                             result = this.DbUpdate(directory.Server.Id);
                     }
-                    Modified = false;
+                    IsModified = false;
                 }
             }
             if (result && directory != null)

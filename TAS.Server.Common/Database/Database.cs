@@ -383,7 +383,7 @@ namespace TAS.Server.Database
                         if (e is ITemplated)
                             _readAnimatedEvent(e.IdRundownEvent, e as ITemplated);
                         e.StartType = TStartType.Manual;
-                        e.Modified = false;
+                        e.IsModified = false;
                         e.Save();
                         engine.RootEvents.Add(e);
                     }
@@ -414,7 +414,7 @@ namespace TAS.Server.Database
                         if (ev is ITemplated)
                         {
                             _readAnimatedEvent(ev.IdRundownEvent, ev as ITemplated);
-                            ev.Modified = false;
+                            ev.IsModified = false;
                         }
                     return foundEvents;
                 }
@@ -436,7 +436,7 @@ namespace TAS.Server.Database
                 if (futureScheduled is ITemplated)
                 {
                     _readAnimatedEvent(futureScheduled.IdRundownEvent, futureScheduled as ITemplated);
-                    futureScheduled.Modified = false;
+                    futureScheduled.IsModified = false;
                 }
                 if (futureScheduled != null)
                     return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Media = serverMedia, Event = futureScheduled };
@@ -513,7 +513,7 @@ namespace TAS.Server.Database
             byte typVideo = dataReader.IsDBNull(dataReader.GetOrdinal("typVideo")) ? (byte)0 : dataReader.GetByte("typVideo");
             T media = (T)_archiveMediaConstructorInfo.Invoke(new object[] { dir, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idArchiveMedia") });
             media._mediaReadFields(dataReader);
-            media.Modified = false;
+            media.IsModified = false;
             return media;
         }
 
@@ -652,7 +652,7 @@ namespace TAS.Server.Database
                         if (e is ITemplated)
                         {
                             _readAnimatedEvent(e.IdRundownEvent, e as ITemplated);
-                            e.Modified = false;
+                            e.IsModified = false;
                         }
                 }
             }
@@ -676,7 +676,7 @@ namespace TAS.Server.Database
                     if (next is ITemplated)
                     {
                         _readAnimatedEvent(next.IdRundownEvent, next as ITemplated);
-                        next.Modified = false;
+                        next.IsModified = false;
                     }
                     return next;
                 }
@@ -723,7 +723,7 @@ namespace TAS.Server.Database
                     if (result is ITemplated)
                     {
                         _readAnimatedEvent(result.IdRundownEvent, result as ITemplated);
-                        result.Modified = false;
+                        result.IsModified = false;
                     }
                 }
                 return null;
@@ -1139,7 +1139,7 @@ VALUES
                             }
                             nm.Method = (TemplateMethod)dataReader.GetByte("Method");
                             nm.TemplateLayer = dataReader.GetInt32("TemplateLayer");
-                            nm.Modified = false;
+                            nm.IsModified = false;
                             if (nm.MediaStatus != TMediaStatus.Available)
                             {
                                 nm.MediaStatus = TMediaStatus.Unknown;
@@ -1176,7 +1176,7 @@ VALUES
                         {
                             T nm = (T)_serverMediaConstructorInfo.Invoke(new object[] { directory, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idServerMedia"), archiveDirectory});
                             nm._mediaReadFields(dataReader);
-                            nm.Modified = false;
+                            nm.IsModified = false;
                             if (nm.MediaStatus != TMediaStatus.Available)
                             {
                                 nm.MediaStatus = TMediaStatus.Unknown;

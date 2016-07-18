@@ -59,13 +59,13 @@ namespace TAS.Client.Model
 
         protected override void OnEventNotification(WebSocketMessageEventArgs e)
         {
-            if (e.Message.MemberName == "OperationAdded")
+            if (e.Message.MemberName == nameof(OperationAdded))
             {
                 var h = _operationAdded;
                 if (h != null)
                     h(this, ConvertEventArgs<FileOperationEventArgs>(e));
             }
-            if (e.Message.MemberName == "OperationCompleted")
+            if (e.Message.MemberName == nameof(OperationCompleted))
             {
                 var h = _operationCompleted;
                 if (h != null)

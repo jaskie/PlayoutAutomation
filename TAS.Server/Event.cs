@@ -136,7 +136,7 @@ namespace TAS.Server
         UInt64 _idEventBinding;
 
         private bool _modified;
-        public bool Modified
+        public bool IsModified
         {
             get { return _modified; }
             set
@@ -144,7 +144,7 @@ namespace TAS.Server
                 if (_modified != value)
                 {
                     _modified = value;
-                    NotifyPropertyChanged("Modified");
+                    NotifyPropertyChanged(nameof(IsModified));
                 }
             }
         }
@@ -214,7 +214,7 @@ namespace TAS.Server
 
         protected virtual bool SetPlayState(TPlayState newPlayState)
         {
-            if (SetField(ref _playState, newPlayState, "PlayState"))
+            if (SetField(ref _playState, newPlayState, nameof(PlayState)))
             {
                 if (newPlayState == TPlayState.Playing)
                 {
@@ -305,7 +305,7 @@ namespace TAS.Server
         public VideoLayer Layer
         {
             get { return _layer; }
-            set { SetField(ref _layer, value, "Layer"); }
+            set { SetField(ref _layer, value, nameof(Layer)); }
         }
 
          TEventType _eventType;
@@ -314,7 +314,7 @@ namespace TAS.Server
             get { return _eventType; }
             set
             {
-                if (SetField(ref _eventType, value, "EventType"))
+                if (SetField(ref _eventType, value, nameof(EventType)))
                     if (value == TEventType.Live || value == TEventType.Rundown)
                     {
                         _serverMediaPRI = null;
@@ -331,7 +331,7 @@ namespace TAS.Server
             set
             {
                 var oldValue = _startType;
-                if (SetField(ref _startType, value, "StartType"))
+                if (SetField(ref _startType, value, nameof(StartType)))
                 {
                     if (value == TStartType.OnFixedTime)
                         _engine.AddFixedTimeEvent(this);
@@ -342,7 +342,7 @@ namespace TAS.Server
         }
 
         AutoStartFlags _autoStartFlags;
-        public AutoStartFlags AutoStartFlags { get { return _autoStartFlags; } set { SetField(ref _autoStartFlags, value, "AutoStartFlags"); } }
+        public AutoStartFlags AutoStartFlags { get { return _autoStartFlags; } set { SetField(ref _autoStartFlags, value, nameof(AutoStartFlags)); } }
 
         public DateTime EndTime
         {
@@ -401,7 +401,7 @@ namespace TAS.Server
                 if (pev != null && pev.EventType != TEventType.Container)
                     nt = Engine.AlignDateTime(pev.ScheduledTime);
             }
-            if (SetField(ref _scheduledTime, nt, "ScheduledTime"))
+            if (SetField(ref _scheduledTime, nt, nameof(ScheduledTime)))
             {
                 foreach (Event ev in SubEvents) //update all sub-events
                     ev.UpdateScheduledTime(true);
@@ -417,7 +417,7 @@ namespace TAS.Server
                     if (ne != null)
                         ne.UpdateScheduledTime(true);
                 }
-                NotifyPropertyChanged("Offset");
+                NotifyPropertyChanged(nameof(Offset));
             }
         }
 
@@ -438,14 +438,14 @@ namespace TAS.Server
                 if (_startType == TStartType.Manual || _startType == TStartType.OnFixedTime)
                 {
                     value = Engine.AlignDateTime(value);
-                    if (SetField(ref _scheduledTime, value, "ScheduledTime"))
+                    if (SetField(ref _scheduledTime, value, nameof(ScheduledTime)))
                     {
                         Event ne = _next.Value;
                         if (ne != null)
                             ne.UpdateScheduledTime(true);  // trigger update all next events
                         foreach (Event ev in SubEvents) //update all sub-events
                             ev.UpdateScheduledTime(true);
-                        NotifyPropertyChanged("Offset");
+                        NotifyPropertyChanged(nameof(Offset));
                     }
                 }
             }
@@ -469,7 +469,7 @@ namespace TAS.Server
             }
             set
             {
-                if (SetField(ref _isEnabled, value, "IsEnabled"))
+                if (SetField(ref _isEnabled, value, nameof(IsEnabled)))
                 {
                     DurationChanged();
                     Event ne = _next.Value;
@@ -488,14 +488,14 @@ namespace TAS.Server
                 //return (parent == null) ? _hold : parent.Hold;
                 return _isHold;
             }
-            set { SetField(ref _isHold, value, "IsHold"); }
+            set { SetField(ref _isHold, value, nameof(IsHold)); }
         }
 
         bool _isLoop;
-        public bool IsLoop { get { return _isLoop; } set { SetField(ref _isLoop, value, "IsLoop"); } }
+        public bool IsLoop { get { return _isLoop; } set { SetField(ref _isLoop, value, nameof(IsLoop)); } }
 
         bool _isForcedNext;
-        public bool IsForcedNext { get { return _isForcedNext; } set { SetField(ref _isForcedNext, value, "IsForcedNext"); } }
+        public bool IsForcedNext { get { return _isForcedNext; } set { SetField(ref _isForcedNext, value, nameof(IsForcedNext)); } }
 
         DateTime _startTime;
         public DateTime StartTime
@@ -506,7 +506,7 @@ namespace TAS.Server
             }
             internal set
             {
-                if (SetField(ref _startTime, value, "StartTime"))
+                if (SetField(ref _startTime, value, nameof(StartTime)))
                 {
                     if (value != default(DateTime))
                     {
@@ -523,7 +523,7 @@ namespace TAS.Server
         public TimeSpan ScheduledDelay
         {
             get { return _scheduledDelay; }
-            set { SetField(ref _scheduledDelay, Engine.AlignTimeSpan(value), "ScheduledDelay"); }
+            set { SetField(ref _scheduledDelay, Engine.AlignTimeSpan(value), nameof(ScheduledDelay)); }
         }
 
         TimeSpan _duration;
@@ -546,7 +546,7 @@ namespace TAS.Server
                             e.Duration = nd > TimeSpan.Zero ? nd : TimeSpan.Zero;
                         }
                     }
-                    if (SetField(ref _duration, newDuration, "Duration"))
+                    if (SetField(ref _duration, newDuration, nameof(Duration)))
                         DurationChanged();
                 }
             }
@@ -590,7 +590,7 @@ namespace TAS.Server
                     var t = ev.ComputedDuration();
                     if (!ev.Duration.Equals(t))
                     {
-                        ev.SetField(ref ev._duration, t, "Duration");
+                        ev.SetField(ref ev._duration, t, nameof(Duration));
                         ev.DurationChanged();
                     }
                 }
@@ -607,7 +607,7 @@ namespace TAS.Server
             set
             {
                 value = Engine.AlignTimeSpan(value);
-                SetField(ref _scheduledTc, value, "ScheduledTc");
+                SetField(ref _scheduledTc, value, nameof(ScheduledTc));
             }
         }
 
@@ -621,7 +621,7 @@ namespace TAS.Server
             set
             {
                 value = Engine.AlignTimeSpan(value);
-                SetField(ref _startTc, value, "StartTc");
+                SetField(ref _startTc, value, nameof(StartTc));
             }
         }
 
@@ -631,8 +631,8 @@ namespace TAS.Server
             get { return _requestedStartTime; }
             set
             {
-                if (SetField(ref _requestedStartTime, value, "RequestedStartTime"))
-                    NotifyPropertyChanged("Offset");
+                if (SetField(ref _requestedStartTime, value, nameof(RequestedStartTime)))
+                    NotifyPropertyChanged(nameof(Offset));
             }
         }
 
@@ -647,7 +647,7 @@ namespace TAS.Server
             get { return _transitionTime; }
             set
             {
-                if (SetField(ref _transitionTime, Engine.AlignTimeSpan(value), "TransitionTime"))
+                if (SetField(ref _transitionTime, Engine.AlignTimeSpan(value), nameof(TransitionTime)))
                 {
                     UpdateScheduledTime(false);
                     DurationChanged();
@@ -659,7 +659,7 @@ namespace TAS.Server
         public TimeSpan TransitionPauseTime
         {
             get { return _transitionPauseTime; }
-            set { SetField(ref _transitionPauseTime, Engine.AlignTimeSpan(value), "TransitionPauseTime"); }
+            set { SetField(ref _transitionPauseTime, Engine.AlignTimeSpan(value), nameof(TransitionPauseTime)); }
         }
 
 
@@ -667,14 +667,14 @@ namespace TAS.Server
         public TTransitionType TransitionType
         {
             get { return _transitionType; }
-            set { SetField(ref _transitionType, value, "TransitionType"); }
+            set { SetField(ref _transitionType, value, nameof(TransitionType)); }
         }
 
         TEasing _transitionEasing;
         public TEasing TransitionEasing
         {
             get { return _transitionEasing; }
-            set { SetField(ref _transitionEasing, value, "TransitionEasing"); }
+            set { SetField(ref _transitionEasing, value, nameof(TransitionEasing)); }
         }
 
         Guid _mediaGuid;
@@ -683,7 +683,7 @@ namespace TAS.Server
             get { return _mediaGuid; }
             set
             {
-                if (SetField(ref _mediaGuid, value, "MediaGuid"))
+                if (SetField(ref _mediaGuid, value, nameof(MediaGuid)))
                     _applyMedia(null);
             }
         }
@@ -694,15 +694,15 @@ namespace TAS.Server
             set
             {
                 var newMedia = value as PersistentMedia;
-                if (newMedia != null && SetField(ref _mediaGuid, newMedia.MediaGuid, "MediaGuid"))
+                if (newMedia != null && SetField(ref _mediaGuid, newMedia.MediaGuid, nameof(MediaGuid)))
                     _applyMedia(newMedia);
             }
         }
 
         private void _serverMediaPRI_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "AudioVolume" && this.AudioVolume == null)
-                NotifyPropertyChanged("AudioVolume");
+            if (e.PropertyName == nameof(AudioVolume) && this.AudioVolume == null)
+                NotifyPropertyChanged(nameof(AudioVolume));
         }
 
         private void _applyMedia(PersistentMedia initialMedia)
@@ -722,7 +722,7 @@ namespace TAS.Server
                     });
                 _serverMediaSEC = new Lazy<PersistentMedia>(() => _getMediaFromDir(mediaGuid,_eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectorySEC : (MediaDirectory)Engine.MediaManager.MediaDirectorySEC));
                 _serverMediaPRV = new Lazy<PersistentMedia>(() => _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRV : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRV));
-                NotifyPropertyChanged("Media");
+                NotifyPropertyChanged(nameof(Media));
             }
         }
 
@@ -790,7 +790,7 @@ namespace TAS.Server
         public string EventName
         {
             get { return _eventName; }
-            set { SetField(ref _eventName, value, "EventName"); }
+            set { SetField(ref _eventName, value, nameof(EventName)); }
         }
 
         Lazy<Event> _parent;
@@ -803,7 +803,7 @@ namespace TAS.Server
                     _parent = new Lazy<Event>(() => value as Event);
                     if (value != null)
                         _idEventBinding = value.IdRundownEvent;
-                    NotifyPropertyChanged("Parent");
+                    NotifyPropertyChanged(nameof(Parent));
                 }
             }
         }
@@ -819,7 +819,7 @@ namespace TAS.Server
                     _prior = new Lazy<Event>(() => value as Event);
                     if (value != null)
                         _idEventBinding = value.IdRundownEvent;
-                    NotifyPropertyChanged("Prior");
+                    NotifyPropertyChanged(nameof(Prior));
                 }
             }
         }
@@ -833,7 +833,7 @@ namespace TAS.Server
                 if (value != _next.Value)
                 {
                     _next = new Lazy<Event>(() => value as Event);
-                    NotifyPropertyChanged("Next");
+                    NotifyPropertyChanged(nameof(Next));
                     if (value != null)
                         IsLoop = false;
                 }
@@ -1200,7 +1200,7 @@ namespace TAS.Server
 
         public void SaveLoadedTree()
         {
-            if (Modified && Engine != null)
+            if (IsModified && Engine != null)
                 Save();
             Media = null;
             var se = _subEvents;
@@ -1299,7 +1299,7 @@ namespace TAS.Server
             {
                 return _idProgramme;
             }
-            set { SetField(ref _idProgramme, value, "IdProgramme"); }
+            set { SetField(ref _idProgramme, value, nameof(IdProgramme)); }
         }    
         
         string _idAux; // auxiliary Id from external system
@@ -1309,7 +1309,7 @@ namespace TAS.Server
             {
                 return _idAux;
             }
-            set { SetField(ref _idAux, value, "IdAux"); }
+            set { SetField(ref _idAux, value, nameof(IdAux)); }
         }
 
         decimal? _audioVolume;
@@ -1319,14 +1319,14 @@ namespace TAS.Server
             {
                 return _audioVolume;
             }
-            set { SetField(ref _audioVolume, value, "AudioVolume"); }
+            set { SetField(ref _audioVolume, value, nameof(AudioVolume)); }
         }
 
         EventGPI _gPI;
         public EventGPI GPI
         {
             get { return _gPI; }
-            set { SetField(ref _gPI, value, "GPI"); }
+            set { SetField(ref _gPI, value, nameof(GPI)); }
         }
 
         public decimal GetAudioVolume()

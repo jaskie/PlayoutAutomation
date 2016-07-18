@@ -293,14 +293,6 @@ namespace TAS.Server
             Debug.WriteLine(this, "Engine uninitialized");
         }
 
-        #region Database
-        private void _database_ConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
-        {
-            var h = DatabaseConnectionStateChanged;
-            if (h != null)
-                h(this, e);
-        }
-
         private void _server_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             Action<CasparServerChannel, List<Event>> channelConnected = (channel, ve) =>
@@ -319,7 +311,7 @@ namespace TAS.Server
                 }
             };
 
-            if (e.PropertyName == "IsConnected" && ((IPlayoutServer)sender).IsConnected)
+            if (e.PropertyName == nameof(IPlayoutServer.IsConnected) && ((IPlayoutServer)sender).IsConnected)
             {
                 var ve = _visibleEvents.ToList();
                 if (PlayoutChannelPRI != null
@@ -332,7 +324,13 @@ namespace TAS.Server
             }
         }
 
-
+        #region Database
+        private void _database_ConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
+        {
+            var h = DatabaseConnectionStateChanged;
+            if (h != null)
+                h(this, e);
+        }
 
         public ConnectionStateRedundant DatabaseConnectionState
         {
@@ -359,7 +357,7 @@ namespace TAS.Server
         public bool GPIEnabled
         {
             get { return _gPIEnabled; }
-            set { SetField(ref _gPIEnabled, value, "GPIEnabled"); }
+            set { SetField(ref _gPIEnabled, value, nameof(GPIEnabled)); }
         }
 
         [XmlIgnore]
@@ -430,7 +428,7 @@ namespace TAS.Server
             private set
             {
                 var oldPlaying = _playing;
-                if (SetField(ref _playing, (Event)value, "Playing"))
+                if (SetField(ref _playing, (Event)value, nameof(Playing)))
                 {
                     if (oldPlaying != null)
                         oldPlaying.SubEventChanged -= _playingSubEventsChanged;
@@ -438,7 +436,7 @@ namespace TAS.Server
                     {
                         value.SubEventChanged += _playingSubEventsChanged;
                         var media = value.Media;
-                        SetField(ref _fieldOrderInverted, media == null ? false : media.FieldOrderInverted, "FieldOrderInverted");
+                        SetField(ref _fieldOrderInverted, media == null ? false : media.FieldOrderInverted, nameof(FieldOrderInverted));
                     }
                 }
             }
@@ -498,9 +496,9 @@ namespace TAS.Server
                 PreviewAudioLevel = previewAudioVolume;
                 _playoutChannelPRV.Load(mediaToLoad, VideoLayer.Preview, seek+position, duration-position);
                 PreviewIsPlaying = false;
-                NotifyPropertyChanged("PreviewMedia");
-                NotifyPropertyChanged("PreviewPosition");
-                NotifyPropertyChanged("PreviewSeek");
+                NotifyPropertyChanged(nameof(PreviewMedia));
+                NotifyPropertyChanged(nameof(PreviewPosition));
+                NotifyPropertyChanged(nameof(PreviewSeek));
             }
         }
 
@@ -518,9 +516,9 @@ namespace TAS.Server
                     _previewMedia = null;
                     PreviewLoaded = false;
                     PreviewIsPlaying = false;
-                    NotifyPropertyChanged("PreviewMedia");
-                    NotifyPropertyChanged("PreviewPosition");
-                    NotifyPropertyChanged("PreviewSeek");
+                    NotifyPropertyChanged(nameof(PreviewMedia));
+                    NotifyPropertyChanged(nameof(PreviewPosition));
+                    NotifyPropertyChanged(nameof(PreviewSeek));
                 }
             }
         }
@@ -562,7 +560,7 @@ namespace TAS.Server
             get { return _previewAudioLevel; }
             set
             {
-                if (SetField(ref _previewAudioLevel, value, "PreviewAudioLevel"))
+                if (SetField(ref _previewAudioLevel, value, nameof(PreviewAudioLevel)))
                     _playoutChannelPRV.SetVolume(VideoLayer.Preview, (decimal)Math.Pow(10, (double)value / 20), 0);
             }
         }
@@ -599,7 +597,7 @@ namespace TAS.Server
             get { return _previewLoaded; }
             private set
             {
-                if (SetField(ref _previewLoaded, value, "PreviewLoaded"))
+                if (SetField(ref _previewLoaded, value, nameof(PreviewLoaded)))
                 {
                     decimal vol = (_previewLoaded) ? 0 : _programAudioVolume;
                     if (_playoutChannelPRV != null)
@@ -610,7 +608,7 @@ namespace TAS.Server
 
         private bool _previewIsPlaying;
         [XmlIgnore]
-        public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value, "PreviewIsPlaying"); } }
+        public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value, nameof(PreviewIsPlaying)); } }
 
         public Media FindPreviewMedia(IMedia media)
         {
@@ -801,7 +799,7 @@ namespace TAS.Server
                     e.PlayState = TPlayState.Played;
                 if (e.PlayState == TPlayState.Paused)
                     e.PlayState = TPlayState.Scheduled;
-                if (e.Modified)
+                if (e.IsModified)
                     e.Save();
             }
             _runningEvents.Clear();
@@ -985,7 +983,7 @@ namespace TAS.Server
                     if (_previewPosition < _previewDuration - 1)
                     {
                         _previewPosition += nFrames;
-                        NotifyPropertyChanged("PreviewPosition");
+                        NotifyPropertyChanged(nameof(PreviewPosition));
                     }
                     else
                         PreviewPause();
@@ -1201,10 +1199,10 @@ namespace TAS.Server
                 lock (_tickLock)
                 {
                     var oldForcedNext = _forcedNext as Event;
-                    if (SetField(ref _forcedNext, value, "ForcedNext"))
+                    if (SetField(ref _forcedNext, value, nameof(ForcedNext)))
                     {
                         Debug.WriteLine(value, "ForcedNext");
-                        NotifyPropertyChanged("NextToPlay");
+                        NotifyPropertyChanged(nameof(NextToPlay));
                         if (value != null)
                             ((Event)value).IsForcedNext = true;
                         if (oldForcedNext != null)
@@ -1408,7 +1406,7 @@ namespace TAS.Server
             private set
             {
                 lock (_runningEvents.SyncRoot)
-                if (SetField(ref _engineState, value, "EngineState"))
+                if (SetField(ref _engineState, value, nameof(EngineState)))
                     {
                         if (value == TEngineState.Hold)
                             foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished).ToList())
@@ -1435,7 +1433,7 @@ namespace TAS.Server
             get { return _programAudioVolume; }
             set
             {
-                if (SetField(ref _programAudioVolume, value, "ProgramAudioVolume"))
+                if (SetField(ref _programAudioVolume, value, nameof(ProgramAudioVolume)))
                 {
                     var playing = Playing;
                     if (playing != null)
@@ -1455,7 +1453,7 @@ namespace TAS.Server
         public bool FieldOrderInverted
         {
             get { return _fieldOrderInverted; }
-            set { if (SetField(ref _fieldOrderInverted, value, "FieldOrderInverted"))
+            set { if (SetField(ref _fieldOrderInverted, value, nameof(FieldOrderInverted)))
                 {
                     if (_playoutChannelPRI != null)
                         _playoutChannelPRI.SetFieldOrderInverted(VideoLayer.Program, value);
@@ -1562,7 +1560,7 @@ namespace TAS.Server
             get { return _pst2Prv; }
             set
             {
-                if (SetField(ref _pst2Prv, value, "Pst2Prv"))
+                if (SetField(ref _pst2Prv, value, nameof(Pst2Prv)))
                 {
                     if (value)
                         _loadPST();

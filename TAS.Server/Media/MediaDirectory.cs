@@ -119,7 +119,7 @@ namespace TAS.Server
                 if (_volumeFreeSize != value)
                 {
                     _volumeFreeSize = value;
-                    NotifyPropertyChanged("VolumeFreeSize");
+                    NotifyPropertyChanged(nameof(VolumeFreeSize));
                 }
             }
         }
@@ -135,7 +135,7 @@ namespace TAS.Server
                 if (_volumeTotalSize != value)
                 {
                     _volumeTotalSize = value;
-                    NotifyPropertyChanged("VolumeTotalSize");
+                    NotifyPropertyChanged(nameof(VolumeTotalSize));
                 }
             }
         }
@@ -172,7 +172,7 @@ namespace TAS.Server
                 if (value != _isInitialized)
                 {
                     _isInitialized = value;
-                    NotifyPropertyChanged("IsInitialized");
+                    NotifyPropertyChanged(nameof(IsInitialized));
                 }
             }
         }

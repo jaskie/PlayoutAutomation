@@ -35,7 +35,7 @@ namespace TAS.Client.ViewModels
         public string SegmentName
         {
             get { return _segmentName; }
-            set { SetField(ref _segmentName, value, "SegmentName"); }
+            set { SetField(ref _segmentName, value, nameof(SegmentName)); }
         }
         
         private TimeSpan _tcIn;
@@ -44,11 +44,11 @@ namespace TAS.Client.ViewModels
             get { return _tcIn; }
             set
             {
-                if (SetField(ref _tcIn, value, "TcIn"))
+                if (SetField(ref _tcIn, value, nameof(TcIn)))
                 {
-                    NotifyPropertyChanged("sTcIn");
-                    NotifyPropertyChanged("Duration");
-                    NotifyPropertyChanged("sDuration");
+                    NotifyPropertyChanged(nameof(sTcIn));
+                    NotifyPropertyChanged(nameof(Duration));
+                    NotifyPropertyChanged(nameof(sDuration));
                 }
             }
         }
@@ -59,10 +59,10 @@ namespace TAS.Client.ViewModels
             get { return _tcOut; }
             set
             {
-                if (SetField(ref _tcOut, value, "TcOut"))
+                if (SetField(ref _tcOut, value, nameof(TcOut)))
                 {
-                    NotifyPropertyChanged("Duration");
-                    NotifyPropertyChanged("sDuration");
+                    NotifyPropertyChanged(nameof(Duration));
+                    NotifyPropertyChanged(nameof(sDuration));
                 }
             }
         }
@@ -80,10 +80,10 @@ namespace TAS.Client.ViewModels
             get { return _frameRate; }
             set
             {
-                if (SetField(ref _frameRate, value, "FrameRate"))
+                if (SetField(ref _frameRate, value, nameof(FrameRate)))
                 {
-                    NotifyPropertyChanged("sDuration");
-                    NotifyPropertyChanged("sTcIn");
+                    NotifyPropertyChanged(nameof(sDuration));
+                    NotifyPropertyChanged(nameof(sTcIn));
                 }
             }
         }
@@ -115,14 +115,14 @@ namespace TAS.Client.ViewModels
                         zeroPi.SetValue(this, null, null);
                 }
             }
-            Modified = false;
+            IsModified = false;
             NotifyPropertyChanged(null);
         }
 
         public void Save()
         {
             var mediaSegment = _mediaSegment;
-            if (Modified && mediaSegment != null)
+            if (IsModified && mediaSegment != null)
             {
                 PropertyInfo[] copiedProperties = this.GetType().GetProperties();
                 foreach (PropertyInfo copyPi in copiedProperties)
@@ -134,7 +134,7 @@ namespace TAS.Client.ViewModels
                             destPi.SetValue(mediaSegment, copyPi.GetValue(this, null), null);
                     }
                 }
-                Modified = false;
+                IsModified = false;
                 mediaSegment.Save();
             }
         }
@@ -154,9 +154,9 @@ namespace TAS.Client.ViewModels
                 PropertyInfo destPi = this.GetType().GetProperty(e.PropertyName);
                 if (sourcePi != null && destPi != null)
                 {
-                    bool oldModified = Modified;
+                    bool oldModified = IsModified;
                     destPi.SetValue(this, sourcePi.GetValue(_mediaSegment, null), null);
-                    Modified = oldModified;
+                    IsModified = oldModified;
                     NotifyPropertyChanged(e.PropertyName);
                 }
                 NotifyPropertyChanged(e.PropertyName);
@@ -167,24 +167,24 @@ namespace TAS.Client.ViewModels
         {
             if (base.SetField(ref field, value, propertyName))
             {
-                Modified = true;
+                IsModified = true;
                 return true;
             }
             return false;
         }
 
-        private bool _modified;
+        private bool _isModified;
         
         [Browsable(false)]
-        public bool Modified
+        public bool IsModified
         {
-            get { return _modified; }
+            get { return _isModified; }
             private set
             {
-                if (value != _modified)
+                if (value != _isModified)
                 {
-                    _modified = value;
-                    NotifyPropertyChanged("Modified");
+                    _isModified = value;
+                    NotifyPropertyChanged(nameof(IsModified));
                 }
             }
         }

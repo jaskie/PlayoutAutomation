@@ -33,21 +33,21 @@ namespace TAS.Server
         public string SegmentName
         {
             get { return _segmentName; }
-            set { SetField(ref _segmentName, value, "SegmentName"); }
+            set { SetField(ref _segmentName, value, nameof(SegmentName)); }
         }
 
         private TimeSpan _tcIn;
         public TimeSpan TcIn
         {
             get { return _tcIn; }
-            set { SetField(ref _tcIn, value, "TcIn"); }
+            set { SetField(ref _tcIn, value, nameof(TcIn)); }
         }
 
         private TimeSpan _tcOut;
         public TimeSpan TcOut
         {
             get { return _tcOut; }
-            set { SetField(ref _tcOut, value, "TcOut"); }
+            set { SetField(ref _tcOut, value, nameof(TcOut)); }
         }
 
         protected readonly Guid _mediaGuid;

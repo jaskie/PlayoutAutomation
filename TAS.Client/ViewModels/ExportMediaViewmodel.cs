@@ -30,9 +30,9 @@ namespace TAS.Client.ViewModels
         }
 
         public string MediaName { get { return this.MediaExport.Media.MediaName; } }
-        public TimeSpan StartTC { get { return this.MediaExport.StartTC; } set { SetField(ref this.MediaExport.StartTC, value, "StartTC"); } }
-        public TimeSpan Duration { get { return this.MediaExport.Duration; } set { SetField(ref this.MediaExport.Duration, value, "Duration"); } }
-        public decimal AudioVolume { get { return this.MediaExport.AudioVolume; } set { SetField(ref this.MediaExport.AudioVolume, value, "AudioVolume"); } }
+        public TimeSpan StartTC { get { return this.MediaExport.StartTC; } set { SetField(ref this.MediaExport.StartTC, value, nameof(StartTC)); } }
+        public TimeSpan Duration { get { return this.MediaExport.Duration; } set { SetField(ref this.MediaExport.Duration, value, nameof(Duration)); } }
+        public decimal AudioVolume { get { return this.MediaExport.AudioVolume; } set { SetField(ref this.MediaExport.AudioVolume, value, nameof(AudioVolume)); } }
         public ObservableCollection<ExportMediaLogoViewmodel> Logos { get { return _logos; } }
         public UICommand CommandAddLogo { get; private set; }
 

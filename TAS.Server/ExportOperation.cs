@@ -128,7 +128,7 @@ namespace TAS.Server
 
         void DestMedia_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "FileSize")
+            if (e.PropertyName == nameof(IMedia.FileSize))
             {
                 ulong fs = _progressFileSize;
                 if (fs > 0 && sender is Media)

@@ -58,13 +58,13 @@ namespace TAS.Client.Config
         }
 
         private bool _isCollectionChanged;
-        public override bool Modified { get { return _isCollectionChanged || _playoutServers.Any(s => s.Modified); } }
+        public override bool IsModified { get { return _isCollectionChanged || _playoutServers.Any(s => s.IsModified); } }
 
 
         public ICommand CommandAdd { get { return _commandAdd; } }
         public ICommand CommandDelete { get { return _commandDelete; } }
         PlayoutServerViewmodel _selectedServer;
-        public PlayoutServerViewmodel SelectedServer { get { return _selectedServer; } set { SetField(ref _selectedServer, value, "SelectedServer"); } }
+        public PlayoutServerViewmodel SelectedServer { get { return _selectedServer; } set { SetField(ref _selectedServer, value, nameof(SelectedServer)); } }
         readonly ObservableCollection<PlayoutServerViewmodel> _playoutServers;
         public ObservableCollection<PlayoutServerViewmodel> PlayoutServers { get { return _playoutServers; } }
     }

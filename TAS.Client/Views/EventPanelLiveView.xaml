@@ -191,10 +191,14 @@
                     <TextBlock Text="{Binding Layer3SubItemMediaName}" Margin="3, 0" VerticalAlignment="Center" />
                     <StackPanel Orientation="Horizontal" Visibility="{Binding IsAnimationEnabled, Converter={StaticResource BoolToVis}}">
                         <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
-                        <Button Command="{Binding CommandAddAnimation}">
+                        <Button Command="{Binding CommandAddAnimation}" ToolTip="{Resx _addAnimation.ToolTip}">
                             <Image Source="/TAS.Client.Common;component/Images/Layers/layerA.png"/>
                         </Button>
-                    </StackPanel>                </StackPanel>
+                        <Button Command="{Binding CommandAddCommandScript}" ToolTip="{Resx _addCommandScript.ToolTip}">
+                            <Image Source="/TAS.Client.Common;component/Images/Layers/layerS.png"/>
+                        </Button>
+                    </StackPanel>                
+                </StackPanel>
                 <TextBlock Grid.Column="4" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
             </Grid>
         </Border>

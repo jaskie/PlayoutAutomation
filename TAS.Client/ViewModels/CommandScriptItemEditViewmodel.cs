@@ -23,14 +23,14 @@ namespace TAS.Client.ViewModels
             get { return _key; }
             set
             {
-                if (SetField(ref _key, value, "Key"))
+                if (SetField(ref _key, value, nameof(Key)))
                     Title = _key.ToString();
             }
         }
 
         public bool KeyIsEnabled { get { return !_keyIsReadOnly; } }
 
-        public string Value { get { return _value; } set { SetField(ref _value, value, "Value"); } }
+        public string Value { get { return _value; } set { SetField(ref _value, value, nameof(Value)); } }
 
         public Tuple<TKey, string> Result { get { return new Tuple<TKey, string>(Key, Value); } }
 

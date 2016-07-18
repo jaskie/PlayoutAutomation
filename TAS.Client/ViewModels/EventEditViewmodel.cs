@@ -31,22 +31,18 @@ namespace TAS.Client.ViewModels
                 previewViewModel.PropertyChanged += PreviewViewModel_PropertyChanged;
             _engine = engineViewModel.Engine;
             _fields.CollectionChanged += _fields_or_commands_CollectionChanged;
-            _commands.CollectionChanged += _fields_or_commands_CollectionChanged;
             CommandSaveEdit = new UICommand() { ExecuteDelegate = _save, CanExecuteDelegate = _canSave };
-            CommandUndoEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => Modified };
+            CommandUndoEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => IsModified };
             CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _isEditableMovie };
             CommandEditMovie = new UICommand() { ExecuteDelegate = _editMovie, CanExecuteDelegate = _isEditableMovie };
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume };
             CommandEditField = new UICommand { ExecuteDelegate = _editField };
             CommandTriggerStartType = new UICommand { ExecuteDelegate = _triggerStartType, CanExecuteDelegate = _canTriggerStartType };
-            CommandAddCommandScriptItem = new UICommand { ExecuteDelegate = _addCommandScriptItem, CanExecuteDelegate = _canAddCommandScriptItem };
-            CommandDeleteCommandScriptItem = new UICommand { ExecuteDelegate = _deleteCommandScriptItem, CanExecuteDelegate = _canDeleteCommandScriptItem };
-            CommandEditCommandScriptItem = new UICommand { ExecuteDelegate = _editCommandScriptItem, CanExecuteDelegate = _canEditCommandScriptItem };
         }
 
         private void _fields_or_commands_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            Modified = true;
+            IsModified = true;
         }
 
         protected override void OnDispose()
@@ -56,13 +52,12 @@ namespace TAS.Client.ViewModels
             if (_previewViewModel != null)
                 _previewViewModel.PropertyChanged -= PreviewViewModel_PropertyChanged;
             _fields.CollectionChanged -= _fields_or_commands_CollectionChanged;
-            _commands.CollectionChanged += _fields_or_commands_CollectionChanged;
         }
 
         private void PreviewViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (_previewViewModel.LoadedMedia == this.Media
-                && (e.PropertyName == "TcIn" || e.PropertyName == "TcOut")
+                && (e.PropertyName == nameof(PreviewViewmodel.TcIn) || e.PropertyName == nameof(PreviewViewmodel.TcOut))
                 && _previewViewModel.SelectedSegment == null)
             {
                 ScheduledTc = _previewViewModel.TcIn;
@@ -90,7 +85,7 @@ namespace TAS.Client.ViewModels
                     throw new InvalidOperationException("Edit event engine invalid");
                 if (value != ev)
                 {
-                    if (this.Modified
+                    if (this.IsModified
                     && MessageBox.Show(resources._query_SaveChangedData, resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         _save(null);
                     if (ev != null)
@@ -114,7 +109,7 @@ namespace TAS.Client.ViewModels
         void _save(object o)
         {
             IEvent e2Save = Event;
-            if (Modified && e2Save != null)
+            if (IsModified && e2Save != null)
             {
                 PropertyInfo[] copiedProperties = this.GetType().GetProperties();
                 foreach (PropertyInfo copyPi in copiedProperties)
@@ -128,9 +123,9 @@ namespace TAS.Client.ViewModels
                             destPi.SetValue(e2Save, copyPi.GetValue(this, null), null);
                     }
                 }
-                Modified = false;
+                IsModified = false;
             }
-            if (e2Save != null && e2Save.Modified)
+            if (e2Save != null && e2Save.IsModified)
             {
                 e2Save.Save();
                 _load(null);
@@ -150,7 +145,7 @@ namespace TAS.Client.ViewModels
                     {
                         PropertyInfo sourcePi = e2Load.GetType().GetProperty(copyPi.Name);
                         if (sourcePi != null 
-                            && copyPi.Name != "Modified"
+                            && copyPi.Name != nameof(IsModified)
                             && sourcePi.PropertyType.Equals(copyPi.PropertyType)
                             && copyPi.CanWrite
                             && sourcePi.CanRead)
@@ -171,7 +166,7 @@ namespace TAS.Client.ViewModels
             finally
             {
                 _isLoading = false;
-                Modified = false;
+                IsModified = false;
             }
             NotifyPropertyChanged(null);
         }
@@ -184,7 +179,7 @@ namespace TAS.Client.ViewModels
             {
                 PropertyInfo sourcePi = e2Read.GetType().GetProperty(propertyName);
                 if (sourcePi != null
-                    && writingProperty.Name != "Modified"
+                    && writingProperty.Name != nameof(IsModified)
                     && sourcePi.PropertyType.Equals(writingProperty.PropertyType))
                     writingProperty.SetValue(this, sourcePi.GetValue(e2Read, null), null);
             }
@@ -198,8 +193,8 @@ namespace TAS.Client.ViewModels
             if (base.SetField(ref field, value, propertyName))
             {
                 if (!_isLoading &&
-                    (propertyName != "ScheduledTime" || IsStartEvent))
-                    Modified = true;
+                    (propertyName != nameof(ScheduledTime) || IsStartEvent))
+                    IsModified = true;
                 return true;
             }
             return false;
@@ -217,24 +212,24 @@ namespace TAS.Client.ViewModels
                 string validationResult = null;
                 switch (propertyName)
                 {
-                    case "Duration":
+                    case nameof(Duration):
                         validationResult = _validateDuration();
                         break;
-                    case "ScheduledTc":
+                    case nameof(ScheduledTc):
                         validationResult = _validateScheduledTc();
                         break;
-                    case "ScheduledTime":
-                    case "ScheduledTimeOfDay":
-                    case "ScheduledDate":
+                    case nameof(ScheduledTime):
+                    case nameof(ScheduledTimeOfDay):
+                    case nameof(ScheduledDate):
                         validationResult = _validateScheduledTime();
                         break;
-                    case "TransitionTime":
+                    case nameof(TransitionTime):
                         validationResult = _validateTransitionTime();
                         break;
-                    case "TransitionPauseTime":
+                    case nameof(TransitionPauseTime):
                         validationResult = _validateTransitionPauseTime();
                         break;
-                    case "ScheduledDelay":
+                    case nameof(ScheduledDelay):
                         validationResult = _validateScheduledDelay();
                         break;
                 }
@@ -346,7 +341,7 @@ namespace TAS.Client.ViewModels
             get { return _media; }
             set
             {
-                SetField(ref _media, value, "Media");
+                SetField(ref _media, value, nameof(Media));
             }
         }
 
@@ -373,7 +368,7 @@ namespace TAS.Client.ViewModels
             if (editObject != null)
             {
                 var kv = (KeyValuePair<string, string>)editObject;
-                var kve = new TupleEditViewmodel<string>(kv.Key, kv.Value, true);
+                var kve = new KeyValueEditViewmodel((KeyValuePair<string, string>)editObject, true);
                 if (kve.ShowDialog() == true)
                     _fields[kve.Key] = kve.Value;
             }
@@ -398,10 +393,10 @@ namespace TAS.Client.ViewModels
                                 AudioVolume = null;
                                 EventName = e.MediaName;
                                 _gpi = _setGPI(e.Media);
-                                NotifyPropertyChanged("CanTriggerGPI");
-                                NotifyPropertyChanged("GPICrawl");
-                                NotifyPropertyChanged("GPILogo");
-                                NotifyPropertyChanged("GPIParental");
+                                NotifyPropertyChanged(nameof(CanTriggerGPI));
+                                NotifyPropertyChanged(nameof(GPICrawl));
+                                NotifyPropertyChanged(nameof(GPILogo));
+                                NotifyPropertyChanged(nameof(GPIParental));
                             }
                         }
                     }));
@@ -462,7 +457,7 @@ namespace TAS.Client.ViewModels
         {
             IEvent ev = _event;
             return ev != null
-                && (Modified || ev.Modified);
+                && (IsModified || ev.IsModified);
         }
         
         EventGPI _setGPI(IMedia media)
@@ -486,19 +481,19 @@ namespace TAS.Client.ViewModels
             get { return _isVolumeChecking; }
             set
             {
-                if (base.SetField(ref _isVolumeChecking, value, "IsVolumeChecking")) //not set Modified
+                if (base.SetField(ref _isVolumeChecking, value, nameof(IsVolumeChecking))) //not set Modified
                     InvalidateRequerySuggested();
             }
         }
         
-        private bool _modified;
-        public bool Modified
+        private bool _isModified;
+        public bool IsModified
         {
-            get { return _modified; }
+            get { return _isModified; }
             private set
             {
-                if (_modified != value)
-                    _modified = value;
+                if (_isModified != value)
+                    _isModified = value;
                 if (value)
                     InvalidateRequerySuggested();
             }
@@ -508,14 +503,14 @@ namespace TAS.Client.ViewModels
         public TEventType EventType
         {
             get { return _eventType; }
-            set { SetField(ref _eventType, value, "EventType"); }
+            set { SetField(ref _eventType, value, nameof(EventType)); }
         }
 
         private string _eventName;
         public string EventName
         {
             get { return _eventName; }
-            set { SetField(ref _eventName, value, "EventName"); }
+            set { SetField(ref _eventName, value, nameof(EventName)); }
         }
 
         public bool IsEditEnabled
@@ -561,7 +556,7 @@ namespace TAS.Client.ViewModels
         #region ITemplatedEdit
 
         private int _templateLayer;
-        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, "TemplateLayer"); } }
+        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, nameof(TemplateLayer)); } }
 
         public object SelectedField { get; set; }
 
@@ -581,7 +576,7 @@ namespace TAS.Client.ViewModels
         public Array Methods { get { return _methods; } }
 
         private TemplateMethod _method;
-        public TemplateMethod Method { get { return _method; }  set { SetField(ref _method, value, "Method"); } }
+        public TemplateMethod Method { get { return _method; }  set { SetField(ref _method, value, nameof(Method)); } }
 
         public bool KeyIsReadOnly { get { return true; } }
 
@@ -591,47 +586,7 @@ namespace TAS.Client.ViewModels
 
         #endregion //ITemplatedEdit
 
-
-        #region ICommandScript
         public bool IsCommandScript { get { return _event is ICommandScript; } }
-        private readonly ObservableCollection<CommandScriptItemViewmodel> _commands = new ObservableCollection<CommandScriptItemViewmodel>();
-        public ObservableCollection<CommandScriptItemViewmodel> Commands { get { return _commands; } }
-        public ICommand CommandEditCommandScriptItem { get; private set; }
-        public ICommand CommandAddCommandScriptItem { get; private set; }
-        public ICommand CommandDeleteCommandScriptItem { get; private set; }
-
-
-        private bool _canEditCommandScriptItem(object obj)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void _editCommandScriptItem(object obj)
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool _canDeleteCommandScriptItem(object obj)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void _deleteCommandScriptItem(object obj)
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool _canAddCommandScriptItem(object obj)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void _addCommandScriptItem(object obj)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
 
         public bool IsMovie
         {
@@ -678,7 +633,7 @@ namespace TAS.Client.ViewModels
         public bool IsEnabled
         {
             get { return _isEnabled; }
-            set { SetField(ref _isEnabled, value, "IsEnabled"); }
+            set { SetField(ref _isEnabled, value, nameof(IsEnabled)); }
         }
 
         private bool _isHold;
@@ -687,11 +642,11 @@ namespace TAS.Client.ViewModels
             get { return _isHold; }
             set
             {
-                if (SetField(ref _isHold, value, "IsHold"))
+                if (SetField(ref _isHold, value, nameof(IsHold)))
                 {
                     if (value)
                         TransitionTime = TimeSpan.Zero;
-                    NotifyPropertyChanged("IsTransitionPanelEnabled");
+                    NotifyPropertyChanged(nameof(IsTransitionPanelEnabled));
                 }
             }
         }
@@ -700,7 +655,7 @@ namespace TAS.Client.ViewModels
         public bool IsLoop
         {
             get { return _isLoop; }
-            set { SetField(ref _isLoop, value, "IsLoop"); }
+            set { SetField(ref _isLoop, value, nameof(IsLoop)); }
         }
 
         private TStartType _startType;
@@ -709,8 +664,8 @@ namespace TAS.Client.ViewModels
             get { return _startType; }
             set
             {
-                if (SetField(ref _startType, value, "StartType"))
-                    NotifyPropertyChanged("IsAutoStartEvent");
+                if (SetField(ref _startType, value, nameof(StartType)))
+                    NotifyPropertyChanged(nameof(IsAutoStartEvent));
             }
         }
 
@@ -720,11 +675,11 @@ namespace TAS.Client.ViewModels
             get { return _autoStartFlags; }
             set
             {
-                if (SetField(ref _autoStartFlags, value, "AutoStartFlags"))
+                if (SetField(ref _autoStartFlags, value, nameof(AutoStartFlags)))
                 {
-                    NotifyPropertyChanged("AutoStartForced");
-                    NotifyPropertyChanged("AutoStartDaily");
-                    NotifyPropertyChanged("IsScheduledDateVisible");
+                    NotifyPropertyChanged(nameof(AutoStartForced));
+                    NotifyPropertyChanged(nameof(AutoStartDaily));
+                    NotifyPropertyChanged(nameof(IsScheduledDateVisible));
                 }
             }
         }
@@ -771,8 +726,8 @@ namespace TAS.Client.ViewModels
         {
             get { return _scheduledTc; }
             set { 
-                SetField(ref _scheduledTc, value, "ScheduledTc");
-                NotifyPropertyChanged("Duration");
+                SetField(ref _scheduledTc, value, nameof(ScheduledTc));
+                NotifyPropertyChanged(nameof(Duration));
             }
         }
 
@@ -788,14 +743,14 @@ namespace TAS.Client.ViewModels
             get { return _transitionType; }
             set
             {
-                if (SetField(ref _transitionType, value, "TransitionType"))
+                if (SetField(ref _transitionType, value, nameof(TransitionType)))
                 {
                     if (value == TTransitionType.Cut)
                     {
                         TransitionTime = TimeSpan.Zero;
                         TransitionPauseTime = TimeSpan.Zero;
                     }
-                    NotifyPropertyChanged("IsTransitionPropertiesVisible");
+                    NotifyPropertyChanged(nameof(IsTransitionPropertiesVisible));
                 }
             }
         }
@@ -804,21 +759,21 @@ namespace TAS.Client.ViewModels
         public TEasing TransitionEasing
         {
             get { return _transitionEasing; }
-            set { SetField(ref _transitionEasing, value, "TransitionEasing"); }
+            set { SetField(ref _transitionEasing, value, nameof(TransitionEasing)); }
         }
 
         private TimeSpan _transitionTime;
         public TimeSpan TransitionTime
         {
             get { return _transitionTime; }
-            set { SetField(ref _transitionTime, value, "TransitionTime"); }
+            set { SetField(ref _transitionTime, value, nameof(TransitionTime)); }
         }
 
         private TimeSpan _transitionPauseTime;
         public TimeSpan TransitionPauseTime
         {
             get { return _transitionPauseTime; }
-            set { SetField(ref _transitionPauseTime, value, "TransitionPauseTime"); }
+            set { SetField(ref _transitionPauseTime, value, nameof(TransitionPauseTime)); }
         }
 
 
@@ -828,10 +783,10 @@ namespace TAS.Client.ViewModels
             get { return _audioVolume; }
             set
             {
-                if (SetField(ref _audioVolume, value, "AudioVolume"))
+                if (SetField(ref _audioVolume, value, nameof(AudioVolume)))
                 {
-                    NotifyPropertyChanged("HasAudioVolume");
-                    NotifyPropertyChanged("AudioVolumeLevel");
+                    NotifyPropertyChanged(nameof(HasAudioVolume));
+                    NotifyPropertyChanged(nameof(AudioVolumeLevel));
                 }
             }
         }
@@ -841,10 +796,10 @@ namespace TAS.Client.ViewModels
             get { return _audioVolume != null ? (decimal)_audioVolume : _media != null ? _media.AudioVolume : 0m; }
             set
             {
-                if (SetField(ref _audioVolume, value, "AudioVolumeLevel"))
+                if (SetField(ref _audioVolume, value, nameof(AudioVolumeLevel)))
                 {
-                    NotifyPropertyChanged("HasAudioVolume");
-                    NotifyPropertyChanged("AudioVolume");
+                    NotifyPropertyChanged(nameof(HasAudioVolume));
+                    NotifyPropertyChanged(nameof(AudioVolume));
                 }
             }
         }
@@ -854,10 +809,10 @@ namespace TAS.Client.ViewModels
             get { return _audioVolume != null; }
             set
             {
-                if (SetField(ref _audioVolume, value? (_media != null ? (decimal?)_media.AudioVolume : 0m) : null, "HasAudioVolume"))
+                if (SetField(ref _audioVolume, value? (_media != null ? (decimal?)_media.AudioVolume : 0m) : null, nameof(HasAudioVolume)))
                 {
-                    NotifyPropertyChanged("AudioVolume");
-                    NotifyPropertyChanged("AudioVolumeLevel");
+                    NotifyPropertyChanged(nameof(AudioVolume));
+                    NotifyPropertyChanged(nameof(AudioVolumeLevel));
                 }
             }
         }
@@ -868,10 +823,10 @@ namespace TAS.Client.ViewModels
             get { return _scheduledTime; }
             set
             {
-                if (SetField(ref _scheduledTime, value, "ScheduledTime"))
+                if (SetField(ref _scheduledTime, value, nameof(ScheduledTime)))
                 {
-                    NotifyPropertyChanged("ScheduledDate");
-                    NotifyPropertyChanged("ScheduledTimeOfDay");
+                    NotifyPropertyChanged(nameof(ScheduledDate));
+                    NotifyPropertyChanged(nameof(ScheduledTimeOfDay));
                 }
             }
         }
@@ -902,7 +857,7 @@ namespace TAS.Client.ViewModels
         public TimeSpan? RequestedStartTime
         {
             get { return _requestedStartTime; }
-            set { SetField(ref _requestedStartTime, value, "RequestedStartTime"); }
+            set { SetField(ref _requestedStartTime, value, nameof(RequestedStartTime)); }
         }
 
 
@@ -912,8 +867,8 @@ namespace TAS.Client.ViewModels
             get { return _duration; }
             set
             {
-                SetField(ref _duration, value, "Duration");
-                NotifyPropertyChanged("ScheduledTc");
+                SetField(ref _duration, value, nameof(Duration));
+                NotifyPropertyChanged(nameof(ScheduledTc));
             }
         }
 
@@ -923,14 +878,14 @@ namespace TAS.Client.ViewModels
         public TimeSpan ScheduledDelay
         {
             get { return _scheduledDelay; }
-            set { SetField(ref _scheduledDelay, value, "ScheduledDelay"); }
+            set { SetField(ref _scheduledDelay, value, nameof(ScheduledDelay)); }
         }
 
         private sbyte _layer;
         public sbyte Layer
         {
             get { return _layer; }
-            set { SetField(ref _layer, value, "Layer"); }
+            set { SetField(ref _layer, value, nameof(Layer)); }
         }
 
         public bool HasSubItemOnLayer1
@@ -1009,7 +964,7 @@ namespace TAS.Client.ViewModels
         public bool CanTriggerGPI
         {
             get { return _gpi.CanTrigger; }
-            set { SetField(ref _gpi.CanTrigger, value, "CanTriggerGPI"); }
+            set { SetField(ref _gpi.CanTrigger, value, nameof(CanTriggerGPI)); }
         }
 
         static readonly Array _gPIParentals = Enum.GetValues(typeof(TParental));
@@ -1017,7 +972,7 @@ namespace TAS.Client.ViewModels
         public TParental GPIParental
         {
             get { return _gpi.Parental; }
-            set { SetField(ref _gpi.Parental, value, "GPIParental"); }
+            set { SetField(ref _gpi.Parental, value, nameof(GPIParental)); }
         }
 
         static readonly Array _gPILogos = Enum.GetValues(typeof(TLogo));
@@ -1025,7 +980,7 @@ namespace TAS.Client.ViewModels
         public TLogo GPILogo
         {
             get { return _gpi.Logo; }
-            set { SetField(ref _gpi.Logo, value, "GPILogo"); }
+            set { SetField(ref _gpi.Logo, value, nameof(GPILogo)); }
         }
 
         static readonly Array _gPICrawls = Enum.GetValues(typeof(TCrawl));
@@ -1033,14 +988,14 @@ namespace TAS.Client.ViewModels
         public TCrawl GPICrawl
         {
             get { return _gpi.Crawl; }
-            set { SetField(ref _gpi.Crawl, value, "GPICrawl"); }
+            set { SetField(ref _gpi.Crawl, value, nameof(GPICrawl)); }
         }
 
         #endregion // GPI
 
         internal void _previewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "Media")
+            if (e.PropertyName == nameof(Media))
                 InvalidateRequerySuggested();
         }
 
@@ -1048,48 +1003,48 @@ namespace TAS.Client.ViewModels
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                bool oldModified = _modified;
+                bool oldModified = _isModified;
                 PropertyInfo sourcePi = sender.GetType().GetProperty(e.PropertyName);
                 PropertyInfo destPi = this.GetType().GetProperty(e.PropertyName);
                 if (sourcePi != null && destPi != null
                     && sourcePi.PropertyType.Equals(destPi.PropertyType))
                     destPi.SetValue(this, sourcePi.GetValue(sender, null), null);
-                _modified = oldModified;
+                _isModified = oldModified;
             });
-            if (e.PropertyName == "GPI")
+            if (e.PropertyName == nameof(IEvent.GPI))
             {
-                NotifyPropertyChanged("CanTriggerGPI");
-                NotifyPropertyChanged("GPIParental");
-                NotifyPropertyChanged("GPILogo");
-                NotifyPropertyChanged("GPICrawl");
+                NotifyPropertyChanged(nameof(CanTriggerGPI));
+                NotifyPropertyChanged(nameof(GPIParental));
+                NotifyPropertyChanged(nameof(GPILogo));
+                NotifyPropertyChanged(nameof(GPICrawl));
             }
-            if (e.PropertyName == "PlayState")
+            if (e.PropertyName == nameof(IEvent.PlayState))
             {
-                NotifyPropertyChanged("IsEditEnabled");
-                NotifyPropertyChanged("IsMovieOrLive");
+                NotifyPropertyChanged(nameof(IsEditEnabled));
+                NotifyPropertyChanged(nameof(IsMovieOrLive));
                 InvalidateRequerySuggested();
             }
-            if (e.PropertyName == "AudioVolume")
+            if (e.PropertyName == nameof(IEvent.AudioVolume))
             {
-                NotifyPropertyChanged("AudioVolumeLevel");
-                NotifyPropertyChanged("HasAudioVolume");
-                NotifyPropertyChanged("AudioVolume");
+                NotifyPropertyChanged(nameof(AudioVolumeLevel));
+                NotifyPropertyChanged(nameof(HasAudioVolume));
+                NotifyPropertyChanged(nameof(AudioVolume));
             }
-            if (e.PropertyName == "IsLoop")
+            if (e.PropertyName == nameof(IEvent.IsLoop))
             {
                 InvalidateRequerySuggested();
             }
-            if (e.PropertyName == "Next")
+            if (e.PropertyName == nameof(IEvent.Next))
             {
                 IsLoop = false;
-                NotifyPropertyChanged("CanLoop");
+                NotifyPropertyChanged(nameof(CanLoop));
             }
-            if (e.PropertyName == "StartType")
-                NotifyPropertyChanged("IsAutoStartEvent");
-            if (e.PropertyName == "AutoStartFlags")
+            if (e.PropertyName == nameof(IEvent.StartType))
+                NotifyPropertyChanged(nameof(IsAutoStartEvent));
+            if (e.PropertyName == nameof(IEvent.AutoStartFlags))
             {
-                NotifyPropertyChanged("AutoStartForced");
-                NotifyPropertyChanged("AutoStartDaily");
+                NotifyPropertyChanged(nameof(AutoStartForced));
+                NotifyPropertyChanged(nameof(AutoStartDaily));
             }
         }
 
@@ -1099,12 +1054,12 @@ namespace TAS.Client.ViewModels
 
         private void _onRelocated(object o, EventArgs e)
         {
-            NotifyPropertyChanged("StartType");
-            NotifyPropertyChanged("BoundEventName");
-            NotifyPropertyChanged("ScheduledTime");
-            NotifyPropertyChanged("ScheduledTimeOfDay");
-            NotifyPropertyChanged("ScheduledDate");
-            NotifyPropertyChanged("IsStartEvent");
+            NotifyPropertyChanged(nameof(StartType));
+            NotifyPropertyChanged(nameof(BoundEventName));
+            NotifyPropertyChanged(nameof(ScheduledTime));
+            NotifyPropertyChanged(nameof(ScheduledTimeOfDay));
+            NotifyPropertyChanged(nameof(ScheduledDate));
+            NotifyPropertyChanged(nameof(IsStartEvent));
         }
 
     }

@@ -101,11 +101,11 @@ namespace TAS.Client.Model
 
         protected override void OnEventNotification(WebSocketMessageEventArgs e)
         {
-            if (e.Message.MemberName == "MediaAdded")
+            if (e.Message.MemberName == nameof(MediaAdded))
                     _mediaAdded?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
-            if (e.Message.MemberName == "MediaRemoved")
+            if (e.Message.MemberName == nameof(MediaRemoved))
                 _mediaRemoved?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
-            if (e.Message.MemberName == "MediaVerified")
+            if (e.Message.MemberName == nameof(MediaVerified))
                 _mediaVerified?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
         }
 

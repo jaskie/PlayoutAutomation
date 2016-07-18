@@ -35,12 +35,8 @@
     </UserControl.InputBindings>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" MinWidth="280">
-        <Grid IsEnabled="{Binding IsEnabled}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="55" />
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Width="180" HorizontalAlignment="Left">
+        <DockPanel IsEnabled="{Binding IsEnabled}">
+            <DockPanel DockPanel.Dock="Top">
                 <Button Command="{Binding CommandPause}" Style="{StaticResource controlButtonProperties}" ToolTip="{Resx _buttonPause.ToolTip}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Paused.png" Stretch="None" />
                 </Button>
@@ -50,11 +46,11 @@
                 <Button Command="{Binding CommandStop}" Style="{StaticResource controlButtonProperties}" ToolTip="{Resx _buttonStop.ToolTip}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Aborted.png" Stretch="None" />
                 </Button>
-            </StackPanel>
-            <StackPanel Margin="180, 0, 0, 0">
-                <TextBox Text="{Binding MediaName, Mode=OneWay}" Margin="3" IsEnabled="{Binding IsLoaded}" IsReadOnly="True"/>
-                <TextBox Text="{Binding FileName, Mode=OneWay}" Margin="3" IsEnabled="{Binding IsLoaded}" IsReadOnly="True"/>
-            </StackPanel>
+                <StackPanel>
+                    <TextBox Text="{Binding MediaName, Mode=OneWay}" Margin="3" IsEnabled="{Binding IsLoaded}" IsReadOnly="True"/>
+                    <TextBox Text="{Binding FileName, Mode=OneWay}" Margin="3" IsEnabled="{Binding IsLoaded}" IsReadOnly="True"/>
+                </StackPanel>
+            </DockPanel>
             <DockPanel Grid.Row="1" IsEnabled="{Binding IsPlayable}">
                 <common:MediaSeekSlider DockPanel.Dock="Top" Margin="10" Position="{Binding SliderPosition}" Maximum="100" SmallChange="2" Interval="500" Delay="1000" LargeChange="10" TickPlacement="TopLeft" TickFrequency="5" KeyboardNavigation.DirectionalNavigation="Local" />
                 <Grid DockPanel.Dock="Top">
@@ -137,6 +133,6 @@
                     </DataGrid>
                 </DockPanel>
             </DockPanel>
-        </Grid>
+        </DockPanel>
     </ScrollViewer>
 </UserControl>

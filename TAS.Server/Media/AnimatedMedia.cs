@@ -19,7 +19,7 @@ namespace TAS.Server
         
         private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
         {
-            Modified = true;
+            IsModified = true;
         }
 
         private readonly SimpleDictionary<string, string> _fields = new SimpleDictionary<string, string>();
@@ -56,10 +56,10 @@ namespace TAS.Server
                 if (IdPersistentMedia == 0)
                     result = this.DbInsert(directory.Server.Id);
                 else
-                if (Modified)
+                if (IsModified)
                     result = this.DbUpdate(directory.Server.Id);
             }
-            Modified = false;
+            IsModified = false;
             return result;
         }
 

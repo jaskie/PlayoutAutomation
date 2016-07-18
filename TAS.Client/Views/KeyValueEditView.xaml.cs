@@ -9,16 +9,17 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace TAS.Client.Views
 {
     /// <summary>
-    /// Interaction logic for TemplatesView.xaml
+    /// Interaction logic for KeyValueEdit.xaml
     /// </summary>
-    public partial class TemplatesView : UserControl
+    public partial class KeyValueEditView : UserControl
     {
-        public TemplatesView()
+        public KeyValueEditView()
         {
             InitializeComponent();
         }

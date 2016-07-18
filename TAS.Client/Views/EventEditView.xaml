@@ -267,8 +267,10 @@
                         <common:TimecodeEdit Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
                     </DockPanel>
                 </Grid>
-                <views:TemplatedEditView Visibility="{Binding IsAnimation, Converter={StaticResource BoolToVis}}"/>
-                <views:CommandScriptEditView Visibility="{Binding IsCommandScript, Converter={StaticResource BoolToVis}}"/>
+                <Grid>
+                    <views:TemplatedEditView Visibility="{Binding IsAnimation, Converter={StaticResource BoolToVis}}"/>
+                    <views:CommandScriptEditView Visibility="{Binding IsCommandScript, Converter={StaticResource BoolToVis}}"/>
+                </Grid>
             </DockPanel>
         </ScrollViewer>
     </DockPanel>

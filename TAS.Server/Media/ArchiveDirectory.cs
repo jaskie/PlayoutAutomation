@@ -40,7 +40,7 @@ namespace TAS.Server
                 if (_searchString != value)
                 {
                     _searchString = value;
-                    NotifyPropertyChanged("SearchString");
+                    NotifyPropertyChanged(nameof(SearchString));
                 }
             }
         }

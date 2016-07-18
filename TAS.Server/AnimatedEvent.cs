@@ -61,7 +61,7 @@ namespace TAS.Server
 
         private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
         {
-            Modified = true;
+            IsModified = true;
         }
 
         private readonly SimpleDictionary<string, string> _fields;
@@ -77,10 +77,10 @@ namespace TAS.Server
         }
 
         private TemplateMethod _method;
-        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value, "Method"); } }
+        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value, nameof(Method)); } }
 
         private int _templateLayer;
-        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, "TemplateLayer"); } }
+        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, nameof(TemplateLayer)); } }
 
     }
 }

@@ -29,7 +29,7 @@ namespace TAS.Server
                 }
                 return _ingestStatus;
             }
-            internal set { SetField(ref _ingestStatus, value, "IngestStatus"); }
+            internal set { SetField(ref _ingestStatus, value, nameof(IngestStatus)); }
         }
 
         public override bool Save()
@@ -47,9 +47,9 @@ namespace TAS.Server
                     if (IdPersistentMedia == 0)
                         result = this.DbInsert(((ArchiveDirectory)_directory).idArchive);
                     else
-                    if (Modified)
+                    if (IsModified)
                         result = this.DbUpdate(((ArchiveDirectory)_directory).idArchive);
-                    Modified = false;
+                    IsModified = false;
                 }
             }
             return result;

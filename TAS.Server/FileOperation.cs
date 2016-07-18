@@ -22,7 +22,7 @@ namespace TAS.Server
         public IMedia SourceMedia { get; set; }
         protected IMedia _destMedia;
 
-        public IMedia DestMedia { get { return _destMedia; } set { SetField(ref _destMedia, value, "Title"); } }
+        public IMedia DestMedia { get { return _destMedia; } set { SetField(ref _destMedia, value, nameof(Title)); } }
         public event EventHandler Success;
         public event EventHandler Failure;
         public event EventHandler Finished;
@@ -36,7 +36,7 @@ namespace TAS.Server
         public int TryCount
         {
             get { return _tryCount; }
-            set { SetField(ref _tryCount, value, "TryCount"); }
+            set { SetField(ref _tryCount, value, nameof(TryCount)); }
         }
         
         private int _progress;
@@ -47,7 +47,7 @@ namespace TAS.Server
             set
             {
                 if (value > 0 && value <= 100)
-                    SetField(ref _progress, value, "Progress");
+                    SetField(ref _progress, value, nameof(Progress));
                 IsIndeterminate = false;
             }
         }
@@ -59,7 +59,7 @@ namespace TAS.Server
             get { return _scheduledTime; }
             internal set
             {
-                if (SetField(ref _scheduledTime, value, "ScheduledTime"))
+                if (SetField(ref _scheduledTime, value, nameof(ScheduledTime)))
                     _addOutputMessage("Operation scheduled");
             }
         }
@@ -68,14 +68,14 @@ namespace TAS.Server
         public DateTime StartTime
         {
             get { return _startTime; }
-            protected set { SetField(ref _startTime, value, "StartTime"); }
+            protected set { SetField(ref _startTime, value, nameof(StartTime)); }
         }
         private DateTime _finishedTime;
         [JsonProperty]
         public DateTime FinishedTime 
         {
             get { return _finishedTime; }
-            protected set { SetField(ref _finishedTime, value, "FinishedTime"); }
+            protected set { SetField(ref _finishedTime, value, nameof(FinishedTime)); }
         }
 
         private FileOperationStatus _operationStatus;
@@ -85,7 +85,7 @@ namespace TAS.Server
             get { return _operationStatus; }
             set
             {
-                if (SetField(ref _operationStatus, value, "OperationStatus"))
+                if (SetField(ref _operationStatus, value, nameof(OperationStatus)))
                 {
                     IngestMedia im = SourceMedia as IngestMedia;
                     if (im != null)
@@ -153,7 +153,7 @@ namespace TAS.Server
         public bool IsIndeterminate
         {
             get { return _isIndeterminate; }
-            set { SetField(ref _isIndeterminate, value, "IsIndeterminate"); }
+            set { SetField(ref _isIndeterminate, value, nameof(IsIndeterminate)); }
         }
 
 
@@ -164,7 +164,7 @@ namespace TAS.Server
             get { return _aborted; }
             private set
             {
-                if (SetField(ref _aborted, value, "Aborted"))
+                if (SetField(ref _aborted, value, nameof(Aborted)))
                 {
                     if (DestMedia != null && DestMedia.FileExists())
                         DestMedia.Delete();
@@ -185,7 +185,7 @@ namespace TAS.Server
         protected void _addOutputMessage(string message)
         {
             _operationOutput.Add(string.Format("{0} {1}", DateTime.Now, message));
-            NotifyPropertyChanged("OperationOutput");
+            NotifyPropertyChanged(nameof(OperationOutput));
         }
 
         private SynchronizedCollection<string> _operationWarning = new SynchronizedCollection<string>();
@@ -194,7 +194,7 @@ namespace TAS.Server
         protected void _addWarningMessage(string message)
         {
             _operationWarning.Add(message);
-            NotifyPropertyChanged("OperationWarning");
+            NotifyPropertyChanged(nameof(OperationWarning));
         }
         
         public virtual bool Do()

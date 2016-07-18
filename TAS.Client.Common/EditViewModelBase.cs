@@ -20,20 +20,20 @@ namespace TAS.Client.Common
             Model = model;
             _editor = editor;
             Load();
-            _modified = false;
+            _isModified = false;
             editor.DataContext = this;
         }
 
-        protected bool _modified;
+        protected bool _isModified;
         protected virtual void OnModified(){}
 
         [XmlIgnore]
-        public virtual bool Modified
+        public virtual bool IsModified
         {
-            get { return _modified; }
+            get { return _isModified; }
             protected set
             {
-                if (base.SetField(ref _modified, value, "Modified")
+                if (base.SetField(ref _isModified, value, nameof(IsModified))
                     && value)
                 {
                     OnModified();
@@ -44,13 +44,13 @@ namespace TAS.Client.Common
 
         protected override bool SetField<T>(ref T field, T value, string propertyName)
         {
-            bool modified = base.SetField(ref field, value, propertyName);
-            if (modified)
+            bool isModified = base.SetField(ref field, value, propertyName);
+            if (isModified)
             {
-                Modified = true;
+                IsModified = true;
                 //ModifiedFields.Add(propertyName);
             }
-            return modified;
+            return isModified;
         }
 
         protected virtual void Load(object source = null)
@@ -62,12 +62,12 @@ namespace TAS.Client.Common
                 if (sourcePi != null)
                     copyPi.SetValue(this, sourcePi.GetValue((source ?? Model), null), null);
             }
-            Modified = false;
+            IsModified = false;
         }
 
         public virtual void Save(object destObject = null)
         {
-            if (Modified && Model != null
+            if (IsModified && Model != null
                 || destObject != null)
             {
                 PropertyInfo[] copiedProperties = this.GetType().GetProperties();
@@ -81,7 +81,7 @@ namespace TAS.Client.Common
                             destPi.SetValue(destObject ?? Model, copyPi.GetValue(this, null), null);
                     }
                 }
-                Modified = false;
+                IsModified = false;
             }
         }
 

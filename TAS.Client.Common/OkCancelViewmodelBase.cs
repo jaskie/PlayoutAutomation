@@ -58,12 +58,12 @@ namespace TAS.Client.Common
 
         protected virtual bool CanOK(object parameter)
         {
-            return Modified == true && (OKCallback == null || OKCallback(this));
+            return IsModified == true && (OKCallback == null || OKCallback(this));
         }
 
         protected virtual bool CanApply(object parameter)
         {
-            return Modified == true;
+            return IsModified == true;
         }
 
         protected override void OnModified()

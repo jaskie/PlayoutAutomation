@@ -27,7 +27,7 @@ namespace TAS.Client.Model
         }
         protected override void OnEventNotification(WebSocketMessageEventArgs e)
         {
-            if (e.Message.MemberName == "AudioVolumeMeasured")
+            if (e.Message.MemberName == nameof(AudioVolumeMeasured))
             {
                 var h = _audioVolumeMeasured;
                 if (h != null)

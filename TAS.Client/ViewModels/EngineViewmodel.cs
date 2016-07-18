@@ -119,14 +119,14 @@ namespace TAS.Client.ViewModels
 
         private void _engine_DatabaseConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
         {
-            NotifyPropertyChanged("NoAlarms");
-            NotifyPropertyChanged("DatabaseOK");
+            NotifyPropertyChanged(nameof(NoAlarms));
+            NotifyPropertyChanged(nameof(DatabaseOK));
         }
 
         private void _engine_EventSaved(object sender, IEventEventArgs e)
         {
             if (RootEventViewModel.Childrens.Any(evm => evm.Event == e.Event))
-                NotifyPropertyChanged("IsAnyContainerHidden");
+                NotifyPropertyChanged(nameof(IsAnyContainerHidden));
         }
 
         protected override void OnDispose()
@@ -641,6 +641,12 @@ namespace TAS.Client.ViewModels
                 };
             }
         }
+
+        public void AddCommandScriptEvent(IEvent baseEvent)
+        {
+
+        }
+        
         /// <summary>
         /// Used to determine if it should be selected when it's viewmodel is created
         /// </summary>
@@ -712,7 +718,7 @@ namespace TAS.Client.ViewModels
         public DateTime CurrentTime
         {
             get { return _currentTime; }
-            private set { SetField(ref _currentTime, value, "CurrentTime"); }
+            private set { SetField(ref _currentTime, value, nameof(CurrentTime)); }
         }
 
         private RationalNumber _frameRate;
@@ -722,7 +728,7 @@ namespace TAS.Client.ViewModels
         public TimeSpan TimeToAttention
         {
             get { return _timeToAttention; }
-            set { SetField(ref _timeToAttention, value, "TimeToAttention"); }
+            set { SetField(ref _timeToAttention, value, nameof(TimeToAttention)); }
         }
 
         public bool IsAnyContainerHidden
@@ -954,7 +960,7 @@ namespace TAS.Client.ViewModels
         private void _onSelectedEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var selected = _selected;
-            if (selected != null && sender == selected.Event && e.PropertyName == "PlayState")
+            if (selected != null && sender == selected.Event && e.PropertyName == nameof(IEvent.PlayState))
                 InvalidateRequerySuggested();
         }
 
@@ -971,10 +977,10 @@ namespace TAS.Client.ViewModels
                             if (pe != null)
                                 SetOnTopView(pe);
                         }, null);
-                    NotifyPropertyChanged("NextToPlay");
-                    NotifyPropertyChanged("NextWithRequestedStartTime");
+                    NotifyPropertyChanged(nameof(NextToPlay));
+                    NotifyPropertyChanged(nameof(NextWithRequestedStartTime));
                 }
-                NotifyPropertyChanged("VisibleEvents");
+                NotifyPropertyChanged(nameof(VisibleEvents));
             }
 
             if (a.Operation == TEngineOperation.Load)
@@ -985,8 +991,8 @@ namespace TAS.Client.ViewModels
             if (a.Operation == TEngineOperation.Stop || a.Operation == TEngineOperation.Clear)
             {
 
-                NotifyPropertyChanged("NextToPlay");
-                NotifyPropertyChanged("NextWithRequestedStartTime");
+                NotifyPropertyChanged(nameof(NextToPlay));
+                NotifyPropertyChanged(nameof(NextWithRequestedStartTime));
             }
 
 
@@ -1011,28 +1017,28 @@ namespace TAS.Client.ViewModels
 
         public void OnPRIServerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "IsConnected")
+            if (e.PropertyName == nameof(IPlayoutServer.IsConnected))
             {
-                NotifyPropertyChanged("ServerConnectedPRI");
-                NotifyPropertyChanged("NoAlarms");
+                NotifyPropertyChanged(nameof(ServerConnectedPRI));
+                NotifyPropertyChanged(nameof(NoAlarms));
             }
         }
 
         public void OnSECServerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "IsConnected")
+            if (e.PropertyName == nameof(IPlayoutServer.IsConnected))
             {
-                NotifyPropertyChanged("ServerConnectedSEC");
-                NotifyPropertyChanged("NoAlarms");
+                NotifyPropertyChanged(nameof(ServerConnectedSEC));
+                NotifyPropertyChanged(nameof(NoAlarms));
             }
         }
 
         public void OnPRVServerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "IsConnected")
+            if (e.PropertyName == nameof(IPlayoutServer.IsConnected))
             {
-                NotifyPropertyChanged("ServerConnectedPRV");
-                NotifyPropertyChanged("NoAlarms");
+                NotifyPropertyChanged(nameof(ServerConnectedPRV));
+                NotifyPropertyChanged(nameof(NoAlarms));
             }
         }
 
@@ -1078,44 +1084,44 @@ namespace TAS.Client.ViewModels
 
         private void _selectedEvents_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            NotifyPropertyChanged("SelectedCount");
-            NotifyPropertyChanged("SelectedTime");
+            NotifyPropertyChanged(nameof(SelectedCount));
+            NotifyPropertyChanged(nameof(SelectedTime));
             InvalidateRequerySuggested();
         }
 
         private void _enginePropertyChanged(object o, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "ProgramAudioVolume"
-                || e.PropertyName == "EngineState"
-                || e.PropertyName == "GPIConnected"
-                || e.PropertyName == "GPIAspectNarrow"
-                || e.PropertyName == "GPICrawl"
-                || e.PropertyName == "GPILogo"
-                || e.PropertyName == "GPIParental"
-                || e.PropertyName == "GPIIsMaster"
-                || e.PropertyName == "GPIEnabled"
-                || e.PropertyName == "NextToPlay"
-                || e.PropertyName == "FieldOrderInverted"
+            if (e.PropertyName == nameof(IEngine.ProgramAudioVolume)
+                || e.PropertyName == nameof(IEngine.EngineState)
+                || e.PropertyName == nameof(IEngine.GPIConnected)
+                || e.PropertyName == nameof(IEngine.GPIAspectNarrow)
+                || e.PropertyName == nameof(IEngine.GPICrawl)
+                || e.PropertyName == nameof(IEngine.GPILogo)
+                || e.PropertyName == nameof(IEngine.GPIParental)
+                || e.PropertyName == nameof(IEngine.GPIIsMaster)
+                || e.PropertyName == nameof(IEngine.GPIEnabled)
+                || e.PropertyName == nameof(IEngine.NextToPlay)
+                || e.PropertyName == nameof(IEngine.FieldOrderInverted)
             )
                 NotifyPropertyChanged(e.PropertyName);
-            if (e.PropertyName == "Playing")
+            if (e.PropertyName == nameof(IEngine.Playing))
             {
-                NotifyPropertyChanged("PlayingEventName");
-                NotifyPropertyChanged("IsPlayingMovie");
-                NotifyPropertyChanged("NextToPlay");
+                NotifyPropertyChanged(nameof(PlayingEventName));
+                NotifyPropertyChanged(nameof(IsPlayingMovie));
+                NotifyPropertyChanged(nameof(NextToPlay));
             }
-            if (e.PropertyName == "GPIIsMaster")
-                NotifyPropertyChanged("GPIEnabled");
-            if (e.PropertyName == "ForcedNext")
-                NotifyPropertyChanged("IsForcedNext");
-            if (e.PropertyName == "EngineState")
+            if (e.PropertyName == nameof(IEngine.GPIIsMaster))
+                NotifyPropertyChanged(nameof(GPIEnabled));
+            if (e.PropertyName == nameof(IEngine.ForcedNext))
+                NotifyPropertyChanged(nameof(IsForcedNext));
+            if (e.PropertyName == nameof(IEngine.EngineState))
             {
                 InvalidateRequerySuggested();
                 if (((IEngine)o).EngineState == TEngineState.Idle)
                 {
-                    NotifyPropertyChanged("ServerPRIExists");
-                    NotifyPropertyChanged("ServerSECExists");
-                    NotifyPropertyChanged("ServerPRVExists");
+                    NotifyPropertyChanged(nameof(ServerPRIExists));
+                    NotifyPropertyChanged(nameof(ServerSECExists));
+                    NotifyPropertyChanged(nameof(ServerPRVExists));
                 }
             }
         }
@@ -1129,7 +1135,7 @@ namespace TAS.Client.ViewModels
                 if (value != _trackPlayingEvent)
                 {
                     _trackPlayingEvent = value;
-                    NotifyPropertyChanged("TrackPlayingEvent");
+                    NotifyPropertyChanged(nameof(TrackPlayingEvent));
                     if (_trackPlayingEvent)
                     {
                         IEvent cp = _engine.Playing;

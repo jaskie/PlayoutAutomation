@@ -22,11 +22,11 @@ namespace TAS.Client.ViewModels
             editViewModel.Dispose();
         }
 
-        public override bool Modified
+        public override bool IsModified
         {
             get
             {
-                return _modified || editViewModel.Modified;
+                return _isModified || editViewModel.IsModified;
             }
         }
 

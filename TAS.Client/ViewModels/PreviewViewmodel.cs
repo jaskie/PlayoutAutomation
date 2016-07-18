@@ -48,14 +48,14 @@ namespace TAS.Client.ViewModels
                 {
                     IMedia oldVal = _media;
                     IMedia newVal = value;
-                    if (SetField(ref _media, newVal, "Media"))
+                    if (SetField(ref _media, newVal, nameof(Media)))
                     {
                         if (oldVal != null)
                             oldVal.PropertyChanged -= Media_PropertyChanged;
                         if (newVal != null)
                             newVal.PropertyChanged += Media_PropertyChanged;
                         _event = null;
-                        NotifyPropertyChanged("Event");
+                        NotifyPropertyChanged(nameof(Event));
                         InvalidateRequerySuggested();
                     }
                 }
@@ -64,9 +64,9 @@ namespace TAS.Client.ViewModels
 
         private void Media_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "AudioVolume" && _preview.PreviewLoaded && _media != null)
+            if (e.PropertyName == nameof(IMedia.AudioVolume) && _preview.PreviewLoaded && _media != null)
                 _preview.PreviewAudioLevel = _media.AudioVolume;
-            if (e.PropertyName == "MediaStatus" && _media != null)
+            if (e.PropertyName == nameof(IMedia.MediaStatus) && _media != null)
                 InvalidateRequerySuggested();
         }
 
@@ -74,7 +74,7 @@ namespace TAS.Client.ViewModels
         {
             IEvent ev = _event;
             IMedia media = ev == null ? null : ev.Media;
-            if (e.PropertyName == "AudioVolume" && _preview.PreviewLoaded && ev != null && media != null)
+            if (e.PropertyName == nameof(IEvent.AudioVolume) && _preview.PreviewLoaded && ev != null && media != null)
                 _preview.PreviewAudioLevel = ev.AudioVolume == null? media.AudioVolume : (decimal)ev.AudioVolume;
         }
 
@@ -84,14 +84,14 @@ namespace TAS.Client.ViewModels
             set
             {
                 IEvent oldEvent = _event;
-                if (SetField(ref _event, value, "Event"))
+                if (SetField(ref _event, value, nameof(Event)))
                 {
                     if (oldEvent != null)
                         oldEvent.PropertyChanged -= Event_PropertyChanged;
                     if (value != null)
                         value.PropertyChanged += Event_PropertyChanged;
                     _media = null;
-                    NotifyPropertyChanged("Media");
+                    NotifyPropertyChanged(nameof(Media));
                     InvalidateRequerySuggested();
                 }
             }
@@ -103,7 +103,7 @@ namespace TAS.Client.ViewModels
             get { return _loadedMedia; }
             private set
             {
-                if (SetField(ref _loadedMedia, value, "LoadedMedia"))
+                if (SetField(ref _loadedMedia, value, nameof(LoadedMedia)))
                     NotifyPropertyChanged(null);
             }
         }
@@ -148,7 +148,7 @@ namespace TAS.Client.ViewModels
         }
 
         private bool _isSegmentsVisible;
-        public bool IsSegmentsVisible { get { return _isSegmentsVisible; } set { SetField(ref _isSegmentsVisible, value, "IsSegmentsVisible"); } }
+        public bool IsSegmentsVisible { get { return _isSegmentsVisible; } set { SetField(ref _isSegmentsVisible, value, nameof(IsSegmentsVisible)); } }
 
         public bool IsSegmentsEnabled { get { return _preview.PreviewMedia is IServerMedia; } }
 
@@ -200,7 +200,7 @@ namespace TAS.Client.ViewModels
             get { return _tcIn; }
             set
             {
-                if (SetField(ref _tcIn, value, "TcIn"))
+                if (SetField(ref _tcIn, value, nameof(TcIn)))
                     InvalidateRequerySuggested();
             }
         }
@@ -211,7 +211,7 @@ namespace TAS.Client.ViewModels
             get { return _tcOut; }
             set
             {
-                if (SetField(ref _tcOut, value, "TcOut"))
+                if (SetField(ref _tcOut, value, nameof(TcOut)))
                     InvalidateRequerySuggested();
             }
         }
@@ -227,7 +227,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 _preview.PreviewPosition = (value.Ticks - StartTc.Ticks) / _preview.PreviewFormatDescription.FrameTicks - _loadedSeek;
-                NotifyPropertyChanged("SliderPosition");
+                NotifyPropertyChanged(nameof(SliderPosition));
             }
         }
 
@@ -261,7 +261,7 @@ namespace TAS.Client.ViewModels
             {
                 long newPos = _loadedSeek + (value * (_loadedDuration -1)) / _sliderMaximum;
                 Position = TimeSpan.FromTicks(newPos * _preview.PreviewFormatDescription.FrameTicks + StartTc.Ticks);
-                NotifyPropertyChanged("Position");
+                NotifyPropertyChanged(nameof(Position));
             }
         }
 
@@ -269,7 +269,7 @@ namespace TAS.Client.ViewModels
         {
             if (_channelPRV != null
                 && sender == _channelPRV.OwnerServer)
-                NotifyPropertyChanged("IsEnabled");
+                NotifyPropertyChanged(nameof(IsEnabled));
         }
         
 
@@ -295,8 +295,8 @@ namespace TAS.Client.ViewModels
                     }
                     else
                         SelectedSegmentName = string.Empty;
-                    NotifyPropertyChanged("SelectedSegmentName");
-                    NotifyPropertyChanged("SelectedSegment");
+                    NotifyPropertyChanged(nameof(SelectedSegmentName));
+                    NotifyPropertyChanged(nameof(SelectedSegment));
                     InvalidateRequerySuggested();
                     _mediaLoad(false);
                 }
@@ -313,7 +313,7 @@ namespace TAS.Client.ViewModels
                 if (_selectedSegmentName != value)
                 {
                     _selectedSegmentName = value;
-                    NotifyPropertyChanged("SelectedSegmentName");
+                    NotifyPropertyChanged(nameof(SelectedSegmentName));
                     InvalidateRequerySuggested();
                 }
             }
@@ -355,10 +355,10 @@ namespace TAS.Client.ViewModels
             get { return _playWholeClip; }
             set
             {
-                if (SetField(ref _playWholeClip, value, "PlayWholeClip"))
+                if (SetField(ref _playWholeClip, value, nameof(PlayWholeClip)))
                 {
                     _mediaLoad(false);
-                    NotifyPropertyChanged("SliderPosition");
+                    NotifyPropertyChanged(nameof(SliderPosition));
                 }
             }
         }
@@ -388,8 +388,8 @@ namespace TAS.Client.ViewModels
                             else
                             {
                                 _preview.PreviewPosition = 0;
-                                NotifyPropertyChanged("Position");
-                                NotifyPropertyChanged("SliderPosition");
+                                NotifyPropertyChanged(nameof(Position));
+                                NotifyPropertyChanged(nameof(SliderPosition));
                             }
                     },
                 CanExecuteDelegate = o =>
@@ -450,8 +450,8 @@ namespace TAS.Client.ViewModels
                                 break;
                         }
                         _preview.PreviewPosition = _preview.PreviewPosition + seekFrames;
-                        NotifyPropertyChanged("Position");
-                        NotifyPropertyChanged("SliderPosition");
+                        NotifyPropertyChanged(nameof(Position));
+                        NotifyPropertyChanged(nameof(SliderPosition));
                     },
                 CanExecuteDelegate = _canStop
             };
@@ -500,7 +500,7 @@ namespace TAS.Client.ViewModels
                         var ss = SelectedSegment;
                         return (LoadedMedia != null 
                             && ((ss == null && !string.IsNullOrEmpty(SelectedSegmentName))
-                                || (ss != null && (ss.Modified || SelectedSegmentName != ss.SegmentName || TcIn != ss.TcIn || TcOut != ss.TcOut))));
+                                || (ss != null && (ss.IsModified || SelectedSegmentName != ss.SegmentName || TcIn != ss.TcIn || TcOut != ss.TcOut))));
                     }
             };
             CommandDeleteSegment = new UICommand()
@@ -538,7 +538,7 @@ namespace TAS.Client.ViewModels
                 ExecuteDelegate = o =>
                     {
                         IsSegmentNameFocused = true;
-                        NotifyPropertyChanged("IsSegmentNameFocused");
+                        NotifyPropertyChanged(nameof(IsSegmentNameFocused));
                     },
             };
         }
@@ -568,12 +568,12 @@ namespace TAS.Client.ViewModels
 
         private void PreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "PreviewPosition")
+            if (e.PropertyName == nameof(IPreview.PreviewPosition))
             {
-                NotifyPropertyChanged("Position");
-                NotifyPropertyChanged("SliderPosition");
+                NotifyPropertyChanged(nameof(Position));
+                NotifyPropertyChanged(nameof(SliderPosition));
             }
-            if (e.PropertyName == "PreviewMedia")
+            if (e.PropertyName == nameof(IPreview.PreviewMedia))
                 if (_preview.PreviewMedia != _loadedMedia)
                 {
                     LoadedMedia = null;

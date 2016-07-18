@@ -25,8 +25,8 @@ namespace TAS.Client.ViewModels
         private readonly IMediaManager _mediaManager;
         public MediaEditViewmodel(IMedia media, IMediaManager mediaManager,  PreviewViewmodel previewVm, bool showButtons):base(media, new MediaEditView(media.FrameRate))
         {
-            CommandSaveEdit = new UICommand() { ExecuteDelegate = Save, CanExecuteDelegate = o => Modified && IsValid };
-            CommandCancelEdit = new UICommand() { ExecuteDelegate = Load, CanExecuteDelegate = o => Modified };
+            CommandSaveEdit = new UICommand() { ExecuteDelegate = Save, CanExecuteDelegate = o => IsModified && IsValid };
+            CommandCancelEdit = new UICommand() { ExecuteDelegate = Load, CanExecuteDelegate = o => IsModified };
             CommandRefreshStatus = new UICommand() { ExecuteDelegate = _refreshStatus };
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = (o) => !_isVolumeChecking };
             _previewVm = previewVm;
@@ -46,7 +46,7 @@ namespace TAS.Client.ViewModels
         
         private void _fields_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            Modified = true;
+            IsModified = true;
         }
 
         protected override void OnDispose()
@@ -65,12 +65,12 @@ namespace TAS.Client.ViewModels
 
         public override void Save(object destObject = null)
         {
-            if (Modified)
+            if (IsModified)
             {
                 PropertyInfo[] copiedProperties = this.GetType().GetProperties();
                 foreach (PropertyInfo copyPi in copiedProperties)
                 {
-                    if (copyPi.Name == "FileName")
+                    if (copyPi.Name == nameof(FileName))
                         Model.RenameTo(FileName);
                     else
                     {
@@ -83,7 +83,7 @@ namespace TAS.Client.ViewModels
                         }
                     }
                 }
-                Modified = false;
+                IsModified = false;
             }
             if (Model is IPersistentMedia)
                 ((IPersistentMedia)Model).Save();
@@ -123,9 +123,9 @@ namespace TAS.Client.ViewModels
 
         private void _addField(object obj)
         {
-            var kve = new TupleEditViewmodel<string>(string.Empty, string.Empty, false);
+            var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), false);
             kve.OKCallback = (o) => {
-                var co = o as TupleEditViewmodel<string>;
+                var co = (KeyValueEditViewmodel)o;
                 return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
             };
             if (kve.ShowDialog() == true)
@@ -137,7 +137,7 @@ namespace TAS.Client.ViewModels
             if (SelectedField != null)
             {
                 var selected = (KeyValuePair<string, string>)SelectedField;
-                var kve = new TupleEditViewmodel<string>(selected.Key, selected.Value, false);
+                var kve = new KeyValueEditViewmodel(selected, false);
                 if (kve.ShowDialog() == true)
                     _fields[kve.Key] = kve.Value;
             }
@@ -201,29 +201,29 @@ namespace TAS.Client.ViewModels
                             && sourcePi.CanRead
                             && destPi.CanWrite)
                         {
-                            bool oldModified = Modified;
+                            bool oldModified = IsModified;
                             destPi.SetValue(this, sourcePi.GetValue(Model, null), null);
-                            Modified = oldModified;
+                            IsModified = oldModified;
                             NotifyPropertyChanged(e.PropertyName);
                         }
-                        if (e.PropertyName == "FrameRate")
+                        if (e.PropertyName == nameof(IMedia.FrameRate))
                         {
                             ((MediaEditView)Editor).SetFrameRate(Model.FrameRate);
-                            NotifyPropertyChanged("TcStart");
-                            NotifyPropertyChanged("TcPlay");
-                            NotifyPropertyChanged("Duration");
-                            NotifyPropertyChanged("DurationPlay");
+                            NotifyPropertyChanged(nameof(TcStart));
+                            NotifyPropertyChanged(nameof(TcPlay));
+                            NotifyPropertyChanged(nameof(Duration));
+                            NotifyPropertyChanged(nameof(DurationPlay));
                         }
                     }
                 }),
             null);
 
-            if (e.PropertyName == "MediaStatus")
+            if (e.PropertyName == nameof(IMedia.MediaStatus))
             {
                 NotifyPropertyChanged(e.PropertyName);
-                NotifyPropertyChanged("IsIngestDataShown");
+                NotifyPropertyChanged(nameof(IsIngestDataShown));
             }
-            if (e.PropertyName == "MediaGuid")
+            if (e.PropertyName == nameof(IMedia.MediaGuid))
             {
                 NotifyPropertyChanged(e.PropertyName);
             }
@@ -232,7 +232,7 @@ namespace TAS.Client.ViewModels
         private void _onPreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (_previewVm.LoadedMedia == Model
-                && (e.PropertyName == "TcIn" || e.PropertyName == "TcOut")
+                && (e.PropertyName == nameof(PreviewViewmodel.TcIn) || e.PropertyName == nameof(PreviewViewmodel.TcOut))
                 && _previewVm.SelectedSegment == null )
             {
                 TcPlay = _previewVm.TcIn;
@@ -249,7 +249,7 @@ namespace TAS.Client.ViewModels
                 if (_isVolumeChecking != value)
                 {
                     _isVolumeChecking = value;
-                    NotifyPropertyChanged("IsVolumeChecking");
+                    NotifyPropertyChanged(nameof(IsVolumeChecking));
                     InvalidateRequerySuggested();
                 }
             }
@@ -264,7 +264,7 @@ namespace TAS.Client.ViewModels
         public bool ShowButtons { get { return _showButtons; } }
 
         private string _folder;
-        public string Folder { get { return _folder; } set { SetField(ref _folder, value, "Folder"); } }
+        public string Folder { get { return _folder; } set { SetField(ref _folder, value, nameof(Folder)); } }
         
         private string _fileName;
         public string FileName 
@@ -272,8 +272,8 @@ namespace TAS.Client.ViewModels
             get { return _fileName; }
             set
             {
-                if (SetField(ref _fileName, value, "FileName"))
-                    NotifyPropertyChanged("IsValid");
+                if (SetField(ref _fileName, value, nameof(FileName)))
+                    NotifyPropertyChanged(nameof(IsValid));
             }
         }
 
@@ -281,49 +281,49 @@ namespace TAS.Client.ViewModels
         public DateTime LastUpdated
         {
             get { return _lastUpdated; }
-            set { SetField(ref _lastUpdated, value, "LastUpdated"); }
+            set { SetField(ref _lastUpdated, value, nameof(LastUpdated)); }
         }
 
         private DateTime _lastAccess;
         public DateTime LastAccess
         {
             get { return _lastAccess; }
-            set { SetField(ref _lastAccess, value, "LastAccess"); }
+            set { SetField(ref _lastAccess, value, nameof(LastAccess)); }
         }
 
         private TMediaType _mediaType;
         public TMediaType MediaType
         {
             get { return _mediaType; }
-            set { SetField(ref _mediaType, value, "MediaType"); }
+            set { SetField(ref _mediaType, value, nameof(MediaType)); }
         }
 
         private TimeSpan _duration;
         public TimeSpan Duration
         {
             get { return _duration; }
-            set { SetField(ref _duration, value, "Duration"); }
+            set { SetField(ref _duration, value, nameof(Duration)); }
         }
 
         private TimeSpan _durationPlay;
         public TimeSpan DurationPlay
         {
             get { return _durationPlay; }
-            set { SetField(ref _durationPlay, value, "DurationPlay"); }
+            set { SetField(ref _durationPlay, value, nameof(DurationPlay)); }
         }
 
         private TimeSpan _tcStart;
         public TimeSpan TcStart
         {
             get { return _tcStart; }
-            set { SetField(ref _tcStart, value, "TcStart"); }
+            set { SetField(ref _tcStart, value, nameof(TcStart)); }
         }
 
         private TimeSpan _tcPlay;
         public TimeSpan TcPlay
         {
             get { return _tcPlay; }
-            set { SetField(ref _tcPlay, value, "TcPlay"); }
+            set { SetField(ref _tcPlay, value, nameof(TcPlay)); }
         }
 
         static readonly Array _videoFormats = Enum.GetValues(typeof(TVideoFormat));
@@ -334,8 +334,8 @@ namespace TAS.Client.ViewModels
             get { return _videoFormat; }
             set
             {
-                if (SetField(ref _videoFormat, value, "VideoFormat"))
-                    NotifyPropertyChanged("IsInterlaced");
+                if (SetField(ref _videoFormat, value, nameof(VideoFormat)))
+                    NotifyPropertyChanged(nameof(IsInterlaced));
             }
         }
 
@@ -343,7 +343,7 @@ namespace TAS.Client.ViewModels
         public bool FieldOrderInverted
         {
             get { return _fieldOrderInverted; }
-            set { SetField(ref _fieldOrderInverted, value, "FieldOrderInverted"); }
+            set { SetField(ref _fieldOrderInverted, value, nameof(FieldOrderInverted)); }
         }
 
         static readonly Array _audioChannelMappings = Enum.GetValues(typeof(TAudioChannelMapping)); 
@@ -352,14 +352,14 @@ namespace TAS.Client.ViewModels
         public TAudioChannelMapping AudioChannelMapping
         {
             get { return _audioChannelMapping; }
-            set { SetField(ref _audioChannelMapping, value, "AudioChannelMapping"); }
+            set { SetField(ref _audioChannelMapping, value, nameof(AudioChannelMapping)); }
         }
 
         private decimal _audioVolume;
         public decimal AudioVolume
         {
             get { return _audioVolume; }
-            set { SetField(ref _audioVolume, value, "AudioVolume"); }
+            set { SetField(ref _audioVolume, value, nameof(AudioVolume)); }
         }
 
         private string _mediaName;
@@ -367,7 +367,7 @@ namespace TAS.Client.ViewModels
         {
             get { return _mediaName; }
             set {
-                if (SetField(ref _mediaName, value, "MediaName"))
+                if (SetField(ref _mediaName, value, nameof(MediaName)))
                 {
                     if (MediaStatus == TMediaStatus.Required)
                         FileName = FileUtils.SanitizeFileName(value) + FileUtils.DefaultFileExtension(MediaType);
@@ -381,7 +381,7 @@ namespace TAS.Client.ViewModels
         public TMediaEmphasis MediaEmphasis
         {
             get { return _mediaEmphasis; }
-            set { SetField(ref _mediaEmphasis, value, "MediaEmphasis"); }
+            set { SetField(ref _mediaEmphasis, value, nameof(MediaEmphasis)); }
         }
         
         private DateTime? _killDate;
@@ -396,9 +396,9 @@ namespace TAS.Client.ViewModels
                         _killDate = null;
                     else
                         _killDate = value;
-                    Modified = true;
-                    NotifyPropertyChanged("IsKillDate");
-                    NotifyPropertyChanged("KillDate");
+                    IsModified = true;
+                    NotifyPropertyChanged(nameof(IsKillDate));
+                    NotifyPropertyChanged(nameof(KillDate));
                 }
             }
         }
@@ -414,9 +414,9 @@ namespace TAS.Client.ViewModels
                         _killDate = DateTime.UtcNow + TimeSpan.FromDays(30);
                     else
                         _killDate = null;
-                    Modified = true;
-                    NotifyPropertyChanged("KillDate");
-                    NotifyPropertyChanged("IsKillDate");
+                    IsModified = true;
+                    NotifyPropertyChanged(nameof(KillDate));
+                    NotifyPropertyChanged(nameof(IsKillDate));
                 }
             }
         }
@@ -425,7 +425,7 @@ namespace TAS.Client.ViewModels
         public bool Protected
         {
             get { return _protected; }
-            set { SetField(ref _protected, value, "Protected"); }
+            set { SetField(ref _protected, value, nameof(Protected)); }
         }
 
         public TMediaStatus MediaStatus { get { return Model.MediaStatus; }}
@@ -436,7 +436,7 @@ namespace TAS.Client.ViewModels
         public bool DoNotArchive
         {
             get { return _doNotArchive; }
-            set { SetField(ref _doNotArchive, value, "DoNotArchive"); }
+            set { SetField(ref _doNotArchive, value, nameof(DoNotArchive)); }
         }
 
         static readonly Array _parentals = Enum.GetValues(typeof(TParental)); 
@@ -445,7 +445,7 @@ namespace TAS.Client.ViewModels
         public TParental Parental
         {
             get { return _parental; }
-            set { SetField(ref _parental, value, "Parental"); }
+            set { SetField(ref _parental, value, nameof(Parental)); }
         }
 
         static readonly Array _mediaCategories = Enum.GetValues(typeof(TMediaCategory)); 
@@ -454,14 +454,14 @@ namespace TAS.Client.ViewModels
         public TMediaCategory MediaCategory
         {
             get { return _mediaCategory; }
-            set { SetField(ref _mediaCategory, value, "MediaCategory"); }
+            set { SetField(ref _mediaCategory, value, nameof(MediaCategory)); }
         }
 
         private string _idAux;
         public string IdAux
         {
             get { return _idAux; }
-            set { SetField(ref _idAux, value, "IdAux"); }
+            set { SetField(ref _idAux, value, nameof(IdAux)); }
         }
 
         #region ITemplatedEdit
@@ -486,10 +486,10 @@ namespace TAS.Client.ViewModels
         static readonly Array _methods = Enum.GetValues(typeof(TemplateMethod));
         public Array Methods { get { return _methods; } }
         private TemplateMethod _method;
-        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value, "Method"); } }
+        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value, nameof(Method)); } }
 
         private int _templateLayer;
-        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, "TemplateLayer"); } }
+        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, nameof(TemplateLayer)); } }
         public ICommand CommandEditField { get; private set; }
         public ICommand CommandAddField { get; private set; }
         public ICommand CommandDeleteField { get; private set; }
@@ -544,13 +544,13 @@ namespace TAS.Client.ViewModels
                 string validationResult = null;
                 switch (propertyName)
                 {
-                    case "FileName":
+                    case nameof(FileName):
                         validationResult = _validateFileName();
                         break;
-                    case "TcPlay":
+                    case nameof(TcPlay):
                         validationResult = _validateTcPlay();
                         break;
-                    case "DurationPlay":
+                    case nameof(DurationPlay):
                         validationResult = _validateDurationPlay();
                         break;
                 }

@@ -20,14 +20,14 @@ namespace TAS.Client.ViewModels
         public TimeSpan? ExecuteTime
         {
             get { return _executeTime; }
-            set { SetField(ref _executeTime, value, "ExecuteTime"); }
+            set { SetField(ref _executeTime, value, nameof(ExecuteTime)); }
         }
 
         private string _command;
         public string Command
         {
             get { return _command; }
-            set { SetField(ref _command, value, "Command"); }
+            set { SetField(ref _command, value, nameof(Command)); }
         }
     }
 }

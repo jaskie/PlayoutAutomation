@@ -217,4 +217,10 @@
   <data name="_autoStart" xml:space="preserve">
     <value>Scheduled to start automatically</value>
   </data>
+  <data name="_addAnimation.ToolTip" xml:space="preserve">
+    <value>Add animation</value>
+  </data>
+  <data name="_addCommandScript.ToolTip" xml:space="preserve">
+    <value>Add command script</value>
+  </data>
 </root>
