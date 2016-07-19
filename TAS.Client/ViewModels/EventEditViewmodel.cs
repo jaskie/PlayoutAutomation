@@ -123,6 +123,7 @@ namespace TAS.Client.ViewModels
                             destPi.SetValue(e2Save, copyPi.GetValue(this, null), null);
                     }
                 }
+                _commandScriptEdit?.Save();
                 IsModified = false;
             }
             if (e2Save != null && e2Save.IsModified)
@@ -144,7 +145,7 @@ namespace TAS.Client.ViewModels
                     foreach (PropertyInfo copyPi in copiedProperties)
                     {
                         PropertyInfo sourcePi = e2Load.GetType().GetProperty(copyPi.Name);
-                        if (sourcePi != null 
+                        if (sourcePi != null
                             && copyPi.Name != nameof(IsModified)
                             && sourcePi.PropertyType.Equals(copyPi.PropertyType)
                             && copyPi.CanWrite
@@ -153,10 +154,7 @@ namespace TAS.Client.ViewModels
                     }
                     var commandScript = e2Load as ICommandScript;
                     if (commandScript != null)
-                    {
                         CommandScriptEdit = new CommandScriptEditViewmodel(e2Load, commandScript);
-                        CommandScriptEdit.Modified += CommandScriptEdit_Modified;
-                    }
                     else
                         CommandScriptEdit = null;
                 }
@@ -610,7 +608,15 @@ namespace TAS.Client.ViewModels
             {
                 var oldValue = _commandScriptEdit;
                 if (SetField(ref _commandScriptEdit, value, nameof(CommandScriptEdit)))
-                    oldValue.Dispose();
+                {
+                    if (oldValue != null)
+                    {
+                        oldValue.Modified -= CommandScriptEdit_Modified;
+                        oldValue.Dispose();
+                    }
+                    if (value != null)
+                        value.Modified += CommandScriptEdit_Modified;
+                }
             }
         }                
 

@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using TAS.Remoting.Server;
 using TAS.Server.Interfaces;
 
 namespace TAS.Server.Common
 {
+    [DataContract]
     public class CommandScriptItemBase : DtoBase, ICommandScriptItem
     {
         private TimeSpan? _executeTime;
+        [DataMember]
         public TimeSpan? ExecuteTime
         {
             get { return _executeTime; }
@@ -17,6 +20,7 @@ namespace TAS.Server.Common
         }
 
         private string _command;
+        [DataMember]
         public string Command
         {
             get { return _command; }

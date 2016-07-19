@@ -302,6 +302,9 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   <data name="_validate_TransitionTimeInvalid" xml:space="preserve">
     <value>Czas przejścia jest dłuższy, niż czas trwania.</value>
   </data>
+  <data name="_window_CommandScriptItemEditWindowTitle" xml:space="preserve">
+    <value>Edycja komendy serwera</value>
+  </data>
   <data name="_window_IngestAs" xml:space="preserve">
     <value>Zaingestuj jako...</value>
   </data>

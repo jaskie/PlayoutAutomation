@@ -594,6 +594,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Edit server command.
+        /// </summary>
+        public static string _window_CommandScriptItemEditWindowTitle {
+            get {
+                return ResourceManager.GetString("_window_CommandScriptItemEditWindowTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Ingest as....
         /// </summary>
         public static string _window_IngestAs {

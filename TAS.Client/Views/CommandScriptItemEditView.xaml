@@ -1,31 +1,32 @@
-﻿<UserControl ResxExtension.DefaultResxName="TAS.Client.Views.TupleEditView" Language="{UICulture}"
-             x:Class="TAS.Client.Views.TupleEditView"
+﻿<UserControl ResxExtension.DefaultResxName="TAS.Client.Views.CommandScriptItemEditView" Language="{UICulture}"
+             x:Class="TAS.Client.Views.CommandScriptItemEditView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TAS.Client.Views"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
-             d:DataContext="{x:Type vm:KeyValueEditViewmodel}"
+             d:DataContext="{x:Type vm:CommandScriptItemViewmodel}"
              >
-    <StackPanel MinHeight="100" MinWidth="300">
+    <UserControl.Resources>
+        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
+    </UserControl.Resources>
+    <StackPanel MinHeight="60" MinWidth="250">
         <StackPanel.Resources>
             <Style TargetType="Label">
                 <Setter Property="MinWidth" Value="70"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>
             </Style>
-            <Style TargetType="TextBox">
-                <Setter Property="Margin" Value="3"/>
-            </Style>
         </StackPanel.Resources>
-        <DockPanel>
-            <Label DockPanel.Dock="Left" Content="{Resx _key}"/>
-            <TextBox Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding KeyIsEnabled}" TabIndex="1" />
+        <DockPanel Visibility="{Binding IsFinalizationCommand, Converter={StaticResource InvertedBoolToVis}}">
+            <Label DockPanel.Dock="Left" Content="{Resx _start}"/>
+            <common:TimecodeEdit Margin="3" Text="{Binding ExecuteTime, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" TabIndex="1" />
         </DockPanel>
         <DockPanel>
-            <Label DockPanel.Dock="Left" Content="{Resx _value}"/>
-            <TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" TabIndex="2" />
+            <Label DockPanel.Dock="Left" Content="{Resx _command}"/>
+            <TextBox Margin="3" TextWrapping="Wrap" Text="{Binding Command, UpdateSourceTrigger=PropertyChanged}" TabIndex="2" />
         </DockPanel>
     </StackPanel>
 </UserControl>

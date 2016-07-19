@@ -20,6 +20,10 @@ namespace TAS.Server.Database
         static DbConnectionRedundant _connection;
         private static string _connectionStringSecondary;
         private static string _connectionStringPrimary;
+        private static Newtonsoft.Json.JsonSerializerSettings serializationSettings = new Newtonsoft.Json.JsonSerializerSettings() {
+            PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.None,
+            ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+        };
 
         public static void Open(string connectionStringPrimary = null, string connectionStringSecondary = null)
         {
@@ -697,7 +701,7 @@ namespace TAS.Server.Database
                     string templateFields = reader.GetString("Fields");
                     if (!string.IsNullOrWhiteSpace(templateFields))
                     {
-                        var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
+                        var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields, serializationSettings);
                         if (fieldsDeserialized != null)
                             foreach (var field in fieldsDeserialized)
                                 animatedEvent.Fields.Add(field);
@@ -736,7 +740,7 @@ namespace TAS.Server.Database
             ushort transitionType = dataReader.GetUInt16("typTransition");
             TEventType eventType = (TEventType)dataReader.GetByte("typEvent");
             List<CommandScriptItemBase> commands = eventType == TEventType.CommandScript ?
-                Newtonsoft.Json.JsonConvert.DeserializeObject<List<CommandScriptItemBase>>(dataReader.GetString("Commands")) :
+                Newtonsoft.Json.JsonConvert.DeserializeObject<List<CommandScriptItemBase>>(dataReader.GetString("Commands"), serializationSettings) :
                 null;
             IEvent newEvent = engine.AddNewEvent(
                 dataReader.GetUInt64("idRundownEvent"),
@@ -830,7 +834,7 @@ namespace TAS.Server.Database
             cmd.Parameters.AddWithValue("@flagsEvent", flags);
             cmd.Parameters.AddWithValue("@Commands",
                 aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript ?
-                (object)Newtonsoft.Json.JsonConvert.SerializeObject((aEvent as ICommandScript).Commands) : 
+                (object)Newtonsoft.Json.JsonConvert.SerializeObject((aEvent as ICommandScript).Commands, serializationSettings) : 
                 DBNull.Value);
 
             return cmd.ExecuteNonQuery() == 1;
@@ -846,7 +850,7 @@ namespace TAS.Server.Database
                 cmd.Parameters.AddWithValue("@idrundownevent_templated", id);
                 cmd.Parameters.AddWithValue("@Method", (byte)e.Method);
                 cmd.Parameters.AddWithValue("@TemplateLayer", e.TemplateLayer);
-                cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(e.Fields));
+                cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(e.Fields, serializationSettings));
                 cmd.ExecuteNonQuery();
             }
         }

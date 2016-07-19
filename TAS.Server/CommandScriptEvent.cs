@@ -13,7 +13,9 @@ namespace TAS.Server
         public CommandScriptEvent(Engine engine, ulong idRundownEvent, ulong idEventBinding, TPlayState playState, DateTime scheduledTime, TimeSpan duration, TimeSpan scheduledDelay, string eventName, DateTime startTime, bool isEnabled, IEnumerable<ICommandScriptItem> commands) 
             : base(engine, idRundownEvent, idEventBinding, VideoLayer.None, TEventType.CommandScript, TStartType.With, playState, scheduledTime, duration, scheduledDelay, TimeSpan.Zero, Guid.Empty, eventName, startTime, TimeSpan.Zero, null, TimeSpan.Zero, TimeSpan.Zero, TTransitionType.Cut, TEasing.None, null, 0, string.Empty, isEnabled, false, false, default(EventGPI), AutoStartFlags.None)
         {
-            _commands = new List<CommandScriptItem>(commands.Select(i => new CommandScriptItem { ExecuteTime = i.ExecuteTime, Command = i.Command }));
+            _commands = commands == null ?
+                new List<CommandScriptItem>() :
+                new List<CommandScriptItem>(commands.Select(i => new CommandScriptItem { ExecuteTime = i.ExecuteTime, Command = i.Command }));
         }
 
         readonly object _commandsSyncRoot = new object();

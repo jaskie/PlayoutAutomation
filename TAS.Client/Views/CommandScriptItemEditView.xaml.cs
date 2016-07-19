@@ -11,17 +11,20 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TAS.Client.Common;
+using TAS.Common;
 
 namespace TAS.Client.Views
 {
     /// <summary>
-    /// Interaction logic for KeyValueEdit.xaml
+    /// Interaction logic for CommandScriptItemEditView.xaml
     /// </summary>
-    public partial class TupleEditView : UserControl
+    public partial class CommandScriptItemEditView : UserControl
     {
-        public TupleEditView()
+        public CommandScriptItemEditView(RationalNumber frameRate)
         {
             InitializeComponent();
+            ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
         }
     }
 }

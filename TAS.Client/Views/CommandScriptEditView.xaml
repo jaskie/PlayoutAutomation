@@ -32,16 +32,16 @@
                 </Button>
             </ToolBarPanel>
         </ToolBar>
-        <DataGrid ItemsSource="{Binding Fields}" IsReadOnly="True" AutoGenerateColumns="False" MinHeight="50" 
-                              common:MouseDoubleClick.Command="{Binding CommandEditField}" 
-                              SelectedItem="{Binding SelectedField}"
+        <DataGrid ItemsSource="{Binding Commands}" IsReadOnly="True" AutoGenerateColumns="False" MinHeight="50" 
+                              common:MouseDoubleClick.Command="{Binding CommandEditCommandScriptItem}" 
+                              SelectedItem="{Binding SelectedCommand}"
                               >
             <DataGrid.Resources>
                 <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Width="*" Header="{Resx _fields.Time, ResxName=TAS.Client.Views.CommandScriptEditView}" Binding="{Binding Key, Converter={StaticResource TimeSpanToSMPTE}}" CellStyle="{StaticResource InactiveDataGridCell}"/>
-                <DataGridTextColumn Width="2*" Header="{Resx _fields.CommandText, ResxName=TAS.Client.Views.CommandScriptEditView}" Binding="{Binding Value}"/>
+                <DataGridTextColumn Width="*" Header="{Resx _fields.Time, ResxName=TAS.Client.Views.CommandScriptEditView}" Binding="{Binding ExecuteTime, Converter={StaticResource TimeSpanToSMPTE}}" CellStyle="{StaticResource InactiveDataGridCell}"/>
+                <DataGridTextColumn Width="2*" Header="{Resx _fields.CommandText, ResxName=TAS.Client.Views.CommandScriptEditView}" Binding="{Binding Command}"/>
                 <DataGridTemplateColumn Width="15">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

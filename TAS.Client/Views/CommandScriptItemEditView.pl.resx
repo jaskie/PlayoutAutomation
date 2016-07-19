@@ -117,10 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="_key" xml:space="preserve">
-    <value>Klucz</value>
+  <data name="_command" xml:space="preserve">
+    <value>Polecenie</value>
   </data>
-  <data name="_value" xml:space="preserve">
-    <value>Wartość</value>
+  <data name="_start" xml:space="preserve">
+    <value>Czas startu</value>
   </data>
 </root>

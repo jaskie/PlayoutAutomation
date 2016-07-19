@@ -131,6 +131,8 @@ namespace TAS.Client.ViewModels
                     return new EventPanelStillViewmodel(ev, this);
                 case TEventType.Animation:
                     return new EventPanelAnimationViewmodel(ev, this);
+                case TEventType.CommandScript:
+                    return new EventPanelCommandScriptViewmodel(ev, this);
                 default:
                     throw new ApplicationException(string.Format("Invalid event type {0} to create panel", ev.EventType));
             }

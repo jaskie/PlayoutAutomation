@@ -98,6 +98,7 @@
     <Compile Include="ViewModels\EngineViewmodel.cs" />
     <Compile Include="EventClipboard.cs" />
     <Compile Include="ViewModels\EventEditViewmodel.cs" />
+    <Compile Include="ViewModels\EventPanelCommandScriptViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelAnimationViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelAutoStartEventViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelContainerViewmodel.cs" />
@@ -116,7 +117,6 @@
     <Compile Include="ViewModels\IngestEditViewmodel.cs" />
     <Compile Include="ViewModels\ITemplatedEdit.cs" />
     <Compile Include="ViewModels\KeyValueEditViewmodel.cs" />
-    <Compile Include="ViewModels\CommandScriptItemEditViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditViewmodel.cs" />
     <Compile Include="ViewModels\MediaEditWindowViewmodel.cs" />
     <Compile Include="ViewModels\ExportMediaViewmodel.cs" />
@@ -145,6 +145,9 @@
     </Compile>
     <Compile Include="Views\EventEditView.xaml.cs">
       <DependentUpon>EventEditView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EventPanelCommandScriptView.xaml.cs">
+      <DependentUpon>EventPanelCommandScriptView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\EventPanelAutoStartEventView.xaml.cs">
       <DependentUpon>EventPanelAutoStartEventView.xaml</DependentUpon>
@@ -246,6 +249,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\EventEditView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EventPanelCommandScriptView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

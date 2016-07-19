@@ -1,15 +1,16 @@
 ﻿using System;
 using System.ComponentModel;
+using TAS.Client.Common;
+using TAS.Common;
 using TAS.Server.Interfaces;
+using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class CommandScriptItemViewmodel : ViewmodelBase, ICommandScriptItem
+    public class CommandScriptItemViewmodel : OkCancelViewmodelBase<ICommandScriptItem>, ICommandScriptItem
     {
-        readonly ICommandScriptItem _item;
-        public CommandScriptItemViewmodel(ICommandScriptItem item)
+        public CommandScriptItemViewmodel(ICommandScriptItem item, RationalNumber frameRate):base(item, new Views.CommandScriptItemEditView(frameRate), resources._window_CommandScriptItemEditWindowTitle)
         {
-            _item = item;
         }
 
         protected override void OnDispose()
@@ -20,7 +21,11 @@ namespace TAS.Client.ViewModels
         public TimeSpan? ExecuteTime
         {
             get { return _executeTime; }
-            set { SetField(ref _executeTime, value, nameof(ExecuteTime)); }
+            set
+            {
+                if (SetField(ref _executeTime, value, nameof(ExecuteTime)))
+                    NotifyPropertyChanged(nameof(IsFinalizationCommand));
+            }
         }
 
         private string _command;
@@ -29,5 +34,7 @@ namespace TAS.Client.ViewModels
             get { return _command; }
             set { SetField(ref _command, value, nameof(Command)); }
         }
+
+        public bool IsFinalizationCommand { get; set; }
     }
 }
