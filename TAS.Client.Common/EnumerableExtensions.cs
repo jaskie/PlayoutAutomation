@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace TAS.Client.ViewModels
+namespace TAS.Client.Common
 {
     public static class EnumerableExtensions
     {

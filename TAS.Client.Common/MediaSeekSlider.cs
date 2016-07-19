@@ -5,11 +5,14 @@ using System.Text;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows;
+using System.Windows.Input;
 
 namespace TAS.Client.Common
 {
     public class MediaSeekSlider: Slider
     {
+        #region Position dependency property
+
         public static readonly DependencyProperty PositionProperty =
         DependencyProperty.RegisterAttached(
             "Position",
@@ -47,15 +50,33 @@ namespace TAS.Client.Common
             }
         }
 
+        #endregion //Position dependency property
+
+        public MediaSeekSlider(): base()
+        {
+            MouseWheel += _mouseWheel;
+        }
+
+        private void _mouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            double delta = ((Keyboard.Modifiers & ModifierKeys.Control) != ModifierKeys.None) ? TickFrequency :
+                            (Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.None ? SmallChange : LargeChange;
+            if (e.Delta > 0)
+                Value = Value + delta;
+            else
+                Value = Value - delta;
+            e.Handled = true;
+        }
+
         private bool _dragging = false;
 
-        protected override void OnThumbDragStarted(System.Windows.Controls.Primitives.DragStartedEventArgs e)
+        protected override void OnThumbDragStarted(DragStartedEventArgs e)
         {
             _dragging = true;
             base.OnThumbDragStarted(e);
         }
 
-        protected override void OnThumbDragCompleted(System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        protected override void OnThumbDragCompleted(DragCompletedEventArgs e)
         {
             _dragging = false;
             Position = Value;

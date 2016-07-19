@@ -145,10 +145,10 @@
     <value>Długość</value>
   </data>
   <data name="_frameBack.ToolTip" xml:space="preserve">
-    <value>Ramkę do tyłu (Shift+Lewo)</value>
+    <value>Ramkę do tyłu</value>
   </data>
   <data name="_frameForward.ToolTip" xml:space="preserve">
-    <value>Ramkę do przodu (Shift+Prawo)</value>
+    <value>Ramkę do przodu</value>
   </data>
   <data name="_name" xml:space="preserve">
     <value>Nazwa</value>
@@ -160,10 +160,13 @@
     <value>Zapisz segment (Ctrl+S)</value>
   </data>
   <data name="_secondBack.ToolTip" xml:space="preserve">
-    <value>Sekundę do tyłu (Ctrl+Lewo)</value>
+    <value>Sekundę do tyłu</value>
   </data>
   <data name="_secondForward.ToolTip" xml:space="preserve">
-    <value>Sekundę do przodu (Ctrl+Prawo)</value>
+    <value>Sekundę do przodu</value>
+  </data>
+  <data name="_slider.ToolTip" xml:space="preserve">
+    <value>Obrót kółkiem myszy przewija o sekundę, a z Shift - o ramkę</value>
   </data>
   <data name="_wholeFile.ToolTip" xml:space="preserve">
     <value>Odtwarzanie całego klipu</value>

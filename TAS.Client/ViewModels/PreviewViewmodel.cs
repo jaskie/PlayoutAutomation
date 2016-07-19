@@ -16,7 +16,8 @@ namespace TAS.Client.ViewModels
         private IEvent _event;
         private readonly IPreview _preview;
         private readonly IPlayoutServerChannel _channelPRV;
-        private static readonly int _sliderMaximum = 100;
+        private readonly RationalNumber _frameRate;
+        private readonly Views.PreviewView _view;
         public PreviewViewmodel(IPreview preview)
         {
             preview.PropertyChanged += this.PreviewPropertyChanged;
@@ -24,6 +25,8 @@ namespace TAS.Client.ViewModels
             if (_channelPRV != null)
                 _channelPRV.OwnerServer.PropertyChanged += this.OnServerPropertyChanged;
             _preview = preview;
+            _frameRate = _preview.PreviewFormatDescription.FrameRate;
+            _view = new Views.PreviewView(_frameRate) { DataContext = this };
             CreateCommands();
         }
 
@@ -37,7 +40,7 @@ namespace TAS.Client.ViewModels
             SelectedSegment = null;
         }
 
-        public RationalNumber FrameRate { get { return _preview.PreviewFormatDescription.FrameRate; } }
+        public Views.PreviewView View { get { return _view; } }
 
         public IMedia Media
         {
@@ -222,13 +225,18 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                return _preview.PreviewMedia == null ? TimeSpan.Zero : TimeSpan.FromTicks((long)((_preview.PreviewPosition + _preview.PreviewSeek) * TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num + _preview.PreviewMedia.TcStart.Ticks));
+                return _preview.PreviewMedia == null ? TimeSpan.Zero : TimeSpan.FromTicks((long)((_preview.PreviewPosition + _preview.PreviewSeek) * TimeSpan.TicksPerSecond * _frameRate.Den / _frameRate.Num + _preview.PreviewMedia.TcStart.Ticks));
             }
             set
             {
                 _preview.PreviewPosition = (value.Ticks - StartTc.Ticks) / _preview.PreviewFormatDescription.FrameTicks - _loadedSeek;
-                NotifyPropertyChanged(nameof(SliderPosition));
             }
+        }
+
+        public long SliderPosition
+        {
+            get { return Position.ToSMPTEFrames(_frameRate); }
+            set { Position = value.SMPTEFramesToTimeSpan(_frameRate); }
         }
 
         public bool IsPlayable { get { return LoadedMedia != null && LoadedMedia.MediaStatus == TMediaStatus.Available; } }
@@ -251,19 +259,17 @@ namespace TAS.Client.ViewModels
             }
         }
         
-        public long SliderPosition
+        public long SliderMaximum
         {
-            get
-            {
-                return _loadedDuration <= 1 ? 0 : (_preview.PreviewPosition * _sliderMaximum) / (_loadedDuration-1);
-            }
-            set 
-            {
-                long newPos = _loadedSeek + (value * (_loadedDuration -1)) / _sliderMaximum;
-                Position = TimeSpan.FromTicks(newPos * _preview.PreviewFormatDescription.FrameTicks + StartTc.Ticks);
-                NotifyPropertyChanged(nameof(Position));
-            }
+            get { return MaxPos().ToSMPTEFrames(_frameRate); }
         }
+
+        public double SliderTickFrequency
+        {
+            get { return SliderMaximum / 50; }
+        }
+
+        public long OneSecond { get { return _frameRate.Num / _frameRate.Den; } }
 
         public void OnServerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -333,6 +339,7 @@ namespace TAS.Client.ViewModels
             }
         } 
 
+        
         public bool IsSegmentNameFocused { get; set; }
 
 
@@ -356,12 +363,11 @@ namespace TAS.Client.ViewModels
             set
             {
                 if (SetField(ref _playWholeClip, value, nameof(PlayWholeClip)))
-                {
                     _mediaLoad(false);
-                    NotifyPropertyChanged(nameof(SliderPosition));
-                }
             }
         }
+
+        #region Commands
 
         public UICommand CommandPause { get; private set; }
         public UICommand CommandPlay { get; private set; }
@@ -389,7 +395,6 @@ namespace TAS.Client.ViewModels
                             {
                                 _preview.PreviewPosition = 0;
                                 NotifyPropertyChanged(nameof(Position));
-                                NotifyPropertyChanged(nameof(SliderPosition));
                             }
                     },
                 CanExecuteDelegate = o =>
@@ -427,7 +432,7 @@ namespace TAS.Client.ViewModels
             };
             CommandStop = new UICommand()
             {
-                ExecuteDelegate = o => { _mediaUnload(); },
+                ExecuteDelegate = o => _mediaUnload(),
                 CanExecuteDelegate = _canStop                   
             };
             CommandSeek = new UICommand()
@@ -443,34 +448,27 @@ namespace TAS.Client.ViewModels
                                 break;
                             case "rframe": seekFrames = -1;
                                 break;
-                            case "fsecond": seekFrames = (int)(FrameRate.Num / FrameRate.Den);
+                            case "fsecond": seekFrames = (int)(_frameRate.Num / _frameRate.Den);
                                 break;
                             case "rsecond":
-                                seekFrames = -(int)(FrameRate.Num / FrameRate.Den);
+                                seekFrames = -(int)(_frameRate.Num / _frameRate.Den);
                                 break;
                         }
                         _preview.PreviewPosition = _preview.PreviewPosition + seekFrames;
                         NotifyPropertyChanged(nameof(Position));
-                        NotifyPropertyChanged(nameof(SliderPosition));
                     },
                 CanExecuteDelegate = _canStop
             };
 
             CommandCopyToTcIn = new UICommand()
             {
-                ExecuteDelegate = o =>
-                    {
-                        TcIn = Position;
-                    },
+                ExecuteDelegate = o => TcIn = Position,
                 CanExecuteDelegate = _canStop
             };
 
             CommandCopyToTcOut = new UICommand()
             {
-                ExecuteDelegate = o =>
-                    {
-                        TcOut = Position;
-                    },
+                ExecuteDelegate = o => TcOut = Position,
                 CanExecuteDelegate = _canStop
             };
 
@@ -561,6 +559,8 @@ namespace TAS.Client.ViewModels
                 && media.FrameRate.Equals(_preview.PreviewFormatDescription.FrameRate);
         }
 
+        #endregion // Commands
+
         private void SegmentPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             InvalidateRequerySuggested();
@@ -575,9 +575,7 @@ namespace TAS.Client.ViewModels
             }
             if (e.PropertyName == nameof(IPreview.PreviewMedia))
                 if (_preview.PreviewMedia != _loadedMedia)
-                {
                     LoadedMedia = null;
-                }
         }
     }
 }

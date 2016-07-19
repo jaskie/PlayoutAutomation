@@ -269,7 +269,7 @@
                 </Grid>
                 <Grid>
                     <views:TemplatedEditView Visibility="{Binding IsAnimation, Converter={StaticResource BoolToVis}}"/>
-                    <views:CommandScriptEditView Visibility="{Binding IsCommandScript, Converter={StaticResource BoolToVis}}"/>
+                    <ContentControl Content="{Binding CommandScriptEdit.View}" />
                 </Grid>
             </DockPanel>
         </ScrollViewer>

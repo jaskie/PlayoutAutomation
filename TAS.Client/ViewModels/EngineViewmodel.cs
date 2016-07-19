@@ -26,7 +26,6 @@ namespace TAS.Client.ViewModels
         private readonly IEngine _engine;
         private readonly EngineView _engineView;
         private readonly PreviewViewmodel _previewViewmodel;
-        private readonly Views.PreviewView _previewView;
         private readonly EventEditViewmodel _eventEditViewmodel;
         private readonly EventEditView _eventEditView;
 
@@ -96,10 +95,7 @@ namespace TAS.Client.ViewModels
             _engineView.DataContext = this;
 
             if (preview != null)
-            {
                 _previewViewmodel = new PreviewViewmodel(preview) { IsSegmentsVisible = true };
-                _previewView = new Views.PreviewView(_previewViewmodel.FrameRate) { DataContext = _previewViewmodel };
-            }
             Debug.WriteLine(this, "Creating EventEditViewmodel");
             _eventEditViewmodel = new EventEditViewmodel(this, _previewViewmodel);
             _eventEditView = new EventEditView(_frameRate) { DataContext = _eventEditViewmodel };
@@ -155,7 +151,7 @@ namespace TAS.Client.ViewModels
         }
 
         public EngineView View { get { return _engineView; } }
-        public PreviewView PreviewView { get { return _previewView; } }
+        public PreviewView PreviewView { get { return _previewViewmodel.View; } }
         public EventEditView EventEditView { get { return _eventEditView; } }
 
 

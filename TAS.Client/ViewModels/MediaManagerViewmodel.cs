@@ -46,10 +46,7 @@ namespace TAS.Client.ViewModels
             _mediaManager = mediaManager;
             _preview = preview;
             if (preview != null)
-            {
                 _previewViewModel = new PreviewViewmodel(preview);
-                _previewView = new PreviewView(_previewViewModel.FrameRate) { DataContext = _previewViewModel };
-            }
             _createCommands();
 
             _mediaDirectories = new List<IMediaDirectory>();
@@ -78,8 +75,7 @@ namespace TAS.Client.ViewModels
 
         private readonly IPreview _preview;
         private readonly PreviewViewmodel _previewViewModel;
-        private readonly PreviewView _previewView;
-        public PreviewView PreviewView { get { return _previewView; } }
+        public PreviewView PreviewView { get { return _previewViewModel.View; } }
 
         public MediaManagerView View { get { return _view; } }
 

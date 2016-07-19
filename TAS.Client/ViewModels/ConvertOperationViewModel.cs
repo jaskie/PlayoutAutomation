@@ -201,7 +201,7 @@ namespace TAS.Client.ViewModels
         }
 
         public PreviewViewmodel Preview { get { return _previewVm; } }
-        public Views.PreviewView View { get { return new Views.PreviewView(_convertOperation.SourceMedia.FrameRate) { DataContext = _previewVm }; } }
+        public Views.PreviewView View { get { return _previewVm.View;  } }
 
         public bool CanPreview
         {

@@ -145,10 +145,10 @@
     <value>Duration</value>
   </data>
   <data name="_frameBack.ToolTip" xml:space="preserve">
-    <value>One frame back (Shift+Left)</value>
+    <value>One frame back</value>
   </data>
   <data name="_frameForward.ToolTip" xml:space="preserve">
-    <value>One frame forward (Shift+Right)</value>
+    <value>One frame forward</value>
   </data>
   <data name="_name" xml:space="preserve">
     <value>Name</value>
@@ -160,10 +160,13 @@
     <value>Save segment (Ctrl+S)</value>
   </data>
   <data name="_secondBack.ToolTip" xml:space="preserve">
-    <value>One second back (Ctrl+Left)</value>
+    <value>One second back</value>
   </data>
   <data name="_secondForward.ToolTip" xml:space="preserve">
-    <value>One second forward (Ctrl+Right)</value>
+    <value>One second forward</value>
+  </data>
+  <data name="_slider.ToolTip" xml:space="preserve">
+    <value>Mouse wheel scrolls of one second, with Shift key - by one frame</value>
   </data>
   <data name="_wholeFile.ToolTip" xml:space="preserve">
     <value>Play whole file</value>

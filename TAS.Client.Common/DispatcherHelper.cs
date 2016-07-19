@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Threading;
 
-namespace TAS.Client
+namespace TAS.Client.Common
 {
     public class DispatcherHelper
     {

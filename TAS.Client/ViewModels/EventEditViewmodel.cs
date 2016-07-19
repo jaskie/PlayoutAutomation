@@ -151,6 +151,14 @@ namespace TAS.Client.ViewModels
                             && sourcePi.CanRead)
                             copyPi.SetValue(this, sourcePi.GetValue(e2Load, null), null);
                     }
+                    var commandScript = e2Load as ICommandScript;
+                    if (commandScript != null)
+                    {
+                        CommandScriptEdit = new CommandScriptEditViewmodel(e2Load, commandScript);
+                        CommandScriptEdit.Modified += CommandScriptEdit_Modified;
+                    }
+                    else
+                        CommandScriptEdit = null;
                 }
                 else // _event is null
                 {
@@ -161,6 +169,7 @@ namespace TAS.Client.ViewModels
                         if (sourcePi != null)
                             zeroPi.SetValue(this, null, null);
                     }
+                    CommandScriptEdit = null;
                 }
             }
             finally
@@ -169,6 +178,11 @@ namespace TAS.Client.ViewModels
                 IsModified = false;
             }
             NotifyPropertyChanged(null);
+        }
+
+        private void CommandScriptEdit_Modified(object sender, EventArgs e)
+        {
+            IsModified = true;
         }
 
         private void _readProperty(string propertyName)
@@ -587,6 +601,18 @@ namespace TAS.Client.ViewModels
         #endregion //ITemplatedEdit
 
         public bool IsCommandScript { get { return _event is ICommandScript; } }
+
+        CommandScriptEditViewmodel _commandScriptEdit;
+        public CommandScriptEditViewmodel CommandScriptEdit
+        {
+            get { return _commandScriptEdit; }
+            set
+            {
+                var oldValue = _commandScriptEdit;
+                if (SetField(ref _commandScriptEdit, value, nameof(CommandScriptEdit)))
+                    oldValue.Dispose();
+            }
+        }                
 
         public bool IsMovie
         {

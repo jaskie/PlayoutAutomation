@@ -544,7 +544,7 @@ namespace TAS.Server
                     long maxSeek = _previewDuration-1;
                     if (newSeek > maxSeek)
                         newSeek = maxSeek;
-                    if (newSeek != _previewPosition)
+                    if (SetField(ref _previewPosition, newSeek, nameof(PreviewPosition)))
                     {
                         _playoutChannelPRV.Seek(VideoLayer.Preview, _previewSeek + newSeek);
                         _previewPosition = newSeek;

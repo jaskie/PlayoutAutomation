@@ -14,7 +14,6 @@ namespace TAS.Client.Common
     {
         public readonly M Model;
         public readonly UserControl _editor;
-        //public readonly List<string> ModifiedFields = new List<string>();
         public EditViewmodelBase(M model, UserControl editor)
         {
             Model = model;
@@ -25,7 +24,11 @@ namespace TAS.Client.Common
         }
 
         protected bool _isModified;
-        protected virtual void OnModified(){}
+        protected virtual void OnModified()
+        {
+            Modified?.Invoke(this, EventArgs.Empty);
+            InvalidateRequerySuggested();
+        }
 
         [XmlIgnore]
         public virtual bool IsModified
@@ -35,21 +38,17 @@ namespace TAS.Client.Common
             {
                 if (base.SetField(ref _isModified, value, nameof(IsModified))
                     && value)
-                {
                     OnModified();
-                    InvalidateRequerySuggested();
-                }
             }
         }
+
+        public event EventHandler Modified;
 
         protected override bool SetField<T>(ref T field, T value, string propertyName)
         {
             bool isModified = base.SetField(ref field, value, propertyName);
             if (isModified)
-            {
                 IsModified = true;
-                //ModifiedFields.Add(propertyName);
-            }
             return isModified;
         }
 
