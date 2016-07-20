@@ -8,7 +8,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server.Common
 {
-    [DataContract]
+    [Newtonsoft.Json.JsonObject(IsReference = false)]
     public class CommandScriptItemBase : DtoBase, ICommandScriptItem
     {
         private TimeSpan? _executeTime;

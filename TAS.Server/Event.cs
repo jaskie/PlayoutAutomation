@@ -547,7 +547,7 @@ namespace TAS.Server
                 {
                     if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
                     {
-                        foreach (Event e in SubEvents.Where(ev => ev.EventType == TEventType.StillImage))
+                        foreach (Event e in SubEvents.Where(ev => ev.EventType == TEventType.StillImage || ev.EventType == TEventType.CommandScript))
                         {
                             TimeSpan nd = e._duration + newDuration - this._duration;
                             e.Duration = nd > TimeSpan.Zero ? nd : TimeSpan.Zero;

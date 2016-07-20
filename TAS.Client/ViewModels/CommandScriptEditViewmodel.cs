@@ -67,26 +67,25 @@ namespace TAS.Client.ViewModels
         public ICommand CommandDeleteCommandScriptItem { get; private set; }
         public ICommand CommandAddEndCommandScriptItem { get; private set; }
 
-        public object SelectedCommandScriptItem { get; set; }
-
         private bool _canEditCommandScriptItem(object obj)
         {
-            return SelectedCommandScriptItem != null;
+            return SelectedCommand != null;
         }
 
         private void _editCommandScriptItem(object obj)
         {
-            throw new NotImplementedException();
+            if (_selectedCommand.ShowDialog() == true && _selectedCommand.IsModified)
+                IsModified = true;
         }
 
         private bool _canDeleteCommandScriptItem(object obj)
         {
-            return SelectedCommandScriptItem != null;
+            return SelectedCommand != null;
         }
 
         private void _deleteCommandScriptItem(object obj)
         {
-            throw new NotImplementedException();
+            _commands.Remove(_selectedCommand);
         }
 
         private bool _canAddCommandScriptItem(object obj)

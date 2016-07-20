@@ -252,7 +252,7 @@ namespace TAS.Client.ViewModels
         private string _validateScheduledDelay()
         {
             var ev = _event;
-            if (ev != null && ev.EventType == TEventType.StillImage)
+            if (ev != null && (ev.EventType == TEventType.StillImage || ev.EventType == TEventType.CommandScript))
             {
                 IEvent parent = ev.Parent;
                 if (parent != null && _duration + _scheduledDelay > parent.Duration)
@@ -298,7 +298,7 @@ namespace TAS.Client.ViewModels
                 if (ev.EventType == TEventType.Movie && media != null
                     && _duration + _scheduledTc > media.Duration + media.TcStart)
                     return resources._validate_DurationInvalid;
-                if (ev.EventType == TEventType.StillImage)
+                if (ev.EventType == TEventType.StillImage || ev.EventType == TEventType.CommandScript)
                 {
                     IEvent parent = ev.Parent;
                     if (parent != null && _duration + _scheduledDelay > parent.Duration)
@@ -620,26 +620,19 @@ namespace TAS.Client.ViewModels
             }
         }                
 
-        public bool IsMovie
+        public bool IsMovie { get { return _event?.EventType == TEventType.Movie; } }
+
+        public bool IsStillImage { get { return _event?.EventType == TEventType.StillImage; } }
+
+        public bool IsStillImageOrCommandScript
         {
             get
             {
-                var ev = _event;
-                return ev != null 
-                    && ev.EventType == TEventType.Movie;
+                var et = _event?.EventType;
+                return et == TEventType.StillImage || et == TEventType.CommandScript;
             }
         }
-
-        public bool IsStillImage
-        {
-            get
-            {
-                var ev = _event;
-                return ev != null
-                    && ev.EventType == TEventType.StillImage;
-            }
-        }
-
+        
         public bool IsTransitionPanelEnabled
         {
             get { 

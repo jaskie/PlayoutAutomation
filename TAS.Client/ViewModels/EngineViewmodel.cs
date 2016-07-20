@@ -640,7 +640,7 @@ namespace TAS.Client.ViewModels
 
         public void AddCommandScriptEvent(IEvent baseEvent)
         {
-            var newEvent = Engine.AddNewEvent(eventType: TEventType.CommandScript);
+            var newEvent = Engine.AddNewEvent(eventType: TEventType.CommandScript, duration:baseEvent.Duration);
             baseEvent.InsertUnder(newEvent);
         }
         

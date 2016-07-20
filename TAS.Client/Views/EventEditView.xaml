@@ -243,7 +243,7 @@
                         </Grid>
                     </StackPanel>
                 </StackPanel>
-                <Grid DockPanel.Dock="Top" Visibility="{Binding IsStillImage, Converter={StaticResource BoolToVis}}">
+                <Grid DockPanel.Dock="Top" Visibility="{Binding IsStillImageOrCommandScript, Converter={StaticResource BoolToVis}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
