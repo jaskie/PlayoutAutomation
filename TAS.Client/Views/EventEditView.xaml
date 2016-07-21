@@ -178,7 +178,7 @@
                             </Grid.ColumnDefinitions>
                             <DockPanel>
                                 <Label Content="{Resx _duration}" />
-                                <common:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsDurationEnabled}" Height="21" VerticalAlignment="Top" ></common:TimecodeEdit>
+                                <common:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsDurationEnabled}" Height="21" VerticalAlignment="Top" />
                             </DockPanel>
                             <DockPanel Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                                 <Label Content="{Resx _scheduledTC}" />

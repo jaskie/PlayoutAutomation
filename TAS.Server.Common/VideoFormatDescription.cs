@@ -181,6 +181,27 @@ namespace TAS.Common
                     SAR = new RationalNumber(1, 1);
                     IsWideScreen = true;
                     break;
+                case TVideoFormat.HD2160p5000:
+                    Interlaced = false;
+                    ImageSize = new Size(3840, 2160);
+                    FrameRate = new RationalNumber(50, 1);
+                    SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
+                    break;
+                case TVideoFormat.HD2160p5994:
+                    Interlaced = false;
+                    ImageSize = new Size(3840, 2160);
+                    FrameRate = new RationalNumber(5994, 100);
+                    SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
+                    break;
+                case TVideoFormat.HD2160p6000:
+                    Interlaced = false;
+                    ImageSize = new Size(3840, 2160);
+                    FrameRate = new RationalNumber(60, 1);
+                    SAR = new RationalNumber(1, 1);
+                    IsWideScreen = true;
+                    break;
                 case TVideoFormat.HD720p2500:
                     Interlaced = false;
                     ImageSize = new Size(1440, 720);
@@ -249,6 +270,9 @@ namespace TAS.Common
             {TVideoFormat.HD2160p2500, new VideoFormatDescription(TVideoFormat.HD2160p2500)},
             {TVideoFormat.HD2160p2997, new VideoFormatDescription(TVideoFormat.HD2160p2997)},
             {TVideoFormat.HD2160p3000, new VideoFormatDescription(TVideoFormat.HD2160p3000)},
+            {TVideoFormat.HD2160p5000, new VideoFormatDescription(TVideoFormat.HD2160p5000)},
+            {TVideoFormat.HD2160p5994, new VideoFormatDescription(TVideoFormat.HD2160p5994)},
+            {TVideoFormat.HD2160p6000, new VideoFormatDescription(TVideoFormat.HD2160p6000)},
             {TVideoFormat.HD720p2500, new VideoFormatDescription(TVideoFormat.HD720p2500)},
             {TVideoFormat.HD720p5000, new VideoFormatDescription(TVideoFormat.HD720p5000)},
             {TVideoFormat.HD720p5994, new VideoFormatDescription(TVideoFormat.HD720p5994)},

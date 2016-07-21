@@ -233,12 +233,6 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public long SliderPosition
-        {
-            get { return Position.ToSMPTEFrames(_frameRate); }
-            set { Position = value.SMPTEFramesToTimeSpan(_frameRate); }
-        }
-
         public bool IsPlayable { get { return LoadedMedia != null && LoadedMedia.MediaStatus == TMediaStatus.Available; } }
         public bool IsLoaded { get { return LoadedMedia != null; } }
 
@@ -261,12 +255,24 @@ namespace TAS.Client.ViewModels
         
         public long SliderMaximum
         {
-            get { return MaxPos().ToSMPTEFrames(_frameRate); }
+            get { return _loadedDuration; }
         }
 
         public double SliderTickFrequency
         {
-            get { return SliderMaximum / 50; }
+            get { return _loadedDuration / 50; }
+        }
+
+        public long SliderPosition
+        {
+            get
+            {
+                return _preview.PreviewMedia == null ? 0 : _preview.PreviewPosition;
+            }
+            set
+            {
+                _preview.PreviewPosition = value;
+            }
         }
 
         public long OneSecond { get { return _frameRate.Num / _frameRate.Den; } }
@@ -342,19 +348,6 @@ namespace TAS.Client.ViewModels
         
         public bool IsSegmentNameFocused { get; set; }
 
-
-        protected TimeSpan MaxPos()
-        {
-            IMedia loadedMedia = LoadedMedia;
-            if (loadedMedia != null)
-            {
-                if (_playWholeClip)
-                    return loadedMedia.TcStart + loadedMedia.Duration;
-                else
-                    return TcOut;
-            }
-            return TimeSpan.Zero;
-        }
 
         private bool _playWholeClip;
         public bool PlayWholeClip

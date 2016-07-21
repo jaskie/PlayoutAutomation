@@ -22,7 +22,7 @@ namespace TAS.Client.ViewModels
             _event = aEvent;
             _frameRate = _event.Engine.FrameRate;
             CommandAddCommandScriptItem = new UICommand { ExecuteDelegate = _addCommandScriptItem, CanExecuteDelegate = _canAddCommandScriptItem };
-            CommandAddEndCommandScriptItem = new UICommand { ExecuteDelegate = _addEndCommandScriptItem, CanExecuteDelegate = _canAddCommandScriptItem };
+            CommandAddFinalizationCommandScriptItem = new UICommand { ExecuteDelegate = _addFinalizationCommandScriptItem, CanExecuteDelegate = _canAddCommandScriptItem };
             CommandDeleteCommandScriptItem = new UICommand { ExecuteDelegate = _deleteCommandScriptItem, CanExecuteDelegate = _canDeleteCommandScriptItem };
             CommandEditCommandScriptItem = new UICommand { ExecuteDelegate = _editCommandScriptItem, CanExecuteDelegate = _canEditCommandScriptItem };
             _commands = new ObservableCollection<CommandScriptItemViewmodel>(model.Commands.Select(csi => new CommandScriptItemViewmodel(csi, _frameRate)));
@@ -65,7 +65,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandEditCommandScriptItem { get; private set; }
         public ICommand CommandAddCommandScriptItem { get; private set; }
         public ICommand CommandDeleteCommandScriptItem { get; private set; }
-        public ICommand CommandAddEndCommandScriptItem { get; private set; }
+        public ICommand CommandAddFinalizationCommandScriptItem { get; private set; }
 
         private bool _canEditCommandScriptItem(object obj)
         {
@@ -104,9 +104,9 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private void _addEndCommandScriptItem(object obj)
+        private void _addFinalizationCommandScriptItem(object obj)
         {
-            CommandScriptItemViewmodel newItem = new CommandScriptItemViewmodel(new CommandScriptItemBase() { ExecuteTime = null }, _frameRate) { IsFinalizationCommand = true };
+            CommandScriptItemViewmodel newItem = new CommandScriptItemViewmodel(new CommandScriptItemBase(), _frameRate);
             if (newItem.ShowDialog() == true)
                 _commands.Add(newItem);
         }

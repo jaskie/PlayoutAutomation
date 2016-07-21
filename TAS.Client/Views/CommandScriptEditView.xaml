@@ -16,18 +16,23 @@
     </UserControl.Resources>
     <DockPanel>
         <ToolBar DockPanel.Dock="Top">
+            <ToolBar.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Padding" Value="0"/>
+                </Style>
+            </ToolBar.Resources>
             <ToolBarPanel Height="24" Orientation="Horizontal">
-                <Button Command="{Binding CommandAddCommandScriptItem}" Padding="0" ToolTip="{Resx _addCommand.ToolTip}">
+                <Button Command="{Binding CommandAddCommandScriptItem}" ToolTip="{Resx _addCommand.ToolTip}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
                 </Button>
-                <Button Command="{Binding CommandAddEndCommandScriptItem}" Padding="0" ToolTip="{Resx _addCommand.ToolTip}">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
+                <Button Command="{Binding CommandAddEndCommandScriptItem}" ToolTip="{Resx _addFinalizationCommand.ToolTip}">
+                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-finish-small.png"/>
                 </Button>
-                <Button Command="{Binding CommandEditCommandScriptItem}" Padding="0" ToolTip="{Resx _editCommand.ToolTip}">
+                <Button Command="{Binding CommandEditCommandScriptItem}" ToolTip="{Resx _editCommand.ToolTip}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
                 </Button>
                 <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
-                <Button Command="{Binding CommandDeleteCommandScriptItem}" Padding="0" ToolTip="{Resx _deleteCommand.ToolTip}">
+                <Button Command="{Binding CommandDeleteCommandScriptItem}" ToolTip="{Resx _deleteCommand.ToolTip}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
                 </Button>
             </ToolBarPanel>

@@ -11,6 +11,7 @@ namespace TAS.Client.ViewModels
     {
         public CommandScriptItemViewmodel(ICommandScriptItem item, RationalNumber frameRate):base(item, new Views.CommandScriptItemEditView(frameRate), resources._window_CommandScriptItemEditWindowTitle)
         {
+            IsFinalizationCommand = item.ExecuteTime == null;
         }
 
         protected override void OnDispose()
@@ -21,11 +22,7 @@ namespace TAS.Client.ViewModels
         public TimeSpan? ExecuteTime
         {
             get { return _executeTime; }
-            set
-            {
-                if (SetField(ref _executeTime, value, nameof(ExecuteTime)))
-                    NotifyPropertyChanged(nameof(IsFinalizationCommand));
-            }
+            set { SetField(ref _executeTime, value, nameof(ExecuteTime)); }
         }
 
         private string _command;

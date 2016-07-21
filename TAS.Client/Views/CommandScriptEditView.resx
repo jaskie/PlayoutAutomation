@@ -120,6 +120,9 @@
   <data name="_addCommand.ToolTip" xml:space="preserve">
     <value>Add new command</value>
   </data>
+  <data name="_addFinalizationCommand.ToolTip" xml:space="preserve">
+    <value>Add finalization command</value>
+  </data>
   <data name="_deleteCommand.ToolTip" xml:space="preserve">
     <value>Delete selected command</value>
   </data>

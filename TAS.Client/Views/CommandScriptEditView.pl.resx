@@ -120,6 +120,9 @@
   <data name="_addCommand.ToolTip" xml:space="preserve">
     <value>Dodaj nową komendę</value>
   </data>
+  <data name="_addFinalizationCommand.ToolTip" xml:space="preserve">
+    <value>Dodaj komendę kończącą skrypt</value>
+  </data>
   <data name="_deleteCommand.ToolTip" xml:space="preserve">
     <value>Usuń zaznaczoną komendę</value>
   </data>
