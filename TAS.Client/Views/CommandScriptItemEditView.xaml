@@ -22,11 +22,23 @@
         </StackPanel.Resources>
         <DockPanel Visibility="{Binding IsFinalizationCommand, Converter={StaticResource InvertedBoolToVis}}">
             <Label DockPanel.Dock="Left" Content="{Resx _start}"/>
-            <common:TimecodeEdit Margin="3" Text="{Binding ExecuteTime, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" TabIndex="1" />
+            <common:TimecodeEdit Margin="3" Text="{Binding ExecuteTimeValue, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" TabIndex="1" />
         </DockPanel>
         <DockPanel>
             <Label DockPanel.Dock="Left" Content="{Resx _command}"/>
-            <TextBox Margin="3" TextWrapping="Wrap" Text="{Binding Command, UpdateSourceTrigger=PropertyChanged}" TabIndex="2" />
+            <TextBox Margin="3" TextWrapping="Wrap" Text="{Binding Command, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" TabIndex="2" >
+                <TextBox.Style>
+                    <Style TargetType="TextBox">
+                        <Style.Triggers>
+                            <Trigger Property="Validation.HasError" Value="true">
+                                <Setter Property="ToolTip"
+                                    Value="{Binding RelativeSource={RelativeSource Self}, 
+                                    Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
         </DockPanel>
     </StackPanel>
 </UserControl>

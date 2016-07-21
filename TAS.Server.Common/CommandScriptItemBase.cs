@@ -26,5 +26,10 @@ namespace TAS.Server.Common
             get { return _command; }
             set { SetField(ref _command, value, "Command"); }
         }
+
+        public virtual bool ValidateCommandText(string commandText)
+        {
+            return true;
+        }
     }
 }

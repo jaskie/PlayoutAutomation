@@ -25,7 +25,7 @@
                 <Button Command="{Binding CommandAddCommandScriptItem}" ToolTip="{Resx _addCommand.ToolTip}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
                 </Button>
-                <Button Command="{Binding CommandAddEndCommandScriptItem}" ToolTip="{Resx _addFinalizationCommand.ToolTip}">
+                <Button Command="{Binding CommandAddFinalizationCommandScriptItem}" ToolTip="{Resx _addFinalizationCommand.ToolTip}">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-finish-small.png"/>
                 </Button>
                 <Button Command="{Binding CommandEditCommandScriptItem}" ToolTip="{Resx _editCommand.ToolTip}">
@@ -45,7 +45,7 @@
                 <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Width="*" Header="{Resx _fields.Time, ResxName=TAS.Client.Views.CommandScriptEditView}" Binding="{Binding ExecuteTime, Converter={StaticResource TimeSpanToSMPTE}}" CellStyle="{StaticResource InactiveDataGridCell}"/>
+                <DataGridTextColumn Width="*" Header="{Resx _fields.Time, ResxName=TAS.Client.Views.CommandScriptEditView}" Binding="{Binding ExecuteTime, Converter={StaticResource TimeSpanToSMPTE}}"/>
                 <DataGridTextColumn Width="2*" Header="{Resx _fields.CommandText, ResxName=TAS.Client.Views.CommandScriptEditView}" Binding="{Binding Command}"/>
                 <DataGridTemplateColumn Width="15">
                     <DataGridTemplateColumn.CellTemplate>

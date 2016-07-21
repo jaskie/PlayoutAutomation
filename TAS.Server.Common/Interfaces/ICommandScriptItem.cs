@@ -9,5 +9,6 @@ namespace TAS.Server.Interfaces
     {
         TimeSpan? ExecuteTime { get; set; }
         string Command { get; set; }
+        bool ValidateCommandText(string commandText);
     }
 }

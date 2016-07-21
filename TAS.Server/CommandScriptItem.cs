@@ -43,8 +43,12 @@ namespace TAS.Server
             return false;
         }
         internal bool IsExecuted = false;
-        
-        
+
+        public override bool ValidateCommandText(string commandText)
+        {
+            return regexFill.IsMatch(commandText) 
+                || regexClear.IsMatch(commandText);
+        }
 
     }
 }
