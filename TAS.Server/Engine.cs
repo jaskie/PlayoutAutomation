@@ -581,7 +581,9 @@ namespace TAS.Server
         public bool PreviewPause()
         {
             var channel = _playoutChannelPRV;
-            if (channel != null && channel.Pause(VideoLayer.Preview))
+            if (PreviewIsPlaying 
+                && channel != null 
+                && channel.Pause(VideoLayer.Preview))
             {
                 PreviewIsPlaying = false;
                 return true;
