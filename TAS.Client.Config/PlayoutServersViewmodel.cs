@@ -49,12 +49,12 @@ namespace TAS.Client.Config
             _playoutServers.Add(newPlayoutServerViewmodel);
             SelectedServer = newPlayoutServerViewmodel;            
         }
-        public override void Save(object destObject = null)
+        public override void ModelUpdate(object destObject = null)
         {
             foreach (PlayoutServerViewmodel s in _playoutServers)
-                s.Save();
+                s.ModelUpdate();
             Model.Save();
-            base.Save(destObject);
+            base.ModelUpdate(destObject);
         }
 
         private bool _isCollectionChanged;

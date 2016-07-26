@@ -30,10 +30,10 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public override void Save(object destObject = null)
+        public override void ModelUpdate(object destObject = null)
         {
-            editViewModel.Save();
-            base.Save(destObject);
+            editViewModel.ModelUpdate();
+            base.ModelUpdate(destObject);
         }
     }
 }

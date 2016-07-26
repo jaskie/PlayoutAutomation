@@ -59,11 +59,11 @@ namespace TAS.Client.Config
             _playoutServerChannels.Remove(_selectedPlayoutServerChannel);
         }
 
-        public override void Save(object destObject = null)
+        public override void ModelUpdate(object destObject = null)
         {
             foreach (PlayoutServerChannelViewmodel ch in _playoutServerChannels)
-                ch.Save();
-            base.Save(destObject);
+                ch.ModelUpdate();
+            base.ModelUpdate(destObject);
         }
 
         public override bool IsModified { get { return  _isModified || _isCollectionChanged || _playoutServerChannels.Any(c => c.IsModified); } }

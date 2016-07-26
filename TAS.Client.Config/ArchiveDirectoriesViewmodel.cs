@@ -71,7 +71,7 @@ namespace TAS.Client.Config
         
         public override bool IsModified { get { return Model.Directories.Any(d => d.IsModified || d.IsDeleted | d.IsNew); } }
 
-        public override void Save(object parameter)
+        public override void ModelUpdate(object parameter)
         {
             Model.Save();
         }

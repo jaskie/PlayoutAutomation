@@ -135,15 +135,15 @@ namespace TAS.Server
         }
         UInt64 _idEventBinding;
 
-        private bool _modified;
+        private bool _isModified;
         public bool IsModified
         {
-            get { return _modified; }
+            get { return _isModified; }
             set
             {
-                if (_modified != value)
+                if (_isModified != value)
                 {
-                    _modified = value;
+                    _isModified = value;
                     NotifyPropertyChanged(nameof(IsModified));
                 }
             }
@@ -1190,7 +1190,7 @@ namespace TAS.Server
                 this.DbInsert();
             else
                 this.DbUpdate();
-            _modified = false;
+            _isModified = false;
             NotifySaved();
         }
 
@@ -1275,7 +1275,7 @@ namespace TAS.Server
             _isDeleted = true;
             this.DbDelete();
             NotifyDeleted();
-            _modified = false;
+            _isModified = false;
         }
 
         public MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media)
@@ -1359,7 +1359,7 @@ namespace TAS.Server
         {
             if (base.SetField(ref field, value, propertyName))
             {
-                _modified = true;
+                IsModified = true;
                 return true;
             }
             return false;

@@ -272,6 +272,9 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   <data name="_validateStartPlayMustBeInsideFile" xml:space="preserve">
     <value>Rozpoczęcie odtwarzania musi się zawierać pomiędzy TC początkowym i końcowym klipu.</value>
   </data>
+  <data name="_validate_CommandSyntax" xml:space="preserve">
+    <value>Polecenie nieprawidłowe</value>
+  </data>
   <data name="_validate_DurationInvalid" xml:space="preserve">
     <value>Czas trwania (z uwzględnieniem TC startu) jest dłuższy, niż klipu.</value>
   </data>

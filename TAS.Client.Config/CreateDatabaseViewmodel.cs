@@ -29,7 +29,7 @@ namespace TAS.Client.Config
         public static string[] Collations { get { return TAS.Client.Config.Model.CreateDatabase.Collations; } }
         protected override void Ok(object o)
         {
-            Save(null);
+            ModelUpdate(null);
             Window.DialogResult = Model.CreateEmptyDatabase();
         }
     }

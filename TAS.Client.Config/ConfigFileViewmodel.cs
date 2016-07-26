@@ -39,19 +39,19 @@ namespace TAS.Client.Config
                     this.tasConnectionString = vm.ConnectionString;
         }
 
-        protected override void Load(object source)
+        protected override void ModelLoad(object source)
         {
-            base.Load(Model.appSettings);
-            base.Load(Model.connectionStrings);
+            base.ModelLoad(Model.appSettings);
+            base.ModelLoad(Model.connectionStrings);
             _isConnectionStringSecondary = !string.IsNullOrWhiteSpace(tasConnectionStringSecondary);
         }
 
-        public override void Save(object destObject)
+        public override void ModelUpdate(object destObject)
         {
-            base.Save(Model.appSettings);
+            base.ModelUpdate(Model.appSettings);
             if (!_isConnectionStringSecondary)
                 tasConnectionStringSecondary = string.Empty;
-            base.Save(Model.connectionStrings);
+            base.ModelUpdate(Model.connectionStrings);
             Model.Save();
         }
 

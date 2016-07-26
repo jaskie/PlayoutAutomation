@@ -52,9 +52,9 @@ namespace TAS.Client.ViewModels
             InvalidateRequerySuggested();
         }
 
-        public override void Save(object destObject = null)
+        public override void ModelUpdate(object destObject = null)
         {
-            Model.Commands = Commands.Select(csivm => csivm.Model).ToList();
+            Model.Commands = Commands.Select(c => new CommandScriptItemBase { ExecuteTime = c.ExecuteTime, Command = c.Command });
         }
 
         protected override void OnDispose()
@@ -94,7 +94,7 @@ namespace TAS.Client.ViewModels
 
         private void _editCommandScriptItem(object obj)
         {
-            if (_selectedCommand.ShowDialog() == true && _selectedCommand.IsModified)
+            if (_selectedCommand.ShowDialog() == true)
                 IsModified = true;
         }
 

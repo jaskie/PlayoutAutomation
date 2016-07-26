@@ -18,7 +18,7 @@ namespace TAS.Client.Common
         public OkCancelViewmodelBase(M model, UserControl editor, string windowTitle):base(model, editor)
         {
             CommandClose = new UICommand() { CanExecuteDelegate = CanClose, ExecuteDelegate = Close };
-            CommandApply = new UICommand() { CanExecuteDelegate = CanApply, ExecuteDelegate = o => Save() };
+            CommandApply = new UICommand() { CanExecuteDelegate = CanApply, ExecuteDelegate = o => ModelUpdate() };
             CommandOK = new UICommand() { CanExecuteDelegate = CanOK, ExecuteDelegate = Ok };
             _title = windowTitle;
         }
@@ -30,7 +30,7 @@ namespace TAS.Client.Common
 
         protected virtual void Ok(object o)
         {
-            Save();
+            ModelUpdate();
             _currentWindow.DialogResult = true;
         }
 

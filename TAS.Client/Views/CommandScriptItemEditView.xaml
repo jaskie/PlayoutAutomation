@@ -13,7 +13,7 @@
     <UserControl.Resources>
         <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
     </UserControl.Resources>
-    <StackPanel MinHeight="60" MinWidth="250">
+    <StackPanel MinHeight="60" MinWidth="300">
         <StackPanel.Resources>
             <Style TargetType="Label">
                 <Setter Property="MinWidth" Value="70"/>

@@ -124,7 +124,7 @@ namespace TAS.Client.ViewModels
                             destPi.SetValue(e2Save, copyPi.GetValue(this, null), null);
                     }
                 }
-                _commandScriptEdit?.Save();
+                _commandScriptEdit?.ModelUpdate();
                 IsModified = false;
             }
             if (e2Save != null && e2Save.IsModified)

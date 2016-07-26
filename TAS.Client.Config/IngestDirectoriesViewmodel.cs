@@ -126,11 +126,11 @@ namespace TAS.Client.Config
         
         public override bool IsModified { get { return _added || _deleted || _moved|| _directories.Any(d => d.IsModified); } }
 
-        public override void Save(object parameter)
+        public override void ModelUpdate(object parameter)
         {
             _directories.Where(d => d.IsModified).All(d =>
             {
-                d.Save();
+                d.ModelUpdate();
                 return true;
             });
             XmlSerializer writer = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));

@@ -22,7 +22,7 @@ namespace TAS.Server
         readonly object _commandsSyncRoot = new object();
         readonly List<CommandScriptItem> _commands;
 
-        public IList<ICommandScriptItem> Commands
+        public IEnumerable<ICommandScriptItem> Commands
         {
             get
             {
@@ -33,40 +33,66 @@ namespace TAS.Server
             {
                 lock(_commandsSyncRoot)
                 {
-                    _commands.Clear();
-                    _commands.AddRange(value.Select(i => new CommandScriptItem { ExecuteTime = i.ExecuteTime, Command = i.Command }));
+                    _commands.ToList().ForEach((c) => DeleteCommand(c));
+                    foreach (var c in value)
+                        AddCommand(c);
                 }
+                IsModified = true;
                 NotifyPropertyChanged(nameof(Commands));
             }
+        }
+
+        private void _command_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            IsModified = true;
         }
 
         public ICommandScriptItem AddCommand(TimeSpan? executeTime, string command)
         {
             var newCommand =  new CommandScriptItem { ExecuteTime = executeTime, Command = command };
             lock (_commandsSyncRoot)
+            {
                 _commands.Add(newCommand);
+                newCommand.PropertyChanged += _command_PropertyChanged;
+            }  
             return newCommand;
         }
 
         public void AddCommand(ICommandScriptItem command)
         {
-            lock(_commandsSyncRoot)
-                _commands.Add(command as CommandScriptItem);
+            CommandScriptItem newCommand = new CommandScriptItem { ExecuteTime = command.ExecuteTime, Command = command.Command };
+            lock (_commandsSyncRoot)
+            {
+                _commands.Add(newCommand);
+                newCommand.PropertyChanged += _command_PropertyChanged;
+            }
         }
 
         public bool DeleteCommand(ICommandScriptItem command)
         {
-            lock(_commandsSyncRoot)
-                return _commands.Remove(command as CommandScriptItem);
-        }
-
-        internal IEnumerable<ICommandScriptItem> EndCommands
-        {
-            get
+            if (command is CommandScriptItem)
+                lock (_commandsSyncRoot)
+                {
+                    if (_commands.Remove((CommandScriptItem)command))
+                    {
+                        ((CommandScriptItem)command).PropertyChanged -= _command_PropertyChanged;
+                        return true;
+                    }
+                }
+            else
+                if (command is CommandScriptItemBase)
             {
                 lock (_commandsSyncRoot)
-                    return _commands.Where(c => c.ExecuteTime == null).ToArray();
+                {
+                    var c = _commands.Find((item) => item.DtoGuid == ((CommandScriptItemBase)command).DtoGuid);
+                    if (c != null && _commands.Remove(c))
+                    {
+                        c.PropertyChanged -= _command_PropertyChanged;
+                        return true;
+                    }
+                }
             }
+            return false;
         }
 
         public IEnumerable<ICommandScriptItem> ItemsToExecute
@@ -74,7 +100,10 @@ namespace TAS.Server
             get
             {
                 lock (_commandsSyncRoot)
-                    return _commands.Where(c => !c.IsExecuted && c.ExecuteTime?.ToSMPTEFrames(Engine.FrameRate) >= Position).ToArray();
+                    if (IsFinished)
+                        return _commands.Where(c => c.ExecuteTime == null).ToArray(); 
+                    else
+                        return _commands.Where(c => !c.IsExecuted && Position >= c.ExecuteTime?.ToSMPTEFrames(Engine.FrameRate)).ToArray();
             }
         }
 

@@ -108,7 +108,7 @@ namespace TAS.Client.Config
         public UICommand CommandManageArchiveDirectories { get; private set; }
 
 
-        public override void Save(object destObject = null)
+        public override void ModelUpdate(object destObject = null)
         {
             if (IsModified)
             {
@@ -126,7 +126,7 @@ namespace TAS.Client.Config
                 Model.IdArchive = _archiveDirectory is Model.ArchiveDirectory ? ((Model.ArchiveDirectory)_archiveDirectory).idArchive : 0;
                 Model.IsModified = true;
             }
-            base.Save(destObject);
+            base.ModelUpdate(destObject);
         }
     }
 }

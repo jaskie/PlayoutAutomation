@@ -495,6 +495,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid command.
+        /// </summary>
+        public static string _validate_CommandSyntax {
+            get {
+                return ResourceManager.GetString("_validate_CommandSyntax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Duration (considering start TC) is longer than clip..
         /// </summary>
         public static string _validate_DurationInvalid {

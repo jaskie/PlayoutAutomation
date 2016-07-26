@@ -18,7 +18,7 @@ namespace TAS.Client.Common
         {
             Model = model;
             _editor = editor;
-            Load();
+            ModelLoad();
             _isModified = false;
             editor.DataContext = this;
         }
@@ -28,6 +28,7 @@ namespace TAS.Client.Common
         {
             Modified?.Invoke(this, EventArgs.Empty);
             InvalidateRequerySuggested();
+            NotifyPropertyChanged(nameof(IsModified));
         }
 
         [XmlIgnore]
@@ -52,7 +53,7 @@ namespace TAS.Client.Common
             return isModified;
         }
 
-        protected virtual void Load(object source = null)
+        protected virtual void ModelLoad(object source = null)
         {
             IEnumerable<PropertyInfo> copiedProperties = this.GetType().GetProperties().Where(p => p.CanWrite);
             foreach (PropertyInfo copyPi in copiedProperties)
@@ -64,7 +65,7 @@ namespace TAS.Client.Common
             IsModified = false;
         }
 
-        public virtual void Save(object destObject = null)
+        public virtual void ModelUpdate(object destObject = null)
         {
             if (IsModified && Model != null
                 || destObject != null)

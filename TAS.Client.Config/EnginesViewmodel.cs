@@ -45,12 +45,12 @@ namespace TAS.Client.Config
             SelectedEngine = newPlayoutServerViewmodel;            
         }
 
-        public override void Save(object destObject = null)
+        public override void ModelUpdate(object destObject = null)
         {
             foreach (EngineViewmodel e in _engines)
-                e.Save();
+                e.ModelUpdate();
             Model.Save();
-            base.Save(destObject);
+            base.ModelUpdate(destObject);
         }
         
         protected override void OnDispose()

@@ -72,7 +72,7 @@ namespace TAS.Client.ViewModels
                 {
                     case nameof(Command):
                         if (!ValidateCommandText(Command))
-                            validationResult = "Invalid Command";
+                            validationResult = resources._validate_CommandSyntax;
                         break;
                 }
                 return validationResult;
@@ -84,5 +84,10 @@ namespace TAS.Client.ViewModels
             return Model.ValidateCommandText(commandText);
         }
         
+        protected override void Ok(object o)
+        {
+            Window.DialogResult = true; // do not save to model yet
+        }
+
     }
 }

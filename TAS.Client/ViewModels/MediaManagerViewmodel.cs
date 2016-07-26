@@ -299,7 +299,7 @@ namespace TAS.Client.ViewModels
                     case MessageBoxResult.Cancel:
                         return false;
                     case MessageBoxResult.Yes:
-                        EditMedia.Save();
+                        EditMedia.ModelUpdate();
                         break;
                     case MessageBoxResult.No:
                         EditMedia.Revert();
