@@ -19,10 +19,6 @@
     <UserControl.InputBindings>
         <KeyBinding Command="{Binding CommandCopyToTcIn}" Gesture="Ctrl+I"/>
         <KeyBinding Command="{Binding CommandCopyToTcOut}" Gesture="Ctrl+O"/>
-        <KeyBinding Command="{Binding CommandSeek}" CommandParameter="-25" Gesture="Ctrl+Left"/>
-        <KeyBinding Command="{Binding CommandSeek}" CommandParameter="-1" Gesture="Shift+Left"/>
-        <KeyBinding Command="{Binding CommandSeek}" CommandParameter="25" Gesture="Ctrl+Right"/>
-        <KeyBinding Command="{Binding CommandSeek}" CommandParameter="1" Gesture="Shift+Right"/>
         <KeyBinding Command="{Binding CommandSaveSegment}" Gesture="Ctrl+S" />
         <KeyBinding Command="{Binding CommandSetSegmentNameFocus}" Gesture="F2" />
     </UserControl.InputBindings>

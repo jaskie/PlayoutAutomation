@@ -434,17 +434,23 @@ namespace TAS.Client.ViewModels
                     {
                         if (_preview.PreviewIsPlaying)
                             _preview.PreviewPause();
-                        int seekFrames = 0;
+                        long seekFrames;
                         switch ((string)param)
                         {
-                            case "fframe": seekFrames = 1;
+                            case "fframe":
+                                seekFrames = 1;
                                 break;
-                            case "rframe": seekFrames = -1;
+                            case "rframe":
+                                seekFrames = -1;
                                 break;
-                            case "fsecond": seekFrames = (int)(_frameRate.Num / _frameRate.Den);
+                            case "fsecond":
+                                seekFrames = OneSecond;
                                 break;
                             case "rsecond":
-                                seekFrames = -(int)(_frameRate.Num / _frameRate.Den);
+                                seekFrames = -OneSecond;
+                                break;
+                            default:
+                                seekFrames = 0;
                                 break;
                         }
                         _preview.PreviewPosition = _preview.PreviewPosition + seekFrames;

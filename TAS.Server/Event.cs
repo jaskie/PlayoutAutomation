@@ -413,7 +413,7 @@ namespace TAS.Server
                     IEvent ne = Next;
                     if (ne == null)
                     {
-                        IEvent vp = VisualParent;
+                        Event vp = _getVisualParent();
                         if (vp != null)
                             ne = vp.Next;
                     }
@@ -591,7 +591,7 @@ namespace TAS.Server
                 Event ev = Next as Event;
                 if (ev != null)
                     ev.UpdateScheduledTime(true);
-                ev = VisualParent as Event;
+                ev = _getVisualParent();
                 if (ev != null && ev._eventType == TEventType.Rundown)
                 {
                     var t = ev.ComputedDuration();
@@ -1131,7 +1131,7 @@ namespace TAS.Server
                 }
                 if (nev == null)
                 {
-                    nev = VisualParent;
+                    nev = _getVisualParent();
                     if (nev != null)
                         nev = nev.GetSuccessor();
                 }
@@ -1207,9 +1207,8 @@ namespace TAS.Server
 
         public void SaveLoadedTree()
         {
-            if (IsModified && Engine != null)
+            if (IsModified && _engine != null)
                 Save();
-            Media = null;
             var se = _subEvents;
             if (se != null && se.IsValueCreated && se.Value != null)
             {
