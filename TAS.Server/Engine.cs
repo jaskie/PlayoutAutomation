@@ -88,12 +88,12 @@ namespace TAS.Server
 
         #region IDisposable implementation
 
-        private bool disposed = false;
+        private bool _disposed = false;
         public void Dispose()
         {
-            if (!disposed)
+            if (!_disposed)
             {
-                disposed = true;
+                _disposed = true;
                 _visibleEvents.CollectionOperation -= _visibleEventsOperation;
                 _runningEvents.CollectionOperation -= _runningEventsOperation;
                 foreach (Event e in _rootEvents)
@@ -193,63 +193,7 @@ namespace TAS.Server
                 localGpi.Started += StartLoaded;
 
             Debug.WriteLine(this, "Creating engine thread");
-            _engineThread = new Thread(() =>
-            {
-                Debug.WriteLine(this, "Engine thread started");
-                CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
-                CurrentTicks = CurrentTime.Ticks;
-
-                List<IEvent> playingEvents = this.DbSearchPlaying();
-                IEvent playing = playingEvents.FirstOrDefault(e => e.Layer == VideoLayer.Program && (e.EventType == TEventType.Live || e.EventType == TEventType.Movie));
-                if (playing != null)
-                {
-                    Debug.WriteLine(playing, "Playing event found");
-                    if (CurrentTicks < (playing.ScheduledTime + playing.Duration).Ticks)
-                    {
-                        foreach (Event e in playingEvents)
-                        {
-                            e.Position = (CurrentTicks - e.ScheduledTime.Ticks) / _frameTicks;
-                            _runningEvents.Add(e);
-                            _visibleEvents.Add(e);
-                        }
-                        _engineState = TEngineState.Running;
-                        Playing = playing;
-                    }
-                    else
-                        foreach (IEvent e in playingEvents)
-                        {
-                            e.PlayState = TPlayState.Aborted;
-                            e.Save();
-                        }
-                }
-                else
-                    foreach (IEvent e in playingEvents)
-                    {
-                        e.PlayState = TPlayState.Aborted;
-                        e.Save();
-                    }
-
-                while (!disposed)
-                {
-                    try
-                    {
-                        CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
-                        long nFrames = (CurrentTime.Ticks - CurrentTicks) / _frameTicks;
-                        CurrentTicks = CurrentTime.Ticks;
-                        Debug.WriteLineIf(nFrames > 1, nFrames, "LateFrame");
-                        _tick(nFrames);
-                        EngineTick?.Invoke(this, new EngineTickEventArgs(CurrentTime, _getTimeToAttention()));
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine(e, "Exception in engine tick");
-                    }
-                    long timeToWait = (_frameTicks - (DateTime.UtcNow.Ticks + _timeCorrection.Ticks - CurrentTicks)) / TimeSpan.TicksPerMillisecond;
-                    if (timeToWait > 0)
-                        Thread.Sleep((int)timeToWait);
-                }
-                Debug.WriteLine(this, "Engine thread finished");
-            });
+            _engineThread = new Thread(_engineThreadProc);
             _engineThread.Priority = ThreadPriority.Highest;
             _engineThread.Name = string.Format("Engine main thread for {0}", EngineName);
             _engineThread.IsBackground = true;
@@ -291,6 +235,64 @@ namespace TAS.Server
             }
 
             Debug.WriteLine(this, "Engine uninitialized");
+        }
+
+        private void _engineThreadProc()
+        {
+            Debug.WriteLine(this, "Engine thread started");
+            CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
+            CurrentTicks = CurrentTime.Ticks;
+
+            List<IEvent> playingEvents = this.DbSearchPlaying();
+            IEvent playing = playingEvents.FirstOrDefault(e => e.Layer == VideoLayer.Program && (e.EventType == TEventType.Live || e.EventType == TEventType.Movie));
+            if (playing != null)
+            {
+                Debug.WriteLine(playing, "Playing event found");
+                if (CurrentTicks < (playing.ScheduledTime + playing.Duration).Ticks)
+                {
+                    foreach (Event e in playingEvents)
+                    {
+                        e.Position = (CurrentTicks - e.ScheduledTime.Ticks) / _frameTicks;
+                        _runningEvents.Add(e);
+                        _visibleEvents.Add(e);
+                    }
+                    _engineState = TEngineState.Running;
+                    Playing = playing;
+                }
+                else
+                    foreach (IEvent e in playingEvents)
+                    {
+                        e.PlayState = TPlayState.Aborted;
+                        e.Save();
+                    }
+            }
+            else
+                foreach (IEvent e in playingEvents)
+                {
+                    e.PlayState = TPlayState.Aborted;
+                    e.Save();
+                }
+
+            while (!_disposed)
+            {
+                try
+                {
+                    CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
+                    long nFrames = (CurrentTime.Ticks - CurrentTicks) / _frameTicks;
+                    CurrentTicks = CurrentTime.Ticks;
+                    Debug.WriteLineIf(nFrames > 1, nFrames, "LateFrame");
+                    _tick(nFrames);
+                    EngineTick?.Invoke(this, new EngineTickEventArgs(CurrentTime, _getTimeToAttention()));
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e, "Exception in engine tick");
+                }
+                long timeToWait = (_frameTicks - (DateTime.UtcNow.Ticks + _timeCorrection.Ticks - CurrentTicks)) / TimeSpan.TicksPerMillisecond;
+                if (timeToWait > 0)
+                    Thread.Sleep((int)timeToWait);
+            }
+            Debug.WriteLine(this, "Engine thread finished");
         }
 
         private void _server_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -1168,8 +1170,7 @@ namespace TAS.Server
             lock (_tickLock)
             {
                 EngineState = TEngineState.Running;
-                foreach (Event e in _visibleEvents.ToList())
-                    _stop(e);
+                var eventsToStop = _visibleEvents.ToList();
                 foreach (Event e in _runningEvents.ToList())
                 {
                     _runningEvents.Remove(e);
@@ -1179,6 +1180,8 @@ namespace TAS.Server
                         e.PlayState = TPlayState.Aborted;
                 }
                 _play(aEvent as Event, true);
+                foreach (Event e in eventsToStop)
+                    _stop(e);
             }
         }
 

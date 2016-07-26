@@ -57,6 +57,7 @@ namespace TAS.Client.ViewModels
         private void PreviewViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (_previewViewModel.LoadedMedia == this.Media
+                && IsEditEnabled
                 && (e.PropertyName == nameof(PreviewViewmodel.TcIn) || e.PropertyName == nameof(PreviewViewmodel.TcOut))
                 && _previewViewModel.SelectedSegment == null)
             {

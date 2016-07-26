@@ -93,7 +93,7 @@ namespace TAS.Client.ViewModels
             Debug.WriteLine("MediaSearchViewModel disposed");
         }
 
-        public Views.PreviewView PreviewView { get { return _previewViewmodel.View; } }
+        public Views.PreviewView PreviewView { get { return _previewViewmodel?.View; } }
 
         public double WindowWidth { get; set; }
 
