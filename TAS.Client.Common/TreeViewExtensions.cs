@@ -33,25 +33,6 @@ namespace TAS.Client.Common
 				BindsTwoWayByDefault = true
 			});
 
-        public static bool GetCursorWaitOnGeneratingItems(DependencyObject obj)
-        {
-            return (bool)obj.GetValue(CursorWaitOnGeneratingItemsProperty);
-        }
-
-        public static void SetCursorWaitOnGeneratingItems(DependencyObject obj, bool value)
-        {
-            obj.SetValue(CursorWaitOnGeneratingItemsProperty, value);
-        }
-
-
-        public static readonly DependencyProperty CursorWaitOnGeneratingItemsProperty =
-            DependencyProperty.RegisterAttached("CursorWaitOnGeneratingItems", typeof(bool), typeof(TreeViewExtensions), new FrameworkPropertyMetadata(false)
-            {
-                PropertyChangedCallback = EnableCursorWaitOnGeneratingItemsChanged,
-                BindsTwoWayByDefault = true
-            });
-
-
 		public static IList GetSelectedItems(DependencyObject obj)
 		{
             return obj == null ? null : (IList)obj.GetValue(SelectedItemsProperty);
@@ -102,27 +83,6 @@ namespace TAS.Client.Common
 			}
 		}
 
-        static void EnableCursorWaitOnGeneratingItemsChanged(DependencyObject source, DependencyPropertyChangedEventArgs args)
-        {
-            TreeView tree = (TreeView)source;
-            var wasEnabled = (bool)args.OldValue;
-            var isEnabled = (bool)args.NewValue;
-            if (wasEnabled)
-                tree.RemoveHandler(TreeViewItem.ExpandedEvent, new RoutedEventHandler(ItemExpanded));
-            if (isEnabled)
-                tree.AddHandler(TreeViewItem.ExpandedEvent, new RoutedEventHandler(ItemExpanded));
-        }
-
-        static void ItemExpanded(object sender, RoutedEventArgs e)
-        {
-            // we will only go through with this if our children haven't been populated
-            TreeViewItem sourceItem = e.OriginalSource as TreeViewItem;
-            if ((sourceItem != null)
-                && (sourceItem.ItemContainerGenerator.Status != GeneratorStatus.ContainersGenerated))
-                UiServices.SetBusyState();
-            e.Handled = true;
-        }
-
 		static TreeView GetTree(TreeViewItem item)
 		{
             Func<DependencyObject, DependencyObject> getParent = (o) => o == null ? null : VisualTreeHelper.GetParent(o);
@@ -132,8 +92,6 @@ namespace TAS.Client.Common
 				currentItem = (FrameworkElement)parent;
 			return (TreeView)getParent(currentItem);
 		}
-
-
 
 		static void RealSelectedChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
 		{

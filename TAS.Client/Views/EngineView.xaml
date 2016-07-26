@@ -443,7 +443,6 @@
                       common:TreeViewExtensions.SelectedItems="{Binding SelectedEvents}" 
                       ItemsSource="{Binding RootEventViewModel.Childrens}" 
                       Background="{x:Null}" 
-                      common:TreeViewExtensions.CursorWaitOnGeneratingItems="True"
                       >
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">

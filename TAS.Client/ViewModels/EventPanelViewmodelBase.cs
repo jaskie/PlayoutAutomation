@@ -180,6 +180,7 @@ namespace TAS.Client.ViewModels
 
         protected void LoadChildrens()
         {
+            UiServices.SetBusyState();
             foreach (IEvent se in _event.SubEvents)
             {
                 _childrens.Add(CreateChildEventPanelViewmodelForEvent(se));
@@ -197,6 +198,7 @@ namespace TAS.Client.ViewModels
             {
                 if (!HasDummyChild)
                 {
+                    UiServices.SetBusyState();
                     foreach (var c in _childrens.ToList())
                         c.Dispose();
                     if (Event.SubEventsCount > 0)
