@@ -1167,10 +1167,16 @@ namespace TAS.Server
         public void Start(IEvent aEvent)
         {
             Debug.WriteLine(aEvent, "Start");
+            var ets = aEvent as Event;
+            if (ets == null)
+                return;
             lock (_tickLock)
             {
                 EngineState = TEngineState.Running;
                 var eventsToStop = _visibleEvents.ToList();
+                eventsToStop.Remove(ets);
+                foreach (Event e in ets.SubEvents)
+                    eventsToStop.Remove(e);
                 foreach (Event e in _runningEvents.ToList())
                 {
                     _runningEvents.Remove(e);
@@ -1179,7 +1185,7 @@ namespace TAS.Server
                     else
                         e.PlayState = TPlayState.Aborted;
                 }
-                _play(aEvent as Event, true);
+                _play(ets, true);
                 foreach (Event e in eventsToStop)
                     _stop(e);
             }
