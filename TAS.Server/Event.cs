@@ -421,7 +421,6 @@ namespace TAS.Server
                         ne.UpdateScheduledTime(true);
                 }
                 NotifyPropertyChanged(nameof(Offset));
-                NotifyPropertyChanged(nameof(EndTime));
             }
         }
 
@@ -519,9 +518,8 @@ namespace TAS.Server
                         if (succ != null)
                             succ.UpdateScheduledTime(true);
                     }
-                    foreach (Event ev in GetVisualRootTrack())
-                        ev.NotifyPropertyChanged(nameof(EndTime));
-                    NotifyPropertyChanged(nameof(ScheduledTime));
+                    else
+                        NotifyPropertyChanged(nameof(ScheduledTime));
                 }
             }
         }

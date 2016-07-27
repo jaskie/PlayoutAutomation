@@ -217,9 +217,9 @@ namespace TAS.Client.ViewModels
                 {
                     var proxy = (new Newtonsoft.Json.JsonSerializer()).Deserialize<EventProxy>(jreader);
                     if (obj.Equals("Under"))
-                        proxy.InsertUnder(Selected.Event);
+                        proxy.InsertUnder(Selected.Event, (_engine.MediaManager.MediaDirectoryPRI?? _engine.MediaManager.MediaDirectorySEC)?.GetFiles());
                     else
-                        proxy.InsertAfter(Selected.Event);
+                        proxy.InsertAfter(Selected.Event, (_engine.MediaManager.MediaDirectoryPRI ?? _engine.MediaManager.MediaDirectorySEC)?.GetFiles());
                 }
             }
         }

@@ -38,20 +38,21 @@ namespace TAS.Client
         public TEasing TransitionEasing { get; set; }
         public EventProxy[] SubEvents { get; set; }
         public AutoStartFlags AutoStartFlags { get; set; }
+        public IEnumerable<ICommandScriptItem> Commands { get; set; }
 
-        public void InsertAfter(IEvent prior)
+        public void InsertAfter(IEvent prior, IEnumerable<IMedia> mediaFiles)
         {
-            IEvent newEvent = _toEvent(prior.Engine);
+            IEvent newEvent = _toEvent(prior.Engine, mediaFiles);
             prior.InsertAfter(newEvent);
         }
 
-        public void InsertUnder(IEvent parent)
+        public void InsertUnder(IEvent parent, IEnumerable<IMedia> mediaFiles)
         {
-            IEvent newEvent = _toEvent(parent.Engine);
+            IEvent newEvent = _toEvent(parent.Engine, mediaFiles);
             parent.InsertUnder(newEvent);
         }
 
-        private IEvent _toEvent(IEngine engine)
+        private IEvent _toEvent(IEngine engine, IEnumerable<IMedia> mediaFiles)
         {
             IEvent result = null;
             try {
@@ -64,7 +65,6 @@ namespace TAS.Client
                         duration: Duration,
                         scheduledDelay: ScheduledDelay,
                         scheduledTC: ScheduledTc,
-                        mediaGuid: MediaGuid,
                         eventName: EventName,
                         requestedStartTime: RequestedStartTime,
                         transitionTime: TransitionTime,
@@ -77,22 +77,28 @@ namespace TAS.Client
                         isEnabled: IsEnabled,
                         isHold: IsHold,
                         isLoop: IsLoop,
-                        gpi: GPI
+                        gpi: GPI,
+                        autoStartFlags: AutoStartFlags,
+                        commands: Commands
                     );
                 // find media if Guid not set
-                if (MediaGuid.Equals(Guid.Empty) && Media != null)
+                if (mediaFiles != null && Media != null)
                 {
-                    var mediaFiles = engine.MediaManager.MediaDirectoryPRI.GetFiles();
-                    if (!string.IsNullOrEmpty(Media.IdAux))
-                        result.Media = mediaFiles.FirstOrDefault(m => m is IPersistentMedia ? ((IPersistentMedia)m).IdAux == Media.IdAux : false);
-                    if (result.Media == null)
-                        result.Media = mediaFiles.FirstOrDefault(m => 
+                    IMedia media = null;
+                    if (!Guid.Empty.Equals(MediaGuid))
+                        media = mediaFiles.FirstOrDefault(m => m.MediaGuid.Equals(MediaGuid));
+                    if (media == null
+                        && !string.IsNullOrEmpty(Media.IdAux))
+                        media = mediaFiles.FirstOrDefault(m => m is IPersistentMedia ? ((IPersistentMedia)m).IdAux == Media.IdAux : false);
+                    if (media == null)
+                        media = mediaFiles.FirstOrDefault(m => 
                                m.MediaName == Media.MediaName 
                             && m.MediaType == Media.MediaType
                             && m.TcStart == Media.TcStart 
                             && m.Duration == Media.Duration);
-                    if (result.Media == null)
-                        result.Media = mediaFiles.FirstOrDefault(m => m.FileName == Media.FileName && m.FileSize == Media.FileSize);
+                    if (media == null)
+                        media = mediaFiles.FirstOrDefault(m => m.FileName == Media.FileName && m.FileSize == Media.FileSize);
+                    result.Media = media;
                 }
                 // add subevents
                 IEvent ne = null;
@@ -101,13 +107,13 @@ namespace TAS.Client
                     switch (seProxy.StartType)
                     {
                         case TStartType.With:
-                            ne = seProxy._toEvent(engine);
+                            ne = seProxy._toEvent(engine, mediaFiles);
                             result.InsertUnder(ne);
                             break;
                         case TStartType.After:
                             if (ne != null)
                             {
-                                IEvent e = seProxy._toEvent(engine);
+                                IEvent e = seProxy._toEvent(engine, mediaFiles);
                                 ne.InsertAfter(e);
                                 ne = e;
                             }
@@ -158,7 +164,8 @@ namespace TAS.Client
                 TransitionType = source.TransitionType,
                 TransitionEasing = source.TransitionEasing,
                 SubEvents = source.AllSubEvents().Select(e => FromEvent(e)).ToArray(),
-                AutoStartFlags = source.AutoStartFlags
+                AutoStartFlags = source.AutoStartFlags,
+                Commands = (source as ICommandScript)?.Commands
             };
         }
 
