@@ -24,7 +24,7 @@ namespace TAS.Client.ViewModels
         private readonly TMediaType _mediaType;
         private readonly MediaSearchView _view;
         private readonly bool _closeAfterAdd;
-        private readonly RationalNumber _frameRate;
+        private readonly RationalNumber? _frameRate;
         private readonly VideoFormatDescription _videoFormatDescription;
         private readonly IEngine _engine;
         private readonly IMediaDirectory _searchDirectory;
@@ -44,7 +44,11 @@ namespace TAS.Client.ViewModels
                 WindowWidth = _previewViewmodel != null ? 1050 : 750;
             }
             else
+            {
+                _videoFormatDescription = videoFormatDescription;
+                _frameRate = videoFormatDescription?.FrameRate;
                 WindowWidth = 750;
+            }
             _mediaType = mediaType;
             if (_previewViewmodel != null)
                 _previewViewmodel.PropertyChanged += _onPreviewViewModelPropertyChanged;
@@ -64,13 +68,13 @@ namespace TAS.Client.ViewModels
                     OkButtonText = resources._button_Add;
                 _createCommands();
                 _items = new ObservableCollection<MediaViewViewmodel>(_searchDirectory.GetFiles()
-                    .Where(m => _canAddMediaToCollection(m, mediaType, _frameRate, videoFormatDescription))
+                    .Where(m => _canAddMediaToCollection(m, mediaType))
                     .Select(m => new MediaViewViewmodel(m, _manager)));
                 _itemsView = CollectionViewSource.GetDefaultView(_items);
                 _itemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
                 _itemsView.Filter += _itemsFilter;
             }
-            _view = new MediaSearchView(_frameRate);
+            _view = new MediaSearchView(_frameRate??manager.FormatDescription.FrameRate);
             _view.Owner = System.Windows.Application.Current.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive);
             _view.DataContext = this;
             _view.Closed += _windowClosed;
@@ -97,14 +101,14 @@ namespace TAS.Client.ViewModels
 
         public double WindowWidth { get; set; }
 
-        bool _canAddMediaToCollection(IMedia media, TMediaType requiredMediaType, RationalNumber requiredFrameRate, VideoFormatDescription requiredFormatDescription)
+        bool _canAddMediaToCollection(IMedia media, TMediaType requiredMediaType)
         {
             return
                 media != null
                 && media.MediaType == requiredMediaType
                 &&
-                   (requiredMediaType == TMediaType.Still && media.VideoFormatDescription.SAR.Equals(requiredFormatDescription.SAR)
-                 || media.MediaType == TMediaType.Movie && media.VideoFormatDescription.FrameRate.Equals(requiredFrameRate)
+                   (requiredMediaType == TMediaType.Still && (_videoFormatDescription == null || media.VideoFormatDescription.SAR.Equals(_videoFormatDescription.SAR))
+                 || media.MediaType == TMediaType.Movie && media.VideoFormatDescription.FrameRate.Equals(_frameRate)
                  || media.MediaType == TMediaType.Animation);
         }
 
@@ -135,7 +139,7 @@ namespace TAS.Client.ViewModels
             {
                 IMedia media = e.Media;
                 if (media != null 
-                    && _canAddMediaToCollection(media, _mediaType, _frameRate, _videoFormatDescription))
+                    && _canAddMediaToCollection(media, _mediaType))
                     Items.Add(new MediaViewViewmodel(media, _manager));
             });
         }

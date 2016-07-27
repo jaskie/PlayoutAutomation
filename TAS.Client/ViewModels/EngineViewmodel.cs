@@ -573,7 +573,7 @@ namespace TAS.Client.ViewModels
         {
             if (baseEvent != null && _mediaSearchViewModel == null)
             {
-                _mediaSearchViewModel = new MediaSearchViewmodel(_engine, _engine.MediaManager, mediaType, closeAfterAdd, _engine.FormatDescription);
+                _mediaSearchViewModel = new MediaSearchViewmodel(_engine, _engine.MediaManager, mediaType, closeAfterAdd, baseEvent.Media?.VideoFormatDescription);
                 _mediaSearchViewModel.BaseEvent = baseEvent;
                 _mediaSearchViewModel.NewEventStartType = startType;
                 _mediaSearchViewModel.SearchWindowClosed += (o, e) =>
