@@ -28,6 +28,7 @@ namespace TAS.Client.ViewModels
         private readonly PreviewViewmodel _previewViewmodel;
         private readonly EventEditViewmodel _eventEditViewmodel;
         private readonly EventEditView _eventEditView;
+        private readonly VideoFormatDescription _videoFormatDescription;
 
         public IEngine Engine { get { return _engine; } }
         public ICommand CommandClearAll { get; private set; }
@@ -78,6 +79,7 @@ namespace TAS.Client.ViewModels
         {
             _engine = engine;
             _frameRate = engine.FrameRate;
+            _videoFormatDescription = engine.FormatDescription;
 
             Debug.WriteLine(this, "Creating root EventViewmodel");
             _rootEventViewModel = new EventPanelRootViewmodel(this);
@@ -649,6 +651,8 @@ namespace TAS.Client.ViewModels
         /// </summary>
         public IEvent LastAddedEvent { get; private set; }
         #endregion // MediaSearch
+
+        public bool IsInterlacedFormat { get { return _videoFormatDescription.Interlaced; } }
 
         readonly EventPanelViewmodelBase _rootEventViewModel;
         public EventPanelViewmodelBase RootEventViewModel { get { return _rootEventViewModel; } }

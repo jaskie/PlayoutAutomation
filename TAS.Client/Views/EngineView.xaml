@@ -248,7 +248,7 @@
                 </TextBlock.ToolTip>
             </TextBlock>
             <DockPanel Grid.Column="4" Grid.RowSpan="4">
-                <CheckBox DockPanel.Dock="Top" Content="{Resx _toolbar.FieldOrderInverted}" ToolTip="{Resx _toolbar.FieldOrderInverted.ToolTip}" IsChecked="{Binding FieldOrderInverted}" IsEnabled="{Binding IsPlayingMovie}"/>
+                <CheckBox DockPanel.Dock="Top" Visibility="{Binding IsInterlacedFormat, Converter={StaticResource BoolToVis}}" Content="{Resx _toolbar.FieldOrderInverted}" ToolTip="{Resx _toolbar.FieldOrderInverted.ToolTip}" IsChecked="{Binding FieldOrderInverted}" IsEnabled="{Binding IsPlayingMovie}"/>
                 <Label DockPanel.Dock="Top" Content="Audio"/>
                 <Grid DockPanel.Dock="Top">
                     <Grid.ColumnDefinitions>

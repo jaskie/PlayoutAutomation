@@ -25,7 +25,7 @@ namespace TAS.Client
             }
         }
         
-        public IEnumerable<ChannelViewmodel> Channels { get { return _channels; } }
+        public List<ChannelViewmodel> Channels { get { return _channels; } }
 
         protected override void OnDispose() { }
     }

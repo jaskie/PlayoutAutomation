@@ -31,6 +31,7 @@ namespace TAS.Client
         bool _systemShutdown;
         public MainWindow()
         {
+            Application.Current.SessionEnding += _sessionEnding;
             try
             {
                 bool isBackupInstance;
@@ -52,6 +53,11 @@ namespace TAS.Client
                 mutex.ReleaseMutex();
                 mutex.WaitOne();
             }
+        }
+
+        private void _sessionEnding(object sender, SessionEndingCancelEventArgs e)
+        {
+            _systemShutdown = true;
         }
 
         private void AppMainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)

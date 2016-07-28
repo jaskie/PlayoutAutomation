@@ -10,10 +10,50 @@
     <Window.Resources>
         <client:MainWindowViewmodel x:Key="MainWindowVM"/>
     </Window.Resources>
-    <TabControl Padding="0" TabStripPlacement="Bottom" BorderThickness="0" DataContext="{StaticResource MainWindowVM}" ItemsSource="{Binding Channels}">
+    <TabControl Padding="0" TabStripPlacement="Left" BorderThickness="0" DataContext="{StaticResource MainWindowVM}" ItemsSource="{Binding Channels}">
         <TabControl.ItemContainerStyle>
             <Style TargetType="{x:Type TabItem}">
-                <Setter Property="Header" Value="{Binding ChannelName}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type TabItem}">
+                            <Border 
+                                Name="Border"
+                                BorderThickness="1" 
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="5, 0, 0, 5"
+                                >
+                                <ContentPresenter x:Name="ContentSite"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Center"
+                                    ContentSource="Header"
+                                    Margin="5,12"
+                                    RecognizesAccessKey="True"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Panel.ZIndex" Value="100" />
+                                    <Setter TargetName="Border" Property="Background" Value="LightPink" />
+                                    <Setter TargetName="Border" Property="BorderThickness" Value="1,1,0,1" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="HeaderTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ChannelName}">
+                                <TextBlock.LayoutTransform>
+                                    <TransformGroup>
+                                        <RotateTransform Angle="270" />
+                                        <TranslateTransform Y="{Binding Path=ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TextBlock}}}" />
+                                        <TranslateTransform X="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TextBlock}}}" />
+                                    </TransformGroup>
+                                </TextBlock.LayoutTransform>
+                            </TextBlock>
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
                 <Setter Property="Content" Value="{Binding View}"/>
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TabControl}}, Path=Items.Count}" Value="1">
