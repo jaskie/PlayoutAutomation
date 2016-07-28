@@ -30,7 +30,7 @@ namespace TAS.Server
 
         public IConvertOperation CreateConvertOperation() { return new ConvertOperation(); }
         public ILoudnessOperation CreateLoudnessOperation() { return new LoudnessOperation(); }
-        public IFileOperation CreateFileOperation() { return new FileOperation(); }
+        public IFileOperation CreateSimpleOperation() { return new FileOperation(); }
 
         public TempDirectory TempDirectory;
         public decimal VolumeReferenceLoudness;
@@ -54,8 +54,10 @@ namespace TAS.Server
 
         public void Queue(IFileOperation operation, bool toTop = false)
         {
-            ((FileOperation)operation).Owner = this;
             FileOperation op = operation as FileOperation;
+            if (op == null)
+                return;
+            op.Owner = this;
             op.ScheduledTime = DateTime.UtcNow;
             op.OperationStatus = FileOperationStatus.Waiting;
 

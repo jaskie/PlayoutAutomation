@@ -12,7 +12,7 @@ namespace TAS.Server.Interfaces
         IEnumerable<IFileOperation> GetOperationQueue();
         IConvertOperation CreateConvertOperation();
         ILoudnessOperation CreateLoudnessOperation();
-        IFileOperation CreateFileOperation();
+        IFileOperation CreateSimpleOperation();
         event EventHandler<FileOperationEventArgs> OperationAdded;
         event EventHandler<FileOperationEventArgs> OperationCompleted;
         void QueueList(IEnumerable<IFileOperation> operationList, bool toTop);

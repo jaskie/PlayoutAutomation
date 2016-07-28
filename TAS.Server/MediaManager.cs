@@ -38,7 +38,6 @@ namespace TAS.Server
         public VideoFormatDescription FormatDescription { get { return _engine.FormatDescription; } }
         [JsonProperty]
         public TVideoFormat VideoFormat { get { return _engine.VideoFormat; } }
-        public double VolumeReferenceLoudness { get { return _engine.VolumeReferenceLoudness; } }
 
         public MediaManager(Engine engine)
         {
@@ -90,7 +89,7 @@ namespace TAS.Server
                 adir.PropertyChanged += _onAnimationDirectoryPropertyChanged;
 
             LoadIngestDirs(ConfigurationManager.AppSettings["IngestFolders"]);
-            _fileManager.VolumeReferenceLoudness =  Convert.ToDecimal(VolumeReferenceLoudness);
+            _fileManager.VolumeReferenceLoudness = Convert.ToDecimal(_engine.VolumeReferenceLoudness);
             Debug.WriteLine(this, "End initializing");
         }
 

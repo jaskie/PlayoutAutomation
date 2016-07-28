@@ -11,6 +11,48 @@
         <client:MainWindowViewmodel x:Key="MainWindowVM"/>
     </Window.Resources>
     <TabControl Padding="0" TabStripPlacement="Left" BorderThickness="0" DataContext="{StaticResource MainWindowVM}" ItemsSource="{Binding Channels}">
+        <TabControl.Template>
+            <ControlTemplate TargetType="{x:Type TabControl}">
+                <Grid KeyboardNavigation.TabNavigation="Local">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Disabled">
+                                <Storyboard>
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
+                                                Storyboard.TargetProperty="(Border.BorderBrush).
+                    (SolidColorBrush.Color)">
+                                        <EasingColorKeyFrame KeyTime="0"
+                                         Value="#FFAAAAAA" />
+                                    </ColorAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                    <TabPanel x:Name="HeaderPanel"
+                    Panel.ZIndex="1"
+                    Margin="0"
+                    IsItemsHost="True"
+                    KeyboardNavigation.TabIndex="1"
+                   >
+                        <TabPanel.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#30E0E0E0" Offset="0.0"/>
+                                <GradientStop Color="#20404040" Offset="0.5"/>
+                                <GradientStop Color="#30E0E0E0" Offset="1.0"/>
+                            </LinearGradientBrush>
+                        </TabPanel.Background>
+                    </TabPanel>
+                    <ContentPresenter x:Name="PART_SelectedContentHost"
+                                      Margin="0"
+                                      Grid.Column="1"
+                                      ContentSource="SelectedContent" />
+                </Grid>
+            </ControlTemplate>
+        </TabControl.Template>
         <TabControl.ItemContainerStyle>
             <Style TargetType="{x:Type TabItem}">
                 <Setter Property="Template">

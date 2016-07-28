@@ -47,7 +47,7 @@ namespace TAS.Client.Model
             return Query<ConvertOperation>();
         }
 
-        public IFileOperation CreateFileOperation()
+        public IFileOperation CreateSimpleOperation()
         {
             return Query<FileOperation>();
         }
