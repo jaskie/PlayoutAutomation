@@ -19,7 +19,6 @@ namespace TAS.Client.Common
             Model = model;
             _editor = editor;
             ModelLoad();
-            _isModified = false;
             editor.DataContext = this;
         }
 

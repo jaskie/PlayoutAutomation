@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using TAS.Client.Common;
 using TAS.Common;
+using TAS.Server.Common;
 using TAS.Server.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
 
@@ -9,7 +10,7 @@ namespace TAS.Client.ViewModels
 {
     public class CommandScriptItemViewmodel : OkCancelViewmodelBase<ICommandScriptItem>, ICommandScriptItem, IDataErrorInfo
     {
-        public CommandScriptItemViewmodel(ICommandScriptItem item, RationalNumber frameRate):base(item, new Views.CommandScriptItemEditView(frameRate), resources._window_CommandScriptItemEditWindowTitle)
+        public CommandScriptItemViewmodel(ICommandScriptItem item, RationalNumber frameRate):base(new CommandScriptItemBase(item), new Views.CommandScriptItemEditView(frameRate), resources._window_CommandScriptItemEditWindowTitle)
         {
             IsFinalizationCommand = item.ExecuteTime == null;
         }
@@ -50,6 +51,7 @@ namespace TAS.Client.ViewModels
         public bool IsFinalizationCommand { get; set; }
 
         private bool _preview;
+
         public bool Preview
         {
             get { return _preview; }
@@ -83,11 +85,5 @@ namespace TAS.Client.ViewModels
         {
             return Model.ValidateCommandText(commandText);
         }
-        
-        protected override void Ok(object o)
-        {
-            Window.DialogResult = true; // do not save to model yet
-        }
-
     }
 }

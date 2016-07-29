@@ -1177,10 +1177,7 @@ namespace TAS.Server
             lock (_tickLock)
             {
                 EngineState = TEngineState.Running;
-                var eventsToStop = _visibleEvents.ToList();
-                eventsToStop.Remove(ets);
-                foreach (Event e in ets.SubEvents)
-                    eventsToStop.Remove(e);
+                var eventsToStop = _visibleEvents.Where(e=> e.PlayState == TPlayState.Played || e.PlayState == TPlayState.Playing).ToList();
                 foreach (Event e in _runningEvents.ToList())
                 {
                     _runningEvents.Remove(e);

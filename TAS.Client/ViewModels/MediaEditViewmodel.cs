@@ -111,7 +111,7 @@ namespace TAS.Client.ViewModels
             if (SelectedField != null)
             {
                 var selected = (KeyValuePair<string, string>)SelectedField;
-                Fields.Remove(selected.Key);
+                _fields.Remove(selected.Key);
                 SelectedField = null;
             }
         }
@@ -124,7 +124,7 @@ namespace TAS.Client.ViewModels
         private void _addField(object obj)
         {
             var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), false);
-            kve.OKCallback = (o) => {
+            kve.OnOk += (o) => {
                 var co = (KeyValueEditViewmodel)o;
                 return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
             };

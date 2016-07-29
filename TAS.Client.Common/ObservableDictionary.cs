@@ -71,8 +71,9 @@ namespace System.Collections.ObjectModel
             if (base.TryGetValue(key, out value))
             {
                 var item = new KeyValuePair<TKey, TValue>(key, base[key]);
+                var index = Keys.ToList().IndexOf(key);
                 bool result = base.Remove(key);
-                this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, base.Keys.ToList().IndexOf(key)));
+                this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
                 this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
                 return result;
             }

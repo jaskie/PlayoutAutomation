@@ -28,26 +28,13 @@ namespace TAS.Client.ViewModels
             CommandDeleteCommandScriptItem = new UICommand { ExecuteDelegate = _deleteCommandScriptItem, CanExecuteDelegate = _canDeleteCommandScriptItem };
             CommandEditCommandScriptItem = new UICommand { ExecuteDelegate = _editCommandScriptItem, CanExecuteDelegate = _canEditCommandScriptItem };
             _commands = new ObservableCollection<CommandScriptItemViewmodel>(model.Commands.Select(csi => new CommandScriptItemViewmodel(csi, _frameRate)));
-            foreach (var command in _commands)
-                command.Modified += _command_Modified;
             _commands.CollectionChanged += _commands_CollectionChanged;
             _commandsView = CollectionViewSource.GetDefaultView(_commands);
             _commandsView.SortDescriptions.Add(new SortDescription(nameof(CommandScriptItemViewmodel.ExecuteTime), ListSortDirection.Ascending));
         }
 
-        private void _command_Modified(object sender, EventArgs e)
-        {
-            IsModified = true;
-        }
-
         private void _commands_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
-                foreach (CommandScriptItemViewmodel item in e.OldItems)
-                    item.Modified -= _command_Modified;
-            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-                foreach (CommandScriptItemViewmodel item in e.NewItems)
-                    item.Modified += _command_Modified;
             IsModified = true;
             InvalidateRequerySuggested();
         }
@@ -59,8 +46,6 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
-            foreach (CommandScriptItemViewmodel item in _commands)
-                item.Modified -= _command_Modified;
         }
 
         private CommandScriptItemViewmodel _selectedCommand;
@@ -130,6 +115,5 @@ namespace TAS.Client.ViewModels
             if (newItem.ShowDialog() == true)
                 _commands.Add(newItem);
         }
-
     }
 }

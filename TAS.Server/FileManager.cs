@@ -118,11 +118,11 @@ namespace TAS.Server
         public void CancelPending()
         {
             lock (_queueSimpleOperation.SyncRoot)
-                _queueSimpleOperation.ToList().ForEach(op => { if (op.OperationStatus == FileOperationStatus.Waiting) op.Abort(); });
+                _queueSimpleOperation.Where(op => op.OperationStatus == FileOperationStatus.Waiting).ToList().ForEach(op => op.Abort());
             lock (_queueConvertOperation.SyncRoot)
-                _queueSimpleOperation.ToList().ForEach(op => { if (op.OperationStatus == FileOperationStatus.Waiting) op.Abort(); });
+                _queueConvertOperation.Where(op => op.OperationStatus == FileOperationStatus.Waiting).ToList().ForEach(op => op.Abort());
             lock (_queueExportOperation.SyncRoot)
-                _queueExportOperation.ToList().ForEach(op => { if (op.OperationStatus == FileOperationStatus.Waiting) op.Abort(); });
+                _queueExportOperation.Where(op => op.OperationStatus == FileOperationStatus.Waiting).ToList().ForEach(op => op.Abort());
         }
 
         private void _runOperation(SynchronizedCollection<IFileOperation> queue, ref bool queueRunningIndicator)

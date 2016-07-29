@@ -10,6 +10,7 @@ using System.Windows.Input;
 
 namespace TAS.Client.Common
 {
+    public delegate bool OnOkDelegate(object parameter);
     public abstract class OkCancelViewmodelBase<M> : EditViewmodelBase<M>
     {
         private bool? _showResult;
@@ -46,6 +47,8 @@ namespace TAS.Client.Common
                 ShowInTaskbar = false
             };
             _showResult = _currentWindow.ShowDialog();
+            if (_showResult == false)
+                ModelLoad();
             return _showResult;
         }
 
@@ -63,24 +66,18 @@ namespace TAS.Client.Common
 
         protected virtual bool CanOK(object parameter)
         {
-            return IsModified == true && (OKCallback == null || OKCallback(this));
+            return IsModified && OnOk?.Invoke(this) != false;
         }
 
         protected virtual bool CanApply(object parameter)
         {
-            return IsModified == true;
+            return IsModified;
         }
-
-        protected override void OnModified()
-        {
-            InvalidateRequerySuggested();
-        }
-
 
         public ICommand CommandClose { get; protected set; }
         public ICommand CommandApply { get; protected set; }
         public ICommand CommandOK { get; protected set; }
 
-        public Func<object, bool> OKCallback;
+        public event OnOkDelegate OnOk;
     }
 }

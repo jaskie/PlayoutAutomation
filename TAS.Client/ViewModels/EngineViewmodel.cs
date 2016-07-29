@@ -397,7 +397,7 @@ namespace TAS.Client.ViewModels
     
         private void _pasteSelected(object obj)
         {
-            EventClipboard.Paste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), (string)obj, true));
+            LastAddedEvent = EventClipboard.Paste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), (string)obj, true));
         }
 
         private void _copySelected(object obj)
@@ -644,8 +644,9 @@ namespace TAS.Client.ViewModels
         {
             var newEvent = Engine.AddNewEvent(eventType: TEventType.CommandScript, duration:baseEvent.Duration);
             baseEvent.InsertUnder(newEvent);
+            LastAddedEvent = newEvent;
         }
-        
+
         /// <summary>
         /// Used to determine if it should be selected when it's viewmodel is created
         /// </summary>

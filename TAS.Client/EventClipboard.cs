@@ -52,7 +52,7 @@ namespace TAS.Client
             }
         }
 
-        public static void Paste(EventPanelViewmodelBase destination, TPasteLocation location)
+        public static IEvent Paste(EventPanelViewmodelBase destination, TPasteLocation location)
         {
             IEvent dest = destination.Event;
             lock(_clipboard.SyncRoot)
@@ -63,7 +63,7 @@ namespace TAS.Client
                     using (var enumerator = _clipboard.GetEnumerator())
                     {
                         if (!enumerator.MoveNext())
-                            return;
+                            return null;
                         dest = _paste(enumerator.Current, dest, location, operation);
                         while (enumerator.MoveNext())
                             dest = _paste(enumerator.Current, dest, TPasteLocation.After, operation);
@@ -72,6 +72,7 @@ namespace TAS.Client
                 if (Operation == ClipboardOperation.Cut)
                     _clipboard.Clear();
             }
+            return dest;
         }
 
         static IEvent _paste(IEvent source, IEvent dest, TPasteLocation location, ClipboardOperation operation)

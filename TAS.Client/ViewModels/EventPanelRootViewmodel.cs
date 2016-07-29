@@ -39,7 +39,8 @@ namespace TAS.Client.ViewModels
                         var evm_vp = this.Find(vp);
                         if (evm_vp != null)
                         {
-                            if (e.Event.EventType == TEventType.Movie || e.Event.EventType == TEventType.Rundown || e.Event.EventType == TEventType.Live
+                            var eventType = e.Event.EventType;
+                            if (eventType == TEventType.Movie || eventType == TEventType.Rundown || eventType == TEventType.Live
                                 || evm_vp.IsExpanded)
                             {
                                 evm_vp.IsExpanded = true;
@@ -97,6 +98,8 @@ namespace TAS.Client.ViewModels
                 {
                     newVm.IsSelected = true;
                     _engineViewmodel.ClearSelection();
+                    if (e.Event.EventType == TEventType.Rundown)
+                        newVm.IsExpanded = true;
                 }
             });
         }
