@@ -1012,15 +1012,19 @@ namespace TAS.Server
             {
                 var startEvent = _fixedTimeEvents.FirstOrDefault(e =>
                                                                   e.StartType == TStartType.OnFixedTime
-                                                               && (EngineState == TEngineState.Idle || (e.AutoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None)
-                                                               && (e.PlayState == TPlayState.Scheduled || (e.PlayState != TPlayState.Playing && (e.AutoStartFlags & AutoStartFlags.Force) != AutoStartFlags.None))
+                                                               && (EngineState == TEngineState.Idle || (e.AutoStartFlags & AutoStartFlags.Force) == AutoStartFlags.Force)
+                                                               && (e.PlayState == TPlayState.Scheduled || (e.PlayState != TPlayState.Playing && (e.AutoStartFlags & AutoStartFlags.Force) == AutoStartFlags.Force))
                                                                && e.IsEnabled
-                                                               && ((e.AutoStartFlags & AutoStartFlags.Daily) != AutoStartFlags.None ?
+                                                               && ((e.AutoStartFlags & AutoStartFlags.Daily) == AutoStartFlags.Daily ?
                                                                     currentTimeOfDayTicks >= e.ScheduledTime.TimeOfDay.Ticks && currentTimeOfDayTicks < e.ScheduledTime.TimeOfDay.Ticks + TimeSpan.TicksPerSecond :
                                                                     CurrentTicks >= e.ScheduledTime.Ticks && CurrentTicks < e.ScheduledTime.Ticks + TimeSpan.TicksPerSecond) // auto start only within 1 second slot
-                    );
+                    ) as Event;
                 if (startEvent != null)
+                {
+                    _runningEvents.Remove(startEvent);
+                    startEvent.PlayState = TPlayState.Scheduled;
                     Start(startEvent);
+                }
             }
         }
 
