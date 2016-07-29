@@ -48,9 +48,10 @@ namespace TAS.Server.Common
 
         public bool ValidateCommandText(string commandText)
         {
-            return regexFill.IsMatch(commandText)
+            return !string.IsNullOrWhiteSpace(commandText)
+                && (regexFill.IsMatch(commandText)
                 || regexClip.IsMatch(commandText)
-                || regexClear.IsMatch(commandText);
+                || regexClear.IsMatch(commandText));
         }
     }
 }
