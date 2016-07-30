@@ -272,18 +272,50 @@ namespace TAS.Server
                     Debug.WriteLine(aEvent, string.Format("CasparPlay Layer {0}", aEvent.Layer));
                     return true;
                 }
-                if (eventType == TEventType.Animation && aEvent is ITemplated)
+                if (eventType == TEventType.Animation)
                 {
-                    var media = (aEvent.Engine.PlayoutChannelPRI == this) ? aEvent.ServerMediaPRI : aEvent.ServerMediaSEC;
-                    if (media != null && media.FileExists())
+                    var eTemplated = aEvent as ITemplated;
+                    if (eTemplated != null)
                     {
-                        CasparCGDataCollection fields = new CasparCGDataCollection();
-                        foreach (var field in ((ITemplated)aEvent).Fields)
-                            fields.SetData(field.Key, field.Value);
-                        channel.CG.Add((int)aEvent.Layer, ((ITemplated)aEvent).TemplateLayer, Path.GetFileNameWithoutExtension(media.FileName).ToUpperInvariant(), true, fields);
+                        switch (eTemplated.Method)
+                        {
+                            case TemplateMethod.Add:
+                                var media = (aEvent.Engine.PlayoutChannelPRI == this) ? aEvent.ServerMediaPRI : aEvent.ServerMediaSEC;
+                                if (media != null && media.FileExists())
+                                {
+                                    CasparCGDataCollection f = new CasparCGDataCollection();
+                                    foreach (var field in eTemplated.Fields)
+                                        f.SetData(field.Key, field.Value);
+                                    channel.CG.Add((int)aEvent.Layer, eTemplated.TemplateLayer, Path.GetFileNameWithoutExtension(media.FileName).ToUpperInvariant(), true, f);
+                                }
+                                break;
+                            case TemplateMethod.Clear:
+                                channel.CG.Clear((int)aEvent.Layer);
+                                break;
+                            case TemplateMethod.Next:
+                                channel.CG.Next((int)aEvent.Layer, eTemplated.TemplateLayer);
+                                break;
+                            case TemplateMethod.Play:
+                                channel.CG.Play((int)aEvent.Layer, eTemplated.TemplateLayer);
+                                break;
+                            case TemplateMethod.Remove:
+                                channel.CG.Remove((int)aEvent.Layer, eTemplated.TemplateLayer);
+                                break;
+                            case TemplateMethod.Stop:
+                                channel.Stop((int)aEvent.Layer);
+                                break;
+                            case TemplateMethod.Update:
+                                CasparCGDataCollection uf = new CasparCGDataCollection();
+                                foreach (var field in eTemplated.Fields)
+                                    uf.SetData(field.Key, field.Value);
+                                channel.CG.Update((int)aEvent.Layer, eTemplated.TemplateLayer, uf);
+                                break;
+                            default:
+                                Debug.WriteLine("Method CG {0} not implemented", eTemplated.Method, null);
+                                break;
+                        }
                     }
                 }
-
             }
             return false;
         }
