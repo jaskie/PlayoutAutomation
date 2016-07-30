@@ -1040,6 +1040,8 @@ namespace TAS.Server
                         result = playingEvent.GetVisualRootTrack().FirstOrDefault(e => e.IsLoop) as Event;
                 }
             }
+            while (result != null && (!result.IsEnabled || (result.Length == TimeSpan.Zero)))
+                   result = result.GetSuccessor() as Event;
             return result;
         }
 
