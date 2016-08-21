@@ -172,4 +172,4 @@ CREATE TABLE `params` (
   `Value` VARCHAR(100) NULL,
   PRIMARY KEY (`Section`, `Key`));
 
-INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', 'V5');
+INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', 'V6');

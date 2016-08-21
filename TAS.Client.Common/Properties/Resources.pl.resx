@@ -147,6 +147,11 @@
   <data name="_exception_EventProxy_PreviousEventNotFound" xml:space="preserve">
     <value>Nie znaleziono poprzednika dla {0}</value>
   </data>
+  <data name="_message_CantInitializeEngines" xml:space="preserve">
+    <value>Nie udalo się zainicjalizowanie silnika aplikacji z powodu błędu:
+{0}
+Skonfiguruj system przy użyciu programu TVPlay.config.</value>
+  </data>
   <data name="_message_CommandFailed" xml:space="preserve">
     <value>Wykonanie polecenia nie powiodło się. Błąd, który wystąpił:
 {0}</value>

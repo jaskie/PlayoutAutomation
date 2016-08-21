@@ -151,6 +151,17 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot initialize engines because of error: 
+        ///{0}
+        ///Use TVPlay.config program to configure the system..
+        /// </summary>
+        public static string _message_CantInitializeEngines {
+            get {
+                return ResourceManager.GetString("_message_CantInitializeEngines", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Command failed. Following error occurred:
         ///{0}.
         /// </summary>

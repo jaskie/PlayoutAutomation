@@ -40,8 +40,7 @@ namespace TAS.Server
             Debug.WriteLine("Initializing database connector");
             ConnectionStringSettings connectionStringPrimary = ConfigurationManager.ConnectionStrings["tasConnectionString"];
             ConnectionStringSettings connectionStringSecondary = ConfigurationManager.ConnectionStrings["tasConnectionStringSecondary"];
-            Database.Database.Open(connectionStringPrimary == null ? string.Empty : connectionStringPrimary.ConnectionString,
-                                         connectionStringSecondary == null ? string.Empty : connectionStringSecondary.ConnectionString);
+            Database.Database.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
             Servers = Database.Database.DbLoadServers<CasparServer>();
             Servers.ForEach(s => s.Channels.ForEach(c => c.OwnerServer = s));
             Engines = Database.Database.DbLoadEngines<Engine>(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]));
@@ -55,8 +54,9 @@ namespace TAS.Server
 
         public static void ShutDown()
         {
-            foreach (Engine e in Engines)
-                e.Dispose();
+            if (Engines != null)
+                foreach (Engine e in Engines)
+                    e.Dispose();
         }
     }
 }
