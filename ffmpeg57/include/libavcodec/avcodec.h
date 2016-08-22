@@ -73,95 +73,6 @@
  */
 
 /**
- * @ingroup libavc
- * @defgroup lavc_encdec send/receive encoding and decoding API overview
- * @{
- *
- * The avcodec_send_packet()/avcodec_receive_frame()/avcodec_send_frame()/
- * avcodec_receive_packet() functions provide an encode/decode API, which
- * decouples input and output.
- *
- * The API is very similar for encoding/decoding and audio/video, and works as
- * follows:
- * - Set up and open the AVCodecContext as usual.
- * - Send valid input:
- *   - For decoding, call avcodec_send_packet() to give the decoder raw
- *     compressed data in an AVPacket.
- *   - For encoding, call avcodec_send_frame() to give the decoder an AVFrame
- *     containing uncompressed audio or video.
- *   In both cases, it is recommended that AVPackets and AVFrames are
- *   refcounted, or libavcodec might have to copy the input data. (libavformat
- *   always returns refcounted AVPackets, and av_frame_get_buffer() allocates
- *   refcounted AVFrames.)
- * - Receive output in a loop. Periodically call one of the avcodec_receive_*()
- *   functions and process their output:
- *   - For decoding, call avcodec_receive_frame(). On success, it will return
- *     an AVFrame containing uncompressed audio or video data.
- *   - For encoding, call avcodec_receive_packet(). On success, it will return
- *     an AVPacket with a compressed frame.
- *   Repeat this call until it returns AVERROR(EAGAIN) or an error. The
- *   AVERROR(EAGAIN) return value means that new input data is required to
- *   return new output. In this case, continue with sending input. For each
- *   input frame/packet, the codec will typically return 1 output frame/packet,
- *   but it can also be 0 or more than 1.
- *
- * At the beginning of decoding or encoding, the codec might accept multiple
- * input frames/packets without returning a frame, until its internal buffers
- * are filled. This situation is handled transparently if you follow the steps
- * outlined above.
- *
- * End of stream situations. These require "flushing" (aka draining) the codec,
- * as the codec might buffer multiple frames or packets internally for
- * performance or out of necessity (consider B-frames).
- * This is handled as follows:
- * - Instead of valid input, send NULL to the avcodec_send_packet() (decoding)
- *   or avcodec_send_frame() (encoding) functions. This will enter draining
- *   mode.
- * - Call avcodec_receive_frame() (decoding) or avcodec_receive_packet()
- *   (encoding) in a loop until AVERROR_EOF is returned. The functions will
- *   not return AVERROR(EAGAIN), unless you forgot to enter draining mode.
- * - Before decoding can be resumed again, the codec has to be reset with
- *   avcodec_flush_buffers().
- *
- * Using the API as outlined above is highly recommended. But it is also
- * possible to call functions outside of this rigid schema. For example, you can
- * call avcodec_send_packet() repeatedly without calling
- * avcodec_receive_frame(). In this case, avcodec_send_packet() will succeed
- * until the codec's internal buffer has been filled up (which is typically of
- * size 1 per output frame, after initial input), and then reject input with
- * AVERROR(EAGAIN). Once it starts rejecting input, you have no choice but to
- * read at least some output.
- *
- * Not all codecs will follow a rigid and predictable dataflow; the only
- * guarantee is that an AVERROR(EAGAIN) return value on a send/receive call on
- * one end implies that a receive/send call on the other end will succeed. In
- * general, no codec will permit unlimited buffering of input or output.
- *
- * This API replaces the following legacy functions:
- * - avcodec_decode_video2() and avcodec_decode_audio4():
- *   Use avcodec_send_packet() to feed input to the decoder, then use
- *   avcodec_receive_frame() to receive decoded frames after each packet.
- *   Unlike with the old video decoding API, multiple frames might result from
- *   a packet. For audio, splitting the input packet into frames by partially
- *   decoding packets becomes transparent to the API user. You never need to
- *   feed an AVPacket to the API twice.
- *   Additionally, sending a flush/draining packet is required only once.
- * - avcodec_encode_video2()/avcodec_encode_audio2():
- *   Use avcodec_send_frame() to feed input to the encoder, then use
- *   avcodec_receive_packet() to receive encoded packets.
- *   Providing user-allocated buffers for avcodec_receive_packet() is not
- *   possible.
- * - The new API does not handle subtitles yet.
- *
- * Mixing new and old function calls on the same AVCodecContext is not allowed,
- * and will result in undefined behavior.
- *
- * Some codecs might require using the new API; using the old API will return
- * an error when calling it.
- * @}
- */
-
-/**
  * @defgroup lavc_core Core functions/structures.
  * @ingroup libavc
  *
@@ -404,8 +315,6 @@ enum AVCodecID {
     AV_CODEC_ID_APNG,
     AV_CODEC_ID_DAALA,
     AV_CODEC_ID_CFHD,
-    AV_CODEC_ID_TRUEMOTION2RT,
-    AV_CODEC_ID_M101,
 
     /* various PCM "codecs" */
     AV_CODEC_ID_FIRST_AUDIO = 0x10000,     ///< A dummy id pointing at the start of audio codecs
@@ -1831,7 +1740,7 @@ typedef struct AVCodecContext {
      * the decoded frame is cropped before being output or lowres is enabled.
      *
      * @note Those field may not match the value of the last
-     * AVFrame outputted by avcodec_receive_frame() due frame
+     * AVFrame outputted by avcodec_decode_video2 due frame
      * reordering.
      *
      * - encoding: unused
@@ -1858,7 +1767,7 @@ typedef struct AVCodecContext {
      * May be overridden by the decoder if it knows better.
      *
      * @note This field may not match the value of the last
-     * AVFrame outputted by avcodec_receive_frame() due frame
+     * AVFrame outputted by avcodec_decode_video2 due frame
      * reordering.
      *
      * - encoding: Set by user.
@@ -2562,8 +2471,6 @@ typedef struct AVCodecContext {
      * av_frame_unref() when they are not needed anymore.
      * Otherwise, the decoded frames must not be freed by the caller and are
      * only valid until the next decode call.
-     *
-     * This is always automatically enabled if avcodec_receive_frame() is used.
      *
      * - encoding: unused
      * - decoding: set by the caller before avcodec_open2().
@@ -3323,8 +3230,7 @@ typedef struct AVCodecContext {
      * - decoding: For codecs that store a framerate value in the compressed
      *             bitstream, the decoder may export it here. { 0, 1} when
      *             unknown.
-     * - encoding: May be used to signal the framerate of CFR content to an
-     *             encoder.
+     * - encoding: unused
      */
     AVRational framerate;
 
@@ -3615,21 +3521,6 @@ typedef struct AVCodec {
                    int *got_packet_ptr);
     int (*decode)(AVCodecContext *, void *outdata, int *outdata_size, AVPacket *avpkt);
     int (*close)(AVCodecContext *);
-    /**
-     * Decode/encode API with decoupled packet/frame dataflow. The API is the
-     * same as the avcodec_ prefixed APIs (avcodec_send_frame() etc.), except
-     * that:
-     * - never called if the codec is closed or the wrong type,
-     * - AVPacket parameter change side data is applied right before calling
-     *   AVCodec->send_packet,
-     * - if AV_CODEC_CAP_DELAY is not set, drain packets or frames are never sent,
-     * - only one drain packet is ever passed down (until the next flush()),
-     * - a drain AVPacket is always NULL (no need to check for avpkt->size).
-     */
-    int (*send_frame)(AVCodecContext *avctx, const AVFrame *frame);
-    int (*send_packet)(AVCodecContext *avctx, const AVPacket *avpkt);
-    int (*receive_frame)(AVCodecContext *avctx, AVFrame *frame);
-    int (*receive_packet)(AVCodecContext *avctx, AVPacket *avpkt);
     /**
      * Flush buffers.
      * Will be called when seeking
@@ -3941,31 +3832,7 @@ typedef struct AVCodecParameters {
      */
     int64_t bit_rate;
 
-    /**
-     * The number of bits per sample in the codedwords.
-     *
-     * This is basically the bitrate per sample. It is mandatory for a bunch of
-     * formats to actually decode them. It's the number of bits for one sample in
-     * the actual coded bitstream.
-     *
-     * This could be for example 4 for ADPCM
-     * For PCM formats this matches bits_per_raw_sample
-     * Can be 0
-     */
     int bits_per_coded_sample;
-
-    /**
-     * This is the number of valid bits in each output sample. If the
-     * sample format has more bits, the least significant bits are additional
-     * padding bits, which are always 0. Use right shifts to reduce the sample
-     * to its actual size. For example, audio formats with 24 bit samples will
-     * have bits_per_raw_sample set to 24, and format set to AV_SAMPLE_FMT_S32.
-     * To get the original sample use "(int32_t)sample >> 8"."
-     *
-     * For ADPCM this might be 12 or 16 or similar
-     * Can be 0
-     */
-    int bits_per_raw_sample;
 
     /**
      * Codec-specific bitstream restrictions that the stream conforms to.
@@ -4220,7 +4087,7 @@ int avcodec_parameters_to_context(AVCodecContext *codec,
  * @warning This function is not thread safe!
  *
  * @note Always call this function before using decoding routines (such as
- * @ref avcodec_receive_frame()).
+ * @ref avcodec_decode_video2()).
  *
  * @code
  * avcodec_register_all();
@@ -4679,10 +4546,7 @@ enum AVChromaLocation avcodec_chroma_pos_to_enum(int xpos, int ypos);
  * @return A negative error code is returned if an error occurred during
  *         decoding, otherwise the number of bytes consumed from the input
  *         AVPacket is returned.
- *
-* @deprecated Use avcodec_send_packet() and avcodec_receive_frame().
  */
-attribute_deprecated
 int avcodec_decode_audio4(AVCodecContext *avctx, AVFrame *frame,
                           int *got_frame_ptr, const AVPacket *avpkt);
 
@@ -4728,10 +4592,7 @@ int avcodec_decode_audio4(AVCodecContext *avctx, AVFrame *frame,
  * @param[in,out] got_picture_ptr Zero if no frame could be decompressed, otherwise, it is nonzero.
  * @return On error a negative value is returned, otherwise the number of bytes
  * used or zero if no frame could be decompressed.
- *
- * @deprecated Use avcodec_send_packet() and avcodec_receive_frame().
  */
-attribute_deprecated
 int avcodec_decode_video2(AVCodecContext *avctx, AVFrame *picture,
                          int *got_picture_ptr,
                          const AVPacket *avpkt);
@@ -4766,129 +4627,6 @@ int avcodec_decode_video2(AVCodecContext *avctx, AVFrame *picture,
 int avcodec_decode_subtitle2(AVCodecContext *avctx, AVSubtitle *sub,
                             int *got_sub_ptr,
                             AVPacket *avpkt);
-
-/**
- * Supply raw packet data as input to a decoder.
- *
- * Internally, this call will copy relevant AVCodecContext fields, which can
- * influence decoding per-packet, and apply them when the packet is actually
- * decoded. (For example AVCodecContext.skip_frame, which might direct the
- * decoder to drop the frame contained by the packet sent with this function.)
- *
- * @warning The input buffer, avpkt->data must be AV_INPUT_BUFFER_PADDING_SIZE
- *          larger than the actual read bytes because some optimized bitstream
- *          readers read 32 or 64 bits at once and could read over the end.
- *
- * @warning Do not mix this API with the legacy API (like avcodec_decode_video2())
- *          on the same AVCodecContext. It will return unexpected results now
- *          or in future libavcodec versions.
- *
- * @note The AVCodecContext MUST have been opened with @ref avcodec_open2()
- *       before packets may be fed to the decoder.
- *
- * @param avctx codec context
- * @param[in] avpkt The input AVPacket. Usually, this will be a single video
- *                  frame, or several complete audio frames.
- *                  Ownership of the packet remains with the caller, and the
- *                  decoder will not write to the packet. The decoder may create
- *                  a reference to the packet data (or copy it if the packet is
- *                  not reference-counted).
- *                  Unlike with older APIs, the packet is always fully consumed,
- *                  and if it contains multiple frames (e.g. some audio codecs),
- *                  will require you to call avcodec_receive_frame() multiple
- *                  times afterwards before you can send a new packet.
- *                  It can be NULL (or an AVPacket with data set to NULL and
- *                  size set to 0); in this case, it is considered a flush
- *                  packet, which signals the end of the stream. Sending the
- *                  first flush packet will return success. Subsequent ones are
- *                  unnecessary and will return AVERROR_EOF. If the decoder
- *                  still has frames buffered, it will return them after sending
- *                  a flush packet.
- *
- * @return 0 on success, otherwise negative error code:
- *      AVERROR(EAGAIN):   input is not accepted right now - the packet must be
- *                         resent after trying to read output
- *      AVERROR_EOF:       the decoder has been flushed, and no new packets can
- *                         be sent to it (also returned if more than 1 flush
- *                         packet is sent)
- *      AVERROR(EINVAL):   codec not opened, it is an encoder, or requires flush
- *      AVERROR(ENOMEM):   failed to add packet to internal queue, or similar
- *      other errors: legitimate decoding errors
- */
-int avcodec_send_packet(AVCodecContext *avctx, const AVPacket *avpkt);
-
-/**
- * Return decoded output data from a decoder.
- *
- * @param avctx codec context
- * @param frame This will be set to a reference-counted video or audio
- *              frame (depending on the decoder type) allocated by the
- *              decoder. Note that the function will always call
- *              av_frame_unref(frame) before doing anything else.
- *
- * @return
- *      0:                 success, a frame was returned
- *      AVERROR(EAGAIN):   output is not available right now - user must try
- *                         to send new input
- *      AVERROR_EOF:       the decoder has been fully flushed, and there will be
- *                         no more output frames
- *      AVERROR(EINVAL):   codec not opened, or it is an encoder
- *      other negative values: legitimate decoding errors
- */
-int avcodec_receive_frame(AVCodecContext *avctx, AVFrame *frame);
-
-/**
- * Supply a raw video or audio frame to the encoder. Use avcodec_receive_packet()
- * to retrieve buffered output packets.
- *
- * @param avctx     codec context
- * @param[in] frame AVFrame containing the raw audio or video frame to be encoded.
- *                  Ownership of the frame remains with the caller, and the
- *                  encoder will not write to the frame. The encoder may create
- *                  a reference to the frame data (or copy it if the frame is
- *                  not reference-counted).
- *                  It can be NULL, in which case it is considered a flush
- *                  packet.  This signals the end of the stream. If the encoder
- *                  still has packets buffered, it will return them after this
- *                  call. Once flushing mode has been entered, additional flush
- *                  packets are ignored, and sending frames will return
- *                  AVERROR_EOF.
- *
- *                  For audio:
- *                  If AV_CODEC_CAP_VARIABLE_FRAME_SIZE is set, then each frame
- *                  can have any number of samples.
- *                  If it is not set, frame->nb_samples must be equal to
- *                  avctx->frame_size for all frames except the last.
- *                  The final frame may be smaller than avctx->frame_size.
- * @return 0 on success, otherwise negative error code:
- *      AVERROR(EAGAIN):   input is not accepted right now - the frame must be
- *                         resent after trying to read output packets
- *      AVERROR_EOF:       the encoder has been flushed, and no new frames can
- *                         be sent to it
- *      AVERROR(EINVAL):   codec not opened, refcounted_frames not set, it is a
- *                         decoder, or requires flush
- *      AVERROR(ENOMEM):   failed to add packet to internal queue, or similar
- *      other errors: legitimate decoding errors
- */
-int avcodec_send_frame(AVCodecContext *avctx, const AVFrame *frame);
-
-/**
- * Read encoded data from the encoder.
- *
- * @param avctx codec context
- * @param avpkt This will be set to a reference-counted packet allocated by the
- *              encoder. Note that the function will always call
- *              av_frame_unref(frame) before doing anything else.
- * @return 0 on success, otherwise negative error code:
- *      AVERROR(EAGAIN):   output is not available right now - user must try
- *                         to send input
- *      AVERROR_EOF:       the encoder has been fully flushed, and there will be
- *                         no more output packets
- *      AVERROR(EINVAL):   codec not opened, or it is an encoder
- *      other errors: legitimate decoding errors
- */
-int avcodec_receive_packet(AVCodecContext *avctx, AVPacket *avpkt);
-
 
 /**
  * @defgroup lavc_parsing Frame parsing
@@ -5624,7 +5362,7 @@ int av_get_audio_frame_duration(AVCodecContext *avctx, int frame_bytes);
  */
 int av_get_audio_frame_duration2(AVCodecParameters *par, int frame_bytes);
 
-#if FF_API_OLD_BSF
+
 typedef struct AVBitStreamFilterContext {
     void *priv_data;
     struct AVBitStreamFilter *filter;
@@ -5636,102 +5374,19 @@ typedef struct AVBitStreamFilterContext {
      */
     char *args;
 } AVBitStreamFilterContext;
-#endif
 
-typedef struct AVBSFInternal AVBSFInternal;
-
-/**
- * The bitstream filter state.
- *
- * This struct must be allocated with av_bsf_alloc() and freed with
- * av_bsf_free().
- *
- * The fields in the struct will only be changed (by the caller or by the
- * filter) as described in their documentation, and are to be considered
- * immutable otherwise.
- */
-typedef struct AVBSFContext {
-    /**
-     * A class for logging and AVOptions
-     */
-    const AVClass *av_class;
-
-    /**
-     * The bitstream filter this context is an instance of.
-     */
-    const struct AVBitStreamFilter *filter;
-
-    /**
-     * Opaque libavcodec internal data. Must not be touched by the caller in any
-     * way.
-     */
-    AVBSFInternal *internal;
-
-    /**
-     * Opaque filter-specific private data. If filter->priv_class is non-NULL,
-     * this is an AVOptions-enabled struct.
-     */
-    void *priv_data;
-
-    /**
-     * Parameters of the input stream. Set by the caller before av_bsf_init().
-     */
-    AVCodecParameters *par_in;
-
-    /**
-     * Parameters of the output stream. Set by the filter in av_bsf_init().
-     */
-    AVCodecParameters *par_out;
-
-    /**
-     * The timebase used for the timestamps of the input packets. Set by the
-     * caller before av_bsf_init().
-     */
-    AVRational time_base_in;
-
-    /**
-     * The timebase used for the timestamps of the output packets. Set by the
-     * filter in av_bsf_init().
-     */
-    AVRational time_base_out;
-} AVBSFContext;
 
 typedef struct AVBitStreamFilter {
     const char *name;
-
-    /**
-     * A list of codec ids supported by the filter, terminated by
-     * AV_CODEC_ID_NONE.
-     * May be NULL, in that case the bitstream filter works with any codec id.
-     */
-    const enum AVCodecID *codec_ids;
-
-    /**
-     * A class for the private data, used to declare bitstream filter private
-     * AVOptions. This field is NULL for bitstream filters that do not declare
-     * any options.
-     *
-     * If this field is non-NULL, the first member of the filter private data
-     * must be a pointer to AVClass, which will be set by libavcodec generic
-     * code to this class.
-     */
-    const AVClass *priv_class;
-
-    /*****************************************************************
-     * No fields below this line are part of the public API. They
-     * may not be used outside of libavcodec and can be changed and
-     * removed at will.
-     * New public fields should be added right above.
-     *****************************************************************
-     */
-
     int priv_data_size;
-    int (*init)(AVBSFContext *ctx);
-    int (*filter)(AVBSFContext *ctx, AVPacket *pkt);
-    void (*close)(AVBSFContext *ctx);
+    int (*filter)(AVBitStreamFilterContext *bsfc,
+                  AVCodecContext *avctx, const char *args,
+                  uint8_t **poutbuf, int *poutbuf_size,
+                  const uint8_t *buf, int buf_size, int keyframe);
+    void (*close)(AVBitStreamFilterContext *bsfc);
+    struct AVBitStreamFilter *next;
 } AVBitStreamFilter;
 
-#if FF_API_OLD_BSF
 /**
  * Register a bitstream filter.
  *
@@ -5741,7 +5396,6 @@ typedef struct AVBitStreamFilter {
  *
  * @see avcodec_register_all()
  */
-attribute_deprecated
 void av_register_bitstream_filter(AVBitStreamFilter *bsf);
 
 /**
@@ -5754,7 +5408,6 @@ void av_register_bitstream_filter(AVBitStreamFilter *bsf);
  * @return a bitstream filter context if a matching filter was found
  * and successfully initialized, NULL otherwise
  */
-attribute_deprecated
 AVBitStreamFilterContext *av_bitstream_filter_init(const char *name);
 
 /**
@@ -5786,7 +5439,6 @@ AVBitStreamFilterContext *av_bitstream_filter_init(const char *name);
  * its starting address). A special case is if *poutbuf was set to NULL and
  * *poutbuf_size was set to 0, which indicates the packet should be dropped.
  */
-attribute_deprecated
 int av_bitstream_filter_filter(AVBitStreamFilterContext *bsfc,
                                AVCodecContext *avctx, const char *args,
                                uint8_t **poutbuf, int *poutbuf_size,
@@ -5798,7 +5450,6 @@ int av_bitstream_filter_filter(AVBitStreamFilterContext *bsfc,
  * @param bsf the bitstream filter context created with
  * av_bitstream_filter_init(), can be NULL
  */
-attribute_deprecated
 void av_bitstream_filter_close(AVBitStreamFilterContext *bsf);
 
 /**
@@ -5809,103 +5460,7 @@ void av_bitstream_filter_close(AVBitStreamFilterContext *bsf);
  * This function can be used to iterate over all registered bitstream
  * filters.
  */
-attribute_deprecated
 AVBitStreamFilter *av_bitstream_filter_next(const AVBitStreamFilter *f);
-#endif
-
-/**
- * @return a bitstream filter with the specified name or NULL if no such
- *         bitstream filter exists.
- */
-const AVBitStreamFilter *av_bsf_get_by_name(const char *name);
-
-/**
- * Iterate over all registered bitstream filters.
- *
- * @param opaque a pointer where libavcodec will store the iteration state. Must
- *               point to NULL to start the iteration.
- *
- * @return the next registered bitstream filter or NULL when the iteration is
- *         finished
- */
-const AVBitStreamFilter *av_bsf_next(void **opaque);
-
-/**
- * Allocate a context for a given bitstream filter. The caller must fill in the
- * context parameters as described in the documentation and then call
- * av_bsf_init() before sending any data to the filter.
- *
- * @param filter the filter for which to allocate an instance.
- * @param ctx a pointer into which the pointer to the newly-allocated context
- *            will be written. It must be freed with av_bsf_free() after the
- *            filtering is done.
- *
- * @return 0 on success, a negative AVERROR code on failure
- */
-int av_bsf_alloc(const AVBitStreamFilter *filter, AVBSFContext **ctx);
-
-/**
- * Prepare the filter for use, after all the parameters and options have been
- * set.
- */
-int av_bsf_init(AVBSFContext *ctx);
-
-/**
- * Submit a packet for filtering.
- *
- * After sending each packet, the filter must be completely drained by calling
- * av_bsf_receive_packet() repeatedly until it returns AVERROR(EAGAIN) or
- * AVERROR_EOF.
- *
- * @param pkt the packet to filter. The bitstream filter will take ownership of
- * the packet and reset the contents of pkt. pkt is not touched if an error occurs.
- * This parameter may be NULL, which signals the end of the stream (i.e. no more
- * packets will be sent). That will cause the filter to output any packets it
- * may have buffered internally.
- *
- * @return 0 on success, a negative AVERROR on error.
- */
-int av_bsf_send_packet(AVBSFContext *ctx, AVPacket *pkt);
-
-/**
- * Retrieve a filtered packet.
- *
- * @param[out] pkt this struct will be filled with the contents of the filtered
- *                 packet. It is owned by the caller and must be freed using
- *                 av_packet_unref() when it is no longer needed.
- *                 This parameter should be "clean" (i.e. freshly allocated
- *                 with av_packet_alloc() or unreffed with av_packet_unref())
- *                 when this function is called. If this function returns
- *                 successfully, the contents of pkt will be completely
- *                 overwritten by the returned data. On failure, pkt is not
- *                 touched.
- *
- * @return 0 on success. AVERROR(EAGAIN) if more packets need to be sent to the
- * filter (using av_bsf_send_packet()) to get more output. AVERROR_EOF if there
- * will be no further output from the filter. Another negative AVERROR value if
- * an error occurs.
- *
- * @note one input packet may result in several output packets, so after sending
- * a packet with av_bsf_send_packet(), this function needs to be called
- * repeatedly until it stops returning 0. It is also possible for a filter to
- * output fewer packets than were sent to it, so this function may return
- * AVERROR(EAGAIN) immediately after a successful av_bsf_send_packet() call.
- */
-int av_bsf_receive_packet(AVBSFContext *ctx, AVPacket *pkt);
-
-/**
- * Free a bitstream filter context and everything associated with it; write NULL
- * into the supplied pointer.
- */
-void av_bsf_free(AVBSFContext **ctx);
-
-/**
- * Get the AVClass for AVBSFContext. It can be used in combination with
- * AV_OPT_SEARCH_FAKE_OBJ for examining options.
- *
- * @see av_opt_find().
- */
-const AVClass *av_bsf_get_class(void);
 
 /* memory */
 

@@ -272,6 +272,7 @@ AVBufferPool *av_buffer_pool_init2(int size, void *opaque,
  * in use.
  *
  * @param pool pointer to the pool to be freed. It will be set to NULL.
+ * @see av_buffer_pool_can_uninit()
  */
 void av_buffer_pool_uninit(AVBufferPool **pool);
 

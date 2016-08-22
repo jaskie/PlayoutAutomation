@@ -1,8 +1,8 @@
-This is a FFmpeg win64 shared build by Kyle Schwarz.
+This is a FFmpeg Win64 shared build by Kyle Schwarz.
 
 Zeranoe's FFmpeg Builds Home Page: <http://ffmpeg.zeranoe.com/builds/>
 
-FFmpeg version: 20151017-git-e9299df
+FFmpeg version: 20151008-git-5911eeb
   libavutil      54. 30.100 / 54. 30.100
   libavcodec     56. 57.100 / 56. 57.100
   libavformat    56. 40.101 / 56. 40.101
@@ -93,8 +93,8 @@ This build was compiled with the following external libraries:
   vpx 1.4.0 <http://webmproject.org/>
   WavPack 4.75.0 <http://wavpack.com/>
   WebP 0.4.3 <https://developers.google.com/speed/webp/>
-  x264 20151011-git-7599210 <http://videolan.org/developers/x264.html>
-  x265 1.8 <http://x265.org/>
+  x264 20150819-git-e86f3a1 <http://videolan.org/developers/x264.html>
+  x265 1.7 <http://x265.org/>
   XAVS svn-r55 <http://xavs.sourceforge.net/>
   Xvid 1.3.4 <http://xvid.org/>
   XZ Utils 5.2.2 <http://tukaani.org/xz>
@@ -104,7 +104,7 @@ The source code for this FFmpeg build can be found at: <http://ffmpeg.zeranoe.co
 
 This build was compiled on Debian 8.2 (64-bit): <http://www.debian.org/>
 
-GCC  was used to compile this FFmpeg build: <http://gcc.gnu.org/>
+GCC 5.2.0 was used to compile this FFmpeg build: <http://gcc.gnu.org/>
 
 This build was compiled using the MinGW-w64 toolchain: <http://mingw-w64.sourceforge.net/>
 

@@ -1,5 +1,4 @@
 obj
-bin
 Service References
 packages
 Debug
@@ -19,3 +18,4 @@ Release
 /*.opendb
 /*.db
 *.user
+/TVPlay/bin
