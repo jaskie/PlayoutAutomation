@@ -87,9 +87,6 @@ namespace TAS.Client.ViewModels
                                 this._childrens.Insert(pos + 1, newVm);
                             }
                         }
-                        else
-                            if (e.Event.Parent == null)
-                            _addRootEvent(e.Event);
                     }
                 }
                 if (newVm != null

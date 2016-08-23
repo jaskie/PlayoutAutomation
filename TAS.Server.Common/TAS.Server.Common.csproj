@@ -94,6 +94,7 @@
     <Compile Include="Interfaces\IConvertOperation.cs" />
     <Compile Include="Interfaces\IEngine.cs" />
     <Compile Include="Interfaces\IEngineConfig.cs" />
+    <Compile Include="Interfaces\IEnginePlugin.cs" />
     <Compile Include="Interfaces\IEvent.cs" />
     <Compile Include="Interfaces\IEventProperties.cs" />
     <Compile Include="Interfaces\IFileManager.cs" />

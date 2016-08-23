@@ -17,8 +17,12 @@ namespace TAS.Server
     {
         public static readonly List<CasparServer> Servers;
         public static readonly List<Engine> Engines;
+
         [Import]
         static ILocalDevices _localGPIDevices = null;
+        [Import]
+        static IEnumerable<IEnginePlugin> _enginePlugins = null;
+
         public static readonly CompositionContainer ServerContainer;
 
         static EngineController()
@@ -29,6 +33,7 @@ namespace TAS.Server
                 ServerContainer = new CompositionContainer(catalog);
                 ServerContainer.ComposeExportedValue("LocalDevicesConfigurationFile", ConfigurationManager.AppSettings["LocalDevices"]);
                 _localGPIDevices = ServerContainer.GetExportedValueOrDefault<ILocalDevices>();
+                _enginePlugins = ServerContainer.GetExportedValues<IEnginePlugin>();
             }
             catch (Exception e)
             {
@@ -44,10 +49,12 @@ namespace TAS.Server
             Servers = Database.Database.DbLoadServers<CasparServer>();
             Servers.ForEach(s => s.Channels.ForEach(c => c.OwnerServer = s));
             Engines = Database.Database.DbLoadEngines<Engine>(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]));
-            foreach (Engine E in Engines)
+            foreach (Engine e in Engines)
             {
-                IGpi engineGpi = _localGPIDevices == null ? null : _localGPIDevices.Select(E.Id);
-                E.Initialize(Servers, engineGpi);
+                IGpi engineGpi = _localGPIDevices == null ? null : _localGPIDevices.Select(e.Id);
+                e.Initialize(Servers, engineGpi);
+                foreach (var plugin in _enginePlugins) 
+                    plugin.Initialize(e);
             }
             Debug.WriteLine("EngineController Created");
         }
