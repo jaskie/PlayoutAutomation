@@ -28,12 +28,12 @@ namespace TAS.Client
                 }
                 catch (TypeInitializationException e)
                 {
-                    MessageBox.Show(string.Format(resources._message_CantInitializeEngines, e.InnerException.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(string.Format(resources._message_CantInitializeEngines, e.InnerException), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
                     Application.Current.Shutdown(1);
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(string.Format(resources._message_CantInitializeEngines, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(string.Format(resources._message_CantInitializeEngines, e), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
                     Application.Current.Shutdown(1);
                 }
             }

@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="URL" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">http://127.0.0.1/registerEvents.php</Value>
+      <Value Profile="(Default)">http://127.0.0.1:8080/registerEvents.php</Value>
     </Setting>
   </Settings>
 </SettingsFile>

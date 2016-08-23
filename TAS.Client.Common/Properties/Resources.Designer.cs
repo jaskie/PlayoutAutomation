@@ -133,24 +133,6 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid start type of {0}.
-        /// </summary>
-        public static string _exception_EventProxy_InvalidStartType {
-            get {
-                return ResourceManager.GetString("_exception_EventProxy_InvalidStartType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Previous item for {0} not found.
-        /// </summary>
-        public static string _exception_EventProxy_PreviousEventNotFound {
-            get {
-                return ResourceManager.GetString("_exception_EventProxy_PreviousEventNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Cannot initialize engines because of error: 
         ///{0}
         ///Use TVPlay.config program to configure the system..

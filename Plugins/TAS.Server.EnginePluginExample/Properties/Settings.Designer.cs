@@ -25,7 +25,7 @@ namespace TAS.Server.EnginePluginExample.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://127.0.0.1/registerEvents.php")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://127.0.0.1:8080/registerEvents.php")]
         public string URL {
             get {
                 return ((string)(this["URL"]));

@@ -141,12 +141,6 @@
   <data name="_encodeWarningFFmpeg" xml:space="preserve">
     <value>Błąd zgłoszony przez FFmpeg: {0}</value>
   </data>
-  <data name="_exception_EventProxy_InvalidStartType" xml:space="preserve">
-    <value>Nieprawidłowy typ startu dla {0}</value>
-  </data>
-  <data name="_exception_EventProxy_PreviousEventNotFound" xml:space="preserve">
-    <value>Nie znaleziono poprzednika dla {0}</value>
-  </data>
   <data name="_message_CantInitializeEngines" xml:space="preserve">
     <value>Nie udalo się zainicjalizowanie silnika aplikacji z powodu błędu:
 {0}

@@ -31,9 +31,9 @@ namespace TAS.Server
             {
                 DirectoryCatalog catalog = new DirectoryCatalog(".", "TAS.Server.*.dll");
                 ServerContainer = new CompositionContainer(catalog);
+                _enginePlugins = ServerContainer.GetExportedValues<IEnginePlugin>();
                 ServerContainer.ComposeExportedValue("LocalDevicesConfigurationFile", ConfigurationManager.AppSettings["LocalDevices"]);
                 _localGPIDevices = ServerContainer.GetExportedValueOrDefault<ILocalDevices>();
-                _enginePlugins = ServerContainer.GetExportedValues<IEnginePlugin>();
             }
             catch (Exception e)
             {
@@ -53,8 +53,9 @@ namespace TAS.Server
             {
                 IGpi engineGpi = _localGPIDevices == null ? null : _localGPIDevices.Select(e.Id);
                 e.Initialize(Servers, engineGpi);
-                foreach (var plugin in _enginePlugins) 
-                    plugin.Initialize(e);
+                if (_enginePlugins != null)
+                    foreach (var plugin in _enginePlugins) 
+                        plugin.Initialize(e);
             }
             Debug.WriteLine("EngineController Created");
         }

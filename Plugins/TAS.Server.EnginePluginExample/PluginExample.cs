@@ -30,18 +30,19 @@ namespace TAS.Server.EnginePluginExample
                 {
                     UriBuilder uri = new UriBuilder(Properties.Settings.Default.URL);
                     Dictionary<string, string> parameters = new Dictionary<string, string>();
-                    parameters.Add("playoutServerTimestamp", e.Event.StartTime.Ticks.ToString());
+                    parameters.Add("playoutServerTimestamp", (e.Event.StartTime.Ticks / TimeSpan.TicksPerMillisecond).ToString());
                     if (!string.IsNullOrWhiteSpace(media.IdAux))
                         parameters.Add("eventType", media.IdAux);
                     else
                         parameters.Add("eventType", "STARTING");
-                    string query = string.Join("&", parameters.Select(kv => string.Format("{0}={1}", kv.Key, kv.Value)));
+                    parameters.Add("eventDuration", ((int)e.Event.Duration.TotalMilliseconds).ToString());
+                    uri.Query = string.Join("&", parameters.Select(kv => string.Format("{0}={1}", kv.Key, kv.Value)));
                     HttpWebRequest req = (HttpWebRequest)WebRequest.Create(uri.Uri);
                     req.Method = "POST";
                     using (var writer = new System.IO.StreamWriter(req.GetRequestStream()))
                     {
-                        new Newtonsoft.Json.JsonSerializer() { Formatting = Newtonsoft.Json.Formatting.Indented }
-                        .Serialize(writer, e.Event);
+                        new Newtonsoft.Json.JsonSerializer() { Formatting = Newtonsoft.Json.Formatting.Indented, PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.None }
+                        .Serialize(writer, EventProxy.FromEvent(e.Event));
                     }
                     req.BeginGetResponse(null, null);
                 }
