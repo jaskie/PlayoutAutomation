@@ -134,7 +134,7 @@
                         </Button>
                         <TextBox Text="{Binding StartType}" IsEnabled="False" />
                     </DockPanel>
-                    <DockPanel>
+                    <DockPanel Visibility="{Binding IsStartEvent, Converter={StaticResource InvertedBoolToVis}}">
                         <Label/>
                         <TextBox Text="{Binding BoundEventName, Mode=OneWay}" IsReadOnly="True" Background="#F0F0F0"/>
                     </DockPanel>
@@ -239,7 +239,7 @@
                                     <ComboBox ItemsSource="{Binding GPIParentals}" SelectedValue="{Binding GPIParental}" />
                                 </StackPanel>
                             </StackPanel>
-                            <CheckBox Content="GPI" IsChecked="{Binding CanTriggerGPI}" VerticalAlignment="Top" Margin="10,3,0,0" />
+                            <CheckBox Content="GPI" IsChecked="{Binding CanTriggerGPI}" VerticalAlignment="Top" Margin="10,5,0,0" />
                         </Grid>
                     </StackPanel>
                 </StackPanel>

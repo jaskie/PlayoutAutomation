@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 using TAS.Server.Interfaces;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.Reflection;
 
 namespace TAS.Server
 {
@@ -18,9 +19,7 @@ namespace TAS.Server
         public static readonly List<CasparServer> Servers;
         public static readonly List<Engine> Engines;
 
-        [Import]
         static ILocalDevices _localGPIDevices = null;
-        [Import]
         static IEnumerable<IEnginePlugin> _enginePlugins = null;
 
         public static readonly CompositionContainer ServerContainer;
@@ -34,6 +33,11 @@ namespace TAS.Server
                 _enginePlugins = ServerContainer.GetExportedValues<IEnginePlugin>();
                 ServerContainer.ComposeExportedValue("LocalDevicesConfigurationFile", ConfigurationManager.AppSettings["LocalDevices"]);
                 _localGPIDevices = ServerContainer.GetExportedValueOrDefault<ILocalDevices>();
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                foreach (var ex in e.LoaderExceptions)
+                    Debug.WriteLine(ex);
             }
             catch (Exception e)
             {

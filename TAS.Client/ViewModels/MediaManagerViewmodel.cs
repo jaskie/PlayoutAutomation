@@ -592,7 +592,7 @@ namespace TAS.Client.ViewModels
 
         private void _notifyDirectoryPropertiesChanged()
         {
-            NotifyPropertyChanged(nameof(DirectoryFreeOver20Percent));
+            NotifyPropertyChanged(nameof(IsMediaDirectoryFine));
             NotifyPropertyChanged(nameof(DirectoryFreePercentage));
             NotifyPropertyChanged(nameof(DirectoryTotalSpace));
             NotifyPropertyChanged(nameof(DirectoryFreeSpace));
@@ -600,7 +600,7 @@ namespace TAS.Client.ViewModels
         }
 
         public bool DisplayDirectoryInfo { get { return _selectedDirectory is IServerDirectory || _selectedDirectory is IArchiveDirectory || (_selectedDirectory is IIngestDirectory && ((IIngestDirectory)_selectedDirectory).AccessType == TDirectoryAccessType.Direct); } }
-        public bool DirectoryFreeOver20Percent { get { return (DirectoryFreePercentage >= 20); } }
+        public bool IsMediaDirectoryFine { get { return _selectedDirectory?.IsInitialized == true && DirectoryFreePercentage >= 20; } }
         public float DirectoryTotalSpace { get { return _selectedDirectory == null ? 0F : _selectedDirectory.VolumeTotalSize / (1073741824F); } }
         public float DirectoryFreeSpace { get { return _selectedDirectory == null ? 0F : _selectedDirectory.VolumeFreeSize / (1073741824F); } }
         public float DirectoryFreePercentage

@@ -260,8 +260,6 @@ namespace TAS.Server
             }
         }
 
-        protected virtual void OnMediaRenamed(Media media, string newName) { }
-
         protected virtual void OnMediaChanged(IMedia media)
         {
             if (media.Verified)
@@ -430,11 +428,21 @@ namespace TAS.Server
                 }
                 else
                 {
-                    m.FullPath = e.FullPath;
-                    OnMediaRenamed(m, e.Name);
+                    if (AcceptFile(e.FullPath))
+                    {
+                        OnMediaRenamed(m, e.FullPath);
+                        m.FullPath = e.FullPath;
+                    }
+                    else
+                        MediaRemove(m);
                 }
             }
             catch { }
+        }
+
+        protected virtual void OnMediaRenamed(Media media, string newFullPath)
+        {
+
         }
 
         protected virtual void OnFileChanged(object source, FileSystemEventArgs e)

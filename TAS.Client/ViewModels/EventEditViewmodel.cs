@@ -551,7 +551,9 @@ namespace TAS.Client.ViewModels
             get
             {
                 var et = _event?.EventType;
-                return et == TEventType.Movie || et == TEventType.Live || et == TEventType.Rundown;
+                var st = _event?.StartType;
+                return (et == TEventType.Movie || et == TEventType.Live || et == TEventType.Rundown) 
+                    && (st == TStartType.After || st == TStartType.With);
             }
         }
 
@@ -952,8 +954,8 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                IEvent ev = Event;
-                return ev != null && (ev.StartType == TStartType.OnFixedTime || ev.StartType == TStartType.Manual);
+                var st = Event?.StartType;
+                return (st == TStartType.OnFixedTime || st == TStartType.Manual);
             }
         }
 
