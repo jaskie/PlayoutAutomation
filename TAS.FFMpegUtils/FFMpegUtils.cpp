@@ -24,10 +24,15 @@ namespace TAS {
 		int64_t _FFMpegWrapper::getFrameCount()
 		{
 			if (pFormatCtx)
-				for (unsigned int i=0; i<pFormatCtx->nb_streams; i++)
-					if(pFormatCtx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_VIDEO) 
-						if (pFormatCtx->streams[i]->nb_frames > 0)
-								return pFormatCtx->streams[i]->nb_frames; 
+				for (unsigned int i = 0; i < pFormatCtx->nb_streams; i++)
+				{
+					AVStream* stream = pFormatCtx->streams[i];
+					if (stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
+						if (stream->nb_frames > 0)
+							return stream->nb_frames;
+						else
+							return (stream->duration * stream->time_base.num * stream->r_frame_rate.num) / (stream->time_base.den * stream->r_frame_rate.den);
+				}
 			// if not found
 			return 0; 
 		}
@@ -227,6 +232,17 @@ namespace TAS {
 			return 0;
 		}
 
+		char* _FFMpegWrapper::getTimeCode()
+		{
+			if (pFormatCtx)
+			{
+				AVDictionaryEntry* entry = av_dict_get(pFormatCtx->metadata, "timecode", NULL, 0);
+				if (entry)
+					return entry->value;
+			}
+			return NULL;
+		}
+
 		StreamInfo ^ _FFMpegWrapper::getStreamInfo(unsigned int streamIndex) 
 		{
 			StreamInfo ^ ret = gcnew StreamInfo();
@@ -304,6 +320,15 @@ namespace TAS {
 			for (int i = 0; i < ret->Length; i++)
 				ret[i] = wrapper->getStreamInfo(i);
 			return ret;
+		}
+
+		String^ FFMpegWrapper::GetTimeCode()
+		{
+			char* tc = wrapper->getTimeCode();
+			if (tc)
+				return gcnew String(tc);
+			else
+				return nullptr;
 		}
 
 

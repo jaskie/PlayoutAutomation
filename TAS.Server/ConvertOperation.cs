@@ -6,7 +6,6 @@ using System.IO;
 using System.Diagnostics;
 using System.Configuration;
 using System.Text.RegularExpressions;
-using MediaInfoLib;
 using System.Threading;
 using System.Runtime.Remoting.Messaging;
 using System.Globalization;
@@ -38,6 +37,7 @@ namespace TAS.Server
 
         #endregion // properties
 
+        /*
         #region CheckFile
         private void CheckInputFile(Media mf)
         {
@@ -107,6 +107,7 @@ namespace TAS.Server
 
 
         #endregion // Checkfile
+    */
 
         #region IConvertOperation implementation
 
@@ -393,7 +394,7 @@ namespace TAS.Server
             _addOutputMessage("Starting convert operation:");
             VideoFormatDescription formatDescription = VideoFormatDescription.Descriptions[OutputFormat];
             DestMedia.MediaStatus = TMediaStatus.Copying;
-            CheckInputFile(media);
+            //CheckInputFile(media);
             string encodeParams = _encodeParameters(media, streams);
             //TimeSpan outStartTC = _is_trimmed() ? 
             string ingestRegion = _is_trimmed() ?

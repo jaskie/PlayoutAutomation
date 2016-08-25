@@ -64,6 +64,7 @@ namespace TAS {
 		AVFieldOrder getFieldOrder();
 		AVRational getSAR();
 		AVRational getFrameRate();
+		char* _FFMpegWrapper::getTimeCode();
 		bool readNextPacket(AVPacket* packetToRead);
 	};
 
@@ -83,6 +84,7 @@ namespace TAS {
 			FieldOrder GetFieldOrder();
 			Rational^ GetFrameRate();
 			Rational^ GetSAR();
+			String^ GetTimeCode();
 			array<StreamInfo^>^ GetStreamInfo();
 		};
 	}

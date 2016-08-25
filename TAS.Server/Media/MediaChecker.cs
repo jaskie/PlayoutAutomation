@@ -26,26 +26,6 @@ namespace TAS.Server
                     RationalNumber frameRate = new RationalNumber(r.Num, r.Den);
                     videoDuration = ffmpeg.GetFrameCount().SMPTEFramesToTimeSpan(frameRate);
                     audioDuration = (TimeSpan)ffmpeg.GetAudioDuration();
-                    if (videoDuration == TimeSpan.Zero)
-                    {
-                        MediaInfoLib.MediaInfo mi = new MediaInfoLib.MediaInfo();
-                        try
-                        {
-                            mi.Open(media.FullPath);
-                            long frameCount;
-                            if (long.TryParse(mi.Get(MediaInfoLib.StreamKind.Video, 0, "FrameCount"), out frameCount))
-                                videoDuration = frameCount.SMPTEFramesToTimeSpan(media.VideoFormatDescription.FrameRate);
-                            long audioMilliseconds;
-                            if (long.TryParse(mi.Get(MediaInfoLib.StreamKind.Audio, 0, "Duration"), out audioMilliseconds))
-                                audioDuration = TimeSpan.FromMilliseconds(audioMilliseconds);
-                            //mi.Option("Complete");
-                            //Debug.WriteLine(mi.Inform());
-                        }
-                        finally
-                        {
-                            mi.Close();
-                        }
-                    }
                     var mediaDuration = ((videoDuration > audioDuration) && (audioDuration > TimeSpan.Zero) ? audioDuration : videoDuration).Round(frameRate);
                     media.Duration = mediaDuration;
                     if (media.DurationPlay == TimeSpan.Zero || media.DurationPlay > mediaDuration)
@@ -61,6 +41,14 @@ namespace TAS.Server
                     }
                     else
                         media.HasExtraLines = false;
+                    string timecode = ffmpeg.GetTimeCode();
+                    if (timecode != null
+                        && timecode.IsValidSMPTETimecode(frameRate))
+                    {
+                        media.TcStart = timecode.SMPTETimecodeToTimeSpan(frameRate);
+                        if (media.TcPlay < media.TcStart)
+                            media.TcPlay = media.TcStart;
+                    }                    
 
                     RationalNumber sAR = (h == 576 && ((sar.Num == 608 && sar.Den == 405) || (sar.Num == 1 && sar.Den == 1) || (sar.Num == 118 && sar.Den == 81))) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL_FHA].SAR
                         : (sar.Num == 152 && sar.Den == 135) ? VideoFormatDescription.Descriptions[TVideoFormat.PAL].SAR
