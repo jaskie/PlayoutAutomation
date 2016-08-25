@@ -111,7 +111,7 @@ namespace TAS.Server
         {
             if (base.SetPlayState(newPlayState))
             {
-                if (newPlayState == TPlayState.Scheduled)
+                if (newPlayState != TPlayState.Played)
                     lock (_commandsSyncRoot)
                         _commands.ForEach(i => i.IsExecuted = false);
                 return true;
