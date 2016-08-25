@@ -110,7 +110,7 @@ namespace Svt.Network
                 client.NoDelay = true;
 
 				RemoteState = new RemoteHostState(client);
-                RemoteState.GotDataToSend +=new EventHandler<EventArgs>(RemoteState_GotDataToSend);
+                RemoteState.GotDataToSend += RemoteState_GotDataToSend;
 				RemoteState.Stream.BeginRead(RemoteState.ReadBuffer, 0, RemoteState.ReadBuffer.Length, new AsyncCallback(RecvCallback_obsolete), null);
 
                 OnConnected();

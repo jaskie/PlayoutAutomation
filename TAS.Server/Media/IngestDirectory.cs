@@ -488,6 +488,7 @@ namespace TAS.Server
         {
             try
             {
+                Debug.WriteLine(e.FullPath, "OnFileRenamed");
                 if (Path.GetExtension(e.Name).ToLowerInvariant() == ".xml")
                 {
                     string xf = _bMDXmlFiles.FirstOrDefault(s => s == e.OldFullPath);
@@ -507,8 +508,7 @@ namespace TAS.Server
 
         protected override void OnMediaRenamed(Media media, string newFullPath)
         {
-            if (!(Extensions.Length == 0 || Extensions.Any(e => e == Path.GetExtension(newFullPath).ToLowerInvariant())))
-                MediaRemove(media);
+            Debug.WriteLine(newFullPath, "OnMediaRenamed");
             string ext = Path.GetExtension(newFullPath).ToLowerInvariant();
             if (FileUtils.VideoFileTypes.Contains(ext) || FileUtils.AudioFileTypes.Contains(ext) || FileUtils.StillFileTypes.Contains(ext))
                 media.MediaName = Path.GetFileNameWithoutExtension(newFullPath);

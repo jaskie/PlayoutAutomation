@@ -15,6 +15,7 @@ using TAS.Remoting.Server;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using TAS.Server.Common;
+using System.Threading;
 
 namespace TAS.Server
 {
@@ -133,9 +134,8 @@ namespace TAS.Server
             else
                 return null;
         }
-
-        #endregion // Utilities
-        private CasparCGDataCollection GetContainerData(ITemplated template)
+                
+        private CasparCGDataCollection _getContainerData(ITemplated template)
         {
             var data =  new CasparCGDataCollection();
             foreach (var field in template.Fields)
@@ -143,8 +143,12 @@ namespace TAS.Server
             return data;
         }
 
+        #endregion // Utilities
+
         private readonly ConcurrentDictionary<VideoLayer, Event> _loadedNext = new ConcurrentDictionary<VideoLayer, Event>();
         private readonly ConcurrentDictionary<VideoLayer, Event> _visible = new ConcurrentDictionary<VideoLayer, Event>();
+
+        #region IPlayoutServerChannel
 
         public bool LoadNext(Event aEvent)
         {
@@ -499,5 +503,7 @@ namespace TAS.Server
                 return item?.Execute(channel) == true;
             return false;
         }
+#endregion //IPlayoutServerChannel
+
     }
 }

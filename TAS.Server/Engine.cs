@@ -712,6 +712,7 @@ namespace TAS.Server
             if (aEvent == null)
                 return false;
             Debug.WriteLine("{0} Play: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
+            eventType = aEvent.EventType;
             if (aEvent == _forcedNext)
             {
                 ForcedNext = null;
