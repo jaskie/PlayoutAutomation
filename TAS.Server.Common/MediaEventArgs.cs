@@ -8,11 +8,19 @@ namespace TAS.Server.Common
 {
     public class MediaEventArgs : EventArgs
     {
-
         public MediaEventArgs(IMedia media)
         {
             Media = media;
         }
         public IMedia Media { get; private set; }
+    }
+
+    public class MediaPropertyEventArgs: MediaEventArgs
+    {
+        public MediaPropertyEventArgs(IMedia media, string propertyName): base(media)
+        {
+            PropertyName = propertyName;
+        }
+        public string PropertyName { get; private set; }
     }
 }

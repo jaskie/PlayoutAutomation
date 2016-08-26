@@ -469,16 +469,18 @@ namespace TAS.Client.ViewModels
         {
             if (_selectedDirectory != null)
             {
-                _selectedDirectory.MediaAdded -= _mediaAdded;
-                _selectedDirectory.MediaRemoved -= _mediaRemoved;
-                _selectedDirectory.PropertyChanged -= MediaDirectoryPropertyChanged;
+                _selectedDirectory.MediaAdded -= _selectedDirectoryMediaAdded;
+                _selectedDirectory.MediaRemoved -= _selectedDirectoryMediaRemoved;
+                _selectedDirectory.PropertyChanged -= _selectedDirectoryPropertyChanged;
+                _selectedDirectory.MediaPropertyChanged -= _selectedDirectory_MediaPropertyChanged;
             }
             _selectedDirectory = directory;
             if (directory != null)
             {
-                directory.MediaAdded += _mediaAdded;
-                directory.MediaRemoved += _mediaRemoved;
-                directory.PropertyChanged += MediaDirectoryPropertyChanged;
+                directory.MediaAdded += _selectedDirectoryMediaAdded;
+                directory.MediaRemoved += _selectedDirectoryMediaRemoved;
+                directory.PropertyChanged += _selectedDirectoryPropertyChanged;
+                directory.MediaPropertyChanged += _selectedDirectory_MediaPropertyChanged;
                 if (directory is IArchiveDirectory)
                     if (!string.IsNullOrEmpty((directory as IArchiveDirectory).SearchString))
                         SearchText = (directory as IArchiveDirectory).SearchString;
@@ -515,7 +517,7 @@ namespace TAS.Client.ViewModels
         public bool IsAnimationDirectory { get { return _selectedDirectory is IAnimationDirectory; } }
 
 
-        private void MediaDirectoryPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void _selectedDirectoryPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IArchiveDirectory.SearchString))
             {
@@ -552,7 +554,7 @@ namespace TAS.Client.ViewModels
         }
 
 
-        private void _mediaAdded(object source, MediaEventArgs e)
+        private void _selectedDirectoryMediaAdded(object source, MediaEventArgs e)
         {
             var dir = source as IMediaDirectory;
             if (dir != null && dir.IsInitialized)
@@ -570,7 +572,7 @@ namespace TAS.Client.ViewModels
                     , null);
         }
 
-        private void _mediaRemoved(object source, MediaEventArgs e)
+        private void _selectedDirectoryMediaRemoved(object source, MediaEventArgs e)
         {
             var dir = source as IMediaDirectory;
             if (dir != null && dir.IsInitialized)
@@ -588,6 +590,28 @@ namespace TAS.Client.ViewModels
                     }
                 }
                 , null);
+        }
+
+
+        private void _selectedDirectory_MediaPropertyChanged(object sender, MediaPropertyEventArgs e)
+        {
+            var dir = sender as IMediaDirectory;
+            if (dir != null && dir.IsInitialized && e.PropertyName == nameof(IMedia.MediaType))
+                Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+                {
+                    IMedia media = e.Media;
+                    if (_mediaItems != null
+                        && !(SelectedDirectory is IServerDirectory) || (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Still))
+                    {
+                        if (!_mediaItems.Any(mi => mi.Media == media))
+                        {
+                            _mediaItems.Add(new MediaViewViewmodel(media, _mediaManager));
+                            _mediaView.Refresh();
+                            _notifyDirectoryPropertiesChanged();
+                        }
+                    }
+                }
+                    , null);
         }
 
         private void _notifyDirectoryPropertiesChanged()

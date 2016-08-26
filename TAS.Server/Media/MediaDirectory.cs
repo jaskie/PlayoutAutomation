@@ -29,6 +29,7 @@ namespace TAS.Server
         public event EventHandler<MediaEventArgs> MediaRemoved;
         public event EventHandler<MediaEventArgs> MediaVerified;
         public event EventHandler<MediaEventArgs> MediaDeleted;
+        public event EventHandler<MediaPropertyEventArgs> MediaPropertyChanged;
 
         protected bool _isInitialized = false;
 
@@ -241,7 +242,13 @@ namespace TAS.Server
         public virtual void MediaAdd(Media media)
         {
             _files[media.MediaGuid] = media;
+            media.PropertyChanged += _media_PropertyChanged;
             NotifyMediaAdded(media);
+        }
+
+        private void _media_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            MediaPropertyChanged?.Invoke(this, new MediaPropertyEventArgs(sender as IMedia, e.PropertyName));
         }
 
         public virtual void MediaRemove(IMedia media)
@@ -249,6 +256,8 @@ namespace TAS.Server
             Media removed;
             _files.TryRemove(media.MediaGuid, out removed);
             MediaRemoved?.Invoke(this, new MediaEventArgs(media));
+            if (removed != null)
+                removed.PropertyChanged -= _media_PropertyChanged;
         }
 
         protected virtual void FileRemoved(string fullPath)
