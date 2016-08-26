@@ -29,7 +29,10 @@ namespace TAS.Server
         internal FileManager Owner;
         public FileOperation()
         {
+            Logger = NLog.LogManager.GetLogger(this.GetType().Name);
         }
+
+        protected NLog.Logger Logger;
 
         private int _tryCount = 15;
         [JsonProperty]
@@ -186,6 +189,7 @@ namespace TAS.Server
         {
             _operationOutput.Add(string.Format("{0} {1}", DateTime.Now, message));
             NotifyPropertyChanged(nameof(OperationOutput));
+            Logger.Info(message);
         }
 
         private SynchronizedCollection<string> _operationWarning = new SynchronizedCollection<string>();

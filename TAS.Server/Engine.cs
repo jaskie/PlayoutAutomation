@@ -109,6 +109,8 @@ namespace TAS.Server
 
         #endregion //IDisposable
 
+        static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private CasparServerChannel _playoutChannelPRI;
         [XmlIgnore]
         public IPlayoutServerChannel PlayoutChannelPRI { get { return _playoutChannelPRI; } }
@@ -136,6 +138,7 @@ namespace TAS.Server
         public void Initialize(IEnumerable<IPlayoutServer> servers, IGpi localGpi)
         {
             Debug.WriteLine(this, "Begin initializing");
+            Logger.Debug("Initializing engine {0}", this);
 
             var sPRI = servers.FirstOrDefault(S => S.Id == IdServerPRI);
             _playoutChannelPRI = sPRI == null ? null : (CasparServerChannel)sPRI.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelPRI);
@@ -199,6 +202,7 @@ namespace TAS.Server
             _engineThread.IsBackground = true;
             _engineThread.Start();
             Debug.WriteLine(this, "Engine initialized");
+            Logger.Debug("Engine {0} initialized", this);
         }
 
         internal void UnInitialize()
@@ -240,6 +244,7 @@ namespace TAS.Server
         private void _engineThreadProc()
         {
             Debug.WriteLine(this, "Engine thread started");
+            Logger.Debug("Started engine thread for {0}", this);
             CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
             CurrentTicks = CurrentTime.Ticks;
 
@@ -293,6 +298,7 @@ namespace TAS.Server
                     Thread.Sleep((int)timeToWait);
             }
             Debug.WriteLine(this, "Engine thread finished");
+            Logger.Debug("Engine thread finished: {0}", this);
         }
 
         private void _server_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -645,6 +651,7 @@ namespace TAS.Server
             if (aEvent == null)
                 return false;
             Debug.WriteLine("{0} Load: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
+            Logger.Info("{0} {1}: Load {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this, aEvent);
             var eventType = aEvent.EventType;
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
@@ -676,6 +683,7 @@ namespace TAS.Server
                 !(_preloadedEvents.TryGetValue(aEvent.Layer, out preloaded) && preloaded == aEvent))
             {
                 Debug.WriteLine("{0} LoadNext: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
+                Logger.Info("{0} {1}: Preload {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this, aEvent);
                 _preloadedEvents[aEvent.Layer] = aEvent;
                 if (_playoutChannelPRI != null)
                     _playoutChannelPRI.LoadNext(aEvent);
@@ -712,6 +720,7 @@ namespace TAS.Server
             if (aEvent == null)
                 return false;
             Debug.WriteLine("{0} Play: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
+            Logger.Info("{0} {1}: Play {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this, aEvent);
             eventType = aEvent.EventType;
             if (aEvent == _forcedNext)
             {
@@ -848,6 +857,7 @@ namespace TAS.Server
                     if (eventType != TEventType.Live && eventType != TEventType.CommandScript)
                     {
                         Debug.WriteLine("{0} Stop: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
+                        Logger.Info("{0} {1}: Stop {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this, aEvent);
                         _playoutChannelPRI?.Stop(aEvent);
                         _playoutChannelSEC?.Stop(aEvent);
                     }
@@ -870,6 +880,7 @@ namespace TAS.Server
                 if (_visibleEvents.Contains(aEvent))
                 {
                     Debug.WriteLine("{0} Pause: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
+                    Logger.Info("{0} {1}: Pause {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this, aEvent);
                     if (aEvent.EventType != TEventType.Live && aEvent.EventType != TEventType.StillImage)
                     {
                         _playoutChannelPRI?.Pause(aEvent);
@@ -1230,6 +1241,7 @@ namespace TAS.Server
         public void Clear(VideoLayer aVideoLayer)
         {
             Debug.WriteLine(aVideoLayer, "Clear");
+            Logger.Info("{0} {1}: Clear layer {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this, aVideoLayer);
             Event ev;
             lock (_visibleEvents.SyncRoot)
                 ev = _visibleEvents.FirstOrDefault(e => e.Layer == aVideoLayer);
@@ -1257,6 +1269,7 @@ namespace TAS.Server
         
         public void Clear()
         {
+            Logger.Info("{0} {1}: Clear all", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this);
             _clearRunning();
             _visibleEvents.Clear();
             ForcedNext = null;
@@ -1276,6 +1289,7 @@ namespace TAS.Server
 
         public void Restart()
         {
+            Logger.Info("{0} {1}: Restart", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this);
             foreach (Event e in _visibleEvents.ToList())
                 _restartEvent(e);
         }

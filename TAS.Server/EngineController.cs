@@ -18,6 +18,7 @@ namespace TAS.Server
     {
         public static readonly List<CasparServer> Servers;
         public static readonly List<Engine> Engines;
+        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(EngineController));
 
         static ILocalDevices _localGPIDevices = null;
         static IEnumerable<IEnginePlugin> _enginePlugins = null;
@@ -26,6 +27,7 @@ namespace TAS.Server
 
         static EngineController()
         {
+            Logger.Info("Application starting");
             try
             {
                 DirectoryCatalog catalog = new DirectoryCatalog(".", "TAS.Server.*.dll");
@@ -37,16 +39,21 @@ namespace TAS.Server
             catch (ReflectionTypeLoadException e)
             {
                 foreach (var ex in e.LoaderExceptions)
+                {
                     Debug.WriteLine(ex);
+                    Logger.Error(ex, "Engine plugin load failed");
+                }
             }
             catch (Exception e)
             {
                 Debug.WriteLine(e);
+                Logger.Error(e, "Engine plugin load failed");
             }
             if (_localGPIDevices != null)
                 _localGPIDevices.Initialize();
 
             Debug.WriteLine("Initializing database connector");
+            Logger.Debug("Connecting to database");
             ConnectionStringSettings connectionStringPrimary = ConfigurationManager.ConnectionStrings["tasConnectionString"];
             ConnectionStringSettings connectionStringSecondary = ConfigurationManager.ConnectionStrings["tasConnectionStringSecondary"];
             Database.Database.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
@@ -62,6 +69,7 @@ namespace TAS.Server
                         plugin.Initialize(e);
             }
             Debug.WriteLine("EngineController Created");
+            Logger.Debug("Finished creating engines");
         }
 
         public static void ShutDown()
@@ -69,6 +77,7 @@ namespace TAS.Server
             if (Engines != null)
                 foreach (Engine e in Engines)
                     e.Dispose();
+            Logger.Info("Application shutdown");
         }
     }
 }
