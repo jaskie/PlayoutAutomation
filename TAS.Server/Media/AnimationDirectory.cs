@@ -72,25 +72,6 @@ namespace TAS.Server
             return result;
         }
 
-
-        public override void MediaAdd(Media media)
-        {
-            base.MediaAdd(media);
-            media.PropertyChanged += _onMediaPropertyChanged;
-        }
-        public override void MediaRemove(IMedia media)
-        {
-            var tm = media as AnimatedMedia;
-            if (tm != null)
-            {
-                tm.MediaStatus = TMediaStatus.Deleted;
-                tm.Verified = false;
-                tm.Save();
-                tm.PropertyChanged -= _onMediaPropertyChanged;
-            }
-            base.MediaRemove(media);
-        }
-
         public override bool DeleteMedia(IMedia media)
         {
             if (base.DeleteMedia(media))
@@ -103,12 +84,6 @@ namespace TAS.Server
 
         public override void SweepStaleMedia() { }
 
-        public event PropertyChangedEventHandler MediaPropertyChanged;
-
-        private void _onMediaPropertyChanged(object o, PropertyChangedEventArgs e)
-        {
-            MediaPropertyChanged?.Invoke(o, e);
-        }
 
     }
 }

@@ -63,5 +63,7 @@ namespace TAS.Client.Config.Model
         [XmlArray]
         [XmlArrayItem("Extension")]
         public string[] Extensions { get; set; }
+        public TVideoCodec VideoCodec { get; set; }
+        public TAudioCodec AudioCodec { get; set; }
     }
 }

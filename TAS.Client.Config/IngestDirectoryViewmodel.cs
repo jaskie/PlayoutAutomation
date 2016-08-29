@@ -31,6 +31,10 @@ namespace TAS.Client.Config
         public Array ExportContainerFormats { get { return _exportContainerFormats; } }
         static readonly Array _exportVideoFormats = Enum.GetValues(typeof(TVideoFormat));
         public Array ExportVideoFormats { get { return _exportVideoFormats; } }
+        static readonly Array _videoCodecs = Enum.GetValues(typeof(TVideoCodec));
+        public Array VideoCodecs { get { return _videoCodecs; } }
+        static readonly Array _audioCodecs = Enum.GetValues(typeof(TAudioCodec));
+        public Array AudioCodecs { get { return _audioCodecs; } }
         #endregion // Enumerations
 
 
@@ -96,15 +100,37 @@ namespace TAS.Client.Config
         }
         TVideoFormat _exportVideoFormat;
         public TVideoFormat ExportVideoFormat { get { return _exportVideoFormat; } set { SetField(ref _exportVideoFormat, value, nameof(ExportVideoFormat)); } }
-        bool _doNotEncode;
-        public bool DoNotEncode { get { return _doNotEncode; } set { SetField(ref _doNotEncode, value, nameof(DoNotEncode)); } }
         string _exportParams;
         public string ExportParams { get { return _exportParams; }  set { SetField(ref _exportParams, value, nameof(ExportParams)); } }
         string[] _extensions;
         public string[] Extensions { get { return _extensions; } set { SetField(ref _extensions, value, nameof(Extensions)); } }
+
+        TVideoCodec _videoCodec;
+        public TVideoCodec VideoCodec
+        {
+            get { return _videoCodec; }
+            set
+            {
+                if (SetField(ref _videoCodec, value, nameof(VideoCodec)))
+                    NotifyPropertyChanged(nameof(VideoDoNotEncode));
+            }
+        }
+        TAudioCodec _audioCodec;
+        public TAudioCodec AudioCodec
+        {
+            get { return _audioCodec; }
+            set
+            {
+                if (SetField(ref _audioCodec, value, nameof(AudioCodec)))
+                    NotifyPropertyChanged(nameof(AudioDoNotEncode));
+            }
+        }
+
         #endregion // IIngestDirectory
 
         public bool IsMXF { get { return IsXDCAM || (!IsXDCAM && ExportContainerFormat == TMediaExportContainerFormat.mxf); } }
+        public bool VideoDoNotEncode { get { return _videoCodec != TVideoCodec.copy; } }
+        public bool AudioDoNotEncode { get { return _audioCodec != TAudioCodec.copy; } }
 
         protected override void OnDispose() { }
 

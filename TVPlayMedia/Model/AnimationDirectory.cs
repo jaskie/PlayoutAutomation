@@ -15,12 +15,5 @@ namespace TAS.Client.Model
             return Query<IAnimatedMedia>(parameters: new[] { source });
         }
 
-        public event PropertyChangedEventHandler MediaPropertyChanged;
-
-        internal virtual void OnMediaPropertyChanged(object o, PropertyChangedEventArgs e)
-        {
-            MediaPropertyChanged?.Invoke(o, e);
-        }
-
     }
 }

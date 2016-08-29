@@ -8,9 +8,10 @@ namespace TAS.Server.Interfaces
         TAspectConversion AspectConversion { get; set; }
         decimal AudioVolume { get; set; }
         bool DeleteSource { get; set; }
-        bool DoNotEncode { get; set; }
         bool IsExport { get; set; }
         bool IsImport { get; set; }
+        TVideoCodec VideoCodec { get; set; }
+        TAudioCodec AudioCodec { get; set; }
         string EncodeParams { get; set; }
         TMediaExportContainerFormat ExportContainerFormat { get; set; }
         string ExportParams { get; set; }

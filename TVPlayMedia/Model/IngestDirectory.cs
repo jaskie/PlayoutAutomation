@@ -31,7 +31,8 @@ namespace TAS.Client.Model
         public TmXFVideoExportFormat MXFVideoExportFormat { get; set; }
         public TMediaExportContainerFormat ExportContainerFormat { get; set; }
         public TVideoFormat ExportVideoFormat { get; set; }
-
+        public TVideoCodec VideoCodec { get; set; }
+        public TAudioCodec AudioCodec { get; set; }
         public string[] Extensions { get; set; }
         public NetworkCredential NetworkCredential { get { return null; } }
         public string Password { get; set; }

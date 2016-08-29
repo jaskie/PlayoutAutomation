@@ -9,6 +9,5 @@ namespace TAS.Server.Interfaces
     public interface IAnimationDirectory: IMediaDirectory
     {
         IAnimatedMedia CloneMedia(IAnimatedMedia source, Guid newMediaGuid);
-        event PropertyChangedEventHandler MediaPropertyChanged;
     }
 }

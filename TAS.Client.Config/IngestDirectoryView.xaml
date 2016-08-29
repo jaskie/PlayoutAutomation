@@ -52,7 +52,8 @@
                 </TextBlock>
                 <TextBox Text="{Binding Extensions, Converter={StaticResource StringArrayToDelimitedString}, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
                 <CheckBox IsChecked="{Binding IsRecursive}" Content="Recursive, with subdirectories"/>
-                <CheckBox IsChecked="{Binding DoNotEncode}" Content="Don't re-encode media"/>
+                <Label Content="VideoCodec"/>
+                <ComboBox ItemsSource="{Binding VideoCodecs}" SelectedItem="{Binding VideoCodec}"/>
                 <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource InvertedBoolToVis}}">
                     <Label Content="Encode parameters (FFmpeg)"/>
                     <TextBox Text="{Binding EncodeParams, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>

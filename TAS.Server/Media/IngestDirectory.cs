@@ -98,6 +98,9 @@ namespace TAS.Server
         [JsonProperty]
         public bool IsExport { get; set; }
 
+        public TVideoCodec VideoCodec { get; set; }
+        public TAudioCodec AudioCodec { get; set; }
+
         [DefaultValue(true)]
         [JsonProperty]
         public bool IsImport { get; set; }

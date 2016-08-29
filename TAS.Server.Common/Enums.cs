@@ -504,4 +504,18 @@ namespace TAS.Common
         InOutBounce,
         OutInBounce
     }
+
+    public enum TVideoCodec
+    {
+        copy,
+        mpeg2video,
+        libx264
+    }
+    
+    public enum TAudioCodec
+    {
+        copy,
+        aac,
+        mp3
+    }
 }
