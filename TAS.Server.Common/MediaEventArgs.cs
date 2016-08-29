@@ -15,9 +15,9 @@ namespace TAS.Server.Common
         public IMedia Media { get; private set; }
     }
 
-    public class MediaPropertyEventArgs: MediaEventArgs
+    public class MediaPropertyChangedEventArgs: MediaEventArgs
     {
-        public MediaPropertyEventArgs(IMedia media, string propertyName): base(media)
+        public MediaPropertyChangedEventArgs(IMedia media, string propertyName): base(media)
         {
             PropertyName = propertyName;
         }

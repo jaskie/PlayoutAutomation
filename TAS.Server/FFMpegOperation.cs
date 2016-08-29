@@ -28,7 +28,7 @@ namespace TAS.Server
 
             //try the process
             Debug.WriteLine(parameters, "Starting ffmpeg with parameters");
-            _addOutputMessage(string.Format("ffmpeg.exe {0}", parameters));
+            AddOutputMessage(string.Format("ffmpeg.exe {0}", parameters));
             try
             {
                 using (Process _procFFmpeg = Process.Start(oInfo))
@@ -52,7 +52,7 @@ namespace TAS.Server
             catch (Exception e)
             {
                 Debug.WriteLine(e.Message, "Error running FFmpeg process");
-                _addOutputMessage(e.ToString());
+                AddOutputMessage(e.ToString());
                 return false;
             }
         }
@@ -75,7 +75,7 @@ namespace TAS.Server
                     }
                 }
                 else
-                    _addOutputMessage(outLine.Data);
+                    AddOutputMessage(outLine.Data);
             }
         }
 

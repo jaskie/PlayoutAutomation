@@ -63,7 +63,7 @@ namespace TAS.Server
             internal set
             {
                 if (SetField(ref _scheduledTime, value, nameof(ScheduledTime)))
-                    _addOutputMessage("Operation scheduled");
+                    AddOutputMessage("Operation scheduled");
             }
         }
         private DateTime _startTime;
@@ -185,11 +185,11 @@ namespace TAS.Server
         private SynchronizedCollection<string> _operationOutput = new SynchronizedCollection<string>();
         [JsonProperty]
         public List<string> OperationOutput { get { lock (_operationOutput.SyncRoot) return _operationOutput.ToList(); } }
-        protected void _addOutputMessage(string message)
+        protected void AddOutputMessage(string message)
         {
             _operationOutput.Add(string.Format("{0} {1}", DateTime.Now, message));
             NotifyPropertyChanged(nameof(OperationOutput));
-            Logger.Info(message);
+            Logger.Info("{0}: {1}", Title, message);
         }
 
         private SynchronizedCollection<string> _operationWarning = new SynchronizedCollection<string>();
@@ -215,7 +215,7 @@ namespace TAS.Server
         private bool _do()
         {
             Debug.WriteLine(this, "File operation started");
-            _addOutputMessage("Operation started");
+            AddOutputMessage("Operation started");
             StartTime = DateTime.UtcNow;
             OperationStatus = FileOperationStatus.InProgress;
             switch (Kind)
@@ -243,13 +243,13 @@ namespace TAS.Server
                             ThreadPool.QueueUserWorkItem(o => ((Media)DestMedia).Verify());
 
                             Debug.WriteLine(this, "File operation succeed");
-                            _addOutputMessage("Copy operation finished");
+                            AddOutputMessage("Copy operation finished");
                             return true;
                         }
                         catch (Exception e)
                         {
                             Debug.WriteLine("File operation {0} failed with {1}", this, e.Message);
-                            _addOutputMessage(string.Format("Copy operation failed with {0}", e.Message));
+                            AddOutputMessage(string.Format("Copy operation failed with {0}", e.Message));
                         }
                     return false;
                 case TFileOperationKind.Delete:
@@ -257,7 +257,7 @@ namespace TAS.Server
                     {
                         if (SourceMedia.Delete())
                         {
-                            _addOutputMessage("Delete operation finished"); 
+                            AddOutputMessage("Delete operation finished"); 
                             Debug.WriteLine(this, "File operation succeed");
                             return true;
                         }
@@ -265,7 +265,7 @@ namespace TAS.Server
                     catch (Exception e)
                     {
                         Debug.WriteLine("File operation failed {0} with {1}", this, e.Message);
-                        _addOutputMessage(string.Format("Delete operation failed with {0}", e.Message));
+                        AddOutputMessage(string.Format("Delete operation failed with {0}", e.Message));
                     }
                     return false;
                 case TFileOperationKind.Move:
@@ -276,7 +276,7 @@ namespace TAS.Server
                                 if (!DestMedia.Delete())
                                 {
                                     Debug.WriteLine(this, "File operation failed - dest not deleted");
-                                    _addOutputMessage("Move operation failed - destination media not deleted");
+                                    AddOutputMessage("Move operation failed - destination media not deleted");
                                     return false;
                                 }
                             IsIndeterminate = true;
@@ -286,14 +286,14 @@ namespace TAS.Server
                             File.SetLastWriteTimeUtc(DestMedia.FullPath, File.GetLastWriteTimeUtc(SourceMedia.FullPath));
                             DestMedia.MediaStatus = TMediaStatus.Copied;
                             ThreadPool.QueueUserWorkItem(o => ((Media)DestMedia).Verify());
-                            _addOutputMessage("Move operation finished");
+                            AddOutputMessage("Move operation finished");
                             Debug.WriteLine(this, "File operation succeed");
                             return true;
                         }
                         catch (Exception e)
                         {
                             Debug.WriteLine("File operation failed {0} with {1}", this, e.Message);
-                            _addOutputMessage(string.Format("Move operation failed with {0}", e.Message));
+                            AddOutputMessage(string.Format("Move operation failed with {0}", e.Message));
                         }
                     return false;
                 default:
@@ -318,7 +318,8 @@ namespace TAS.Server
             OperationStatus = FileOperationStatus.Failed;
             if (DestMedia != null && DestMedia.FileExists())
                 DestMedia.Delete();
-            Debug.WriteLine(this, "File simple operation failed - TryCount is zero");
+            Debug.WriteLine(this, "Operation failed - TryCount is zero");
+            Logger.Info("Operation failed: {0}", Title);
         }
 
         public override string ToString()

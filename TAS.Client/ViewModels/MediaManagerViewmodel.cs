@@ -593,25 +593,22 @@ namespace TAS.Client.ViewModels
         }
 
 
-        private void _selectedDirectory_MediaPropertyChanged(object sender, MediaPropertyEventArgs e)
+        private void _selectedDirectory_MediaPropertyChanged(object sender, MediaPropertyChangedEventArgs e)
         {
             var dir = sender as IMediaDirectory;
             if (dir != null && dir.IsInitialized && e.PropertyName == nameof(IMedia.MediaType))
                 Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
                 {
                     IMedia media = e.Media;
-                    if (_mediaItems != null
-                        && !(SelectedDirectory is IServerDirectory) || (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Still))
+                    if (!(SelectedDirectory is IServerDirectory) || (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Still || media.MediaType == TMediaType.Audio)
+                        && _mediaItems?.Any(mi => mi.Media == media) == false)
                     {
-                        if (!_mediaItems.Any(mi => mi.Media == media))
-                        {
-                            _mediaItems.Add(new MediaViewViewmodel(media, _mediaManager));
-                            _mediaView.Refresh();
-                            _notifyDirectoryPropertiesChanged();
-                        }
+                        _mediaItems.Add(new MediaViewViewmodel(media, _mediaManager));
+                        _mediaView.Refresh();
+                        _notifyDirectoryPropertiesChanged();
                     }
                 }
-                    , null);
+               , null);
         }
 
         private void _notifyDirectoryPropertiesChanged()

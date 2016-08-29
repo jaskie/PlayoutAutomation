@@ -57,7 +57,6 @@ namespace TAS.Server
         public override void MediaAdd(Media media)
         {
             base.MediaAdd(media);
-            media.PropertyChanged += OnMediaPropertyChanged;
             if (media.MediaStatus != TMediaStatus.Required && File.Exists(media.FullPath))
                 ThreadPool.QueueUserWorkItem(o => ((Media)media).Verify());
         }
@@ -68,15 +67,7 @@ namespace TAS.Server
             m.MediaStatus = TMediaStatus.Deleted;
             m.Verified = false;
             m.Save();
-            media.PropertyChanged -= OnMediaPropertyChanged;
             base.MediaRemove(media);
-        }
-
-        public event PropertyChangedEventHandler MediaPropertyChanged;
-
-        private void OnMediaPropertyChanged(object o, PropertyChangedEventArgs e)
-        {
-            MediaPropertyChanged?.Invoke(o, e);
         }
 
         public override void SweepStaleMedia()
@@ -94,21 +85,28 @@ namespace TAS.Server
             ServerMedia result = (ServerMedia)FindMediaByMediaGuid(media.MediaGuid); // check if need to select new Guid
             if (result == null || !searchExisting)
             {
-                string newFileName = Path.Combine(_folder,
-                    FileUtils.GetUniqueFileName(_folder,
-                        media is IngestMedia
-                            ? ((media.MediaType == TMediaType.Still ? FileUtils.StillFileTypes : media.MediaType == TMediaType.Audio ? FileUtils.AudioFileTypes : FileUtils.VideoFileTypes).Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + FileUtils.DefaultFileExtension(media.MediaType)
-                            : media.FileName));
+                string newFileFullPath = null;
+                if (searchExisting)
+                {
+                    FileInfo fi = new FileInfo(Path.Combine(_folder, media.Folder, media.FileName));
+                    if (fi.Exists && (ulong)fi.Length == media.FileSize && fi.LastWriteTimeUtc == media.LastUpdated)
+                        newFileFullPath = fi.FullName;
+                }
+                if (string.IsNullOrWhiteSpace(newFileFullPath))
+                    newFileFullPath = Path.Combine(_folder,
+                        FileUtils.GetUniqueFileName(_folder,
+                            media is IngestMedia
+                                ? ((media.MediaType == TMediaType.Still ? FileUtils.StillFileTypes : media.MediaType == TMediaType.Audio ? FileUtils.AudioFileTypes : FileUtils.VideoFileTypes).Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + FileUtils.DefaultFileExtension(media.MediaType)
+                                : media.FileName));
                 result = (new ServerMedia(this, result == null ? media.MediaGuid : Guid.NewGuid(), 0, MediaManager.ArchiveDirectory) // in case file with the same GUID already exists and we need to get new one
                 {
                     MediaName = media.MediaName,
-                    FullPath = newFileName,
+                    FullPath = newFileFullPath,
                     MediaType = media.MediaType == TMediaType.Unknown ? TMediaType.Movie : media.MediaType,
                     MediaStatus = TMediaStatus.Required,
                 });
                 result.CloneMediaProperties(media);
                 NotifyMediaAdded(result);
-                result.PropertyChanged += MediaPropertyChanged;
             }
             else
                 if (result.MediaStatus == TMediaStatus.Deleted)

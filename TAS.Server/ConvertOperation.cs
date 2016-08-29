@@ -173,11 +173,11 @@ namespace TAS.Server
                     if (((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
                         using (TempMedia _localSourceMedia = Owner.TempDirectory.CreateMedia(sourceMedia))
                         {
-                            _addOutputMessage(string.Format("Copying to local file {0}", _localSourceMedia.FullPath));
+                            AddOutputMessage(string.Format("Copying to local file {0}", _localSourceMedia.FullPath));
                             _localSourceMedia.PropertyChanged += _localSourceMedia_PropertyChanged;
                             if (sourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
                             {
-                                _addOutputMessage("Verifing local file");
+                                AddOutputMessage("Verifing local file");
                                 _localSourceMedia.Verify();
                                 try
                                 {
@@ -210,14 +210,14 @@ namespace TAS.Server
                                 TryCount--;
                         }
                         else
-                            _addOutputMessage("Waiting for media to verify");
+                            AddOutputMessage("Waiting for media to verify");
                         return success;
                     }
                 }
                 catch (Exception e)
                 {
                     Debug.WriteLine(e.Message);
-                    _addOutputMessage(e.Message);
+                    AddOutputMessage(e.Message);
                     TryCount--;
                     return false;
                 }
@@ -391,7 +391,7 @@ namespace TAS.Server
         {
             _progressDuration = media.Duration;
             Debug.WriteLine(this, "Convert operation started");
-            _addOutputMessage("Starting convert operation:");
+            AddOutputMessage("Starting convert operation:");
             VideoFormatDescription formatDescription = VideoFormatDescription.Descriptions[OutputFormat];
             DestMedia.MediaStatus = TMediaStatus.Copying;
             //CheckInputFile(media);
@@ -426,7 +426,7 @@ namespace TAS.Server
                 {
                     if ((SourceMedia.Directory is IngestDirectory) && ((IngestDirectory)SourceMedia.Directory).DeleteSource)
                         Owner.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = SourceMedia });
-                    _addOutputMessage("Convert operation finished successfully");
+                    AddOutputMessage("Convert operation finished successfully");
                     Debug.WriteLine(this, "Convert operation succeed");
                 }
                 OperationStatus = FileOperationStatus.Finished;

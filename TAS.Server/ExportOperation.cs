@@ -65,12 +65,12 @@ namespace TAS.Server
                     if (!success)
                         TryCount--;
                     else
-                        _addOutputMessage("Operation completed successfully.");
+                        AddOutputMessage("Operation completed successfully.");
                     return success;
                 }
                 catch (Exception e)
                 {
-                    _addOutputMessage(string.Format("Error: {0}", e.Message));
+                    AddOutputMessage(string.Format("Error: {0}", e.Message));
                     TryCount--;
                     return false;
                 }
@@ -82,7 +82,7 @@ namespace TAS.Server
         {
             bool result = false;
             _progressDuration = TimeSpan.FromTicks(_exportMediaList.Sum(e => e.Duration.Ticks));
-            _addOutputMessage("Refreshing destination directory content");
+            AddOutputMessage("Refreshing destination directory content");
             DestDirectory.Refresh();
             if (DestDirectory.IsXDCAM)
             {
@@ -108,7 +108,7 @@ namespace TAS.Server
                         if (result)
                         {
                             _progressFileSize = (UInt64)(new FileInfo(localDestMedia.FullPath)).Length;
-                            _addOutputMessage(string.Format("Transfering file to device as {0}", DestMedia.FileName));
+                            AddOutputMessage(string.Format("Transfering file to device as {0}", DestMedia.FileName));
                             result = localDestMedia.CopyMediaTo((Media)DestMedia, ref _aborted);
                         }
                     }
@@ -140,7 +140,7 @@ namespace TAS.Server
         {
             
             Debug.WriteLine(this, "Export encode started");
-            _addOutputMessage(string.Format("Encode started to file {0}", outFile));
+            AddOutputMessage(string.Format("Encode started to file {0}", outFile));
             StringBuilder files = new StringBuilder();
             int index = 0;
             List<string> complexFilterElements = new List<string>();
@@ -149,7 +149,7 @@ namespace TAS.Server
             List<ExportMedia> exportMedia = _exportMediaList.ToList();
             TimeSpan startTimecode = exportMedia.First().StartTC;
             VideoFormatDescription outputFormatDesc = VideoFormatDescription.Descriptions[DestDirectory.IsXDCAM || DestDirectory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? TVideoFormat.PAL : DestDirectory.ExportVideoFormat];
-            string scaleFilter = string.Format("scale={0}:{1}", outputFormatDesc.ImageSize.Width, outputFormatDesc.ImageSize.Height);
+            string scaleFilter = string.Format("scale={0}:{1}:interl=-1", outputFormatDesc.ImageSize.Width, outputFormatDesc.ImageSize.Height);
             foreach (var e in exportMedia)
             {
                 files.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1} -i \"{2}\"", (e.StartTC - e.Media.TcStart).TotalSeconds, e.Duration.TotalSeconds, e.Media.FullPath);
@@ -198,7 +198,7 @@ namespace TAS.Server
             if (RunProcess(command))
             {
                 Debug.WriteLine(this, "Export encode succeed");
-                _addOutputMessage("Encode finished successfully");
+                AddOutputMessage("Encode finished successfully");
                 return true;
             }
             Debug.WriteLine("FFmpeg _encode(): Failed for {0}", outFile);

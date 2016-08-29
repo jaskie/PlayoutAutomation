@@ -27,16 +27,16 @@ namespace TAS.Common
                     FFMpegFilter = "setdar=dar=16/9";
                     break;
                 case TAspectConversion.Letterbox:
-                    FFMpegFilter = "scale=iw:ih*3/4:-1, pad=0:ih*4/3:0:(oh-ih)/2:black, setdar=dar=4/3";
+                    FFMpegFilter = "scale=iw:ih*3/4:interl=-1, pad=0:ih*4/3:0:(oh-ih)/2:black, setdar=dar=4/3";
                     break;
                 case TAspectConversion.PanScan:
-                    FFMpegFilter = "crop=iw*3/4, scale=iw*4/3:ih:-1, setdar=dar=4/3";
+                    FFMpegFilter = "crop=iw*3/4, scale=iw*4/3:ih:interl=-1, setdar=dar=4/3";
                     break;
                 case TAspectConversion.PillarBox:
-                    FFMpegFilter = "scale=iw*3/4:ih:-1, pad=iw*4/3:0:(ow-iw)/2:0:black, setdar=dar=16/9";
+                    FFMpegFilter = "scale=iw*3/4:ih:interl=-1, pad=iw*4/3:0:(ow-iw)/2:0:black, setdar=dar=16/9";
                     break;
                 case TAspectConversion.TiltScan:
-                    FFMpegFilter = "crop=iw:ih*3/4, scale=iw:ih*4/3:-1, setdar=dar=16/9";
+                    FFMpegFilter = "crop=iw:ih*3/4, scale=iw:ih*4/3:interl=-1, setdar=dar=16/9";
                     break;
             }
         }

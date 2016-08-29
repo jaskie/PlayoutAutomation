@@ -29,7 +29,7 @@ namespace TAS.Server
         public event EventHandler<MediaEventArgs> MediaRemoved;
         public event EventHandler<MediaEventArgs> MediaVerified;
         public event EventHandler<MediaEventArgs> MediaDeleted;
-        public event EventHandler<MediaPropertyEventArgs> MediaPropertyChanged;
+        public event EventHandler<MediaPropertyChangedEventArgs> MediaPropertyChanged;
 
         protected bool _isInitialized = false;
 
@@ -248,7 +248,7 @@ namespace TAS.Server
 
         private void _media_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            MediaPropertyChanged?.Invoke(this, new MediaPropertyEventArgs(sender as IMedia, e.PropertyName));
+            MediaPropertyChanged?.Invoke(this, new MediaPropertyChangedEventArgs(sender as IMedia, e.PropertyName));
         }
 
         public virtual void MediaRemove(IMedia media)

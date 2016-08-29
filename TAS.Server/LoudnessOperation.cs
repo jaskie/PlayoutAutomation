@@ -160,7 +160,7 @@ namespace TAS.Server
                         else
                             h(this, new AudioVolumeEventArgs(volume));
                     }
-                    _addOutputMessage(outLine.Data);
+                    AddOutputMessage(outLine.Data);
                 }
             }
         }

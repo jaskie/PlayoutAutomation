@@ -34,6 +34,9 @@ namespace TAS.Server
 
         public TempDirectory TempDirectory;
         public decimal VolumeReferenceLoudness;
+
+        static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public IEnumerable<IFileOperation> GetOperationQueue()
         {
             List<IFileOperation> retList;
@@ -60,6 +63,7 @@ namespace TAS.Server
             op.Owner = this;
             op.ScheduledTime = DateTime.UtcNow;
             op.OperationStatus = FileOperationStatus.Waiting;
+            Logger.Info("Operation scheduled: {0}", op);
 
             if ((operation.Kind == TFileOperationKind.Copy || operation.Kind == TFileOperationKind.Move || operation.Kind == TFileOperationKind.Convert)
                 && operation.DestMedia != null)
@@ -123,6 +127,7 @@ namespace TAS.Server
                 _queueConvertOperation.Where(op => op.OperationStatus == FileOperationStatus.Waiting).ToList().ForEach(op => op.Abort());
             lock (_queueExportOperation.SyncRoot)
                 _queueExportOperation.Where(op => op.OperationStatus == FileOperationStatus.Waiting).ToList().ForEach(op => op.Abort());
+            Logger.Trace("Cancelled pending operations");
         }
 
         private void _runOperation(SynchronizedCollection<IFileOperation> queue, ref bool queueRunningIndicator)
