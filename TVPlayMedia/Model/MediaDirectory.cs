@@ -33,7 +33,7 @@ namespace TAS.Client.Model
 
         public char PathSeparator { get { return Get<char>(); }  set { Set(value); } }
 
-        public bool IsInitialized { get; set; }
+        public bool IsInitialized { get { return Get<bool>(); } set { Set(value); } }
 
         public long VolumeFreeSize { get { return Get<long>(); } internal set { Set(value); } }
 
@@ -81,6 +81,21 @@ namespace TAS.Client.Model
             {
                 _mediaDeleted -= value;
                 EventRemove(_mediaDeleted);
+            }
+        }
+
+        event EventHandler<MediaPropertyChangedEventArgs> _mediaPropertyChanged;
+        public event EventHandler<MediaPropertyChangedEventArgs> MediaPropertyChanged
+        {
+            add
+            {
+                EventAdd(_mediaPropertyChanged);
+                _mediaPropertyChanged += value;
+            }
+            remove
+            {
+                _mediaPropertyChanged -= value;
+                EventRemove(_mediaPropertyChanged);
             }
         }
 

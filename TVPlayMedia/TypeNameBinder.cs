@@ -25,6 +25,8 @@ namespace TAS.Client
                     return typeof(Model.IngestDirectory);
                 case "TAS.Server.ArchiveDirectory":
                     return typeof(Model.ArchiveDirectory);
+                case "TAS.Server.AnimationDirectory":
+                    return typeof(Model.AnimationDirectory);
                 case "TAS.Server.FileManager":
                     return typeof(Model.FileManager);
                 case "TAS.Server.MediaSegment":

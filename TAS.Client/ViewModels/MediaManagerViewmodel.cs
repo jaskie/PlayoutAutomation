@@ -600,7 +600,7 @@ namespace TAS.Client.ViewModels
                 Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
                 {
                     IMedia media = e.Media;
-                    if (!(SelectedDirectory is IServerDirectory) || (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Still || media.MediaType == TMediaType.Audio)
+                    if ((!(SelectedDirectory is IServerDirectory) || (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Still || media.MediaType == TMediaType.Audio))
                         && _mediaItems?.Any(mi => mi.Media == media) == false)
                     {
                         _mediaItems.Add(new MediaViewViewmodel(media, _mediaManager));

@@ -38,7 +38,7 @@ namespace TAS.Server
         public VideoFormatDescription FormatDescription { get { return _engine.FormatDescription; } }
         [JsonProperty]
         public TVideoFormat VideoFormat { get { return _engine.VideoFormat; } }
-        static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(MediaManager));
 
 
         public MediaManager(Engine engine)
@@ -405,6 +405,7 @@ namespace TAS.Server
                            }
                        }
                        _isSynchronizedMediaSecToPri = true;
+                       Logger.Debug("SynchronizeMediaSecToPri finished");
                    }
                });
             }
@@ -429,6 +430,7 @@ namespace TAS.Server
                         if (!_isSynchronizedAnimationsSecToPri)
                         {
                             Debug.WriteLine(this, "SynchronizeAnimationsSecToPri started");
+                            Logger.Debug("SynchronizeAnimationsSecToPri started");
                             var priAnimations = pri.GetFiles().ToList();
                             foreach (AnimatedMedia priAnimation in priAnimations)
                             {
@@ -455,6 +457,7 @@ namespace TAS.Server
                                 }
                             }
                             _isSynchronizedAnimationsSecToPri = true;
+                            Logger.Debug("SynchronizeAnimationsSecToPri finished");
                         }
                     }
                 });

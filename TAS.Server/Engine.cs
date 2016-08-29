@@ -109,7 +109,7 @@ namespace TAS.Server
 
         #endregion //IDisposable
 
-        static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Engine));
 
         private CasparServerChannel _playoutChannelPRI;
         [XmlIgnore]
