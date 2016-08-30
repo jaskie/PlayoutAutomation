@@ -203,7 +203,7 @@ namespace TAS.Server
 
         private string _encodeParameters(Media inputMedia, StreamInfo[] inputStreams)
         {
-            List<string> filter_complex = new List<string>();
+            List<string> video_filters = new List<string>();
             StringBuilder ep = new StringBuilder();
             var sourceDir = SourceMedia.Directory as IngestDirectory;
             #region Video
@@ -218,106 +218,115 @@ namespace TAS.Server
             }
             else
             {
-                ep.AppendFormat(" -b:v {0}k", (int)(inputMedia.VideoFormatDescription.ImageSize.Height * 1.3 * (double)sourceDir.VideoBitrateRatio));
+                ep.AppendFormat(" -b:v {0}k", (int)(inputMedia.VideoFormatDescription.ImageSize.Height * 13 * (double)sourceDir.VideoBitrateRatio));
                 VideoFormatDescription outputFormatDescription = VideoFormatDescription.Descriptions[OutputFormat];
                 VideoFormatDescription inputFormatDescription = inputMedia.VideoFormatDescription;
-                _addConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], filter_complex);
+                _addConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], video_filters);
                 if (inputMedia.HasExtraLines)
                 {
-                    filter_complex.Add("crop=720:576:0:32");
+                    video_filters.Add("crop=720:576:0:32");
                     if (AspectConversion == TAspectConversion.NoConversion)
                     {
                         if (inputFormatDescription.IsWideScreen)
-                            filter_complex.Add("setdar=dar=16/9");
+                            video_filters.Add("setdar=dar=16/9");
                         else
-                            filter_complex.Add("setdar=dar=4/3");
+                            video_filters.Add("setdar=dar=4/3");
                     }
                 }
-                if (outputFormatDescription.ImageSize != inputFormatDescription.ImageSize)
+                if (AspectConversion == TAspectConversion.NoConversion)
                 {
-                    filter_complex.Add(string.Format("scale={0}:{1}:interl=-1", outputFormatDescription.ImageSize.Width, outputFormatDescription.ImageSize.Height));
-                    if (AspectConversion == TAspectConversion.NoConversion)
-                    {
-                        if (inputFormatDescription.IsWideScreen)
-                            filter_complex.Add("setdar=dar=16/9");
-                        else
-                            filter_complex.Add("setdar=dar=4/3");
-                    }
+                    if (inputFormatDescription.IsWideScreen)
+                        video_filters.Add("setdar=dar=16/9");
+                    else
+                        video_filters.Add("setdar=dar=4/3");
                 }
                 if (AspectConversion != TAspectConversion.NoConversion)
-                    _addConversion(MediaConversion.AspectConversions[AspectConversion], filter_complex);
+                    _addConversion(MediaConversion.AspectConversions[AspectConversion], video_filters);
                 if (inputFormatDescription.FrameRate / outputFormatDescription.FrameRate == 2 && outputFormatDescription.Interlaced)
-                    filter_complex.Add("tinterlace=interleave_top");
-                filter_complex.Add(string.Format("fps=fps={0}", outputFormatDescription.FrameRate));
+                    video_filters.Add("tinterlace=interleave_top");
+                video_filters.Add(string.Format("fps=fps={0}", outputFormatDescription.FrameRate));
                 if (outputFormatDescription.Interlaced)
                 {
-                    filter_complex.Add("fieldorder=tff");
+                    video_filters.Add("fieldorder=tff");
                     ep.Append(" -flags +ildct+ilme");
                 }
                 else
                 {
-                    filter_complex.Add("w3fdif");
+                    video_filters.Add("w3fdif");
                 }
-                if (filter_complex.Any())
-                    ep.AppendFormat(" -filter_complex \"{0}\"", string.Join(",", filter_complex));
+                int lastFilterIndex = video_filters.Count() - 1;
+                if (lastFilterIndex >= 0)
+                {
+                    video_filters[lastFilterIndex] = string.Format("{0}[v]", video_filters[lastFilterIndex]);
+                    ep.Append(" -map \"[v]\"");
+                }
+
             }
             #endregion // Video
 
             #region Audio
+            List<string> audio_filters = new List<string>();
             StreamInfo[] audioStreams = inputStreams.Where(s => s.StreamType == StreamType.AUDIO).ToArray();
             if (audioStreams.Length > 0)
             {
-                MediaConversion audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
-                int inputTotalChannels = audioStreams.Sum(s => s.ChannelCount);
-                int requiredOutputChannels;
-                switch ((TAudioChannelMappingConversion)audiChannelMappingConversion.OutputFormat)
+                ep.AppendFormat(" -c:a {0}", sourceDir.AudioCodec);
+                if (sourceDir.AudioCodec != TAudioCodec.copy)
                 {
-                    case TAudioChannelMappingConversion.FirstTwoChannels:
-                    case TAudioChannelMappingConversion.SecondChannelOnly:
-                    case TAudioChannelMappingConversion.Combine1plus2:
-                        requiredOutputChannels = 2;
-                        break;
-                    case TAudioChannelMappingConversion.SecondTwoChannels:
-                    case TAudioChannelMappingConversion.Combine3plus4:
-                        requiredOutputChannels = 4;
-                        break;
-                    case TAudioChannelMappingConversion.FirstChannelOnly:
-                        requiredOutputChannels = 1;
-                        break;
-                    default:
-                        requiredOutputChannels = 0;
-                        break;
-                }
-                if (audioStreams.Length > 1 && requiredOutputChannels > audioStreams[0].ChannelCount)
-                {
-                    int audio_stream_count = 0;
-                    StringBuilder pf = new StringBuilder();
-                    foreach (StreamInfo stream in audioStreams)
+                    ep.AppendFormat(" -b:a {0}k", (int)(2 * 128 * sourceDir.AudioBitrateRatio));
+                    MediaConversion audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
+                    int inputTotalChannels = audioStreams.Sum(s => s.ChannelCount);
+                    int requiredOutputChannels;
+                    switch ((TAudioChannelMappingConversion)audiChannelMappingConversion.OutputFormat)
                     {
-                        pf.AppendFormat("[0:{0}]", stream.Index);
-                        audio_stream_count += stream.ChannelCount;
+                        case TAudioChannelMappingConversion.FirstTwoChannels:
+                        case TAudioChannelMappingConversion.SecondChannelOnly:
+                        case TAudioChannelMappingConversion.Combine1plus2:
+                            requiredOutputChannels = 2;
+                            break;
+                        case TAudioChannelMappingConversion.SecondTwoChannels:
+                        case TAudioChannelMappingConversion.Combine3plus4:
+                            requiredOutputChannels = 4;
+                            break;
+                        case TAudioChannelMappingConversion.FirstChannelOnly:
+                            requiredOutputChannels = 1;
+                            break;
+                        default:
+                            requiredOutputChannels = 0;
+                            break;
                     }
-                    filter_complex.Add(string.Format("{0}amerge=inputs={1}", pf.ToString(), audioStreams.Length));
+                    if (audioStreams.Length > 1 && requiredOutputChannels > audioStreams[0].ChannelCount)
+                    {
+                        int audio_stream_count = 0;
+                        StringBuilder pf = new StringBuilder();
+                        foreach (StreamInfo stream in audioStreams)
+                        {
+                            pf.AppendFormat("[0:{0}]", stream.Index);
+                            audio_stream_count += stream.ChannelCount;
+                        }
+                        audio_filters.Add(string.Format("{0}amerge=inputs={1}", pf.ToString(), audioStreams.Length));
+                    }
+                    _addConversion(audiChannelMappingConversion, audio_filters);
+                    if (AudioVolume != 0)
+                        _addConversion(new MediaConversion(AudioVolume), audio_filters);
+                    int lastFilterIndex = audio_filters.Count() - 1;
+                    if (lastFilterIndex >= 0)
+                    {
+                        audio_filters[lastFilterIndex] = string.Format("{0}[a]", audio_filters[lastFilterIndex]);
+                        ep.Append(" -map \"[a]\"");
+                    }
+                    ep.Append(" ").Append(((IngestDirectory)SourceMedia.Directory).EncodeParams).Append(" -ar 48000");
                 }
-                _addConversion(audiChannelMappingConversion, filter_complex);
-                if (AudioVolume != 0)
-                    _addConversion(new MediaConversion(AudioVolume), filter_complex);
-                int lastFilterIndex = filter_complex.Count() - 1;
-                if (lastFilterIndex >= 0)
-                {
-                    filter_complex[lastFilterIndex] = string.Format("{0}[a]", filter_complex[lastFilterIndex]);
-                    ep.Append(" -map \"[a]\"");
-                }
-                ep.Append(" ").Append(((IngestDirectory)SourceMedia.Directory).EncodeParams).Append(" -ar 48000");
             }
             #endregion // audio
-
+            var filters = video_filters.Concat(audio_filters);
+            if (filters.Any())
+                ep.AppendFormat(" -filter_complex \"{0}\"", string.Join(",", filters));
             return ep.ToString();
         }
 
         private bool _is_trimmed()
         {
-            return Trim && Duration > TimeSpan.Zero && !((IngestDirectory)SourceMedia.Directory).DoNotEncode;
+            return Trim && Duration > TimeSpan.Zero && ((IngestDirectory)SourceMedia.Directory).VideoCodec != TVideoCodec.copy ;
         }
 
         private bool _convertMovie(Media media, StreamInfo[] streams)
