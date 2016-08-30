@@ -35,7 +35,7 @@ namespace TAS.Server
         public TempDirectory TempDirectory;
         public decimal VolumeReferenceLoudness;
 
-        static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(FileManager));
 
         public IEnumerable<IFileOperation> GetOperationQueue()
         {

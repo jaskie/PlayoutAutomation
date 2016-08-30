@@ -37,77 +37,6 @@ namespace TAS.Server
 
         #endregion // properties
 
-        /*
-        #region CheckFile
-        private void CheckInputFile(Media mf)
-        {
-            MediaInfo mi = new MediaInfo();
-            try
-            {
-                mi.Open(mf.FullPath);
-                mi.Option("Complete");
-                string miOutput = mi.Inform();
-
-                Regex format_lxf = new Regex("Format\\s*:\\s*LXF");
-                if (format_lxf.Match(miOutput).Success)
-                {
-                    string[] miOutputLines = miOutput.Split('\n');
-                    Regex vitc = new Regex("ATC_VITC");
-                    Regex re = new Regex("Time code of first frame\\s*:[\\s]\\d{2}:\\d{2}:\\d{2}:\\d{2}");
-                    for (int i = 0; i < miOutputLines.Length; i++)
-                    {
-                        if (vitc.Match(miOutputLines[i]).Success && i >= 1)
-                        {
-                            Match m_tcs = re.Match(miOutputLines[i - 1]);
-                            if (m_tcs.Success)
-                            {
-                                Regex reg_tc = new Regex("\\d{2}:\\d{2}:\\d{2}:\\d{2}");
-                                Match m_tc = reg_tc.Match(m_tcs.Value);
-                                if (m_tc.Success)
-                                {
-                                    mf.TcStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan(mf.VideoFormatDescription.FrameRate);
-                                    if (mf.TcPlay == TimeSpan.Zero)
-                                        mf.TcPlay = mf.TcStart;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Regex format_mxf = new Regex(@"Format\s*:\s*MXF");
-                if (format_mxf.Match(miOutput).Success)
-                {
-                    string[] miOutputLines = miOutput.Split('\n');
-                    Regex mxf_tc = new Regex(@"MXF TC");
-                    Regex re = new Regex(@"Time code of first frame\s*:[\s]\d{2}:\d{2}:\d{2}:\d{2}");
-                    for (int i = 0; i < miOutputLines.Length; i++)
-                    {
-                        Match mxf_match = mxf_tc.Match(miOutputLines[i]);
-                        if (mxf_match.Success && i < miOutputLines.Length - 1)
-                        {
-                            Regex reg_tc = new Regex(@"\d{2}:\d{2}:\d{2}:\d{2}");
-                            Match m_tc = re.Match(miOutputLines[i + 1]);
-                            if (m_tc.Success)
-                            {
-                                mf.TcStart = reg_tc.Match(m_tc.Value).Value.SMPTETimecodeToTimeSpan(mf.VideoFormatDescription.FrameRate);
-                                if (mf.TcPlay == TimeSpan.Zero)
-                                    mf.TcPlay = mf.TcStart;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                mi.Close();
-            }
-        }
-
-
-        #endregion // Checkfile
-    */
 
         #region IConvertOperation implementation
 
@@ -276,9 +205,11 @@ namespace TAS.Server
         {
             List<string> filter_complex = new List<string>();
             StringBuilder ep = new StringBuilder();
-            if (((IngestDirectory)SourceMedia.Directory).DoNotEncode)
+            var sourceDir = SourceMedia.Directory as IngestDirectory;
+            #region Video
+            ep.AppendFormat(" -c:v {0}", sourceDir.VideoCodec);
+            if (sourceDir.VideoCodec == TVideoCodec.copy)
             {
-                ep.Append(" -c:v copy -c:a copy");
                 if (AspectConversion == TAspectConversion.Force16_9)
                     ep.Append(" -aspect 16/9");
                 else
@@ -287,55 +218,7 @@ namespace TAS.Server
             }
             else
             {
-                #region Audio
-                StreamInfo[] audioStreams = inputStreams.Where(s => s.StreamType == StreamType.AUDIO).ToArray();
-                if (audioStreams.Length > 0)
-                {
-                    MediaConversion audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
-                    int inputTotalChannels = audioStreams.Sum(s => s.ChannelCount);
-                    int requiredOutputChannels;
-                    switch ((TAudioChannelMappingConversion)audiChannelMappingConversion.OutputFormat)
-                    {
-                        case TAudioChannelMappingConversion.FirstTwoChannels:
-                        case TAudioChannelMappingConversion.SecondChannelOnly:
-                        case TAudioChannelMappingConversion.Combine1plus2:
-                            requiredOutputChannels = 2;
-                            break;
-                        case TAudioChannelMappingConversion.SecondTwoChannels:
-                        case TAudioChannelMappingConversion.Combine3plus4:
-                            requiredOutputChannels = 4;
-                            break;
-                        case TAudioChannelMappingConversion.FirstChannelOnly:
-                            requiredOutputChannels = 1;
-                            break;
-                        default:
-                            requiredOutputChannels = 0;
-                            break;
-                    }
-                    if (audioStreams.Length > 1 && requiredOutputChannels > audioStreams[0].ChannelCount)
-                    {
-                        int audio_stream_count = 0;
-                        StringBuilder pf = new StringBuilder();
-                        foreach (StreamInfo stream in audioStreams)
-                        {
-                            pf.AppendFormat("[0:{0}]", stream.Index);
-                            audio_stream_count += stream.ChannelCount;
-                        }
-                        filter_complex.Add(string.Format("{0}amerge=inputs={1}", pf.ToString(), audioStreams.Length));
-                    }
-                    _addConversion(audiChannelMappingConversion, filter_complex);
-                    if (AudioVolume != 0)
-                        _addConversion(new MediaConversion(AudioVolume), filter_complex);
-                    int lastFilterIndex = filter_complex.Count() - 1;
-                    if (lastFilterIndex >= 0)
-                    {
-                        filter_complex[lastFilterIndex] = string.Format("{0}[a]", filter_complex[lastFilterIndex]);
-                        ep.Append(" -map \"[a]\"");
-                    }
-                    ep.Append(" ").Append(((IngestDirectory)SourceMedia.Directory).EncodeParams).Append(" -ar 48000");
-                }
-                #endregion // audio
-                #region Video
+                ep.AppendFormat(" -b:v {0}k", (int)(inputMedia.VideoFormatDescription.ImageSize.Height * 1.3 * (double)sourceDir.VideoBitrateRatio));
                 VideoFormatDescription outputFormatDescription = VideoFormatDescription.Descriptions[OutputFormat];
                 VideoFormatDescription inputFormatDescription = inputMedia.VideoFormatDescription;
                 _addConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], filter_complex);
@@ -377,8 +260,58 @@ namespace TAS.Server
                 }
                 if (filter_complex.Any())
                     ep.AppendFormat(" -filter_complex \"{0}\"", string.Join(",", filter_complex));
-                #endregion // Video
             }
+            #endregion // Video
+
+            #region Audio
+            StreamInfo[] audioStreams = inputStreams.Where(s => s.StreamType == StreamType.AUDIO).ToArray();
+            if (audioStreams.Length > 0)
+            {
+                MediaConversion audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
+                int inputTotalChannels = audioStreams.Sum(s => s.ChannelCount);
+                int requiredOutputChannels;
+                switch ((TAudioChannelMappingConversion)audiChannelMappingConversion.OutputFormat)
+                {
+                    case TAudioChannelMappingConversion.FirstTwoChannels:
+                    case TAudioChannelMappingConversion.SecondChannelOnly:
+                    case TAudioChannelMappingConversion.Combine1plus2:
+                        requiredOutputChannels = 2;
+                        break;
+                    case TAudioChannelMappingConversion.SecondTwoChannels:
+                    case TAudioChannelMappingConversion.Combine3plus4:
+                        requiredOutputChannels = 4;
+                        break;
+                    case TAudioChannelMappingConversion.FirstChannelOnly:
+                        requiredOutputChannels = 1;
+                        break;
+                    default:
+                        requiredOutputChannels = 0;
+                        break;
+                }
+                if (audioStreams.Length > 1 && requiredOutputChannels > audioStreams[0].ChannelCount)
+                {
+                    int audio_stream_count = 0;
+                    StringBuilder pf = new StringBuilder();
+                    foreach (StreamInfo stream in audioStreams)
+                    {
+                        pf.AppendFormat("[0:{0}]", stream.Index);
+                        audio_stream_count += stream.ChannelCount;
+                    }
+                    filter_complex.Add(string.Format("{0}amerge=inputs={1}", pf.ToString(), audioStreams.Length));
+                }
+                _addConversion(audiChannelMappingConversion, filter_complex);
+                if (AudioVolume != 0)
+                    _addConversion(new MediaConversion(AudioVolume), filter_complex);
+                int lastFilterIndex = filter_complex.Count() - 1;
+                if (lastFilterIndex >= 0)
+                {
+                    filter_complex[lastFilterIndex] = string.Format("{0}[a]", filter_complex[lastFilterIndex]);
+                    ep.Append(" -map \"[a]\"");
+                }
+                ep.Append(" ").Append(((IngestDirectory)SourceMedia.Directory).EncodeParams).Append(" -ar 48000");
+            }
+            #endregion // audio
+
             return ep.ToString();
         }
 

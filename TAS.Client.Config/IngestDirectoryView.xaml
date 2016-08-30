@@ -52,24 +52,64 @@
                 </TextBlock>
                 <TextBox Text="{Binding Extensions, Converter={StaticResource StringArrayToDelimitedString}, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
                 <CheckBox IsChecked="{Binding IsRecursive}" Content="Recursive, with subdirectories"/>
-                <Label Content="VideoCodec"/>
-                <ComboBox ItemsSource="{Binding VideoCodecs}" SelectedItem="{Binding VideoCodec}"/>
-                <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource InvertedBoolToVis}}">
-                    <Label Content="Encode parameters (FFmpeg)"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Label Content="Video codec"/>
+                    <ComboBox Grid.Row="1" ItemsSource="{Binding VideoCodecs}" SelectedItem="{Binding VideoCodec}"/>
+                    <Label Grid.Column="1" Content="Audio codec"/>
+                    <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding AudioCodecs}" SelectedItem="{Binding AudioCodec}"/>
+                </Grid>
+                <StackPanel Visibility="{Binding VideoDoNotEncode, Converter={StaticResource InvertedBoolToVis}}">
+                    <Label Content="Additional encode parameters (FFmpeg)"/>
                     <TextBox Text="{Binding EncodeParams, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
-                    <Label Content="Default aspect conversion"/>
-                    <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}"/>
-                    <Label Content="Default source field order"/>
-                    <ComboBox ItemsSource="{Binding SourceFieldOrders}" SelectedItem="{Binding SourceFieldOrder}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Video bitrate multiplier"/>
+                        <TextBox MinWidth="60" Text="{Binding VideoBitrateRatio, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBox.ToolTip>
+                                <TextBlock>
+                                    Default value of 1 is approximately: <LineBreak/>
+                                    - 7.5 Mbps for PAL video <LineBreak/>
+                                    - 14 Mbps for 1080 video
+                                </TextBlock>
+                            </TextBox.ToolTip>
+                        </TextBox>
+                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Label Content="Default aspect conversion"/>
+                        <ComboBox Grid.Row="1" ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}"/>
+                        <Label Grid.Column="1" Content="Default source field order"/>
+                        <ComboBox Grid.Column="1" Grid.Row="1" ItemsSource="{Binding SourceFieldOrders}" SelectedItem="{Binding SourceFieldOrder}"/>
+                    </Grid>
+                </StackPanel>
+                <StackPanel Visibility="{Binding VideoDoNotEncode, Converter={StaticResource BoolToVis}}">
+                    <Label Content="Default aspect"/>
+                    <ComboBox ItemsSource="{Binding AspectConversionsEnforce}" SelectedItem="{Binding AspectConversion}"/>
+                </StackPanel>
+                <StackPanel Visibility="{Binding AudioDoNotEncode, Converter={StaticResource InvertedBoolToVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Audio bitrate multiplier"/>
+                        <TextBox MinWidth="60" Text="{Binding AudioBitrateRatio, UpdateSourceTrigger=PropertyChanged}" ToolTip="Default value of 1 is 128 kbps per audio channel"/>
+                    </StackPanel>
                     <DockPanel Margin="0, 5">
                         <Label DockPanel.Dock="Left" Content="Audio volume correction"/>
                         <Label DockPanel.Dock="Right" Content="dB"/>
                         <TextBox Text="{Binding AudioVolume}"/>
                     </DockPanel>
-                </StackPanel>
-                <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource BoolToVis}}">
-                    <Label Content="Default aspect"/>
-                    <ComboBox ItemsSource="{Binding AspectConversionsEnforce}" SelectedItem="{Binding AspectConversion}"/>
                 </StackPanel>
                 <Label Content="Default media category"/>
                 <ComboBox ItemsSource="{Binding MediaCategories}" SelectedItem="{Binding MediaCategory}"/>

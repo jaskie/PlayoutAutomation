@@ -215,11 +215,11 @@ namespace TAS.Server
             }
         }
 
-        private void _onAnimationDirectoryMediaPropertyChanged(object o, PropertyChangedEventArgs e)
+        private void _onAnimationDirectoryMediaPropertyChanged(object o, MediaPropertyChangedEventArgs e)
         {
             var adirPri = AnimationDirectoryPRI as AnimationDirectory;
             var adirSec = AnimationDirectorySEC as AnimationDirectory;
-            var media = o as AnimatedMedia;
+            var media = e.Media as AnimatedMedia;
             if (media != null
                 && (adirPri != null && adirSec != null && adirPri != adirSec)
                 && !string.IsNullOrEmpty(e.PropertyName)

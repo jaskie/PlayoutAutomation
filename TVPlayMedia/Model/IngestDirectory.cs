@@ -33,6 +33,8 @@ namespace TAS.Client.Model
         public TVideoFormat ExportVideoFormat { get; set; }
         public TVideoCodec VideoCodec { get; set; }
         public TAudioCodec AudioCodec { get; set; }
+        public decimal VideoBitrateRatio { get; set; }
+        public decimal AudioBitrateRatio { get; set; }
         public string[] Extensions { get; set; }
         public NetworkCredential NetworkCredential { get { return null; } }
         public string Password { get; set; }

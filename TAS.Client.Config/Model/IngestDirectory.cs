@@ -13,6 +13,8 @@ namespace TAS.Client.Config.Model
         public IngestDirectory()
         {
             IsImport = true;
+            VideoBitrateRatio = 1.0M;
+            AudioBitrateRatio = 1.0M;
         }
         [DefaultValue(default(TAspectConversion))]
         public TAspectConversion AspectConversion { get; set; }
@@ -65,5 +67,9 @@ namespace TAS.Client.Config.Model
         public string[] Extensions { get; set; }
         public TVideoCodec VideoCodec { get; set; }
         public TAudioCodec AudioCodec { get; set; }
+        [DefaultValue(1.0)]
+        public decimal VideoBitrateRatio { get; set; }
+        [DefaultValue(1.0)]
+        public decimal AudioBitrateRatio { get; set; }
     }
 }

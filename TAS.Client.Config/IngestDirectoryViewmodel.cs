@@ -126,11 +126,17 @@ namespace TAS.Client.Config
             }
         }
 
+        decimal _videoBitrateRatio;
+        decimal _audioBitrateRatio;
+        public decimal VideoBitrateRatio { get { return _videoBitrateRatio; } set { SetField(ref _videoBitrateRatio, value, nameof(VideoBitrateRatio)); }}
+        public decimal AudioBitrateRatio { get { return _audioBitrateRatio; } set { SetField(ref _audioBitrateRatio, value, nameof(AudioBitrateRatio)); } }
+
+
         #endregion // IIngestDirectory
 
         public bool IsMXF { get { return IsXDCAM || (!IsXDCAM && ExportContainerFormat == TMediaExportContainerFormat.mxf); } }
-        public bool VideoDoNotEncode { get { return _videoCodec != TVideoCodec.copy; } }
-        public bool AudioDoNotEncode { get { return _audioCodec != TAudioCodec.copy; } }
+        public bool VideoDoNotEncode { get { return _videoCodec == TVideoCodec.copy; } }
+        public bool AudioDoNotEncode { get { return _audioCodec == TAudioCodec.copy; } }
 
         protected override void OnDispose() { }
 

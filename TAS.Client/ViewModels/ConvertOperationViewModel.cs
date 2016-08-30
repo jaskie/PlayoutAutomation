@@ -117,7 +117,7 @@ namespace TAS.Client.ViewModels
             set { _convertOperation.SourceFieldOrderEnforceConversion = value; }
         }
     
-        public bool DoNotEncode { get { return ((IIngestDirectory)_convertOperation.SourceMedia.Directory).DoNotEncode; } }
+        public bool DoNotEncode { get { return ((IIngestDirectory)_convertOperation.SourceMedia.Directory).VideoCodec == TVideoCodec.copy; } }
 
         private bool _trim;
         public bool Trim { get { return _trim; } set { SetField(ref _trim, value, nameof(Trim)); } }

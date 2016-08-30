@@ -23,6 +23,8 @@ namespace TAS.Server
         public IngestDirectory() : base(null)
         {
             IsImport = true;
+            AudioBitrateRatio = 1.0M;
+            VideoBitrateRatio = 1.0M;
         }
 
         private bool _deleteSource;
@@ -84,9 +86,6 @@ namespace TAS.Server
         public TVideoFormat ExportVideoFormat { get; set; }
 
         [JsonProperty]
-        public bool DoNotEncode { get; set; }
-        
-        [JsonProperty]
         public bool IsXDCAM { get; set; }
 
         [JsonProperty]
@@ -101,6 +100,9 @@ namespace TAS.Server
         public TVideoCodec VideoCodec { get; set; }
         public TAudioCodec AudioCodec { get; set; }
 
+        public decimal VideoBitrateRatio { get; set; }
+        public decimal AudioBitrateRatio { get; set; }
+        
         [DefaultValue(true)]
         [JsonProperty]
         public bool IsImport { get; set; }

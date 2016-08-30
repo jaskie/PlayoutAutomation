@@ -12,6 +12,8 @@ namespace TAS.Server.Interfaces
         bool IsImport { get; set; }
         TVideoCodec VideoCodec { get; set; }
         TAudioCodec AudioCodec { get; set; }
+        decimal VideoBitrateRatio { get; set; }
+        decimal AudioBitrateRatio { get; set; }
         string EncodeParams { get; set; }
         TMediaExportContainerFormat ExportContainerFormat { get; set; }
         string ExportParams { get; set; }
