@@ -93,11 +93,17 @@ namespace TAS.Server
                         newFileFullPath = fi.FullName;
                 }
                 if (string.IsNullOrWhiteSpace(newFileFullPath))
-                    newFileFullPath = Path.Combine(_folder,
-                        FileUtils.GetUniqueFileName(_folder,
-                            media is IngestMedia
+                {
+                    var newFileName = media is IngestMedia
                                 ? ((media.MediaType == TMediaType.Still ? FileUtils.StillFileTypes : media.MediaType == TMediaType.Audio ? FileUtils.AudioFileTypes : FileUtils.VideoFileTypes).Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + FileUtils.DefaultFileExtension(media.MediaType)
-                                : media.FileName));
+                                : media.FileName;
+                    if (File.Exists(Path.Combine(_folder, newFileName)))
+                    {
+                        Logger.Trace("{0}: File {1} already exists", nameof(GetServerMedia), newFileName);
+                        newFileName = FileUtils.GetUniqueFileName(_folder, newFileName);
+                    }
+                    newFileFullPath = Path.Combine(_folder, newFileName);
+                }
                 result = (new ServerMedia(this, result == null ? media.MediaGuid : Guid.NewGuid(), 0, MediaManager.ArchiveDirectory) // in case file with the same GUID already exists and we need to get new one
                 {
                     MediaName = media.MediaName,
@@ -114,9 +120,10 @@ namespace TAS.Server
             return result;
         }
 
-        protected override void OnMediaRenamed(Media media, string newName)
+        protected override void OnMediaRenamed(Media media, string newFullPath)
         {
             ((ServerMedia)media).Save();
+            base.OnMediaRenamed(media, newFullPath);
         }
 
         protected override void EnumerateFiles(string directory, string filter, bool includeSubdirectories, CancellationToken cancelationToken)

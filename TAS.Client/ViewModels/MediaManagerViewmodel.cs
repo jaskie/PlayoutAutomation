@@ -341,8 +341,11 @@ namespace TAS.Client.ViewModels
                 (_selectedDirectory as IArchiveDirectory).Search();
             }
             else
-                if (_selectedDirectory is IIngestDirectory && ((IIngestDirectory)_selectedDirectory).IsWAN)
-                ((IIngestDirectory)_selectedDirectory).Filter = _searchText;
+            if (_selectedDirectory is IIngestDirectory && ((IIngestDirectory)_selectedDirectory).IsWAN)
+            {
+                if (_canSearch(o))
+                    ((IIngestDirectory)_selectedDirectory).Filter = _searchText;
+            }
             else
                 _mediaView?.Refresh();
             NotifyPropertyChanged(nameof(ItemsCount));

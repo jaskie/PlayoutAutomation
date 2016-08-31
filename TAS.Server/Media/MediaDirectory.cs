@@ -32,10 +32,12 @@ namespace TAS.Server
         public event EventHandler<MediaPropertyChangedEventArgs> MediaPropertyChanged;
 
         protected bool _isInitialized = false;
+        protected readonly NLog.Logger Logger;
 
         public MediaDirectory(MediaManager mediaManager)
         {
             MediaManager = mediaManager;
+            Logger = NLog.LogManager.GetLogger(this.GetType().Name);
         }
 
         public virtual void Initialize()
@@ -451,7 +453,7 @@ namespace TAS.Server
 
         protected virtual void OnMediaRenamed(Media media, string newFullPath)
         {
-
+            Logger.Trace("Media {0} renamed: {1}", media, newFullPath);
         }
 
         protected virtual void OnFileChanged(object source, FileSystemEventArgs e)
