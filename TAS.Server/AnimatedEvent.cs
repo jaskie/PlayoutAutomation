@@ -24,7 +24,11 @@ namespace TAS.Server
                     string eventName,
                     DateTime startTime,
                     bool isEnabled,
-                    EventGPI gpi) : base(
+                    EventGPI gpi,
+                    IDictionary<string, string> fields,
+                    TemplateMethod method,
+                    int templateLayer
+            ) : base(
                         engine,
                         idRundownEvent,
                         idEventBinding,
@@ -55,8 +59,10 @@ namespace TAS.Server
                         AutoStartFlags.None
                         )
         {
-            _fields = new SimpleDictionary<string, string>();
+            _fields = new SimpleDictionary<string, string>(fields);
             _fields.DictionaryOperation += _fields_DictionaryOperation;
+            _method = method;
+            _templateLayer = templateLayer;
         }
 
         private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)

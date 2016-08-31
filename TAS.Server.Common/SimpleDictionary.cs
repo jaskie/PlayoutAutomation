@@ -15,6 +15,13 @@ namespace TAS.Server.Common
         {
             _dict = new ConcurrentDictionary<TKey, TValue>();
         }
+        public SimpleDictionary(IDictionary<TKey, TValue> source)
+        {
+            if (source == null)
+                _dict = new ConcurrentDictionary<TKey, TValue>();
+            else
+                _dict = new ConcurrentDictionary<TKey, TValue>(source);
+        }
         public TValue this[TKey key]
         {
             get

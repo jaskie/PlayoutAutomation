@@ -56,7 +56,10 @@ namespace TAS.Server.Interfaces
                     bool isLoop = false,
                     EventGPI gpi = default(EventGPI),
                     AutoStartFlags autoStartFlags = AutoStartFlags.None,
-                    IEnumerable<ICommandScriptItem> commands = null
+                    IEnumerable<ICommandScriptItem> commands = null,
+                    IDictionary<string, string> fields = null,
+                    TemplateMethod method = TemplateMethod.Add,
+                    int templateLayer = -1
             );
 
         void Load(IEvent aEvent);

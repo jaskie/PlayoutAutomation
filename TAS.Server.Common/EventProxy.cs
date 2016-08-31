@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -37,21 +38,27 @@ namespace TAS.Server.Common
         public TEasing TransitionEasing { get; set; }
         public EventProxy[] SubEvents { get; set; }
         public AutoStartFlags AutoStartFlags { get; set; }
+        [DefaultValue(default(TemplateMethod))]
+        public TemplateMethod Method { get; set; }
+        [DefaultValue(-1)]
+        public int TemplateLayer { get; set; }
         public IEnumerable<ICommandScriptItem> Commands { get; set; }
+        public IDictionary<string, string> Fields { get; set; }
 
-        public void InsertAfter(IEvent prior, IEnumerable<IMedia> mediaFiles)
+
+        public void InsertAfter(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEvent newEvent = _toEvent(prior.Engine, mediaFiles);
+            IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
             prior.InsertAfter(newEvent);
         }
 
-        public void InsertUnder(IEvent parent, IEnumerable<IMedia> mediaFiles)
+        public void InsertUnder(IEvent parent, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEvent newEvent = _toEvent(parent.Engine, mediaFiles);
+            IEvent newEvent = _toEvent(parent.Engine, mediaFiles, animationFiles);
             parent.InsertUnder(newEvent);
         }
 
-        private IEvent _toEvent(IEngine engine, IEnumerable<IMedia> mediaFiles)
+        private IEvent _toEvent(IEngine engine, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
             IEvent result = null;
             try {
@@ -78,10 +85,13 @@ namespace TAS.Server.Common
                         isLoop: IsLoop,
                         gpi: GPI,
                         autoStartFlags: AutoStartFlags,
-                        commands: Commands
+                        commands: Commands,
+                        fields: Fields,
+                        method: Method,
+                        templateLayer: TemplateLayer
                     );
                 // find media if Guid not set
-                if (mediaFiles != null && Media != null)
+                if ((EventType == TEventType.Movie || EventType == TEventType.StillImage) && mediaFiles != null && Media != null)
                 {
                     IMedia media = null;
                     if (!Guid.Empty.Equals(MediaGuid))
@@ -99,6 +109,18 @@ namespace TAS.Server.Common
                         media = mediaFiles.FirstOrDefault(m => m.FileName == Media.FileName && m.FileSize == Media.FileSize);
                     result.Media = media;
                 }
+                if (EventType == TEventType.Animation && animationFiles != null && Media != null)
+                {
+                    IMedia media = null;
+                    if (!Guid.Empty.Equals(MediaGuid))
+                        media = animationFiles.FirstOrDefault(m => m.MediaGuid.Equals(MediaGuid));
+                    if (media == null
+                        && !string.IsNullOrEmpty(Media.IdAux))
+                        media = animationFiles.FirstOrDefault(m => m is IPersistentMedia ? ((IPersistentMedia)m).IdAux == Media.IdAux : false);
+                    if (media == null)
+                        media = animationFiles.FirstOrDefault(m => m.FileName == Media.FileName && m.FileSize == Media.FileSize);
+                    result.Media = media;
+                }
                 // add subevents
                 IEvent ne = null;
                 foreach (EventProxy seProxy in SubEvents)
@@ -106,13 +128,13 @@ namespace TAS.Server.Common
                     switch (seProxy.StartType)
                     {
                         case TStartType.With:
-                            ne = seProxy._toEvent(engine, mediaFiles);
+                            ne = seProxy._toEvent(engine, mediaFiles, animationFiles);
                             result.InsertUnder(ne);
                             break;
                         case TStartType.After:
                             if (ne != null)
                             {
-                                IEvent e = seProxy._toEvent(engine, mediaFiles);
+                                IEvent e = seProxy._toEvent(engine, mediaFiles, animationFiles);
                                 ne.InsertAfter(e);
                                 ne = e;
                             }
@@ -164,7 +186,10 @@ namespace TAS.Server.Common
                 TransitionEasing = source.TransitionEasing,
                 SubEvents = source.AllSubEvents().Select(e => FromEvent(e)).ToArray(),
                 AutoStartFlags = source.AutoStartFlags,
-                Commands = (source as ICommandScript)?.Commands
+                Commands = (source as ICommandScript)?.Commands,
+                Fields = source is ITemplated ? new Dictionary<string, string>(((ITemplated)source).Fields): null,
+                Method = source is ITemplated ? ((ITemplated)source).Method: TemplateMethod.Add,
+                TemplateLayer = source is ITemplated ? ((ITemplated)source).TemplateLayer : -1,
             };
         }
 

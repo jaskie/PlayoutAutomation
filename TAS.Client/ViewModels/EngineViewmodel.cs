@@ -217,11 +217,14 @@ namespace TAS.Client.ViewModels
                 using (var reader = System.IO.File.OpenText(dlg.FileName))
                 using (var jreader = new Newtonsoft.Json.JsonTextReader(reader))
                 {
-                    var proxy = (new Newtonsoft.Json.JsonSerializer()).Deserialize<EventProxy>(jreader);
+                    var proxy = (new Newtonsoft.Json.JsonSerializer() { DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Populate })
+                        .Deserialize<EventProxy>(jreader);
+                    var mediaFiles = (_engine.MediaManager.MediaDirectoryPRI ?? _engine.MediaManager.MediaDirectorySEC)?.GetFiles();
+                    var animationFiles = (_engine.MediaManager.AnimationDirectoryPRI ?? _engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
                     if (obj.Equals("Under"))
-                        proxy.InsertUnder(Selected.Event, (_engine.MediaManager.MediaDirectoryPRI?? _engine.MediaManager.MediaDirectorySEC)?.GetFiles());
+                        proxy.InsertUnder(Selected.Event, mediaFiles, animationFiles);
                     else
-                        proxy.InsertAfter(Selected.Event, (_engine.MediaManager.MediaDirectoryPRI ?? _engine.MediaManager.MediaDirectorySEC)?.GetFiles());
+                        proxy.InsertAfter(Selected.Event, mediaFiles, animationFiles);
                 }
             }
         }
@@ -238,7 +241,7 @@ namespace TAS.Client.ViewModels
             if (dlg.ShowDialog() == true)
             {
                 using (var writer = System.IO.File.CreateText(dlg.FileName))
-                    new Newtonsoft.Json.JsonSerializer() { Formatting = Newtonsoft.Json.Formatting.Indented }
+                    new Newtonsoft.Json.JsonSerializer() { Formatting = Newtonsoft.Json.Formatting.Indented, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore, DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Ignore }
                     .Serialize(writer, proxy);
             }
         }

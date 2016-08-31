@@ -1383,14 +1383,17 @@ namespace TAS.Server
                     bool isLoop = false,
                     EventGPI gpi = default(EventGPI),
                     AutoStartFlags autoStartFlags = AutoStartFlags.None,
-                    IEnumerable<ICommandScriptItem> commands = null
+                    IEnumerable<ICommandScriptItem> commands = null,
+                    IDictionary<string, string> fields = null,
+                    TemplateMethod method = TemplateMethod.Add,
+                    int templateLayer = -1
                     )
         {
             IEvent result;
             if (!_events.TryGetValue(idRundownEvent, out result))
             {
                 if (eventType == TEventType.Animation)
-                    result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, gpi);
+                    result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, gpi, fields, method, templateLayer);
                 else if (eventType == TEventType.CommandScript)
                     result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, playState, scheduledTime, duration, scheduledDelay, eventName, startTime, isEnabled, commands);
                 else
