@@ -12,6 +12,7 @@ namespace TAS.Server.Interfaces
         TVideoFormat VideoFormat { get; set; }
         double VolumeReferenceLoudness { get; set; }
         bool EnableGPIForNewEvents { get; set; }
+        bool EnableGPICrawlForShows { get; set; }
         [XmlIgnore]
         ulong Instance { get; set; }
         [XmlIgnore]

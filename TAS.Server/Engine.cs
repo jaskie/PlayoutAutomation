@@ -60,6 +60,8 @@ namespace TAS.Server
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
 
         public bool EnableGPIForNewEvents { get; set; }
+        public bool EnableGPICrawlForShows { get; set; }
+
         [XmlElement("Gpi")]
         public GPINotifier _serGpi { get { return null; } set { _gpi = value; } }
         private GPINotifier _gpi;

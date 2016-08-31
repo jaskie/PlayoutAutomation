@@ -55,6 +55,7 @@
                     <CheckBox IsChecked="{Binding GpiEnabled}" Content="Enabled"/>
                     <StackPanel Visibility="{Binding GpiEnabled, Converter={StaticResource BoolToVis}}">
                         <CheckBox IsChecked="{Binding EnableGPIForNewEvents}" Content="Enable GPI for new events by default"/>
+                        <CheckBox IsChecked="{Binding EnableGPICrawlForShows}" Content="Enable crawl for new shows by default" ToolTip="Crawl will not be enabled to other media categories"/>
                         <Label Content="Address or name of GPI host"/>
                         <TextBox Text="{Binding GpiAddress, UpdateSourceTrigger=PropertyChanged}"/>
                         <Label Content="Graphics start delay (negative if ahead)"/>

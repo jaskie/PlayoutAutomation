@@ -604,7 +604,7 @@ namespace TAS.Client.ViewModels
                                     gpi: new EventGPI
                                     {
                                         CanTrigger = _engine.EnableGPIForNewEvents,
-                                        Crawl = category == TMediaCategory.Show ? TCrawl.Normal : TCrawl.NoCrawl,
+                                        Crawl = Engine.EnableGPICrawlForShows && category == TMediaCategory.Show ? TCrawl.Normal : TCrawl.NoCrawl,
                                         Logo = category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? TLogo.Normal : TLogo.NoLogo,
                                         Parental = e.Media.Parental
                                     }

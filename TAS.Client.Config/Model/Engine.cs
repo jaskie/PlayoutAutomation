@@ -33,6 +33,7 @@ namespace TAS.Client.Config.Model
         public Gpi Gpi { get; set; }
         public RemoteHost Remote { get; set; }
         public bool EnableGPIForNewEvents { get; set; }
+        public bool EnableGPICrawlForShows { get; set; }
 
         internal List<CasparServer> Servers;
         internal ArchiveDirectories ArchiveDirectories;
