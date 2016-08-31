@@ -254,13 +254,20 @@ namespace TAS.Server
                 {
                     video_filters.Add("w3fdif");
                 }
-                int lastFilterIndex = video_filters.Count() - 1;
-                if (lastFilterIndex >= 0)
-                {
-                    video_filters[lastFilterIndex] = string.Format("{0}[v]", video_filters[lastFilterIndex]);
-                    ep.Append(" -map \"[v]\"");
-                }
-
+                var additionalEncodeParams = ((IngestDirectory)SourceMedia.Directory).EncodeParams;
+                if (!string.IsNullOrWhiteSpace(additionalEncodeParams))
+                    ep.Append(" ").Append(additionalEncodeParams.Trim());
+            }
+            int lastFilterIndex = video_filters.Count() - 1;
+            if (lastFilterIndex >= 0)
+            {
+                video_filters[lastFilterIndex] = string.Format("{0}[v]", video_filters[lastFilterIndex]);
+                ep.Append(" -map \"[v]\"");
+            } else
+            {
+                var videoStream = inputStreams.FirstOrDefault(s => s.StreamType == StreamType.VIDEO);
+                if (videoStream != null)
+                    ep.AppendFormat(" -map 0:{0}", videoStream.Index);
             }
             #endregion // Video
 
@@ -308,14 +315,20 @@ namespace TAS.Server
                     _addConversion(audiChannelMappingConversion, audio_filters);
                     if (AudioVolume != 0)
                         _addConversion(new MediaConversion(AudioVolume), audio_filters);
-                    int lastFilterIndex = audio_filters.Count() - 1;
-                    if (lastFilterIndex >= 0)
-                    {
-                        audio_filters[lastFilterIndex] = string.Format("{0}[a]", audio_filters[lastFilterIndex]);
-                        ep.Append(" -map \"[a]\"");
-                    }
-                    ep.Append(" ").Append(((IngestDirectory)SourceMedia.Directory).EncodeParams).Append(" -ar 48000");
+                    ep.Append(" -ar 48000");
                 }
+            }
+            lastFilterIndex = audio_filters.Count() - 1;
+            if (lastFilterIndex >= 0)
+            {
+                audio_filters[lastFilterIndex] = string.Format("{0}[a]", audio_filters[lastFilterIndex]);
+                ep.Append(" -map \"[a]\"");
+            }
+            else
+            {
+                var audioStream = inputStreams.FirstOrDefault(s => s.StreamType == StreamType.AUDIO);
+                if (audioStream != null)
+                    ep.AppendFormat(" -map 0:{0}", audioStream.Index);
             }
             #endregion // audio
             var filters = video_filters.Concat(audio_filters);

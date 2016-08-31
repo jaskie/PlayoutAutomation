@@ -50,7 +50,7 @@ namespace TAS.Client.ViewModels
         public string sDuration { get { return Media.Duration.ToSMPTETimecodeString(Media.FrameRate); } }
         public string sDurationPlay { get { return Media.DurationPlay.ToSMPTETimecodeString(Media.FrameRate); } }
         public DateTime LastUpdated { get { return Media.LastUpdated.ToLocalTime(); } }
-        public TMediaCategory MediaCategory { get { return Media.MediaCategory; } }
+        public TMediaCategory MediaCategory { get { return Media.MediaType == TMediaType.Movie ? Media.MediaCategory : TMediaCategory.Uncategorized; } }
         public TMediaStatus MediaStatus { get { return Media.MediaStatus; } }
         public TMediaEmphasis MediaEmphasis { get { return (Media is IPersistentMedia) ? (Media as IPersistentMedia).MediaEmphasis : TMediaEmphasis.None; } }
         public int SegmentCount { get { return (Media is IPersistentMedia) ? (Media as IPersistentMedia).MediaSegments.Count : 0; } }

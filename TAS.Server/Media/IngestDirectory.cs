@@ -97,7 +97,9 @@ namespace TAS.Server
         [JsonProperty]
         public bool IsExport { get; set; }
 
+        [JsonProperty]
         public TVideoCodec VideoCodec { get; set; }
+        [JsonProperty]
         public TAudioCodec AudioCodec { get; set; }
 
         public decimal VideoBitrateRatio { get; set; }

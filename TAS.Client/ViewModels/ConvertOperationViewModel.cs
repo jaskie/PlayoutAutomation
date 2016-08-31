@@ -117,7 +117,8 @@ namespace TAS.Client.ViewModels
             set { _convertOperation.SourceFieldOrderEnforceConversion = value; }
         }
     
-        public bool DoNotEncode { get { return ((IIngestDirectory)_convertOperation.SourceMedia.Directory).VideoCodec == TVideoCodec.copy; } }
+        public bool EncodeVideo { get { return ((IIngestDirectory)_convertOperation.SourceMedia.Directory).VideoCodec != TVideoCodec.copy; } }
+        public bool EncodeAudio { get { return ((IIngestDirectory)_convertOperation.SourceMedia.Directory).AudioCodec != TAudioCodec.copy; } }
 
         private bool _trim;
         public bool Trim { get { return _trim; } set { SetField(ref _trim, value, nameof(Trim)); } }
@@ -197,7 +198,7 @@ namespace TAS.Client.ViewModels
 
         public bool CanTrim
         {
-            get { return !DoNotEncode && _convertOperation.SourceMedia.MediaStatus == TMediaStatus.Available && _convertOperation.SourceMedia.Duration > TimeSpan.Zero; }
+            get { return EncodeVideo && EncodeAudio && _convertOperation.SourceMedia.MediaStatus == TMediaStatus.Available && _convertOperation.SourceMedia.Duration > TimeSpan.Zero; }
         }
 
         public PreviewViewmodel Preview { get { return _previewVm; } }

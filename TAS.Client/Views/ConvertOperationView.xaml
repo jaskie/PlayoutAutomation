@@ -99,12 +99,14 @@
                 </Label>
             </Expander.Header>
             <StackPanel MinWidth="250">
-                <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource InvertedBoolToVis}}">
+                <StackPanel Visibility="{Binding EncodeVideo, Converter={StaticResource BoolToVis}}">
                     <Label Content="{Resx _aspectCorrection}" />
                     <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}" />
                     <Label Content="{Resx _fieldOrder}" />
                     <ComboBox ItemsSource="{Binding SourceFieldOrderEnforceConversions}"  SelectedItem="{Binding SourceFieldOrderEnforceConversion}" />
-                    <Label Content="{Resx _audioChannelMix}" />
+                </StackPanel>
+                <StackPanel Visibility="{Binding EncodeAudio, Converter={StaticResource BoolToVis}}">
+                <Label Content="{Resx _audioChannelMix}" />
                     <ComboBox ItemsSource="{Binding AudioChannelMappingConversions}" SelectedItem="{Binding AudioChannelMappingConversion}" />
                     <Label Content="{Resx _audioLevelCorrection}" />
                     <DockPanel>
@@ -112,7 +114,7 @@
                         <Slider Margin="2" Minimum="-15" Maximum="15" Value="{Binding AudioVolume}"/>
                     </DockPanel>
                 </StackPanel>
-                <StackPanel Visibility="{Binding DoNotEncode, Converter={StaticResource BoolToVis}}">
+                <StackPanel Visibility="{Binding EncodeVideo, Converter={StaticResource InvertedBoolToVis}}">
                     <Label Content="{Resx _aspectCorrection}" />
                     <ComboBox ItemsSource="{Binding AspectConversionsEnforce}" SelectedItem="{Binding AspectConversion}" />
                 </StackPanel>

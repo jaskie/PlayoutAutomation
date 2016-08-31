@@ -344,7 +344,7 @@ namespace TAS.Client.ViewModels
                 if (_selectedDirectory is IIngestDirectory && ((IIngestDirectory)_selectedDirectory).IsWAN)
                 ((IIngestDirectory)_selectedDirectory).Filter = _searchText;
             else
-                _mediaView.Refresh();
+                _mediaView?.Refresh();
             NotifyPropertyChanged(nameof(ItemsCount));
         }
 
@@ -424,10 +424,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 if (SetField(ref _mediaCategory, value, nameof(MediaCategory)))
-                {
-                    NotifyPropertyChanged(nameof(IsServerOrArchiveDirectory));
                     _search(null);
-                }
             }
         }
 
@@ -441,7 +438,10 @@ namespace TAS.Client.ViewModels
             set
             {
                 if (SetField(ref _mediaType, value, nameof(MediaType)))
+                {
+                    NotifyPropertyChanged(nameof(IsMediaCategoryVisible));
                     _search(null);
+                }
             }
         }
 
@@ -496,7 +496,7 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged(nameof(DisplayDirectoryInfo));
             NotifyPropertyChanged(nameof(IsDisplayFolder));
             NotifyPropertyChanged(nameof(IsServerDirectory));
-            NotifyPropertyChanged(nameof(IsServerOrArchiveDirectory));
+            NotifyPropertyChanged(nameof(IsMediaCategoryVisible));
             NotifyPropertyChanged(nameof(IsIngestOrArchiveDirectory));
             NotifyPropertyChanged(nameof(IsAnimationDirectory));
             InvalidateRequerySuggested();
@@ -511,7 +511,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsServerOrArchiveDirectory { get { return (_selectedDirectory is IServerDirectory || _selectedDirectory is IArchiveDirectory); } }
+        public bool IsMediaCategoryVisible { get { return (_selectedDirectory is IServerDirectory || _selectedDirectory is IArchiveDirectory) && ((!(_mediaType is TMediaType)) || Equals(_mediaType, TMediaType.Movie)); } }
         public bool IsServerDirectory { get { return _selectedDirectory is IServerDirectory; } }
         public bool IsIngestOrArchiveDirectory { get { return _selectedDirectory is IIngestDirectory || _selectedDirectory is IArchiveDirectory; } }
         public bool IsAnimationDirectory { get { return _selectedDirectory is IAnimationDirectory; } }
@@ -565,7 +565,7 @@ namespace TAS.Client.ViewModels
                         && !(SelectedDirectory is IServerDirectory) || (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Still))
                     {
                         _mediaItems.Add(new MediaViewViewmodel(media, _mediaManager));
-                        _mediaView.Refresh();
+                        _mediaView?.Refresh();
                         _notifyDirectoryPropertiesChanged();
                     }
                 }
@@ -604,7 +604,7 @@ namespace TAS.Client.ViewModels
                         && _mediaItems?.Any(mi => mi.Media == media) == false)
                     {
                         _mediaItems.Add(new MediaViewViewmodel(media, _mediaManager));
-                        _mediaView.Refresh();
+                        _mediaView?.Refresh();
                         _notifyDirectoryPropertiesChanged();
                     }
                 }

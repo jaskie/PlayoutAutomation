@@ -83,7 +83,8 @@
             <Button ToolTip="{Resx _refresh}" Command="{Binding CommandRefresh}" Margin="1">
                 <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
             </Button>
-            <ComboBox Visibility="{Binding IsServerOrArchiveDirectory, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" ToolTip="{Resx _mediaCategory}">
+            <ComboBox ItemsSource="{Binding MediaTypes}"  SelectedValue="{Binding MediaType}" Margin="0,1" ToolTip="{Resx _mediaType}"/>
+            <ComboBox Visibility="{Binding IsMediaCategoryVisible, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" ToolTip="{Resx _mediaCategory}">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -93,7 +94,6 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <ComboBox ItemsSource="{Binding MediaTypes}"  SelectedValue="{Binding MediaType}" Margin="0,1" ToolTip="{Resx _mediaType}"/>
             <Button DockPanel.Dock="Right" Content="{Resx _search}" IsDefault="True" Command="{Binding CommandSearch}" Width="80" />
             <Label Content="{Resx _searchFor}"  VerticalAlignment="Center" />
             <TextBox VerticalAlignment="Center" Margin="5,2" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" />
@@ -183,7 +183,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsServerOrArchiveDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsMediaCategoryVisible, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Image ToolTip="{Binding MediaCategory}">
@@ -360,7 +360,7 @@
                 </StackPanel>
             </Button>
 
-            <Button ToolTip="{Resx _toolbar.Export.ToolTip}" Margin="10,0" Command="{Binding CommandExport}" Visibility="{Binding IsServerOrArchiveDirectory, Converter={StaticResource BoolToVis}}">
+            <Button ToolTip="{Resx _toolbar.Export.ToolTip}" Margin="10,0" Command="{Binding CommandExport}" Visibility="{Binding IsMediaCategoryVisible, Converter={StaticResource BoolToVis}}">
                 <StackPanel Orientation="Horizontal">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-export.png"/>
                     <Label Content="{Resx _toolbar.Export}"/>
