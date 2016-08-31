@@ -86,7 +86,10 @@ namespace TAS.Client.ViewModels
                                 newVm = this.CreateChildEventPanelViewmodelForEvent(e.Event);
                                 this._childrens.Insert(pos + 1, newVm);
                             }
-                        }
+                        } 
+                        else
+                            if (e.Event.StartType == TStartType.Manual || e.Event.EventType == TEventType.Container)
+                                newVm = _addRootEvent(e.Event);
                     }
                 }
                 if (newVm != null
@@ -101,7 +104,7 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        private void _addRootEvent(IEvent e)
+        private EventPanelViewmodelBase _addRootEvent(IEvent e)
         {
             if (!e.IsDeleted)
             {
@@ -117,7 +120,9 @@ namespace TAS.Client.ViewModels
                 }
                 if (e.EventType == TEventType.Container)
                     NotifyPropertyChanged("Containers");
+                return newEvm;
             }
+            return null;
         }
 
         public IEnumerable<EventPanelContainerViewmodel> Containers

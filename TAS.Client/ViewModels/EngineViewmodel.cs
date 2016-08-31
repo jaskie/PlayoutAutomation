@@ -514,8 +514,9 @@ namespace TAS.Client.ViewModels
                 scheduledTime: _currentTime);
             _engine.RootEvents.Add(newEvent);
             newEvent.Save();
+            LastAddedEvent = newEvent;
         }
-        
+
         private void _newContainer(object o)
         {
             IEvent newEvent = _engine.AddNewEvent(
@@ -523,6 +524,7 @@ namespace TAS.Client.ViewModels
                 eventName: resources._title_NewContainer);
             _engine.RootEvents.Add(newEvent);
             newEvent.Save();
+            LastAddedEvent = newEvent;
         }
 
         private void _deleteSelected(object ob)
