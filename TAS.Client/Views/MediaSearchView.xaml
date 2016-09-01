@@ -163,7 +163,7 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.ClipName}" Width="3*" >
+                        <DataGridTemplateColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.ClipName}" Width="3*" SortMemberPath="MediaName" >
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding MediaName, Mode=OneWay}" ToolTip="{Binding FileName, Mode=OneWay}"/>
