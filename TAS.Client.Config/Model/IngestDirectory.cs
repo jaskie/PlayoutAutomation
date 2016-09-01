@@ -18,7 +18,7 @@ namespace TAS.Client.Config.Model
         }
         [DefaultValue(default(TAspectConversion))]
         public TAspectConversion AspectConversion { get; set; }
-        [DefaultValue(0)]
+        [DefaultValue(typeof(Decimal), "0")]
         public decimal AudioVolume { get; set; }
         [DefaultValue(false)]
         public bool DeleteSource { get; set; }
@@ -67,9 +67,9 @@ namespace TAS.Client.Config.Model
         public string[] Extensions { get; set; }
         public TVideoCodec VideoCodec { get; set; }
         public TAudioCodec AudioCodec { get; set; }
-        [DefaultValue(1.0)]
+        [DefaultValue(typeof(Decimal), "1")]
         public decimal VideoBitrateRatio { get; set; }
-        [DefaultValue(1.0)]
+        [DefaultValue(typeof(Decimal), "1")]
         public decimal AudioBitrateRatio { get; set; }
     }
 }

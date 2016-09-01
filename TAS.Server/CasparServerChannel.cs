@@ -27,7 +27,7 @@ namespace TAS.Server
         [JsonProperty]
         public string ChannelName { get; set; }
         public int ChannelNumber { get; set; }
-        [DefaultValue(1.0d)]
+        [DefaultValue(typeof(Decimal), "1")]
         public decimal MasterVolume { get; set; }
         public string LiveDevice { get; set; }
         #endregion // IPlayoutServerChannel
