@@ -16,8 +16,10 @@ namespace TAS.Server
 {
     public class FileManager: DtoBase, IFileManager
     {
+#pragma warning disable CS0169
         [JsonProperty]
         private readonly string Dummy; // at  least one property should be serialized to resolve references
+#pragma warning restore
         private SynchronizedCollection<IFileOperation> _queueSimpleOperation = new SynchronizedCollection<IFileOperation>();
         private SynchronizedCollection<IFileOperation> _queueConvertOperation = new SynchronizedCollection<IFileOperation>();
         private SynchronizedCollection<IFileOperation> _queueExportOperation = new SynchronizedCollection<IFileOperation>();

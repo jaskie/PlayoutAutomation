@@ -22,10 +22,7 @@ namespace TAS.Client.ViewModels
 
         private void _addSubLive(object obj)
         {
-            IEvent newEvent = _event.Engine.AddNewEvent(
-                eventType: TEventType.Live,
-                eventName: resources._title_NewLive);
-            _event.InsertUnder(newEvent);
+            _engineViewmodel.AddSimpleEvent(_event, TEventType.Live, true);
         }
 
         protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
@@ -45,10 +42,7 @@ namespace TAS.Client.ViewModels
 
         private void _addSubRundown(object obj)
         {
-            IEvent newEvent = _event.Engine.AddNewEvent(
-                eventType: TEventType.Rundown,
-                eventName: resources._title_NewRundown);
-            _event.InsertUnder(newEvent);
+            _engineViewmodel.AddSimpleEvent(_event, TEventType.Rundown, true);
         }
 
         private void _addSubMovie(object obj)

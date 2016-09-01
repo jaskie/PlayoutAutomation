@@ -92,38 +92,17 @@ namespace TAS.Client.ViewModels
             CommandMoveDown = new UICommand() { ExecuteDelegate = o => _event.MoveDown(), CanExecuteDelegate = _canMoveDown };
             CommandAddNextRundown = new UICommand()
             {
-                ExecuteDelegate = o =>
-                {
-                    IEvent newEvent = _event.Engine.AddNewEvent(
-                        eventType: TEventType.Rundown,
-                        eventName: resources._title_NewRundown);
-                    _event.InsertAfter(newEvent);
-                },
+                ExecuteDelegate = o => _engineViewmodel.AddSimpleEvent(_event, TEventType.Rundown, false),
                 CanExecuteDelegate = _canAddNextItem
             };
             CommandAddNextEmptyMovie = new UICommand()
             {
-                ExecuteDelegate = o =>
-                {
-                    IEvent newEvent = _event.Engine.AddNewEvent(
-                        eventType: TEventType.Movie,
-                        eventName: resources._title_EmptyMovie,
-                        videoLayer: VideoLayer.Program);
-                    _event.InsertAfter(newEvent);
-                },
+                ExecuteDelegate = o => _engineViewmodel.AddSimpleEvent(_event, TEventType.Movie, false),
                 CanExecuteDelegate = canAddNextMovie
             };
             CommandAddNextLive = new UICommand()
             {
-                ExecuteDelegate = o =>
-                {
-                    IEvent newEvent = _event.Engine.AddNewEvent(
-                        eventType: TEventType.Live,
-                        eventName: resources._title_NewLive,
-                        videoLayer: VideoLayer.Program,
-                        duration: new TimeSpan(0, 10, 0));
-                    _event.InsertAfter(newEvent);
-                },
+                ExecuteDelegate = o => _engineViewmodel.AddSimpleEvent(_event, TEventType.Live, false),
                 CanExecuteDelegate = canAddNewLive
             };
             CommandAddNextMovie = new UICommand()

@@ -140,6 +140,7 @@ namespace TAS.Client.Model
         public ulong Instance { get { return Get<ulong>(); } set { SetField(value); } }
 
         public bool EnableGPIForNewEvents { get { return Get<bool>(); } set { Set(value); } }
+        public bool EnableGPICrawlForShows { get { return Get<bool>(); } set { Set(value); } }
 
         public bool FieldOrderInverted { get { return Get<bool>(); } set { Set(value); } }
 
@@ -303,7 +304,7 @@ namespace TAS.Client.Model
             }
         }
 
-        public IEvent AddNewEvent(ulong idRundownEvent = 0, ulong idEventBinding = 0, VideoLayer videoLayer = (VideoLayer)(-1), TEventType eventType = TEventType.Rundown, TStartType startType = TStartType.None, TPlayState playState = TPlayState.Scheduled, DateTime scheduledTime = default(DateTime), TimeSpan duration = default(TimeSpan), TimeSpan scheduledDelay = default(TimeSpan), TimeSpan scheduledTC = default(TimeSpan), Guid mediaGuid = default(Guid), string eventName = "", DateTime startTime = default(DateTime), TimeSpan startTC = default(TimeSpan), TimeSpan? requestedStartTime = default(TimeSpan?), TimeSpan transitionTime = default(TimeSpan), TimeSpan transitionPauseTime = default(TimeSpan), TTransitionType transitionType = TTransitionType.Cut, TEasing transitionEasing = TEasing.Linear, decimal? audioVolume = default(decimal?), ulong idProgramme = 0, string idAux = "", bool isEnabled = true, bool isHold = false, bool isLoop = false, EventGPI gpi = default(EventGPI), AutoStartFlags autoStartFlags = AutoStartFlags.None, IEnumerable<ICommandScriptItem> commands = null)
+        public IEvent AddNewEvent(ulong idRundownEvent = 0, ulong idEventBinding = 0, VideoLayer videoLayer = (VideoLayer)(-1), TEventType eventType = TEventType.Rundown, TStartType startType = TStartType.None, TPlayState playState = TPlayState.Scheduled, DateTime scheduledTime = default(DateTime), TimeSpan duration = default(TimeSpan), TimeSpan scheduledDelay = default(TimeSpan), TimeSpan scheduledTC = default(TimeSpan), Guid mediaGuid = default(Guid), string eventName = "", DateTime startTime = default(DateTime), TimeSpan startTC = default(TimeSpan), TimeSpan? requestedStartTime = default(TimeSpan?), TimeSpan transitionTime = default(TimeSpan), TimeSpan transitionPauseTime = default(TimeSpan), TTransitionType transitionType = TTransitionType.Cut, TEasing transitionEasing = TEasing.Linear, decimal? audioVolume = default(decimal?), ulong idProgramme = 0, string idAux = "", bool isEnabled = true, bool isHold = false, bool isLoop = false, EventGPI gpi = default(EventGPI), AutoStartFlags autoStartFlags = AutoStartFlags.None, IEnumerable<ICommandScriptItem> commands = null, IDictionary<string, string> fields = null, TemplateMethod method = TemplateMethod.Add, int templateLayer = 0)
         {
             throw new NotImplementedException();
         }

@@ -652,6 +652,40 @@ namespace TAS.Client.ViewModels
             LastAddedEvent = newEvent;
         }
 
+        public void AddSimpleEvent(IEvent baseEvent, TEventType eventType, bool insertUnder)
+        {
+            IEvent newEvent = null;
+            switch (eventType)
+            {
+                case TEventType.Live:
+                    newEvent = Engine.AddNewEvent(
+                        eventType: TEventType.Live,
+                        eventName: resources._title_NewLive,
+                        videoLayer: VideoLayer.Program,
+                        duration: new TimeSpan(0, 10, 0));
+                    break;
+                case TEventType.Movie:
+                    newEvent = Engine.AddNewEvent(
+                        eventType: TEventType.Movie,
+                        eventName: resources._title_EmptyMovie,
+                        videoLayer: VideoLayer.Program);
+                    break;
+                case TEventType.Rundown:
+                    newEvent = Engine.AddNewEvent(
+                        eventType: TEventType.Rundown,
+                        eventName: resources._title_NewRundown);
+                    break;
+            }
+            if (newEvent != null)
+            {
+                if (insertUnder == true)
+                    baseEvent.InsertUnder(newEvent);
+                else
+                    baseEvent.InsertAfter(newEvent);
+                LastAddedEvent = newEvent;
+            }
+        }
+
         /// <summary>
         /// Used to determine if it should be selected when it's viewmodel is created
         /// </summary>
