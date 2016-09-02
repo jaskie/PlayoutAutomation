@@ -90,7 +90,6 @@ namespace TAS.Server
                     {
                         _remoteClientStream = _remoteClient.GetStream();
                         _remoteClientStream.WriteByte((byte)GPICommand.SetIsController);
-                        _remoteClientStream.WriteByte((byte)GPICommand.GetInfo);
                     }
                     else
                         Thread.Sleep(10000);
@@ -169,15 +168,44 @@ namespace TAS.Server
                             handler();
                         }
                         break;
+                    case (byte)GPICommand.GetInfo:
+                        if (bufferLength - bufferPos >= 6 && data[bufferPos + 1] >= bufferLength - 2)
+                        {
+                            lock (CrawlState.SyncRoot)
+                            {
+
+                                byte[] temp = new byte[data.Length - 8];
+                                Array.Copy(data, 8, temp, 0, temp.Length);
+                                CrawlState.VisibleAuxes.Clear();
+                                CrawlState.VisibleAuxes.AddRange(temp);
+                                CrawlState.AspectNarrow = data[2] != 0;
+                                CrawlState.ConfigNr = data[3];
+                                CrawlState.CrawlVisible = data[4] != 0;
+                                CrawlState.LogoVisible = data[5] != 0;
+                                CrawlState.LogoStyle = (byte)(data[5] == 0 ? 0 : data[5] - 1);
+                                CrawlState.ParentalVisible = data[6] != 0;
+                                CrawlState.LogoStyle = (byte)(data[6] == 0 ? 0 : data[6] - 1);
+                                CrawlState.Mono = data[7] != 0;
+                            }
+                            NotifyPropertyChanged(nameof(Logo));
+                            NotifyPropertyChanged(nameof(Parental));
+                            NotifyPropertyChanged(nameof(AspectNarrow));
+                            NotifyPropertyChanged(nameof(Crawl));
+                            NotifyPropertyChanged(nameof(CrawlVisible));
+                            bufferPos += (byte)(data[bufferPos + 1] + 2);
+                        }
+                        else
+                            bufferPos = bufferLength;
+                        break;
                     case (byte)GPICommand.ShowCrawl:
                         CrawlState.CrawlVisible = true;
                         bufferPos++;
-                        NotifyPropertyChanged(nameof(Crawl));
+                        NotifyPropertyChanged(nameof(CrawlVisible));
                         break;
                     case (byte)GPICommand.HideCrawl:
                         CrawlState.CrawlVisible = false;
                         bufferPos++;
-                        NotifyPropertyChanged(nameof(Crawl));
+                        NotifyPropertyChanged(nameof(CrawlVisible));
                         break;
                     case (byte)GPICommand.SetCrawl:
                     case (byte)GPICommand.ReloadCrawl:
@@ -188,7 +216,7 @@ namespace TAS.Server
                             if (data[bufferPos] == (byte)GPICommand.SetCrawl)
                             {
                                 CrawlState.CrawlVisible = true;
-                                NotifyPropertyChanged(nameof(Crawl));
+                                NotifyPropertyChanged(nameof(CrawlVisible));
                             }
                         }
                         bufferPos += 2;
@@ -253,35 +281,24 @@ namespace TAS.Server
                         bufferPos++;
                         NotifyPropertyChanged(nameof(IsMaster));
                         break;
-                    case (byte)GPICommand.GetInfo:
-                        if (bufferLength - bufferPos >= 6 && data[bufferPos + 1] >= bufferLength - 2)
+                    case (byte)GPICommand.AuxShow:
+                    case (byte)GPICommand.AuxHide:
+                        if (bufferLength - bufferPos >= 2)
                         {
-                            lock (CrawlState.SyncRoot)
+                            var auxNr = (int)data[bufferPos + 1];
+                            lock (_visibleAuxes.SyncRoot)
                             {
-
-                                byte[] temp = new byte[data.Length - 8];
-                                Array.Copy(data, 8, temp, 0, temp.Length);
-                                CrawlState.VisibleAuxes.Clear();
-                                CrawlState.VisibleAuxes.AddRange(temp);
-                                CrawlState.AspectNarrow = data[2] != 0;
-                                CrawlState.ConfigNr = data[3];
-                                CrawlState.CrawlVisible = data[4] != 0;
-                                CrawlState.LogoVisible = data[5] != 0;
-                                CrawlState.LogoStyle = (byte)(data[5] == 0 ? 0 : data[5] - 1);
-                                CrawlState.ParentalVisible = data[6] != 0;
-                                CrawlState.LogoStyle = (byte)(data[6] == 0 ? 0 : data[6] - 1);
-                                CrawlState.Mono = data[7] != 0;
+                                bool contanis = _visibleAuxes.Contains(auxNr);
+                                if (!contanis && data[bufferPos] == (byte)GPICommand.AuxShow)
+                                    _visibleAuxes.Add(auxNr);
+                                if (contanis && data[bufferPos] == (byte)GPICommand.AuxHide)
+                                    _visibleAuxes.Remove(auxNr);
                             }
-                            NotifyPropertyChanged(nameof(Logo));
-                            NotifyPropertyChanged(nameof(Parental));
-                            NotifyPropertyChanged(nameof(AspectNarrow));
-                            NotifyPropertyChanged(nameof(Crawl));
-//                            NotifyPropertyChanged("CrawlVisible");
-                            bufferPos += (byte)(data[bufferPos + 1] + 2);
+                            NotifyPropertyChanged(nameof(VisibleAuxes));
                         }
-                        else
-                            bufferPos = bufferLength;
+                        bufferPos += 2;
                         break;
+                
                     default:
                         bufferPos = bufferLength;
                         break;
@@ -344,13 +361,13 @@ namespace TAS.Server
             }
         }
 
-        private void _sendCommand(byte command, params byte[] param )
+        private void _sendCommand(GPICommand command, params byte[] param )
         {
             var stream = _remoteClientStream;
             try
             {
                 byte[] toWrite = new byte[param.Length+1];
-                toWrite[0] = command;
+                toWrite[0] = (byte)command;
                 for (int i = 0; i < param.Length; i++)
                     toWrite[i + 1] = param[i];
                     if (stream != null && stream.CanWrite)
@@ -371,9 +388,9 @@ namespace TAS.Server
                 if (CrawlState.AspectNarrow != value)
                 {
                     if (value)
-                        _sendCommand((byte)GPICommand.AspectNarrow);
+                        _sendCommand(GPICommand.AspectNarrow);
                     else
-                        _sendCommand((byte)GPICommand.AspectWide);
+                        _sendCommand(GPICommand.AspectWide);
                 }
             }
         }
@@ -385,23 +402,18 @@ namespace TAS.Server
             set
             {
                 if (CrawlState.CrawlVisible != value)
-                    _sendCommand(value ? (byte)GPICommand.ShowCrawl : (byte)GPICommand.HideCrawl);
+                    _sendCommand(value ? GPICommand.ShowCrawl : GPICommand.HideCrawl);
             }
         }
 
         [XmlIgnore]
         public int Crawl
         {
-            get { return CrawlState.CrawlVisible ? CrawlState.ConfigNr : 0; }
+            get { return CrawlState.ConfigNr; }
             set
             {
                 if (Crawl != value)
-                {
-                    if (value == 0)
-                        _sendCommand((byte)GPICommand.HideCrawl);
-                    else
-                        _sendCommand((byte)GPICommand.SetCrawl, (byte)value);
-                }
+                    _sendCommand(GPICommand.SetCrawl, (byte)value);
             }
         }
 
@@ -420,9 +432,9 @@ namespace TAS.Server
                 if (Logo != value)
                 {
                     if (value == 0)
-                        _sendCommand((byte)GPICommand.HideLogo);
+                        _sendCommand(GPICommand.HideLogo);
                     else
-                        _sendCommand((byte)((byte)GPICommand.ShowLogo0 + (value - 1)));
+                        _sendCommand((GPICommand)((byte)GPICommand.ShowLogo0 + (value - 1)));
                 }
             }
         }
@@ -442,13 +454,25 @@ namespace TAS.Server
                 if (Parental != value)
                 {
                     if (value == 0)
-                        _sendCommand((byte)GPICommand.HideParental);
+                        _sendCommand(GPICommand.HideParental);
                     else
-                        _sendCommand((byte)((byte)GPICommand.ShowParental0 + (value - 1)));
+                        _sendCommand((GPICommand)((byte)GPICommand.ShowParental0 + (value - 1)));
                 }
             }
         }
 
+        private readonly SynchronizedCollection<int> _visibleAuxes = new SynchronizedCollection<int>();
+        [XmlIgnore]
+        public int[] VisibleAuxes { get { lock (_visibleAuxes.SyncRoot) return _visibleAuxes.ToArray(); } }
+
+        public void ShowAux(int auxNr)
+        {
+            _sendCommand(GPICommand.AuxShow, (byte)auxNr);
+        }
+        public void HideAux(int auxNr)
+        {
+            _sendCommand(GPICommand.AuxHide, (byte)auxNr);
+        }
 
         private bool _isMaster;
         public bool IsMaster

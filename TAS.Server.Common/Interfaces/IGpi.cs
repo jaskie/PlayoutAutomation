@@ -8,6 +8,10 @@ namespace TAS.Server.Interfaces
         bool CrawlVisible { get; set; }
         int Logo { get; set; }
         int Parental { get; set; }
+        int[] VisibleAuxes { get; }
+        bool IsMaster { get; }
+        void ShowAux(int auxNr);
+        void HideAux(int auxNr);
         event Action Started;
     }
 }

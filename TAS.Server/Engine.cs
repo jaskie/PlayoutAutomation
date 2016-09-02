@@ -354,7 +354,10 @@ namespace TAS.Server
 
         void GPI_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            NotifyPropertyChanged("GPI" + e.PropertyName);
+            if (e.PropertyName == nameof(IGpi.CrawlVisible))
+                NotifyPropertyChanged(nameof(GPICrawl));
+            else
+                NotifyPropertyChanged("GPI" + e.PropertyName);
         }
 
         public bool GPIConnected
@@ -380,8 +383,20 @@ namespace TAS.Server
         [XmlIgnore]
         public TCrawl GPICrawl
         {
-            get { return _gpi == null ? TCrawl.NoCrawl : (TCrawl)_gpi.Crawl; }
-            set { if (_gpi != null && _gPIEnabled) _gpi.Crawl = (int)value; }
+            get { return _gpi == null ? TCrawl.NoCrawl : _gpi.CrawlVisible ? (TCrawl)_gpi.Crawl: TCrawl.NoCrawl; }
+            set
+            {
+                if (_gpi != null && _gPIEnabled)
+                {
+                    if (value == TCrawl.NoCrawl)
+                        _gpi.CrawlVisible = false;
+                    else
+                    {
+                        _gpi.Crawl = (int)value;
+                        _gpi.CrawlVisible = true;
+                    }
+                }
+            }
         }
 
         [XmlIgnore]
@@ -1063,7 +1078,13 @@ namespace TAS.Server
         {
             if (ev.GPI.CanTrigger)
             {
-                gpi.Crawl = (int)ev.GPI.Crawl;
+                if (ev.GPI.Crawl == TCrawl.NoCrawl)
+                    gpi.CrawlVisible = false;
+                else
+                {
+                    gpi.Crawl = (int)ev.GPI.Crawl;
+                    gpi.CrawlVisible = true;
+                }
                 gpi.Logo = (int)ev.GPI.Logo;
                 gpi.Parental = (int)ev.GPI.Parental;
             }

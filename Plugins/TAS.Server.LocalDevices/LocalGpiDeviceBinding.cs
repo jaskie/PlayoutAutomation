@@ -103,6 +103,12 @@ namespace TAS.Server
                 }
             }
         }
+        private List<int> _visibleAuxes = new List<int>();
+        [XmlIgnore]
+        public int[] VisibleAuxes { get { return _visibleAuxes.ToArray(); } }
+
+        public void ShowAux(int auxNr) { }
+        public void HideAux(int auxNr) { }
 
         void _setSinglePin(GPIPin[] pins, int value)
         {
@@ -113,5 +119,6 @@ namespace TAS.Server
                 pins.Where(p => p.Param == value).ToList().ForEach(p => owner.SetPortState(p.DeviceId, p.PortNumber, p.PinNumber, true));
             }
         }
+
     }
 }

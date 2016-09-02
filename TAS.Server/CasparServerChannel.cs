@@ -258,8 +258,8 @@ namespace TAS.Server
                 var eventType = aEvent.EventType;
                 if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
                 {
-                    Event playing;
-                    if (!(_visible.TryGetValue(aEvent.Layer, out playing) && playing == aEvent))
+                    Event visible;
+                    if (!(_visible.TryGetValue(aEvent.Layer, out visible) && visible == aEvent))
                     {
                         Event loaded;
                         if (!(_loadedNext.TryGetValue(aEvent.Layer, out loaded) && loaded == aEvent))
@@ -381,8 +381,8 @@ namespace TAS.Server
             var channel = _casparChannel;
             if (_checkConnected() && channel != null)
             {
-                Event playing;
-                if (_visible.TryGetValue(aEvent.Layer, out playing) && playing == aEvent)
+                Event visible;
+                if (_visible.TryRemove(aEvent.Layer, out visible) && visible == aEvent)
                 {
                     channel.Pause((int)aEvent.Layer);
                     Event removed;
