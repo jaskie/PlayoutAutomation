@@ -473,10 +473,10 @@ namespace TAS.Client.ViewModels
                 && (IsModified || ev.IsModified);
         }
         
-        EventGPI _setGPI(IMedia media)
+        EventCGElements _setGPI(IMedia media)
         {
-            EventGPI GPI = new EventGPI();
-            GPI.CanTrigger = _engine.EnableGPIForNewEvents;
+            EventCGElements GPI = new EventCGElements();
+            GPI.IsEnabled = _engine.EnableCGElementsForNewEvents;
             if (media != null)
             {
                 var category = media.MediaCategory;
@@ -986,12 +986,12 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private EventGPI _gpi;
-        public EventGPI GPI { get { return _gpi; } set { _gpi = value; } }
+        private EventCGElements _gpi;
+        public EventCGElements GPI { get { return _gpi; } set { _gpi = value; } }
 
         public bool CanTriggerGPI
         {
-            get { return _gpi.CanTrigger; }
+            get { return _gpi.IsEnabled; }
             set { SetField(ref _gpi.CanTrigger, value, nameof(CanTriggerGPI)); }
         }
 

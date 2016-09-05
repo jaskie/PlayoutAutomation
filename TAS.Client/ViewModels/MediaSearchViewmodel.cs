@@ -373,8 +373,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool EnableGPIForNewEvents { get { return _engine.EnableGPIForNewEvents; } set { _engine.EnableGPIForNewEvents = value; } }
-        public bool CanEnableGPI { get { return _engine.LocalGpi != null || _engine.Gpi != null && _mediaType == TMediaType.Movie; } } 
+        public bool EnableCGElementsForNewEvents { get { return _engine.EnableCGElementsForNewEvents; } set { _engine.EnableCGElementsForNewEvents = value; } }
+        public bool CanEnableCGElements { get { return _engine.CGElementsController != null && _mediaType == TMediaType.Movie; } } 
         
         private string _okButtonText = "OK";
         public string OkButtonText { get { return _okButtonText; }

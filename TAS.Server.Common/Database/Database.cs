@@ -764,7 +764,7 @@ namespace TAS.Server.Database
                 (flags & (1 << 0)) != 0, // IsEnabled
                 (flags & (1 << 1)) != 0, // IsHold
                 (flags & (1 << 2)) != 0, // IsLoop
-                EventGPI.FromUInt64((flags >> 4) & EventGPI.Mask),
+                new EventCGElements((flags >> 4) & EventCGElements.Mask),
                 (AutoStartFlags)((flags >> 20) & 0x0F),
                 commands
                 );
@@ -824,7 +824,7 @@ namespace TAS.Server.Database
             ulong flags = Convert.ToUInt64(aEvent.IsEnabled) << 0
                          | Convert.ToUInt64(aEvent.IsHold) << 1
                          | Convert.ToUInt64(aEvent.IsLoop) << 2
-                         | aEvent.GPI.ToUInt64() << 4 // of size EventGPI.Size
+                         | aEvent.CGElements.ToUInt64() << 4 // of size EventGPI.Size
                          | (ulong)aEvent.AutoStartFlags << 20
                          ;
             cmd.Parameters.AddWithValue("@flagsEvent", flags);
@@ -1099,7 +1099,7 @@ VALUES
             media.IdAux = dataReader.IsDBNull(dataReader.GetOrdinal("idAux")) ? string.Empty : dataReader.GetString("idAux");
             media.KillDate = dataReader.GetDateTime("KillDate");
             media.MediaEmphasis = (TMediaEmphasis)((flags >> 8) & 0xF);
-            media.Parental = (TParental)((flags >> 12) & 0xF);
+            media.Parental = (int)((flags >> 12) & 0xF);
             if (media is IServerMedia)
                 ((IServerMedia)media).DoNotArchive = (flags & 0x1) != 0;
             media.Protected = (flags & 0x2) != 0;

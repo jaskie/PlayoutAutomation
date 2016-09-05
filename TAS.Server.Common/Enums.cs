@@ -370,38 +370,6 @@ namespace TAS.Common
         { }
     }
 
-    [TypeConverter(typeof(TLogoEnumConverter))]
-    public enum TLogo
-    {
-        NoLogo,
-        Normal,
-        Live,
-        Premiere,
-        Replay,
-    }
-    class TLogoEnumConverter : ResourceEnumConverter
-    {
-        public TLogoEnumConverter()
-            : base(typeof(TLogo), TAS.Server.Common.Properties.Resources.ResourceManager)
-        { }
-    }
-
-    [TypeConverter(typeof(TCrawlEnumConverter))]
-    public enum TCrawl
-    {
-        NoCrawl,
-        Normal,
-        Urgent,
-        Sport,
-    }
-    class TCrawlEnumConverter : ResourceEnumConverter
-    {
-        public TCrawlEnumConverter()
-            : base(typeof(TCrawl), TAS.Server.Common.Properties.Resources.ResourceManager)
-        { }
-    }
-
-
     public enum TTransitionType {
         Cut = 0,
         Mix = 1,
@@ -411,23 +379,6 @@ namespace TAS.Common
         Squeeze = 5,
     };
     
-    [TypeConverter(typeof(TParentalEnumConverter))]
-    public enum TParental
-    {
-        None,
-        NoLimit,
-        Limit07,
-        Limit12,
-        Limit16,
-        Limit18,
-    }
-    class TParentalEnumConverter:ResourceEnumConverter
-    {
-        public TParentalEnumConverter()
-            : base(typeof(TParental), TAS.Server.Common.Properties.Resources.ResourceManager)
-        { }
-    }
-
     [TypeConverter(typeof(TMediaEmphasisEnumConverter))]
     public enum TMediaEmphasis : byte
     {

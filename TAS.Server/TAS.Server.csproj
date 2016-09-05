@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="CasparServer.cs" />
     <Compile Include="CasparServerChannel.cs" />
+    <Compile Include="CGElementsController.cs" />
     <Compile Include="CommandScriptEvent.cs" />
     <Compile Include="ConvertOperation.cs" />
     <Compile Include="Dependencies\TargaImage.cs" />
@@ -81,9 +82,6 @@
     <Compile Include="FFMpegOperation.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="FileOperation.cs" />
-    <Compile Include="GPICommand.cs" />
-    <Compile Include="GPINotifier.cs" />
-    <Compile Include="GPIState.cs" />
     <Compile Include="LoudnessOperation.cs" />
     <Compile Include="MediaManager.cs" />
     <Compile Include="Media\AnimationDirectory.cs" />

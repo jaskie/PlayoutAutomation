@@ -351,62 +351,7 @@
                             </StackPanel>
                         </MenuItem>
                     </Menu>
-                    <StackPanel Orientation="Horizontal" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}">
-                        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
-                        <common:StatusIndicator Height="14" IsGreen="{Binding GPIConnected}" />
-                        <Label Content="GPI" Padding="5, 0, 0, 0"/>
-                        <StackPanel Orientation="Horizontal" Visibility="{Binding GPIConnected, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding GPIIsMaster}">
-                            <CheckBox Margin="10, 0" Content="{Resx _statusbar.Gpi.Active}" IsChecked="{Binding GPIEnabled}"/>
-                            <StackPanel Orientation="Horizontal" IsEnabled="{Binding GPIEnabled}">
-                                <StackPanel.Resources>
-                                    <Style TargetType="CheckBox">
-                                        <Setter Property="VerticalAlignment" Value="Center"/>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsEnabled" Value="false">
-                                                <Setter Property="Foreground" Value="Black"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                    <Style TargetType="ComboBox">
-                                        <Setter Property="VerticalAlignment" Value="Center"/>
-                                        <Setter Property="Width" Value="100" />
-                                        <Style.Triggers>
-                                            <Trigger Property="IsEnabled" Value="false">
-                                                <Setter Property="Foreground" Value="Black"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                    <Style TargetType="Label">
-                                        <Setter Property="VerticalAlignment" Value="Center"/>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsEnabled" Value="false">
-                                                <Setter Property="Foreground" Value="Black"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </StackPanel.Resources>
-                                <CheckBox IsChecked="{Binding GPIAspectNarrow}" Margin="5, 0" Width="50" HorizontalContentAlignment="Left">
-                                    <CheckBox.Content>
-                                        <TextBlock>
-                                            <TextBlock.Text>
-                                                <Binding Path="GPIAspectNarrow">
-                                                    <Binding.Converter>
-                                                        <common:BoolToStringConverter FalseValue="16:9" TrueValue="4:3" />
-                                                    </Binding.Converter>
-                                                </Binding>
-                                            </TextBlock.Text>
-                                        </TextBlock>
-                                    </CheckBox.Content>
-                                </CheckBox>
-                                <Label Padding="5, 0" Content="{Resx _statusbar.Gpi.Crawl}"/>
-                                <ComboBox ItemsSource="{Binding GPICrawls}" SelectedValue="{Binding GPICrawl}" />
-                                <Label Padding="5, 0" Content="{Resx _statusbar.Gpi.Logo}"/>
-                                <ComboBox ItemsSource="{Binding GPILogos}" SelectedValue="{Binding GPILogo}" />
-                                <Label Padding="5, 0" Content="{Resx _statusbar.Gpi.Parental}"/>
-                                <ComboBox ItemsSource="{Binding GPIParentals}" SelectedValue="{Binding GPIParental}" />
-                            </StackPanel>
-                        </StackPanel>
-                    </StackPanel>
+                    
                 </StackPanel>
             </StatusBarItem>
             <StatusBarItem TextBlock.FontSize="13" HorizontalAlignment="Right" Panel.ZIndex="1" Background="{Binding Path=Background, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StatusBar}}}">

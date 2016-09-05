@@ -24,7 +24,7 @@ namespace TAS.Server
                     string eventName,
                     DateTime startTime,
                     bool isEnabled,
-                    EventGPI gpi,
+                    ICGElementsState cgElementsState,
                     IDictionary<string, string> fields,
                     TemplateMethod method,
                     int templateLayer
@@ -55,7 +55,7 @@ namespace TAS.Server
                         isEnabled,
                         false,
                         false,
-                        gpi,
+                        cgElementsState,
                         AutoStartFlags.None
                         )
         {

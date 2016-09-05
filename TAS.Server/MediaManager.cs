@@ -34,6 +34,8 @@ namespace TAS.Server
         public IAnimationDirectory AnimationDirectorySEC { get; private set; }
         public IAnimationDirectory AnimationDirectoryPRV { get; private set; }
         public IArchiveDirectory ArchiveDirectory { get; private set; }
+        public ICGElementsController CGElementsController { get { return _engine.CGElementsController; } }
+
         //[JsonProperty]
         public VideoFormatDescription FormatDescription { get { return _engine.FormatDescription; } }
         [JsonProperty]
@@ -116,6 +118,7 @@ namespace TAS.Server
                     return _ingestDirectories.ToList();
             }
         }
+
 
         private bool _ingestDirectoriesLoaded = false;
         private object _ingestDirsSyncObject = new object();

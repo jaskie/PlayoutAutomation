@@ -239,7 +239,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool GPICanTrigger { get { return _event != null && _event.GPI.CanTrigger; } }
+        public bool GPICanTrigger { get { return _event != null && _event.GPI.IsEnabled; } }
         public TLogo GPILogo { get { return _event == null ? TLogo.NoLogo : _event.GPI.Logo; } }
         public TCrawl GPICrawl { get { return _event == null ? TCrawl.NoCrawl : _event.GPI.Crawl; } }
         public TParental GPIParental { get { return _event == null ? TParental.None : _event.GPI.Parental; } }

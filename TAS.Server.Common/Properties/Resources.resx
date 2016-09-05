@@ -138,18 +138,6 @@
   <data name="TAudioChannelMapping_Unknown" xml:space="preserve">
     <value>Unknown</value>
   </data>
-  <data name="TCrawl_NoCrawl" xml:space="preserve">
-    <value>No crawl</value>
-  </data>
-  <data name="TCrawl_Normal" xml:space="preserve">
-    <value>Normal</value>
-  </data>
-  <data name="TCrawl_Sport" xml:space="preserve">
-    <value>Sport</value>
-  </data>
-  <data name="TCrawl_Urgent" xml:space="preserve">
-    <value>Urgent</value>
-  </data>
   <data name="TEventType_Animation" xml:space="preserve">
     <value>Animation</value>
   </data>
@@ -173,21 +161,6 @@
   </data>
   <data name="TFieldOrder_TFF" xml:space="preserve">
     <value>Top field first</value>
-  </data>
-  <data name="TLogo_Live" xml:space="preserve">
-    <value>Live</value>
-  </data>
-  <data name="TLogo_NoLogo" xml:space="preserve">
-    <value>No logo</value>
-  </data>
-  <data name="TLogo_Normal" xml:space="preserve">
-    <value>Normal</value>
-  </data>
-  <data name="TLogo_Premiere" xml:space="preserve">
-    <value>Premiere</value>
-  </data>
-  <data name="TLogo_Replay" xml:space="preserve">
-    <value>Replay</value>
   </data>
   <data name="TMediaCategory_Commercial" xml:space="preserve">
     <value>Commercial</value>
@@ -272,24 +245,6 @@
   </data>
   <data name="TMediaType_Unknown" xml:space="preserve">
     <value>Unknown</value>
-  </data>
-  <data name="TParental_Limit07" xml:space="preserve">
-    <value>7</value>
-  </data>
-  <data name="TParental_Limit12" xml:space="preserve">
-    <value>12</value>
-  </data>
-  <data name="TParental_Limit16" xml:space="preserve">
-    <value>16</value>
-  </data>
-  <data name="TParental_Limit18" xml:space="preserve">
-    <value>18</value>
-  </data>
-  <data name="TParental_NoLimit" xml:space="preserve">
-    <value>No limit</value>
-  </data>
-  <data name="TParental_None" xml:space="preserve">
-    <value>None</value>
   </data>
   <data name="TPlayState_Aborted" xml:space="preserve">
     <value>Aborted</value>

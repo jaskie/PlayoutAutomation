@@ -64,9 +64,9 @@ namespace TAS.Client.ViewModels
         public Array Categories { get { return _categories; } }
         public TMediaCategory DestCategory { get { return _convertOperation.DestMedia.MediaCategory; } set { _convertOperation.DestMedia.MediaCategory = value; } }
 
-        static readonly Array _parentals = Enum.GetValues(typeof(TParental));
-        public Array Parentals{ get { return _parentals; } }
-        public TParental DestParental { get { return _convertOperation.DestMedia.Parental; } set { _convertOperation.DestMedia.Parental = value; } }
+        public List<ICGElement> _parentals;
+        public IEnumerable<ICGElement> Parentals{ get { return _parentals; } }
+        public int DestParental { get { return _convertOperation.DestMedia.Parental; } set { _convertOperation.DestMedia.Parental = value; } }
 
         static readonly Array _mediaEmphasises = Enum.GetValues(typeof(TMediaEmphasis));
         public Array MediaEmphasises { get { return _mediaEmphasises; } }

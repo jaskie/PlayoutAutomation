@@ -604,10 +604,10 @@ namespace TAS.Client.ViewModels
                                     eventType: TEventType.Movie,
                                     scheduledTC: e.TCIn,
                                     duration: e.Duration,
-                                    gpi: new EventGPI
+                                    cgElementsState: new EventCGElements
                                     {
-                                        CanTrigger = _engine.EnableGPIForNewEvents,
-                                        Crawl = Engine.EnableGPICrawlForShows && category == TMediaCategory.Show ? TCrawl.Normal : TCrawl.NoCrawl,
+                                        IsEnabled = _engine.EnableCGElementsForNewEvents,
+                                        Crawl = Engine.EnableCGElementsCrawlForShows && category == TMediaCategory.Show ? TCrawl.Normal : TCrawl.NoCrawl,
                                         Logo = category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? TLogo.Normal : TLogo.NoLogo,
                                         Parental = e.Media.Parental
                                     }
@@ -918,7 +918,7 @@ namespace TAS.Client.ViewModels
         #region GPI
         public bool GPIExists
         {
-            get { return _engine.Gpi != null; }
+            get { return _engine.CGElementsController != null; }
         }
 
         public bool GPIConnected

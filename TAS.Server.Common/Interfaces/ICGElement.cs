@@ -5,9 +5,9 @@ using System.Text;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IGpi
+    public interface ICGElement
     {
-        bool IsWideScreen { get; set; }
-        event EventHandler Started;
+        byte Id { get; }
+        int Name { get; }
     }
 }

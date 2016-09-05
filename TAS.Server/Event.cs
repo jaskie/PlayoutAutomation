@@ -47,7 +47,7 @@ namespace TAS.Server
                     bool isEnabled,
                     bool isHold,
                     bool isLoop,
-                    EventGPI gpi,
+                    ICGElementsState cgElementsState,
                     AutoStartFlags autoStartFlags)
         {
             _engine = engine;
@@ -76,7 +76,7 @@ namespace TAS.Server
             _isEnabled = isEnabled;
             _isHold = isHold;
             _isLoop = isLoop;
-            _gPI = gpi;
+            _cGElements = cgElementsState == null ? new EventCGElements() : new EventCGElements(cgElementsState);
             _autoStartFlags = autoStartFlags;
             _applyMedia(null);
              _subEvents = new Lazy<SynchronizedCollection<IEvent>>(() =>
@@ -187,7 +187,7 @@ namespace TAS.Server
                 _isEnabled,
                 _isHold,
                 _isLoop,
-                _gPI);
+                _cGElements);
 
             foreach (Event e in SubEvents)
             {
@@ -1326,11 +1326,10 @@ namespace TAS.Server
             set { SetField(ref _audioVolume, value, nameof(AudioVolume)); }
         }
 
-        EventGPI _gPI;
-        public EventGPI GPI
+        readonly EventCGElements _cGElements;
+        public IEventCGElementsState CGElements
         {
-            get { return _gPI; }
-            set { SetField(ref _gPI, value, nameof(GPI)); }
+            get { return _cGElements; }
         }
 
         public decimal GetAudioVolume()

@@ -5,9 +5,8 @@ using System.Text;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IGpi
+    public interface IEventCGElementsState: ICGElementsState
     {
-        bool IsWideScreen { get; set; }
-        event EventHandler Started;
+        ulong ToUInt64();
     }
 }
