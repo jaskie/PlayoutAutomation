@@ -24,6 +24,7 @@ namespace TAS.Server.Interfaces
         VideoFormatDescription FormatDescription { get; }
         TVideoFormat VideoFormat { get; }
         ICGElementsController CGElementsController { get; }
+        IEnumerable<ICGElement> Parentals { get; }
 
         void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false);
         void ArchiveMedia(IEnumerable<IServerMedia> mediaList, bool deleteAfter);

@@ -1326,10 +1326,11 @@ namespace TAS.Server
             set { SetField(ref _audioVolume, value, nameof(AudioVolume)); }
         }
 
-        readonly EventCGElements _cGElements;
-        public IEventCGElementsState CGElements
+        EventCGElements _cGElements;
+        public EventCGElements CGElements
         {
             get { return _cGElements; }
+            set { SetField(ref _cGElements, value, nameof(CGElements)); }
         }
 
         public decimal GetAudioVolume()

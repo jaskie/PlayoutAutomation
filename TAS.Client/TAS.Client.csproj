@@ -95,10 +95,11 @@
     <Compile Include="ViewModels\CommandScriptEditViewmodel.cs" />
     <Compile Include="ViewModels\CommandScriptItemViewmodel.cs" />
     <Compile Include="ViewModels\ConvertOperationViewModel.cs" />
-    <Compile Include="ViewModels\EngineCGElementsController.cs" />
+    <Compile Include="ViewModels\EngineCGElementsControllerViewmodel.cs" />
     <Compile Include="ViewModels\EngineStateViewmodel.cs" />
     <Compile Include="ViewModels\EngineViewmodel.cs" />
     <Compile Include="EventClipboard.cs" />
+    <Compile Include="ViewModels\EventCGElementsViewmodel.cs" />
     <Compile Include="ViewModels\EventEditViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelCommandScriptViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelAnimationViewmodel.cs" />
@@ -358,6 +359,7 @@
       <DependentUpon>ConvertOperationView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\EngineCGElementsControllerView.resx" />
+    <EmbeddedResource Include="Views\EngineCGElementsControllerView.pl.resx" />
     <EmbeddedResource Include="Views\EngineStateView.pl.resx">
       <DependentUpon>EngineStateView.xaml</DependentUpon>
     </EmbeddedResource>

@@ -239,10 +239,62 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool GPICanTrigger { get { return _event != null && _event.GPI.IsEnabled; } }
-        public TLogo GPILogo { get { return _event == null ? TLogo.NoLogo : _event.GPI.Logo; } }
-        public TCrawl GPICrawl { get { return _event == null ? TCrawl.NoCrawl : _event.GPI.Crawl; } }
-        public TParental GPIParental { get { return _event == null ? TParental.None : _event.GPI.Parental; } }
+        private EventCGElements _cGElements;
+        public EventCGElements CGElements
+        {
+            get { return _cGElements; }
+            set
+            {
+                var oldValue = _cGElements;
+                if (SetField(ref _cGElements, value, nameof(CGElements)))
+                {
+                    if (oldValue != null) oldValue.PropertyChanged -= CGElements_PropertyChanged;
+                    if (value != null) value.PropertyChanged += CGElements_PropertyChanged;
+                    NotifyPropertyChanged(nameof(CGElementsIsEnabled));
+                    NotifyPropertyChanged(nameof(CGElementsCrawl));
+                    NotifyPropertyChanged(nameof(CGElementsLogo));
+                    NotifyPropertyChanged(nameof(CGElementsParental));
+                }
+            }
+        }
+
+        private void CGElements_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(EventCGElements.IsEnabled))
+                NotifyPropertyChanged(nameof(CGElementsIsEnabled));
+            if (e.PropertyName == nameof(EventCGElements.Crawl))
+                NotifyPropertyChanged(nameof(CGElementsCrawl));
+            if (e.PropertyName == nameof(EventCGElements.Logo))
+                NotifyPropertyChanged(nameof(CGElementsLogo));
+            if (e.PropertyName == nameof(EventCGElements.Parental))
+                NotifyPropertyChanged(nameof(CGElementsParental));
+        }
+
+        public bool CGElementsIsEnabled { get { return _event?.CGElements?.IsEnabled == true; } }
+        public byte CGElementsLogo
+        {
+            get
+            {
+                var cgElements = _event?.CGElements;
+                return cgElements == null ? (byte)0 : cgElements.Logo;
+            }
+        }
+        public byte CGElementsCrawl
+        {
+            get
+            {
+                var cgElements = _event?.CGElements;
+                return cgElements == null ? (byte)0 : cgElements.Crawl;
+            }
+        }
+        public byte CGElementsParental
+        {
+            get
+            {
+                var cgElements = _event?.CGElements;
+                return cgElements == null ? (byte)0 : cgElements.Parental;
+            }
+        }
 
         public string MediaFileName
         {
@@ -480,12 +532,9 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(VideoFormat));
                 NotifyPropertyChanged(nameof(MediaErrorInfo));
             }
-            if (e.PropertyName == nameof(IEvent.GPI))
+            if (e.PropertyName == nameof(IEvent.CGElements))
             {
-                NotifyPropertyChanged(nameof(GPICanTrigger));
-                NotifyPropertyChanged(nameof(GPICrawl));
-                NotifyPropertyChanged(nameof(GPILogo));
-                NotifyPropertyChanged(nameof(GPIParental));
+                CGElements = _event?.CGElements;
             }
         }
     }

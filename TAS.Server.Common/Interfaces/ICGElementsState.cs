@@ -8,11 +8,8 @@ namespace TAS.Server.Interfaces
     public interface ICGElementsState
     {
         bool IsEnabled { get; set; }
-        byte Crawl { get; set; }
-        bool CrawlVisible { get; set; }
+        byte Crawl { get; set; } // 0 - none
         byte Logo { get; set; }
-        bool LogoVisible { get; set; }
         byte Parental { get; set; }
-        bool ParentalVisible { get; set; }
     }
 }

@@ -1099,7 +1099,7 @@ VALUES
             media.IdAux = dataReader.IsDBNull(dataReader.GetOrdinal("idAux")) ? string.Empty : dataReader.GetString("idAux");
             media.KillDate = dataReader.GetDateTime("KillDate");
             media.MediaEmphasis = (TMediaEmphasis)((flags >> 8) & 0xF);
-            media.Parental = (int)((flags >> 12) & 0xF);
+            media.Parental = (byte)((flags >> 12) & 0xF);
             if (media is IServerMedia)
                 ((IServerMedia)media).DoNotArchive = (flags & 0x1) != 0;
             media.Protected = (flags & 0x2) != 0;

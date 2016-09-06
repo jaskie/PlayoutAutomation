@@ -8,13 +8,13 @@
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DesignHeight="30" d:DesignWidth="300">
-    <StackPanel Orientation="Horizontal" Visibility="{Binding GPIExists, Converter={StaticResource BoolToVis}}">
+    <StackPanel Orientation="Horizontal" Visibility="{Binding Exists, Converter={StaticResource BoolToVis}}">
         <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
-        <common:StatusIndicator Height="14" IsGreen="{Binding GPIConnected}"/>
+        <common:StatusIndicator Height="14" IsGreen="{Binding IsConnected}"/>
         <Label Content="GPI" VerticalContentAlignment="Center" Padding="5, 0, 0, 0"/>
-        <StackPanel Orientation="Horizontal" Visibility="{Binding GPIConnected, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding GPIIsMaster}">
-            <CheckBox VerticalAlignment="Center" Margin="10, 0" Content="{Resx _statusbar.Gpi.Active}" IsChecked="{Binding GPIEnabled}"/>
-            <StackPanel Orientation="Horizontal" IsEnabled="{Binding GPIEnabled}">
+        <StackPanel Orientation="Horizontal" Visibility="{Binding IsConnected, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding IsMaster}">
+            <CheckBox VerticalAlignment="Center" Margin="10, 0" Content="{Resx _active}" IsChecked="{Binding IsEnabled}"/>
+            <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsEnabled}">
                 <StackPanel.Resources>
                     <Style TargetType="CheckBox">
                         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -42,7 +42,7 @@
                         </Style.Triggers>
                     </Style>
                 </StackPanel.Resources>
-                <CheckBox IsChecked="{Binding GPIAspectNarrow}" Margin="5, 0" Width="50" HorizontalContentAlignment="Left">
+                <CheckBox IsChecked="{Binding IsWideScreen}" Margin="5, 0" Width="50" HorizontalContentAlignment="Left">
                     <CheckBox.Content>
                         <TextBlock>
                             <TextBlock.Text>
@@ -55,12 +55,12 @@
                         </TextBlock>
                     </CheckBox.Content>
                 </CheckBox>
-                <Label Padding="5, 0" Content="{Resx _statusbar.Gpi.Crawl}"/>
-                <ComboBox ItemsSource="{Binding GPICrawls}" SelectedValue="{Binding GPICrawl}" />
-                <Label Padding="5, 0" Content="{Resx _statusbar.Gpi.Logo}"/>
-                <ComboBox ItemsSource="{Binding GPILogos}" SelectedValue="{Binding GPILogo}" />
-                <Label Padding="5, 0" Content="{Resx _statusbar.Gpi.Parental}"/>
-                <ComboBox ItemsSource="{Binding GPIParentals}" SelectedValue="{Binding GPIParental}" />
+                <Label Padding="5, 0" Content="{Resx _crawl}"/>
+                <ComboBox ItemsSource="{Binding Crawls}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Crawl}" />
+                <Label Padding="5, 0" Content="{Resx _logo}"/>
+                <ComboBox ItemsSource="{Binding Logos}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Logo}" />
+                <Label Padding="5, 0" Content="{Resx _parental}"/>
+                <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Parental}" />
             </StackPanel>
         </StackPanel>
     </StackPanel>

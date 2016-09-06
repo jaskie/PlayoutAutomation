@@ -439,7 +439,7 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _doNotArchive, value, nameof(DoNotArchive)); }
         }
 
-        public Array Parentals { get { return _mediaManager.Parentals; } }
+        public IEnumerable<ICGElement> Parentals { get { return _mediaManager.Parentals; } }
         private int _parental;
         public int Parental
         {

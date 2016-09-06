@@ -66,7 +66,7 @@ namespace TAS.Client.ViewModels
 
         public List<ICGElement> _parentals;
         public IEnumerable<ICGElement> Parentals{ get { return _parentals; } }
-        public int DestParental { get { return _convertOperation.DestMedia.Parental; } set { _convertOperation.DestMedia.Parental = value; } }
+        public byte DestParental { get { return _convertOperation.DestMedia.Parental; } set { _convertOperation.DestMedia.Parental = value; } }
 
         static readonly Array _mediaEmphasises = Enum.GetValues(typeof(TMediaEmphasis));
         public Array MediaEmphasises { get { return _mediaEmphasises; } }

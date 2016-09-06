@@ -19,7 +19,7 @@ namespace TAS.Server
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -41,7 +41,7 @@ namespace TAS.Server
         {
             get
             {
-                throw new NotImplementedException();
+                return false;
             }
         }
 
@@ -88,7 +88,7 @@ namespace TAS.Server
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            
         }
 
         public void HideAux(int auxNr)
@@ -98,7 +98,7 @@ namespace TAS.Server
 
         public void Initialize()
         {
-            throw new NotImplementedException();
+            
         }
 
         public void UnInitialize()

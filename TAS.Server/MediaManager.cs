@@ -119,6 +119,13 @@ namespace TAS.Server
             }
         }
 
+        public IEnumerable<ICGElement> Parentals
+        {
+            get
+            {
+                return null;
+            }
+        }
 
         private bool _ingestDirectoriesLoaded = false;
         private object _ingestDirsSyncObject = new object();

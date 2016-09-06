@@ -101,7 +101,6 @@
     <Compile Include="Interfaces\IEngineConfig.cs" />
     <Compile Include="Interfaces\IEnginePlugin.cs" />
     <Compile Include="Interfaces\IEvent.cs" />
-    <Compile Include="Interfaces\IEventCGElementsState.cs" />
     <Compile Include="Interfaces\IEventProperties.cs" />
     <Compile Include="Interfaces\IFileManager.cs" />
     <Compile Include="Interfaces\IFileOperation.cs" />

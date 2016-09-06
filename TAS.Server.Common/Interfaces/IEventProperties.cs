@@ -28,7 +28,7 @@ namespace TAS.Server.Interfaces
         TimeSpan TransitionPauseTime { get; set; }
         TTransitionType TransitionType { get; set; }
         TEasing TransitionEasing { get; set; }
-        IEventCGElementsState CGElements { get; }
+        EventCGElements CGElements { get; set; }
         AutoStartFlags AutoStartFlags { get; set; }
     }
 }

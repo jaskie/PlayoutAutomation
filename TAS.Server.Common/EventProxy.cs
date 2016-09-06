@@ -16,7 +16,7 @@ namespace TAS.Server.Common
         public TimeSpan Duration { get; set; }
         public string EventName { get; set; }
         public TEventType EventType { get; set; }
-        public IEventCGElementsState CGElements { get; set; }
+        public EventCGElements CGElements { get; set; }
         public string IdAux { get; set; }
         public ulong IdProgramme { get; set; }
         public bool IsEnabled { get; set; }
@@ -211,7 +211,7 @@ namespace TAS.Server.Common
             public string Folder { get; set; }
             public DateTime LastUpdated { get; set; }
             public TMediaCategory MediaCategory { get; set; }
-            public int Parental { get; set; }
+            public byte Parental { get; set; }
             public string MediaName { get; set; }
             public TMediaStatus MediaStatus { get; set; }
             public TMediaType MediaType { get; set; }
