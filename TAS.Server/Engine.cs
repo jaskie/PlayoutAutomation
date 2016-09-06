@@ -1491,14 +1491,11 @@ namespace TAS.Server
                 if (SetField(ref _programAudioVolume, value, nameof(ProgramAudioVolume)))
                 {
                     var playing = Playing;
-                    if (playing != null)
-                    {
-                        int transitioDuration = (int)playing.TransitionTime.ToSMPTEFrames(_frameRate);
-                        if (_playoutChannelPRI != null)
-                            _playoutChannelPRI.SetVolume(VideoLayer.Program, value, transitioDuration);
-                        if (_playoutChannelSEC != null && !_previewLoaded)
-                            _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
-                    }
+                    int transitioDuration = playing == null ? 0 : (int)playing.TransitionTime.ToSMPTEFrames(_frameRate);
+                    if (_playoutChannelPRI != null)
+                        _playoutChannelPRI.SetVolume(VideoLayer.Program, value, transitioDuration);
+                    if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
+                        _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
                 }
             }
         }
@@ -1512,7 +1509,7 @@ namespace TAS.Server
                 {
                     if (_playoutChannelPRI != null)
                         _playoutChannelPRI.SetFieldOrderInverted(VideoLayer.Program, value);
-                    if (_playoutChannelSEC != null && !_previewLoaded)
+                    if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
                         _playoutChannelSEC.SetFieldOrderInverted(VideoLayer.Program, value);
                 }
             }
