@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Elements>
+  <Crawls>
+    <Crawl Id="0" Name="Pasek wyłączony"/>
+    <Crawl Id="1" Name="Normalny"/>
+    <Crawl Id="2" Name="Pilne"/>
+    <Crawl Id="3" Name="Sport"/>
+  </Crawls>
+  <Logos>
+    <Logo Id="0" Name="Logo normalne"/>
+    <Logo Id="1" Name="Premiera"/>
+    <Logo Id="2" Name="Powtórka"/>
+    <Logo Id="3" Name="Na żywo"/>
+  </Logos>
+  <Parentals>
+    <Parental Id="0" Name="B/O"/>
+    <Parental Id="1" Name="7"/>
+    <Parental Id="2" Name="12"/>
+    <Parental Id="3" Name="16"/>
+    <Parental Id="4" Name="18"/>
+  </Parentals>
+  <Auxes>
+    <Aux Id="0" Name="Flaga"/>
+  </Auxes>
+</Elements>

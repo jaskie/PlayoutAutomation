@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="CasparServer.cs" />
     <Compile Include="CasparServerChannel.cs" />
+    <Compile Include="CGElement.cs" />
     <Compile Include="CGElementsController.cs" />
     <Compile Include="CommandScriptEvent.cs" />
     <Compile Include="ConvertOperation.cs" />

@@ -8,6 +8,6 @@ namespace TAS.Server.Interfaces
     public interface ICGElement
     {
         byte Id { get; }
-        int Name { get; }
+        string Name { get; }
     }
 }

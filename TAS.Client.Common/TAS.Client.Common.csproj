@@ -299,21 +299,6 @@
     <Resource Include="Images\Indicators\tick_circle.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Parentals\12.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Parentals\16.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Parentals\18.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Parentals\7.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Parentals\BO.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Layers\layer1.png" />
   </ItemGroup>
   <ItemGroup>
