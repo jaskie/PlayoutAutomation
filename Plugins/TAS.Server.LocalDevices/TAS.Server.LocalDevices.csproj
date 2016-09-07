@@ -19,17 +19,18 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\TVPlay\bin\Debug\</OutputPath>
+    <OutputPath>..\..\TVPlay\bin\Debug\Plugins\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>
     </DocumentationFile>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\TVPlay\bin\Release\</OutputPath>
+    <OutputPath>..\..\TVPlay\bin\Release\Plugins\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -68,6 +69,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\TAS.Remoting\TAS.Remoting.csproj">
+      <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
+      <Name>TAS.Remoting</Name>
+      <Private>False</Private>
+    </ProjectReference>
     <ProjectReference Include="..\..\TAS.Server.Common\TAS.Server.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
       <Name>TAS.Server.Common</Name>
@@ -76,10 +82,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <None Include="LocalDevices.xml">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

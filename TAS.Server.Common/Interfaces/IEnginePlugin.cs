@@ -7,6 +7,5 @@ namespace TAS.Server.Interfaces
 {
     public interface IEnginePlugin
     {
-        void Initialize(IEngine engine);
     }
 }

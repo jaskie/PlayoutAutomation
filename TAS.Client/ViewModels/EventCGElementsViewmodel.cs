@@ -2,28 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TAS.Client.Common;
+using TAS.Server.Common;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventCGElementsViewmodel : ViewmodelBase, Server.Interfaces.ICGElementsState
+    public class EventCGElementsViewmodel : EditViewmodelBase<EventCGElements>, Server.Interfaces.ICGElementsState
     {
-        private readonly Server.Common.EventCGElements _cgElements;
 
-        public bool IsEnabled { get { return _cgElements.IsEnabled; } set { _cgElements.IsEnabled = value; } }
-        
-        public byte Crawl { get { return _cgElements.Crawl; } set { _cgElements.Crawl = value; } }
+        private readonly bool _enable;
 
-        public byte Logo { get { return _cgElements.Logo; } set { _cgElements.Logo = value; } }
+        bool _isEnabled;
+        public bool IsEnabled { get { return _enable && _isEnabled; } set { SetField(ref _isEnabled, value, nameof(IsEnabled)); } }
 
-        public byte Parental { get { return _cgElements.Parental; } set { _cgElements.Parental = value; } }
+        byte _crawl;
+        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value, nameof(Crawl)); } }
 
-        public EventCGElementsViewmodel(Server.Common.EventCGElements cgElements)
+        byte _logo;
+        public byte Logo { get { return _logo; } set { SetField(ref _logo, value, nameof(Logo)); } }
+
+        byte _parental;
+        public byte Parental { get { return _parental; } set { SetField(ref _parental, value, nameof(Parental)); } }
+
+        public EventCGElementsViewmodel(EventCGElements cgElements, bool enable): base(cgElements, null)
         {
-            _cgElements = cgElements;
+            _enable = enable;
             if (cgElements != null)
                 cgElements.PropertyChanged += cgElements_PropertyChanged;
         }
-
 
         private void cgElements_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -32,8 +38,8 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
-            if (_cgElements != null)
-                _cgElements.PropertyChanged += cgElements_PropertyChanged;
+            if (Model != null)
+                Model.PropertyChanged -= cgElements_PropertyChanged;
         }
     }
 }

@@ -126,30 +126,6 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
-    <Style TargetType="Image" x:Key="ParentalImage" BasedOn="{StaticResource EventPanelImage}">
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding GPIParental}" Value="None">
-                <Setter Property="Source" Value="{x:Null}" />
-            </DataTrigger>
-            <DataTrigger Binding="{Binding GPIParental}" Value="NoLimit">
-                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/BO.png" />
-            </DataTrigger>
-            <DataTrigger Binding="{Binding GPIParental}" Value="Limit07">
-                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/7.png" />
-            </DataTrigger>
-            <DataTrigger Binding="{Binding GPIParental}" Value="Limit12">
-                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/12.png" />
-            </DataTrigger>
-            <DataTrigger Binding="{Binding GPIParental}" Value="Limit16">
-                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/16.png" />
-            </DataTrigger>
-            <DataTrigger Binding="{Binding GPIParental}" Value="Limit18">
-                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Parentals/18.png" />
-            </DataTrigger>
-        </Style.Triggers>
-    </Style>
-
-
     <Style TargetType="{x:Type DataGridCell}" x:Key="InactiveDataGridCell">
         <Style.Triggers>
             <Trigger  Property="IsSelected" Value="false">

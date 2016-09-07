@@ -11,8 +11,27 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server.EnginePluginExample
 {
-    [Export(typeof(IEnginePlugin))]
-    public class PluginExample : IEnginePlugin
+    [Export(typeof(IEnginePluginFactory))]
+    public class PluginExamplefactory : IEnginePluginFactory
+    {
+        public object CreateEnginePlugin(IEngine engine, Type type)
+        {
+            if (type.IsAssignableFrom(typeof(PluginExample)))
+            {
+                var plugin = new PluginExample();
+                plugin.Initialize(engine);
+                return plugin;
+            }
+            return null;
+        }
+
+        public IEnumerable<Type> Types()
+        {
+            return new[] { typeof(PluginExample) };
+        }
+    }
+
+    public class PluginExample: IEnginePlugin
     {
         private IEngine _engine;
         public void Initialize(IEngine engine)

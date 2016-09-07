@@ -9,16 +9,29 @@ using System.IO;
 using System.ComponentModel.Composition;
 using System.Xml;
 using TAS.Server.Interfaces;
+using System.Collections.Specialized;
 
 namespace TAS.Server
 {
-    [Export(typeof(ILocalDevices))]
-    public class LocalDevices : ILocalDevices
+    [Export(typeof(IEnginePluginFactory))]
+    public class LocalDevices : IEnginePluginFactory
     {
         [ImportingConstructor]
-        public LocalDevices([Import("LocalDevicesConfigurationFile")] string settingsFileName)
+        public LocalDevices([Import("AppSettings")] NameValueCollection settings)
         {
-            DeserializeElements(settingsFileName);
+            DeserializeElements(settings["LocalDevices"]);
+        }
+
+        public IEnumerable<Type> Types()
+        {
+            return new[] { typeof(LocalGpiDeviceBinding) };
+        }
+        
+        public object CreateEnginePlugin(IEngine engine, Type type)
+        {
+            if (type.IsAssignableFrom(typeof(LocalGpiDeviceBinding)))
+                return EngineBindings.FirstOrDefault(b => b.IdEngine == engine.Id);
+            return null;
         }
 
         public void DeserializeElements(string settingsFileName)
@@ -41,11 +54,6 @@ namespace TAS.Server
                 }
             }
             catch (Exception e) { Debug.WriteLine(e); }
-        }
-
-        public IGpi Select(UInt64 idEngine)
-        {
-            return EngineBindings.FirstOrDefault(b => b.IdEngine == idEngine);
         }
 
         public List<AdvantechDevice> Devices = new List<AdvantechDevice>();
@@ -128,5 +136,6 @@ namespace TAS.Server
                 return device.Write(port, pin, value);
             return false;
         }
+
     }
 }

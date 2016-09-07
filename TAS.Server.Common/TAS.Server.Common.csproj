@@ -88,6 +88,8 @@
     <Compile Include="EventProxy.cs" />
     <Compile Include="FileOperationEventArgs.cs" />
     <Compile Include="FileUtils.cs" />
+    <Compile Include="Interfaces\IEnginePlugin.cs" />
+    <Compile Include="Interfaces\IEnginePluginFactory.cs" />
     <Compile Include="IEventEventArgs.cs" />
     <Compile Include="Interfaces\IAnimationDirectory.cs" />
     <Compile Include="Interfaces\IArchiveDirectory.cs" />
@@ -99,7 +101,6 @@
     <Compile Include="Interfaces\IConvertOperation.cs" />
     <Compile Include="Interfaces\IEngine.cs" />
     <Compile Include="Interfaces\IEngineConfig.cs" />
-    <Compile Include="Interfaces\IEnginePlugin.cs" />
     <Compile Include="Interfaces\IEvent.cs" />
     <Compile Include="Interfaces\IEventProperties.cs" />
     <Compile Include="Interfaces\IFileManager.cs" />
@@ -129,7 +130,6 @@
     <Compile Include="Interfaces\IServerDirectoryConfig.cs" />
     <Compile Include="Interfaces\IIngestDirectoryConfig.cs" />
     <Compile Include="Interfaces\IInitializable.cs" />
-    <Compile Include="Interfaces\ILocalDevices.cs" />
     <Compile Include="Interfaces\IMediaDirectoryConfig.cs" />
     <Compile Include="Interfaces\IServerMedia.cs" />
     <Compile Include="Interfaces\ITemplated.cs" />

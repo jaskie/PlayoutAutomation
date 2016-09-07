@@ -125,6 +125,8 @@ namespace TAS.Client.ViewModels
                     }
                 }
                 _commandScriptEdit?.ModelUpdate();
+                if (_cGElementsViewmodel?.IsModified == true)
+                    _cGElementsViewmodel.ModelUpdate();
                 IsModified = false;
             }
             if (e2Save != null && e2Save.IsModified)
@@ -981,20 +983,43 @@ namespace TAS.Client.ViewModels
             }
         }
 
+        public bool IsDisplayCGElements
+        {
+            get { return _engine.CGElementsController != null; }
+        }
+
+        public IEnumerable<ICGElement> Logos { get { return _engine.CGElementsController?.Logos; } }
+        public IEnumerable<ICGElement> Crawls { get { return _engine.CGElementsController?.Crawls; } }
+        public IEnumerable<ICGElement> Parentals { get { return _engine.CGElementsController?.Parentals; } }
+
         private EventCGElements _cGElements;
         public EventCGElements CGElements
         {
-            get { return _cGElements; }
-            set
+            get { return _cGElementsViewmodel?.Model; }
+            set { CGElementsViewmodel = new EventCGElementsViewmodel(value, _engine.CGElementsController != null); }
+        }
+
+        private EventCGElementsViewmodel _cGElementsViewmodel;
+        public EventCGElementsViewmodel CGElementsViewmodel
+        {
+            get { return _cGElementsViewmodel; }
+            private set
             {
-                var newcGElements = new EventCGElements(value);
-                CGElementsViewmodel = new EventCGElementsViewmodel(newcGElements);
-                NotifyPropertyChanged(nameof(CGElementsViewmodel));
-                _cGElements = newcGElements;
+                var oldVM = _cGElementsViewmodel;
+                if (SetField(ref _cGElementsViewmodel, value, nameof(CGElementsViewmodel)))
+                {
+                    if (oldVM != null)
+                        oldVM.Modified -= _cGElementsViewmodel_Modified;
+                    if (value != null)
+                        value.Modified += _cGElementsViewmodel_Modified;
+                }
             }
         }
 
-        public EventCGElementsViewmodel CGElementsViewmodel { get; private set; }
+        private void _cGElementsViewmodel_Modified(object sender, EventArgs e)
+        {
+            IsModified = true;
+        }
 
         internal void _previewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {

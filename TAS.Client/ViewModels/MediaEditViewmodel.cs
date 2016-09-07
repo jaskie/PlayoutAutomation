@@ -439,6 +439,8 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _doNotArchive, value, nameof(DoNotArchive)); }
         }
 
+        public bool ShowParentalCombo { get { return _mediaManager.Parentals != null; } }
+
         public IEnumerable<ICGElement> Parentals { get { return _mediaManager.Parentals; } }
         private int _parental;
         public int Parental

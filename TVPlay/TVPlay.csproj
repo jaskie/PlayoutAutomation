@@ -235,10 +235,10 @@
     </EmbeddedResource>
     <None Include="app.config">
     </None>
-    <Resource Include="Configuration\LocalDevices.xml">
+    <None Include="Configuration\LocalDevices.xml">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
+    </None>
     <Content Include="Configuration\Parentals\12.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

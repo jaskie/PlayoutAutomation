@@ -46,9 +46,9 @@
                     <CheckBox.Content>
                         <TextBlock>
                             <TextBlock.Text>
-                                <Binding Path="GPIAspectNarrow">
+                                <Binding Path="IsWideScreen">
                                     <Binding.Converter>
-                                        <common:BoolToStringConverter FalseValue="16:9" TrueValue="4:3" />
+                                        <common:BoolToStringConverter TrueValue="16:9" FalseValue="4:3" />
                                     </Binding.Converter>
                                 </Binding>
                             </TextBlock.Text>

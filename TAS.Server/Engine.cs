@@ -42,7 +42,6 @@ namespace TAS.Server
         [XmlIgnore]
         public IMediaManager MediaManager { get { return _mediaManager; } }
         [XmlIgnore]
-        public IGpi LocalGpi { get; private set; }
 
         Thread _engineThread;
         internal long CurrentTicks;
@@ -62,9 +61,9 @@ namespace TAS.Server
         public bool EnableCGElementsForNewEvents { get; set; }
         public bool EnableCGElementsCrawlForShows { get; set; }
 
-        [XmlElement("Gpi")]
-        public CGElementsController _serCGElements { get { return null; } set { _cgElementsController = value; } }
-        private CGElementsController _cgElementsController;
+        private IGpi _localGpi;
+        private IEnumerable<IEnginePlugin> _plugins;
+        private ICGElementsController _cgElementsController;
         public ICGElementsController CGElementsController { get { return _cgElementsController; } }
 
         public RemoteHost Remote { get; set; }
@@ -137,7 +136,7 @@ namespace TAS.Server
         [XmlIgnore]
         public VideoFormatDescription FormatDescription { get; private set; }
 
-        public void Initialize(IEnumerable<IPlayoutServer> servers, IGpi localGpi)
+        public void Initialize(IEnumerable<IPlayoutServer> servers)
         {
             Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Initializing engine {0}", this);
@@ -149,8 +148,10 @@ namespace TAS.Server
             var sPRV = servers.FirstOrDefault(S => S.Id == IdServerPRV);
             _playoutChannelPRV = sPRV == null ? null : (CasparServerChannel)sPRV.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelPRV);
 
+            _localGpi = this.ComposePart<IGpi>();
+            _plugins = this.ComposeParts<IEnginePlugin>();
+            _cgElementsController = this.ComposePart<ICGElementsController>();
 
-            LocalGpi = localGpi;
             FormatDescription = VideoFormatDescription.Descriptions[VideoFormat];
             _frameTicks = FormatDescription.FrameTicks;
             _frameRate = FormatDescription.FrameRate;
@@ -184,7 +185,6 @@ namespace TAS.Server
             {
                 Debug.WriteLine(this, "Initializing CGElementsController");
                 cgElementsController.Started += _startLoaded;
-                cgElementsController.Initialize();
             }
 
             if (Remote != null)
@@ -193,8 +193,8 @@ namespace TAS.Server
                 Remote.Initialize(this);
             }
 
-            if (localGpi != null)
-                localGpi.Started += _startLoaded;
+            if (_localGpi != null)
+                _localGpi.Started += _startLoaded;
 
             Debug.WriteLine(this, "Creating engine thread");
             _engineThread = new Thread(_engineThreadProc);
@@ -226,7 +226,7 @@ namespace TAS.Server
                 Debug.WriteLine(this, "UnInitializing Remote interface");
                 Remote.UnInitialize(this);
             }
-            var localGpi = LocalGpi;
+            var localGpi = _localGpi;
             if (localGpi != null)
                 localGpi.Started -= _startLoaded;
 
@@ -235,7 +235,7 @@ namespace TAS.Server
             {
                 Debug.WriteLine(this, "Uninitializing CGElementsController");
                 cgElementsController.Started -= _startLoaded;
-                cgElementsController.UnInitialize();
+                cgElementsController.Dispose();
             }
 
             Debug.WriteLine(this, "Engine uninitialized");
@@ -785,7 +785,7 @@ namespace TAS.Server
                 var cgController = _cgElementsController;
                 if (cgController != null)
                     cgController.IsWideScreen = !narrow;
-                var lGpi = LocalGpi;
+                var lGpi = _localGpi;
                 if (lGpi != null)
                     lGpi.IsWideScreen = !narrow;
             }

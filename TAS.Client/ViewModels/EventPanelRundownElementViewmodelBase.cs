@@ -270,7 +270,7 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(CGElementsParental));
         }
 
-        public bool CGElementsIsEnabled { get { return _event?.CGElements?.IsEnabled == true; } }
+        public bool CGElementsIsEnabled { get { return _event?.CGElements?.IsEnabled == true && _engine?.CGElementsController != null; } }
         public byte CGElementsLogo
         {
             get

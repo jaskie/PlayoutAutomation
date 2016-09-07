@@ -31,13 +31,13 @@ namespace TAS.Client
         bool _systemShutdown;
         public MainWindow()
         {
-            Application.Current.SessionEnding += _sessionEnding;
+            Application.Current.LoadCompleted += _loadCompleted;
             try
             {
                 bool isBackupInstance;
                 bool.TryParse(ConfigurationManager.AppSettings["IsBackupInstance"], out isBackupInstance);
                 if ((!mutex.WaitOne(5000) && (MessageBox.Show(resources._query_StartAnotherInstance, resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel))
-                    || (isBackupInstance && MessageBox.Show(resources._query_StartBackupInstance, resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes ))
+                    || (isBackupInstance && MessageBox.Show(resources._query_StartBackupInstance, resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes))
                 {
                     _systemShutdown = true;
                     Application.Current.Shutdown(0);
@@ -45,7 +45,6 @@ namespace TAS.Client
                 else
                 {
                     InitializeComponent();
-                    Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
                 }
             }
             catch (AbandonedMutexException)
@@ -53,6 +52,13 @@ namespace TAS.Client
                 mutex.ReleaseMutex();
                 mutex.WaitOne();
             }
+        }
+
+        private void _loadCompleted(object sender, NavigationEventArgs e)
+        {
+            Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            Application.Current.SessionEnding += _sessionEnding;
+            Closing += AppMainWindow_Closing;
         }
 
         private void _sessionEnding(object sender, SessionEndingCancelEventArgs e)

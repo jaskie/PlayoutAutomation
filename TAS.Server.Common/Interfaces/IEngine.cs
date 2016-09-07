@@ -78,7 +78,6 @@ namespace TAS.Server.Interfaces
         DateTime AlignDateTime(DateTime dt);
         bool DateTimeEqal(DateTime dt1, DateTime dt2);
 
-        IGpi LocalGpi { get; }
         ICGElementsController CGElementsController { get; }
 
         //MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia);
