@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Server.Common;
@@ -239,62 +240,17 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private EventCGElements _cGElements;
-        public EventCGElements CGElements
-        {
-            get { return _cGElements; }
-            set
-            {
-                var oldValue = _cGElements;
-                if (SetField(ref _cGElements, value, nameof(CGElements)))
-                {
-                    if (oldValue != null) oldValue.PropertyChanged -= CGElements_PropertyChanged;
-                    if (value != null) value.PropertyChanged += CGElements_PropertyChanged;
-                    NotifyPropertyChanged(nameof(CGElementsIsEnabled));
-                    NotifyPropertyChanged(nameof(CGElementsCrawl));
-                    NotifyPropertyChanged(nameof(CGElementsLogo));
-                    NotifyPropertyChanged(nameof(CGElementsParental));
-                }
-            }
-        }
-
-        private void CGElements_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(EventCGElements.IsEnabled))
-                NotifyPropertyChanged(nameof(CGElementsIsEnabled));
-            if (e.PropertyName == nameof(EventCGElements.Crawl))
-                NotifyPropertyChanged(nameof(CGElementsCrawl));
-            if (e.PropertyName == nameof(EventCGElements.Logo))
-                NotifyPropertyChanged(nameof(CGElementsLogo));
-            if (e.PropertyName == nameof(EventCGElements.Parental))
-                NotifyPropertyChanged(nameof(CGElementsParental));
-        }
-
-        public bool CGElementsIsEnabled { get { return _event?.CGElements?.IsEnabled == true && _engine?.CGElementsController != null; } }
-        public byte CGElementsLogo
+        public bool IsCGEnabled { get { return _event?.IsCGEnabled == true && _engine?.CGElementsController != null; } }
+        public string Logo { get { return _engine.CGElementsController?.Logos?.FirstOrDefault(l => l.Id == _event.Logo)?.Name; } }
+        public System.Windows.Media.Imaging.BitmapImage Parental
         {
             get
             {
-                var cgElements = _event?.CGElements;
-                return cgElements == null ? (byte)0 : cgElements.Logo;
+                var image = _engine.CGElementsController?.Parentals?.FirstOrDefault(l => l.Id == _event.Parental)?.Image;
+                return image;
             }
         }
-        public byte CGElementsCrawl
-        {
-            get
-            {
-                var cgElements = _event?.CGElements;
-                return cgElements == null ? (byte)0 : cgElements.Crawl;
-            }
-        }
-        public byte CGElementsParental
-        {
-            get
-            {
-                var cgElements = _event?.CGElements;
-                return cgElements == null ? (byte)0 : cgElements.Parental;
-            }
-        }
+        public byte Crawl { get { return _event.Crawl; } }
 
         public string MediaFileName
         {
@@ -501,7 +457,11 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == nameof(IEvent.Offset)
                 || e.PropertyName == nameof(IEvent.ScheduledDelay)
                 || e.PropertyName == nameof(IEvent.IsForcedNext)
-                || e.PropertyName == nameof(IEvent.ScheduledTime))
+                || e.PropertyName == nameof(IEvent.ScheduledTime)
+                || e.PropertyName == nameof(IEvent.IsCGEnabled)
+                || e.PropertyName == nameof(IEvent.Crawl)
+                || e.PropertyName == nameof(IEvent.Logo)
+                || e.PropertyName == nameof(IEvent.Parental))
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == nameof(IEvent.ScheduledTc) || e.PropertyName == nameof(IEvent.Duration))
             {
@@ -531,10 +491,6 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(MediaEmphasis));
                 NotifyPropertyChanged(nameof(VideoFormat));
                 NotifyPropertyChanged(nameof(MediaErrorInfo));
-            }
-            if (e.PropertyName == nameof(IEvent.CGElements))
-            {
-                CGElements = _event?.CGElements;
             }
         }
     }

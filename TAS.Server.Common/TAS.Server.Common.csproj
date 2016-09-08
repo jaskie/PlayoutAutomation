@@ -80,10 +80,10 @@
     <Compile Include="Database\DbParameterCollectionRedundant.cs" />
     <Compile Include="Database\DbParameterRedundant.cs" />
     <Compile Include="Database\DbTransactionRedundant.cs" />
+    <Compile Include="Database\EventExtensions.cs" />
     <Compile Include="EngineOperationEventArgs.cs" />
     <Compile Include="EngineTickEventArgs.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="EventCGElements.cs" />
     <Compile Include="EventPositionEventArgs.cs" />
     <Compile Include="EventProxy.cs" />
     <Compile Include="FileOperationEventArgs.cs" />

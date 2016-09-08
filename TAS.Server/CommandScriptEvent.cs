@@ -12,7 +12,7 @@ namespace TAS.Server
     public class CommandScriptEvent : Event, ICommandScript
     {
         public CommandScriptEvent(Engine engine, ulong idRundownEvent, ulong idEventBinding, TPlayState playState, DateTime scheduledTime, TimeSpan duration, TimeSpan scheduledDelay, string eventName, DateTime startTime, bool isEnabled, IEnumerable<ICommandScriptItem> commands) 
-            : base(engine, idRundownEvent, idEventBinding, VideoLayer.None, TEventType.CommandScript, TStartType.With, playState, scheduledTime, duration, scheduledDelay, TimeSpan.Zero, Guid.Empty, eventName, startTime, TimeSpan.Zero, null, TimeSpan.Zero, TimeSpan.Zero, TTransitionType.Cut, TEasing.None, null, 0, string.Empty, isEnabled, false, false, default(EventCGElements), AutoStartFlags.None)
+            : base(engine, idRundownEvent, idEventBinding, VideoLayer.None, TEventType.CommandScript, TStartType.With, playState, scheduledTime, duration, scheduledDelay, TimeSpan.Zero, Guid.Empty, eventName, startTime, TimeSpan.Zero, null, TimeSpan.Zero, TimeSpan.Zero, TTransitionType.Cut, TEasing.None, null, 0, string.Empty, isEnabled, false, false, AutoStartFlags.None, false, 0, 0, 0)
         {
             _commands = commands == null ?
                 new List<CommandScriptItem>() :

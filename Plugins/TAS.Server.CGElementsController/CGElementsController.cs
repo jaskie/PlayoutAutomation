@@ -15,12 +15,22 @@ namespace TAS.Server
     [Export(typeof(IEnginePluginFactory))]
     public class PluginExamplefactory : IEnginePluginFactory
     {
+        static Dictionary<IEngine, CGElementsController> _plugins = new Dictionary<IEngine, CGElementsController>();
+        static object pluginLock = new object();
         public object CreateEnginePlugin(IEngine engine, Type type)
         {
             if (type.IsAssignableFrom(typeof(CGElementsController)))
             {
-                var plugin = new CGElementsController(engine);
-                plugin.Initialize();
+                CGElementsController plugin;
+                lock (pluginLock)
+                {
+                    if (!_plugins.TryGetValue(engine, out plugin))
+                    {
+                        plugin = new CGElementsController(engine);
+                        plugin.Initialize();
+                        _plugins.Add(engine, plugin);
+                    }
+                }
                 return plugin;
             }
             else
@@ -45,6 +55,8 @@ namespace TAS.Server
         public void Initialize()
         {
             ReadElements(Path.Combine(FileUtils.CONFIGURATION_PATH, ELEMENTS));
+            IsCGEnabled = true;
+            IsWideScreen = true;
         }
 
         public string Address { get; set; }
@@ -57,7 +69,7 @@ namespace TAS.Server
             {
                 if (reader.MoveToContent() == XmlNodeType.Element && reader.Name == "Elements")
                 {
-                    if (!reader.HasAttributes || reader.GetAttribute("Engine") == _engine.EngineName)
+                    if (reader.HasAttributes && reader.GetAttribute("Engine") == _engine.EngineName)
                         while (reader.Read())
                         {
                             switch (reader.Name)
@@ -97,8 +109,8 @@ namespace TAS.Server
 
         public virtual bool IsConnected { get { return true; } }
 
-        private bool _isEnabled;
-        public bool IsEnabled { get { return _isEnabled; } set { SetField(ref _isEnabled, value, nameof(IsEnabled)); } }
+        private bool _isCGEnabled;
+        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value, nameof(IsCGEnabled)); } }
 
         public bool IsMaster
         {
@@ -150,7 +162,7 @@ namespace TAS.Server
 
         public void SetState(ICGElementsState state)
         {
-            if (_isEnabled)
+            if (_isCGEnabled)
             {
 
             }

@@ -125,8 +125,6 @@ namespace TAS.Client.ViewModels
                     }
                 }
                 _commandScriptEdit?.ModelUpdate();
-                if (_cGElementsViewmodel?.IsModified == true)
-                    _cGElementsViewmodel.ModelUpdate();
                 IsModified = false;
             }
             if (e2Save != null && e2Save.IsModified)
@@ -407,7 +405,7 @@ namespace TAS.Client.ViewModels
                                 ScheduledTc = e.TCIn;
                                 AudioVolume = null;
                                 EventName = e.MediaName;
-                                _cGElements = _setGPI(e.Media);
+                                _setGPI(e.Media);
                             }
                         }
                     }));
@@ -471,17 +469,15 @@ namespace TAS.Client.ViewModels
                 && (IsModified || ev.IsModified);
         }
         
-        EventCGElements _setGPI(IMedia media)
+        void _setGPI(IMedia media)
         {
-            EventCGElements CGElements = new EventCGElements();
-            CGElements.IsEnabled = _engine.EnableCGElementsForNewEvents;
+            IsCGEnabled = _engine.EnableCGElementsForNewEvents;
             if (media != null)
             {
                 var category = media.MediaCategory;
-                CGElements.Logo = (byte)(category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? 1 : 0);
-                CGElements.Parental = media.Parental;
+                Logo = (byte)(category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? 1 : 0);
+                Parental = media.Parental;
             }
-            return CGElements;
         }
 
         #endregion // command methods
@@ -565,6 +561,17 @@ namespace TAS.Client.ViewModels
         }
 
         public bool IsAnimation { get { return _event is ITemplated; } }
+
+        #region ICGElementsState
+        bool _isCGEnabled;
+        byte _crawl;
+        byte _logo;
+        byte _parental;           
+        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value, nameof(IsCGEnabled)); } }
+        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value, nameof(Crawl)); } }
+        public byte Logo { get { return _logo; } set { SetField(ref _logo, value, nameof(Logo)); } }
+        public byte Parental { get { return _parental; } set { SetField(ref _parental, value, nameof(Parental)); } }
+        #endregion ICGElementsState
 
         #region ITemplatedEdit
 
@@ -992,29 +999,6 @@ namespace TAS.Client.ViewModels
         public IEnumerable<ICGElement> Crawls { get { return _engine.CGElementsController?.Crawls; } }
         public IEnumerable<ICGElement> Parentals { get { return _engine.CGElementsController?.Parentals; } }
 
-        private EventCGElements _cGElements;
-        public EventCGElements CGElements
-        {
-            get { return _cGElementsViewmodel?.Model; }
-            set { CGElementsViewmodel = new EventCGElementsViewmodel(value, _engine.CGElementsController != null); }
-        }
-
-        private EventCGElementsViewmodel _cGElementsViewmodel;
-        public EventCGElementsViewmodel CGElementsViewmodel
-        {
-            get { return _cGElementsViewmodel; }
-            private set
-            {
-                var oldVM = _cGElementsViewmodel;
-                if (SetField(ref _cGElementsViewmodel, value, nameof(CGElementsViewmodel)))
-                {
-                    if (oldVM != null)
-                        oldVM.Modified -= _cGElementsViewmodel_Modified;
-                    if (value != null)
-                        value.Modified += _cGElementsViewmodel_Modified;
-                }
-            }
-        }
 
         private void _cGElementsViewmodel_Modified(object sender, EventArgs e)
         {

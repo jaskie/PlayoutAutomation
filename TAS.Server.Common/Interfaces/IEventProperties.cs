@@ -4,7 +4,7 @@ using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IEventProperties
+    public interface IEventProperties: ICGElementsState
     {
         decimal? AudioVolume { get; set; }
         TimeSpan Duration { get; set; }
@@ -28,7 +28,6 @@ namespace TAS.Server.Interfaces
         TimeSpan TransitionPauseTime { get; set; }
         TTransitionType TransitionType { get; set; }
         TEasing TransitionEasing { get; set; }
-        EventCGElements CGElements { get; set; }
         AutoStartFlags AutoStartFlags { get; set; }
     }
 }

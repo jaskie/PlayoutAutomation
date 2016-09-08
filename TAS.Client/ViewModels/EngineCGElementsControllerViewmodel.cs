@@ -6,7 +6,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class EngineCGElementsControllerViewmodel : ViewmodelBase
+    public class EngineCGElementsControllerViewmodel : ViewmodelBase, ICGElementsState
     {
         public readonly ICGElementsController Controller;
         const byte None = 0;
@@ -47,7 +47,7 @@ namespace TAS.Client.ViewModels
         public IEnumerable<ICGElement> Logos { get { return _logos; } }
 
         public bool IsWideScreen { get { return Controller == null ? false : Controller.IsWideScreen; } set { if (Controller != null) Controller.IsWideScreen = value; } }
-        public bool IsEnabled { get { return Controller == null ? false : Controller.IsEnabled; } set { if (Controller != null) Controller.IsEnabled = value; } }
+        public bool IsCGEnabled { get { return Controller == null ? false : Controller.IsCGEnabled; } set { if (Controller != null) Controller.IsCGEnabled = value; } }
         public bool IsMaster { get { return Controller == null ? false : Controller.IsMaster; } }
         public bool IsConnected { get { return Controller == null ? false : Controller.IsConnected; } }
         public bool Exists { get { return Controller != null; } }

@@ -761,11 +761,14 @@ namespace TAS.Server.Database
                 dataReader.IsDBNull(dataReader.GetOrdinal("AudioVolume")) ? null : (decimal?)dataReader.GetDecimal("AudioVolume"),
                 dataReader.GetUInt64("idProgramme"),
                 dataReader.GetString("IdAux"),
-                (flags & (1 << 0)) != 0, // IsEnabled
-                (flags & (1 << 1)) != 0, // IsHold
-                (flags & (1 << 2)) != 0, // IsLoop
-                new EventCGElements((flags >> 4) & EventCGElements.Mask),
-                (AutoStartFlags)((flags >> 20) & 0x0F),
+                flags.IsEnabled(),
+                flags.IsHold(), 
+                flags.IsLoop(),
+                flags.IsCGEnabled(),
+                flags.Crawl(),
+                flags.Logo(),
+                flags.Parental(),
+                flags.AutoStartFlags(),
                 commands
                 );
             return newEvent;
@@ -821,13 +824,7 @@ namespace TAS.Server.Database
                 cmd.Parameters.AddWithValue("@AudioVolume", DBNull.Value);
             else
                 cmd.Parameters.AddWithValue("@AudioVolume", aEvent.AudioVolume);
-            ulong flags = Convert.ToUInt64(aEvent.IsEnabled) << 0
-                         | Convert.ToUInt64(aEvent.IsHold) << 1
-                         | Convert.ToUInt64(aEvent.IsLoop) << 2
-                         | aEvent.CGElements.ToUInt64() << 4 // of size EventGPI.Size
-                         | (ulong)aEvent.AutoStartFlags << 20
-                         ;
-            cmd.Parameters.AddWithValue("@flagsEvent", flags);
+            cmd.Parameters.AddWithValue("@flagsEvent", aEvent.ToFlags());
             cmd.Parameters.AddWithValue("@Commands",
                 aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript ?
                 (object)Newtonsoft.Json.JsonConvert.SerializeObject((aEvent as ICommandScript).Commands) : 

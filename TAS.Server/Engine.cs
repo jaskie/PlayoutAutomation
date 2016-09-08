@@ -642,13 +642,13 @@ namespace TAS.Server
                 var cgElementsController = _cgElementsController;
                 if (!aEvent.IsHold
                     && cgElementsController != null
-                    && cgElementsController.IsEnabled
+                    && cgElementsController.IsCGEnabled
                     && _cgElementsController.GraphicsStartDelay < 0)
                 {
                     ThreadPool.QueueUserWorkItem(o =>
                     {
                         Thread.Sleep(_preloadTime + TimeSpan.FromMilliseconds(cgElementsController.GraphicsStartDelay));
-                        cgElementsController.SetState(aEvent.CGElements);
+                        cgElementsController.SetState(aEvent);
                     });
                 }
             }
@@ -703,16 +703,16 @@ namespace TAS.Server
                     ProgramAudioVolume = (decimal)Math.Pow(10, (double)aEvent.GetAudioVolume() / 20); ;
                     _setAspectRatio(aEvent);
                     var cgController = _cgElementsController;
-                    if (cgController != null && cgController.IsEnabled)
+                    if (cgController != null && cgController.IsCGEnabled)
                     {
                         if (cgController.GraphicsStartDelay <= 0)
-                            cgController.SetState(aEvent.CGElements);
+                            cgController.SetState(aEvent);
                         else
                         {
                             ThreadPool.QueueUserWorkItem(o =>
                             {
                                 Thread.Sleep(cgController.GraphicsStartDelay);
-                                cgController.SetState(aEvent.CGElements);
+                                cgController.SetState(aEvent);
                             });
                         }
                     }
@@ -1325,7 +1325,10 @@ namespace TAS.Server
                     bool isEnabled = true,
                     bool isHold = false,
                     bool isLoop = false,
-                    ICGElementsState cgElementsState = null,
+                    bool isCGEnabled = false,
+                    byte crawl = 0,
+                    byte logo = 0,
+                    byte parental = 0,
                     AutoStartFlags autoStartFlags = AutoStartFlags.None,
                     IEnumerable<ICommandScriptItem> commands = null,
                     IDictionary<string, string> fields = null,
@@ -1337,11 +1340,11 @@ namespace TAS.Server
             if (!_events.TryGetValue(idRundownEvent, out result))
             {
                 if (eventType == TEventType.Animation)
-                    result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, cgElementsState, fields, method, templateLayer);
+                    result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, fields, method, templateLayer);
                 else if (eventType == TEventType.CommandScript)
                     result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, playState, scheduledTime, duration, scheduledDelay, eventName, startTime, isEnabled, commands);
                 else
-                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, cgElementsState, autoStartFlags);
+                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
                 if (idRundownEvent == 0)
                     result.Save();
                 if (_events.TryAdd(result.IdRundownEvent, result))

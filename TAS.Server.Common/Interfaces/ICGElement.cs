@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Media.Imaging;
 
 namespace TAS.Server.Interfaces
 {
@@ -9,5 +10,7 @@ namespace TAS.Server.Interfaces
     {
         byte Id { get; }
         string Name { get; }
+        string ImageFile { get; }
+        BitmapImage Image { get; }
     }
 }

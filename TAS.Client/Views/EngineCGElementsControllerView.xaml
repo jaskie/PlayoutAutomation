@@ -13,8 +13,8 @@
         <common:StatusIndicator Height="14" IsGreen="{Binding IsConnected}"/>
         <Label Content="GPI" VerticalContentAlignment="Center" Padding="5, 0, 0, 0"/>
         <StackPanel Orientation="Horizontal" Visibility="{Binding IsConnected, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding IsMaster}">
-            <CheckBox VerticalAlignment="Center" Margin="10, 0" Content="{Resx _active}" IsChecked="{Binding IsEnabled}"/>
-            <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsEnabled}">
+            <CheckBox VerticalAlignment="Center" Margin="10, 0" Content="{Resx _active}" IsChecked="{Binding IsCGEnabled}"/>
+            <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsCGEnabled}">
                 <StackPanel.Resources>
                     <Style TargetType="CheckBox">
                         <Setter Property="VerticalAlignment" Value="Center"/>

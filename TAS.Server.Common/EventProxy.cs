@@ -16,7 +16,6 @@ namespace TAS.Server.Common
         public TimeSpan Duration { get; set; }
         public string EventName { get; set; }
         public TEventType EventType { get; set; }
-        public EventCGElements CGElements { get; set; }
         public string IdAux { get; set; }
         public ulong IdProgramme { get; set; }
         public bool IsEnabled { get; set; }
@@ -37,6 +36,10 @@ namespace TAS.Server.Common
         public TTransitionType TransitionType { get; set; }
         public TEasing TransitionEasing { get; set; }
         public EventProxy[] SubEvents { get; set; }
+        public bool IsCGEnabled { get; set; }
+        public byte Crawl { get; set; } 
+        public byte Logo { get; set; }
+        public byte Parental { get; set; }
         public AutoStartFlags AutoStartFlags { get; set; }
         [DefaultValue(default(TemplateMethod))]
         public TemplateMethod Method { get; set; }
@@ -83,7 +86,10 @@ namespace TAS.Server.Common
                         isEnabled: IsEnabled,
                         isHold: IsHold,
                         isLoop: IsLoop,
-                        cgElementsState: CGElements,
+                        isCGEnabled: IsCGEnabled,
+                        crawl: Crawl,
+                        logo: Logo,
+                        parental: Parental,
                         autoStartFlags: AutoStartFlags,
                         commands: Commands,
                         fields: Fields,
@@ -164,7 +170,6 @@ namespace TAS.Server.Common
                 Duration = source.Duration,
                 EventName = source.EventName,
                 EventType = source.EventType,
-                CGElements = source.CGElements,
                 IdAux = source.IdAux,
                 IdProgramme = source.IdProgramme,
                 IsEnabled = source.IsEnabled,
@@ -185,6 +190,10 @@ namespace TAS.Server.Common
                 TransitionType = source.TransitionType,
                 TransitionEasing = source.TransitionEasing,
                 SubEvents = source.AllSubEvents().Select(e => FromEvent(e)).ToArray(),
+                IsCGEnabled = source.IsCGEnabled,
+                Crawl = source.Crawl,
+                Logo = source.Logo,
+                Parental = source.Parental,
                 AutoStartFlags = source.AutoStartFlags,
                 Commands = (source as ICommandScript)?.Commands,
                 Fields = source is ITemplated ? new Dictionary<string, string>(((ITemplated)source).Fields): null,

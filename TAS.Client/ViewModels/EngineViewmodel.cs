@@ -616,13 +616,10 @@ namespace TAS.Client.ViewModels
                                     eventType: TEventType.Movie,
                                     scheduledTC: e.TCIn,
                                     duration: e.Duration,
-                                    cgElementsState: new EventCGElements
-                                    {
-                                        IsEnabled = _engine.EnableCGElementsForNewEvents,
-                                        Crawl = (byte)(Engine.EnableCGElementsCrawlForShows && category == TMediaCategory.Show ? 1 : 0),
-                                        Logo = (byte)(category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? 1: 0),
-                                        Parental = e.Media.Parental
-                                    }
+                                    isCGEnabled: _engine.EnableCGElementsForNewEvents,
+                                    crawl: (byte)(Engine.EnableCGElementsCrawlForShows && category == TMediaCategory.Show ? 1 : 0),
+                                    logo: (byte)(category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? 1: 0),
+                                    parental: e.Media.Parental
                                     );
                                 break;
                             case TMediaType.Still:
