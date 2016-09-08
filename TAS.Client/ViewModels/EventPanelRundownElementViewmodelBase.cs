@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Server.Common;
@@ -239,10 +240,17 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool GPICanTrigger { get { return _event != null && _event.GPI.CanTrigger; } }
-        public TLogo GPILogo { get { return _event == null ? TLogo.NoLogo : _event.GPI.Logo; } }
-        public TCrawl GPICrawl { get { return _event == null ? TCrawl.NoCrawl : _event.GPI.Crawl; } }
-        public TParental GPIParental { get { return _event == null ? TParental.None : _event.GPI.Parental; } }
+        public bool IsCGEnabled { get { return _event?.IsCGEnabled == true && _engine?.CGElementsController != null; } }
+        public string Logo { get { return _engine.CGElementsController?.Logos?.FirstOrDefault(l => l.Id == _event.Logo)?.Name; } }
+        public System.Windows.Media.Imaging.BitmapImage Parental
+        {
+            get
+            {
+                var image = _engine.CGElementsController?.Parentals?.FirstOrDefault(l => l.Id == _event.Parental)?.Image;
+                return image;
+            }
+        }
+        public byte Crawl { get { return _event.Crawl; } }
 
         public string MediaFileName
         {
@@ -449,7 +457,11 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == nameof(IEvent.Offset)
                 || e.PropertyName == nameof(IEvent.ScheduledDelay)
                 || e.PropertyName == nameof(IEvent.IsForcedNext)
-                || e.PropertyName == nameof(IEvent.ScheduledTime))
+                || e.PropertyName == nameof(IEvent.ScheduledTime)
+                || e.PropertyName == nameof(IEvent.IsCGEnabled)
+                || e.PropertyName == nameof(IEvent.Crawl)
+                || e.PropertyName == nameof(IEvent.Logo)
+                || e.PropertyName == nameof(IEvent.Parental))
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == nameof(IEvent.ScheduledTc) || e.PropertyName == nameof(IEvent.Duration))
             {
@@ -479,13 +491,6 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(MediaEmphasis));
                 NotifyPropertyChanged(nameof(VideoFormat));
                 NotifyPropertyChanged(nameof(MediaErrorInfo));
-            }
-            if (e.PropertyName == nameof(IEvent.GPI))
-            {
-                NotifyPropertyChanged(nameof(GPICanTrigger));
-                NotifyPropertyChanged(nameof(GPICrawl));
-                NotifyPropertyChanged(nameof(GPILogo));
-                NotifyPropertyChanged(nameof(GPIParental));
             }
         }
     }

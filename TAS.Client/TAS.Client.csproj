@@ -95,6 +95,7 @@
     <Compile Include="ViewModels\CommandScriptEditViewmodel.cs" />
     <Compile Include="ViewModels\CommandScriptItemViewmodel.cs" />
     <Compile Include="ViewModels\ConvertOperationViewModel.cs" />
+    <Compile Include="ViewModels\EngineCGElementsControllerViewmodel.cs" />
     <Compile Include="ViewModels\EngineStateViewmodel.cs" />
     <Compile Include="ViewModels\EngineViewmodel.cs" />
     <Compile Include="EventClipboard.cs" />
@@ -134,6 +135,9 @@
     </Compile>
     <Compile Include="Views\ConvertOperationView.xaml.cs">
       <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\EngineCGElementsControllerView.xaml.cs">
+      <DependentUpon>EngineCGElementsControllerView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\EngineDebugView.xaml.cs">
       <DependentUpon>EngineDebugView.xaml</DependentUpon>
@@ -236,6 +240,10 @@
     <Page Include="Views\ConvertOperationView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\EngineCGElementsControllerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\EngineDebugView.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -348,6 +356,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ConvertOperationView.resx">
       <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineCGElementsControllerView.resx">
+      <DependentUpon>EngineCGElementsControllerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EngineCGElementsControllerView.pl.resx" >
+      <DependentUpon>EngineCGElementsControllerView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\EngineStateView.pl.resx">
       <DependentUpon>EngineStateView.xaml</DependentUpon>

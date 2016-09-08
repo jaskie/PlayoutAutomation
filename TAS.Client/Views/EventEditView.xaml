@@ -226,20 +226,20 @@
                             <TextBox DockPanel.Dock="Right" Grid.Column="2" Width="40" Text="{Binding AudioVolumeLevel, StringFormat={}{0:0.0}, UpdateSourceTrigger=LostFocus}"/>
                             <Slider  VerticalAlignment="Stretch" Margin="5, 0" Minimum="-18" Maximum="18" Value="{Binding AudioVolumeLevel}"/>
                         </DockPanel>
-                        <Grid Visibility="{Binding IsGPIEnabled, Converter={StaticResource BoolToVis}}" >
-                            <StackPanel Visibility="{Binding CanTriggerGPI, Converter={StaticResource BoolToVis}}">
+                        <Grid Visibility="{Binding IsDisplayCGElements, Converter={StaticResource BoolToVis}}" >
+                            <StackPanel Visibility="{Binding IsCGEnabled, Converter={StaticResource BoolToVis}}">
                                 <StackPanel Orientation="Horizontal">
                                     <Label Content="{Resx _gpiLogo}" />
-                                    <ComboBox ItemsSource="{Binding GPILogos}" SelectedValue="{Binding GPILogo}"/>
+                                    <ComboBox ItemsSource="{Binding Logos}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Logo}"/>
                                     <Label Content="{Resx _gpiCrawl}" Width="44"/>
-                                    <ComboBox ItemsSource="{Binding GPICrawls}" SelectedValue="{Binding GPICrawl}"/>
+                                    <ComboBox ItemsSource="{Binding Crawls}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Crawl}"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <Label Content="{Resx _gpiParental}"/>
-                                    <ComboBox ItemsSource="{Binding GPIParentals}" SelectedValue="{Binding GPIParental}" />
+                                    <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Parental}" />
                                 </StackPanel>
                             </StackPanel>
-                            <CheckBox Content="GPI" IsChecked="{Binding CanTriggerGPI}" VerticalAlignment="Top" Margin="10,5,0,0" />
+                            <CheckBox Content="CG" IsChecked="{Binding IsCGEnabled}" VerticalAlignment="Top" Margin="10,5,0,0" />
                         </Grid>
                     </StackPanel>
                 </StackPanel>

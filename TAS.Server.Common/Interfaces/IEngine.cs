@@ -54,7 +54,10 @@ namespace TAS.Server.Interfaces
                     bool isEnabled = true,
                     bool isHold = false,
                     bool isLoop = false,
-                    EventGPI gpi = default(EventGPI),
+                    bool isCGEnabled = false,
+                    byte crawl = 0,
+                    byte logo = 0,
+                    byte parental = 0,
                     AutoStartFlags autoStartFlags = AutoStartFlags.None,
                     IEnumerable<ICommandScriptItem> commands = null,
                     IDictionary<string, string> fields = null,
@@ -78,18 +81,7 @@ namespace TAS.Server.Interfaces
         DateTime AlignDateTime(DateTime dt);
         bool DateTimeEqal(DateTime dt1, DateTime dt2);
 
-        #region GPI
-        IGpi LocalGpi { get; }
-        IGpi Gpi { get; }
-
-        bool GPIConnected { get; }
-        bool GPIEnabled { get; set; }
-        bool GPIAspectNarrow { get; set; }
-        TCrawl GPICrawl { get; set; }
-        TLogo GPILogo { get; set; }
-        TParental GPIParental { get; set; }
-        bool GPIIsMaster { get; }
-        #endregion // GPI
+        ICGElementsController CGElementsController { get; }
 
         //MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia);
         void SearchMissingEvents();

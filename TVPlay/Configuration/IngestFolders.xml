@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<IngestDirectories xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <IngestDirectory>
+    <Folder>E:\lxf</Folder>
+    <DirectoryName>LXF</DirectoryName>
+    <Extensions />
+    <EncodeParams>-acodec libvo_aacenc -b:a 256k -c:v mpeg2video -b:v 20M -pix_fmt yuv420p  -g 18 -bf 2 -b_strategy 1</EncodeParams>
+    <DeleteSource>false</DeleteSource>
+    <Username></Username>
+    <Password></Password>
+    <MediaCategory>Uncategorized</MediaCategory>
+  </IngestDirectory>
+  
+  <IngestDirectory>
+    <Folder>ftp://142.193.10.163</Folder>
+    <IsXDCAM>true</IsXDCAM>
+    <Username>admin</Username>
+    <Password>pdw-1500</Password>
+    <DirectoryName>XDCAM</DirectoryName>
+    <Extensions>
+      <Extension>.mxf</Extension>
+    </Extensions>
+    <EncodeParams>-acodec libvo_aacenc -b:a 256k -c:v mpeg2video -b:v 15M -pix_fmt yuv420p -ac 2 -g 18 -bf 2 -b_strategy 1</EncodeParams>
+    <DeleteSource>false</DeleteSource>
+  </IngestDirectory>
+</IngestDirectories>

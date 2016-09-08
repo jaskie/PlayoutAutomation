@@ -42,7 +42,6 @@ namespace TAS.Server
         [XmlIgnore]
         public IMediaManager MediaManager { get { return _mediaManager; } }
         [XmlIgnore]
-        public IGpi LocalGpi { get; private set; }
 
         Thread _engineThread;
         internal long CurrentTicks;
@@ -59,13 +58,13 @@ namespace TAS.Server
         public event EventHandler<EngineTickEventArgs> EngineTick;
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
 
-        public bool EnableGPIForNewEvents { get; set; }
-        public bool EnableGPICrawlForShows { get; set; }
+        public bool EnableCGElementsForNewEvents { get; set; }
+        public bool EnableCGElementsCrawlForShows { get; set; }
 
-        [XmlElement("Gpi")]
-        public GPINotifier _serGpi { get { return null; } set { _gpi = value; } }
-        private GPINotifier _gpi;
-        public IGpi Gpi { get { return _gpi; } }
+        private IGpi _localGpi;
+        private IEnumerable<IEnginePlugin> _plugins;
+        private ICGElementsController _cgElementsController;
+        public ICGElementsController CGElementsController { get { return _cgElementsController; } }
 
         public RemoteHost Remote { get; set; }
         public TAspectRatioControl AspectRatioControl { get; set; }
@@ -100,8 +99,8 @@ namespace TAS.Server
                 _runningEvents.CollectionOperation -= _runningEventsOperation;
                 foreach (Event e in _rootEvents)
                     e.SaveLoadedTree();
-                if (_gpi != null)
-                    _gpi.Dispose();
+                if (_cgElementsController != null)
+                    _cgElementsController.Dispose();
                 var remote = Remote;
                 if (remote != null)
                     remote.Dispose();
@@ -137,7 +136,7 @@ namespace TAS.Server
         [XmlIgnore]
         public VideoFormatDescription FormatDescription { get; private set; }
 
-        public void Initialize(IEnumerable<IPlayoutServer> servers, IGpi localGpi)
+        public void Initialize(IEnumerable<IPlayoutServer> servers)
         {
             Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Initializing engine {0}", this);
@@ -149,8 +148,10 @@ namespace TAS.Server
             var sPRV = servers.FirstOrDefault(S => S.Id == IdServerPRV);
             _playoutChannelPRV = sPRV == null ? null : (CasparServerChannel)sPRV.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelPRV);
 
+            _localGpi = this.ComposePart<IGpi>();
+            _plugins = this.ComposeParts<IEnginePlugin>();
+            _cgElementsController = this.ComposePart<ICGElementsController>();
 
-            LocalGpi = localGpi;
             FormatDescription = VideoFormatDescription.Descriptions[VideoFormat];
             _frameTicks = FormatDescription.FrameTicks;
             _frameRate = FormatDescription.FrameRate;
@@ -179,13 +180,11 @@ namespace TAS.Server
             this.DbReadRootEvents();
 
             EngineState = TEngineState.Idle;
-            var gpi = _gpi;
-            if (gpi != null)
+            var cgElementsController = _cgElementsController;
+            if (cgElementsController != null)
             {
-                Debug.WriteLine(this, "Initializing GPI");
-                gpi.Started += StartLoaded;
-                gpi.Initialize();
-                gpi.PropertyChanged += GPI_PropertyChanged;
+                Debug.WriteLine(this, "Initializing CGElementsController");
+                cgElementsController.Started += _startLoaded;
             }
 
             if (Remote != null)
@@ -194,8 +193,8 @@ namespace TAS.Server
                 Remote.Initialize(this);
             }
 
-            if (localGpi != null)
-                localGpi.Started += StartLoaded;
+            if (_localGpi != null)
+                _localGpi.Started += _startLoaded;
 
             Debug.WriteLine(this, "Creating engine thread");
             _engineThread = new Thread(_engineThreadProc);
@@ -227,20 +226,24 @@ namespace TAS.Server
                 Debug.WriteLine(this, "UnInitializing Remote interface");
                 Remote.UnInitialize(this);
             }
-            var localGpi = LocalGpi;
+            var localGpi = _localGpi;
             if (localGpi != null)
-                localGpi.Started -= StartLoaded;
+                localGpi.Started -= _startLoaded;
 
-            var gpi = _gpi;
-            if (gpi != null)
+            var cgElementsController = _cgElementsController;
+            if (cgElementsController != null)
             {
-                Debug.WriteLine(this, "Uninitializing GPI");
-                gpi.Started -= StartLoaded;
-                gpi.UnInitialize();
-                gpi.PropertyChanged -= GPI_PropertyChanged;
+                Debug.WriteLine(this, "Uninitializing CGElementsController");
+                cgElementsController.Started -= _startLoaded;
+                cgElementsController.Dispose();
             }
 
             Debug.WriteLine(this, "Engine uninitialized");
+        }
+
+        private void _startLoaded(object o, EventArgs e)
+        {
+            StartLoaded();
         }
 
         private void _engineThreadProc()
@@ -349,77 +352,7 @@ namespace TAS.Server
 
         public event StateRedundantChangeEventHandler DatabaseConnectionStateChanged;
         #endregion //Database
-
-        #region GPI
-
-        void GPI_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(IGpi.CrawlVisible))
-                NotifyPropertyChanged(nameof(GPICrawl));
-            else
-                NotifyPropertyChanged("GPI" + e.PropertyName);
-        }
-
-        public bool GPIConnected
-        {
-            get { return _gpi != null && _gpi.Connected; }
-        }
-
-        private bool _gPIEnabled = true;
-        [XmlIgnore]
-        public bool GPIEnabled
-        {
-            get { return _gPIEnabled; }
-            set { SetField(ref _gPIEnabled, value, nameof(GPIEnabled)); }
-        }
-
-        [XmlIgnore]
-        public bool GPIAspectNarrow
-        {
-            get { return _gpi != null && _gpi.AspectNarrow; }
-            set { if (_gpi != null && _gPIEnabled) _gpi.AspectNarrow = value; }
-        }
-
-        [XmlIgnore]
-        public TCrawl GPICrawl
-        {
-            get { return _gpi == null ? TCrawl.NoCrawl : _gpi.CrawlVisible ? (TCrawl)_gpi.Crawl: TCrawl.NoCrawl; }
-            set
-            {
-                if (_gpi != null && _gPIEnabled)
-                {
-                    if (value == TCrawl.NoCrawl)
-                        _gpi.CrawlVisible = false;
-                    else
-                    {
-                        _gpi.Crawl = (int)value;
-                        _gpi.CrawlVisible = true;
-                    }
-                }
-            }
-        }
-
-        [XmlIgnore]
-        public TLogo GPILogo
-        {
-            get { return _gpi == null ? TLogo.NoLogo : (TLogo)_gpi.Logo; }
-            set { if (_gpi != null && _gPIEnabled) _gpi.Logo = (int)value; }
-        }
-
-        [XmlIgnore]
-        public TParental GPIParental
-        {
-            get { return _gpi == null ? TParental.None : (TParental)_gpi.Parental; }
-            set { if (_gpi != null && _gPIEnabled) _gpi.Parental = (int)value; }
-        }
-
-        [XmlIgnore]
-        public bool GPIIsMaster
-        {
-            get { return _gpi != null && _gpi.IsMaster; }
-        }
-        #endregion // GPI
-
+                
         #region FixedStartEvents
 
         readonly SynchronizedCollection<IEvent> _fixedTimeEvents = new SynchronizedCollection<IEvent>();
@@ -706,15 +639,16 @@ namespace TAS.Server
                     _playoutChannelPRI.LoadNext(aEvent);
                 if (_playoutChannelSEC != null)
                     _playoutChannelSEC.LoadNext(aEvent);
+                var cgElementsController = _cgElementsController;
                 if (!aEvent.IsHold
-                    && _gpi != null
-                    && GPIEnabled
-                    && _gpi.GraphicsStartDelay < 0)
+                    && cgElementsController != null
+                    && cgElementsController.IsCGEnabled
+                    && _cgElementsController.GraphicsStartDelay < 0)
                 {
                     ThreadPool.QueueUserWorkItem(o =>
                     {
-                        Thread.Sleep(_preloadTime + TimeSpan.FromMilliseconds(_gpi.GraphicsStartDelay));
-                        _setGPIGraphics(_gpi, aEvent);
+                        Thread.Sleep(_preloadTime + TimeSpan.FromMilliseconds(cgElementsController.GraphicsStartDelay));
+                        cgElementsController.SetState(aEvent);
                     });
                 }
             }
@@ -768,18 +702,17 @@ namespace TAS.Server
                     Playing = aEvent;
                     ProgramAudioVolume = (decimal)Math.Pow(10, (double)aEvent.GetAudioVolume() / 20); ;
                     _setAspectRatio(aEvent);
-                    if (LocalGpi != null && GPIEnabled)
-                        _setGPIGraphics(LocalGpi, aEvent);
-                    if (_gpi != null && GPIEnabled)
+                    var cgController = _cgElementsController;
+                    if (cgController != null && cgController.IsCGEnabled)
                     {
-                        if (_gpi.GraphicsStartDelay <= 0)
-                            _setGPIGraphics(_gpi, aEvent);
+                        if (cgController.GraphicsStartDelay <= 0)
+                            cgController.SetState(aEvent);
                         else
                         {
                             ThreadPool.QueueUserWorkItem(o =>
                             {
-                                Thread.Sleep(_gpi.GraphicsStartDelay);
-                                _setGPIGraphics(_gpi, aEvent);
+                                Thread.Sleep(cgController.GraphicsStartDelay);
+                                cgController.SetState(aEvent);
                             });
                         }
                     }
@@ -848,8 +781,14 @@ namespace TAS.Server
                 _playoutChannelSEC?.SetAspect(aEvent.Layer, narrow);
             }
             if (AspectRatioControl == TAspectRatioControl.GPI || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
-                if (_gpi != null)
-                    _gpi.AspectNarrow = narrow;
+            {
+                var cgController = _cgElementsController;
+                if (cgController != null)
+                    cgController.IsWideScreen = !narrow;
+                var lGpi = _localGpi;
+                if (lGpi != null)
+                    lGpi.IsWideScreen = !narrow;
+            }
         }
 
         private void _run(Event aEvent)
@@ -1072,22 +1011,6 @@ namespace TAS.Server
             while (result != null && (!result.IsEnabled || (result.Length == TimeSpan.Zero)))
                    result = result.GetSuccessor() as Event;
             return result;
-        }
-
-        private void _setGPIGraphics(IGpi gpi, Event ev)
-        {
-            if (ev.GPI.CanTrigger)
-            {
-                if (ev.GPI.Crawl == TCrawl.NoCrawl)
-                    gpi.CrawlVisible = false;
-                else
-                {
-                    gpi.Crawl = (int)ev.GPI.Crawl;
-                    gpi.CrawlVisible = true;
-                }
-                gpi.Logo = (int)ev.GPI.Logo;
-                gpi.Parental = (int)ev.GPI.Parental;
-            }
         }
 
         private void _playingSubEventsChanged(object sender, CollectionOperationEventArgs<IEvent> e)
@@ -1402,7 +1325,10 @@ namespace TAS.Server
                     bool isEnabled = true,
                     bool isHold = false,
                     bool isLoop = false,
-                    EventGPI gpi = default(EventGPI),
+                    bool isCGEnabled = false,
+                    byte crawl = 0,
+                    byte logo = 0,
+                    byte parental = 0,
                     AutoStartFlags autoStartFlags = AutoStartFlags.None,
                     IEnumerable<ICommandScriptItem> commands = null,
                     IDictionary<string, string> fields = null,
@@ -1414,11 +1340,11 @@ namespace TAS.Server
             if (!_events.TryGetValue(idRundownEvent, out result))
             {
                 if (eventType == TEventType.Animation)
-                    result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, gpi, fields, method, templateLayer);
+                    result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, fields, method, templateLayer);
                 else if (eventType == TEventType.CommandScript)
                     result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, playState, scheduledTime, duration, scheduledDelay, eventName, startTime, isEnabled, commands);
                 else
-                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, gpi, autoStartFlags);
+                    result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
                 if (idRundownEvent == 0)
                     result.Save();
                 if (_events.TryAdd(result.IdRundownEvent, result))

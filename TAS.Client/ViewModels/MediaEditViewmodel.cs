@@ -439,10 +439,11 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _doNotArchive, value, nameof(DoNotArchive)); }
         }
 
-        static readonly Array _parentals = Enum.GetValues(typeof(TParental)); 
-        public Array Parentals { get { return _parentals; } }
-        private TParental _parental;
-        public TParental Parental
+        public bool ShowParentalCombo { get { return _mediaManager.Parentals != null; } }
+
+        public IEnumerable<ICGElement> Parentals { get { return _mediaManager.Parentals; } }
+        private int _parental;
+        public int Parental
         {
             get { return _parental; }
             set { SetField(ref _parental, value, nameof(Parental)); }

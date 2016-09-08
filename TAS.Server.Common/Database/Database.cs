@@ -761,11 +761,14 @@ namespace TAS.Server.Database
                 dataReader.IsDBNull(dataReader.GetOrdinal("AudioVolume")) ? null : (decimal?)dataReader.GetDecimal("AudioVolume"),
                 dataReader.GetUInt64("idProgramme"),
                 dataReader.GetString("IdAux"),
-                (flags & (1 << 0)) != 0, // IsEnabled
-                (flags & (1 << 1)) != 0, // IsHold
-                (flags & (1 << 2)) != 0, // IsLoop
-                EventGPI.FromUInt64((flags >> 4) & EventGPI.Mask),
-                (AutoStartFlags)((flags >> 20) & 0x0F),
+                flags.IsEnabled(),
+                flags.IsHold(), 
+                flags.IsLoop(),
+                flags.IsCGEnabled(),
+                flags.Crawl(),
+                flags.Logo(),
+                flags.Parental(),
+                flags.AutoStartFlags(),
                 commands
                 );
             return newEvent;
@@ -821,13 +824,7 @@ namespace TAS.Server.Database
                 cmd.Parameters.AddWithValue("@AudioVolume", DBNull.Value);
             else
                 cmd.Parameters.AddWithValue("@AudioVolume", aEvent.AudioVolume);
-            ulong flags = Convert.ToUInt64(aEvent.IsEnabled) << 0
-                         | Convert.ToUInt64(aEvent.IsHold) << 1
-                         | Convert.ToUInt64(aEvent.IsLoop) << 2
-                         | aEvent.GPI.ToUInt64() << 4 // of size EventGPI.Size
-                         | (ulong)aEvent.AutoStartFlags << 20
-                         ;
-            cmd.Parameters.AddWithValue("@flagsEvent", flags);
+            cmd.Parameters.AddWithValue("@flagsEvent", aEvent.ToFlags());
             cmd.Parameters.AddWithValue("@Commands",
                 aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript ?
                 (object)Newtonsoft.Json.JsonConvert.SerializeObject((aEvent as ICommandScript).Commands) : 
@@ -1099,7 +1096,7 @@ VALUES
             media.IdAux = dataReader.IsDBNull(dataReader.GetOrdinal("idAux")) ? string.Empty : dataReader.GetString("idAux");
             media.KillDate = dataReader.GetDateTime("KillDate");
             media.MediaEmphasis = (TMediaEmphasis)((flags >> 8) & 0xF);
-            media.Parental = (TParental)((flags >> 12) & 0xF);
+            media.Parental = (byte)((flags >> 12) & 0xF);
             if (media is IServerMedia)
                 ((IServerMedia)media).DoNotArchive = (flags & 0x1) != 0;
             media.Protected = (flags & 0x2) != 0;

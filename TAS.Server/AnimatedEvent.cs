@@ -24,7 +24,6 @@ namespace TAS.Server
                     string eventName,
                     DateTime startTime,
                     bool isEnabled,
-                    EventGPI gpi,
                     IDictionary<string, string> fields,
                     TemplateMethod method,
                     int templateLayer
@@ -55,8 +54,8 @@ namespace TAS.Server
                         isEnabled,
                         false,
                         false,
-                        gpi,
-                        AutoStartFlags.None
+                        AutoStartFlags.None,
+                        false, 0, 0, 0
                         )
         {
             _fields = new SimpleDictionary<string, string>(fields);

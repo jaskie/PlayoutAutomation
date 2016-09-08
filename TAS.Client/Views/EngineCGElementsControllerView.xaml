@@ -1,0 +1,67 @@
+﻿<UserControl x:Class="TAS.Client.Views.EngineCGElementsControllerView"
+             ResxExtension.DefaultResxName="TAS.Client.Views.EngineCGElementsControllerView" Language="{UICulture}" 
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TAS.Client.Views"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             mc:Ignorable="d" 
+             d:DesignHeight="30" d:DesignWidth="300">
+    <StackPanel Orientation="Horizontal" Visibility="{Binding Exists, Converter={StaticResource BoolToVis}}">
+        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+        <common:StatusIndicator Height="14" IsGreen="{Binding IsConnected}"/>
+        <Label Content="GPI" VerticalContentAlignment="Center" Padding="5, 0, 0, 0"/>
+        <StackPanel Orientation="Horizontal" Visibility="{Binding IsConnected, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding IsMaster}">
+            <CheckBox VerticalAlignment="Center" Margin="10, 0" Content="{Resx _active}" IsChecked="{Binding IsCGEnabled}"/>
+            <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsCGEnabled}">
+                <StackPanel.Resources>
+                    <Style TargetType="CheckBox">
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style TargetType="ComboBox">
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="Width" Value="100" />
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style TargetType="Label">
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Resources>
+                <CheckBox IsChecked="{Binding IsWideScreen}" Margin="5, 0" Width="50" HorizontalContentAlignment="Left">
+                    <CheckBox.Content>
+                        <TextBlock>
+                            <TextBlock.Text>
+                                <Binding Path="IsWideScreen">
+                                    <Binding.Converter>
+                                        <common:BoolToStringConverter TrueValue="16:9" FalseValue="4:3" />
+                                    </Binding.Converter>
+                                </Binding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </CheckBox.Content>
+                </CheckBox>
+                <Label Padding="5, 0" Content="{Resx _crawl}"/>
+                <ComboBox ItemsSource="{Binding Crawls}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Crawl}" />
+                <Label Padding="5, 0" Content="{Resx _logo}"/>
+                <ComboBox ItemsSource="{Binding Logos}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Logo}" />
+                <Label Padding="5, 0" Content="{Resx _parental}"/>
+                <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Parental}" />
+            </StackPanel>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

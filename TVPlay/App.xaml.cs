@@ -38,7 +38,11 @@ namespace TAS.Client
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            MessageBox.Show(App.Current.MainWindow, e.Exception.Message, TAS.Client.Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+            var window = App.Current?.MainWindow;
+            if (window == null)
+                MessageBox.Show(e.Exception.Message, TAS.Client.Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+            else
+                MessageBox.Show(window, e.Exception.Message, TAS.Client.Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
         }
     }

@@ -7,7 +7,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
-    public class Gpi: IGpiConfig
+    public class Gpi: ICGElementsConfig
     {
         [XmlAttribute]
         public string Address { get; set; }

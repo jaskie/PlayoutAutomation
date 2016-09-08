@@ -106,7 +106,6 @@
                     <ComboBox  ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding VideoFormat}" />
                 </DockPanel>
                 <StackPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
-                    <CheckBox Visibility="{Binding IsInterlaced, Converter={StaticResource BoolToVis}}" IsChecked="{Binding FieldOrderInverted}" Content="{Resx _fieldOrderInverted}" ToolTip="{Resx _fieldOrderInverted.ToolTip}"/>
                     <DockPanel >
                         <Label Content="{Resx _times}"/>
                         <Grid>
@@ -173,7 +172,7 @@
                             </ComboBox.ItemContainerStyle>
                         </ComboBox>
                     </DockPanel>
-                    <DockPanel>
+                    <DockPanel Visibility="{Binding ShowParentalCombo, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _parental}" />
                         <ComboBox ItemsSource="{Binding Parentals}" SelectedValue="{Binding Parental}" />
                     </DockPanel>
@@ -186,6 +185,7 @@
                         <TextBox DockPanel.Dock="Right" Margin="4" Width="40" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
                         <Slider  Margin="2" Minimum="-18" Maximum="18" Value="{Binding AudioVolume}"/>
                     </DockPanel>
+                    <CheckBox Visibility="{Binding IsInterlaced, Converter={StaticResource BoolToVis}}" IsChecked="{Binding FieldOrderInverted}" Content="{Resx _fieldOrderInverted}" ToolTip="{Resx _fieldOrderInverted.ToolTip}"/>
                 </StackPanel>
                 <!--<DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
                 <Label Content="Usuń po" Target="{Binding ElementName=edKillDate}" />

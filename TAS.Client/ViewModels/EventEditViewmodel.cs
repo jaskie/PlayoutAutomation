@@ -405,11 +405,7 @@ namespace TAS.Client.ViewModels
                                 ScheduledTc = e.TCIn;
                                 AudioVolume = null;
                                 EventName = e.MediaName;
-                                _gpi = _setGPI(e.Media);
-                                NotifyPropertyChanged(nameof(CanTriggerGPI));
-                                NotifyPropertyChanged(nameof(GPICrawl));
-                                NotifyPropertyChanged(nameof(GPILogo));
-                                NotifyPropertyChanged(nameof(GPIParental));
+                                _setGPI(e.Media);
                             }
                         }
                     }));
@@ -473,17 +469,15 @@ namespace TAS.Client.ViewModels
                 && (IsModified || ev.IsModified);
         }
         
-        EventGPI _setGPI(IMedia media)
+        void _setGPI(IMedia media)
         {
-            EventGPI GPI = new EventGPI();
-            GPI.CanTrigger = _engine.EnableGPIForNewEvents;
+            IsCGEnabled = _engine.EnableCGElementsForNewEvents;
             if (media != null)
             {
                 var category = media.MediaCategory;
-                GPI.Logo = category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? TLogo.Normal : TLogo.NoLogo;
-                GPI.Parental = media.Parental;
+                Logo = (byte)(category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? 1 : 0);
+                Parental = media.Parental;
             }
-            return GPI;
         }
 
         #endregion // command methods
@@ -567,6 +561,17 @@ namespace TAS.Client.ViewModels
         }
 
         public bool IsAnimation { get { return _event is ITemplated; } }
+
+        #region ICGElementsState
+        bool _isCGEnabled;
+        byte _crawl;
+        byte _logo;
+        byte _parental;           
+        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value, nameof(IsCGEnabled)); } }
+        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value, nameof(Crawl)); } }
+        public byte Logo { get { return _logo; } set { SetField(ref _logo, value, nameof(Logo)); } }
+        public byte Parental { get { return _parental; } set { SetField(ref _parental, value, nameof(Parental)); } }
+        #endregion ICGElementsState
 
         #region ITemplatedEdit
 
@@ -968,9 +973,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        #region GPI
 
-        public bool IsGPIEnabled
+        public bool IsCGElementsEnabled
         {
             get
             {
@@ -980,46 +984,26 @@ namespace TAS.Client.ViewModels
                     IEngine engine = ev.Engine;
                     return (engine != null
                         && (ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie)
-                        && (engine.Gpi != null || engine.LocalGpi != null));
+                        && (engine.CGElementsController != null));
                 }
                 return false;
             }
         }
 
-        private EventGPI _gpi;
-        public EventGPI GPI { get { return _gpi; } set { _gpi = value; } }
-
-        public bool CanTriggerGPI
+        public bool IsDisplayCGElements
         {
-            get { return _gpi.CanTrigger; }
-            set { SetField(ref _gpi.CanTrigger, value, nameof(CanTriggerGPI)); }
+            get { return _engine.CGElementsController != null; }
         }
 
-        static readonly Array _gPIParentals = Enum.GetValues(typeof(TParental));
-        public Array GPIParentals { get { return _gPIParentals; } }
-        public TParental GPIParental
-        {
-            get { return _gpi.Parental; }
-            set { SetField(ref _gpi.Parental, value, nameof(GPIParental)); }
-        }
+        public IEnumerable<ICGElement> Logos { get { return _engine.CGElementsController?.Logos; } }
+        public IEnumerable<ICGElement> Crawls { get { return _engine.CGElementsController?.Crawls; } }
+        public IEnumerable<ICGElement> Parentals { get { return _engine.CGElementsController?.Parentals; } }
 
-        static readonly Array _gPILogos = Enum.GetValues(typeof(TLogo));
-        public Array GPILogos { get { return _gPILogos; } }
-        public TLogo GPILogo
-        {
-            get { return _gpi.Logo; }
-            set { SetField(ref _gpi.Logo, value, nameof(GPILogo)); }
-        }
 
-        static readonly Array _gPICrawls = Enum.GetValues(typeof(TCrawl));
-        public Array GPICrawls { get { return _gPICrawls; } }
-        public TCrawl GPICrawl
+        private void _cGElementsViewmodel_Modified(object sender, EventArgs e)
         {
-            get { return _gpi.Crawl; }
-            set { SetField(ref _gpi.Crawl, value, nameof(GPICrawl)); }
+            IsModified = true;
         }
-
-        #endregion // GPI
 
         internal void _previewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -1039,13 +1023,6 @@ namespace TAS.Client.ViewModels
                     destPi.SetValue(this, sourcePi.GetValue(sender, null), null);
                 _isModified = oldModified;
             });
-            if (e.PropertyName == nameof(IEvent.GPI))
-            {
-                NotifyPropertyChanged(nameof(CanTriggerGPI));
-                NotifyPropertyChanged(nameof(GPIParental));
-                NotifyPropertyChanged(nameof(GPILogo));
-                NotifyPropertyChanged(nameof(GPICrawl));
-            }
             if (e.PropertyName == nameof(IEvent.PlayState))
             {
                 NotifyPropertyChanged(nameof(IsEditEnabled));

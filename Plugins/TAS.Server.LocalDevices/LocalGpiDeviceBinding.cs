@@ -25,17 +25,18 @@ namespace TAS.Server
         [XmlAttribute]
         public UInt64 IdEngine;
 
-        public event Action Started;
+        public event EventHandler Started;
 
         public GPIPin Start;
         public GPIPin[] Logos;
         public GPIPin[] Crawls;
         public GPIPin[] Parentals;
+        public GPIPin WideScreen;
 
-        void _actionCheckAndExecute(Action action, GPIPin pin, byte deviceId, byte port, byte bit)
+        void _actionCheckAndExecute(EventHandler handler, GPIPin pin, byte deviceId, byte port, byte bit)
         {
-            if (action != null && pin != null && deviceId == pin.DeviceId && port == pin.PortNumber && bit == pin.PinNumber)
-                action();
+            if (handler != null && pin != null && deviceId == pin.DeviceId && port == pin.PortNumber && bit == pin.PinNumber)
+                handler(this, EventArgs.Empty);
         }
 
         internal void NotifyChange(byte deviceId, byte port, byte bit, bool newValue)
@@ -107,8 +108,28 @@ namespace TAS.Server
         [XmlIgnore]
         public int[] VisibleAuxes { get { return _visibleAuxes.ToArray(); } }
 
+        public bool IsMaster { get { return true; } }
+
+        bool _isWideScreen;
+        public bool IsWideScreen
+        {
+            get
+            {
+                return _isWideScreen;
+            }
+
+            set
+            {
+                if (value != _isWideScreen)
+                    _isWideScreen = value;
+                //TODO: make output working
+            }
+        }
+
         public void ShowAux(int auxNr) { }
         public void HideAux(int auxNr) { }
+
+
 
         void _setSinglePin(GPIPin[] pins, int value)
         {

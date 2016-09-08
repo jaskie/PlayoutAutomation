@@ -199,9 +199,9 @@ namespace TAS.Server
             set { SetField(ref _mediaCategory, value, nameof(MediaCategory)); }
         }
 
-        protected TParental _parental;
+        protected byte _parental;
         [JsonProperty]
-        public virtual TParental Parental
+        public virtual byte Parental
         {
             get { return _parental; }
             set { SetField(ref _parental, value, nameof(Parental)); }

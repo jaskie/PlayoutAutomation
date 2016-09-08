@@ -47,8 +47,11 @@ namespace TAS.Server
                     bool isEnabled,
                     bool isHold,
                     bool isLoop,
-                    EventGPI gpi,
-                    AutoStartFlags autoStartFlags)
+                    AutoStartFlags autoStartFlags,
+                    bool isCGEnabled,
+                    byte crawl,
+                    byte logo,
+                    byte parental)
         {
             _engine = engine;
             _idRundownEvent = idRundownEvent;
@@ -76,7 +79,10 @@ namespace TAS.Server
             _isEnabled = isEnabled;
             _isHold = isHold;
             _isLoop = isLoop;
-            _gPI = gpi;
+            _isCGEnabled = isCGEnabled;
+            _crawl = crawl;
+            _logo = logo;
+            _parental = parental;
             _autoStartFlags = autoStartFlags;
             _applyMedia(null);
              _subEvents = new Lazy<SynchronizedCollection<IEvent>>(() =>
@@ -187,7 +193,12 @@ namespace TAS.Server
                 _isEnabled,
                 _isHold,
                 _isLoop,
-                _gPI);
+                _isCGEnabled,
+                _crawl,
+                _logo,
+                _parental,
+                _autoStartFlags
+                );
 
             foreach (Event e in SubEvents)
             {
@@ -1326,13 +1337,6 @@ namespace TAS.Server
             set { SetField(ref _audioVolume, value, nameof(AudioVolume)); }
         }
 
-        EventGPI _gPI;
-        public EventGPI GPI
-        {
-            get { return _gPI; }
-            set { SetField(ref _gPI, value, nameof(GPI)); }
-        }
-
         public decimal GetAudioVolume()
         {
             var volume = _audioVolume;
@@ -1348,6 +1352,15 @@ namespace TAS.Server
             return 0m;
         }
 
+        private bool _isCGEnabled;
+        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value, nameof(IsCGEnabled)); } }
+        private byte _crawl;
+        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value, nameof(Crawl)); } }
+        private byte _logo;
+        public byte Logo { get { return _logo; }  set { SetField(ref _logo, value, nameof(Logo)); } }
+        private byte _parental;
+        public byte Parental { get { return _parental; } set { SetField(ref _parental, value, nameof(Parental)); } }
+        
         public override string ToString()
         {
             return EventName;

@@ -32,8 +32,8 @@ namespace TAS.Client.Config.Model
         public ulong IdArchive { get; set; }
         public Gpi Gpi { get; set; }
         public RemoteHost Remote { get; set; }
-        public bool EnableGPIForNewEvents { get; set; }
-        public bool EnableGPICrawlForShows { get; set; }
+        public bool EnableCGElementsForNewEvents { get; set; }
+        public bool EnableCGElementsCrawlForShows { get; set; }
 
         internal List<CasparServer> Servers;
         internal ArchiveDirectories ArchiveDirectories;

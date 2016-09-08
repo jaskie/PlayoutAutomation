@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IGpiConfig
+    public interface ICGElementsConfig
     {
         [XmlAttribute]
         string Address { get; set; }

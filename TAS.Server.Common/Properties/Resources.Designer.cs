@@ -331,42 +331,6 @@ namespace TAS.Server.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No crawl.
-        /// </summary>
-        public static string TCrawl_NoCrawl {
-            get {
-                return ResourceManager.GetString("TCrawl_NoCrawl", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Normal.
-        /// </summary>
-        public static string TCrawl_Normal {
-            get {
-                return ResourceManager.GetString("TCrawl_Normal", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sport.
-        /// </summary>
-        public static string TCrawl_Sport {
-            get {
-                return ResourceManager.GetString("TCrawl_Sport", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Urgent.
-        /// </summary>
-        public static string TCrawl_Urgent {
-            get {
-                return ResourceManager.GetString("TCrawl_Urgent", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Animation.
         /// </summary>
         public static string TEventType_Animation {
@@ -457,6 +421,15 @@ namespace TAS.Server.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ingest in progress.
+        /// </summary>
+        public static string TIngestStatus_InProgress {
+            get {
+                return ResourceManager.GetString("TIngestStatus_InProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Not ingested yet.
         /// </summary>
         public static string TIngestStatus_NotReady {
@@ -480,51 +453,6 @@ namespace TAS.Server.Common.Properties {
         public static string TIngestStatus_Unknown {
             get {
                 return ResourceManager.GetString("TIngestStatus_Unknown", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Live.
-        /// </summary>
-        public static string TLogo_Live {
-            get {
-                return ResourceManager.GetString("TLogo_Live", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No logo.
-        /// </summary>
-        public static string TLogo_NoLogo {
-            get {
-                return ResourceManager.GetString("TLogo_NoLogo", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Normal.
-        /// </summary>
-        public static string TLogo_Normal {
-            get {
-                return ResourceManager.GetString("TLogo_Normal", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Premiere.
-        /// </summary>
-        public static string TLogo_Premiere {
-            get {
-                return ResourceManager.GetString("TLogo_Premiere", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Replay.
-        /// </summary>
-        public static string TLogo_Replay {
-            get {
-                return ResourceManager.GetString("TLogo_Replay", resourceCulture);
             }
         }
         
@@ -876,60 +804,6 @@ namespace TAS.Server.Common.Properties {
         public static string TmXFAudioExportFormat_Channels8Bits16 {
             get {
                 return ResourceManager.GetString("TmXFAudioExportFormat_Channels8Bits16", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 7.
-        /// </summary>
-        public static string TParental_Limit07 {
-            get {
-                return ResourceManager.GetString("TParental_Limit07", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 12.
-        /// </summary>
-        public static string TParental_Limit12 {
-            get {
-                return ResourceManager.GetString("TParental_Limit12", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 16.
-        /// </summary>
-        public static string TParental_Limit16 {
-            get {
-                return ResourceManager.GetString("TParental_Limit16", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 18.
-        /// </summary>
-        public static string TParental_Limit18 {
-            get {
-                return ResourceManager.GetString("TParental_Limit18", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No limit.
-        /// </summary>
-        public static string TParental_NoLimit {
-            get {
-                return ResourceManager.GetString("TParental_NoLimit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to None.
-        /// </summary>
-        public static string TParental_None {
-            get {
-                return ResourceManager.GetString("TParental_None", resourceCulture);
             }
         }
         

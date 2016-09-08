@@ -81,9 +81,6 @@
     <Compile Include="FFMpegOperation.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="FileOperation.cs" />
-    <Compile Include="GPICommand.cs" />
-    <Compile Include="GPINotifier.cs" />
-    <Compile Include="GPIState.cs" />
     <Compile Include="LoudnessOperation.cs" />
     <Compile Include="MediaManager.cs" />
     <Compile Include="Media\AnimationDirectory.cs" />
@@ -103,6 +100,7 @@
     <Compile Include="Media\TempDirectory.cs" />
     <Compile Include="Media\AnimatedMedia.cs" />
     <Compile Include="Media\TempMedia.cs" />
+    <Compile Include="PluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CommandScriptItem.cs" />
     <Compile Include="ServerBinder.cs" />

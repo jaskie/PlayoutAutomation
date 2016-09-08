@@ -16,7 +16,7 @@ namespace TAS.Server.Interfaces
         string Folder { get; set; }
         DateTime LastUpdated { get; set; }
         TMediaCategory MediaCategory { get; set; }
-        TParental Parental { get; set; }
+        byte Parental { get; set; }
         string MediaName { get; set; }
         TMediaStatus MediaStatus { get; set; }
         TMediaType MediaType { get; set; }

@@ -29,6 +29,8 @@ namespace TAS.Client.ViewModels
         private readonly EventEditViewmodel _eventEditViewmodel;
         private readonly EventEditView _eventEditView;
         private readonly VideoFormatDescription _videoFormatDescription;
+        private readonly Server.Interfaces.ICGElementsController _cGElementsController;
+        private readonly EngineCGElementsControllerViewmodel _cGElementsControllerViewmodel;
 
         public IEngine Engine { get { return _engine; } }
         public ICommand CommandClearAll { get; private set; }
@@ -113,6 +115,16 @@ namespace TAS.Client.ViewModels
                 engine.PlayoutChannelSEC.OwnerServer.PropertyChanged += OnSECServerPropertyChanged;
             if (engine.PlayoutChannelPRV != null)
                 engine.PlayoutChannelPRV.OwnerServer.PropertyChanged += OnPRVServerPropertyChanged;
+            _cGElementsController = engine.CGElementsController;
+            if (_cGElementsController != null)
+                _cGElementsController.PropertyChanged += _cGElementsController_PropertyChanged;
+            _cGElementsControllerViewmodel = new EngineCGElementsControllerViewmodel(engine.CGElementsController);
+        }
+
+        private void _cGElementsController_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Server.Interfaces.ICGElementsController.IsMaster))
+                NotifyPropertyChanged(nameof(CGControllerIsMaster));
         }
 
         private void _engine_DatabaseConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
@@ -155,7 +167,7 @@ namespace TAS.Client.ViewModels
         public EngineView View { get { return _engineView; } }
         public PreviewView PreviewView { get { return _previewViewmodel.View; } }
         public EventEditView EventEditView { get { return _eventEditView; } }
-
+        public EngineCGElementsControllerViewmodel CGElementsControllerViewmodel { get { return _cGElementsControllerViewmodel; } }
 
         #region Commands
 
@@ -604,13 +616,10 @@ namespace TAS.Client.ViewModels
                                     eventType: TEventType.Movie,
                                     scheduledTC: e.TCIn,
                                     duration: e.Duration,
-                                    gpi: new EventGPI
-                                    {
-                                        CanTrigger = _engine.EnableGPIForNewEvents,
-                                        Crawl = Engine.EnableGPICrawlForShows && category == TMediaCategory.Show ? TCrawl.Normal : TCrawl.NoCrawl,
-                                        Logo = category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? TLogo.Normal : TLogo.NoLogo,
-                                        Parental = e.Media.Parental
-                                    }
+                                    isCGEnabled: _engine.EnableCGElementsForNewEvents,
+                                    crawl: (byte)(Engine.EnableCGElementsCrawlForShows && category == TMediaCategory.Show ? 1 : 0),
+                                    logo: (byte)(category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? 1: 0),
+                                    parental: e.Media.Parental
                                     );
                                 break;
                             case TMediaType.Still:
@@ -915,58 +924,15 @@ namespace TAS.Client.ViewModels
         }
 
         #endregion // Plugin
-        #region GPI
-        public bool GPIExists
+        public bool CGControllerExists
         {
-            get { return _engine.Gpi != null; }
+            get { return _engine.CGElementsController != null; }
         }
 
-        public bool GPIConnected
+        public bool CGControllerIsMaster
         {
-            get {return _engine.GPIConnected;}
+            get { return _engine.CGElementsController?.IsMaster == true; }
         }
-
-        public bool GPIEnabled { get { return _engine.GPIEnabled; } set { _engine.GPIEnabled = value; } }
-        
-        public bool GPIAspectNarrow
-        {
-            get { return _engine.GPIAspectNarrow; }
-            set { _engine.GPIAspectNarrow = value; }
-        }
-
-        static readonly Array _gPICrawls = Enum.GetValues(typeof(TCrawl));
-        public Array GPICrawls { get { return _gPICrawls; } }
-        
-        public TCrawl GPICrawl
-        {
-            get { return _engine.GPICrawl; }
-            set { _engine.GPICrawl = value; }
-        }
-
-        static readonly Array _gPILogos = Enum.GetValues(typeof(TLogo));
-        public Array GPILogos { get { return _gPILogos; } }
-        
-        public TLogo GPILogo
-        {
-            get { return _engine.GPILogo; }
-            set { _engine.GPILogo = value; }
-        }
-
-        static readonly Array _gPIParentals = Enum.GetValues(typeof(TParental)); 
-        public Array GPIParentals { get { return _gPIParentals; } }
-        
-        public TParental GPIParental
-        {
-            get { return _engine.GPIParental; }
-            set { _engine.GPIParental = value; }
-        }
-
-        public bool GPIIsMaster
-        {
-            get { return _engine.GPIIsMaster; }
-        }
-        #endregion // GPI
-
 
         public TEngineState EngineState { get { return _engine.EngineState; } }
 
@@ -1134,13 +1100,6 @@ namespace TAS.Client.ViewModels
         {
             if (e.PropertyName == nameof(IEngine.ProgramAudioVolume)
                 || e.PropertyName == nameof(IEngine.EngineState)
-                || e.PropertyName == nameof(IEngine.GPIConnected)
-                || e.PropertyName == nameof(IEngine.GPIAspectNarrow)
-                || e.PropertyName == nameof(IEngine.GPICrawl)
-                || e.PropertyName == nameof(IEngine.GPILogo)
-                || e.PropertyName == nameof(IEngine.GPIParental)
-                || e.PropertyName == nameof(IEngine.GPIIsMaster)
-                || e.PropertyName == nameof(IEngine.GPIEnabled)
                 || e.PropertyName == nameof(IEngine.NextToPlay)
                 || e.PropertyName == nameof(IEngine.FieldOrderInverted)
             )
@@ -1151,8 +1110,6 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(IsPlayingMovie));
                 NotifyPropertyChanged(nameof(NextToPlay));
             }
-            if (e.PropertyName == nameof(IEngine.GPIIsMaster))
-                NotifyPropertyChanged(nameof(GPIEnabled));
             if (e.PropertyName == nameof(IEngine.ForcedNext))
                 NotifyPropertyChanged(nameof(IsForcedNext));
             if (e.PropertyName == nameof(IEngine.EngineState))
