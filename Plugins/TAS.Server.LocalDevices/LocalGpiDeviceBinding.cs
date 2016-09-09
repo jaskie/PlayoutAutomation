@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
@@ -37,8 +38,11 @@ namespace TAS.Server
 
         void _actionCheckAndExecute(EventHandler handler, GPIPin pin, byte deviceId, byte port, byte bit)
         {
-            if (handler != null && pin != null && deviceId == pin.DeviceId && port == pin.PortNumber && bit == pin.PinNumber)
-                handler(this, EventArgs.Empty);
+            if (pin != null && deviceId == pin.DeviceId && port == pin.PortNumber && bit == pin.PinNumber)
+            {
+                Debug.WriteLine("Advantech device {0} notification port {1} bit {2}", deviceId, port, bit);
+                handler?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         internal void NotifyChange(byte deviceId, byte port, byte bit, bool newValue)
@@ -48,7 +52,7 @@ namespace TAS.Server
                 _actionCheckAndExecute(Started, Start, deviceId, port, bit);
         }
                 
-        bool _isWideScreen = true;
+        bool _isWideScreen = false;
         public bool IsWideScreen
         {
             get

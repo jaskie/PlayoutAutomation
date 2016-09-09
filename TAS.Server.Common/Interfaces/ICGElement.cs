@@ -11,6 +11,7 @@ namespace TAS.Server.Interfaces
         byte Id { get; }
         string Name { get; }
         string ImageFile { get; }
+        [System.Xml.Serialization.XmlIgnore]
         BitmapImage Image { get; }
     }
 }

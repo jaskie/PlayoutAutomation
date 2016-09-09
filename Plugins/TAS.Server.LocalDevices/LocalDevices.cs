@@ -110,10 +110,7 @@ namespace TAS.Server
                                     if ((changedBits & 0x1) > 0)
                                     {
                                         foreach (LocalGpiDeviceBinding binding in EngineBindings)
-                                        {
                                             binding.NotifyChange(device.DeviceId, port, bit, (newPortState & 0x1) > 0);
-                                            Debug.WriteLine("Advantech device {0} port {1} state changed to {2}", device.DeviceId, port, (newPortState & 0x1) > 0);
-                                        }
                                     }
                                     changedBits = changedBits >> 1;
                                     newPortState = (byte)(newPortState >> 1);

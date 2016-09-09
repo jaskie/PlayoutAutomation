@@ -5,7 +5,7 @@
   </Devices>
   <EngineBindings>
     <EngineBinding IdEngine="1">
-      <Start DeviceId="0" PortNumber="0" PinNumber="5"/>
+      <!--<Start DeviceId="0" PortNumber="0" PinNumber="7"/>-->
     </EngineBinding>
   </EngineBindings>
 </LocalDevices>
