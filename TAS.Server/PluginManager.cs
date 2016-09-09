@@ -37,7 +37,7 @@ namespace TAS.Server.Common
         public static IEnumerable<T> ComposeParts<T>(this IEngine engine)
         {
             var factories = _enginePlugins.Where(f => f.Types().Any(t => typeof(T).IsAssignableFrom(t)));
-            return factories.Select(f => (T)f.CreateEnginePlugin(engine, typeof(T)));
+            return factories.Select(f => (T)f.CreateEnginePlugin(engine, typeof(T))).Where(f => f != null);
         }
 
     }

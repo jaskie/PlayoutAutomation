@@ -20,6 +20,7 @@ namespace TAS.Server
         public LocalDevices([Import("AppSettings")] NameValueCollection settings)
         {
             DeserializeElements(settings["LocalDevices"]);
+            Initialize();
         }
 
         public IEnumerable<Type> Types()

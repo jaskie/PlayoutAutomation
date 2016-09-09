@@ -61,7 +61,7 @@ namespace TAS.Server
         public bool EnableCGElementsForNewEvents { get; set; }
         public bool EnableCGElementsCrawlForShows { get; set; }
 
-        private IGpi _localGpi;
+        private IEnumerable<IGpi> _localGpis;
         private IEnumerable<IEnginePlugin> _plugins;
         private ICGElementsController _cgElementsController;
         public ICGElementsController CGElementsController { get { return _cgElementsController; } }
@@ -148,7 +148,7 @@ namespace TAS.Server
             var sPRV = servers.FirstOrDefault(S => S.Id == IdServerPRV);
             _playoutChannelPRV = sPRV == null ? null : (CasparServerChannel)sPRV.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelPRV);
 
-            _localGpi = this.ComposePart<IGpi>();
+            _localGpis = this.ComposeParts<IGpi>();
             _plugins = this.ComposeParts<IEnginePlugin>();
             _cgElementsController = this.ComposePart<ICGElementsController>();
 
@@ -193,8 +193,9 @@ namespace TAS.Server
                 Remote.Initialize(this);
             }
 
-            if (_localGpi != null)
-                _localGpi.Started += _startLoaded;
+            if (_localGpis != null)
+                foreach (var gpi in _localGpis)
+                    gpi.Started += _startLoaded;
 
             Debug.WriteLine(this, "Creating engine thread");
             _engineThread = new Thread(_engineThreadProc);
@@ -226,9 +227,9 @@ namespace TAS.Server
                 Debug.WriteLine(this, "UnInitializing Remote interface");
                 Remote.UnInitialize(this);
             }
-            var localGpi = _localGpi;
-            if (localGpi != null)
-                localGpi.Started -= _startLoaded;
+            if (_localGpis != null)
+                foreach (var gpi in _localGpis)
+                    gpi.Started -= _startLoaded;
 
             var cgElementsController = _cgElementsController;
             if (cgElementsController != null)
@@ -785,9 +786,10 @@ namespace TAS.Server
                 var cgController = _cgElementsController;
                 if (cgController != null)
                     cgController.IsWideScreen = !narrow;
-                var lGpi = _localGpi;
-                if (lGpi != null)
-                    lGpi.IsWideScreen = !narrow;
+                var lGpis = _localGpis;
+                if (lGpis != null)
+                    foreach (var gpi in lGpis)
+                        gpi.IsWideScreen = !narrow;
             }
         }
 

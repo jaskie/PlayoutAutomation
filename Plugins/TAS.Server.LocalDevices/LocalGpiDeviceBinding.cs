@@ -20,7 +20,9 @@ namespace TAS.Server
             public int PortNumber;
             [XmlAttribute]
             public byte PinNumber;
-        }   internal LocalDevices Owner;
+        }
+
+        internal LocalDevices Owner;
 
         [XmlAttribute]
         public UInt64 IdEngine;
@@ -45,72 +47,8 @@ namespace TAS.Server
             if (newValue)
                 _actionCheckAndExecute(Started, Start, deviceId, port, bit);
         }
-
-        int _parental;
-        [XmlIgnore]
-        public int Parental
-        {
-            get { return _parental; }
-            set
-            {
-                if (_parental != value)
-                {
-                    _parental = value;
-                    _setSinglePin(Parentals, value);
-                }
-            }
-        }
-
-        int _logo;
-        [XmlIgnore]
-        public int Logo
-        {
-            get { return _logo; }
-            set
-            {
-                if (_logo != value)
-                {
-                    _logo = value;
-                    _setSinglePin(Logos, value);
-                }
-            }
-        }
-
-        int _crawl;
-        [XmlIgnore]
-        public int Crawl
-        {
-            get { return _crawl; }
-            set
-            {
-                if (_crawl != value)
-                {
-                    _crawl = value;
-                    _setSinglePin(Crawls, value);
-                }
-            }
-        }
-
-        [XmlIgnore]
-        public bool CrawlVisible
-        {
-            get { return _crawl != 0; }
-            set
-            {
-                if (_crawl != 0)
-                {
-                    _crawl = 0;
-                    _setSinglePin(Crawls, 0);
-                }
-            }
-        }
-        private List<int> _visibleAuxes = new List<int>();
-        [XmlIgnore]
-        public int[] VisibleAuxes { get { return _visibleAuxes.ToArray(); } }
-
-        public bool IsMaster { get { return true; } }
-
-        bool _isWideScreen;
+                
+        bool _isWideScreen = true;
         public bool IsWideScreen
         {
             get
@@ -128,9 +66,7 @@ namespace TAS.Server
 
         public void ShowAux(int auxNr) { }
         public void HideAux(int auxNr) { }
-
-
-
+                
         void _setSinglePin(GPIPin[] pins, int value)
         {
             var owner = Owner;
