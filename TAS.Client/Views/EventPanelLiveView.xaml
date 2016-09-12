@@ -122,13 +122,13 @@
                             <Rectangle.Style>
                                 <Style TargetType="Rectangle">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Crawl}" Value="1">
+                                        <DataTrigger Binding="{Binding Crawl}" Value="2">
                                             <Setter Property="Fill" Value="White"/>
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding Crawl}" Value="2">
+                                        <DataTrigger Binding="{Binding Crawl}" Value="3">
                                             <Setter Property="Fill" Value="Red"/>
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding Crawl}" Value="3">
+                                        <DataTrigger Binding="{Binding Crawl}" Value="4">
                                             <Setter Property="Fill" Value="Green"/>
                                         </DataTrigger>
                                     </Style.Triggers>

@@ -19,6 +19,7 @@ namespace TAS.Client.ViewModels
                 _crawls = controller.Crawls.ToList();
                 _logos = controller.Logos.ToList();
                 _parentals = controller.Parentals.ToList();
+                _visibleAuxes = controller.VisibleAuxes;
                 controller.PropertyChanged += Controller_PropertyChanged;
             }
         }
@@ -46,6 +47,10 @@ namespace TAS.Client.ViewModels
         public IEnumerable<ICGElement> Parentals { get { return _parentals; } }
         private IEnumerable<ICGElement> _logos;
         public IEnumerable<ICGElement> Logos { get { return _logos; } }
+        private IEnumerable<ICGElement> _auxes;
+        public IEnumerable<ICGElement> Auxes { get { return _auxes; } }
+        private byte[] _visibleAuxes;
+        public byte[] VisibleAuxes { get { return _visibleAuxes; } }
 
         public bool IsWideScreen { get { return Controller == null ? false : Controller.IsWideScreen; } set { if (Controller != null) Controller.IsWideScreen = value; } }
         public bool IsCGEnabled { get { return Controller == null ? false : Controller.IsCGEnabled; } set { if (Controller != null) Controller.IsCGEnabled = value; } }

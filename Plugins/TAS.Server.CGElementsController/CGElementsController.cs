@@ -135,7 +135,7 @@ namespace TAS.Server
         IEnumerable<ICGElement> _parentals;
         public IEnumerable<ICGElement> Parentals { get { return _parentals; } }
 
-        public int[] VisibleAuxes
+        public byte[] VisibleAuxes
         {
             get
             {

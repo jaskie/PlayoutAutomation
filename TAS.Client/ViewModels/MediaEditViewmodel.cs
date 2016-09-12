@@ -442,8 +442,8 @@ namespace TAS.Client.ViewModels
         public bool ShowParentalCombo { get { return _mediaManager.Parentals != null; } }
 
         public IEnumerable<ICGElement> Parentals { get { return _mediaManager.Parentals; } }
-        private int _parental;
-        public int Parental
+        private byte _parental;
+        public byte Parental
         {
             get { return _parental; }
             set { SetField(ref _parental, value, nameof(Parental)); }

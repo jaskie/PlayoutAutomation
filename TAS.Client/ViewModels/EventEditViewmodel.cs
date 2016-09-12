@@ -405,7 +405,7 @@ namespace TAS.Client.ViewModels
                                 ScheduledTc = e.TCIn;
                                 AudioVolume = null;
                                 EventName = e.MediaName;
-                                _setGPI(e.Media);
+                                _setCGElements(e.Media);
                             }
                         }
                     }));
@@ -469,7 +469,7 @@ namespace TAS.Client.ViewModels
                 && (IsModified || ev.IsModified);
         }
         
-        void _setGPI(IMedia media)
+        void _setCGElements(IMedia media)
         {
             IsCGEnabled = _engine.EnableCGElementsForNewEvents;
             if (media != null)

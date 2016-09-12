@@ -9,8 +9,9 @@ namespace TAS.Server.Interfaces
         IEnumerable<ICGElement> Crawls { get; }
         IEnumerable<ICGElement> Logos { get; }
         IEnumerable<ICGElement> Parentals { get; }
+        IEnumerable<ICGElement> Auxes { get; }
         void SetState(ICGElementsState state);
-        int[] VisibleAuxes { get; }
+        byte[] VisibleAuxes { get; }
         bool IsMaster { get; }
         void ShowAux(int auxNr);
         void HideAux(int auxNr);
