@@ -368,7 +368,7 @@ namespace TAS.Client.ViewModels
             List<IMedia> selection = _getSelections();
             if (MessageBox.Show(string.Format(resources._query_DeleteSelectedFiles, selection.AsString(Environment.NewLine, 20)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
             {
-                var reasons = _mediaManager.DeleteMedia(selection).Where(r => r.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny);
+                var reasons = _mediaManager.DeleteMedia(selection, false).Where(r => r.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny);
                 if (reasons.Any())
                 {
                     StringBuilder reasonMsg = new StringBuilder();
@@ -390,7 +390,10 @@ namespace TAS.Client.ViewModels
                         }
                     }
                     if (reasonMsg.Length > 0)
-                        MessageBox.Show(String.Join(Environment.NewLine, resources._message_MediaDeleteNotAllowed, reasonMsg.ToString()), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                    {
+                        if (MessageBox.Show(String.Join(Environment.NewLine, resources._message_MediaDeleteNotAllowed, reasonMsg.ToString(), Environment.NewLine, resources._message_DeleteAnyway), resources._caption_Error, MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.Yes)
+                            _mediaManager.DeleteMedia(reasons.Select(r => r.Media), true);
+                    }
                 }
             }
         }

@@ -305,19 +305,27 @@ namespace TAS.Server
         }
 
 
-        private MediaDeleteDenyReason deleteMedia(IMedia media)
+        private MediaDeleteDenyReason deleteMedia(IMedia media, bool forceDelete)
         {
-            MediaDeleteDenyReason reason = (media is PersistentMedia) ? _engine.CanDeleteMedia(media as PersistentMedia) : MediaDeleteDenyReason.NoDeny;
-            if (reason.Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
+            if (forceDelete)
+            {
                 _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = media });
-            return reason;
+                return MediaDeleteDenyReason.NoDeny;
+            }
+            else
+            {
+                MediaDeleteDenyReason reason = (media is PersistentMedia) ? _engine.CanDeleteMedia(media as PersistentMedia) : MediaDeleteDenyReason.NoDeny;
+                if (reason.Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
+                    _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = media });
+                return reason;
+            }
         }
 
-        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList)
+        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete)
         {
             List<MediaDeleteDenyReason> result = new List<MediaDeleteDenyReason>();
             foreach (var media in mediaList)
-                result.Add(deleteMedia(media));
+                result.Add(deleteMedia(media, forceDelete));
             return result;
         }
 

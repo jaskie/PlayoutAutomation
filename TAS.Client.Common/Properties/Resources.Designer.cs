@@ -154,6 +154,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete anyway?.
+        /// </summary>
+        public static string _message_DeleteAnyway {
+            get {
+                return ResourceManager.GetString("_message_DeleteAnyway", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to refresh directory. Following error occurred:
         ///{0}.
         /// </summary>

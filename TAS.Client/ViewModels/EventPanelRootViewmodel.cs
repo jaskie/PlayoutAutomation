@@ -43,25 +43,28 @@ namespace TAS.Client.ViewModels
                             if (eventType == TEventType.Movie || eventType == TEventType.Rundown || eventType == TEventType.Live
                                 || evm_vp.IsExpanded)
                             {
-                                evm_vp.IsExpanded = true;
-                                if (evm_vp.Find(e.Event) == null) // find again after expand
+                                if (e.Event == _engineViewmodel.LastAddedEvent || _engineViewmodel.TrackPlayingEvent)
                                 {
-                                    if (e.Event.Parent == vp) // StartType = With
+                                    evm_vp.IsExpanded = true;
+                                    if (evm_vp.Find(e.Event) == null) // find again after expand
                                     {
-                                        newVm = evm_vp.CreateChildEventPanelViewmodelForEvent(e.Event);
-                                        evm_vp.Childrens.Insert(0, newVm);
-                                    }
-                                    else // StartType == After
-                                    {
-                                        var prior = e.Event.Prior;
-                                        if (prior != null)
+                                        if (e.Event.Parent == vp) // StartType = With
                                         {
-                                            var evm_prior = evm_vp.Find(prior);
-                                            if (evm_prior != null)
+                                            newVm = evm_vp.CreateChildEventPanelViewmodelForEvent(e.Event);
+                                            evm_vp.Childrens.Insert(0, newVm);
+                                        }
+                                        else // StartType == After
+                                        {
+                                            var prior = e.Event.Prior;
+                                            if (prior != null)
                                             {
-                                                var pos = evm_vp.Childrens.IndexOf(evm_prior);
-                                                newVm = evm_vp.CreateChildEventPanelViewmodelForEvent(e.Event);
-                                                evm_vp.Childrens.Insert(pos + 1, newVm);
+                                                var evm_prior = evm_vp.Find(prior);
+                                                if (evm_prior != null)
+                                                {
+                                                    var pos = evm_vp.Childrens.IndexOf(evm_prior);
+                                                    newVm = evm_vp.CreateChildEventPanelViewmodelForEvent(e.Event);
+                                                    evm_vp.Childrens.Insert(pos + 1, newVm);
+                                                }
                                             }
                                         }
                                     }

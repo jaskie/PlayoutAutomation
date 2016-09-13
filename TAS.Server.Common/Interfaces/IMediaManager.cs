@@ -28,7 +28,7 @@ namespace TAS.Server.Interfaces
         void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false);
         void ArchiveMedia(IEnumerable<IServerMedia> mediaList, bool deleteAfter);
         void Export(IEnumerable<ExportMedia> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory);
-        IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList);
+        IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete);
 
         void ReloadIngestDirs();
         void SynchronizeMediaSecToPri(bool deleteNotExisted);

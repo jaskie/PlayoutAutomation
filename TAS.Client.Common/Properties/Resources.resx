@@ -150,6 +150,9 @@ Use TVPlay.config program to configure the system.</value>
     <value>Command failed. Following error occurred:
 {0}</value>
   </data>
+  <data name="_message_DeleteAnyway" xml:space="preserve">
+    <value>Delete anyway?</value>
+  </data>
   <data name="_message_DirectoryRefreshFailed" xml:space="preserve">
     <value>Unable to refresh directory. Following error occurred:
 {0}</value>
