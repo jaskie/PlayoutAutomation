@@ -59,8 +59,6 @@ namespace TAS.Server
             IsWideScreen = true;
         }
 
-        public string Address { get; set; }
-        public int GraphicsStartDelay { get; set; }
         private readonly IEngine _engine;
 
         internal void ReadElements(string xmlFile)
@@ -82,6 +80,9 @@ namespace TAS.Server
                                     break;
                                 case nameof(Parentals):
                                     _parentals = _deserializeList(reader, nameof(Parentals), nameof(Parental));
+                                    break;
+                                case nameof(Auxes):
+                                    _parentals = _deserializeList(reader, nameof(Auxes), "Aux");
                                     break;
                             }
                         }
@@ -135,13 +136,11 @@ namespace TAS.Server
         IEnumerable<ICGElement> _parentals;
         public IEnumerable<ICGElement> Parentals { get { return _parentals; } }
 
-        public byte[] VisibleAuxes
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        byte[] _visibleAuxes = new byte[0];
+        public byte[] VisibleAuxes { get { return _visibleAuxes; } }
+
+        IEnumerable<ICGElement> _auxes;
+        public IEnumerable<ICGElement> Auxes { get { return _auxes; } }
 
         public event EventHandler Started;
 

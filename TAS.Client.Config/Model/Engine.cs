@@ -30,10 +30,10 @@ namespace TAS.Client.Config.Model
         public ulong IdServerPRV { get; set; }
         public int ServerChannelPRV { get; set; }
         public ulong IdArchive { get; set; }
-        public Gpi Gpi { get; set; }
         public RemoteHost Remote { get; set; }
         public bool EnableCGElementsForNewEvents { get; set; }
-        public bool EnableCGElementsCrawlForShows { get; set; }
+        public TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
+        public int CGStartDelay { get; set; }
 
         internal List<CasparServer> Servers;
         internal ArchiveDirectories ArchiveDirectories;

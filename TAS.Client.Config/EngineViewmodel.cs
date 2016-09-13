@@ -14,8 +14,9 @@ namespace TAS.Client.Config
         private int _timeCorrection;
         private TVideoFormat _videoFormat;
         private double _volumeReferenceLoudness;
-        private bool _enableGPIForNewEvents;
-        private bool _enableGPICrawlForShows;
+        private bool _enableCGElementsForNewEvents;
+        private TCrawlEnableBehavior _crawlEnableBehavior;
+        private int _cgStartDelay;
         private ulong _instance;
         public EngineViewmodel(Model.Engine engine)
             : base(engine, new EngineView())
@@ -40,12 +41,6 @@ namespace TAS.Client.Config
             _archiveDirectories.AddRange(Model.ArchiveDirectories.Directories);
             _archiveDirectory = engine.IdArchive == 0 ? _archiveDirectories.First() : _archiveDirectories.FirstOrDefault(d => (d is Model.ArchiveDirectory) && ((Model.ArchiveDirectory)d).idArchive == engine.IdArchive);
             if (_channelPRV == null) _channelPRV = _channels.First();
-            if (Model.Gpi != null)
-            {
-                _gpiEnabled = true;
-                _gpiAddress = Model.Gpi.Address;
-                _gpiGraphicsStartDelay = Model.Gpi.GraphicsStartDelay;
-            }
             if (Model.Remote != null)
             {
                 _remoteHostEnabled = true;
@@ -74,14 +69,18 @@ namespace TAS.Client.Config
         static readonly Array _aspectRatioControls = Enum.GetValues(typeof(TAspectRatioControl));
         public Array AspectRatioControls { get { return _aspectRatioControls; } }
 
+        static readonly Array _crawlEnableBehaviors = Enum.GetValues(typeof(TCrawlEnableBehavior));
+        public Array CrawlEnableBehaviors { get { return _crawlEnableBehaviors; } }
+
         public string EngineName { get { return _engineName; } set { SetField(ref _engineName, value, nameof(EngineName)); } }
         public TAspectRatioControl AspectRatioControl { get { return _aspectRatioControl; } set { SetField(ref _aspectRatioControl, value, nameof(AspectRatioControl)); } }
         public int TimeCorrection { get { return _timeCorrection; } set { SetField(ref _timeCorrection, value, nameof(TimeCorrection)); } }
         public TVideoFormat VideoFormat { get { return _videoFormat; } set { SetField(ref _videoFormat, value, nameof(VideoFormat)); } }
         public ulong Instance { get { return _instance; } set { SetField(ref _instance, value, nameof(Instance)); } }
         public double VolumeReferenceLoudness { get { return _volumeReferenceLoudness; } set { SetField(ref _volumeReferenceLoudness, value, nameof(VolumeReferenceLoudness)); } }
-        public bool EnableGPIForNewEvents { get { return _enableGPIForNewEvents; } set { SetField(ref _enableGPIForNewEvents, value, nameof(EnableGPIForNewEvents)); } }
-        public bool EnableGPICrawlForShows { get { return _enableGPICrawlForShows; } set { SetField(ref _enableGPICrawlForShows, value, nameof(EnableGPICrawlForShows)); } }
+        public bool EnableCGElementsForNewEvents { get { return _enableCGElementsForNewEvents; } set { SetField(ref _enableCGElementsForNewEvents, value, nameof(EnableCGElementsForNewEvents)); } }
+        public TCrawlEnableBehavior CrawlEnableBehavior { get { return _crawlEnableBehavior; } set { SetField(ref _crawlEnableBehavior, value, nameof(CrawlEnableBehavior)); } }
+        public int CGStartDelay { get { return _cgStartDelay; } set { SetField(ref _cgStartDelay, value, nameof(CGStartDelay)); } }
 
         readonly List<object> _channels;
         public List<object> Channels { get { return _channels; } }
@@ -95,12 +94,6 @@ namespace TAS.Client.Config
         public List<object> ArchiveDirectories { get { return _archiveDirectories; } }
         private object _archiveDirectory;
         public object ArchiveDirectory { get { return _archiveDirectory; } set { SetField(ref _archiveDirectory, value, nameof(ArchiveDirectory)); } }
-        private bool _gpiEnabled;
-        public bool GpiEnabled { get { return _gpiEnabled; } set { SetField(ref _gpiEnabled, value, nameof(GpiEnabled)); } }
-        private string _gpiAddress;
-        public string GpiAddress { get { return _gpiAddress; } set { SetField(ref _gpiAddress, value, nameof(GpiAddress)); } }
-        private int _gpiGraphicsStartDelay;
-        public int GpiGraphicsStartDelay { get { return _gpiGraphicsStartDelay; } set { SetField(ref _gpiGraphicsStartDelay, value, nameof(GpiGraphicsStartDelay)); } }
         private bool _remoteHostEnabled;
         public bool RemoteHostEnabled { get { return _remoteHostEnabled; } set { SetField(ref _remoteHostEnabled, value, nameof(RemoteHostEnabled)); } }
         private string _remoteHostEndpointAddress;
@@ -122,7 +115,6 @@ namespace TAS.Client.Config
                 var playoutServerChannelPRV = _channelPRV as Model.CasparServerChannel;
                 Model.IdServerPRV = playoutServerChannelPRV == null ? 0 : ((Model.CasparServer)playoutServerChannelPRV.Owner).Id;
                 Model.ServerChannelPRV = playoutServerChannelPRV == null ? 0 : playoutServerChannelPRV.ChannelNumber;
-                Model.Gpi = _gpiEnabled ? new Model.Gpi() { Address = this.GpiAddress, GraphicsStartDelay = this.GpiGraphicsStartDelay } : null;
                 Model.Remote = _remoteHostEnabled ? new Model.RemoteHost() { EndpointAddress = RemoteHostEndpointAddress } : null;
                 Model.IdArchive = _archiveDirectory is Model.ArchiveDirectory ? ((Model.ArchiveDirectory)_archiveDirectory).idArchive : 0;
                 Model.IsModified = true;

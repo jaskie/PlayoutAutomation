@@ -4,6 +4,7 @@ using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using TAS.Server.Interfaces;
 
@@ -23,12 +24,23 @@ namespace TAS.Server.Common
             DirectoryCatalog catalog = new DirectoryCatalog(".\\Plugins", "TAS.Server.*.dll");
             ServerContainer = new CompositionContainer(catalog);
             ServerContainer.ComposeExportedValue("AppSettings", ConfigurationManager.AppSettings);
-            _enginePlugins = ServerContainer.GetExportedValues<IEnginePluginFactory>();
+            try
+            {
+                _enginePlugins = ServerContainer.GetExportedValues<IEnginePluginFactory>();
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                Logger.Error(e, "Plugin load failed", e.LoaderExceptions);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Plugin load failed");
+            }
         }
 
         public static T ComposePart<T>(this IEngine engine) 
         {
-            var factory = _enginePlugins.FirstOrDefault(f => f.Types().Any(t => typeof(T).IsAssignableFrom(t)));
+            var factory = _enginePlugins?.FirstOrDefault(f => f.Types().Any(t => typeof(T).IsAssignableFrom(t)));
             if (factory != null)
                 return (T)factory.CreateEnginePlugin(engine, typeof(T));
             return default(T);
@@ -36,8 +48,12 @@ namespace TAS.Server.Common
 
         public static IEnumerable<T> ComposeParts<T>(this IEngine engine)
         {
-            var factories = _enginePlugins.Where(f => f.Types().Any(t => typeof(T).IsAssignableFrom(t)));
-            return factories.Select(f => (T)f.CreateEnginePlugin(engine, typeof(T))).Where(f => f != null);
+            var factories = _enginePlugins?.Where(f => f.Types().Any(t => typeof(T).IsAssignableFrom(t)));
+            if (factories != null)
+                return factories.Select(f => (T)f.CreateEnginePlugin(engine, typeof(T))).Where(f => f != null);
+            else
+                return null;
+
         }
 
     }

@@ -107,7 +107,6 @@
     <Compile Include="Interfaces\IFileOperation.cs" />
     <Compile Include="Interfaces\ICGElementsController.cs" />
     <Compile Include="Interfaces\IGpi.cs" />
-    <Compile Include="Interfaces\ICGElementsConfig.cs" />
     <Compile Include="Interfaces\IIngestDirectory.cs" />
     <Compile Include="Interfaces\IIngestMedia.cs" />
     <Compile Include="Interfaces\ILoudnessOperation.cs" />

@@ -469,4 +469,11 @@ namespace TAS.Common
         aac,
         mp3
     }
+
+    public enum TCrawlEnableBehavior: byte
+    {
+        Never,
+        ShowsOnly,
+        AllButCommercials
+    }
 }

@@ -129,7 +129,6 @@
     <Compile Include="Model\ConfigFile.cs" />
     <Compile Include="Model\Engine.cs" />
     <Compile Include="Model\Engines.cs" />
-    <Compile Include="Model\Gpi.cs" />
     <Compile Include="Model\IngestDirectory.cs" />
     <Compile Include="Model\CasparServer.cs" />
     <Compile Include="Model\CasparServerChannel.cs" />

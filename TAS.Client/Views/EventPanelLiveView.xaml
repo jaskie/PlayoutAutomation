@@ -116,25 +116,9 @@
                         </Style>
                     </StackPanel.Resources>
                     <StackPanel Orientation="Horizontal" Visibility="{Binding IsCGEnabled, Converter={StaticResource BoolToVis}}">
-                        <Image Width="20" Margin="1" Source="{Binding Parental}"/>
-                        <TextBlock TextAlignment="Center" VerticalAlignment="Center" Width="60" Text="{Binding Logo}"/>
-                        <Rectangle Width="40" Height="10" VerticalAlignment="Center" RadiusX="3" RadiusY="3" >
-                            <Rectangle.Style>
-                                <Style TargetType="Rectangle">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Crawl}" Value="2">
-                                            <Setter Property="Fill" Value="White"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Crawl}" Value="3">
-                                            <Setter Property="Fill" Value="Red"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Crawl}" Value="4">
-                                            <Setter Property="Fill" Value="Green"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Rectangle.Style>
-                        </Rectangle>
+                        <Image Height="20" Margin="1" Source="{Binding Parental.Image}" ToolTip="{Binding Parental.Name}"/>
+                        <Image Height="20" Margin="1" Source="{Binding Logo.Image}" ToolTip="{Binding Logo.Name}"/>
+                        <Image Height="20" Margin="1" Source="{Binding Crawl.Image}" ToolTip="{Binding Crawl.Name}"/>
                         <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
                     </StackPanel>
 

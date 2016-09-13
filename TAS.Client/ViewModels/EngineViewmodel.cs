@@ -617,7 +617,10 @@ namespace TAS.Client.ViewModels
                                     scheduledTC: e.TCIn,
                                     duration: e.Duration,
                                     isCGEnabled: _engine.EnableCGElementsForNewEvents,
-                                    crawl: (byte)(Engine.EnableCGElementsCrawlForShows && category == TMediaCategory.Show ? 1 : 0),
+                                    crawl: (byte)((
+                                        Engine.CrawlEnableBehavior == TCrawlEnableBehavior.ShowsOnly && category == TMediaCategory.Show) 
+                                        || (Engine.CrawlEnableBehavior == TCrawlEnableBehavior.AllButCommercials && (category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Fill || category == TMediaCategory.Insert || category == TMediaCategory.Uncategorized)) 
+                                        ? 2 : 0),
                                     logo: (byte)(category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? 1: 0),
                                     parental: e.Media.Parental
                                     );

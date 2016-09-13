@@ -174,7 +174,7 @@
                     </DockPanel>
                     <DockPanel Visibility="{Binding ShowParentalCombo, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _parental}" />
-                        <ComboBox ItemsSource="{Binding Parentals}" SelectedValue="{Binding Parental}" />
+                        <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValue="{Binding Parental}" SelectedValuePath="Id" />
                     </DockPanel>
                     <DockPanel>
                         <Label  Content="{Resx _audioVolume}" />

@@ -241,16 +241,9 @@ namespace TAS.Client.ViewModels
         }
 
         public bool IsCGEnabled { get { return _event?.IsCGEnabled == true && _engine?.CGElementsController != null; } }
-        public string Logo { get { return _engine.CGElementsController?.Logos?.FirstOrDefault(l => l.Id == _event.Logo)?.Name; } }
-        public System.Windows.Media.Imaging.BitmapImage Parental
-        {
-            get
-            {
-                var image = _engine.CGElementsController?.Parentals?.FirstOrDefault(l => l.Id == _event.Parental)?.Image;
-                return image;
-            }
-        }
-        public byte Crawl { get { return _event.Crawl; } }
+        public ICGElement Logo { get { return _engine.CGElementsController?.Logos?.FirstOrDefault(l => l.Id == _event.Logo); } }
+        public ICGElement Parental { get { return _engine.CGElementsController?.Parentals?.FirstOrDefault(l => l.Id == _event.Parental); } }
+        public ICGElement Crawl { get { return _engine.CGElementsController?.Crawls?.FirstOrDefault(l => l.Id == _event.Crawl); } }
 
         public string MediaFileName
         {

@@ -22,6 +22,13 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
+    <Style TargetType="TextBlock" x:Key="MediaFileNameTextBlock" BasedOn="{StaticResource EventPanelTextBlock}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding MediaErrorInfo}" Value="Missing">
+                <Setter Property="Background" Value="#FFF05050"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
     <Style TargetType="Image" x:Key="EventPanelImage">
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsEnabled}" Value="False">

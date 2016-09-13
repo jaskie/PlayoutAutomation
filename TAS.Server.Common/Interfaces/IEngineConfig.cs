@@ -12,7 +12,9 @@ namespace TAS.Server.Interfaces
         TVideoFormat VideoFormat { get; set; }
         double VolumeReferenceLoudness { get; set; }
         bool EnableCGElementsForNewEvents { get; set; }
-        bool EnableCGElementsCrawlForShows { get; set; }
+        TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
+        int CGStartDelay { get; set; }
+
         [XmlIgnore]
         ulong Instance { get; set; }
         [XmlIgnore]

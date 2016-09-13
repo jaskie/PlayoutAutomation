@@ -29,6 +29,9 @@ namespace TAS.Server
         public int ServerChannelSEC { get; set; }
         public ulong IdServerPRV { get; set; }
         public int ServerChannelPRV { get; set; }
+        public TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
+        public int CGStartDelay { get; set; }
+
         string _engineName;
         [JsonProperty]
         public string EngineName
@@ -644,11 +647,11 @@ namespace TAS.Server
                 if (!aEvent.IsHold
                     && cgElementsController != null
                     && cgElementsController.IsCGEnabled
-                    && _cgElementsController.GraphicsStartDelay < 0)
+                    && CGStartDelay < 0)
                 {
                     ThreadPool.QueueUserWorkItem(o =>
                     {
-                        Thread.Sleep(_preloadTime + TimeSpan.FromMilliseconds(cgElementsController.GraphicsStartDelay));
+                        Thread.Sleep(_preloadTime + TimeSpan.FromMilliseconds(CGStartDelay));
                         cgElementsController.SetState(aEvent);
                     });
                 }
@@ -706,13 +709,13 @@ namespace TAS.Server
                     var cgController = _cgElementsController;
                     if (cgController != null && cgController.IsCGEnabled)
                     {
-                        if (cgController.GraphicsStartDelay <= 0)
+                        if (CGStartDelay <= 0)
                             cgController.SetState(aEvent);
                         else
                         {
                             ThreadPool.QueueUserWorkItem(o =>
                             {
-                                Thread.Sleep(cgController.GraphicsStartDelay);
+                                Thread.Sleep(CGStartDelay);
                                 cgController.SetState(aEvent);
                             });
                         }
