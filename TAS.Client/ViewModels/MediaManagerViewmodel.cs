@@ -276,7 +276,7 @@ namespace TAS.Client.ViewModels
                 }
                 if (ingestList.Count != 0)
                 {
-                    using (IngestEditViewmodel ievm = new IngestEditViewmodel(ingestList, _preview))
+                    using (IngestEditViewmodel ievm = new IngestEditViewmodel(ingestList, _preview, this._mediaManager))
                     {
                         if (ievm.ShowDialog() == true)
                         {

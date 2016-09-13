@@ -41,32 +41,7 @@
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Image Width="12">
-                                    <Image.Style>
-                                        <Style TargetType="Image">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding}" Value="Show">
-                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/show.png"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding}" Value="Commercial">
-                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/commercial.png"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding}" Value="Promo">
-                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/promo.png"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding}" Value="Sponsored">
-                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/sponsored.png"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding}" Value="Fill">
-                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/fill.png"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding}" Value="Insert">
-                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/insert.png"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Image.Style>
-                                </Image>
+                                <Image Width="12" Style="{StaticResource MediaCategoryImage}"/>
                                 <TextBlock Margin="2, 0, 0, 0" Text="{Binding}"/>
                             </StackPanel>
                         </DataTemplate>
@@ -81,8 +56,10 @@
                         </Style>
                     </ComboBox.ItemContainerStyle>
                 </ComboBox>
-                <Label Content="{Resx _parental}" />
-                <ComboBox ItemsSource="{Binding Parentals}" SelectedValue="{Binding DestParental}"  />
+                <StackPanel Visibility="{Binding ShowParentalCombo, Converter={StaticResource BoolToVis}}">
+                    <Label Content="{Resx _parental}" />
+                    <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValue="{Binding DestParental}" SelectedValuePath="Id" />
+                </StackPanel>
                 <Label Content="{Resx _idAux}"/>
                 <TextBox Text="{Binding IdAux, UpdateSourceTrigger=PropertyChanged}"/>
                 <CheckBox IsChecked="{Binding LoudnessCheck}"  Margin="5" Content="{Resx _loudnessCheck}"/>

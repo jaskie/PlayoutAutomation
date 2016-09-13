@@ -15,9 +15,9 @@ namespace TAS.Client.ViewModels
     class IngestEditViewmodel : OkCancelViewmodelBase<IList<IConvertOperation>>
     {
         private readonly ObservableCollection<ConvertOperationViewModel> _conversionList;
-        public IngestEditViewmodel(IList<IConvertOperation> convertionList, IPreview preview): base(convertionList, new Views.IngestEditorView(), resources._window_IngestAs)
+        public IngestEditViewmodel(IList<IConvertOperation> convertionList, IPreview preview, IMediaManager mediaManager): base(convertionList, new Views.IngestEditorView(), resources._window_IngestAs)
         {
-            _conversionList = new ObservableCollection<ConvertOperationViewModel>(from op in convertionList select new ConvertOperationViewModel(op, preview));
+            _conversionList = new ObservableCollection<ConvertOperationViewModel>(from op in convertionList select new ConvertOperationViewModel(op, preview, mediaManager));
             SelectedOperation = _conversionList.FirstOrDefault();
             foreach (var c in _conversionList)
                 c.PropertyChanged += new PropertyChangedEventHandler(_convertOperationPropertyChanged);

@@ -16,10 +16,12 @@ namespace TAS.Client.ViewModels
     {
         private readonly IConvertOperation _convertOperation;
         private readonly PreviewViewmodel _previewVm;
-        public ConvertOperationViewModel(IConvertOperation operation, IPreview preview)
+        private readonly IMediaManager _mediaManager;
+        public ConvertOperationViewModel(IConvertOperation operation, IPreview preview, IMediaManager mediaManager)
             : base(operation)
         {
             _convertOperation = operation;
+            _mediaManager = mediaManager;
             _destMediaName = operation.DestMedia.MediaName;
             _destFileName = operation.DestMedia.FileName;
             _duration = operation.Duration;
@@ -64,8 +66,8 @@ namespace TAS.Client.ViewModels
         public Array Categories { get { return _categories; } }
         public TMediaCategory DestCategory { get { return _convertOperation.DestMedia.MediaCategory; } set { _convertOperation.DestMedia.MediaCategory = value; } }
 
-        public List<ICGElement> _parentals;
-        public IEnumerable<ICGElement> Parentals{ get { return _parentals; } }
+        public bool ShowParentalCombo { get { return _mediaManager?.CGElementsController?.Parentals != null; } }
+        public IEnumerable<ICGElement> Parentals { get { return _mediaManager?.CGElementsController?.Parentals; } }
         public byte DestParental { get { return _convertOperation.DestMedia.Parental; } set { _convertOperation.DestMedia.Parental = value; } }
 
         static readonly Array _mediaEmphasises = Enum.GetValues(typeof(TMediaEmphasis));
@@ -74,6 +76,8 @@ namespace TAS.Client.ViewModels
             get { return _convertOperation.DestMedia is IPersistentMedia ? ((IPersistentMedia)_convertOperation.DestMedia).MediaEmphasis : TMediaEmphasis.None; }
             set { if (_convertOperation.DestMedia is IPersistentMedia) ((IPersistentMedia)_convertOperation.DestMedia).MediaEmphasis = value; }
         }
+
+
 
         static readonly Array _videoFormats = Enum.GetValues(typeof(TVideoFormat));
         public Array VideoFormats { get { return _videoFormats; } }
