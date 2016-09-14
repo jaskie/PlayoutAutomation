@@ -645,8 +645,8 @@ namespace TAS.Server
                     _playoutChannelSEC.LoadNext(aEvent);
                 var cgElementsController = _cgElementsController;
                 if (!aEvent.IsHold
-                    && cgElementsController != null
-                    && cgElementsController.IsCGEnabled
+                    && cgElementsController?.IsConnected == true
+                    && cgElementsController.IsMaster
                     && CGStartDelay < 0)
                 {
                     ThreadPool.QueueUserWorkItem(o =>
@@ -707,7 +707,7 @@ namespace TAS.Server
                     ProgramAudioVolume = (decimal)Math.Pow(10, (double)aEvent.GetAudioVolume() / 20); ;
                     _setAspectRatio(aEvent);
                     var cgController = _cgElementsController;
-                    if (cgController != null && cgController.IsCGEnabled)
+                    if (cgController?.IsConnected == true && cgController.IsMaster)
                     {
                         if (CGStartDelay <= 0)
                             cgController.SetState(aEvent);
@@ -787,7 +787,7 @@ namespace TAS.Server
             if (AspectRatioControl == TAspectRatioControl.GPI || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
             {
                 var cgController = _cgElementsController;
-                if (cgController != null)
+                if (cgController?.IsConnected == true && cgController.IsMaster)
                     cgController.IsWideScreen = !narrow;
                 var lGpis = _localGpis;
                 if (lGpis != null)
