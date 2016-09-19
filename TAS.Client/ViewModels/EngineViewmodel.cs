@@ -56,7 +56,9 @@ namespace TAS.Client.ViewModels
         public ICommand CommandSaveRundown { get; private set; }
         public ICommand CommandLoadRundown { get; private set; }
         public ICommand CommandRestartLayer { get; private set; }
-
+        public ICommand CommandSearchDo { get; private set; }
+        public ICommand CommandSearchShowPanel { get; private set; }
+        public ICommand CommandSearchHidePanel { get; private set; }
         #region Single selected commands
         public ICommand CommandEventHide { get; private set; }
         public ICommand CommandAddNextMovie { get; private set; }
@@ -210,11 +212,16 @@ namespace TAS.Client.ViewModels
             CommandToggleEnabled = new UICommand { ExecuteDelegate = _toggleEnabled };
             CommandToggleHold = new UICommand { ExecuteDelegate = _toggleHold };
 
+            CommandSearchDo = new UICommand { ExecuteDelegate = _search, CanExecuteDelegate = _canSearch };
+            CommandSearchShowPanel = new UICommand { ExecuteDelegate = _showSearchPanel };
+            CommandSearchHidePanel = new UICommand { ExecuteDelegate = _hideSearchPanel };
+
             CommandSaveEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandSaveEdit.Execute };
             CommandUndoEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandUndoEdit.Execute };
 
             CommandSaveRundown = new UICommand { ExecuteDelegate = _saveRundown, CanExecuteDelegate = o => Selected != null && Selected.Event.EventType == TEventType.Rundown };
             CommandLoadRundown = new UICommand { ExecuteDelegate = _loadRundown, CanExecuteDelegate = o => o.Equals("Under") ? _canAddSubRundown(o) : _canAddNextRundown(o) };
+
         }
 
         private void _loadRundown(object obj)
@@ -704,6 +711,74 @@ namespace TAS.Client.ViewModels
         public IEvent LastAddedEvent { get; private set; }
         #endregion // MediaSearch
 
+        #region Search panel
+
+        private bool _isSearchPanelVisible;
+        public bool IsSearchPanelVisible { get { return _isSearchPanelVisible; }  set { SetField(ref _isSearchPanelVisible, value, nameof(IsSearchPanelVisible)); } }
+        private void _showSearchPanel(object obj)
+        {
+            IsSearchNotFound = false;
+            IsSearchPanelVisible = true;
+            IsSearchBoxFocused = true;
+        }
+
+        private void _hideSearchPanel(object obj)
+        {
+            IsSearchPanelVisible = false;
+        }
+
+        private bool _isSearchBoxFocused;
+        public bool IsSearchBoxFocused { get { return _isSearchBoxFocused; } set { SetField(ref _isSearchBoxFocused, value, nameof(IsSearchBoxFocused)); } }
+
+        private bool _isSearchNotFound;
+        public bool IsSearchNotFound { get { return _isSearchNotFound; }  set { SetField(ref _isSearchNotFound, value, nameof(IsSearchNotFound)); } }
+
+        private string _searchText;
+        public string SearchText
+        {
+            get { return _searchText; }
+            set
+            {
+                if (SetField(ref _searchText, value, nameof(SearchText)))
+                    IsSearchNotFound = false;
+            }
+        }
+
+        public bool _canSearch(object o)
+        {
+            return !string.IsNullOrWhiteSpace(_searchText);
+        }
+
+        private void _search(object o)
+        {
+            var current = _selected?.Event;
+            if (current != null && !string.IsNullOrWhiteSpace(SearchText))
+            {
+                var loweredSearchtext = SearchText.ToLower();
+                var found = current.FindNext(e => e.EventName.ToLower().Contains(loweredSearchtext));
+                if (found != null)
+                {
+                    var rt = found.GetVisualRootTrack().Reverse();
+                    var cl = RootEventViewModel;
+                    foreach (var ev in rt)
+                    {
+                        cl = cl.Find(ev);
+                        if (cl.Event == found)
+                        {
+                            Selected = cl;
+                            cl.IsSelected = true;
+                        }
+                        else
+                            cl.IsExpanded = true;
+                    }
+                }
+                else
+                    IsSearchNotFound = true;
+            }
+        }
+        #endregion
+
+
         public bool IsInterlacedFormat { get { return _videoFormatDescription.Interlaced; } }
 
         readonly EventPanelViewmodelBase _rootEventViewModel;
@@ -739,6 +814,7 @@ namespace TAS.Client.ViewModels
                     }
                     InvalidateRequerySuggested();
                     _updatePluginCanExecute();
+                    IsSearchNotFound = false;
                 }
             }
         }
@@ -788,6 +864,7 @@ namespace TAS.Client.ViewModels
         {
             get { return _rootEventViewModel.Childrens.Any(evm => evm is EventPanelContainerViewmodel && !((EventPanelContainerViewmodel)evm).IsVisible); }
         }
+        
 
         public bool IsPlayingMovie
         {
@@ -1128,22 +1205,19 @@ namespace TAS.Client.ViewModels
         }
 
         private bool _trackPlayingEvent = true;
+
         public bool TrackPlayingEvent
         {
             get { return _trackPlayingEvent; }
             set
             {
-                if (value != _trackPlayingEvent)
-                {
-                    _trackPlayingEvent = value;
-                    NotifyPropertyChanged(nameof(TrackPlayingEvent));
-                    if (_trackPlayingEvent)
+                if (SetField(ref _trackPlayingEvent, value, nameof(TrackPlayingEvent)))
+                    if (value)
                     {
                         IEvent cp = _engine.Playing;
                         if (cp != null)
                             SetOnTopView(cp);
                     }
-                }
             }
         }
     

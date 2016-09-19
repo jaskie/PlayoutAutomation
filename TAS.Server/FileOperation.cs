@@ -214,8 +214,7 @@ namespace TAS.Server
 
         private bool _do()
         {
-            Debug.WriteLine(this, "File operation started");
-            AddOutputMessage("Operation started");
+            AddOutputMessage($"Operation {Title} started");
             StartTime = DateTime.UtcNow;
             OperationStatus = FileOperationStatus.InProgress;
             switch (Kind)
@@ -224,7 +223,7 @@ namespace TAS.Server
                     return true;
                 case TFileOperationKind.Convert:
                 case TFileOperationKind.Export:
-                    throw new InvalidOperationException("File operation can't convert");
+                    throw new InvalidOperationException("Invalid operation kind");
                 case TFileOperationKind.Copy:
                     if (File.Exists(SourceMedia.FullPath) && Directory.Exists(Path.GetDirectoryName(DestMedia.FullPath)))
                         try
@@ -241,15 +240,12 @@ namespace TAS.Server
                             }
                             DestMedia.MediaStatus = TMediaStatus.Copied;
                             ThreadPool.QueueUserWorkItem(o => ((Media)DestMedia).Verify());
-
-                            Debug.WriteLine(this, "File operation succeed");
-                            AddOutputMessage("Copy operation finished");
+                            AddOutputMessage($"Copy operation {Title} finished");
                             return true;
                         }
                         catch (Exception e)
                         {
-                            Debug.WriteLine("File operation {0} failed with {1}", this, e.Message);
-                            AddOutputMessage(string.Format("Copy operation failed with {0}", e.Message));
+                            AddOutputMessage($"Copy operation {Title} failed with {e.Message}");
                         }
                     return false;
                 case TFileOperationKind.Delete:
@@ -257,15 +253,13 @@ namespace TAS.Server
                     {
                         if (SourceMedia.Delete())
                         {
-                            AddOutputMessage("Delete operation finished"); 
-                            Debug.WriteLine(this, "File operation succeed");
+                            AddOutputMessage($"Delete operation {Title} finished"); 
                             return true;
                         }
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine("File operation failed {0} with {1}", this, e.Message);
-                        AddOutputMessage(string.Format("Delete operation failed with {0}", e.Message));
+                        AddOutputMessage($"Delete operation {Title} failed with {e.Message}");
                     }
                     return false;
                 case TFileOperationKind.Move:
@@ -275,7 +269,6 @@ namespace TAS.Server
                             if (File.Exists(DestMedia.FullPath))
                                 if (!DestMedia.Delete())
                                 {
-                                    Debug.WriteLine(this, "File operation failed - dest not deleted");
                                     AddOutputMessage("Move operation failed - destination media not deleted");
                                     return false;
                                 }
@@ -292,8 +285,7 @@ namespace TAS.Server
                         }
                         catch (Exception e)
                         {
-                            Debug.WriteLine("File operation failed {0} with {1}", this, e.Message);
-                            AddOutputMessage(string.Format("Move operation failed with {0}", e.Message));
+                            AddOutputMessage($"Move operation {Title} failed with {e.Message}");
                         }
                     return false;
                 default:
@@ -318,8 +310,7 @@ namespace TAS.Server
             OperationStatus = FileOperationStatus.Failed;
             if (DestMedia != null && DestMedia.FileExists())
                 DestMedia.Delete();
-            Debug.WriteLine(this, "Operation failed - TryCount is zero");
-            Logger.Info("Operation failed: {0}", Title);
+            Logger.Info($"Operation failed: {Title}");
         }
 
         public override string ToString()

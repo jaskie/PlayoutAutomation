@@ -301,6 +301,7 @@ namespace TAS.Server
                 catch (Exception e)
                 {
                     Debug.WriteLine(e, "Exception in engine tick");
+                    Logger.Error($"{e}");
                 }
                 long timeToWait = (_frameTicks - (DateTime.UtcNow.Ticks + _timeCorrection.Ticks - CurrentTicks)) / TimeSpan.TicksPerMillisecond;
                 if (timeToWait > 0)

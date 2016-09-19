@@ -313,4 +313,16 @@
     <value>Zamienia kolejność półobrazów.
 Działa natychmiastowo, do końca odtwarzanego klipu.</value>
   </data>
+  <data name="_search.Close.ToolTip" xml:space="preserve">
+    <value>Ukryj panel wyszukiwania</value>
+  </data>
+  <data name="_search.Search.ToolTip" xml:space="preserve">
+    <value>Szukaj | Enter</value>
+  </data>
+  <data name="_search.SearchFor" xml:space="preserve">
+    <value>Znajdź</value>
+  </data>
+  <data name="_search.NotFound" xml:space="preserve">
+    <value>Nie znaleziono</value>
+  </data>
 </root>

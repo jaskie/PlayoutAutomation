@@ -84,6 +84,7 @@
     <Compile Include="EngineOperationEventArgs.cs" />
     <Compile Include="EngineTickEventArgs.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="EventExtensions.cs" />
     <Compile Include="EventPositionEventArgs.cs" />
     <Compile Include="EventProxy.cs" />
     <Compile Include="FileOperationEventArgs.cs" />

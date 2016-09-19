@@ -308,14 +308,17 @@ namespace TAS.Client.ViewModels
 
         public EventPanelViewmodelBase Find(IEvent aEvent, bool expandParents = false)
         {
+            if (aEvent == null)
+                return null;
             if (expandParents && !IsExpanded)
                 IsExpanded = true;
             foreach (EventPanelViewmodelBase m in _childrens)
             {
                 if (m._event == aEvent)
                     return m;
-                if (m.Contains(aEvent))
-                    return m.Find(aEvent, expandParents);
+                var ret = m.Find(aEvent, expandParents);
+                if (ret != null)
+                    return ret;
             }
             return null;
         }

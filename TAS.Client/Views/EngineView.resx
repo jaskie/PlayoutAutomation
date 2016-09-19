@@ -301,4 +301,16 @@
     <value>Immediately inverts field order.
 Effective until current clip ends.</value>
   </data>
+  <data name="_search.Close.ToolTip" xml:space="preserve">
+    <value>Hide search panel</value>
+  </data>
+  <data name="_search.Search.ToolTip" xml:space="preserve">
+    <value>Search | Enter</value>
+  </data>
+  <data name="_search.SearchFor" xml:space="preserve">
+    <value>Search for</value>
+  </data>
+  <data name="_search.NotFound" xml:space="preserve">
+    <value>Not found</value>
+  </data>
 </root>

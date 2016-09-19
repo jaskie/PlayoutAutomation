@@ -110,7 +110,7 @@ namespace Svt.Caspar
 		#region IXmlSerializable Members
 		public System.Xml.Schema.XmlSchema GetSchema()
 		{
-			throw new Exception("The method or operation is not implemented.");
+            return null;
 		}
 
 		public void ReadXml(System.Xml.XmlReader reader)

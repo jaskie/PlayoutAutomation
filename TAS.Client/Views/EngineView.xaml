@@ -4,6 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:vievmodels="clr-namespace:TAS.Client.ViewModels" 
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:views="clr-namespace:TAS.Client.Views" 
@@ -53,7 +54,16 @@
         <KeyBinding Command="{Binding CommandEventHide}" Gesture="F9"/>
         <KeyBinding Command="{Binding CommandMoveUp}" Gesture="Alt+Up"/>
         <KeyBinding Command="{Binding CommandMoveDown}" Gesture="Alt+Down"/>
+        <KeyBinding Command="{Binding CommandSearchShowPanel}" Gesture="Ctrl+F"/>
     </UserControl.InputBindings>
+    <UserControl.Style>
+        <Style TargetType="UserControl">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsSearchPanelVisible}" Value="True">
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Style>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="23" />
@@ -384,7 +394,25 @@
                     </Style>
                 </TabControl.Resources>
                 <TabItem Padding="0, 20" Header="{Resx _tabs.Rundowns}">-->
-            <TreeView common:TreeViewExtensions.EnableMultiSelect="True" 
+            <DockPanel>
+                <Grid Height="25" DockPanel.Dock="Bottom" Visibility="{Binding IsSearchPanelVisible, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal" >
+                        <Label Content="{Resx _search.SearchFor}" VerticalAlignment="Center" Padding="5, 0"/>
+                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="150" VerticalAlignment="Center" >
+                            <i:Interaction.Behaviors>
+                                <common:FocusExtension IsFocused="{Binding IsSearchBoxFocused}" SelectAllOnFocus="true"/>
+                            </i:Interaction.Behaviors>
+                        </TextBox>
+                        <Button Command="{Binding CommandSearchDo}" IsDefault="True" ToolTip="{Resx _search.Search.ToolTip}" Margin="2">
+                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search.png" />
+                        </Button>
+                        <TextBlock Text="{Resx _search.NotFound}" Visibility="{Binding IsSearchNotFound, Converter={StaticResource BoolToVis}}" Foreground="{DynamicResource {x:Static SystemColors.InactiveCaptionBrushKey}}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" Command="{Binding CommandSearchHidePanel}" IsCancel="True" Margin="2" Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" ToolTip="{Resx _search.Close.ToolTip}">
+                        <Image Source="/TAS.Client.Common;component/Images/Actions/close.png"/>
+                    </Button>
+                </Grid>
+                <TreeView common:TreeViewExtensions.EnableMultiSelect="True" 
                       common:TreeViewExtensions.SelectedItems="{Binding SelectedEvents}" 
                       ItemsSource="{Binding RootEventViewModel.Childrens}" 
                       Background="{x:Null}" 
@@ -515,6 +543,7 @@
                     </DataTemplate>
                 </TreeView.Resources>
             </TreeView>
+            </DockPanel>
             <!--</TabItem>
                 <TabItem Padding="0, 20" Header="{Resx _tabs.State}">
                     <Border BorderThickness="2" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}">

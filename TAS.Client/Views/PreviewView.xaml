@@ -128,7 +128,7 @@
                         <Button DockPanel.Dock="Right" ToolTip="{Resx _addSegment.ToolTip}" Command="{Binding CommandNewSegment}" Margin="5,0" >
                             <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png" />
                         </Button>
-                        <TextBox DockPanel.Dock="Left" Text="{Binding SelectedSegmentName, UpdateSourceTrigger=PropertyChanged}" common:FocusExtension.IsFocused="{Binding IsSegmentNameFocused}" ToolTip="_name.ToolTip"/>
+                        <TextBox DockPanel.Dock="Left" Text="{Binding SelectedSegmentName, UpdateSourceTrigger=PropertyChanged}" ToolTip="_name.ToolTip"/>
                     </DockPanel>
                     <DataGrid MinHeight="80" ItemsSource="{Binding MediaSegments}" SelectedItem="{Binding SelectedSegment}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single">
                         <DataGrid.Columns>
