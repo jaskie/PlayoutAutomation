@@ -233,17 +233,20 @@ namespace TAS.Client.ViewModels
             };
             if (dlg.ShowDialog() == true)
             {
+                UiServices.SetBusyState();
                 using (var reader = System.IO.File.OpenText(dlg.FileName))
                 using (var jreader = new Newtonsoft.Json.JsonTextReader(reader))
                 {
                     var proxy = (new Newtonsoft.Json.JsonSerializer() { DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Populate })
                         .Deserialize<EventProxy>(jreader);
-                    var mediaFiles = (_engine.MediaManager.MediaDirectoryPRI ?? _engine.MediaManager.MediaDirectorySEC)?.GetFiles();
-                    var animationFiles = (_engine.MediaManager.AnimationDirectoryPRI ?? _engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
-                    if (obj.Equals("Under"))
-                        proxy.InsertUnder(Selected.Event, mediaFiles, animationFiles);
-                    else
-                        proxy.InsertAfter(Selected.Event, mediaFiles, animationFiles);
+                    if (proxy != null)
+                    {
+                        var mediaFiles = (_engine.MediaManager.MediaDirectoryPRI ?? _engine.MediaManager.MediaDirectorySEC)?.GetFiles();
+                        var animationFiles = (_engine.MediaManager.AnimationDirectoryPRI ?? _engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
+                        var newEvent = obj.Equals("Under") ? proxy.InsertUnder(Selected.Event, mediaFiles, animationFiles) : proxy.InsertAfter(Selected.Event, mediaFiles, animationFiles);
+                        LastAddedEvent = newEvent;
+                    }
+
                 }
             }
         }
@@ -1027,7 +1030,7 @@ namespace TAS.Client.ViewModels
 
         public void ClearSelection()
         {
-            foreach (var evm in _selectedEvents)
+            foreach (var evm in _selectedEvents.ToList())
                 evm.IsMultiSelected = false;
             _selectedEvents.Clear();
         }

@@ -13,7 +13,6 @@
              d:DataContext="{x:Type vm:EventPanelMovieViewmodel}"
              FontSize="12" 
              d:DesignWidth="700"
-             common:TreeViewExtensions.IsSelected="{Binding IsMultiSelected, Mode=TwoWay}"
              >
     <StackPanel>
         <StackPanel.ContextMenu>

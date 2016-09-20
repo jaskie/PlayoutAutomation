@@ -61,12 +61,7 @@ namespace TAS.Client.ViewModels
 
         void _addSubRundown(object o)
         {
-            IEvent newEvent = _engine.AddNewEvent(
-                eventType: TEventType.Rundown,
-                eventName: resources._title_NewRundown,
-                startType: TStartType.Manual,
-                scheduledTime: _engine.CurrentTime);
-            _event.InsertUnder(newEvent);
+            _engineViewmodel.AddSimpleEvent(_event, TEventType.Rundown, true);
         }
 
         protected override void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)

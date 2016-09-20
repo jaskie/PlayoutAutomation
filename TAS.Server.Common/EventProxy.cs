@@ -49,16 +49,18 @@ namespace TAS.Server.Common
         public IDictionary<string, string> Fields { get; set; }
 
 
-        public void InsertAfter(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        public IEvent InsertAfter(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
             IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
             prior.InsertAfter(newEvent);
+            return newEvent;
         }
 
-        public void InsertUnder(IEvent parent, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        public IEvent InsertUnder(IEvent parent, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
             IEvent newEvent = _toEvent(parent.Engine, mediaFiles, animationFiles);
             parent.InsertUnder(newEvent);
+            return newEvent;
         }
 
         private IEvent _toEvent(IEngine engine, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)

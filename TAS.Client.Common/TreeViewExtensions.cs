@@ -101,7 +101,7 @@ namespace TAS.Client.Common
             var selectedItems = GetSelectedItems(GetTree(item));
 			if(selectedItems != null)
 			{
-				var isSelected = GetIsSelected(item);
+				var isSelected = GetIsMultiSelected(item);
 				if(isSelected)
 					try
 					{
@@ -173,7 +173,7 @@ namespace TAS.Client.Common
 			{
 				if((mouseButton == MouseButton.Right) && ((Keyboard.Modifiers & (ModifierKeys.Shift | ModifierKeys.Control)) == ModifierKeys.None))
 				{
-					if(GetIsSelected(item))
+					if(GetIsMultiSelected(item))
 					{
 						UpdateAnchorAndActionItem(tree, item);
 						return;
@@ -186,7 +186,7 @@ namespace TAS.Client.Common
 			{
 				if((mouseButton == MouseButton.Right) && ((Keyboard.Modifiers & (ModifierKeys.Shift | ModifierKeys.Control)) == ModifierKeys.None))
 				{
-					if(GetIsSelected(item))
+					if(GetIsMultiSelected(item))
 					{
 						UpdateAnchorAndActionItem(tree, item);
 						return;
@@ -273,10 +273,10 @@ namespace TAS.Client.Common
 					betweenBoundary = !betweenBoundary;
 				}
 				if(betweenBoundary || isBoundary)
-					SetIsSelected(item, true);
+					SetIsMultiSelected(item, true);
 				else
 					if(clearCurrent)
-						SetIsSelected(item, false);
+						SetIsMultiSelected(item, false);
 					else
 						break;
 
@@ -285,7 +285,7 @@ namespace TAS.Client.Common
 
 		private static List<TreeViewItem> GetSelectedTreeViewItems(TreeView tree)
 		{
-			return GetExpandedTreeViewItems(tree).Where(i => GetIsSelected(i)).ToList();
+			return GetExpandedTreeViewItems(tree).Where(i => GetIsMultiSelected(i)).ToList();
 		}
 
 		private static void MakeSingleSelection(TreeView tree, TreeViewItem item)
@@ -295,10 +295,10 @@ namespace TAS.Client.Common
 				if(selectedItem == null)
 					continue;
 				if(selectedItem != item)
-					SetIsSelected(selectedItem, false);
+					SetIsMultiSelected(selectedItem, false);
 				else
 				{
-					SetIsSelected(selectedItem, true);
+					SetIsMultiSelected(selectedItem, true);
 				}
 			}
 			UpdateAnchorAndActionItem(tree, item);
@@ -306,7 +306,7 @@ namespace TAS.Client.Common
 
 		private static void MakeToggleSelection(TreeView tree, TreeViewItem item)
 		{
-			SetIsSelected(item, !GetIsSelected(item));
+			SetIsMultiSelected(item, !GetIsMultiSelected(item));
 			UpdateAnchorAndActionItem(tree, item);
 		}
 
@@ -316,19 +316,19 @@ namespace TAS.Client.Common
 		}
         
 
-		public static bool GetIsSelected(DependencyObject obj)
+		public static bool GetIsMultiSelected(DependencyObject obj)
 		{
-			return (bool)obj.GetValue(IsSelectedProperty);
+			return (bool)obj.GetValue(IsMultiSelectedProperty);
 		}
 
-		public static void SetIsSelected(DependencyObject obj, bool value)
+		public static void SetIsMultiSelected(DependencyObject obj, bool value)
 		{
-			obj.SetValue(IsSelectedProperty, value);
+			obj.SetValue(IsMultiSelectedProperty, value);
 		}
 
 		// Using a DependencyProperty as the backing store for IsSelected.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty IsSelectedProperty =
-			DependencyProperty.RegisterAttached("IsSelected", typeof(bool), typeof(TreeViewExtensions), new PropertyMetadata(false)
+		public static readonly DependencyProperty IsMultiSelectedProperty =
+			DependencyProperty.RegisterAttached("IsMultiSelected", typeof(bool), typeof(TreeViewExtensions), new PropertyMetadata(false)
 			{
 				PropertyChangedCallback = RealSelectedChanged
 			});

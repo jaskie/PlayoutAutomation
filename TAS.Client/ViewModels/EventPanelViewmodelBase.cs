@@ -83,12 +83,12 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
-            ClearChildrens();
             if (_parent != null)
             {
                 _parent._childrens.Remove(this);
                 _parent = null;
             }
+            ClearChildrens();
             if (_event != null)
             {
                 _event.PropertyChanged -= OnEventPropertyChanged;
