@@ -215,25 +215,16 @@ namespace TAS.Client.ViewModels
             get { return _isExpanded; }
             set
             {
-                if (value != _isExpanded)
+                if (SetField(ref _isExpanded, value, nameof(IsExpanded)))
                 {
-                    _isExpanded = value;
-
-
-                    // Expand all the way up to the root.
-                    if (value && _parent != null)
-                        _parent.IsExpanded = true;
-
                     // Lazy load the child items, if necessary.
                     if (value && this.HasDummyChild)
                     {
                         this.Childrens.Remove(DummyChild);
                         this.LoadChildrens();
                     }
-
                     if (!value)
                         ClearChildrens();
-                    NotifyPropertyChanged(nameof(IsExpanded));
                 }
             }
         }
@@ -244,12 +235,13 @@ namespace TAS.Client.ViewModels
             get { return _isSelected; }
             set
             {
-                if (value != _isSelected)
+                if (SetField(ref _isSelected, value, nameof(IsSelected)))
                 {
-                    _isSelected = value;
                     if (value)
+                    {
                         _engineViewmodel.Selected = this;
-                    NotifyPropertyChanged(nameof(IsSelected));
+                        BringIntoView();
+                    }
                     InvalidateRequerySuggested();
                 }
             }
@@ -259,14 +251,7 @@ namespace TAS.Client.ViewModels
         public bool IsMultiSelected
         {
             get { return _isMultiSelected; }
-            set
-            {
-                if (_isMultiSelected != value)
-                {
-                    _isMultiSelected = value;
-                    NotifyPropertyChanged(nameof(IsMultiSelected));
-                }
-            }
+            set { SetField(ref _isMultiSelected, value, nameof(IsMultiSelected)); }
         }
 
         public virtual bool IsVisible { get { return true; } set { } }
@@ -306,17 +291,15 @@ namespace TAS.Client.ViewModels
             get { return (_event == null || _event.EventType == TEventType.Live || _event.EventType == TEventType.Movie) ? false : _event.SubEvents.Any(e => e.EventType == TEventType.StillImage); }
         }
 
-        public EventPanelViewmodelBase Find(IEvent aEvent, bool expandParents = false)
+        public EventPanelViewmodelBase Find(IEvent aEvent)
         {
             if (aEvent == null)
                 return null;
-            if (expandParents && !IsExpanded)
-                IsExpanded = true;
             foreach (EventPanelViewmodelBase m in _childrens)
             {
                 if (m._event == aEvent)
                     return m;
-                var ret = m.Find(aEvent, expandParents);
+                var ret = m.Find(aEvent);
                 if (ret != null)
                     return ret;
             }
@@ -411,7 +394,7 @@ namespace TAS.Client.ViewModels
                             Parent = parentVm;
                     }
                 }
-                this._bringIntoView();
+                this.BringIntoView();
             }
         }
         
@@ -453,17 +436,16 @@ namespace TAS.Client.ViewModels
 
         internal virtual void SetOnTop() { }
 
-        protected void _bringIntoView()
+        internal void BringIntoView()
         {
             var p = Parent;
             if (p != null)
                 if (p.IsExpanded)
                 {
-                    var v = View;
-                    v.BringIntoView();
+                    View?.BringIntoView();
                 }
                 else
-                    p._bringIntoView();
+                    p.BringIntoView();
         }
     }
 }

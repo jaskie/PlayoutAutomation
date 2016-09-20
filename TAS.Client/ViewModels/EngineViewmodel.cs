@@ -767,6 +767,7 @@ namespace TAS.Client.ViewModels
                         {
                             Selected = cl;
                             cl.IsSelected = true;
+                            cl.BringIntoView();
                         }
                         else
                             cl.IsExpanded = true;
