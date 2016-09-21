@@ -14,7 +14,7 @@ namespace TAS.Client.ViewModels
     {
         public EventPanelRootViewmodel(EngineViewmodel engineViewmodel): base(engineViewmodel)
         {
-            _engine.EventSaved += _onEventSaved;
+            _engine.EventSaved += _onEngineEventSaved;
             foreach (IEvent se in _engine.RootEvents.ToList())
                 _addRootEvent(se);
         }
@@ -22,10 +22,10 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             base.OnDispose();
-            _engine.EventSaved -= _onEventSaved;
+            _engine.EventSaved -= _onEngineEventSaved;
         }
 
-        private void _onEventSaved(object o, IEventEventArgs e) // when new event was created
+        private void _onEngineEventSaved(object o, IEventEventArgs e) // when new event was created
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
             {

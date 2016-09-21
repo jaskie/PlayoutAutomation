@@ -30,11 +30,11 @@ namespace TAS.Server.Common
             }
             catch (ReflectionTypeLoadException e)
             {
-                Logger.Error(e, "Plugin load failed", e.LoaderExceptions);
+                Logger.Error(e, "Plugin load failed: {0}", e.LoaderExceptions);
             }
             catch (Exception e)
             {
-                Logger.Error(e, "Plugin load failed");
+                Logger.Error(e, "Plugin load failed: {0}", e);
             }
         }
 
