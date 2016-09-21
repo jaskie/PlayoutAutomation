@@ -978,7 +978,7 @@ namespace TAS.Client.ViewModels
         {
             try
             {
-                var pluginPath = Path.GetFullPath(".\\Plugins");
+                var pluginPath = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
                 if (Directory.Exists(pluginPath))
                 {
                     DirectoryCatalog catalog = new DirectoryCatalog(pluginPath);

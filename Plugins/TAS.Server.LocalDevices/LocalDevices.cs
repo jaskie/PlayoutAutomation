@@ -16,10 +16,13 @@ namespace TAS.Server
     [Export(typeof(IEnginePluginFactory))]
     public class LocalDevices : IEnginePluginFactory
     {
+
+        NLog.Logger Logger = NLog.LogManager.GetLogger("TAS.Server.LocalDevices");
+
         [ImportingConstructor]
         public LocalDevices([Import("AppSettings")] NameValueCollection settings)
         {
-            DeserializeElements(settings["LocalDevices"]);
+            DeserializeElements(Path.Combine(Directory.GetCurrentDirectory(), settings["LocalDevices"]));
             Initialize();
         }
 
@@ -37,7 +40,8 @@ namespace TAS.Server
 
         public void DeserializeElements(string settingsFileName)
         {
-            Debug.WriteLine("Deserializing LocalDevices from {0}", settingsFileName, null);
+            Debug.WriteLine($"Deserializing LocalDevices from {settingsFileName}");
+            Logger.Debug($"Deserializing LocalDevices from {settingsFileName}");
             try
             {
                 if (!string.IsNullOrEmpty(settingsFileName) && File.Exists(settingsFileName))
@@ -54,7 +58,10 @@ namespace TAS.Server
                         EngineBindings.Add((LocalGpiDeviceBinding)bindingSerializer.Deserialize(new StringReader(bindingXml.OuterXml)));
                 }
             }
-            catch (Exception e) { Debug.WriteLine(e); }
+            catch (Exception e) {
+                Debug.WriteLine(e);
+                Logger.Error(e, $"Exception while DeserializeElements:\n {e}");
+            }
         }
 
         public List<AdvantechDevice> Devices = new List<AdvantechDevice>();
@@ -66,7 +73,8 @@ namespace TAS.Server
             {
                 foreach (AdvantechDevice device in Devices)
                 {
-                    Debug.WriteLine("Initializing AdvantechDevice {0}", device.DeviceId, null);
+                    Debug.WriteLine($"Initializing AdvantechDevice {device.DeviceId}");
+                    Logger.Debug($"Initializing AdvantechDevice {device.DeviceId}");
                     device.Initialize();
                 }
                 Thread poolingThread = new Thread(_advantechPoolingThreadExecute);
@@ -94,6 +102,7 @@ namespace TAS.Server
         {
             byte newPortState, oldPortState;
             Debug.WriteLine("Startting AdvantechPoolingThread thread");
+            Logger.Debug("Startting AdvantechPoolingThread thread");
             while (!disposed)
             {
                 try
@@ -122,6 +131,7 @@ namespace TAS.Server
                 catch (Exception e)
                 {
                     Debug.WriteLine(e);
+                    Logger.Warn(e, $"Exception on AdvantechPoolingThread:\n{e}");
                 }
                 Thread.Sleep(5);
             }

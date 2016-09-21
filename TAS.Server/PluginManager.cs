@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -21,7 +22,7 @@ namespace TAS.Server.Common
         static PluginManager()
         {
             Logger.Debug("Creating");
-            DirectoryCatalog catalog = new DirectoryCatalog(".\\Plugins", "TAS.Server.*.dll");
+            DirectoryCatalog catalog = new DirectoryCatalog(Path.Combine(Directory.GetCurrentDirectory(),  "Plugins"), "TAS.Server.*.dll");
             ServerContainer = new CompositionContainer(catalog);
             ServerContainer.ComposeExportedValue("AppSettings", ConfigurationManager.AppSettings);
             try

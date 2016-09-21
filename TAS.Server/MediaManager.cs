@@ -93,7 +93,7 @@ namespace TAS.Server
             if (adir != null)
                 adir.PropertyChanged += _onAnimationDirectoryPropertyChanged;
 
-            LoadIngestDirs(ConfigurationManager.AppSettings["IngestFolders"]);
+            LoadIngestDirs(Path.Combine(Directory.GetCurrentDirectory(), ConfigurationManager.AppSettings["IngestFolders"]));
             _fileManager.VolumeReferenceLoudness = Convert.ToDecimal(_engine.VolumeReferenceLoudness);
             Debug.WriteLine(this, "End initializing");
             Logger.Debug("End initializing");

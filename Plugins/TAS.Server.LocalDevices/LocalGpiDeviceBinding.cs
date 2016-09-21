@@ -8,7 +8,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class LocalGpiDeviceBinding : IGpi
+    public class LocalGpiDeviceBinding : Remoting.Server.DtoBase, IGpi
     {
 
         public class GPIPin
@@ -62,9 +62,13 @@ namespace TAS.Server
 
             set
             {
-                if (value != _isWideScreen)
+                if (SetField(ref _isWideScreen, value, nameof(IsWideScreen)))
+                {
                     _isWideScreen = value;
-                //TODO: make output working
+                    var pin = WideScreen;
+                    if (pin != null)
+                        Owner.SetPortState(pin.DeviceId, pin.PortNumber, pin.PinNumber, value);
+                }
             }
         }
 
