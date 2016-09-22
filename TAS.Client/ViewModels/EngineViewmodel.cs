@@ -108,8 +108,8 @@ namespace TAS.Client.ViewModels
 
             _createCommands();
 
-            _selectedEvents = new ObservableCollection<EventPanelViewmodelBase>();
-            _selectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
+            _multiSelectedEvents = new ObservableCollection<EventPanelViewmodelBase>();
+            _multiSelectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged += _engineViewmodel_ClipboardChanged;
             if (engine.PlayoutChannelPRI != null)
                 engine.PlayoutChannelPRI.OwnerServer.PropertyChanged += OnPRIServerPropertyChanged;
@@ -149,7 +149,7 @@ namespace TAS.Client.ViewModels
             _engine.VisibleEventsOperation -= _onEngineVisibleEventsOperation;
             _engine.RunningEventsOperation -= OnEngineRunningEventsOperation;
 
-            _selectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
+            _multiSelectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
             _engine.EventSaved -= _engine_EventSaved;
             _engine.DatabaseConnectionStateChanged -= _engine_DatabaseConnectionStateChanged;
             EventClipboard.ClipboardChanged -= _engineViewmodel_ClipboardChanged;
@@ -191,9 +191,9 @@ namespace TAS.Client.ViewModels
             CommandNewContainer = new UICommand() { ExecuteDelegate = _newContainer };
             CommandSearchMissingEvents = new UICommand() { ExecuteDelegate = _searchMissingEvents };
             CommandStartLoaded = new UICommand() { ExecuteDelegate = o => _engine.StartLoaded(), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Hold };
-            CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
-            CommandCopySelected = new UICommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _selectedEvents.Any() };
-            CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _selectedEvents.Any() };
+            CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _multiSelectedEvents.Any() };
+            CommandCopySelected = new UICommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _multiSelectedEvents.Any() };
+            CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _multiSelectedEvents.Any() };
             CommandPasteSelected = new UICommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
             CommandExportMedia = new UICommand() { ExecuteDelegate = _exportMedia, CanExecuteDelegate = _canExportMedia };
 
@@ -427,18 +427,18 @@ namespace TAS.Client.ViewModels
 
         private void _copySelected(object obj)
         {
-            EventClipboard.Copy(_selectedEvents);
+            EventClipboard.Copy(_multiSelectedEvents);
         }
 
         private void _cutSelected(object obj)
         {
-            EventClipboard.Cut(_selectedEvents);
+            EventClipboard.Cut(_multiSelectedEvents);
         }
 
 
         private bool _canExportMedia(object obj)
         {
-            return _selectedEvents.Any(e =>
+            return _multiSelectedEvents.Any(e =>
                     {
                         if (e is EventPanelMovieViewmodel)
                         {
@@ -452,7 +452,7 @@ namespace TAS.Client.ViewModels
 
         private void _exportMedia(object obj)
         {
-            var selections = _selectedEvents.Where(e => e.Event != null && e.Event.Media != null && e.Event.Media.MediaType == TMediaType.Movie).Select(e => new ExportMedia(
+            var selections = _multiSelectedEvents.Where(e => e.Event != null && e.Event.Media != null && e.Event.Media.MediaType == TMediaType.Movie).Select(e => new ExportMedia(
                 e.Event.Media, 
                 e.Event.SubEvents.Where(sev => sev.EventType == TEventType.StillImage && sev.Media != null).Select(sev => sev.Media).ToList(),
                 e.Event.ScheduledTc, 
@@ -554,7 +554,7 @@ namespace TAS.Client.ViewModels
 
         private void _deleteSelected(object ob)
         {
-            var evmList = _selectedEvents.ToList();
+            var evmList = _multiSelectedEvents.ToList();
             var containerList = evmList.Where(evm => evm is EventPanelContainerViewmodel);
             if (evmList.Count() > 0
                 && MessageBox.Show(string.Format(resources._query_DeleteSelected, evmList.Count(), evmList.AsString(Environment.NewLine, 20)), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
@@ -572,7 +572,7 @@ namespace TAS.Client.ViewModels
                         }
                     }
                 );
-                _selectedEvents.Clear();
+                _multiSelectedEvents.Clear();
             }
         }
     
@@ -951,12 +951,12 @@ namespace TAS.Client.ViewModels
 
         public int SelectedCount
         {
-            get { return _selectedEvents.Count; }
+            get { return _multiSelectedEvents.Count; }
         }
 
         public TimeSpan SelectedTime
         {
-            get { return TimeSpan.FromTicks(_selectedEvents.Sum(e => e.Event.Duration.Ticks)); }
+            get { return TimeSpan.FromTicks(_multiSelectedEvents.Sum(e => e.Event.Duration.Ticks)); }
         }
 
         public bool IsForcedNext
@@ -1025,20 +1025,20 @@ namespace TAS.Client.ViewModels
         private readonly ObservableCollection<IEvent> _runningEvents = new ObservableCollection<IEvent>();
         public IEnumerable<IEvent> RunningEvents { get { return _runningEvents; } }
 
-        private readonly ObservableCollection<EventPanelViewmodelBase> _selectedEvents;
-        public IEnumerable<EventPanelViewmodelBase> SelectedEvents { get { return _selectedEvents; } }
+        private readonly ObservableCollection<EventPanelViewmodelBase> _multiSelectedEvents;
+        public IEnumerable<EventPanelViewmodelBase> MultiSelectedEvents { get { return _multiSelectedEvents; } }
 
         public void ClearSelection()
         {
-            foreach (var evm in _selectedEvents.ToList())
+            foreach (var evm in _multiSelectedEvents.ToList())
                 evm.IsMultiSelected = false;
-            _selectedEvents.Clear();
+            _multiSelectedEvents.Clear();
         }
 
-        public void RemoveSelected(EventPanelViewmodelBase evm)
+        public void RemoveMultiSelected(EventPanelViewmodelBase evm)
         {
-            if (_selectedEvents.Contains(evm))
-                _selectedEvents.Remove(evm);
+            if (_multiSelectedEvents.Contains(evm))
+                _multiSelectedEvents.Remove(evm);
         }
 
 

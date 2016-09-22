@@ -25,7 +25,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandPaste { get { return _engineViewmodel.CommandPasteSelected; } }
         public ICommand CommandAddSubRundown { get; private set; }
 
-        protected override void _createCommands()
+        protected override void CreateCommands()
         {
             CommandHide = new UICommand()
             {

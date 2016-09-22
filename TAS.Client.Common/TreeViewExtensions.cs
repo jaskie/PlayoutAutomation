@@ -33,19 +33,19 @@ namespace TAS.Client.Common
 				BindsTwoWayByDefault = true
 			});
 
-		public static IList GetSelectedItems(DependencyObject obj)
+		public static IList GetMultiSelectedItems(DependencyObject obj)
 		{
-            return obj == null ? null : (IList)obj.GetValue(SelectedItemsProperty);
+            return obj == null ? null : (IList)obj.GetValue(MultiSelectedItemsProperty);
 		}
 
-		public static void SetSelectedItems(DependencyObject obj, IList value)
+		public static void SetMultiSelectedItems(DependencyObject obj, IList value)
 		{
-			obj.SetValue(SelectedItemsProperty, value);
+			obj.SetValue(MultiSelectedItemsProperty, value);
 		}
 
 		// Using a DependencyProperty as the backing store for SelectedItems.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty SelectedItemsProperty =
-			DependencyProperty.RegisterAttached("SelectedItems", typeof(IList), typeof(TreeViewExtensions), new PropertyMetadata(null));
+		public static readonly DependencyProperty MultiSelectedItemsProperty =
+			DependencyProperty.RegisterAttached("MultiSelectedItems", typeof(IList), typeof(TreeViewExtensions), new PropertyMetadata(null));
 
 
 
@@ -98,7 +98,7 @@ namespace TAS.Client.Common
 			TreeViewItem item = sender as TreeViewItem;
             if (item == null)
                 return;
-            var selectedItems = GetSelectedItems(GetTree(item));
+            var selectedItems = GetMultiSelectedItems(GetTree(item));
 			if(selectedItems != null)
 			{
 				var isSelected = GetIsMultiSelected(item);
@@ -130,7 +130,7 @@ namespace TAS.Client.Common
             var tree = sender as TreeView;
             if (tree == null)
                 return;
-            var selectedItems = GetSelectedItems(tree);
+            var selectedItems = GetMultiSelectedItems(tree);
             if (e.OriginalSource is TreeViewItem)
                 foreach (TreeViewItem item in GetSubItems(e.OriginalSource as TreeViewItem))
                 {

@@ -413,7 +413,7 @@
                     </Button>
                 </Grid>
                 <TreeView common:TreeViewExtensions.EnableMultiSelect="True" 
-                      common:TreeViewExtensions.SelectedItems="{Binding SelectedEvents}" 
+                      common:TreeViewExtensions.MultiSelectedItems="{Binding MultiSelectedEvents}" 
                       ItemsSource="{Binding RootEventViewModel.Childrens}" 
                       Background="{x:Null}" 
                       >

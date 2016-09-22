@@ -52,9 +52,9 @@ namespace TAS.Client.ViewModels
         public ICommand CommandAddAnimation { get; private set; }
         public ICommand CommandAddCommandScript { get; private set; }
 
-        protected override void _createCommands()
+        protected override void CreateCommands()
         {
-            base._createCommands();
+            base.CreateCommands();
             CommandToggleHold = new UICommand()
             {
                 ExecuteDelegate = (o) =>

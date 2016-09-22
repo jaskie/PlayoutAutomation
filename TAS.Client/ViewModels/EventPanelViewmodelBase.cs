@@ -73,7 +73,7 @@ namespace TAS.Client.ViewModels
             _event.SubEventChanged += OnSubeventChanged;
             _event.Relocated += OnRelocated;
             _event.Saved += OnEventSaved;
-            _createCommands();
+            CreateCommands();
         }
 
         protected virtual void OnEventSaved(object sender, EventArgs e)
@@ -96,13 +96,13 @@ namespace TAS.Client.ViewModels
                 _event.SubEventChanged -= OnSubeventChanged;
                 _event.Relocated -= OnRelocated;
                 _event.Saved -= OnEventSaved;
-                _engineViewmodel?.RemoveSelected(this);
+                _engineViewmodel?.RemoveMultiSelected(this);
                 IsMultiSelected = false;
             }
             Debug.WriteLine(this, "EventPanelViewmodel Disposed");
         }
 
-        protected virtual void _createCommands()
+        protected virtual void CreateCommands()
         {
             CommandDelete = new UICommand
             {
@@ -111,7 +111,7 @@ namespace TAS.Client.ViewModels
                     if (_event != null && MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
                         _event.Delete();
                 },
-                CanExecuteDelegate = o => _event != null && _event.AllowDelete()
+                CanExecuteDelegate = o => IsSelected && _event != null && _event.AllowDelete()
             };
         }
 
