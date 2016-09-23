@@ -62,7 +62,6 @@ namespace TAS.Server
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
 
         public bool EnableCGElementsForNewEvents { get; set; }
-        public bool EnableCGElementsCrawlForShows { get; set; }
 
         private IEnumerable<IGpi> _localGpis;
         private IEnumerable<IEnginePlugin> _plugins;

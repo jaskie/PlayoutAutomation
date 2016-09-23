@@ -191,9 +191,9 @@ namespace TAS.Client.ViewModels
             CommandNewContainer = new UICommand() { ExecuteDelegate = _newContainer };
             CommandSearchMissingEvents = new UICommand() { ExecuteDelegate = _searchMissingEvents };
             CommandStartLoaded = new UICommand() { ExecuteDelegate = o => _engine.StartLoaded(), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Hold };
-            CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _multiSelectedEvents.Any() };
-            CommandCopySelected = new UICommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _multiSelectedEvents.Any() };
-            CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _multiSelectedEvents.Any() };
+            CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _multiSelectedEvents.Count > 0 };
+            CommandCopySelected = new UICommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _multiSelectedEvents.Count > 0 };
+            CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _multiSelectedEvents.Count > 0  };
             CommandPasteSelected = new UICommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
             CommandExportMedia = new UICommand() { ExecuteDelegate = _exportMedia, CanExecuteDelegate = _canExportMedia };
 
@@ -620,6 +620,8 @@ namespace TAS.Client.ViewModels
                         {
                             case TMediaType.Movie:
                                 TMediaCategory category = e.Media.MediaCategory;
+                                var cgController = Engine.CGElementsController;
+                                var defaultCrawl = cgController == null ? 0 : cgController.DefaultCrawl;
                                 newEvent = _engine.AddNewEvent(
                                     eventName: e.MediaName,
                                     videoLayer: VideoLayer.Program,
@@ -630,7 +632,7 @@ namespace TAS.Client.ViewModels
                                     crawl: (byte)((
                                         Engine.CrawlEnableBehavior == TCrawlEnableBehavior.ShowsOnly && category == TMediaCategory.Show) 
                                         || (Engine.CrawlEnableBehavior == TCrawlEnableBehavior.AllButCommercials && (category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Fill || category == TMediaCategory.Insert || category == TMediaCategory.Uncategorized)) 
-                                        ? 2 : 0),
+                                            ?  defaultCrawl : 0),
                                     logo: (byte)(category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? 1: 0),
                                     parental: e.Media.Parental
                                     );

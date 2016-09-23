@@ -108,6 +108,8 @@ namespace TAS.Server
         IEnumerable<ICGElement> _crawls;
         public IEnumerable<ICGElement> Crawls { get { return _crawls; } }
 
+        public byte DefaultCrawl { get { return 1; } }
+
         public virtual bool IsConnected { get { return true; } }
 
         private bool _isCGEnabled;

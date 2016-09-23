@@ -12,6 +12,7 @@ namespace TAS.Server.Interfaces
         IEnumerable<ICGElement> Auxes { get; }
         void SetState(ICGElementsState state);
         byte[] VisibleAuxes { get; }
+        byte DefaultCrawl { get; }
         bool IsMaster { get; }
         void ShowAux(int auxNr);
         void HideAux(int auxNr);
