@@ -54,6 +54,16 @@ namespace TAS.Client.ViewModels
         {
             _engineViewmodel.AddMediaEvent(_event, TStartType.With, TMediaType.Movie, VideoLayer.Program, false);
         }
+        protected override void OnDispose()
+        {
+            if (IsSelected)
+            {
+                var p = Prior;
+                if (p != null)
+                    p.IsSelected = true;
+            }
+            base.OnDispose();
+        }
 
         public ICommand CommandAddSubRundown { get; private set; }
         public ICommand CommandAddSubMovie { get; private set; }

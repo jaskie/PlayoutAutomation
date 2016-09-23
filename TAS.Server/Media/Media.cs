@@ -265,9 +265,13 @@ namespace TAS.Server
         {
             try
             {
-                if (_mediaStatus == TMediaStatus.Available 
+                if (_mediaStatus == TMediaStatus.Available
                     && !newFileName.ToLowerInvariant().Equals(_fileName.ToLowerInvariant()))
+                {
                     File.Move(FullPath, Path.Combine(Path.GetDirectoryName(FullPath), newFileName));
+                    if (!_directory.WatcherReady)
+                        FileName = newFileName;
+                }
                 return true;
             }
             catch { }

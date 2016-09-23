@@ -41,7 +41,7 @@ namespace TAS.Client.ViewModels
                 _frameRate = _videoFormatDescription.FrameRate;
                 if (preview != null)
                     _previewViewmodel = new PreviewViewmodel(preview) { IsSegmentsVisible = true };
-                WindowWidth = _previewViewmodel != null ? 1050 : 750;
+                WindowWidth = _previewViewmodel != null ? 950 : 650;
             }
             else
             {

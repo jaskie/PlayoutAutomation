@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:client="clr-namespace:TAS.Client"
         Name="AppMainWindow" Title="{Resx Window.Title}" Height="864" Width="1152"
-        KeyDown="AppMainWindow_KeyDown">
+        KeyDown="AppMainWindow_KeyDown" Closing="AppMainWindow_Closing">
     <Window.Resources>
         <client:MainWindowViewmodel x:Key="MainWindowVM"/>
     </Window.Resources>

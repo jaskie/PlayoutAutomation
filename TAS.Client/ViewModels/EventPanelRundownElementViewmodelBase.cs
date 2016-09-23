@@ -356,12 +356,25 @@ namespace TAS.Client.ViewModels
 
         public bool IsFixedTimeStart { get { return _event.StartType == TStartType.OnFixedTime; } }
 
+        public EventPanelViewmodelBase Prior
+        {
+            get
+            {
+                int index = _parent.Childrens.IndexOf(this) - 1;
+                if (index >= 0 && _parent.Childrens.Count > index)
+                    return _parent.Childrens[index];
+                else return null;
+            }
+        }
+
         public EventPanelViewmodelBase Next
         {
             get
             {
-                IEvent ne = _event.Next;
-                return ne == null ? null : _parent.Childrens.FirstOrDefault(evm => evm.Event == ne);
+                int index = _parent.Childrens.IndexOf(this) +1;
+                if (index > 0 && _parent.Childrens.Count > index)
+                    return _parent.Childrens[index];
+                else return null;
             }
         }
 

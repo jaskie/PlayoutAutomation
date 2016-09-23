@@ -58,6 +58,8 @@ namespace TAS.Server
             }
         }
 
+        internal bool WatcherReady;
+
         private bool _disposed = false;
         public void Dispose()
         {
@@ -331,23 +333,23 @@ namespace TAS.Server
         private TimeSpan _watcherTimeout;
         private bool _watcherIncludeSubdirectories;
         protected CancellationTokenSource _watcherTaskCancelationTokenSource;
-        protected System.Threading.Tasks.Task _watcherTask;
+        protected System.Threading.Tasks.Task _watcherSetupTask;
         protected void BeginWatch(string filter, bool includeSubdirectories, TimeSpan timeout)
         {
-            var oldTask = _watcherTask;
+            var oldTask = _watcherSetupTask;
             if (oldTask != null && oldTask.Status == System.Threading.Tasks.TaskStatus.Running)
                 return;
             var watcherTaskCancelationTokenSource = new CancellationTokenSource();
             var watcherCancelationToken = watcherTaskCancelationTokenSource.Token;
             _watcherTaskCancelationTokenSource = watcherTaskCancelationTokenSource;
-            _watcherTask = System.Threading.Tasks.Task.Factory.StartNew(
+            _watcherSetupTask = System.Threading.Tasks.Task.Factory.StartNew(
                 () =>
                 {
                     _watcherFilter = filter;
                     _watcherTimeout = timeout;
                     _watcherIncludeSubdirectories = includeSubdirectories;
-                    bool watcherReady = false;
-                    while (!watcherReady)
+                    WatcherReady = false;
+                    while (!WatcherReady)
                     {
                         if (watcherCancelationToken.IsCancellationRequested)
                         {
@@ -376,11 +378,11 @@ namespace TAS.Server
                                 _watcher.Renamed += OnFileRenamed;
                                 _watcher.Changed += OnFileChanged;
                                 _watcher.Error += OnError;
-                                watcherReady = _watcher.EnableRaisingEvents;
+                                WatcherReady = _watcher.EnableRaisingEvents;
                             }
                         }
                         catch { };
-                        if (!watcherReady)
+                        if (!WatcherReady)
                             System.Threading.Thread.Sleep(30000); //Wait for retry 30 sec.
                     }
                     Debug.WriteLine("MediaDirectory: Watcher {0} setup successful.", (object)_folder);
@@ -389,7 +391,7 @@ namespace TAS.Server
             if (timeout != TimeSpan.Zero)
             {
                 ThreadPool.QueueUserWorkItem(o => {
-                if (!_watcherTask.Wait(timeout))
+                if (!_watcherSetupTask.Wait(timeout))
                     CancelBeginWatch();
                 });
             }
@@ -397,7 +399,7 @@ namespace TAS.Server
 
         protected virtual void CancelBeginWatch()
         {
-            var watcherTask = _watcherTask;
+            var watcherTask = _watcherSetupTask;
             if (watcherTask != null && watcherTask.Status == System.Threading.Tasks.TaskStatus.Running)
             {
                 _watcherTaskCancelationTokenSource.Cancel();
