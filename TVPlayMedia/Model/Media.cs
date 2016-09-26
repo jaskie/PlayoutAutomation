@@ -49,7 +49,7 @@ namespace TAS.Client.Model
 
         public TMediaType MediaType { get { return Get<TMediaType>(); } set { Set(value); } }
 
-        public TParental Parental { get { return Get<TParental>(); } set { Set(value); } }
+        public byte Parental { get { return Get<byte>(); } set { Set(value); } }
 
         public TimeSpan TcPlay { get { return Get<TimeSpan>(); } set { Set(value); } }
 
@@ -81,11 +81,6 @@ namespace TAS.Client.Model
         public void ReVerify()
         {
             Invoke();
-        }
-
-        public bool RenameTo(string newName)
-        {
-            return Query<bool>(parameters: new[] { newName });
         }
         
     }

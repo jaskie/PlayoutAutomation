@@ -35,7 +35,7 @@ namespace TAS.Server
 
         // file properties
         protected string _folder = string.Empty;
-        [JsonProperty()]
+        [JsonProperty]
         public string Folder
         {
             get { return _folder; }
@@ -53,9 +53,12 @@ namespace TAS.Server
             get { return _fileName; }
             set
             {
+                var oldFullPath = FullPath; 
                 if (SetField(ref _fileName, value, nameof(FileName)))
                 {
                     NotifyPropertyChanged(nameof(FullPath));
+                    if (MediaStatus == TMediaStatus.Available && File.Exists(oldFullPath))
+                        File.Move(oldFullPath, FullPath);
                 }
             }
         }
@@ -259,23 +262,6 @@ namespace TAS.Server
         public virtual bool Delete()
         {
             return ((MediaDirectory)Directory).DeleteMedia(this);
-        }
-
-        public virtual bool RenameTo(string newFileName)
-        {
-            try
-            {
-                if (_mediaStatus == TMediaStatus.Available
-                    && !newFileName.ToLowerInvariant().Equals(_fileName.ToLowerInvariant()))
-                {
-                    File.Move(FullPath, Path.Combine(Path.GetDirectoryName(FullPath), newFileName));
-                    if (!_directory.WatcherReady)
-                        FileName = newFileName;
-                }
-                return true;
-            }
-            catch { }
-            return false;
         }
 
         protected TMediaStatus _mediaStatus;

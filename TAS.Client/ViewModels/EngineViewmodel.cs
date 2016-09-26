@@ -813,7 +813,7 @@ namespace TAS.Client.ViewModels
                     _previewViewmodel.Event = newSelected;
                     _eventEditViewmodel.Event = newSelected;
                     var re = value as EventPanelRundownElementViewmodelBase;
-                    if (re != null && _mediaSearchViewModel != null && re.CommandAddNextMovie.CanExecute(null))
+                    if (re != null && _mediaSearchViewModel != null)
                     {
                         _mediaSearchViewModel.BaseEvent = re.Event;
                         _mediaSearchViewModel.NewEventStartType = TStartType.After;

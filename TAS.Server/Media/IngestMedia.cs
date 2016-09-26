@@ -15,13 +15,6 @@ namespace TAS.Server
     {
         internal IngestMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
 
-        public override bool RenameTo(string newFileName)
-        {
-            if (((IngestDirectory)_directory).AccessType == TDirectoryAccessType.Direct)
-                return base.RenameTo(newFileName);
-                else throw new NotImplementedException("Cannot rename on remote directories");
-        }
-
         public override bool FileExists()
         {
             if (((IngestDirectory)_directory).AccessType == TDirectoryAccessType.FTP)

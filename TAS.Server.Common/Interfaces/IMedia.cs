@@ -16,7 +16,6 @@ namespace TAS.Server.Interfaces
         bool Delete();
         bool Verified { get; set; }
         void ReVerify();
-        bool RenameTo(string newName);
         RationalNumber FrameRate { get; }
         void GetLoudness();
         VideoFormatDescription VideoFormatDescription { get; }

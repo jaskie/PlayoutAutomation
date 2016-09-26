@@ -70,17 +70,12 @@ namespace TAS.Client.ViewModels
                 PropertyInfo[] copiedProperties = this.GetType().GetProperties();
                 foreach (PropertyInfo copyPi in copiedProperties)
                 {
-                    if (copyPi.Name == nameof(FileName))
-                        Model.RenameTo(FileName);
-                    else
+                    PropertyInfo destPi = (destObject ?? Model).GetType().GetProperty(copyPi.Name);
+                    if (destPi != null)
                     {
-                        PropertyInfo destPi = (destObject ?? Model).GetType().GetProperty(copyPi.Name);
-                        if (destPi != null)
-                        {
-                            if (destPi.GetValue(destObject ?? Model, null) != copyPi.GetValue(this, null)
-                                && destPi.CanWrite)
-                                destPi.SetValue(destObject ?? Model, copyPi.GetValue(this, null), null);
-                        }
+                        if (destPi.GetValue(destObject ?? Model, null) != copyPi.GetValue(this, null)
+                            && destPi.CanWrite)
+                            destPi.SetValue(destObject ?? Model, copyPi.GetValue(this, null), null);
                     }
                 }
                 IsModified = false;

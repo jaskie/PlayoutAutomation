@@ -112,7 +112,6 @@ namespace TAS.Server
                     MediaStatus = TMediaStatus.Required,
                 });
                 result.CloneMediaProperties(media);
-                NotifyMediaAdded(result);
             }
             else
                 if (result.MediaStatus == TMediaStatus.Deleted)

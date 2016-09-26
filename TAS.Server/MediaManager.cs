@@ -188,15 +188,10 @@ namespace TAS.Server
                 ServerMedia compMedia = _findComplementaryMedia(e.Media as ServerMedia);
                 if (compMedia != null)
                 {
-                    if (e.PropertyName == "FileName")
-                        compMedia.RenameTo(((ServerMedia)e.Media).FileName);
-                    else
-                    {
-                        PropertyInfo sourcePi = e.Media.GetType().GetProperty(e.PropertyName);
-                        PropertyInfo destPi = compMedia.GetType().GetProperty(e.PropertyName);
-                        if (sourcePi != null && destPi != null)
-                            destPi.SetValue(compMedia, sourcePi.GetValue(e.Media, null), null);
-                    }
+                    PropertyInfo sourcePi = e.Media.GetType().GetProperty(e.PropertyName);
+                    PropertyInfo destPi = compMedia.GetType().GetProperty(e.PropertyName);
+                    if (sourcePi != null && destPi != null)
+                        destPi.SetValue(compMedia, sourcePi.GetValue(e.Media, null), null);
                 }
             }
         }

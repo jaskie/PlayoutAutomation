@@ -58,7 +58,7 @@ namespace TAS.Server
             }
         }
 
-        internal bool WatcherReady;
+        protected bool WatcherReady;
 
         private bool _disposed = false;
         public void Dispose()
