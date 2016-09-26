@@ -313,7 +313,7 @@ namespace TAS.Client.ViewModels
                 IEvent prior = _event.Prior;
                 IEvent parent = _event.Parent;
                 IEvent next = _event.Next;
-                IEvent visualParent = _event.VisualParent;
+                IEvent visualParent = _event.GetVisualParent();
                 if (prior != null)
                 {
                     int index = _parent._childrens.IndexOf(this);

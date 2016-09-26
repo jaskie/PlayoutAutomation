@@ -33,7 +33,7 @@ namespace TAS.Client.ViewModels
                 EventPanelViewmodelBase newVm = null;
                 if (evm == null)
                 {
-                    var vp = e.Event.VisualParent;
+                    var vp = e.Event.GetVisualParent();
                     if (vp != null)
                     {
                         var evm_vp = this.Find(vp);

@@ -25,7 +25,6 @@ namespace TAS.Server.Interfaces
         IEvent Next { get; }
         IEvent Prior { get; }
         IEvent Parent { get; }
-        IEvent VisualParent { get; }
 
         IList<IEvent> SubEvents { get; }
         int SubEventsCount { get; }
@@ -41,9 +40,6 @@ namespace TAS.Server.Interfaces
         bool IsModified { get; set; }
         bool IsDeleted { get; }
         MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media);
-        IEvent GetSuccessor();
-        IEnumerable<IEvent> GetVisualRootTrack();
-        bool IsContainedIn(IEvent parent);
         bool IsForcedNext { get; }
         decimal GetAudioVolume();
         TimeSpan? GetAttentionTime();

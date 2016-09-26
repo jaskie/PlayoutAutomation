@@ -271,46 +271,7 @@ namespace TAS.Server
 
         public int SubEventsCount { get { return _subEvents.Value.Count; } }
 
-        public bool IsContainedIn(IEvent parent)
-        {
-            IEvent pe = this;
-            while (true)
-            {
-                if (pe == null)
-                    return false;
-                if (pe == parent)
-                    return true;
-                pe = pe.VisualParent;
-            }
-        }
 
-        public IEnumerable<IEvent> GetVisualRootTrack()
-        {
-            IEvent pe = this;
-            while (pe != null)
-            {
-                yield return pe;
-                pe = pe.VisualParent;
-            }
-        }
-
-        public IEvent VisualParent
-        {
-            get { return _getVisualParent(); }
-        }
-
-        private Event _getVisualParent()
-        {
-            Event ev = this;
-            Event pev = ev._prior.Value;
-            while (pev != null)
-            {
-                ev = ev._prior.Value;
-                pev = ev._prior.Value;
-            }
-            return ev._parent.Value;
-        }
-             
 
         private readonly Engine _engine;
         public IEngine Engine { get { return _engine; } }
@@ -424,7 +385,7 @@ namespace TAS.Server
                     IEvent ne = Next;
                     if (ne == null)
                     {
-                        Event vp = _getVisualParent();
+                        IEvent vp = this.GetVisualParent();
                         if (vp != null)
                             ne = vp.Next;
                     }
@@ -525,7 +486,7 @@ namespace TAS.Server
                     if (value != default(DateTime))
                     {
                         ScheduledTime = value;
-                        IEvent succ = GetSuccessor();
+                        IEvent succ = this.GetSuccessor();
                         if (succ != null)
                             succ.UpdateScheduledTime(true);
                     }
@@ -600,7 +561,7 @@ namespace TAS.Server
                 Event ev = Next as Event;
                 if (ev != null)
                     ev.UpdateScheduledTime(true);
-                ev = _getVisualParent();
+                ev = this.GetVisualParent() as Event;
                 if (ev != null && ev._eventType == TEventType.Rundown)
                 {
                     var t = ev.ComputedDuration();
@@ -1119,34 +1080,6 @@ namespace TAS.Server
                 e3.Save();
                 NotifyRelocated();
             }
-        }
-        /// <summary>
-        /// Gets subsequent event that will play after this
-        /// </summary>
-        /// <returns></returns>
-        public IEvent GetSuccessor()
-        {
-            if (_eventType == TEventType.Movie || _eventType == TEventType.Live || _eventType == TEventType.Rundown)
-            {
-                IEvent nev = Next;
-                if (nev != null)
-                {
-                    IEvent n = nev.Next;
-                    while (nev != null && n != null && nev.Length.Equals(TimeSpan.Zero))
-                    {
-                        nev = nev.Next;
-                        n = nev.Next;
-                    }
-                }
-                if (nev == null)
-                {
-                    nev = _getVisualParent();
-                    if (nev != null)
-                        nev = nev.GetSuccessor();
-                }
-                return nev;
-            }
-            return null;
         }
 
         /// <summary>

@@ -756,11 +756,22 @@ namespace TAS.Client.ViewModels
 
         private void _search(object o)
         {
-            var current = _selected?.Event;
+            IEvent current = _selected?.Event;
             if (current != null && !string.IsNullOrWhiteSpace(SearchText))
             {
-                var loweredSearchtext = SearchText.ToLower();
-                var found = current.FindNext(e => e.EventName.ToLower().Contains(loweredSearchtext));
+                string loweredSearchtext = SearchText.ToLower();
+                Func<IEvent, bool> searchFunc = e => e.EventName.ToLower().Contains(loweredSearchtext);
+                var visualRootTrack = current.GetVisualRootTrack();
+                IEvent found = current.FindInside(searchFunc);
+                if (found == null)
+                    foreach (var et in visualRootTrack)
+                    {
+                        current = et.Next;
+                        if (current != null)
+                            found = current.FindNext(searchFunc);
+                        if (found != null)
+                            break;
+                    }
                 if (found != null)
                 {
                     var rt = found.GetVisualRootTrack().Reverse();
