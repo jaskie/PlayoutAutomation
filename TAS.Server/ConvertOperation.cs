@@ -380,13 +380,23 @@ namespace TAS.Server
                 else
                 {
                     if ((SourceMedia.Directory is IngestDirectory) && ((IngestDirectory)SourceMedia.Directory).DeleteSource)
-                        Owner.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = SourceMedia });
+                        ThreadPool.QueueUserWorkItem((o) =>
+                        {
+                            Thread.Sleep(5000);
+                            Owner.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = SourceMedia });
+                        });
                     AddOutputMessage("Convert operation finished successfully");
                     Debug.WriteLine(this, "Convert operation succeed");
                 }
                 OperationStatus = FileOperationStatus.Finished;
                 if (LoudnessCheck)
-                    Owner.Queue(new LoudnessOperation() { SourceMedia = this.DestMedia });
+                {
+                    ThreadPool.QueueUserWorkItem((o) =>
+                    {
+                        Thread.Sleep(5000);
+                        Owner.Queue(new LoudnessOperation() { SourceMedia = this.DestMedia });
+                    });
+                }
                 return true;
             }
             Debug.WriteLine("FFmpeg rewraper Do(): Failed for {0}. Command line was {1}", (object)SourceMedia, Params);
