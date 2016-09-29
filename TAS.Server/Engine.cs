@@ -344,9 +344,11 @@ namespace TAS.Server
         #region Database
         private void _database_ConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
         {
-            var h = DatabaseConnectionStateChanged;
-            if (h != null)
-                h(this, e);
+            DatabaseConnectionStateChanged?.Invoke(this, e);
+            if (e.NewState == ConnectionStateRedundant.Desynchronized)
+                Logger.Error("Databases desynchronized");
+            else
+                Logger.Trace("Database state changed from {0} to {1}", e.OldState, e.NewState);
         }
 
         public ConnectionStateRedundant DatabaseConnectionState

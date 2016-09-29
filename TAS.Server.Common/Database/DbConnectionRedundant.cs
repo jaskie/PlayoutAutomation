@@ -308,9 +308,7 @@ namespace TAS.Server.Database
                 {
                     var oldState = _stateRedundant;
                     _stateRedundant = value;
-                    var h = StateRedundantChange;
-                    if (h != null)
-                        h(this, new RedundantConnectionStateEventArgs(oldState, value));
+                    StateRedundantChange?.Invoke(this, new RedundantConnectionStateEventArgs(oldState, value));
                 }
             }
         }

@@ -382,7 +382,7 @@ namespace TAS.Server
                     if ((SourceMedia.Directory is IngestDirectory) && ((IngestDirectory)SourceMedia.Directory).DeleteSource)
                         ThreadPool.QueueUserWorkItem((o) =>
                         {
-                            Thread.Sleep(5000);
+                            Thread.Sleep(2000);
                             Owner.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = SourceMedia });
                         });
                     AddOutputMessage("Convert operation finished successfully");
@@ -393,7 +393,7 @@ namespace TAS.Server
                 {
                     ThreadPool.QueueUserWorkItem((o) =>
                     {
-                        Thread.Sleep(5000);
+                        Thread.Sleep(2000);
                         Owner.Queue(new LoudnessOperation() { SourceMedia = this.DestMedia });
                     });
                 }
