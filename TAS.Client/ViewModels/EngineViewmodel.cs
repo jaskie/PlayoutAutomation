@@ -730,6 +730,7 @@ namespace TAS.Client.ViewModels
         private void _hideSearchPanel(object obj)
         {
             IsSearchPanelVisible = false;
+            Selected?.Focus();
         }
 
         private bool _isSearchBoxFocused;

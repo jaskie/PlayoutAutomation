@@ -447,5 +447,17 @@ namespace TAS.Client.ViewModels
                 else
                     p.BringIntoView();
         }
+
+        internal bool Focus()
+        {
+            DependencyObject current = View;
+            while (current != null)
+            {
+                if (current is System.Windows.Controls.TreeViewItem)
+                    return (current as UIElement)?.Focus() == true;
+                current = System.Windows.Media.VisualTreeHelper.GetParent(current);
+            }
+            return false;
+        }
     }
 }

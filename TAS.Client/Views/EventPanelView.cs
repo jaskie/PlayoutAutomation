@@ -16,7 +16,6 @@ namespace TAS.Client.Views
         public EventPanelView()
         {
             this.DataContextChanged += UserControl_DataContextChanged;
-            
         }
 
         protected void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
