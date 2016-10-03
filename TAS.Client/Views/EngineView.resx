@@ -313,4 +313,7 @@ Effective until current clip ends.</value>
   <data name="_search.NotFound" xml:space="preserve">
     <value>Not found</value>
   </data>
+  <data name="_menu.Rundown.Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
 </root>

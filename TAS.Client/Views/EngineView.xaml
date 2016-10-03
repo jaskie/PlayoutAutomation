@@ -94,6 +94,8 @@
                     <MenuItem Header="{Resx _menu.Rundown.Load.After}" Command="{Binding CommandLoadRundown}" CommandParameter="After"/>
                     <MenuItem Header="{Resx _menu.Rundown.Load.Under}" Command="{Binding CommandLoadRundown}" CommandParameter="Under"/>
                 </MenuItem>
+                <Separator/>
+                <MenuItem Header="{Resx _menu.Rundown.Search}" Command="{Binding CommandSearchShowPanel}" InputGestureText="Ctrl+F"/>
             </MenuItem>
             <MenuItem Header="{Resx _menu.Edit}">
                 <MenuItem Header="{Resx _menu.Edit.Copy}" Command="{Binding CommandCopySelected}" InputGestureText="Ctrl+C"/>

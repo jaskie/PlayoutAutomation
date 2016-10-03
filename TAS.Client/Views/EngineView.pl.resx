@@ -325,4 +325,7 @@ Działa natychmiastowo, do końca odtwarzanego klipu.</value>
   <data name="_search.NotFound" xml:space="preserve">
     <value>Nie znaleziono</value>
   </data>
+  <data name="_menu.Rundown.Search" xml:space="preserve">
+    <value>Wyszukaj</value>
+  </data>
 </root>
