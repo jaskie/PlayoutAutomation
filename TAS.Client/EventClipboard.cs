@@ -16,7 +16,7 @@ namespace TAS.Client
 
         internal enum ClipboardOperation { Cut, Copy };
 
-        static readonly SynchronizedCollection<IEvent> _clipboard = new SynchronizedCollection<IEvent>();
+        static readonly List<IEvent> _clipboard = new List<IEvent>();
         static ClipboardOperation Operation;
         public static event Action ClipboardChanged;
 
@@ -24,55 +24,44 @@ namespace TAS.Client
 
         static void _notifyClipboardChanged()
         {
-            var h = ClipboardChanged;
-            if (h != null)
-                h();
+            ClipboardChanged?.Invoke();
         }
 
         public static void Copy(IEnumerable<EventPanelViewmodelBase> items)
         {
-            lock (_clipboard.SyncRoot)
-            {
-                _clipboard.Clear();
-                foreach (EventPanelViewmodelBase e in items)
-                    _clipboard.Add(e.Event);
-                Operation = ClipboardOperation.Copy;
-                _notifyClipboardChanged();
-            }
+            _clipboard.Clear();
+            foreach (EventPanelViewmodelBase e in items)
+                _clipboard.Add(e.Event);
+            Operation = ClipboardOperation.Copy;
+            _notifyClipboardChanged();
         }
 
         public static void Cut(IEnumerable<EventPanelViewmodelBase> items)
         {
-            lock (_clipboard.SyncRoot)
-            {
-                _clipboard.Clear();
-                foreach (EventPanelViewmodelBase e in items)
-                    _clipboard.Add(e.Event);
-                Operation = ClipboardOperation.Cut;
-                _notifyClipboardChanged();
-            }
+            _clipboard.Clear();
+            foreach (EventPanelViewmodelBase e in items)
+                _clipboard.Add(e.Event);
+            Operation = ClipboardOperation.Cut;
+            _notifyClipboardChanged();
         }
 
         public static IEvent Paste(EventPanelViewmodelBase destination, TPasteLocation location)
         {
             IEvent dest = destination.Event;
-            lock(_clipboard.SyncRoot)
+            if (CanPaste(destination, location))
             {
-                if (CanPaste(destination, location))
+                var operation = Operation;
+                using (var enumerator = _clipboard.GetEnumerator())
                 {
-                    var operation = Operation;
-                    using (var enumerator = _clipboard.GetEnumerator())
-                    {
-                        if (!enumerator.MoveNext())
-                            return null;
-                        dest = _paste(enumerator.Current, dest, location, operation);
-                        while (enumerator.MoveNext())
-                            dest = _paste(enumerator.Current, dest, TPasteLocation.After, operation);
-                    }
+                    if (!enumerator.MoveNext())
+                        return null;
+                    dest = _paste(enumerator.Current, dest, location, operation);
+                    while (enumerator.MoveNext())
+                        dest = _paste(enumerator.Current, dest, TPasteLocation.After, operation);
                 }
-                if (Operation == ClipboardOperation.Cut)
-                    _clipboard.Clear();
             }
+            if (Operation == ClipboardOperation.Cut)
+                _clipboard.Clear();
             return dest;
         }
 
@@ -121,25 +110,27 @@ namespace TAS.Client
 
         public static bool CanPaste(EventPanelViewmodelBase destEventVm, TPasteLocation location)
         {
-            if (destEventVm == null)
+            if (destEventVm?.Event == null)
                 return false;
             IEvent dest = destEventVm.Event;
-            lock (_clipboard.SyncRoot)
+            var operation = Operation;
+            var destStartType = dest.StartType;
+            if (location != TPasteLocation.Under 
+                && (destStartType == TStartType.Manual || destStartType == TStartType.OnFixedTime) 
+                && _clipboard.Any(e => e.EventType != TEventType.Rundown))
+                return false;
+            using (var enumerator = _clipboard.GetEnumerator())
             {
-                var operation = Operation;
-                using (var enumerator = _clipboard.GetEnumerator())
+                if (!enumerator.MoveNext())
+                    return false;
+                if (!_canPaste(enumerator.Current, dest, location, operation))
+                    return false;
+                dest = enumerator.Current;
+                while (enumerator.MoveNext())
                 {
-                    if (!enumerator.MoveNext())
-                        return false;
-                    if (!_canPaste(enumerator.Current, dest, location, operation))
+                    if (!_canPaste(enumerator.Current, dest, TPasteLocation.After, operation))
                         return false;
                     dest = enumerator.Current;
-                    while (enumerator.MoveNext())
-                    {
-                        if (!_canPaste(enumerator.Current, dest, TPasteLocation.After, operation))
-                            return false;
-                        dest = enumerator.Current;
-                    }
                 }
             }
             return true;

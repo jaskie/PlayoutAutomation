@@ -279,9 +279,15 @@ namespace TAS.Client.ViewModels
             get { return _event == null ? string.Empty : _event.EventName; }
         }
 
-        public object EventType
+        public TEventType? EventType
         {
-            get { return _event == null ? null : (object)_event.EventType; }
+            get
+            {
+                if (_event == null)
+                    return null;
+                else
+                    return _event.EventType;
+            }
         }
 
         public UInt64 IdRundownEvent { get { return (_event == null) ? 0 : _event.IdRundownEvent; } }

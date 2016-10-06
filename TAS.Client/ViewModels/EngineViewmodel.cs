@@ -465,6 +465,7 @@ namespace TAS.Client.ViewModels
         {
             var eventToStart = Selected.Event;
             if (_engine.EngineState != TEngineState.Running
+                || _engine.Playing?.EventType == TEventType.Live 
                 || MessageBox.Show(string.Format(resources._query_PlayWhileRunning), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
                 )
                 _engine.Start(eventToStart);
@@ -472,8 +473,9 @@ namespace TAS.Client.ViewModels
 
         private bool _canStartSelected(object o)
         {
-            IEvent ev = _selected == null ? null : _selected.Event;
+            IEvent ev = _selected?.Event;
             return ev != null
+                && ev.IsEnabled
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused || ev.PlayState == TPlayState.Aborted)
                 && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie);
         }
@@ -482,6 +484,7 @@ namespace TAS.Client.ViewModels
         {
             var eventToLoad = Selected.Event;
             if (_engine.EngineState != TEngineState.Running
+                || _engine.Playing?.EventType == TEventType.Live
                 || MessageBox.Show(string.Format(resources._query_LoadWhileRunning), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
                 )
                 _engine.Load(eventToLoad);
@@ -489,38 +492,39 @@ namespace TAS.Client.ViewModels
 
         private bool _canLoadSelected(object o)
         {
-            IEvent ev = _selected == null ? null : _selected.Event;
+            IEvent ev = _selected?.Event;
             return ev != null
+                && ev.IsEnabled
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Aborted)
                 && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie);
         }
         private bool _canScheduleSelected(object o)
         {
-            IEvent ev = _selected == null ? null : _selected.Event;
+            IEvent ev = _selected?.Event;
             return ev != null && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused) && ev.ScheduledTime >= _currentTime;
         }
         private bool _canRescheduleSelected(object o)
         {
-            IEvent ev = _selected == null ? null : _selected.Event;
+            IEvent ev = _selected?.Event;
             return ev != null && (ev.PlayState == TPlayState.Aborted || ev.PlayState == TPlayState.Played);
         }
         private bool _canCut(object o)
         {
-            IEvent ev = _selected == null ? null : _selected.Event;
+            IEvent ev = _selected?.Event;
             return ev != null
                 && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live)
                 && ev.PlayState == TPlayState.Scheduled;
         }
         private bool _canCopySingle(object o)
         {
-            IEvent ev = _selected == null ? null : _selected.Event;
+            IEvent ev = _selected?.Event;
             return ev != null
                 && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live);
         }
 
         private void _restartRundown(object o)
         {
-            IEvent ev = _selected == null ? null : _selected.Event;
+            IEvent ev = _selected?.Event;
             if (ev != null)
                 _engine.RestartRundown(ev);
         }
