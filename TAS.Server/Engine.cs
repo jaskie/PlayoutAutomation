@@ -86,7 +86,7 @@ namespace TAS.Server
             _mediaManager = new MediaManager(this);
             Database.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
         }
-
+        
         #endregion Constructor
 
         #region IDisposable implementation
@@ -356,7 +356,7 @@ namespace TAS.Server
             get { return Database.Database.ConnectionState; }
         }
 
-        public event StateRedundantChangeEventHandler DatabaseConnectionStateChanged;
+        public event EventHandler<RedundantConnectionStateEventArgs> DatabaseConnectionStateChanged;
         #endregion //Database
                 
         #region FixedStartEvents

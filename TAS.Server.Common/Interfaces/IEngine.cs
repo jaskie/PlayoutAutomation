@@ -95,7 +95,7 @@ namespace TAS.Server.Interfaces
         event EventHandler<EngineOperationEventArgs> EngineOperation;
         event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
         event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
-        event StateRedundantChangeEventHandler DatabaseConnectionStateChanged;
+        event EventHandler<RedundantConnectionStateEventArgs> DatabaseConnectionStateChanged;
         event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
     }
 }

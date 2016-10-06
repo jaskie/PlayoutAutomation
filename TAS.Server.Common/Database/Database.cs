@@ -36,12 +36,10 @@ namespace TAS.Server.Database
 
         private static void _connection_StateRedundantChange(object sender, RedundantConnectionStateEventArgs e)
         {
-            var h = ConnectionStateChanged;
-            if (h != null)
-                h(sender, e);
+            ConnectionStateChanged?.Invoke(sender, e);
         }
 
-        public static event StateRedundantChangeEventHandler ConnectionStateChanged;
+        public static EventHandler<RedundantConnectionStateEventArgs> ConnectionStateChanged;
 
         public static void Close()
         {

@@ -38,9 +38,11 @@ namespace TAS.Server.Common
         ///     The secondary connection is valid, but autoincrement values obtained differs from primary. 
         ///     Manual resync is required.
         Desynchronized = 128,
+        /// <summary>
+        /// When secondary connection is broken
+        /// </summary>
+        BrokenSecondary = ConnectionState.Broken + 128,
     }
-
-    public delegate void StateRedundantChangeEventHandler(object sender, RedundantConnectionStateEventArgs e);
 
     public class RedundantConnectionStateEventArgs : EventArgs
     {

@@ -173,15 +173,17 @@ namespace TAS.Server.Database
 
         public override void Open()
         {
+            bool connected;
             if (_connectionPrimary != null)
             {
                 _idleTimeTimerPrimary = new Timer(_idleTimeTimerCallback, _connectionPrimary, TimeSpan.FromHours(1), TimeSpan.FromHours(1));
-                _connect(_connectionPrimary);
+                connected = _connect(_connectionPrimary);
             }
             if (_connectionSecondary != null)
             {
                 _idleTimeTimerSecondary = new Timer(_idleTimeTimerCallback, _connectionSecondary, TimeSpan.FromHours(1), TimeSpan.FromHours(1));
-                _connect(_connectionSecondary);
+                if (!_connect(_connectionSecondary))
+                    StateRedundant = ConnectionStateRedundant.BrokenSecondary;
             }
         }
 
@@ -249,8 +251,15 @@ namespace TAS.Server.Database
             bool connectionResult = connection.State == ConnectionState.Open;
             if (!connectionResult)
             {
-                connection.Open();
-                connectionResult = connection.State == ConnectionState.Open;
+                try
+                {
+                    connection.Open();
+                    connectionResult = connection.State == ConnectionState.Open;
+                }
+                catch (MySqlException e)
+                {
+                    connectionResult = false;
+                }
             }
             Debug.WriteLineIf(!connectionResult, connection.State, "Not connected");
             return connectionResult;
@@ -313,6 +322,8 @@ namespace TAS.Server.Database
             }
         }
 
+        internal bool IsActiveTransaction;
+
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
             return DbTransactionRedundant.Create(this);
@@ -334,7 +345,7 @@ namespace TAS.Server.Database
         public ConnectionState ConnectionStatePrimary { get { return _connectionPrimary.State; } }
         public ConnectionState ConnectionStateSecondary { get { return _connectionSecondary.State; } }
 
-        public event StateRedundantChangeEventHandler StateRedundantChange;
+        public EventHandler<RedundantConnectionStateEventArgs> StateRedundantChange;
     }
     
 

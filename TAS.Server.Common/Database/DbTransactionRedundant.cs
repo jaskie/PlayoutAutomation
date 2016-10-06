@@ -47,6 +47,7 @@ namespace TAS.Server.Database
                 _transactionPrimary.Commit();
             if (_transactionSecondary != null)
                 _transactionSecondary.Commit();
+            _connection.IsActiveTransaction = false;
         }
 
         public override void Rollback()
@@ -55,13 +56,20 @@ namespace TAS.Server.Database
                 _transactionPrimary.Rollback();
             if (_transactionSecondary != null)
                 _transactionSecondary.Rollback();
+            _connection.IsActiveTransaction = false;
         }
+
 
         internal static DbTransactionRedundant Create(DbConnectionRedundant connection)
         {
-            return new DbTransactionRedundant() { _connection = connection,
-                _transactionPrimary = connection.ConnectionPrimary == null? null: connection.ConnectionPrimary.BeginTransaction(),
-                _transactionSecondary = connection.ConnectionSecondary == null ? null : connection.ConnectionSecondary.BeginTransaction()
+            if (connection.IsActiveTransaction)
+                throw new InvalidOperationException("Nested transactions are not supported");
+            connection.IsActiveTransaction = true;
+            return new DbTransactionRedundant()
+            {
+                _connection = connection,
+                _transactionPrimary = connection.ConnectionPrimary?.State == ConnectionState.Open ? connection.ConnectionPrimary.BeginTransaction() : null,
+                _transactionSecondary = connection.ConnectionSecondary?.State == ConnectionState.Open ? connection.ConnectionSecondary.BeginTransaction() : null
             };
         }
     }
