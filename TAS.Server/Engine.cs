@@ -293,7 +293,11 @@ namespace TAS.Server
                     CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
                     long nFrames = (CurrentTime.Ticks - CurrentTicks) / _frameTicks;
                     CurrentTicks = CurrentTime.Ticks;
-                    Debug.WriteLineIf(nFrames > 1, nFrames, "LateFrame");
+                    if (nFrames > 1)
+                    {
+                        Debug.WriteLine(nFrames, "LateFrame");
+                        Logger.Warn("LateFrame: {0}", nFrames);
+                    }
                     _tick(nFrames);
                     EngineTick?.Invoke(this, new EngineTickEventArgs(CurrentTime, _getTimeToAttention()));
                 }
