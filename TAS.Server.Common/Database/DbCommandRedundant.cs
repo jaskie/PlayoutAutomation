@@ -241,7 +241,7 @@ namespace TAS.Server.Database
                 int retSecondary = 0;
                 retSecondary = _commandSecondary.ExecuteNonQuery();
                 if (retSecondary != retPrimary)
-                    _dbConnection.StateRedundant = ConnectionStateRedundant.Desynchronized;
+                    _dbConnection.StateRedundant |= ConnectionStateRedundant.Desynchronized;
             }
             return retPrimary;
         }
@@ -257,7 +257,7 @@ namespace TAS.Server.Database
                 object retSecondary = 0;
                 retSecondary = _commandSecondary.ExecuteScalar();
                 if (retSecondary != retPrimary)
-                    _dbConnection.StateRedundant = ConnectionStateRedundant.Desynchronized;
+                    _dbConnection.StateRedundant |= ConnectionStateRedundant.Desynchronized;
                 _commandSecondary.ExecuteScalar();
             }
             return retPrimary;
@@ -310,7 +310,7 @@ namespace TAS.Server.Database
             {
                 var primaryId = _commandPrimary.LastInsertedId;
                 if (_isConnectionValid(_commandSecondary.Connection) && _commandSecondary.LastInsertedId != primaryId)
-                    _dbConnection.StateRedundant = ConnectionStateRedundant.Desynchronized;
+                    _dbConnection.StateRedundant |= ConnectionStateRedundant.Desynchronized;
                 return primaryId;
             }
         }

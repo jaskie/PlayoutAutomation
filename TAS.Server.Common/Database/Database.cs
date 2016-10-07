@@ -39,7 +39,7 @@ namespace TAS.Server.Database
             ConnectionStateChanged?.Invoke(sender, e);
         }
 
-        public static EventHandler<RedundantConnectionStateEventArgs> ConnectionStateChanged;
+        public static event EventHandler<RedundantConnectionStateEventArgs> ConnectionStateChanged;
 
         public static void Close()
         {
@@ -135,8 +135,7 @@ namespace TAS.Server.Database
             {
                 foreach (var kvp in updatesPending)
                 {
-                    var tran = _connection.BeginTransaction();
-                    try
+                    using (var tran = _connection.BeginTransaction())
                     {
                         if (_connection.ExecuteScript(kvp.Value))
                         {
@@ -149,11 +148,6 @@ namespace TAS.Server.Database
                             tran.Rollback();
                             return false;
                         }
-                    }
-                    catch
-                    {
-                        tran.Rollback();
-                        throw;
                     }
                 }
             }
@@ -1251,19 +1245,21 @@ VALUES
             bool result = false;
             lock (_connection)
             {
-                var transaction = _connection.BeginTransaction();
-                try
+                using (var transaction = _connection.BeginTransaction())
                 {
-                    result = _dbInsert(animatedMedia, serverId);
-                    if (result)
-                        result = _insert_media_templated(animatedMedia);
-                }
-                finally
-                {
-                    if (result)
-                        transaction.Commit();
-                    else
-                        transaction.Rollback();
+                    try
+                    {
+                        result = _dbInsert(animatedMedia, serverId);
+                        if (result)
+                            result = _insert_media_templated(animatedMedia);
+                    }
+                    finally
+                    {
+                        if (result)
+                            transaction.Commit();
+                        else
+                            transaction.Rollback();
+                    }
                 }
             }
             return result;
@@ -1320,19 +1316,21 @@ VALUES
             lock (_connection)
             {
                 bool result = false;
-                var transaction = _connection.BeginTransaction();
-                try
+                using (var transaction = _connection.BeginTransaction())
                 {
-                    result = _dbDelete(animatedMedia);
-                    if (result)
-                        result = _delete_media_templated(animatedMedia);
-                }
-                finally
-                {
-                    if (result)
-                        transaction.Commit();
-                    else
-                        transaction.Rollback();
+                    try
+                    {
+                        result = _dbDelete(animatedMedia);
+                        if (result)
+                            result = _delete_media_templated(animatedMedia);
+                    }
+                    finally
+                    {
+                        if (result)
+                            transaction.Commit();
+                        else
+                            transaction.Rollback();
+                    }
                 }
                 return result;
             }
@@ -1363,19 +1361,21 @@ VALUES
             bool result = false;
             lock (_connection)
             {
-                var transaction = _connection.BeginTransaction();
-                try
+                using (var transaction = _connection.BeginTransaction())
                 {
-                    result = _dbUpdate(animatedMedia, serverId);
-                    if (result)
-                        result = _update_media_templated(animatedMedia);
-                }
-                finally
-                {
-                    if (result)
-                        transaction.Commit();
-                    else
-                        transaction.Rollback();
+                    try
+                    {
+                        result = _dbUpdate(animatedMedia, serverId);
+                        if (result)
+                            result = _update_media_templated(animatedMedia);
+                    }
+                    finally
+                    {
+                        if (result)
+                            transaction.Commit();
+                        else
+                            transaction.Rollback();
+                    }
                 }
             }
             return result;

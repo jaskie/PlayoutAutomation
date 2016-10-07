@@ -18,10 +18,15 @@ namespace TAS.Server.Database
             base.Dispose(disposing);
             if (disposing)
             {
-                if (_transactionPrimary != null)
-                    _transactionPrimary.Dispose();
-                if (_transactionSecondary != null)
-                    _transactionSecondary.Dispose();
+                try
+                {
+                    _connection.ActiveTransaction = null;
+                    if (_transactionPrimary != null)
+                        _transactionPrimary.Dispose();
+                    if (_transactionSecondary != null)
+                        _transactionSecondary.Dispose();
+                }
+                catch { }
             }
         }
 
@@ -43,34 +48,42 @@ namespace TAS.Server.Database
 
         public override void Commit()
         {
-            if (_transactionPrimary != null)
-                _transactionPrimary.Commit();
-            if (_transactionSecondary != null)
-                _transactionSecondary.Commit();
-            _connection.IsActiveTransaction = false;
+            _connection.ActiveTransaction = null;
+            try
+            {
+                if (_transactionPrimary != null)
+                    _transactionPrimary.Commit();
+                if (_transactionSecondary != null)
+                    _transactionSecondary.Commit();
+            }
+            catch { }
         }
 
         public override void Rollback()
         {
-            if (_transactionPrimary != null)
-                _transactionPrimary.Rollback();
-            if (_transactionSecondary != null)
-                _transactionSecondary.Rollback();
-            _connection.IsActiveTransaction = false;
+            _connection.ActiveTransaction = null;
+            try
+            {
+                if (_transactionPrimary != null)
+                    _transactionPrimary.Rollback();
+                if (_transactionSecondary != null)
+                    _transactionSecondary.Rollback();
+            }
+            catch { }
         }
 
-
-        internal static DbTransactionRedundant Create(DbConnectionRedundant connection)
+        internal DbTransactionRedundant(DbConnectionRedundant connection)
         {
-            if (connection.IsActiveTransaction)
+            if (connection.ActiveTransaction != null)
                 throw new InvalidOperationException("Nested transactions are not supported");
-            connection.IsActiveTransaction = true;
-            return new DbTransactionRedundant()
+            connection.ActiveTransaction = this;
+            try
             {
-                _connection = connection,
-                _transactionPrimary = connection.ConnectionPrimary?.State == ConnectionState.Open ? connection.ConnectionPrimary.BeginTransaction() : null,
-                _transactionSecondary = connection.ConnectionSecondary?.State == ConnectionState.Open ? connection.ConnectionSecondary.BeginTransaction() : null
-            };
+                _transactionPrimary = connection.ConnectionPrimary?.State == ConnectionState.Open ? connection.ConnectionPrimary.BeginTransaction() : null;
+                _transactionSecondary = connection.ConnectionSecondary?.State == ConnectionState.Open ? connection.ConnectionSecondary.BeginTransaction() : null;
+            }
+            catch { }
+            _connection = connection;
         }
     }
 }

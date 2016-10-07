@@ -344,11 +344,8 @@ namespace TAS.Server
         #region Database
         private void _database_ConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
         {
-            DatabaseConnectionStateChanged?.Invoke(this, e);
-            if (e.NewState == ConnectionStateRedundant.Desynchronized)
-                Logger.Error("Databases desynchronized");
-            else
-                Logger.Trace("Database state changed from {0} to {1}", e.OldState, e.NewState);
+            NotifyPropertyChanged(nameof(DatabaseConnectionState));
+            Logger.Trace("Database state changed from {0} to {1}", e.OldState, e.NewState);
         }
 
         public ConnectionStateRedundant DatabaseConnectionState
@@ -356,7 +353,6 @@ namespace TAS.Server
             get { return Database.Database.ConnectionState; }
         }
 
-        public event EventHandler<RedundantConnectionStateEventArgs> DatabaseConnectionStateChanged;
         #endregion //Database
                 
         #region FixedStartEvents

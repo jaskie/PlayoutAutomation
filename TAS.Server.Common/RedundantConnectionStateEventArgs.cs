@@ -6,6 +6,7 @@ using System.Text;
 
 namespace TAS.Server.Common
 {
+    [Flags]
     public enum ConnectionStateRedundant
     {
         Closed = ConnectionState.Closed,
@@ -37,11 +38,17 @@ namespace TAS.Server.Common
         /// Summary:
         ///     The secondary connection is valid, but autoincrement values obtained differs from primary. 
         ///     Manual resync is required.
-        Desynchronized = 128,
+        Desynchronized = 32,
+        /// <summary>
+        /// When primary connection is broken
+        /// </summary>
+        BrokenPrimary  = 64,
         /// <summary>
         /// When secondary connection is broken
         /// </summary>
-        BrokenSecondary = ConnectionState.Broken + 128,
+        BrokenSecondary = 128,
+        OpenPrimary = 256,
+        OpenSecondary = 512
     }
 
     public class RedundantConnectionStateEventArgs : EventArgs

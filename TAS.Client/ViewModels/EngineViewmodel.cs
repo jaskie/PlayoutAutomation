@@ -93,7 +93,6 @@ namespace TAS.Client.ViewModels
             _engine.VisibleEventsOperation += _onEngineVisibleEventsOperation;
             _engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _engine.EventSaved += _engine_EventSaved;
-            _engine.DatabaseConnectionStateChanged += _engine_DatabaseConnectionStateChanged;
             _composePlugins();
 
             Debug.WriteLine(this, "Creating EngineView");
@@ -129,12 +128,6 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(CGControllerIsMaster));
         }
 
-        private void _engine_DatabaseConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
-        {
-            NotifyPropertyChanged(nameof(NoAlarms));
-            NotifyPropertyChanged(nameof(DatabaseOK));
-        }
-
         private void _engine_EventSaved(object sender, IEventEventArgs e)
         {
             if (RootEventViewModel.Childrens.Any(evm => evm.Event == e.Event))
@@ -151,7 +144,6 @@ namespace TAS.Client.ViewModels
 
             _multiSelectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
             _engine.EventSaved -= _engine_EventSaved;
-            _engine.DatabaseConnectionStateChanged -= _engine_DatabaseConnectionStateChanged;
             EventClipboard.ClipboardChanged -= _engineViewmodel_ClipboardChanged;
             if (_engine.PlayoutChannelPRI != null)
                 _engine.PlayoutChannelPRI.OwnerServer.PropertyChanged -= OnPRIServerPropertyChanged;
@@ -941,7 +933,10 @@ namespace TAS.Client.ViewModels
 
         public bool DatabaseOK
         {
-            get { return _engine.DatabaseConnectionState == ConnectionStateRedundant.Open; } 
+            get {
+                var state = _engine.DatabaseConnectionState;
+                return (state & ConnectionStateRedundant.Open) > 0 
+                    && (state & (ConnectionStateRedundant.BrokenPrimary | ConnectionStateRedundant.BrokenSecondary | ConnectionStateRedundant.Desynchronized)) == 0; } 
         }
 
         public string PlayingEventName
@@ -1223,6 +1218,11 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged(nameof(ServerSECExists));
                     NotifyPropertyChanged(nameof(ServerPRVExists));
                 }
+            }
+            if (e.PropertyName == nameof(IEngine.DatabaseConnectionState))
+            {
+                NotifyPropertyChanged(nameof(NoAlarms));
+                NotifyPropertyChanged(nameof(DatabaseOK));
             }
         }
 
