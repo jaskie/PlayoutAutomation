@@ -693,7 +693,7 @@ namespace TAS.Server
                             e.PlayState = e.IsFinished ? TPlayState.Played : TPlayState.Aborted;
                             _runningEvents.Remove(e);
                         }
-                        e.Save();
+                        e.SaveDelayed();
                     });                        
             }
             _run(aEvent);
@@ -745,7 +745,7 @@ namespace TAS.Server
                         if (se.ScheduledDelay == TimeSpan.Zero)
                             _play(se, fromBeginning);
             }
-            aEvent.Save();
+            aEvent.SaveDelayed();
             if (_pst2Prv)
                 _loadPST();
             NotifyEngineOperation(aEvent, TEngineOperation.Play);
@@ -773,7 +773,7 @@ namespace TAS.Server
                 if (e.PlayState == TPlayState.Paused)
                     e.PlayState = TPlayState.Scheduled;
                 if (e.IsModified)
-                    e.Save();
+                    e.SaveDelayed();
             }
             _runningEvents.Clear();
         }
@@ -815,7 +815,7 @@ namespace TAS.Server
         private void _stop(Event aEvent)
         {
             aEvent.PlayState = aEvent.Position == 0 ? TPlayState.Scheduled : aEvent.IsFinished ? TPlayState.Played : TPlayState.Aborted;
-            aEvent.Save();
+            aEvent.SaveDelayed();
             lock (_visibleEvents.SyncRoot)
                 if (_visibleEvents.Contains(aEvent))
                 {
@@ -858,7 +858,7 @@ namespace TAS.Server
             if (finish)
             {
                 aEvent.PlayState = TPlayState.Played;
-                aEvent.Save();
+                aEvent.SaveDelayed();
                 _runningEvents.Remove(aEvent);
                 NotifyEngineOperation(aEvent, TEngineOperation.Stop);
             }
@@ -1204,14 +1204,14 @@ namespace TAS.Server
             if (ev != null)
             {
                 ev.PlayState = TPlayState.Aborted;
-                ev.Save();
+                ev.SaveDelayed();
                 _visibleEvents.Remove(ev);
                 _runningEvents.Remove(ev);
             }
             if (ev != null)
             {
                 ev.PlayState = TPlayState.Scheduled;
-                ev.Save();
+                ev.SaveDelayed();
                 _runningEvents.Remove(ev);
             }
             if (_playoutChannelPRI != null)
@@ -1452,7 +1452,7 @@ namespace TAS.Server
         }
 
 
-        public void ReScheduleAsync(IEvent aEvent)
+        public void ReScheduleDelayed(IEvent aEvent)
         {
             ThreadPool.QueueUserWorkItem(o => ReSchedule(aEvent as Event));
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using TAS.Common;
 using TAS.Server.Interfaces;
 
@@ -74,6 +75,12 @@ namespace TAS.Server.Common
                 pe = pe.GetVisualParent();
             }
         }
+        public static void SaveDelayed(this IEvent aEvent)
+        {
+            ThreadPool.QueueUserWorkItem(o => aEvent.Save());
+        }
+
+        
 
         /// <summary>
         /// Gets subsequent event that will play after this

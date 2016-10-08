@@ -73,7 +73,7 @@ namespace TAS.Server.Interfaces
         void RestartRundown(IEvent ARundown);
         IEvent ForcedNext { get; set; }
         void Schedule(IEvent aEvent);
-        void ReScheduleAsync(IEvent aEvent);
+        void ReScheduleDelayed(IEvent aEvent);
         void Restart();
 
         DateTime CurrentTime { get; }
