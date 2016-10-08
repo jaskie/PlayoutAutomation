@@ -15,6 +15,8 @@ namespace TAS.Server
 {
     public class ServerMedia: PersistentMedia, IServerMedia
     {
+        private NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ServerMedia));
+
         readonly IArchiveDirectory _archiveDirectory;
         public ServerMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia, IArchiveDirectory archiveDirectory) : base(directory, guid, idPersistentMedia)
         {
@@ -56,33 +58,39 @@ namespace TAS.Server
 
         public override bool Save()
         {
-
             bool result = false;
-            var directory = Directory as ServerDirectory;
-            if (MediaStatus != TMediaStatus.Unknown)
+            try
             {
-                if (MediaStatus == TMediaStatus.Deleted)
+                var directory = Directory as ServerDirectory;
+                if (MediaStatus != TMediaStatus.Unknown)
                 {
-                    if (IdPersistentMedia != 0)
-                        result = this.DbDelete();
-                }
-                else
-                {
-                    if (directory != null)
+                    if (MediaStatus == TMediaStatus.Deleted)
                     {
-                        if (IdPersistentMedia == 0)
-                            result = this.DbInsert(directory.Server.Id);
-                        else
-                        if (IsModified)
-                            result = this.DbUpdate(directory.Server.Id);
+                        if (IdPersistentMedia != 0)
+                            result = this.DbDelete();
                     }
-                    IsModified = false;
+                    else
+                    {
+                        if (directory != null)
+                        {
+                            if (IdPersistentMedia == 0)
+                                result = this.DbInsert(directory.Server.Id);
+                            else
+                            if (IsModified)
+                                result = this.DbUpdate(directory.Server.Id);
+                        }
+                        IsModified = false;
+                    }
                 }
+                if (result && directory != null)
+                    directory.OnMediaSaved(this);
             }
-            if (result && directory != null)
-                directory.OnMediaSaved(this);
+            catch (Exception e)
+            {
+                Logger.Error(e, "Error saving {0}", MediaName);
+            }
             return result;
         }
 
-    }
+        }
 }
