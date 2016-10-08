@@ -490,8 +490,7 @@ namespace TAS.Server
                         if (succ != null)
                             succ.UpdateScheduledTime(true);
                     }
-                    else
-                        NotifyPropertyChanged(nameof(ScheduledTime));
+                    NotifyPropertyChanged(nameof(ScheduledTime));
                 }
             }
         }

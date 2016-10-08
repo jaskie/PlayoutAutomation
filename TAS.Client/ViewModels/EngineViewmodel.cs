@@ -179,7 +179,7 @@ namespace TAS.Client.ViewModels
             CommandDebugToggle = new UICommand() { ExecuteDelegate = _debugShow };
             CommandRestartRundown = new UICommand() { ExecuteDelegate = _restartRundown };
             CommandRestartLayer = new UICommand { ExecuteDelegate = _restartLayer, CanExecuteDelegate = o => IsPlayingMovie };
-            CommandNewRootRundown = new UICommand() { ExecuteDelegate = _newRootRundown };
+            CommandNewRootRundown = new UICommand() { ExecuteDelegate = _addNewRootRundown };
             CommandNewContainer = new UICommand() { ExecuteDelegate = _newContainer };
             CommandSearchMissingEvents = new UICommand() { ExecuteDelegate = _searchMissingEvents };
             CommandStartLoaded = new UICommand() { ExecuteDelegate = o => _engine.StartLoaded(), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Hold };
@@ -526,7 +526,7 @@ namespace TAS.Client.ViewModels
             _engine.Restart();
         }
 
-        private void _newRootRundown(object o)
+        private void _addNewRootRundown(object o)
         {
             IEvent newEvent = _engine.AddNewEvent(
                 eventType: TEventType.Rundown,
@@ -699,7 +699,11 @@ namespace TAS.Client.ViewModels
             if (newEvent != null)
             {
                 if (insertUnder == true)
+                {
+                    if (baseEvent.EventType == TEventType.Container)
+                        newEvent.ScheduledTime = _currentTime;
                     baseEvent.InsertUnder(newEvent);
+                }
                 else
                     baseEvent.InsertAfter(newEvent);
                 LastAddedEvent = newEvent;
