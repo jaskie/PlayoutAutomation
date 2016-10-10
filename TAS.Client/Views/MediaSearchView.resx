@@ -123,8 +123,8 @@
   <data name="_cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="_enableGPIForNewEvents" xml:space="preserve">
-    <value>Enable GPI for this item</value>
+  <data name="_enableCGForNewEvents" xml:space="preserve">
+    <value>Enable CG for this item</value>
   </data>
   <data name="_grid.Header.ClipName" xml:space="preserve">
     <value>Clip name</value>
