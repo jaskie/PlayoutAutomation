@@ -102,7 +102,7 @@ namespace TAS.Server
                     if (((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
                         using (TempMedia _localSourceMedia = Owner.TempDirectory.CreateMedia(sourceMedia))
                         {
-                            AddOutputMessage(string.Format("Copying to local file {0}", _localSourceMedia.FullPath));
+                            AddOutputMessage($"Copying to local file {_localSourceMedia.FullPath}");
                             _localSourceMedia.PropertyChanged += _localSourceMedia_PropertyChanged;
                             if (sourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
                             {
@@ -244,7 +244,7 @@ namespace TAS.Server
                     _addConversion(MediaConversion.AspectConversions[AspectConversion], video_filters);
                 if (inputFormatDescription.FrameRate / outputFormatDescription.FrameRate == 2 && outputFormatDescription.Interlaced)
                     video_filters.Add("tinterlace=interleave_top");
-                video_filters.Add(string.Format("fps=fps={0}", outputFormatDescription.FrameRate));
+                video_filters.Add($"fps=fps={outputFormatDescription.FrameRate}");
                 if (outputFormatDescription.Interlaced)
                 {
                     video_filters.Add("fieldorder=tff");
@@ -261,7 +261,7 @@ namespace TAS.Server
             int lastFilterIndex = video_filters.Count() - 1;
             if (lastFilterIndex >= 0)
             {
-                video_filters[lastFilterIndex] = string.Format("{0}[v]", video_filters[lastFilterIndex]);
+                video_filters[lastFilterIndex] = $"{video_filters[lastFilterIndex]}[v]";
                 ep.Append(" -map \"[v]\"");
             } else
             {
@@ -321,7 +321,7 @@ namespace TAS.Server
             lastFilterIndex = audio_filters.Count() - 1;
             if (lastFilterIndex >= 0)
             {
-                audio_filters[lastFilterIndex] = string.Format("{0}[a]", audio_filters[lastFilterIndex]);
+                audio_filters[lastFilterIndex] = $"{audio_filters[lastFilterIndex]}[a]";
                 ep.Append(" -map \"[a]\"");
             }
             else

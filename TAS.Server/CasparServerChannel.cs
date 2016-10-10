@@ -273,7 +273,7 @@ namespace TAS.Server
                     _visible[aEvent.Layer] = aEvent;
                     Event removed;
                     _loadedNext.TryRemove(aEvent.Layer, out removed);
-                    Debug.WriteLine(aEvent, string.Format("CasparPlay Layer {0}", aEvent.Layer));
+                    Debug.WriteLine(aEvent, $"CasparPlay Layer {aEvent.Layer}");
                     return true;
                 }
                 if (eventType == TEventType.Animation)

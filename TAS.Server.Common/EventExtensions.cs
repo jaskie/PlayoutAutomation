@@ -77,7 +77,14 @@ namespace TAS.Server.Common
         }
         public static void SaveDelayed(this IEvent aEvent)
         {
-            ThreadPool.QueueUserWorkItem(o => aEvent.Save());
+            ThreadPool.QueueUserWorkItem(o =>
+            {
+                try
+                {
+                    aEvent.Save();
+                }
+                catch { }
+            });
         }
 
         

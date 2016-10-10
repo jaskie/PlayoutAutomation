@@ -119,7 +119,7 @@ namespace TAS.Server
         {
             get
             {
-                return false;
+                return true;
             }
         }
 

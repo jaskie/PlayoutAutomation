@@ -27,8 +27,8 @@ namespace TAS.Server
             oInfo.RedirectStandardError = true;
 
             //try the process
-            Debug.WriteLine(parameters, "Starting ffmpeg with parameters");
-            AddOutputMessage(string.Format("ffmpeg.exe {0}", parameters));
+            Debug.WriteLine(parameters, "Starting ffmpeg:");
+            AddOutputMessage($"ffmpeg.exe {parameters}");
             try
             {
                 using (Process _procFFmpeg = Process.Start(oInfo))

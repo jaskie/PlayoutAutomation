@@ -69,11 +69,11 @@ namespace TAS.Server
             string dir = Path.GetPathRoot(Folder);
             string ret = PinvokeWindowsNetworking.disconnectRemote(dir);
             if (ret != null)
-                Debug.WriteLine(ret, string.Format("DisconnectRemote {0}", dir));
+                Debug.WriteLine(ret, $"DisconnectRemote {dir}");
             ret = PinvokeWindowsNetworking.connectToRemote(dir, Username, Password);
             if (ret == null)
                 return true;
-            Debug.WriteLine(ret, string.Format("ConnectToRemote {0}", dir));
+            Debug.WriteLine(ret, $"ConnectToRemote {dir}");
             return false;
         }
 
@@ -319,7 +319,7 @@ namespace TAS.Server
                 catch (FtpCommandException)
                 { }
             }
-            Debug.WriteLineIf(xMLDoc == null, string.Format("_readXMLDocument didn\'t read {0}", documentName));
+            Debug.WriteLineIf(xMLDoc == null, $"_readXMLDocument didn\'t read {documentName}");
             return xMLDoc;
         }
 
@@ -339,7 +339,7 @@ namespace TAS.Server
                             var alias = _xDCAMAlias == null ? null : _xDCAMAlias.clipTable.FirstOrDefault(a => a.clipId == clip.clipId);
                             string clipFileName = alias == null ? clip.clipId : alias.value;
                             if (!string.IsNullOrWhiteSpace(clipFileName))
-                                clip.ClipMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument(string.Format(@"Clip/{0}M01.XML", clipFileName), client));
+                                clip.ClipMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument($@"Clip/{clipFileName}M01.XML", client));
                             if (clip.ClipMeta != null)
                             {
                                 IngestMedia newMedia = AddFile(string.Join(this.PathSeparator.ToString(), _folder, "Clip", clipFileName + ".MXF"), clip.ClipMeta.CreationDate.Value, clip.ClipMeta.lastUpdate, new Guid(clip.ClipMeta.TargetMaterial.umidRef.Substring(32, 32))) as IngestMedia;

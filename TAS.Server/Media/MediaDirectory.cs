@@ -390,9 +390,17 @@ namespace TAS.Server
                 }, watcherCancelationToken);
             if (timeout != TimeSpan.Zero)
             {
-                ThreadPool.QueueUserWorkItem(o => {
-                if (!_watcherSetupTask.Wait(timeout))
-                    CancelBeginWatch();
+                ThreadPool.QueueUserWorkItem(o =>
+                {
+                    try
+                    {
+                        if (!_watcherSetupTask.Wait(timeout))
+                            CancelBeginWatch();
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error(e, "CancelBeginWatch exception");
+                    }
                 });
             }
         }
@@ -404,7 +412,8 @@ namespace TAS.Server
             {
                 _watcherTaskCancelationTokenSource.Cancel();
                 watcherTask.Wait();
-                Debug.WriteLine("MediaDirectory: BeginWatch for {0} canceled.", (object)_folder);
+                Debug.WriteLine("MediaDirectory: BeginWatch for {0} canceled.", _folder, null);
+                Logger.Debug("BeginWatch for {0} canceled.", _folder, null);
             }
         }
 

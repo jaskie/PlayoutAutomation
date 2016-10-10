@@ -560,11 +560,21 @@ namespace TAS.Client.ViewModels
                 ThreadPool.QueueUserWorkItem(
                     o =>
                     {
-                        foreach (var evm in evmList)
+                        try
                         {
-                            if (evm.Event != null
-                                && (evm.Event.PlayState == TPlayState.Scheduled || evm.Event.PlayState == TPlayState.Played || evm.Event.PlayState == TPlayState.Aborted))
-                                evm.Event.Delete();
+                            foreach (var evm in evmList)
+                            {
+                                if (evm.Event != null
+                                    && (evm.Event.PlayState == TPlayState.Scheduled || evm.Event.PlayState == TPlayState.Played || evm.Event.PlayState == TPlayState.Aborted))
+                                    evm.Event.Delete();
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+                            {
+                                MessageBox.Show(string.Format(resources._message_CommandFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
+                            });
                         }
                     }
                 );

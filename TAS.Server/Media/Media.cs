@@ -19,6 +19,8 @@ namespace TAS.Server
     public abstract class Media : DtoBase, IMedia
     {
 
+        private static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Media));
+
         public Media(IMediaDirectory directory, Guid mediaGuid = default(Guid))
         {
             _directory = (MediaDirectory)directory;
@@ -416,6 +418,7 @@ namespace TAS.Server
             }
             catch (Exception e)
             {
+                Logger.Error(e, "Verify exception");
                 Debug.WriteLine(e);
             }
         }

@@ -30,7 +30,7 @@ namespace TAS.Server.Common
                 case TMediaType.Animation:
                     return AnimationFileTypes[0];
                 default:
-                    throw new NotImplementedException(string.Format("MediaDirectory:DefaultFileExtension {0}", type));
+                    throw new NotImplementedException($"MediaDirectory:DefaultFileExtension {type}");
             }
         }
 

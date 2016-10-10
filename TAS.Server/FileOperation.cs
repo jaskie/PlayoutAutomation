@@ -32,7 +32,7 @@ namespace TAS.Server
             Logger = NLog.LogManager.GetLogger(this.GetType().Name);
         }
 
-        protected NLog.Logger Logger;
+        private NLog.Logger Logger;
 
         private int _tryCount = 15;
         [JsonProperty]

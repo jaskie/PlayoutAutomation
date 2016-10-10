@@ -202,7 +202,7 @@ namespace TAS.Server
             Debug.WriteLine(this, "Creating engine thread");
             _engineThread = new Thread(_engineThreadProc);
             _engineThread.Priority = ThreadPriority.Highest;
-            _engineThread.Name = string.Format("Engine main thread for {0}", EngineName);
+            _engineThread.Name = $"Engine main thread for {EngineName}";
             _engineThread.IsBackground = true;
             _engineThread.Start();
             Debug.WriteLine(this, "Engine initialized");
@@ -651,7 +651,7 @@ namespace TAS.Server
                 var cgElementsController = _cgElementsController;
                 if (!aEvent.IsHold
                     && cgElementsController?.IsConnected == true
-                    && cgElementsController.IsMaster
+                    && cgElementsController.IsCGEnabled
                     && CGStartDelay < 0)
                 {
                     ThreadPool.QueueUserWorkItem(o =>
@@ -712,7 +712,7 @@ namespace TAS.Server
                     ProgramAudioVolume = (decimal)Math.Pow(10, (double)aEvent.GetAudioVolume() / 20); ;
                     _setAspectRatio(aEvent);
                     var cgController = _cgElementsController;
-                    if (cgController?.IsConnected == true && cgController.IsMaster)
+                    if (cgController?.IsConnected == true && cgController.IsCGEnabled)
                     {
                         if (CGStartDelay <= 0)
                             cgController.SetState(aEvent);
@@ -792,7 +792,7 @@ namespace TAS.Server
             if (AspectRatioControl == TAspectRatioControl.GPI || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
             {
                 var cgController = _cgElementsController;
-                if (cgController?.IsConnected == true && cgController.IsMaster)
+                if (cgController?.IsConnected == true && cgController.IsCGEnabled)
                     cgController.IsWideScreen = !narrow;
                 var lGpis = _localGpis;
                 if (lGpis != null)
@@ -1164,7 +1164,7 @@ namespace TAS.Server
 
         public void Schedule(IEvent aEvent)
         {
-            Debug.WriteLine(aEvent, string.Format("Schedule {0}", aEvent.PlayState));
+            Debug.WriteLine(aEvent, $"Schedule {aEvent.PlayState}");
             lock (_tickLock)
                 EngineState = TEngineState.Running;
             _run((Event)aEvent);
@@ -1454,7 +1454,16 @@ namespace TAS.Server
 
         public void ReScheduleDelayed(IEvent aEvent)
         {
-            ThreadPool.QueueUserWorkItem(o => ReSchedule(aEvent as Event));
+            ThreadPool.QueueUserWorkItem(o => {
+                try
+                {
+                    ReSchedule(aEvent as Event);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "ReScheduleDelayed exception");
+                }
+            });
         }
 
         public object RundownSync = new object();

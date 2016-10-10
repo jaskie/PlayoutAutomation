@@ -139,26 +139,33 @@ namespace TAS.Server
                 op = queue.FirstOrDefault() as FileOperation;
             while (op != null)
             {
-                queue.Remove(op);
-                if (!op.Aborted)
+                try
                 {
-                    if (op.Do())
-                        NotifyOperation(OperationCompleted, op);
-                    else
+                    queue.Remove(op);
+                    if (!op.Aborted)
                     {
-                        if (op.TryCount > 0)
-                        {
-                            System.Threading.Thread.Sleep(500);
-                            queue.Add(op);
-                        }
+                        if (op.Do())
+                            NotifyOperation(OperationCompleted, op);
                         else
                         {
-                            op.Fail();
-                            NotifyOperation(OperationCompleted, op);
-                            if (op.DestMedia != null)
-                                op.DestMedia.Delete();
+                            if (op.TryCount > 0)
+                            {
+                                System.Threading.Thread.Sleep(500);
+                                queue.Add(op);
+                            }
+                            else
+                            {
+                                op.Fail();
+                                NotifyOperation(OperationCompleted, op);
+                                if (op.DestMedia != null)
+                                    op.DestMedia.Delete();
+                            }
                         }
                     }
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "RunOperation exception");
                 }
                 lock (queue.SyncRoot)
                     op = queue.FirstOrDefault() as FileOperation;

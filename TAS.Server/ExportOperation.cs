@@ -23,6 +23,8 @@ namespace TAS.Server
 
         UInt64 _progressFileSize;
 
+        private NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ExportOperation));
+
         public ExportOperation()
         {
             Kind = TFileOperationKind.Export;
@@ -70,7 +72,8 @@ namespace TAS.Server
                 }
                 catch (Exception e)
                 {
-                    AddOutputMessage(string.Format("Error: {0}", e.Message));
+                    AddOutputMessage($"Error: {e.Message}");
+                    Logger.Error(e, "Do exception");
                     TryCount--;
                     return false;
                 }
@@ -108,7 +111,7 @@ namespace TAS.Server
                         if (result)
                         {
                             _progressFileSize = (UInt64)(new FileInfo(localDestMedia.FullPath)).Length;
-                            AddOutputMessage(string.Format("Transfering file to device as {0}", DestMedia.FileName));
+                            AddOutputMessage($"Transfering file to device as {DestMedia.FileName}");
                             result = localDestMedia.CopyMediaTo((Media)DestMedia, ref _aborted);
                         }
                     }
@@ -140,7 +143,7 @@ namespace TAS.Server
         {
             
             Debug.WriteLine(this, "Export encode started");
-            AddOutputMessage(string.Format("Encode started to file {0}", outFile));
+            AddOutputMessage($"Encode started to file {outFile}");
             StringBuilder files = new StringBuilder();
             int index = 0;
             List<string> complexFilterElements = new List<string>();
@@ -153,17 +156,17 @@ namespace TAS.Server
             foreach (var e in exportMedia)
             {
                 files.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1} -i \"{2}\"", (e.StartTC - e.Media.TcStart).TotalSeconds, e.Duration.TotalSeconds, e.Media.FullPath);
-                string videoOutputName = string.Format("[v{0}]", index);
+                string videoOutputName = $"[v{index}]";
                 complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, e.Media.VideoFormatDescription.IsWideScreen ? "[{0}]setdar=dar=16/9[d{1}]" : "[{0}]setdar=dar=4/3[d{1}]", index, index));
-                complexFilterElements.Add(string.Format("[d{0}]{1}[v{2}]", index, scaleFilter, index));
+                complexFilterElements.Add($"[d{index}]{scaleFilter}[v{index}]");
                 int audioIndex = index;
                 complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, "[{0}]volume={1:F3}dB[a{0}]", audioIndex, e.AudioVolume));
                 index++;
                 for (int i = 0; i < e.Logos.Length; i++)
                 {
-                    files.Append(string.Format(" -i \"{0}\"", e.Logos[i].FullPath));
-                    string newOutputName = string.Format("[v{0}]", index);
-                    complexFilterElements.Add(string.Format("{0}[{1}]overlay{2}", videoOutputName, index, newOutputName));
+                    files.Append($" -i \"{e.Logos[i].FullPath}\"");
+                    string newOutputName = $"[v{index}]";
+                    complexFilterElements.Add($"{videoOutputName}[{index}]overlay{newOutputName}");
                     videoOutputName = newOutputName;
                     index++;
                 }

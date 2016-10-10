@@ -226,8 +226,7 @@ namespace TAS.Client.ViewModels
         private void _syncSecToPri(object o)
         {
             if (_selectedDirectory is IServerDirectory)
-                ThreadPool.QueueUserWorkItem((obj) =>
-                    _mediaManager.SynchronizeMediaSecToPri(true));
+                        _mediaManager.SynchronizeMediaSecToPri(true);
         }
 
         private void _export(object obj)

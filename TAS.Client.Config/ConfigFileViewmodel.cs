@@ -17,7 +17,7 @@ namespace TAS.Client.Config
 
         protected override void OnDispose() { }
         public ConfigFileViewmodel(Model.ConfigFile configFile)
-            : base(configFile, new ConfigFileView(), string.Format("Config file ({0})", configFile.FileName))
+            : base(configFile, new ConfigFileView(), $"Config file ({configFile.FileName})")
         {
             _commandEditConnectionString = new UICommand() { ExecuteDelegate = _editConnectionString };
             _commandEditConnectionStringSecondary = new UICommand() { ExecuteDelegate = _editConnectionStringSecondary };

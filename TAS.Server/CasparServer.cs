@@ -104,7 +104,7 @@ namespace TAS.Server
                 port = 5250;
             if (_casparDevice != null && !_casparDevice.IsConnected)
                 _casparDevice.Connect(host, port, true);
-            else throw new Exception(string.Format("Invalid server address: {0}", ServerAddress));
+            else throw new Exception($"Invalid server address: {ServerAddress}");
         }
 
         protected void _disconnect()
