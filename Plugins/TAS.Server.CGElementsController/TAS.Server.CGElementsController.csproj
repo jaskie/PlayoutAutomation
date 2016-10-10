@@ -28,7 +28,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\TVPlay\bin\Debug\Plugins\Release\</OutputPath>
+    <OutputPath>..\..\TVPlay\bin\Release\Plugins\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
