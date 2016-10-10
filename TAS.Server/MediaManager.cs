@@ -272,18 +272,7 @@ namespace TAS.Server
             {
                 ServerMedia compMedia = _findComplementaryMedia(priMedia);
                 if (compMedia != null)
-                    ThreadPool.QueueUserWorkItem((o) =>
-                        {
-                            try
-                            {
-                                compMedia.Save();
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Error(ex, "_onServerDirectoryMediaSaved exception");
-                            }
-                        }
-                    );
+                    ThreadPool.QueueUserWorkItem((o) => compMedia.Save());
             }
         }
 

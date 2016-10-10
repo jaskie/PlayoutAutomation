@@ -10,6 +10,8 @@ namespace TAS.Server
 {
     public class ArchiveMedia : PersistentMedia, IArchiveMedia
     {
+        private NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ArchiveMedia));
+
         public ArchiveMedia(IArchiveDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
 
         private TIngestStatus _ingestStatus;
@@ -35,22 +37,29 @@ namespace TAS.Server
         public override bool Save()
         {
             bool result = false;
-            if (MediaStatus != TMediaStatus.Unknown)
+            try
             {
-                if (MediaStatus == TMediaStatus.Deleted)
+                if (MediaStatus != TMediaStatus.Unknown)
                 {
-                    if (IdPersistentMedia != 0)
-                        result = this.DbDelete();
-                }
-                else
-                {
-                    if (IdPersistentMedia == 0)
-                        result = this.DbInsert(((ArchiveDirectory)_directory).idArchive);
+                    if (MediaStatus == TMediaStatus.Deleted)
+                    {
+                        if (IdPersistentMedia != 0)
+                            result = this.DbDelete();
+                    }
                     else
-                    if (IsModified)
-                        result = this.DbUpdate(((ArchiveDirectory)_directory).idArchive);
-                    IsModified = false;
+                    {
+                        if (IdPersistentMedia == 0)
+                            result = this.DbInsert(((ArchiveDirectory)_directory).idArchive);
+                        else
+                        if (IsModified)
+                            result = this.DbUpdate(((ArchiveDirectory)_directory).idArchive);
+                        IsModified = false;
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Error saving {0}", MediaName);
             }
             return result;
         }

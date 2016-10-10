@@ -127,6 +127,8 @@ namespace TAS.Server
         }
 #endif
 
+        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Event));
+
         UInt64 _idRundownEvent = 0;
         [XmlIgnore]
         public UInt64 IdRundownEvent
@@ -1127,12 +1129,19 @@ namespace TAS.Server
         
         public void Save()
         {
-            if (_idRundownEvent == 0)
-                this.DbInsert();
-            else
-                this.DbUpdate();
-            _isModified = false;
-            NotifySaved();
+            try
+            {
+                if (_idRundownEvent == 0)
+                    this.DbInsert();
+                else
+                    this.DbUpdate();
+                _isModified = false;
+                NotifySaved();
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Exception saving event {0}", EventName);
+            }
         }
 
         internal Event FindVisibleSubEvent()
