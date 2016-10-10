@@ -120,6 +120,9 @@
   <data name="Window.Title" xml:space="preserve">
     <value>Export to device</value>
   </data>
+  <data name="_audioFormat" xml:space="preserve">
+    <value>Audio format</value>
+  </data>
   <data name="_concatMedia" xml:space="preserve">
     <value>Concat items</value>
   </data>
@@ -152,5 +155,8 @@
   </data>
   <data name="_statusBar.StringFormat" xml:space="preserve">
     <value>Clips: {0}, total duration: {1}</value>
+  </data>
+  <data name="_videoFormat" xml:space="preserve">
+    <value>Video format</value>
   </data>
 </root>

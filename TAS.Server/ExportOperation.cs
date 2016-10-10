@@ -11,7 +11,7 @@ using TAS.Server.Common;
 
 namespace TAS.Server
 {
-    public class ExportOperation: FFMpegOperation
+    public class ExportOperation : FFMpegOperation
     {
         const string D10_PAD_FILTER = "pad=720:608:0:32";
         const string D10_PAL_IMX50 = "-vsync cfr -r 25 -pix_fmt yuv422p -vcodec mpeg2video -minrate 50000k -maxrate 50000k -b:v 50000k -intra -top 1 -flags +ildct+low_delay -dc 10 -ps 1 -qmin 1 -qmax 3 -bufsize 2000000 -rc_init_occupancy 2000000 -rc_buf_aggressivity 0.25 -intra_vlc 1 -non_linear_quant 1 -color_primaries 5 -color_trc 1 -colorspace 5 -rc_max_vbv_use 1 -tag:v mx5p";
@@ -43,7 +43,7 @@ namespace TAS.Server
         }
 
         public TimeSpan StartTC { get; set; }
-        
+
         public TimeSpan Duration { get; set; }
 
         public decimal AudioVolume { get; set; }
@@ -51,6 +51,10 @@ namespace TAS.Server
         public IngestDirectory DestDirectory { get; set; }
 
         public string DestMediaName { get; set; }
+
+        public TmXFVideoExportFormat MXFVideoExportFormat { get; set; }
+
+        public TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
 
         public override bool Do()
         {
@@ -186,12 +190,12 @@ namespace TAS.Server
                 complexFilter,
                 DestDirectory.IsXDCAM || DestDirectory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? 
                     String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0} {1}", 
-                        DestDirectory.MXFVideoExportFormat == TmXFVideoExportFormat.IMX30 ? D10_PAL_IMX30
-                            : DestDirectory.MXFVideoExportFormat == TmXFVideoExportFormat.IMX40 ? D10_PAL_IMX40
+                        MXFVideoExportFormat == TmXFVideoExportFormat.IMX30 ? D10_PAL_IMX30
+                            : MXFVideoExportFormat == TmXFVideoExportFormat.IMX40 ? D10_PAL_IMX40
                             : D10_PAL_IMX50
                         ,
-                        DestDirectory.MXFAudioExportFormat == TmXFAudioExportFormat.Channels4Bits24 ? PCM24LE4CH 
-                            : DestDirectory.MXFAudioExportFormat == TmXFAudioExportFormat.Channels4Bits16 ? PCM16LE4CH
+                        MXFAudioExportFormat == TmXFAudioExportFormat.Channels4Bits24 ? PCM24LE4CH 
+                            : MXFAudioExportFormat == TmXFAudioExportFormat.Channels4Bits16 ? PCM16LE4CH
                             : PCM16LE8CH)
                     :
                     DestDirectory.ExportParams,

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using TAS.Server.Interfaces;
 
 namespace TAS.Server.Common
@@ -28,6 +27,7 @@ namespace TAS.Server.Common
         public TimeSpan StartTC;
         [DataMember]
         public decimal AudioVolume;
+
         public void AddLogo(IMedia logo)
         {
             var logos = Logos.AsEnumerable().ToList();

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Input;
 using TAS.Client.Common;
+using TAS.Common;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
 
@@ -38,10 +39,18 @@ namespace TAS.Client.ViewModels
                 if (SetField(ref _selectedDirectory, value, nameof(SelectedDirectory)))
                 {
                     NotifyPropertyChanged(nameof(IsConcatMediaNameVisible));
+                    NotifyPropertyChanged(nameof(IsXDCAM));
+                    if (value?.IsXDCAM == true)
+                    {
+                        MXFAudioExportFormat = value.MXFAudioExportFormat;
+                        MXFVideoExportFormat = value.MXFVideoExportFormat;
+                    }
                     InvalidateRequerySuggested();
                 }
             }
         }
+
+        public bool IsXDCAM { get { return _selectedDirectory?.IsXDCAM == true; } }
 
         private bool _concatMedia;
         public bool ConcatMedia
@@ -69,8 +78,20 @@ namespace TAS.Client.ViewModels
 
         public bool IsConcatMediaNameVisible
         {
-            get { return _concatMedia && !_selectedDirectory.IsXDCAM; }
+            get { return _concatMedia && !IsXDCAM; }
         }
+
+        static readonly Array _mXFVideoExportFormats = Enum.GetValues(typeof(TmXFVideoExportFormat));
+        public Array MXFVideoExportFormats { get { return _mXFVideoExportFormats; } }
+
+        static readonly Array _mXFAudioExportFormats = Enum.GetValues(typeof(TmXFAudioExportFormat));
+        public Array MXFAudioExportFormats { get { return _mXFAudioExportFormats; } }
+
+        private TmXFAudioExportFormat _mXFAudioExportFormat;
+        private TmXFVideoExportFormat _mXFVideoExportFormat;
+        public TmXFAudioExportFormat MXFAudioExportFormat { get { return _mXFAudioExportFormat; } set { SetField(ref _mXFAudioExportFormat, value, nameof(MXFAudioExportFormat)); } }
+        public TmXFVideoExportFormat MXFVideoExportFormat { get { return _mXFVideoExportFormat; } set { SetField(ref _mXFVideoExportFormat, value, nameof(MXFVideoExportFormat)); } }
+
 
         public bool CanConcatMedia { get { return Items.Count > 1; } }
 
@@ -87,7 +108,7 @@ namespace TAS.Client.ViewModels
                 _checking = false;
                 InvalidateRequerySuggested();
             }
-            _mediaManager.Export(Items.Select(mevm => mevm.MediaExport), _concatMedia, _concatMediaName, SelectedDirectory);
+            _mediaManager.Export(Items.Select(mevm => mevm.MediaExport), _concatMedia, _concatMediaName, SelectedDirectory, _mXFAudioExportFormat, _mXFVideoExportFormat);
             _view.Close();
         }
 

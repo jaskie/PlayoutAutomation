@@ -485,20 +485,20 @@ namespace TAS.Server
         }
 
 
-        public void Export(IEnumerable<ExportMedia> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory)
+        public void Export(IEnumerable<ExportMedia> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat)
         {
             if (asSingleFile)
             {
-                _fileManager.Queue(new ExportOperation() { ExportMediaList = exportList, DestMediaName = singleFilename, DestDirectory = directory as IngestDirectory });
+                _fileManager.Queue(new ExportOperation() { ExportMediaList = exportList, DestMediaName = singleFilename, DestDirectory = directory as IngestDirectory, MXFAudioExportFormat = mXFAudioExportFormat, MXFVideoExportFormat = mXFVideoExportFormat });
             }
             else
                 foreach (ExportMedia e in exportList)
-                    Export(e, directory);
+                    Export(e, directory, mXFAudioExportFormat, mXFVideoExportFormat);
         }
 
-        private void Export(ExportMedia export, IIngestDirectory directory)
+        private void Export(ExportMedia export, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat)
         {
-            _fileManager.Queue(new ExportOperation() { ExportMediaList = new[] { export }, DestMediaName = export.Media.MediaName, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory as IngestDirectory });
+            _fileManager.Queue(new ExportOperation() { ExportMediaList = new[] { export }, DestMediaName = export.Media.MediaName, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory as IngestDirectory, MXFAudioExportFormat = mXFAudioExportFormat, MXFVideoExportFormat = mXFVideoExportFormat });
         }
 
         public Guid IngestFile(string fileName)
