@@ -282,17 +282,21 @@ namespace TAS.Server.Database
 
         private void _idleTimeTimerCallback(object o)
         {
-            lock (this)
+            MySqlConnection connection = o as MySqlConnection;
+            if (connection != null)
             {
-                MySqlConnection connection = o as MySqlConnection;
-                if (connection != null
-                    && !connection.Ping())
+                bool isConnected;
+                lock (this)
+                {
+                    isConnected = connection.Ping();
+                }
+                if (!isConnected)
                 {
                     connection.Close();
                     _connect(connection);
                 }
             }
-        }
+        }        
 
         private bool _connect(MySqlConnection connection)
         {
