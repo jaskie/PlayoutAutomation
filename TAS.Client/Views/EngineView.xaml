@@ -363,7 +363,13 @@
                             </StackPanel>
                         </MenuItem>
                     </Menu>
-                    <views:EngineCGElementsControllerView DataContext="{Binding CGElementsControllerViewmodel}"/>
+                    <ContentControl Content="{Binding CGElementsControllerViewmodel}">
+                        <ContentControl.Resources>
+                            <DataTemplate DataType="{x:Type vievmodels:EngineCGElementsControllerViewmodel}">
+                                <views:EngineCGElementsControllerView />
+                            </DataTemplate>
+                        </ContentControl.Resources>
+                    </ContentControl>
                 </StackPanel>
             </StatusBarItem>
             <StatusBarItem TextBlock.FontSize="13" HorizontalAlignment="Right" Panel.ZIndex="1" Background="{Binding Path=Background, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type StatusBar}}}">

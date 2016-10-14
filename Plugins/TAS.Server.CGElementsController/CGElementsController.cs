@@ -105,7 +105,7 @@ namespace TAS.Server
         private byte _crawl;
         public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value, nameof(Crawl)); } }
 
-        IEnumerable<ICGElement> _crawls;
+        IEnumerable<ICGElement> _crawls = new ICGElement[0];
         public IEnumerable<ICGElement> Crawls { get { return _crawls; } }
 
         public byte DefaultCrawl { get { return 1; } }
@@ -129,19 +129,19 @@ namespace TAS.Server
         byte _logo;
         public byte Logo { get { return _logo; } set { SetField(ref _logo, value, nameof(Logo)); } }
 
-        IEnumerable<ICGElement> _logos;
+        IEnumerable<ICGElement> _logos = new ICGElement[0];
         public IEnumerable<ICGElement> Logos { get { return _logos; } }
 
         byte _parental;
         public byte Parental { get { return _parental; } set { SetField(ref _parental, value, nameof(Parental)); } }
 
-        IEnumerable<ICGElement> _parentals;
+        IEnumerable<ICGElement> _parentals = new ICGElement[0];
         public IEnumerable<ICGElement> Parentals { get { return _parentals; } }
 
         byte[] _visibleAuxes = new byte[0];
         public byte[] VisibleAuxes { get { return _visibleAuxes; } }
 
-        IEnumerable<ICGElement> _auxes;
+        IEnumerable<ICGElement> _auxes = new ICGElement[0];
         public IEnumerable<ICGElement> Auxes { get { return _auxes; } }
 
         public event EventHandler Started;

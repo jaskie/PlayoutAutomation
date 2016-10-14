@@ -118,8 +118,10 @@ namespace TAS.Client.ViewModels
                 engine.PlayoutChannelPRV.OwnerServer.PropertyChanged += OnPRVServerPropertyChanged;
             _cGElementsController = engine.CGElementsController;
             if (_cGElementsController != null)
+            {
                 _cGElementsController.PropertyChanged += _cGElementsController_PropertyChanged;
-            _cGElementsControllerViewmodel = new EngineCGElementsControllerViewmodel(engine.CGElementsController);
+                _cGElementsControllerViewmodel = new EngineCGElementsControllerViewmodel(engine.CGElementsController);
+            }
         }
 
         private void _cGElementsController_PropertyChanged(object sender, PropertyChangedEventArgs e)

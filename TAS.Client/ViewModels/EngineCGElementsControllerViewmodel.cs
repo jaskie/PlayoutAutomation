@@ -14,27 +14,24 @@ namespace TAS.Client.ViewModels
         public EngineCGElementsControllerViewmodel(ICGElementsController controller)
         {
             Controller = controller;
-            if (controller != null)
-            {
-                _crawls = controller.Crawls.ToList();
-                _logos = controller.Logos.ToList();
-                _parentals = controller.Parentals.ToList();
-                _visibleAuxes = controller.VisibleAuxes;
-                controller.PropertyChanged += Controller_PropertyChanged;
-            }
+            _crawls = controller.Crawls.ToList();
+            _logos = controller.Logos.ToList();
+            _parentals = controller.Parentals.ToList();
+            _auxes = controller.Auxes.ToList();
+            _visibleAuxes = controller.VisibleAuxes;
+            controller.PropertyChanged += Controller_PropertyChanged;
         }
 
         private void Controller_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (Controller != null)
-            {
-                if (e.PropertyName == nameof(ICGElementsController.Crawls))
-                    _crawls = Controller.Crawls.ToList();
-                if (e.PropertyName == nameof(ICGElementsController.Parentals))
-                    _parentals = Controller.Parentals.ToList();
-                if (e.PropertyName == nameof(ICGElementsController.Logos))
-                    _logos = Controller.Logos.ToList();
-            }
+            if (e.PropertyName == nameof(ICGElementsController.Crawls))
+                _crawls = Controller.Crawls.ToList();
+            if (e.PropertyName == nameof(ICGElementsController.Parentals))
+                _parentals = Controller.Parentals.ToList();
+            if (e.PropertyName == nameof(ICGElementsController.Logos))
+                _logos = Controller.Logos.ToList();
+            if (e.PropertyName == nameof(ICGElementsController.Auxes))
+                _auxes = Controller.Auxes.ToList();
             NotifyPropertyChanged(e.PropertyName);
         }
 
