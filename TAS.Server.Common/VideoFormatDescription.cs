@@ -57,16 +57,16 @@ namespace TAS.Common
                     break;
                 case TVideoFormat.NTSC_FHA:
                     Interlaced = true;
-                    ImageSize = new Size(640, 486);
+                    ImageSize = new Size(720, 480);
                     FrameRate = new RationalNumber(30, 1);
-                    SAR = new RationalNumber(40, 33);
+                    SAR = new RationalNumber(32, 27);
                     IsWideScreen = true;
                     break;
                 case TVideoFormat.NTSC:
                     Interlaced = true;
-                    ImageSize = new Size(640, 486);
+                    ImageSize = new Size(720, 480);
                     FrameRate = new RationalNumber(30, 1);
-                    SAR = new RationalNumber(10, 11);
+                    SAR = new RationalNumber(8, 9);
                     IsWideScreen = false;
                     break;
                 case TVideoFormat.HD1080i5000:
