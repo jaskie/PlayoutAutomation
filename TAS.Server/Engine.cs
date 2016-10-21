@@ -690,7 +690,7 @@ namespace TAS.Server
                     {
                         if (e.PlayState == TPlayState.Playing)
                         {
-                            e.PlayState = e.IsFinished ? TPlayState.Played : TPlayState.Aborted;
+                            e.PlayState = e.IsFinished() ? TPlayState.Played : TPlayState.Aborted;
                             _runningEvents.Remove(e);
                         }
                         e.SaveDelayed();
@@ -814,7 +814,7 @@ namespace TAS.Server
 
         private void _stop(Event aEvent)
         {
-            aEvent.PlayState = aEvent.Position == 0 ? TPlayState.Scheduled : aEvent.IsFinished ? TPlayState.Played : TPlayState.Aborted;
+            aEvent.PlayState = aEvent.Position == 0 ? TPlayState.Scheduled : aEvent.IsFinished() ? TPlayState.Played : TPlayState.Aborted;
             aEvent.SaveDelayed();
             lock (_visibleEvents.SyncRoot)
                 if (_visibleEvents.Contains(aEvent))
@@ -912,7 +912,7 @@ namespace TAS.Server
                             }
                             if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks)
                                 _loadNext(succEvent);
-                            if (playingEvent.Position >= playingEvent.LengthInFrames - succEvent.TransitionInFrames)
+                            if (playingEvent.Position >= playingEvent.LengthInFrames() - succEvent.TransitionInFrames)
                             {
                                 if (succEvent.IsHold && succEvent != _forcedNext)
                                     EngineState = TEngineState.Hold;
@@ -942,7 +942,7 @@ namespace TAS.Server
                         runningEvents = _runningEvents.Where(e => e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading).ToList();
                     foreach (Event e in runningEvents)
                     {
-                        if (e.IsFinished)
+                        if (e.IsFinished())
                         {
                             if (succEvent == null)
                                 _pause(e, true);
@@ -1400,14 +1400,14 @@ namespace TAS.Server
                 if (SetField(ref _engineState, value, nameof(EngineState)))
                     {
                         if (value == TEngineState.Hold)
-                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished).ToList())
+                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished()).ToList())
                             {
                                 _pause(ev, true);
                                 Debug.WriteLine(ev, "Hold: Played");
                             }
                         if (value == TEngineState.Idle && _runningEvents.Count > 0)
                         {
-                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished).ToList())
+                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished()).ToList())
                             {
                                 _pause(ev, true);
                                 Debug.WriteLine(ev, "Idle: Played");

@@ -80,7 +80,17 @@ namespace TAS.Server.Common
             ThreadPool.QueueUserWorkItem(o => aEvent.Save());
         }
 
-        
+        public static long LengthInFrames(this IEvent aEvent)
+        {
+            return aEvent.Length.Ticks / aEvent.Engine.FrameTicks; 
+        }
+
+        public static bool IsFinished(this IEvent aEvent)
+        {
+            return aEvent.Position >= LengthInFrames(aEvent);
+        }
+
+
 
         /// <summary>
         /// Gets subsequent event that will play after this

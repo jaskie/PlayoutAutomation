@@ -264,17 +264,13 @@ namespace TAS.Server
 
         public event EventHandler<EventPositionEventArgs> PositionChanged;
 
-        public bool IsFinished { get { return _position >= LengthInFrames; } }
-
         public UInt64 IdEventBinding { get { return _idEventBinding; } }
 
         Lazy<SynchronizedCollection<IEvent>> _subEvents;
         public IList<IEvent> SubEvents { get { lock (_subEvents.Value.SyncRoot)  return _subEvents.Value.ToList(); } }
 
         public int SubEventsCount { get { return _subEvents.Value.Count; } }
-
-
-
+        
         private readonly Engine _engine;
         public IEngine Engine { get { return _engine; } }
 
@@ -612,11 +608,6 @@ namespace TAS.Server
                 if (SetField(ref _requestedStartTime, value, nameof(RequestedStartTime)))
                     NotifyPropertyChanged(nameof(Offset));
             }
-        }
-
-        public long LengthInFrames
-        {
-            get { return Length.Ticks / Engine.FrameTicks; }
         }
 
         TimeSpan _transitionTime;

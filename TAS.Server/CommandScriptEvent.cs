@@ -100,7 +100,7 @@ namespace TAS.Server
             get
             {
                 lock (_commandsSyncRoot)
-                    if (IsFinished)
+                    if (this.IsFinished())
                         return _commands.Where(c => c.ExecuteTime == null).ToArray(); 
                     else
                         return _commands.Where(c => !c.IsExecuted && Position >= c.ExecuteTime?.ToSMPTEFrames(Engine.FrameRate)).ToArray();
