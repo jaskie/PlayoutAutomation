@@ -11,7 +11,6 @@ namespace TAS.Server.Interfaces
 {
     public interface IMediaManager: IInitializable, IDto
     {
-        IEngine getEngine();
         IAnimationDirectory AnimationDirectoryPRI { get; }
         IAnimationDirectory AnimationDirectorySEC { get; }
         IAnimationDirectory AnimationDirectoryPRV { get; }
@@ -19,6 +18,7 @@ namespace TAS.Server.Interfaces
         IServerDirectory MediaDirectorySEC { get; }
         IServerDirectory MediaDirectoryPRV { get; }
         IArchiveDirectory ArchiveDirectory { get; }
+        IEngine Engine { get; }
         List<IIngestDirectory> IngestDirectories { get; }
         IFileManager FileManager { get; }
         VideoFormatDescription FormatDescription { get; }

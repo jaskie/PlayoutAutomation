@@ -7,7 +7,7 @@ using TAS.Common;
 
 namespace TAS.Client
 {
-    public class TypeNameBinder : SerializationBinder
+    public class ClientTypeNameBinder : SerializationBinder
     {
         public override Type BindToType(string assemblyName, string typeName)
         {
@@ -46,7 +46,10 @@ namespace TAS.Client
                     return typeof(Model.PlayoutServerChannel);
                 case "TAS.Server.CasparServer":
                     return typeof(Model.PlayoutServer);
-
+                case "TAS.Server.CGElementsController":
+                    return typeof(Model.CGElementsController);
+                case "TAS.Server.CGElement":
+                    return typeof(Model.CGElement);
                 case "Interfaces.IIngestDirectory":
                     return typeof(Model.IngestDirectory);
                 case "System.ComponentModel.PropertyChangedEventArgs":

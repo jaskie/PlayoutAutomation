@@ -16,14 +16,14 @@ namespace TAS.Client.Model
             Invoke(parameters: new object[] { mediaList, deleteAfter });
         }
 
-        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList)
+        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete)
         {
             return Query<List<MediaDeleteDenyReason>>(parameters: mediaList);
         }
 
-        public void Export(IEnumerable<ExportMedia> exportList, IIngestDirectory directory)
+        public void Export(IEnumerable<ExportMedia> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat)
         {
-            Invoke(parameters: new object[] { exportList, directory });
+            Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory, mXFAudioExportFormat, mXFVideoExportFormat });
         }
 
         public IAnimationDirectory AnimationDirectoryPRI { get { return Get<AnimationDirectory>(); } set { SetField(value); } }
@@ -32,10 +32,6 @@ namespace TAS.Client.Model
 
         public IArchiveDirectory ArchiveDirectory { get { return Get<ArchiveDirectory>(); } set { SetField(value); } }
 
-        public IEngine getEngine()
-        {
-            throw new NotImplementedException();
-        }
 
         public IFileManager FileManager { get { return Get<IFileManager>(); }  set { SetField(value); } }
 
@@ -89,6 +85,10 @@ namespace TAS.Client.Model
         {
             Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory });
         }
+
+        public ICGElementsController CGElementsController { get { return Get<CGElementsController>(); } }
+
+        public IEngine Engine { get { return Get<Engine>(); } }
 
     }
 }

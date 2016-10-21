@@ -530,7 +530,10 @@ namespace TAS.Client.ViewModels
                     SearchText = (sender as IArchiveDirectory).SearchString;
             }
             if (e.PropertyName == nameof(IMediaDirectory.IsInitialized) && (sender as IMediaDirectory).IsInitialized)
+            {
                 Application.Current.Dispatcher.BeginInvoke((Action)delegate () { _reloadFiles(_selectedDirectory); });
+                _notifyDirectoryPropertiesChanged();
+            }
             if (e.PropertyName == nameof(IMediaDirectory.VolumeFreeSize))
                 _notifyDirectoryPropertiesChanged();
         }

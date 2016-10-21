@@ -112,7 +112,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="TypeNameBinder.cs" />
+    <Compile Include="Model\CGElement.cs" />
+    <Compile Include="Model\CGElementsController.cs" />
+    <Compile Include="ClientTypeNameBinder.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\AnimationDirectory.cs" />

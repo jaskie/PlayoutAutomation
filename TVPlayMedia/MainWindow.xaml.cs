@@ -35,7 +35,7 @@ namespace TAS.Client
             try
             {
                 _client = new RemoteClient(ConfigurationManager.AppSettings["Host"]);
-                _client.Binder = new TypeNameBinder();
+                _client.Binder = new ClientTypeNameBinder();
                 _client.Initialize();
                 IEngine engine = _client.GetInitalObject<IEngine>();
                 IMediaManager mm = engine.MediaManager;

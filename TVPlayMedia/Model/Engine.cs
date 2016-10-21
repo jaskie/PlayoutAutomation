@@ -27,105 +27,13 @@ namespace TAS.Client.Model
 
         public long FrameTicks { get { return Get<long>(); } set { SetField(value); } }
 
-        #region GPI
-        public IGpi Gpi
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public ICGElementsController CGElementsController { get { return Get<CGElementsController>(); } }
 
-        public IGpi LocalGpi
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public bool EnableCGElementsForNewEvents { get; set; }
 
-        public bool GPIAspectNarrow
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public bool GPIConnected
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TCrawl GPICrawl
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public bool GPIEnabled
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public bool GPIIsMaster
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TLogo GPILogo
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TParental GPIParental
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        #endregion // GPI
+        public int CGStartDelay { get; set; }
 
         public ulong Id { get { return Get<ulong>(); } set { SetField(value); } }
 
@@ -138,9 +46,6 @@ namespace TAS.Client.Model
         public ulong IdServerSEC { get { return Get<ulong>(); } set { SetField(value); } }
 
         public ulong Instance { get { return Get<ulong>(); } set { SetField(value); } }
-
-        public bool EnableCGElementsForNewEvents { get { return Get<bool>(); } set { Set(value); } }
-        public bool EnableCGElementsCrawlForShows { get { return Get<bool>(); } set { Set(value); } }
 
         public bool FieldOrderInverted { get { return Get<bool>(); } set { Set(value); } }
 
@@ -304,7 +209,42 @@ namespace TAS.Client.Model
             }
         }
 
-        public IEvent AddNewEvent(ulong idRundownEvent = 0, ulong idEventBinding = 0, VideoLayer videoLayer = (VideoLayer)(-1), TEventType eventType = TEventType.Rundown, TStartType startType = TStartType.None, TPlayState playState = TPlayState.Scheduled, DateTime scheduledTime = default(DateTime), TimeSpan duration = default(TimeSpan), TimeSpan scheduledDelay = default(TimeSpan), TimeSpan scheduledTC = default(TimeSpan), Guid mediaGuid = default(Guid), string eventName = "", DateTime startTime = default(DateTime), TimeSpan startTC = default(TimeSpan), TimeSpan? requestedStartTime = default(TimeSpan?), TimeSpan transitionTime = default(TimeSpan), TimeSpan transitionPauseTime = default(TimeSpan), TTransitionType transitionType = TTransitionType.Cut, TEasing transitionEasing = TEasing.Linear, decimal? audioVolume = default(decimal?), ulong idProgramme = 0, string idAux = "", bool isEnabled = true, bool isHold = false, bool isLoop = false, EventCGElements gpi = default(EventCGElements), AutoStartFlags autoStartFlags = AutoStartFlags.None, IEnumerable<ICommandScriptItem> commands = null, IDictionary<string, string> fields = null, TemplateMethod method = TemplateMethod.Add, int templateLayer = 0)
+        public IEvent AddNewEvent(
+                    UInt64 idRundownEvent = 0,
+                    UInt64 idEventBinding = 0,
+                    VideoLayer videoLayer = VideoLayer.None,
+                    TEventType eventType = TEventType.Rundown,
+                    TStartType startType = TStartType.None,
+                    TPlayState playState = TPlayState.Scheduled,
+                    DateTime scheduledTime = default(DateTime),
+                    TimeSpan duration = default(TimeSpan),
+                    TimeSpan scheduledDelay = default(TimeSpan),
+                    TimeSpan scheduledTC = default(TimeSpan),
+                    Guid mediaGuid = default(Guid),
+                    string eventName = "",
+                    DateTime startTime = default(DateTime),
+                    TimeSpan startTC = default(TimeSpan),
+                    TimeSpan? requestedStartTime = null,
+                    TimeSpan transitionTime = default(TimeSpan),
+                    TimeSpan transitionPauseTime = default(TimeSpan),
+                    TTransitionType transitionType = TTransitionType.Cut,
+                    TEasing transitionEasing = TEasing.Linear,
+                    decimal? audioVolume = null,
+                    UInt64 idProgramme = 0,
+                    string idAux = "",
+                    bool isEnabled = true,
+                    bool isHold = false,
+                    bool isLoop = false,
+                    bool isCGEnabled = false,
+                    byte crawl = 0,
+                    byte logo = 0,
+                    byte parental = 0,
+                    AutoStartFlags autoStartFlags = AutoStartFlags.None,
+                    IEnumerable<ICommandScriptItem> commands = null,
+                    IDictionary<string, string> fields = null,
+                    TemplateMethod method = TemplateMethod.Add,
+                    int templateLayer = -1
+            )
         {
             throw new NotImplementedException();
         }
@@ -349,7 +289,7 @@ namespace TAS.Client.Model
             throw new NotImplementedException();
         }
 
-        public void ReScheduleAsync(IEvent aEvent)
+        public void ReScheduleDelayed(IEvent aEvent)
         {
             throw new NotImplementedException();
         }
@@ -390,7 +330,6 @@ namespace TAS.Client.Model
         public event EventHandler<IEventEventArgs> EventDeleted;
         public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         public event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
-        public event StateRedundantChangeEventHandler DatabaseConnectionStateChanged;
         public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
     }
 }

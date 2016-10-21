@@ -26,7 +26,7 @@ namespace TAS.Server
         readonly Engine _engine;
         readonly FileManager _fileManager;
         public IFileManager FileManager { get { return _fileManager; } }
-        public IEngine getEngine() { return _engine; }
+        public IEngine Engine { get { return _engine; } }
         public IServerDirectory MediaDirectoryPRI { get; private set; }
         public IServerDirectory MediaDirectorySEC { get; private set; }
         public IServerDirectory MediaDirectoryPRV { get; private set; }

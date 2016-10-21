@@ -34,7 +34,7 @@ namespace TAS.Client.ViewModels
         public MediaSearchViewmodel(IPreview preview, IMediaManager manager, TMediaType mediaType, bool closeAfterAdd, VideoFormatDescription videoFormatDescription)
         {
             _manager = manager;
-            _engine = manager.getEngine();
+            _engine = manager.Engine;
             if (mediaType == TMediaType.Movie)
             {
                 _videoFormatDescription = manager.FormatDescription;

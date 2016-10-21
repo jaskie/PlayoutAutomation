@@ -144,8 +144,7 @@ namespace TAS.Server
         }
         
         bool _encode(string outFile)
-        {
-            
+        {            
             Debug.WriteLine(this, "Export encode started");
             AddOutputMessage($"Encode started to file {outFile}");
             StringBuilder files = new StringBuilder();
