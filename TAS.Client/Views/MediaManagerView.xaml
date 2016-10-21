@@ -360,7 +360,7 @@
                 </StackPanel>
             </Button>
 
-            <Button ToolTip="{Resx _toolbar.Export.ToolTip}" Margin="10,0" Command="{Binding CommandExport}" Visibility="{Binding IsMediaCategoryVisible, Converter={StaticResource BoolToVis}}">
+            <Button ToolTip="{Resx _toolbar.Export.ToolTip}" Margin="10,0" Command="{Binding CommandExport}" Visibility="{Binding IsMediaExportVisible, Converter={StaticResource BoolToVis}}">
                 <StackPanel Orientation="Horizontal">
                     <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-export.png"/>
                     <Label Content="{Resx _toolbar.Export}"/>

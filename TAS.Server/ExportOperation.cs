@@ -156,13 +156,17 @@ namespace TAS.Server
             List<ExportMedia> exportMedia = _exportMediaList.ToList();
             TimeSpan startTimecode = exportMedia.First().StartTC;
             VideoFormatDescription outputFormatDesc = VideoFormatDescription.Descriptions[DestDirectory.IsXDCAM || DestDirectory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? TVideoFormat.PAL : DestDirectory.ExportVideoFormat];
-            string scaleFilter = string.Format("scale={0}:{1}:interl=-1", outputFormatDesc.ImageSize.Width, outputFormatDesc.ImageSize.Height);
+            string scaleFilter = $"scale={outputFormatDesc.ImageSize.Width}:{outputFormatDesc.ImageSize.Height}:interl=-1";
             foreach (var e in exportMedia)
             {
                 files.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1} -i \"{2}\"", (e.StartTC - e.Media.TcStart).TotalSeconds, e.Duration.TotalSeconds, e.Media.FullPath);
                 string videoOutputName = $"[v{index}]";
-                complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, e.Media.VideoFormatDescription.IsWideScreen ? "[{0}]setdar=dar=16/9[d{1}]" : "[{0}]setdar=dar=4/3[d{1}]", index, index));
-                complexFilterElements.Add($"[d{index}]{scaleFilter}[v{index}]");
+                List<string> itemVideoFilters = new List<string>();
+                if (((Media)e.Media).HasExtraLines)
+                    itemVideoFilters.Add("crop=720:576:0:32");
+                itemVideoFilters.Add(e.Media.VideoFormatDescription.IsWideScreen ? "setdar=dar=16/9" : "setdar=dar=4/3");
+                itemVideoFilters.Add(scaleFilter);
+                complexFilterElements.Add($"[{index}]{string.Join(",", itemVideoFilters)}{videoOutputName}");
                 int audioIndex = index;
                 complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, "[{0}]volume={1:F3}dB[a{0}]", audioIndex, e.AudioVolume));
                 index++;

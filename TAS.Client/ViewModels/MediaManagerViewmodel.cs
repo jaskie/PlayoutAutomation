@@ -159,7 +159,7 @@ namespace TAS.Client.ViewModels
 
         bool _canExport(object o)
         {
-            return (_selectedDirectory is IServerDirectory || _selectedDirectory is IArchiveDirectory) && _isSomethingSelected(o) && _mediaManager.IngestDirectories.Any(d => d.IsExport);
+            return _selectedMediaList != null && _selectedMediaList.Cast<MediaViewViewmodel>().Any(m => m.Media.MediaType == TMediaType.Movie);
         }
 
         private void _createCommands()
@@ -520,7 +520,7 @@ namespace TAS.Client.ViewModels
         public bool IsServerDirectory { get { return _selectedDirectory is IServerDirectory; } }
         public bool IsIngestOrArchiveDirectory { get { return _selectedDirectory is IIngestDirectory || _selectedDirectory is IArchiveDirectory; } }
         public bool IsAnimationDirectory { get { return _selectedDirectory is IAnimationDirectory; } }
-
+        public bool IsMediaExportVisible { get { return _mediaDirectories.Any(d => (d as IIngestDirectory)?.IsExport == true); } }
 
         private void _selectedDirectoryPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
