@@ -623,10 +623,6 @@ namespace TAS.Server
                 }
             }
         }
-        public long TransitionInFrames
-        {
-            get { return _transitionTime.Ticks / Engine.FrameTicks; }
-        }
 
 
         TimeSpan _transitionPauseTime;

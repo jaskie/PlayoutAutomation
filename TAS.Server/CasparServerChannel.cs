@@ -306,7 +306,7 @@ namespace TAS.Server
                                 channel.CG.Remove((int)aEvent.Layer, eTemplated.TemplateLayer);
                                 break;
                             case TemplateMethod.Stop:
-                                channel.Stop((int)aEvent.Layer);
+                                channel.CG.Stop((int)aEvent.Layer, eTemplated.TemplateLayer);
                                 break;
                             case TemplateMethod.Update:
                                 CasparCGDataCollection uf = new CasparCGDataCollection();
@@ -359,21 +359,6 @@ namespace TAS.Server
             }
             else
                 return false;
-        }
-
-        public bool Stop(VideoLayer videolayer)
-        {
-            var channel = _casparChannel;
-            if (_checkConnected() && channel != null)
-            {
-                channel.Stop((int)videolayer);
-                Event removed;
-                _visible.TryRemove(videolayer, out removed);
-                _loadedNext.TryRemove(videolayer, out removed);
-                Debug.WriteLine("CasparStop Layer {0}", videolayer);
-                return true;
-            }
-            return false;
         }
 
         public bool Pause(IEvent aEvent)

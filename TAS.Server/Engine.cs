@@ -912,7 +912,7 @@ namespace TAS.Server
                             }
                             if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks)
                                 _loadNext(succEvent);
-                            if (playingEvent.Position >= playingEvent.LengthInFrames() - succEvent.TransitionInFrames)
+                            if (playingEvent.Position >= playingEvent.LengthInFrames() - succEvent.TransitionInFrames())
                             {
                                 if (succEvent.IsHold && succEvent != _forcedNext)
                                     EngineState = TEngineState.Hold;

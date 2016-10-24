@@ -85,6 +85,11 @@ namespace TAS.Server.Common
             return aEvent.Length.Ticks / aEvent.Engine.FrameTicks; 
         }
 
+        public static long TransitionInFrames(this IEvent aEvent)
+        {
+            return aEvent.TransitionTime.Ticks / aEvent.Engine.FrameTicks; 
+        }
+
         public static bool IsFinished(this IEvent aEvent)
         {
             return aEvent.Position >= LengthInFrames(aEvent);
