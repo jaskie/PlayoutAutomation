@@ -151,6 +151,9 @@
     <Compile Include="Views\EventEditView.xaml.cs">
       <DependentUpon>EventEditView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\EventPanelCGElementsView.xaml.cs">
+      <DependentUpon>EventPanelCGElementsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\EventPanelCommandScriptView.xaml.cs">
       <DependentUpon>EventPanelCommandScriptView.xaml</DependentUpon>
     </Compile>
@@ -261,6 +264,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\EventPanelCGElementsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\EventPanelCommandScriptView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -360,7 +367,7 @@
     <EmbeddedResource Include="Views\EngineCGElementsControllerView.resx">
       <DependentUpon>EngineCGElementsControllerView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\EngineCGElementsControllerView.pl.resx" >
+    <EmbeddedResource Include="Views\EngineCGElementsControllerView.pl.resx">
       <DependentUpon>EngineCGElementsControllerView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\EngineStateView.pl.resx">
