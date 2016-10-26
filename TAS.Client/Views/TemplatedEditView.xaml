@@ -11,9 +11,6 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              d:DataContext="{x:Type vm:ITemplatedEdit}"
              d:DesignHeight="300" d:DesignWidth="300">
-    <UserControl.Resources>
-        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
-    </UserControl.Resources>
     <DockPanel>
         <DockPanel DockPanel.Dock="Top">
             <Label Content="{Resx _templateLayer}"/>

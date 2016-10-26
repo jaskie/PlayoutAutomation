@@ -8,7 +8,7 @@ namespace TAS.Server.Interfaces
         void PreviewLoad(IMedia media, long seek, long duration, long position, decimal audioLevel);
         IMedia PreviewMedia { get; }
         IPlayoutServerChannel PlayoutChannelPRV { get; }
-        VideoFormatDescription PreviewFormatDescription { get; }
+        VideoFormatDescription FormatDescription { get; }
         void PreviewUnload();
         bool PreviewLoaded { get; }
         bool PreviewIsPlaying { get; }

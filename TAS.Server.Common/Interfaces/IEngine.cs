@@ -12,7 +12,6 @@ namespace TAS.Server.Interfaces
 {
     public interface IEngine : IDto, IEngineConfig, IPreview, INotifyPropertyChanged
     {
-        VideoFormatDescription FormatDescription { get; }
         long FrameTicks { get; }
         IPlayoutServerChannel PlayoutChannelPRI { get; }
         IPlayoutServerChannel PlayoutChannelSEC { get; }

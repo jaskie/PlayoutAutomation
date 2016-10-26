@@ -209,18 +209,21 @@ namespace TAS.Client.ViewModels
 
         private void _refreshMediaDirectory(IMediaDirectory directory)
         {
-            try
+            ThreadPool.QueueUserWorkItem( o =>
             {
-                directory.Refresh();
-            }
-            catch (Exception e)
-            {
-                if (directory == SelectedDirectory)
-                    Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
-                    {
-                        MessageBox.Show(string.Format(resources._message_DirectoryRefreshFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
-                    });
-            }
+                try
+                {
+                    directory.Refresh();
+                }
+                catch (Exception e)
+                {
+                    if (directory == SelectedDirectory)
+                        Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+                        {
+                            MessageBox.Show(string.Format(resources._message_DirectoryRefreshFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
+                        });
+                }
+            });
         }
 
         private void _syncSecToPri(object o)

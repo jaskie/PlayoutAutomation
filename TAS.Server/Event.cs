@@ -167,9 +167,9 @@ namespace TAS.Server
             return (timecomp == 0) ? this.IdRundownEvent.CompareTo((obj as Event).IdRundownEvent) : timecomp;
         }
 
-        public object Clone()
+        public virtual object Clone()
         {
-            IEvent newEvent = Engine.AddNewEvent(
+            return Engine.AddNewEvent(
                 0,
                 0,
                 _layer,
@@ -201,15 +201,19 @@ namespace TAS.Server
                 _parental,
                 _autoStartFlags
                 );
+        }
 
+        public IEvent CloneTree()
+        {
+            var newEvent = (IEvent)Clone();
             foreach (Event e in SubEvents)
             {
-                IEvent newSubevent = (IEvent)e.Clone();
+                IEvent newSubevent = (IEvent)e.CloneTree();
                 newEvent.InsertUnder(newSubevent);
                 IEvent ne = e.Next;
                 while (ne != null)
                 {
-                    IEvent nec = (IEvent)ne.Clone();
+                    IEvent nec = (IEvent)ne.CloneTree();
                     newSubevent.InsertAfter(nec);
                     newSubevent = nec;
                     ne = ne.Next;
@@ -217,6 +221,7 @@ namespace TAS.Server
             }
             return newEvent;
         }
+
 
         TPlayState _playState;
         public virtual TPlayState PlayState

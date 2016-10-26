@@ -69,7 +69,7 @@ namespace TAS.Server
             ServerDirectory sdir = MediaDirectoryPRI as ServerDirectory;
             if (sdir != null)
             {
-                sdir.MediaPropertyChanged += ServerMediaPropertyChanged;
+                sdir.MediaPropertyChanged += _serverMediaPropertyChanged;
                 sdir.PropertyChanged += _onServerDirectoryPropertyChanged;
                 sdir.MediaSaved += _onServerDirectoryMediaSaved;
                 sdir.MediaVerified += _mediaPRIVerified;
@@ -78,7 +78,7 @@ namespace TAS.Server
             sdir = MediaDirectorySEC as ServerDirectory;
             if (MediaDirectoryPRI != MediaDirectorySEC && sdir != null)
             {
-                sdir.MediaPropertyChanged += ServerMediaPropertyChanged;
+                sdir.MediaPropertyChanged += _serverMediaPropertyChanged;
                 sdir.PropertyChanged += _onServerDirectoryPropertyChanged;
             }
             IAnimationDirectory adir = AnimationDirectoryPRI;
@@ -154,51 +154,50 @@ namespace TAS.Server
             }
         }
 
-        private void ServerMediaPropertyChanged(object dir, MediaPropertyChangedEventArgs e)
+        private void _serverMediaPropertyChanged(object dir, MediaPropertyChangedEventArgs e)
         {
             var adirPri = MediaDirectoryPRI;
             var adirSec = MediaDirectorySEC;
             if (e.Media is ServerMedia
                 && (adirPri != null && adirSec != null && adirPri != adirSec)
                 && !string.IsNullOrEmpty(e.PropertyName)
-                   && (e.PropertyName == "DoNotArchive"
-                    || e.PropertyName == "IdAux"
-                    || e.PropertyName == "IdProgramme"
-                    || e.PropertyName == "KillDate"
-                    || e.PropertyName == "OriginalMedia"
-                    || e.PropertyName == "AudioVolume"
-                    || e.PropertyName == "MediaCategory"
-                    || e.PropertyName == "Parental"
-                    || e.PropertyName == "MediaEmphasis"
-                    || e.PropertyName == "FileName"
-                    || e.PropertyName == "MediaName"
-                    || e.PropertyName == "Duration"
-                    || e.PropertyName == "DurationPlay"
-                    || e.PropertyName == "TcStart"
-                    || e.PropertyName == "TcPlay"
-                    || e.PropertyName == "VideoFormat"
-                    || e.PropertyName == "AudioChannelMapping"
-                    || e.PropertyName == "AudioLevelIntegrated"
-                    || e.PropertyName == "AudioLevelPeak"
-                    || e.PropertyName == "IsArchived"
-                    || e.PropertyName == "Protected"
-                    || e.PropertyName == "FieldOrderInverted"
+                   && (e.PropertyName == nameof(IServerMedia.DoNotArchive)
+                    || e.PropertyName == nameof(IServerMedia.IdAux)
+                    || e.PropertyName == nameof(IServerMedia.IdProgramme)
+                    || e.PropertyName == nameof(IServerMedia.KillDate)
+                    || e.PropertyName == nameof(IServerMedia.AudioVolume)
+                    || e.PropertyName == nameof(IServerMedia.MediaCategory)
+                    || e.PropertyName == nameof(IServerMedia.Parental)
+                    || e.PropertyName == nameof(IServerMedia.MediaEmphasis)
+                    || e.PropertyName == nameof(IServerMedia.FileName)
+                    || e.PropertyName == nameof(IServerMedia.MediaName)
+                    || e.PropertyName == nameof(IServerMedia.Duration)
+                    || e.PropertyName == nameof(IServerMedia.DurationPlay)
+                    || e.PropertyName == nameof(IServerMedia.TcStart)
+                    || e.PropertyName == nameof(IServerMedia.TcPlay)
+                    || e.PropertyName == nameof(IServerMedia.VideoFormat)
+                    || e.PropertyName == nameof(IServerMedia.AudioChannelMapping)
+                    || e.PropertyName == nameof(IServerMedia.AudioLevelIntegrated)
+                    || e.PropertyName == nameof(IServerMedia.AudioLevelPeak)
+                    || e.PropertyName == nameof(IServerMedia.IsArchived)
+                    || e.PropertyName == nameof(IServerMedia.Protected)
+                    || e.PropertyName == nameof(IServerMedia.FieldOrderInverted)
+                    || e.PropertyName == nameof(IServerMedia.MediaSegments)
                     ))
             {
                 ServerMedia compMedia = _findComplementaryMedia(e.Media as ServerMedia);
                 if (compMedia != null)
                 {
-                    PropertyInfo sourcePi = e.Media.GetType().GetProperty(e.PropertyName);
-                    PropertyInfo destPi = compMedia.GetType().GetProperty(e.PropertyName);
-                    if (sourcePi != null && destPi != null)
-                        destPi.SetValue(compMedia, sourcePi.GetValue(e.Media, null), null);
+                    PropertyInfo pi = typeof(ServerMedia).GetProperty(e.PropertyName);
+                    if (pi != null)
+                        pi.SetValue(compMedia, pi.GetValue(e.Media, null), null);
                 }
             }
         }
 
         private void _onServerDirectoryPropertyChanged(object dir, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "IsInitialized")
+            if (e.PropertyName == nameof(IServerDirectory.IsInitialized))
                 SynchronizeMediaSecToPri(false);
         }
 
@@ -206,7 +205,7 @@ namespace TAS.Server
 
         private void _onAnimationDirectoryPropertyChanged(object dir, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "IsInitialized")
+            if (e.PropertyName == nameof(IServerDirectory.IsInitialized))
             {
                 SynchronizeAnimationsSecToPri();
             }
@@ -392,28 +391,34 @@ namespace TAS.Server
                                        }
                                    }
                                }
-                               if (deleteNotExisted)
-                               {
-                                   var secMediaList = sec.GetFiles().ToList();
-                                   foreach (ServerMedia secMedia in secMediaList)
-                                   {
-                                       if ((ServerMedia)pri.FindMediaByMediaGuid(secMedia.MediaGuid) == null)
-                                           _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = secMedia });
-                                   }
-                                   var duplicatesList = secMediaList.Where(m => secMediaList.FirstOrDefault(d => d.MediaGuid == m.MediaGuid && ((ServerMedia)d).IdPersistentMedia != ((ServerMedia)m).IdPersistentMedia) != null).Select(m => m.MediaGuid).Distinct();
-                                   foreach (var mediaGuid in duplicatesList)
-                                       sec.FindMediaList(m => m.MediaGuid == mediaGuid)
-                                       .Skip(1).ToList()
-                                       .ForEach(m => m.Delete());
-                               }
                                _isSynchronizedMediaSecToPri = true;
-                               Logger.Debug("SynchronizeMediaSecToPri finished");
                            }
                            catch (Exception e)
                            {
                                Logger.Error(e, "SynchronizeMediaSecToPri exception");
                            }
                        }
+                       if (deleteNotExisted)
+                           try
+                           {
+
+                               var secMediaList = sec.GetFiles().ToList();
+                               foreach (ServerMedia secMedia in secMediaList)
+                               {
+                                   if ((ServerMedia)pri.FindMediaByMediaGuid(secMedia.MediaGuid) == null)
+                                       _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = secMedia });
+                               }
+                               var duplicatesList = secMediaList.Where(m => secMediaList.FirstOrDefault(d => d.MediaGuid == m.MediaGuid && ((ServerMedia)d).IdPersistentMedia != ((ServerMedia)m).IdPersistentMedia) != null).Select(m => m.MediaGuid).Distinct();
+                               foreach (var mediaGuid in duplicatesList)
+                                   sec.FindMediaList(m => m.MediaGuid == mediaGuid)
+                                   .Skip(1).ToList()
+                                   .ForEach(m => m.Delete());
+                           }
+                           catch (Exception e)
+                           {
+                               Logger.Error(e, "SynchronizeMediaSecToPri on deleteNotExisted exception");
+                           }
+                       Logger.Debug("SynchronizeMediaSecToPri finished");
                    }
                });
             }

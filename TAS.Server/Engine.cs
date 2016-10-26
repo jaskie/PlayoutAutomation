@@ -449,7 +449,7 @@ namespace TAS.Server
 
         public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal previewAudioVolume)
         {
-            Media mediaToLoad = FindPreviewMedia(media);
+            Media mediaToLoad = _findPreviewMedia(media as Media);
             if (mediaToLoad != null)
             {
                 _previewDuration = duration;
@@ -579,25 +579,18 @@ namespace TAS.Server
         [XmlIgnore]
         public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value, nameof(PreviewIsPlaying)); } }
 
-        public Media FindPreviewMedia(IMedia media)
+        private Media _findPreviewMedia(Media media)
         {
             IPlayoutServerChannel playoutChannel = _playoutChannelPRV;
             if (media is ServerMedia)
             {
-                if (media == null || playoutChannel == null)
-                    return (Media)media;
+                if (playoutChannel == null)
+                    return null;
                 else
-                    return ((ServerDirectory)playoutChannel.OwnerServer.MediaDirectory).FindMediaByMediaGuid(media.MediaGuid);
+                    return media.Directory == playoutChannel.OwnerServer.MediaDirectory ? media : ((ServerDirectory)playoutChannel.OwnerServer.MediaDirectory).FindMediaByMediaGuid(media.MediaGuid);
             }
             else
-                return (Media)media;
-        }
-
-        //[JsonProperty]
-        public VideoFormatDescription PreviewFormatDescription { get
-            {
-                return this.FormatDescription;
-            }
+                return media;
         }
 
         #endregion // Preview Routines

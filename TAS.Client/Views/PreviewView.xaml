@@ -7,6 +7,8 @@
              mc:Ignorable="d" 
              xmlns:client="clr-namespace:TAS.Client"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             d:DataContext="{x:Type vm:PreviewViewmodel}"
              FontSize="12" 
              >
     <UserControl.Resources>
@@ -52,7 +54,7 @@
                 <common:MediaSeekSlider DockPanel.Dock="Top" Margin="10" 
                                         Position="{Binding SliderPosition}" 
                                         Maximum="{Binding SliderMaximum}" 
-                                        SmallChange="1" LargeChange="{Binding OneSecond}" 
+                                        SmallChange="1" LargeChange="{Binding FramesPerSecond}" 
                                         Interval="500" Delay="1000" TickPlacement="TopLeft" 
                                         TickFrequency="{Binding SliderTickFrequency}" 
                                         ToolTip="{Resx _slider.ToolTip}"/>

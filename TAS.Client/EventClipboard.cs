@@ -87,7 +87,7 @@ namespace TAS.Client
 
             if (operation == ClipboardOperation.Copy && source.Engine == dest.Engine)
             {
-                IEvent newEvent = (IEvent)source.Clone();
+                IEvent newEvent = (IEvent)source.CloneTree();
                 switch (location)
                 {
                     case TPasteLocation.After:

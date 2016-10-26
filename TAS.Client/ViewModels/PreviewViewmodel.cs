@@ -25,7 +25,7 @@ namespace TAS.Client.ViewModels
             if (_channelPRV != null)
                 _channelPRV.OwnerServer.PropertyChanged += this.OnServerPropertyChanged;
             _preview = preview;
-            _frameRate = _preview.PreviewFormatDescription.FrameRate;
+            _frameRate = _preview.FormatDescription.FrameRate;
             _view = new Views.PreviewView(_frameRate) { DataContext = this };
             CreateCommands();
         }
@@ -167,21 +167,21 @@ namespace TAS.Client.ViewModels
             IMedia media = _event != null ? _event.Media: Media;
             decimal audioVolume = _event != null && _event.AudioVolume != null ? (decimal)_event.AudioVolume : media != null ? media.AudioVolume : 0M;
             if (media != null
-                && duration.Ticks >= _preview.PreviewFormatDescription.FrameTicks)
+                && duration.Ticks >= _preview.FormatDescription.FrameTicks)
             {
                 TcIn = tcIn;
-                TcOut = tcIn + duration - TimeSpan.FromTicks(_preview.PreviewFormatDescription.FrameTicks);
+                TcOut = tcIn + duration - TimeSpan.FromTicks(_preview.FormatDescription.FrameTicks);
                 if (reloadSegments && media is IServerMedia)
                 {
                     MediaSegments.Clear();
                     foreach (IMediaSegment ms in ((IServerMedia)media).MediaSegments.ToList())
                         MediaSegments.Add(new MediaSegmentViewmodel((IServerMedia)media, ms));
                 }
-                _loadedSeek = (tcIn.Ticks - media.TcStart.Ticks) / _preview.PreviewFormatDescription.FrameTicks;
+                _loadedSeek = (tcIn.Ticks - media.TcStart.Ticks) / _preview.FormatDescription.FrameTicks;
                 long newPosition = _preview.PreviewLoaded ? _preview.PreviewSeek + _preview.PreviewPosition - _loadedSeek : 0;
                 if (newPosition < 0)
                     newPosition = 0;
-                _loadedDuration = duration.Ticks / _preview.PreviewFormatDescription.FrameTicks;
+                _loadedDuration = duration.Ticks / _preview.FormatDescription.FrameTicks;
                 _loadedMedia = media;
                 _preview.PreviewLoad(media, _loadedSeek, _loadedDuration, newPosition, audioVolume);
             }
@@ -219,7 +219,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public TimeSpan DurationSelection { get { return new TimeSpan(TcOut.Ticks - TcIn.Ticks + _preview.PreviewFormatDescription.FrameTicks); } }
+        public TimeSpan DurationSelection { get { return new TimeSpan(TcOut.Ticks - TcIn.Ticks + _preview.FormatDescription.FrameTicks); } }
 
         public TimeSpan Position
         {
@@ -229,7 +229,7 @@ namespace TAS.Client.ViewModels
             }
             set
             {
-                _preview.PreviewPosition = (value.Ticks - StartTc.Ticks) / _preview.PreviewFormatDescription.FrameTicks - _loadedSeek;
+                _preview.PreviewPosition = (value.Ticks - StartTc.Ticks) / _preview.FormatDescription.FrameTicks - _loadedSeek;
             }
         }
 
@@ -275,7 +275,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public long OneSecond { get { return _frameRate.Num / _frameRate.Den; } }
+        public long FramesPerSecond { get { return _frameRate.Num / _frameRate.Den; } }
 
         public void OnServerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -444,10 +444,10 @@ namespace TAS.Client.ViewModels
                                 seekFrames = -1;
                                 break;
                             case "fsecond":
-                                seekFrames = OneSecond;
+                                seekFrames = FramesPerSecond;
                                 break;
                             case "rsecond":
-                                seekFrames = -OneSecond;
+                                seekFrames = -FramesPerSecond;
                                 break;
                             default:
                                 seekFrames = 0;
@@ -547,7 +547,7 @@ namespace TAS.Client.ViewModels
             if (media == null) 
                 return false;
             TimeSpan duration = PlayWholeClip ? media.Duration : (segment == null ? media.Duration : segment.Duration);
-            return duration.Ticks >= _preview.PreviewFormatDescription.FrameTicks;
+            return duration.Ticks >= _preview.FormatDescription.FrameTicks;
         }
 
         bool _canLoad(IMedia media)
@@ -555,7 +555,7 @@ namespace TAS.Client.ViewModels
             return media != null 
                 && (media.Directory is IServerDirectory || media.Directory is IArchiveDirectory || (media.Directory is IIngestDirectory && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct))
                 && media.MediaStatus == TMediaStatus.Available 
-                && media.FrameRate.Equals(_preview.PreviewFormatDescription.FrameRate);
+                && media.FrameRate.Equals(_preview.FormatDescription.FrameRate);
         }
 
         #endregion // Commands
@@ -567,7 +567,7 @@ namespace TAS.Client.ViewModels
 
         private void PreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IPreview.PreviewPosition))
+            if (_loadedMedia != null && e.PropertyName == nameof(IPreview.PreviewPosition))
             {
                 NotifyPropertyChanged(nameof(Position));
                 NotifyPropertyChanged(nameof(SliderPosition));
