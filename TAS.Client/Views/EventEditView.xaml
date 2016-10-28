@@ -6,6 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:client="clr-namespace:TAS.Client"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:views="clr-namespace:TAS.Client.Views"
@@ -45,13 +46,13 @@
                 </StackPanel.Resources>
                 <Button IsDefault="True" ToolTip="{Resx _buttonSave.ToolTip}" Command="{Binding CommandSaveEdit}" >
                     <DockPanel>
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png"/>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png"/>
                         <Label Content="{Resx _buttonSave.Caption}" />
                     </DockPanel>
                 </Button>
                 <Button IsCancel="True" ToolTip="{Resx _buttonCancel.ToolTip}" Command="{Binding CommandUndoEdit}">
                     <DockPanel>
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png"/>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png"/>
                         <Label Content="{Resx _buttonRevert.Caption}" />
                     </DockPanel>
                 </Button>
@@ -73,7 +74,7 @@
                 <Style TargetType="Button">
                     <Setter Property="Height" Value="20"/>
                 </Style>
-                <Style TargetType="common:TimecodeEdit">
+                <Style TargetType="controls:TimecodeEdit">
                     <Setter Property="Margin" Value="1"/>
                     <Style.Triggers>
                         <Trigger Property="Validation.HasError" Value="true">
@@ -153,20 +154,20 @@
                         <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsStartEvent}">
                             <TextBox Text="{Binding ScheduledDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, StringFormat=d}" Width="100" Visibility="{Binding IsScheduledDateVisible, Converter={StaticResource BoolToVis}}"/>
                             <Label Content="{Resx _at}" Width="Auto"/>
-                            <common:TimecodeEdit Grid.Column="1" Text="{Binding ScheduledTimeOfDay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
+                            <controls:TimecodeEdit Grid.Column="1" Text="{Binding ScheduledTimeOfDay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovieOrLiveOrRundown, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _requiredAt}" />
-                        <common:TimecodeEdit Mask="00:00:00" AllowPromptAsInput="True" AutoSelectBehavior="OnFocus" Text="{Binding RequestedStartTime, Converter={StaticResource TimeOfDayToStringConverter}, ValidatesOnDataErrors=True}" ToolTip="{Resx _requiredAt.ToolTip}"/>
+                        <controls:TimecodeEdit Mask="00:00:00" AllowPromptAsInput="True" AutoSelectBehavior="OnFocus" Text="{Binding RequestedStartTime, Converter={StaticResource TimeOfDayToStringConverter}, ValidatesOnDataErrors=True}" ToolTip="{Resx _requiredAt.ToolTip}"/>
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _clip}" />
                         <Button DockPanel.Dock="Right" ToolTip="{Resx _changeMovie.ToolTip}" Command="{Binding CommandChangeMovie}">
-                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/select.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/select.png" />
                         </Button>
                         <Button DockPanel.Dock="Right" ToolTip="{Resx _editMovie.ToolTip}" Command="{Binding CommandEditMovie}">
-                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png" />
                         </Button>
                         <TextBox Text="{Binding Media.FileName, Mode=OneWay}" IsReadOnly="True" VerticalContentAlignment="Center" Background="#F0F0F0" />
                     </DockPanel>
@@ -178,11 +179,11 @@
                             </Grid.ColumnDefinitions>
                             <DockPanel>
                                 <Label Content="{Resx _duration}" />
-                                <common:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsDurationEnabled}" Height="21" VerticalAlignment="Top" />
+                                <controls:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsDurationEnabled}" Height="21" VerticalAlignment="Top" />
                             </DockPanel>
                             <DockPanel Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                                 <Label Content="{Resx _scheduledTC}" />
-                                <common:TimecodeEdit Text="{Binding ScheduledTc, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
+                                <controls:TimecodeEdit Text="{Binding ScheduledTc, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
                             </DockPanel>
                         </Grid>
                         <DockPanel>
@@ -220,7 +221,7 @@
                         <DockPanel>
                             <CheckBox Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" IsChecked="{Binding HasAudioVolume}" ToolTip="{Resx _audioVolume.ToolTip}" />
                             <Button DockPanel.Dock="Right" ToolTip="{Resx _checkVolume.ToolTip}" Command="{Binding CommandCheckVolume}">
-                                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png" />
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png" />
                             </Button>
                             <Label DockPanel.Dock="Right" VerticalAlignment="Center" Content="dB" Width="25" />
                             <TextBox DockPanel.Dock="Right" Grid.Column="2" Width="40" Text="{Binding AudioVolumeLevel, StringFormat={}{0:0.0}, UpdateSourceTrigger=LostFocus}"/>
@@ -250,11 +251,11 @@
                     </Grid.ColumnDefinitions>
                     <DockPanel>
                         <Label Content="{Resx _duration}" />
-                        <common:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsDurationEnabled}"  />
+                        <controls:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsDurationEnabled}"  />
                     </DockPanel>
                     <DockPanel Grid.Column="1">
                         <Label Content="{Resx _scheduledDelay}" />
-                        <common:TimecodeEdit Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
+                        <controls:TimecodeEdit Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
                     </DockPanel>
                 </Grid>
                 <Grid DockPanel.Dock="Top" Visibility="{Binding IsAnimation,Converter={StaticResource BoolToVis}}">
@@ -264,7 +265,7 @@
                     </Grid.ColumnDefinitions>
                     <DockPanel>
                         <Label Content="{Resx _scheduledDelay}" />
-                        <common:TimecodeEdit Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
+                        <controls:TimecodeEdit Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
                     </DockPanel>
                 </Grid>
                 <Grid>

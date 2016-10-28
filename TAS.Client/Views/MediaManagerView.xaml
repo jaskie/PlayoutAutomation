@@ -11,6 +11,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels;assembly=TAS.Client"
              xmlns:client="clr-namespace:TAS.Client.Views"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              d:DataContext="{x:Type vm:MediaManagerViewmodel}"
              FontSize="13" KeyUp="UserControl_KeyUp"
              >
@@ -81,7 +82,7 @@
                 </ComboBox.ItemContainerStyle>
             </ComboBox>
             <Button ToolTip="{Resx _refresh}" Command="{Binding CommandRefresh}" Margin="1">
-                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
+                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
             </Button>
             <ComboBox ItemsSource="{Binding MediaTypes}"  SelectedValue="{Binding MediaType}" Margin="0,1" ToolTip="{Resx _mediaType}"/>
             <ComboBox Visibility="{Binding IsMediaCategoryVisible, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding MediaCategories}"  SelectedValue="{Binding MediaCategory}" ToolTip="{Resx _mediaCategory}">
@@ -94,9 +95,8 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <Button DockPanel.Dock="Right" Content="{Resx _search}" IsDefault="True" Command="{Binding CommandSearch}" Width="80" />
-            <Label Content="{Resx _searchFor}"  VerticalAlignment="Center" />
-            <TextBox VerticalAlignment="Center" Margin="5,2" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" />
+            <Label Content="{Resx _search}"  VerticalAlignment="Center" />
+            <controls:SearchTextBox Prompt="{Resx _searchFor}" VerticalAlignment="Stretch" Margin="0, 1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" SearchMode="Regular" Command="{Binding CommandSearch}" />
         </DockPanel>
         <DataGrid Grid.Row="3" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItems}" SelectedItem="{Binding Path=SelectedMedia, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
             <i:Interaction.Behaviors>
@@ -331,50 +331,50 @@
             </ToolBar.Resources>
             <Button ToolTip="{Resx _toolbar.Ingest.ToolTip}" Margin="10, 0" Command="{Binding CommandIngestSelectedToServer}" Visibility="{Binding IsIngestOrArchiveDirectory, Converter={StaticResource BoolToVis}}">
                 <StackPanel  Orientation="Horizontal" >
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-ingest.png" />
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-ingest.png" />
                     <Label Content="{Resx _toolbar.Ingest}"/>
                 </StackPanel>
             </Button>
             <Button ToolTip="{Resx _toolbar.ArchiveDelete.ToolTip}" Margin="10,0" Command="{Binding CommandMoveSelectedToArchive}" Visibility="{Binding IsServerDirectory, Converter={StaticResource BoolToVis}}">
                 <StackPanel Orientation="Horizontal">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/archive-export-delete.png" />
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/archive-export-delete.png" />
                     <Label Content="{Resx _toolbar.ArchiveDelete}"/>
                 </StackPanel>
             </Button>
             <Button ToolTip="{Resx _toolbar.ArchiveLeft.ToolTip}" Margin="10,0" Command="{Binding CommandCopySelectedToArchive}" Visibility="{Binding IsServerDirectory, Converter={StaticResource BoolToVis}}">
                 <StackPanel Orientation="Horizontal">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/archive-export.png" />
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/archive-export.png" />
                     <Label Content="{Resx _toolbar.ArchiveLeft}"/>
                 </StackPanel>
             </Button>
             <Button ToolTip="{Resx _toolbar.GetLoudness.ToolTip}" Margin="10,0" Command="{Binding CommandGetLoudness}">
                 <StackPanel Orientation="Horizontal">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png"/>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png"/>
                     <Label Content="{Resx _toolbar.GetLoudness}"/>
                 </StackPanel>
             </Button>
             <Button ToolTip="{Resx _toolbar.CloneAnimation.ToolTip}" Margin="10,0" Command="{Binding CommandCloneAnimation}" Visibility="{Binding IsAnimationDirectory, Converter={StaticResource BoolToVis}}">
                 <StackPanel Orientation="Horizontal">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy.png"/>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy.png"/>
                     <Label Content="{Resx _toolbar.CloneAnimation}"/>
                 </StackPanel>
             </Button>
 
             <Button ToolTip="{Resx _toolbar.Export.ToolTip}" Margin="10,0" Command="{Binding CommandExport}" Visibility="{Binding IsMediaExportVisible, Converter={StaticResource BoolToVis}}">
                 <StackPanel Orientation="Horizontal">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-export.png"/>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-export.png"/>
                     <Label Content="{Resx _toolbar.Export}"/>
                 </StackPanel>
             </Button>
             <Button ToolTip="{Resx _toolbar.Delete.ToolTip}" Margin="30,0" Command="{Binding CommandDeleteSelected}">
                 <StackPanel Orientation="Horizontal">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
                     <Label Content="{Resx _toolbar.Delete}"/>
                 </StackPanel>
             </Button>
         </ToolBar>
         <Button Grid.Row="1" HorizontalAlignment="Right" Margin="5" Width="30" Command="{Binding CommandSweepStaleMedia}" Visibility="Hidden">
-            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
+            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
         </Button>
         <GridSplitter Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>
         <ContentControl Grid.Row="4" Content="{Binding FileManagerVm.View}" />

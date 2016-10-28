@@ -163,7 +163,7 @@
     <value>Search</value>
   </data>
   <data name="_searchFor" xml:space="preserve">
-    <value>Search for</value>
+    <value>Enter seatch phrase</value>
   </data>
   <data name="_statusbar.TotalItems" xml:space="preserve">
     <value>Files:</value>

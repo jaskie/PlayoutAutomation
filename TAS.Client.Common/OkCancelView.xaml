@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:common="clr-namespace:TAS.Client.Common"
+        xmlns:controls="clr-namespace:TAS.Client.Common.Controls"
         mc:Ignorable="d"
         d:DataContext="{x:Type common:OkCancelViewmodelBase`1}"
         MinHeight="100"
@@ -31,7 +32,7 @@
             </StackPanel.Resources>
             <Button IsDefault="True" Command="{Binding CommandOK}">
                 <DockPanel>
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png"></common:AutoGreyableImage>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png"></controls:AutoGreyableImage>
                     <Label Content="OK" />
                 </DockPanel>
             </Button>

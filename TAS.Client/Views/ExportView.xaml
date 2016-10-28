@@ -6,6 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:vm="clr-namespace:TAS.Client.ViewModels"
         xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+        xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
         xmlns:client="clr-namespace:TAS.Client"
         mc:Ignorable="d" 
         d:DataContext="{x:Type vm:ExportViewmodel}"
@@ -21,7 +22,7 @@
             <Label Content="{Resx _destination}" VerticalAlignment="Center"/>
             <Button DockPanel.Dock="Right" Command="{Binding CommandExport}" Margin="5">
                 <StackPanel Orientation="Horizontal" >
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-export.png"/>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-export.png"/>
                     <Label Content="{Resx _export}" Padding="0" VerticalContentAlignment="Center" Margin="5, 0"/>
                 </StackPanel>
             </Button>

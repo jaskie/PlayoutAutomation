@@ -7,7 +7,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
 
-namespace TAS.Client.Common
+namespace TAS.Client.Common.Controls
 {
     /// <summary>
     /// Class used to have an image that is able to be gray when the control is not enabled.

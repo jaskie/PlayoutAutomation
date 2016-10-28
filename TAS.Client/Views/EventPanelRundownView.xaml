@@ -9,6 +9,7 @@
              xmlns:local="clr-namespace:TAS.Client.Views"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DataContext="{x:Type vm:EventPanelRundownViewmodel}"
              FontSize="12" 
@@ -89,34 +90,34 @@
                     </TextBlock>
                 <StackPanel Orientation="Horizontal" Grid.Column="3" Grid.Row="2" Grid.ColumnSpan="2" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}">
                     <Button Command="{Binding CommandAddSubMovie}" ToolTip="{Resx _addSubMovie.ToolTip}" >
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-movie.png"/>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-movie.png"/>
                     </Button>
                     <Button Command="{Binding CommandAddSubRundown}" ToolTip="{Resx _addSubRundown.ToolTip}">
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-rundown.png"/>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-sub-rundown.png"/>
                     </Button>
                     <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
                     <Button Command="{Binding CommandAddNextMovie}" ToolTip="{Resx _addNextMovie.ToolTip}" >
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-movie.png"/>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-movie.png"/>
                     </Button>
                     <Button Command="{Binding CommandAddNextEmptyMovie}" ToolTip="{Resx _addNextEmptyMovie.ToolTip}" >
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-empty-movie.png"/>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-empty-movie.png"/>
                     </Button>
                     <Button Command="{Binding CommandAddNextRundown}" ToolTip="{Resx _addNextRundown.ToolTip}">
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-rundown.png"/>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-rundown.png"/>
                     </Button>
                     <Button Command="{Binding CommandAddNextLive}" ToolTip="{Resx _addNextLive.ToolTip}" >
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-next-live.png"/>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-next-live.png"/>
                     </Button>
                     <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
                     <Button ToolTip="{Resx _moveUp.ToolTip}" Command="{Binding CommandMoveUp}">
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-up.png" />
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-up.png" />
                     </Button>
                     <Button ToolTip="{Resx _moveDown.ToolTip}" Command="{Binding CommandMoveDown}">
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-down.png" />
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-down.png" />
                     </Button>
                     <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
                     <Button ToolTip="{Resx _delete.ToolTip}" Command="{Binding CommandDelete}">
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/delete.png" />
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/delete.png" />
                     </Button>
                 </StackPanel>
                 <TextBlock Grid.Column="4" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />

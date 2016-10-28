@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:common="clr-namespace:TAS.Client;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:config ="clr-namespace:TAS.Client.Config"
              mc:Ignorable="d" 
              d:DataContext="{x:Type config:ConfigFileView}"
@@ -12,7 +13,7 @@
         <StackPanel Margin="5" Width="250" MinHeight="330">
             <Label Content="Initialization properties" FontWeight="Bold" HorizontalAlignment="Center"/>
             <Label Content="Ingest folders definition file"/>
-            <common:FilenameEntry 
+            <controls:FilenameEntry 
                 DialogTitle="Ingest folders definition file" 
                 CheckFileExists="False" 
                 DialogFilter="XML files |*.xml" 
@@ -20,7 +21,7 @@
                 ButtonToolTip="Select file..."
                 InitialDirectory="{Binding ExeDirectory}"/>
             <Label Content="Local devices configuration file"/>
-            <common:FilenameEntry 
+            <controls:FilenameEntry 
                 DialogTitle="Local devices configuration file" 
                 CheckFileExists="False" 
                 DialogFilter="XML files |*.xml" 

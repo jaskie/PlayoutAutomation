@@ -8,6 +8,7 @@
              mc:Ignorable="d" 
              xmlns:client="clr-namespace:TAS.Client"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              d:DataContext="{x:Type vm:CommandScriptEditViewmodel}"
              d:DesignHeight="300" d:DesignWidth="300">
@@ -23,17 +24,17 @@
             </ToolBar.Resources>
             <ToolBarPanel Height="24" Orientation="Horizontal">
                 <Button Command="{Binding CommandAddCommandScriptItem}" ToolTip="{Resx _addCommand.ToolTip}">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
                 </Button>
                 <Button Command="{Binding CommandAddFinalizationCommandScriptItem}" ToolTip="{Resx _addFinalizationCommand.ToolTip}">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-finish-small.png"/>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-finish-small.png"/>
                 </Button>
                 <Button Command="{Binding CommandEditCommandScriptItem}" ToolTip="{Resx _editCommand.ToolTip}">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
                 </Button>
                 <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
                 <Button Command="{Binding CommandDeleteCommandScriptItem}" ToolTip="{Resx _deleteCommand.ToolTip}">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
                 </Button>
             </ToolBarPanel>
         </ToolBar>
@@ -55,7 +56,7 @@
                                                 CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=DataContext}"
                                                 ToolTip="{Resx _editCommand.ToolTip, ResxName=TAS.Client.Views.CommandScriptEditView}"
                                                 >
-                                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
                             </Button>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

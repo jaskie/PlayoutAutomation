@@ -10,6 +10,7 @@
              xmlns:views="clr-namespace:TAS.Client.Views"
              xmlns:client="clr-namespace:TAS.Client"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d"
              d:DataContext="{x:Type vm:MediaEditViewmodel}"
              d:DesignWidth="300"
@@ -40,13 +41,13 @@
             </StackPanel.Resources>
             <Button IsDefault="True" ToolTip="{Resx _buttonSave.ToolTip}" Command="{Binding CommandSaveEdit}" >
                 <DockPanel>
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png"/>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png"/>
                     <Label Content="{Resx _buttonSave.Caption}" />
                 </DockPanel>
             </Button>
             <Button IsCancel="True" ToolTip="{Resx _buttonCancel.ToolTip}" Command="{Binding CommandCancelEdit}">
                 <DockPanel>
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png"/>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png"/>
                     <Label Content="{Resx _buttonRevert.Caption}" />
                 </DockPanel>
             </Button>
@@ -68,7 +69,7 @@
                             </Trigger>
                         </Style.Triggers>
                     </Style>
-                    <Style TargetType="common:TimecodeEdit" >
+                    <Style TargetType="controls:TimecodeEdit" >
                         <Setter Property="Margin" Value="5, 3" />
                         <Style.Triggers>
                             <Trigger Property="Validation.HasError" Value="true">
@@ -126,8 +127,8 @@
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <common:TimecodeEdit Text="{Binding TcStart, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
-                            <common:TimecodeEdit Grid.Column="1" Text="{Binding TcPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                            <controls:TimecodeEdit Text="{Binding TcStart, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
+                            <controls:TimecodeEdit Grid.Column="1" Text="{Binding TcPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
                         </Grid>
                     </DockPanel>
                     <DockPanel>
@@ -137,8 +138,8 @@
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <common:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
-                            <common:TimecodeEdit Grid.Column="1" Text="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                            <controls:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
+                            <controls:TimecodeEdit Grid.Column="1" Text="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
                         </Grid>
                     </DockPanel>
                     <!--<DockPanel Visibility="{Binding IsIngestDataShown, Converter={StaticResource BoolToVis}}">
@@ -179,7 +180,7 @@
                     <DockPanel>
                         <Label  Content="{Resx _audioVolume}" />
                         <Button Height="21" Margin="0, 0, 5, 0" DockPanel.Dock="Right" ToolTip="{Resx _checkVolume.ToolTip}" Command="{Binding CommandCheckVolume}">
-                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png" />
                         </Button>
                         <Label Width="Auto" DockPanel.Dock="Right" VerticalContentAlignment="Center" Content="dB" />
                         <TextBox DockPanel.Dock="Right" Margin="4" Width="40" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
@@ -206,7 +207,7 @@
                     <Label Content="{Resx _status}" />
                     <DockPanel >
                         <Button DockPanel.Dock="Right" Margin="5, 0" Padding="0" Height="21" Command="{Binding CommandRefreshStatus}" ToolTip="{Resx _checkStatus.ToolTip}" >
-                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
                         </Button>
                         <TextBox FlowDirection="LeftToRight" Background="#F0F0F0" Text="{Binding MediaStatus, Mode=OneWay}" IsReadOnly="True" />
                     </DockPanel>

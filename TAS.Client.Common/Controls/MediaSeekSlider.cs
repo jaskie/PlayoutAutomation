@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace TAS.Client.Common
+namespace TAS.Client.Common.Controls
 {
     public class MediaSeekSlider: Slider
     {

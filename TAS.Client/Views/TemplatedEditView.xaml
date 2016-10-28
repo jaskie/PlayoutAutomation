@@ -8,6 +8,7 @@
              mc:Ignorable="d" 
              xmlns:client="clr-namespace:TAS.Client"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              d:DataContext="{x:Type vm:ITemplatedEdit}"
              d:DesignHeight="300" d:DesignWidth="300">
@@ -21,14 +22,14 @@
         <ToolBar Visibility="{Binding KeyIsReadOnly, Converter={StaticResource InvertedBoolToVis}}" DockPanel.Dock="Top">
             <ToolBarPanel Height="24" Orientation="Horizontal">
                 <Button Command="{Binding CommandAddField}" Padding="0" ToolTip="{Resx _addField.ToolTip}">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
                 </Button>
                 <Button Command="{Binding CommandEditField}" Padding="0" ToolTip="{Resx _editField.ToolTip}">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
                 </Button>
                 <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
                 <Button Command="{Binding CommandDeleteField}" Padding="0" ToolTip="{Resx _deleteField.ToolTip}">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
                 </Button>
             </ToolBarPanel>
         </ToolBar>
@@ -50,7 +51,7 @@
                                                 CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=DataContext}"
                                                 ToolTip="{Resx _editKey, ResxName=TAS.Client.Views.TemplatedEditView}"
                                                 >
-                                <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
                             </Button>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

@@ -7,6 +7,7 @@
              mc:Ignorable="d" 
              xmlns:client="clr-namespace:TAS.Client"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              d:DataContext="{x:Type vm:PreviewViewmodel}"
              FontSize="12" 
@@ -29,13 +30,13 @@
         <DockPanel IsEnabled="{Binding IsEnabled}">
             <DockPanel DockPanel.Dock="Top">
                 <Button Command="{Binding CommandPause}" Style="{StaticResource controlButtonProperties}" ToolTip="{Resx _buttonPause.ToolTip}">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Paused.png" Stretch="None" />
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Paused.png" Stretch="None" />
                 </Button>
                 <Button Command="{Binding CommandPlay}" Style="{StaticResource controlButtonProperties}" ToolTip="{Resx _buttonPlay.ToolTip}">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Playing.png" Stretch="None" />
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Playing.png" Stretch="None" />
                 </Button>
                 <Button Command="{Binding CommandStop}" Style="{StaticResource controlButtonProperties}" ToolTip="{Resx _buttonStop.ToolTip}">
-                    <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Aborted.png" Stretch="None" />
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Aborted.png" Stretch="None" />
                 </Button>
                 <StackPanel>
                     <TextBox Text="{Binding MediaName, Mode=OneWay}" Margin="3" IsEnabled="{Binding IsLoaded}" IsReadOnly="True"/>
@@ -51,7 +52,7 @@
                         <Setter Property="Padding" Value="0" />
                     </Style>
                 </DockPanel.Resources>
-                <common:MediaSeekSlider DockPanel.Dock="Top" Margin="10" 
+                <controls:MediaSeekSlider DockPanel.Dock="Top" Margin="10" 
                                         Position="{Binding SliderPosition}" 
                                         Maximum="{Binding SliderMaximum}" 
                                         SmallChange="1" LargeChange="{Binding FramesPerSecond}" 
@@ -60,7 +61,7 @@
                                         ToolTip="{Resx _slider.ToolTip}"/>
                 <Grid DockPanel.Dock="Top">
                     <Grid.Resources>                        
-                        <Style TargetType="common:TimecodeEdit">
+                        <Style TargetType="controls:TimecodeEdit">
                             <Setter Property="Margin" Value="0, 1"/>
                         </Style>
                         <Style TargetType="Label">
@@ -77,23 +78,23 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <Label Content="Start TC" />
-                        <common:TimecodeEdit Text="{Binding StartTc, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True"/>
-                        <common:TimecodeEdit Text="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                        <controls:TimecodeEdit Text="{Binding StartTc, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True"/>
+                        <controls:TimecodeEdit Text="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1">
                         <Button ToolTip="{Resx _secondBack.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="rsecond" >
-                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/FFBack.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/FFBack.png" />
                         </Button>
                         <Button ToolTip="{Resx _frameBack.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="rframe">
-                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/OneFrameBack.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/OneFrameBack.png" />
                         </Button>
                         <Button ToolTip="{Resx _buttonCopyTCIn.ToolTip}" Command="{Binding CommandCopyToTcIn}" >
-                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy-small.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy-small.png" />
                         </Button>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <Label Content="{Resx _currentTC}" />
-                        <common:TimecodeEdit Text="{Binding Position, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
+                        <controls:TimecodeEdit Text="{Binding Position, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
                         <Grid Margin="0, 1">
                             <Label Content="In" HorizontalAlignment="Left" />
                             <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Resx _wholeFile.ToolTip}" IsChecked="{Binding PlayWholeClip}" />
@@ -102,19 +103,19 @@
                     </StackPanel>
                     <StackPanel Grid.Column="3">
                         <Button ToolTip="{Resx _secondForward.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="fsecond">
-                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/FFForward.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/FFForward.png" />
                         </Button>
                         <Button ToolTip="{Resx _frameForward.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="fframe">
-                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/OneFrameForward.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/OneFrameForward.png" />
                         </Button>
                         <Button ToolTip="{Resx _buttonCopyTCOut.ToolTip}" Command="{Binding CommandCopyToTcOut}">
-                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy-small.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/copy-small.png" />
                         </Button>
                     </StackPanel>
                     <StackPanel Grid.Column="4">
                         <Label Content="{Resx _duration}" />
-                        <common:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True"/>
-                        <common:TimecodeEdit Text="{Binding TcOut, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                        <controls:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True"/>
+                        <controls:TimecodeEdit Text="{Binding TcOut, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </Grid>
      
@@ -122,13 +123,13 @@
                     <DockPanel DockPanel.Dock="Top">
                         <Label DockPanel.Dock="Left" Content="{Resx _name}" Padding="2" VerticalContentAlignment="Center" Margin="4,0"/>
                         <Button DockPanel.Dock="Right" ToolTip="{Resx _delete.ToolTip}" Command="{Binding CommandDeleteSegment}" Margin="5,0" >
-                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png" />
                         </Button>
                         <Button DockPanel.Dock="Right" ToolTip="{Resx _save.ToolTip}" Command="{Binding CommandSaveSegment}" Margin="0" >
-                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/save-small.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/save-small.png" />
                         </Button>
                         <Button DockPanel.Dock="Right" ToolTip="{Resx _addSegment.ToolTip}" Command="{Binding CommandNewSegment}" Margin="5,0" >
-                            <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png" />
                         </Button>
                         <TextBox DockPanel.Dock="Left" Text="{Binding SelectedSegmentName, UpdateSourceTrigger=PropertyChanged}" ToolTip="_name.ToolTip"/>
                     </DockPanel>

@@ -9,7 +9,7 @@ using System.Windows.Input;
 using TAS.Common;
 using Xceed.Wpf.Toolkit;
 
-namespace TAS.Client.Common
+namespace TAS.Client.Common.Controls
 {
     public class TimecodeEdit: MaskedTextBox
     {

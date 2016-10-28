@@ -6,6 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              d:DataContext="{x:Type vm:ConvertOperationViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="360" DataContextChanged="UserControl_DataContextChanged">
@@ -105,15 +106,15 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <Label Content="{Resx _startTC}" />
-                            <common:TimecodeEdit Text="{Binding StartTC, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" Margin="0, 0, 4, 0" />
+                            <controls:TimecodeEdit Text="{Binding StartTC, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" Margin="0, 0, 4, 0" />
                         </StackPanel>
                         <StackPanel Grid.Column="1">
                             <Label Content="{Resx _duration}" />
-                            <common:TimecodeEdit Text="{Binding Duration, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" Margin="4, 0, 0, 0" />
+                            <controls:TimecodeEdit Text="{Binding Duration, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" Margin="4, 0, 0, 0" />
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <Label Content="{Resx _endTC}" />
-                            <common:TimecodeEdit Text="{Binding EndTC, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" Margin="4, 0, 0, 0" />
+                            <controls:TimecodeEdit Text="{Binding EndTC, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" Margin="4, 0, 0, 0" />
                         </StackPanel>
                     </Grid>
                 </StackPanel>

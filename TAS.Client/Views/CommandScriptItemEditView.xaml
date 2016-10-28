@@ -7,6 +7,7 @@
              xmlns:local="clr-namespace:TAS.Client.Views"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
              d:DataContext="{x:Type vm:CommandScriptItemViewmodel}"
              >
@@ -22,7 +23,7 @@
         </StackPanel.Resources>
         <DockPanel Visibility="{Binding IsFinalizationCommand, Converter={StaticResource InvertedBoolToVis}}">
             <Label DockPanel.Dock="Left" Content="{Resx _start}"/>
-            <common:TimecodeEdit Margin="3" Text="{Binding ExecuteTimeValue, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" TabIndex="1" />
+            <controls:TimecodeEdit Margin="3" Text="{Binding ExecuteTimeValue, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" TabIndex="1" />
         </DockPanel>
         <DockPanel>
             <Label DockPanel.Dock="Left" Content="{Resx _command}"/>

@@ -75,7 +75,6 @@ namespace TAS.Client.Model
         #region IPreview
         public IPlayoutServerChannel PlayoutChannelPRV { get { return Get<IPlayoutServerChannel>(); } set { SetField(value); } }
         public decimal PreviewAudioLevel { get { return Get<decimal>(); } set { Set(value); } }
-        public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetField(value); } }
         public bool PreviewIsPlaying { get { return Get<bool>(); } set { SetField(value); } }
         public bool PreviewLoaded { get { return Get<bool>(); } set { SetField(value); } }
         public IMedia PreviewMedia { get { return Get<Media>(); } set { SetField(value); } }

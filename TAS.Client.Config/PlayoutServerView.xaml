@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"  
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.Config"
              d:DataContext="{x:Type vm:PlayoutServerViewmodel}"
              mc:Ignorable="d" 
@@ -46,10 +47,10 @@
                         </Style>
                     </StackPanel.Resources>
                     <Button Command="{Binding CommandAdd}" ToolTip="Add new channel">
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-add.png"/>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-add.png"/>
                     </Button>
                     <Button Command="{Binding CommandDelete}" ToolTip="Delete channel">
-                        <common:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-delete.png"/>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-delete.png"/>
                     </Button>
                 </StackPanel>
 

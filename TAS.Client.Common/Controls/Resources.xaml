@@ -1,0 +1,122 @@
+﻿<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:mwt="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Classic"
+	xmlns:local="clr-namespace:TAS.Client.Common.Controls"
+	mc:Ignorable="d">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/TAS.Client.Common;component/Controls/SearchTextBox.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <DataTemplate x:Key="DefaultPromptTemplate">
+        <ContentControl Content="{Binding}" Foreground="Gray" FontStyle="Normal" Focusable="False" />
+    </DataTemplate>
+    <ControlTemplate x:Key="SearchTextBoxRegularTemplate" TargetType="{x:Type local:SearchTextBox}">
+        <Grid x:Name="Placement" SnapsToDevicePixels="true">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <mwt:ClassicBorderDecorator x:Name="Bd" Grid.ColumnSpan="2" Background="{TemplateBinding Panel.Background}" BorderBrush="{TemplateBinding Border.BorderBrush}" BorderThickness="{TemplateBinding Border.BorderThickness}" BorderStyle="Sunken">
+                <Grid>
+                    <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
+                    <Border Padding="2,0" VerticalAlignment="Center">
+                        <ContentPresenter x:Name="PART_PromptHost"
+										  Content="{TemplateBinding Prompt}"
+										  ContentTemplate="{TemplateBinding PromptTemplate}"
+										  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+										  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+										  IsHitTestVisible="False"
+										  Margin="{TemplateBinding Padding}"
+										  Visibility="Collapsed"/>
+                    </Border>
+                </Grid>
+            </mwt:ClassicBorderDecorator>
+            <Button x:Name="PART_SearchButtonHost" Grid.Column="1" Padding="3,1">
+                <Image Stretch="None" Source="/TAS.Client.Common;component/Images/Actions/search_glyph.png"/>
+            </Button>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="UIElement.IsEnabled" Value="True"/>
+                    <Condition Property="UIElement.IsFocused" Value="False"/>
+                    <Condition Property="TextBox.Text" Value=""/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.Setters>
+                    <Setter TargetName="PART_PromptHost" Property="Visibility" Value="Visible"/>
+                </MultiTrigger.Setters>
+            </MultiTrigger>
+            <Trigger Property="UIElement.IsEnabled" Value="False">
+                <Setter TargetName="Bd" Property="Panel.Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+                <Setter TargetName="PART_SearchButtonHost" Property="Style" Value="{StaticResource NoChromeButton}"/>
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+    <Style x:Key="{x:Type local:SearchTextBox}" TargetType="{x:Type local:SearchTextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
+        <Setter Property="AllowEmptySearches" Value="True"/>
+        <Setter Property="InstantSearchDelay" Value="0:0:0"/>
+        <Setter Property="Padding" Value="1"/>
+        <Setter Property="Prompt" Value="Search"/>
+        <Setter Property="PromptTemplate" Value="{StaticResource DefaultPromptTemplate}"/>
+        <Setter Property="SearchMode" Value="Instant"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:SearchTextBox}">
+                    <mwt:ClassicBorderDecorator Background="{TemplateBinding Panel.Background}" BorderBrush="{TemplateBinding Border.BorderBrush}" BorderThickness="{TemplateBinding Border.BorderThickness}" x:Name="Bd" BorderStyle="Sunken">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
+                            <Border Padding="2,0" VerticalAlignment="Center">
+                                <ContentPresenter x:Name="PART_PromptHost"
+												  Content="{TemplateBinding Prompt}"
+												  ContentTemplate="{TemplateBinding PromptTemplate}"
+												  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+												  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+												  IsHitTestVisible="False"
+												  Margin="{TemplateBinding Padding}"
+												  Visibility="Collapsed"/>
+                            </Border>
+                            <Button x:Name="PART_ClearButtonHost" Grid.Column="1" Padding="2,0" IsHitTestVisible="False" Focusable="False" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Center" Width="Auto" Height="Auto">
+                                <Image x:Name="SearchGlyphIcon" Stretch="None" Source="/TAS.Client.Common;component/Images/Actions/search_glyph.png"/>
+                            </Button>
+                        </Grid>
+                    </mwt:ClassicBorderDecorator>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="UIElement.IsEnabled" Value="True"/>
+                                <Condition Property="UIElement.IsFocused" Value="False"/>
+                                <Condition Property="TextBox.Text" Value=""/>
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.Setters>
+                                <Setter TargetName="PART_PromptHost" Property="Visibility" Value="Visible"/>
+                            </MultiTrigger.Setters>
+                        </MultiTrigger>
+                        <Trigger Property="HasText" Value="True">
+                            <Setter TargetName="PART_ClearButtonHost" Property="IsHitTestVisible" Value="True"/>
+                            <Setter TargetName="SearchGlyphIcon" Property="Source" Value="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
+                        </Trigger>
+                        <Trigger Property="UIElement.IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Panel.Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+                            <Setter Property="TextElement.Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            <Setter TargetName="PART_ClearButtonHost" Property="Style" Value="{StaticResource NoChromeButton}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="SearchMode" Value="Regular">
+                <Setter Property="Template" Value="{StaticResource SearchTextBoxRegularTemplate}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>
