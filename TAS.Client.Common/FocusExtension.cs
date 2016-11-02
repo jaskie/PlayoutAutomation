@@ -56,6 +56,12 @@ namespace TAS.Client.Common
         private void AssociatedObject_GotKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
         {
             IsFocused = true;
+            if (SelectAllOnFocus)
+            {
+                var textBox = sender as System.Windows.Controls.Primitives.TextBoxBase;
+                if (textBox != null)
+                    textBox.SelectAll();
+            }
         }
 
         private static void OnIsFocusedPropertyChanged(DependencyObject d,

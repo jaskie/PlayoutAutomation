@@ -352,7 +352,7 @@ namespace TAS.Server
         private void _database_ConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
         {
             NotifyPropertyChanged(nameof(DatabaseConnectionState));
-            Logger.Trace("Database state changed from {0} to {1}", e.OldState, e.NewState);
+            Logger.Trace("Database state changed from {0} to {1}. Stack trace was {2}", e.OldState, e.NewState, new StackTrace());
         }
 
         public ConnectionStateRedundant DatabaseConnectionState

@@ -17,6 +17,7 @@ namespace TAS.Server.Database
     {
         private readonly MySqlCommand _commandPrimary;
         private readonly MySqlCommand _commandSecondary;
+        
         #region Constructors
 
         public DbCommandRedundant()

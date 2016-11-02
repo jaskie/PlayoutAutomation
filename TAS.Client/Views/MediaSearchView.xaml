@@ -61,7 +61,11 @@
                 <ColumnDefinition Width="160" />
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" Content="{Resx _search}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <TextBox Name="tbSearch" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="tbSearch_KeyDown" />
+            <TextBox Name="tbSearch" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="tbSearch_KeyDown" >
+                <i:Interaction.Behaviors>
+                    <common:FocusExtension SelectAllOnFocus="True"/>
+                </i:Interaction.Behaviors>
+            </TextBox>
             <Button Grid.Column="4" HorizontalAlignment="Right" Content="{Binding OkButtonText}" Margin="5,3" Width="70" Command="{Binding CommandAdd}" Click="ButtonOK_Click"  IsDefault="True" />
             <Button Grid.Column="4" HorizontalAlignment="Left" Content="{Resx _cancel}" Margin="5,3" Width="70" IsCancel="True" Click="ButtonCancel_Click" />
             <ComboBox Grid.Column="3" Margin="5,3" VerticalAlignment="Center" ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" >
