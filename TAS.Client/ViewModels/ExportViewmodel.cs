@@ -40,7 +40,8 @@ namespace TAS.Client.ViewModels
                 {
                     NotifyPropertyChanged(nameof(IsConcatMediaNameVisible));
                     NotifyPropertyChanged(nameof(IsXDCAM));
-                    if (value?.IsXDCAM == true)
+                    NotifyPropertyChanged(nameof(IsMXF));
+                    if (value?.ExportContainerFormat == TMediaExportContainerFormat.mxf)
                     {
                         MXFAudioExportFormat = value.MXFAudioExportFormat;
                         MXFVideoExportFormat = value.MXFVideoExportFormat;
@@ -51,6 +52,7 @@ namespace TAS.Client.ViewModels
         }
 
         public bool IsXDCAM { get { return _selectedDirectory?.IsXDCAM == true; } }
+        public bool IsMXF { get { return _selectedDirectory?.ExportContainerFormat == TMediaExportContainerFormat.mxf; } }
 
         private bool _concatMedia;
         public bool ConcatMedia

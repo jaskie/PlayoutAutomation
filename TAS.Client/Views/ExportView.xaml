@@ -32,7 +32,7 @@
             <CheckBox IsChecked="{Binding ConcatMedia}" Margin="4" Content="{Resx _concatMedia}" VerticalAlignment="Center"/>
             <TextBox Text="{Binding ConcatMediaName, UpdateSourceTrigger=PropertyChanged}" Margin="10, 2" Visibility="{Binding IsConcatMediaNameVisible, Converter={StaticResource BoolToVis}}"/>
         </DockPanel>
-        <StackPanel Visibility="{Binding IsXDCAM, Converter={StaticResource BoolToVis}}" DockPanel.Dock="Top" Orientation="Horizontal" Margin="4">
+        <StackPanel Visibility="{Binding IsMXF, Converter={StaticResource BoolToVis}}" DockPanel.Dock="Top" Orientation="Horizontal" Margin="4">
             <StackPanel.Resources>
                 <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
                     <Setter Property="MinWidth" Value="120"/>
