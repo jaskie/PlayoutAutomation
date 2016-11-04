@@ -30,13 +30,13 @@
                     <Setter Property="Margin" Value="5, 0"/>
                 </Style>
             </StackPanel.Resources>
-            <Button IsDefault="True" Command="{Binding CommandOK}">
+            <Button IsDefault="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandOK}">
                 <DockPanel>
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png"></controls:AutoGreyableImage>
                     <Label Content="OK" />
                 </DockPanel>
             </Button>
-            <Button IsCancel="True">
+            <Button IsCancel="{Binding OkCancelButtonsActivateViaKeyboard}">
                 <DockPanel>
                     <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png"></Image>
                     <Label Content="Anuluj" />

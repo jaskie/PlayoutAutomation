@@ -22,6 +22,7 @@ namespace TAS.Client.ViewModels
             foreach (var c in _conversionList)
                 c.PropertyChanged += new PropertyChangedEventHandler(_convertOperationPropertyChanged);
             CommandDeleteOperation = new UICommand { ExecuteDelegate = _deleteOperation };
+            OkCancelButtonsActivateViaKeyboard = false;
         }
 
         private void _deleteOperation(object obj)

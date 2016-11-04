@@ -282,8 +282,10 @@ namespace TAS.Client.ViewModels
                     {
                         if (ievm.ShowDialog() == true)
                         {
-                            foreach (IConvertOperation operation in ingestList)
-                                _mediaManager.FileManager.Queue(operation, false);
+                            foreach (var operationVM in ievm.OperationList)
+                                _mediaManager.FileManager.Queue(operationVM.FileOperation, false);
+                            foreach (var operation in ingestList.Where(op => !ievm.OperationList.Select(vm => vm.FileOperation).Contains(op)))
+                                operation.DestMedia.Delete();
                         }
                         else
                             foreach (IConvertOperation operation in ingestList)
