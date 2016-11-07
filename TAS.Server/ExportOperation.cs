@@ -188,7 +188,7 @@ namespace TAS.Server
                 string.Format(" -filter_complex \"{0}\"", string.Join(", ", complexFilterElements)) :
                 string.Empty;
             string command = string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                "{0}{1} -map \"[v]\" -map \"[a]\" {2} -timecode {3} -shortest -f {4} -y \"{5}\"",
+                "{0}{1} -map \"[v]\" -map \"[a]\" {2} -timecode {3}{4} -shortest -f {5} -y \"{6}\"",
                 files.ToString(),
                 complexFilter,
                 DestDirectory.IsXDCAM || DestDirectory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? 
@@ -203,7 +203,8 @@ namespace TAS.Server
                     :
                     DestDirectory.ExportParams,
                 startTimecode.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[DestMedia.VideoFormat].FrameRate),
-                DestDirectory.IsXDCAM || DestDirectory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? "mxf_d10": DestDirectory.ExportContainerFormat.ToString(),
+                DestDirectory.IsXDCAM || DestDirectory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? $" -metadata creation_time=\"{DateTime.UtcNow.ToString("o")}\"" : string.Empty,
+                DestDirectory.IsXDCAM || DestDirectory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? "mxf_d10" : DestDirectory.ExportContainerFormat.ToString(),
                 outFile);
             if (RunProcess(command))
             {
