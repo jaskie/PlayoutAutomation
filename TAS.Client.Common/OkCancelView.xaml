@@ -36,7 +36,7 @@
                     <Label Content="OK" />
                 </DockPanel>
             </Button>
-            <Button IsCancel="{Binding OkCancelButtonsActivateViaKeyboard}">
+            <Button IsCancel="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandClose}">
                 <DockPanel>
                     <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png"></Image>
                     <Label Content="Anuluj" />

@@ -422,7 +422,7 @@ namespace TAS.Client.ViewModels
 
         public override string ToString()
         {
-            return _event == null ? "null" : _event.ToString();
+            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {_event}";
         }
 
         public Views.EventPanelView View;

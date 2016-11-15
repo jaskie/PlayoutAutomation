@@ -1021,12 +1021,12 @@ namespace TAS.Server
                 AutoStartFlags = e2.AutoStartFlags;
                 Prior = e2prior;
                 Parent = e2parent;
-                Next = e2;
                 _idEventBinding = e2._idEventBinding;
                 e2.Prior = this;
                 e2.StartType = TStartType.After;
                 e2.Next = e4;
                 e2.Parent = null;
+                Next = e2;
                 if (e4 != null)
                     e4.Prior = e2;
                 UpdateScheduledTime(true);
