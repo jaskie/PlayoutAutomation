@@ -63,7 +63,7 @@ namespace TAS.Common
                     break;
                 case TAudioChannelMappingConversion.SecondChannelOnly:
                     OutputFormat = TAudioChannelMapping.Stereo;
-                    FFMpegFilter = "pan=stereo|c0=c1|c1=c0";
+                    FFMpegFilter = "pan=stereo|c0=c1|c1=c1";
                     break;
                 case TAudioChannelMappingConversion.Combine1plus2:
                     OutputFormat = TAudioChannelMapping.Stereo;
