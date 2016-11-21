@@ -209,7 +209,8 @@ Really delete?</value>
     <value>Really play this item now?</value>
   </data>
   <data name="_query_SaveChangedData" xml:space="preserve">
-    <value>Save modified data?</value>
+    <value>Save modified data regarding
+{0}?</value>
   </data>
   <data name="_query_StartAnotherInstance" xml:space="preserve">
     <value>Application should execute in one instance only, but was running already.

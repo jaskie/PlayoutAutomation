@@ -613,6 +613,12 @@ namespace TAS.Client.ViewModels
         {
             get { return (from pi in this.GetType().GetProperties() select this[pi.Name]).Where(s => !string.IsNullOrEmpty(s)).Count() == 0; }
         }
+
+        public override string ToString()
+        {
+            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(MediaType)} - {_mediaName}";
+        }
+
     }
 
 

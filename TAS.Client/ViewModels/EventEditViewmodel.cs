@@ -87,7 +87,7 @@ namespace TAS.Client.ViewModels
                 if (value != ev)
                 {
                     if (this.IsModified
-                    && MessageBox.Show(resources._query_SaveChangedData, resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    && MessageBox.Show(String.Format(resources._query_SaveChangedData, this), resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         _save(null);
                     if (ev != null)
                     {
@@ -1065,6 +1065,11 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged(nameof(ScheduledTimeOfDay));
             NotifyPropertyChanged(nameof(ScheduledDate));
             NotifyPropertyChanged(nameof(IsStartEvent));
+        }
+
+        public override string ToString()
+        {
+            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {_event}";
         }
 
     }

@@ -298,7 +298,7 @@ namespace TAS.Client.ViewModels
         private bool _checkEditMediaSaved()
         {
             if (EditMedia != null && EditMedia.IsModified)
-                switch (MessageBox.Show(resources._query_SaveChangedData, resources._caption_Confirmation, MessageBoxButton.YesNoCancel))
+                switch (MessageBox.Show(String.Format(resources._query_SaveChangedData, EditMedia), resources._caption_Confirmation, MessageBoxButton.YesNoCancel))
                 {
                     case MessageBoxResult.Cancel:
                         return false;

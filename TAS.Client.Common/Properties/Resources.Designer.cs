@@ -314,7 +314,8 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Save modified data?.
+        ///   Looks up a localized string similar to Save modified data regarding
+        ///{0}?.
         /// </summary>
         public static string _query_SaveChangedData {
             get {
