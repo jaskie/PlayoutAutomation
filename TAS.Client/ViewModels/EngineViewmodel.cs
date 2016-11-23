@@ -434,19 +434,23 @@ namespace TAS.Client.ViewModels
         {
             return _multiSelectedEvents.Any(e =>
                     {
-                        if (e is EventPanelMovieViewmodel)
-                        {
-                            IMedia media = ((EventPanelMovieViewmodel)e).Media;
-                            return media != null && media.FileExists();
-                        }
-                        return false;
+                        var m = e as EventPanelMovieViewmodel;
+                        return m != null
+                            && m.IsEnabled
+                            && m.Media?.FileExists() == true;
                     })
                     && _engine.MediaManager.IngestDirectories.Any(d => d.IsExport);
         }
 
         private void _exportMedia(object obj)
         {
-            var selections = _multiSelectedEvents.Where(e => e.Event != null && e.Event.Media != null && e.Event.Media.MediaType == TMediaType.Movie).Select(e => new ExportMedia(
+            var selections = _multiSelectedEvents.Where(e =>
+            {
+                var m = e as EventPanelMovieViewmodel;
+                return m != null
+                    && m.IsEnabled
+                    && m.Media?.FileExists() == true;
+            }).Select(e => new ExportMedia(
                 e.Event.Media, 
                 e.Event.SubEvents.Where(sev => sev.EventType == TEventType.StillImage && sev.Media != null).Select(sev => sev.Media).ToList(),
                 e.Event.ScheduledTc, 
