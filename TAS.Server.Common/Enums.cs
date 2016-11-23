@@ -131,7 +131,8 @@ namespace TAS.Common
     {
         IMX50,
         IMX40,
-        IMX30
+        IMX30,
+        DV25
     }
 
     public enum TMediaExportContainerFormat

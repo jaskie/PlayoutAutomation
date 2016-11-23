@@ -284,6 +284,8 @@ namespace Infralution.Localization.Wpf
         /// <returns>The localized string value for the enum</returns>
         static public string ConvertToString(Enum value)
         {
+            if (value == null)
+                return string.Empty;
             TypeConverter converter = TypeDescriptor.GetConverter(value.GetType());
             return converter.ConvertToString(value);
         }
