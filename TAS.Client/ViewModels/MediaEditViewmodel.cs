@@ -23,9 +23,9 @@ namespace TAS.Client.ViewModels
         private readonly PreviewViewmodel _previewVm;
         private readonly bool _showButtons;
         private readonly IMediaManager _mediaManager;
-        public MediaEditViewmodel(IMedia media, IMediaManager mediaManager,  PreviewViewmodel previewVm, bool showButtons):base(media, new MediaEditView(media.FrameRate))
+        public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, PreviewViewmodel previewVm, bool showButtons) : base(media, new MediaEditView(media.FrameRate))
         {
-            CommandSaveEdit = new UICommand() { ExecuteDelegate = ModelUpdate, CanExecuteDelegate = o => IsModified && IsValid };
+            CommandSaveEdit = new UICommand() { ExecuteDelegate = ModelUpdate, CanExecuteDelegate = _canSave };
             CommandCancelEdit = new UICommand() { ExecuteDelegate = ModelLoad, CanExecuteDelegate = o => IsModified };
             CommandRefreshStatus = new UICommand() { ExecuteDelegate = _refreshStatus };
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = (o) => !_isVolumeChecking };
@@ -84,14 +84,19 @@ namespace TAS.Client.ViewModels
                 ((IPersistentMedia)Model).Save();
         }
 
+        private bool _canSave(object obj)
+        {
+            return IsModified && IsValid && Model.MediaStatus == TMediaStatus.Available;
+        }
+
         protected override void ModelLoad(object source = null)
         {
             base.ModelLoad(source);
         }
 
-        public void Revert(object source = null)
+        public void Revert()
         {
-            ModelLoad(source);
+            ModelLoad(null);
         }
 
         #region Command methods

@@ -107,86 +107,86 @@
                     <ComboBox  ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding VideoFormat}" />
                 </DockPanel>
                 <StackPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
-                    <DockPanel >
-                        <Label Content="{Resx _times}"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <Label Grid.Column="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Resx _clip}" Width="Auto"/>
-                            <DockPanel Grid.Column="1">
-                                <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" Content="{Resx _play}" Width="Auto" />
-                            </DockPanel>
-                        </Grid>
-                    </DockPanel>
-                    <DockPanel >
-                        <Label Content="{Resx _tCStart}" />
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
+                    <StackPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource InvertedBoolToVis}}">
+                        <DockPanel>
+                            <Label Content="{Resx _tCStart}" />
                             <controls:TimecodeEdit Text="{Binding TcStart, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
-                            <controls:TimecodeEdit Grid.Column="1" Text="{Binding TcPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
-                        </Grid>
-                    </DockPanel>
-                    <DockPanel>
-                        <Label Content="{Resx _duration}" />
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
+                        </DockPanel>
+                        <DockPanel>
+                            <Label Content="{Resx _duration}" />
                             <controls:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
-                            <controls:TimecodeEdit Grid.Column="1" Text="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
-                        </Grid>
-                    </DockPanel>
-                    <!--<DockPanel Visibility="{Binding IsIngestDataShown, Converter={StaticResource BoolToVis}}">
+                        </DockPanel>
+                    </StackPanel>
+                    <StackPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
+                        <DockPanel >
+                            <Label Content="{Resx _times}"/>
+                            <UniformGrid Columns="2">
+                                <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Resx _clip}" Width="Auto"/>
+                                <DockPanel>
+                                    <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" Content="{Resx _play}" Width="Auto" />
+                                </DockPanel>
+                            </UniformGrid>
+                        </DockPanel>
+                        <DockPanel >
+                            <Label Content="{Resx _tCStart}" />
+                            <UniformGrid Columns="2">
+                                <controls:TimecodeEdit Text="{Binding TcStart, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
+                                <controls:TimecodeEdit Text="{Binding TcPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                            </UniformGrid>
+                        </DockPanel>
+                        <DockPanel>
+                            <Label Content="{Resx _duration}" />
+                            <UniformGrid Columns="2">
+                                <controls:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
+                                <controls:TimecodeEdit Text="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                            </UniformGrid>
+                        </DockPanel>
+                        <!--<DockPanel Visibility="{Binding IsIngestDataShown, Converter={StaticResource BoolToVis}}">
                 <Label Style="{StaticResource fieldNameLabels}" Content="Ostatnio użyty" />
                 <TextBox IsReadOnly="True" Text="{Binding LastAccess, Mode=OneWay, Converter={StaticResource DateTimeToString}, ConverterParameter=g}" />
             </DockPanel>-->
-                    <DockPanel Visibility="Collapsed">
-                        <Label Content="{Resx _audioChannelMappings}" />
-                        <ComboBox ItemsSource="{Binding AudioChannelMappings}" SelectedValue="{Binding AudioChannelMapping}" />
-                    </DockPanel>
-                    <DockPanel>
-                        <Label Content="{Resx _category}" />
-                        <ComboBox ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" >
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Width="12" Style="{StaticResource MediaCategoryImage}"/>
-                                        <TextBlock Margin="2, 0, 0, 0" Text="{Binding}"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                    </DockPanel>
-                    <DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
-                        <Label Content="{Resx _emphasis}" />
-                        <ComboBox ItemsSource="{Binding MediaEmphasises}" SelectedValue="{Binding MediaEmphasis}" >
-                            <ComboBox.ItemContainerStyle>
-                                <Style TargetType="{x:Type ComboBoxItem}">
-                                    <Setter Property="Background" Value="{Binding Converter={StaticResource MediaEmphasisToBrush}}" />
-                                </Style>
-                            </ComboBox.ItemContainerStyle>
-                        </ComboBox>
-                    </DockPanel>
-                    <DockPanel Visibility="{Binding ShowParentalCombo, Converter={StaticResource BoolToVis}}">
-                        <Label Content="{Resx _parental}" />
-                        <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValue="{Binding Parental}" SelectedValuePath="Id" />
-                    </DockPanel>
-                    <DockPanel>
-                        <Label  Content="{Resx _audioVolume}" />
-                        <Button Height="21" Margin="0, 0, 5, 0" DockPanel.Dock="Right" ToolTip="{Resx _checkVolume.ToolTip}" Command="{Binding CommandCheckVolume}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png" />
-                        </Button>
-                        <Label Width="Auto" DockPanel.Dock="Right" VerticalContentAlignment="Center" Content="dB" />
-                        <TextBox DockPanel.Dock="Right" Margin="4" Width="40" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
-                        <Slider  Margin="2" Minimum="-18" Maximum="18" Value="{Binding AudioVolume}"/>
-                    </DockPanel>
-                    <CheckBox Visibility="{Binding IsInterlaced, Converter={StaticResource BoolToVis}}" IsChecked="{Binding FieldOrderInverted}" Content="{Resx _fieldOrderInverted}" ToolTip="{Resx _fieldOrderInverted.ToolTip}"/>
+                        <DockPanel Visibility="Collapsed">
+                            <Label Content="{Resx _audioChannelMappings}" />
+                            <ComboBox ItemsSource="{Binding AudioChannelMappings}" SelectedValue="{Binding AudioChannelMapping}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <Label Content="{Resx _category}" />
+                            <ComboBox ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" >
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Width="12" Style="{StaticResource MediaCategoryImage}"/>
+                                            <TextBlock Margin="2, 0, 0, 0" Text="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </DockPanel>
+                        <DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
+                            <Label Content="{Resx _emphasis}" />
+                            <ComboBox ItemsSource="{Binding MediaEmphasises}" SelectedValue="{Binding MediaEmphasis}" >
+                                <ComboBox.ItemContainerStyle>
+                                    <Style TargetType="{x:Type ComboBoxItem}">
+                                        <Setter Property="Background" Value="{Binding Converter={StaticResource MediaEmphasisToBrush}}" />
+                                    </Style>
+                                </ComboBox.ItemContainerStyle>
+                            </ComboBox>
+                        </DockPanel>
+                        <DockPanel Visibility="{Binding ShowParentalCombo, Converter={StaticResource BoolToVis}}">
+                            <Label Content="{Resx _parental}" />
+                            <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValue="{Binding Parental}" SelectedValuePath="Id" />
+                        </DockPanel>
+                        <DockPanel>
+                            <Label  Content="{Resx _audioVolume}" />
+                            <Button Height="21" Margin="0, 0, 5, 0" DockPanel.Dock="Right" ToolTip="{Resx _checkVolume.ToolTip}" Command="{Binding CommandCheckVolume}">
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png" />
+                            </Button>
+                            <Label Width="Auto" DockPanel.Dock="Right" VerticalContentAlignment="Center" Content="dB" />
+                            <TextBox DockPanel.Dock="Right" Margin="4" Width="40" Text="{Binding AudioVolume, StringFormat={}{0:0.0}}" />
+                            <Slider  Margin="2" Minimum="-18" Maximum="18" Value="{Binding AudioVolume}"/>
+                        </DockPanel>
+                        <CheckBox Visibility="{Binding IsInterlaced, Converter={StaticResource BoolToVis}}" IsChecked="{Binding FieldOrderInverted}" Content="{Resx _fieldOrderInverted}" ToolTip="{Resx _fieldOrderInverted.ToolTip}"/>
+                    </StackPanel>
                 </StackPanel>
                 <!--<DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
                 <Label Content="Usuń po" Target="{Binding ElementName=edKillDate}" />
