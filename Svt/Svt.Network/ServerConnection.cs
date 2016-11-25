@@ -299,38 +299,39 @@ namespace Svt.Network
 				OnClosedConnection();
 		}
 
-		private void ConnectCallback(IAsyncResult ar) 
-		{
-			TcpClient client = null;
-			try
-			{
-				client = (TcpClient)ar.AsyncState;
-				client.EndConnect(ar);
-				client.NoDelay = true;
+        private void ConnectCallback(IAsyncResult ar)
+        {
+            TcpClient client = null;
+            client = (TcpClient)ar.AsyncState;
+            if (client.Connected)
+            {
+                client.EndConnect(ar);
+                client.NoDelay = true;
 
-				RemoteState = new RemoteHostState(client);
+                RemoteState = new RemoteHostState(client);
                 RemoteState.GotDataToSend += RemoteState_GotDataToSend;
                 RemoteState.Stream.BeginRead(RemoteState.ReadBuffer, 0, RemoteState.ReadBuffer.Length, readCallback, RemoteState);
-
-				OnOpenedConnection();
-			}
-			catch(Exception ex)
-			{
-				if (RemoteState != null)
-				{
-					DoCloseConnection();
-				}
-				else
-				{
-					if (client != null)
-					{
-						client.Close();
-						client = null;
-					}
-				}
-				OnClosedConnection(ex);
-			}
-		}
+                OnOpenedConnection();
+            }
+            else
+            {
+                {
+                    if (RemoteState != null)
+                    {
+                        DoCloseConnection();
+                    }
+                    else
+                    {
+                        if (client != null)
+                        {
+                            client.Close();
+                            client = null;
+                        }
+                    }
+                    OnClosedConnection();
+                }
+            }
+        }
 
         private void ReadCallback(IAsyncResult ar)
         {

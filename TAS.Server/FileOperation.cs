@@ -318,5 +318,12 @@ namespace TAS.Server
             return Title;
         }
 
+#if DEBUG
+        ~FileOperation()
+        {
+            Debug.WriteLine("{0} finalized: {1}", GetType(), this);
+        }
+#endif
+
     }
 }
