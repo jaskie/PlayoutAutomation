@@ -67,6 +67,7 @@
                     </Border.Style>
                 </Border>
                 <Image Grid.Column="0" Grid.RowSpan="2" Margin="3" ToolTip="{Binding Event.EventType}" Source="/TAS.Client.Common;component/Images/EventTypes/Rundown.gif" Style="{StaticResource EventPanelImage}" />
+                <Path Visibility="{Binding IsEnabled, Converter={StaticResource InvertedBoolToVis}}" Grid.RowSpan="3" Stroke="#FFD67421" StrokeThickness="6" Data="M-10 13 -18 13 -18 48 -10 48"/>
                 <Image Grid.Column="0" Source="/TAS.Client.Common;component/Images/Indicators/tick_circle.png" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="None" Visibility="{Binding IsMultiSelected, Converter={StaticResource BoolToVis}}" ToolTip="{Resx _isSelected.ToolTip}" />
                 <Image Grid.Column="0" Grid.Row="1" Source="/TAS.Client.Common;component/Images/Indicators/clock.png" Visibility="{Binding IsFixedTimeStart, Converter={StaticResource BoolToVis}}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="None" ToolTip="{Resx _autoStart}"/>
                 <Image Grid.Column="1" Grid.RowSpan="2" ToolTip="{Binding PlayState}" Style="{StaticResource EventPlayStateImage}"/>
