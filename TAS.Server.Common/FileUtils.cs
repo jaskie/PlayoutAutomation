@@ -36,7 +36,7 @@ namespace TAS.Server.Common
 
         public static string SanitizeFileName(string text)
         {
-            char[] arr = text.ToCharArray();
+            char[] arr = text.Trim().ToCharArray();
             for (int i = 0; i < arr.Length; i++)
                 if (Path.GetInvalidFileNameChars().Contains(arr[i]))
                     arr[i] = '_';

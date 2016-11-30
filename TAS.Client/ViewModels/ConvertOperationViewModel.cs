@@ -242,8 +242,11 @@ namespace TAS.Client.ViewModels
             if (media != null)
             {
                 IMediaDirectory dir = media.Directory;
-                if (dir != null && media.FileName != null)
+                if (dir != null)
                 {
+                    if (_destFileName.StartsWith(" ") || _destFileName.EndsWith(" "))
+                        validationResult = resources._validate_FileNameCanNotStartOrEndWithSpace;
+                    else
                     if (_destFileName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
                         validationResult = resources._validate_FileNameCanNotContainSpecialCharacters;
                     else

@@ -566,7 +566,10 @@ namespace TAS.Client.ViewModels
                 string newName = _fileName;
                 if (dir != null && _fileName != null)
                 {
-                    if (newName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
+                if (newName.StartsWith(" ") || newName.EndsWith(" "))
+                    validationResult = resources._validate_FileNameCanNotStartOrEndWithSpace;
+                else
+                if (newName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
                         validationResult = resources._validate_FileNameCanNotContainSpecialCharacters;
                     else
                     {

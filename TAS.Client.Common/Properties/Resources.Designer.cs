@@ -543,6 +543,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to File name can&apos;t start orend with space..
+        /// </summary>
+        public static string _validate_FileNameCanNotStartOrEndWithSpace {
+            get {
+                return ResourceManager.GetString("_validate_FileNameCanNotStartOrEndWithSpace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sum of duration and start delay exceeds item length..
         /// </summary>
         public static string _validate_ScheduledDelayInvalid {
