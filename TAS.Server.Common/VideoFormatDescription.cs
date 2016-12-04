@@ -58,14 +58,14 @@ namespace TAS.Common
                 case TVideoFormat.NTSC_FHA:
                     Interlaced = true;
                     ImageSize = new Size(720, 480);
-                    FrameRate = new RationalNumber(30, 1);
+                    FrameRate = new RationalNumber(30000, 1001);
                     SAR = new RationalNumber(32, 27);
                     IsWideScreen = true;
                     break;
                 case TVideoFormat.NTSC:
                     Interlaced = true;
                     ImageSize = new Size(720, 480);
-                    FrameRate = new RationalNumber(30, 1);
+                    FrameRate = new RationalNumber(30000, 1001);
                     SAR = new RationalNumber(8, 9);
                     IsWideScreen = false;
                     break;
@@ -79,7 +79,7 @@ namespace TAS.Common
                 case TVideoFormat.HD1080i5994:
                     Interlaced = true;
                     ImageSize = new Size(1920, 1080);
-                    FrameRate = new RationalNumber(2997, 100);
+                    FrameRate = new RationalNumber(30000, 1001);
                     SAR = new RationalNumber(1, 1);
                     IsWideScreen = true;
                     break;
@@ -114,7 +114,7 @@ namespace TAS.Common
                 case TVideoFormat.HD1080p2997:
                     Interlaced = false;
                     ImageSize = new Size(1920, 1080);
-                    FrameRate = new RationalNumber(2997, 100);
+                    FrameRate = new RationalNumber(30000, 1001);
                     SAR = new RationalNumber(1, 1);
                     IsWideScreen = true;
                     break;
@@ -170,7 +170,7 @@ namespace TAS.Common
                 case TVideoFormat.HD2160p2997:
                     Interlaced = false;
                     ImageSize = new Size(3840, 2160);
-                    FrameRate = new RationalNumber(2997, 100);
+                    FrameRate = new RationalNumber(30000, 1001);
                     SAR = new RationalNumber(1, 1);
                     IsWideScreen = true;
                     break;
