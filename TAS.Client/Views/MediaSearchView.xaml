@@ -86,7 +86,7 @@
             </Grid.ColumnDefinitions>
             <ContentControl Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" Content="{Binding PreviewView}" Width="330" Grid.ColumnSpan="3"/>
             <DockPanel>
-                <CheckBox DockPanel.Dock="Top" Margin="5" IsChecked="{Binding EnableCGElementsForNewEvents}" Content="{Resx _enableCGForNewEvents}" Visibility="{Binding CanEnableCGElements, Converter={StaticResource BoolToVis}}"/>
+                <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Left" Margin="5" IsChecked="{Binding EnableCGElementsForNewEvents}" Content="{Resx _enableCGForNewEvents}" Visibility="{Binding CanEnableCGElements, Converter={StaticResource BoolToVis}}"/>
                 <DataGrid 
                 x:Name="gSearch" 
                 SelectionUnit="FullRow" 
