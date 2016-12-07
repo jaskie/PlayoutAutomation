@@ -163,7 +163,7 @@
     <value>Search</value>
   </data>
   <data name="_searchFor" xml:space="preserve">
-    <value>Enter seatch phrase</value>
+    <value>Enter search phrase</value>
   </data>
   <data name="_statusbar.TotalItems" xml:space="preserve">
     <value>Files:</value>
@@ -186,6 +186,9 @@
   <data name="_toolbar.ArchiveLeft.ToolTip" xml:space="preserve">
     <value>Archive selected files (leave in current folder)</value>
   </data>
+  <data name="_toolbar.Clear.ToolTip" xml:space="preserve">
+    <value>Clear filters</value>
+  </data>
   <data name="_toolbar.CloneAnimation" xml:space="preserve">
     <value>Clone animation</value>
   </data>
@@ -196,7 +199,7 @@
     <value>Delete</value>
   </data>
   <data name="_toolbar.Delete.ToolTip" xml:space="preserve">
-    <value>Delete selected files</value>
+    <value>Delete selected files | Ctrl+Delete</value>
   </data>
   <data name="_toolbar.Export" xml:space="preserve">
     <value>Export</value>

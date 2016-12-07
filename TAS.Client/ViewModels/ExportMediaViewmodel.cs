@@ -47,6 +47,7 @@ namespace TAS.Client.ViewModels
                     null, // preview
                     MediaManager,
                     TMediaType.Still, 
+                    VideoLayer.CG1,
                     true, // close ater add
                     MediaExport.Media.VideoFormatDescription);
                 svm.MediaChoosen += _searchMediaChoosen;

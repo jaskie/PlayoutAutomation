@@ -75,14 +75,12 @@ namespace TAS.Client
 
         private void AppMainWindow_KeyDown(object sender, KeyEventArgs e)
         {
-#if DEBUG
             if (e.Key == Key.G && e.KeyboardDevice.Modifiers == (ModifierKeys.Alt | ModifierKeys.Control))
             {
                 GC.Collect(GC.MaxGeneration);
                 Debug.WriteLine("CG enforced");
                 e.Handled = true;
             }
-#endif // DEBUG
         }
         
     }

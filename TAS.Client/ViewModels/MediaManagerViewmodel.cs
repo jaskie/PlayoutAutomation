@@ -29,6 +29,7 @@ namespace TAS.Client.ViewModels
         private ICollectionView _mediaView;
 
         public ICommand CommandSearch { get; private set; }
+        public ICommand CommandClearFilters { get; private set; }
         public ICommand CommandSaveSelected { get; private set; }
         public ICommand CommandDeleteSelected { get; private set; }
         public ICommand CommandIngestSelectedToServer { get; private set; }
@@ -165,6 +166,7 @@ namespace TAS.Client.ViewModels
         private void _createCommands()
         {
             CommandSearch = new UICommand() { ExecuteDelegate = _search, CanExecuteDelegate = _canSearch };
+            CommandClearFilters = new UICommand { ExecuteDelegate = _clearFilters, CanExecuteDelegate = _canClearFilters };
             CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = _isSomethingSelected };
             CommandMoveSelectedToArchive = new UICommand() { ExecuteDelegate = _moveSelectedToArchive, CanExecuteDelegate = o => _selectedDirectory is IServerDirectory && _isSomethingSelected(o) };
             CommandCopySelectedToArchive = new UICommand() { ExecuteDelegate = _copySelectedToArchive, CanExecuteDelegate = o => _selectedDirectory is IServerDirectory && _isSomethingSelected(o) };
@@ -192,6 +194,24 @@ namespace TAS.Client.ViewModels
             CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
             CommandSyncPriToSec = new UICommand { ExecuteDelegate = _syncSecToPri, CanExecuteDelegate = o => _selectedDirectory is IServerDirectory };
             CommandCloneAnimation = new UICommand { ExecuteDelegate = _cloneAnimation, CanExecuteDelegate = _canCloneAnimation };
+        }
+
+        private bool _canClearFilters(object obj)
+        {
+            return (IsMediaCategoryVisible && _mediaCategory != _mediaCategories.FirstOrDefault())
+                || _mediaType != MediaTypes.FirstOrDefault()
+                || !string.IsNullOrWhiteSpace(_searchText);
+        }
+
+        private void _clearFilters(object obj)
+        {
+            _mediaCategory = MediaCategories.FirstOrDefault();
+            _mediaType = MediaTypes.FirstOrDefault();
+            NotifyPropertyChanged(nameof(MediaCategory));
+            NotifyPropertyChanged(nameof(MediaType));
+            SearchText = string.Empty;
+            if (_canSearch(obj))
+                _search(obj);
         }
 
         private void _cloneAnimation(object obj)
@@ -549,10 +569,8 @@ namespace TAS.Client.ViewModels
             {
                 UiServices.SetBusyState();
                 if (_mediaItems != null)
-                {
                     foreach (var m in _mediaItems)
                         m.Dispose();
-                }
                 MediaItems = new ObservableCollection<MediaViewViewmodel>(directory.GetFiles().Select(f => new MediaViewViewmodel(f, _mediaManager)));
                 _mediaView = CollectionViewSource.GetDefaultView(_mediaItems);
                 _mediaView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
@@ -578,7 +596,6 @@ namespace TAS.Client.ViewModels
                         && !(SelectedDirectory is IServerDirectory) || (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Still))
                     {
                         _mediaItems.Add(new MediaViewViewmodel(media, _mediaManager));
-                        _mediaView?.Refresh();
                         _notifyDirectoryPropertiesChanged();
                     }
                 }
@@ -596,6 +613,8 @@ namespace TAS.Client.ViewModels
                         MediaViewViewmodel vm = _mediaItems.FirstOrDefault(v => v.Media == e.Media);
                         if (vm != null)
                         {
+                            if (SelectedMedia == vm) 
+                                SelectedMedia = null;
                             _mediaItems.Remove(vm);
                             vm.Dispose();
                         }
@@ -650,6 +669,7 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
+            SelectedDirectory = null;
         }
 
         private ObservableCollection<MediaViewViewmodel> _mediaItems;

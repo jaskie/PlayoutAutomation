@@ -10,6 +10,7 @@ using System.Windows;
 using TAS.Common;
 using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using System.Diagnostics;
 
 namespace TAS.Client.ViewModels
 {
@@ -36,6 +37,16 @@ namespace TAS.Client.ViewModels
             if (_mediaSegments != null && Media is IPersistentMedia)
                 (Media as IPersistentMedia).MediaSegments.CollectionOperation -= _mediaSegmentsCollectionOperation;
         }
+
+#if DEBUG
+        /// <summary>
+        /// Useful for ensuring that ViewModel objects are properly garbage collected.
+        /// </summary>
+        ~MediaViewViewmodel()
+        {
+            Debug.WriteLine(string.Format("{0} ({1}) ({2}) Finalized", this.GetType().Name, this, this.GetHashCode()));
+        }
+#endif
 
         public string MediaName { get { return Media.MediaName; } }
         public string FileName { get { return Media.FileName; } }

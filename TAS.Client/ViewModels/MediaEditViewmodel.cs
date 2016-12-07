@@ -54,7 +54,7 @@ namespace TAS.Client.ViewModels
             Model.PropertyChanged -= OnMediaPropertyChanged;
             if (_previewVm != null)
                 _previewVm.PropertyChanged -= _onPreviewPropertyChanged;
-            if (_fields != null && Model is IAnimatedMedia)
+            if (Model is IAnimatedMedia)
                 _fields.CollectionChanged -= _fields_CollectionChanged;
         }
 
@@ -123,13 +123,16 @@ namespace TAS.Client.ViewModels
 
         private void _addField(object obj)
         {
-            var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), false);
-            kve.OnOk += (o) => {
-                var co = (KeyValueEditViewmodel)o;
-                return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
-            };
-            if (kve.ShowDialog() == true)
-                _fields.Add(kve.Key, kve.Value);
+            using (var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), false))
+            {
+                kve.OnOk += (o) =>
+                {
+                    var co = (KeyValueEditViewmodel)o;
+                    return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
+                };
+                if (kve.ShowDialog() == true)
+                    _fields.Add(kve.Key, kve.Value);
+            }
         }
 
         private void _editField(object obj)

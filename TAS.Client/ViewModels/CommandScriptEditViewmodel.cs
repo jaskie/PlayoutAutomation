@@ -46,6 +46,7 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
+            _commands.CollectionChanged -= _commands_CollectionChanged;
         }
 
         private CommandScriptItemViewmodel _selectedCommand;

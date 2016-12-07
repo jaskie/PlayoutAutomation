@@ -186,6 +186,9 @@
   <data name="_toolbar.ArchiveLeft.ToolTip" xml:space="preserve">
     <value>Archiwizuj wskazane klipy (pozostaw w bieżącym folderze)</value>
   </data>
+  <data name="_toolbar.Clear.ToolTip" xml:space="preserve">
+    <value>Wyłącz filtry</value>
+  </data>
   <data name="_toolbar.CloneAnimation" xml:space="preserve">
     <value>Klonuj animację</value>
   </data>
@@ -196,7 +199,7 @@
     <value>Usuń</value>
   </data>
   <data name="_toolbar.Delete.ToolTip" xml:space="preserve">
-    <value>Usuń wskazane klipy</value>
+    <value>Usuń wskazane klipy | Ctrl+Delete</value>
   </data>
   <data name="_toolbar.Export" xml:space="preserve">
     <value>Eksport</value>

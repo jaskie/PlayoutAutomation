@@ -19,10 +19,10 @@ namespace TAS.Client.ViewModels
             _parentals = controller.Parentals.ToList();
             _auxes = controller.Auxes.ToList();
             _visibleAuxes = controller.VisibleAuxes;
-            controller.PropertyChanged += Controller_PropertyChanged;
+            controller.PropertyChanged += controller_PropertyChanged;
         }
 
-        private void Controller_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void controller_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(ICGElementsController.Crawls))
                 _crawls = Controller.Crawls.ToList();
@@ -57,8 +57,7 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
-            if (Controller != null)
-                Controller.PropertyChanged -= Controller_PropertyChanged;
+            Controller.PropertyChanged -= controller_PropertyChanged;
         }
 
 

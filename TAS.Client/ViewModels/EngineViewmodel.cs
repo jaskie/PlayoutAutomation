@@ -85,7 +85,7 @@ namespace TAS.Client.ViewModels
             _frameRate = engine.FrameRate;
             _videoFormatDescription = engine.FormatDescription;
 
-            Debug.WriteLine(this, "Creating root EventViewmodel");
+            // Creating root EventViewmodel
             _rootEventViewModel = new EventPanelRootViewmodel(this);
             _engine.EngineTick += this._engineTick;
             _engine.EngineOperation += this._engineOperation;
@@ -95,13 +95,15 @@ namespace TAS.Client.ViewModels
             _engine.EventSaved += _engine_EventSaved;
             _composePlugins();
 
-            Debug.WriteLine(this, "Creating EngineView");
+            // Creating View
             _engineView = new EngineView(this._frameRate);
             _engineView.DataContext = this;
 
+            // Creating PreviewViewmodel
             if (preview != null)
                 _previewViewmodel = new PreviewViewmodel(preview) { IsSegmentsVisible = true };
-            Debug.WriteLine(this, "Creating EventEditViewmodel");
+            
+            // Creating EventEditViewmodel
             _eventEditViewmodel = new EventEditViewmodel(this, _previewViewmodel);
             _eventEditView = new EventEditView(_frameRate) { DataContext = _eventEditViewmodel };
 
@@ -614,72 +616,80 @@ namespace TAS.Client.ViewModels
         {
             if (baseEvent != null && _mediaSearchViewModel == null)
             {
-                _mediaSearchViewModel = new MediaSearchViewmodel(_engine, _engine.MediaManager, mediaType, closeAfterAdd, baseEvent.Media?.VideoFormatDescription);
+                _mediaSearchViewModel = new MediaSearchViewmodel(_engine, _engine.MediaManager, mediaType, layer, closeAfterAdd, baseEvent.Media?.VideoFormatDescription);
                 _mediaSearchViewModel.BaseEvent = baseEvent;
                 _mediaSearchViewModel.NewEventStartType = startType;
-                _mediaSearchViewModel.SearchWindowClosed += (o, e) =>
-                {
-                    MediaSearchViewmodel mvs = (MediaSearchViewmodel)o;
-                    _mediaSearchViewModel.Dispose();
-                    _mediaSearchViewModel = null;
-                };
-                _mediaSearchViewModel.MediaChoosen += (o, e) =>
-                {
-                    if (e.Media != null)
-                    {
-                        IEvent newEvent;
-                        switch (e.Media.MediaType)
-                        {
-                            case TMediaType.Movie:
-                                TMediaCategory category = e.Media.MediaCategory;
-                                var cgController = Engine.CGElementsController;
-                                var defaultCrawl = cgController == null ? 0 : cgController.DefaultCrawl;
-                                newEvent = _engine.AddNewEvent(
-                                    eventName: e.MediaName,
-                                    videoLayer: VideoLayer.Program,
-                                    eventType: TEventType.Movie,
-                                    scheduledTC: e.TCIn,
-                                    duration: e.Duration,
-                                    isCGEnabled: _engine.EnableCGElementsForNewEvents,
-                                    crawl: (byte)((
-                                        Engine.CrawlEnableBehavior == TCrawlEnableBehavior.ShowsOnly && category == TMediaCategory.Show) 
-                                        || (Engine.CrawlEnableBehavior == TCrawlEnableBehavior.AllButCommercials && (category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Fill || category == TMediaCategory.Insert || category == TMediaCategory.Uncategorized)) 
-                                            ?  defaultCrawl : 0),
-                                    logo: (byte)(category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? 1: 0),
-                                    parental: e.Media.Parental
-                                    );
-                                break;
-                            case TMediaType.Still:
-                                newEvent = _engine.AddNewEvent(
-                                    eventName: e.MediaName,
-                                    eventType: TEventType.StillImage,
-                                    videoLayer: layer,
-                                    duration: baseEvent.Duration);
-                                break;
-                            case TMediaType.Animation:
-                                newEvent = _engine.AddNewEvent(
-                                    eventName: e.MediaName,
-                                    eventType: TEventType.Animation,
-                                    videoLayer: VideoLayer.Animation);
-                                if (newEvent is ITemplated && e.Media is ITemplated)
-                                    ((ITemplated)newEvent).Fields = ((ITemplated)e.Media).Fields;
-                                break;
-                            default:
-                                throw new ApplicationException("Invalid MediaType choosen");
-                                
-                        }
-                        newEvent.Media = e.Media;
-                        if (_mediaSearchViewModel.NewEventStartType == TStartType.After)
-                            _mediaSearchViewModel.BaseEvent.InsertAfter(newEvent);
-                        if (_mediaSearchViewModel.NewEventStartType == TStartType.With)
-                            _mediaSearchViewModel.BaseEvent.InsertUnder(newEvent);
-                        _mediaSearchViewModel.NewEventStartType = TStartType.After;
-                        _mediaSearchViewModel.BaseEvent = newEvent;
-                        LastAddedEvent = newEvent;
-                    }
-                };
+                _mediaSearchViewModel.SearchWindowClosed += _mediaSearchViewModelSearchWindowClosed;
+                _mediaSearchViewModel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
             }
         }
+
+        private void _mediaSearchViewModelSearchWindowClosed(object o, EventArgs e)
+        {
+            MediaSearchViewmodel mvs = (MediaSearchViewmodel)o;
+            mvs.SearchWindowClosed -= _mediaSearchViewModelSearchWindowClosed;
+            mvs.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
+            _mediaSearchViewModel.Dispose();
+            _mediaSearchViewModel = null;
+        }
+
+        private void _mediaSearchViewModelMediaChoosen(object o, MediaSearchEventArgs e)
+        {
+            MediaSearchViewmodel mediaSearchVm = o as MediaSearchViewmodel;
+            if (e.Media != null && mediaSearchVm != null)
+            {
+                IEvent newEvent;
+                switch (e.Media.MediaType)
+                {
+                    case TMediaType.Movie:
+                        TMediaCategory category = e.Media.MediaCategory;
+                        var cgController = Engine.CGElementsController;
+                        var defaultCrawl = cgController == null ? 0 : cgController.DefaultCrawl;
+                        newEvent = _engine.AddNewEvent(
+                            eventName: e.MediaName,
+                            videoLayer: VideoLayer.Program,
+                            eventType: TEventType.Movie,
+                            scheduledTC: e.TCIn,
+                            duration: e.Duration,
+                            isCGEnabled: _engine.EnableCGElementsForNewEvents,
+                            crawl: (byte)((
+                                Engine.CrawlEnableBehavior == TCrawlEnableBehavior.ShowsOnly && category == TMediaCategory.Show)
+                                || (Engine.CrawlEnableBehavior == TCrawlEnableBehavior.AllButCommercials && (category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Fill || category == TMediaCategory.Insert || category == TMediaCategory.Uncategorized))
+                                    ? defaultCrawl : 0),
+                            logo: (byte)(category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? 1 : 0),
+                            parental: e.Media.Parental
+                            );
+                        break;
+                    case TMediaType.Still:
+                        newEvent = _engine.AddNewEvent(
+                            eventName: e.MediaName,
+                            eventType: TEventType.StillImage,
+                            videoLayer: mediaSearchVm.Layer,
+                            duration: mediaSearchVm.BaseEvent.Duration);
+                        break;
+                    case TMediaType.Animation:
+                        newEvent = _engine.AddNewEvent(
+                            eventName: e.MediaName,
+                            eventType: TEventType.Animation,
+                            videoLayer: VideoLayer.Animation);
+                        if (newEvent is ITemplated && e.Media is ITemplated)
+                            ((ITemplated)newEvent).Fields = ((ITemplated)e.Media).Fields;
+                        break;
+                    default:
+                        throw new ApplicationException("Invalid MediaType choosen");
+
+                }
+                newEvent.Media = e.Media;
+                if (mediaSearchVm.NewEventStartType == TStartType.After)
+                    mediaSearchVm.BaseEvent.InsertAfter(newEvent);
+                if (mediaSearchVm.NewEventStartType == TStartType.With)
+                    mediaSearchVm.BaseEvent.InsertUnder(newEvent);
+                mediaSearchVm.NewEventStartType = TStartType.After;
+                mediaSearchVm.BaseEvent = newEvent;
+                LastAddedEvent = newEvent;
+            }
+        }
+
 
         public void AddCommandScriptEvent(IEvent baseEvent)
         {

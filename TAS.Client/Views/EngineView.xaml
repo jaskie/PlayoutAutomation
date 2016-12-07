@@ -414,9 +414,7 @@
                         </controls:SearchTextBox>
                         <TextBlock Text="{Resx _search.NotFound}" Visibility="{Binding IsSearchNotFound, Converter={StaticResource BoolToVis}}" Foreground="{DynamicResource {x:Static SystemColors.InactiveCaptionBrushKey}}" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Button HorizontalAlignment="Right" Margin="2, 0" Command="{Binding CommandSearchHidePanel}" IsCancel="True"  Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" ToolTip="{Resx _search.Close.ToolTip}">
-                        <Image Source="/TAS.Client.Common;component/Images/Actions/close.png"/>
-                    </Button>
+                    <Button Style="{StaticResource ClearButton}" HorizontalAlignment="Right" Margin="2, 0" Command="{Binding CommandSearchHidePanel}" IsCancel="True" ToolTip="{Resx _search.Close.ToolTip}"/>
                 </Grid>
                 <TreeView common:TreeViewExtensions.EnableMultiSelect="True" 
                       common:TreeViewExtensions.MultiSelectedItems="{Binding MultiSelectedEvents}" 

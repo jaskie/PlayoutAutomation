@@ -8,6 +8,7 @@ using TAS.Client.Common;
 using resources = TAS.Client.Common.Properties.Resources;
 using TAS.Common;
 using TAS.Server.Interfaces;
+using System.Diagnostics;
 
 namespace TAS.Client.ViewModels
 {
@@ -40,6 +41,16 @@ namespace TAS.Client.ViewModels
                     System.Windows.MessageBox.Show(OperationWarning, resources._caption_Warning, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation)
             };
         }
+
+#if DEBUG
+        /// <summary>
+        /// Useful for ensuring that ViewModel objects are properly garbage collected.
+        /// </summary>
+        ~FileOperationViewmodel()
+        {
+            Debug.WriteLine(string.Format("{0} ({1}) ({2}) Finalized", this.GetType().Name, this, this.GetHashCode()));
+        }
+#endif
 
         public IFileOperation FileOperation { get { return _fileOperation; } }
 

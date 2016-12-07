@@ -326,27 +326,42 @@ namespace TAS.Client.ViewModels
         }
 
         MediaSearchViewmodel _mediaSearchViewModel;
-        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType, Action<MediaSearchEventArgs> executeOnChoose, VideoFormatDescription videoFormatDescription = null)
+        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType, VideoFormatDescription videoFormatDescription = null)
         {
             if (_mediaSearchViewModel == null)
             {
-                _mediaSearchViewModel = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, mediaType, true, videoFormatDescription);
+                _mediaSearchViewModel = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, mediaType, VideoLayer.Program, true, videoFormatDescription);
                 _mediaSearchViewModel.BaseEvent = baseEvent;
                 _mediaSearchViewModel.NewEventStartType = startType;
-                _mediaSearchViewModel.MediaChoosen += new EventHandler<MediaSearchEventArgs>((o, e) => executeOnChoose(e));
+                _mediaSearchViewModel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
                 _mediaSearchViewModel.SearchWindowClosed += _searchWindowClosed;
             }
         }
-
-
+        
         private void _searchWindowClosed(object sender, EventArgs e)
         {
             MediaSearchViewmodel mvs = (MediaSearchViewmodel)sender;
             mvs.SearchWindowClosed -= _searchWindowClosed;
+            mvs.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
             _mediaSearchViewModel.Dispose();
             _mediaSearchViewModel = null;
         }        
 
+        private void _mediaSearchViewModelMediaChoosen(object o, MediaSearchEventArgs e)
+        {
+            if (e.Media != null)
+            {
+                if (e.Media.MediaType == TMediaType.Movie)
+                {
+                    Media = e.Media;
+                    Duration = e.Duration;
+                    ScheduledTc = e.TCIn;
+                    AudioVolume = null;
+                    EventName = e.MediaName;
+                    _setCGElements(e.Media);
+                }
+            }
+        }
 
         private IMedia _media;
         public IMedia Media
@@ -394,21 +409,7 @@ namespace TAS.Client.ViewModels
             if (ev != null
                 && ev.EventType == TEventType.Movie)
             {
-                _chooseMedia(TMediaType.Movie, ev, ev.StartType, new Action<MediaSearchEventArgs>((e) =>
-                    {
-                        if (e.Media != null)
-                        {
-                            if (e.Media.MediaType == TMediaType.Movie)
-                            {
-                                Media = e.Media;
-                                Duration = e.Duration;
-                                ScheduledTc = e.TCIn;
-                                AudioVolume = null;
-                                EventName = e.MediaName;
-                                _setCGElements(e.Media);
-                            }
-                        }
-                    }));
+                _chooseMedia(TMediaType.Movie, ev, ev.StartType);
             }
         }
 

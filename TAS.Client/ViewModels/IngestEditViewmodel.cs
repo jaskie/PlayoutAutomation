@@ -20,7 +20,7 @@ namespace TAS.Client.ViewModels
             _conversionList = new ObservableCollection<ConvertOperationViewModel>(from op in convertionList select new ConvertOperationViewModel(op, preview, mediaManager));
             SelectedOperation = _conversionList.FirstOrDefault();
             foreach (var c in _conversionList)
-                c.PropertyChanged += new PropertyChangedEventHandler(_convertOperationPropertyChanged);
+                c.PropertyChanged += _convertOperationPropertyChanged;
             CommandDeleteOperation = new UICommand { ExecuteDelegate = _deleteOperation };
             OkCancelButtonsActivateViaKeyboard = false;
         }
@@ -32,7 +32,7 @@ namespace TAS.Client.ViewModels
             var destMedia = operation.FileOperation.DestMedia;
             if (OperationList.Remove(operation))
             {
-                operation.PropertyChanged -= new PropertyChangedEventHandler(_convertOperationPropertyChanged);
+                operation.PropertyChanged -= _convertOperationPropertyChanged;
                 operation.Dispose();
                 OnModified();
                 if (destMedia != null)
@@ -68,7 +68,7 @@ namespace TAS.Client.ViewModels
         {
             foreach (var c in _conversionList)
             {
-                c.PropertyChanged -= new PropertyChangedEventHandler(_convertOperationPropertyChanged);
+                c.PropertyChanged -= _convertOperationPropertyChanged;
                 c.Dispose();
             }
         }
