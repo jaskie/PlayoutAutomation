@@ -46,7 +46,8 @@ namespace TAS.Client.Common
                 WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner,
                 MaxHeight = System.Windows.SystemParameters.PrimaryScreenHeight,
                 MaxWidth = System.Windows.SystemParameters.PrimaryScreenWidth,
-                ShowInTaskbar = false
+                ShowInTaskbar = false,
+                ResizeMode = ResizeMode.NoResize
             };
             _showResult = _currentWindow.ShowDialog();
             if (_showResult == false)

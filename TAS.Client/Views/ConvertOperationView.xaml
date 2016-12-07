@@ -76,7 +76,7 @@
                     </Label.LayoutTransform>
                 </Label>
             </Expander.Header>
-            <StackPanel MinWidth="250">
+            <StackPanel Width="300">
                 <StackPanel Visibility="{Binding EncodeVideo, Converter={StaticResource BoolToVis}}">
                     <Label Content="{Resx _aspectCorrection}" />
                     <ComboBox ItemsSource="{Binding AspectConversions}" SelectedItem="{Binding AspectConversion}" />

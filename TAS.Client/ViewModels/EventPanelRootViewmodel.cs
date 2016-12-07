@@ -29,74 +29,9 @@ namespace TAS.Client.ViewModels
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
             {
-                EventPanelViewmodelBase evm = this.Find(e.Event);
-                EventPanelViewmodelBase newVm = null;
-                if (evm == null)
-                {
-                    var vp = e.Event.GetVisualParent();
-                    if (vp != null)
-                    {
-                        var evm_vp = this.Find(vp);
-                        if (evm_vp != null)
-                        {
-                            var eventType = e.Event.EventType;
-                            if (eventType == TEventType.Movie || eventType == TEventType.Rundown || eventType == TEventType.Live
-                                || evm_vp.IsExpanded)
-                            {
-                                if (e.Event == _engineViewmodel.LastAddedEvent || _engineViewmodel.TrackPlayingEvent)
-                                {
-                                    evm_vp.IsExpanded = true;
-                                    if (evm_vp.Find(e.Event) == null) // find again after expand
-                                    {
-                                        if (e.Event.Parent == vp) // StartType = With
-                                        {
-                                            newVm = evm_vp.CreateChildEventPanelViewmodelForEvent(e.Event);
-                                            evm_vp.Childrens.Insert(0, newVm);
-                                        }
-                                        else // StartType == After
-                                        {
-                                            var prior = e.Event.Prior;
-                                            if (prior != null)
-                                            {
-                                                var evm_prior = evm_vp.Find(prior);
-                                                if (evm_prior != null)
-                                                {
-                                                    var pos = evm_vp.Childrens.IndexOf(evm_prior);
-                                                    newVm = evm_vp.CreateChildEventPanelViewmodelForEvent(e.Event);
-                                                    evm_vp.Childrens.Insert(pos + 1, newVm);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (!evm_vp.HasDummyChild)
-                                    evm_vp.Childrens.Add(DummyChild);
-                            }
-                        }
-                    }
-                    else //vp == null
-                    {
-                        var prior = e.Event.Prior;
-                        if (prior != null)
-                        {
-                            var evm_prior = this.Find(prior);
-                            if (evm_prior != null)
-                            {
-                                var pos = this._childrens.IndexOf(evm_prior);
-                                newVm = this.CreateChildEventPanelViewmodelForEvent(e.Event);
-                                this._childrens.Insert(pos + 1, newVm);
-                            }
-                        } 
-                        else
-                            if (e.Event.StartType == TStartType.Manual || e.Event.EventType == TEventType.Container)
-                                newVm = _addRootEvent(e.Event);
-                    }
-                }
+                EventPanelViewmodelBase newVm = _placeEventInRundown(e.Event);
                 if (newVm != null
-                    && !(e.Event.EventType == TEventType.StillImage)
+                    && e.Event.EventType != TEventType.StillImage
                     && e.Event == _engineViewmodel.LastAddedEvent)
                 {
                     newVm.IsSelected = true;
@@ -105,6 +40,77 @@ namespace TAS.Client.ViewModels
                         newVm.IsExpanded = true;
                 }
             });
+        }
+
+        private EventPanelViewmodelBase _placeEventInRundown(IEvent e)
+        {
+            EventPanelViewmodelBase newVm = null;
+            EventPanelViewmodelBase evm = this.Find(e);
+            if (evm == null)
+            {
+                var vp = e.GetVisualParent();
+                if (vp != null)
+                {
+                    var evm_vp = this.Find(vp);
+                    if (evm_vp != null)
+                    {
+                        var eventType = e.EventType;
+                        if (eventType == TEventType.Movie || eventType == TEventType.Rundown || eventType == TEventType.Live
+                            || evm_vp.IsExpanded)
+                        {
+                            if (e == _engineViewmodel.LastAddedEvent || _engineViewmodel.TrackPlayingEvent)
+                            {
+                                evm_vp.IsExpanded = true;
+                                if (evm_vp.Find(e) == null) // find again after expand
+                                {
+                                    if (e.Parent == vp) // StartType = With
+                                    {
+                                        newVm = evm_vp.CreateChildEventPanelViewmodelForEvent(e);
+                                        evm_vp.Childrens.Insert(0, newVm);
+                                    }
+                                    else // StartType == After
+                                    {
+                                        var prior = e.Prior;
+                                        if (prior != null)
+                                        {
+                                            var evm_prior = evm_vp.Find(prior);
+                                            if (evm_prior != null)
+                                            {
+                                                var pos = evm_vp.Childrens.IndexOf(evm_prior);
+                                                newVm = evm_vp.CreateChildEventPanelViewmodelForEvent(e);
+                                                evm_vp.Childrens.Insert(pos + 1, newVm);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (!evm_vp.HasDummyChild)
+                                evm_vp.Childrens.Add(DummyChild);
+                        }
+                    }
+                }
+                else //vp == null
+                {
+                    var prior = e.Prior;
+                    if (prior != null)
+                    {
+                        var evm_prior = this.Find(prior);
+                        if (evm_prior != null)
+                        {
+                            var pos = this._childrens.IndexOf(evm_prior);
+                            newVm = this.CreateChildEventPanelViewmodelForEvent(e);
+                            this._childrens.Insert(pos + 1, newVm);
+                        }
+                    }
+                    else
+                        if (e.StartType == TStartType.Manual || e.EventType == TEventType.Container)
+                        newVm = _addRootEvent(e);
+                }
+            }
+            return newVm;
         }
 
         private EventPanelViewmodelBase _addRootEvent(IEvent e)

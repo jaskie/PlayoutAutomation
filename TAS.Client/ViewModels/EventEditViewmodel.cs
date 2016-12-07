@@ -33,8 +33,8 @@ namespace TAS.Client.ViewModels
             _fields.CollectionChanged += _fields_or_commands_CollectionChanged;
             CommandSaveEdit = new UICommand() { ExecuteDelegate = _save, CanExecuteDelegate = _canSave };
             CommandUndoEdit = new UICommand() { ExecuteDelegate = _load, CanExecuteDelegate = o => IsModified };
-            CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _isEditableMovie };
-            CommandEditMovie = new UICommand() { ExecuteDelegate = _editMovie, CanExecuteDelegate = _isEditableMovie };
+            CommandChangeMovie = new UICommand() { ExecuteDelegate = _changeMovie, CanExecuteDelegate = _canChangeMovie };
+            CommandEditMovie = new UICommand() { ExecuteDelegate = _editMovie, CanExecuteDelegate = _canEditMovie };
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume };
             CommandEditField = new UICommand { ExecuteDelegate = _editField };
             CommandTriggerStartType = new UICommand { ExecuteDelegate = _triggerStartType, CanExecuteDelegate = _canTriggerStartType };
@@ -452,16 +452,24 @@ namespace TAS.Client.ViewModels
             return ev != null
                 && (ev.PlayState == TPlayState.Played || ev.PlayState == TPlayState.Aborted);
         }
-        bool _isEditableMovie(object o)
+        bool _canChangeMovie(object o)
         {
             IEvent ev = _event;
             return ev != null
                 && ev.PlayState == TPlayState.Scheduled
                 && ev.EventType == TEventType.Movie;
         }
+        bool _canEditMovie(object o)
+        {
+            IEvent ev = _event;
+            return ev != null
+                && ev.Media != null
+                && ev.PlayState == TPlayState.Scheduled
+                && ev.EventType == TEventType.Movie;
+        }
         bool _canCheckVolume(object o)
         {
-            return !_isVolumeChecking && _isEditableMovie(o);
+            return !_isVolumeChecking && _canChangeMovie(o);
         }
         bool _canSave(object o)
         {
