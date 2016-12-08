@@ -311,8 +311,6 @@ namespace TAS.Server
             }
             else
             {
-                if (sIngestDir == null)
-                    return false;
                 using (Stream source = GetFileStream(false),
                                 dest = destMedia.GetFileStream(true))
                 {

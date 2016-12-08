@@ -36,7 +36,7 @@ namespace TAS.Server.XDCAM
                     {
                         string fileName = string.Join("/", "/Clip", $"{media.XdcamClip.clipId}.MXF");
                         if (!_client.FileExists(fileName))
-                            fileName = string.Join("/", "/Clip", $"{media.XdcamClipAlias.value}.MXF");
+                            fileName = string.Join("/", "/Clip", $"\"{media.XdcamClipAlias.value}.MXF\"");
                         _currentStream = _client.OpenRead(fileName);
                     }
                 }
@@ -106,10 +106,10 @@ namespace TAS.Server.XDCAM
                 var r = _media.XdcamEdl.smil.body.par.refList[_smil_index];
                 if (r.src.StartsWith(@"urn:smpte:umid:"))
                 {
-                    string umid = r.src.Substring(15);
+                    string umid = r.src.Substring(35);
                     int startFrame = r.clipBegin.SmpteToFrame();
                     int length = r.clipEnd.SmpteToFrame() - startFrame;
-                    var media = _media.Directory.GetFiles().Select( m => (XDCAMMedia)m).FirstOrDefault( m => umid.Equals(m.XdcamEdl.EdlMeta.TargetMaterial.umidRef));
+                    var media = _media.Directory.GetFiles().Select( m => (XDCAMMedia)m).FirstOrDefault( m => umid.Equals(m.XdcamClip?.umid));
                     if (media != null)
                     {
                         string fileName = string.Join("/", "/Clip", $"{media.XdcamClip.clipId}.MXF");

@@ -136,7 +136,7 @@ namespace System.Net.FtpClient
             try
             {
                 m_lock.WaitOne();
-                stream = OpenDataStream(string.Format("SITE REPF {0} {1} {2}", path.GetFtpPath(), startFrame, frameCount), 0);
+                stream = OpenDataStream(string.Format("SITE REPFL \"{0}\" {1} {2}", path.GetFtpPath(), startFrame, frameCount), 0);
             }
             finally
             {
