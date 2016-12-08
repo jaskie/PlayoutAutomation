@@ -300,8 +300,10 @@ namespace TAS.Server
         public virtual bool CopyMediaTo(Media destMedia, ref bool abortCopy)
         {
             bool copyResult = true;
-            if ((!(_directory is IngestDirectory) || ((IngestDirectory)_directory).AccessType == TDirectoryAccessType.Direct)
-                && (!(destMedia.Directory is IngestDirectory) || ((IngestDirectory)destMedia.Directory).AccessType == TDirectoryAccessType.Direct))
+            var sIngestDir = _directory as IngestDirectory;
+            var dIngestDir = destMedia._directory as IngestDirectory;
+            if ((sIngestDir == null || sIngestDir.AccessType == TDirectoryAccessType.Direct)
+                && (dIngestDir == null || dIngestDir.AccessType == TDirectoryAccessType.Direct))
             {
                 File.Copy(FullPath, destMedia.FullPath, true);
                 File.SetCreationTimeUtc(destMedia.FullPath, File.GetCreationTimeUtc(FullPath));
@@ -309,38 +311,25 @@ namespace TAS.Server
             }
             else
             {
-                try
+                if (sIngestDir == null)
+                    return false;
+                using (Stream source = GetFileStream(false),
+                                dest = destMedia.GetFileStream(true))
                 {
-                    if (_directory is IngestDirectory)
-                        (_directory as IngestDirectory).LockXDCAM(true);
-                    if (destMedia.Directory is IngestDirectory)
-                        (destMedia.Directory as IngestDirectory).LockXDCAM(true);
-                    using (Stream source = GetFileStream(false),
-                                    dest = destMedia.GetFileStream(true))
+                    if (source == null || dest == null)
+                        return false;
+                    var buffer = new byte[1024 * 1024];
+                    ulong totalReadBytesCount = 0;
+                    int readBytesCount;
+                    FileSize = (UInt64)source.Length;
+                    while ((readBytesCount = source.Read(buffer, 0, buffer.Length)) > 0)
                     {
-                        var buffer = new byte[1024 * 1024];
-                        ulong totalReadBytesCount = 0;
-                        int readBytesCount;
-                        FileSize = (UInt64)source.Length;
-                        while ((readBytesCount = source.Read(buffer, 0, buffer.Length)) > 0)
-                        {
-                            if (abortCopy)
-                            {
-                                copyResult = false;
-                                break;
-                            }
-                            dest.Write(buffer, 0, readBytesCount);
-                            totalReadBytesCount += (ulong)readBytesCount;
-                            destMedia.FileSize = totalReadBytesCount;
-                        }
+                        if (abortCopy)
+                            return false;
+                        dest.Write(buffer, 0, readBytesCount);
+                        totalReadBytesCount += (ulong)readBytesCount;
+                        destMedia.FileSize = totalReadBytesCount;
                     }
-                }
-                finally
-                {
-                    if (_directory is IngestDirectory)
-                        (_directory as IngestDirectory).LockXDCAM(false);
-                    if (destMedia.Directory is IngestDirectory)
-                        (destMedia.Directory as IngestDirectory).LockXDCAM(false);
                 }
             }
             return copyResult;
@@ -408,11 +397,7 @@ namespace TAS.Server
                     //this.LastAccess = DateTimeExtensions.FromFileTime(fi.LastAccessTimeUtc, DateTimeKind.Utc);
 
                     if (SetField(ref _mediaStatus, MediaChecker.Check(this), nameof(MediaStatus)))
-                    {
-                        var dir = _directory;
-                        if (dir != null)
-                            dir.OnMediaVerified(this);
-                    }                    
+                        _directory?.OnMediaVerified(this);
                 }                
                 Verified = true;
             }

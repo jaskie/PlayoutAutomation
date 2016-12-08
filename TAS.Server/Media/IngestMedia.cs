@@ -23,8 +23,6 @@ namespace TAS.Server
                 return base.FileExists();
         }
 
-        internal XDCAM.NonRealTimeMeta ClipMetadata;
-        internal XDCAM.Smil SmilMetadata;
         internal string XmlFile;
         internal StreamInfo[] StreamInfo;
 
@@ -50,20 +48,17 @@ namespace TAS.Server
 
         public override Stream GetFileStream(bool forWrite)
         {
-            if (((IngestDirectory)_directory).AccessType == TDirectoryAccessType.Direct)
-                return base.GetFileStream(forWrite);
-            else
-            if (((IngestDirectory)_directory).AccessType == TDirectoryAccessType.FTP)
+            var dir = _directory as IngestDirectory;
+            if (dir != null)
             {
-                        if (_directory is IngestDirectory)
-                        {
-                            if (((IngestDirectory)_directory).IsXDCAM)
-                                return new XDCAM.XdcamStream(this, forWrite);
-                            else
-                                return new FtpMediaStream(this, forWrite);
-                        }
+                if (dir.AccessType == TDirectoryAccessType.Direct)
+                    return base.GetFileStream(forWrite);
+                else
+                if (dir.AccessType == TDirectoryAccessType.FTP)
+                    return new FtpMediaStream(this, forWrite);
+                throw new NotImplementedException("Access types other than Direct and readonly FTP not implemented");
             }
-            throw new NotImplementedException("Access types other than Direct and readonly FTP not implemented");
+            throw new InvalidOperationException("IngestMedia: _directory must be IngestDirectory");
         }
     }
 }

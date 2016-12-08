@@ -229,7 +229,7 @@ namespace TAS.Server
             return true;
         }
 
-        protected virtual IMedia AddFile(string fullPath, DateTime created = default(DateTime), DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
+        protected virtual IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
             Media newMedia;
             newMedia = (Media)_files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath));
@@ -237,7 +237,7 @@ namespace TAS.Server
             {
                 newMedia = (Media)CreateMedia(fullPath, guid);
                 newMedia.MediaName = Path.GetFileName(fullPath);
-                newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
+                newMedia.LastUpdated = lastWriteTime == default(DateTime) && File.Exists(fullPath) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
                 newMedia.MediaType = (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Still : (FileUtils.VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Movie : TMediaType.Unknown;
             }
             return newMedia;
@@ -299,7 +299,7 @@ namespace TAS.Server
             {
                 if (cancelationToken.IsCancellationRequested)
                     return;
-                AddFile(f.FullName, f.CreationTimeUtc, f.LastWriteTimeUtc);
+                AddFile(f.FullName, f.LastWriteTimeUtc);
             }
             if (includeSubdirectories)
             {
@@ -446,7 +446,7 @@ namespace TAS.Server
                 if (m == null)
                 {
                     FileInfo fi = new FileInfo(e.FullPath);
-                    AddFile(e.FullPath, fi.CreationTimeUtc, fi.LastWriteTimeUtc);
+                    AddFile(e.FullPath, fi.LastWriteTimeUtc);
                 }
                 else
                 {

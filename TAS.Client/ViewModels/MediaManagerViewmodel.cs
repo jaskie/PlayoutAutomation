@@ -104,7 +104,6 @@ namespace TAS.Client.ViewModels
                         oldSelectedMedia.SelectedSegment = null;
                     IMedia media = value == null ? null : value.Media;
                     if (media is IIngestMedia
-                        && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
                         && !media.Verified)
                         media.ReVerify();
                     if (_previewViewModel != null)
@@ -573,7 +572,8 @@ namespace TAS.Client.ViewModels
                         m.Dispose();
                 MediaItems = new ObservableCollection<MediaViewViewmodel>(directory.GetFiles().Select(f => new MediaViewViewmodel(f, _mediaManager)));
                 _mediaView = CollectionViewSource.GetDefaultView(_mediaItems);
-                _mediaView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
+                if (!(directory as IIngestDirectory)?.IsXDCAM == true)
+                    _mediaView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
                 if (!(directory is IArchiveDirectory))
                     _mediaView.Filter = _filter;
                 var ingestdir = directory as IIngestDirectory;

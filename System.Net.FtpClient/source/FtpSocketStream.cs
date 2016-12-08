@@ -505,7 +505,7 @@ namespace System.Net.FtpClient {
                     }
 
 #if !NET2
-                    m_socket.Dispose();
+                    m_socket?.Dispose();
 #endif
                 }
                 catch (SocketException ex) {

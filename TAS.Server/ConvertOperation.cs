@@ -344,6 +344,12 @@ namespace TAS.Server
 
         private bool _convertMovie(Media media, StreamInfo[] streams)
         {
+            if (!media.FileExists() || streams == null)
+            {
+                Debug.WriteLine(this, "Cannot start conversion: file not readed");
+                AddOutputMessage("Cannot start conversion: file not readed");
+                return false;
+            }
             _progressDuration = media.Duration;
             Debug.WriteLine(this, "Convert operation started");
             AddOutputMessage("Starting convert operation:");

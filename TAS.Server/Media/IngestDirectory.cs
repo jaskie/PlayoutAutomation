@@ -62,6 +62,8 @@ namespace TAS.Server
             base.DoDispose();
             if (AccessType == TDirectoryAccessType.Direct && !IsXDCAM && string.IsNullOrWhiteSpace(Username))
                 PinvokeWindowsNetworking.disconnectRemote(Path.GetPathRoot(Folder));
+            if (_ftpClient != null)
+                _ftpClient.Dispose();
         }
 
         private bool _connectToRemoteDirectory()
@@ -77,7 +79,7 @@ namespace TAS.Server
             return false;
         }
 
-        private object _xdcamLockObject = new object();
+        internal object XdcamLockObject = new object();
         
         public string EncodeParams { get; set; }
 
@@ -165,14 +167,11 @@ namespace TAS.Server
         public string Password { get; set; }
 
         private NetworkCredential _networkCredential;
-        public NetworkCredential NetworkCredential
+        internal NetworkCredential _getNetworkCredential()
         {
-            get
-            {
                 if (_networkCredential == null)
                     _networkCredential = new NetworkCredential(Username, Password);
                 return _networkCredential;
-            }
         }
 
         [XmlArray]
@@ -188,7 +187,7 @@ namespace TAS.Server
             string newPath = localPath + '/' + item.Name;
             if (item.Type == FtpFileSystemObjectType.Movie || item.Type == FtpFileSystemObjectType.File)
             {
-                IMedia newmedia = AddFile(_folder + newPath, item.Created == default(DateTime) ? item.Modified : item.Created, item.Modified == default(DateTime) ? item.Created : item.Modified);
+                IMedia newmedia = AddFile(_folder + newPath, item.Modified == default(DateTime) ? item.Created : item.Modified);
                 if (item.Type == FtpFileSystemObjectType.Movie)
                 {
                     newmedia.Duration = item.Size.SMPTEFramesToTimeSpan("50"); // assuming Grass Valley K2 PAL server
@@ -200,20 +199,43 @@ namespace TAS.Server
                     _ftpAddFileFromPath(client, rootPath, newPath, file);
         }
 
+        private FtpClient _ftpClient;
+        internal FtpClient GetFtpClient() {
+            if (_ftpClient == null)
+            {
+                FtpClient newClient = IsXDCAM ?
+                    new XdcamClient()
+                    {
+                        Host = new Uri(_folder, UriKind.Absolute).Host,
+                        Credentials = _getNetworkCredential()
+                    }
+                    : new FtpClient()
+                    {
+                        Host = new Uri(_folder, UriKind.Absolute).Host,
+                        Credentials = _getNetworkCredential()
+                    };
+                _ftpClient = newClient;
+            }
+            return _ftpClient;
+        }
+
         private bool _ftpDirectoryList()
         {
             bool exists = true;
             try
             {
-                using (FtpClient _ftpClient = new FtpClient())
+                FtpClient _ftpClient = GetFtpClient();
+                Uri uri = new Uri(_folder, UriKind.Absolute);
+                try
                 {
-                    Uri uri = new Uri(_folder, UriKind.Absolute);
-                    _ftpClient.Host = uri.Host;
-                    _ftpClient.Credentials = NetworkCredential;
                     _ftpClient.Connect();
                     ClearFiles();
                     foreach (var file in _ftpClient.GetListing(uri.LocalPath))
                         _ftpAddFileFromPath(_ftpClient, uri.LocalPath, "", file);
+                }
+                finally
+                {
+                    _ftpClient.Disconnect();
                 }
             }
             catch (Exception ex)
@@ -235,19 +257,21 @@ namespace TAS.Server
             {
                 if (IsXDCAM)
                 {
-                    if (Monitor.TryEnter(_xdcamLockObject, 1000))
+                    if (Monitor.TryEnter(XdcamLockObject, 1000))
                         try
                         {
                             if (AccessType == TDirectoryAccessType.FTP)
                             {
-                                using (XdcamClient client = new XdcamClient())
+                                var client = GetFtpClient() as XdcamClient;
+                                Uri uri = new Uri(_folder, UriKind.Absolute);
+                                client.Connect();
+                                try
                                 {
-                                    Uri uri = new Uri(_folder, UriKind.Absolute);
-                                    client.Host = uri.Host;
-                                    client.Credentials = NetworkCredential;
-                                    client.Connect();
                                     VolumeFreeSize = client.GetFreeDiscSpace();
                                     _readXDCAM(client);
+                                }
+                                finally
+                                { 
                                     client.Disconnect();
                                 }
                             }
@@ -256,7 +280,7 @@ namespace TAS.Server
                         }
                         finally
                         {
-                            Monitor.Exit(_xdcamLockObject);
+                            Monitor.Exit(XdcamLockObject);
                         }
                     else
                         throw new ApplicationException("Nie udało się uzyskać dostępu do XDCAM");
@@ -271,27 +295,6 @@ namespace TAS.Server
             }
         }
 
-        private XDCAM.Index _xDCAMIndex;
-        private XDCAM.Alias _xDCAMAlias;
-
-        internal void LockXDCAM(bool value)
-        {
-            if (IsXDCAM)
-            {
-                if (value)
-                {
-                    Debug.WriteLine("XDCAM about to lock");
-                    Monitor.Enter(_xdcamLockObject);
-                    Debug.WriteLine("XDCAM locked");
-                }
-                else
-                {
-                    Monitor.Exit(_xdcamLockObject);
-                    Debug.WriteLine("XDCAM unlocked");
-                }
-            }
-        }
-
         public override void SweepStaleMedia()
         {
             DateTime currentDateTime = DateTime.UtcNow.Date;
@@ -300,7 +303,7 @@ namespace TAS.Server
                 m.Delete();
         }
 
-        private XmlDocument _readXMLDocument(string documentName, FtpClient client)
+        internal XmlDocument ReadXMLDocument(string documentName, FtpClient client)
         {
             XmlDocument xMLDoc = new XmlDocument();
             if (AccessType == TDirectoryAccessType.Direct)
@@ -327,97 +330,46 @@ namespace TAS.Server
         {
             try
             {
-                _xDCAMIndex = XDCAM.SerializationHelper<XDCAM.Index>.Deserialize(_readXMLDocument("INDEX.XML", client));
-                if (_xDCAMIndex != null)
+                var xdcamIndex = XDCAM.SerializationHelper<XDCAM.Index>.Deserialize(ReadXMLDocument("INDEX.XML", client));
+                if (xdcamIndex != null)
                 {
                     ClearFiles();
-                    _xDCAMAlias = XDCAM.SerializationHelper<XDCAM.Alias>.Deserialize(_readXMLDocument("ALIAS.XML", client));
-                    foreach (XDCAM.Index.Clip clip in _xDCAMIndex.clipTable.clipTable)
-                        try
+                    var xdcamAlias = XDCAM.SerializationHelper<XDCAM.Alias>.Deserialize(ReadXMLDocument("ALIAS.XML", client));
+                    int index = 0;
+                    foreach (XDCAM.Index.Clip clip in xdcamIndex.clipTable.clipTable.Where(c => c.playable))
+                    {
+                        var newMedia = AddFile(string.Join(this.PathSeparator.ToString(), _folder, "Clip", clip.clipId), default(DateTime), new Guid(clip.umid.Substring(12))) as XDCAMMedia;
+                        if (newMedia != null)
                         {
-                            XDCAM.Index.Meta xmlClipFileNameMeta = clip.meta.FirstOrDefault(m => m.type == "PD-Meta");
-                            var alias = _xDCAMAlias == null ? null : _xDCAMAlias.clipTable.FirstOrDefault(a => a.clipId == clip.clipId);
-                            string clipFileName = alias == null ? clip.clipId : alias.value;
-                            if (!string.IsNullOrWhiteSpace(clipFileName))
-                                clip.ClipMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument($@"Clip/{clipFileName}M01.XML", client));
-                            if (clip.ClipMeta != null)
-                            {
-                                IngestMedia newMedia = AddFile(string.Join(this.PathSeparator.ToString(), _folder, "Clip", clipFileName + ".MXF"), clip.ClipMeta.CreationDate.Value, clip.ClipMeta.lastUpdate, new Guid(clip.ClipMeta.TargetMaterial.umidRef.Substring(32, 32))) as IngestMedia;
-                                if (newMedia != null)
-                                {
-                                    newMedia.MediaName = clip.ClipMeta.Title == null ? clipFileName : string.IsNullOrWhiteSpace(clip.ClipMeta.Title.international) ? clip.ClipMeta.Title.usAscii : clip.ClipMeta.Title.international;
-                                    newMedia.Duration = ((long)clip.dur).SMPTEFramesToTimeSpan(clip.fps);
-                                    newMedia.DurationPlay = newMedia.Duration;
-                                    if (clip.aspectRatio == "4:3")
-                                        newMedia.VideoFormat = TVideoFormat.PAL;
-                                    if (clip.aspectRatio == "16:9")
-                                        newMedia.VideoFormat = TVideoFormat.PAL_FHA;
-                                    newMedia.ClipMetadata = clip.ClipMeta;
-                                    if (clip.ClipMeta != null)
-                                    {
-                                        RationalNumber rate = new RationalNumber(clip.ClipMeta.LtcChangeTable.tcFps, 1);
-                                        XDCAM.NonRealTimeMeta.LtcChange start = clip.ClipMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
-                                        if (start != null)
-                                        {
-                                            TimeSpan tcStart = start.value.LTCTimecodeToTimeSpan(rate);
-                                            if (tcStart >= TimeSpan.FromHours(40)) // TC 40:00:00:00 and greater
-                                                tcStart -= TimeSpan.FromHours(40);
-                                            newMedia.TcStart = tcStart;
-                                            newMedia.TcPlay = tcStart;
-                                        }
-                                        newMedia.Verified = true;
-                                        newMedia.MediaStatus = TMediaStatus.Available;
-                                    }
-                                }
-                            }
+                            newMedia.MediaName = $"{clip.clipId} ({++index}/{xdcamIndex.clipTable.clipTable.Count})";
+                            newMedia.MediaType = TMediaType.Movie;
+                            newMedia.XdcamClip = clip;
+                            newMedia.XdcamClipAlias = xdcamAlias == null ? null : xdcamAlias.clipTable.FirstOrDefault(a => a.clipId == clip.clipId);
+                            newMedia.Duration = ((long)clip.dur).SMPTEFramesToTimeSpan(clip.fps);
+                            newMedia.DurationPlay = newMedia.Duration;
+                            if (clip.aspectRatio == "4:3")
+                                newMedia.VideoFormat = TVideoFormat.PAL;
+                            if (clip.aspectRatio == "16:9")
+                                newMedia.VideoFormat = TVideoFormat.PAL_FHA;
                         }
-                        catch (Exception e)
+                    }
+                    index = 0;
+                    if (xdcamIndex.editlistTable != null && xdcamIndex.editlistTable.editlistTable != null)
+                        foreach (XDCAM.Index.EditList edl in xdcamIndex.editlistTable.editlistTable)
                         {
-                            Debug.WriteLine(e);
-                        }
-                    if (_xDCAMIndex.editlistTable != null && _xDCAMIndex.editlistTable.editlistTable != null)
-                        foreach (XDCAM.Index.EditList edl in _xDCAMIndex.editlistTable.editlistTable)
-                        {
-                            try
+                            var newMedia = AddFile(string.Join(this.PathSeparator.ToString(), _folder, "Sub", edl.editlistId), default(DateTime), new Guid(edl.umid.Substring(12))) as XDCAMMedia;
+                            if (newMedia != null)
                             {
-                                XDCAM.Index.Meta xmlClipFileNameMeta = edl.meta.FirstOrDefault(m => m.type == "PD-Meta");
-                                if (xmlClipFileNameMeta != null && !string.IsNullOrWhiteSpace(xmlClipFileNameMeta.file))
-                                {
-                                    edl.EdlMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXMLDocument(@"Edit/" + xmlClipFileNameMeta.file, client));
-                                    edl.smil = XDCAM.SerializationHelper<XDCAM.Smil>.Deserialize(_readXMLDocument(@"Edit/" + edl.file, client));
-                                    DateTime ts = edl.EdlMeta.lastUpdate == default(DateTime) ? edl.EdlMeta.CreationDate.Value : edl.EdlMeta.lastUpdate;
-                                    IngestMedia newMedia = AddFile(string.Join(this.PathSeparator.ToString(), _folder, "Sub", edl.file), ts, ts, new Guid(edl.EdlMeta.TargetMaterial.umidRef.Substring(32, 32))) as IngestMedia;
-                                    if (newMedia != null)
-                                    {
-                                        newMedia.Duration = ((long)edl.dur).SMPTEFramesToTimeSpan(edl.fps);
-                                        newMedia.DurationPlay = newMedia.Duration;
-                                        if (edl.aspectRatio == "4:3")
-                                            newMedia.VideoFormat = TVideoFormat.PAL;
-                                        if (edl.aspectRatio == "16:9")
-                                            newMedia.VideoFormat = TVideoFormat.PAL_FHA;
-                                        newMedia.ClipMetadata = edl.EdlMeta;
-                                        newMedia.SmilMetadata = edl.smil;
-                                        if (edl.EdlMeta != null)
-                                        {
-                                            XDCAM.NonRealTimeMeta.LtcChange start = edl.EdlMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
-                                            if (start != null)
-                                            {
-                                                TimeSpan tcStart = start.value.LTCTimecodeToTimeSpan(new RationalNumber(edl.EdlMeta.LtcChangeTable.tcFps, 1));
-                                                if (tcStart >= TimeSpan.FromHours(40)) // TC 40:00:00:00 and greater
-                                                    tcStart -= TimeSpan.FromHours(40);
-                                                newMedia.TcStart = tcStart;
-                                                newMedia.TcPlay = tcStart;
-                                            }
-                                            newMedia.Verified = true;
-                                            newMedia.MediaStatus = TMediaStatus.Available;
-                                        }
-                                    }
-                                }
-                            }
-
-                            catch (Exception e)
-                            {
-                                Debug.WriteLine(e);
+                                newMedia.MediaName = $"{edl.editlistId} ({++index}/{xdcamIndex.editlistTable.editlistTable.Count})";
+                                newMedia.MediaType = TMediaType.Movie;
+                                newMedia.XdcamEdl = edl;
+                                newMedia.MediaType = TMediaType.Movie;
+                                newMedia.Duration = ((long)edl.dur).SMPTEFramesToTimeSpan(edl.fps);
+                                newMedia.DurationPlay = newMedia.Duration;
+                                if (edl.aspectRatio == "4:3")
+                                    newMedia.VideoFormat = TVideoFormat.PAL;
+                                if (edl.aspectRatio == "16:9")
+                                    newMedia.VideoFormat = TVideoFormat.PAL_FHA;
                             }
                         }
                 }
@@ -426,6 +378,11 @@ namespace TAS.Server
             {
                 Debug.WriteLine(e.Message);
             }
+        }
+
+        private void _readXDCAMClipProperties(XDCAMMedia media)
+        {
+
         }
 
 
@@ -440,26 +397,34 @@ namespace TAS.Server
                 || (IsXDCAM && ext == XDCAM.Smil.FileExtension);
         }
 
-        protected override IMedia AddFile(string fullPath, DateTime created = default(DateTime), DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
+        protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
-            IMedia media = null;
+            if (Path.GetExtension(fullPath).ToLowerInvariant() == ".xml")
             {
-                if (Path.GetExtension(fullPath).ToLowerInvariant() == ".xml")
-                    _bMDXmlFiles.Add(fullPath);
-                else
-                    media = base.AddFile(fullPath, created, lastWriteTime, guid);
+                _bMDXmlFiles.Add(fullPath);
+                return null;
             }
-            return media;
+            else
+                return base.AddFile(fullPath, lastWriteTime, guid);
         }
 
         protected override IMedia CreateMedia(string fullPath, Guid guid = default(Guid))
         {
-            return new IngestMedia(this, guid)
-            {
-                FullPath = fullPath,
-                MediaStatus = TMediaStatus.Unknown,
-                MediaCategory = this.MediaCategory,
-            };
+            return IsXDCAM
+                ?
+                new XDCAMMedia(this, guid)
+                {
+                    FullPath = fullPath,
+                    MediaStatus = TMediaStatus.Unknown,
+                    MediaCategory = this.MediaCategory
+                }
+                :
+                new IngestMedia(this, guid)
+                {
+                    FullPath = fullPath,
+                    MediaStatus = TMediaStatus.Unknown,
+                    MediaCategory = this.MediaCategory,
+                };
         }
 
         protected override void FileRemoved(string fullPath)
@@ -610,7 +575,7 @@ namespace TAS.Server
                     {
                         Uri uri = new Uri(_folder, UriKind.Absolute);
                         client.Host = uri.Host;
-                        client.Credentials = NetworkCredential;
+                        client.Credentials = _getNetworkCredential();
                         client.Connect();
                         VolumeFreeSize = client.GetFreeDiscSpace();
                         client.Disconnect();

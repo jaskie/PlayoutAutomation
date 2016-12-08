@@ -9,7 +9,6 @@ namespace TAS.Server.Interfaces
     public interface IIngestDirectory: IMediaDirectory, IIngestDirectoryConfig
     {
         TDirectoryAccessType AccessType { get; }
-        System.Net.NetworkCredential NetworkCredential { get; }
         string Filter { get; set; }
     }
 }

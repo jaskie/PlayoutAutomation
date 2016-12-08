@@ -10,12 +10,12 @@ namespace TAS.Server.XDCAM
     public class Alias
     {
         [XmlArrayItem("alias")]
-        public List<alias_> clipTable;
+        public List<ClipAlias> clipTable;
 
         [XmlArrayItem("alias")]
-        public List<alias_> editlistTable;
+        public List<ClipAlias> editlistTable;
 
-        public class alias_
+        public class ClipAlias
         {
             [XmlAttribute]
             public string clipId;
