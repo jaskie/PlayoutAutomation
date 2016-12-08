@@ -52,7 +52,7 @@ namespace TAS.Client.ViewModels
         }
 
         public bool IsXDCAM { get { return _selectedDirectory?.IsXDCAM == true; } }
-        public bool IsMXF { get { return _selectedDirectory?.ExportContainerFormat == TMediaExportContainerFormat.mxf; } }
+        public bool IsMXF { get { return _selectedDirectory?.ExportContainerFormat == TMediaExportContainerFormat.mxf || _selectedDirectory?.IsXDCAM == true; } }
 
         private bool _concatMedia;
         public bool ConcatMedia

@@ -319,4 +319,10 @@ Effective until current clip ends.</value>
   <data name="_search.EnterTextToSearch" xml:space="preserve">
     <value>Enter text to search for</value>
   </data>
+  <data name="_menu.Tools.Export.All" xml:space="preserve">
+    <value>All events</value>
+  </data>
+  <data name="_menu.Tools.Export.EnabledOnly" xml:space="preserve">
+    <value>Only enabled</value>
+  </data>
 </root>

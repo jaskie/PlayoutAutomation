@@ -74,6 +74,8 @@ namespace TAS.Client.ViewModels
                                         if (prior != null)
                                         {
                                             var evm_prior = evm_vp.Find(prior);
+                                            if (evm_prior == null)
+                                                evm_prior = _placeEventInRundown(prior); // recursion here
                                             if (evm_prior != null)
                                             {
                                                 var pos = evm_vp.Childrens.IndexOf(evm_prior);

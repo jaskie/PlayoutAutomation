@@ -35,11 +35,11 @@
         <StackPanel Visibility="{Binding IsMXF, Converter={StaticResource BoolToVis}}" DockPanel.Dock="Top" Orientation="Horizontal" Margin="4">
             <StackPanel.Resources>
                 <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
-                    <Setter Property="MinWidth" Value="120"/>
+                    <Setter Property="Width" Value="100"/>
                     <Setter Property="VerticalContentAlignment" Value="Center"/>
                 </Style>
                 <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
-                    <Setter Property="MinWidth" Value="150"/>
+                    <Setter Property="Width" Value="148"/>
                 </Style>
             </StackPanel.Resources>
             <Label Content="{Resx _audioFormat}"/>

@@ -331,4 +331,10 @@ Działa natychmiastowo, do końca odtwarzanego klipu.</value>
   <data name="_search.EnterTextToSearch" xml:space="preserve">
     <value>Wprowadź szukany tekst</value>
   </data>
+  <data name="_menu.Tools.Export.All" xml:space="preserve">
+    <value>Wszystkie klipy</value>
+  </data>
+  <data name="_menu.Tools.Export.EnabledOnly" xml:space="preserve">
+    <value>Tylko aktywne</value>
+  </data>
 </root>

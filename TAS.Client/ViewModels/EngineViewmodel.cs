@@ -434,11 +434,12 @@ namespace TAS.Client.ViewModels
 
         private bool _canExportMedia(object obj)
         {
+            bool exportAll = obj != null;
             return _multiSelectedEvents.Any(e =>
                     {
                         var m = e as EventPanelMovieViewmodel;
                         return m != null
-                            && m.IsEnabled
+                            && (m.IsEnabled || exportAll)
                             && m.Media?.FileExists() == true;
                     })
                     && _engine.MediaManager.IngestDirectories.Any(d => d.IsExport);
@@ -446,11 +447,12 @@ namespace TAS.Client.ViewModels
 
         private void _exportMedia(object obj)
         {
+            bool exportAll = obj != null;
             var selections = _multiSelectedEvents.Where(e =>
             {
                 var m = e as EventPanelMovieViewmodel;
                 return m != null
-                    && m.IsEnabled
+                    && (m.IsEnabled || exportAll)
                     && m.Media?.FileExists() == true;
             }).Select(e => new ExportMedia(
                 e.Event.Media, 

@@ -121,7 +121,10 @@
                 <MenuItem Header="{Resx _menu.Edit.DeleteSelected}" Command="{Binding CommandDeleteSelected}" InputGestureText="Ctrl+Delete" />
             </MenuItem>
             <MenuItem Header="{Resx _menu.Tools}">
-                <MenuItem Header="{Resx _menu.Tools.Export}" Command="{Binding CommandExportMedia}"/>
+                <MenuItem Header="{Resx _menu.Tools.Export}">
+                    <MenuItem Header="{Resx _menu.Tools.Export.All}" Command="{Binding CommandExportMedia}" CommandParameter="All"/>
+                    <MenuItem Header="{Resx _menu.Tools.Export.EnabledOnly}" Command="{Binding CommandExportMedia}" />
+                </MenuItem>
                 <Separator/>
                 <MenuItem Header="{Resx _menu.Tools.FindUnlinkedEvents}" Command="{Binding CommandSearchMissingEvents}" />
                 <MenuItem Header="{Resx _menu.Tools.DebugWindow}" Command="{Binding CommandDebugToggle}" />
