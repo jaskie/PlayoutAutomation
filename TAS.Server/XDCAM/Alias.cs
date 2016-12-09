@@ -20,6 +20,8 @@ namespace TAS.Server.XDCAM
             [XmlAttribute]
             public string clipId;
             [XmlAttribute]
+            public string editlistId;
+            [XmlAttribute]
             public string UMID;
             [XmlAttribute]
             public string value;            

@@ -39,5 +39,6 @@ namespace TAS.Client.Model
         public NetworkCredential NetworkCredential { get { return null; } }
         public string Password { get; set; }
         public string Username { get; set; }
+        public int XdcamClipCount { get; set; }
     }
 }

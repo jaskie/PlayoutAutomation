@@ -123,6 +123,9 @@
   <data name="_grid.Header.ClipName" xml:space="preserve">
     <value>Clip name</value>
   </data>
+  <data name="_grid.Header.ClipNr" xml:space="preserve">
+    <value>Clip #</value>
+  </data>
   <data name="_grid.Header.DurationPlay" xml:space="preserve">
     <value>Play duration</value>
   </data>

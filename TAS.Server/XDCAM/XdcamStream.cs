@@ -34,9 +34,7 @@ namespace TAS.Server.XDCAM
                         _currentStream = _client.OpenWrite($"/Clip/{media.FileName}");
                     else
                     {
-                        string fileName = string.Join("/", "/Clip", $"{media.XdcamClip.clipId}.MXF");
-                        if (!_client.FileExists(fileName))
-                            fileName = string.Join("/", "/Clip", $"\"{media.XdcamClipAlias.value}.MXF\"");
+                        string fileName = string.Join("/", "/Clip", $"{(media.XdcamAlias != null ? media.XdcamAlias.value : media.XdcamClip.clipId)}.MXF");
                         _currentStream = _client.OpenRead(fileName);
                     }
                 }
@@ -114,7 +112,7 @@ namespace TAS.Server.XDCAM
                     {
                         string fileName = string.Join("/", "/Clip", $"{media.XdcamClip.clipId}.MXF");
                         if (!_client.FileExists(fileName))
-                            fileName = string.Join("/", "/Clip", $"{media.XdcamClipAlias.value}.MXF");
+                            fileName = string.Join("/", "/Clip", $"{media.XdcamAlias.value}.MXF");
                         result = _client.OpenPart(fileName, startFrame, length);
                     }
                 }

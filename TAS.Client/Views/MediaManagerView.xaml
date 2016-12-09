@@ -254,12 +254,13 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipName}" Width="*" Binding="{Binding MediaName, Mode=OneWay}" IsReadOnly="True" />
-                <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" IsReadOnly="True" />
-                <DataGridTextColumn x:Name="tCStartColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.TcPlay}" Width="80" Binding="{Binding sTcPlay, Mode=OneWay}" IsReadOnly="True" />
-                <DataGridTextColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.DurationPlay}"  Width="90" Binding="{Binding sDurationPlay, Mode=OneWay}" IsReadOnly="True" />
-                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.Folder}" Visibility="{Binding Data.IsDisplayFolder,  Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" Width="*" Binding="{Binding Folder, Mode=OneWay}" IsReadOnly="True" />
-                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.FileName}" Width="*" Binding="{Binding FileName, Mode=OneWay}" IsReadOnly="True" />
+                <DataGridTextColumn x:Name="clipNrColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipNr}" Width="50" Visibility="{Binding Data.IsDisplayClipNr, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" Binding="{Binding ClipNr, Mode=OneWay}"  />
+                <DataGridTextColumn x:Name="clipNameColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.ClipName}" Width="*" Binding="{Binding MediaName, Mode=OneWay}" />
+                <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.IngestDate}" Width="120" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}"  />
+                <DataGridTextColumn x:Name="tCStartColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.TcPlay}" Width="80" Binding="{Binding sTcPlay, Mode=OneWay}" />
+                <DataGridTextColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.DurationPlay}"  Width="90" Binding="{Binding sDurationPlay, Mode=OneWay}" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.Folder}" Visibility="{Binding Data.IsDisplayFolder,  Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" Width="*" Binding="{Binding Folder, Mode=OneWay}" />
+                <DataGridTextColumn Header="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.Header.FileName}" Width="*" Binding="{Binding FileName, Mode=OneWay}" />
             </DataGrid.Columns>
             <DataGrid.RowDetailsTemplate>
                 <DataTemplate>

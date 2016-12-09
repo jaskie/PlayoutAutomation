@@ -528,6 +528,7 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged(nameof(IsMediaCategoryVisible));
             NotifyPropertyChanged(nameof(IsIngestOrArchiveDirectory));
             NotifyPropertyChanged(nameof(IsAnimationDirectory));
+            NotifyPropertyChanged(nameof(IsDisplayClipNr));
             InvalidateRequerySuggested();
             _notifyDirectoryPropertiesChanged();
         }
@@ -539,6 +540,8 @@ namespace TAS.Client.ViewModels
                 return _selectedDirectory is IArchiveDirectory || (_selectedDirectory is IIngestDirectory && ((IIngestDirectory)_selectedDirectory).IsRecursive);
             }
         }
+
+        public bool IsDisplayClipNr { get { return (_selectedDirectory as IIngestDirectory)?.IsXDCAM == true; } }
 
         public bool IsMediaCategoryVisible { get { return (_selectedDirectory is IServerDirectory || _selectedDirectory is IArchiveDirectory) && ((!(_mediaType is TMediaType)) || Equals(_mediaType, TMediaType.Movie)); } }
         public bool IsServerDirectory { get { return _selectedDirectory is IServerDirectory; } }

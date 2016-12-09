@@ -93,6 +93,11 @@ namespace TAS.Server
         [JsonProperty]
         public bool IsWAN { get; set; }
 
+        private int _xdcamClipCount;
+        [XmlIgnore]
+        [JsonProperty]
+        public int XdcamClipCount { get { return _xdcamClipCount; } protected set { SetField(ref _xdcamClipCount, value, nameof(XdcamClipCount)); } }
+
         [JsonProperty]
         public bool IsRecursive { get; set; }
 
@@ -334,17 +339,20 @@ namespace TAS.Server
                 if (xdcamIndex != null)
                 {
                     ClearFiles();
+                    XdcamClipCount = xdcamIndex.clipTable.clipTable.Count;
                     var xdcamAlias = XDCAM.SerializationHelper<XDCAM.Alias>.Deserialize(ReadXMLDocument("ALIAS.XML", client));
                     int index = 0;
                     foreach (XDCAM.Index.Clip clip in xdcamIndex.clipTable.clipTable.Where(c => c.playable))
                     {
-                        var newMedia = AddFile(string.Join(this.PathSeparator.ToString(), _folder, "Clip", clip.clipId), default(DateTime), new Guid(clip.umid.Substring(12))) as XDCAMMedia;
+                        var clipAlias = xdcamAlias == null ? null : xdcamAlias.clipTable.FirstOrDefault(a => a.clipId == clip.clipId);
+                        var newMedia = AddFile(string.Join(this.PathSeparator.ToString(), _folder, "Clip", $"{(clipAlias != null? clipAlias.value : clip.clipId)}.MXF"), default(DateTime), new Guid(clip.umid.Substring(12))) as XDCAMMedia;
                         if (newMedia != null)
                         {
-                            newMedia.MediaName = $"{clip.clipId} ({++index}/{xdcamIndex.clipTable.clipTable.Count})";
+                            newMedia.ClipNr = ++index;
+                            newMedia.MediaName = $"{clip.clipId}";
                             newMedia.MediaType = TMediaType.Movie;
                             newMedia.XdcamClip = clip;
-                            newMedia.XdcamClipAlias = xdcamAlias == null ? null : xdcamAlias.clipTable.FirstOrDefault(a => a.clipId == clip.clipId);
+                            newMedia.XdcamAlias = clipAlias;
                             newMedia.Duration = ((long)clip.dur).SMPTEFramesToTimeSpan(clip.fps);
                             newMedia.DurationPlay = newMedia.Duration;
                             if (clip.aspectRatio == "4:3")
@@ -357,12 +365,14 @@ namespace TAS.Server
                     if (xdcamIndex.editlistTable != null && xdcamIndex.editlistTable.editlistTable != null)
                         foreach (XDCAM.Index.EditList edl in xdcamIndex.editlistTable.editlistTable)
                         {
-                            var newMedia = AddFile(string.Join(this.PathSeparator.ToString(), _folder, "Sub", edl.editlistId), default(DateTime), new Guid(edl.umid.Substring(12))) as XDCAMMedia;
+                            var edlAlias = xdcamAlias == null ? null : xdcamAlias.editlistTable.FirstOrDefault(a => a.editlistId == edl.editlistId);
+                            var newMedia = AddFile(string.Join(this.PathSeparator.ToString(), _folder, "Edit", $"{(edlAlias != null? edlAlias.value : edl.editlistId)}.SMI"), default(DateTime), new Guid(edl.umid.Substring(12))) as XDCAMMedia;
                             if (newMedia != null)
                             {
-                                newMedia.MediaName = $"{edl.editlistId} ({++index}/{xdcamIndex.editlistTable.editlistTable.Count})";
+                                newMedia.MediaName = $"{edl.editlistId}";
                                 newMedia.MediaType = TMediaType.Movie;
                                 newMedia.XdcamEdl = edl;
+                                newMedia.XdcamAlias = edlAlias;
                                 newMedia.MediaType = TMediaType.Movie;
                                 newMedia.Duration = ((long)edl.dur).SMPTEFramesToTimeSpan(edl.fps);
                                 newMedia.DurationPlay = newMedia.Duration;
@@ -379,12 +389,6 @@ namespace TAS.Server
                 Debug.WriteLine(e.Message);
             }
         }
-
-        private void _readXDCAMClipProperties(XDCAMMedia media)
-        {
-
-        }
-
 
         private SynchronizedCollection<string> _bMDXmlFiles = new SynchronizedCollection<string>();
 

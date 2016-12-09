@@ -135,6 +135,7 @@
     <Compile Include="Interfaces\ITemplated.cs" />
     <Compile Include="Interfaces\ITempMedia.cs" />
     <Compile Include="Database\DbSchema.cs" />
+    <Compile Include="Interfaces\IXdcamMedia.cs" />
     <Compile Include="MediaEventArgs.cs" />
     <Compile Include="RedundantConnectionStateEventArgs.cs" />
     <Compile Include="ValueEventArgs.cs" />

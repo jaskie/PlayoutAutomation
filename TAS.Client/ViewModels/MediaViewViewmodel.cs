@@ -68,6 +68,7 @@ namespace TAS.Client.ViewModels
         public bool HasSegments { get { return SegmentCount != 0; } }
         public bool IsTrimmed { get { return TcPlay != TcStart || Duration != DurationPlay; } }
         public bool IsArchived { get { return Media is IServerMedia ? ((IServerMedia)Media).IsArchived : false; } }
+        public string ClipNr { get { return (Media as IXdcamMedia)?.ClipNr > 0  ? $"{(Media as IXdcamMedia).ClipNr}/{(Media.Directory as IIngestDirectory)?.XdcamClipCount}" : string.Empty; } }
         public TIngestStatus IngestStatus { get { return Media is IIngestMedia ? ((IIngestMedia)Media).IngestStatus : Media is IArchiveMedia ? ((IArchiveMedia)Media).IngestStatus : TIngestStatus.NotReady; } }
         private bool _isExpanded;
         public bool IsExpanded

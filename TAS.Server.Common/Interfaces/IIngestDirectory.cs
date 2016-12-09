@@ -9,6 +9,7 @@ namespace TAS.Server.Interfaces
     public interface IIngestDirectory: IMediaDirectory, IIngestDirectoryConfig
     {
         TDirectoryAccessType AccessType { get; }
+        int XdcamClipCount { get; }
         string Filter { get; set; }
     }
 }
