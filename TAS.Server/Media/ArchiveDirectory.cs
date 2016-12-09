@@ -111,7 +111,7 @@ namespace TAS.Server
         {
             ArchiveMedia m = (ArchiveMedia)media;
             m.MediaStatus = TMediaStatus.Deleted;
-            m.Verified = false;
+            m.IsVerified = false;
             m.Save();
             base.MediaRemove(media);
         }

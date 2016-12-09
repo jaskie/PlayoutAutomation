@@ -55,7 +55,7 @@ namespace TAS.Client.Model
 
         public TimeSpan TcStart { get { return Get<TimeSpan>(); } set { Set(value); } }
 
-        public bool Verified { get { return Get<bool>(); } set { Set(value); } }
+        public bool IsVerified { get { return Get<bool>(); } set { Set(value); } }
 
         public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { Set(value); } }
 

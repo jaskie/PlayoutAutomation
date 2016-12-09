@@ -84,7 +84,7 @@ namespace TAS.Server
                                 clip.ClipMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXmlDocument($"Clip/{clipFileName}M01.XML"));
                             if (clip.ClipMeta != null)
                             {
-                                LastUpdated = clip.ClipMeta.lastUpdate;
+                                LastUpdated = clip.ClipMeta.lastUpdate == default(DateTime) ? clip.ClipMeta.CreationDate.Value : clip.ClipMeta.lastUpdate;
                                 MediaName =  clip.ClipMeta.Title == null ? clip.clipId : string.IsNullOrWhiteSpace(clip.ClipMeta.Title.usAscii) ? clip.ClipMeta.Title.international: clip.ClipMeta.Title.usAscii;
                                 RationalNumber rate = new RationalNumber(clip.ClipMeta.LtcChangeTable.tcFps, 1);
                                 XDCAM.NonRealTimeMeta.LtcChange start = clip.ClipMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
@@ -96,7 +96,7 @@ namespace TAS.Server
                                     TcStart = tcStart;
                                     TcPlay = tcStart;
                                 }
-                                Verified = true;
+                                IsVerified = true;
                                 MediaStatus = TMediaStatus.Available;
                             }
                         }
@@ -112,21 +112,20 @@ namespace TAS.Server
                             }
                             if (edl.EdlMeta != null)
                             {
-                                DateTime lastUpdated = edl.EdlMeta.lastUpdate == default(DateTime) ? edl.EdlMeta.CreationDate.Value : edl.EdlMeta.lastUpdate;
-                                if (edl.EdlMeta != null)
+                                LastUpdated = edl.EdlMeta.lastUpdate == default(DateTime) ? edl.EdlMeta.CreationDate.Value : edl.EdlMeta.lastUpdate;
+                                MediaName = edl.EdlMeta.Title == null ? edl.editlistId : string.IsNullOrWhiteSpace(edl.EdlMeta.Title.usAscii) ? edl.EdlMeta.Title.international : edl.EdlMeta.Title.usAscii;
+                                RationalNumber rate = new RationalNumber(edl.EdlMeta.LtcChangeTable.tcFps, 1);
+                                XDCAM.NonRealTimeMeta.LtcChange start = edl.EdlMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
+                                if (start != null)
                                 {
-                                    XDCAM.NonRealTimeMeta.LtcChange start = edl.EdlMeta.LtcChangeTable.LtcChangeTable.FirstOrDefault(l => l.frameCount == 0);
-                                    if (start != null)
-                                    {
-                                        TimeSpan tcStart = start.value.LTCTimecodeToTimeSpan(new RationalNumber(edl.EdlMeta.LtcChangeTable.tcFps, 1));
-                                        if (tcStart >= TimeSpan.FromHours(40)) // TC 40:00:00:00 and greater
-                                            tcStart -= TimeSpan.FromHours(40);
-                                        TcStart = tcStart;
-                                        TcPlay = tcStart;
-                                    }
-                                    Verified = true;
-                                    MediaStatus = TMediaStatus.Available;
+                                    TimeSpan tcStart = start.value.LTCTimecodeToTimeSpan(rate);
+                                    if (tcStart >= TimeSpan.FromHours(40)) // TC 40:00:00:00 and greater
+                                        tcStart -= TimeSpan.FromHours(40);
+                                    TcStart = tcStart;
+                                    TcPlay = tcStart;
                                 }
+                                IsVerified = true;
+                                MediaStatus = TMediaStatus.Available;
                             }
 
                         }

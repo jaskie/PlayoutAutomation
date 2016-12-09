@@ -275,7 +275,7 @@ namespace TAS.Server
 
         protected virtual void OnMediaChanged(IMedia media)
         {
-            if (media.Verified)
+            if (media.IsVerified)
             {
                 media.ReVerify();
             }

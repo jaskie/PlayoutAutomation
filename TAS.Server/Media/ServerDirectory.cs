@@ -65,7 +65,7 @@ namespace TAS.Server
         {
             ServerMedia m = (ServerMedia)media;
             m.MediaStatus = TMediaStatus.Deleted;
-            m.Verified = false;
+            m.IsVerified = false;
             m.Save();
             base.MediaRemove(media);
         }
@@ -128,7 +128,7 @@ namespace TAS.Server
         protected override void EnumerateFiles(string directory, string filter, bool includeSubdirectories, CancellationToken cancelationToken)
         {
             base.EnumerateFiles(directory, filter, includeSubdirectories, cancelationToken);
-            var unverifiedFiles = _files.Values.Where(mf => ((ServerMedia)mf).Verified == false).Cast<Media>().ToList();
+            var unverifiedFiles = _files.Values.Where(mf => ((ServerMedia)mf).IsVerified == false).Cast<Media>().ToList();
             unverifiedFiles.ForEach(media => media.Verify());
         }
     }

@@ -75,7 +75,7 @@ namespace TAS.Server
         {
             if (FileExists())
             {
-                Verified = true;
+                IsVerified = true;
                 MediaStatus = TMediaStatus.Available;
             }
         }

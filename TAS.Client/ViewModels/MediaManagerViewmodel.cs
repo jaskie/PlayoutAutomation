@@ -104,7 +104,7 @@ namespace TAS.Client.ViewModels
                         oldSelectedMedia.SelectedSegment = null;
                     IMedia media = value == null ? null : value.Media;
                     if (media is IIngestMedia
-                        && !media.Verified)
+                        && !media.IsVerified)
                         media.ReVerify();
                     if (_previewViewModel != null)
                         _previewViewModel.Media = media;
@@ -277,7 +277,7 @@ namespace TAS.Client.ViewModels
                 {
                     if (sourceMedia is IIngestMedia
                         && ((IIngestDirectory)sourceMedia.Directory).AccessType == TDirectoryAccessType.Direct
-                        && !sourceMedia.Verified)
+                        && !sourceMedia.IsVerified)
                         sourceMedia.ReVerify();
                     IMedia destMedia = null;
                     destMedia = (directory as IServerDirectory).GetServerMedia(sourceMedia, false);

@@ -501,8 +501,8 @@ namespace TAS.Server
             Media m = (Media)_files.Values.FirstOrDefault(f => e.FullPath == f.FullPath);
             if (m!=null)
             {
-                if (m.Verified)
-                    m.Verified = false;
+                if (m.IsVerified)
+                    m.IsVerified = false;
             }
         }
 

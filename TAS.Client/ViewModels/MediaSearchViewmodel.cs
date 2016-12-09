@@ -303,7 +303,7 @@ namespace TAS.Client.ViewModels
                     IMedia media = SelectedMedia;
                     if (media is IIngestMedia
                         && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct
-                        && !media.Verified)
+                        && !media.IsVerified)
                         media.ReVerify();
                     if (_previewViewmodel != null)
                         _previewViewmodel.Media = media;

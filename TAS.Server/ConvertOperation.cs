@@ -129,7 +129,7 @@ namespace TAS.Server
 
                     else
                     {
-                        if (sourceMedia is IngestMedia && sourceMedia.Verified)
+                        if (sourceMedia is IngestMedia && sourceMedia.IsVerified)
                         {
                             if (DestMedia.MediaType == TMediaType.Still)
                                 success = _convertStill(sourceMedia);

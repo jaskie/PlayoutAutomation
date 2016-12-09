@@ -14,7 +14,7 @@ namespace TAS.Server.Interfaces
         Guid MediaGuid { get; }
         bool FileExists();
         bool Delete();
-        bool Verified { get; set; }
+        bool IsVerified { get; set; }
         void ReVerify();
         RationalNumber FrameRate { get; }
         void GetLoudness();

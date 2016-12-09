@@ -58,7 +58,7 @@ namespace TAS.Server
 
         protected override IMedia CreateMedia(string fullPath, Guid guid)
         {
-            return new AnimatedMedia(this, guid, 0) { FullPath = fullPath, Verified = true };
+            return new AnimatedMedia(this, guid, 0) { FullPath = fullPath, IsVerified = true };
         }
 
         public IAnimatedMedia CloneMedia(IAnimatedMedia source, Guid newMediaGuid)

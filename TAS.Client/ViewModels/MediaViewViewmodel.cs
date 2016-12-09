@@ -56,11 +56,11 @@ namespace TAS.Client.ViewModels
         public TimeSpan TcPlay { get { return Media.TcPlay; } }
         public TimeSpan Duration { get { return Media.Duration; } }
         public TimeSpan DurationPlay { get { return Media.DurationPlay; } }
-        public string sTcStart { get { return Media.TcStart.ToSMPTETimecodeString(Media.FrameRate); } }
-        public string sTcPlay { get { return Media.TcPlay.ToSMPTETimecodeString(Media.FrameRate); } }
-        public string sDuration { get { return Media.Duration.ToSMPTETimecodeString(Media.FrameRate); } }
-        public string sDurationPlay { get { return Media.DurationPlay.ToSMPTETimecodeString(Media.FrameRate); } }
-        public DateTime LastUpdated { get { return Media.LastUpdated.ToLocalTime(); } }
+        public string sTcStart { get { return Media.IsVerified ? Media.TcStart.ToSMPTETimecodeString(Media.FrameRate) : string.Empty; } }
+        public string sTcPlay { get { return Media.IsVerified ? Media.TcPlay.ToSMPTETimecodeString(Media.FrameRate) :string.Empty; } }
+        public string sDuration { get { return Media.Duration != TimeSpan.Zero ? Media.Duration.ToSMPTETimecodeString(Media.FrameRate): string.Empty; } }
+        public string sDurationPlay { get { return Media.DurationPlay != TimeSpan.Zero ? Media.DurationPlay.ToSMPTETimecodeString(Media.FrameRate): string.Empty; } }
+        public DateTime LastUpdated { get { return Media.LastUpdated; } }
         public TMediaCategory MediaCategory { get { return Media.MediaType == TMediaType.Movie ? Media.MediaCategory : TMediaCategory.Uncategorized; } }
         public TMediaStatus MediaStatus { get { return Media.MediaStatus; } }
         public TMediaEmphasis MediaEmphasis { get { return (Media is IPersistentMedia) ? (Media as IPersistentMedia).MediaEmphasis : TMediaEmphasis.None; } }
@@ -85,6 +85,7 @@ namespace TAS.Client.ViewModels
                 }
             }
         }
+        public bool IsVerified { get { return Media.IsVerified; } }
 
         private ObservableCollection<MediaSegmentViewmodel> _mediaSegments = new ObservableCollection<MediaSegmentViewmodel>();
 
@@ -139,9 +140,6 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(sDuration));
             if (e.PropertyName == nameof(IMedia.DurationPlay))
                 NotifyPropertyChanged(nameof(sDurationPlay));
-            if (e.PropertyName == nameof(IIngestMedia.IngestStatus)
-                || e.PropertyName == nameof(IArchiveMedia.IngestStatus))
-                NotifyPropertyChanged(nameof(IngestStatus));
             if (e.PropertyName == nameof(IMedia.FrameRate))
             {
                 NotifyPropertyChanged(nameof(sTcPlay));
@@ -153,6 +151,11 @@ namespace TAS.Client.ViewModels
                        foreach (MediaSegmentViewmodel segment in _mediaSegments)
                            segment.FrameRate = ((IMedia)media).FrameRate;
                    }));
+            }
+            if (e.PropertyName == nameof(IMedia.IsVerified))
+            {
+                NotifyPropertyChanged(nameof(sTcPlay));
+                NotifyPropertyChanged(nameof(sTcStart));
             }
         }
 

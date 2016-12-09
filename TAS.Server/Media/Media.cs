@@ -350,10 +350,10 @@ namespace TAS.Server
 
         private bool _verified = false;
         [JsonProperty]
-        public bool Verified
+        public bool IsVerified
         {
             get { return _verified; }
-            set { SetField(ref _verified, value, nameof(Verified)); }
+            set { SetField(ref _verified, value, nameof(IsVerified)); }
         }
 
         [JsonProperty]
@@ -362,13 +362,13 @@ namespace TAS.Server
         public void ReVerify()
         {
             MediaStatus = TMediaStatus.Unknown;
-            Verified = false;
+            IsVerified = false;
             ThreadPool.QueueUserWorkItem((o) => Verify());
         }
 
         internal virtual void Verify()
         {
-            if (Verified || (_mediaStatus == TMediaStatus.Copying) || (_mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required))
+            if (IsVerified || (_mediaStatus == TMediaStatus.Copying) || (_mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required))
                 return;
             if (_directory != null && System.IO.Directory.Exists(_directory.Folder) && !File.Exists(FullPath))
             {
@@ -397,7 +397,7 @@ namespace TAS.Server
                     if (SetField(ref _mediaStatus, MediaChecker.Check(this), nameof(MediaStatus)))
                         _directory?.OnMediaVerified(this);
                 }                
-                Verified = true;
+                IsVerified = true;
             }
             catch (Exception e)
             {

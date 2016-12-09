@@ -91,7 +91,7 @@ namespace TAS.Server
         protected override bool SetField<T>(ref T field, T value, string propertyName)
         {
             bool modified = base.SetField<T>(ref field, value, propertyName);
-            if (modified && propertyName != nameof(Verified)) 
+            if (modified && propertyName != nameof(IsVerified)) 
                 IsModified = true; 
             return modified;
         }
