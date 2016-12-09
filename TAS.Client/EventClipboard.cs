@@ -16,7 +16,7 @@ namespace TAS.Client
 
         internal enum ClipboardOperation { Cut, Copy };
 
-        static readonly List<IEvent> _clipboard = new List<IEvent>();
+        static readonly List<IEventProperties> _clipboard = new List<IEventProperties>();
         static ClipboardOperation Operation;
         public static event Action ClipboardChanged;
 
@@ -31,7 +31,7 @@ namespace TAS.Client
         {
             _clipboard.Clear();
             foreach (EventPanelViewmodelBase e in items)
-                _clipboard.Add(e.Event);
+                _clipboard.Add(EventProxy.FromEvent(e.Event));
             Operation = ClipboardOperation.Copy;
             _notifyClipboardChanged();
         }
@@ -65,46 +65,64 @@ namespace TAS.Client
             return dest;
         }
 
-        static IEvent _paste(IEvent source, IEvent dest, TPasteLocation location, ClipboardOperation operation)
+        static IEvent _paste(IEventProperties source, IEvent dest, TPasteLocation location, ClipboardOperation operation)
         {
-            if (operation == ClipboardOperation.Cut && source.Engine == dest.Engine)
+            if (operation == ClipboardOperation.Cut)
             {
-                source.Remove();
-                switch (location)
+                var sourceEvent = source as IEvent;
+                if (sourceEvent != null)
                 {
-                    case TPasteLocation.After:
-                        dest.InsertAfter(source);
-                        break;
-                    case TPasteLocation.Before:
-                        dest.InsertBefore(source);
-                        break;
-                    case TPasteLocation.Under:
-                        dest.InsertUnder(source);
-                        break;
+                    if (sourceEvent.Engine == dest.Engine)
+                    {
+                        sourceEvent.Remove();
+                        switch (location)
+                        {
+                            case TPasteLocation.After:
+                                dest.InsertAfter(sourceEvent);
+                                break;
+                            case TPasteLocation.Before:
+                                dest.InsertBefore(sourceEvent);
+                                break;
+                            case TPasteLocation.Under:
+                                dest.InsertUnder(sourceEvent);
+                                break;
+                        }
+                        return sourceEvent;
+                    }
+                    else
+                    {
+                        //TODO: paste from another engine 
+                        throw new NotImplementedException("Event engines are different");
+                    }
                 }
-                return source;
+                else
+                    throw new InvalidOperationException($"Cannot paste from type: {source?.GetType().Name}");
             }
-
-            if (operation == ClipboardOperation.Copy && source.Engine == dest.Engine)
+            else //(operation == ClipboardOperation.Copy)
             {
-                IEvent newEvent = (IEvent)source.CloneTree();
-                switch (location)
+                EventProxy sourceProxy = source as EventProxy;
+                if (sourceProxy != null)
                 {
-                    case TPasteLocation.After:
-                        dest.InsertAfter(newEvent);
-                        break;
-                    case TPasteLocation.Before:
-                        dest.InsertBefore(newEvent);
-                        break;
-                    case TPasteLocation.Under:
-                        if (dest.EventType == TEventType.Container)
-                            newEvent.ScheduledTime = DateTime.UtcNow;
-                        dest.InsertUnder(newEvent);
-                        break;
+                    var mediaFiles = (dest.Engine.MediaManager.MediaDirectoryPRI ?? dest.Engine.MediaManager.MediaDirectorySEC)?.GetFiles();
+                    var animationFiles = (dest.Engine.MediaManager.AnimationDirectoryPRI ?? dest.Engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
+                    switch (location)
+                    {
+                        case TPasteLocation.After:
+                            return sourceProxy.InsertAfter(dest, mediaFiles, animationFiles);
+                        case TPasteLocation.Before:
+                            return sourceProxy.InsertBefore(dest, mediaFiles, animationFiles);
+                        case TPasteLocation.Under:
+                            var newEvent = sourceProxy.InsertUnder(dest, mediaFiles, animationFiles);
+                            if (dest.EventType == TEventType.Container)
+                                newEvent.ScheduledTime = DateTime.UtcNow;
+                            return newEvent;
+                    }
+                    throw new InvalidOperationException("Invalid paste location");
                 }
-                return newEvent;
+                else
+                    throw new InvalidOperationException($"Cannot paste from type: {source?.GetType().Name}");
             }
-            throw new ArgumentException("Event engines are different");
+            
         }
 
 
@@ -112,7 +130,7 @@ namespace TAS.Client
         {
             if (destEventVm?.Event == null)
                 return false;
-            IEvent dest = destEventVm.Event;
+            IEventProperties dest = destEventVm.Event;
             var operation = Operation;
             var destStartType = dest.StartType;
             if (location != TPasteLocation.Under 
@@ -137,39 +155,38 @@ namespace TAS.Client
         }
 
 
-        private static bool _canPaste(IEvent sourceEvent, IEvent destEvent, TPasteLocation location, ClipboardOperation operation)
+        private static bool _canPaste(IEventProperties source, IEventProperties dest, TPasteLocation location, ClipboardOperation operation)
         {
-            if (sourceEvent.Engine != destEvent.Engine)
+            var sourceEvent = source as IEvent;
+            var destEvent = dest as IEvent;
+            if (operation == ClipboardOperation.Cut
+                && (destEvent == null || sourceEvent?.Engine != destEvent.Engine))
                 return false;
             if (location == TPasteLocation.Under)
             {
                 if (destEvent.EventType == TEventType.StillImage)
                     return false;
-                if ((destEvent.EventType == TEventType.Movie || destEvent.EventType == TEventType.Live) && !(sourceEvent.EventType == TEventType.StillImage ))
+                if ((destEvent.EventType == TEventType.Movie || destEvent.EventType == TEventType.Live) && !(source.EventType == TEventType.StillImage ))
                     return false;
-                if (destEvent.EventType == TEventType.Rundown && (sourceEvent.EventType == TEventType.StillImage || destEvent.SubEvents.Count > 0))
+                if (destEvent.EventType == TEventType.Rundown && (source.EventType == TEventType.StillImage || destEvent.SubEvents.Count > 0))
                     return false;
-                if (destEvent.EventType == TEventType.Container && sourceEvent.EventType != TEventType.Rundown)
+                if (destEvent.EventType == TEventType.Container && source.EventType != TEventType.Rundown)
                     return false;
             }
             if (location == TPasteLocation.After || location == TPasteLocation.Before)
             {
-                if (!(sourceEvent.EventType == TEventType.Rundown
-                   || sourceEvent.EventType == TEventType.Movie
-                   || sourceEvent.EventType == TEventType.Live)
+                if (!(source.EventType == TEventType.Rundown
+                   || source.EventType == TEventType.Movie
+                   || source.EventType == TEventType.Live)
                 ||
-                    !(destEvent.EventType == TEventType.Rundown
-                   || destEvent.EventType == TEventType.Movie
-                   || destEvent.EventType == TEventType.Live)
+                    !(dest.EventType == TEventType.Rundown
+                   || dest.EventType == TEventType.Movie
+                   || dest.EventType == TEventType.Live)
                    )
                     return false;
             }
-            if (destEvent.IsContainedIn(sourceEvent))
-            {
-                if (sourceEvent == destEvent && location != TPasteLocation.Under && operation == ClipboardOperation.Copy)
-                    return true;
+            if (operation == ClipboardOperation.Cut && destEvent.IsContainedIn(sourceEvent))
                 return false;
-            }
             return true;
         }
     }

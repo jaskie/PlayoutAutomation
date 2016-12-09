@@ -63,6 +63,14 @@ namespace TAS.Server.Common
             return newEvent;
         }
 
+        public IEvent InsertBefore(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        {
+            IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
+            prior.InsertBefore(newEvent);
+            return newEvent;
+        }
+
+
         private IEvent _toEvent(IEngine engine, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
             IEvent result = null;
