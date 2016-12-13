@@ -56,6 +56,11 @@ namespace TAS.Server
             return newMedia;
         }
 
+        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override IMedia CreateMedia(string fullPath, Guid guid)
         {
             return new AnimatedMedia(this, guid, 0) { FullPath = fullPath, IsVerified = true };

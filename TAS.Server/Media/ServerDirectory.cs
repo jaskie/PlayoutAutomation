@@ -78,44 +78,22 @@ namespace TAS.Server
                 m.Delete();
         }
 
-        public IServerMedia GetServerMedia(IMedia media, bool searchExisting = true)
+        public override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
-            if (media == null)
-                return null;
-            ServerMedia result = (ServerMedia)FindMediaByMediaGuid(media.MediaGuid); // check if need to select new Guid
-            if (result == null || !searchExisting)
+            var newFileName = mediaProperties.FileName;
+            if (File.Exists(Path.Combine(_folder, newFileName)))
             {
-                string newFileFullPath = null;
-                if (searchExisting)
-                {
-                    FileInfo fi = new FileInfo(Path.Combine(_folder, media.Folder, media.FileName));
-                    if (fi.Exists && (ulong)fi.Length == media.FileSize && fi.LastWriteTimeUtc == media.LastUpdated)
-                        newFileFullPath = fi.FullName;
-                }
-                if (string.IsNullOrWhiteSpace(newFileFullPath))
-                {
-                    var newFileName = media is IngestMedia
-                                ? ((media.MediaType == TMediaType.Still ? FileUtils.StillFileTypes : media.MediaType == TMediaType.Audio ? FileUtils.AudioFileTypes : FileUtils.VideoFileTypes).Any(ext => ext == Path.GetExtension(media.FileName).ToLower()) ? Path.GetFileNameWithoutExtension(media.FileName) : media.FileName) + FileUtils.DefaultFileExtension(media.MediaType)
-                                : media.FileName;
-                    if (File.Exists(Path.Combine(_folder, newFileName)))
-                    {
-                        Logger.Trace("{0}: File {1} already exists", nameof(GetServerMedia), newFileName);
-                        newFileName = FileUtils.GetUniqueFileName(_folder, newFileName);
-                    }
-                    newFileFullPath = Path.Combine(_folder, newFileName);
-                }
-                result = (new ServerMedia(this, result == null ? media.MediaGuid : Guid.NewGuid(), 0, MediaManager.ArchiveDirectory) // in case file with the same GUID already exists and we need to get new one
-                {
-                    MediaName = media.MediaName,
-                    FullPath = newFileFullPath,
-                    MediaType = media.MediaType == TMediaType.Unknown ? TMediaType.Movie : media.MediaType,
-                    MediaStatus = TMediaStatus.Required,
-                });
-                result.CloneMediaProperties(media);
+                Logger.Trace("{0}: File {1} already exists", nameof(CreateMedia), newFileName);
+                newFileName = FileUtils.GetUniqueFileName(_folder, newFileName);
             }
-            else
-                if (result.MediaStatus == TMediaStatus.Deleted)
-                    result.MediaStatus = TMediaStatus.Required;
+            var newFileFullPath = Path.Combine(_folder, newFileName);
+            var result = (new ServerMedia(this, FindMediaByMediaGuid(mediaProperties.MediaGuid) == null ? mediaProperties.MediaGuid : Guid.NewGuid(), 0, MediaManager.ArchiveDirectory)
+            {
+                FullPath = newFileFullPath,
+                MediaType = mediaProperties.MediaType == TMediaType.Unknown ? TMediaType.Movie : mediaProperties.MediaType,
+                MediaStatus = TMediaStatus.Required,
+            });
+            result.CloneMediaProperties(mediaProperties);
             return result;
         }
 

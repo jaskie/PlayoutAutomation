@@ -19,6 +19,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
 using TAS.Client.Views;
+using System.IO;
 
 namespace TAS.Client.ViewModels
 {
@@ -279,21 +280,27 @@ namespace TAS.Client.ViewModels
                         && ((IIngestDirectory)sourceMedia.Directory).AccessType == TDirectoryAccessType.Direct
                         && !sourceMedia.IsVerified)
                         sourceMedia.ReVerify();
-                    IMedia destMedia = null;
-                    destMedia = (directory as IServerDirectory).GetServerMedia(sourceMedia, false);
-                    if (destMedia != null)
-                    {
+                    IPersistentMediaProperties destMediaProperties = null;
+                    string destFileName = FileUtils.GetUniqueFileName(directory.Folder, $"{Path.GetFileNameWithoutExtension(sourceMedia.FileName)}{FileUtils.DefaultFileExtension(sourceMedia.MediaType)}");
+                    destMediaProperties = new PersistentMediaProxy() {
+                        FileName = destFileName,
+                        MediaName = sourceMedia.MediaName,
+                        MediaType = sourceMedia.MediaType == TMediaType.Unknown ? TMediaType.Movie : sourceMedia.MediaType,
+                        Duration = sourceMedia.Duration,
+                        DurationPlay = sourceMedia.DurationPlay,
+                        MediaGuid = sourceMedia.MediaGuid,
+                    };
                         ingestList.Add(
                             FileManagerVm.CreateConvertOperation(
                             sourceMedia,
-                            destMedia,
+                            destMediaProperties,
+                            directory,
                             _mediaManager.VideoFormat,
                             (sourceMedia.Directory is IIngestDirectory) ? ((IIngestDirectory)sourceMedia.Directory).AudioVolume : 0,
                             (sourceMedia.Directory is IIngestDirectory) ? ((IIngestDirectory)sourceMedia.Directory).SourceFieldOrder : TFieldOrder.Unknown,
                             (sourceMedia.Directory is IIngestDirectory) ? ((IIngestDirectory)sourceMedia.Directory).AspectConversion : TAspectConversion.NoConversion,
                             (sourceMedia.Directory is IIngestDirectory) ? ((IIngestDirectory)sourceMedia.Directory).MediaLoudnessCheckAfterIngest : false
                             ));
-                    }
                 }
                 if (ingestList.Count != 0)
                 {
@@ -303,12 +310,7 @@ namespace TAS.Client.ViewModels
                         {
                             foreach (var operationVM in ievm.OperationList)
                                 _mediaManager.FileManager.Queue(operationVM.FileOperation, false);
-                            foreach (var operation in ingestList.Where(op => !ievm.OperationList.Select(vm => vm.FileOperation).Contains(op)))
-                                operation.DestMedia.Delete();
                         }
-                        else
-                            foreach (IConvertOperation operation in ingestList)
-                                operation.DestMedia.Delete();
                     }
                 }
             }

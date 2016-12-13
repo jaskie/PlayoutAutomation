@@ -49,7 +49,7 @@ namespace TAS.Server
         Thread _engineThread;
         internal long CurrentTicks;
 
-        private TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
+        private static TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
         readonly ObservableSynchronizedCollection<Event> _visibleEvents = new ObservableSynchronizedCollection<Event>(); // list of visible events
         readonly ObservableSynchronizedCollection<Event> _runningEvents = new ObservableSynchronizedCollection<Event>(); // list of events loaded and playing 
         readonly ConcurrentDictionary<VideoLayer, Event> _preloadedEvents = new ConcurrentDictionary<VideoLayer, Event>();
@@ -82,7 +82,7 @@ namespace TAS.Server
         {
             _visibleEvents.CollectionOperation += _visibleEventsOperation;
             _runningEvents.CollectionOperation += _runningEventsOperation;
-            EngineState = TEngineState.NotInitialized;
+            _engineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
             Database.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
         }

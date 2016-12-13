@@ -63,7 +63,7 @@ namespace TAS.Server
             return result;
         }
 
-        public override void CloneMediaProperties(IMedia fromMedia)
+        public override void CloneMediaProperties(IMediaProperties fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
             var a = (fromMedia as AnimatedMedia);

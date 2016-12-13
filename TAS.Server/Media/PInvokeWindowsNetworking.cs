@@ -107,7 +107,7 @@ namespace TAS.Server
         }
         #endregion
 
-        [DllImport("Mpr.dll")]
+        [DllImport("Mpr.dll", CharSet = CharSet.Unicode)]
         private static extern int WNetUseConnection(
             IntPtr hwndOwner,
             NETRESOURCE lpNetResource,
@@ -119,14 +119,14 @@ namespace TAS.Server
             string lpResult
             );
 
-        [DllImport("Mpr.dll")]
+        [DllImport("Mpr.dll", CharSet = CharSet.Unicode)]
         private static extern int WNetCancelConnection2(
             string lpName,
             int dwFlags,
             bool fForce
             );
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         private class NETRESOURCE
         {
             public int dwScope = 0;

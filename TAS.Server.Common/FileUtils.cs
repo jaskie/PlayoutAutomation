@@ -14,6 +14,7 @@ namespace TAS.Server.Common
         public readonly static string[] AudioFileTypes = { ".mp3" };
         public readonly static string[] AnimationFileTypes = { ".ft", ".htm", ".html" };
         public readonly static string RundownFileExtension = ".rundown";
+        public readonly static string TempFileExtension = ".tmp";
         public readonly static string CONFIGURATION_PATH = Path.Combine(Directory.GetCurrentDirectory(), "Configuration");
 
         public static string DefaultFileExtension(TMediaType type)

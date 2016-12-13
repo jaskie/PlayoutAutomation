@@ -23,8 +23,6 @@ namespace Svt.Caspar
 		public event EventHandler<Svt.Network.NetworkEventArgs> Connected;
         [Obsolete("This event is obsolete. Use the new ConnectionStatusChanged instead")]
         public event EventHandler<Svt.Network.NetworkEventArgs> Disconnected;
-        [Obsolete("This event is obsolete. Use the new ConnectionStatusChanged instead")]
-        public event EventHandler<Svt.Network.ExceptionEventArgs> OnAsyncException;
 
         public event EventHandler<Svt.Network.ConnectionEventArgs> ConnectionStatusChanged;
 

@@ -21,6 +21,7 @@ namespace TAS.Server.Interfaces
         long VolumeTotalSize { get; }
         long VolumeFreeSize { get; }
         char PathSeparator { get; }
+        IMedia CreateMedia(IMediaProperties mediaProperties);
 
         event EventHandler<MediaEventArgs> MediaAdded;
         event EventHandler<MediaEventArgs> MediaRemoved;

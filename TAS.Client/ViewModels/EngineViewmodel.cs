@@ -259,7 +259,7 @@ namespace TAS.Client.ViewModels
             if (dlg.ShowDialog() == true)
             {
                 using (var writer = System.IO.File.CreateText(dlg.FileName))
-                    new Newtonsoft.Json.JsonSerializer() { Formatting = Newtonsoft.Json.Formatting.Indented, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore, DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Ignore }
+                    new Newtonsoft.Json.JsonSerializer() { Formatting = Newtonsoft.Json.Formatting.Indented, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore, DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Ignore, TypeNameHandling=Newtonsoft.Json.TypeNameHandling.Auto }
                     .Serialize(writer, proxy);
             }
         }

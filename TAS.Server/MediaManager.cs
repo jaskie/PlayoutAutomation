@@ -285,11 +285,7 @@ namespace TAS.Server
                                                MediaDirectoryPRV != null && MediaDirectoryPRV.DirectoryExists() ? MediaDirectoryPRV :
                                                null;
                     if (destDir != null)
-                    {
-                        IMedia destMedia = destDir.GetServerMedia(sourceMedia, true);
-                        if (!destMedia.FileExists())
-                            _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = sourceMedia, DestMedia = destMedia }, toTop);
-                    }
+                            _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = sourceMedia,  DestDirectory = destDir}, toTop);
                 }
             }
         }
@@ -384,10 +380,7 @@ namespace TAS.Server
                                                secMedia.Verify();
                                            }
                                            else
-                                           {
-                                               secMedia = (ServerMedia)sec.GetServerMedia(pRImedia, true);
-                                               _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = pRImedia, DestMedia = secMedia });
-                                           }
+                                               _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = pRImedia, DestDirectory = sec });
                                        }
                                    }
                                }
@@ -506,36 +499,6 @@ namespace TAS.Server
             _fileManager.Queue(new ExportOperation() { ExportMediaList = new[] { export }, DestMediaName = export.Media.MediaName, StartTC = export.StartTC, Duration = export.Duration, AudioVolume = export.AudioVolume, DestDirectory = directory as IngestDirectory, MXFAudioExportFormat = mXFAudioExportFormat, MXFVideoExportFormat = mXFVideoExportFormat });
         }
 
-        public Guid IngestFile(string fileName)
-        {
-            var nameLowered = fileName.ToLower();
-            IServerMedia dest;
-            if ((dest  = (ServerMedia)(((MediaDirectory)MediaDirectoryPRI).FindMediaList(m => Path.GetFileNameWithoutExtension(m.FileName).ToLower() == nameLowered).FirstOrDefault())) != null)
-                return dest.MediaGuid;
-            foreach (IngestDirectory dir in _ingestDirectories)
-            {
-                Media source = dir.FindMedia(fileName);
-                if (source != null)
-                {
-                    source.Verify();
-                    if (source.MediaStatus == TMediaStatus.Available)
-                    {
-                        dest = MediaDirectoryPRI.GetServerMedia(source, false);
-                        _fileManager.Queue(new ConvertOperation()
-                        {
-                            SourceMedia = source,
-                            DestMedia = dest,
-                            OutputFormat = _engine.VideoFormat,
-                            AudioVolume = dir.AudioVolume,
-                            SourceFieldOrderEnforceConversion = dir.SourceFieldOrder,
-                            AspectConversion = dir.AspectConversion,
-                        });
-                        return dest.MediaGuid;
-                    }
-                }
-            }
-            return Guid.Empty;            
-        }
 
         private void _mediaPRIVerified(object o, MediaEventArgs e)
         {
@@ -550,7 +513,7 @@ namespace TAS.Server
                             && e.Media.FileName == sm.FileName && sm.FileExists()) as ServerMedia;
                 if (e.Media.MediaStatus == TMediaStatus.Available)
                     if (sECMedia == null)
-                        FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Copy, SourceMedia = e.Media, DestMedia = sec.GetServerMedia(e.Media, true) }, false);
+                        FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Copy, SourceMedia = e.Media, DestDirectory = sec }, false);
                     else
                     {
                         sECMedia.CloneMediaProperties(e.Media);

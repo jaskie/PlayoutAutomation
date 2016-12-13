@@ -40,5 +40,10 @@ namespace TAS.Client.Model
         public string Password { get; set; }
         public string Username { get; set; }
         public int XdcamClipCount { get; set; }
+
+        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

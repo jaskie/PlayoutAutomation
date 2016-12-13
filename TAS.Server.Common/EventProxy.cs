@@ -37,7 +37,7 @@ namespace TAS.Server.Common
         public TEasing TransitionEasing { get; set; }
         public EventProxy[] SubEvents { get; set; }
         public bool IsCGEnabled { get; set; }
-        public byte Crawl { get; set; } 
+        public byte Crawl { get; set; }
         public byte Logo { get; set; }
         public byte Parental { get; set; }
         public AutoStartFlags AutoStartFlags { get; set; }
@@ -74,7 +74,8 @@ namespace TAS.Server.Common
         private IEvent _toEvent(IEngine engine, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
             IEvent result = null;
-            try {
+            try
+            {
                 result = engine.AddNewEvent(
                         videoLayer: Layer,
                         eventType: EventType,
@@ -113,13 +114,14 @@ namespace TAS.Server.Common
                     if (!Guid.Empty.Equals(MediaGuid))
                         media = mediaFiles.FirstOrDefault(m => m.MediaGuid.Equals(MediaGuid));
                     if (media == null
-                        && !string.IsNullOrEmpty(Media.IdAux))
-                        media = mediaFiles.FirstOrDefault(m => m is IPersistentMedia ? ((IPersistentMedia)m).IdAux == Media.IdAux : false);
+                        && Media is IPersistentMediaProperties
+                        && !string.IsNullOrEmpty(((IPersistentMediaProperties)Media).IdAux))
+                        media = mediaFiles.FirstOrDefault(m => m is IPersistentMedia ? ((IPersistentMedia)m).IdAux == ((IPersistentMediaProperties)Media).IdAux : false);
                     if (media == null)
-                        media = mediaFiles.FirstOrDefault(m => 
-                               m.MediaName == Media.MediaName 
+                        media = mediaFiles.FirstOrDefault(m =>
+                               m.MediaName == Media.MediaName
                             && m.MediaType == Media.MediaType
-                            && m.TcStart == Media.TcStart 
+                            && m.TcStart == Media.TcStart
                             && m.Duration == Media.Duration);
                     if (media == null)
                         media = mediaFiles.FirstOrDefault(m => m.FileName == Media.FileName && m.FileSize == Media.FileSize);
@@ -131,8 +133,9 @@ namespace TAS.Server.Common
                     if (!Guid.Empty.Equals(MediaGuid))
                         media = animationFiles.FirstOrDefault(m => m.MediaGuid.Equals(MediaGuid));
                     if (media == null
-                        && !string.IsNullOrEmpty(Media.IdAux))
-                        media = animationFiles.FirstOrDefault(m => m is IPersistentMedia ? ((IPersistentMedia)m).IdAux == Media.IdAux : false);
+                        && Media is IPersistentMediaProperties
+                        && !string.IsNullOrEmpty(((IPersistentMediaProperties)Media).IdAux))
+                        media = animationFiles.FirstOrDefault(m => m is IPersistentMedia ? ((IPersistentMedia)m).IdAux == ((IPersistentMediaProperties)Media).IdAux : false);
                     if (media == null)
                         media = animationFiles.FirstOrDefault(m => m.FileName == Media.FileName && m.FileSize == Media.FileSize);
                     result.Media = media;
@@ -162,7 +165,7 @@ namespace TAS.Server.Common
                     }
                 }
             }
-            catch 
+            catch
             {
                 if (result != null)
                     result.Delete();
@@ -206,8 +209,8 @@ namespace TAS.Server.Common
                 Parental = source.Parental,
                 AutoStartFlags = source.AutoStartFlags,
                 Commands = (source as ICommandScript)?.Commands,
-                Fields = source is ITemplated ? new Dictionary<string, string>(((ITemplated)source).Fields): null,
-                Method = source is ITemplated ? ((ITemplated)source).Method: TemplateMethod.Add,
+                Fields = source is ITemplated ? new Dictionary<string, string>(((ITemplated)source).Fields) : null,
+                Method = source is ITemplated ? ((ITemplated)source).Method : TemplateMethod.Add,
                 TemplateLayer = source is ITemplated ? ((ITemplated)source).TemplateLayer : -1,
             };
         }
@@ -215,56 +218,6 @@ namespace TAS.Server.Common
         public override string ToString()
         {
             return string.Format("{0}:{1}", EventName, SubEvents.Length);
-        }
-
-        public class MediaProxy : IMediaProperties
-        {
-            public TAudioChannelMapping AudioChannelMapping { get; set; }
-            public decimal AudioLevelIntegrated { get; set; }
-            public decimal AudioLevelPeak { get; set; }
-            public decimal AudioVolume { get; set; }
-            public TimeSpan Duration { get; set; }
-            public TimeSpan DurationPlay { get; set; }
-            public string FileName { get; set; }
-            public ulong FileSize { get; set; }
-            public string Folder { get; set; }
-            public DateTime LastUpdated { get; set; }
-            public TMediaCategory MediaCategory { get; set; }
-            public byte Parental { get; set; }
-            public string MediaName { get; set; }
-            public TMediaStatus MediaStatus { get; set; }
-            public TMediaType MediaType { get; set; }
-            public TimeSpan TcPlay { get; set; }
-            public TimeSpan TcStart { get; set; }
-            public TVideoFormat VideoFormat { get; set; }
-            public string IdAux { get; set; }
-            public bool FieldOrderInverted { get; set; }
-            internal static MediaProxy FromMedia(IMedia media)
-            {
-                return new MediaProxy()
-                {
-                    AudioChannelMapping = media.AudioChannelMapping,
-                    AudioLevelIntegrated = media.AudioLevelIntegrated,
-                    AudioLevelPeak = media.AudioLevelPeak,
-                    AudioVolume = media.AudioVolume,
-                    Duration = media.Duration,
-                    DurationPlay = media.DurationPlay,
-                    FileName = media.FileName,
-                    FileSize = media.FileSize,
-                    Folder = media.Folder,
-                    LastUpdated = media.LastUpdated,
-                    MediaCategory = media.MediaCategory,
-                    MediaName = media.MediaName,
-                    MediaStatus = media.MediaStatus,
-                    MediaType = media.MediaType,
-                    Parental = media.Parental,
-                    TcPlay = media.TcPlay,
-                    TcStart = media.TcStart,
-                    VideoFormat = media.VideoFormat,
-                    IdAux = media is IPersistentMedia ? ((IPersistentMedia)media).IdAux : string.Empty,
-                    FieldOrderInverted = media.FieldOrderInverted,
-                };
-            }
         }
     }
 

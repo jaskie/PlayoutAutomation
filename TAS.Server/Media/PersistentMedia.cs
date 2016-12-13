@@ -73,14 +73,14 @@ namespace TAS.Server
             return new MediaSegment(this.MediaGuid);
         }
 
-        public override void CloneMediaProperties(IMedia fromMedia)
+        public override void CloneMediaProperties(IMediaProperties fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
-            if (fromMedia is PersistentMedia)
+            if (fromMedia is IPersistentMedia)
             {
-                IdAux = (fromMedia as PersistentMedia).IdAux;
-                IdProgramme = (fromMedia as PersistentMedia).IdProgramme;
-                MediaEmphasis = (fromMedia as PersistentMedia).MediaEmphasis;
+                IdAux = (fromMedia as IPersistentMedia).IdAux;
+                IdProgramme = (fromMedia as IPersistentMedia).IdProgramme;
+                MediaEmphasis = (fromMedia as IPersistentMedia).MediaEmphasis;
             }
         }
 

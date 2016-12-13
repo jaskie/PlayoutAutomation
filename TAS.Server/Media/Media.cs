@@ -276,7 +276,7 @@ namespace TAS.Server
 
         internal bool HasExtraLines; // VBI lines that shouldn't be displayed
 
-        public virtual void CloneMediaProperties(IMedia fromMedia)
+        public virtual void CloneMediaProperties(IMediaProperties fromMedia)
         {
             MediaName = fromMedia.MediaName;
             AudioChannelMapping = fromMedia.AudioChannelMapping;
@@ -287,6 +287,7 @@ namespace TAS.Server
             DurationPlay = fromMedia.DurationPlay;
             TcStart = fromMedia.TcStart;
             TcPlay = fromMedia.TcPlay;
+            MediaType = fromMedia.MediaType;
             VideoFormat = fromMedia.VideoFormat;
             MediaCategory = fromMedia.MediaCategory;
             Parental = fromMedia.Parental;

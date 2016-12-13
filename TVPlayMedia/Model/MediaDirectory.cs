@@ -193,5 +193,7 @@ namespace TAS.Client.Model
         {
             return string.Format("{0}:{1} ({2})", this.GetType(), DirectoryName, Folder);
         }
+
+        public abstract IMedia CreateMedia(IMediaProperties mediaProperties);
     }
 }

@@ -49,8 +49,6 @@ namespace TAS.Server
 
         public decimal AudioVolume { get; set; }
 
-        public IngestDirectory DestDirectory { get; set; }
-
         public string DestMediaName { get; set; }
 
         public TmXFVideoExportFormat MXFVideoExportFormat { get; set; }
@@ -91,28 +89,20 @@ namespace TAS.Server
             bool result = false;
             _progressDuration = TimeSpan.FromTicks(_exportMediaList.Sum(e => e.Duration.Ticks));
             AddOutputMessage("Refreshing destination directory content");
-            DestDirectory.Refresh();
-            if (DestDirectory.IsXDCAM)
+            var destDirectory = DestDirectory as IngestDirectory;
+            if (destDirectory == null)
+                throw new InvalidOperationException("Can only export to IngestDirectory");
+            destDirectory.Refresh();
+
+            if (destDirectory.AccessType == TDirectoryAccessType.FTP)
             {
-                var existingFiles = DestDirectory.GetFiles().Where(f => f.FileName.StartsWith("C", true, System.Globalization.CultureInfo.InvariantCulture));
-                int maxFile = existingFiles.Count() == 0 ? 1 : existingFiles.Max(m => int.Parse(m.FileName.Substring(1, 4))) + 1;
-                DestMedia = new XDCAMMedia(DestDirectory) { MediaName = string.Format("C{0:D4}", maxFile), FileName = string.Format("C{0:D4}.MXF", maxFile), Folder = "Clip", MediaStatus = TMediaStatus.Copying };
-            }
-            else
-            {
-                DestMedia = new IngestMedia(DestDirectory) {
-                    MediaName = DestMediaName,
-                    FileName = Common.FileUtils.GetUniqueFileName(DestDirectory.Folder, string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(DestMediaName), DestDirectory.ExportContainerFormat)),
-                    MediaStatus = TMediaStatus.Copying };
-            }
-            if (DestDirectory.AccessType == TDirectoryAccessType.FTP)
-            {
-                using (TempMedia localDestMedia = Owner.TempDirectory.CreateMedia(null, "MXF"))
+                using (TempMedia localDestMedia = (TempMedia)Owner.TempDirectory.CreateMedia(SourceMedia))
                 {
-                    DestMedia.PropertyChanged += DestMedia_PropertyChanged;
+                    DestMedia = CreateDestMedia(destDirectory);
+                    DestMedia.PropertyChanged += destMedia_PropertyChanged;
                     try
                     {
-                        result = _encode(localDestMedia.FullPath);
+                        result = _encode(destDirectory, localDestMedia.FullPath);
                         if (result)
                         {
                             _progressFileSize = (UInt64)(new FileInfo(localDestMedia.FullPath)).Length;
@@ -120,21 +110,40 @@ namespace TAS.Server
                             result = localDestMedia.CopyMediaTo((Media)DestMedia, ref _aborted);
                         }
                     }
+
                     finally
                     {
-                        DestMedia.PropertyChanged -= DestMedia_PropertyChanged;
+                        DestMedia.PropertyChanged -= destMedia_PropertyChanged;
                     }
-                }
+                } 
             }
             else
-                result = _encode(DestMedia.FullPath);
+                DestMedia = CreateDestMedia(destDirectory);
+            result = _encode(destDirectory, DestMedia.FullPath);
             if (result)
                 DestMedia.MediaStatus = result ? TMediaStatus.Available : TMediaStatus.CopyError;
             if (result) OperationStatus = FileOperationStatus.Finished;
             return result;
         }
 
-        void DestMedia_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        IngestMedia CreateDestMedia(IngestDirectory destDirectory)
+        {
+            if (destDirectory.IsXDCAM)
+            {
+                var existingFiles = DestDirectory.GetFiles().Where(f => f.FileName.StartsWith("C", true, System.Globalization.CultureInfo.InvariantCulture));
+                int maxFile = existingFiles.Count() == 0 ? 1 : existingFiles.Max(m => int.Parse(m.FileName.Substring(1, 4))) + 1;
+                return new XDCAMMedia(destDirectory) { MediaName = string.Format("C{0:D4}", maxFile), FileName = string.Format("C{0:D4}.MXF", maxFile), Folder = "Clip", MediaStatus = TMediaStatus.Copying };
+            }
+            else
+                return new IngestMedia(destDirectory)
+                {
+                    MediaName = DestMediaName,
+                    FileName = Common.FileUtils.GetUniqueFileName(DestDirectory.Folder, string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(DestMediaName), destDirectory.ExportContainerFormat)),
+                    MediaStatus = TMediaStatus.Copying
+                };
+        }
+
+        void destMedia_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IMedia.FileSize))
             {
@@ -144,7 +153,7 @@ namespace TAS.Server
             }
         }
         
-        bool _encode(string outFile)
+        bool _encode(IngestDirectory directory, string outFile)
         {            
             Debug.WriteLine(this, "Export encode started");
             AddOutputMessage($"Encode started to file {outFile}");
@@ -155,7 +164,7 @@ namespace TAS.Server
             StringBuilder overlayOutputs = new StringBuilder();
             List<ExportMedia> exportMedia = _exportMediaList.ToList();
             TimeSpan startTimecode = exportMedia.First().StartTC;
-            VideoFormatDescription outputFormatDesc = VideoFormatDescription.Descriptions[DestDirectory.IsXDCAM || DestDirectory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? TVideoFormat.PAL : DestDirectory.ExportVideoFormat];
+            VideoFormatDescription outputFormatDesc = VideoFormatDescription.Descriptions[directory.IsXDCAM || directory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? TVideoFormat.PAL : directory.ExportVideoFormat];
             string scaleFilter = $"scale={outputFormatDesc.ImageSize.Width}:{outputFormatDesc.ImageSize.Height}:interl=-1";
             foreach (var e in exportMedia)
             {
@@ -180,7 +189,7 @@ namespace TAS.Server
                 }
                 overlayOutputs.AppendFormat("{0}[a{1}]", videoOutputName, audioIndex);
             }
-            if (DestDirectory.IsXDCAM || DestDirectory.ExportContainerFormat == TMediaExportContainerFormat.mxf)
+            if (directory.IsXDCAM || directory.ExportContainerFormat == TMediaExportContainerFormat.mxf)
                 if (MXFVideoExportFormat == TmXFVideoExportFormat.DV25)
                     complexFilterElements.Add(string.Format("{0}concat=n={1}:v=1:a=1[v][p]", string.Join(string.Empty, overlayOutputs), exportMedia.Count));            
                 else
@@ -198,7 +207,7 @@ namespace TAS.Server
                 //1
                 complexFilter,
                 //2
-                DestDirectory.IsXDCAM || DestDirectory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? 
+                directory.IsXDCAM || directory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? 
                     String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0} {1}", 
                               MXFVideoExportFormat == TmXFVideoExportFormat.DV25 ? D10_PAL_DV25
                             : MXFVideoExportFormat == TmXFVideoExportFormat.IMX30 ? D10_PAL_IMX30
@@ -209,13 +218,13 @@ namespace TAS.Server
                             : MXFAudioExportFormat == TmXFAudioExportFormat.Channels4Bits16 ? PCM16LE4CH
                             : PCM16LE8CH)
                     :
-                    DestDirectory.ExportParams,
+                    directory.ExportParams,
                 //3
                 startTimecode.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[DestMedia.VideoFormat].FrameRate),
                 //4
-                DestDirectory.IsXDCAM || DestDirectory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? $" -metadata creation_time=\"{DateTime.UtcNow.ToString("o")}\"" : string.Empty,
+                directory.IsXDCAM || directory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? $" -metadata creation_time=\"{DateTime.UtcNow.ToString("o")}\"" : string.Empty,
                 //5
-                (DestDirectory.IsXDCAM || DestDirectory.ExportContainerFormat == TMediaExportContainerFormat.mxf) && MXFVideoExportFormat != TmXFVideoExportFormat.DV25 ? "mxf_d10" : DestDirectory.ExportContainerFormat.ToString(),
+                (directory.IsXDCAM || directory.ExportContainerFormat == TMediaExportContainerFormat.mxf) && MXFVideoExportFormat != TmXFVideoExportFormat.DV25 ? "mxf_d10" : directory.ExportContainerFormat.ToString(),
                 outFile);
             if (RunProcess(command))
             {
@@ -231,7 +240,7 @@ namespace TAS.Server
         {
             get
             {
-                return string.Format("Export {0} -> {1}", string.Join(", ", _exportMediaList), DestMedia == null ? DestDirectory.DirectoryName : DestMedia.ToString());
+                return string.Format("Export {0} -> {1}", string.Join(", ", _exportMediaList), DestDirectory.DirectoryName);
             }
         }
     }

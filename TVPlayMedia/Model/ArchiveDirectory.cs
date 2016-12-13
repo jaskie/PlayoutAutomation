@@ -25,14 +25,19 @@ namespace TAS.Client.Model
             Invoke(parameters: new object[] { media, deleteAfterSuccess});
         }
 
-        public IArchiveMedia Find(IMedia media)
+        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        {
+            return Query<IMedia>(parameters: new [] { mediaProperties });
+        }
+
+        public IArchiveMedia Find(IMediaProperties media)
         {
             var ret =  Query<ArchiveMedia>(parameters: new object[] { media });
             ret.Directory = this;
             return ret;
         }
 
-        public IArchiveMedia GetArchiveMedia(IServerMedia media, bool searchExisting = true)
+        public IArchiveMedia GetArchiveMedia(IMediaProperties media, bool searchExisting = true)
         {
             var ret = Query<ArchiveMedia>(parameters: new object[] { media, searchExisting });
             ret.Directory = this;

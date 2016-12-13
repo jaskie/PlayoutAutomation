@@ -25,6 +25,7 @@
     <DocumentationFile>
     </DocumentationFile>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,6 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MySql.Data, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
@@ -137,6 +139,7 @@
     <Compile Include="Database\DbSchema.cs" />
     <Compile Include="Interfaces\IXdcamMedia.cs" />
     <Compile Include="MediaEventArgs.cs" />
+    <Compile Include="MediaProxy.cs" />
     <Compile Include="RedundantConnectionStateEventArgs.cs" />
     <Compile Include="ValueEventArgs.cs" />
     <Compile Include="MediaConversion.cs" />

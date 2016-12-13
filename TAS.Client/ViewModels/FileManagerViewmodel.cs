@@ -98,11 +98,12 @@ namespace TAS.Client.ViewModels
             _fileManager.OperationCompleted -= FileManager_OperationCompleted;
         }
 
-        internal IConvertOperation CreateConvertOperation(IMedia sourceMedia, IMedia destMedia, TVideoFormat outputFormat, decimal audioVolume, TFieldOrder sourceFieldOrderEnforceConversion, TAspectConversion aspectConversion, bool loudnessCheck)
+        internal IConvertOperation CreateConvertOperation(IMedia sourceMedia, IMediaProperties destMediaProperties, IMediaDirectory destDirectory, TVideoFormat outputFormat, decimal audioVolume, TFieldOrder sourceFieldOrderEnforceConversion, TAspectConversion aspectConversion, bool loudnessCheck)
         {
             IConvertOperation result = _fileManager.CreateConvertOperation();
             result.SourceMedia = sourceMedia;
-            result.DestMedia = destMedia;
+            result.DestMediaProperties = destMediaProperties;
+            result.DestDirectory = destDirectory;
             result.OutputFormat = outputFormat;
             result.AudioVolume = audioVolume;
             result.SourceFieldOrderEnforceConversion = sourceFieldOrderEnforceConversion;

@@ -7,17 +7,21 @@ using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IPersistentMedia: IMedia
+    public interface IPersistentMedia: IMedia, IPersistentMediaProperties
+    {
+        ObservableSynchronizedCollection<IMediaSegment> MediaSegments { get; }
+        IMediaSegment CreateSegment();
+        bool IsModified { get; set; }
+        bool Save();
+    }
+
+    public interface IPersistentMediaProperties: IMediaProperties
     {
         TMediaEmphasis MediaEmphasis { get; set; }
         string IdAux { get; set; }
-        ObservableSynchronizedCollection<IMediaSegment> MediaSegments { get; }
-        IMediaSegment CreateSegment();
         DateTime KillDate { get; set; }
         UInt64 IdProgramme { get; set; }
         UInt64 IdPersistentMedia { get; set; }
         bool Protected { get; set; }
-        bool IsModified { get; set; }
-        bool Save();
     }
 }

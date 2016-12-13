@@ -57,7 +57,7 @@ namespace TAS.Server
                     if (sourceMedia == null)
                         throw new ArgumentException("LoudnessOperation: SourceMedia is not of type Media");
                     if (sourceMedia.Directory is IngestDirectory && ((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia _localSourceMedia = Owner.TempDirectory.CreateMedia(sourceMedia))
+                        using (TempMedia _localSourceMedia = (TempMedia)Owner.TempDirectory.CreateMedia(sourceMedia))
                         {
                             if (sourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
                             {

@@ -15,5 +15,9 @@ namespace TAS.Client.Model
             return Query<IAnimatedMedia>(parameters: new[] { source });
         }
 
+        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        {
+            return Query<IAnimatedMedia>(parameters: new[] { mediaProperties });
+        }
     }
 }

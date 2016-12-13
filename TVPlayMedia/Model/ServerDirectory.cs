@@ -8,9 +8,9 @@ namespace TAS.Client.Model
 {
     public class ServerDirectory : MediaDirectory, IServerDirectory
     {
-        public IServerMedia GetServerMedia(IMedia media, bool searchExisting = true)
+        public override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
-            return Query<ServerMedia>(parameters: new object[] { media, searchExisting });
+            throw new NotImplementedException();
         }
     }
 }

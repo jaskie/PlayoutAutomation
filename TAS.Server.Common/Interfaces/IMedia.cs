@@ -11,7 +11,6 @@ namespace TAS.Server.Interfaces
     {
         IMediaDirectory Directory { get; }
         string FullPath { get; }
-        Guid MediaGuid { get; }
         bool FileExists();
         bool Delete();
         bool IsVerified { get; set; }

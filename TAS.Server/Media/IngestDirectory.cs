@@ -589,6 +589,10 @@ namespace TAS.Server
                 base.GetVolumeInfo();
         }
 
+        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

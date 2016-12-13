@@ -129,7 +129,7 @@ namespace TAS.Server
 
         static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Event));
 
-        UInt64 _idRundownEvent = 0;
+        private ulong _idRundownEvent = 0;
         [XmlIgnore]
         public UInt64 IdRundownEvent
         {

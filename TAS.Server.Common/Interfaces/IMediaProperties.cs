@@ -24,5 +24,6 @@ namespace TAS.Server.Interfaces
         TimeSpan TcStart { get; set; }
         TVideoFormat VideoFormat { get; set; }
         bool FieldOrderInverted { get; set; }
+        Guid MediaGuid { get; }
     }
 }

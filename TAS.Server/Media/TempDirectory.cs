@@ -31,9 +31,9 @@ namespace TAS.Server
             
         }
         
-        public TempMedia CreateMedia(IMedia media, string fileExtension = null)
+        public override IMedia CreateMedia(IMediaProperties media)
         {
-            return new TempMedia(this, media, fileExtension);
+            return new TempMedia(this, media);
         }
 
         public override void SweepStaleMedia()

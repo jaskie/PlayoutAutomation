@@ -30,9 +30,9 @@ namespace TAS.Server
         public ConvertOperation()
         {
             Kind = TFileOperationKind.Convert;
-            AspectConversion = TAspectConversion.NoConversion;
-            SourceFieldOrderEnforceConversion = TFieldOrder.Unknown;
-            AudioChannelMappingConversion = TAudioChannelMappingConversion.FirstTwoChannels;
+            _aspectConversion = TAspectConversion.NoConversion;
+            _sourceFieldOrderEnforceConversion = TFieldOrder.Unknown;
+            _audioChannelMappingConversion = TAudioChannelMappingConversion.FirstTwoChannels;
         }
 
         #endregion // properties
@@ -100,7 +100,7 @@ namespace TAS.Server
                         throw new ArgumentException("ConvertOperation: SourceMedia is not of type IngestMedia");
                     bool success = false;
                     if (((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia _localSourceMedia = Owner.TempDirectory.CreateMedia(sourceMedia))
+                        using (TempMedia _localSourceMedia = (TempMedia)Owner.TempDirectory.CreateMedia(sourceMedia))
                         {
                             AddOutputMessage($"Copying to local file {_localSourceMedia.FullPath}");
                             _localSourceMedia.PropertyChanged += _localSourceMedia_PropertyChanged;
@@ -110,7 +110,7 @@ namespace TAS.Server
                                 _localSourceMedia.Verify();
                                 try
                                 {
-                                    if (DestMedia.MediaType == TMediaType.Still)
+                                    if (DestMediaProperties.MediaType == TMediaType.Still)
                                         success = _convertStill(_localSourceMedia);
                                     else
                                         success = _convertMovie(_localSourceMedia, _localSourceMedia.StreamInfo);
@@ -131,7 +131,7 @@ namespace TAS.Server
                     {
                         if (sourceMedia is IngestMedia && sourceMedia.IsVerified)
                         {
-                            if (DestMedia.MediaType == TMediaType.Still)
+                            if (DestMediaProperties.MediaType == TMediaType.Still)
                                 success = _convertStill(sourceMedia);
                             else
                                 success = _convertMovie(sourceMedia, ((IngestMedia)sourceMedia).StreamInfo);
@@ -166,19 +166,21 @@ namespace TAS.Server
             }
         }
 
-        private bool _convertStill(Media _localSourceMedia)
+        private bool _convertStill(Media localSourceMedia)
         {
+            CreateDestMediaIfNotExists();
+            DestMedia.MediaType = TMediaType.Still;
             Size destSize = DestMedia.VideoFormat == TVideoFormat.Other ? VideoFormatDescription.Descriptions[TVideoFormat.HD1080i5000].ImageSize : DestMedia.VideoFormatDescription.ImageSize;
             Image bmp = new Bitmap(destSize.Width, destSize.Height, PixelFormat.Format32bppArgb);
             Graphics graphics = Graphics.FromImage(bmp);
             graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-            if (Path.GetExtension(_localSourceMedia.FileName).ToLowerInvariant() == ".tga")
+            if (Path.GetExtension(localSourceMedia.FileName).ToLowerInvariant() == ".tga")
             {
-                var tgaImage = new Paloma.TargaImage(_localSourceMedia.FullPath);
+                var tgaImage = new Paloma.TargaImage(localSourceMedia.FullPath);
                 graphics.DrawImage(tgaImage.Image, 0, 0, destSize.Width, destSize.Height);
             }
             else
-                graphics.DrawImage(new Bitmap(_localSourceMedia.FullPath), 0, 0, destSize.Width, destSize.Height);
+                graphics.DrawImage(new Bitmap(localSourceMedia.FullPath), 0, 0, destSize.Width, destSize.Height);
             ImageCodecInfo imageCodecInfo = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FilenameExtension.Split(';').Select(se => se.Trim('*')).Contains(FileUtils.DefaultFileExtension(TMediaType.Still).ToUpperInvariant()));
             System.Drawing.Imaging.Encoder encoder = System.Drawing.Imaging.Encoder.Quality;
             EncoderParameter encoderParameter = new EncoderParameter(encoder, 90L);
@@ -342,28 +344,29 @@ namespace TAS.Server
             return Trim && Duration > TimeSpan.Zero && ((IngestDirectory)SourceMedia.Directory).VideoCodec != TVideoCodec.copy ;
         }
 
-        private bool _convertMovie(Media media, StreamInfo[] streams)
+        private bool _convertMovie(Media localSourceMedia, StreamInfo[] streams)
         {
-            if (!media.FileExists() || streams == null)
+            if (!localSourceMedia.FileExists() || streams == null)
             {
                 Debug.WriteLine(this, "Cannot start conversion: file not readed");
                 AddOutputMessage("Cannot start conversion: file not readed");
                 return false;
             }
-            _progressDuration = media.Duration;
+            CreateDestMediaIfNotExists();
+            _progressDuration = localSourceMedia.Duration;
             Debug.WriteLine(this, "Convert operation started");
             AddOutputMessage("Starting convert operation:");
             VideoFormatDescription formatDescription = VideoFormatDescription.Descriptions[OutputFormat];
             DestMedia.MediaStatus = TMediaStatus.Copying;
             //CheckInputFile(media);
-            string encodeParams = _encodeParameters(media, streams);
+            string encodeParams = _encodeParameters(localSourceMedia, streams);
             //TimeSpan outStartTC = _is_trimmed() ? 
             string ingestRegion = _is_trimmed() ?
                 string.Format(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1}", StartTC - SourceMedia.TcStart, Duration) : string.Empty;
             string Params = string.Format(System.Globalization.CultureInfo.InvariantCulture,
                     " -i \"{1}\"{0} -vsync cfr{2} -timecode {3} -y \"{4}\"",
                     ingestRegion,
-                    media.FullPath,
+                    localSourceMedia.FullPath,
                     encodeParams,
                     StartTC.ToSMPTETimecodeString(formatDescription.FrameRate),
                     DestMedia.FullPath);
@@ -375,12 +378,12 @@ namespace TAS.Server
             {
                 DestMedia.MediaStatus = TMediaStatus.Copied;
                 ((Media)DestMedia).Verify();
-                if (Math.Abs(DestMedia.Duration.Ticks - (_is_trimmed() ? Duration.Ticks : media.Duration.Ticks)) > TimeSpan.TicksPerSecond / 2)
+                if (Math.Abs(DestMedia.Duration.Ticks - (_is_trimmed() ? Duration.Ticks : localSourceMedia.Duration.Ticks)) > TimeSpan.TicksPerSecond / 2)
                 {
                     DestMedia.MediaStatus = TMediaStatus.CopyError;
                     if (DestMedia is PersistentMedia)
                         (DestMedia as PersistentMedia).Save();
-                    _addWarningMessage(string.Format(resources._encodeWarningDifferentDurations, media.Duration.ToSMPTETimecodeString(media.VideoFormatDescription.FrameRate), DestMedia.Duration.ToSMPTETimecodeString(DestMedia.VideoFormatDescription.FrameRate)));
+                    _addWarningMessage(string.Format(resources._encodeWarningDifferentDurations, localSourceMedia.Duration.ToSMPTETimecodeString(localSourceMedia.VideoFormatDescription.FrameRate), DestMedia.Duration.ToSMPTETimecodeString(DestMedia.VideoFormatDescription.FrameRate)));
                     Debug.WriteLine(this, "Convert operation succeed, but durations are diffrent");
                 }
                 else

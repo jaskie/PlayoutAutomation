@@ -573,7 +573,7 @@ namespace TAS.Server.Database
             return returnList;
         }
 
-        public static T DbMediaFind<T>(this IArchiveDirectory dir, IMedia media) where T: IArchiveMedia
+        public static T DbMediaFind<T>(this IArchiveDirectory dir, IMediaProperties media) where T: IArchiveMedia
         {
             T result = default(T);
             lock (_connection)
@@ -595,7 +595,7 @@ namespace TAS.Server.Database
             return result;
         }
 
-        public static bool DbArchiveContainsMedia(this IArchiveDirectory dir, IMedia media)
+        public static bool DbArchiveContainsMedia(this IArchiveDirectory dir, IMediaProperties media)
         {
             lock (_connection)
             {

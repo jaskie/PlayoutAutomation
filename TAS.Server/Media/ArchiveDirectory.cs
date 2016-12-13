@@ -66,7 +66,7 @@ namespace TAS.Server
                 m.Delete();
         }
 
-        public IArchiveMedia Find(IMedia media)
+        public IArchiveMedia Find(IMediaProperties media)
         {
             return this.DbMediaFind<ArchiveMedia>(media);
         }
@@ -121,21 +121,24 @@ namespace TAS.Server
             ((ArchiveMedia)media).Save();
         }
 
-        public IArchiveMedia GetArchiveMedia(IServerMedia media, bool searchExisting = true)
+        public IArchiveMedia GetArchiveMedia(IMediaProperties media, bool searchExisting = true)
         {
             ArchiveMedia result = null;
             if (searchExisting)
                 result = this.DbMediaFind<ArchiveMedia>(media);
             if (result == null)
+                result = (ArchiveMedia)CreateMedia(media);
+            return result;
+        }
+
+        public override IMedia CreateMedia(IMediaProperties mediaProperties)
+        {
+            string path = Path.Combine(Folder, GetCurrentFolder());
+            var result = new ArchiveMedia(this, mediaProperties.MediaGuid, 0)
             {
-                string path = Path.Combine(Folder, GetCurrentFolder());
-                result = new ArchiveMedia(this, media.MediaGuid, 0)
-                {
-                    FullPath = Path.Combine(path, FileUtils.GetUniqueFileName(path, media.FileName)),
-                    MediaType = media.MediaType,
-                };
-                result.CloneMediaProperties(media);
-            }
+                FullPath = Path.Combine(path, FileUtils.GetUniqueFileName(path, mediaProperties.FileName)),
+            };
+            result.CloneMediaProperties(mediaProperties);
             return result;
         }
 
@@ -171,7 +174,7 @@ namespace TAS.Server
         {
             if (!Directory.Exists(Path.GetDirectoryName(toMedia.FullPath)))
                 Directory.CreateDirectory(Path.GetDirectoryName(toMedia.FullPath));
-            FileOperation operation = new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestMedia = toMedia };
+            FileOperation operation = new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestDirectory = this };
             operation.Success += Archived;
             MediaManager.FileManager.Queue(operation, toTop);
         }
@@ -187,5 +190,7 @@ namespace TAS.Server
                 operation.Success -= Archived;
             }
         }
+
+
     }
 }

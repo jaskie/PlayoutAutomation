@@ -12,7 +12,9 @@ namespace TAS.Server.Interfaces
     {
         TFileOperationKind Kind { get; set; }
         IMedia SourceMedia { get; set; }
-        IMedia DestMedia { get; set; }
+        IMediaProperties DestMediaProperties { get; set; }
+        IMedia DestMedia { get; }
+        IMediaDirectory DestDirectory { get; set; }
         DateTime ScheduledTime { get; }
         DateTime StartTime { get; }
         DateTime FinishedTime { get; }

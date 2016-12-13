@@ -40,6 +40,15 @@ namespace TAS.Server
             Logger = NLog.LogManager.GetLogger(this.GetType().Name);
         }
 
+#if DEBUG
+        ~MediaDirectory()
+        {
+            Debug.WriteLine("{0} finalized: {1}", GetType(), this);
+        }
+#endif
+
+        public abstract IMedia CreateMedia(IMediaProperties mediaProperties);
+
         public virtual void Initialize()
         {
             if (!_isInitialized)

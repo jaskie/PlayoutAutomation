@@ -8,8 +8,8 @@ namespace TAS.Server.Interfaces
 {
     public interface IArchiveDirectory: IMediaDirectory, IArchiveDirectoryConfig
     {
-        IArchiveMedia Find(IMedia media);
-        IArchiveMedia GetArchiveMedia(IServerMedia media, bool searchExisting = true);
+        IArchiveMedia Find(IMediaProperties media);
+        IArchiveMedia GetArchiveMedia(IMediaProperties media, bool searchExisting = true);
         void ArchiveSave(IServerMedia media, bool deleteAfterSuccess);
         void ArchiveRestore(IArchiveMedia srcMedia, IServerMedia destMedia, bool toTop);
         string SearchString { get; set; }

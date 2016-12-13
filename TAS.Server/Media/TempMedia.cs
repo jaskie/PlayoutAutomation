@@ -1,22 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using TAS.Common;
 using TAS.FFMpegUtils;
+using TAS.Server.Common;
 using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
     public class TempMedia: Media, ITempMedia
     {
-        public TempMedia(TempDirectory directory, IMedia originalMedia, string fileExtension): base(directory, originalMedia == null? Guid.NewGuid(): originalMedia.MediaGuid)
+        public TempMedia(TempDirectory directory, IMediaProperties originalMedia): base(directory, originalMedia == null? Guid.NewGuid(): originalMedia.MediaGuid)
         {
             OriginalMedia = originalMedia;
-            FileName = string.Format("{0}.{1}", _mediaGuid, fileExtension);
+            FileName = string.Format("{0}{1}", _mediaGuid, originalMedia == null ? FileUtils.TempFileExtension : Path.GetExtension(originalMedia.FileName));
         }
 
-        internal IMedia OriginalMedia;
+        internal IMediaProperties OriginalMedia;
         internal StreamInfo[] StreamInfo;
 
         public override string MediaName
