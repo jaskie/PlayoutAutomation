@@ -337,6 +337,21 @@ namespace TAS.Client.Common
         }
     }
 
+    [ValueConversion(typeof(long), typeof(System.Windows.Visibility))]
+    public class ZeroToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return System.Convert.ToInt64(value) == 0 ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return Binding.DoNothing;
+        }
+    }
+
+
     [ValueConversion(typeof(string[]), typeof(string))]
     public class StringArrayToDelimitedStringConverter: IValueConverter
     {

@@ -45,7 +45,7 @@ namespace TAS.Server.Common
         public TemplateMethod Method { get; set; }
         [DefaultValue(-1)]
         public int TemplateLayer { get; set; }
-        public IEnumerable<ICommandScriptItem> Commands { get; set; }
+        public IEnumerable<CommandScriptItemBase> Commands { get; set; }
         public IDictionary<string, string> Fields { get; set; }
 
 
@@ -177,6 +177,9 @@ namespace TAS.Server.Common
         public static EventProxy FromEvent(IEvent source)
         {
             IMedia eventMedia = source.Media;
+            MediaProxy mediaProxy = eventMedia == null ? null :
+                eventMedia is IPersistentMedia ? PersistentMediaProxy.FromMedia((IPersistentMedia)eventMedia) :
+                MediaProxy.FromMedia(eventMedia);
             return new EventProxy()
             {
                 AudioVolume = source.AudioVolume,
@@ -208,7 +211,7 @@ namespace TAS.Server.Common
                 Logo = source.Logo,
                 Parental = source.Parental,
                 AutoStartFlags = source.AutoStartFlags,
-                Commands = (source as ICommandScript)?.Commands,
+                Commands = (source as ICommandScript)?.Commands.Cast<CommandScriptItemBase>(),
                 Fields = source is ITemplated ? new Dictionary<string, string>(((ITemplated)source).Fields) : null,
                 Method = source is ITemplated ? ((ITemplated)source).Method : TemplateMethod.Add,
                 TemplateLayer = source is ITemplated ? ((ITemplated)source).TemplateLayer : -1,

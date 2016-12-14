@@ -92,7 +92,7 @@
                 </StackPanel.Resources>
                 <DockPanel>
                     <Label Content="{Resx _clipName}"/>
-                    <TextBox Text="{Binding MediaName, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox IsReadOnly="{Binding IsPersistentMedia, Converter={StaticResource InvertedBoolToVis}}" Text="{Binding MediaName, UpdateSourceTrigger=PropertyChanged}" />
                 </DockPanel>
                 <DockPanel>
                     <Label Content="{Resx _fileName}" />

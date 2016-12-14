@@ -81,7 +81,7 @@ namespace TAS.Server
                             XDCAM.Index.Meta xmlClipFileNameMeta = clip.meta.FirstOrDefault(m => m.type == "PD-Meta");
                             string clipFileName = XdcamAlias == null ? clip.clipId : XdcamAlias.value;
                             if (!string.IsNullOrWhiteSpace(clipFileName))
-                                clip.ClipMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXmlDocument($"Clip/{clipFileName}M01.XML"));
+                                clip.ClipMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXmlDocument($"/Clip/{clipFileName}M01.XML"));
                             if (clip.ClipMeta != null)
                             {
                                 LastUpdated = clip.ClipMeta.lastUpdate == default(DateTime) ? clip.ClipMeta.CreationDate.Value : clip.ClipMeta.lastUpdate;
@@ -107,8 +107,8 @@ namespace TAS.Server
                             string edlFileName = XdcamAlias == null ? edl.editlistId : XdcamAlias.value;
                             if (!string.IsNullOrWhiteSpace(edlFileName))
                             {
-                                edl.EdlMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXmlDocument($"Edit/{edlFileName}M01.XML"));
-                                edl.smil = XDCAM.SerializationHelper<XDCAM.Smil>.Deserialize(_readXmlDocument($"Edit/{edlFileName}.SMI"));
+                                edl.EdlMeta = XDCAM.SerializationHelper<XDCAM.NonRealTimeMeta>.Deserialize(_readXmlDocument($"/Edit/{edlFileName}M01.XML"));
+                                edl.smil = XDCAM.SerializationHelper<XDCAM.Smil>.Deserialize(_readXmlDocument($"/Edit/{edlFileName}E01.SMI"));
                             }
                             if (edl.EdlMeta != null)
                             {

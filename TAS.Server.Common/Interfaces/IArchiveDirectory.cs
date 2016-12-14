@@ -9,9 +9,8 @@ namespace TAS.Server.Interfaces
     public interface IArchiveDirectory: IMediaDirectory, IArchiveDirectoryConfig
     {
         IArchiveMedia Find(IMediaProperties media);
-        IArchiveMedia GetArchiveMedia(IMediaProperties media, bool searchExisting = true);
         void ArchiveSave(IServerMedia media, bool deleteAfterSuccess);
-        void ArchiveRestore(IArchiveMedia srcMedia, IServerMedia destMedia, bool toTop);
+        void ArchiveRestore(IArchiveMedia srcMedia, IServerDirectory destDirectory, bool toTop);
         string SearchString { get; set; }
         TMediaCategory? SearchMediaCategory { get; set; }
         void Search();

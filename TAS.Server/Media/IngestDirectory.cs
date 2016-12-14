@@ -486,10 +486,7 @@ namespace TAS.Server
         {
             Debug.WriteLine(newFullPath, "OnMediaRenamed");
             string ext = Path.GetExtension(newFullPath).ToLowerInvariant();
-            if (FileUtils.VideoFileTypes.Contains(ext) || FileUtils.AudioFileTypes.Contains(ext) || FileUtils.StillFileTypes.Contains(ext))
-                media.MediaName = Path.GetFileNameWithoutExtension(newFullPath);
-            else
-                media.MediaName = Path.GetFileName(newFullPath);
+            media.MediaName = FileUtils.GetFileNameWithoutExtension(newFullPath, media.MediaType);
         }
 
         protected override void OnFileChanged(object source, FileSystemEventArgs e)
@@ -574,16 +571,19 @@ namespace TAS.Server
         {
             if (AccessType == TDirectoryAccessType.FTP)
             {
-                if (IsXDCAM)
-                    using (XdcamClient client = new XdcamClient())
+                var client = GetFtpClient() as XdcamClient;
+                if (client != null)
+                {
+                    client.Connect();
+                    try
                     {
-                        Uri uri = new Uri(_folder, UriKind.Absolute);
-                        client.Host = uri.Host;
-                        client.Credentials = _getNetworkCredential();
-                        client.Connect();
                         VolumeFreeSize = client.GetFreeDiscSpace();
+                    }
+                    finally
+                    {
                         client.Disconnect();
                     }
+                }
             }
             else
                 base.GetVolumeInfo();
@@ -593,6 +593,32 @@ namespace TAS.Server
         {
             throw new NotImplementedException();
         }
+
+        public override bool DeleteMedia(IMedia media)
+        {
+            if (AccessType == TDirectoryAccessType.FTP)
+            {
+                if (media.Directory == this)
+                {
+                    FtpClient client = GetFtpClient();
+                    Uri uri = new Uri(media.FullPath);
+                    try
+                    {
+                        client.DeleteFile(uri.LocalPath);
+                        return true;
+                    }
+                    catch (FtpCommandException)
+                    {
+                        return false;
+                    }
+                }
+                else
+                    return false;
+            }
+            else
+                return base.DeleteMedia(media);
+        }            
+
     }
 
 }

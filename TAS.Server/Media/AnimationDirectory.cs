@@ -48,7 +48,7 @@ namespace TAS.Server
             if (newMedia == null && AcceptFile(fullPath))
             {
                 newMedia = (AnimatedMedia)CreateMedia(fullPath, guid);
-                newMedia.MediaName = Path.GetFileNameWithoutExtension(fullPath).ToUpper();
+                newMedia.MediaName = FileUtils.GetFileNameWithoutExtension(fullPath, TMediaType.Animation).ToUpper();
                 newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
                 newMedia.MediaStatus = TMediaStatus.Available;
                 newMedia.Save();

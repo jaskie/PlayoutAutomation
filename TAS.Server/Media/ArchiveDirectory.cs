@@ -82,10 +82,6 @@ namespace TAS.Server
             throw new NotImplementedException();
         }
 
-        //public override void MediaAdd(Media media)
-        //{
-        //    // do not add to _files
-        //}
 
         public override bool DeleteMedia(IMedia media)
         {
@@ -121,16 +117,6 @@ namespace TAS.Server
             ((ArchiveMedia)media).Save();
         }
 
-        public IArchiveMedia GetArchiveMedia(IMediaProperties media, bool searchExisting = true)
-        {
-            ArchiveMedia result = null;
-            if (searchExisting)
-                result = this.DbMediaFind<ArchiveMedia>(media);
-            if (result == null)
-                result = (ArchiveMedia)CreateMedia(media);
-            return result;
-        }
-
         public override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
             string path = Path.Combine(Folder, GetCurrentFolder());
@@ -153,16 +139,12 @@ namespace TAS.Server
                     MediaManager.FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = media}, false);
             }
             else
-            {
-                IArchiveMedia toMedia = GetArchiveMedia(media);
-                _archiveCopy((Media)media, (Media)toMedia, deleteAfterSuccess, false);
-            }
+                _archiveCopy((Media)media, this, deleteAfterSuccess, false);
         }
 
-        public void ArchiveRestore(IArchiveMedia srcMedia, IServerMedia destMedia, bool toTop)
+        public void ArchiveRestore(IArchiveMedia srcMedia, IServerDirectory destDirectory, bool toTop)
         {
-            if (destMedia != null)
-                _archiveCopy((Media)srcMedia, (Media)destMedia, false, toTop);
+                _archiveCopy((Media)srcMedia, destDirectory, false, toTop);
         }
 
         internal string GetCurrentFolder()
@@ -170,11 +152,9 @@ namespace TAS.Server
             return DateTime.UtcNow.ToString("yyyyMM"); 
         }
 
-        private void _archiveCopy(Media fromMedia, Media toMedia, bool deleteAfterSuccess, bool toTop)
+        private void _archiveCopy(Media fromMedia, IMediaDirectory destDirectory, bool deleteAfterSuccess, bool toTop)
         {
-            if (!Directory.Exists(Path.GetDirectoryName(toMedia.FullPath)))
-                Directory.CreateDirectory(Path.GetDirectoryName(toMedia.FullPath));
-            FileOperation operation = new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestDirectory = this };
+            FileOperation operation = new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestDirectory = destDirectory };
             operation.Success += Archived;
             MediaManager.FileManager.Queue(operation, toTop);
         }

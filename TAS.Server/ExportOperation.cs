@@ -98,7 +98,7 @@ namespace TAS.Server
             {
                 using (TempMedia localDestMedia = (TempMedia)Owner.TempDirectory.CreateMedia(SourceMedia))
                 {
-                    DestMedia = CreateDestMedia(destDirectory);
+                    DestMedia = _createDestMedia(destDirectory);
                     DestMedia.PropertyChanged += destMedia_PropertyChanged;
                     try
                     {
@@ -115,18 +115,20 @@ namespace TAS.Server
                     {
                         DestMedia.PropertyChanged -= destMedia_PropertyChanged;
                     }
-                } 
+                }
             }
             else
-                DestMedia = CreateDestMedia(destDirectory);
-            result = _encode(destDirectory, DestMedia.FullPath);
+            {
+                DestMedia = _createDestMedia(destDirectory);
+                result = _encode(destDirectory, DestMedia.FullPath);
+            }
             if (result)
                 DestMedia.MediaStatus = result ? TMediaStatus.Available : TMediaStatus.CopyError;
             if (result) OperationStatus = FileOperationStatus.Finished;
             return result;
         }
 
-        IngestMedia CreateDestMedia(IngestDirectory destDirectory)
+        IngestMedia _createDestMedia(IngestDirectory destDirectory)
         {
             if (destDirectory.IsXDCAM)
             {
@@ -138,7 +140,7 @@ namespace TAS.Server
                 return new IngestMedia(destDirectory)
                 {
                     MediaName = DestMediaName,
-                    FileName = Common.FileUtils.GetUniqueFileName(DestDirectory.Folder, string.Format("{0}.{1}", Path.GetFileNameWithoutExtension(DestMediaName), destDirectory.ExportContainerFormat)),
+                    FileName = Common.FileUtils.GetUniqueFileName(DestDirectory.Folder, string.Format("{0}.{1}", DestMediaName, destDirectory.ExportContainerFormat)),
                     MediaStatus = TMediaStatus.Copying
                 };
         }

@@ -176,10 +176,7 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = (ob) =>
                     {
-                        ThreadPool.QueueUserWorkItem(o =>
-                            {
-                                _refreshMediaDirectory(SelectedDirectory);
-                            });
+                        _refreshMediaDirectory(SelectedDirectory);
                     },
                 CanExecuteDelegate = (o) =>
                 {
@@ -284,7 +281,7 @@ namespace TAS.Client.ViewModels
                     string destFileName = FileUtils.GetUniqueFileName(directory.Folder, $"{Path.GetFileNameWithoutExtension(sourceMedia.FileName)}{FileUtils.DefaultFileExtension(sourceMedia.MediaType)}");
                     destMediaProperties = new PersistentMediaProxy() {
                         FileName = destFileName,
-                        MediaName = sourceMedia.MediaName,
+                        MediaName = FileUtils.GetFileNameWithoutExtension(sourceMedia.FileName, sourceMedia.MediaType),
                         MediaType = sourceMedia.MediaType == TMediaType.Unknown ? TMediaType.Movie : sourceMedia.MediaType,
                         Duration = sourceMedia.Duration,
                         DurationPlay = sourceMedia.DurationPlay,
@@ -657,7 +654,7 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged(nameof(ItemsCount));
         }
 
-        public bool DisplayDirectoryInfo { get { return _selectedDirectory is IServerDirectory || _selectedDirectory is IArchiveDirectory || (_selectedDirectory is IIngestDirectory && ((IIngestDirectory)_selectedDirectory).AccessType == TDirectoryAccessType.Direct); } }
+        public bool DisplayDirectoryInfo { get { return _selectedDirectory is IServerDirectory || _selectedDirectory is IArchiveDirectory || (_selectedDirectory is IIngestDirectory && (((IIngestDirectory)_selectedDirectory).AccessType == TDirectoryAccessType.Direct || ((IIngestDirectory)(_selectedDirectory)).IsXDCAM)); } }
         public bool IsMediaDirectoryFine { get { return _selectedDirectory?.IsInitialized == true && DirectoryFreePercentage >= 20; } }
         public float DirectoryTotalSpace { get { return _selectedDirectory == null ? 0F : _selectedDirectory.VolumeTotalSize / (1073741824F); } }
         public float DirectoryFreeSpace { get { return _selectedDirectory == null ? 0F : _selectedDirectory.VolumeFreeSize / (1073741824F); } }

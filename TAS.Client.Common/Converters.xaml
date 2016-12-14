@@ -10,6 +10,7 @@
     <common:MediaEmphasisToBrushConverter x:Key="MediaEmphasisToBrush" />
     <common:InvertedBooleanToVisibilityConverter x:Key="InvertedBoolToVis" />
     <common:NullToVisibilityConverter x:Key="NullToVis"/>
+    <common:ZeroToVisibilityConverter x:Key="ZeroToVis"/>
     <common:StringArrayToDelimitedStringConverter x:Key="StringArrayToDelimitedString"/>
     <common:DateTimeToStringConverter x:Key="DateTimeToStringConverter"/>
     <common:TimeOfDayToStringConverter x:Key="TimeOfDayToStringConverter"/>

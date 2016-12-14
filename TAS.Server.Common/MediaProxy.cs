@@ -67,7 +67,7 @@ namespace TAS.Server.Common
         public ulong IdPersistentMedia { get; set; }
         public bool Protected { get; set; }
         public string IdAux { get; set; }
-        public static PersistentMediaProxy FromMedia(IPersistentMedia media)
+        internal static PersistentMediaProxy FromMedia(IPersistentMedia media)
         {
             return new PersistentMediaProxy()
             {

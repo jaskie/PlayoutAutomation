@@ -31,7 +31,7 @@ namespace TAS.Server.Common
                 case TMediaType.Animation:
                     return AnimationFileTypes[0];
                 default:
-                    throw new NotImplementedException($"MediaDirectory:DefaultFileExtension {type}");
+                    throw new NotImplementedException($"FileUtils::DefaultFileExtension {type}");
             }
         }
 
@@ -68,6 +68,25 @@ namespace TAS.Server.Common
                 return name;
             }
             throw new ApplicationException("Could not create unique filename in " + maxAttempts + " attempts");
+        }
+
+        public static string GetFileNameWithoutExtension(string fileName, TMediaType mediaType)
+        {
+            string fileExt = Path.GetExtension(fileName).ToLowerInvariant();
+            switch (mediaType)
+            {
+                case TMediaType.Movie:
+                case TMediaType.Unknown:
+                    return VideoFileTypes.Contains(fileExt) ? Path.GetFileNameWithoutExtension(fileName) : Path.GetFileName(fileName);
+                case TMediaType.Still:
+                    return StillFileTypes.Contains(fileExt) ? Path.GetFileNameWithoutExtension(fileName) : Path.GetFileName(fileName);
+                case TMediaType.Audio:
+                    return AudioFileTypes.Contains(fileExt) ? Path.GetFileNameWithoutExtension(fileName) : Path.GetFileName(fileName);
+                case TMediaType.Animation:
+                    return AnimationFileTypes.Contains(fileExt) ? Path.GetFileNameWithoutExtension(fileName) : Path.GetFileName(fileName);
+                default:
+                    throw new NotImplementedException($"FileUtils::ExtractFilenameWithoutExtension {mediaType}");
+            }
         }
 
     }
