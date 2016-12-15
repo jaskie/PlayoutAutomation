@@ -41,7 +41,8 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged(nameof(IsConcatMediaNameVisible));
                     NotifyPropertyChanged(nameof(IsXDCAM));
                     NotifyPropertyChanged(nameof(IsMXF));
-                    if (value?.ExportContainerFormat == TMediaExportContainerFormat.mxf)
+                    if (value?.ExportContainerFormat == TMediaExportContainerFormat.mxf 
+                        || value?.IsXDCAM == true)
                     {
                         MXFAudioExportFormat = value.MXFAudioExportFormat;
                         MXFVideoExportFormat = value.MXFVideoExportFormat;

@@ -16,10 +16,7 @@ namespace TAS.Server.XDCAM
             if (media == null || media.Directory == null)
                 throw new ApplicationException();
             //var fileName = string.Join(media.Directory.PathSeparator.ToString(), media.Directory.Folder, "Clip",  $"{media.XdcamClipAlias?.clipId ?? media.XdcamClip.clipId}.MXF");
-            _client = new XdcamClient();
-            _client.Credentials = ((IngestDirectory)media.Directory)._getNetworkCredential();
-            _client.Host = new Uri(media.Directory.Folder).Host;
-            _client.UngracefullDisconnection = true;
+            _client = ((IngestDirectory)media.Directory).GetFtpClient();
             try
             {
                 _client.Connect();
@@ -41,7 +38,7 @@ namespace TAS.Server.XDCAM
             }
             catch
             {
-                _client.Dispose();
+                _client.Disconnect();
             }
 
         }
@@ -50,7 +47,7 @@ namespace TAS.Server.XDCAM
         private int _smil_index;
         private readonly XDCAMMedia _media;
         private Stream _currentStream;
-        private readonly XdcamClient _client;
+        private readonly FtpClient _client;
 
         protected override void Dispose(bool disposing)
         {
@@ -64,12 +61,12 @@ namespace TAS.Server.XDCAM
                         stream.Flush();
                         stream.Close();
                     }
-                    _client.Dispose();
                 }
             }
             finally
             {
                 base.Dispose(disposing);
+                _client.Disconnect();
             }
         }
 
@@ -113,7 +110,7 @@ namespace TAS.Server.XDCAM
                         string fileName = string.Join("/", "/Clip", $"{media.XdcamClip.clipId}.MXF");
                         if (!_client.FileExists(fileName))
                             fileName = string.Join("/", "/Clip", $"{media.XdcamAlias.value}.MXF");
-                        result = _client.OpenPart(fileName, startFrame, length);
+                        result = ((XdcamClient)_client).OpenPart(fileName, startFrame, length);
                     }
                 }
                 _smil_index++;

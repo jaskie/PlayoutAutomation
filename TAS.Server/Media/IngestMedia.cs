@@ -17,8 +17,9 @@ namespace TAS.Server
 
         public override bool FileExists()
         {
-            if (((IngestDirectory)_directory).AccessType == TDirectoryAccessType.FTP)
-                return true;
+            var dir = _directory as IngestDirectory;
+            if (dir?.AccessType == TDirectoryAccessType.FTP)
+                return dir.FileExists(_fileName, _folder);
             else
                 return base.FileExists();
         }

@@ -1522,7 +1522,7 @@ namespace System.Net.FtpClient {
         public virtual Stream OpenWrite(string path, FtpDataType type) {
             FtpClient client = null;
             FtpDataStream stream = null;
-            long length = 0;
+            //long length = 0;
 
             try {
                 m_lock.WaitOne();
@@ -1537,11 +1537,11 @@ namespace System.Net.FtpClient {
                 }
 
                 client.SetDataType(type);
-                length = client.GetFileSize(path);
+                //length = client.GetFileSize(path);
                 stream = client.OpenDataStream(string.Format("STOR {0}", path.GetFtpPath()), 0);
 
-                if (length > 0 && stream != null)
-                    stream.SetLength(length);
+                //if (length > 0 && stream != null)
+                //    stream.SetLength(length);
             }
             finally {
                 m_lock.ReleaseMutex();

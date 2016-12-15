@@ -21,6 +21,7 @@ namespace System.Net.FtpClient
         {
             EnableThreadSafeDataConnections = false;
             DataConnectionType = FtpDataConnectionType.PASV;
+            UngracefullDisconnection = true;
         }
 
         /// <summary>

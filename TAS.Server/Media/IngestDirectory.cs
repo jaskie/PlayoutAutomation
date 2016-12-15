@@ -617,7 +617,26 @@ namespace TAS.Server
             }
             else
                 return base.DeleteMedia(media);
-        }            
+        }
+
+        public override bool FileExists(string filename, string subfolder = null)
+        {
+            if (AccessType == TDirectoryAccessType.FTP)
+            {
+                FtpClient client = GetFtpClient();
+                Uri uri = new Uri(_folder + (string.IsNullOrWhiteSpace(subfolder) ? "/" : $"/{subfolder}/") + filename);
+                try
+                {
+                    return client.FileExists(uri.LocalPath);
+                }
+                catch (FtpCommandException)
+                {
+                    return false;
+                }
+            }
+            else
+                return base.FileExists(filename, subfolder);
+        }
 
     }
 

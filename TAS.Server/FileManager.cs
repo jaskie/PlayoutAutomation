@@ -157,7 +157,7 @@ namespace TAS.Server
                             {
                                 op.Fail();
                                 NotifyOperation(OperationCompleted, op);
-                                if (op.DestMedia != null)
+                                if (op.DestMedia?.FileExists() == true)
                                     op.DestMedia.Delete();
                             }
                         }
