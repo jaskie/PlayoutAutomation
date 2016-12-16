@@ -271,12 +271,17 @@ namespace TAS.Client.ViewModels
             if (currentDir is IIngestDirectory)
             {
                 List<IConvertOperation> ingestList = new List<IConvertOperation>();
-                foreach (IMedia sourceMedia in _getSelections())
+                var selectedMedia = _getSelections();
+                ThreadPool.QueueUserWorkItem(o =>
                 {
-                    if (sourceMedia is IIngestMedia
-                        && ((IIngestDirectory)sourceMedia.Directory).AccessType == TDirectoryAccessType.Direct
-                        && !sourceMedia.IsVerified)
-                        sourceMedia.ReVerify();
+                    selectedMedia.ForEach(m =>
+                    {
+                        if (!m.IsVerified)
+                            m.Verify();
+                    });
+                });
+                foreach (IMedia sourceMedia in selectedMedia)
+                {
                     IPersistentMediaProperties destMediaProperties = null;
                     string destFileName = FileUtils.GetUniqueFileName(directory.Folder, $"{Path.GetFileNameWithoutExtension(sourceMedia.FileName)}{FileUtils.DefaultFileExtension(sourceMedia.MediaType)}");
                     destMediaProperties = new PersistentMediaProxy() {

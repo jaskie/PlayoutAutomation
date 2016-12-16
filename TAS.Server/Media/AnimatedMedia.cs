@@ -71,7 +71,7 @@ namespace TAS.Server
                 Fields = a.Fields;
         }
 
-        internal override void Verify()
+        public override void Verify()
         {
             if (FileExists())
             {

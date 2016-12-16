@@ -367,7 +367,7 @@ namespace TAS.Server
             ThreadPool.QueueUserWorkItem((o) => Verify());
         }
 
-        internal virtual void Verify()
+        public virtual void Verify()
         {
             if (IsVerified || (_mediaStatus == TMediaStatus.Copying) || (_mediaStatus == TMediaStatus.CopyPending || _mediaStatus == TMediaStatus.Required))
                 return;

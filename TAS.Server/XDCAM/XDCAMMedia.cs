@@ -65,7 +65,7 @@ namespace TAS.Server.XDCAM
             }
         }
 
-        internal override void Verify()
+        public override void Verify()
         {
             try
             {
