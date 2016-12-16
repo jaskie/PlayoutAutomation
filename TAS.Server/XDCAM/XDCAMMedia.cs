@@ -8,7 +8,7 @@ using System.Threading;
 using TAS.Common;
 using TAS.Server.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.XDCAM
 {
     public class XDCAMMedia : IngestMedia, IXdcamMedia
     {
