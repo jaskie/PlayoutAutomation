@@ -136,6 +136,7 @@ namespace TAS.Server
         public TVideoFormat VideoFormat { get; set; }
 
         [XmlIgnore]
+        [JsonProperty]
         public VideoFormatDescription FormatDescription { get; private set; }
 
         public void Initialize(IEnumerable<IPlayoutServer> servers)

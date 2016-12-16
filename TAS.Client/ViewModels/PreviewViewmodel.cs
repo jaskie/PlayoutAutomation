@@ -16,7 +16,7 @@ namespace TAS.Client.ViewModels
         private IEvent _event;
         private readonly IPreview _preview;
         private readonly IPlayoutServerChannel _channelPRV;
-        private readonly RationalNumber _frameRate;
+        private readonly VideoFormatDescription _formatDescription;
         private readonly Views.PreviewView _view;
         public PreviewViewmodel(IPreview preview)
         {
@@ -25,8 +25,8 @@ namespace TAS.Client.ViewModels
             if (_channelPRV != null)
                 _channelPRV.OwnerServer.PropertyChanged += this.OnServerPropertyChanged;
             _preview = preview;
-            _frameRate = _preview.FormatDescription.FrameRate;
-            _view = new Views.PreviewView(_frameRate) { DataContext = this };
+            _formatDescription = _preview.FormatDescription;
+            _view = new Views.PreviewView(_formatDescription.FrameRate) { DataContext = this };
             CreateCommands();
         }
 
@@ -167,21 +167,21 @@ namespace TAS.Client.ViewModels
             IMedia media = _event != null ? _event.Media: Media;
             decimal audioVolume = _event != null && _event.AudioVolume != null ? (decimal)_event.AudioVolume : media != null ? media.AudioVolume : 0M;
             if (media != null
-                && duration.Ticks >= _preview.FormatDescription.FrameTicks)
+                && duration.Ticks >= _formatDescription.FrameTicks)
             {
                 TcIn = tcIn;
-                TcOut = tcIn + duration - TimeSpan.FromTicks(_preview.FormatDescription.FrameTicks);
+                TcOut = tcIn + duration - TimeSpan.FromTicks(_formatDescription.FrameTicks);
                 if (reloadSegments && media is IServerMedia)
                 {
                     MediaSegments.Clear();
                     foreach (IMediaSegment ms in ((IServerMedia)media).MediaSegments.ToList())
                         MediaSegments.Add(new MediaSegmentViewmodel((IServerMedia)media, ms));
                 }
-                _loadedSeek = (tcIn.Ticks - media.TcStart.Ticks) / _preview.FormatDescription.FrameTicks;
+                _loadedSeek = (tcIn.Ticks - media.TcStart.Ticks) / _formatDescription.FrameTicks;
                 long newPosition = _preview.PreviewLoaded ? _preview.PreviewSeek + _preview.PreviewPosition - _loadedSeek : 0;
                 if (newPosition < 0)
                     newPosition = 0;
-                _loadedDuration = duration.Ticks / _preview.FormatDescription.FrameTicks;
+                _loadedDuration = duration.Ticks / _formatDescription.FrameTicks;
                 _loadedMedia = media;
                 _preview.PreviewLoad(media, _loadedSeek, _loadedDuration, newPosition, audioVolume);
             }
@@ -219,17 +219,17 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public TimeSpan DurationSelection { get { return new TimeSpan(TcOut.Ticks - TcIn.Ticks + _preview.FormatDescription.FrameTicks); } }
+        public TimeSpan DurationSelection { get { return new TimeSpan(TcOut.Ticks - TcIn.Ticks + _formatDescription.FrameTicks); } }
 
         public TimeSpan Position
         {
             get
             {
-                return _preview.PreviewMedia == null ? TimeSpan.Zero : TimeSpan.FromTicks((long)((_preview.PreviewPosition + _preview.PreviewSeek) * TimeSpan.TicksPerSecond * _frameRate.Den / _frameRate.Num + _preview.PreviewMedia.TcStart.Ticks));
+                return _preview.PreviewMedia == null ? TimeSpan.Zero : TimeSpan.FromTicks((long)((_preview.PreviewPosition + _preview.PreviewSeek) * TimeSpan.TicksPerSecond * _formatDescription.FrameRate.Den / _formatDescription.FrameRate.Num + _preview.PreviewMedia.TcStart.Ticks));
             }
             set
             {
-                _preview.PreviewPosition = (value.Ticks - StartTc.Ticks) / _preview.FormatDescription.FrameTicks - _loadedSeek;
+                _preview.PreviewPosition = (value.Ticks - StartTc.Ticks) / _formatDescription.FrameTicks - _loadedSeek;
             }
         }
 
@@ -275,7 +275,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public long FramesPerSecond { get { return _frameRate.Num / _frameRate.Den; } }
+        public long FramesPerSecond { get { return _formatDescription.FrameRate.Num / _formatDescription.FrameRate.Den; } }
 
         public void OnServerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
