@@ -10,7 +10,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
-    public class CasparServer: IPlayoutServerConfig
+    public class CasparServer: IPlayoutServerProperties
     {
         public CasparServer()
         {

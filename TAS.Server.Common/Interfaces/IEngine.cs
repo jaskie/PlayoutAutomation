@@ -10,7 +10,7 @@ using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IEngine : IDto, IEngineConfig, IPreview, INotifyPropertyChanged
+    public interface IEngine : IDto, IEngineProperties, IPreview, INotifyPropertyChanged
     {
         long FrameTicks { get; }
         IPlayoutServerChannel PlayoutChannelPRI { get; }
@@ -95,5 +95,25 @@ namespace TAS.Server.Interfaces
         event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
         event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
+    }
+
+    public interface IEngineProperties : IPersistent
+    {
+        TAspectRatioControl AspectRatioControl { get; set; }
+        string EngineName { get; set; }
+        int TimeCorrection { get; set; }
+        TVideoFormat VideoFormat { get; set; }
+        double VolumeReferenceLoudness { get; set; }
+        bool EnableCGElementsForNewEvents { get; set; }
+        TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
+        int CGStartDelay { get; set; }
+        ulong Instance { get; set; }
+        ulong IdServerPRI { get; set; }
+        int ServerChannelPRI { get; set; }
+        ulong IdServerSEC { get; set; }
+        int ServerChannelSEC { get; set; }
+        ulong IdServerPRV { get; set; }
+        int ServerChannelPRV { get; set; }
+        ulong IdArchive { get; set; }
     }
 }

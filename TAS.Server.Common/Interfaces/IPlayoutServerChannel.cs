@@ -7,8 +7,16 @@ using TAS.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IPlayoutServerChannel: Remoting.IDto, IPlayoutServerChannelConfig, IInitializable, INotifyPropertyChanged
+    public interface IPlayoutServerChannel: Remoting.IDto, IPlayoutServerChannelProperties, IInitializable, INotifyPropertyChanged
     {
         IPlayoutServer OwnerServer { get; set; }
+    }
+
+    public interface IPlayoutServerChannelProperties
+    {
+        string ChannelName { get; set; }
+        int ChannelNumber { get; set; }
+        decimal MasterVolume { get; set; }
+        string LiveDevice { get; set; }
     }
 }

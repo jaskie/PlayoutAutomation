@@ -7,7 +7,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
-    public class CasparServerChannel: IPlayoutServerChannelConfig
+    public class CasparServerChannel: IPlayoutServerChannelProperties
     {
         public CasparServerChannel()
         {

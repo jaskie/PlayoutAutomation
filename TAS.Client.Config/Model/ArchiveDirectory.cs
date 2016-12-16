@@ -6,7 +6,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
-    public class ArchiveDirectory: IArchiveDirectoryConfig
+    public class ArchiveDirectory: IArchiveDirectoryProperties
     {
         ulong _idArchive;
         public ulong idArchive { get { return _idArchive; }  set { SetField(ref _idArchive, value); } }

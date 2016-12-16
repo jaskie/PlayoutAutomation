@@ -5,8 +5,12 @@ using System.Text;
 
 namespace TAS.Server.Interfaces
 {
-    [System.ServiceModel.ServiceContract]
-    public interface IServerDirectory: IMediaDirectory
+    public interface IServerDirectory: IMediaDirectory, IServerDirectoryProperties
     {
+    }
+
+    public interface IServerDirectoryProperties : IMediaDirectoryProperties
+    {
+
     }
 }

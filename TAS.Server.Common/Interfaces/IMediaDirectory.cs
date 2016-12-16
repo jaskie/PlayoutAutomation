@@ -9,7 +9,7 @@ using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IMediaDirectory : IMediaDirectoryConfig, IDto, INotifyPropertyChanged, IDisposable
+    public interface IMediaDirectory : IMediaDirectoryProperties, IDto, INotifyPropertyChanged, IDisposable
     {
         bool FileExists(string filename, string subfolder = null);
         bool DirectoryExists();
@@ -28,5 +28,11 @@ namespace TAS.Server.Interfaces
         event EventHandler<MediaEventArgs> MediaVerified;
         event EventHandler<MediaEventArgs> MediaDeleted;
         event EventHandler<MediaPropertyChangedEventArgs> MediaPropertyChanged;
+    }
+
+    public interface IMediaDirectoryProperties
+    {
+        string DirectoryName { get; set; }
+        string Folder { get; set; }
     }
 }

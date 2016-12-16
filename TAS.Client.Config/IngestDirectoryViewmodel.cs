@@ -6,7 +6,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.Config
 {
-    public class IngestDirectoryViewmodel: EditViewmodelBase<IngestDirectory>, IIngestDirectoryConfig
+    public class IngestDirectoryViewmodel: EditViewmodelBase<IngestDirectory>, IIngestDirectoryProperties
     {
         // only required by serializer
         public IngestDirectoryViewmodel(IngestDirectory model):base(model, new IngestDirectoryView())

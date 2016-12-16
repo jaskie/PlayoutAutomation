@@ -158,7 +158,7 @@ namespace TAS.Server.Database
 
         #region IPlayoutServer
 
-        public static List<T> DbLoadServers<T>() where T : IPlayoutServerConfig
+        public static List<T> DbLoadServers<T>() where T : IPlayoutServerProperties
         {
             List<T> servers = new List<T>();
             lock (_connection)
@@ -180,7 +180,7 @@ namespace TAS.Server.Database
             return servers;
         }
 
-        public static void DbInsertServer(this IPlayoutServerConfig server) 
+        public static void DbInsertServer(this IPlayoutServerProperties server) 
         {
             lock (_connection)
             {
@@ -198,7 +198,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbUpdateServer(this IPlayoutServerConfig server) 
+        public static void DbUpdateServer(this IPlayoutServerProperties server) 
         {
             lock (_connection)
             {
@@ -215,7 +215,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbDeleteServer(this IPlayoutServerConfig server) 
+        public static void DbDeleteServer(this IPlayoutServerProperties server) 
         {
             lock (_connection)
             {
@@ -229,7 +229,7 @@ namespace TAS.Server.Database
 
         #region IEngine
 
-        public static List<T> DbLoadEngines<T>(ulong? instance = null) where T : IEngineConfig
+        public static List<T> DbLoadEngines<T>(ulong? instance = null) where T : IEngineProperties
         {
             List<T> engines = new List<T>();
             lock (_connection)
@@ -266,7 +266,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbInsertEngine(this IEngineConfig engine) 
+        public static void DbInsertEngine(this IEngineProperties engine) 
         {
             lock (_connection)
             {
@@ -292,7 +292,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbUpdateEngine(this IEngineConfig engine)
+        public static void DbUpdateEngine(this IEngineProperties engine)
         {
             lock (_connection)
             {
@@ -316,7 +316,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbDeleteEngine(this IEngineConfig engine) 
+        public static void DbDeleteEngine(this IEngineProperties engine) 
         {
             lock (_connection)
             {
@@ -440,7 +440,7 @@ namespace TAS.Server.Database
         #endregion //IEngine
 
         #region ArchiveDirectory
-        public static List<T> DbLoadArchiveDirectories<T>() where T : IArchiveDirectoryConfig, new()
+        public static List<T> DbLoadArchiveDirectories<T>() where T : IArchiveDirectoryProperties, new()
         {
             List<T> directories = new List<T>();
             lock (_connection)
@@ -462,7 +462,7 @@ namespace TAS.Server.Database
             return directories;
         }
 
-        public static void DbInsertArchiveDirectory(this IArchiveDirectoryConfig dir) 
+        public static void DbInsertArchiveDirectory(this IArchiveDirectoryProperties dir) 
         {
             lock (_connection)
             {
@@ -475,7 +475,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbUpdateArchiveDirectory(this IArchiveDirectoryConfig dir)
+        public static void DbUpdateArchiveDirectory(this IArchiveDirectoryProperties dir)
         {
             lock (_connection)
             {
@@ -486,7 +486,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbDeleteArchiveDirectory(this IArchiveDirectoryConfig dir) 
+        public static void DbDeleteArchiveDirectory(this IArchiveDirectoryProperties dir) 
         {
             lock (_connection)
             {

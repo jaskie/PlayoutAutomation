@@ -15,11 +15,11 @@ namespace TAS.Client.Model
         
         public string SearchString { get { return Get<string>(); } set { Set(value); } }
 
-        public void ArchiveRestore(IArchiveMedia srcMedia, IServerMedia destMedia, bool toTop)
+        public void ArchiveRestore(IArchiveMedia srcMedia, IServerDirectory destDirectory, bool toTop)
         {
-            Invoke(parameters: new object[] { srcMedia, destMedia, toTop });
+            Invoke(parameters: new object[] { srcMedia, destDirectory, toTop });
         }
-
+        
         public void ArchiveSave(IServerMedia media, bool deleteAfterSuccess)
         {
             Invoke(parameters: new object[] { media, deleteAfterSuccess});
@@ -37,13 +37,6 @@ namespace TAS.Client.Model
             return ret;
         }
 
-        public IArchiveMedia GetArchiveMedia(IMediaProperties media, bool searchExisting = true)
-        {
-            var ret = Query<ArchiveMedia>(parameters: new object[] { media, searchExisting });
-            ret.Directory = this;
-            return ret;
-        }
-        
         public void Search()
         {
             Invoke();

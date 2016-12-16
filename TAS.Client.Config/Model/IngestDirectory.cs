@@ -8,7 +8,7 @@ using TAS.Common;
 
 namespace TAS.Client.Config.Model
 {
-    public class IngestDirectory: TAS.Server.Interfaces.IIngestDirectoryConfig
+    public class IngestDirectory: TAS.Server.Interfaces.IIngestDirectoryProperties
     {
         public IngestDirectory()
         {
