@@ -47,7 +47,7 @@ namespace TAS.Common
         {
             if (rate.IsInvalid)
                 return 0L;
-            return t.Ticks * rate.Num / (TimeSpan.TicksPerSecond * rate.Den);
+            return (t.Ticks +1) * rate.Num / (TimeSpan.TicksPerSecond * rate.Den);
         }
 
         public static TimeSpan SMPTEFramesToTimeSpan(this long totalFrames, RationalNumber rate)
@@ -61,7 +61,7 @@ namespace TAS.Common
         {
             if (frameRate.IsInvalid || frameRate.IsZero)
                 return TimeSpan.Zero;
-            return TimeSpan.FromTicks((t.Ticks * frameRate.Num / (TimeSpan.TicksPerSecond * frameRate.Den)) * TimeSpan.TicksPerSecond * frameRate.Den / frameRate.Num);
+            return TimeSpan.FromTicks(((t.Ticks +1) * frameRate.Num / (TimeSpan.TicksPerSecond * frameRate.Den)) * TimeSpan.TicksPerSecond * frameRate.Den / frameRate.Num);
         }
 
         public static TimeSpan SMPTEFramesToTimeSpan(this long totalFrames, string frameRate)
