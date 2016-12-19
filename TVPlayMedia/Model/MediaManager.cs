@@ -33,7 +33,7 @@ namespace TAS.Client.Model
         public IArchiveDirectory ArchiveDirectory { get { return Get<ArchiveDirectory>(); } set { SetField(value); } }
 
 
-        public IFileManager FileManager { get { return Get<IFileManager>(); }  set { SetField(value); } }
+        public IFileManager FileManager { get { return Get<FileManager>(); }  set { SetField(value); } }
 
         public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetField(value); } }
 

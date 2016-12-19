@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -21,14 +22,22 @@ namespace TAS.Remoting
             }
         }
 
+        private void _referencePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            ReferencePropertyChanged?.Invoke(sender, e);
+        }
+
         public string GetReference(object context, object value)
         {
             IDto p = value as IDto;
             if (p != null)
             {
                 if (p.DtoGuid == Guid.Empty)
+                {
                     p.DtoGuid = Guid.NewGuid();
-                _knownDtos[p.DtoGuid] = p;
+                    _knownDtos[p.DtoGuid] = p;
+                    p.PropertyChanged += _referencePropertyChanged;
+                }
                 return p.DtoGuid.ToString();
             }
             return string.Empty;
@@ -56,5 +65,8 @@ namespace TAS.Remoting
             _knownDtos.TryGetValue(reference, out p);
             return p;
         }
+
+        public event EventHandler<PropertyChangedEventArgs> ReferencePropertyChanged;
+
     }
 }

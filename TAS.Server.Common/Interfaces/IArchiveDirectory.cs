@@ -16,9 +16,8 @@ namespace TAS.Server.Interfaces
         void Search();
     }
 
-    public interface IArchiveDirectoryProperties
+    public interface IArchiveDirectoryProperties: IMediaDirectoryProperties
     {
         ulong idArchive { get; set; }
-        string Folder { get; set; }
     }
 }

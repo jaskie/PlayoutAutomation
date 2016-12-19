@@ -46,8 +46,10 @@ namespace TAS.Client
                     return typeof(Model.PlayoutServerChannel);
                 case "TAS.Server.CasparServer":
                     return typeof(Model.PlayoutServer);
-                case "TAS.Server.CGElementsController":
+                case "TAS.Server.CGElementsControllerTVP":
                     return typeof(Model.CGElementsController);
+                case "System.Collections.Generic.List`1[[TAS.Server.CGElement, TAS.Server.CGElementsControllerTVP]]":
+                    return typeof(List<Model.CGElement>);
                 case "TAS.Server.CGElement":
                     return typeof(Model.CGElement);
                 case "Interfaces.IIngestDirectory":
@@ -64,5 +66,11 @@ namespace TAS.Client
                         return Type.GetType(string.Format("{0}, {1}", typeName, assemblyName), true);
             }
         }
+
+        public override void BindToName(Type serializedType, out string assemblyName, out string typeName)
+        {
+            base.BindToName(serializedType, out assemblyName, out typeName);
+        }
+        
     }
 }

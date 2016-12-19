@@ -131,28 +131,13 @@ namespace TAS.Remoting.Client
 
         void NotifyPropertyChanged(string propertyName)
         {
-            var h = _propertyChanged;
-            if (h != null)
-                h(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private ConcurrentDictionary<string, object> _properties = new ConcurrentDictionary<string, object>();
 
-        private event PropertyChangedEventHandler _propertyChanged;
-        public event PropertyChangedEventHandler PropertyChanged
-        {
-            add
-            {
-                EventAdd(_propertyChanged);
-                _propertyChanged += value;
-            }
-            remove
-            {
-                _propertyChanged -= value;
-                EventRemove(_propertyChanged);
-            }
-        }
-
+        public event PropertyChangedEventHandler PropertyChanged;
+        
         [OnDeserialized]
         internal void OnDeserializedMethod(StreamingContext context)
         {

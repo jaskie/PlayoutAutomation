@@ -66,6 +66,7 @@ namespace TAS.Server
         private IEnumerable<IGpi> _localGpis;
         private IEnumerable<IEnginePlugin> _plugins;
         private ICGElementsController _cgElementsController;
+        [JsonProperty(TypeNameHandling = TypeNameHandling.None)]
         public ICGElementsController CGElementsController { get { return _cgElementsController; } }
 
         public RemoteHost Remote { get; set; }

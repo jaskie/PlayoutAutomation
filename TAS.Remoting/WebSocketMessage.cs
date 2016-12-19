@@ -7,6 +7,7 @@ namespace TAS.Remoting
     [JsonObject(MemberSerialization.OptIn, IsReference = false)]
     public class WebSocketMessage
     {
+        [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public enum WebSocketMessageType
         {
             RootQuery,

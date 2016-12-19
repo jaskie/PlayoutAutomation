@@ -50,7 +50,7 @@ namespace TAS.Client.Model
         public bool FieldOrderInverted { get { return Get<bool>(); } set { Set(value); } }
 
 
-        public IMediaManager MediaManager { get { return Get<IMediaManager>(); } set { SetField(value); } }
+        public IMediaManager MediaManager { get { return Get<MediaManager>(); } set { SetField(value); } }
 
         public IEvent NextToPlay
         {

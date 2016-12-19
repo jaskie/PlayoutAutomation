@@ -17,17 +17,17 @@ namespace TAS.Server
         [XmlAttribute]
         public string EndpointAddress { get; set; }
         [XmlIgnore]
-        public TAS.Server.Engine Engine { get; private set; }
+        public Engine Engine { get; private set; }
         WebSocketServer _server;
         static SerializationBinder ServerBinder = new ServerBinder();
-        public bool Initialize(TAS.Server.Engine engine)
+        public bool Initialize(Engine engine)
         {
             if (string.IsNullOrEmpty(EndpointAddress))
                 return false;
             try
             {
                 _server = new WebSocketServer(string.Format("ws://{0}", EndpointAddress));
-                _server.AddWebSocketService<CommunicationBehavior>("/Engine", () => new CommunicationBehavior(engine as Engine) {Binder = ServerBinder});
+                _server.AddWebSocketService<CommunicationBehavior>("/Engine", () => new CommunicationBehavior(engine) {Binder = ServerBinder});
                 _server.Start();
                 return true;
             }

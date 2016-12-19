@@ -16,6 +16,9 @@ namespace TAS.Client.Config.Model
         public bool IsModified { get { return _isModified; } internal set { _isModified = value; } }
         private bool _deleted;
 
+        public string DirectoryName { get; set; }
+        
+
         public void Delete()
         {
             _deleted = true;

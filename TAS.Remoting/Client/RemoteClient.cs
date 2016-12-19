@@ -127,7 +127,7 @@ namespace TAS.Remoting.Client
                        return response;
                }
                while (timeout.ElapsedMilliseconds < query_timeout);
-               throw new TimeoutException(string.Format("Didn't received response from server within {0} milliseconds. Query was {1}", query_timeout, sendedMessage));
+               throw new TimeoutException($"Didn't received response from server within {query_timeout} milliseconds. Query was {sendedMessage}");
            });
             IAsyncResult funcAsyncResult = resultFunc.BeginInvoke(null, null);
             funcAsyncResult.AsyncWaitHandle.WaitOne();
