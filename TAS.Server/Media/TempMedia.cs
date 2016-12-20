@@ -50,11 +50,10 @@ namespace TAS.Server
             get { return OriginalMedia == null ? _audioVolume : OriginalMedia.AudioVolume; }
         }
 
-        private bool _disposed = false;
-        public void Dispose()
+        protected override void DoDispose()
         {
-            if (!_disposed)
-                _directory.DeleteMedia(this);
+            base.DoDispose();
+            _directory.DeleteMedia(this);
         }
 
     }

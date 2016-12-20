@@ -87,28 +87,24 @@ namespace TAS.Server
             _mediaManager = new MediaManager(this);
             Database.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
         }
-        
+
         #endregion Constructor
 
         #region IDisposable implementation
 
-        private bool _disposed = false;
-        public void Dispose()
+        protected override void DoDispose()
         {
-            if (!_disposed)
-            {
-                _disposed = true;
-                _visibleEvents.CollectionOperation -= _visibleEventsOperation;
-                _runningEvents.CollectionOperation -= _runningEventsOperation;
-                foreach (Event e in _rootEvents)
-                    e.SaveLoadedTree();
-                if (_cgElementsController != null)
-                    _cgElementsController.Dispose();
-                var remote = Remote;
-                if (remote != null)
-                    remote.Dispose();
-                Database.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
-            }
+            base.DoDispose();
+            _visibleEvents.CollectionOperation -= _visibleEventsOperation;
+            _runningEvents.CollectionOperation -= _runningEventsOperation;
+            foreach (Event e in _rootEvents)
+                e.SaveLoadedTree();
+            if (_cgElementsController != null)
+                _cgElementsController.Dispose();
+            var remote = Remote;
+            if (remote != null)
+                remote.Dispose();
+            Database.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
         }
 
         #endregion //IDisposable
@@ -288,7 +284,7 @@ namespace TAS.Server
                     e.Save();
                 }
 
-            while (!_disposed)
+            while (!IsDisposed)
             {
                 try
                 {
@@ -1537,6 +1533,7 @@ namespace TAS.Server
         {
             _removeEvent(sender as Event);
             EventDeleted?.Invoke(this, new IEventEventArgs(sender as IEvent));
+            ((IDisposable)sender).Dispose();
         }
 
         public void SearchMissingEvents()

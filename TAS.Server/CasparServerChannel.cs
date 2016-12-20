@@ -52,27 +52,6 @@ namespace TAS.Server
             return false;
         }
 
-        protected TVideoFormat _getFormat()
-        {
-            var channel = _casparChannel;
-            if (_checkConnected() && channel != null)
-                switch (channel.VideoMode)
-                {
-                    case VideoMode.PAL:
-                        return TVideoFormat.PAL_FHA;
-                    case VideoMode.NTSC:
-                        return TVideoFormat.NTSC;
-                    case VideoMode.HD720p5000:
-                        return TVideoFormat.HD720p5000;
-                    case VideoMode.HD1080i5000:
-                        return TVideoFormat.HD1080i5000;
-                    default:
-                        return TVideoFormat.Other;
-                }
-            return TVideoFormat.Other;
-        }
-
-
         public void Initialize()
         {
             lock (this)
@@ -100,9 +79,9 @@ namespace TAS.Server
             if (aEvent.EventType == TEventType.Live || media != null)
             {
                 if (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
-                    item.Clipname = string.Format("\"{0}\"", Path.GetFileNameWithoutExtension(media.FileName));
+                    item.Clipname = string.Format($"\"{Path.GetFileNameWithoutExtension(media.FileName)}\"");
                 if (aEvent.EventType == TEventType.Live)
-                    item.Clipname = LiveDevice ?? "BLACK";
+                    item.Clipname = string.IsNullOrWhiteSpace(LiveDevice) ? "BLACK" : LiveDevice;
                 if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie)
                     item.ChannelLayout = ChannelLayout.Stereo;
                 if (aEvent.EventType == TEventType.Movie)
@@ -124,7 +103,7 @@ namespace TAS.Server
             if (media != null && media.MediaType == TMediaType.Movie)
             {
                 CasparItem item = new CasparItem(string.Empty);
-                item.Clipname = string.Format("\"{0}\"", media is ServerMedia ? Path.GetFileNameWithoutExtension(media.FileName) : media.FullPath);
+                item.Clipname = $"\"{(media is ServerMedia ? Path.GetFileNameWithoutExtension(media.FileName) : media.FullPath)}\"";
                 item.ChannelLayout = ChannelLayout.Stereo;                 
                 item.VideoLayer = (int)videolayer;
                 item.Seek = (int)seek;

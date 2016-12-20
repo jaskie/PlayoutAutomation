@@ -137,7 +137,25 @@ namespace TAS.Remoting.Client
         private ConcurrentDictionary<string, object> _properties = new ConcurrentDictionary<string, object>();
 
         public event PropertyChangedEventHandler PropertyChanged;
-        
+
+        private bool _isDisposed = false;
+
+        public void Dispose()
+        {
+            if (!_isDisposed)
+            {
+                _isDisposed = true;
+                DoDispose();
+            }
+        }
+
+        protected virtual void DoDispose()
+        {
+            Disposed?.Invoke(this, EventArgs.Empty);
+        }
+
+        public event EventHandler Disposed;
+
         [OnDeserialized]
         internal void OnDeserializedMethod(StreamingContext context)
         {

@@ -148,19 +148,12 @@ namespace TAS.Server
             NotifyPropertyChanged(nameof(IsConnected));
         }
 
-        private bool _disposed = false;
-        public virtual void Dispose()
-        {
-            if (!_disposed)
-                DoDispose();
-        }
-
         public override string ToString()
         {
             return string.Format("{0} {1}", this.GetType().Name, ServerAddress);
         }
 
-        protected void DoDispose()
+        protected override void DoDispose()
         {
             _disconnect();
             _casparDevice.ConnectionStatusChanged -= _casparDevice_ConnectionStatusChanged;

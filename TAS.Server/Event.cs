@@ -1339,16 +1339,4 @@ namespace TAS.Server
         }
     }
 
-    public class EventCollectionChangedEventArgs : EventArgs
-    {
-        public EventCollectionChangedEventArgs(Event e, bool removed)
-        {
-            Event = e;
-            Removed = removed;
-        }
-        public readonly bool Removed;
-        public readonly Event Event;
-    }
-
-
 }

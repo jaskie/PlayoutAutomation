@@ -150,7 +150,14 @@ namespace TAS.Remoting.Server
                         ei.RemoveEventHandler(havingDelegate, delegateToRemove);
                 }
             }
+            _referenceResolver.Dispose();
             Debug.WriteLine("Server: connection closed.");
+        }
+
+        protected override void OnOpen()
+        {
+            base.OnOpen();
+            Debug.WriteLine("Server: connection open.");
         }
 
         void SendResponse(WebSocketMessage message, object response)

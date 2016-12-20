@@ -27,7 +27,7 @@ namespace TAS.Server
             try
             {
                 _server = new WebSocketServer(string.Format("ws://{0}", EndpointAddress));
-                _server.AddWebSocketService<CommunicationBehavior>("/Engine", () => new CommunicationBehavior(engine) {Binder = ServerBinder});
+                _server.AddWebSocketService("/Engine", () => new CommunicationBehavior(engine) { Binder = ServerBinder });
                 _server.Start();
                 return true;
             }

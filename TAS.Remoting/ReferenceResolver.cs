@@ -3,13 +3,24 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
 namespace TAS.Remoting
 {
-    public class ReferenceResolver : IReferenceResolver
+    public class ReferenceResolver : IReferenceResolver, IDisposable
     {
+        public ReferenceResolver()
+        {
+            Debug.WriteLine("Created ReferenceResolver");
+        }
+
+#if DEBUG
+        ~ReferenceResolver() {
+            Debug.WriteLine("Finalized ReferenceResolver");
+        }
+#endif
         readonly ConcurrentDictionary<Guid, IDto> _knownDtos = new ConcurrentDictionary<Guid, IDto>();
         public void AddReference(object context, string reference, object value)
         {
@@ -37,10 +48,21 @@ namespace TAS.Remoting
                     p.DtoGuid = Guid.NewGuid();
                     _knownDtos[p.DtoGuid] = p;
                     p.PropertyChanged += _referencePropertyChanged;
+                    p.Disposed += _reference_Disposed;
                 }
                 return p.DtoGuid.ToString();
             }
             return string.Empty;
+        }
+
+        private void _reference_Disposed(object sender, EventArgs e)
+        {
+            IDto disposed;
+            if (sender is IDto && _knownDtos.TryRemove(((IDto)sender).DtoGuid, out disposed) && sender == disposed)
+            {
+                disposed.PropertyChanged -= _referencePropertyChanged;
+                disposed.Disposed -= _reference_Disposed;
+            }
         }
 
         public bool IsReferenced(object context, object value)
@@ -68,5 +90,24 @@ namespace TAS.Remoting
 
         public event EventHandler<PropertyChangedEventArgs> ReferencePropertyChanged;
 
+        private bool _disposed = false;
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                var allKeys = _knownDtos.Keys;
+                foreach (var key in allKeys)
+                {
+                    IDto value;
+                    if (_knownDtos.TryRemove(key, out value))
+                    {
+                        value.PropertyChanged -= _referencePropertyChanged;
+                        value.Disposed -= _reference_Disposed;
+                    }
+                }
+            }
+        }
     }
+
 }

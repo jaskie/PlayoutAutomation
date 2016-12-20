@@ -38,11 +38,6 @@ namespace TAS.Client.Model
 
         public event EventHandler Started;
 
-        public void Dispose()
-        {
-            
-        }
-
         public void HideAux(int auxNr)
         {
             Invoke(parameters: new[] { auxNr });

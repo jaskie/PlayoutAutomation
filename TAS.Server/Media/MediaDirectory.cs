@@ -69,15 +69,11 @@ namespace TAS.Server
 
         protected bool WatcherReady;
 
-        private bool _disposed = false;
-        public void Dispose()
+        protected override void DoDispose()
         {
-            if (!_disposed)
-                DoDispose();
-        }
-
-        protected virtual void DoDispose()
-        {
+            base.DoDispose();
+            CancelBeginWatch();
+            ClearFiles();
             if (_watcher != null)
             {
                 _watcher.Dispose();
@@ -270,7 +266,10 @@ namespace TAS.Server
             _files.TryRemove(media.MediaGuid, out removed);
             MediaRemoved?.Invoke(this, new MediaEventArgs(media));
             if (removed != null)
+            {
                 removed.PropertyChanged -= _media_PropertyChanged;
+                removed.Dispose();
+            }
         }
 
         protected virtual void FileRemoved(string fullPath)

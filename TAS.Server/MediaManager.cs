@@ -101,6 +101,42 @@ namespace TAS.Server
             Logger.Debug("End initializing");
         }
 
+        protected override void DoDispose()
+        {
+            base.DoDispose();
+
+            if (ArchiveDirectory != null)
+                ArchiveDirectory.MediaDeleted += ArchiveDirectory_MediaDeleted;
+
+            ServerDirectory sdir = MediaDirectoryPRI as ServerDirectory;
+            if (sdir != null)
+            {
+                sdir.MediaPropertyChanged -= _serverMediaPropertyChanged;
+                sdir.PropertyChanged -= _onServerDirectoryPropertyChanged;
+                sdir.MediaSaved -= _onServerDirectoryMediaSaved;
+                sdir.MediaVerified -= _mediaPRIVerified;
+                sdir.MediaRemoved -= _mediaPRIRemoved;
+            }
+            sdir = MediaDirectorySEC as ServerDirectory;
+            if (MediaDirectoryPRI != MediaDirectorySEC && sdir != null)
+            {
+                sdir.MediaPropertyChanged -= _serverMediaPropertyChanged;
+                sdir.PropertyChanged -= _onServerDirectoryPropertyChanged;
+            }
+            IAnimationDirectory adir = AnimationDirectoryPRI;
+            if (adir != null)
+            {
+                adir.PropertyChanged -= _onAnimationDirectoryPropertyChanged;
+                adir.MediaAdded -= _onAnimationDirectoryMediaAdded;
+                adir.MediaRemoved -= _onAnimationDirectoryMediaRemoved;
+                adir.MediaPropertyChanged -= _onAnimationDirectoryMediaPropertyChanged;
+            }
+            adir = AnimationDirectorySEC;
+            if (adir != null)
+                adir.PropertyChanged -= _onAnimationDirectoryPropertyChanged;
+            UnloadIngestDirs();
+        }
+
         private void ArchiveDirectory_MediaDeleted(object sender, MediaEventArgs e)
         {
             if (MediaDirectoryPRI != null)
@@ -116,44 +152,44 @@ namespace TAS.Server
         {
             get
             {
-                lock (_ingestDirsSyncObject)
-                    return _ingestDirectories.ToList();
+                return _ingestDirectories;
             }
         }
 
         private bool _ingestDirectoriesLoaded = false;
-        private object _ingestDirsSyncObject = new object();
-
 
         public void ReloadIngestDirs()
         {
-            foreach (IngestDirectory d in _ingestDirectories)
-                d.Dispose();
             LoadIngestDirs(ConfigurationManager.AppSettings["IngestFolders"]);
             Debug.WriteLine(this, "IngestDirectories reloaded");
         }
 
         public void LoadIngestDirs(string fileName)
         {
-            lock (_ingestDirsSyncObject)
+            if (!string.IsNullOrEmpty(fileName) && File.Exists(fileName))
             {
-                if (!string.IsNullOrEmpty(fileName) && File.Exists(fileName))
-                {
-                    if (_ingestDirectoriesLoaded)
-                        return;
-                    XmlSerializer reader = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
-                    System.IO.StreamReader file = new System.IO.StreamReader(fileName);
-                    _ingestDirectories = ((List<IngestDirectory>)reader.Deserialize(file)).Cast<IIngestDirectory>().ToList();
-                    file.Close();
-                }
-                else _ingestDirectories = new List<IIngestDirectory>();
-                _ingestDirectoriesLoaded = true;
-                foreach (IngestDirectory d in _ingestDirectories)
-                {
-                    d.MediaManager = this;
-                    d.Initialize();
-                }
+                if (_ingestDirectoriesLoaded)
+                    return;
+                XmlSerializer reader = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
+                System.IO.StreamReader file = new System.IO.StreamReader(fileName);
+                _ingestDirectories = ((List<IngestDirectory>)reader.Deserialize(file)).Cast<IIngestDirectory>().ToList();
+                file.Close();
             }
+            else _ingestDirectories = new List<IIngestDirectory>();
+            _ingestDirectoriesLoaded = true;
+            foreach (IngestDirectory d in _ingestDirectories)
+            {
+                d.MediaManager = this;
+                d.Initialize();
+            }
+        }
+
+        public void UnloadIngestDirs()
+        {
+            foreach (IngestDirectory d in _ingestDirectories)
+                d.Dispose();
+            _ingestDirectoriesLoaded = false;
+            _ingestDirectories = null;
         }
 
         private void _serverMediaPropertyChanged(object dir, MediaPropertyChangedEventArgs e)

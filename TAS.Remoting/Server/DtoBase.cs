@@ -30,10 +30,30 @@ namespace TAS.Remoting.Server
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
+        
         protected virtual void NotifyPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public event EventHandler Disposed;
+
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                DoDispose();
+            }
+        }
+
+        private bool _disposed = false;
+
+        protected bool IsDisposed { get { return _disposed; } }
+
+        protected virtual void DoDispose()
+        {
+            Disposed?.Invoke(this, EventArgs.Empty);
         }
 
     }
