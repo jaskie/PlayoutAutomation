@@ -7,9 +7,8 @@ using TAS.Remoting;
 
 namespace TAS.Server
 {
-    public class ServerBinder : SerializationBinder
+    public class ServerSerializationBinder : SerializationBinder
     {
-        private readonly Type iDtoType = typeof(IDto);
         public override Type BindToType(string assemblyName, string typeName)
         {
             switch (typeName)

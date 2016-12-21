@@ -19,7 +19,7 @@ namespace TAS.Server
         [XmlIgnore]
         public Engine Engine { get; private set; }
         WebSocketServer _server;
-        static SerializationBinder ServerBinder = new ServerBinder();
+        static SerializationBinder ServerBinder = new ServerSerializationBinder();
         public bool Initialize(Engine engine)
         {
             if (string.IsNullOrEmpty(EndpointAddress))

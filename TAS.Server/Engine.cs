@@ -17,7 +17,6 @@ using Newtonsoft.Json;
 
 namespace TAS.Server
 {
-    [JsonObject(MemberSerialization.OptIn)]
     public class Engine : DtoBase, IEngine, IDisposable
     {
         public UInt64 Id { get; set; }
@@ -66,7 +65,7 @@ namespace TAS.Server
         private IEnumerable<IGpi> _localGpis;
         private IEnumerable<IEnginePlugin> _plugins;
         private ICGElementsController _cgElementsController;
-        [JsonProperty(TypeNameHandling = TypeNameHandling.None)]
+        [JsonProperty(IsReference = true)]
         public ICGElementsController CGElementsController { get { return _cgElementsController; } }
 
         public RemoteHost Remote { get; set; }

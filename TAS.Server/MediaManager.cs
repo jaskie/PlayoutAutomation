@@ -20,8 +20,6 @@ using TAS.Remoting.Server;
 
 namespace TAS.Server
 {
-
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class MediaManager : DtoBase, IMediaManager
     {
         readonly Engine _engine;
@@ -35,7 +33,7 @@ namespace TAS.Server
         public IAnimationDirectory AnimationDirectorySEC { get; private set; }
         public IAnimationDirectory AnimationDirectoryPRV { get; private set; }
         public IArchiveDirectory ArchiveDirectory { get; private set; }
-        [JsonProperty(TypeNameHandling = TypeNameHandling.None)]
+        [JsonProperty]
         public ICGElementsController CGElementsController { get { return _engine.CGElementsController; } }
 
         [JsonProperty]

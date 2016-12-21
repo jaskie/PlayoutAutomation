@@ -144,6 +144,7 @@ namespace TAS.Remoting.Client
         {
             if (!_isDisposed)
             {
+                _client.EventNotification -= _onEventNotificationMessage;
                 _isDisposed = true;
                 DoDispose();
             }

@@ -8,7 +8,7 @@ namespace TAS.Remoting
 {
     public interface IDto: INotifyPropertyChanged, IDisposable
     {
-        Guid DtoGuid { get; set; }
+        Guid DtoGuid { get; }
         event EventHandler Disposed;
     }
 }

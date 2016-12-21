@@ -6,13 +6,15 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace TAS.Remoting.Server
 {
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.Objects, IsReference = true, ItemIsReference = true, MemberSerialization = MemberSerialization.OptIn)]
     public abstract class DtoBase: IDto, INotifyPropertyChanged
     {
-        public Guid DtoGuid { get; set; }
+        [XmlIgnore]
+        public Guid DtoGuid { get; private set; } = Guid.NewGuid();
 
 #if DEBUG
         ~DtoBase()

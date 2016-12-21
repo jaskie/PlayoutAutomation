@@ -10,7 +10,6 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Server.Common
 {
-    [Newtonsoft.Json.JsonObject(IsReference = false)]
     public class CommandScriptItemBase : DtoBase, ICommandScriptItem
     {
 

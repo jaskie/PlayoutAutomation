@@ -31,7 +31,10 @@ namespace TAS.Remoting.Server
             _referenceResolver.ReferencePropertyChanged += _referenceResolver_ReferencePropertyChanged;
             _serializer.ReferenceResolver = _referenceResolver;
             _serializer.TypeNameHandling = TypeNameHandling.None;
-            _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+//            _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+#if DEBUG
+            _serializer.Formatting = Formatting.Indented;
+#endif
             //_converter = new ServerSerializationConverter();
             //_serializer.Converters.Add(_converter);
         }
@@ -58,7 +61,7 @@ namespace TAS.Remoting.Server
             try
             {
                 if (message.MessageType == WebSocketMessage.WebSocketMessageType.RootQuery)
-                    SendResponse(message, _initialObject);
+                    _sendResponse(message, _initialObject);
                 else // method of particular object
                 {
                     IDto objectToInvoke = _referenceResolver.ResolveReference(message.DtoGuid);
@@ -75,7 +78,7 @@ namespace TAS.Remoting.Server
                                 _deserializeContent(ref message.Parameters, methodParameters.Select(p => p.ParameterType).ToArray());
                                 object response = methodToInvoke.Invoke(objectToInvoke, BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.Public, null, message.Parameters, null);
                                 if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query)
-                                    SendResponse(message, response);
+                                    _sendResponse(message, response);
                             }
                             else
                                 throw new ApplicationException(string.Format("Server: unknown method: {0}:{1}", objectToInvoke, message.MemberName));
@@ -90,7 +93,7 @@ namespace TAS.Remoting.Server
                                 if (message.MessageType == WebSocketMessage.WebSocketMessageType.Get && property.CanRead)
                                 {
                                     object response = property.GetValue(objectToInvoke, null);
-                                    SendResponse(message, response);
+                                    _sendResponse(message, response);
                                 }
                                 else // Set
                                 {
@@ -131,7 +134,7 @@ namespace TAS.Remoting.Server
             {
                 message.MessageType = WebSocketMessage.WebSocketMessageType.Exception;
                 message.Response = ex;
-                Send(Serialize(message));
+                Send(_serialize(message));
                 Debug.WriteLine(ex);
             }
 
@@ -150,6 +153,7 @@ namespace TAS.Remoting.Server
                         ei.RemoveEventHandler(havingDelegate, delegateToRemove);
                 }
             }
+            _referenceResolver.ReferencePropertyChanged -= _referenceResolver_ReferencePropertyChanged;
             _referenceResolver.Dispose();
             Debug.WriteLine("Server: connection closed.");
         }
@@ -160,13 +164,15 @@ namespace TAS.Remoting.Server
             Debug.WriteLine("Server: connection open.");
         }
 
-        void SendResponse(WebSocketMessage message, object response)
+        void _sendResponse(WebSocketMessage message, object response)
         {
             message.ConvertToResponse(response);
-            Send(Serialize(message));
+            var serialized = _serialize(message);
+            Debug.WriteLine(serialized);
+            Send(serialized);
         }
 
-        string Serialize(WebSocketMessage message)
+        string _serialize(WebSocketMessage message)
         {
             using (System.IO.StringWriter writer = new System.IO.StringWriter())
             {
@@ -269,7 +275,7 @@ namespace TAS.Remoting.Server
                 DtoName = dto.ToString(),
 #endif
             };
-            string s = Serialize(message);
+            string s = _serialize(message);
             Send(s);
             Debug.WriteLine("Server: Notification {0} on {1} sent", eventName, dto);
         }

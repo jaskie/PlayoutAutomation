@@ -25,17 +25,13 @@ namespace TAS.Remoting
         public void AddReference(object context, string reference, object value)
         {
             IDto p = value as IDto;
-            if (p != null && p.DtoGuid.Equals(Guid.Empty))
+            if (p != null)
             {
                 Guid id = new Guid(reference);
-                p.DtoGuid = id;
                 _knownDtos[id] = (IDto)value;
+                if ((p as Client.ProxyBase)?.DtoGuid == Guid.Empty)
+                    ((Client.ProxyBase)p).DtoGuid = new Guid(reference);
             }
-        }
-
-        private void _referencePropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            ReferencePropertyChanged?.Invoke(sender, e);
         }
 
         public string GetReference(object context, object value)
@@ -43,27 +39,14 @@ namespace TAS.Remoting
             IDto p = value as IDto;
             if (p != null)
             {
-                if (p.DtoGuid == Guid.Empty)
-                {
-                    p.DtoGuid = Guid.NewGuid();
-                    _knownDtos[p.DtoGuid] = p;
-                    p.PropertyChanged += _referencePropertyChanged;
-                    p.Disposed += _reference_Disposed;
-                }
+                _knownDtos[p.DtoGuid] = p;
+                p.PropertyChanged += _referencePropertyChanged;
+                p.Disposed += _reference_Disposed;
                 return p.DtoGuid.ToString();
             }
             return string.Empty;
         }
 
-        private void _reference_Disposed(object sender, EventArgs e)
-        {
-            IDto disposed;
-            if (sender is IDto && _knownDtos.TryRemove(((IDto)sender).DtoGuid, out disposed) && sender == disposed)
-            {
-                disposed.PropertyChanged -= _referencePropertyChanged;
-                disposed.Disposed -= _reference_Disposed;
-            }
-        }
 
         public bool IsReferenced(object context, object value)
         {
@@ -86,6 +69,21 @@ namespace TAS.Remoting
             IDto p;
             _knownDtos.TryGetValue(reference, out p);
             return p;
+        }
+
+        private void _referencePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            ReferencePropertyChanged?.Invoke(sender, e);
+        }
+
+        private void _reference_Disposed(object sender, EventArgs e)
+        {
+            IDto disposed;
+            if (sender is IDto && _knownDtos.TryRemove(((IDto)sender).DtoGuid, out disposed) && sender == disposed)
+            {
+                disposed.PropertyChanged -= _referencePropertyChanged;
+                disposed.Disposed -= _reference_Disposed;
+            }
         }
 
         public event EventHandler<PropertyChangedEventArgs> ReferencePropertyChanged;
