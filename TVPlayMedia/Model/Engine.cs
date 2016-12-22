@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using TAS.Common;
@@ -11,6 +13,11 @@ namespace TAS.Client.Model
 {
     public class Engine : ProxyBase, IEngine
     {
+        public Engine()
+        {
+            Debug.WriteLine("Engine created.");
+        }
+
         public TAspectRatioControl AspectRatioControl { get { return Get<TAspectRatioControl>(); } set { SetField(value); } }
 
         public DateTime CurrentTime { get { return Get<DateTime>(); } }
@@ -27,7 +34,10 @@ namespace TAS.Client.Model
 
         public long FrameTicks { get { return Get<long>(); } set { SetField(value); } }
 
-        public ICGElementsController CGElementsController { get { return Get<CGElementsController>(); } }
+        [JsonProperty(nameof(IEngine.CGElementsController))]
+        private CGElementsController _cGElementsController { get { return Get<CGElementsController>(); } set { SetField(value); } }
+        [JsonIgnore]
+        public ICGElementsController CGElementsController { get { return _cGElementsController; } }
 
         public bool EnableCGElementsForNewEvents { get; set; }
 
@@ -77,7 +87,10 @@ namespace TAS.Client.Model
         public decimal PreviewAudioLevel { get { return Get<decimal>(); } set { Set(value); } }
         public bool PreviewIsPlaying { get { return Get<bool>(); } set { SetField(value); } }
         public bool PreviewLoaded { get { return Get<bool>(); } set { SetField(value); } }
-        public IMedia PreviewMedia { get { return Get<Media>(); } set { SetField(value); } }
+        [JsonProperty(nameof(IEngine.PreviewMedia))]
+        private Media _previewMedia { get { return Get<Media>(); } set { SetField(value); } }
+        [JsonIgnore]
+        public IMedia PreviewMedia { get { return Get<Media>(); } }
         public long PreviewPosition { get { return Get<long>(); } set { Set(value); } }
         public long PreviewSeek { get { return Get<long>(); } set { SetField(value); } }
         public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal audioLevel)

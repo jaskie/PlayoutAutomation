@@ -14,6 +14,7 @@ using WebSocketSharp;
 
 namespace TAS.Remoting.Client
 {
+    //[JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public abstract class ProxyBase : IDto, INotifyPropertyChanged
     {
         public Guid DtoGuid { get; set; }
@@ -29,9 +30,9 @@ namespace TAS.Remoting.Client
         protected T Get<T>([CallerMemberName] string propertyName = null)
         {
             object result;
+            _findPropertyName(ref propertyName);
             if (_properties.TryGetValue(propertyName, out result))
                 return (T)result;
-
             var client = _client;
             if (client != null)
             {
@@ -42,8 +43,24 @@ namespace TAS.Remoting.Client
             return default(T);
         }
 
+        private void _findPropertyName(ref string propertyName)
+        {
+            var property = this.GetType().GetProperty(propertyName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            if (property != null)
+            {
+                var attributes = property.GetCustomAttributes(typeof(JsonPropertyAttribute), true);
+                foreach (JsonPropertyAttribute attr in attributes)
+                    if (!string.IsNullOrWhiteSpace(attr.PropertyName))
+                    {
+                        propertyName = attr.PropertyName;
+                        return;
+                    }
+            }
+        }
+
         protected void Set<T>(T value, [CallerMemberName] string propertyName = null)
         {
+            _findPropertyName(ref propertyName);
             var client = _client;
             if (SetField(value, propertyName))
             {
@@ -105,8 +122,8 @@ namespace TAS.Remoting.Client
         {
             if (e.Message.DtoGuid == DtoGuid)
             {
-                Debug.WriteLine("ProxyBase: {1} on {0}", this, e.Message.MemberName);
-                if (e.Message.MemberName == nameof(PropertyChanged))
+                Debug.WriteLine($"ProxyBase: Event {e.Message.MemberName} notified on {this} with value {e.Message.Response}");
+                if (e.Message.MemberName == nameof(INotifyPropertyChanged.PropertyChanged))
                 {
                     PropertyChangedEventArgs ea = (PropertyChangedEventArgs)e.Message.Response;
                     NotifyPropertyChanged(ea.PropertyName);

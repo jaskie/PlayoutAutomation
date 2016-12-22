@@ -602,7 +602,7 @@ namespace TAS.Server
                 if (media.Directory == this)
                 {
                     FtpClient client = GetFtpClient();
-                    Uri uri = new Uri(media.FullPath);
+                    Uri uri = new Uri(((Media)media).FullPath);
                     try
                     {
                         client.DeleteFile(uri.LocalPath);

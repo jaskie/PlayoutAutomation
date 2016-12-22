@@ -35,8 +35,6 @@ namespace TAS.Client.Model
 
         public RationalNumber FrameRate { get { return Get<RationalNumber>(); } set { Set(value); } }
 
-        public string FullPath { get { return Get<string>(); } set { Set(value); } }
-
         public DateTime LastUpdated { get { return Get<DateTime>(); } set { Set(value); } }
 
         public TMediaCategory MediaCategory { get { return Get<TMediaCategory>(); } set { Set(value); } }

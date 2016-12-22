@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,10 +38,12 @@ namespace TAS.Client.Model
 
         public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetField(value); } }
 
-        public List<IIngestDirectory> IngestDirectories
+        [JsonProperty(nameof(IMediaManager.IngestDirectories))]
+        private List<IngestDirectory> _ingestDirectories { get { return Get<List<IngestDirectory>>(); }  set { Set(value); } }
+        [JsonIgnore]
+        public IEnumerable<IIngestDirectory> IngestDirectories
         {
-            get { return Get<List<IIngestDirectory>>(); }
-            set { SetField(value); }
+            get { return _ingestDirectories; }
         }
 
         public void MeasureLoudness(IEnumerable<IMedia> mediaList)
@@ -86,9 +89,12 @@ namespace TAS.Client.Model
             Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory });
         }
 
-        public ICGElementsController CGElementsController { get { return Get<CGElementsController>(); } }
+        [JsonProperty(nameof(IEngine.CGElementsController))]
+        private CGElementsController _cgElementsController { get { return Get<CGElementsController>(); } set { SetField(value); } }
+        [JsonIgnore]
+        public ICGElementsController CGElementsController { get { return _cgElementsController; } }
 
-        public IEngine Engine { get { return Get<Engine>(); } }
+        public IEngine Engine { get { return Get<Engine>(); }  set { SetField(value); } }
 
     }
 }

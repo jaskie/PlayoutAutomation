@@ -57,7 +57,7 @@ namespace TAS.Server
         }
 
         private ObservableSynchronizedCollection<IMediaSegment> _mediaSegments;
-
+        [JsonProperty]
         public ObservableSynchronizedCollection<IMediaSegment> MediaSegments
         {
             get

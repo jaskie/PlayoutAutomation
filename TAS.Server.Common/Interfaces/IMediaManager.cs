@@ -19,7 +19,7 @@ namespace TAS.Server.Interfaces
         IServerDirectory MediaDirectoryPRV { get; }
         IArchiveDirectory ArchiveDirectory { get; }
         IEngine Engine { get; }
-        List<IIngestDirectory> IngestDirectories { get; }
+        IEnumerable<IIngestDirectory> IngestDirectories { get; }
         IFileManager FileManager { get; }
         VideoFormatDescription FormatDescription { get; }
         TVideoFormat VideoFormat { get; }

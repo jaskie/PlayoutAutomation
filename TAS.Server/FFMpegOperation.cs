@@ -42,8 +42,9 @@ namespace TAS.Server
                     {
                         _procFFmpeg.Kill();
                         Thread.Sleep(1000);
-                        if (DestMedia != null)
-                            System.IO.File.Delete(DestMedia.FullPath);
+                        Media destMedia = DestMedia as Media;
+                        if (destMedia != null)
+                            System.IO.File.Delete(destMedia.FullPath);
                         Debug.WriteLine(this, "Aborted");
                     }
                     return finished && (_procFFmpeg.ExitCode == 0);

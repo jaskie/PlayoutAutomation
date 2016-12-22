@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,10 @@ namespace TAS.Client.Model
 
         public byte Crawl { get { return Get<byte>(); } set { Set(value); } }
 
-        public IEnumerable<ICGElement> Crawls { get { return Get<List<CGElement>>(); } }
+        [JsonProperty(nameof(ICGElementsController.Crawls))]
+        private List<CGElement> _crawls;
+        [JsonIgnore]
+        public IEnumerable<ICGElement> Crawls { get { return _crawls; } }
 
         public byte DefaultCrawl { get { return Get<byte>(); } }
 
@@ -28,11 +32,17 @@ namespace TAS.Client.Model
 
         public byte Logo { get { return Get<byte>(); } set { Set(value); } }
 
-        public IEnumerable<ICGElement> Logos { get { return Get<List<CGElement>>(); } }
+        [JsonProperty(nameof(ICGElementsController.Logos))]
+        private List<CGElement> _logos;
+        [JsonIgnore]
+        public IEnumerable<ICGElement> Logos { get { return _logos; } }
 
-        public byte Parental { get { return Get<byte>(); } set { Set(value); } }
+        public byte Parental { get { return Get<byte>(); } set { Set(value); }  }
 
-        public IEnumerable<ICGElement> Parentals { get { return Get<List<CGElement>>(); } }
+        [JsonProperty(nameof(ICGElementsController.Parentals))]
+        private List<CGElement> _parentals;
+        [JsonIgnore]
+        public IEnumerable<ICGElement> Parentals { get { return _parentals; } }
      
         public byte[] VisibleAuxes { get { return Get<byte[]>(); } }
 

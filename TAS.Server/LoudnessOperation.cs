@@ -88,7 +88,7 @@ namespace TAS.Server
                 return base.Do();
         }
 
-        private bool _do(IMedia inputMedia)
+        private bool _do(Media inputMedia)
         {
             Debug.WriteLine(this, "Loudness operation started");
             string Params = string.Format("-nostats -i \"{0}\" -ss {1} -t {2} -filter_complex ebur128=peak=sample -f null -", inputMedia.FullPath, MeasureStart, MeasureDuration == TimeSpan.Zero ? inputMedia.DurationPlay: MeasureDuration);

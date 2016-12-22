@@ -10,12 +10,12 @@ namespace TAS.Client.Model
 {
     public class CGElement : ProxyBase, ICGElement
     {
-        public byte Id { get { return Get<byte>(); } }
+        public byte Id { get { return Get<byte>(); } set { SetField(value); } }
 
         public BitmapImage Image { get { return Get<BitmapImage>(); } }
 
         public string ImageFile { get { return Get<string>(); } }
 
-        public string Name { get { return Get<string>(); } }
+        public string Name { get { return Get<string>(); }  set { SetField(value); } }
     }
 }

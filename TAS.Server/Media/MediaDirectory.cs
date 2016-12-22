@@ -201,12 +201,12 @@ namespace TAS.Server
             if (media.Directory == this)
             {
                 bool isLastWithTheName = false;
-                    isLastWithTheName = !_files.Values.Any(m => m.FullPath == media.FullPath && m != media);
+                    isLastWithTheName = !_files.Values.Any(m => m.FullPath == ((Media)media).FullPath && m != media);
                 if (isLastWithTheName && media.FileExists())
                 {
                     try
                     {
-                        File.Delete(media.FullPath);
+                        File.Delete(((Media)media).FullPath);
                         Debug.WriteLine(media, "File deleted");
                         return true;
                     }

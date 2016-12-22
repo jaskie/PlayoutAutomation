@@ -10,7 +10,6 @@ namespace TAS.Server.Interfaces
     public interface IMedia: IMediaProperties, INotifyPropertyChanged, IDto
     {
         IMediaDirectory Directory { get; }
-        string FullPath { get; }
         bool FileExists();
         bool Delete();
         bool IsVerified { get; set; }

@@ -20,7 +20,7 @@ namespace TAS.Server
         public TFileOperationKind Kind { get; set; }
 
         private object _destMediaLock = new object();
-        private IMedia _destMedia;
+        private Media _destMedia;
         public event EventHandler Success;
         public event EventHandler Failure;
         public event EventHandler Finished;
@@ -39,12 +39,12 @@ namespace TAS.Server
 
         private NLog.Logger Logger;
 
-
-        public IMedia SourceMedia { get; set; }
+        private Media _sourceMedia;
+        public IMedia SourceMedia { get { return _sourceMedia; } set { SetField(ref _sourceMedia, value as Media, nameof(SourceMedia)); } }
         protected IMediaProperties _destMediaProperties;
         public IMediaProperties DestMediaProperties { get { return _destMediaProperties; } set { SetField(ref _destMediaProperties, value, nameof(Title)); } }
         public IMediaDirectory DestDirectory { get; set; }
-        public IMedia DestMedia { get { return _destMedia; }  protected set { SetField(ref _destMedia, value, nameof(DestMedia)); } }
+        public IMedia DestMedia { get { return _destMedia; }  protected set { SetField(ref _destMedia, value as Media, nameof(DestMedia)); } }
 
         private int _tryCount = 15;
         [JsonProperty]
@@ -260,13 +260,13 @@ namespace TAS.Server
                 case TFileOperationKind.Export:
                     throw new InvalidOperationException("Invalid operation kind");
                 case TFileOperationKind.Copy:
-                    if (File.Exists(SourceMedia.FullPath) && Directory.Exists(DestDirectory.Folder))
+                    if (_sourceMedia != null && File.Exists(_sourceMedia.FullPath) && Directory.Exists(DestDirectory.Folder))
                         try
                         {
                             CreateDestMediaIfNotExists();
                             if (!(_destMedia.FileExists()
-                                && File.GetLastWriteTimeUtc(SourceMedia.FullPath).Equals(File.GetLastWriteTimeUtc(_destMedia.FullPath))
-                                && File.GetCreationTimeUtc(SourceMedia.FullPath).Equals(File.GetCreationTimeUtc(_destMedia.FullPath))
+                                && File.GetLastWriteTimeUtc(_sourceMedia.FullPath).Equals(File.GetLastWriteTimeUtc(_destMedia.FullPath))
+                                && File.GetCreationTimeUtc(_sourceMedia.FullPath).Equals(File.GetCreationTimeUtc(_destMedia.FullPath))
                                 && SourceMedia.FileSize.Equals(_destMedia.FileSize)))
                             {
                                 _destMedia.MediaStatus = TMediaStatus.Copying;
@@ -299,14 +299,14 @@ namespace TAS.Server
                     }
                     return false;
                 case TFileOperationKind.Move:
-                    if (File.Exists(SourceMedia.FullPath) && Directory.Exists(DestDirectory.Folder))
+                    if (File.Exists(_sourceMedia.FullPath) && Directory.Exists(DestDirectory.Folder))
                         try
                         {
                             CreateDestMediaIfNotExists();
                             if (_destMedia.FileExists())
                             {
-                                if (File.GetLastWriteTimeUtc(SourceMedia.FullPath).Equals(File.GetLastWriteTimeUtc(_destMedia.FullPath))
-                                && File.GetCreationTimeUtc(SourceMedia.FullPath).Equals(File.GetCreationTimeUtc(_destMedia.FullPath))
+                                if (File.GetLastWriteTimeUtc(_sourceMedia.FullPath).Equals(File.GetLastWriteTimeUtc(_destMedia.FullPath))
+                                && File.GetCreationTimeUtc(_sourceMedia.FullPath).Equals(File.GetCreationTimeUtc(_destMedia.FullPath))
                                 && SourceMedia.FileSize.Equals(_destMedia.FileSize))
                                 {
                                     SourceMedia.Delete();
@@ -321,9 +321,9 @@ namespace TAS.Server
                             }
                             IsIndeterminate = true;
                             _destMedia.MediaStatus = TMediaStatus.Copying;
-                            File.Move(SourceMedia.FullPath, _destMedia.FullPath);
-                            File.SetCreationTimeUtc(_destMedia.FullPath, File.GetCreationTimeUtc(SourceMedia.FullPath));
-                            File.SetLastWriteTimeUtc(_destMedia.FullPath, File.GetLastWriteTimeUtc(SourceMedia.FullPath));
+                            File.Move(_sourceMedia.FullPath, _destMedia.FullPath);
+                            File.SetCreationTimeUtc(_destMedia.FullPath, File.GetCreationTimeUtc(_sourceMedia.FullPath));
+                            File.SetLastWriteTimeUtc(_destMedia.FullPath, File.GetLastWriteTimeUtc(_sourceMedia.FullPath));
                             _destMedia.MediaStatus = TMediaStatus.Copied;
                             ThreadPool.QueueUserWorkItem(o => ((Media)_destMedia).Verify());
                             AddOutputMessage("Move operation finished");

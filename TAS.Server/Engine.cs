@@ -40,6 +40,7 @@ namespace TAS.Server
         }
         #region Fields
 
+        [JsonProperty(nameof(MediaManager))]
         private readonly IMediaManager _mediaManager;
         [XmlIgnore]
         public IMediaManager MediaManager { get { return _mediaManager; } }
@@ -61,11 +62,10 @@ namespace TAS.Server
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
 
         public bool EnableCGElementsForNewEvents { get; set; }
-
         private IEnumerable<IGpi> _localGpis;
         private IEnumerable<IEnginePlugin> _plugins;
+        [JsonProperty(nameof(CGElementsController))]
         private ICGElementsController _cgElementsController;
-        [JsonProperty(IsReference = true)]
         public ICGElementsController CGElementsController { get { return _cgElementsController; } }
 
         public RemoteHost Remote { get; set; }
@@ -132,7 +132,7 @@ namespace TAS.Server
         public TVideoFormat VideoFormat { get; set; }
 
         [XmlIgnore]
-        [JsonProperty]
+        [JsonProperty(IsReference = false)]
         public VideoFormatDescription FormatDescription { get; private set; }
 
         public void Initialize(IEnumerable<IPlayoutServer> servers)
@@ -442,6 +442,7 @@ namespace TAS.Server
         #region Preview Routines
 
         private IMedia _previewMedia;
+        [JsonProperty]
         public  IMedia PreviewMedia { get { return _previewMedia; } }
 
         public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal previewAudioVolume)
@@ -493,9 +494,11 @@ namespace TAS.Server
 
         private long _previewSeek;
         [XmlIgnore]
+        [JsonProperty]
         public long PreviewSeek { get { return _previewSeek; } }
 
         [XmlIgnore]
+        [JsonProperty]
         public long PreviewPosition // from 0 to duration
         {
             get { return _previewPosition; }
@@ -559,6 +562,7 @@ namespace TAS.Server
         private bool _previewLoaded;
 
         [XmlIgnore]
+        [JsonProperty]
         public bool PreviewLoaded {
             get { return _previewLoaded; }
             private set
@@ -574,6 +578,7 @@ namespace TAS.Server
 
         private bool _previewIsPlaying;
         [XmlIgnore]
+        [JsonProperty]
         public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value, nameof(PreviewIsPlaying)); } }
 
         private Media _findPreviewMedia(Media media)

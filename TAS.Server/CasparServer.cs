@@ -78,6 +78,7 @@ namespace TAS.Server
         }
 
         protected bool _isConnected;
+        [JsonProperty]
         public bool IsConnected
         {
             get { return _isConnected; }

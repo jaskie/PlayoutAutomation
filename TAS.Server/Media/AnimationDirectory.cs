@@ -69,7 +69,8 @@ namespace TAS.Server
         public IAnimatedMedia CloneMedia(IAnimatedMedia source, Guid newMediaGuid)
         {
             var result = new AnimatedMedia(this, newMediaGuid, 0);
-            result.FullPath = source.FullPath;
+            result.Folder = source.Folder;
+            result.FileName = source.FileName;
             result.CloneMediaProperties(source);
             result.MediaStatus = source.MediaStatus;
             result.LastUpdated = DateTime.UtcNow;

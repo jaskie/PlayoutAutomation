@@ -33,10 +33,10 @@ namespace TAS.Server
         public IAnimationDirectory AnimationDirectorySEC { get; private set; }
         public IAnimationDirectory AnimationDirectoryPRV { get; private set; }
         public IArchiveDirectory ArchiveDirectory { get; private set; }
-        [JsonProperty]
+
         public ICGElementsController CGElementsController { get { return _engine.CGElementsController; } }
 
-        [JsonProperty]
+        [JsonProperty(IsReference = false)]
         public VideoFormatDescription FormatDescription { get { return _engine.FormatDescription; } }
         [JsonProperty]
         public TVideoFormat VideoFormat { get { return _engine.VideoFormat; } }
@@ -144,9 +144,9 @@ namespace TAS.Server
                     m.IsArchived = false;
             }
         }
-
-        private List<IIngestDirectory> _ingestDirectories;
-        public List<IIngestDirectory> IngestDirectories
+        [JsonProperty(nameof(IMediaManager.IngestDirectories), IsReference = false, ItemIsReference = true)]
+        private List<IngestDirectory> _ingestDirectories;
+        public IEnumerable<IIngestDirectory> IngestDirectories
         {
             get
             {
@@ -170,10 +170,10 @@ namespace TAS.Server
                     return;
                 XmlSerializer reader = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
                 System.IO.StreamReader file = new System.IO.StreamReader(fileName);
-                _ingestDirectories = ((List<IngestDirectory>)reader.Deserialize(file)).Cast<IIngestDirectory>().ToList();
+                _ingestDirectories = ((List<IngestDirectory>)reader.Deserialize(file)).ToList();
                 file.Close();
             }
-            else _ingestDirectories = new List<IIngestDirectory>();
+            else _ingestDirectories = new List<IngestDirectory>();
             _ingestDirectoriesLoaded = true;
             foreach (IngestDirectory d in _ingestDirectories)
             {

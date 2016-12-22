@@ -120,7 +120,7 @@ namespace TAS.Server
             else
             {
                 DestMedia = _createDestMedia(destDirectory);
-                result = _encode(destDirectory, DestMedia.FullPath);
+                result = _encode(destDirectory, ((Media)DestMedia).FullPath);
             }
             if (result)
                 DestMedia.MediaStatus = result ? TMediaStatus.Available : TMediaStatus.CopyError;
@@ -170,26 +170,34 @@ namespace TAS.Server
             string scaleFilter = $"scale={outputFormatDesc.ImageSize.Width}:{outputFormatDesc.ImageSize.Height}:interl=-1";
             foreach (var e in exportMedia)
             {
-                files.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1} -i \"{2}\"", (e.StartTC - e.Media.TcStart).TotalSeconds, e.Duration.TotalSeconds, e.Media.FullPath);
-                string videoOutputName = $"[v{index}]";
-                List<string> itemVideoFilters = new List<string>();
-                if (((Media)e.Media).HasExtraLines)
-                    itemVideoFilters.Add("crop=720:576:0:32");
-                itemVideoFilters.Add(e.Media.VideoFormatDescription.IsWideScreen ? "setdar=dar=16/9" : "setdar=dar=4/3");
-                itemVideoFilters.Add(scaleFilter);
-                complexFilterElements.Add($"[{index}]{string.Join(",", itemVideoFilters)}{videoOutputName}");
-                int audioIndex = index;
-                complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, "[{0}]volume={1:F3}dB[a{0}]", audioIndex, e.AudioVolume));
-                index++;
-                for (int i = 0; i < e.Logos.Length; i++)
+                Media media = e.Media as Media;
+                if (media != null)
                 {
-                    files.Append($" -i \"{e.Logos[i].FullPath}\"");
-                    string newOutputName = $"[v{index}]";
-                    complexFilterElements.Add($"{videoOutputName}[{index}]overlay{newOutputName}");
-                    videoOutputName = newOutputName;
+                    files.AppendFormat(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1} -i \"{2}\"", (e.StartTC - media.TcStart).TotalSeconds, e.Duration.TotalSeconds, media.FullPath);
+                    string videoOutputName = $"[v{index}]";
+                    List<string> itemVideoFilters = new List<string>();
+                    if (((Media)media).HasExtraLines)
+                        itemVideoFilters.Add("crop=720:576:0:32");
+                    itemVideoFilters.Add(media.VideoFormatDescription.IsWideScreen ? "setdar=dar=16/9" : "setdar=dar=4/3");
+                    itemVideoFilters.Add(scaleFilter);
+                    complexFilterElements.Add($"[{index}]{string.Join(",", itemVideoFilters)}{videoOutputName}");
+                    int audioIndex = index;
+                    complexFilterElements.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, "[{0}]volume={1:F3}dB[a{0}]", audioIndex, e.AudioVolume));
                     index++;
+                    for (int i = 0; i < e.Logos.Length; i++)
+                    {
+                        Media logo = e.Logos[i] as Media;
+                        if (logo != null)
+                        {
+                            files.Append($" -i \"{logo.FullPath}\"");
+                            string newOutputName = $"[v{index}]";
+                            complexFilterElements.Add($"{videoOutputName}[{index}]overlay{newOutputName}");
+                            videoOutputName = newOutputName;
+                            index++;
+                        }
+                    }
+                    overlayOutputs.AppendFormat("{0}[a{1}]", videoOutputName, audioIndex);
                 }
-                overlayOutputs.AppendFormat("{0}[a{1}]", videoOutputName, audioIndex);
             }
             if (directory.IsXDCAM || directory.ExportContainerFormat == TMediaExportContainerFormat.mxf)
                 if (MXFVideoExportFormat == TmXFVideoExportFormat.DV25)

@@ -224,7 +224,7 @@ namespace TAS.Server
 
 
         protected VideoFormatDescription _videoFormatDescription;
-        [JsonProperty]
+        [JsonProperty(IsReference = false, TypeNameHandling = TypeNameHandling.None)]
         public VideoFormatDescription VideoFormatDescription
         {
             get
@@ -243,7 +243,6 @@ namespace TAS.Server
             get { return _directory; }
         }
 
-        [JsonProperty]
         public string FullPath
         {
             get
@@ -357,7 +356,7 @@ namespace TAS.Server
             set { SetField(ref _verified, value, nameof(IsVerified)); }
         }
 
-        [JsonProperty]
+        [JsonProperty(TypeNameHandling = TypeNameHandling.None)]
         public RationalNumber FrameRate { get { return VideoFormatDescription.FrameRate; } }
 
         public void ReVerify()

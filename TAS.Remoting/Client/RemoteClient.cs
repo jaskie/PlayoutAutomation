@@ -50,6 +50,7 @@ namespace TAS.Remoting.Client
                     _clientSocket.OnOpen -= _clientSocket_OnOpen;
                     _clientSocket.OnClose -= _clientSocket_OnClose;  
                     _clientSocket.OnMessage -= _clientSocket_OnMessage;
+                    _clientSocket.OnError -= _clientSocket_OnError;
                 }
                 _clientSocket = new WebSocket(string.Format("ws://{0}/Engine", _address));
                 _clientSocket.OnOpen += _clientSocket_OnOpen;
@@ -71,9 +72,7 @@ namespace TAS.Remoting.Client
 
         private void _clientSocket_OnClose(object sender, CloseEventArgs e)
         {
-            var h = OnClose;
-            if (h != null)
-                h(this, e);
+            OnClose?.Invoke(this, e);
         }
 
         private string Serialize(object o)
@@ -96,9 +95,7 @@ namespace TAS.Remoting.Client
             }
             if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventNotification)
             {
-                var h = EventNotification;
-                if (h != null)
-                    h(this, new WebSocketMessageEventArgs(message));
+                EventNotification?.Invoke(this, new WebSocketMessageEventArgs(message));
             }
             else
             {
@@ -109,29 +106,29 @@ namespace TAS.Remoting.Client
 
         private void _clientSocket_OnOpen(object sender, EventArgs e)
         {
-            var h = OnOpen;
-            if (h != null)
-                h(this, EventArgs.Empty);
+            OnOpen?.Invoke(this, EventArgs.Empty);
         }
 
         private WebSocketMessage WaitForResponse(WebSocketMessage sendedMessage)
         {
-            Func<WebSocketMessage> resultFunc = new Func<WebSocketMessage>(() =>
-           {
-               WebSocketMessage response;
-               Stopwatch timeout = Stopwatch.StartNew();
-               do
-               {
-                   _messageHandler.WaitOne(query_timeout);
-                   if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out response))
-                       return response;
-               }
-               while (timeout.ElapsedMilliseconds < query_timeout);
-               throw new TimeoutException($"Didn't received response from server within {query_timeout} milliseconds. Query was {sendedMessage}");
-           });
-            IAsyncResult funcAsyncResult = resultFunc.BeginInvoke(null, null);
-            funcAsyncResult.AsyncWaitHandle.WaitOne();
-            return resultFunc.EndInvoke(funcAsyncResult);
+            // Func<WebSocketMessage> resultFunc = new Func<WebSocketMessage>(() =>
+            //{
+            WebSocketMessage response;
+            Stopwatch timeout = Stopwatch.StartNew();
+            if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out response))
+                return response;
+            do
+            {
+                _messageHandler.WaitOne(query_timeout);
+                if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out response))
+                    return response;
+            }
+            while (timeout.ElapsedMilliseconds < query_timeout);
+            throw new TimeoutException($"Didn't received response from server within {query_timeout} milliseconds. Query was {sendedMessage}");
+            //});
+            // IAsyncResult funcAsyncResult = resultFunc.BeginInvoke(null, null);
+            // funcAsyncResult.AsyncWaitHandle.WaitOne();
+            // return resultFunc.EndInvoke(funcAsyncResult);
         }
 
         public void Update(object serialized, object target)

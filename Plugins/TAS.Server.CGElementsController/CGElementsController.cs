@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
@@ -82,7 +83,7 @@ namespace TAS.Server
                                     _parentals = _deserializeList(reader, nameof(Parentals), nameof(Parental));
                                     break;
                                 case nameof(Auxes):
-                                    _parentals = _deserializeList(reader, nameof(Auxes), "Aux");
+                                    _auxes = _deserializeList(reader, nameof(Auxes), "Aux");
                                     break;
                             }
                         }
@@ -91,7 +92,7 @@ namespace TAS.Server
             }
         }
 
-        private IEnumerable<ICGElement> _deserializeList(XmlReader reader, string rootElementName, string childElementName)
+        private ICGElement[] _deserializeList(XmlReader reader, string rootElementName, string childElementName)
         {
             XmlAttributeOverrides overrides = new XmlAttributeOverrides();
             XmlAttributes rootAttribs = new XmlAttributes { XmlRoot = new XmlRootAttribute(rootElementName) };
@@ -99,22 +100,20 @@ namespace TAS.Server
             overrides.Add(typeof(List<CGElement>), rootAttribs);
             overrides.Add(typeof(CGElement), elementAttribs);
             List<CGElement> elements = (List<CGElement>)(new XmlSerializer(typeof(List<CGElement>), overrides).Deserialize(reader.ReadSubtree()));
-            return elements.Cast<ICGElement>();
+            return elements.Cast<ICGElement>().ToArray();
         }
 
-        private byte _crawl;
-        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value, nameof(Crawl)); } }
-
-        IEnumerable<ICGElement> _crawls = new ICGElement[0];
-        public IEnumerable<ICGElement> Crawls { get { return _crawls; } }
-
+        [JsonProperty]
         public byte DefaultCrawl { get { return 1; } }
 
+        [JsonProperty]
         public virtual bool IsConnected { get { return true; } }
 
         private bool _isCGEnabled;
+        [JsonProperty]
         public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value, nameof(IsCGEnabled)); } }
 
+        [JsonProperty]
         public bool IsMaster
         {
             get
@@ -124,31 +123,41 @@ namespace TAS.Server
         }
 
         bool _isWideScreen;
+        [JsonProperty]
         public bool IsWideScreen { get { return _isWideScreen; } set { SetField(ref _isWideScreen, value, nameof(IsWideScreen)); } }
+
+        private byte _crawl;
+        [JsonProperty]
+        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value, nameof(Crawl)); } }
+
+        [JsonProperty(nameof(Crawls), ItemTypeNameHandling = TypeNameHandling.Objects)]
+        ICGElement[] _crawls = new ICGElement[0];
+        public IEnumerable<ICGElement> Crawls { get { return _crawls; } }
 
         byte _logo;
         public byte Logo { get { return _logo; } set { SetField(ref _logo, value, nameof(Logo)); } }
 
-        IEnumerable<ICGElement> _logos = new ICGElement[0];
+        [JsonProperty(nameof(Logos), ItemTypeNameHandling = TypeNameHandling.Objects)]
+        ICGElement[] _logos = new ICGElement[0];
         public IEnumerable<ICGElement> Logos { get { return _logos; } }
 
         byte _parental;
+        [JsonProperty]
         public byte Parental { get { return _parental; } set { SetField(ref _parental, value, nameof(Parental)); } }
 
-        IEnumerable<ICGElement> _parentals = new ICGElement[0];
+        [JsonProperty(nameof(Parentals), ItemTypeNameHandling = TypeNameHandling.Objects)]
+        ICGElement[] _parentals = new ICGElement[0];
         public IEnumerable<ICGElement> Parentals { get { return _parentals; } }
 
+        [JsonProperty(nameof(VisibleAuxes), ItemTypeNameHandling = TypeNameHandling.Objects)]
         byte[] _visibleAuxes = new byte[0];
         public byte[] VisibleAuxes { get { return _visibleAuxes; } }
 
-        IEnumerable<ICGElement> _auxes = new ICGElement[0];
+        [JsonProperty(nameof(Auxes), ItemTypeNameHandling = TypeNameHandling.Objects)]
+        ICGElement[] _auxes = new ICGElement[0];
         public IEnumerable<ICGElement> Auxes { get { return _auxes; } }
 
         public event EventHandler Started;
-
-        public void Dispose()
-        {
-        }
 
         public void HideAux(int auxNr)
         {

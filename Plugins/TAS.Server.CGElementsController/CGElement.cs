@@ -9,6 +9,7 @@ using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
@@ -16,8 +17,10 @@ namespace TAS.Server
     public class CGElement : Remoting.Server.DtoBase, ICGElement
     {
         [XmlAttribute]
+        [JsonProperty]
         public byte Id { get; set; }
         [XmlAttribute]
+        [JsonProperty]
         public string Name { get; set; }
         private string _imageFile;
         [XmlAttribute]

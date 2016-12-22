@@ -31,6 +31,7 @@ namespace TAS.Remoting.Server
             _referenceResolver.ReferencePropertyChanged += _referenceResolver_ReferencePropertyChanged;
             _serializer.ReferenceResolver = _referenceResolver;
             _serializer.TypeNameHandling = TypeNameHandling.None;
+            _serializer.Context = new StreamingContext(StreamingContextStates.Remoting);
 //            _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
 #if DEBUG
             _serializer.Formatting = Formatting.Indented;
