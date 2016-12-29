@@ -19,7 +19,7 @@ namespace TAS.Client.Common
         }
 
         public static readonly DependencyProperty SelectedItemProperty =
-            DependencyProperty.Register("SelectedItem", typeof(object), typeof(BindableSelectedItem), new UIPropertyMetadata(null, OnSelectedItemChanged));
+            DependencyProperty.Register("SelectedItem", typeof(object), typeof(BindableSelectedItem), new FrameworkPropertyMetadata(null, OnSelectedItemChanged) { BindsTwoWayByDefault = true });
 
         private static void OnSelectedItemChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {

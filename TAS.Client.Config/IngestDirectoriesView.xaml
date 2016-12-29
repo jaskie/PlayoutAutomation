@@ -5,6 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"  
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
              xmlns:vm="clr-namespace:TAS.Client.Config"
              d:DataContext="{x:Type vm:IngestDirectoriesViewmodel}"
              mc:Ignorable="d" 
@@ -29,6 +31,9 @@
             <Button Command="{Binding CommandAdd}" ToolTip="Add new folder">
                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-add.png"/>
             </Button>
+            <Button Command="{Binding CommandAddSub}" ToolTip="Add subfolder">
+                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-add.png"/>
+            </Button>
             <Button Command="{Binding CommandDelete}" ToolTip="Delete selected folder">
                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-delete.png"/>
             </Button>
@@ -39,7 +44,21 @@
                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/direction-down.png"/>
             </Button>
         </StackPanel>
-        <ListView Grid.Row="1" ItemsSource="{Binding Directories}" SelectedItem="{Binding SelectedDirectory}" MinWidth="200"/>
+        <TreeView Grid.Row="1" ItemsSource="{Binding Directories}" MinWidth="200">
+            <i:Interaction.Behaviors>
+                <common:BindableSelectedItem SelectedItem="{Binding SelectedDirectory}"/>
+            </i:Interaction.Behaviors>            
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type vm:IngestDirectoryViewmodel}" ItemsSource="{Binding SubDirectoriesVM}">
+                    <TextBlock Text="{Binding DirectoryName}"/>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+                </Style>
+            </TreeView.ItemContainerStyle>            
+        </TreeView>
         <ContentControl Grid.Column="1" Grid.RowSpan="2" Margin="5" Content="{Binding SelectedDirectory.Editor}"/>
     </Grid>
 </UserControl>
