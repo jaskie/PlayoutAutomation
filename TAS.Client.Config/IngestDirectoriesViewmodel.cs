@@ -24,7 +24,9 @@ namespace TAS.Client.Config
 
         public IngestDirectoriesViewmodel(string fileName) : base(Deserialize(fileName), new IngestDirectoriesView(), string.Format("Ingest directories ({0})", System.IO.Path.GetFullPath(fileName))) 
         {
-            _directories = new ObservableCollection<IngestDirectoryViewmodel>(Model.Select(d => new IngestDirectoryViewmodel(d)));
+            _directories = new ObservableCollection<IngestDirectoryViewmodel>();
+            foreach (var item in Model.Select(d => new IngestDirectoryViewmodel(d, _directories)))
+                _directories.Add(item);
             _fileName = fileName;
             _createCommands();
         }
@@ -100,7 +102,7 @@ namespace TAS.Client.Config
 
         private void _add(object obj)
         {
-            var newDir = new IngestDirectoryViewmodel( new IngestDirectory()) { DirectoryName = Common.Properties.Resources._title_NewDirectory };
+            var newDir = new IngestDirectoryViewmodel( new IngestDirectory(), _directories) { DirectoryName = Common.Properties.Resources._title_NewDirectory };
             _directories.Add(newDir);
             _added = true;
             SelectedDirectory = newDir;
@@ -108,33 +110,51 @@ namespace TAS.Client.Config
 
         private void _up(object o)
         {
-            int oldIndex = _directories.IndexOf(_selectedDirectory);
-            if (oldIndex > 0)
+            var collection = SelectedDirectory?.OwnerCollection;
+            if (collection != null)
             {
-                _directories.Move(oldIndex, oldIndex - 1);
-                _moved = true;
+                int oldIndex = collection.IndexOf(_selectedDirectory);
+                if (oldIndex > 0)
+                {
+                    collection.Move(oldIndex, oldIndex - 1);
+                    _moved = true;
+                }
             }
         }
 
         private bool _canDown(object o)
         {
-            int index = _directories.IndexOf(_selectedDirectory);
-            return index >= 0 && index < _directories.Count - 1;
+            var collection = SelectedDirectory?.OwnerCollection;
+            if (collection != null)
+            {
+                int index = collection.IndexOf(_selectedDirectory);
+                return index >= 0 && index < collection.Count - 1;
+            }
+            else
+                return false;
         }
 
         private void _down(object o)
         {
-            int oldIndex = _directories.IndexOf(_selectedDirectory);
-            if (oldIndex < _directories.Count - 1)
+            var collection = SelectedDirectory?.OwnerCollection;
+            if (collection != null)
             {
-                _directories.Move(oldIndex, oldIndex + 1);
-                _moved = true;
+                int oldIndex = collection.IndexOf(_selectedDirectory);
+                if (oldIndex < collection.Count - 1)
+                {
+                    collection.Move(oldIndex, oldIndex + 1);
+                    _moved = true;
+                }
             }
         }
 
         private bool _canUp(object o)
         {
-            return _directories.IndexOf(_selectedDirectory) > 0;
+            var collection = SelectedDirectory?.OwnerCollection;
+            if (collection != null)
+                return collection.IndexOf(_selectedDirectory) > 0;
+            else
+                return false;
         }
 
         public ObservableCollection<IngestDirectoryViewmodel> Directories { get { return _directories; } }

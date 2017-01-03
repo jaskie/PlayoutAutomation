@@ -32,7 +32,7 @@
                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-add.png"/>
             </Button>
             <Button Command="{Binding CommandAddSub}" ToolTip="Add subfolder">
-                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-add.png"/>
+                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-folder-add.png"/>
             </Button>
             <Button Command="{Binding CommandDelete}" ToolTip="Delete selected folder">
                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-delete.png"/>
@@ -44,21 +44,13 @@
                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/direction-down.png"/>
             </Button>
         </StackPanel>
-        <TreeView Grid.Row="1" ItemsSource="{Binding Directories}" MinWidth="200">
-            <i:Interaction.Behaviors>
-                <common:BindableSelectedItem SelectedItem="{Binding SelectedDirectory}"/>
-            </i:Interaction.Behaviors>            
+        <controls:TreeViewEx Grid.Row="1" ItemsSource="{Binding Directories}" MinWidth="200" SelectedItem="{Binding SelectedDirectory}">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type vm:IngestDirectoryViewmodel}" ItemsSource="{Binding SubDirectoriesVM}">
                     <TextBlock Text="{Binding DirectoryName}"/>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
-            <TreeView.ItemContainerStyle>
-                <Style TargetType="TreeViewItem">
-                    <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
-                </Style>
-            </TreeView.ItemContainerStyle>            
-        </TreeView>
+        </controls:TreeViewEx>
         <ContentControl Grid.Column="1" Grid.RowSpan="2" Margin="5" Content="{Binding SelectedDirectory.Editor}"/>
     </Grid>
 </UserControl>

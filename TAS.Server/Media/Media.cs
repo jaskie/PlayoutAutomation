@@ -306,6 +306,7 @@ namespace TAS.Server
             if ((sIngestDir == null || sIngestDir.AccessType == TDirectoryAccessType.Direct)
                 && (dIngestDir == null || dIngestDir.AccessType == TDirectoryAccessType.Direct))
             {
+                FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(destMedia.FullPath));
                 File.Copy(FullPath, destMedia.FullPath, true);
                 File.SetCreationTimeUtc(destMedia.FullPath, File.GetCreationTimeUtc(FullPath));
                 File.SetLastWriteTimeUtc(destMedia.FullPath, File.GetLastWriteTimeUtc(FullPath));

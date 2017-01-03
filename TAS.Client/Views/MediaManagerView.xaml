@@ -73,15 +73,22 @@
                     <Setter Property="Width" Value="120"/>
                     <Setter Property="Margin" Value="5, 1"/>
                 </Style>
+                <HierarchicalDataTemplate x:Key="treeViewDataTemplate" ItemsSource="{Binding SubDirectories}">
+                    <TextBlock Text="{Binding DirectoryName}" />
+                </HierarchicalDataTemplate>
             </DockPanel.Resources>
             <Label Content="{Resx _directory}"/>
-            <ComboBox ItemsSource="{Binding MediaDirectories}" SelectedValue="{Binding SelectedDirectory}" DisplayMemberPath="DirectoryName" ToolTip="{Binding SelectedDirectory.Folder}" Margin="0, 1" >
-                <ComboBox.ItemContainerStyle>
+            <ComboBox ItemsSource="{Binding MediaDirectories}" DisplayMemberPath="DirectoryName" SelectedItem="{Binding SelectedDirectory}" 
+                      Template="{StaticResource ComboBoxTree}" 
+                      ItemContainerStyle="{StaticResource ComboBoxTreeItemStyle}" 
+                      ItemsPanel="{DynamicResource ComboBoxTreeItemsPanelTemplate}"
+                      />
+            <!--<ComboBox.ItemContainerStyle>
                     <Style TargetType="{x:Type ComboBoxItem}">
                         <Setter Property="ToolTip" Value="{Binding Folder}" />
                     </Style>
-                </ComboBox.ItemContainerStyle>
-            </ComboBox>
+                </ComboBox.ItemContainerStyle>-->
+
             <Button ToolTip="{Resx _refresh}" Command="{Binding CommandRefresh}" Margin="1">
                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
             </Button>
@@ -185,7 +192,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsMediaCategoryVisible, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsDisplayMediaCategory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Image ToolTip="{Binding MediaCategory}">
@@ -209,6 +216,9 @@
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding MediaCategory}" Value="Insert">
                                                 <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/insert.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding MediaCategory}" Value="Jingle">
+                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/jingle.png"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -383,7 +393,7 @@
         <ContentControl Grid.Row="4" Content="{Binding FileManagerVm.View}" />
         <StatusBar Grid.Row="5" Grid.ColumnSpan="2">
             <StackPanel Orientation="Horizontal" Visibility="{Binding DisplayDirectoryInfo, Converter={StaticResource BoolToVis}}" >
-                <common:StatusIndicator IsGreen="{Binding IsMediaDirectoryFine}" Margin="10,0,0,0"/>
+                <common:StatusIndicator IsGreen="{Binding IsMediaDirectoryOK}" Margin="10,0,0,0"/>
                 <TextBlock Text="{Resx _statusbar.TotalItems}" Margin="5, 0"/>
                 <TextBlock Text="{Binding ItemsCount}" />
                 <StackPanel Orientation="Horizontal" Visibility="{Binding DirectoryTotalSpace, Converter={StaticResource ZeroToVis}}">

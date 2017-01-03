@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
@@ -12,10 +13,13 @@ namespace TAS.Client.Config
     public class IngestDirectoryViewmodel: EditViewmodelBase<IngestDirectory>, IIngestDirectoryProperties
     {
         // only required by serializer
-        public IngestDirectoryViewmodel(IngestDirectory model):base(model, new IngestDirectoryView())
+        public IngestDirectoryViewmodel(IngestDirectory model, ObservableCollection<IngestDirectoryViewmodel> ownerCollection):base(model, new IngestDirectoryView())
         {
             Array.Copy(_aspectConversions, _aspectConversionsEnforce, 3);
-            _subDirectoriesVM = new System.Collections.ObjectModel.ObservableCollection<IngestDirectoryViewmodel>(model._subDirectories.Select(s => new IngestDirectoryViewmodel(s)));
+            OwnerCollection = ownerCollection;
+            _subDirectoriesVM = new System.Collections.ObjectModel.ObservableCollection<IngestDirectoryViewmodel>();
+            foreach (var item in model._subDirectories.Select(s => new IngestDirectoryViewmodel(s, _subDirectoriesVM)))
+                _subDirectoriesVM.Add(item);
         }
         
         #region Enumerations
@@ -142,23 +146,40 @@ namespace TAS.Client.Config
         public bool IsMXF { get { return IsXDCAM || (!IsXDCAM && ExportContainerFormat == TMediaExportContainerFormat.mxf); } }
         public bool VideoDoNotEncode { get { return _videoCodec == TVideoCodec.copy; } }
         public bool AudioDoNotEncode { get { return _audioCodec == TAudioCodec.copy; } }
-        private System.Collections.ObjectModel.ObservableCollection<IngestDirectoryViewmodel> _subDirectoriesVM;
-        public System.Collections.ObjectModel.ObservableCollection<IngestDirectoryViewmodel> SubDirectoriesVM { get { return _subDirectoriesVM; } }
+        private ObservableCollection<IngestDirectoryViewmodel> _subDirectoriesVM;
+        public ObservableCollection<IngestDirectoryViewmodel> SubDirectoriesVM { get { return _subDirectoriesVM; } }
         public IngestDirectoryViewmodel AddSubdirectory()
         {
             var dir = new IngestDirectory() { DirectoryName = Common.Properties.Resources._title_NewDirectory };
-            var dirVM = new IngestDirectoryViewmodel(dir);
+            var dirVM = new IngestDirectoryViewmodel(dir, _subDirectoriesVM);
             _subDirectoriesVM.Add(dirVM);
             IsModified = true;
             return dirVM;
         }
 
+        public ObservableCollection<IngestDirectoryViewmodel> OwnerCollection { get; private set; }
+
         protected override void OnDispose() { }
 
         public override void ModelUpdate(object destObject = null)
         {
-            base.ModelUpdate(destObject);
+            base.ModelUpdate(null);
+            foreach (var vm in _subDirectoriesVM)
+                vm.ModelUpdate(null);
             Model.SubDirectories = _subDirectoriesVM.Select(vm => vm.Model);
+        }
+
+        public override bool IsModified
+        {
+            get
+            {
+                return base.IsModified || _subDirectoriesVM.Any(d => d.IsModified);
+            }
+
+            protected set
+            {
+                base.IsModified = value;
+            }
         }
 
         public override string ToString()

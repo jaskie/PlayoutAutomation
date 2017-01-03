@@ -11,6 +11,7 @@ using System.Threading;
 using TAS.Server.Interfaces;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
+using TAS.Server.Common;
 
 namespace TAS.Server
 {
@@ -321,6 +322,7 @@ namespace TAS.Server
                             }
                             IsIndeterminate = true;
                             _destMedia.MediaStatus = TMediaStatus.Copying;
+                            FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(_destMedia.FullPath));
                             File.Move(SourceMedia.FullPath, _destMedia.FullPath);
                             File.SetCreationTimeUtc(_destMedia.FullPath, File.GetCreationTimeUtc(SourceMedia.FullPath));
                             File.SetLastWriteTimeUtc(_destMedia.FullPath, File.GetLastWriteTimeUtc(SourceMedia.FullPath));

@@ -533,7 +533,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsInterlaced
         {
-            get { return VideoFormatDescription.Descriptions[VideoFormat].Interlaced; }
+            get { return VideoFormatDescription.Descriptions.ContainsKey(VideoFormat) ? VideoFormatDescription.Descriptions[VideoFormat].Interlaced : false; }
         }
 
         public string Error
