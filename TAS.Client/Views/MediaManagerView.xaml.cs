@@ -76,5 +76,10 @@ namespace TAS.Client.Views
                     mainMenu.Visibility = Visibility.Collapsed;
             }
         }
+
+        private void TreeViewEx_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            folderCombo.IsOpen = false;
+        }
     }
 }

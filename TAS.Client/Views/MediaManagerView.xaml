@@ -5,10 +5,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:System="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1200"
-             xmlns:vm="clr-namespace:TAS.Client.ViewModels;assembly=TAS.Client"
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:client="clr-namespace:TAS.Client.Views"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
@@ -73,21 +74,21 @@
                     <Setter Property="Width" Value="120"/>
                     <Setter Property="Margin" Value="5, 1"/>
                 </Style>
-                <HierarchicalDataTemplate x:Key="treeViewDataTemplate" ItemsSource="{Binding SubDirectories}">
-                    <TextBlock Text="{Binding DirectoryName}" />
-                </HierarchicalDataTemplate>
             </DockPanel.Resources>
             <Label Content="{Resx _directory}"/>
-            <ComboBox ItemsSource="{Binding MediaDirectories}" DisplayMemberPath="DirectoryName" SelectedItem="{Binding SelectedDirectory}" 
-                      Template="{StaticResource ComboBoxTree}" 
-                      ItemContainerStyle="{StaticResource ComboBoxTreeItemStyle}" 
-                      ItemsPanel="{DynamicResource ComboBoxTreeItemsPanelTemplate}"
-                      />
-            <!--<ComboBox.ItemContainerStyle>
-                    <Style TargetType="{x:Type ComboBoxItem}">
-                        <Setter Property="ToolTip" Value="{Binding Folder}" />
-                    </Style>
-                </ComboBox.ItemContainerStyle>-->
+            <toolkit:DropDownButton Name="folderCombo" Margin="0, 1" Width="120" BorderThickness="2" HorizontalContentAlignment="Stretch" ToolTip="{Binding SelectedDirectory.Folder}"
+                                    Content="{Binding SelectedDirectory}" 
+                                    Template="{StaticResource ComboBoxTreeTemplate}">
+                <toolkit:DropDownButton.DropDownContent>
+                    <controls:TreeViewEx Width="120" ItemsSource="{Binding MediaDirectories}" SelectedItem="{Binding SelectedDirectory}" SelectedItemChanged="TreeViewEx_SelectedItemChanged">
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type vm:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">
+                                <TextBlock Text="{Binding DirectoryName}" ToolTip="{Binding Folder}"/>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </controls:TreeViewEx>
+                </toolkit:DropDownButton.DropDownContent>
+            </toolkit:DropDownButton>
 
             <Button ToolTip="{Resx _refresh}" Command="{Binding CommandRefresh}" Margin="1">
                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />

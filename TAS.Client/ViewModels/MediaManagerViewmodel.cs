@@ -52,7 +52,7 @@ namespace TAS.Client.ViewModels
             _createCommands();
 
             _mediaDirectories = new List<MediaDirectoryViewmodel>();
-            _mediaDirectories.AddRange(mediaManager.IngestDirectories.Where(d => d.IsImport).Select(d => new MediaDirectoryViewmodel(d)));
+            _mediaDirectories.AddRange(mediaManager.IngestDirectories.Where(d => d.ContainsImport()).Select(d => new MediaDirectoryViewmodel(d, true, false)));
             IArchiveDirectory archiveDirectory = mediaManager.ArchiveDirectory;
             if (archiveDirectory != null)
                 _mediaDirectories.Insert(0, new MediaDirectoryViewmodel(archiveDirectory));
@@ -293,6 +293,7 @@ namespace TAS.Client.ViewModels
                         Duration = sourceMedia.Duration,
                         DurationPlay = sourceMedia.DurationPlay,
                         MediaGuid = sourceMedia.MediaGuid,
+                        MediaCategory = sourceMedia.MediaCategory
                     };
                         ingestList.Add(
                             FileManagerVm.CreateConvertOperation(
@@ -591,7 +592,7 @@ namespace TAS.Client.ViewModels
                 if (sender is IArchiveDirectory)
                     SearchText = (sender as IArchiveDirectory).SearchString;
             }
-            if (e.PropertyName == nameof(IMediaDirectory.IsInitialized) && (sender as IMediaDirectory).IsInitialized)
+            if (e.PropertyName == nameof(IMediaDirectory.IsInitialized))
             {
                 Application.Current.Dispatcher.BeginInvoke((Action)delegate () { _reloadFiles(_selectedDirectory); });
                 _notifyDirectoryPropertiesChanged();
@@ -602,7 +603,7 @@ namespace TAS.Client.ViewModels
 
         private void _reloadFiles(MediaDirectoryViewmodel directory)
         {
-            if (directory?.IsInitialized == true)
+            if (directory?.IsInitialized == true && (!directory.IsIngestDirectory || directory.IsImport))
             {
                 UiServices.SetBusyState();
                 if (_mediaItems != null)
@@ -710,7 +711,15 @@ namespace TAS.Client.ViewModels
 
         private ObservableCollection<MediaViewViewmodel> _mediaItems;
 
-        public ObservableCollection<MediaViewViewmodel> MediaItems { get { return _mediaItems; } private set { SetField(ref _mediaItems, value, nameof(MediaItems)); } }
+        public ObservableCollection<MediaViewViewmodel> MediaItems
+        {
+            get { return _mediaItems; }
+            private set
+            {
+                if (SetField(ref _mediaItems, value, nameof(MediaItems)))
+                    SelectedMedia = null;
+            }
+        }
 
     }
 }

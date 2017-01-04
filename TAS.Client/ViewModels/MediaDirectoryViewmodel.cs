@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TAS.Client.Common;
 using TAS.Common;
 using TAS.Server.Interfaces;
 
@@ -12,11 +13,14 @@ namespace TAS.Client.ViewModels
         readonly IMediaDirectory _directory;
         readonly List<MediaDirectoryViewmodel> _subdirectories;
 
-        public MediaDirectoryViewmodel(IMediaDirectory directory)
+        public MediaDirectoryViewmodel(IMediaDirectory directory, bool includeImport = false, bool includeExport = false)
         {
             _directory = directory;
             _subdirectories = (directory as IIngestDirectory)?.SubDirectories != null
-                ? ((IIngestDirectory)directory).SubDirectories.Select(d => new MediaDirectoryViewmodel((IIngestDirectory)d)).ToList()
+                ? ((IIngestDirectory)directory)
+                    .SubDirectories
+                    .Where(d=> (includeImport && d.ContainsImport() )|| (includeExport && d.ContainsExport()))
+                    .Select(d => new MediaDirectoryViewmodel((IIngestDirectory)d, includeImport, includeExport)).ToList()
                 : new List<MediaDirectoryViewmodel>();
         }
         public IMediaDirectory Directory { get { return _directory; } }
@@ -58,8 +62,18 @@ namespace TAS.Client.ViewModels
 
         public bool IsImport { get { return (_directory as IIngestDirectory)?.IsImport == true; } }
 
+        public bool ContainsImport { get { return IsImport || SubDirectories.Any(d => d.IsImport); } }
+
+        public bool ContainsExport { get { return IsExport || SubDirectories.Any(d => d.IsExport); } }
+
+        public TMediaExportContainerFormat? ExportContainerFormat { get { return (_directory as IIngestDirectory)?.ExportContainerFormat; } }
+
+        public TmXFAudioExportFormat MXFAudioExportFormat { get { return (_directory as IIngestDirectory).MXFAudioExportFormat; } }
+
+        public TmXFVideoExportFormat MXFVideoExportFormat { get { return (_directory as IIngestDirectory).MXFVideoExportFormat; } }
+
         public bool IsRecursive { get { return (_directory as IIngestDirectory)?.IsRecursive == true; } }
-        
+
         public TDirectoryAccessType AccessType { get { return _directory is IIngestDirectory ? ((IIngestDirectory)_directory).AccessType : TDirectoryAccessType.Direct; } }
 
         public List<MediaDirectoryViewmodel> SubDirectories { get { return _subdirectories; } }

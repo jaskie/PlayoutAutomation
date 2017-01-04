@@ -4,6 +4,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:vm="clr-namespace:TAS.Client.ViewModels"
         xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
         xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
@@ -26,7 +27,19 @@
                     <Label Content="{Resx _export}" Padding="0" VerticalContentAlignment="Center" Margin="5, 0"/>
                 </StackPanel>
             </Button>
-            <ComboBox Margin="10, 5" ItemsSource="{Binding Directories}" SelectedItem="{Binding SelectedDirectory}" />
+            <toolkit:DropDownButton Name="folderCombo" BorderThickness="2" Margin="4" HorizontalContentAlignment="Stretch" Content="{Binding SelectedDirectory}"
+                                    ToolTip="{Binding SelectedDirectory.Folder}"
+                                    Template="{StaticResource ComboBoxTreeTemplate}">
+                <toolkit:DropDownButton.DropDownContent>
+                    <controls:TreeViewEx ItemsSource="{Binding Directories}" SelectedItem="{Binding SelectedDirectory}" SelectedItemChanged="TreeViewEx_SelectedItemChanged" Width="220">
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type vm:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">
+                                <TextBlock Text="{Binding DirectoryName}" ToolTip="{Binding Folder}"/>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </controls:TreeViewEx>
+                </toolkit:DropDownButton.DropDownContent>
+            </toolkit:DropDownButton>
         </DockPanel>
         <DockPanel DockPanel.Dock="Top" Visibility="{Binding CanConcatMedia, Converter={StaticResource BoolToVis}}">
             <CheckBox IsChecked="{Binding ConcatMedia}" Margin="4" Content="{Resx _concatMedia}" VerticalAlignment="Center"/>

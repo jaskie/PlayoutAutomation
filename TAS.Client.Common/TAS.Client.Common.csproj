@@ -109,6 +109,7 @@
     <Compile Include="Controls\FilenameEntry.xaml.cs">
       <DependentUpon>FilenameEntry.xaml</DependentUpon>
     </Compile>
+    <Compile Include="IngestDirectoryExtensions.cs" />
     <Compile Include="ObservableDictionary.cs" />
     <Compile Include="Plugin\IUiMenuItem.cs" />
     <Compile Include="Controls\MediaSeekSlider.cs" />
@@ -129,6 +130,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="SetPropertyAction.cs" />
     <Compile Include="StatusIndicator.xaml.cs">
       <DependentUpon>StatusIndicator.xaml</DependentUpon>
     </Compile>
@@ -141,6 +143,10 @@
     <Compile Include="WpfHacks.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
+      <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
+      <Name>TAS.Remoting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TAS.Server.Common\TAS.Server.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
       <Name>TAS.Server.Common</Name>
