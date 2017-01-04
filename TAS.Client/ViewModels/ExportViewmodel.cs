@@ -21,17 +21,17 @@ namespace TAS.Client.ViewModels
         {
             _mediaManager = mediaManager;
             Items = new ObservableCollection<ExportMediaViewmodel>(exportList.Select(media => new ExportMediaViewmodel(mediaManager, media)));
-            Directories = mediaManager.IngestDirectories.Where(d => d.IsExport).ToList();
+            Directories = mediaManager.IngestDirectories.Where(d => d.ContainsExport()).Select(d => new MediaDirectoryViewmodel(d, false, true)).ToList();
             SelectedDirectory = Directories.FirstOrDefault();
             CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
             this._view = new Views.ExportView() { DataContext = this, Owner = System.Windows.Application.Current.MainWindow, ShowInTaskbar=false };
             _view.ShowDialog();
         }
         
-        public List<IIngestDirectory> Directories { get; private set; }
+        public List<MediaDirectoryViewmodel> Directories { get; private set; }
 
-        IIngestDirectory _selectedDirectory;
-        public IIngestDirectory SelectedDirectory
+        MediaDirectoryViewmodel _selectedDirectory;
+        public MediaDirectoryViewmodel SelectedDirectory
         {
             get { return _selectedDirectory; }
             set
@@ -42,7 +42,7 @@ namespace TAS.Client.ViewModels
                     NotifyPropertyChanged(nameof(IsXDCAM));
                     NotifyPropertyChanged(nameof(IsMXF));
                     if (value?.ExportContainerFormat == TMediaExportContainerFormat.mxf 
-                        || value?.IsXDCAM == true)
+                        || value?.IsXdcam == true)
                     {
                         MXFAudioExportFormat = value.MXFAudioExportFormat;
                         MXFVideoExportFormat = value.MXFVideoExportFormat;
@@ -52,8 +52,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsXDCAM { get { return _selectedDirectory?.IsXDCAM == true; } }
-        public bool IsMXF { get { return _selectedDirectory?.ExportContainerFormat == TMediaExportContainerFormat.mxf || _selectedDirectory?.IsXDCAM == true; } }
+        public bool IsXDCAM { get { return _selectedDirectory?.IsXdcam == true; } }
+        public bool IsMXF { get { return _selectedDirectory?.ExportContainerFormat == TMediaExportContainerFormat.mxf || _selectedDirectory?.IsXdcam == true; } }
 
         private bool _concatMedia;
         public bool ConcatMedia
@@ -111,7 +111,7 @@ namespace TAS.Client.ViewModels
                 _checking = false;
                 InvalidateRequerySuggested();
             }
-            _mediaManager.Export(Items.Select(mevm => mevm.MediaExport), _concatMedia, _concatMediaName, SelectedDirectory, _mXFAudioExportFormat, _mXFVideoExportFormat);
+            _mediaManager.Export(Items.Select(mevm => mevm.MediaExport), _concatMedia, _concatMediaName, (IIngestDirectory)SelectedDirectory.Directory, _mXFAudioExportFormat, _mXFVideoExportFormat);
             _view.Close();
         }
 
@@ -119,7 +119,7 @@ namespace TAS.Client.ViewModels
         bool _canExport(object o)
         {
             return !_checking && Items.Count > 0
-                && SelectedDirectory != null
+                && SelectedDirectory.IsExport == true
                 && (!IsConcatMediaNameVisible || !string.IsNullOrWhiteSpace(_concatMediaName));
         }
 

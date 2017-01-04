@@ -5,11 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using TAS.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
-    public class IngestDirectory: TAS.Server.Interfaces.IIngestDirectoryProperties
+    public class IngestDirectory: IIngestDirectoryProperties
     {
+        
         public IngestDirectory()
         {
             IsImport = true;
@@ -71,5 +73,9 @@ namespace TAS.Client.Config.Model
         public decimal VideoBitrateRatio { get; set; }
         [DefaultValue(typeof(Decimal), "1")]
         public decimal AudioBitrateRatio { get; set; }
+        [XmlArray(nameof(SubDirectories))]
+        public IngestDirectory[] _subDirectories = new IngestDirectory[0];
+        [XmlIgnore]
+        public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return _subDirectories; }  set { _subDirectories = value.Cast<IngestDirectory>().ToArray(); } }
     }
 }

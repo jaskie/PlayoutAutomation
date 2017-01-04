@@ -41,5 +41,6 @@ namespace TAS.Server.Interfaces
         TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
         TmXFVideoExportFormat MXFVideoExportFormat { get; set; }
         TVideoFormat ExportVideoFormat { get; set; }
+        IEnumerable<IIngestDirectoryProperties> SubDirectories { get; }
     }
 }

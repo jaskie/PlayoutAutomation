@@ -18,11 +18,9 @@ namespace TAS.Client.ViewModels
     public class MediaViewViewmodel: ViewmodelBase
     {
         public readonly IMedia Media;
-        public readonly IMediaManager MediaManager;
-        public MediaViewViewmodel(IMedia media, IMediaManager manager)
+        public MediaViewViewmodel(IMedia media)
         {
             Media = media;
-            MediaManager = manager;
             Media.PropertyChanged += OnMediaPropertyChanged;
             if (Media is IPersistentMedia)
             {

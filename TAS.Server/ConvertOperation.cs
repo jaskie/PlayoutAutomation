@@ -377,10 +377,10 @@ namespace TAS.Server
                         localSourceMedia.FullPath,
                         encodeParams,
                         StartTC.ToSMPTETimecodeString(formatDescription.FrameRate),
-                        destMedia.FullPath);
-                if (destMedia is ArchiveMedia && !Directory.Exists(Path.GetDirectoryName(destMedia.FullPath)))
-                    Directory.CreateDirectory(Path.GetDirectoryName(destMedia.FullPath));
-                destMedia.AudioChannelMapping = (TAudioChannelMapping)MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion].OutputFormat;
+                    DestMedia.FullPath);
+            if (DestMedia is ArchiveMedia)
+                FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(DestMedia.FullPath));
+            DestMedia.AudioChannelMapping = (TAudioChannelMapping)MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion].OutputFormat;
                 if (RunProcess(Params)  // FFmpeg 
                     && destMedia.FileExists())
                 {

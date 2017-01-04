@@ -168,6 +168,12 @@ namespace TAS.Server
         [JsonProperty]
         public TDirectoryAccessType AccessType { get; protected set; }
 
+        [XmlArray(nameof(SubDirectories))]
+        public List<IngestDirectory> _subDirectories;
+
+        [XmlIgnore]
+        public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return _subDirectories; } }
+
         public string Username { get; set; }
 
         public string Password { get; set; }

@@ -160,6 +160,9 @@
                                                     <DataTrigger Binding="{Binding MediaCategory}" Value="Insert">
                                                         <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/insert.png"/>
                                                     </DataTrigger>
+                                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Jingle">
+                                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/jingle.png"/>
+                                                    </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Image.Style>

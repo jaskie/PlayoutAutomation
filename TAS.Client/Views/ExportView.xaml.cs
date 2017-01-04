@@ -23,5 +23,10 @@ namespace TAS.Client.Views
             InitializeComponent();
             this.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
         }
+
+        private void TreeViewEx_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            folderCombo.IsOpen = false;
+        }
     }
 }

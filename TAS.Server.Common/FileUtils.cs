@@ -44,7 +44,7 @@ namespace TAS.Server.Common
             return new string(arr);
         }
 
-        public static string GetUniqueFileName(string folder, string fileName,  int maxAttempts = 1024)
+        public static string GetUniqueFileName(string folder, string fileName, int maxAttempts = 1024)
         {
             // get filename base and extension
             var fileBase = Path.GetFileNameWithoutExtension(fileName);
@@ -89,6 +89,11 @@ namespace TAS.Server.Common
             }
         }
 
+        public static void CreateDirectoryIfNotExists(string path)
+        {
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+        }
     }
 
     public static class DateTimeExtensions

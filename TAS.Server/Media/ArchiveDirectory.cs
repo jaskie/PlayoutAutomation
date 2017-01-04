@@ -155,11 +155,22 @@ namespace TAS.Server
         private void _archiveCopy(Media fromMedia, IMediaDirectory destDirectory, bool deleteAfterSuccess, bool toTop)
         {
             FileOperation operation = new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestDirectory = destDirectory };
-            operation.Success += Archived;
+            operation.Success += _archived;
+            operation.Failure += _failure;
             MediaManager.FileManager.Queue(operation, toTop);
         }
 
-        private void Archived(object sender, EventArgs e)
+        private void _failure(object sender, EventArgs e)
+        {
+            var operation = sender as FileOperation;
+            if (operation != null)
+            {
+                operation.Success -= _archived;
+                operation.Failure -= _failure;
+            }
+        }
+
+        private void _archived(object sender, EventArgs e)
         {
             var operation = sender as FileOperation;
             if (operation != null)
@@ -167,7 +178,8 @@ namespace TAS.Server
                 var sourceMedia = operation.SourceMedia as ServerMedia;
                 if (sourceMedia != null)
                     sourceMedia.IsArchived = true;
-                operation.Success -= Archived;
+                operation.Success -= _archived;
+                operation.Failure -= _failure;
             }
         }
 

@@ -93,7 +93,7 @@ namespace TAS.Server
             if (adir != null)
                 adir.PropertyChanged += _onAnimationDirectoryPropertyChanged;
 
-            LoadIngestDirs(Path.Combine(Directory.GetCurrentDirectory(), ConfigurationManager.AppSettings["IngestFolders"]));
+            _loadIngestDirs(Path.Combine(Directory.GetCurrentDirectory(), ConfigurationManager.AppSettings["IngestFolders"]));
             _fileManager.VolumeReferenceLoudness = Convert.ToDecimal(_engine.VolumeReferenceLoudness);
             Debug.WriteLine(this, "End initializing");
             Logger.Debug("End initializing");
@@ -158,11 +158,11 @@ namespace TAS.Server
 
         public void ReloadIngestDirs()
         {
-            LoadIngestDirs(ConfigurationManager.AppSettings["IngestFolders"]);
+            _loadIngestDirs(ConfigurationManager.AppSettings["IngestFolders"]);
             Debug.WriteLine(this, "IngestDirectories reloaded");
         }
 
-        public void LoadIngestDirs(string fileName)
+        private void _loadIngestDirs(string fileName)
         {
             if (!string.IsNullOrEmpty(fileName) && File.Exists(fileName))
             {
@@ -448,6 +448,7 @@ namespace TAS.Server
                                Logger.Error(e, "SynchronizeMediaSecToPri on deleteNotExisted exception");
                            }
                        Logger.Debug("SynchronizeMediaSecToPri finished");
+                       Debug.WriteLine(this, "SynchronizeMediaSecToPri finished");
                    }
                });
             }
