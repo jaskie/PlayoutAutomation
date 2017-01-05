@@ -50,8 +50,17 @@ namespace TAS.Server
         }
         public override void BindToName(Type serializedType, out string assemblyName, out string typeName)
         {
-            typeName = serializedType.FullName;
-            assemblyName = serializedType.Assembly.FullName;
+            var attribute =  serializedType.GetCustomAttributes(typeof(TypeNameOverrideAttribute), true).FirstOrDefault() as TypeNameOverrideAttribute;
+            if (attribute != null)
+            {
+                typeName = attribute.TypeName;
+                assemblyName = attribute.AssemblyName;
+            }
+            else
+            {
+                typeName = serializedType.FullName;
+                assemblyName = serializedType.Assembly.FullName;
+            }
         }
     }
 }

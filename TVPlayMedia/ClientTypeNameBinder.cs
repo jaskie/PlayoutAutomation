@@ -46,19 +46,12 @@ namespace TAS.Client
                     return typeof(Model.PlayoutServerChannel);
                 case "TAS.Server.CasparServer":
                     return typeof(Model.PlayoutServer);
-                case "TAS.Server.CGElementsControllerTVP":
                 case "TAS.Server.CGElementsController":
                     return typeof(Model.CGElementsController);
-                case "System.Collections.Generic.List`1[[TAS.Server.CGElement, TAS.Server.CGElementsControllerTVP]]":
-                case "System.Collections.Generic.List`1[[TAS.Server.CGElement, TAS.Server.CGElementsController]]":
-                    return typeof(List<Model.CGElement>);
                 case "TAS.Server.CGElement":
-                case "TAS.Server.Interfaces.ICGElement":
                     return typeof(Model.CGElement);
                 case "Interfaces.IIngestDirectory":
                     return typeof(Model.IngestDirectory);
-                case "System.ComponentModel.PropertyChangedEventArgs":
-                    return typeof(System.ComponentModel.PropertyChangedEventArgs);
                 case "TAS.Common.VideoFormatDescription":
                     return typeof(VideoFormatDescription);
 
