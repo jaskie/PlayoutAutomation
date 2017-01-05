@@ -22,6 +22,7 @@ namespace System.Net.FtpClient
             EnableThreadSafeDataConnections = false;
             DataConnectionType = FtpDataConnectionType.PASV;
             UngracefullDisconnection = true;
+            Encoding = Encoding.UTF8;            
         }
 
         /// <summary>
