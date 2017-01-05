@@ -53,13 +53,12 @@ namespace TAS.Server
                 {
 
                     bool success = false;
-                    Media sourceMedia = SourceMedia as Media;
-                    if (sourceMedia == null)
+                    if (_sourceMedia == null)
                         throw new ArgumentException("LoudnessOperation: SourceMedia is not of type Media");
-                    if (sourceMedia.Directory is IngestDirectory && ((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia _localSourceMedia = (TempMedia)Owner.TempDirectory.CreateMedia(sourceMedia))
+                    if (_sourceMedia.Directory is IngestDirectory && ((IngestDirectory)_sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
+                        using (TempMedia _localSourceMedia = (TempMedia)Owner.TempDirectory.CreateMedia(_sourceMedia))
                         {
-                            if (sourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
+                            if (_sourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
                             {
                                 success = _do(_localSourceMedia);
                                 if (!success)
@@ -72,7 +71,7 @@ namespace TAS.Server
 
                     else
                     {
-                        success = _do(sourceMedia);
+                        success = _do(_sourceMedia);
                         if (!success)
                             TryCount--;
                         return success;
@@ -99,7 +98,7 @@ namespace TAS.Server
                 OperationStatus = FileOperationStatus.Finished;
                 return true;
             }
-            Debug.WriteLine("FFmpeg rewraper Do(): Failed for {0}. Command line was {1}", (object)SourceMedia, Params);
+            Debug.WriteLine("FFmpeg rewraper Do(): Failed for {0}. Command line was {1}", _sourceMedia, Params);
             return false;
         }
 
@@ -114,7 +113,7 @@ namespace TAS.Server
                     Match valueMatch = _regexLoudnessProgress.Match(lineMatch.Value);
                     if (valueMatch.Success)
                     {
-                        double totalSeconds = SourceMedia.Duration.TotalSeconds;
+                        double totalSeconds = _sourceMedia.Duration.TotalSeconds;
                         double currentPos;
                         if (totalSeconds != 0
                             && double.TryParse(valueMatch.Value.Trim(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out currentPos))
@@ -151,11 +150,11 @@ namespace TAS.Server
                         var h = AudioVolumeMeasured;
                         if (h == null)
                         {
-                            SourceMedia.AudioLevelIntegrated = _loudness;
-                            SourceMedia.AudioLevelPeak = _samplePeak;
-                            SourceMedia.AudioVolume = volume;
-                            if (SourceMedia is PersistentMedia)
-                                (SourceMedia as PersistentMedia).Save();
+                            _sourceMedia.AudioLevelIntegrated = _loudness;
+                            _sourceMedia.AudioLevelPeak = _samplePeak;
+                            _sourceMedia.AudioVolume = volume;
+                            if (_sourceMedia is PersistentMedia)
+                                (_sourceMedia as PersistentMedia).Save();
                         }
                         else
                             h(this, new AudioVolumeEventArgs(volume));

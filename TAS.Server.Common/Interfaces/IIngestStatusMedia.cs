@@ -6,7 +6,8 @@ using TAS.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IArchiveMedia: IPersistentMedia, IIngestStatusMedia
+    public interface IIngestStatusMedia
     {
+        TIngestStatus IngestStatus { get; }
     }
 }

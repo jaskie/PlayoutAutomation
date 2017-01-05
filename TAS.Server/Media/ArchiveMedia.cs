@@ -8,7 +8,7 @@ using TAS.Server.Database;
 
 namespace TAS.Server
 {
-    public class ArchiveMedia : PersistentMedia, IArchiveMedia
+    public class ArchiveMedia : PersistentMedia, IArchiveMedia, IServerIngestStatusMedia
     {
         private NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ArchiveMedia));
 
@@ -31,7 +31,7 @@ namespace TAS.Server
                 }
                 return _ingestStatus;
             }
-            internal set { SetField(ref _ingestStatus, value, nameof(IngestStatus)); }
+            set { SetField(ref _ingestStatus, value, nameof(IngestStatus)); }
         }
 
         public override bool Save()

@@ -21,7 +21,7 @@ namespace TAS.Server
         public TFileOperationKind Kind { get; set; }
 
         private object _destMediaLock = new object();
-        private Media _destMedia;
+        protected Media _destMedia;
         public event EventHandler Success;
         public event EventHandler Failure;
         public event EventHandler Finished;
@@ -40,7 +40,7 @@ namespace TAS.Server
 
         private NLog.Logger Logger;
 
-        private Media _sourceMedia;
+        protected Media _sourceMedia;
         public IMedia SourceMedia { get { return _sourceMedia; } set { SetField(ref _sourceMedia, value as Media, nameof(SourceMedia)); } }
         protected IMediaProperties _destMediaProperties;
         public IMediaProperties DestMediaProperties { get { return _destMediaProperties; } set { SetField(ref _destMediaProperties, value, nameof(Title)); } }
@@ -103,37 +103,21 @@ namespace TAS.Server
             {
                 if (SetField(ref _operationStatus, value, nameof(OperationStatus)))
                 {
-                    IngestMedia im = SourceMedia as IngestMedia;
-                    if (im != null)
+                    IServerIngestStatusMedia m = _sourceMedia as IServerIngestStatusMedia;
+                    if (m != null)
                         switch (value)
                         {
                             case FileOperationStatus.Finished:
-                                im.IngestStatus = TIngestStatus.Ready;
+                                m.IngestStatus = TIngestStatus.Ready;
                                 break;
                             case FileOperationStatus.Waiting:
                             case FileOperationStatus.InProgress:
-                                im.IngestStatus = TIngestStatus.InProgress;
+                                m.IngestStatus = TIngestStatus.InProgress;
                                 break;
                             default:
-                                im.IngestStatus = TIngestStatus.Unknown;
+                                m.IngestStatus = TIngestStatus.Unknown;
                                 break;
                         }
-                    ArchiveMedia am = SourceMedia as ArchiveMedia;
-                    if (am != null)
-                        switch (value)
-                        {
-                            case FileOperationStatus.Finished:
-                                am.IngestStatus = TIngestStatus.Ready;
-                                break;
-                            case FileOperationStatus.Waiting:
-                            case FileOperationStatus.InProgress:
-                                am.IngestStatus = TIngestStatus.InProgress;
-                                break;
-                            default:
-                                am.IngestStatus = TIngestStatus.Unknown;
-                                break;
-                        }
-
                     EventHandler h;
                     if (value == FileOperationStatus.Finished)
                     {
@@ -308,9 +292,9 @@ namespace TAS.Server
                             {
                                 if (File.GetLastWriteTimeUtc(_sourceMedia.FullPath).Equals(File.GetLastWriteTimeUtc(_destMedia.FullPath))
                                 && File.GetCreationTimeUtc(_sourceMedia.FullPath).Equals(File.GetCreationTimeUtc(_destMedia.FullPath))
-                                && SourceMedia.FileSize.Equals(_destMedia.FileSize))
+                                && _sourceMedia.FileSize.Equals(_destMedia.FileSize))
                                 {
-                                    SourceMedia.Delete();
+                                    _sourceMedia.Delete();
                                     return true;
                                 }
                                 else
@@ -323,9 +307,9 @@ namespace TAS.Server
                             IsIndeterminate = true;
                             _destMedia.MediaStatus = TMediaStatus.Copying;
                             FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(_destMedia.FullPath));
-                            File.Move(SourceMedia.FullPath, _destMedia.FullPath);
-                            File.SetCreationTimeUtc(_destMedia.FullPath, File.GetCreationTimeUtc(SourceMedia.FullPath));
-                            File.SetLastWriteTimeUtc(_destMedia.FullPath, File.GetLastWriteTimeUtc(SourceMedia.FullPath));
+                            File.Move(_sourceMedia.FullPath, _destMedia.FullPath);
+                            File.SetCreationTimeUtc(_destMedia.FullPath, File.GetCreationTimeUtc(_sourceMedia.FullPath));
+                            File.SetLastWriteTimeUtc(_destMedia.FullPath, File.GetLastWriteTimeUtc(_sourceMedia.FullPath));
                             _destMedia.MediaStatus = TMediaStatus.Copied;
                             ThreadPool.QueueUserWorkItem(o => ((Media)_destMedia).Verify());
                             AddOutputMessage("Move operation finished");

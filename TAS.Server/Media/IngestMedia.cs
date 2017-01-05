@@ -11,7 +11,7 @@ using TAS.FFMpegUtils;
 
 namespace TAS.Server
 {
-    public class IngestMedia : Media, IIngestMedia
+    public class IngestMedia : Media, IIngestMedia, IServerIngestStatusMedia
     {
         internal IngestMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
 
@@ -44,7 +44,7 @@ namespace TAS.Server
                 }
                 return _ingestStatus;
             }
-            internal set { SetField(ref _ingestStatus, value, nameof(IngestStatus)); }                
+            set { SetField(ref _ingestStatus, value, nameof(IngestStatus)); }                
         }
 
         public override Stream GetFileStream(bool forWrite)

@@ -91,6 +91,7 @@
     <Compile Include="EventProxy.cs" />
     <Compile Include="FileOperationEventArgs.cs" />
     <Compile Include="FileUtils.cs" />
+    <Compile Include="Interfaces\IIngestStatusMedia.cs" />
     <Compile Include="Interfaces\IEnginePlugin.cs" />
     <Compile Include="Interfaces\IEnginePluginFactory.cs" />
     <Compile Include="IEventEventArgs.cs" />
