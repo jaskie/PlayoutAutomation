@@ -6,16 +6,38 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 using TAS.Common;
+using TAS.Remoting.Server;
 using TAS.Server.Common;
+using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class CommandScriptItem : CommandScriptItemBase
-    {
+    public class CommandScriptItem : DtoBase, ICommandScriptItem
+    {      
+
+        public CommandScriptItem()
+        { }
+
+        private TimeSpan? _executeTime;
+        [DataMember]
+        public TimeSpan? ExecuteTime
+        {
+            get { return _executeTime; }
+            set { SetField(ref _executeTime, value, "ExecuteTime"); }
+        }
+
+        private string _command;
+        [DataMember]
+        public string Command
+        {
+            get { return _command; }
+            set { SetField(ref _command, value, "Command"); }
+        }
+
         internal bool Execute(Svt.Caspar.Channel channel)
         {
             string command = Command;
-            Match match = regexFill.Match(command);
+            Match match = CommandScriptItemProxy.regexFill.Match(command);
             if (match.Success)
             {
                 VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
@@ -28,7 +50,7 @@ namespace TAS.Server
                 channel.Fill((int)layer, x, y, sx, sy, duration, (Easing)easing);
                 return true;
             }
-            match = regexClip.Match(command);
+            match = CommandScriptItemProxy.regexClip.Match(command);
             if (match.Success)
             {
                 VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
@@ -41,7 +63,7 @@ namespace TAS.Server
                 channel.Clip((int)layer, x, y, sx, sy, duration, (Easing)easing);
                 return true;
             }
-            match = regexClear.Match(command);
+            match = CommandScriptItemProxy.regexClear.Match(command);
             if (match.Success)
             {
                 VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);

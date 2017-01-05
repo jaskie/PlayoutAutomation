@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using TAS.Remoting;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IPlayoutServer: IDto, IPlayoutServerProperties, IInitializable, INotifyPropertyChanged
+    public interface IPlayoutServer: IPlayoutServerProperties, IInitializable, INotifyPropertyChanged
     {
         bool IsConnected { get; }
         IServerDirectory MediaDirectory { get; }

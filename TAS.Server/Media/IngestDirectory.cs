@@ -172,6 +172,7 @@ namespace TAS.Server
         public List<IngestDirectory> _subDirectories;
 
         [XmlIgnore]
+        [JsonProperty]
         public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return _subDirectories; } }
 
         public string Username { get; set; }

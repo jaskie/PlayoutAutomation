@@ -7,7 +7,7 @@ using TAS.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IPlayoutServerChannel: Remoting.IDto, IPlayoutServerChannelProperties, IInitializable, INotifyPropertyChanged
+    public interface IPlayoutServerChannel: IPlayoutServerChannelProperties, IInitializable, INotifyPropertyChanged
     {
         IPlayoutServer OwnerServer { get; set; }
     }

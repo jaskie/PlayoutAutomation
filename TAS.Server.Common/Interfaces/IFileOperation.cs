@@ -4,11 +4,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using TAS.Common;
-using TAS.Remoting;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IFileOperation: INotifyPropertyChanged, IDto
+    public interface IFileOperation: INotifyPropertyChanged
     {
         TFileOperationKind Kind { get; set; }
         IMedia SourceMedia { get; set; }

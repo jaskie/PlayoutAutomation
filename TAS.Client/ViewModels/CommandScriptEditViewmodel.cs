@@ -41,7 +41,7 @@ namespace TAS.Client.ViewModels
 
         public override void ModelUpdate(object destObject = null)
         {
-            Model.Commands = Commands.Select(c => new CommandScriptItemBase { ExecuteTime = c.ExecuteTime, Command = c.Command });
+            Model.Commands = Commands.Select(c => new CommandScriptItemProxy { ExecuteTime = c.ExecuteTime, Command = c.Command });
         }
 
         protected override void OnDispose()
@@ -101,7 +101,7 @@ namespace TAS.Client.ViewModels
         
         private void _addCommandScriptItem(object obj)
         {
-            CommandScriptItemViewmodel newItem = new CommandScriptItemViewmodel(new CommandScriptItemBase(){ ExecuteTime = TimeSpan.Zero }, _frameRate);
+            CommandScriptItemViewmodel newItem = new CommandScriptItemViewmodel(new CommandScriptItemProxy(){ ExecuteTime = TimeSpan.Zero }, _frameRate);
             if (newItem.ShowDialog() == true)
             {
                 if (newItem.ExecuteTime == null)
@@ -112,7 +112,7 @@ namespace TAS.Client.ViewModels
 
         private void _addFinalizationCommandScriptItem(object obj)
         {
-            CommandScriptItemViewmodel newItem = new CommandScriptItemViewmodel(new CommandScriptItemBase(), _frameRate);
+            CommandScriptItemViewmodel newItem = new CommandScriptItemViewmodel(new CommandScriptItemProxy(), _frameRate);
             if (newItem.ShowDialog() == true)
                 _commands.Add(newItem);
         }

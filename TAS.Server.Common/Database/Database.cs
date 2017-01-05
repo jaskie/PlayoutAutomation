@@ -727,8 +727,8 @@ namespace TAS.Server.Database
             uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flagsEvent")) ? 0 : dataReader.GetUInt32("flagsEvent");
             ushort transitionType = dataReader.GetUInt16("typTransition");
             TEventType eventType = (TEventType)dataReader.GetByte("typEvent");
-            List<CommandScriptItemBase> commands = eventType == TEventType.CommandScript ?
-                Newtonsoft.Json.JsonConvert.DeserializeObject<List<CommandScriptItemBase>>(dataReader.GetString("Commands")) :
+            List<CommandScriptItemProxy> commands = eventType == TEventType.CommandScript ?
+                Newtonsoft.Json.JsonConvert.DeserializeObject<List<CommandScriptItemProxy>>(dataReader.GetString("Commands")) :
                 null;
             IEvent newEvent = engine.AddNewEvent(
                 dataReader.GetUInt64("idRundownEvent"),
@@ -817,10 +817,10 @@ namespace TAS.Server.Database
             else
                 cmd.Parameters.AddWithValue("@AudioVolume", aEvent.AudioVolume);
             cmd.Parameters.AddWithValue("@flagsEvent", aEvent.ToFlags());
-            cmd.Parameters.AddWithValue("@Commands",
-                aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript ?
-                (object)Newtonsoft.Json.JsonConvert.SerializeObject((aEvent as ICommandScript).Commands) : 
-                DBNull.Value);
+            object commands = aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript
+                ? (object)Newtonsoft.Json.JsonConvert.SerializeObject((aEvent as ICommandScript).Commands.Select(c => new CommandScriptItemProxy(c)).ToArray())
+                : DBNull.Value;
+            cmd.Parameters.AddWithValue("@Commands", commands);
 
             return cmd.ExecuteNonQuery() == 1;
         }

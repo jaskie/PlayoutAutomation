@@ -79,19 +79,6 @@ namespace TAS.Server
                         return true;
                     }
                 }
-            else
-                if (command is CommandScriptItemBase)
-            {
-                lock (_commandsSyncRoot)
-                {
-                    var c = _commands.Find((item) => item.DtoGuid == ((CommandScriptItemBase)command).DtoGuid);
-                    if (c != null && _commands.Remove(c))
-                    {
-                        c.PropertyChanged -= _command_PropertyChanged;
-                        return true;
-                    }
-                }
-            }
             return false;
         }
 

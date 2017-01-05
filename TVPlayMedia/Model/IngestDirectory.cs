@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -40,6 +41,11 @@ namespace TAS.Client.Model
         public string Password { get; set; }
         public string Username { get; set; }
         public int XdcamClipCount { get; set; }
+
+        [JsonProperty(nameof(SubDirectories))]
+        public List<IngestDirectory> _subDirectories;
+        [JsonIgnore]
+        public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return _subDirectories; } }
 
         public override IMedia CreateMedia(IMediaProperties mediaProperties)
         {

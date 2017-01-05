@@ -10,7 +10,7 @@ namespace TAS.Client.ViewModels
 {
     public class CommandScriptItemViewmodel : OkCancelViewmodelBase<ICommandScriptItem>, ICommandScriptItem, IDataErrorInfo
     {
-        public CommandScriptItemViewmodel(ICommandScriptItem item, RationalNumber frameRate):base(new CommandScriptItemBase(item), new Views.CommandScriptItemEditView(frameRate), resources._window_CommandScriptItemEditWindowTitle)
+        public CommandScriptItemViewmodel(ICommandScriptItem item, RationalNumber frameRate):base(new CommandScriptItemProxy(item), new Views.CommandScriptItemEditView(frameRate), resources._window_CommandScriptItemEditWindowTitle)
         {
             IsFinalizationCommand = item.ExecuteTime == null;
         }
@@ -83,7 +83,7 @@ namespace TAS.Client.ViewModels
 
         public bool ValidateCommandText(string commandText)
         {
-            return Model.ValidateCommandText(commandText);
+            return CommandScriptItemProxy.ValidateCommandText(commandText);
         }
     }
 }

@@ -4,12 +4,11 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using TAS.Common;
-using TAS.Remoting;
 using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IMediaManager: IInitializable, IDto
+    public interface IMediaManager: IInitializable
     {
         IAnimationDirectory AnimationDirectoryPRI { get; }
         IAnimationDirectory AnimationDirectorySEC { get; }

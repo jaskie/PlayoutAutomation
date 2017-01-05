@@ -73,7 +73,7 @@
   <ItemGroup>
     <Compile Include="AudioVolumeEventArgs.cs" />
     <Compile Include="ColorAttribute.cs" />
-    <Compile Include="CommandScriptItemBase.cs" />
+    <Compile Include="CommandScriptItemProxy.cs" />
     <Compile Include="ConcurrentHashSet.cs" />
     <Compile Include="Database\Database.cs" />
     <Compile Include="Database\DbCommandRedundant.cs" />
@@ -178,10 +178,6 @@
     <ProjectReference Include="..\MySqlBackup\MySqlBackup.csproj">
       <Project>{2625a6b7-505a-43f7-9282-24afe5a3db64}</Project>
       <Name>MySqlBackup</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
-      <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
-      <Name>TAS.Remoting</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
