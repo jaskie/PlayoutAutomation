@@ -1,13 +1,13 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
-using System.Collections.Generic;
 
 namespace TAS.Remoting
 {
     [JsonObject(MemberSerialization.OptIn, IsReference = false)]
     public class WebSocketMessage
     {
-        [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+        [JsonConverter(typeof(StringEnumConverter))]
         public enum WebSocketMessageType
         {
             RootQuery,

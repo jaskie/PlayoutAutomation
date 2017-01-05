@@ -67,7 +67,7 @@ namespace TAS.Remoting.Server
                 {
                     IDto objectToInvoke = _referenceResolver.ResolveReference(message.DtoGuid);
                     if (objectToInvoke != null)
-                    { 
+                    {
                         if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query
                             || message.MessageType == WebSocketMessage.WebSocketMessageType.Invoke)
                         {
@@ -128,7 +128,8 @@ namespace TAS.Remoting.Server
                         }
                     }
                     else
-                        throw new ApplicationException(string.Format("Server: unknown DTO: {0} on {1}", message.DtoGuid, message));
+                        _sendResponse(message, null);
+                        //throw new ApplicationException(string.Format("Server: unknown DTO: {0} on {1}", message.DtoGuid, message));
                 }
             }
             catch (Exception ex)
@@ -266,10 +267,25 @@ namespace TAS.Remoting.Server
             IDto dto = o as IDto;
             if (dto == null)
                 return;
+            EventArgs eventArgs;
+            PropertyChangedEventArgs ea = e as PropertyChangedEventArgs;
+            if (ea != null)
+            {
+                PropertyInfo p = o.GetType().GetProperty(ea.PropertyName);
+                if (p?.CanRead == true)
+                    eventArgs = new PropertyChangedWithValueEventArgs(ea.PropertyName, p.GetValue(o, null));
+                else
+                {
+                    eventArgs = new PropertyChangedWithValueEventArgs(ea.PropertyName, null);
+                    Debug.WriteLine(o, $"{GetType()}: Couldn't get value of {ea.PropertyName}");
+                }
+            }
+            else
+                eventArgs = e;
             WebSocketMessage message = new WebSocketMessage()
             {
                 DtoGuid = dto.DtoGuid,
-                Response = e,
+                Response = eventArgs,
                 MessageType = WebSocketMessage.WebSocketMessageType.EventNotification,
                 MemberName = eventName,
 #if DEBUG

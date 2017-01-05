@@ -5,6 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TAS.Client"
         mc:Ignorable="d"
-        Title="TVPlayMedia" Height="600" Width="1024">
+        Title="TVPlayMedia" 
+        Height="600" 
+        Width="1024"
+        KeyDown="Window_KeyDown">
     <ContentControl x:Name="_windowContent" />
 </Window>

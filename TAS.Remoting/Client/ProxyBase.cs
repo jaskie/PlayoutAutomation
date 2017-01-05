@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿//#undef DEBUG
 
 using Newtonsoft.Json;
 using System;
@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
@@ -17,6 +18,14 @@ namespace TAS.Remoting.Client
     //[JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public abstract class ProxyBase : IDto, INotifyPropertyChanged
     {
+
+#if DEBUG
+        ~ProxyBase()
+        {
+            Debug.WriteLine(this, string.Format("{0} Finalized", GetType().FullName));
+        }
+#endif
+
         public Guid DtoGuid { get; set; }
         private RemoteClient _client;
         private void SetClient(RemoteClient client)
@@ -125,10 +134,16 @@ namespace TAS.Remoting.Client
                 Debug.WriteLine($"ProxyBase: Event {e.Message.MemberName} notified on {this} with value {e.Message.Response}");
                 if (e.Message.MemberName == nameof(INotifyPropertyChanged.PropertyChanged))
                 {
-                    PropertyChangedEventArgs ea = (PropertyChangedEventArgs)e.Message.Response;
-                    NotifyPropertyChanged(ea.PropertyName);
-                    object o;
-                    _properties.TryRemove(ea.PropertyName, out o);
+                    PropertyChangedWithValueEventArgs eav = e.Message.Response as PropertyChangedWithValueEventArgs;
+                    if (eav != null)
+                    {
+                        PropertyInfo property = this.GetType().GetProperty(eav.PropertyName);
+                        object value = eav.Value;
+                        if (property != null)
+                            MethodParametersAlignment.AlignType(ref value, property.PropertyType);
+                        _properties[eav.PropertyName] = value;
+                        NotifyPropertyChanged(eav.PropertyName);
+                    }
                 }
                 else OnEventNotification(e);
             }

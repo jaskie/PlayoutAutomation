@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client\ClientContractResolver.cs" />
+    <Compile Include="PropertyChangedWithValueEventArgs.cs" />
     <Compile Include="ReferenceResolver.cs" />
     <Compile Include="Client\ProxyBase.cs" />
     <Compile Include="Client\RemoteClient.cs" />

@@ -54,11 +54,7 @@ namespace TAS.Client
                     return typeof(Model.IngestDirectory);
                 case "TAS.Common.VideoFormatDescription":
                     return typeof(VideoFormatDescription);
-
                 default:
-                    if (assemblyName == "System")
-                        return Type.GetType(typeName, true);
-                    else
                         return Type.GetType(string.Format("{0}, {1}", typeName, assemblyName), true);
             }
         }

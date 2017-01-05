@@ -12,6 +12,7 @@ namespace TAS.Remoting
     {
         public static T AlignType<T>(object input)
         {
+            Type resultType = typeof(T);
             AlignType(ref input, typeof(T));
             return (T)input;
         }
