@@ -104,7 +104,6 @@ namespace TAS.Client.ViewModels
             result.SourceMedia = sourceMedia;
             result.DestMediaProperties = destMediaProperties;
             result.DestDirectory = destDirectory;
-            result.OutputFormat = outputFormat;
             result.AudioVolume = audioVolume;
             result.SourceFieldOrderEnforceConversion = sourceFieldOrderEnforceConversion;
             result.AspectConversion = aspectConversion;

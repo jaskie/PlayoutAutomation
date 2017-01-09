@@ -11,7 +11,6 @@ namespace TAS.Server.Interfaces
         TAspectConversion AspectConversion { get; set; }
         TAudioChannelMappingConversion AudioChannelMappingConversion { get; set; }
         TFieldOrder SourceFieldOrderEnforceConversion { get; set; }
-        TVideoFormat OutputFormat { get; set; }
         decimal AudioVolume { get; set; }
         string IdAux { get; set; }
         bool Trim { get; set; }

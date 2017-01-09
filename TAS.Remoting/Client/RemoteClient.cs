@@ -1,6 +1,4 @@
-﻿#undef DEBUG
-
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -36,6 +34,9 @@ namespace TAS.Remoting.Client
             _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
             _serializer.ReferenceResolver = new ReferenceResolver();
             _serializer.TypeNameHandling = TypeNameHandling.None;
+#if DEBUG
+            _serializer.Formatting = Formatting.Indented;
+#endif
         }
 
         public SerializationBinder Binder { get { return _serializer.Binder; }  set { _serializer.Binder = value; } }

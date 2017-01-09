@@ -29,14 +29,11 @@ namespace TAS.Client.ViewModels
         {
             var operation = obj as ConvertOperationViewModel;
             int operaionIndex = _conversionList.IndexOf(operation);
-            var destMedia = operation.FileOperation.DestMedia;
             if (OperationList.Remove(operation))
             {
                 operation.PropertyChanged -= _convertOperationPropertyChanged;
                 operation.Dispose();
                 OnModified();
-                if (destMedia != null)
-                    destMedia.Delete();
                 SelectedOperation = _conversionList[Math.Min(_conversionList.Count - 1, operaionIndex)];
                 NotifyPropertyChanged(nameof(ShowMediaList));
             }

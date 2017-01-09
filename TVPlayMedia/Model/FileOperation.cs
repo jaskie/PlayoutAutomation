@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -14,9 +15,8 @@ namespace TAS.Client.Model
     {
         public bool Aborted { get { return Get<bool>(); } set { Set(value); } }
 
+        [JsonProperty(IsReference = false, TypeNameHandling = TypeNameHandling.Auto)]
         public IMediaProperties DestMediaProperties { get { return Get<IMediaProperties>(); } set { Set(value); } }
-
-        public IMedia DestMedia { get; set; }
 
         public IMediaDirectory DestDirectory { get { return Get<IMediaDirectory>(); } set { Set(value); } }
 

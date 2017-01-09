@@ -28,6 +28,7 @@ namespace TAS.Server
         internal StreamInfo[] StreamInfo;
 
         private TIngestStatus _ingestStatus;
+
         public TIngestStatus IngestStatus
         {
             get

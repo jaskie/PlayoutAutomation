@@ -60,16 +60,23 @@ namespace TAS.Server
         public void Queue(IFileOperation operation, bool toTop = false)
         {
             FileOperation op = operation as FileOperation;
-            if (op == null)
-                return;
-            op.Owner = this;
-            op.ScheduledTime = DateTime.UtcNow;
-            op.OperationStatus = FileOperationStatus.Waiting;
-            Logger.Info("Operation scheduled: {0}", op);
+            if (op != null)
+                _queue(op, toTop);
+        }
 
-            if ((operation.Kind == TFileOperationKind.Copy || operation.Kind == TFileOperationKind.Move || operation.Kind == TFileOperationKind.Convert)
-                && operation.DestMedia != null)
-                operation.DestMedia.MediaStatus = TMediaStatus.CopyPending;
+        private void _queue(FileOperation operation, bool toTop)
+        {
+            operation.Owner = this;
+            operation.ScheduledTime = DateTime.UtcNow;
+            operation.OperationStatus = FileOperationStatus.Waiting;
+            Logger.Info("Operation scheduled: {0}", operation);
+
+            if ((operation.Kind == TFileOperationKind.Copy || operation.Kind == TFileOperationKind.Move || operation.Kind == TFileOperationKind.Convert))
+            {
+                IMedia destMedia = operation.DestMedia;
+                if (destMedia != null)
+                    destMedia.MediaStatus = TMediaStatus.CopyPending;
+            }
             if (operation.Kind == TFileOperationKind.Convert)
             {
                 lock (_queueConvertOperation.SyncRoot)
@@ -88,17 +95,17 @@ namespace TAS.Server
             if (operation.Kind == TFileOperationKind.Export)
             {
                 lock (_queueExportOperation.SyncRoot)
+                {
+                    if (toTop)
+                        _queueExportOperation.Insert(0, operation);
+                    else
+                        _queueExportOperation.Add(operation);
+                    if (!_isRunningExportOperation)
                     {
-                        if (toTop)
-                            _queueExportOperation.Insert(0, operation);
-                        else
-                            _queueExportOperation.Add(operation);
-                        if (!_isRunningExportOperation)
-                        {
-                            _isRunningExportOperation = true;
-                            ThreadPool.QueueUserWorkItem(o => _runOperation(_queueExportOperation, ref _isRunningExportOperation));
-                        }
+                        _isRunningExportOperation = true;
+                        ThreadPool.QueueUserWorkItem(o => _runOperation(_queueExportOperation, ref _isRunningExportOperation));
                     }
+                }
             }
             if (operation.Kind == TFileOperationKind.Copy
                 || operation.Kind == TFileOperationKind.Delete
@@ -106,17 +113,17 @@ namespace TAS.Server
                 || operation.Kind == TFileOperationKind.Move)
             {
                 lock (_queueSimpleOperation.SyncRoot)
+                {
+                    if (toTop)
+                        _queueSimpleOperation.Insert(0, operation);
+                    else
+                        _queueSimpleOperation.Add(operation);
+                    if (!_isRunningSimpleOperation)
                     {
-                        if (toTop)
-                            _queueSimpleOperation.Insert(0, operation);
-                        else
-                            _queueSimpleOperation.Add(operation);
-                        if (!_isRunningSimpleOperation)
-                        {
-                            _isRunningSimpleOperation = true;
-                            ThreadPool.QueueUserWorkItem(o => _runOperation(_queueSimpleOperation, ref _isRunningSimpleOperation));
-                        }
+                        _isRunningSimpleOperation = true;
+                        ThreadPool.QueueUserWorkItem(o => _runOperation(_queueSimpleOperation, ref _isRunningSimpleOperation));
                     }
+                }
             }
             NotifyOperation(OperationAdded, operation);
         }

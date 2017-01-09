@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using TAS.Common;
+using TAS.Remoting;
 
 namespace TAS.Client
 {
@@ -61,7 +62,17 @@ namespace TAS.Client
 
         public override void BindToName(Type serializedType, out string assemblyName, out string typeName)
         {
-            base.BindToName(serializedType, out assemblyName, out typeName);
+            var attribute = serializedType.GetCustomAttributes(typeof(TypeNameOverrideAttribute), true).FirstOrDefault() as TypeNameOverrideAttribute;
+            if (attribute != null)
+            {
+                typeName = attribute.TypeName;
+                assemblyName = attribute.AssemblyName;
+            }
+            else
+            {
+                typeName = serializedType.FullName;
+                assemblyName = serializedType.Assembly.FullName;
+            }
         }
         
     }

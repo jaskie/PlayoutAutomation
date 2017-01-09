@@ -44,7 +44,6 @@ namespace TAS.Server
         private TAudioChannelMappingConversion _audioChannelMappingConversion;
         private decimal _audioVolume;
         private TFieldOrder _sourceFieldOrderEnforceConversion;
-        private TVideoFormat _outputFormat;
 
         [JsonProperty]
         public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value, nameof(AspectConversion)); } }
@@ -54,8 +53,6 @@ namespace TAS.Server
         public decimal AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value, nameof(AudioVolume)); } }
         [JsonProperty]
         public TFieldOrder SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { SetField(ref _sourceFieldOrderEnforceConversion, value, nameof(SourceFieldOrderEnforceConversion)); } }
-        [JsonProperty]
-        public TVideoFormat OutputFormat { get { return _outputFormat; } set { SetField(ref _outputFormat, value, nameof(OutputFormat)); } }
         [JsonProperty]
         public string IdAux
         {
@@ -226,7 +223,7 @@ namespace TAS.Server
             else
             {
                 ep.AppendFormat(" -b:v {0}k", (int)(inputMedia.VideoFormatDescription.ImageSize.Height * 13 * (double)sourceDir.VideoBitrateRatio));
-                VideoFormatDescription outputFormatDescription = VideoFormatDescription.Descriptions[OutputFormat];
+                VideoFormatDescription outputFormatDescription = DestMedia.VideoFormatDescription;
                 VideoFormatDescription inputFormatDescription = inputMedia.VideoFormatDescription;
                 _addConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], video_filters);
                 if (inputMedia.HasExtraLines)
@@ -364,7 +361,6 @@ namespace TAS.Server
                 _progressDuration = localSourceMedia.Duration;
                 Debug.WriteLine(this, "Convert operation started");
                 AddOutputMessage("Starting convert operation:");
-                VideoFormatDescription formatDescription = VideoFormatDescription.Descriptions[OutputFormat];
                 destMedia.MediaStatus = TMediaStatus.Copying;
                 //CheckInputFile(media);
                 string encodeParams = _encodeParameters(localSourceMedia, streams);
@@ -376,7 +372,7 @@ namespace TAS.Server
                         ingestRegion,
                         localSourceMedia.FullPath,
                         encodeParams,
-                        StartTC.ToSMPTETimecodeString(formatDescription.FrameRate),
+                        StartTC.ToSMPTETimecodeString(destMedia.VideoFormatDescription.FrameRate),
                     destMedia.FullPath);
             if (DestMedia is ArchiveMedia)
                 FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(destMedia.FullPath));

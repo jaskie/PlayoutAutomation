@@ -43,7 +43,9 @@ namespace TAS.Server
         protected Media _sourceMedia;
         public IMedia SourceMedia { get { return _sourceMedia; } set { SetField(ref _sourceMedia, value as Media, nameof(SourceMedia)); } }
         protected IMediaProperties _destMediaProperties;
+        [JsonProperty]
         public IMediaProperties DestMediaProperties { get { return _destMediaProperties; } set { SetField(ref _destMediaProperties, value, nameof(Title)); } }
+        [JsonProperty]
         public IMediaDirectory DestDirectory { get; set; }
         public IMedia DestMedia { get { return _destMedia; }  protected set { SetField(ref _destMedia, value as Media, nameof(DestMedia)); } }
 

@@ -83,6 +83,7 @@ namespace TAS.Remoting
             {
                 disposed.PropertyChanged -= _referencePropertyChanged;
                 disposed.Disposed -= _reference_Disposed;
+                Debug.WriteLine(disposed, "Reference resolver - object disposed");
             }
         }
 

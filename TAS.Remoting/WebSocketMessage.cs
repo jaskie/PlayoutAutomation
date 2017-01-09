@@ -40,7 +40,7 @@ namespace TAS.Remoting
         /// </summary>
         [JsonProperty]
         public string MemberName;
-        [JsonProperty]
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Auto, ItemTypeNameHandling = TypeNameHandling.Auto)]
         public object[] Parameters;
         [JsonProperty(TypeNameHandling = TypeNameHandling.Auto, ItemTypeNameHandling = TypeNameHandling.Auto, IsReference = true, ItemIsReference = true)]
         public object Response;

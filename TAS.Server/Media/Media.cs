@@ -238,6 +238,7 @@ namespace TAS.Server
         }
 
         protected readonly MediaDirectory _directory;
+        [JsonProperty]
         public IMediaDirectory Directory
         {
             get { return _directory; }
