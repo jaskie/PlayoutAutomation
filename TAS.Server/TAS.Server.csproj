@@ -85,6 +85,7 @@
     <Compile Include="FileOperation.cs" />
     <Compile Include="LoudnessOperation.cs" />
     <Compile Include="MediaManager.cs" />
+    <Compile Include="MediaPropertyChangedEventArgs.cs" />
     <Compile Include="Media\AnimationDirectory.cs" />
     <Compile Include="Media\ArchiveDirectory.cs" />
     <Compile Include="Media\ArchiveMedia.cs" />

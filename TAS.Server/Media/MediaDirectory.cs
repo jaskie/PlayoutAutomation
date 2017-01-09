@@ -29,7 +29,7 @@ namespace TAS.Server
         public event EventHandler<MediaEventArgs> MediaRemoved;
         public event EventHandler<MediaEventArgs> MediaVerified;
         public event EventHandler<MediaEventArgs> MediaDeleted;
-        public event EventHandler<MediaPropertyChangedEventArgs> MediaPropertyChanged;
+        internal event EventHandler<MediaPropertyChangedEventArgs> MediaPropertyChanged;
 
         protected bool _isInitialized = false;
         protected readonly NLog.Logger Logger;

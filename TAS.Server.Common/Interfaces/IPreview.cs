@@ -9,13 +9,13 @@ namespace TAS.Server.Interfaces
         IMedia PreviewMedia { get; }
         IPlayoutServerChannel PlayoutChannelPRV { get; }
         VideoFormatDescription FormatDescription { get; }
+        void PreviewPause();
+        void PreviewPlay();
         void PreviewUnload();
         bool PreviewLoaded { get; }
         bool PreviewIsPlaying { get; }
         long PreviewPosition { get; set; }
         long PreviewSeek { get; }
         decimal PreviewAudioLevel { get; set; }
-        bool PreviewPause();
-        bool PreviewPlay();
     }
 }

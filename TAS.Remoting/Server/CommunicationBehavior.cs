@@ -294,7 +294,7 @@ namespace TAS.Remoting.Server
             };
             string s = _serialize(message);
             Send(s);
-            Debug.WriteLine("Server: Notification {0} on {1} sent", eventName, dto);
+            Debug.WriteLine($"Server: Notification {eventName} on {dto} sent");
         }
 
         protected override void OnError(ErrorEventArgs e)

@@ -515,7 +515,6 @@ namespace TAS.Client.ViewModels
                 dir.MediaAdded -= _selectedDirectoryMediaAdded;
                 dir.MediaRemoved -= _selectedDirectoryMediaRemoved;
                 dir.PropertyChanged -= _selectedDirectoryPropertyChanged;
-                dir.MediaPropertyChanged -= _selectedDirectory_MediaPropertyChanged;
             }
             dir = directory?.Directory;
             _selectedDirectory = directory;
@@ -524,7 +523,6 @@ namespace TAS.Client.ViewModels
                 dir.MediaAdded += _selectedDirectoryMediaAdded;
                 dir.MediaRemoved += _selectedDirectoryMediaRemoved;
                 dir.PropertyChanged += _selectedDirectoryPropertyChanged;
-                dir.MediaPropertyChanged += _selectedDirectory_MediaPropertyChanged;
                 if (dir is IArchiveDirectory)
                     if (!string.IsNullOrEmpty((dir as IArchiveDirectory).SearchString))
                         SearchText = (dir as IArchiveDirectory).SearchString;
@@ -630,8 +628,7 @@ namespace TAS.Client.ViewModels
                 Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
                 {
                     IMedia media = e.Media;
-                    if ( _mediaItems != null
-                        && !(SelectedDirectory is IServerDirectory) || (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Still))
+                    if ( _mediaItems != null)
                     {
                         _mediaItems.Add(new MediaViewViewmodel(media));
                         _notifyDirectoryPropertiesChanged();
@@ -660,25 +657,6 @@ namespace TAS.Client.ViewModels
                     }
                 }
                 , null);
-        }
-
-
-        private void _selectedDirectory_MediaPropertyChanged(object sender, MediaPropertyChangedEventArgs e)
-        {
-            var dir = sender as IMediaDirectory;
-            if (dir != null && dir.IsInitialized && e.PropertyName == nameof(IMedia.MediaType))
-                Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
-                {
-                    IMedia media = e.Media;
-                    if ((!(SelectedDirectory is IServerDirectory) || (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Still || media.MediaType == TMediaType.Audio))
-                        && _mediaItems?.Any(mi => mi.Media == media) == false)
-                    {
-                        _mediaItems.Add(new MediaViewViewmodel(media));
-                        _mediaView?.Refresh();
-                        _notifyDirectoryPropertiesChanged();
-                    }
-                }
-               , null);
         }
 
         private void _notifyDirectoryPropertiesChanged()

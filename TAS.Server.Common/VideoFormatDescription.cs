@@ -291,5 +291,10 @@ namespace TAS.Common
 
         public TimeSpan FrameDuration { get { return FrameRate.IsInvalid ? TimeSpan.Zero : new TimeSpan(TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num); } }
         public long FrameTicks { get { return FrameRate.IsInvalid ? 0L : TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num; } }
+
+        public override string ToString()
+        {
+            return Enum.GetName(typeof(TVideoFormat), Format);
+        }
     }
 }

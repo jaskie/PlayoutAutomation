@@ -283,6 +283,7 @@ namespace TAS.Server
                     e.Save();
                 }
 
+            TimeSpan frameDuration = TimeSpan.FromTicks(_frameTicks);
             while (!IsDisposed)
             {
                 try
@@ -306,9 +307,10 @@ namespace TAS.Server
                     Debug.WriteLine(e, "Exception in engine tick");
                     Logger.Error($"{e}");
                 }
-                long timeToWait = (_frameTicks - (DateTime.UtcNow.Ticks + _timeCorrection.Ticks - CurrentTicks)) / TimeSpan.TicksPerMillisecond;
-                if (timeToWait > 0)
-                    Thread.Sleep((int)timeToWait);
+                TimeSpan waitTime = (CurrentTime + frameDuration) - AlignDateTime(DateTime.UtcNow + _timeCorrection);
+                if (waitTime > TimeSpan.Zero)
+                    Thread.Sleep(waitTime);
+
             }
             Debug.WriteLine(this, "Engine thread finished");
             Logger.Debug("Engine thread finished: {0}", this);
@@ -532,31 +534,21 @@ namespace TAS.Server
             }
         }
 
-        public bool PreviewPlay()
+        public void PreviewPlay()
         {
             var channel = _playoutChannelPRV;
             var media = PreviewMedia;
             if (channel != null && channel.Play(VideoLayer.Preview) && media != null)
-            {
                 PreviewIsPlaying = true;
-                return true;
-            }
-            else
-                return false;
         }
 
-        public bool PreviewPause()
+        public void PreviewPause()
         {
             var channel = _playoutChannelPRV;
             if (PreviewIsPlaying 
                 && channel != null 
                 && channel.Pause(VideoLayer.Preview))
-            {
                 PreviewIsPlaying = false;
-                return true;
-            }
-            else
-                return false;
         }
 
         private bool _previewLoaded;

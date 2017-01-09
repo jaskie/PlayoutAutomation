@@ -84,21 +84,6 @@ namespace TAS.Client.Model
             }
         }
 
-        event EventHandler<MediaPropertyChangedEventArgs> _mediaPropertyChanged;
-        public event EventHandler<MediaPropertyChangedEventArgs> MediaPropertyChanged
-        {
-            add
-            {
-                EventAdd(_mediaPropertyChanged);
-                _mediaPropertyChanged += value;
-            }
-            remove
-            {
-                _mediaPropertyChanged -= value;
-                EventRemove(_mediaPropertyChanged);
-            }
-        }
-
         event EventHandler<MediaEventArgs> _mediaVerified;
         public event EventHandler<MediaEventArgs> MediaVerified
         {
@@ -156,7 +141,7 @@ namespace TAS.Client.Model
 
         public override string ToString()
         {
-            return string.Format("{0}:{1} ({2})", this.GetType(), DirectoryName, Folder);
+            return DirectoryName;
         }
 
         public abstract IMedia CreateMedia(IMediaProperties mediaProperties);

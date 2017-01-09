@@ -81,7 +81,7 @@ namespace TAS.Server
                 sdir.MediaPropertyChanged += _serverMediaPropertyChanged;
                 sdir.PropertyChanged += _onServerDirectoryPropertyChanged;
             }
-            IAnimationDirectory adir = AnimationDirectoryPRI;
+            AnimationDirectory adir = AnimationDirectoryPRI as AnimationDirectory;
             if (adir != null)
             {
                 adir.PropertyChanged += _onAnimationDirectoryPropertyChanged;
@@ -89,7 +89,7 @@ namespace TAS.Server
                 adir.MediaRemoved += _onAnimationDirectoryMediaRemoved;
                 adir.MediaPropertyChanged += _onAnimationDirectoryMediaPropertyChanged;
             }
-            adir = AnimationDirectorySEC;
+            adir = AnimationDirectorySEC as AnimationDirectory;
             if (adir != null)
                 adir.PropertyChanged += _onAnimationDirectoryPropertyChanged;
 
@@ -121,7 +121,7 @@ namespace TAS.Server
                 sdir.MediaPropertyChanged -= _serverMediaPropertyChanged;
                 sdir.PropertyChanged -= _onServerDirectoryPropertyChanged;
             }
-            IAnimationDirectory adir = AnimationDirectoryPRI;
+            AnimationDirectory adir = AnimationDirectoryPRI as AnimationDirectory;
             if (adir != null)
             {
                 adir.PropertyChanged -= _onAnimationDirectoryPropertyChanged;
@@ -129,7 +129,7 @@ namespace TAS.Server
                 adir.MediaRemoved -= _onAnimationDirectoryMediaRemoved;
                 adir.MediaPropertyChanged -= _onAnimationDirectoryMediaPropertyChanged;
             }
-            adir = AnimationDirectorySEC;
+            adir = AnimationDirectorySEC as AnimationDirectory;
             if (adir != null)
                 adir.PropertyChanged -= _onAnimationDirectoryPropertyChanged;
             UnloadIngestDirs();

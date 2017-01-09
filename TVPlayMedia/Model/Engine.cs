@@ -98,25 +98,11 @@ namespace TAS.Client.Model
             Invoke(parameters: new object[] { media, seek, duration, position, audioLevel });
         }
 
-        public bool PreviewPause()
-        {
-            return Query<bool>();
-        }
+        public void PreviewPause() { Invoke(); }
 
-        public bool PreviewPlay()
-        {
-            return Query<bool>();
-        }
+        public void PreviewPlay() { Invoke(); }
 
-        public void PreviewUnload()
-        {
-            Invoke();
-        }
-
-        public IMedia FindPreviewMedia(IMedia media)
-        {
-            return Query<Media>(parameters: new object[] { media });
-        }
+        public void PreviewUnload() { Invoke(); }
 
         #endregion IPreview
 
@@ -343,5 +329,11 @@ namespace TAS.Client.Model
         public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         public event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
         public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
+
+
+        public override string ToString()
+        {
+            return EngineName;
+        }
     }
 }
