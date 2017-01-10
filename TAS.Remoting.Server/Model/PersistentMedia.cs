@@ -6,7 +6,7 @@ using TAS.Common;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
 
-namespace TAS.Client.Model
+namespace TAS.Remoting.Model
 {
     public class PersistentMedia : Media, IPersistentMedia
     {

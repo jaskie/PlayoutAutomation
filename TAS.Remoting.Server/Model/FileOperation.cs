@@ -9,9 +9,9 @@ using TAS.Remoting;
 using TAS.Remoting.Client;
 using TAS.Server.Interfaces;
 
-namespace TAS.Client.Model
+namespace TAS.Remoting.Model
 {
-    class FileOperation : ProxyBase, IFileOperation
+    public class FileOperation : ProxyBase, IFileOperation
     {
         public bool Aborted { get { return Get<bool>(); } set { Set(value); } }
 

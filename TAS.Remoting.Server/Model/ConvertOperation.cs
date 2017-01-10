@@ -6,9 +6,9 @@ using System.Text;
 using TAS.Common;
 using TAS.Server.Interfaces;
 
-namespace TAS.Client.Model
+namespace TAS.Remoting.Model
 {
-    class ConvertOperation : FileOperation, IConvertOperation
+    public class ConvertOperation : FileOperation, IConvertOperation
     {
         public TAspectConversion AspectConversion { get { return Get<TAspectConversion>(); } set { Set(value); } }
         public TAudioChannelMappingConversion AudioChannelMappingConversion { get { return Get<TAudioChannelMappingConversion>(); } set { Set(value); } }

@@ -8,7 +8,7 @@ using TAS.Remoting.Client;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
 
-namespace TAS.Client.Model
+namespace TAS.Remoting.Model
 {
     public class MediaManager : ProxyBase, IMediaManager
     {

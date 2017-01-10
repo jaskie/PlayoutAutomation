@@ -69,10 +69,6 @@
       <HintPath>..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.Extensions.Desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
@@ -138,33 +134,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Model\CGElement.cs" />
-    <Compile Include="Model\CGElementsController.cs" />
-    <Compile Include="ClientTypeNameBinder.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\AnimationDirectory.cs" />
-    <Compile Include="Model\ConvertOperation.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Model\ArchiveDirectory.cs" />
-    <Compile Include="Model\ArchiveMedia.cs" />
-    <Compile Include="Model\Engine.cs" />
-    <Compile Include="Model\FileManager.cs" />
-    <Compile Include="Model\FileOperation.cs" />
-    <Compile Include="Model\IngestDirectory.cs" />
-    <Compile Include="Model\IngestMedia.cs" />
-    <Compile Include="Model\LoudnessOperation.cs" />
-    <Compile Include="Model\MediaSegment.cs" />
-    <Compile Include="Model\PersistentMedia.cs" />
-    <Compile Include="Model\Media.cs" />
-    <Compile Include="Model\MediaDirectory.cs" />
-    <Compile Include="Model\MediaManager.cs" />
-    <Compile Include="Model\PlayoutServer.cs" />
-    <Compile Include="Model\PlayoutServerChannel.cs" />
-    <Compile Include="Model\ServerDirectory.cs" />
-    <Compile Include="Model\ServerMedia.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -193,6 +167,10 @@
     <ProjectReference Include="..\TAS.Client\TAS.Client.csproj">
       <Project>{f6e01e47-5075-42a7-b2a2-bc35bc074f9f}</Project>
       <Name>TAS.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TAS.Remoting.Server\TAS.Remoting.Server.csproj">
+      <Project>{29e2ff1e-7e0d-4cf6-b66a-3a116eb8209f}</Project>
+      <Name>TAS.Remoting.Server</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
       <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>

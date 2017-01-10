@@ -29,13 +29,13 @@ namespace TAS.Client
         {
 #if DEBUG
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en");
-            System.Threading.Thread.Sleep(2000); // wait for server to set up
+            System.Threading.Thread.Sleep(2000); // wait for server to spin up
 #endif
             InitializeComponent();
             try
             {
                 _client = new RemoteClient(ConfigurationManager.AppSettings["Host"]);
-                _client.Binder = new ClientTypeNameBinder();
+                _client.Binder = new Remoting.ClientTypeNameBinder();
                 _client.Initialize();
                 IEngine engine = _client.GetInitalObject<IEngine>();
                 IMediaManager mm = engine.MediaManager;

@@ -6,7 +6,7 @@ using System.Windows.Media.Imaging;
 using TAS.Remoting.Client;
 using TAS.Server.Interfaces;
 
-namespace TAS.Client.Model
+namespace TAS.Remoting.Model
 {
     public class CGElement : ProxyBase, ICGElement
     {

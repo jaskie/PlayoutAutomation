@@ -7,7 +7,7 @@ using System.Text;
 using TAS.Common;
 using TAS.Server.Interfaces;
 
-namespace TAS.Client.Model
+namespace TAS.Remoting.Model
 {
     public class IngestDirectory : MediaDirectory, IIngestDirectory
     {

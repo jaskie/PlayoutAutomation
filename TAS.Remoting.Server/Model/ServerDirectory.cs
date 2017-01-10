@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using TAS.Server.Interfaces;
 
-namespace TAS.Client.Model
+namespace TAS.Remoting.Model
 {
     public class ServerDirectory : MediaDirectory, IServerDirectory
     {

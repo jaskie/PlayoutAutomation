@@ -172,11 +172,11 @@ namespace TAS.Remoting.Client
 
         private bool _isDisposed = false;
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public void Dispose()
         {
             if (!_isDisposed)
             {
-                _client.EventNotification -= _onEventNotificationMessage;
                 _isDisposed = true;
                 DoDispose();
             }
@@ -184,6 +184,7 @@ namespace TAS.Remoting.Client
 
         protected virtual void DoDispose()
         {
+            _client.EventNotification -= _onEventNotificationMessage;
             Disposed?.Invoke(this, EventArgs.Empty);
         }
 

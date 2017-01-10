@@ -6,9 +6,9 @@ using System.Text;
 using TAS.Remoting.Client;
 using TAS.Server.Interfaces;
 
-namespace TAS.Client.Model
+namespace TAS.Remoting.Model
 {
-    class MediaSegment : ProxyBase, IMediaSegment
+    public class MediaSegment : ProxyBase, IMediaSegment
     {
         public UInt64 IdMediaSegment { get { return Get<UInt64>(); } set { Set(value); } }
         public Guid MediaGuid { get { return Get<Guid>(); }  set { Set(value); } }

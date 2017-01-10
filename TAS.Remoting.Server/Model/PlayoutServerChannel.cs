@@ -6,7 +6,7 @@ using TAS.Common;
 using TAS.Remoting.Client;
 using TAS.Server.Interfaces;
 
-namespace TAS.Client.Model
+namespace TAS.Remoting.Model
 {
     public class PlayoutServerChannel : ProxyBase, IPlayoutServerChannel
     {

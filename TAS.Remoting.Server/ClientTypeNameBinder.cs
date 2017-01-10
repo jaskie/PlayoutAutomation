@@ -6,7 +6,7 @@ using System.Text;
 using TAS.Common;
 using TAS.Remoting;
 
-namespace TAS.Client
+namespace TAS.Remoting
 {
     public class ClientTypeNameBinder : SerializationBinder
     {

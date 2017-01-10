@@ -5,11 +5,11 @@ using System.Text;
 using TAS.Common;
 using TAS.Server.Interfaces;
 
-namespace TAS.Client.Model
+namespace TAS.Remoting.Model
 {
-    public class ArchiveMedia: PersistentMedia, IArchiveMedia
+    public class IngestMedia: Media, IIngestMedia
     {
-        public override IMediaDirectory Directory { get { return Get<IArchiveDirectory>(); } set { SetField(value); } }
+        public override IMediaDirectory Directory { get { return Get<IIngestDirectory>(); } set { SetField(value); } }
         public TIngestStatus IngestStatus { get { return Get<TIngestStatus>(); } set { SetField(value); } }
     }
 }

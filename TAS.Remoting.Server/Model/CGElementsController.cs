@@ -6,7 +6,7 @@ using System.Text;
 using TAS.Remoting.Client;
 using TAS.Server.Interfaces;
 
-namespace TAS.Client.Model
+namespace TAS.Remoting.Model
 {
     public class CGElementsController : ProxyBase, ICGElementsController
 
