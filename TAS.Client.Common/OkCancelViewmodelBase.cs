@@ -24,8 +24,6 @@ namespace TAS.Client.Common
             _title = windowTitle;
         }
 
-        //public Window Window { get { return _currentWindow; } }
-        
         private string _title;
         public string Title { get { return _title; } set { SetField(ref _title, value, "Title"); } }
 
@@ -50,6 +48,7 @@ namespace TAS.Client.Common
                 ResizeMode = ResizeMode.NoResize
             };
             _showResult = _currentWindow.ShowDialog();
+            _currentWindow = null;
             if (_showResult == false)
                 ModelLoad();
             return _showResult;

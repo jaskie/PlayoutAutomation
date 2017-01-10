@@ -68,6 +68,7 @@ namespace TAS.Client.ViewModels
                 c.PropertyChanged -= _convertOperationPropertyChanged;
                 c.Dispose();
             }
+            _conversionList.Clear();
         }
         
         public bool IsValid

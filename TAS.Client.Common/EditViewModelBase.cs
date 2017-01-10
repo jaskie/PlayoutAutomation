@@ -93,5 +93,11 @@ namespace TAS.Client.Common
             return Model.ToString();
         }
 
+        protected override void OnDispose()
+        {
+            if (_editor != null)
+                _editor.DataContext = null;
+        }
+
     }
 }
