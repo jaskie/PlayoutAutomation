@@ -19,6 +19,7 @@ namespace TAS.Remoting.Client
         WebSocket _clientSocket;
         AutoResetEvent _messageHandler = new AutoResetEvent(false);
         readonly JsonSerializer _serializer;
+        readonly ReferenceResolver _referenceResolver;
         ConcurrentDictionary<Guid, WebSocketMessage> _receivedMessages = new ConcurrentDictionary<Guid, WebSocketMessage>();
         const int query_timeout = 150000;
 
@@ -32,7 +33,8 @@ namespace TAS.Remoting.Client
             _serializer = JsonSerializer.CreateDefault();
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting, this);
             _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-            _serializer.ReferenceResolver = new ReferenceResolver();
+            _referenceResolver = new ReferenceResolver();
+            _serializer.ReferenceResolver = _referenceResolver;
             _serializer.TypeNameHandling = TypeNameHandling.None;
 #if DEBUG
             _serializer.Formatting = Formatting.Indented;
@@ -94,14 +96,18 @@ namespace TAS.Remoting.Client
             {
                 message = _serializer.Deserialize<WebSocketMessage>(jsonReader);
             }
-            if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventNotification)
+            switch (message.MessageType)
             {
-                EventNotification?.Invoke(this, new WebSocketMessageEventArgs(message));
-            }
-            else
-            {
-                _receivedMessages[message.MessageGuid] = message;
-                _messageHandler.Set();
+                case WebSocketMessage.WebSocketMessageType.EventNotification:
+                    EventNotification?.Invoke(this, new WebSocketMessageEventArgs(message));
+                    break;
+                case WebSocketMessage.WebSocketMessageType.ObjectDisposed:
+                    _referenceResolver.RemoveReference(message.DtoGuid);
+                    break;
+                default:
+                    _receivedMessages[message.MessageGuid] = message;
+                    _messageHandler.Set();
+                    break;
             }
         }
 

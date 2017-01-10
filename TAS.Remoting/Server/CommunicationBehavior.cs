@@ -29,6 +29,7 @@ namespace TAS.Remoting.Server
             _serializer = JsonSerializer.CreateDefault();
             _referenceResolver = new ReferenceResolver();
             _referenceResolver.ReferencePropertyChanged += _referenceResolver_ReferencePropertyChanged;
+            _referenceResolver.ReferenceDisposed += _notifyObjectDisposed;
             _serializer.ReferenceResolver = _referenceResolver;
             _serializer.TypeNameHandling = TypeNameHandling.None;
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting);
@@ -156,6 +157,7 @@ namespace TAS.Remoting.Server
                 }
             }
             _referenceResolver.ReferencePropertyChanged -= _referenceResolver_ReferencePropertyChanged;
+            _referenceResolver.ReferenceDisposed -= _notifyObjectDisposed;
             _referenceResolver.Dispose();
             Debug.WriteLine("Server: connection closed.");
         }
@@ -295,6 +297,23 @@ namespace TAS.Remoting.Server
             string s = _serialize(message);
             Send(s);
             Debug.WriteLine($"Server: Notification {eventName} on {dto} sent");
+        }
+
+        void _notifyObjectDisposed(object o, EventArgs a)
+        {
+            IDto dto = o as IDto;
+            if (dto == null)
+                return;
+            WebSocketMessage message = new WebSocketMessage()
+            {
+                DtoGuid = dto.DtoGuid,
+                MessageType = WebSocketMessage.WebSocketMessageType.ObjectDisposed,
+#if DEBUG
+                DtoName = dto.ToString(),
+#endif
+            };
+            Send(_serialize(message));
+            Debug.WriteLine($"Server: ObjectDisposed notification on {dto} sent");
         }
 
         protected override void OnError(ErrorEventArgs e)

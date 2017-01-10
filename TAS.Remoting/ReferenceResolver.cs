@@ -22,6 +22,8 @@ namespace TAS.Remoting
         }
 #endif
         readonly ConcurrentDictionary<Guid, IDto> _knownDtos = new ConcurrentDictionary<Guid, IDto>();
+
+        #region IReferenceResolver
         public void AddReference(object context, string reference, object value)
         {
             IDto p = value as IDto;
@@ -39,9 +41,12 @@ namespace TAS.Remoting
             IDto p = value as IDto;
             if (p != null)
             {
-                _knownDtos[p.DtoGuid] = p;
-                p.PropertyChanged += _referencePropertyChanged;
-                p.Disposed += _reference_Disposed;
+                if (!IsReferenced(context, value))
+                {
+                    _knownDtos[p.DtoGuid] = p;
+                    p.PropertyChanged += _referencePropertyChanged;
+                    p.Disposed += _reference_Disposed;
+                }
                 return p.DtoGuid.ToString();
             }
             return string.Empty;
@@ -64,6 +69,9 @@ namespace TAS.Remoting
             return p;
         }
 
+        #endregion //IReferenceResolver
+
+        #region Server-side methods
         public IDto ResolveReference(Guid reference)
         {
             IDto p;
@@ -83,11 +91,23 @@ namespace TAS.Remoting
             {
                 disposed.PropertyChanged -= _referencePropertyChanged;
                 disposed.Disposed -= _reference_Disposed;
+                ReferenceDisposed?.Invoke(disposed, EventArgs.Empty);
                 Debug.WriteLine(disposed, "Reference resolver - object disposed");
             }
         }
+        #endregion // Server-side methods
+
+        #region Client-side methods
+        internal IDto RemoveReference(Guid reference)
+        {
+            IDto removed;
+            _knownDtos.TryRemove(reference, out removed);
+            return removed;
+        }
+        #endregion //Client-side methods
 
         public event EventHandler<PropertyChangedEventArgs> ReferencePropertyChanged;
+        public event EventHandler ReferenceDisposed;
 
         private bool _disposed = false;
         public void Dispose()

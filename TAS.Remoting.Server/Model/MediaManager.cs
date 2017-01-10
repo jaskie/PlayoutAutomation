@@ -19,7 +19,7 @@ namespace TAS.Remoting.Model
 
         public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete)
         {
-            return Query<List<MediaDeleteDenyReason>>(parameters: mediaList);
+            return Query<List<MediaDeleteDenyReason>>(parameters: new object[] { mediaList, forceDelete });
         }
 
         public void Export(IEnumerable<ExportMedia> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat)

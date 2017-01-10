@@ -29,6 +29,7 @@ namespace TAS.Client
         {
 #if DEBUG
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en");
+            Infralution.Localization.Wpf.CultureManager.UICulture = new System.Globalization.CultureInfo("en");
             System.Threading.Thread.Sleep(2000); // wait for server to spin up
 #endif
             InitializeComponent();

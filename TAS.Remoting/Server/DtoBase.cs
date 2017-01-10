@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿//#undef DEBUG
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

@@ -18,6 +18,7 @@ namespace TAS.Remoting
             EventAdd,
             EventRemove,
             EventNotification,
+            ObjectDisposed,
             Exception
         }
 
