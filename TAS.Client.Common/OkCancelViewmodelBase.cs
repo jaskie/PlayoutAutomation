@@ -24,7 +24,7 @@ namespace TAS.Client.Common
             _title = windowTitle;
         }
 
-        public Window Window { get { return _currentWindow; } }
+        //public Window Window { get { return _currentWindow; } }
         
         private string _title;
         public string Title { get { return _title; } set { SetField(ref _title, value, "Title"); } }
@@ -53,6 +53,14 @@ namespace TAS.Client.Common
             if (_showResult == false)
                 ModelLoad();
             return _showResult;
+        }
+
+        public virtual MessageBoxResult ShowMessage(string messageBoxText, string caption, MessageBoxButton button, MessageBoxImage icon)
+        {
+            if (_currentWindow == null)
+                return MessageBox.Show(messageBoxText, caption, button, icon);
+            else
+                return MessageBox.Show(_currentWindow, messageBoxText, caption, button, icon);
         }
 
         public bool? ShowResult { get { return _showResult; } }

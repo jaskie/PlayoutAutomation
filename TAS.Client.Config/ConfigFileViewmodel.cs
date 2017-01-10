@@ -33,9 +33,9 @@ namespace TAS.Client.Config
             vm.ConnectionString = this.tasConnectionString;
             if (vm.ShowDialog() == true)
                 if (vm.ConnectionString == this.tasConnectionString)
-                    MessageBox.Show(Window, "Database created successfully", "Create database", MessageBoxButton.OK, MessageBoxImage.Information);
+                    vm.ShowMessage("Database created successfully", "Create database", MessageBoxButton.OK, MessageBoxImage.Information);
                 else
-                    if (MessageBox.Show(Window, "Database created successfully. Use the new database?", "Create database", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (vm.ShowMessage("Database created successfully. Use the new database?", "Create database", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     this.tasConnectionString = vm.ConnectionString;
         }
 
@@ -91,44 +91,44 @@ namespace TAS.Client.Config
                 Database.Open(tasConnectionString, tasConnectionStringSecondary);
                 if (Database.UpdateRequired())
                 {
-                    if (MessageBox.Show(Window, "Connection successful, but database should be updated. \nUpdate now?", "Connection test", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (ShowMessage("Connection successful, but database should be updated. \nUpdate now?", "Connection test", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                         if (Database.UpdateDB())
-                            MessageBox.Show(Window, "Database is now up-to-date.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
+                            ShowMessage("Database is now up-to-date.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
                         else 
-                            MessageBox.Show(Window, "Database update failed.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
+                            ShowMessage("Database update failed.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
 
                 }
                 else
-                    MessageBox.Show(Window, "Connection successful and database is up-to-date.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
+                    ShowMessage("Connection successful and database is up-to-date.", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
-                MessageBox.Show(Window, "Connection failed", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowMessage("Connection failed", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         private void _testConnectivitySecondary(object obj)
         {
             if (Database.TestConnect(tasConnectionStringSecondary))
-                MessageBox.Show(Window, "Connection successful", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowMessage("Connection successful", "Connection test", MessageBoxButton.OK, MessageBoxImage.Information);
             else
-                MessageBox.Show(Window, "Connection failed", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowMessage("Connection failed", "Connection test", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         private void _clonePrimaryDatabase(object obj)
         {
             if (Database.TestConnect(tasConnectionStringSecondary))
             {
-                if (MessageBox.Show(Window, "Secondary database already exists. Delete it first?", "Warning - database exists", MessageBoxButton.YesNo, MessageBoxImage.Hand) != MessageBoxResult.Yes)
+                if (ShowMessage("Secondary database already exists. Delete it first?", "Warning - database exists", MessageBoxButton.YesNo, MessageBoxImage.Hand) != MessageBoxResult.Yes)
                     return;
                 if (!Database.DropDatabase(tasConnectionStringSecondary))
                 {
-                    MessageBox.Show(Window, "Database delete failed, cannot proceed.", "Database clone", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ShowMessage("Database delete failed, cannot proceed.", "Database clone", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
             if (Database.CloneDatabase(tasConnectionString, tasConnectionStringSecondary))
-                MessageBox.Show(Window, "Database clone successful", "Database clone", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowMessage("Database clone successful", "Database clone", MessageBoxButton.OK, MessageBoxImage.Information);
             else
-                MessageBox.Show(Window, "Database clonning failed", "Database clone", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowMessage("Database clonning failed", "Database clone", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         string _ingestFolders;

@@ -38,7 +38,6 @@ namespace TAS.Client
                     return typeof(Model.FileOperation);
                 case "TAS.Server.LoudnessOperation":
                     return typeof(Model.LoudnessOperation);
-
                 case "TAS.Server.Engine":
                     return typeof(Model.Engine);
                 case "TAS.Server.MediaManager":

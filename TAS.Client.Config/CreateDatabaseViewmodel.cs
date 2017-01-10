@@ -30,7 +30,8 @@ namespace TAS.Client.Config
         protected override void Ok(object o)
         {
             ModelUpdate(null);
-            Window.DialogResult = Model.CreateEmptyDatabase();
+            if (Model.CreateEmptyDatabase())
+                base.Ok(o);
         }
     }
 }
