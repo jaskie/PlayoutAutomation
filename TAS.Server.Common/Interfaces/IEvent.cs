@@ -8,35 +8,35 @@ using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IEvent: IEventProperties, INotifyPropertyChanged, ICloneable
+    public interface IEvent: IEventClient, IEventDatabase
     {
-        UInt64 IdRundownEvent { get; set; }
-        UInt64 IdEventBinding { get; }
+    }
+
+    public interface IEventClient: IEventProperties, INotifyPropertyChanged, ICloneable
+    {
         TPlayState PlayState { get; set; }
         long Position { get; set; }
         IMedia Media { get; set; }
         IEngine Engine { get; }
-        long MediaSeek { get; }
         TimeSpan Length { get; }
         DateTime EndTime { get; }
         TimeSpan? Offset { get; }
 
-        IEvent Next { get; }
-        IEvent Prior { get; }
-        IEvent Parent { get; }
+        IEventClient Next { get; }
+        IEventClient Prior { get; }
+        IEventClient Parent { get; }
 
-        IList<IEvent> SubEvents { get; }
+        IList<IEventClient> SubEvents { get; }
         int SubEventsCount { get; }
-        void InsertAfter(IEvent e);
-        void InsertBefore(IEvent e);
-        void InsertUnder(IEvent se);
+        void InsertAfter(IEventClient e);
+        void InsertBefore(IEventClient e);
+        void InsertUnder(IEventClient se);
         void MoveUp();
         void MoveDown();
         void Remove();
         void Save();
         void Delete();
         bool AllowDelete();
-        IEvent CloneTree();
         bool IsModified { get; set; }
         bool IsDeleted { get; }
         MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media);
@@ -48,8 +48,14 @@ namespace TAS.Server.Interfaces
         event EventHandler Saved;
         event EventHandler Deleted;
         event EventHandler Relocated;
-        event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
+        event EventHandler<CollectionOperationEventArgs<IEventClient>> SubEventChanged;
         event EventHandler<EventPositionEventArgs> PositionChanged;
+    }
+
+    public interface IEventDatabase: IEventProperties
+    {
+        ulong IdRundownEvent { get; set; }
+        ulong IdEventBinding { get; }
     }
 
     public interface IEventProperties : ICGElementsState
@@ -64,7 +70,6 @@ namespace TAS.Server.Interfaces
         string IdAux { get; set; }
         ulong IdProgramme { get; set; }
         VideoLayer Layer { get; set; }
-        Guid MediaGuid { get; set; }
         TimeSpan? RequestedStartTime { get; set; }
         TimeSpan ScheduledDelay { get; set; }
         TimeSpan ScheduledTc { get; set; }
@@ -77,5 +82,7 @@ namespace TAS.Server.Interfaces
         TTransitionType TransitionType { get; set; }
         TEasing TransitionEasing { get; set; }
         AutoStartFlags AutoStartFlags { get; set; }
+        Guid MediaGuid { get; set; }
     }
+
 }

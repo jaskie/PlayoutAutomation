@@ -13,7 +13,7 @@ namespace TAS.Client.ViewModels
     public class PreviewViewmodel : ViewmodelBase
     {
         private IMedia _media;
-        private IEvent _event;
+        private IEventClient _event;
         private readonly IPreview _preview;
         private readonly IPlayoutServerChannel _channelPRV;
         private readonly VideoFormatDescription _formatDescription;
@@ -75,18 +75,18 @@ namespace TAS.Client.ViewModels
 
         private void Event_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            IEvent ev = _event;
+            IEventClient ev = _event;
             IMedia media = ev == null ? null : ev.Media;
-            if (e.PropertyName == nameof(IEvent.AudioVolume) && _preview.PreviewLoaded && ev != null && media != null)
+            if (e.PropertyName == nameof(IEventClient.AudioVolume) && _preview.PreviewLoaded && ev != null && media != null)
                 _preview.PreviewAudioLevel = ev.AudioVolume == null? media.AudioVolume : (decimal)ev.AudioVolume;
         }
 
-        public IEvent Event
+        public IEventClient Event
         {
             get { return _event; }
             set
             {
-                IEvent oldEvent = _event;
+                IEventClient oldEvent = _event;
                 if (SetField(ref _event, value, nameof(Event)))
                 {
                     if (oldEvent != null)

@@ -149,11 +149,11 @@ namespace TAS.Client.ViewModels
         public ObservableCollection<MediaViewViewmodel> Items { get { return _items; } }
         public ICommand CommandAdd { get; private set; }
         
-        private IEvent _baseEvent;
-        public IEvent BaseEvent { get { return _baseEvent; }
+        private IEventClient _baseEvent;
+        public IEventClient BaseEvent { get { return _baseEvent; }
             set
             {
-                IEvent b = _baseEvent;
+                IEventClient b = _baseEvent;
                 if (b != value)
                 {
                     if (b != null)
@@ -390,7 +390,7 @@ namespace TAS.Client.ViewModels
 
         private void _onBaseEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IEvent.PlayState))
+            if (e.PropertyName == nameof(IEventClient.PlayState))
                 InvalidateRequerySuggested();
         }
 

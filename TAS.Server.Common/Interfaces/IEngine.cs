@@ -23,8 +23,9 @@ namespace TAS.Server.Interfaces
         TEngineState EngineState { get; }
 
         RationalNumber FrameRate { get; }
-        SynchronizedCollection<IEvent> RootEvents { get; }
-        List<IEvent> FixedTimeEvents { get; }
+        IEnumerable<IEventClient> RootEvents { get; }
+        void AddRootEvent(IEvent ev);
+        List<IEventClient> FixedTimeEvents { get; }
 
         IEvent AddNewEvent(
                     UInt64 idRundownEvent = 0,
@@ -63,15 +64,15 @@ namespace TAS.Server.Interfaces
                     int templateLayer = -1
             );
 
-        void Load(IEvent aEvent);
+        void Load(IEventClient aEvent);
         void StartLoaded();
-        void Start(IEvent aEvent);
+        void Start(IEventClient aEvent);
         void Clear();
         void Clear(VideoLayer aVideoLayer);
-        void RestartRundown(IEvent ARundown);
-        IEvent ForcedNext { get; set; }
-        void Schedule(IEvent aEvent);
-        void ReScheduleDelayed(IEvent aEvent);
+        void RestartRundown(IEventClient ARundown);
+        IEventClient ForcedNext { get; set; }
+        void Schedule(IEventClient aEvent);
+        void ReSchedule(IEventClient aEvent);
         void Restart();
 
         DateTime CurrentTime { get; }
@@ -83,17 +84,17 @@ namespace TAS.Server.Interfaces
 
         //MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia);
         void SearchMissingEvents();
-        IEvent Playing { get; }
-        IEvent NextToPlay { get; }
-        IEvent NextWithRequestedStartTime { get; }
+        IEventClient Playing { get; }
+        IEventClient NextToPlay { get; }
+        IEventClient NextWithRequestedStartTime { get; }
 
         event EventHandler<IEventEventArgs> EventSaved;
         event EventHandler<IEventEventArgs> EventDeleted;
         event EventHandler<EngineTickEventArgs> EngineTick;
         event EventHandler<EngineOperationEventArgs> EngineOperation;
-        event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
-        event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
-        event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
+        event EventHandler<CollectionOperationEventArgs<IEventClient>> VisibleEventsOperation;
+        event EventHandler<CollectionOperationEventArgs<IEventClient>> RunningEventsOperation;
+        event EventHandler<CollectionOperationEventArgs<IEventClient>> FixedTimeEventOperation;
     }
 
     public interface IEngineProperties : IPersistent

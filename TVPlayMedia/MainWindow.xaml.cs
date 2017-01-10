@@ -39,8 +39,9 @@ namespace TAS.Client
                 _client.Binder = new Remoting.ClientTypeNameBinder();
                 _client.Initialize();
                 IEngine engine = _client.GetInitalObject<IEngine>();
-                IMediaManager mm = engine.MediaManager;
-                MediaManagerViewmodel vm = new MediaManagerViewmodel(mm, engine);
+                //IMediaManager mm = engine.MediaManager;
+                //MediaManagerViewmodel vm = new MediaManagerViewmodel(mm, engine);
+                EngineViewmodel vm = new EngineViewmodel(engine, engine);
                 _windowContent.Content = vm.View;
             }
             catch (Exception e)

@@ -75,13 +75,13 @@ namespace TAS.Client.ViewModels
         public ICommand CommandToggleHold { get; private set; }
         public ICommand CommandTriggerStartType { get; private set; }
 
-        private IEvent _event;
-        public IEvent Event
+        private IEventClient _event;
+        public IEventClient Event
         {
             get { return _event; }
             set
             {
-                IEvent ev = _event;
+                IEventClient ev = _event;
                 if (ev != null && ev.Engine != _engine)
                     throw new InvalidOperationException("Edit event engine invalid");
                 if (value != ev)
@@ -109,7 +109,7 @@ namespace TAS.Client.ViewModels
 
         void _save(object o)
         {
-            IEvent e2Save = Event;
+            IEventClient e2Save = Event;
             if (IsModified && e2Save != null)
             {
                 PropertyInfo[] copiedProperties = this.GetType().GetProperties();
@@ -139,7 +139,7 @@ namespace TAS.Client.ViewModels
             _isLoading = true;
             try
             {
-                IEvent e2Load = _event;
+                IEventClient e2Load = _event;
                 if (e2Load != null)
                 {
                     PropertyInfo[] copiedProperties = this.GetType().GetProperties();
@@ -164,7 +164,7 @@ namespace TAS.Client.ViewModels
                     PropertyInfo[] zeroedProperties = this.GetType().GetProperties();
                     foreach (PropertyInfo zeroPi in zeroedProperties)
                     {
-                        PropertyInfo sourcePi = typeof(IEvent).GetProperty(zeroPi.Name);
+                        PropertyInfo sourcePi = typeof(IEventClient).GetProperty(zeroPi.Name);
                         if (sourcePi != null)
                             zeroPi.SetValue(this, null, null);
                     }
@@ -186,7 +186,7 @@ namespace TAS.Client.ViewModels
 
         private void _readProperty(string propertyName)
         {
-            IEvent e2Read = _event;
+            IEventClient e2Read = _event;
             PropertyInfo writingProperty = this.GetType().GetProperty(propertyName);
             if (e2Read != null)
             {
@@ -255,7 +255,7 @@ namespace TAS.Client.ViewModels
             var ev = _event;
             if (ev != null && (ev.EventType == TEventType.StillImage || ev.EventType == TEventType.CommandScript))
             {
-                IEvent parent = ev.Parent;
+                IEventClient parent = ev.Parent;
                 if (parent != null && _duration + _scheduledDelay > parent.Duration)
                     return resources._validate_ScheduledDelayInvalid;
             }
@@ -264,7 +264,7 @@ namespace TAS.Client.ViewModels
 
         private string _validateScheduledTime()
         {
-            IEvent ev = _event;
+            IEventClient ev = _event;
             if (ev != null
                 && (((_startType == TStartType.OnFixedTime && ((_autoStartFlags & AutoStartFlags.Daily) == AutoStartFlags.None))
                     || _startType == TStartType.Manual)
@@ -275,7 +275,7 @@ namespace TAS.Client.ViewModels
 
         private string _validateScheduledTc()
         {
-            IEvent ev = _event;
+            IEventClient ev = _event;
             if (ev != null)
             {
                 IMedia media = _event.Media;
@@ -292,7 +292,7 @@ namespace TAS.Client.ViewModels
 
         private string _validateDuration()
         {
-            IEvent ev = _event;
+            IEventClient ev = _event;
             if (ev != null)
             {
                 IMedia media = _event.Media;
@@ -301,7 +301,7 @@ namespace TAS.Client.ViewModels
                     return resources._validate_DurationInvalid;
                 if (ev.EventType == TEventType.StillImage || ev.EventType == TEventType.CommandScript)
                 {
-                    IEvent parent = ev.Parent;
+                    IEventClient parent = ev.Parent;
                     if (parent != null && _duration + _scheduledDelay > parent.Duration)
                         return resources._validate_ScheduledDelayInvalid;
                 }
@@ -326,7 +326,7 @@ namespace TAS.Client.ViewModels
         }
 
         MediaSearchViewmodel _mediaSearchViewModel;
-        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType, VideoFormatDescription videoFormatDescription = null)
+        private void _chooseMedia(TMediaType mediaType, IEventClient baseEvent, TStartType startType, VideoFormatDescription videoFormatDescription = null)
         {
             if (_mediaSearchViewModel == null)
             {
@@ -405,7 +405,7 @@ namespace TAS.Client.ViewModels
 
         void _changeMovie(object o)
         {
-            IEvent ev = _event;
+            IEventClient ev = _event;
             if (ev != null
                 && ev.EventType == TEventType.Movie)
             {
@@ -448,20 +448,20 @@ namespace TAS.Client.ViewModels
 
         bool _canReschedule(object o)
         {
-            IEvent ev = _event;
+            IEventClient ev = _event;
             return ev != null
                 && (ev.PlayState == TPlayState.Played || ev.PlayState == TPlayState.Aborted);
         }
         bool _canChangeMovie(object o)
         {
-            IEvent ev = _event;
+            IEventClient ev = _event;
             return ev != null
                 && ev.PlayState == TPlayState.Scheduled
                 && ev.EventType == TEventType.Movie;
         }
         bool _canEditMovie(object o)
         {
-            IEvent ev = _event;
+            IEventClient ev = _event;
             return ev != null
                 && ev.Media != null
                 && ev.PlayState == TPlayState.Scheduled
@@ -473,7 +473,7 @@ namespace TAS.Client.ViewModels
         }
         bool _canSave(object o)
         {
-            IEvent ev = _event;
+            IEventClient ev = _event;
             return ev != null
                 && (IsModified || ev.IsModified);
         }
@@ -757,8 +757,8 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                IEvent ev = Event;
-                IEvent boundEvent = ev == null ? null : (ev.StartType == TStartType.With) ? ev.Parent : (ev.StartType == TStartType.After) ? ev.Prior : null;
+                IEventClient ev = Event;
+                IEventClient boundEvent = ev == null ? null : (ev.StartType == TStartType.With) ? ev.Parent : (ev.StartType == TStartType.After) ? ev.Prior : null;
                 return boundEvent == null ? string.Empty : boundEvent.EventName;
             }
         }
@@ -934,7 +934,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                IEvent ev = Event;
+                IEventClient ev = Event;
                 return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG1 : ev.SubEvents.Any(e => e.Layer == VideoLayer.CG1 && e.EventType == TEventType.StillImage);
             }
         }
@@ -942,7 +942,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                IEvent ev = Event;
+                IEventClient ev = Event;
                 return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG2 : ev.SubEvents.Any(e => e.Layer == VideoLayer.CG2 && e.EventType == TEventType.StillImage);
             }
         }
@@ -950,7 +950,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                IEvent ev = Event;
+                IEventClient ev = Event;
                 return (ev == null) ? false : (ev.EventType == TEventType.StillImage) ? ev.Layer == VideoLayer.CG3 : ev.SubEvents.Any(e => e.Layer == VideoLayer.CG3 && e.EventType == TEventType.StillImage);
             }
         }
@@ -959,7 +959,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                IEvent ev = Event;
+                IEventClient ev = Event;
                 return (ev == null || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie) ? false : ev.SubEvents.Any(e => e.EventType == TEventType.StillImage);
             }
         }
@@ -977,7 +977,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                IEvent ev = Event;
+                IEventClient ev = Event;
                 return (ev != null) && ev.EventType != TEventType.Rundown;
             }
         }
@@ -987,7 +987,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                IEvent ev = Event;
+                IEventClient ev = Event;
                 if (ev != null)
                 {
                     IEngine engine = ev.Engine;
@@ -1032,37 +1032,37 @@ namespace TAS.Client.ViewModels
                     destPi.SetValue(this, sourcePi.GetValue(sender, null), null);
                 _isModified = oldModified;
             });
-            if (e.PropertyName == nameof(IEvent.PlayState))
+            if (e.PropertyName == nameof(IEventClient.PlayState))
             {
                 NotifyPropertyChanged(nameof(IsEditEnabled));
                 NotifyPropertyChanged(nameof(IsMovieOrLive));
                 InvalidateRequerySuggested();
             }
-            if (e.PropertyName == nameof(IEvent.AudioVolume))
+            if (e.PropertyName == nameof(IEventClient.AudioVolume))
             {
                 NotifyPropertyChanged(nameof(AudioVolumeLevel));
                 NotifyPropertyChanged(nameof(HasAudioVolume));
                 NotifyPropertyChanged(nameof(AudioVolume));
             }
-            if (e.PropertyName == nameof(IEvent.IsLoop))
+            if (e.PropertyName == nameof(IEventClient.IsLoop))
             {
                 InvalidateRequerySuggested();
             }
-            if (e.PropertyName == nameof(IEvent.Next))
+            if (e.PropertyName == nameof(IEventClient.Next))
             {
                 IsLoop = false;
                 NotifyPropertyChanged(nameof(CanLoop));
             }
-            if (e.PropertyName == nameof(IEvent.StartType))
+            if (e.PropertyName == nameof(IEventClient.StartType))
                 NotifyPropertyChanged(nameof(IsAutoStartEvent));
-            if (e.PropertyName == nameof(IEvent.AutoStartFlags))
+            if (e.PropertyName == nameof(IEventClient.AutoStartFlags))
             {
                 NotifyPropertyChanged(nameof(AutoStartForced));
                 NotifyPropertyChanged(nameof(AutoStartDaily));
             }
         }
 
-        private void _onSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
+        private void _onSubeventChanged(object o, CollectionOperationEventArgs<IEventClient> e)
         {
         }
 

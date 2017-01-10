@@ -85,9 +85,9 @@ namespace TAS.Server
             _parental = parental;
             _autoStartFlags = autoStartFlags;
             _applyMedia(null);
-             _subEvents = new Lazy<SynchronizedCollection<IEvent>>(() =>
+             _subEvents = new Lazy<SynchronizedCollection<IEventClient>>(() =>
              {
-                 var result = new SynchronizedCollection<IEvent>();
+                 var result = new SynchronizedCollection<IEventClient>();
                  if (_idRundownEvent != 0)
                  {
                      Engine.DbReadSubEvents(this, result);
@@ -203,25 +203,6 @@ namespace TAS.Server
                 );
         }
 
-        public IEvent CloneTree()
-        {
-            var newEvent = (IEvent)Clone();
-            foreach (Event e in SubEvents)
-            {
-                IEvent newSubevent = (IEvent)e.CloneTree();
-                newEvent.InsertUnder(newSubevent);
-                IEvent ne = e.Next;
-                while (ne != null)
-                {
-                    IEvent nec = (IEvent)ne.CloneTree();
-                    newSubevent.InsertAfter(nec);
-                    newSubevent = nec;
-                    ne = ne.Next;
-                }
-            }
-            return newEvent;
-        }
-
 
         TPlayState _playState;
         public virtual TPlayState PlayState
@@ -271,8 +252,8 @@ namespace TAS.Server
 
         public UInt64 IdEventBinding { get { return _idEventBinding; } }
 
-        Lazy<SynchronizedCollection<IEvent>> _subEvents;
-        public IList<IEvent> SubEvents { get { lock (_subEvents.Value.SyncRoot)  return _subEvents.Value.ToList(); } }
+        Lazy<SynchronizedCollection<IEventClient>> _subEvents;
+        public IList<IEventClient> SubEvents { get { lock (_subEvents.Value.SyncRoot)  return _subEvents.Value.ToList(); } }
 
         public int SubEventsCount { get { return _subEvents.Value.Count; } }
         
@@ -333,10 +314,10 @@ namespace TAS.Server
                     {
                         if (_eventType == TEventType.Rundown)
                         {
-                            foreach (IEvent se in SubEvents)
+                            foreach (Event se in SubEvents)
                             {
-                                IEvent le = se;
-                                IEvent le_n = le.Next;
+                                IEventClient le = se;
+                                IEventClient le_n = le.Next;
                                 while (le_n != null)
                                 {
                                     le = le_n;
@@ -368,7 +349,7 @@ namespace TAS.Server
         public void UpdateScheduledTime(bool updateSuccessors)
         {
             DateTime nt = _scheduledTime;
-            IEvent pev = null;
+            IEventClient pev = null;
             if (StartType == TStartType.After)
                 pev = Prior;
             if (pev != null)
@@ -385,10 +366,10 @@ namespace TAS.Server
                     ev.UpdateScheduledTime(true);
                 if (updateSuccessors)
                 {
-                    IEvent ne = Next;
+                    IEventClient ne = Next;
                     if (ne == null)
                     {
-                        IEvent vp = this.GetVisualParent();
+                        IEventClient vp = this.GetVisualParent();
                         if (vp != null)
                             ne = vp.Next;
                     }
@@ -489,7 +470,7 @@ namespace TAS.Server
                     if (value != default(DateTime))
                     {
                         ScheduledTime = value;
-                        IEvent succ = this.GetSuccessor();
+                        IEventClient succ = this.GetSuccessor();
                         if (succ != null)
                             succ.UpdateScheduledTime(true);
                     }
@@ -538,7 +519,7 @@ namespace TAS.Server
                 long maxlen = 0;
                 foreach (IEvent e in SubEvents)
                 {
-                    IEvent n = e;
+                    IEventClient n = e;
                     long len = 0;
                     while (n != null)
                     {
@@ -769,38 +750,40 @@ namespace TAS.Server
         }
 
         Lazy<Event> _parent;
-        public IEvent Parent
+        public IEventClient Parent
         {
             get { return _parent.Value; }
             protected set            {
                 if (value != _parent.Value)
                 {
-                    _parent = new Lazy<Event>(() => value as Event);
-                    if (value != null)
-                        _idEventBinding = value.IdRundownEvent;
+                    Event v = value as Event;
+                    _parent = new Lazy<Event>(() => v);
+                    if (v != null)
+                        _idEventBinding = v.IdRundownEvent;
                     NotifyPropertyChanged(nameof(Parent));
                 }
             }
         }
 
         private Lazy<Event> _prior;
-        public IEvent Prior
+        public IEventClient Prior
         {
             get { return _prior.Value; }
             protected set
             {
                 if (value != _prior.Value)
                 {
-                    _prior = new Lazy<Event>(() => value as Event);
+                    Event v = value as Event;
+                    _prior = new Lazy<Event>(() => v);
                     if (value != null)
-                        _idEventBinding = value.IdRundownEvent;
+                        _idEventBinding = v.IdRundownEvent;
                     NotifyPropertyChanged(nameof(Prior));
                 }
             }
         }
 
         private Lazy<Event> _next;
-        public IEvent Next
+        public IEventClient Next
         {
             get { return _next.Value; }
             protected set
@@ -815,7 +798,7 @@ namespace TAS.Server
             }
         }
 
-        public void InsertAfter(IEvent e)
+        public void InsertAfter(IEventClient e)
         {
             Event eventToInsert = e as Event;
             if (eventToInsert != null)
@@ -855,7 +838,7 @@ namespace TAS.Server
                 }
         }
 
-        public void InsertBefore(IEvent e)
+        public void InsertBefore(IEventClient e)
         {
             Event eventToInsert = e as Event;
             if (eventToInsert != null)
@@ -902,7 +885,7 @@ namespace TAS.Server
                 }
         }
 
-        public void InsertUnder(IEvent se)
+        public void InsertUnder(IEventClient se)
         {
             Event subEventToAdd = se as Event;
             if (subEventToAdd != null)
@@ -1100,7 +1083,7 @@ namespace TAS.Server
             if (_eventType == TEventType.Rundown)
             {
                 TimeSpan pauseTime = TimeSpan.Zero;
-                IEvent ev = SubEvents.FirstOrDefault(e => e.EventType == TEventType.Movie || e.EventType == TEventType.Live || e.EventType == TEventType.Rundown);
+                IEventClient ev = SubEvents.FirstOrDefault(e => e.EventType == TEventType.Movie || e.EventType == TEventType.Live || e.EventType == TEventType.Rundown);
                 while (ev != null)
                 {
                     TimeSpan? pt = ev.GetAttentionTime();
@@ -1180,9 +1163,9 @@ namespace TAS.Server
             if ((_playState == TPlayState.Fading || _playState == TPlayState.Paused || _playState == TPlayState.Playing) &&
                 (_eventType == TEventType.Live || _eventType == TEventType.Movie || _eventType == TEventType.Rundown))
                 return false;
-            foreach (IEvent se in this.SubEvents)
+            foreach (IEventClient se in this.SubEvents)
             {
-                IEvent ne = se;
+                IEventClient ne = se;
                 while (ne != null)
                 {
                     if (!ne.AllowDelete())
@@ -1205,7 +1188,7 @@ namespace TAS.Server
         protected void _delete()
         {
             Remove();
-            foreach (IEvent se in SubEvents)
+            foreach (IEventClient se in SubEvents)
             {
                 Event ne = se as Event;
                 while (ne != null)
@@ -1332,10 +1315,10 @@ namespace TAS.Server
             Saved?.Invoke(this, EventArgs.Empty);
         }
 
-        public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
+        public event EventHandler<CollectionOperationEventArgs<IEventClient>> SubEventChanged;
         protected virtual void NotifySubEventChanged(Event e, TCollectionOperation operation)
         {
-            SubEventChanged?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, operation));
+            SubEventChanged?.Invoke(this, new CollectionOperationEventArgs<IEventClient>(e, operation));
         }
     }
 

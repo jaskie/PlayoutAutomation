@@ -10,7 +10,7 @@ namespace TAS.Client.ViewModels
 {
     public class EventPanelMovieViewmodel: EventPanelRundownElementViewmodelBase
     {
-        public EventPanelMovieViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent) { }
+        public EventPanelMovieViewmodel(IEventClient ev, EventPanelViewmodelBase parent) : base(ev, parent) { }
 
         protected override void OnDispose()
         {

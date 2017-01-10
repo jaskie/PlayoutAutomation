@@ -341,7 +341,7 @@ namespace TAS.Server.Database
                     while (dataReader.Read())
                     {
                         NewEvent = _eventRead(engine, dataReader);
-                        engine.RootEvents.Add(NewEvent);
+                        engine.AddRootEvent(NewEvent);
                     }
                     dataReader.Close();
                 }
@@ -362,7 +362,7 @@ namespace TAS.Server.Database
                     {
                         while (dataReader.Read())
                         {
-                            if (!engine.RootEvents.Any(e => e.IdRundownEvent == dataReader.GetUInt64("idRundownEvent")))
+                            if (!engine.RootEvents.Any(e => (e as IEventDatabase)?.IdRundownEvent == dataReader.GetUInt64("idRundownEvent")))
                             {
                                 newEvent = _eventRead(engine, dataReader);
                                 foundEvents.Add(newEvent);
@@ -377,7 +377,7 @@ namespace TAS.Server.Database
                         e.StartType = TStartType.Manual;
                         e.IsModified = false;
                         e.Save();
-                        engine.RootEvents.Add(e);
+                        engine.AddRootEvent(e);
                     }
                 }
             }
@@ -615,7 +615,7 @@ namespace TAS.Server.Database
         #endregion // ArchiveDirectory
 
         #region IEvent
-        public static void DbReadSubEvents(this IEngine engine, IEvent eventOwner, IList<IEvent> subevents)
+        public static void DbReadSubEvents(this IEngine engine, IEvent eventOwner, IList<IEventClient> subevents)
         {
             lock (_connection)
             {
@@ -640,7 +640,7 @@ namespace TAS.Server.Database
                         while (dataReader.Read())
                             subevents.Add(_eventRead(engine, dataReader));
                     }
-                    foreach (var e in subevents)
+                    foreach (IEvent e in subevents)
                         if (e is ITemplated)
                         {
                             _readAnimatedEvent(e.IdRundownEvent, e as ITemplated);

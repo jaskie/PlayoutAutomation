@@ -45,9 +45,9 @@ namespace TAS.Client
             _notifyClipboardChanged();
         }
 
-        public static IEvent Paste(EventPanelViewmodelBase destination, TPasteLocation location)
+        public static IEventClient Paste(EventPanelViewmodelBase destination, TPasteLocation location)
         {
-            IEvent dest = destination.Event;
+            IEventClient dest = destination.Event;
             if (CanPaste(destination, location))
             {
                 var operation = Operation;
@@ -65,11 +65,11 @@ namespace TAS.Client
             return dest;
         }
 
-        static IEvent _paste(IEventProperties source, IEvent dest, TPasteLocation location, ClipboardOperation operation)
+        static IEventClient _paste(IEventProperties source, IEventClient dest, TPasteLocation location, ClipboardOperation operation)
         {
             if (operation == ClipboardOperation.Cut)
             {
-                var sourceEvent = source as IEvent;
+                var sourceEvent = source as IEventClient;
                 if (sourceEvent != null)
                 {
                     if (sourceEvent.Engine == dest.Engine)
@@ -157,8 +157,8 @@ namespace TAS.Client
 
         private static bool _canPaste(IEventProperties source, IEventProperties dest, TPasteLocation location, ClipboardOperation operation)
         {
-            var sourceEvent = source as IEvent;
-            var destEvent = dest as IEvent;
+            var sourceEvent = source as IEventClient;
+            var destEvent = dest as IEventClient;
             if (operation == ClipboardOperation.Cut
                 && (destEvent == null || sourceEvent?.Engine != destEvent.Engine))
                 return false;

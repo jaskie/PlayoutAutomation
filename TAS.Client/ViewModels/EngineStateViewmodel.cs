@@ -23,7 +23,7 @@ namespace TAS.Client.ViewModels
             _engineStateView = new EngineStateView() { DataContext = this };
         }
 
-        private void _engine_FixedTimeEventOperation(object sender, CollectionOperationEventArgs<IEvent> e)
+        private void _engine_FixedTimeEventOperation(object sender, CollectionOperationEventArgs<IEventClient> e)
         {
             if (e.Operation == TCollectionOperation.Insert)
                 _fixedTimeEvents.Add(new EventPanelAutoStartEventViewmodel(e.Item));

@@ -61,6 +61,7 @@
     <Compile Include="Model\CGElementsController.cs" />
     <Compile Include="Model\ConvertOperation.cs" />
     <Compile Include="Model\Engine.cs" />
+    <Compile Include="Model\Event.cs" />
     <Compile Include="Model\FileManager.cs" />
     <Compile Include="Model\FileOperation.cs" />
     <Compile Include="Model\IngestDirectory.cs" />

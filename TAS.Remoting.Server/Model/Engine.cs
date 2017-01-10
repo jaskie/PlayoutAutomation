@@ -26,7 +26,7 @@ namespace TAS.Remoting.Model
 
         public TEngineState EngineState { get { return Get<TEngineState>(); } set { SetField(value); } }
 
-        public IEvent ForcedNext { get { return Get<IEvent>(); } set { SetField(value); } }
+        public IEventClient ForcedNext { get { return Get<Event>(); } set { SetField(value); } }
 
         public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetField(value); } }
 
@@ -62,7 +62,7 @@ namespace TAS.Remoting.Model
 
         public IMediaManager MediaManager { get { return Get<MediaManager>(); } set { SetField(value); } }
 
-        public IEvent NextToPlay
+        public IEventClient NextToPlay
         {
             get
             {
@@ -70,7 +70,7 @@ namespace TAS.Remoting.Model
             }
         }
 
-        public IEvent NextWithRequestedStartTime
+        public IEventClient NextWithRequestedStartTime
         {
             get
             {
@@ -132,13 +132,7 @@ namespace TAS.Remoting.Model
             }
         }
 
-        public SynchronizedCollection<IEvent> RootEvents
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public IEnumerable<IEventClient> RootEvents { get { return Get<List<Event>>(); } set { SetField(value); } }
 
         public int ServerChannelPRI { get; set; }
         public int ServerChannelPRV { get; set; }
@@ -191,7 +185,7 @@ namespace TAS.Remoting.Model
             }
         }
 
-        public IEvent Playing
+        public IEventClient Playing
         {
             get
             {
@@ -199,7 +193,7 @@ namespace TAS.Remoting.Model
             }
         }
 
-        public List<IEvent> FixedTimeEvents
+        public List<IEventClient> FixedTimeEvents
         {
             get
             {
@@ -277,17 +271,17 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public void Load(IEvent aEvent)
+        public void Load(IEventClient aEvent)
         {
             throw new NotImplementedException();
         }
 
-        public void RemoveEvent(IEvent aEvent)
+        public void RemoveEvent(IEventClient aEvent)
         {
             throw new NotImplementedException();
         }
 
-        public void ReScheduleDelayed(IEvent aEvent)
+        public void ReSchedule(IEventClient aEvent)
         {
             throw new NotImplementedException();
         }
@@ -297,12 +291,12 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public void RestartRundown(IEvent ARundown)
+        public void RestartRundown(IEventClient ARundown)
         {
             throw new NotImplementedException();
         }
 
-        public void Schedule(IEvent aEvent)
+        public void Schedule(IEventClient aEvent)
         {
             throw new NotImplementedException();
         }
@@ -312,7 +306,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public void Start(IEvent aEvent)
+        public void Start(IEventClient aEvent)
         {
             throw new NotImplementedException();
         }
@@ -326,10 +320,14 @@ namespace TAS.Remoting.Model
         public event EventHandler<EngineTickEventArgs> EngineTick;
         public event EventHandler<IEventEventArgs> EventSaved;
         public event EventHandler<IEventEventArgs> EventDeleted;
-        public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
-        public event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
-        public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
+        public event EventHandler<CollectionOperationEventArgs<IEventClient>> RunningEventsOperation;
+        public event EventHandler<CollectionOperationEventArgs<IEventClient>> VisibleEventsOperation;
+        public event EventHandler<CollectionOperationEventArgs<IEventClient>> FixedTimeEventOperation;
 
+        public void AddRootEvent(IEvent ev)
+        {
+            throw new NotImplementedException();
+        }
 
         public override string ToString()
         {
