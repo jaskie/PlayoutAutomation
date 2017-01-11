@@ -22,10 +22,13 @@ namespace TAS.Remoting
             if (type.IsEnum)
                 input = Enum.Parse(type, input.ToString());
             else
-            if (type == typeof(TimeSpan))
+            if (input is string && type == typeof(TimeSpan))
                 input = TimeSpan.Parse((string)input, System.Globalization.CultureInfo.InvariantCulture);
             else
-            if (type.IsValueType)
+            if (input is string && type == typeof(Guid))
+                input = Guid.Parse((string)input);
+            else
+            if (type.IsValueType && input != null)
                 input = Convert.ChangeType(input, type);
         }
     }

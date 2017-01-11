@@ -40,6 +40,12 @@ namespace TAS.Remoting
                     return typeof(Model.LoudnessOperation);
                 case "TAS.Server.Engine":
                     return typeof(Model.Engine);
+                case "TAS.Server.Event":
+                    return typeof(Model.Event);
+                case "TAS.Server.CommandScriptEvent":
+                    return typeof(Model.CommandScriptEvent);
+                case "TAS.Server.AnimatedEvent":
+                    return typeof(Model.AnimatedEvent);
                 case "TAS.Server.MediaManager":
                     return typeof(Model.MediaManager);
                 case "TAS.Server.CasparServerChannel":
@@ -50,8 +56,6 @@ namespace TAS.Remoting
                     return typeof(Model.CGElementsController);
                 case "TAS.Server.CGElement":
                     return typeof(Model.CGElement);
-                case "Interfaces.IIngestDirectory":
-                    return typeof(Model.IngestDirectory);
                 case "TAS.Common.VideoFormatDescription":
                     return typeof(VideoFormatDescription);
                 default:

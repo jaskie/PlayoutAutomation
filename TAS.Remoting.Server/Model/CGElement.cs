@@ -17,5 +17,7 @@ namespace TAS.Remoting.Model
         public string ImageFile { get { return Get<string>(); } }
 
         public string Name { get { return Get<string>(); }  set { SetField(value); } }
+
+        protected override void OnEventNotification(WebSocketMessage e) { }
     }
 }

@@ -87,9 +87,9 @@ namespace TAS.Client.ViewModels
 
             // Creating root EventViewmodel
             _rootEventViewModel = new EventPanelRootViewmodel(this);
-            _engine.EngineTick += this._engineTick;
-            _engine.EngineOperation += this._engineOperation;
-            _engine.PropertyChanged += this._enginePropertyChanged;
+            _engine.EngineTick += _engineTick;
+            _engine.EngineOperation += _engineOperation;
+            _engine.PropertyChanged += _enginePropertyChanged;
             _engine.VisibleEventsOperation += _onEngineVisibleEventsOperation;
             _engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _engine.EventSaved += _engine_EventSaved;

@@ -17,7 +17,6 @@ namespace TAS.Server.Interfaces
     public interface IEvent: IEventProperties, INotifyPropertyChanged
     {
         TPlayState PlayState { get; set; }
-        long Position { get; set; }
         IMedia Media { get; set; }
         IEngine Engine { get; }
         TimeSpan Length { get; }
@@ -43,9 +42,6 @@ namespace TAS.Server.Interfaces
         bool IsDeleted { get; }
         MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media);
         bool IsForcedNext { get; }
-        decimal GetAudioVolume();
-        TimeSpan? GetAttentionTime();
-        void UpdateScheduledTime(bool updateSuccessors);
 
         event EventHandler Saved;
         event EventHandler Deleted;
@@ -63,10 +59,10 @@ namespace TAS.Server.Interfaces
         TEventType EventType { get; set; }
         bool IsHold { get; set; }
         bool IsLoop { get; set; }
-        string IdAux { get; set; }
+        string IdAux { get; set; } // auxiliary Id for external systems
         ulong IdProgramme { get; set; }
         VideoLayer Layer { get; set; }
-        TimeSpan? RequestedStartTime { get; set; }
+        TimeSpan? RequestedStartTime { get; set; } // informational only: when it should run according to schedule. Usefull when adding or removing previous events
         TimeSpan ScheduledDelay { get; set; }
         TimeSpan ScheduledTc { get; set; }
         DateTime ScheduledTime { get; set; }

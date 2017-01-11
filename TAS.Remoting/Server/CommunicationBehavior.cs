@@ -78,6 +78,8 @@ namespace TAS.Remoting.Server
                             {
                                 ParameterInfo[] methodParameters = methodToInvoke.GetParameters();
                                 _deserializeContent(ref message.Parameters, methodParameters.Select(p => p.ParameterType).ToArray());
+                                for (int i = 0; i < methodParameters.Length; i++)
+                                    MethodParametersAlignment.AlignType(ref message.Parameters[i], methodParameters[i].ParameterType);
                                 object response = methodToInvoke.Invoke(objectToInvoke, BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.Public, null, message.Parameters, null);
                                 if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query)
                                     _sendResponse(message, response);

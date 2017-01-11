@@ -99,13 +99,13 @@ namespace TAS.Remoting.Model
             }
         }
 
-        protected override void OnEventNotification(WebSocketMessageEventArgs e)
+        protected override void OnEventNotification(WebSocketMessage e)
         {
-            if (e.Message.MemberName == nameof(MediaAdded))
+            if (e.MemberName == nameof(MediaAdded))
                     _mediaAdded?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
-            if (e.Message.MemberName == nameof(MediaRemoved))
+            if (e.MemberName == nameof(MediaRemoved))
                 _mediaRemoved?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
-            if (e.Message.MemberName == nameof(MediaVerified))
+            if (e.MemberName == nameof(MediaVerified))
                 _mediaVerified?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
         }
 

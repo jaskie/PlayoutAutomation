@@ -17,7 +17,7 @@ using Newtonsoft.Json;
 
 namespace TAS.Server
 {
-    public class Engine : DtoBase, IEngine, IDisposable
+    public class Engine : DtoBase, IEngine, IEnginePersistent, IDisposable
     {
         public UInt64 Id { get; set; }
         public UInt64 Instance { get; set; }
@@ -262,7 +262,7 @@ namespace TAS.Server
                 {
                     foreach (var e in playingEvents)
                     {
-                        e.Position = (CurrentTicks - e.ScheduledTime.Ticks) / _frameTicks;
+                        ((Event)e).Position = (CurrentTicks - e.ScheduledTime.Ticks) / _frameTicks;
                         _runningEvents.Add(e);
                         _visibleEvents.Add(e);
                     }
@@ -677,7 +677,7 @@ namespace TAS.Server
                     {
                         if (e.PlayState == TPlayState.Playing)
                         {
-                            e.PlayState = e.IsFinished() ? TPlayState.Played : TPlayState.Aborted;
+                            e.PlayState = ((Event)e).IsFinished() ? TPlayState.Played : TPlayState.Aborted;
                             _runningEvents.Remove(e);
                         }
                         e.SaveDelayed();
@@ -685,7 +685,7 @@ namespace TAS.Server
             }
             _run(aEvent);
             if (fromBeginning)
-                aEvent.Position = 0;
+                ((Event)aEvent).Position = 0;
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
                 if (_playoutChannelPRI != null)
@@ -801,7 +801,7 @@ namespace TAS.Server
 
         private void _stop(IEvent aEvent)
         {
-            aEvent.PlayState = aEvent.Position == 0 ? TPlayState.Scheduled : aEvent.IsFinished() ? TPlayState.Played : TPlayState.Aborted;
+            aEvent.PlayState = ((Event)aEvent).Position == 0 ? TPlayState.Scheduled : ((Event)aEvent).IsFinished() ? TPlayState.Played : TPlayState.Aborted;
             aEvent.SaveDelayed();
             lock (_visibleEvents.SyncRoot)
                 if (_visibleEvents.Contains(aEvent))
@@ -887,7 +887,7 @@ namespace TAS.Server
                 {
                     lock (_runningEvents.SyncRoot)
                         foreach (var e in _runningEvents.Where(ev => ev.PlayState == TPlayState.Playing || ev.PlayState == TPlayState.Fading))
-                            e.Position += nFrames;
+                            ((Event)e).Position += nFrames;
 
                     Event playingEvent = _playing;
                     Event succEvent = null;
@@ -1028,7 +1028,7 @@ namespace TAS.Server
                     if ((ps == TPlayState.Playing || ps == TPlayState.Paused)
                         && e.Item.PlayState == TPlayState.Scheduled)
                     {
-                        e.Item.Position = ((Event)sender).Position;
+                        ((Event)e.Item).Position = ((Event)sender).Position;
                         if (ps == TPlayState.Paused)
                         {
                             if (e.Item.EventType == TEventType.StillImage)
@@ -1063,11 +1063,6 @@ namespace TAS.Server
 
         [XmlIgnore]
         public DateTime CurrentTime { get; private set; }
-
-        public bool DateTimeEqal(DateTime dt1, DateTime dt2)
-        {
-            return AlignDateTime(dt1) == AlignDateTime(dt2);
-        }
 
         public DateTime AlignDateTime(DateTime dt)
         {
@@ -1120,7 +1115,7 @@ namespace TAS.Server
                         if (!(e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading))
                         {
                             _play(e, false);
-                            IEvent s = e.GetSuccessor();
+                            Event s = e.GetSuccessor() as Event;
                             if (s != null)
                                 s.UpdateScheduledTime(true);
                         }
@@ -1297,9 +1292,7 @@ namespace TAS.Server
             }
         }
 
-        [XmlIgnore]
-        [JsonProperty]
-        public IEnumerable<IEvent> RootEvents { get { return _rootEvents.Cast<IEvent>().ToArray(); } }
+        public IEnumerable<IEvent> GetRootEvents() { return _rootEvents.ToList(); } 
 
         public void AddRootEvent(IEvent ev)
         {
@@ -1397,14 +1390,14 @@ namespace TAS.Server
                 if (SetField(ref _engineState, value, nameof(EngineState)))
                     {
                         if (value == TEngineState.Hold)
-                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished()).ToList())
+                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && ((Event)e).IsFinished()).ToList())
                             {
                                 _pause(ev, true);
                                 Debug.WriteLine(ev, "Hold: Played");
                             }
                         if (value == TEngineState.Idle && _runningEvents.Count > 0)
                         {
-                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && e.IsFinished()).ToList())
+                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && ((Event)e).IsFinished()).ToList())
                             {
                                 _pause(ev, true);
                                 Debug.WriteLine(ev, "Idle: Played");

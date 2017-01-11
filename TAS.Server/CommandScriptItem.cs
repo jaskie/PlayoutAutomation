@@ -37,6 +37,8 @@ namespace TAS.Server
         internal bool Execute(Svt.Caspar.Channel channel)
         {
             string command = Command;
+            if (string.IsNullOrWhiteSpace(command))
+                return false;
             Match match = CommandScriptItemProxy.regexFill.Match(command);
             if (match.Success)
             {

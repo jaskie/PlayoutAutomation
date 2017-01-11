@@ -57,241 +57,141 @@ namespace TAS.Remoting.Model
 
         public Guid MediaGuid { get { return Get<Guid>(); } set { SetField(value); } }
 
-        public IEvent Next 
+        public IEvent Next { get { return Get<Event>(); } set { SetField(value); } }
+        
+        public TimeSpan? Offset { get { return Get<TimeSpan?>(); } set { SetField(value); } }
+
+        public IEvent Parent { get { return Get<Event>(); } set { SetField(value); } }
+
+        public byte Parental { get { return Get<byte>(); } set { SetField(value); } }
+
+        public TPlayState PlayState { get { return Get<TPlayState>(); } set { SetField(value); } }
+
+        public IEvent Prior { get { return Get<Event>(); } set { SetField(value); } }
+
+        public TimeSpan? RequestedStartTime { get { return Get<TimeSpan?>(); }  set { SetField(value); } }
+
+        public TimeSpan ScheduledDelay { get { return Get<TimeSpan>(); } set { SetField(value); } }
+
+        public TimeSpan ScheduledTc { get { return Get<TimeSpan>(); } set { SetField(value); } }
+
+        public DateTime ScheduledTime { get { return Get<DateTime>(); } set { SetField(value); } }
+
+        public TimeSpan StartTc { get { return Get<TimeSpan>(); } set { SetField(value); } }
+
+        public DateTime StartTime { get { return Get<DateTime>(); } set { SetField(value); } }
+
+        public TStartType StartType { get { return Get<TStartType>(); } set { SetField(value); } }
+
+        public IList<IEvent> SubEvents { get { return Get<List<IEvent>>(); } set { SetField(value); } }
+
+        public int SubEventsCount { get { return Get<int>(); } set { SetField(value); } }
+
+        public TEasing TransitionEasing { get { return Get<TEasing>(); } set { SetField(value); } }
+
+        public TimeSpan TransitionPauseTime { get { return Get<TimeSpan>(); } set { SetField(value); } }
+
+        public TimeSpan TransitionTime { get { return Get<TimeSpan>(); } set { SetField(value); } }
+
+        public TTransitionType TransitionType { get { return Get<TTransitionType>(); } set { SetField(value); } }
+
+        #region Event handlers
+        event EventHandler _deleted;
+        public event EventHandler Deleted
         {
-            get
+            add
             {
-                throw new NotImplementedException();
+                EventAdd(_deleted);
+                _deleted += value;
+            }
+            remove
+            {
+                _deleted -= value;
+                EventRemove(_deleted);
+            }
+        }
+        event EventHandler<EventPositionEventArgs> _positionChanged;
+        public event EventHandler<EventPositionEventArgs> PositionChanged
+        {
+            add
+            {
+                EventAdd(_positionChanged);
+                _positionChanged += value;
+            }
+            remove
+            {
+                _positionChanged -= value;
+                EventRemove(_positionChanged);
+            }
+        }
+        event EventHandler _relocated;
+        public event EventHandler Relocated
+        {
+            add
+            {
+                EventAdd(_relocated);
+                _relocated += value;
+            }
+            remove
+            {
+                _relocated -= value;
+                EventRemove(_relocated);
+            }
+        }
+        event EventHandler _saved;
+        public event EventHandler Saved
+        {
+            add
+            {
+                EventAdd(_saved);
+                _saved += value;
+            }
+            remove
+            {
+                _saved -= value;
+                EventRemove(_saved);
+            }
+        }
+        event EventHandler<CollectionOperationEventArgs<IEvent>> _subEventChanged;
+        public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged
+        {
+            add
+            {
+                EventAdd(_subEventChanged);
+                _subEventChanged += value;
+            }
+            remove
+            {
+                _subEventChanged -= value;
+                EventRemove(_subEventChanged);
             }
         }
 
-        public TimeSpan? Offset
+        protected override void OnEventNotification(WebSocketMessage e)
         {
-            get
+            switch (e.MemberName)
             {
-                throw new NotImplementedException();
+                case nameof(IEvent.Deleted):
+                    _deleted.Invoke(this, ConvertEventArgs<EventArgs>(e));
+                    break;
+                case nameof(IEvent.PositionChanged):
+                    _positionChanged.Invoke(this, ConvertEventArgs<EventPositionEventArgs>(e));
+                    break;
+                case nameof(IEvent.Relocated):
+                    _relocated.Invoke(this, ConvertEventArgs<EventArgs>(e));
+                    return;
+                case nameof(IEvent.Saved):
+                    _saved.Invoke(this, ConvertEventArgs<EventArgs>(e));
+                    return;
+                case nameof(IEvent.SubEventChanged):
+                    _subEventChanged.Invoke(this, ConvertEventArgs<CollectionOperationEventArgs<IEvent>>(e));
+                    return;
             }
         }
 
-        public IEvent Parent
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        #endregion //Event handlers
 
-        public byte Parental
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TPlayState PlayState
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public long Position
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public IEvent Prior
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TimeSpan? RequestedStartTime
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TimeSpan ScheduledDelay
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TimeSpan ScheduledTc
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public DateTime ScheduledTime
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TimeSpan StartTc
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public DateTime StartTime
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TStartType StartType
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public IList<IEvent> SubEvents
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public int SubEventsCount
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TEasing TransitionEasing
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TimeSpan TransitionPauseTime
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TimeSpan TransitionTime
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TTransitionType TransitionType
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public event EventHandler Deleted;
-        public event EventHandler<EventPositionEventArgs> PositionChanged;
-        public event EventHandler Relocated;
-        public event EventHandler Saved;
-        public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
-
-        public bool AllowDelete()
-        {
-            throw new NotImplementedException();
-        }
+        public bool AllowDelete() { return Query<bool>(); }
 
         public MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media)
         {
@@ -308,59 +208,13 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public void Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        public TimeSpan? GetAttentionTime()
-        {
-            throw new NotImplementedException();
-        }
-
-        public decimal GetAudioVolume()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void InsertAfter(IEvent e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void InsertBefore(IEvent e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void InsertUnder(IEvent se)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void MoveDown()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void MoveUp()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Remove()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Save()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdateScheduledTime(bool updateSuccessors)
-        {
-            throw new NotImplementedException();
-        }
+        public void Delete() { Invoke(); }
+        public void InsertAfter(IEvent e) { Invoke(parameters: new[] { e }); }
+        public void InsertBefore(IEvent e) { Invoke(parameters: new[] { e }); }
+        public void InsertUnder(IEvent se) { Invoke(parameters: new[] { se }); }
+        public void MoveDown() { Invoke(); }
+        public void MoveUp() { Invoke(); }
+        public void Remove() { Invoke(); }
+        public void Save() { Invoke(); }
     }
 }

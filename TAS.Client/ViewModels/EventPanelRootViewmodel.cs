@@ -15,7 +15,7 @@ namespace TAS.Client.ViewModels
         public EventPanelRootViewmodel(EngineViewmodel engineViewmodel): base(engineViewmodel)
         {
             _engine.EventSaved += _onEngineEventSaved;
-            foreach (IEvent se in _engine.RootEvents.ToList())
+            foreach (var se in _engine.GetRootEvents())
                 _addRootEvent(se);
         }
 

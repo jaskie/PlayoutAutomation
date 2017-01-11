@@ -25,5 +25,8 @@ namespace TAS.Remoting.Model
         {
             Invoke();
         }
+
+        protected override void OnEventNotification(WebSocketMessage e) { }
+
     }
 }

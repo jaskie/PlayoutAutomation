@@ -57,19 +57,15 @@ namespace TAS.Remoting.Model
             return Query<LoudnessOperation>();
         }
 
-        protected override void OnEventNotification(WebSocketMessageEventArgs e)
+        protected override void OnEventNotification(WebSocketMessage e)
         {
-            if (e.Message.MemberName == nameof(OperationAdded))
+            if (e.MemberName == nameof(OperationAdded))
             {
-                var h = _operationAdded;
-                if (h != null)
-                    h(this, ConvertEventArgs<FileOperationEventArgs>(e));
+                _operationAdded?.Invoke(this, ConvertEventArgs<FileOperationEventArgs>(e));
             }
-            if (e.Message.MemberName == nameof(OperationCompleted))
+            if (e.MemberName == nameof(OperationCompleted))
             {
-                var h = _operationCompleted;
-                if (h != null)
-                    h(this, ConvertEventArgs<FileOperationEventArgs>(e));
+                _operationCompleted?.Invoke(this, ConvertEventArgs<FileOperationEventArgs>(e));
             }
         }
 

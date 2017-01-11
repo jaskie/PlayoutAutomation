@@ -62,21 +62,9 @@ namespace TAS.Remoting.Model
 
         public IMediaManager MediaManager { get { return Get<MediaManager>(); } set { SetField(value); } }
 
-        public IEvent NextToPlay
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public IEvent NextToPlay { get { return Get<Event>(); } set { SetField(value); } }
 
-        public IEvent NextWithRequestedStartTime
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public IEvent NextWithRequestedStartTime { get { return Get<Event>(); } set { SetField(value); } }
 
         public IPlayoutServerChannel PlayoutChannelPRI { get { return Get<IPlayoutServerChannel>(); } set { SetField(value); } }
 
@@ -106,92 +94,22 @@ namespace TAS.Remoting.Model
 
         #endregion IPreview
 
-        public decimal ProgramAudioVolume
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public decimal ProgramAudioVolume { get { return Get<decimal>(); } set { SetField(value); } }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public bool Pst2Prv { get { return Get<bool>(); } set { SetField(value); } }
 
-        public bool Pst2Prv
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public IEnumerable<IEvent> RootEvents { get { return Get<List<Event>>(); } set { SetField(value); } }
+        public IEnumerable<IEvent> GetRootEvents() { return Query<List<IEvent>>(); }
 
         public int ServerChannelPRI { get; set; }
         public int ServerChannelPRV { get; set; }
         public int ServerChannelSEC { get; set; }
 
-        public int TimeCorrection
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { SetField(value); } }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
 
-        public TVideoFormat VideoFormat
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
+        public ConnectionStateRedundant DatabaseConnectionState { get { return Get<ConnectionStateRedundant>(); } set { SetField(value); } }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public double VolumeReferenceLoudness
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public ConnectionStateRedundant DatabaseConnectionState
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public IEvent Playing
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public IEvent Playing { get { return Get<Event>(); } set { SetField(value); } }
 
         public List<IEvent> FixedTimeEvents
         {
@@ -238,100 +156,130 @@ namespace TAS.Remoting.Model
                     int templateLayer = -1
             )
         {
-            throw new NotImplementedException();
+            return Query<Event>(parameters: new object[] { idRundownEvent, idEventBinding , videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName,
+                    startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, isCGEnabled,
+                    crawl, logo, parental, autoStartFlags, commands, fields, method, templateLayer});
         }
 
-        public DateTime AlignDateTime(DateTime dt)
-        {
-            throw new NotImplementedException();
-        }
+        public void Clear() { Invoke(); }
 
-        public TimeSpan AlignTimeSpan(TimeSpan ts)
-        {
-            throw new NotImplementedException();
-        }
+        public void Clear(VideoLayer aVideoLayer) { Invoke(parameters: new[] { aVideoLayer }); } 
 
-        public MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia)
-        {
-            throw new NotImplementedException();
-        }
+        public void Load(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
 
-        public void Clear()
-        {
-            throw new NotImplementedException();
-        }
+        public void RemoveEvent(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
 
-        public void Clear(VideoLayer aVideoLayer)
-        {
-            throw new NotImplementedException();
-        }
+        public void ReSchedule(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
 
-        public bool DateTimeEqal(DateTime dt1, DateTime dt2)
-        {
-            throw new NotImplementedException();
-        }
+        public void Restart() { Invoke(); }
 
-        public void Load(IEvent aEvent)
-        {
-            throw new NotImplementedException();
-        }
+        public void RestartRundown(IEvent aRundown) { Invoke(parameters: new[] { aRundown }); }
 
-        public void RemoveEvent(IEvent aEvent)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ReSchedule(IEvent aEvent)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Restart()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RestartRundown(IEvent ARundown)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Schedule(IEvent aEvent)
-        {
-            throw new NotImplementedException();
-        }
+        public void Schedule(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
 
         public void SearchMissingEvents()
         {
             throw new NotImplementedException();
         }
 
-        public void Start(IEvent aEvent)
-        {
-            throw new NotImplementedException();
-        }
+        public void Start(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
+        
+        public void StartLoaded() { Invoke(); }
 
-        public void StartLoaded()
+        #region Event handling
+        event EventHandler<EngineOperationEventArgs> _engineOperation;
+        public event EventHandler<EngineOperationEventArgs> EngineOperation
         {
-            throw new NotImplementedException();
+            add
+            {
+                EventAdd(_engineOperation);
+                _engineOperation += value;
+            }
+            remove
+            {
+                _engineOperation -= value;
+                EventRemove(_engineOperation);
+            }
         }
-
-        public event EventHandler<EngineOperationEventArgs> EngineOperation;
-        public event EventHandler<EngineTickEventArgs> EngineTick;
-        public event EventHandler<IEventEventArgs> EventSaved;
-        public event EventHandler<IEventEventArgs> EventDeleted;
+        event EventHandler<EngineTickEventArgs> _engineTick;
+        public event EventHandler<EngineTickEventArgs> EngineTick
+        {
+            add
+            {
+                EventAdd(_engineTick);
+                _engineTick += value;
+            }
+            remove
+            {
+                _engineTick -= value;
+                EventRemove(_engineTick);
+            }
+        }
+        event EventHandler<IEventEventArgs> _eventSaved;
+        public event EventHandler<IEventEventArgs> EventSaved
+        {
+            add
+            {
+                EventAdd(_eventSaved);
+                _eventSaved += value;
+            }
+            remove
+            {
+                _eventSaved -= value;
+                EventRemove(_eventSaved);
+            }
+        }
+        event EventHandler<IEventEventArgs> _eventDeleted;
+        public event EventHandler<IEventEventArgs> EventDeleted
+        {
+            add
+            {
+                EventAdd(_eventDeleted);
+                _eventDeleted += value;
+            }
+            remove
+            {
+                _eventDeleted -= value;
+                EventRemove(_eventDeleted);
+            }
+        }
+        // do not implement this in remote client as is used only for debugging puproses
         public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
+        // do not implement this in remote client as is used only for debugging puproses
         public event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
+        // do not implement this in remote client as is used only for debugging puproses
         public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
 
+        protected override void OnEventNotification(WebSocketMessage e)
+        {
+            switch (e.MemberName)
+            {
+                case nameof(IEngine.EngineTick):
+                    _engineTick?.Invoke(this, ConvertEventArgs<EngineTickEventArgs>(e));
+                    break;
+                case nameof(IEngine.EngineOperation):
+                    _engineOperation?.Invoke(this, ConvertEventArgs<EngineOperationEventArgs>(e));
+                    break;
+                case nameof(IEngine.EventSaved):
+                    _eventSaved?.Invoke(this, ConvertEventArgs<IEventEventArgs>(e));
+                    break;
+                case nameof(IEngine.EventDeleted):
+                    _eventDeleted?.Invoke(this, ConvertEventArgs<IEventEventArgs>(e));
+                    break;
+            }
+        }
+
+        #endregion // Event handling
         public void AddRootEvent(IEvent ev)
         {
-            throw new NotImplementedException();
+            Invoke(parameters: new[] { ev });
         }
 
         public override string ToString()
         {
             return EngineName;
         }
+
+
     }
 }

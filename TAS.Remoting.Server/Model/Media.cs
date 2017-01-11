@@ -92,5 +92,7 @@ namespace TAS.Remoting.Model
             return $"{Directory}:{MediaName}";
         }
 
+        protected override void OnEventNotification(WebSocketMessage e) { }
+
     }
 }

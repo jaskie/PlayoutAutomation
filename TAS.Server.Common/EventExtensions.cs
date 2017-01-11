@@ -90,12 +90,6 @@ namespace TAS.Server.Common
             return aEvent.TransitionTime.Ticks / aEvent.Engine.FrameTicks; 
         }
 
-        public static bool IsFinished(this IEvent aEvent)
-        {
-            return aEvent.Position >= LengthInFrames(aEvent);
-        }
-
-
 
         /// <summary>
         /// Gets subsequent event that will play after this
@@ -127,8 +121,20 @@ namespace TAS.Server.Common
             return null;
         }
 
-
-
-
+        public static decimal GetAudioVolume(this IEvent aEvent)
+        {
+            var volume = aEvent.AudioVolume;
+            if (volume != null)
+                return (decimal)volume;
+            else
+                if (aEvent.EventType == TEventType.Movie)
+            {
+                var m = aEvent.Media;
+                if (m != null)
+                    return m.AudioVolume;
+            }
+            return 0m;
+        }
+        
     }
 }

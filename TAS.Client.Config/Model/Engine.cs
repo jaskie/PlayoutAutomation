@@ -9,7 +9,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client.Config.Model
 {
-    public class Engine : IEngineProperties
+    public class Engine: IEnginePersistent
     {
         [XmlIgnore]
         public bool IsNew = true;

@@ -229,7 +229,7 @@ namespace TAS.Server.Database
 
         #region IEngine
 
-        public static List<T> DbLoadEngines<T>(ulong? instance = null) where T : IEngineProperties
+        public static List<T> DbLoadEngines<T>(ulong? instance = null) where T : IEnginePersistent
         {
             List<T> engines = new List<T>();
             lock (_connection)
@@ -266,7 +266,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbInsertEngine(this IEngineProperties engine) 
+        public static void DbInsertEngine(this IEnginePersistent engine) 
         {
             lock (_connection)
             {
@@ -292,7 +292,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbUpdateEngine(this IEngineProperties engine)
+        public static void DbUpdateEngine(this IEnginePersistent engine)
         {
             lock (_connection)
             {
@@ -316,7 +316,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static void DbDeleteEngine(this IEngineProperties engine) 
+        public static void DbDeleteEngine(this IEnginePersistent engine) 
         {
             lock (_connection)
             {
@@ -331,7 +331,7 @@ namespace TAS.Server.Database
             lock (_connection)
             {
                 DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where typStart in (@StartTypeManual, @StartTypeOnFixedTime, @StartTypeNone) and idEventBinding=0 and idEngine=@idEngine order by ScheduledTime, EventName", _connection);
-                cmd.Parameters.AddWithValue("@idEngine", engine.Id);
+                cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
                 cmd.Parameters.AddWithValue("@StartTypeManual", (byte)TStartType.Manual);
                 cmd.Parameters.AddWithValue("@StartTypeOnFixedTime", (byte)TStartType.OnFixedTime);
                 cmd.Parameters.AddWithValue("@StartTypeNone", (byte)TStartType.None);
@@ -340,7 +340,7 @@ namespace TAS.Server.Database
                 {
                     while (dataReader.Read())
                     {
-                        NewEvent = _eventRead(engine, dataReader);
+                        NewEvent = _eventRead((IEngine)engine, dataReader);
                         engine.AddRootEvent(NewEvent);
                     }
                     dataReader.Close();
@@ -355,14 +355,14 @@ namespace TAS.Server.Database
                 lock (_connection)
                 {
                     DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM rundownevent m WHERE m.idEngine=@idEngine and (SELECT s.idRundownEvent FROM rundownevent s WHERE m.idEventBinding = s.idRundownEvent) IS NULL", _connection);
-                    cmd.Parameters.AddWithValue("@idEngine", engine.Id);
+                    cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
                     IEvent newEvent;
                     List<IEvent> foundEvents = new List<IEvent>();
                     using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                     {
                         while (dataReader.Read())
                         {
-                            if (!engine.RootEvents.Any(e => (e as IEventPesistent)?.IdRundownEvent == dataReader.GetUInt64("idRundownEvent")))
+                            if (!engine.GetRootEvents().Any(e => (e as IEventPesistent)?.IdRundownEvent == dataReader.GetUInt64("idRundownEvent")))
                             {
                                 newEvent = _eventRead(engine, dataReader);
                                 foundEvents.Add(newEvent);
@@ -389,7 +389,7 @@ namespace TAS.Server.Database
                 lock (_connection)
                 {
                     DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM rundownevent WHERE idEngine=@idEngine and PlayState=@PlayState", _connection);
-                    cmd.Parameters.AddWithValue("@idEngine", engine.Id);
+                    cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
                     cmd.Parameters.AddWithValue("@PlayState", TPlayState.Playing);
                     IEvent newEvent;
                     List<IEvent> foundEvents = new List<IEvent>();
@@ -773,7 +773,7 @@ namespace TAS.Server.Database
         {
 
             Debug.WriteLineIf(aEvent.Duration.Days > 1, aEvent, "Duration extremely long");
-            cmd.Parameters.AddWithValue("@idEngine", aEvent.Engine.Id);
+            cmd.Parameters.AddWithValue("@idEngine", ((IEnginePersistent)aEvent.Engine).Id);
             cmd.Parameters.AddWithValue("@idEventBinding", aEvent.IdEventBinding);
             cmd.Parameters.AddWithValue("@Layer", (sbyte)aEvent.Layer);
             cmd.Parameters.AddWithValue("@typEvent", aEvent.EventType);

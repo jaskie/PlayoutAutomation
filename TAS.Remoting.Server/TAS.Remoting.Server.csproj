@@ -54,11 +54,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientTypeNameBinder.cs" />
+    <Compile Include="Model\AnimatedEvent.cs" />
     <Compile Include="Model\AnimationDirectory.cs" />
     <Compile Include="Model\ArchiveDirectory.cs" />
     <Compile Include="Model\ArchiveMedia.cs" />
     <Compile Include="Model\CGElement.cs" />
     <Compile Include="Model\CGElementsController.cs" />
+    <Compile Include="Model\CommandScriptEvent.cs" />
     <Compile Include="Model\ConvertOperation.cs" />
     <Compile Include="Model\Engine.cs" />
     <Compile Include="Model\Event.cs" />

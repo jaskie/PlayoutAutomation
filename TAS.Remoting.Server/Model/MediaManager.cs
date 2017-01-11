@@ -96,5 +96,8 @@ namespace TAS.Remoting.Model
 
         public IEngine Engine { get { return Get<Engine>(); }  set { SetField(value); } }
 
+        protected override void OnEventNotification(WebSocketMessage e) { }
+
+
     }
 }

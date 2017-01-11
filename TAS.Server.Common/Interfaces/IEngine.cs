@@ -9,7 +9,7 @@ using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IEngine : IEngineProperties, IPreview, INotifyPropertyChanged
+    public interface IEngine : IPreview, INotifyPropertyChanged
     {
         long FrameTicks { get; }
         IPlayoutServerChannel PlayoutChannelPRI { get; }
@@ -23,7 +23,7 @@ namespace TAS.Server.Interfaces
         TEngineState EngineState { get; }
 
         RationalNumber FrameRate { get; }
-        IEnumerable<IEvent> RootEvents { get; }
+        IEnumerable<IEvent> GetRootEvents();
         void AddRootEvent(IEvent ev);
         List<IEvent> FixedTimeEvents { get; }
 
@@ -76,17 +76,18 @@ namespace TAS.Server.Interfaces
         void Restart();
 
         DateTime CurrentTime { get; }
-        TimeSpan AlignTimeSpan(TimeSpan ts);
-        DateTime AlignDateTime(DateTime dt);
-        bool DateTimeEqal(DateTime dt1, DateTime dt2);
 
         ICGElementsController CGElementsController { get; }
 
-        //MediaDeleteDenyReason CanDeleteMedia(IServerMedia serverMedia);
         void SearchMissingEvents();
         IEvent Playing { get; }
         IEvent NextToPlay { get; }
         IEvent NextWithRequestedStartTime { get; }
+
+        string EngineName { get; set; }
+        TVideoFormat VideoFormat { get; set; }
+        bool EnableCGElementsForNewEvents { get; set; }
+        TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
 
         event EventHandler<IEventEventArgs> EventSaved;
         event EventHandler<IEventEventArgs> EventDeleted;
@@ -97,15 +98,11 @@ namespace TAS.Server.Interfaces
         event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
     }
 
-    public interface IEngineProperties : IPersistent
+    public interface IEnginePersistent : IPersistent
     {
         TAspectRatioControl AspectRatioControl { get; set; }
-        string EngineName { get; set; }
         int TimeCorrection { get; set; }
-        TVideoFormat VideoFormat { get; set; }
         double VolumeReferenceLoudness { get; set; }
-        bool EnableCGElementsForNewEvents { get; set; }
-        TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
         int CGStartDelay { get; set; }
         ulong Instance { get; set; }
         ulong IdServerPRI { get; set; }
@@ -116,4 +113,5 @@ namespace TAS.Server.Interfaces
         int ServerChannelPRV { get; set; }
         ulong IdArchive { get; set; }
     }
+
 }

@@ -145,20 +145,17 @@ namespace TAS.Remoting.Client
                         NotifyPropertyChanged(eav.PropertyName);
                     }
                 }
-                else OnEventNotification(e);
+                else OnEventNotification(e.Message);
             }
         }
 
-        protected virtual void OnEventNotification(WebSocketMessageEventArgs e)
-        {
-            Debug.WriteLine(this, e.ToString());
-        }
+        protected abstract void OnEventNotification(WebSocketMessage e);
 
-        protected virtual void OnEventRegistration(WebSocketMessageEventArgs e) { }
+        protected virtual void OnEventRegistration(WebSocketMessage e) { }
 
-        protected T ConvertEventArgs<T>(WebSocketMessageEventArgs e) where T : EventArgs
+        protected T ConvertEventArgs<T>(WebSocketMessage e) where T : EventArgs
         {
-            return (T)e.Message.Response;
+            return (T)e.Response;
         }
 
         void NotifyPropertyChanged(string propertyName)

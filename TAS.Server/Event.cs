@@ -14,6 +14,7 @@ using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using TAS.Remoting.Server;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
@@ -129,9 +130,10 @@ namespace TAS.Server
 
         static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Event));
 
+        #region IEventPesistent 
         private ulong _idRundownEvent = 0;
         [XmlIgnore]
-        public UInt64 IdRundownEvent
+        public ulong IdRundownEvent
         {
             get
             {
@@ -141,7 +143,264 @@ namespace TAS.Server
             }
             set { _idRundownEvent = value; }
         }
-        UInt64 _idEventBinding;
+        ulong _idEventBinding;
+        public ulong IdEventBinding { get { return _idEventBinding; } }
+        #endregion
+
+        #region IEventProperties
+
+        decimal? _audioVolume;
+        [JsonProperty]
+        public decimal? AudioVolume
+        {
+            get { return _audioVolume; }
+            set { SetField(ref _audioVolume, value, nameof(AudioVolume)); }
+        }
+
+        TimeSpan _duration;
+        [JsonProperty]
+        public TimeSpan Duration
+        {
+            get { return _duration; }
+            set
+            {
+                TimeSpan newDuration = ((Engine)Engine).AlignTimeSpan(value);
+                if (newDuration != _duration)
+                {
+                    if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
+                    {
+                        foreach (Event e in SubEvents.Where(ev => ev.EventType == TEventType.StillImage || ev.EventType == TEventType.CommandScript))
+                        {
+                            TimeSpan nd = e._duration + newDuration - this._duration;
+                            e.Duration = nd > TimeSpan.Zero ? nd : TimeSpan.Zero;
+                        }
+                    }
+                    if (SetField(ref _duration, newDuration, nameof(Duration)))
+                        DurationChanged();
+                }
+            }
+        }
+
+        bool _isEnabled = true;
+        [JsonProperty]
+        public bool IsEnabled
+        {
+            get
+            {
+                return _isEnabled;
+            }
+            set
+            {
+                if (SetField(ref _isEnabled, value, nameof(IsEnabled)))
+                {
+                    DurationChanged();
+                    Event ne = _next.Value;
+                    if (ne != null)
+                        ne.UpdateScheduledTime(true);
+                }
+            }
+        }
+
+        string _eventName;
+        [JsonProperty]
+        public string EventName
+        {
+            get { return _eventName; }
+            set { SetField(ref _eventName, value, nameof(EventName)); }
+        }
+
+        TEventType _eventType;
+        [JsonProperty]
+        public TEventType EventType
+        {
+            get { return _eventType; }
+            set
+            {
+                if (SetField(ref _eventType, value, nameof(EventType)))
+                    if (value == TEventType.Live || value == TEventType.Rundown)
+                    {
+                        _serverMediaPRI = null;
+                        _serverMediaSEC = null;
+                        _serverMediaPRV = null;
+                    }
+            }
+        }
+
+        bool _isHold;
+        [JsonProperty]
+        public bool IsHold { get { return _isHold; } set { SetField(ref _isHold, value, nameof(IsHold)); } }
+        
+        bool _isLoop;
+        [JsonProperty]
+        public bool IsLoop { get { return _isLoop; } set { SetField(ref _isLoop, value, nameof(IsLoop)); } }
+
+        string _idAux; 
+        [JsonProperty]
+        public string IdAux { get { return _idAux; } set { SetField(ref _idAux, value, nameof(IdAux)); } }
+
+        ulong _idProgramme;
+        [JsonProperty]
+        public ulong IdProgramme { get { return _idProgramme; } set { SetField(ref _idProgramme, value, nameof(IdProgramme)); } }
+
+        VideoLayer _layer = VideoLayer.None;
+        [JsonProperty]
+        public VideoLayer Layer { get { return _layer; } set { SetField(ref _layer, value, nameof(Layer)); } }
+
+        TimeSpan? _requestedStartTime;
+        [JsonProperty]
+        public TimeSpan? RequestedStartTime
+        {
+            get { return _requestedStartTime; }
+            set
+            {
+                if (SetField(ref _requestedStartTime, value, nameof(RequestedStartTime)))
+                    NotifyPropertyChanged(nameof(Offset)); 
+            }
+        }
+
+        TimeSpan _scheduledDelay;
+        [JsonProperty]
+        public TimeSpan ScheduledDelay
+        {
+            get { return _scheduledDelay; }
+            set { SetField(ref _scheduledDelay, ((Engine)Engine).AlignTimeSpan(value), nameof(ScheduledDelay)); }
+        }
+
+        TimeSpan _scheduledTc = TimeSpan.Zero;
+        [JsonProperty]
+        public TimeSpan ScheduledTc { get { return _scheduledTc; } set { SetField(ref _scheduledTc, ((Engine)Engine).AlignTimeSpan(value), nameof(ScheduledTc)); } }
+
+        DateTime _scheduledTime;
+        [JsonProperty]
+        public DateTime ScheduledTime
+        {
+            get
+            {
+                if (_playState == TPlayState.Scheduled
+                    || _startTime == default(DateTime))
+                    return _scheduledTime;
+                else
+                    return _startTime;
+            }
+            set
+            {
+                if (_startType == TStartType.Manual || _startType == TStartType.OnFixedTime)
+                {
+                    value = ((Engine)Engine).AlignDateTime(value);
+                    if (SetField(ref _scheduledTime, value, nameof(ScheduledTime)))
+                    {
+                        Event ne = _next.Value;
+                        if (ne != null)
+                            ne.UpdateScheduledTime(true);  // trigger update all next events
+                        foreach (Event ev in SubEvents) //update all sub-events
+                            ev.UpdateScheduledTime(true);
+                        NotifyPropertyChanged(nameof(Offset));
+                    }
+                }
+            }
+        }
+
+        DateTime _startTime;
+        [JsonProperty]
+        public DateTime StartTime
+        {
+            get { return _startTime; }
+            internal set
+            {
+                if (SetField(ref _startTime, value, nameof(StartTime)))
+                {
+                    if (value != default(DateTime))
+                    {
+                        ScheduledTime = value;
+                        Event succ = this.GetSuccessor() as Event;
+                        if (succ != null)
+                            succ.UpdateScheduledTime(true);
+                    }
+                    NotifyPropertyChanged(nameof(ScheduledTime));
+                }
+            }
+        }
+
+        TStartType _startType;
+        [JsonProperty]
+        public TStartType StartType
+        {
+            get { return _startType; }
+            set
+            {
+                var oldValue = _startType;
+                if (SetField(ref _startType, value, nameof(StartType)))
+                {
+                    if (value == TStartType.OnFixedTime)
+                        _engine.AddFixedTimeEvent(this);
+                    if (oldValue == TStartType.OnFixedTime)
+                        _engine.RemoveFixedTimeEvent(this);
+                }
+            }
+        }
+
+        TimeSpan _transitionTime;
+        [JsonProperty]
+        public TimeSpan TransitionTime
+        {
+            get { return _transitionTime; }
+            set
+            {
+                if (SetField(ref _transitionTime, ((Engine)Engine).AlignTimeSpan(value), nameof(TransitionTime)))
+                {
+                    UpdateScheduledTime(false);
+                    DurationChanged();
+                }
+            }
+        }
+
+        TimeSpan _transitionPauseTime;
+        [JsonProperty]
+        public TimeSpan TransitionPauseTime
+        {
+            get { return _transitionPauseTime; }
+            set { SetField(ref _transitionPauseTime, ((Engine)Engine).AlignTimeSpan(value), nameof(TransitionPauseTime)); }
+        }
+
+        TTransitionType _transitionType;
+        [JsonProperty]
+        public TTransitionType TransitionType
+        {
+            get { return _transitionType; }
+            set { SetField(ref _transitionType, value, nameof(TransitionType)); }
+        }
+
+        TEasing _transitionEasing;
+        [JsonProperty]
+        public TEasing TransitionEasing
+        {
+            get { return _transitionEasing; }
+            set { SetField(ref _transitionEasing, value, nameof(TransitionEasing)); }
+        }
+
+        AutoStartFlags _autoStartFlags;
+        [JsonProperty]
+        public AutoStartFlags AutoStartFlags { get { return _autoStartFlags; } set { SetField(ref _autoStartFlags, value, nameof(AutoStartFlags)); } }
+
+        Guid _mediaGuid;
+        [JsonProperty]
+        public Guid MediaGuid
+        {
+            get { return _mediaGuid; }
+            set
+            {
+                if (SetField(ref _mediaGuid, value, nameof(MediaGuid)))
+                    _applyMedia(null);
+            }
+        }
+        
+        #endregion //IEventProperties
+
+
+
+        bool _isForcedNext;
+        [JsonProperty]
+        public bool IsForcedNext { get { return _isForcedNext; } set { SetField(ref _isForcedNext, value, nameof(IsForcedNext)); } }
 
         private bool _isModified;
         public bool IsModified
@@ -168,6 +427,7 @@ namespace TAS.Server
         }
 
         TPlayState _playState;
+        [JsonProperty]
         public virtual TPlayState PlayState
         {
             get { return _playState; }
@@ -204,17 +464,17 @@ namespace TAS.Server
                 if (_position != value)
                 {
                     _position = value;
-                    var h = PositionChanged;
-                    if (h != null)
-                        h(this, new EventPositionEventArgs(value, _duration - TimeSpan.FromTicks(Engine.FrameTicks * value)));
+                    PositionChanged?.Invoke(this, new EventPositionEventArgs(value, _duration - TimeSpan.FromTicks(Engine.FrameTicks * value)));
                 }
             }
         }
 
+        public bool IsFinished()
+        {
+            return _position >= _duration.Ticks / Engine.FrameTicks;
+        }
+
         public event EventHandler<EventPositionEventArgs> PositionChanged;
-
-        public UInt64 IdEventBinding { get { return _idEventBinding; } }
-
         Lazy<SynchronizedCollection<IEvent>> _subEvents;
         public IList<IEvent> SubEvents { get { lock (_subEvents.Value.SyncRoot)  return _subEvents.Value.ToList(); } }
 
@@ -223,49 +483,7 @@ namespace TAS.Server
         private readonly Engine _engine;
         public IEngine Engine { get { return _engine; } }
 
-         VideoLayer _layer = VideoLayer.None;
-        public VideoLayer Layer
-        {
-            get { return _layer; }
-            set { SetField(ref _layer, value, nameof(Layer)); }
-        }
-
-         TEventType _eventType;
-        public TEventType EventType
-        {
-            get { return _eventType; }
-            set
-            {
-                if (SetField(ref _eventType, value, nameof(EventType)))
-                    if (value == TEventType.Live || value == TEventType.Rundown)
-                    {
-                        _serverMediaPRI = null;
-                        _serverMediaSEC = null;
-                        _serverMediaPRV = null;
-                    }
-            }
-        }
-
-        TStartType _startType;
-        public TStartType StartType
-        {
-            get { return _startType; }
-            set
-            {
-                var oldValue = _startType;
-                if (SetField(ref _startType, value, nameof(StartType)))
-                {
-                    if (value == TStartType.OnFixedTime)
-                        _engine.AddFixedTimeEvent(this);
-                    if (oldValue == TStartType.OnFixedTime)
-                        _engine.RemoveFixedTimeEvent(this);
-                }
-            }
-        }
-
-        AutoStartFlags _autoStartFlags;
-        public AutoStartFlags AutoStartFlags { get { return _autoStartFlags; } set { SetField(ref _autoStartFlags, value, nameof(AutoStartFlags)); } }
-
+        
         public DateTime EndTime
         {
             get
@@ -316,12 +534,12 @@ namespace TAS.Server
             if (StartType == TStartType.After)
                 pev = Prior;
             if (pev != null)
-                nt = Engine.AlignDateTime(pev.EndTime - TransitionTime);
+                nt = ((Engine)Engine).AlignDateTime(pev.EndTime - TransitionTime);
             else
             {
                 pev = Parent;
                 if (pev != null && pev.EventType != TEventType.Container)
-                    nt = Engine.AlignDateTime(pev.ScheduledTime);
+                    nt = ((Engine)Engine).AlignDateTime(pev.ScheduledTime);
             }
             if (SetField(ref _scheduledTime, nt, nameof(ScheduledTime)))
             {
@@ -329,12 +547,12 @@ namespace TAS.Server
                     ev.UpdateScheduledTime(true);
                 if (updateSuccessors)
                 {
-                    IEvent ne = Next;
+                    Event ne = Next as Event;
                     if (ne == null)
                     {
                         IEvent vp = this.GetVisualParent();
                         if (vp != null)
-                            ne = vp.Next;
+                            ne = vp.Next as Event;
                     }
                     if (ne != null)
                         ne.UpdateScheduledTime(true);
@@ -342,138 +560,9 @@ namespace TAS.Server
                 NotifyPropertyChanged(nameof(Offset));
             }
         }
-
-
-        DateTime _scheduledTime;
-        public DateTime ScheduledTime
-        {
-            get
-            {
-                if (_playState == TPlayState.Scheduled
-                    || _startTime == default(DateTime))
-                    return _scheduledTime;
-                else
-                    return _startTime;
-            }
-            set
-            {
-                if (_startType == TStartType.Manual || _startType == TStartType.OnFixedTime)
-                {
-                    value = Engine.AlignDateTime(value);
-                    if (SetField(ref _scheduledTime, value, nameof(ScheduledTime)))
-                    {
-                        Event ne = _next.Value;
-                        if (ne != null)
-                            ne.UpdateScheduledTime(true);  // trigger update all next events
-                        foreach (Event ev in SubEvents) //update all sub-events
-                            ev.UpdateScheduledTime(true);
-                        NotifyPropertyChanged(nameof(Offset));
-                    }
-                }
-            }
-        }
-
-
-        public TimeSpan Length
-        {
-            get
-            {
-                return _isEnabled ? _duration : TimeSpan.Zero;
-            }
-        }
-
-        bool _isEnabled = true;
-        public bool IsEnabled
-        {
-            get
-            {
-                return _isEnabled;
-            }
-            set
-            {
-                if (SetField(ref _isEnabled, value, nameof(IsEnabled)))
-                {
-                    DurationChanged();
-                    Event ne = _next.Value;
-                    if (ne != null)
-                        ne.UpdateScheduledTime(true);
-                }
-            }
-        }
-
-        bool _isHold;
-        public bool IsHold
-        {
-            get
-            {
-                //Event parent = Parent;
-                //return (parent == null) ? _hold : parent.Hold;
-                return _isHold;
-            }
-            set { SetField(ref _isHold, value, nameof(IsHold)); }
-        }
-
-        bool _isLoop;
-        public bool IsLoop { get { return _isLoop; } set { SetField(ref _isLoop, value, nameof(IsLoop)); } }
-
-        bool _isForcedNext;
-        public bool IsForcedNext { get { return _isForcedNext; } set { SetField(ref _isForcedNext, value, nameof(IsForcedNext)); } }
-
-        DateTime _startTime;
-        public DateTime StartTime
-        {
-            get
-            {
-                return _startTime;
-            }
-            internal set
-            {
-                if (SetField(ref _startTime, value, nameof(StartTime)))
-                {
-                    if (value != default(DateTime))
-                    {
-                        ScheduledTime = value;
-                        IEvent succ = this.GetSuccessor();
-                        if (succ != null)
-                            succ.UpdateScheduledTime(true);
-                    }
-                    NotifyPropertyChanged(nameof(ScheduledTime));
-                }
-            }
-        }
-
-        TimeSpan _scheduledDelay;
-        public TimeSpan ScheduledDelay
-        {
-            get { return _scheduledDelay; }
-            set { SetField(ref _scheduledDelay, Engine.AlignTimeSpan(value), nameof(ScheduledDelay)); }
-        }
-
-        TimeSpan _duration;
-        public TimeSpan Duration
-        {
-            get
-            {
-                return _duration;
-            }
-            set
-            {
-                TimeSpan newDuration = Engine.AlignTimeSpan(value);
-                if (newDuration != _duration)
-                {
-                    if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
-                    {
-                        foreach (Event e in SubEvents.Where(ev => ev.EventType == TEventType.StillImage || ev.EventType == TEventType.CommandScript))
-                        {
-                            TimeSpan nd = e._duration + newDuration - this._duration;
-                            e.Duration = nd > TimeSpan.Zero ? nd : TimeSpan.Zero;
-                        }
-                    }
-                    if (SetField(ref _duration, newDuration, nameof(Duration)))
-                        DurationChanged();
-                }
-            }
-        }
+                
+        [JsonProperty]
+        public TimeSpan Length { get { return _isEnabled ? _duration : TimeSpan.Zero; } }
 
         private TimeSpan ComputedDuration()
         {
@@ -494,7 +583,7 @@ namespace TAS.Server
                     if (len > maxlen)
                         maxlen = len;
                 }
-                return Engine.AlignTimeSpan(TimeSpan.FromTicks(maxlen));
+                return ((Engine)Engine).AlignTimeSpan(TimeSpan.FromTicks(maxlen));
             }
             else
                 return _duration;
@@ -520,20 +609,6 @@ namespace TAS.Server
             }
         }
 
-        TimeSpan _scheduledTc = TimeSpan.Zero;
-        public TimeSpan ScheduledTc
-        {
-            get
-            {
-                return _scheduledTc;
-            }
-            set
-            {
-                value = Engine.AlignTimeSpan(value);
-                SetField(ref _scheduledTc, value, nameof(ScheduledTc));
-            }
-        }
-
         TimeSpan _startTc = TimeSpan.Zero;
         public TimeSpan StartTc
         {
@@ -543,70 +618,11 @@ namespace TAS.Server
             }
             set
             {
-                value = Engine.AlignTimeSpan(value);
+                value = ((Engine)Engine).AlignTimeSpan(value);
                 SetField(ref _startTc, value, nameof(StartTc));
             }
         }
-
-        TimeSpan? _requestedStartTime;
-        public TimeSpan? RequestedStartTime  // informational only: when it should run according to schedule. Usefull when adding or removing previous events
-        {
-            get { return _requestedStartTime; }
-            set
-            {
-                if (SetField(ref _requestedStartTime, value, nameof(RequestedStartTime)))
-                    NotifyPropertyChanged(nameof(Offset));
-            }
-        }
-
-        TimeSpan _transitionTime;
-        public TimeSpan TransitionTime
-        {
-            get { return _transitionTime; }
-            set
-            {
-                if (SetField(ref _transitionTime, Engine.AlignTimeSpan(value), nameof(TransitionTime)))
-                {
-                    UpdateScheduledTime(false);
-                    DurationChanged();
-                }
-            }
-        }
-
-
-        TimeSpan _transitionPauseTime;
-        public TimeSpan TransitionPauseTime
-        {
-            get { return _transitionPauseTime; }
-            set { SetField(ref _transitionPauseTime, Engine.AlignTimeSpan(value), nameof(TransitionPauseTime)); }
-        }
-
-
-        TTransitionType _transitionType;
-        public TTransitionType TransitionType
-        {
-            get { return _transitionType; }
-            set { SetField(ref _transitionType, value, nameof(TransitionType)); }
-        }
-
-        TEasing _transitionEasing;
-        public TEasing TransitionEasing
-        {
-            get { return _transitionEasing; }
-            set { SetField(ref _transitionEasing, value, nameof(TransitionEasing)); }
-        }
-
-        Guid _mediaGuid;
-        public Guid MediaGuid
-        {
-            get { return _mediaGuid; }
-            set
-            {
-                if (SetField(ref _mediaGuid, value, nameof(MediaGuid)))
-                    _applyMedia(null);
-            }
-        }
-
+        
         public IMedia Media
         {
             get { return ServerMediaPRI; }
@@ -705,12 +721,6 @@ namespace TAS.Server
             }
         }
 
-        string _eventName;
-        public string EventName
-        {
-            get { return _eventName; }
-            set { SetField(ref _eventName, value, nameof(EventName)); }
-        }
 
         Lazy<Event> _parent;
         public IEvent Parent
@@ -870,6 +880,7 @@ namespace TAS.Server
                     subEventToAdd.Parent = this;
                     subEventToAdd.IsHold = false;
                     _subEvents.Value.Add(subEventToAdd);
+                    NotifyPropertyChanged(nameof(IEvent.SubEventsCount));
                     NotifySubEventChanged(subEventToAdd, TCollectionOperation.Insert);
                     Duration = ComputedDuration();
                     Event prior = subEventToAdd.Prior as Event;
@@ -898,6 +909,7 @@ namespace TAS.Server
             {
                 Duration = ComputedDuration();
                 NotifySubEventChanged(subEventToRemove, TCollectionOperation.Remove);
+                NotifyPropertyChanged(nameof(IEvent.SubEventsCount));
             }
         }
 
@@ -922,6 +934,8 @@ namespace TAS.Server
                     parent._subEventsRemove(this);
                     if (next != null)
                         parent._subEvents.Value.Add(next);
+                    else
+                        parent.NotifyPropertyChanged(nameof(IEvent.SubEventsCount));
                     if (parent.SetField(ref parent._duration, parent.ComputedDuration(), "Duration"))
                         parent.DurationChanged();
                     if (next != null)
@@ -1046,14 +1060,14 @@ namespace TAS.Server
             if (_eventType == TEventType.Rundown)
             {
                 TimeSpan pauseTime = TimeSpan.Zero;
-                IEvent ev = SubEvents.FirstOrDefault(e => e.EventType == TEventType.Movie || e.EventType == TEventType.Live || e.EventType == TEventType.Rundown);
+                Event ev = SubEvents.FirstOrDefault(e => e.EventType == TEventType.Movie || e.EventType == TEventType.Live || e.EventType == TEventType.Rundown) as Event;
                 while (ev != null)
                 {
                     TimeSpan? pt = ev.GetAttentionTime();
                     if (pt.HasValue)
                         return pauseTime + pt.Value;
                     pauseTime += ev.Length - ev.TransitionTime;
-                    ev = ev.Next;
+                    ev = ev.Next as Event;
                 }
             }
             return null;
@@ -1191,52 +1205,8 @@ namespace TAS.Server
             return MediaDeleteDenyReason.NoDeny;
         }
 
-        UInt64 _idProgramme;
-        public UInt64 IdProgramme
-        {
-            get
-            {
-                return _idProgramme;
-            }
-            set { SetField(ref _idProgramme, value, nameof(IdProgramme)); }
-        }    
-        
-        string _idAux; // auxiliary Id from external system
-        public string IdAux
-        {
-            get
-            {
-                return _idAux;
-            }
-            set { SetField(ref _idAux, value, nameof(IdAux)); }
-        }
-
-        decimal? _audioVolume;
-        public decimal? AudioVolume
-        {
-            get
-            {
-                return _audioVolume;
-            }
-            set { SetField(ref _audioVolume, value, nameof(AudioVolume)); }
-        }
-
-        public decimal GetAudioVolume()
-        {
-            var volume = _audioVolume;
-            if (volume != null)
-                return (decimal)volume;
-            else
-                if (_eventType == TEventType.Movie)
-                {
-                    var m = Media;
-                    if (m != null)
-                        return m.AudioVolume;
-                }
-            return 0m;
-        }
-
         private bool _isCGEnabled;
+        [JsonProperty]
         public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value, nameof(IsCGEnabled)); } }
         private byte _crawl;
         public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value, nameof(Crawl)); } }
