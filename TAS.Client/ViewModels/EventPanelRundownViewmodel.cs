@@ -13,7 +13,7 @@ namespace TAS.Client.ViewModels
 {
     public class EventPanelRundownViewmodel: EventPanelRundownElementViewmodelBase
     {
-        public EventPanelRundownViewmodel(IEventClient ev, EventPanelViewmodelBase parent) : base(ev, parent)
+        public EventPanelRundownViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
         {
         }
 
@@ -30,7 +30,7 @@ namespace TAS.Client.ViewModels
             _engineViewmodel.AddSimpleEvent(_event, TEventType.Live, true);
         }
 
-        protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEventClient> e)
+        protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
             base.OnSubeventChanged(o, e);
             InvalidateRequerySuggested();

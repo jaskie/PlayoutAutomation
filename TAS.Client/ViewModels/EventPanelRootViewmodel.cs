@@ -15,7 +15,7 @@ namespace TAS.Client.ViewModels
         public EventPanelRootViewmodel(EngineViewmodel engineViewmodel): base(engineViewmodel)
         {
             _engine.EventSaved += _onEngineEventSaved;
-            foreach (IEventClient se in _engine.RootEvents.ToList())
+            foreach (IEvent se in _engine.RootEvents.ToList())
                 _addRootEvent(se);
         }
 
@@ -42,7 +42,7 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        private EventPanelViewmodelBase _placeEventInRundown(IEventClient e)
+        private EventPanelViewmodelBase _placeEventInRundown(IEvent e)
         {
             EventPanelViewmodelBase newVm = null;
             EventPanelViewmodelBase evm = this.Find(e);
@@ -115,14 +115,14 @@ namespace TAS.Client.ViewModels
             return newVm;
         }
 
-        private EventPanelViewmodelBase _addRootEvent(IEventClient e)
+        private EventPanelViewmodelBase _addRootEvent(IEvent e)
         {
             if (!e.IsDeleted)
             {
                 EngineViewmodel evm = _engineViewmodel;
                 var newEvm = this.CreateChildEventPanelViewmodelForEvent(e);
                 _childrens.Add(newEvm);
-                IEventClient ne = e.Next;
+                IEvent ne = e.Next;
                 while (ne != null)
                 {
                     _childrens.Add(this.CreateChildEventPanelViewmodelForEvent(ne));

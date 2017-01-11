@@ -17,9 +17,9 @@ namespace TAS.Client.ViewModels
 {
     public class CommandScriptEditViewmodel : EditViewmodelBase<ICommandScript>
     {
-        private readonly IEventClient _event;
+        private readonly IEvent _event;
         private readonly RationalNumber _frameRate;
-        public CommandScriptEditViewmodel(IEventClient aEvent, ICommandScript model) : base(model, new CommandScriptEditView())
+        public CommandScriptEditViewmodel(IEvent aEvent, ICommandScript model) : base(model, new CommandScriptEditView())
         {
             _event = aEvent;
             _frameRate = _event.Engine.FrameRate;

@@ -9,7 +9,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    public class Event : ProxyBase, IEventClient
+    public class Event : ProxyBase, IEvent
     {
         public decimal? AudioVolume { get { return Get<decimal?>(); }  set { SetField(value); } }
 
@@ -57,7 +57,7 @@ namespace TAS.Remoting.Model
 
         public Guid MediaGuid { get { return Get<Guid>(); } set { SetField(value); } }
 
-        public IEventClient Next 
+        public IEvent Next 
         {
             get
             {
@@ -73,7 +73,7 @@ namespace TAS.Remoting.Model
             }
         }
 
-        public IEventClient Parent
+        public IEvent Parent
         {
             get
             {
@@ -120,7 +120,7 @@ namespace TAS.Remoting.Model
             }
         }
 
-        public IEventClient Prior
+        public IEvent Prior
         {
             get
             {
@@ -214,7 +214,7 @@ namespace TAS.Remoting.Model
             }
         }
 
-        public IList<IEventClient> SubEvents
+        public IList<IEvent> SubEvents
         {
             get
             {
@@ -286,7 +286,7 @@ namespace TAS.Remoting.Model
         public event EventHandler<EventPositionEventArgs> PositionChanged;
         public event EventHandler Relocated;
         public event EventHandler Saved;
-        public event EventHandler<CollectionOperationEventArgs<IEventClient>> SubEventChanged;
+        public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
 
         public bool AllowDelete()
         {
@@ -303,7 +303,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public IEvent CloneTree()
+        public IEventPesistent CloneTree()
         {
             throw new NotImplementedException();
         }
@@ -323,17 +323,17 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public void InsertAfter(IEventClient e)
+        public void InsertAfter(IEvent e)
         {
             throw new NotImplementedException();
         }
 
-        public void InsertBefore(IEventClient e)
+        public void InsertBefore(IEvent e)
         {
             throw new NotImplementedException();
         }
 
-        public void InsertUnder(IEventClient se)
+        public void InsertUnder(IEvent se)
         {
             throw new NotImplementedException();
         }

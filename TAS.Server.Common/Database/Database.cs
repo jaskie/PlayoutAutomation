@@ -362,7 +362,7 @@ namespace TAS.Server.Database
                     {
                         while (dataReader.Read())
                         {
-                            if (!engine.RootEvents.Any(e => (e as IEventDatabase)?.IdRundownEvent == dataReader.GetUInt64("idRundownEvent")))
+                            if (!engine.RootEvents.Any(e => (e as IEventPesistent)?.IdRundownEvent == dataReader.GetUInt64("idRundownEvent")))
                             {
                                 newEvent = _eventRead(engine, dataReader);
                                 foundEvents.Add(newEvent);
@@ -372,8 +372,8 @@ namespace TAS.Server.Database
                     }
                     foreach (IEvent e in foundEvents)
                     {
-                        if (e is ITemplated)
-                            _readAnimatedEvent(e.IdRundownEvent, e as ITemplated);
+                        if (e is ITemplated && e is IEventPesistent)
+                            _readAnimatedEvent(((IEventPesistent)e).IdRundownEvent, e as ITemplated);
                         e.StartType = TStartType.Manual;
                         e.IsModified = false;
                         e.Save();
@@ -403,9 +403,9 @@ namespace TAS.Server.Database
                         dataReader.Close();
                     }
                     foreach (var ev in foundEvents)
-                        if (ev is ITemplated)
+                        if (ev is ITemplated && ev is IEventPesistent)
                         {
-                            _readAnimatedEvent(ev.IdRundownEvent, ev as ITemplated);
+                            _readAnimatedEvent(((IEventPesistent)ev).IdRundownEvent, ev as ITemplated);
                             ev.IsModified = false;
                         }
                     return foundEvents;
@@ -425,9 +425,9 @@ namespace TAS.Server.Database
                 using (DbDataReaderRedundant reader = cmd.ExecuteReader())
                     if (reader.Read())
                         futureScheduled = _eventRead(engine, reader);
-                if (futureScheduled is ITemplated)
+                if (futureScheduled is ITemplated && futureScheduled is IEventPesistent)
                 {
-                    _readAnimatedEvent(futureScheduled.IdRundownEvent, futureScheduled as ITemplated);
+                    _readAnimatedEvent(((IEventPesistent)futureScheduled).IdRundownEvent, futureScheduled as ITemplated);
                     futureScheduled.IsModified = false;
                 }
                 if (futureScheduled != null)
@@ -615,7 +615,7 @@ namespace TAS.Server.Database
         #endregion // ArchiveDirectory
 
         #region IEvent
-        public static void DbReadSubEvents(this IEngine engine, IEvent eventOwner, IList<IEventClient> subevents)
+        public static void DbReadSubEvents(this IEngine engine, IEventPesistent eventOwner, IList<IEvent> subevents)
         {
             lock (_connection)
             {
@@ -640,7 +640,7 @@ namespace TAS.Server.Database
                         while (dataReader.Read())
                             subevents.Add(_eventRead(engine, dataReader));
                     }
-                    foreach (IEvent e in subevents)
+                    foreach (IEventPesistent e in subevents)
                         if (e is ITemplated)
                         {
                             _readAnimatedEvent(e.IdRundownEvent, e as ITemplated);
@@ -650,7 +650,7 @@ namespace TAS.Server.Database
             }
         }
 
-        public static IEvent DbReadNext(this IEngine engine, IEvent aEvent) 
+        public static IEvent DbReadNext(this IEngine engine, IEventPesistent aEvent) 
         {
             lock (_connection)
             {
@@ -665,9 +665,9 @@ namespace TAS.Server.Database
                         if (reader.Read())
                             next = _eventRead(engine, reader);
                     }
-                    if (next is ITemplated)
+                    if (next is ITemplated && next is IEventPesistent)
                     {
-                        _readAnimatedEvent(next.IdRundownEvent, next as ITemplated);
+                        _readAnimatedEvent(((IEventPesistent)next).IdRundownEvent, next as ITemplated);
                         next.IsModified = false;
                     }
                     return next;
@@ -712,9 +712,9 @@ namespace TAS.Server.Database
                         if (reader.Read())
                             result = _eventRead(engine, reader);
                     }
-                    if (result is ITemplated)
+                    if (result is ITemplated && result is IEventPesistent)
                     {
-                        _readAnimatedEvent(result.IdRundownEvent, result as ITemplated);
+                        _readAnimatedEvent(((IEventPesistent)result).IdRundownEvent, result as ITemplated);
                         result.IsModified = false;
                     }
                 }
@@ -769,7 +769,7 @@ namespace TAS.Server.Database
         private static DateTime _minMySqlDate = new DateTime(1000, 01, 01);
         private static DateTime _maxMySQLDate = new DateTime(9999, 12, 31, 23, 59, 59);
 
-        private static bool _eventFillParamsAndExecute(DbCommandRedundant cmd, IEvent aEvent)
+        private static bool _eventFillParamsAndExecute(DbCommandRedundant cmd, IEventPesistent aEvent)
         {
 
             Debug.WriteLineIf(aEvent.Duration.Days > 1, aEvent, "Duration extremely long");
@@ -841,7 +841,7 @@ namespace TAS.Server.Database
         }
 
 
-        public static bool DbInsert(this IEvent aEvent)
+        public static bool DbInsert(this IEventPesistent aEvent)
         {
             lock (_connection)
             {
@@ -867,7 +867,7 @@ VALUES
             return false;
         }
 
-        public static bool DbUpdate(this IEvent aEvent)
+        public static bool DbUpdate(this IEventPesistent aEvent)
         {
             lock (_connection)
             {
@@ -916,7 +916,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             return false;
         }
 
-        public static bool DbDelete(this IEvent aEvent)
+        public static bool DbDelete(this IEventPesistent aEvent)
         {
             bool success = false;
             lock (_connection)
@@ -931,7 +931,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             return success;
         }
 
-        public static void AsRunLogWrite(this IEvent e)
+        public static void AsRunLogWrite(this IEventPesistent e)
         {
             try
             {

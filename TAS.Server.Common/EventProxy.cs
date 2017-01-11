@@ -49,21 +49,21 @@ namespace TAS.Server.Common
         public IDictionary<string, string> Fields { get; set; }
 
 
-        public IEventClient InsertAfter(IEventClient prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        public IEvent InsertAfter(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
-            IEventClient newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
+            IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
             prior.InsertAfter(newEvent);
             return newEvent;
         }
 
-        public IEventClient InsertUnder(IEventClient parent, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        public IEvent InsertUnder(IEvent parent, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
             IEvent newEvent = _toEvent(parent.Engine, mediaFiles, animationFiles);
             parent.InsertUnder(newEvent);
             return newEvent;
         }
 
-        public IEvent InsertBefore(IEventClient prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        public IEvent InsertBefore(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
             IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
             prior.InsertBefore(newEvent);
@@ -174,7 +174,7 @@ namespace TAS.Server.Common
             return result;
         }
 
-        public static EventProxy FromEvent(IEventClient source)
+        public static EventProxy FromEvent(IEvent source)
         {
             IMedia eventMedia = source.Media;
             MediaProxy mediaProxy = eventMedia == null ? null :
@@ -226,13 +226,13 @@ namespace TAS.Server.Common
 
     static class IEventExtensions
     {
-        public static IEnumerable<IEventClient> AllSubEvents(this IEventClient e)
+        public static IEnumerable<IEvent> AllSubEvents(this IEvent e)
         {
-            IEnumerable<IEventClient> sel = e.SubEvents;
-            foreach (IEventClient selItem in sel)
+            IEnumerable<IEvent> sel = e.SubEvents;
+            foreach (IEvent selItem in sel)
             {
                 yield return selItem;
-                IEventClient nextItem = selItem;
+                IEvent nextItem = selItem;
                 while ((nextItem = nextItem.Next)!= null)
                     yield return nextItem;
             }

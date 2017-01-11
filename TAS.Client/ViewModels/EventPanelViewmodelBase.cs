@@ -21,7 +21,7 @@ namespace TAS.Client.ViewModels
 {
     public abstract class EventPanelViewmodelBase : ViewmodelBase
     {
-        protected readonly IEventClient _event;
+        protected readonly IEvent _event;
         protected readonly IEngine _engine;
         readonly int _level;
         protected EventPanelViewmodelBase _parent;
@@ -52,7 +52,7 @@ namespace TAS.Client.ViewModels
         /// </summary>
         /// <param name="aEvent"></param>
         /// <param name="parent"></param>
-        protected EventPanelViewmodelBase(IEventClient aEvent, EventPanelViewmodelBase parent) : base()
+        protected EventPanelViewmodelBase(IEvent aEvent, EventPanelViewmodelBase parent) : base()
         {
             if (aEvent == null) // dummy child
                 return;
@@ -115,7 +115,7 @@ namespace TAS.Client.ViewModels
             };
         }
 
-        internal EventPanelViewmodelBase CreateChildEventPanelViewmodelForEvent(IEventClient ev)
+        internal EventPanelViewmodelBase CreateChildEventPanelViewmodelForEvent(IEvent ev)
         {
             switch (ev.EventType)
             {
@@ -154,11 +154,11 @@ namespace TAS.Client.ViewModels
 
         protected virtual void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IEventClient.EventName))
+            if (e.PropertyName == nameof(IEvent.EventName))
                 NotifyPropertyChanged(e.PropertyName);
         }
 
-        protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEventClient> e)
+        protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
@@ -181,10 +181,10 @@ namespace TAS.Client.ViewModels
         protected void LoadChildrens()
         {
             UiServices.SetBusyState();
-            foreach (IEventClient se in _event.SubEvents)
+            foreach (IEvent se in _event.SubEvents)
             {
                 _childrens.Add(CreateChildEventPanelViewmodelForEvent(se));
-                IEventClient ne = se.Next;
+                IEvent ne = se.Next;
                 while (ne != null)
                 {
                     _childrens.Add(CreateChildEventPanelViewmodelForEvent(ne));
@@ -295,7 +295,7 @@ namespace TAS.Client.ViewModels
             get { return (_event == null || _event.EventType == TEventType.Live || _event.EventType == TEventType.Movie) ? false : _event.SubEvents.Any(e => e.EventType == TEventType.StillImage); }
         }
 
-        public EventPanelViewmodelBase Find(IEventClient aEvent)
+        public EventPanelViewmodelBase Find(IEvent aEvent)
         {
             if (aEvent == null)
                 return null;
@@ -314,10 +314,10 @@ namespace TAS.Client.ViewModels
         {
             if (_event != null)
             {
-                IEventClient prior = _event.Prior;
-                IEventClient parent = _event.Parent;
-                IEventClient next = _event.Next;
-                IEventClient visualParent = _event.GetVisualParent();
+                IEvent prior = _event.Prior;
+                IEvent parent = _event.Parent;
+                IEvent next = _event.Next;
+                IEvent visualParent = _event.GetVisualParent();
                 if (prior != null)
                 {
                     int index = _parent._childrens.IndexOf(this);
@@ -403,7 +403,7 @@ namespace TAS.Client.ViewModels
         }
         
 
-        public bool Contains(IEventClient  aEvent)
+        public bool Contains(IEvent  aEvent)
         {
             foreach (EventPanelViewmodelBase m in _childrens)
             {
@@ -416,7 +416,7 @@ namespace TAS.Client.ViewModels
         }
 
   
-        public IEventClient Event { get { return _event; } }
+        public IEvent Event { get { return _event; } }
 
         public override string ToString()
         {

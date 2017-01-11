@@ -106,9 +106,5 @@ namespace TAS.Server
             return false;
         }
 
-        public override object Clone()
-        {
-            return Engine.AddNewEvent(0, 0, eventType:EventType, duration: Duration, commands: Commands, scheduledDelay: ScheduledDelay, eventName: EventName, isEnabled: IsEnabled);
-        }
     }
 }

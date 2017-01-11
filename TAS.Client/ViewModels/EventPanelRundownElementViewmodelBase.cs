@@ -16,7 +16,7 @@ namespace TAS.Client.ViewModels
 {
     public abstract class EventPanelRundownElementViewmodelBase : EventPanelViewmodelBase
     {
-        public EventPanelRundownElementViewmodelBase(IEventClient ev, EventPanelViewmodelBase parent) : base(ev, parent) {
+        public EventPanelRundownElementViewmodelBase(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent) {
             Media = ev.Media;
             ev.PositionChanged += _eventPositionChanged;
         }
@@ -135,14 +135,14 @@ namespace TAS.Client.ViewModels
 
         bool _canMoveUp(object o)
         {
-            IEventClient prior = _event.Prior;
+            IEvent prior = _event.Prior;
             return prior != null && prior.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled && !IsLoop
                 && (prior.StartType == TStartType.After || !IsHold);
         }
 
         bool _canMoveDown(object o)
         {
-            IEventClient next = _event.Next;
+            IEvent next = _event.Next;
             return next != null && next.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled && !next.IsLoop
                 && (_event.StartType == TStartType.After || !next.IsHold);
         }
@@ -207,7 +207,7 @@ namespace TAS.Client.ViewModels
         {
             if (_event != null)
             {
-                IEventClient se = _event.SubEvents.FirstOrDefault(e => e.Layer == layer && e.EventType == TEventType.StillImage);
+                IEvent se = _event.SubEvents.FirstOrDefault(e => e.Layer == layer && e.EventType == TEventType.StillImage);
                 if (se != null)
                 {
                     IMedia m = se.Media;
@@ -230,8 +230,8 @@ namespace TAS.Client.ViewModels
             {
                 if (_event == null)
                     return false;
-                IEventClient ne = _event.Next;
-                IEventClient pe = _event.Prior;
+                IEvent ne = _event.Next;
+                IEvent pe = _event.Prior;
                 return !(
                     (ne == null || ne.Prior == _event)
                     && (pe == null || pe.Next == _event)
@@ -427,7 +427,7 @@ namespace TAS.Client.ViewModels
 
         }
 
-        protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEventClient> e)
+        protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
             base.OnSubeventChanged(o, e);
             switch (e.Item.Layer)
@@ -455,41 +455,41 @@ namespace TAS.Client.ViewModels
         protected override void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             base.OnEventPropertyChanged(sender, e);
-            if (e.PropertyName == nameof(IEventClient.Duration)
-                || e.PropertyName == nameof(IEventClient.IsEnabled)
-                || e.PropertyName == nameof(IEventClient.IsHold)
-                || e.PropertyName == nameof(IEventClient.EventName)
-                || e.PropertyName == nameof(IEventClient.IsLoop)
-                || e.PropertyName == nameof(IEventClient.Offset)
-                || e.PropertyName == nameof(IEventClient.ScheduledDelay)
-                || e.PropertyName == nameof(IEventClient.IsForcedNext)
-                || e.PropertyName == nameof(IEventClient.ScheduledTime)
-                || e.PropertyName == nameof(IEventClient.IsCGEnabled)
-                || e.PropertyName == nameof(IEventClient.Crawl)
-                || e.PropertyName == nameof(IEventClient.Logo)
-                || e.PropertyName == nameof(IEventClient.Parental))
+            if (e.PropertyName == nameof(IEvent.Duration)
+                || e.PropertyName == nameof(IEvent.IsEnabled)
+                || e.PropertyName == nameof(IEvent.IsHold)
+                || e.PropertyName == nameof(IEvent.EventName)
+                || e.PropertyName == nameof(IEvent.IsLoop)
+                || e.PropertyName == nameof(IEvent.Offset)
+                || e.PropertyName == nameof(IEvent.ScheduledDelay)
+                || e.PropertyName == nameof(IEvent.IsForcedNext)
+                || e.PropertyName == nameof(IEvent.ScheduledTime)
+                || e.PropertyName == nameof(IEvent.IsCGEnabled)
+                || e.PropertyName == nameof(IEvent.Crawl)
+                || e.PropertyName == nameof(IEvent.Logo)
+                || e.PropertyName == nameof(IEvent.Parental))
                 NotifyPropertyChanged(e.PropertyName);
-            if (e.PropertyName == nameof(IEventClient.ScheduledTc) || e.PropertyName == nameof(IEventClient.Duration))
+            if (e.PropertyName == nameof(IEvent.ScheduledTc) || e.PropertyName == nameof(IEvent.Duration))
             {
                 NotifyPropertyChanged(nameof(IsEnabled));
                 NotifyPropertyChanged(nameof(MediaErrorInfo));
             }
-            if (e.PropertyName == nameof(IEventClient.ScheduledTime) || e.PropertyName == nameof(IEventClient.Duration))
+            if (e.PropertyName == nameof(IEvent.ScheduledTime) || e.PropertyName == nameof(IEvent.Duration))
             {
                 NotifyPropertyChanged(nameof(EndTime));
             }
-            if (e.PropertyName == nameof(IEventClient.PlayState))
+            if (e.PropertyName == nameof(IEvent.PlayState))
             {
                 NotifyPropertyChanged(e.PropertyName);
                 NotifyPropertyChanged(nameof(ScheduledTime));
                 NotifyPropertyChanged(nameof(IsPlaying));
             }
-            if (e.PropertyName == nameof(IEventClient.StartType))
+            if (e.PropertyName == nameof(IEvent.StartType))
             {
                 NotifyPropertyChanged(nameof(IsStartEvent));
                 NotifyPropertyChanged(nameof(IsFixedTimeStart));
             }
-            if (e.PropertyName == nameof(IEventClient.Media))
+            if (e.PropertyName == nameof(IEvent.Media))
             {
                 Media = _event.Media;
                 NotifyPropertyChanged(nameof(MediaFileName));

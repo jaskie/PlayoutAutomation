@@ -15,7 +15,7 @@ namespace TAS.Client.ViewModels
 {
     public class EventPanelContainerViewmodel: EventPanelViewmodelBase
     {
-        public EventPanelContainerViewmodel(IEventClient ev, EventPanelViewmodelBase parent): base(ev, parent) {
+        public EventPanelContainerViewmodel(IEvent ev, EventPanelViewmodelBase parent): base(ev, parent) {
             if (ev.EventType != TEventType.Container)
                 throw new ApplicationException(string.Format("Invalid panel type:{0} for event type:{1}", this.GetType(), ev.EventType));
         }
@@ -67,11 +67,11 @@ namespace TAS.Client.ViewModels
         protected override void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             base.OnEventPropertyChanged(sender, e);
-            if (e.PropertyName == nameof(IEventClient.IsEnabled))
+            if (e.PropertyName == nameof(IEvent.IsEnabled))
                 IsVisible = _event.IsEnabled;
         }
 
-        protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEventClient> e)
+        protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
             base.OnSubeventChanged(o, e);
             NotifyPropertyChanged(nameof(ChildrenCount));

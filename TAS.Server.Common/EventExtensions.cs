@@ -11,7 +11,7 @@ namespace TAS.Server.Common
     public static class EventExtensions
     {
 
-        public static IEventClient FindNext(this IEventClient startEvent, Func<IEventClient, bool> searchFunc)
+        public static IEvent FindNext(this IEvent startEvent, Func<IEvent, bool> searchFunc)
         {
             var current = startEvent;
             while (current != null)
@@ -26,7 +26,7 @@ namespace TAS.Server.Common
             return null;
         }
 
-        public static IEventClient FindInside(this IEventClient aEvent, Func<IEventClient, bool> searchFunc)
+        public static IEvent FindInside(this IEvent aEvent, Func<IEvent, bool> searchFunc)
         {
             var se = aEvent.SubEvents;
             foreach(var ev in se)
@@ -40,9 +40,9 @@ namespace TAS.Server.Common
             return null;
         }
 
-        public static IEnumerable<IEventClient> GetVisualRootTrack(this IEventClient aEvent)
+        public static IEnumerable<IEvent> GetVisualRootTrack(this IEvent aEvent)
         {
-            IEventClient pe = aEvent;
+            IEvent pe = aEvent;
             while (pe != null)
             {
                 yield return pe;
@@ -51,10 +51,10 @@ namespace TAS.Server.Common
         }
 
 
-        public static IEventClient GetVisualParent(this IEventClient aEvent)
+        public static IEvent GetVisualParent(this IEvent aEvent)
         {
-            IEventClient ev = aEvent;
-            IEventClient pev = ev.Prior;
+            IEvent ev = aEvent;
+            IEvent pev = ev.Prior;
             while (pev != null)
             {
                 ev = ev.Prior;
@@ -63,9 +63,9 @@ namespace TAS.Server.Common
             return ev.Parent;
         }
 
-        public static bool IsContainedIn(this IEventClient aEvent, IEventClient parent)
+        public static bool IsContainedIn(this IEvent aEvent, IEvent parent)
         {
-            IEventClient pe = aEvent;
+            IEvent pe = aEvent;
             while (true)
             {
                 if (pe == null)
@@ -75,22 +75,22 @@ namespace TAS.Server.Common
                 pe = pe.GetVisualParent();
             }
         }
-        public static void SaveDelayed(this IEventClient aEvent)
+        public static void SaveDelayed(this IEvent aEvent)
         {
             ThreadPool.QueueUserWorkItem(o => aEvent.Save());
         }
 
-        public static long LengthInFrames(this IEventClient aEvent)
+        public static long LengthInFrames(this IEvent aEvent)
         {
             return aEvent.Length.Ticks / aEvent.Engine.FrameTicks; 
         }
 
-        public static long TransitionInFrames(this IEventClient aEvent)
+        public static long TransitionInFrames(this IEvent aEvent)
         {
             return aEvent.TransitionTime.Ticks / aEvent.Engine.FrameTicks; 
         }
 
-        public static bool IsFinished(this IEventClient aEvent)
+        public static bool IsFinished(this IEvent aEvent)
         {
             return aEvent.Position >= LengthInFrames(aEvent);
         }
@@ -101,15 +101,15 @@ namespace TAS.Server.Common
         /// Gets subsequent event that will play after this
         /// </summary>
         /// <returns></returns>
-        public static IEventClient GetSuccessor(this IEventClient aEvent)
+        public static IEvent GetSuccessor(this IEvent aEvent)
         {
             var eventType = aEvent.EventType;
             if (eventType == TEventType.Movie || eventType == TEventType.Live || eventType == TEventType.Rundown)
             {
-                IEventClient nev = aEvent.Next;
+                IEvent nev = aEvent.Next;
                 if (nev != null)
                 {
-                    IEventClient n = nev.Next;
+                    IEvent n = nev.Next;
                     while (nev != null && n != null && nev.Length.Equals(TimeSpan.Zero))
                     {
                         nev = nev.Next;

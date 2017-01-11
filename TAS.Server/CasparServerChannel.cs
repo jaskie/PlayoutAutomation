@@ -320,7 +320,7 @@ namespace TAS.Server
             return false;
         }
 
-        public bool Stop(IEvent aEvent)
+        public bool Stop(Event aEvent)
         {
             var channel = _casparChannel;
             if (_checkConnected() && channel != null)
@@ -340,7 +340,7 @@ namespace TAS.Server
                 return false;
         }
 
-        public bool Pause(IEvent aEvent)
+        public bool Pause(Event aEvent)
         {
             var channel = _casparChannel;
             if (_checkConnected() && channel != null)

@@ -15,6 +15,6 @@ namespace TAS.Client.Common.Plugin
     public struct PluginExecuteContext
     {
         public IEngine Engine;
-        public IEventClient Event;
+        public IEvent Event;
     }
 }

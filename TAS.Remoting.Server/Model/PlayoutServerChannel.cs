@@ -35,7 +35,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public bool Load(IEvent aEvent)
+        public bool Load(IEventPesistent aEvent)
         {
             throw new NotImplementedException();
         }
@@ -50,7 +50,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public bool LoadNext(IEvent aEvent)
+        public bool LoadNext(IEventPesistent aEvent)
         {
             throw new NotImplementedException();
         }
@@ -60,7 +60,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public bool Pause(IEvent aEvent)
+        public bool Pause(IEventPesistent aEvent)
         {
             throw new NotImplementedException();
         }
@@ -70,12 +70,12 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public bool Play(IEvent aEvent)
+        public bool Play(IEventPesistent aEvent)
         {
             throw new NotImplementedException();
         }
 
-        public void ReStart(IEvent ev)
+        public void ReStart(IEventPesistent ev)
         {
             throw new NotImplementedException();
         }
@@ -100,7 +100,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public bool Stop(IEvent aEvent)
+        public bool Stop(IEventPesistent aEvent)
         {
             throw new NotImplementedException();
         }

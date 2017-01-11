@@ -19,7 +19,7 @@ namespace TAS.Client.ViewModels
         }
 
 
-        public EventPanelAutoStartEventViewmodel(IEventClient ev):base(ev, null) { }
+        public EventPanelAutoStartEventViewmodel(IEvent ev):base(ev, null) { }
 
         public string ScheduledDate
         {

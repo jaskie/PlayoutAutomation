@@ -8,11 +8,13 @@ using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IEvent: IEventClient, IEventDatabase
+    public interface IEventPesistent: IEvent
     {
+        ulong IdRundownEvent { get; set; }
+        ulong IdEventBinding { get; }
     }
 
-    public interface IEventClient: IEventProperties, INotifyPropertyChanged, ICloneable
+    public interface IEvent: IEventProperties, INotifyPropertyChanged
     {
         TPlayState PlayState { get; set; }
         long Position { get; set; }
@@ -22,15 +24,15 @@ namespace TAS.Server.Interfaces
         DateTime EndTime { get; }
         TimeSpan? Offset { get; }
 
-        IEventClient Next { get; }
-        IEventClient Prior { get; }
-        IEventClient Parent { get; }
+        IEvent Next { get; }
+        IEvent Prior { get; }
+        IEvent Parent { get; }
 
-        IList<IEventClient> SubEvents { get; }
+        IList<IEvent> SubEvents { get; }
         int SubEventsCount { get; }
-        void InsertAfter(IEventClient e);
-        void InsertBefore(IEventClient e);
-        void InsertUnder(IEventClient se);
+        void InsertAfter(IEvent e);
+        void InsertBefore(IEvent e);
+        void InsertUnder(IEvent se);
         void MoveUp();
         void MoveDown();
         void Remove();
@@ -48,14 +50,8 @@ namespace TAS.Server.Interfaces
         event EventHandler Saved;
         event EventHandler Deleted;
         event EventHandler Relocated;
-        event EventHandler<CollectionOperationEventArgs<IEventClient>> SubEventChanged;
+        event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
         event EventHandler<EventPositionEventArgs> PositionChanged;
-    }
-
-    public interface IEventDatabase: IEventProperties
-    {
-        ulong IdRundownEvent { get; set; }
-        ulong IdEventBinding { get; }
     }
 
     public interface IEventProperties : ICGElementsState

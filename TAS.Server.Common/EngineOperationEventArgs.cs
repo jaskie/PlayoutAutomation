@@ -9,12 +9,12 @@ namespace TAS.Server.Common
 {
     public class EngineOperationEventArgs : EventArgs
     {
-        public EngineOperationEventArgs(IEventClient AEvent, TEngineOperation AOperation)
+        public EngineOperationEventArgs(IEvent AEvent, TEngineOperation AOperation)
         {
             Operation = AOperation;
             Event = AEvent;
         }
         public TEngineOperation Operation { get; private set; }
-        public IEventClient Event { get; private set; }
+        public IEvent Event { get; private set; }
     }
 }

@@ -8,7 +8,7 @@ namespace TAS.Client.ViewModels
 {
     public class EventPanelAnimationViewmodel: EventPanelRundownElementViewmodelBase
     {
-        public EventPanelAnimationViewmodel(IEventClient ev, EventPanelViewmodelBase parent): base(ev, parent) { }
+        public EventPanelAnimationViewmodel(IEvent ev, EventPanelViewmodelBase parent): base(ev, parent) { }
         public override bool IsEnabled { get { return _event.IsEnabled; } }
     }
 }

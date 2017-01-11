@@ -87,10 +87,5 @@ namespace TAS.Server
         private int _templateLayer;
         public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, nameof(TemplateLayer)); } }
 
-        public override object Clone()
-        {
-            return Engine.AddNewEvent(videoLayer: Layer, eventType: TEventType.Animation, duration: Duration, startType: StartType, scheduledDelay: ScheduledDelay, fields: Fields, method: Method, templateLayer: TemplateLayer, eventName: EventName, isEnabled: IsEnabled);
-        }
-
     }
 }
