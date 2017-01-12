@@ -40,7 +40,6 @@ namespace TAS.Server.Interfaces
         bool AllowDelete();
         bool IsModified { get; set; }
         bool IsDeleted { get; }
-        MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media);
         bool IsForcedNext { get; }
 
         event EventHandler Saved;

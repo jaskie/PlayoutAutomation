@@ -20,6 +20,8 @@ namespace TAS.Remoting
                     return typeof(Model.IngestMedia);
                 case "TAS.Server.ArchiveMedia":
                     return typeof(Model.ArchiveMedia);
+                case "TAS.Server.AnimatedMedia":
+                    return typeof(Model.AnimatedMedia);
                 case "TAS.Server.ServerDirectory":
                     return typeof(Model.ServerDirectory);
                 case "TAS.Server.IngestDirectory":
@@ -56,8 +58,9 @@ namespace TAS.Remoting
                     return typeof(Model.CGElementsController);
                 case "TAS.Server.CGElement":
                     return typeof(Model.CGElement);
-                case "TAS.Common.VideoFormatDescription":
-                    return typeof(VideoFormatDescription);
+                case "TAS.Server.CommandScriptItem":
+                case "TAS.Server.Interfaces.ICommandScriptItem":
+                    return typeof(TAS.Server.Common.CommandScriptItemProxy);
                 default:
                         return Type.GetType(string.Format("{0}, {1}", typeName, assemblyName), true);
             }

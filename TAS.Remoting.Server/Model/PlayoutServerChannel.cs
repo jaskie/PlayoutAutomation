@@ -10,15 +10,15 @@ namespace TAS.Remoting.Model
 {
     public class PlayoutServerChannel : ProxyBase, IPlayoutServerChannel
     {
-        public string ChannelName { get { return Get<string>(); } set { SetField(value); } }
+        public string ChannelName { get { return Get<string>(); } set { SetLocalValue(value); } }
 
-        public int ChannelNumber { get { return Get<int>(); } set { SetField(value); } }
+        public int ChannelNumber { get { return Get<int>(); } set { SetLocalValue(value); } }
 
-        public string LiveDevice { get { return Get<string>(); } set { SetField(value); } }
+        public string LiveDevice { get { return Get<string>(); } set { SetLocalValue(value); } }
 
-        public decimal MasterVolume { get { return Get<decimal>(); } set { SetField(value); } }
+        public decimal MasterVolume { get { return Get<decimal>(); } set { SetLocalValue(value); } }
 
-        public IPlayoutServer OwnerServer { get { return Get<IPlayoutServer>(); } set { SetField(value); } }
+        public IPlayoutServer OwnerServer { get { return Get<IPlayoutServer>(); } set { SetLocalValue(value); } }
 
         public void Clear()
         {

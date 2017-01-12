@@ -10,13 +10,13 @@ namespace TAS.Remoting.Model
 {
     public class CGElement : ProxyBase, ICGElement
     {
-        public byte Id { get { return Get<byte>(); } set { SetField(value); } }
+        public byte Id { get { return Get<byte>(); } set { SetLocalValue(value); } }
 
-        public BitmapImage Image { get { return Get<BitmapImage>(); } }
+        public BitmapImage Image { get { return Get<BitmapImage>(); } set { SetLocalValue(value); } }
 
-        public string ImageFile { get { return Get<string>(); } }
+        public string ImageFile { get { return Get<string>(); } set { SetLocalValue(value); } }
 
-        public string Name { get { return Get<string>(); }  set { SetField(value); } }
+        public string Name { get { return Get<string>(); }  set { SetLocalValue(value); } }
 
         protected override void OnEventNotification(WebSocketMessage e) { }
     }

@@ -27,19 +27,19 @@ namespace TAS.Remoting.Model
             Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory, mXFAudioExportFormat, mXFVideoExportFormat });
         }
 
-        public IAnimationDirectory AnimationDirectoryPRI { get { return Get<AnimationDirectory>(); } set { SetField(value); } }
-        public IAnimationDirectory AnimationDirectorySEC { get { return Get<AnimationDirectory>(); } set { SetField(value); } }
-        public IAnimationDirectory AnimationDirectoryPRV { get { return Get<AnimationDirectory>(); } set { SetField(value); } }
+        public IAnimationDirectory AnimationDirectoryPRI { get { return Get<AnimationDirectory>(); } set { SetLocalValue(value); } }
+        public IAnimationDirectory AnimationDirectorySEC { get { return Get<AnimationDirectory>(); } set { SetLocalValue(value); } }
+        public IAnimationDirectory AnimationDirectoryPRV { get { return Get<AnimationDirectory>(); } set { SetLocalValue(value); } }
 
-        public IArchiveDirectory ArchiveDirectory { get { return Get<ArchiveDirectory>(); } set { SetField(value); } }
+        public IArchiveDirectory ArchiveDirectory { get { return Get<ArchiveDirectory>(); } set { SetLocalValue(value); } }
 
 
-        public IFileManager FileManager { get { return Get<FileManager>(); }  set { SetField(value); } }
+        public IFileManager FileManager { get { return Get<FileManager>(); }  set { SetLocalValue(value); } }
 
-        public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetField(value); } }
+        public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetLocalValue(value); } }
 
         [JsonProperty(nameof(IMediaManager.IngestDirectories))]
-        private List<IngestDirectory> _ingestDirectories { get { return Get<List<IngestDirectory>>(); }  set { Set(value); } }
+        private List<IngestDirectory> _ingestDirectories { get { return Get<List<IngestDirectory>>(); }  set { SetLocalValue(value); } }
         [JsonIgnore]
         public IEnumerable<IIngestDirectory> IngestDirectories
         {
@@ -51,16 +51,16 @@ namespace TAS.Remoting.Model
             Invoke(parameters: mediaList);
         }
 
-        public IServerDirectory MediaDirectoryPRI { get { return Get<ServerDirectory>(); } set { SetField(value); } }
-        public IServerDirectory MediaDirectorySEC { get { return Get<ServerDirectory>(); } set { SetField(value); } }
-        public IServerDirectory MediaDirectoryPRV { get { return Get<ServerDirectory>(); } set { SetField(value); } }
+        public IServerDirectory MediaDirectoryPRI { get { return Get<ServerDirectory>(); } set { SetLocalValue(value); } }
+        public IServerDirectory MediaDirectorySEC { get { return Get<ServerDirectory>(); } set { SetLocalValue(value); } }
+        public IServerDirectory MediaDirectoryPRV { get { return Get<ServerDirectory>(); } set { SetLocalValue(value); } }
 
         public IMedia GetPRVMedia(IMedia media)
         {
             return Query<Media>(parameters: media);
         }
 
-        public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { SetField(value); } }
+        public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { SetLocalValue(value); } }
 
         public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool toTop) { Invoke(parameters: new object[] { mediaList, toTop }); }
         
@@ -90,11 +90,11 @@ namespace TAS.Remoting.Model
         }
 
         [JsonProperty(nameof(IEngine.CGElementsController))]
-        private CGElementsController _cgElementsController { get { return Get<CGElementsController>(); } set { SetField(value); } }
+        private CGElementsController _cgElementsController { get { return Get<CGElementsController>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
         public ICGElementsController CGElementsController { get { return _cgElementsController; } }
 
-        public IEngine Engine { get { return Get<Engine>(); }  set { SetField(value); } }
+        public IEngine Engine { get { return Get<Engine>(); }  set { SetLocalValue(value); } }
 
         protected override void OnEventNotification(WebSocketMessage e) { }
 

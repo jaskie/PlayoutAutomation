@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,89 +12,92 @@ namespace TAS.Remoting.Model
 {
     public class Event : ProxyBase, IEvent
     {
-        public decimal? AudioVolume { get { return Get<decimal?>(); }  set { SetField(value); } }
+        public decimal? AudioVolume { get { return Get<decimal?>(); }  set { Set(value); } }
 
-        public AutoStartFlags AutoStartFlags { get { return Get<AutoStartFlags>(); } set { SetField(value); } }
+        public AutoStartFlags AutoStartFlags { get { return Get<AutoStartFlags>(); } set { Set(value); } }
 
-        public byte Crawl { get { return Get<byte>(); } set { SetField(value); } }
+        public byte Crawl { get { return Get<byte>(); } set { Set(value); } }
 
-        public TimeSpan Duration { get { return Get<TimeSpan>(); } set { SetField(value); } }
+        public TimeSpan Duration { get { return Get<TimeSpan>(); } set { Set(value); } }
         
-        public DateTime EndTime { get { return Get<DateTime>(); } set { SetField(value); } }
+        public DateTime EndTime { get { return Get<DateTime>(); } set { Set(value); } }
 
-        public IEngine Engine { get { return Get<Engine>(); } set { SetField(value); } }
+        public IEngine Engine { get { return Get<Engine>(); } set { Set(value); } }
 
-        public string EventName { get { return Get<string>(); } set { SetField(value); } }
+        public string EventName { get { return Get<string>(); } set { Set(value); } }
 
-        public TEventType EventType { get { return Get<TEventType>(); } set { SetField(value); } }
+        public TEventType EventType { get { return Get<TEventType>(); } set { Set(value); } }
         
-        public string IdAux { get { return Get<string>(); } set { SetField(value); } }
+        public string IdAux { get { return Get<string>(); } set { Set(value); } }
         
-        public ulong IdProgramme { get { return Get<ulong>(); } set { SetField(value); } }
+        public ulong IdProgramme { get { return Get<ulong>(); } set { Set(value); } }
 
-        public ulong IdRundownEvent { get { return Get<ulong>(); } set { SetField(value); } }
+        public ulong IdRundownEvent { get { return Get<ulong>(); } set { Set(value); } }
 
-        public bool IsCGEnabled { get { return Get<bool>(); } set { SetField(value); } }
+        public bool IsCGEnabled { get { return Get<bool>(); } set { Set(value); } }
 
-        public bool IsDeleted { get { return Get<bool>(); } set { SetField(value); } }
+        public bool IsDeleted { get { return Get<bool>(); } set { Set(value); } }
 
-        public bool IsEnabled { get { return Get<bool>(); } set { SetField(value); } }
+        public bool IsEnabled { get { return Get<bool>(); } set { Set(value); } }
 
-        public bool IsForcedNext { get { return Get<bool>(); } set { SetField(value); } }
+        public bool IsForcedNext { get { return Get<bool>(); } set { Set(value); } }
 
-        public bool IsHold { get { return Get<bool>(); } set { SetField(value); } }
+        public bool IsHold { get { return Get<bool>(); } set { Set(value); } }
 
-        public bool IsLoop { get { return Get<bool>(); } set { SetField(value); } }
+        public bool IsLoop { get { return Get<bool>(); } set { Set(value); } }
 
-        public bool IsModified { get { return Get<bool>(); } set { SetField(value); } }
+        public bool IsModified { get { return Get<bool>(); } set { Set(value); } }
 
-        public VideoLayer Layer { get { return Get<VideoLayer>(); } set { SetField(value); } }
+        public VideoLayer Layer { get { return Get<VideoLayer>(); } set { Set(value); } }
 
-        public TimeSpan Length { get { return Get<TimeSpan>(); } set { SetField(value); } }
+        public TimeSpan Length { get { return Get<TimeSpan>(); } set { Set(value); } }
 
-        public byte Logo { get { return Get<byte>(); } set { SetField(value); } }
+        public byte Logo { get { return Get<byte>(); } set { Set(value); } }
 
-        public IMedia Media { get { return Get<Media>(); } set { SetField(value); } }
+        [JsonProperty(nameof(IEvent.Media))]
+        private Media _media { get { return Get<Media>(); } set { Set(value); } }
+        [JsonIgnore]
+        public IMedia Media { get { return _media; } set { _media = value as Media; } }
 
-        public Guid MediaGuid { get { return Get<Guid>(); } set { SetField(value); } }
+        public Guid MediaGuid { get { return Get<Guid>(); } set { Set(value); } }
 
-        public IEvent Next { get { return Get<Event>(); } set { SetField(value); } }
+        public IEvent Next { get { return Get<Event>(); } set { Set(value); } }
         
-        public TimeSpan? Offset { get { return Get<TimeSpan?>(); } set { SetField(value); } }
+        public TimeSpan? Offset { get { return Get<TimeSpan?>(); } set { Set(value); } }
 
-        public IEvent Parent { get { return Get<Event>(); } set { SetField(value); } }
+        public IEvent Parent { get { return Get<Event>(); } set { Set(value); } }
 
-        public byte Parental { get { return Get<byte>(); } set { SetField(value); } }
+        public byte Parental { get { return Get<byte>(); } set { Set(value); } }
 
-        public TPlayState PlayState { get { return Get<TPlayState>(); } set { SetField(value); } }
+        public TPlayState PlayState { get { return Get<TPlayState>(); } set { Set(value); } }
 
-        public IEvent Prior { get { return Get<Event>(); } set { SetField(value); } }
+        public IEvent Prior { get { return Get<Event>(); } set { Set(value); } }
 
-        public TimeSpan? RequestedStartTime { get { return Get<TimeSpan?>(); }  set { SetField(value); } }
+        public TimeSpan? RequestedStartTime { get { return Get<TimeSpan?>(); }  set { Set(value); } }
 
-        public TimeSpan ScheduledDelay { get { return Get<TimeSpan>(); } set { SetField(value); } }
+        public TimeSpan ScheduledDelay { get { return Get<TimeSpan>(); } set { Set(value); } }
 
-        public TimeSpan ScheduledTc { get { return Get<TimeSpan>(); } set { SetField(value); } }
+        public TimeSpan ScheduledTc { get { return Get<TimeSpan>(); } set { Set(value); } }
 
-        public DateTime ScheduledTime { get { return Get<DateTime>(); } set { SetField(value); } }
+        public DateTime ScheduledTime { get { return Get<DateTime>(); } set { Set(value); } }
 
-        public TimeSpan StartTc { get { return Get<TimeSpan>(); } set { SetField(value); } }
+        public TimeSpan StartTc { get { return Get<TimeSpan>(); } set { Set(value); } }
 
-        public DateTime StartTime { get { return Get<DateTime>(); } set { SetField(value); } }
+        public DateTime StartTime { get { return Get<DateTime>(); } set { Set(value); } }
 
-        public TStartType StartType { get { return Get<TStartType>(); } set { SetField(value); } }
+        public TStartType StartType { get { return Get<TStartType>(); } set { Set(value); } }
 
-        public IList<IEvent> SubEvents { get { return Get<List<IEvent>>(); } set { SetField(value); } }
+        public IList<IEvent> SubEvents { get { return Get<List<IEvent>>(); } set { Set(value); } }
 
-        public int SubEventsCount { get { return Get<int>(); } set { SetField(value); } }
+        public int SubEventsCount { get { return Get<int>(); } set { Set(value); } }
 
-        public TEasing TransitionEasing { get { return Get<TEasing>(); } set { SetField(value); } }
+        public TEasing TransitionEasing { get { return Get<TEasing>(); } set { Set(value); } }
 
-        public TimeSpan TransitionPauseTime { get { return Get<TimeSpan>(); } set { SetField(value); } }
+        public TimeSpan TransitionPauseTime { get { return Get<TimeSpan>(); } set { Set(value); } }
 
-        public TimeSpan TransitionTime { get { return Get<TimeSpan>(); } set { SetField(value); } }
+        public TimeSpan TransitionTime { get { return Get<TimeSpan>(); } set { Set(value); } }
 
-        public TTransitionType TransitionType { get { return Get<TTransitionType>(); } set { SetField(value); } }
+        public TTransitionType TransitionType { get { return Get<TTransitionType>(); } set { Set(value); } }
 
         #region Event handlers
         event EventHandler _deleted;
@@ -192,21 +196,6 @@ namespace TAS.Remoting.Model
         #endregion //Event handlers
 
         public bool AllowDelete() { return Query<bool>(); }
-
-        public MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media)
-        {
-            throw new NotImplementedException();
-        }
-
-        public object Clone()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEventPesistent CloneTree()
-        {
-            throw new NotImplementedException();
-        }
 
         public void Delete() { Invoke(); }
         public void InsertAfter(IEvent e) { Invoke(parameters: new[] { e }); }

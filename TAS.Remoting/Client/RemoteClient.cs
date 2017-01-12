@@ -118,24 +118,24 @@ namespace TAS.Remoting.Client
 
         private WebSocketMessage WaitForResponse(WebSocketMessage sendedMessage)
         {
-            // Func<WebSocketMessage> resultFunc = new Func<WebSocketMessage>(() =>
-            //{
-            WebSocketMessage response;
-            Stopwatch timeout = Stopwatch.StartNew();
-            if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out response))
-                return response;
-            do
+            Func<WebSocketMessage> resultFunc = new Func<WebSocketMessage>(() =>
             {
-                _messageHandler.WaitOne(query_timeout);
+                WebSocketMessage response;
+                Stopwatch timeout = Stopwatch.StartNew();
                 if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out response))
                     return response;
-            }
-            while (timeout.ElapsedMilliseconds < query_timeout);
-            throw new TimeoutException($"Didn't received response from server within {query_timeout} milliseconds. Query was {sendedMessage}");
-            //});
-            // IAsyncResult funcAsyncResult = resultFunc.BeginInvoke(null, null);
-            // funcAsyncResult.AsyncWaitHandle.WaitOne();
-            // return resultFunc.EndInvoke(funcAsyncResult);
+                do
+                {
+                    _messageHandler.WaitOne(query_timeout);
+                    if (_receivedMessages.TryRemove(sendedMessage.MessageGuid, out response))
+                        return response;
+                }
+                while (timeout.ElapsedMilliseconds < query_timeout);
+                throw new TimeoutException($"Didn't received response from server within {query_timeout} milliseconds. Query was {sendedMessage}");
+            });
+            IAsyncResult funcAsyncResult = resultFunc.BeginInvoke(null, null);
+            funcAsyncResult.AsyncWaitHandle.WaitOne();
+            return resultFunc.EndInvoke(funcAsyncResult);
         }
 
         public void Update(object serialized, object target)

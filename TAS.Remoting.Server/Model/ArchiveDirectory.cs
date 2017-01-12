@@ -33,7 +33,6 @@ namespace TAS.Remoting.Model
         public IArchiveMedia Find(IMediaProperties media)
         {
             var ret =  Query<ArchiveMedia>(parameters: new object[] { media });
-            ret.Directory = this;
             return ret;
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -22,6 +23,7 @@ namespace TAS.Server
         readonly object _commandsSyncRoot = new object();
         readonly List<CommandScriptItem> _commands;
 
+        [JsonProperty]
         public IEnumerable<ICommandScriptItem> Commands
         {
             get

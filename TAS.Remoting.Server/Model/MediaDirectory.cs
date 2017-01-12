@@ -25,7 +25,6 @@ namespace TAS.Remoting.Model
         public  ICollection<IMedia> GetFiles()
         {
             _files = Query<List<IMedia>>();
-            _files.ForEach(m => (m as Media).Directory = this);
             return _files;
         }
 
@@ -39,6 +38,7 @@ namespace TAS.Remoting.Model
 
         public long VolumeTotalSize { get { return Get<long>(); } internal set { Set(value); } }
 
+        #region Event handling
         event EventHandler<MediaEventArgs> _mediaAdded;
         public event EventHandler<MediaEventArgs> MediaAdded
         {
@@ -109,6 +109,8 @@ namespace TAS.Remoting.Model
                 _mediaVerified?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
         }
 
+        #endregion // Ehent handling
+
         public bool DeleteMedia(IMedia media)
         {
             return Query<bool>(parameters: media );
@@ -122,11 +124,6 @@ namespace TAS.Remoting.Model
         public bool DirectoryExists()
         {
             return Query<bool>();
-        }
-
-        public void Initialize()
-        {
-            throw new NotImplementedException();
         }
 
         public void Refresh()

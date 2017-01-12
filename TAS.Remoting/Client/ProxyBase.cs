@@ -71,7 +71,7 @@ namespace TAS.Remoting.Client
         {
             _findPropertyName(ref propertyName);
             var client = _client;
-            if (SetField(value, propertyName))
+            if (SetLocalValue(value, propertyName))
             {
                 if (client != null)
                     client.Set(this, value, propertyName);
@@ -114,9 +114,10 @@ namespace TAS.Remoting.Client
             }
         }
 
-        protected bool SetField(object value, [CallerMemberName] string propertyName = null)
+        protected bool SetLocalValue(object value, [CallerMemberName] string propertyName = null)
         {
             object oldValue;
+            _findPropertyName(ref propertyName);
             if (!_properties.TryGetValue(propertyName, out oldValue)  // here values may be boxed
                 || (oldValue != value && (oldValue != null && !oldValue.Equals(value)) || (value != null && !value.Equals(oldValue))))
             {

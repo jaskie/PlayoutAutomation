@@ -84,7 +84,7 @@ namespace TAS.Server.Interfaces
         IEvent NextToPlay { get; }
         IEvent NextWithRequestedStartTime { get; }
 
-        string EngineName { get; set; }
+        string EngineName { get; }
         TVideoFormat VideoFormat { get; set; }
         bool EnableCGElementsForNewEvents { get; set; }
         TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
@@ -112,6 +112,7 @@ namespace TAS.Server.Interfaces
         ulong IdServerPRV { get; set; }
         int ServerChannelPRV { get; set; }
         ulong IdArchive { get; set; }
+        string EngineName { set; }
     }
 
 }

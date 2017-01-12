@@ -12,6 +12,7 @@ namespace TAS.Server.Common
         {
             Event = ev;
         }
+        [Newtonsoft.Json.JsonProperty(IsReference = true)]
         public IEvent Event { get; private set; }
     }
 }

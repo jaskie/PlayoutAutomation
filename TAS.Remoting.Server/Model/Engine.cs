@@ -18,69 +18,52 @@ namespace TAS.Remoting.Model
             Debug.WriteLine("Engine created.");
         }
 
-        public TAspectRatioControl AspectRatioControl { get { return Get<TAspectRatioControl>(); } set { SetField(value); } }
-
         public DateTime CurrentTime { get { return Get<DateTime>(); } }
 
-        public string EngineName { get { return Get<string>(); } set { SetField(value); } }
+        public string EngineName { get { return Get<string>(); } set { SetLocalValue(value); } }
 
-        public TEngineState EngineState { get { return Get<TEngineState>(); } set { SetField(value); } }
+        public TEngineState EngineState { get { return Get<TEngineState>(); } set { SetLocalValue(value); } }
 
-        public IEvent ForcedNext { get { return Get<Event>(); } set { SetField(value); } }
+        public IEvent ForcedNext { get { return Get<Event>(); } set { Set(value); } }
 
-        public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetField(value); } }
+        public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetLocalValue(value); } }
 
-        public RationalNumber FrameRate { get { return Get<RationalNumber>(); } set { SetField(value); } }
+        public RationalNumber FrameRate { get { return Get<RationalNumber>(); } set { SetLocalValue(value); } }
 
-        public long FrameTicks { get { return Get<long>(); } set { SetField(value); } }
+        public long FrameTicks { get { return Get<long>(); } set { SetLocalValue(value); } }
 
         [JsonProperty(nameof(IEngine.CGElementsController))]
-        private CGElementsController _cGElementsController { get { return Get<CGElementsController>(); } set { SetField(value); } }
+        private CGElementsController _cGElementsController { get { return Get<CGElementsController>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
         public ICGElementsController CGElementsController { get { return _cGElementsController; } }
 
-        public bool EnableCGElementsForNewEvents { get; set; }
+        public bool EnableCGElementsForNewEvents { get { return Get<bool>(); } set { SetLocalValue(value); } }
 
-        public TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
-
-        public int CGStartDelay { get; set; }
-
-        public ulong Id { get { return Get<ulong>(); } set { SetField(value); } }
-
-        public ulong IdArchive { get { return Get<ulong>(); } set { SetField(value); } }
-
-        public ulong IdServerPRI { get { return Get<ulong>(); } set { SetField(value); } }
-
-        public ulong IdServerPRV { get { return Get<ulong>(); } set { SetField(value); } }
-
-        public ulong IdServerSEC { get { return Get<ulong>(); } set { SetField(value); } }
-
-        public ulong Instance { get { return Get<ulong>(); } set { SetField(value); } }
+        public TCrawlEnableBehavior CrawlEnableBehavior { get { return Get<TCrawlEnableBehavior>(); } set { SetLocalValue(value); } }
 
         public bool FieldOrderInverted { get { return Get<bool>(); } set { Set(value); } }
 
+        public IMediaManager MediaManager { get { return Get<MediaManager>(); } set { SetLocalValue(value); } }
 
-        public IMediaManager MediaManager { get { return Get<MediaManager>(); } set { SetField(value); } }
+        public IEvent NextToPlay { get { return Get<Event>(); } set { SetLocalValue(value); } }
 
-        public IEvent NextToPlay { get { return Get<Event>(); } set { SetField(value); } }
+        public IEvent NextWithRequestedStartTime { get { return Get<Event>(); } set { SetLocalValue(value); } }
 
-        public IEvent NextWithRequestedStartTime { get { return Get<Event>(); } set { SetField(value); } }
+        public IPlayoutServerChannel PlayoutChannelPRI { get { return Get<PlayoutServerChannel>(); } set { SetLocalValue(value); } }
 
-        public IPlayoutServerChannel PlayoutChannelPRI { get { return Get<IPlayoutServerChannel>(); } set { SetField(value); } }
-
-        public IPlayoutServerChannel PlayoutChannelSEC { get { return Get<IPlayoutServerChannel>(); } set { SetField(value); } }
+        public IPlayoutServerChannel PlayoutChannelSEC { get { return Get<PlayoutServerChannel>(); } set { SetLocalValue(value); } }
 
         #region IPreview
-        public IPlayoutServerChannel PlayoutChannelPRV { get { return Get<IPlayoutServerChannel>(); } set { SetField(value); } }
+        public IPlayoutServerChannel PlayoutChannelPRV { get { return Get<IPlayoutServerChannel>(); } set { SetLocalValue(value); } }
         public decimal PreviewAudioLevel { get { return Get<decimal>(); } set { Set(value); } }
-        public bool PreviewIsPlaying { get { return Get<bool>(); } set { SetField(value); } }
-        public bool PreviewLoaded { get { return Get<bool>(); } set { SetField(value); } }
+        public bool PreviewIsPlaying { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        public bool PreviewLoaded { get { return Get<bool>(); } set { SetLocalValue(value); } }
         [JsonProperty(nameof(IEngine.PreviewMedia))]
-        private Media _previewMedia { get { return Get<Media>(); } set { SetField(value); } }
+        private Media _previewMedia { get { return Get<Media>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
-        public IMedia PreviewMedia { get { return Get<Media>(); } }
+        public IMedia PreviewMedia { get { return _previewMedia; } }
         public long PreviewPosition { get { return Get<long>(); } set { Set(value); } }
-        public long PreviewSeek { get { return Get<long>(); } set { SetField(value); } }
+        public long PreviewSeek { get { return Get<long>(); } set { SetLocalValue(value); } }
         public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal audioLevel)
         {
             Invoke(parameters: new object[] { media, seek, duration, position, audioLevel });
@@ -94,9 +77,9 @@ namespace TAS.Remoting.Model
 
         #endregion IPreview
 
-        public decimal ProgramAudioVolume { get { return Get<decimal>(); } set { SetField(value); } }
+        public decimal ProgramAudioVolume { get { return Get<decimal>(); } set { Set(value); } }
 
-        public bool Pst2Prv { get { return Get<bool>(); } set { SetField(value); } }
+        public bool Pst2Prv { get { return Get<bool>(); } set { SetLocalValue(value); } }
 
         public IEnumerable<IEvent> GetRootEvents() { return Query<List<IEvent>>(); }
 
@@ -104,12 +87,14 @@ namespace TAS.Remoting.Model
         public int ServerChannelPRV { get; set; }
         public int ServerChannelSEC { get; set; }
 
-        public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { SetField(value); } }
+        public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { SetLocalValue(value); } }
 
 
-        public ConnectionStateRedundant DatabaseConnectionState { get { return Get<ConnectionStateRedundant>(); } set { SetField(value); } }
-
-        public IEvent Playing { get { return Get<Event>(); } set { SetField(value); } }
+        public ConnectionStateRedundant DatabaseConnectionState { get { return Get<ConnectionStateRedundant>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IEngine.Playing))]
+        private Event _playing { get { return Get<Event>(); } set { SetLocalValue(value); } }
+        [JsonIgnore]
+        public IEvent Playing { get { return _playing; } }
 
         public List<IEvent> FixedTimeEvents
         {
@@ -206,13 +191,17 @@ namespace TAS.Remoting.Model
         {
             add
             {
+#if !DEBUG
                 EventAdd(_engineTick);
+#endif
                 _engineTick += value;
             }
             remove
             {
                 _engineTick -= value;
+#if !DEBUG
                 EventRemove(_engineTick);
+#endif
             }
         }
         event EventHandler<IEventEventArgs> _eventSaved;
@@ -269,7 +258,7 @@ namespace TAS.Remoting.Model
             }
         }
 
-        #endregion // Event handling
+#endregion // Event handling
         public void AddRootEvent(IEvent ev)
         {
             Invoke(parameters: new[] { ev });

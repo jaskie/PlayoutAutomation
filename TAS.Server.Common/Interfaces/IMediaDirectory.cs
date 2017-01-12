@@ -14,7 +14,6 @@ namespace TAS.Server.Interfaces
         bool DirectoryExists();
         bool IsInitialized { get; }
         ICollection<IMedia> GetFiles();
-        void Initialize();
         void Refresh();
         void SweepStaleMedia();
         long VolumeTotalSize { get; }

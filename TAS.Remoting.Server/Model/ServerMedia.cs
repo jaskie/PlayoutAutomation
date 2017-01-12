@@ -12,6 +12,5 @@ namespace TAS.Remoting.Model
     {
         public bool DoNotArchive { get { return Get<bool>(); } set { Set(value); } }
         public bool IsArchived { get { return Get<bool>(); } set { Set(value); } }
-        public override IMediaDirectory Directory { get { return Get<IServerDirectory>(); } set { SetField(value); } }
     }
 }

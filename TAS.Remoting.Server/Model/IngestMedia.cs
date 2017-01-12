@@ -9,7 +9,6 @@ namespace TAS.Remoting.Model
 {
     public class IngestMedia: Media, IIngestMedia
     {
-        public override IMediaDirectory Directory { get { return Get<IIngestDirectory>(); } set { SetField(value); } }
-        public TIngestStatus IngestStatus { get { return Get<TIngestStatus>(); } set { SetField(value); } }
+        public TIngestStatus IngestStatus { get { return Get<TIngestStatus>(); } set { SetLocalValue(value); } }
     }
 }

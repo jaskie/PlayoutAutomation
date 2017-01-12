@@ -16,35 +16,35 @@ namespace TAS.Remoting.Model
         public byte Crawl { get { return Get<byte>(); } set { Set(value); } }
 
         [JsonProperty(nameof(ICGElementsController.Crawls))]
-        private List<CGElement> _crawls;
+        private List<CGElement> _crawls { get { return Get<List<CGElement>>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
         public IEnumerable<ICGElement> Crawls { get { return _crawls; } }
 
-        public byte DefaultCrawl { get { return Get<byte>(); } }
+        public byte DefaultCrawl { get { return Get<byte>(); } set { SetLocalValue(value); } }
 
         public bool IsCGEnabled { get { return Get<bool>(); } set { Set(value); } }
 
-        public bool IsConnected { get { return Get<bool>(); } }
+        public bool IsConnected { get { return Get<bool>(); } set { SetLocalValue(value); } }
 
-        public bool IsMaster { get { return Get<bool>(); } }
+        public bool IsMaster { get { return Get<bool>(); } set { SetLocalValue(value); } }
 
         public bool IsWideScreen { get { return Get<bool>(); } set { Set(value); } }
 
         public byte Logo { get { return Get<byte>(); } set { Set(value); } }
 
         [JsonProperty(nameof(ICGElementsController.Logos))]
-        private List<CGElement> _logos;
+        private List<CGElement> _logos { get { return Get<List<CGElement>>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
         public IEnumerable<ICGElement> Logos { get { return _logos; } }
 
         public byte Parental { get { return Get<byte>(); } set { Set(value); }  }
 
         [JsonProperty(nameof(ICGElementsController.Parentals))]
-        private List<CGElement> _parentals;
+        private List<CGElement> _parentals { get { return Get<List<CGElement>>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
         public IEnumerable<ICGElement> Parentals { get { return _parentals; } }
      
-        public byte[] VisibleAuxes { get { return Get<byte[]>(); } }
+        public byte[] VisibleAuxes { get { return Get<byte[]>(); } set { SetLocalValue(value); } }
 
         public event EventHandler Started;
 

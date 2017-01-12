@@ -77,7 +77,7 @@ namespace TAS.Remoting.Server
                             if (methodToInvoke != null)
                             {
                                 ParameterInfo[] methodParameters = methodToInvoke.GetParameters();
-                                _deserializeContent(ref message.Parameters, methodParameters.Select(p => p.ParameterType).ToArray());
+                                _alignContentTypes(ref message.Parameters, methodParameters.Select(p => p.ParameterType).ToArray());
                                 for (int i = 0; i < methodParameters.Length; i++)
                                     MethodParametersAlignment.AlignType(ref message.Parameters[i], methodParameters[i].ParameterType);
                                 object response = methodToInvoke.Invoke(objectToInvoke, BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.Public, null, message.Parameters, null);
@@ -103,7 +103,7 @@ namespace TAS.Remoting.Server
                                 {
                                     if (property.CanWrite)
                                     {
-                                        _deserializeContent(ref message.Parameters, new Type[] { property.PropertyType });
+                                        _alignContentTypes(ref message.Parameters, new Type[] { property.PropertyType });
                                         property.SetValue(objectToInvoke, message.Parameters[0], null);
                                     }
                                     else
@@ -224,44 +224,20 @@ namespace TAS.Remoting.Server
                 originalDelegate.Method);
         }
 
-        void _deserializeContent(ref object[] inputArray, Type[] inputTypes)
+        void _alignContentTypes(ref object[] inputArray, Type[] inputTypes)
         {
-            if (inputArray == null)
-                return;
             for (int i = 0; i < inputArray.Length; i++)
             {
                 object input = inputArray[i];
-                Type type = inputTypes[i];
-                if (input != null
-                    && input.GetType() != type)
+                Type requiredType = inputTypes[i];
+                if (input != null)
                 {
-                    if (type.IsEnum)
-                        input = Enum.Parse(type, input.ToString());
-                    else
-                    if (type == typeof(TimeSpan))
-                        input = TimeSpan.Parse((string)input, System.Globalization.CultureInfo.InvariantCulture);
-                    else
-                    if (type.IsValueType && type != typeof(Guid))
-                        input = Convert.ChangeType(input, type);
-                    else
-                    if (input is JArray)
+                    Type actualType = input.GetType();
+                    if (actualType != requiredType)
                     {
-                        if (type == typeof(Guid))
-                            input = new Guid(((JArray)input).First.ToString());
-                        else
-                        {
-                            Type[] genericArgumentTypes = type.GetGenericArguments();
-                            IDto[] arrayElements = Deserialize<IDto[]>((input as JContainer).ToString());
-                            if (genericArgumentTypes.Length == 1)
-                            {
-                                Type listType = typeof(List<>);
-                                input = (IList)Activator.CreateInstance(listType.MakeGenericType(genericArgumentTypes));
-                                foreach (object o in arrayElements)
-                                    ((IList)input).Add(o);
-                            }
-                        }
+                        MethodParametersAlignment.AlignType(ref input, requiredType);
+                        inputArray[i] = input;
                     }
-                    inputArray[i] = input;
                 }
             }
         }
@@ -273,7 +249,7 @@ namespace TAS.Remoting.Server
                 return;
             EventArgs eventArgs;
             PropertyChangedEventArgs ea = e as PropertyChangedEventArgs;
-            if (ea != null)
+            if (ea != null && eventName == nameof(INotifyPropertyChanged.PropertyChanged))
             {
                 PropertyInfo p = o.GetType().GetProperty(ea.PropertyName);
                 if (p?.CanRead == true)
@@ -298,7 +274,7 @@ namespace TAS.Remoting.Server
             };
             string s = _serialize(message);
             Send(s);
-            Debug.WriteLine($"Server: Notification {eventName} on {dto} sent");
+            Debug.WriteLine($"Server: Notification {eventName} on {dto} sent:\n{s}");
         }
 
         void _notifyObjectDisposed(object o, EventArgs a)

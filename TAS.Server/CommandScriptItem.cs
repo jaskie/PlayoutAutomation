@@ -1,8 +1,8 @@
-﻿using Svt.Caspar;
+﻿using Newtonsoft.Json;
+using Svt.Caspar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 using TAS.Common;
@@ -19,7 +19,7 @@ namespace TAS.Server
         { }
 
         private TimeSpan? _executeTime;
-        [DataMember]
+        [JsonProperty]
         public TimeSpan? ExecuteTime
         {
             get { return _executeTime; }
@@ -27,7 +27,7 @@ namespace TAS.Server
         }
 
         private string _command;
-        [DataMember]
+        [JsonProperty]
         public string Command
         {
             get { return _command; }

@@ -19,6 +19,7 @@ namespace TAS.Server
 {
     public class Engine : DtoBase, IEngine, IEnginePersistent, IDisposable
     {
+        #region IEnginePersistent
         public UInt64 Id { get; set; }
         public UInt64 Instance { get; set; }
         public UInt64 IdArchive { get; set; }
@@ -28,8 +29,8 @@ namespace TAS.Server
         public int ServerChannelSEC { get; set; }
         public ulong IdServerPRV { get; set; }
         public int ServerChannelPRV { get; set; }
-        public TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
         public int CGStartDelay { get; set; }
+        #endregion //IEnginePersistent
 
         string _engineName;
         [JsonProperty]
@@ -60,8 +61,10 @@ namespace TAS.Server
 
         public event EventHandler<EngineTickEventArgs> EngineTick;
         public event EventHandler<EngineOperationEventArgs> EngineOperation;
-
+        [JsonProperty]
         public bool EnableCGElementsForNewEvents { get; set; }
+        [JsonProperty]
+        public TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
         private IEnumerable<IGpi> _localGpis;
         private IEnumerable<IEnginePlugin> _plugins;
         [JsonProperty(nameof(CGElementsController))]

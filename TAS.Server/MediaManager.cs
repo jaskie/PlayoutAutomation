@@ -61,7 +61,7 @@ namespace TAS.Server
             AnimationDirectorySEC = (_engine.PlayoutChannelSEC == null) ? null : _engine.PlayoutChannelSEC.OwnerServer.AnimationDirectory;
             AnimationDirectoryPRV = (_engine.PlayoutChannelPRV == null) ? null : _engine.PlayoutChannelPRV.OwnerServer.AnimationDirectory;
             IMediaDirectory[] initializationList = new IMediaDirectory[] { MediaDirectoryPRI, MediaDirectorySEC, MediaDirectoryPRV, AnimationDirectoryPRI, AnimationDirectorySEC, AnimationDirectoryPRV, ArchiveDirectory };
-            foreach (IMediaDirectory dir in initializationList.OfType<IMediaDirectory>().Distinct())
+            foreach (MediaDirectory dir in initializationList.OfType<IMediaDirectory>().Distinct())
                 dir.Initialize();
             if (ArchiveDirectory != null)
                 ArchiveDirectory.MediaDeleted += ArchiveDirectory_MediaDeleted;
@@ -144,7 +144,7 @@ namespace TAS.Server
                     m.IsArchived = false;
             }
         }
-        [JsonProperty(nameof(IMediaManager.IngestDirectories), IsReference = false, ItemIsReference = true)]
+        [JsonProperty(nameof(IMediaManager.IngestDirectories), IsReference = false, ItemIsReference = true, ItemTypeNameHandling = TypeNameHandling.All)]
         private List<IngestDirectory> _ingestDirectories;
         public IEnumerable<IIngestDirectory> IngestDirectories
         {

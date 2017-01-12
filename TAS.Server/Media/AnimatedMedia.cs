@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,7 +24,7 @@ namespace TAS.Server
         }
 
         private readonly SimpleDictionary<string, string> _fields = new SimpleDictionary<string, string>();
-
+        [JsonProperty]
         public IDictionary<string, string> Fields
         {
             get { return _fields; }
@@ -36,9 +37,11 @@ namespace TAS.Server
         }
 
         private TemplateMethod _method;
+        [JsonProperty]
         public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value, "Method"); } }
 
         private int _templateLayer;
+        [JsonProperty]
         public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, "TemplateLayer"); } }
 
         public override bool Save()

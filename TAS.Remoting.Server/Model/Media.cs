@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -22,7 +23,10 @@ namespace TAS.Remoting.Model
 
         public decimal AudioVolume { get { return Get<decimal>(); } set { Set(value); } }
 
-        public virtual IMediaDirectory Directory { get; set; }
+        [JsonProperty(nameof(IMedia.Directory))]
+        protected virtual MediaDirectory _directory { get { return Get<MediaDirectory>(); } set { SetLocalValue(value); } }
+        [JsonIgnore]
+        public virtual IMediaDirectory Directory { get { return _directory; } }
 
         public TimeSpan Duration { get { return Get<TimeSpan>(); } set { Set(value); } }
 
@@ -89,7 +93,7 @@ namespace TAS.Remoting.Model
 
         public override string ToString()
         {
-            return $"{Directory}:{MediaName}";
+            return $"{MediaName}";
         }
 
         protected override void OnEventNotification(WebSocketMessage e) { }

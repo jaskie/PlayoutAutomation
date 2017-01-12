@@ -20,29 +20,29 @@ namespace TAS.Remoting.Model
 
         public IMediaDirectory DestDirectory { get { return Get<IMediaDirectory>(); } set { Set(value); } }
 
-        public DateTime FinishedTime { get { return Get<DateTime>(); } set { SetField(value); } }
+        public DateTime FinishedTime { get { return Get<DateTime>(); } set { SetLocalValue(value); } }
 
-        public bool IsIndeterminate { get { return Get<bool>(); } set { SetField(value); } }
+        public bool IsIndeterminate { get { return Get<bool>(); } set { SetLocalValue(value); } }
 
-        public TFileOperationKind Kind { get { return Get<TFileOperationKind>(); } set { SetField(value); } }
+        public TFileOperationKind Kind { get { return Get<TFileOperationKind>(); } set { SetLocalValue(value); } }
 
-        public List<string> OperationOutput { get { return Get<List<string>>(); } set { SetField(value); } }
+        public List<string> OperationOutput { get { return Get<List<string>>(); } set { SetLocalValue(value); } }
 
-        public FileOperationStatus OperationStatus { get { return Get<FileOperationStatus>(); } set { SetField(value); } }
+        public FileOperationStatus OperationStatus { get { return Get<FileOperationStatus>(); } set { SetLocalValue(value); } }
 
-        public List<string> OperationWarning { get { return Get<List<string>>(); } set { SetField(value); } }
+        public List<string> OperationWarning { get { return Get<List<string>>(); } set { SetLocalValue(value); } }
 
-        public int Progress { get { return Get<int>(); } set { SetField(value); } }
+        public int Progress { get { return Get<int>(); } set { SetLocalValue(value); } }
 
-        public DateTime ScheduledTime { get { return Get<DateTime>(); } set { SetField(value); } }
+        public DateTime ScheduledTime { get { return Get<DateTime>(); } set { SetLocalValue(value); } }
 
         public IMedia SourceMedia { get { return Get<Media>(); } set { Set(value); } }
 
-        public DateTime StartTime { get { return Get<DateTime>(); } set { SetField(value); } }
+        public DateTime StartTime { get { return Get<DateTime>(); } set { SetLocalValue(value); } }
 
-        public int TryCount { get { return Get<int>(); } set { SetField(value); } }
+        public int TryCount { get { return Get<int>(); } set { SetLocalValue(value); } }
 
-        public string Title { get { return Get<string>(); } set { SetField(value); } }
+        public string Title { get { return Get<string>(); } set { SetLocalValue(value); } }
 
         private event EventHandler _finished;
         public event EventHandler Finished

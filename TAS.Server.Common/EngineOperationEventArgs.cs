@@ -14,7 +14,9 @@ namespace TAS.Server.Common
             Operation = AOperation;
             Event = AEvent;
         }
+        [Newtonsoft.Json.JsonProperty]
         public TEngineOperation Operation { get; private set; }
+        [Newtonsoft.Json.JsonProperty(IsReference = true)]
         public IEvent Event { get; private set; }
     }
 }

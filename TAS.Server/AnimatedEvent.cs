@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -70,6 +71,7 @@ namespace TAS.Server
         }
 
         private readonly SimpleDictionary<string, string> _fields;
+        [JsonProperty]
         public IDictionary<string, string> Fields
         {
             get { return _fields; }
