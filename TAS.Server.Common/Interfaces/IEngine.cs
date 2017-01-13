@@ -58,7 +58,7 @@ namespace TAS.Server.Interfaces
                     byte logo = 0,
                     byte parental = 0,
                     AutoStartFlags autoStartFlags = AutoStartFlags.None,
-                    IEnumerable<ICommandScriptItem> commands = null,
+                    string command = null,
                     IDictionary<string, string> fields = null,
                     TemplateMethod method = TemplateMethod.Add,
                     int templateLayer = -1

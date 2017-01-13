@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using TAS.Server.Common;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace TAS.Server
 {
@@ -299,6 +300,46 @@ namespace TAS.Server
                         }
                     }
                 }
+                if (eventType == TEventType.CommandScript)
+                {
+                    CommandScriptEvent csi = aEvent as CommandScriptEvent;
+                    string command = csi.Command;
+                    if (string.IsNullOrWhiteSpace(command))
+                        return false;
+                    Match match = EventExtensions.regexFill.Match(command);
+                    if (match.Success)
+                    {
+                        VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
+                        float x = float.Parse(match.Groups["x"].Value, System.Globalization.CultureInfo.InvariantCulture);
+                        float y = float.Parse(match.Groups["y"].Value, System.Globalization.CultureInfo.InvariantCulture);
+                        float sx = float.Parse(match.Groups["sx"].Value, System.Globalization.CultureInfo.InvariantCulture);
+                        float sy = float.Parse(match.Groups["sy"].Value, System.Globalization.CultureInfo.InvariantCulture);
+                        int duration = string.IsNullOrWhiteSpace(match.Groups["duration"].Value) ? 0 : int.Parse(match.Groups["duration"].Value);
+                        TEasing easing = match.Groups["easing"].Success ? (TEasing)Enum.Parse(typeof(TEasing), match.Groups["easing"].Value, true) : TEasing.Linear;
+                        channel.Fill((int)layer, x, y, sx, sy, duration, (Svt.Caspar.Easing)easing);
+                        return true;
+                    }
+                    match = EventExtensions.regexClip.Match(command);
+                    if (match.Success)
+                    {
+                        VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
+                        float x = float.Parse(match.Groups["x"].Value, System.Globalization.CultureInfo.InvariantCulture);
+                        float y = float.Parse(match.Groups["y"].Value, System.Globalization.CultureInfo.InvariantCulture);
+                        float sx = float.Parse(match.Groups["sx"].Value, System.Globalization.CultureInfo.InvariantCulture);
+                        float sy = float.Parse(match.Groups["sy"].Value, System.Globalization.CultureInfo.InvariantCulture);
+                        int duration = string.IsNullOrWhiteSpace(match.Groups["duration"].Value) ? 0 : int.Parse(match.Groups["duration"].Value);
+                        TEasing easing = match.Groups["easing"].Success ? (TEasing)Enum.Parse(typeof(TEasing), match.Groups["easing"].Value, true) : TEasing.Linear;
+                        channel.Clip((int)layer, x, y, sx, sy, duration, (Svt.Caspar.Easing)easing);
+                        return true;
+                    }
+                    match = EventExtensions.regexClear.Match(command);
+                    if (match.Success)
+                    {
+                        VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
+                        channel.ClearMixer((int)layer);
+                        return true;
+                    }
+                }
             }
             return false;
         }
@@ -459,14 +500,6 @@ namespace TAS.Server
             }
         }
 
-        public bool ExecuteScriptCommandItem(CommandScriptItem item)
-        {
-            var channel = _casparChannel;
-            if (channel != null
-               && _checkConnected())
-                return item?.Execute(channel) == true;
-            return false;
-        }
 #endregion //IPlayoutServerChannel
 
     }

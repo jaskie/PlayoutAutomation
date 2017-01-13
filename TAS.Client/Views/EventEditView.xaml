@@ -258,6 +258,10 @@
                         <controls:TimecodeEdit Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
                     </DockPanel>
                 </Grid>
+                <DockPanel DockPanel.Dock="Top" Visibility="{Binding IsCommandScript, Converter={StaticResource BoolToVis}}">
+                    <Label Content="{Resx _command}" />
+                    <TextBox Text="{Binding Command, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Resx _command.ToolTip}"/>
+                </DockPanel>
                 <Grid DockPanel.Dock="Top" Visibility="{Binding IsAnimation,Converter={StaticResource BoolToVis}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
@@ -268,10 +272,7 @@
                         <controls:TimecodeEdit Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
                     </DockPanel>
                 </Grid>
-                <Grid>
-                    <views:TemplatedEditView Visibility="{Binding IsAnimation, Converter={StaticResource BoolToVis}}"/>
-                    <ContentControl Content="{Binding CommandScriptEdit.Editor}" />
-                </Grid>
+                <views:TemplatedEditView Visibility="{Binding IsAnimation, Converter={StaticResource BoolToVis}}"/>
             </DockPanel>
         </ScrollViewer>
     </DockPanel>

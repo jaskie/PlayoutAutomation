@@ -135,7 +135,7 @@ namespace TAS.Remoting.Model
                     byte logo = 0,
                     byte parental = 0,
                     AutoStartFlags autoStartFlags = AutoStartFlags.None,
-                    IEnumerable<ICommandScriptItem> commands = null,
+                    string command = null,
                     IDictionary<string, string> fields = null,
                     TemplateMethod method = TemplateMethod.Add,
                     int templateLayer = -1
@@ -143,7 +143,7 @@ namespace TAS.Remoting.Model
         {
             return Query<Event>(parameters: new object[] { idRundownEvent, idEventBinding , videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName,
                     startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, isCGEnabled,
-                    crawl, logo, parental, autoStartFlags, commands, fields, method, templateLayer});
+                    crawl, logo, parental, autoStartFlags, command, fields, method, templateLayer});
         }
 
         public void Clear() { Invoke(); }

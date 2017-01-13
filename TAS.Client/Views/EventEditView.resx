@@ -156,6 +156,12 @@
   <data name="_clip" xml:space="preserve">
     <value>Clip</value>
   </data>
+  <data name="_command" xml:space="preserve">
+    <value>Command</value>
+  </data>
+  <data name="_command.ToolTip" xml:space="preserve">
+    <value>Custom command to execute on server</value>
+  </data>
   <data name="_duration" xml:space="preserve">
     <value>Duration</value>
   </data>

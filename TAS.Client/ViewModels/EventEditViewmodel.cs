@@ -124,7 +124,6 @@ namespace TAS.Client.ViewModels
                             destPi.SetValue(e2Save, copyPi.GetValue(this, null), null);
                     }
                 }
-                _commandScriptEdit?.ModelUpdate();
                 IsModified = false;
             }
             if (e2Save != null && e2Save.IsModified)
@@ -153,11 +152,6 @@ namespace TAS.Client.ViewModels
                             && sourcePi.CanRead)
                             copyPi.SetValue(this, sourcePi.GetValue(e2Load, null), null);
                     }
-                    var commandScript = e2Load as ICommandScript;
-                    if (commandScript != null)
-                        CommandScriptEdit = new CommandScriptEditViewmodel(e2Load, commandScript);
-                    else
-                        CommandScriptEdit = null;
                 }
                 else // _event is null
                 {
@@ -168,7 +162,6 @@ namespace TAS.Client.ViewModels
                         if (sourcePi != null)
                             zeroPi.SetValue(this, null, null);
                     }
-                    CommandScriptEdit = null;
                 }
             }
             finally
@@ -244,6 +237,9 @@ namespace TAS.Client.ViewModels
                         break;
                     case nameof(ScheduledDelay):
                         validationResult = _validateScheduledDelay();
+                        break;
+                    case nameof(Command):
+                        validationResult = EventExtensions.IsValidCommand(_command) ? string.Empty : resources._validate_CommandSyntax;
                         break;
                 }
                 return validationResult;
@@ -617,25 +613,8 @@ namespace TAS.Client.ViewModels
 
         public bool IsCommandScript { get { return _event is ICommandScript; } }
 
-        CommandScriptEditViewmodel _commandScriptEdit;
-        public CommandScriptEditViewmodel CommandScriptEdit
-        {
-            get { return _commandScriptEdit; }
-            set
-            {
-                var oldValue = _commandScriptEdit;
-                if (SetField(ref _commandScriptEdit, value, nameof(CommandScriptEdit)))
-                {
-                    if (oldValue != null)
-                    {
-                        oldValue.Modified -= CommandScriptEdit_Modified;
-                        oldValue.Dispose();
-                    }
-                    if (value != null)
-                        value.Modified += CommandScriptEdit_Modified;
-                }
-            }
-        }                
+        private string _command;
+        public string Command { get { return _command; } set { SetField(ref _command, value, nameof(Command)); } }
 
         public bool IsMovie { get { return _event?.EventType == TEventType.Movie; } }
 

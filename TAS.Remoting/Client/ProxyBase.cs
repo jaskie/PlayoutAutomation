@@ -41,7 +41,7 @@ namespace TAS.Remoting.Client
             object result;
             _findPropertyName(ref propertyName);
             if (_properties.TryGetValue(propertyName, out result))
-                return (T)result;
+                return  (T)result;
             var client = _client;
             if (client != null)
             {
@@ -138,7 +138,15 @@ namespace TAS.Remoting.Client
                     PropertyChangedWithValueEventArgs eav = e.Message.Response as PropertyChangedWithValueEventArgs;
                     if (eav != null)
                     {
-                        PropertyInfo property = this.GetType().GetProperty(eav.PropertyName);
+                        Type type = this.GetType();
+                        PropertyInfo property =
+                            type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).FirstOrDefault(p => p.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Where(a => ((JsonPropertyAttribute)a).PropertyName == eav.PropertyName).Any());
+                        if (property != null)
+                            Debug.WriteLine(property.Name);
+                        if (property == null)
+                            property = type.GetProperty(eav.PropertyName);
+//                        if (property.Name == "Commands")
+//                            Debug.WriteLine(property.Name);
                         object value = eav.Value;
                         if (property != null)
                             MethodParametersAlignment.AlignType(ref value, property.PropertyType);

@@ -204,6 +204,9 @@ namespace TAS.Remoting.Model
         public void MoveDown() { Invoke(); }
         public void MoveUp() { Invoke(); }
         public void Remove() { Invoke(); }
-        public void Save() { Invoke(); }
+        public void Save()
+        {
+            Invoke();
+        }
     }
 }

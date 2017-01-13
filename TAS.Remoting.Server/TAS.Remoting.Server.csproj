@@ -62,7 +62,6 @@
     <Compile Include="Model\CGElement.cs" />
     <Compile Include="Model\CGElementsController.cs" />
     <Compile Include="Model\CommandScriptEvent.cs" />
-    <Compile Include="Model\CommandScriptItem.cs" />
     <Compile Include="Model\ConvertOperation.cs" />
     <Compile Include="Model\Engine.cs" />
     <Compile Include="Model\Event.cs" />

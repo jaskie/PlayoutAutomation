@@ -94,8 +94,6 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\ChannelViewmodel.cs" />
-    <Compile Include="ViewModels\CommandScriptEditViewmodel.cs" />
-    <Compile Include="ViewModels\CommandScriptItemViewmodel.cs" />
     <Compile Include="ViewModels\ConvertOperationViewModel.cs" />
     <Compile Include="ViewModels\EngineCGElementsControllerViewmodel.cs" />
     <Compile Include="ViewModels\EngineStateViewmodel.cs" />
@@ -132,9 +130,6 @@
     <Compile Include="ViewModels\PreviewViewmodel.cs" />
     <Compile Include="Views\ChannelView.xaml.cs">
       <DependentUpon>ChannelView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\CommandScriptEditView.xaml.cs">
-      <DependentUpon>CommandScriptEditView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ConvertOperationView.xaml.cs">
       <DependentUpon>ConvertOperationView.xaml</DependentUpon>
@@ -194,9 +189,6 @@
     <Compile Include="Views\KeyValueEditView.xaml.cs">
       <DependentUpon>KeyValueEditView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\CommandScriptItemEditView.xaml.cs">
-      <DependentUpon>CommandScriptItemEditView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\MediaEditView.xaml.cs">
       <DependentUpon>MediaEditView.xaml</DependentUpon>
     </Compile>
@@ -236,10 +228,6 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Views\ChannelView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\CommandScriptEditView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -319,10 +307,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\CommandScriptItemEditView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\MediaEditView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -354,12 +338,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ChannelView.resx">
       <DependentUpon>ChannelView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\CommandScriptEditView.pl.resx">
-      <DependentUpon>CommandScriptEditView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\CommandScriptEditView.resx">
-      <DependentUpon>CommandScriptEditView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ConvertOperationView.pl.resx">
       <DependentUpon>ConvertOperationView.xaml</DependentUpon>
@@ -420,12 +398,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\KeyValueEditView.resx">
       <DependentUpon>KeyValueEditView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\CommandScriptItemEditView.pl.resx">
-      <DependentUpon>CommandScriptItemEditView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\CommandScriptItemEditView.resx">
-      <DependentUpon>CommandScriptItemEditView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\MediaEditView.pl.resx">
       <DependentUpon>MediaEditView.xaml</DependentUpon>

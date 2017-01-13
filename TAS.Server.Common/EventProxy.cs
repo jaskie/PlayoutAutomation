@@ -45,7 +45,7 @@ namespace TAS.Server.Common
         public TemplateMethod Method { get; set; }
         [DefaultValue(-1)]
         public int TemplateLayer { get; set; }
-        public IEnumerable<ICommandScriptItem> Commands { get; set; }
+        public string Command { get; set; }
         public IDictionary<string, string> Fields { get; set; }
 
 
@@ -102,7 +102,7 @@ namespace TAS.Server.Common
                         logo: Logo,
                         parental: Parental,
                         autoStartFlags: AutoStartFlags,
-                        commands: Commands,
+                        command: Command,
                         fields: Fields,
                         method: Method,
                         templateLayer: TemplateLayer
@@ -211,7 +211,7 @@ namespace TAS.Server.Common
                 Logo = source.Logo,
                 Parental = source.Parental,
                 AutoStartFlags = source.AutoStartFlags,
-                Commands = (source as ICommandScript)?.Commands,
+                Command = (source as ICommandScript)?.Command,
                 Fields = source is ITemplated ? new Dictionary<string, string>(((ITemplated)source).Fields) : null,
                 Method = source is ITemplated ? ((ITemplated)source).Method : TemplateMethod.Add,
                 TemplateLayer = source is ITemplated ? ((ITemplated)source).TemplateLayer : -1,

@@ -727,9 +727,6 @@ namespace TAS.Server.Database
             uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flagsEvent")) ? 0 : dataReader.GetUInt32("flagsEvent");
             ushort transitionType = dataReader.GetUInt16("typTransition");
             TEventType eventType = (TEventType)dataReader.GetByte("typEvent");
-            List<CommandScriptItemProxy> commands = eventType == TEventType.CommandScript ?
-                Newtonsoft.Json.JsonConvert.DeserializeObject<List<CommandScriptItemProxy>>(dataReader.GetString("Commands")) :
-                null;
             IEvent newEvent = engine.AddNewEvent(
                 dataReader.GetUInt64("idRundownEvent"),
                 dataReader.GetUInt64("idEventBinding"),
@@ -754,14 +751,14 @@ namespace TAS.Server.Database
                 dataReader.GetUInt64("idProgramme"),
                 dataReader.GetString("IdAux"),
                 flags.IsEnabled(),
-                flags.IsHold(), 
+                flags.IsHold(),
                 flags.IsLoop(),
                 flags.IsCGEnabled(),
                 flags.Crawl(),
                 flags.Logo(),
                 flags.Parental(),
                 flags.AutoStartFlags(),
-                commands
+                dataReader.GetString("Commands")
                 );
             return newEvent;
         }
@@ -817,11 +814,10 @@ namespace TAS.Server.Database
             else
                 cmd.Parameters.AddWithValue("@AudioVolume", aEvent.AudioVolume);
             cmd.Parameters.AddWithValue("@flagsEvent", aEvent.ToFlags());
-            object commands = aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript
-                ? (object)Newtonsoft.Json.JsonConvert.SerializeObject((aEvent as ICommandScript).Commands.Select(c => new CommandScriptItemProxy(c)).ToArray())
+            object command = aEvent.EventType == TEventType.CommandScript && aEvent is ICommandScript
+                ? (object)(aEvent as ICommandScript).Command
                 : DBNull.Value;
-            cmd.Parameters.AddWithValue("@Commands", commands);
-
+            cmd.Parameters.AddWithValue("@Commands", command);
             return cmd.ExecuteNonQuery() == 1;
         }
 

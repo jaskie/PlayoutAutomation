@@ -58,9 +58,6 @@ namespace TAS.Remoting
                     return typeof(Model.CGElementsController);
                 case "TAS.Server.CGElement":
                     return typeof(Model.CGElement);
-                case "TAS.Server.CommandScriptItem":
-                case "TAS.Server.Interfaces.ICommandScriptItem":
-                    return typeof(TAS.Server.Common.CommandScriptItemProxy);
                 default:
                         return Type.GetType(string.Format("{0}, {1}", typeName, assemblyName), true);
             }

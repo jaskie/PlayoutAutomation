@@ -63,12 +63,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client\ClientContractResolver.cs" />
     <Compile Include="PropertyChangedWithValueEventArgs.cs" />
     <Compile Include="ReferenceResolver.cs" />
     <Compile Include="Client\ProxyBase.cs" />
     <Compile Include="Client\RemoteClient.cs" />
-    <Compile Include="Client\ClientSerializationConverter.cs" />
     <Compile Include="IDto.cs" />
     <Compile Include="MethodParametersAlignment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

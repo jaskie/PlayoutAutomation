@@ -1102,7 +1102,7 @@ namespace TAS.Server
                     this.DbInsert();
                 else
                     this.DbUpdate();
-                _isModified = false;
+                IsModified = false;
                 NotifySaved();
             }
             catch (Exception e)
@@ -1219,10 +1219,13 @@ namespace TAS.Server
         [JsonProperty]
         public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value, nameof(IsCGEnabled)); } }
         private byte _crawl;
+        [JsonProperty]
         public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value, nameof(Crawl)); } }
         private byte _logo;
+        [JsonProperty]
         public byte Logo { get { return _logo; }  set { SetField(ref _logo, value, nameof(Logo)); } }
         private byte _parental;
+        [JsonProperty]
         public byte Parental { get { return _parental; } set { SetField(ref _parental, value, nameof(Parental)); } }
         
         public override string ToString()

@@ -750,12 +750,6 @@ namespace TAS.Server
             Debug.WriteLine("_clearRunning");
             foreach (var e in _runningEvents.ToList())
             {
-                if (e.EventType == TEventType.CommandScript)
-                {
-                    var commandScriptEvent = (e as CommandScriptEvent);
-                    if (commandScriptEvent != null)
-                        _executeCommanndScriptItems(commandScriptEvent.ItemsToExecute);
-                }
                 if (e.PlayState == TPlayState.Playing)
                     e.PlayState = TPlayState.Aborted;
                 if (e.PlayState == TPlayState.Fading)
@@ -817,14 +811,7 @@ namespace TAS.Server
                         _playoutChannelPRI?.Stop((Event)aEvent);
                         _playoutChannelSEC?.Stop((Event)aEvent);
                     }
-                    if (eventType == TEventType.CommandScript)
-                    {
-                        var commandScriptEvent = (aEvent as CommandScriptEvent);
-                        if (commandScriptEvent != null)
-                            _executeCommanndScriptItems(commandScriptEvent.ItemsToExecute);
-                    }
-                    else
-                        _visibleEvents.Remove(aEvent);
+                    _visibleEvents.Remove(aEvent);
                 }
             _runningEvents.Remove(aEvent);
             NotifyEngineOperation(aEvent, TEngineOperation.Stop);
@@ -943,9 +930,6 @@ namespace TAS.Server
                             else
                                 _stop(e);
                         }
-                        var commandScriptEvent = (e as CommandScriptEvent);
-                        if (commandScriptEvent != null)
-                            _executeCommanndScriptItems(commandScriptEvent.ItemsToExecute);
                     }
                     if (_runningEvents.Count == 0)
                         EngineState = TEngineState.Idle;
@@ -967,15 +951,6 @@ namespace TAS.Server
             }
         }
 
-        private void _executeCommanndScriptItems(IEnumerable<ICommandScriptItem> commandItemsToExecute)
-        {
-            foreach (CommandScriptItem command in commandItemsToExecute)
-            {
-                _playoutChannelPRI?.ExecuteScriptCommandItem(command);
-                _playoutChannelSEC?.ExecuteScriptCommandItem(command);
-                command.IsExecuted = true;
-            }
-        }
 
         private void _executeAutoStartEvents()
         {
@@ -1333,7 +1308,7 @@ namespace TAS.Server
                     byte logo = 0,
                     byte parental = 0,
                     AutoStartFlags autoStartFlags = AutoStartFlags.None,
-                    IEnumerable<ICommandScriptItem> commands = null,
+                    string command = null,
                     IDictionary<string, string> fields = null,
                     TemplateMethod method = TemplateMethod.Add,
                     int templateLayer = -1
@@ -1345,7 +1320,7 @@ namespace TAS.Server
                 if (eventType == TEventType.Animation)
                     result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, fields, method, templateLayer);
                 else if (eventType == TEventType.CommandScript)
-                    result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, playState, scheduledTime, duration, scheduledDelay, eventName, startTime, isEnabled, commands);
+                    result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, playState, scheduledTime, duration, scheduledDelay, eventName, startTime, isEnabled, command);
                 else
                     result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
                 if (idRundownEvent == 0)
