@@ -281,13 +281,7 @@ namespace TAS.Client.ViewModels
 
         public TEventType? EventType
         {
-            get
-            {
-                if (_event == null)
-                    return null;
-                else
-                    return _event.EventType;
-            }
+            get { return _event?.EventType; }
         }
 
         public bool HasSubItems

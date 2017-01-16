@@ -552,20 +552,17 @@ namespace TAS.Client.ViewModels
                 var et = _event?.EventType;
                 var st = _event?.StartType;
                 return (et == TEventType.Movie || et == TEventType.Live || et == TEventType.Rundown) 
-                    && (st == TStartType.After || st == TStartType.With);
+                    && (st == TStartType.After || st == TStartType.WithParent || st == TStartType.WithParentFromEnd);
             }
         }
 
-        public bool IsOverlay
+        public bool IsAnimation
         {
-            get
-            {
-                var et = _event?.EventType;
-                return et == TEventType.StillImage || et == TEventType.Animation;
-            }
+            get { return _eventType == TEventType.Animation; }
         }
 
-        public bool IsAnimation { get { return _event is ITemplated; } }
+        public bool IsCommandScript { get { return _event is ICommandScript; } }
+
 
         #region ICGElementsState
         bool _isCGEnabled;
@@ -611,8 +608,6 @@ namespace TAS.Client.ViewModels
 
         #endregion //ITemplatedEdit
 
-        public bool IsCommandScript { get { return _event is ICommandScript; } }
-
         private string _command;
         public string Command { get { return _command; } set { SetField(ref _command, value, nameof(Command)); } }
 
@@ -620,15 +615,6 @@ namespace TAS.Client.ViewModels
 
         public bool IsStillImage { get { return _event?.EventType == TEventType.StillImage; } }
 
-        public bool IsStillImageOrCommandScript
-        {
-            get
-            {
-                var et = _event?.EventType;
-                return et == TEventType.StillImage || et == TEventType.CommandScript;
-            }
-        }
-        
         public bool IsTransitionPanelEnabled
         {
             get { 
@@ -686,7 +672,10 @@ namespace TAS.Client.ViewModels
             set
             {
                 if (SetField(ref _startType, value, nameof(StartType)))
+                {
+                    BindToEnd = value == TStartType.WithParentFromEnd;
                     NotifyPropertyChanged(nameof(IsAutoStartEvent));
+                }
             }
         }
 
@@ -737,8 +726,43 @@ namespace TAS.Client.ViewModels
             get
             {
                 IEvent ev = Event;
-                IEvent boundEvent = ev == null ? null : (ev.StartType == TStartType.With) ? ev.Parent : (ev.StartType == TStartType.After) ? ev.Prior : null;
+                if (ev == null)
+                    return string.Empty;
+                TStartType st = ev.StartType;
+                IEvent boundEvent = ev == null ? null : (st == TStartType.WithParent || st == TStartType.WithParentFromEnd) ? ev.Parent : (st == TStartType.After) ? ev.Prior : null;
                 return boundEvent == null ? string.Empty : boundEvent.EventName;
+            }
+        }
+
+        private bool _bindToEnd;
+        public bool BindToEnd
+        {
+            get { return _bindToEnd; }
+            set
+            {
+                if (SetField(ref _bindToEnd, value, nameof(BindToEnd)))
+                {
+                    if (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd)
+                    {
+                        if (value)
+                        {
+                            StartType = TStartType.WithParentFromEnd;
+                        }
+                        else
+                        {
+                            StartType = TStartType.WithParent;
+                        }
+                    }
+                }
+            }
+        }
+
+        public bool IsDisplayBindToEnd
+        {
+            get
+            {
+                return (_eventType == TEventType.Animation || _eventType == TEventType.CommandScript || _eventType == TEventType.StillImage) 
+                    && (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd);
             }
         }
 

@@ -69,6 +69,7 @@ namespace TAS.Server.Interfaces
         void Start(IEvent aEvent);
         void Clear();
         void Clear(VideoLayer aVideoLayer);
+        void ClearMixer();
         void RestartRundown(IEvent ARundown);
         IEvent ForcedNext { get; set; }
         void Schedule(IEvent aEvent);

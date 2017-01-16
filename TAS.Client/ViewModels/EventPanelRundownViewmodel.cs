@@ -52,7 +52,7 @@ namespace TAS.Client.ViewModels
 
         private void _addSubMovie(object obj)
         {
-            _engineViewmodel.AddMediaEvent(_event, TStartType.With, TMediaType.Movie, VideoLayer.Program, false);
+            _engineViewmodel.AddMediaEvent(_event, TStartType.WithParent, TMediaType.Movie, VideoLayer.Program, false);
         }
         protected override void OnDispose()
         {

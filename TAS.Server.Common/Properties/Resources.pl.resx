@@ -276,7 +276,7 @@
   <data name="TStartType_OnFixedTime" xml:space="preserve">
     <value>O zadanym czasie</value>
   </data>
-  <data name="TStartType_With" xml:space="preserve">
+  <data name="TStartType_WithParent" xml:space="preserve">
     <value>Wraz z rozpoczęciem</value>
   </data>
   <data name="TVideoFormat_Other" xml:space="preserve">
@@ -419,5 +419,8 @@
   </data>
   <data name="TMediaEmphasis_Turquoise" xml:space="preserve">
     <value>Turkusowe</value>
+  </data>
+  <data name="TStartType_WithParentFromEnd" xml:space="preserve">
+    <value>Przy zakończeniu</value>
   </data>
 </root>

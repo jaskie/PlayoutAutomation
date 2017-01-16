@@ -239,6 +239,9 @@ Do you really want to run this BACKUP play-out?</value>
   <data name="_title_MeasureVolume" xml:space="preserve">
     <value>Measure LUFS: {0}:{1}</value>
   </data>
+  <data name="_title_NewCommandScript" xml:space="preserve">
+    <value>Script</value>
+  </data>
   <data name="_title_NewContainer" xml:space="preserve">
     <value>Container</value>
   </data>

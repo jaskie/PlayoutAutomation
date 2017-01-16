@@ -239,6 +239,9 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   <data name="_title_MeasureVolume" xml:space="preserve">
     <value>Pomiar LUFS: {0}:{1}</value>
   </data>
+  <data name="_title_NewCommandScript" xml:space="preserve">
+    <value>Skrypt</value>
+  </data>
   <data name="_title_NewContainer" xml:space="preserve">
     <value>Kontener</value>
   </data>

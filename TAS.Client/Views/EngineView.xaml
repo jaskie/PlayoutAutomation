@@ -218,6 +218,11 @@
                             <Image Source="/TAS.Client.Common;component/Images/Layers/LayerA.png" />
                         </Button>
                     </ComboBoxItem>
+                    <ComboBoxItem ToolTip="{Resx _toolbar.ClearMixer}" >
+                        <Button Command="{Binding CommandClearMixer}" Style="{StaticResource controlPanelButtons}">
+                            <Image Source="/TAS.Client.Common;component/Images/Layers/LayerS.png" />
+                        </Button>
+                    </ComboBoxItem>
                 </ComboBox>
                 <StackPanel>
                     <ToggleButton Margin="2" Height="22" IsChecked="{Binding TrackPlayingEvent}" Background="{Binding TrackPlayingEvent, Converter={StaticResource BoolToBrush}, ConverterParameter=LightCoral}" HorizontalContentAlignment="Left" >

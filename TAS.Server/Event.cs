@@ -107,14 +107,14 @@ namespace TAS.Server
             _prior = new Lazy<Event>(() =>
             {
                 Event prior = null;
-                if (_startType == TStartType.After && _idEventBinding > 0)
+                if (startType == TStartType.After && _idEventBinding > 0)
                     prior = (Event)Engine.DbReadEvent(_idEventBinding);
                 return prior;
             });
 
             _parent = new Lazy<Event>(() =>
             {
-                if (_startType == TStartType.With && _idEventBinding > 0)
+                if ((startType == TStartType.WithParent || startType == TStartType.WithParentFromEnd) && _idEventBinding > 0)
                     return (Event)Engine.DbReadEvent(_idEventBinding);
                 return null;
             });
@@ -868,7 +868,7 @@ namespace TAS.Server
                 }
         }
 
-        public void InsertUnder(IEvent se)
+        public void InsertUnder(IEvent se, bool fromEnd)
         {
             Event subEventToAdd = se as Event;
             if (subEventToAdd != null)
@@ -886,7 +886,7 @@ namespace TAS.Server
                             subEventToAdd.StartType = TStartType.Manual;
                     }
                     else
-                        subEventToAdd.StartType = TStartType.With;
+                        subEventToAdd.StartType = fromEnd ? TStartType.WithParentFromEnd : TStartType.WithParent;
                     subEventToAdd.Parent = this;
                     subEventToAdd.IsHold = false;
                     _subEvents.Value.Add(subEventToAdd);

@@ -630,8 +630,9 @@ namespace TAS.Server.Database
                     }
                     else
                     {
-                        cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where idEventBinding = @idEventBinding and typStart=@StartType;", _connection);
-                        cmd.Parameters.AddWithValue("@StartType", TStartType.With);
+                        cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where idEventBinding = @idEventBinding and typStart in (@StartTypeWithParent, @StartTypeWithParentFromEnd);", _connection);
+                        cmd.Parameters.AddWithValue("@StartTypeWithParent", TStartType.WithParent);
+                        cmd.Parameters.AddWithValue("@StartTypeWithParentFromEnd", TStartType.WithParentFromEnd);
                     }
                     cmd.Parameters.AddWithValue("@idEventBinding", eventOwner.IdRundownEvent);
                     subevents.Clear();

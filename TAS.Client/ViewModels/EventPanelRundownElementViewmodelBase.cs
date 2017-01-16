@@ -85,7 +85,7 @@ namespace TAS.Client.ViewModels
                             layerEvent.Delete();
                     }
                     else
-                        _engineViewmodel.AddMediaEvent(_event, TStartType.With, TMediaType.Still, layer, true);
+                        _engineViewmodel.AddMediaEvent(_event, TStartType.WithParent, TMediaType.Still, layer, true);
                 },
                 CanExecuteDelegate = (o) => _event.PlayState == TPlayState.Scheduled || _event.PlayState == TPlayState.Playing || _event.PlayState == TPlayState.Paused
             };
@@ -113,7 +113,7 @@ namespace TAS.Client.ViewModels
             };
             CommandAddAnimation = new UICommand()
             {
-                ExecuteDelegate = o => _engineViewmodel.AddMediaEvent(_event, TStartType.With, TMediaType.Animation, VideoLayer.Animation, true)
+                ExecuteDelegate = o => _engineViewmodel.AddMediaEvent(_event, TStartType.WithParent, TMediaType.Animation, VideoLayer.Animation, true)
             };
             CommandAddCommandScript = new UICommand { ExecuteDelegate = o => _engineViewmodel.AddCommandScriptEvent(_event)};
         }
@@ -351,7 +351,11 @@ namespace TAS.Client.ViewModels
 
         public virtual bool IsEnabled
         {
-            get { return _event.IsEnabled && Event.Duration > TimeSpan.Zero; }
+            get
+            {
+                var et = Event.EventType;
+                return _event.IsEnabled && (Event.Duration > TimeSpan.Zero || et == TEventType.Animation || et == TEventType.CommandScript);
+            }
         }
 
         public bool IsFixedTimeStart { get { return _event.StartType == TStartType.OnFixedTime; } }

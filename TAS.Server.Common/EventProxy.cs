@@ -56,10 +56,10 @@ namespace TAS.Server.Common
             return newEvent;
         }
 
-        public IEvent InsertUnder(IEvent parent, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        public IEvent InsertUnder(IEvent parent, bool fromEnd, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
             IEvent newEvent = _toEvent(parent.Engine, mediaFiles, animationFiles);
-            parent.InsertUnder(newEvent);
+            parent.InsertUnder(newEvent, fromEnd);
             return newEvent;
         }
 
@@ -146,9 +146,13 @@ namespace TAS.Server.Common
                 {
                     switch (seProxy.StartType)
                     {
-                        case TStartType.With:
+                        case TStartType.WithParent:
                             ne = seProxy._toEvent(engine, mediaFiles, animationFiles);
-                            result.InsertUnder(ne);
+                            result.InsertUnder(ne, false);
+                            break;
+                        case TStartType.WithParentFromEnd:
+                            ne = seProxy._toEvent(engine, mediaFiles, animationFiles);
+                            result.InsertUnder(ne, true);
                             break;
                         case TStartType.After:
                             if (ne != null)

@@ -31,7 +31,7 @@ namespace TAS.Server.Interfaces
         int SubEventsCount { get; }
         void InsertAfter(IEvent e);
         void InsertBefore(IEvent e);
-        void InsertUnder(IEvent se);
+        void InsertUnder(IEvent se, bool fromEnd);
         void MoveUp();
         void MoveDown();
         void Remove();

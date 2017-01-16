@@ -200,7 +200,7 @@ namespace TAS.Remoting.Model
         public void Delete() { Invoke(); }
         public void InsertAfter(IEvent e) { Invoke(parameters: new[] { e }); }
         public void InsertBefore(IEvent e) { Invoke(parameters: new[] { e }); }
-        public void InsertUnder(IEvent se) { Invoke(parameters: new[] { se }); }
+        public void InsertUnder(IEvent se, bool fromEnd) { Invoke(parameters: new object[] { se, fromEnd }); }
         public void MoveDown() { Invoke(); }
         public void MoveUp() { Invoke(); }
         public void Remove() { Invoke(); }

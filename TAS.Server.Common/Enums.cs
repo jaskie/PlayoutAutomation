@@ -342,10 +342,11 @@ namespace TAS.Common
     public enum TStartType
     {
         After,
-        With,
+        WithParent,
         Manual,
         OnFixedTime,
         None,
+        WithParentFromEnd
     };
     class TStartTypeEnumConverter : ResourceEnumConverter
     {

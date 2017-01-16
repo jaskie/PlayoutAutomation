@@ -55,17 +55,10 @@ namespace TAS.Server
 
         public void Initialize()
         {
-            lock (this)
+            if (_checkConnected())
             {
-                var channel = _casparChannel;
-                if (channel != null
-                    && OwnerServer != null
-                    && OwnerServer.IsConnected)
-                {
-                    channel.ClearMixer();
-                    channel.MasterVolume((float)MasterVolume);
-                    channel.CG.Clear();
-                }
+                ClearMixer();
+                _casparChannel.MasterVolume((float)MasterVolume);
             }
         }
 
@@ -462,6 +455,15 @@ namespace TAS.Server
                 if (OnVolumeChanged != null)
                     OnVolumeChanged(this, VideoLayer.Program, 1.0m);
                 Debug.WriteLine(this, "CasparClear");
+            }
+        }
+
+        public void ClearMixer()
+        {
+            if (_checkConnected())
+            {
+                _casparChannel.ClearMixer();
+                _casparChannel.CG.Clear();
             }
         }
 

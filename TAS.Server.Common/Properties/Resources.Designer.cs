@@ -900,9 +900,18 @@ namespace TAS.Server.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to With start of.
         /// </summary>
-        public static string TStartType_With {
+        public static string TStartType_WithParent {
             get {
-                return ResourceManager.GetString("TStartType_With", resourceCulture);
+                return ResourceManager.GetString("TStartType_WithParent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to With end of.
+        /// </summary>
+        public static string TStartType_WithParentFromEnd {
+            get {
+                return ResourceManager.GetString("TStartType_WithParentFromEnd", resourceCulture);
             }
         }
         

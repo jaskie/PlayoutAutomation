@@ -337,4 +337,7 @@ Działa natychmiastowo, do końca odtwarzanego klipu.</value>
   <data name="_menu.Tools.Export.EnabledOnly" xml:space="preserve">
     <value>Tylko aktywne</value>
   </data>
+  <data name="_toolbar.ClearMixer" xml:space="preserve">
+    <value>Wyczyść transformacje miksera</value>
+  </data>
 </root>

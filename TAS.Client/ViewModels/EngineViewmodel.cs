@@ -34,6 +34,7 @@ namespace TAS.Client.ViewModels
 
         public IEngine Engine { get { return _engine; } }
         public ICommand CommandClearAll { get; private set; }
+        public ICommand CommandClearMixer { get; private set; }
         public ICommand CommandClearLayer { get; private set; }
         public ICommand CommandRestart { get; private set; }
         public ICommand CommandStartSelected { get; private set; }
@@ -173,6 +174,7 @@ namespace TAS.Client.ViewModels
         {
             CommandClearAll = new UICommand() { ExecuteDelegate = o => _engine.Clear() };
             CommandClearLayer = new UICommand() { ExecuteDelegate = layer => _engine.Clear((VideoLayer)int.Parse((string)layer)) };
+            CommandClearMixer = new UICommand() { ExecuteDelegate = o => _engine.ClearMixer() };
             CommandRestart = new UICommand() { ExecuteDelegate = ev => _engine.Restart() };
             CommandStartSelected = new UICommand() { ExecuteDelegate = _startSelected, CanExecuteDelegate = _canStartSelected };
             CommandLoadSelected = new UICommand() { ExecuteDelegate = _loadSelected, CanExecuteDelegate = _canLoadSelected };
@@ -239,7 +241,7 @@ namespace TAS.Client.ViewModels
                     {
                         var mediaFiles = (_engine.MediaManager.MediaDirectoryPRI ?? _engine.MediaManager.MediaDirectorySEC)?.GetFiles();
                         var animationFiles = (_engine.MediaManager.AnimationDirectoryPRI ?? _engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
-                        var newEvent = obj.Equals("Under") ? proxy.InsertUnder(Selected.Event, mediaFiles, animationFiles) : proxy.InsertAfter(Selected.Event, mediaFiles, animationFiles);
+                        var newEvent = obj.Equals("Under") ? proxy.InsertUnder(Selected.Event, false, mediaFiles, animationFiles) : proxy.InsertAfter(Selected.Event, mediaFiles, animationFiles);
                         LastAddedEvent = newEvent;
                     }
 
@@ -684,19 +686,18 @@ namespace TAS.Client.ViewModels
                 newEvent.Media = e.Media;
                 if (mediaSearchVm.NewEventStartType == TStartType.After)
                     mediaSearchVm.BaseEvent.InsertAfter(newEvent);
-                if (mediaSearchVm.NewEventStartType == TStartType.With)
-                    mediaSearchVm.BaseEvent.InsertUnder(newEvent);
+                if (mediaSearchVm.NewEventStartType == TStartType.WithParent)
+                    mediaSearchVm.BaseEvent.InsertUnder(newEvent, false);
                 mediaSearchVm.NewEventStartType = TStartType.After;
                 mediaSearchVm.BaseEvent = newEvent;
                 LastAddedEvent = newEvent;
             }
         }
-
-
+        
         public void AddCommandScriptEvent(IEvent baseEvent)
         {
-            var newEvent = Engine.AddNewEvent(eventType: TEventType.CommandScript, duration:baseEvent.Duration);
-            baseEvent.InsertUnder(newEvent);
+            var newEvent = Engine.AddNewEvent(eventType: TEventType.CommandScript, duration:baseEvent.Duration, eventName:resources._title_NewCommandScript);
+            baseEvent.InsertUnder(newEvent, false);
             LastAddedEvent = newEvent;
         }
 
@@ -730,7 +731,7 @@ namespace TAS.Client.ViewModels
                 {
                     if (baseEvent.EventType == TEventType.Container)
                         newEvent.ScheduledTime = _currentTime;
-                    baseEvent.InsertUnder(newEvent);
+                    baseEvent.InsertUnder(newEvent, false);
                 }
                 else
                     baseEvent.InsertAfter(newEvent);

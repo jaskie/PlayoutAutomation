@@ -655,7 +655,13 @@ namespace TAS.Server
                 foreach (var se in aEvent.SubEvents)
                 {
                     se.PlayState = TPlayState.Scheduled;
-                    if (se.ScheduledDelay < _preloadTime)
+                    var seType = se.EventType;
+                    var seStartType = se.StartType;
+                    if (seType == TEventType.Rundown 
+                        || seType == TEventType.Live
+                        || seType == TEventType.Movie
+                        || (seType == TEventType.StillImage && (seStartType == TStartType.WithParent && se.ScheduledDelay < _preloadTime)
+                                                             || (seStartType == TStartType.WithParentFromEnd && aEvent.Duration - se.Duration - se.ScheduledDelay < _preloadTime)))
                         _loadNext(se);
                 }
             _run(aEvent);
@@ -719,7 +725,7 @@ namespace TAS.Server
                 IEvent removed;
                 _preloadedEvents.TryRemove(aEvent.Layer, out removed);
             }
-            if (eventType == TEventType.Animation)
+            if (eventType == TEventType.Animation || eventType == TEventType.CommandScript)
             {
                 if (_playoutChannelPRI != null)
                     _playoutChannelPRI.Play((Event)aEvent);
@@ -787,7 +793,8 @@ namespace TAS.Server
 
         private void _run(IEvent aEvent)
         {
-            if (aEvent == null || aEvent.EventType == TEventType.Animation)
+            var eventType = aEvent.EventType;
+            if (eventType == TEventType.Animation || eventType == TEventType.CommandScript)
                 return;
             lock (_runningEvents.SyncRoot)
             {
@@ -905,15 +912,31 @@ namespace TAS.Server
                         if (playingEvent != null && playingEvent.SubEventsCount > 0)
                         {
                             TimeSpan playingEventPosition = TimeSpan.FromTicks(playingEvent.Position * _frameTicks);
+                            TimeSpan playingEventDuration = playingEvent.Duration;
                             var sel = playingEvent.SubEvents.Where(e => e.PlayState == TPlayState.Scheduled);
                             foreach (var se in sel)
                             {
                                 IEvent preloaded;
-                                if (playingEventPosition >= se.ScheduledDelay - _preloadTime - se.TransitionTime
-                                    && !(_preloadedEvents.TryGetValue(se.Layer, out preloaded) && se == preloaded))
-                                    _loadNext(se);
-                                if (playingEventPosition >= se.ScheduledDelay - se.TransitionTime)
-                                    _play(se, true);
+                                TEventType eventType = se.EventType;
+                                switch (se.StartType)
+                                {
+                                    case TStartType.WithParent:
+                                        if ((eventType == TEventType.Movie || eventType == TEventType.StillImage)
+                                            && playingEventPosition >= se.ScheduledDelay - _preloadTime - se.TransitionTime
+                                            && !(_preloadedEvents.TryGetValue(se.Layer, out preloaded) && se == preloaded))
+                                            _loadNext(se);
+                                        if (playingEventPosition >= se.ScheduledDelay - se.TransitionTime)
+                                            _play(se, true);
+                                        break;
+                                    case TStartType.WithParentFromEnd:
+                                        if ((eventType == TEventType.Movie || eventType == TEventType.StillImage)
+                                            && playingEventPosition >= playingEventDuration - se.Duration - se.ScheduledDelay - _preloadTime - se.TransitionTime
+                                            && !(_preloadedEvents.TryGetValue(se.Layer, out preloaded) && se == preloaded))
+                                            _loadNext(se);
+                                        if (playingEventPosition >= playingEventDuration - se.Duration - se.ScheduledDelay - se.TransitionTime)
+                                            _play(se, true);
+                                        break;
+                                }
                             }
                         }
                     }
@@ -1207,6 +1230,14 @@ namespace TAS.Server
             }
         }
 
+        public void ClearMixer()
+        {
+            if (_playoutChannelPRI != null)
+                _playoutChannelPRI.ClearMixer();
+            if (_playoutChannelSEC != null)
+                _playoutChannelSEC.ClearMixer();
+        }
+
         public void Restart()
         {
             Logger.Info("{0} {1}: Restart", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this);
@@ -1320,7 +1351,7 @@ namespace TAS.Server
                 if (eventType == TEventType.Animation)
                     result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, fields, method, templateLayer);
                 else if (eventType == TEventType.CommandScript)
-                    result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, playState, scheduledTime, duration, scheduledDelay, eventName, startTime, isEnabled, command);
+                    result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, startType, playState, scheduledDelay, eventName, startTime, isEnabled, command);
                 else
                     result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
                 if (idRundownEvent == 0)

@@ -84,7 +84,7 @@ namespace TAS.Client
                                 dest.InsertBefore(sourceEvent);
                                 break;
                             case TPasteLocation.Under:
-                                dest.InsertUnder(sourceEvent);
+                                dest.InsertUnder(sourceEvent,false);
                                 break;
                         }
                         return sourceEvent;
@@ -112,7 +112,7 @@ namespace TAS.Client
                         case TPasteLocation.Before:
                             return sourceProxy.InsertBefore(dest, mediaFiles, animationFiles);
                         case TPasteLocation.Under:
-                            var newEvent = sourceProxy.InsertUnder(dest, mediaFiles, animationFiles);
+                            var newEvent = sourceProxy.InsertUnder(dest, false, mediaFiles, animationFiles);
                             if (dest.EventType == TEventType.Container)
                                 newEvent.ScheduledTime = DateTime.UtcNow;
                             return newEvent;

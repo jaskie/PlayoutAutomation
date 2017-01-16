@@ -325,4 +325,7 @@ Effective until current clip ends.</value>
   <data name="_menu.Tools.Export.EnabledOnly" xml:space="preserve">
     <value>Only enabled</value>
   </data>
+  <data name="_toolbar.ClearMixer" xml:space="preserve">
+    <value>Clear mixer transformations</value>
+  </data>
 </root>

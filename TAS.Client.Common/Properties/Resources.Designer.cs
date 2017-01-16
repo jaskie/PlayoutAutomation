@@ -399,6 +399,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Script.
+        /// </summary>
+        public static string _title_NewCommandScript {
+            get {
+                return ResourceManager.GetString("_title_NewCommandScript", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Container.
         /// </summary>
         public static string _title_NewContainer {
