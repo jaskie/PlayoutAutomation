@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using TAS.Client.ViewModels;
 using TAS.Remoting.Client;
 using TAS.Remoting.Model;
@@ -38,27 +39,37 @@ namespace TAS.Client
 
         private void _createView()
         {
+            IsLoading = true;
             ThreadPool.QueueUserWorkItem((o) =>
             {
-                RemoteClient client;
-                client = new RemoteClient(ConfigurationManager.AppSettings["Host"]);
-                if (client.IsConnected)
+                while (true)
                 {
-                    client.Binder = new Remoting.ClientTypeNameBinder();
-                    client.Disconnected += _client_Disconnected;
-                    Engine initalObject = client.GetInitalObject<Engine>();
-                    if (initalObject != null)
-                        Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+                    RemoteClient client;
+                    client = new RemoteClient(ConfigurationManager.AppSettings["Host"]);
+                    if (client.IsConnected)
+                    {
+                        client.Binder = new Remoting.ClientTypeNameBinder();
+                        client.Disconnected += _client_Disconnected;
+                        Engine initalObject = client.GetInitalObject<Engine>();
+                        if (initalObject != null)
                         {
-                            View = new Views.EngineView(initalObject.FrameRate) { DataContext = new EngineViewmodel(initalObject, initalObject) };
-                        });
+                            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+                            {
+                                View = new Views.EngineView(initalObject.FrameRate) { DataContext = new EngineViewmodel(initalObject, initalObject) };
+                                IsLoading = false;
+                            });
+                            return;
+                        }
+                    }
                 }
             });
-
         }
 
-        private object _view;
-        public object View { get { return _view; } set { SetField(ref _view, value, nameof(View)); } } 
+        private UserControl _view;
+        public UserControl View { get { return _view; } set { SetField(ref _view, value, nameof(View)); } }
+
+        private bool _isLoading = true;
+        public bool IsLoading { get { return _isLoading; } set { SetField(ref _isLoading, value, nameof(IsLoading)); } }
 
         protected override void OnDispose()
         {

@@ -17,7 +17,7 @@ using TAS.Client.ViewModels;
 using TAS.Remoting.Client;
 using TAS.Server.Interfaces;
 
-namespace TAS.Client
+namespace TVPlayClient
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
