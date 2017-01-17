@@ -99,7 +99,10 @@ namespace TAS.Client.ViewModels
         public void Dispose()
         {
             if (!_disposed)
+            {
+                _disposed = true;
                 this.OnDispose();
+            }
         }
 
         /// <summary>

@@ -15,21 +15,19 @@ namespace TAS.Remoting.Client
 {
     public class RemoteClient
     {
-        readonly string _address;
-        WebSocket _clientSocket;
+        readonly WebSocket _clientSocket;
         AutoResetEvent _messageHandler = new AutoResetEvent(false);
         readonly JsonSerializer _serializer;
         readonly ReferenceResolver _referenceResolver;
         ConcurrentDictionary<Guid, WebSocketMessage> _receivedMessages = new ConcurrentDictionary<Guid, WebSocketMessage>();
         const int query_timeout = 150000;
 
-        public event EventHandler<WebSocketMessageEventArgs> EventNotification;
-        public event EventHandler OnOpen;
-        public event EventHandler<CloseEventArgs> OnClose;
+        internal event EventHandler<WebSocketMessageEventArgs> EventNotification;
+        public event EventHandler Connected;
+        public event EventHandler Disconnected;
         
         public RemoteClient(string host)
         {
-            _address = host;
             _serializer = JsonSerializer.CreateDefault();
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting, this);
             _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
@@ -39,34 +37,16 @@ namespace TAS.Remoting.Client
 #if DEBUG
             _serializer.Formatting = Formatting.Indented;
 #endif
+            _clientSocket = new WebSocket(string.Format("ws://{0}/Engine", host));
+            _clientSocket.OnOpen += _clientSocket_OnOpen;
+            _clientSocket.OnClose += _clientSocket_OnClose;
+            _clientSocket.OnMessage += _clientSocket_OnMessage;
+            _clientSocket.OnError += _clientSocket_OnError;
+            Debug.WriteLine(this, $"Connecting to {_clientSocket.Url}");
+            _clientSocket.Connect();
         }
 
         public SerializationBinder Binder { get { return _serializer.Binder; }  set { _serializer.Binder = value; } }
-
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public void Initialize()
-        {
-            try
-            {
-                if (_clientSocket != null)
-                {
-                    _clientSocket.OnOpen -= _clientSocket_OnOpen;
-                    _clientSocket.OnClose -= _clientSocket_OnClose;  
-                    _clientSocket.OnMessage -= _clientSocket_OnMessage;
-                    _clientSocket.OnError -= _clientSocket_OnError;
-                }
-                _clientSocket = new WebSocket(string.Format("ws://{0}/Engine", _address));
-                _clientSocket.OnOpen += _clientSocket_OnOpen;
-                _clientSocket.OnClose += _clientSocket_OnClose;
-                _clientSocket.OnMessage += _clientSocket_OnMessage;
-                _clientSocket.OnError += _clientSocket_OnError;
-                _clientSocket.Connect();
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e, "Error initializing MediaManager remote interface");
-            }
-        }
 
         private void _clientSocket_OnError(object sender, WebSocketSharp.ErrorEventArgs e)
         {
@@ -75,8 +55,10 @@ namespace TAS.Remoting.Client
 
         private void _clientSocket_OnClose(object sender, CloseEventArgs e)
         {
-            OnClose?.Invoke(this, e);
+            Disconnected?.Invoke(this, e);
         }
+
+        public bool IsConnected { get { return _clientSocket.IsAlive; } }
 
         private string Serialize(object o)
         {
@@ -113,7 +95,8 @@ namespace TAS.Remoting.Client
 
         private void _clientSocket_OnOpen(object sender, EventArgs e)
         {
-            OnOpen?.Invoke(this, EventArgs.Empty);
+            Debug.WriteLine(this, "Connected");
+            Connected?.Invoke(this, EventArgs.Empty);
         }
 
         private WebSocketMessage WaitForResponse(WebSocketMessage sendedMessage)

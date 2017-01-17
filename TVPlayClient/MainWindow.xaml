@@ -4,10 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TAS.Client"
+        xmlns:views="clr-namespace:TAS.Client.Views;assembly=TAS.Client"
+        xmlns:vm="clr-namespace:TAS.Client.ViewModels;assembly=TAS.Client"
         mc:Ignorable="d"
-        Title="TVPlayMedia" 
+        Title="TVPlayClient" 
         Height="600" 
         Width="1024"
         KeyDown="Window_KeyDown">
-    <ContentControl x:Name="_windowContent" />
+    <Window.Resources>
+        <local:MainWindowViewmodel x:Key="vm"/>
+    </Window.Resources>
+    <ContentControl DataContext="{StaticResource vm}" Content="{Binding View}"/>
 </Window>
