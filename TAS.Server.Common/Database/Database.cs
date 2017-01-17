@@ -615,7 +615,7 @@ namespace TAS.Server.Database
         #endregion // ArchiveDirectory
 
         #region IEvent
-        public static void DbReadSubEvents(this IEngine engine, IEventPesistent eventOwner, IList<IEvent> subevents)
+        public static List<IEvent> DbReadSubEvents(this IEngine engine, IEventPesistent eventOwner)
         {
             lock (_connection)
             {
@@ -635,7 +635,7 @@ namespace TAS.Server.Database
                         cmd.Parameters.AddWithValue("@StartTypeWithParentFromEnd", TStartType.WithParentFromEnd);
                     }
                     cmd.Parameters.AddWithValue("@idEventBinding", eventOwner.IdRundownEvent);
-                    subevents.Clear();
+                    List<IEvent> subevents = new List<IEvent>();
                     using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                     {
                         while (dataReader.Read())
@@ -647,7 +647,9 @@ namespace TAS.Server.Database
                             _readAnimatedEvent(e.IdRundownEvent, e as ITemplated);
                             e.IsModified = false;
                         }
+                    return subevents;
                 }
+                return null;
             }
         }
 

@@ -69,14 +69,14 @@ namespace TAS.Server.Common
 
         public static IEvent GetVisualParent(this IEvent aEvent)
         {
-            IEvent ev = aEvent;
-            IEvent pev = ev.Prior;
-            while (pev != null)
+            IEvent curr = aEvent;
+            IEvent prior = curr.Prior;
+            while (prior != null)
             {
-                ev = ev.Prior;
-                pev = ev.Prior;
+                curr = prior;
+                prior = curr.Prior;
             }
-            return ev.Parent;
+            return curr.Parent;
         }
 
         public static bool IsContainedIn(this IEvent aEvent, IEvent parent)
@@ -116,23 +116,23 @@ namespace TAS.Server.Common
             var eventType = aEvent.EventType;
             if (eventType == TEventType.Movie || eventType == TEventType.Live || eventType == TEventType.Rundown)
             {
-                IEvent nev = aEvent.Next;
-                if (nev != null)
+                IEvent current = aEvent.Next;
+                if (current != null)
                 {
-                    IEvent n = nev.Next;
-                    while (nev != null && n != null && nev.Length.Equals(TimeSpan.Zero))
+                    IEvent next = current.Next;
+                    while (next != null && current.Length.Equals(TimeSpan.Zero))
                     {
-                        nev = nev.Next;
-                        n = nev.Next;
+                        current = next;
+                        next = current.Next;
                     }
                 }
-                if (nev == null)
+                if (current == null)
                 {
-                    nev = aEvent.GetVisualParent();
-                    if (nev != null)
-                        nev = nev.GetSuccessor();
+                    current = aEvent.GetVisualParent();
+                    if (current != null)
+                        current = current.GetSuccessor();
                 }
-                return nev;
+                return current;
             }
             return null;
         }
