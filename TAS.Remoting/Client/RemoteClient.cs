@@ -13,7 +13,7 @@ using System.Runtime.Serialization;
 
 namespace TAS.Remoting.Client
 {
-    public class RemoteClient
+    public class RemoteClient: IDisposable
     {
         readonly WebSocket _clientSocket;
         AutoResetEvent _messageHandler = new AutoResetEvent(false);
@@ -236,6 +236,18 @@ namespace TAS.Remoting.Client
             };
             if (_clientSocket.IsAlive)
                 _clientSocket.Send(Serialize(query));
+        }
+
+        private bool _disposed = false;
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                _referenceResolver.Dispose();
+                _clientSocket.Close(CloseStatusCode.Away);
+            }
         }
     }
 

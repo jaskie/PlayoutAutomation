@@ -24,7 +24,17 @@ namespace TAS.Client
             Infralution.Localization.Wpf.CultureManager.UICulture = new System.Globalization.CultureInfo("en");
             System.Threading.Thread.Sleep(2000); // wait for server to spin up
 #endif
+            Application.Current.Dispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
             _createView();
+        }
+
+        private RemoteClient _client;
+
+        private void Dispatcher_ShutdownStarted(object sender, EventArgs e)
+        {
+            var client = _client;
+            if (client != null)
+                client.Dispose();
         }
 
         private void _client_Disconnected(object sender, EventArgs e)
@@ -33,7 +43,7 @@ namespace TAS.Client
             if (client != null)
             {
                 client.Disconnected -= _client_Disconnected;
-                Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+                Application.Current?.Dispatcher.BeginInvoke((Action)delegate ()
                 {
                     _viewmodel.Dispose();
                     View = null;
@@ -42,6 +52,7 @@ namespace TAS.Client
             }
         }
 
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         private void _createView()
         {
             IsLoading = true;
@@ -49,16 +60,15 @@ namespace TAS.Client
             {
                 while (true)
                 {
-                    RemoteClient client;
-                    client = new RemoteClient(ConfigurationManager.AppSettings["Host"]);
-                    if (client.IsConnected)
+                    _client = new RemoteClient(ConfigurationManager.AppSettings["Host"]);
+                    if (_client.IsConnected)
                     {
-                        client.Binder = new Remoting.ClientTypeNameBinder();
-                        client.Disconnected += _client_Disconnected;
-                        Engine initalObject = client.GetInitalObject<Engine>();
+                        _client.Binder = new Remoting.ClientTypeNameBinder();
+                        _client.Disconnected += _client_Disconnected;
+                        Engine initalObject = _client.GetInitalObject<Engine>();
                         if (initalObject != null)
                         {
-                            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+                            Application.Current?.Dispatcher.BeginInvoke((Action)delegate ()
                             {
                                 _viewmodel = new EngineViewmodel(initalObject, initalObject);
                                 View = new Views.EngineView(initalObject.FrameRate) { DataContext = _viewmodel };
@@ -81,7 +91,7 @@ namespace TAS.Client
 
         protected override void OnDispose()
         {
-            
+            Debug.WriteLine(this, "Disposed");
         }
 
     }
