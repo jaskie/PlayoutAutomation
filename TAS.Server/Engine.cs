@@ -14,11 +14,17 @@ using TAS.Server.Database;
 using System.Collections.Concurrent;
 using TAS.Remoting.Server;
 using Newtonsoft.Json;
+using System.Runtime.InteropServices;
 
 namespace TAS.Server
 {
     public class Engine : DtoBase, IEngine, IEnginePersistent, IDisposable
     {
+        #region static methods        
+        [DllImport("kernel32.dll")]
+        private extern static int QueryUnbiasedInterruptTime(out ulong UnbiasedTime);
+
+        #endregion // static methods
         #region IEnginePersistent
         public UInt64 Id { get; set; }
         public UInt64 Instance { get; set; }
@@ -289,15 +295,22 @@ namespace TAS.Server
                     e.Save();
                 }
 
+            ulong currentUnbiasedTime;
+            ulong previousUnbiasedTime;
+            QueryUnbiasedInterruptTime(out currentUnbiasedTime);
+            previousUnbiasedTime = currentUnbiasedTime;
+            ulong frameUnbiasedTime = (ulong)_frameTicks;
             TimeSpan frameDuration = TimeSpan.FromTicks(_frameTicks);
             while (!IsDisposed)
             {
                 try
                 {
                     CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
-                    long nFrames = (CurrentTime.Ticks - CurrentTicks) / _frameTicks;
+                    QueryUnbiasedInterruptTime(out currentUnbiasedTime);
                     CurrentTicks = CurrentTime.Ticks;
-                    _tick(nFrames);
+                    ulong nFrames = (currentUnbiasedTime - previousUnbiasedTime) / frameUnbiasedTime;
+                    previousUnbiasedTime = currentUnbiasedTime;
+                    _tick((long)nFrames);
                     EngineTick?.Invoke(this, new EngineTickEventArgs(CurrentTime, _getTimeToAttention()));
                     if (nFrames > 1)
                     {
@@ -307,16 +320,23 @@ namespace TAS.Server
                         else
                             Logger.Warn("LateFrame: {0}", nFrames);
                     }
+#if DEBUG
+                    Debug.WriteLineIf(nFrames == 0, "Zero frames tick");
+#endif
                 }
                 catch (Exception e)
                 {
                     Debug.WriteLine(e, "Exception in engine tick");
                     Logger.Error($"{e}");
                 }
-                TimeSpan waitTime = (CurrentTime + frameDuration) - AlignDateTime(DateTime.UtcNow + _timeCorrection);
-                if (waitTime > TimeSpan.Zero)
+                QueryUnbiasedInterruptTime(out currentUnbiasedTime);
+                int waitTime = (int)((frameUnbiasedTime - currentUnbiasedTime + previousUnbiasedTime + 5000) / 10000);
+                if (waitTime > 0)
                     Thread.Sleep(waitTime);
-
+#if DEBUG
+                else
+                    Debug.WriteLine("Negative waitTime");
+#endif
             }
             Debug.WriteLine(this, "Engine thread finished");
             Logger.Debug("Engine thread finished: {0}", this);
@@ -1261,7 +1281,7 @@ namespace TAS.Server
             {
                 if (CurrentTicks >= ev.ScheduledTime.Ticks && CurrentTicks < ev.ScheduledTime.Ticks + ev.Duration.Ticks)
                 {
-                    ev.Position = (CurrentTicks - ev.ScheduledTime.Ticks) / FrameTicks;
+                    ev.Position = (CurrentTicks - ev.ScheduledTime.Ticks) / _frameTicks;
                     var st = ev.StartTime;
                     ev.PlayState = TPlayState.Playing;
                     if (st != ev.StartTime)

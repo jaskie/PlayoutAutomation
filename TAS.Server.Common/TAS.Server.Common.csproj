@@ -132,7 +132,6 @@
     <Compile Include="MediaEventArgs.cs" />
     <Compile Include="MediaProxy.cs" />
     <Compile Include="RedundantConnectionStateEventArgs.cs" />
-    <Compile Include="ValueEventArgs.cs" />
     <Compile Include="MediaConversion.cs" />
     <Compile Include="MediaDeleteDenyReason.cs" />
     <Compile Include="ExportMedia.cs" />
