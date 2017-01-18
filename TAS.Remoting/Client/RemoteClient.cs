@@ -20,7 +20,14 @@ namespace TAS.Remoting.Client
         readonly JsonSerializer _serializer;
         readonly ReferenceResolver _referenceResolver;
         ConcurrentDictionary<Guid, WebSocketMessage> _receivedMessages = new ConcurrentDictionary<Guid, WebSocketMessage>();
-        const int query_timeout = 150000;
+
+        const int query_timeout =
+#if DEBUG 
+            50000
+#else
+            3000
+#endif
+            ;
 
         internal event EventHandler<WebSocketMessageEventArgs> EventNotification;
         public event EventHandler Connected;
@@ -118,21 +125,26 @@ namespace TAS.Remoting.Client
             });
             IAsyncResult funcAsyncResult = resultFunc.BeginInvoke(null, null);
             funcAsyncResult.AsyncWaitHandle.WaitOne();
-            return resultFunc.EndInvoke(funcAsyncResult);
+            if (funcAsyncResult.IsCompleted)
+                return resultFunc.EndInvoke(funcAsyncResult);
+            else return null;
         }
 
-        public void Update(object serialized, object target)
+        private T _send<T>(WebSocketMessage query)
         {
-            if (serialized is Newtonsoft.Json.Linq.JContainer)
-                using (StringReader stringReader = new StringReader(serialized.ToString()))
-                    _serializer.Populate(stringReader, target);
+            if (_clientSocket.IsAlive)
+            {
+                _clientSocket.Send(Serialize(query));
+                return MethodParametersAlignment.AlignType<T>(WaitForResponse(query).Response);
+            }
+            else
+                return default(T);
         }
 
         public T GetInitalObject<T>()
         {
             WebSocketMessage query = new WebSocketMessage() { MessageType = WebSocketMessage.WebSocketMessageType.RootQuery };
-            _clientSocket.Send(Serialize(query));
-            return MethodParametersAlignment.AlignType<T>(WaitForResponse(query).Response);
+            return _send<T>(query);
         }
 
         public T Query<T>(ProxyBase dto, string methodName, params object[] parameters)
@@ -147,8 +159,7 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            _clientSocket.Send(Serialize(query));
-            return MethodParametersAlignment.AlignType<T>(WaitForResponse(query).Response);
+            return _send<T>(query);
         }
 
         public T Get<T>(ProxyBase dto, string propertyName)
@@ -162,8 +173,7 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            _clientSocket.Send(Serialize(query));
-            return MethodParametersAlignment.AlignType<T>(WaitForResponse(query).Response);
+            return _send<T>(query);
         }
 
         public void Invoke(ProxyBase dto, string methodName, params object[] parameters)
@@ -178,7 +188,8 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            _clientSocket.Send(Serialize(query));
+            if (_clientSocket.IsAlive)
+                _clientSocket.Send(Serialize(query));
         }
 
         public void Set(ProxyBase dto, object value, string propertyName)
@@ -193,7 +204,8 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            _clientSocket.Send(Serialize(query));
+            if (_clientSocket.IsAlive)
+                _clientSocket.Send(Serialize(query));
         }
 
         public void EventAdd(ProxyBase dto, string eventName)
@@ -207,9 +219,8 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            _clientSocket.Send(Serialize(query));
-            if (eventName == "PropertyChanged")
-                Update(WaitForResponse(query).Response, dto);
+            if (_clientSocket.IsAlive)
+                _clientSocket.Send(Serialize(query));
         }
 
         public void EventRemove(ProxyBase dto, string eventName)
@@ -223,7 +234,8 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            _clientSocket.Send(Serialize(query));
+            if (_clientSocket.IsAlive)
+                _clientSocket.Send(Serialize(query));
         }
     }
 

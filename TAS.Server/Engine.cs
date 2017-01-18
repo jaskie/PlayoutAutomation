@@ -71,7 +71,7 @@ namespace TAS.Server
         private ICGElementsController _cgElementsController;
         public ICGElementsController CGElementsController { get { return _cgElementsController; } }
 
-        public RemoteHost Remote { get; set; }
+        public RemoteClientHost Remote { get; set; }
         public TAspectRatioControl AspectRatioControl { get; set; }
         public double VolumeReferenceLoudness { get; set; }
 
@@ -129,9 +129,12 @@ namespace TAS.Server
         long _frameTicks;
         public long FrameTicks { get { return _frameTicks; } }
         RationalNumber _frameRate;
+
         [XmlIgnore]
+        [JsonProperty]
         public RationalNumber FrameRate { get { return _frameRate; } }
 
+        [JsonProperty]
         public TVideoFormat VideoFormat { get; set; }
 
         [XmlIgnore]

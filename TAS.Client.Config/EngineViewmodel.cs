@@ -44,7 +44,7 @@ namespace TAS.Client.Config
             if (Model.Remote != null)
             {
                 _remoteHostEnabled = true;
-                _remoteHostEndpointAddress = Model.Remote.EndpointAddress;
+                _remoteHostListenPort = Model.Remote.ListenPort;
             }
             CommandManageArchiveDirectories = new UICommand() { ExecuteDelegate = _manageArchiveDirectories };
         }
@@ -96,8 +96,8 @@ namespace TAS.Client.Config
         public object ArchiveDirectory { get { return _archiveDirectory; } set { SetField(ref _archiveDirectory, value, nameof(ArchiveDirectory)); } }
         private bool _remoteHostEnabled;
         public bool RemoteHostEnabled { get { return _remoteHostEnabled; } set { SetField(ref _remoteHostEnabled, value, nameof(RemoteHostEnabled)); } }
-        private string _remoteHostEndpointAddress;
-        public string RemoteHostEndpointAddress { get { return _remoteHostEndpointAddress; } set { SetField(ref _remoteHostEndpointAddress, value, nameof(RemoteHostEndpointAddress)); } }
+        private ushort _remoteHostListenPort;
+        public ushort RemoteHostListenPort { get { return _remoteHostListenPort; } set { SetField(ref _remoteHostListenPort, value, nameof(RemoteHostListenPort)); } }
 
         public UICommand CommandManageArchiveDirectories { get; private set; }
 
@@ -115,7 +115,7 @@ namespace TAS.Client.Config
                 var playoutServerChannelPRV = _channelPRV as Model.CasparServerChannel;
                 Model.IdServerPRV = playoutServerChannelPRV == null ? 0 : ((Model.CasparServer)playoutServerChannelPRV.Owner).Id;
                 Model.ServerChannelPRV = playoutServerChannelPRV == null ? 0 : playoutServerChannelPRV.ChannelNumber;
-                Model.Remote = _remoteHostEnabled ? new Model.RemoteHost() { EndpointAddress = RemoteHostEndpointAddress } : null;
+                Model.Remote = _remoteHostEnabled ? new Model.RemoteHost() { ListenPort = RemoteHostListenPort } : null;
                 Model.IdArchive = _archiveDirectory is Model.ArchiveDirectory ? ((Model.ArchiveDirectory)_archiveDirectory).idArchive : 0;
                 Model.IsModified = true;
             }

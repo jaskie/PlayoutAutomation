@@ -902,7 +902,6 @@ namespace TAS.Server
                     subEventToAdd.Parent = this;
                     subEventToAdd.IsHold = false;
                     _subEvents.Value.Add(subEventToAdd);
-                    NotifyPropertyChanged(nameof(IEvent.SubEventsCount));
                     NotifySubEventChanged(subEventToAdd, TCollectionOperation.Insert);
                     Duration = _computedDuration();
                     Event prior = subEventToAdd.Prior as Event;
@@ -931,7 +930,6 @@ namespace TAS.Server
             {
                 Duration = _computedDuration();
                 NotifySubEventChanged(subEventToRemove, TCollectionOperation.Remove);
-                NotifyPropertyChanged(nameof(IEvent.SubEventsCount));
             }
         }
 
@@ -956,8 +954,6 @@ namespace TAS.Server
                     parent._subEventsRemove(this);
                     if (next != null)
                         parent._subEvents.Value.Add(next);
-                    else
-                        parent.NotifyPropertyChanged(nameof(IEvent.SubEventsCount));
                     if (parent.SetField(ref parent._duration, parent._computedDuration(), "Duration"))
                         parent._durationChanged();
                     if (next != null)

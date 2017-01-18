@@ -65,11 +65,16 @@ namespace TAS.Server
             _templateLayer = templateLayer;
         }
 
+        protected override void DoDispose()
+        {
+            base.DoDispose();
+            _fields.DictionaryOperation -= _fields_DictionaryOperation;
+        }
         private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
         {
             IsModified = true;
         }
-
+        
         private readonly SimpleDictionary<string, string> _fields;
         [JsonProperty]
         public IDictionary<string, string> Fields
@@ -84,10 +89,13 @@ namespace TAS.Server
         }
 
         private TemplateMethod _method;
+        [JsonProperty]
         public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value, nameof(Method)); } }
 
         private int _templateLayer;
+        [JsonProperty]
         public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, nameof(TemplateLayer)); } }
+
 
     }
 }

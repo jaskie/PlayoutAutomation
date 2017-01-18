@@ -12,28 +12,28 @@ using WebSocketSharp.Server;
 
 namespace TAS.Server
 {
-    public class RemoteHost : IDisposable, IRemoteHostConfig
+    public class RemoteClientHost : IDisposable, IRemoteHostConfig
     {
         [XmlAttribute]
-        public string EndpointAddress { get; set; }
+        public ushort ListenPort { get; set; }
         [XmlIgnore]
         public Engine Engine { get; private set; }
         WebSocketServer _server;
         static SerializationBinder ServerBinder = new ServerSerializationBinder();
         public bool Initialize(Engine engine)
         {
-            if (string.IsNullOrEmpty(EndpointAddress))
+            if (ListenPort < 1024)
                 return false;
             try
             {
-                _server = new WebSocketServer(string.Format("ws://{0}", EndpointAddress));
+                _server = new WebSocketServer(ListenPort);
                 _server.AddWebSocketService("/Engine", () => new CommunicationBehavior(engine) { Binder = ServerBinder });
                 _server.Start();
                 return true;
             }
             catch(Exception e)
             {
-                Debug.WriteLine(e, "Initialization of RemoteHost error");
+                Debug.WriteLine(e, "Initialization of RemoteClientHost error");
             }
             return false;
         }

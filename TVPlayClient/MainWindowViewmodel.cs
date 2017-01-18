@@ -33,6 +33,11 @@ namespace TAS.Client
             if (client != null)
             {
                 client.Disconnected -= _client_Disconnected;
+                Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+                {
+                    _viewmodel.Dispose();
+                    View = null;
+                });
                 _createView();
             }
         }
@@ -55,7 +60,8 @@ namespace TAS.Client
                         {
                             Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
                             {
-                                View = new Views.EngineView(initalObject.FrameRate) { DataContext = new EngineViewmodel(initalObject, initalObject) };
+                                _viewmodel = new EngineViewmodel(initalObject, initalObject);
+                                View = new Views.EngineView(initalObject.FrameRate) { DataContext = _viewmodel };
                                 IsLoading = false;
                             });
                             return;
@@ -64,6 +70,8 @@ namespace TAS.Client
                 }
             });
         }
+
+        private ViewmodelBase _viewmodel;
 
         private UserControl _view;
         public UserControl View { get { return _view; } set { SetField(ref _view, value, nameof(View)); } }

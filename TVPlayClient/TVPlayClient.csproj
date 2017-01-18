@@ -145,7 +145,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="MainWindow.resx" />
+    <EmbeddedResource Include="MainWindow.pl.resx" >
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainWindow.resx" >
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using TAS.Common;
@@ -10,6 +11,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Remoting.Model
 {
+    [DebuggerDisplay("{EventName}")]
     public class Event : ProxyBase, IEvent
     {
         public decimal? AudioVolume { get { return Get<decimal?>(); }  set { Set(value); } }
@@ -26,13 +28,11 @@ namespace TAS.Remoting.Model
 
         public string EventName { get { return Get<string>(); } set { Set(value); } }
 
-        public TEventType EventType { get { return Get<TEventType>(); } set { Set(value); } }
+        public TEventType EventType { get { return Get<TEventType>(); } set { SetLocalValue(value); } }
         
         public string IdAux { get { return Get<string>(); } set { Set(value); } }
         
         public ulong IdProgramme { get { return Get<ulong>(); } set { Set(value); } }
-
-        public ulong IdRundownEvent { get { return Get<ulong>(); } set { Set(value); } }
 
         public bool IsCGEnabled { get { return Get<bool>(); } set { Set(value); } }
 
@@ -46,11 +46,11 @@ namespace TAS.Remoting.Model
 
         public bool IsLoop { get { return Get<bool>(); } set { Set(value); } }
 
-        public bool IsModified { get { return Get<bool>(); } set { Set(value); } }
+        public bool IsModified { get { return Get<bool>(); } set { SetLocalValue(value); } }
 
         public VideoLayer Layer { get { return Get<VideoLayer>(); } set { Set(value); } }
 
-        public TimeSpan Length { get { return Get<TimeSpan>(); } set { Set(value); } }
+        public TimeSpan Length { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
 
         public byte Logo { get { return Get<byte>(); } set { Set(value); } }
 
@@ -87,9 +87,19 @@ namespace TAS.Remoting.Model
 
         public TStartType StartType { get { return Get<TStartType>(); } set { Set(value); } }
 
-        public IList<IEvent> SubEvents { get { return Get<List<IEvent>>(); } set { Set(value); } }
+        public IList<IEvent> SubEvents
+        {
+            get
+            {
+                var result = Get<List<IEvent>>();
+                if (result == null)
+                    result = new List<IEvent>();
+                return result;
+            }
+            set { SetLocalValue(value); }
+        }
 
-        public int SubEventsCount { get { return Get<int>(); } set { Set(value); } }
+        public int SubEventsCount { get { return Get<int>(); } set { SetLocalValue(value); } }
 
         public TEasing TransitionEasing { get { return Get<TEasing>(); } set { Set(value); } }
 
@@ -171,6 +181,24 @@ namespace TAS.Remoting.Model
             }
         }
 
+        private void _subeventChanged(CollectionOperationEventArgs<IEvent> e)
+        {
+            object subEvents;
+            if (Properties.TryGetValue(nameof(SubEvents), out subEvents))
+            {
+                var list = subEvents as IList<IEvent>;
+                if (list != null)
+                {
+                    if (e.Operation == TCollectionOperation.Insert)
+                        list.Add(e.Item);
+                    else
+                        list.Remove(e.Item);
+                    SubEventsCount = list.Count;
+                    NotifyPropertyChanged(nameof(SubEventsCount));
+                }
+            }
+        }
+
         protected override void OnEventNotification(WebSocketMessage e)
         {
             switch (e.MemberName)
@@ -188,7 +216,9 @@ namespace TAS.Remoting.Model
                     _saved.Invoke(this, ConvertEventArgs<EventArgs>(e));
                     return;
                 case nameof(IEvent.SubEventChanged):
-                    _subEventChanged.Invoke(this, ConvertEventArgs<CollectionOperationEventArgs<IEvent>>(e));
+                    var ea = ConvertEventArgs<CollectionOperationEventArgs<IEvent>>(e);
+                    _subeventChanged(ea);
+                    _subEventChanged.Invoke(this, ea);
                     return;
             }
         }

@@ -10,12 +10,9 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using System.Text;
-using WebSocketSharp;
 
 namespace TAS.Remoting.Client
 {
-    //[JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public abstract class ProxyBase : IDto, INotifyPropertyChanged
     {
 
@@ -40,13 +37,13 @@ namespace TAS.Remoting.Client
         {
             object result;
             _findPropertyName(ref propertyName);
-            if (_properties.TryGetValue(propertyName, out result))
+            if (Properties.TryGetValue(propertyName, out result))
                 return  (T)result;
             var client = _client;
             if (client != null)
             {
                 result = client.Get<T>(this, propertyName);
-                _properties[propertyName] = result;
+                Properties[propertyName] = result;
                 return (T)result;
             }
             return default(T);
@@ -118,10 +115,10 @@ namespace TAS.Remoting.Client
         {
             object oldValue;
             _findPropertyName(ref propertyName);
-            if (!_properties.TryGetValue(propertyName, out oldValue)  // here values may be boxed
+            if (!Properties.TryGetValue(propertyName, out oldValue)  // here values may be boxed
                 || (oldValue != value && (oldValue != null && !oldValue.Equals(value)) || (value != null && !value.Equals(oldValue))))
             {
-                _properties[propertyName] = value;
+                Properties[propertyName] = value;
                 NotifyPropertyChanged(propertyName);
                 return true;
             }
@@ -150,7 +147,7 @@ namespace TAS.Remoting.Client
                         object value = eav.Value;
                         if (property != null)
                             MethodParametersAlignment.AlignType(ref value, property.PropertyType);
-                        _properties[eav.PropertyName] = value;
+                        Properties[eav.PropertyName] = value;
                         NotifyPropertyChanged(eav.PropertyName);
                     }
                 }
@@ -167,12 +164,12 @@ namespace TAS.Remoting.Client
             return (T)e.Response;
         }
 
-        void NotifyPropertyChanged(string propertyName)
+        protected void NotifyPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private ConcurrentDictionary<string, object> _properties = new ConcurrentDictionary<string, object>();
+        protected ConcurrentDictionary<string, object> Properties = new ConcurrentDictionary<string, object>();
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -11,6 +11,6 @@ namespace TAS.Client.Config.Model
     public class RemoteHost: IRemoteHostConfig
     {
         [XmlAttribute]
-        public string EndpointAddress {get; set;}
+        public ushort ListenPort {get; set;}
     }
 }

@@ -82,6 +82,7 @@ namespace TAS.Client.ViewModels
 
         public EngineViewmodel(IEngine engine, IPreview preview)
         {
+            Debug.WriteLine($"Creating EngineViewmodel for {engine}");
             _engine = engine;
             _frameRate = engine.FrameRate;
             _videoFormatDescription = engine.FormatDescription;

@@ -9,6 +9,6 @@ namespace TAS.Server.Interfaces
     public interface IRemoteHostConfig
     {
         [XmlAttribute]
-        string EndpointAddress { get; set; }
+        ushort ListenPort { get; set; }
     }
 }
