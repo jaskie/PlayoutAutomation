@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Windows.Media.Imaging;
 using TAS.Remoting.Client;
 using TAS.Server.Interfaces;
 
@@ -12,7 +14,8 @@ namespace TAS.Remoting.Model
     {
         public byte Id { get { return Get<byte>(); } set { SetLocalValue(value); } }
 
-        public BitmapImage Image { get { return Get<BitmapImage>(); } set { SetLocalValue(value); } }
+        [JsonConverter(typeof(Remoting.BitmapConverter))]
+        public Bitmap Image { get { return Get<Bitmap>(); } set { SetLocalValue(value); } }
 
         public string ImageFile { get { return Get<string>(); } set { SetLocalValue(value); } }
 

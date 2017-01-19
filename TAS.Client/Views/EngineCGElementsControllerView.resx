@@ -117,16 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="_statusbar.Gpi.Active" xml:space="preserve">
+  <data name="_active" xml:space="preserve">
     <value>Active</value>
   </data>
-  <data name="_statusbar.Gpi.Crawl" xml:space="preserve">
+  <data name="_crawl" xml:space="preserve">
     <value>Crawl:</value>
   </data>
-  <data name="_statusbar.Gpi.Logo" xml:space="preserve">
+  <data name="_logo" xml:space="preserve">
     <value>Logo:</value>
   </data>
-  <data name="_statusbar.Gpi.Parental" xml:space="preserve">
+  <data name="_parental" xml:space="preserve">
     <value>Parental:</value>
   </data>
 </root>

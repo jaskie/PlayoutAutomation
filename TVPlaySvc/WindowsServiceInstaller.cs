@@ -20,10 +20,10 @@ namespace DokMan.Svc
             serviceInstaller = new ServiceInstaller();
 
             processInstaller.Account = ServiceAccount.LocalSystem;
-            serviceInstaller.StartType = ServiceStartMode.Manual;
-            serviceInstaller.ServiceName = "DokManService";
-            serviceInstaller.DisplayName = "Usługa dokuMentor";
-            serviceInstaller.Description = "Usługa zapewnia dostęp klientów do danych systemu dokuMentor";
+            serviceInstaller.StartType = ServiceStartMode.Automatic;
+            serviceInstaller.ServiceName = "TVPlaySvc";
+            serviceInstaller.DisplayName = "TVPlay - application service";
+            serviceInstaller.Description = "Controls play-out automation. Executes scheduled play-out servers commands, provides client access interface.";
             Installers.Add(serviceInstaller);
             Installers.Add(processInstaller);
         }

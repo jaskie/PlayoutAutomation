@@ -14,10 +14,10 @@ namespace TAS.Client.ViewModels
         public EngineCGElementsControllerViewmodel(ICGElementsController controller)
         {
             Controller = controller;
-            _crawls = controller.Crawls.ToList();
-            _logos = controller.Logos.ToList();
-            _parentals = controller.Parentals.ToList();
-            _auxes = controller.Auxes.ToList();
+            _crawls = controller.Crawls.Select(element => new CGElementViewmodel(element)).ToList();
+            _logos = controller.Logos.Select(element => new CGElementViewmodel(element)).ToList();
+            _parentals = controller.Parentals.Select(element => new CGElementViewmodel(element)).ToList();
+            _auxes = controller.Auxes.Select(element => new CGElementViewmodel(element)).ToList();
             _visibleAuxes = controller.VisibleAuxes;
             controller.PropertyChanged += controller_PropertyChanged;
         }
@@ -25,27 +25,27 @@ namespace TAS.Client.ViewModels
         private void controller_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(ICGElementsController.Crawls))
-                _crawls = Controller.Crawls.ToList();
+                _crawls = Controller.Crawls.Select(element => new CGElementViewmodel(element)).ToList();
             if (e.PropertyName == nameof(ICGElementsController.Parentals))
-                _parentals = Controller.Parentals.ToList();
+                _parentals = Controller.Parentals.Select(element => new CGElementViewmodel(element)).ToList();
             if (e.PropertyName == nameof(ICGElementsController.Logos))
-                _logos = Controller.Logos.ToList();
+                _logos = Controller.Logos.Select(element => new CGElementViewmodel(element)).ToList();
             if (e.PropertyName == nameof(ICGElementsController.Auxes))
-                _auxes = Controller.Auxes.ToList();
+                _auxes = Controller.Auxes.Select(element => new CGElementViewmodel(element)).ToList();
             NotifyPropertyChanged(e.PropertyName);
         }
 
         public byte Logo { get { return Controller == null ? None : Controller.Logo; }  set { if (Controller != null) Controller.Logo = value; } }
         public byte Crawl { get { return Controller == null ? None : Controller.Crawl; } set { if (Controller != null) Controller.Crawl = value; } }
         public byte Parental { get { return Controller == null ? None : Controller.Parental; } set { if (Controller != null) Controller.Parental = value; } }
-        private IEnumerable<ICGElement> _crawls;
-        public IEnumerable<ICGElement> Crawls { get { return _crawls; } }
-        private IEnumerable<ICGElement> _parentals;
-        public IEnumerable<ICGElement> Parentals { get { return _parentals; } }
-        private IEnumerable<ICGElement> _logos;
-        public IEnumerable<ICGElement> Logos { get { return _logos; } }
-        private IEnumerable<ICGElement> _auxes;
-        public IEnumerable<ICGElement> Auxes { get { return _auxes; } }
+        private IEnumerable<CGElementViewmodel> _crawls;
+        public IEnumerable<CGElementViewmodel> Crawls { get { return _crawls; } }
+        private IEnumerable<CGElementViewmodel> _parentals;
+        public IEnumerable<CGElementViewmodel> Parentals { get { return _parentals; } }
+        private IEnumerable<CGElementViewmodel> _logos;
+        public IEnumerable<CGElementViewmodel> Logos { get { return _logos; } }
+        private IEnumerable<CGElementViewmodel> _auxes;
+        public IEnumerable<CGElementViewmodel> Auxes { get { return _auxes; } }
         private byte[] _visibleAuxes;
         public byte[] VisibleAuxes { get { return _visibleAuxes; } }
 

@@ -16,24 +16,24 @@ namespace TAS.Server
 {
     public static class EngineController
     {
-        public static readonly List<CasparServer> Servers;
-        public static readonly List<Engine> Engines;
+        public static List<Engine> Engines;
+
+        static List<CasparServer> _servers;
         static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(EngineController));
 
-        static EngineController()
+        public static void Initialize()
         {
-            Logger.Info("Application starting");
+            Logger.Info("Engines initializing");
             Logger.Debug("Connecting to database");
             ConnectionStringSettings connectionStringPrimary = ConfigurationManager.ConnectionStrings["tasConnectionString"];
             ConnectionStringSettings connectionStringSecondary = ConfigurationManager.ConnectionStrings["tasConnectionStringSecondary"];
             Database.Database.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
-            Servers = Database.Database.DbLoadServers<CasparServer>();
-            Servers.ForEach(s => s.Channels.ForEach(c => c.OwnerServer = s));
+            _servers = Database.Database.DbLoadServers<CasparServer>();
+            _servers.ForEach(s => s.Channels.ForEach(c => c.OwnerServer = s));
             Engines = Database.Database.DbLoadEngines<Engine>(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]));
             foreach (Engine e in Engines)
-                e.Initialize(Servers);
-            Debug.WriteLine("EngineController Created");
-            Logger.Debug("Finished creating engines");
+                e.Initialize(_servers);
+            Logger.Debug("Engines initialized");
         }
 
         public static void ShutDown()
@@ -41,7 +41,7 @@ namespace TAS.Server
             if (Engines != null)
                 foreach (Engine e in Engines)
                     e.Dispose();
-            Logger.Info("Application shutdown");
+            Logger.Info("Engines shutdown");
         }
     }
 }

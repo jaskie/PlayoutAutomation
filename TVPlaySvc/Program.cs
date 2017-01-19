@@ -9,9 +9,10 @@ using TAS.Server;
 
 namespace TVPlaySvc
 {
-    class Program : ServiceBase
+    class TVPlayService : ServiceBase
     {
-        public Program()
+
+        public TVPlayService()
         {
             ServiceName = "TVPlay Service";
             CanStop = true;
@@ -22,7 +23,7 @@ namespace TVPlaySvc
         protected override void OnStart(string[] args)
         {
             base.OnStart(args);
-            executeApp(false);
+            EngineController.Initialize();
         }
 
         protected override void OnStop()
@@ -33,26 +34,32 @@ namespace TVPlaySvc
 
         protected static void executeApp(bool userInteractive)
         {
-            var engines = EngineController.Engines;
+            EngineController.Initialize();
             if (userInteractive)
             {
                 string line;
-                do
+                try
                 {
-                    Console.Write('>');
-                    line = Console.ReadLine();
-                    var lineParts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (lineParts.Count() > 0)
-                        switch (lineParts[0].ToLower())
-                        {
-                            case "q":
-                            case "quit":
-                                break;
-                            default:
-                                break;
-                        }
-                } while (line != "q" && line != "quit");
-                EngineController.ShutDown();
+                    while (true)
+                    {
+                        Console.Write('>');
+                        line = Console.ReadLine();
+                        var lineParts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (lineParts.Count() > 0)
+                            switch (lineParts[0].ToLower())
+                            {
+                                // console commands here
+                                case "quit":
+                                    return;
+                                default:
+                                    break;
+                            }
+                    }
+                }
+                finally
+                {
+                    EngineController.ShutDown();
+                }
             }
         }
 
@@ -77,7 +84,7 @@ namespace TVPlaySvc
             }
             else
             {
-                Run(new Program());
+                Run(new TVPlayService());
             }
         }
     }

@@ -1,5 +1,5 @@
-﻿<Window x:Class="TVPlayClient.MainWindow"
-        ResxExtension.DefaultResxName="TVPlayClient.MainWindow" Language="{UICulture}"
+﻿<Window ResxExtension.DefaultResxName="TVPlayClient.MainWindow" Language="{UICulture}"
+        x:Class="TVPlayClient.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -9,9 +9,10 @@
         xmlns:vm="clr-namespace:TAS.Client.ViewModels;assembly=TAS.Client"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="{Resx _windowTitle}" 
+        Title="{Resx ResxName=TVPlayClient.MainWindow, Key=_windowTitle}" 
         Height="600" 
         Width="1024"
+        Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"
         KeyDown="Window_KeyDown">
     <Window.Resources>
         <local:MainWindowViewmodel x:Key="vm"/>

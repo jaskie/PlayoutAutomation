@@ -93,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\CGElementViewmodel.cs" />
     <Compile Include="ViewModels\ChannelViewmodel.cs" />
     <Compile Include="ViewModels\ConvertOperationViewModel.cs" />
     <Compile Include="ViewModels\EngineCGElementsControllerViewmodel.cs" />

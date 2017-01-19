@@ -25,7 +25,10 @@ namespace TAS.Client
             System.Threading.Thread.Sleep(2000); // wait for server to spin up
 #endif
             Application.Current.Dispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
-            _createView();
+            if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject()))
+                _createView();
+            else
+                _isLoading = false;
         }
 
         private RemoteClient _client;

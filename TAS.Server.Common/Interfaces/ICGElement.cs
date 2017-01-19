@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Windows.Media.Imaging;
 
 namespace TAS.Server.Interfaces
 {
@@ -11,7 +11,6 @@ namespace TAS.Server.Interfaces
         byte Id { get; }
         string Name { get; }
         string ImageFile { get; }
-        [System.Xml.Serialization.XmlIgnore]
-        BitmapImage Image { get; }
+        Bitmap Image { get; }
     }
 }
