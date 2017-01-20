@@ -13,17 +13,11 @@
     <UserControl.InputBindings>
         <KeyBinding Gesture="F12" Command="{Binding CommandSwitchTab}"/>
     </UserControl.InputBindings>
-    <TabControl TabStripPlacement="Bottom" BorderThickness="1" Padding="0" SelectedIndex="{Binding SelectedTab}" >
-        <TabItem Content="{Binding EngineViewmodel.View}">
-            <TabItem.Header>
-                <TextBlock  Text="{Resx _playlist}" ToolTip="{Resx _playlist.ToolTip}"/>
-            </TabItem.Header>
-        </TabItem>
-        <TabItem Content="{Binding MediaManagerViewmodel.View}">
-            <TabItem.Header>
-                <TextBlock Text="{Resx _media}" ToolTip="{Resx _media.ToolTip}"/>
-            </TabItem.Header>
-        </TabItem>
-        <!--<TabItem Header="{Resx _state}" Content="{Binding EngineStateViewmodel.View}" />-->
+    <TabControl TabStripPlacement="Bottom" BorderThickness="1" Padding="0" SelectedItem="{Binding SelectedTab}" ItemsSource="{Binding Tabs}" >
+        <TabControl.ContentTemplate>
+            <DataTemplate>
+                <ContentControl Content="{Binding View}"/>
+            </DataTemplate>
+        </TabControl.ContentTemplate>
     </TabControl>
 </UserControl>

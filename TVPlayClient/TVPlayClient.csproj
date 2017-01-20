@@ -125,10 +125,16 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChannelsViewmodel.cs" />
+    <Compile Include="ConfigurationView.xaml.cs">
+      <DependentUpon>ConfigurationView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ConfigurationViewmodel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindowViewmodel.cs" />
+    <Compile Include="ChannelWrapperViewmodel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -137,6 +143,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="ConfigurationView.pl.resx" >
+      <DependentUpon>ConfigurationView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConfigurationView.resx" >
+      <DependentUpon>ConfigurationView.xaml</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.pl.resx">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </EmbeddedResource>
@@ -178,6 +190,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="ConfigurationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -202,6 +218,11 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="TVPlayClient.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TVPlayClient.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />

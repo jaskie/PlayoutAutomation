@@ -31,6 +31,7 @@ namespace TAS.Client.ViewModels
         private readonly VideoFormatDescription _videoFormatDescription;
         private readonly Server.Interfaces.ICGElementsController _cGElementsController;
         private readonly EngineCGElementsControllerViewmodel _cGElementsControllerViewmodel;
+        private readonly bool _allowPlayControl;
 
         public IEngine Engine { get { return _engine; } }
         public ICommand CommandClearAll { get; private set; }
@@ -80,12 +81,13 @@ namespace TAS.Client.ViewModels
         public ICommand CommandUndoEdit { get; private set; }
         #endregion // Editor commands
 
-        public EngineViewmodel(IEngine engine, IPreview preview)
+        public EngineViewmodel(IEngine engine, IPreview preview, bool allowPlayControl)
         {
             Debug.WriteLine($"Creating EngineViewmodel for {engine}");
             _engine = engine;
             _frameRate = engine.FrameRate;
             _videoFormatDescription = engine.FormatDescription;
+            _allowPlayControl = allowPlayControl;
 
             // Creating root EventViewmodel
             _rootEventViewModel = new EventPanelRootViewmodel(this);
@@ -102,7 +104,7 @@ namespace TAS.Client.ViewModels
             _engineView.DataContext = this;
 
             // Creating PreviewViewmodel
-            if (preview != null)
+            if (preview != null && allowPlayControl)
                 _previewViewmodel = new PreviewViewmodel(preview) { IsSegmentsVisible = true };
             
             // Creating EventEditViewmodel
@@ -165,7 +167,7 @@ namespace TAS.Client.ViewModels
         }
 
         public EngineView View { get { return _engineView; } }
-        public PreviewView PreviewView { get { return _previewViewmodel.View; } }
+        public PreviewView PreviewView { get { return _previewViewmodel?.View; } }
         public EventEditView EventEditView { get { return _eventEditView; } }
         public EngineCGElementsControllerViewmodel CGElementsControllerViewmodel { get { return _cGElementsControllerViewmodel; } }
 
@@ -173,10 +175,10 @@ namespace TAS.Client.ViewModels
 
         private void _createCommands()
         {
-            CommandClearAll = new UICommand() { ExecuteDelegate = o => _engine.Clear() };
-            CommandClearLayer = new UICommand() { ExecuteDelegate = layer => _engine.Clear((VideoLayer)int.Parse((string)layer)) };
-            CommandClearMixer = new UICommand() { ExecuteDelegate = o => _engine.ClearMixer() };
-            CommandRestart = new UICommand() { ExecuteDelegate = ev => _engine.Restart() };
+            CommandClearAll = new UICommand() { ExecuteDelegate = o => _engine.Clear(), CanExecuteDelegate = _canClear };
+            CommandClearLayer = new UICommand() { ExecuteDelegate = layer => _engine.Clear((VideoLayer)int.Parse((string)layer)), CanExecuteDelegate = _canClear };
+            CommandClearMixer = new UICommand() { ExecuteDelegate = o => _engine.ClearMixer(), CanExecuteDelegate = _canClear };
+            CommandRestart = new UICommand() { ExecuteDelegate = ev => _engine.Restart(), CanExecuteDelegate = _canClear };
             CommandStartSelected = new UICommand() { ExecuteDelegate = _startSelected, CanExecuteDelegate = _canStartSelected };
             CommandLoadSelected = new UICommand() { ExecuteDelegate = _loadSelected, CanExecuteDelegate = _canLoadSelected };
             CommandScheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.Schedule(_selected.Event), CanExecuteDelegate = _canScheduleSelected };
@@ -184,8 +186,8 @@ namespace TAS.Client.ViewModels
             CommandForceNextSelected = new UICommand() { ExecuteDelegate = _forceNext, CanExecuteDelegate = _canForceNextSelected };
             CommandTrackingToggle = new UICommand() { ExecuteDelegate = o => TrackPlayingEvent = !TrackPlayingEvent };
             CommandDebugToggle = new UICommand() { ExecuteDelegate = _debugShow };
-            CommandRestartRundown = new UICommand() { ExecuteDelegate = _restartRundown };
-            CommandRestartLayer = new UICommand { ExecuteDelegate = _restartLayer, CanExecuteDelegate = o => IsPlayingMovie };
+            CommandRestartRundown = new UICommand() { ExecuteDelegate = _restartRundown, CanExecuteDelegate = _canClear };
+            CommandRestartLayer = new UICommand { ExecuteDelegate = _restartLayer, CanExecuteDelegate = o => IsPlayingMovie && _allowPlayControl };
             CommandNewRootRundown = new UICommand() { ExecuteDelegate = _addNewRootRundown };
             CommandNewContainer = new UICommand() { ExecuteDelegate = _newContainer };
             CommandSearchMissingEvents = new UICommand() { ExecuteDelegate = _searchMissingEvents };
@@ -221,6 +223,11 @@ namespace TAS.Client.ViewModels
             CommandSaveRundown = new UICommand { ExecuteDelegate = _saveRundown, CanExecuteDelegate = o => Selected != null && Selected.Event.EventType == TEventType.Rundown };
             CommandLoadRundown = new UICommand { ExecuteDelegate = _loadRundown, CanExecuteDelegate = o => o.Equals("Under") ? _canAddSubRundown(o) : _canAddNextRundown(o) };
 
+        }
+
+        private bool _canClear(object obj)
+        {
+            return _allowPlayControl;
         }
 
         private void _loadRundown(object obj)
@@ -433,8 +440,7 @@ namespace TAS.Client.ViewModels
         {
             EventClipboard.Cut(_multiSelectedEvents);
         }
-
-
+        
         private bool _canExportMedia(object obj)
         {
             bool exportAll = obj != null;
@@ -479,7 +485,8 @@ namespace TAS.Client.ViewModels
         private bool _canStartSelected(object o)
         {
             IEvent ev = _selected?.Event;
-            return ev != null
+            return _allowPlayControl
+                && ev != null
                 && ev.IsEnabled
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused || ev.PlayState == TPlayState.Aborted)
                 && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie);
@@ -498,21 +505,26 @@ namespace TAS.Client.ViewModels
         private bool _canLoadSelected(object o)
         {
             IEvent ev = _selected?.Event;
-            return ev != null
+            return
+                _allowPlayControl
+                && ev != null
                 && ev.IsEnabled
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Aborted)
                 && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie);
         }
+
         private bool _canScheduleSelected(object o)
         {
             IEvent ev = _selected?.Event;
-            return ev != null && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused) && ev.ScheduledTime >= _currentTime;
+            return _allowPlayControl && ev != null && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused) && ev.ScheduledTime >= _currentTime;
         }
+
         private bool _canRescheduleSelected(object o)
         {
             IEvent ev = _selected?.Event;
             return ev != null && (ev.PlayState == TPlayState.Aborted || ev.PlayState == TPlayState.Played);
         }
+
         private bool _canCut(object o)
         {
             IEvent ev = _selected?.Event;
@@ -520,6 +532,7 @@ namespace TAS.Client.ViewModels
                 && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live)
                 && ev.PlayState == TPlayState.Scheduled;
         }
+
         private bool _canCopySingle(object o)
         {
             IEvent ev = _selected?.Event;
@@ -529,6 +542,8 @@ namespace TAS.Client.ViewModels
 
         private void _restartRundown(object o)
         {
+            if (!_allowPlayControl)
+                return;
             IEvent ev = _selected?.Event;
             if (ev != null)
                 _engine.RestartRundown(ev);
@@ -536,6 +551,8 @@ namespace TAS.Client.ViewModels
 
         private void _restartLayer(object obj)
         {
+            if (!_allowPlayControl)
+                return;
             _engine.Restart();
         }
 
@@ -595,7 +612,6 @@ namespace TAS.Client.ViewModels
             }
         }
     
-
         private void _debugShow(object o)
         {
             if (_debugWindow == null)
@@ -852,7 +868,8 @@ namespace TAS.Client.ViewModels
                         newSelected.PropertyChanged += _onSelectedEventPropertyChanged;
                         oldSelectedEvent = value.Event;
                     }
-                    _previewViewmodel.Event = newSelected;
+                    if (_previewViewmodel != null)
+                        _previewViewmodel.Event = newSelected;
                     _eventEditViewmodel.Event = newSelected;
                     var re = value as EventPanelRundownElementViewmodelBase;
                     if (re != null && _mediaSearchViewModel != null)
@@ -913,6 +930,9 @@ namespace TAS.Client.ViewModels
             get { return _rootEventViewModel.Childrens.Any(evm => evm is EventPanelContainerViewmodel && !((EventPanelContainerViewmodel)evm).IsVisible); }
         }
         
+        public string EngineName { get { return _engine.EngineName; } }
+
+        public bool AllowPlayControl { get { return _allowPlayControl; } }
 
         public bool IsPlayingMovie
         {
@@ -1261,7 +1281,6 @@ namespace TAS.Client.ViewModels
         }
 
         private bool _trackPlayingEvent = true;
-
         public bool TrackPlayingEvent
         {
             get { return _trackPlayingEvent; }
@@ -1276,7 +1295,11 @@ namespace TAS.Client.ViewModels
                     }
             }
         }
-    
+
+        public override string ToString()
+        {
+            return resources._rundown;
+        }
 
     }
 }

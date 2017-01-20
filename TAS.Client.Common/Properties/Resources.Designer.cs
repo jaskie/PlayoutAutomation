@@ -133,6 +133,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Media.
+        /// </summary>
+        public static string _media {
+            get {
+                return ResourceManager.GetString("_media", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot initialize engines because of error: 
         ///{0}
         ///Use TVPlay.config program to configure the system..
@@ -341,6 +350,15 @@ namespace TAS.Client.Common.Properties {
         public static string _query_StartBackupInstance {
             get {
                 return ResourceManager.GetString("_query_StartBackupInstance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rundown.
+        /// </summary>
+        public static string _rundown {
+            get {
+                return ResourceManager.GetString("_rundown", resourceCulture);
             }
         }
         

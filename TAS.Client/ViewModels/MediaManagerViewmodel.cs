@@ -169,8 +169,8 @@ namespace TAS.Client.ViewModels
             CommandSearch = new UICommand() { ExecuteDelegate = _search, CanExecuteDelegate = _canSearch };
             CommandClearFilters = new UICommand { ExecuteDelegate = _clearFilters, CanExecuteDelegate = _canClearFilters };
             CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = _isSomethingSelected };
-            CommandMoveSelectedToArchive = new UICommand() { ExecuteDelegate = _moveSelectedToArchive, CanExecuteDelegate = o => _selectedDirectory.IsServerDirectory && _isSomethingSelected(o) };
-            CommandCopySelectedToArchive = new UICommand() { ExecuteDelegate = _copySelectedToArchive, CanExecuteDelegate = o => _selectedDirectory.IsServerDirectory && _isSomethingSelected(o) };
+            CommandMoveSelectedToArchive = new UICommand() { ExecuteDelegate = _moveSelectedToArchive, CanExecuteDelegate = o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && _isSomethingSelected(o) };
+            CommandCopySelectedToArchive = new UICommand() { ExecuteDelegate = _copySelectedToArchive, CanExecuteDelegate = o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && _isSomethingSelected(o) };
             CommandIngestSelectedToServer = new UICommand() { ExecuteDelegate = _ingestSelectedToServer, CanExecuteDelegate = _canIngestSelectedToServer };
 
             CommandRefresh = new UICommand()
@@ -550,37 +550,19 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                return _selectedDirectory.IsArchiveDirectory || _selectedDirectory.IsRecursive;
+                return _selectedDirectory != null && (_selectedDirectory.IsArchiveDirectory || _selectedDirectory.IsRecursive);
             }
         }
 
-        public bool IsDisplayClipNr { get { return _selectedDirectory.IsXdcam; } }
+        public bool IsDisplayClipNr { get { return _selectedDirectory != null && _selectedDirectory.IsXdcam; } }
 
-        public bool IsDisplayMediaCategory
-        {
-            get
-            {
-                return _selectedDirectory.IsPersistentDirectory && !(_mediaCategory is TMediaCategory);
-            }
-        }
+        public bool IsDisplayMediaCategory { get { return _selectedDirectory != null && _selectedDirectory.IsPersistentDirectory && !(_mediaCategory is TMediaCategory); } }
 
 
-        public bool IsMediaCategoryVisible
-        {
-            get
-            {
-                return _selectedDirectory.IsPersistentDirectory && ((!(_mediaType is TMediaType)) || Equals(_mediaType, TMediaType.Movie));
-            }
-        }
-        public bool IsServerDirectory { get { return _selectedDirectory.IsServerDirectory; } }
-        public bool IsIngestOrArchiveDirectory
-        {
-            get
-            {
-                return _selectedDirectory.IsArchiveDirectory || _selectedDirectory.IsIngestDirectory;
-            }
-        }
-        public bool IsAnimationDirectory { get { return _selectedDirectory.IsAnimationDirectory; } }
+        public bool IsMediaCategoryVisible { get { return _selectedDirectory != null && _selectedDirectory.IsPersistentDirectory && ((!(_mediaType is TMediaType)) || Equals(_mediaType, TMediaType.Movie)); } }
+        public bool IsServerDirectory { get { return _selectedDirectory != null && _selectedDirectory.IsServerDirectory; } }
+        public bool IsIngestOrArchiveDirectory { get { return _selectedDirectory != null && (_selectedDirectory.IsArchiveDirectory || _selectedDirectory.IsIngestDirectory); } }
+        public bool IsAnimationDirectory { get { return _selectedDirectory != null && _selectedDirectory.IsAnimationDirectory; } }
         public bool IsMediaExportVisible { get { return _mediaDirectories.Any(d => (d as IIngestDirectory)?.IsExport == true); } }
 
         private void _selectedDirectoryPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -668,7 +650,14 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged(nameof(ItemsCount));
         }
 
-        public bool DisplayDirectoryInfo { get { return _selectedDirectory.IsServerDirectory || _selectedDirectory.IsArchiveDirectory || (_selectedDirectory.IsIngestDirectory && (_selectedDirectory.AccessType == TDirectoryAccessType.Direct || _selectedDirectory.IsXdcam)); } }
+        public bool DisplayDirectoryInfo
+        {
+            get
+            {
+                return _selectedDirectory != null
+                       && (_selectedDirectory.IsServerDirectory || _selectedDirectory.IsArchiveDirectory || (_selectedDirectory.IsIngestDirectory && (_selectedDirectory.AccessType == TDirectoryAccessType.Direct || _selectedDirectory.IsXdcam)));
+            }
+        }
         public bool IsMediaDirectoryOK { get { return _selectedDirectory?.IsOK == true; } }
         public float DirectoryTotalSpace { get { return _selectedDirectory == null ? 0F : _selectedDirectory.VolumeTotalSize / (1073741824F); } }
         public float DirectoryFreeSpace { get { return _selectedDirectory == null ? 0F : _selectedDirectory.VolumeFreeSize / (1073741824F); } }
@@ -698,7 +687,10 @@ namespace TAS.Client.ViewModels
                     SelectedMedia = null;
             }
         }
-
+        public override string ToString()
+        {
+            return resources._media;
+        }
     }
 }
 

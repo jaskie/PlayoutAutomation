@@ -169,9 +169,8 @@ namespace TAS.Server
                 if (_ingestDirectoriesLoaded)
                     return;
                 XmlSerializer reader = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
-                System.IO.StreamReader file = new System.IO.StreamReader(fileName);
-                _ingestDirectories = ((List<IngestDirectory>)reader.Deserialize(file)).ToList();
-                file.Close();
+                using (StreamReader file = new StreamReader(fileName))
+                    _ingestDirectories = ((List<IngestDirectory>)reader.Deserialize(file)).ToList();
             }
             else _ingestDirectories = new List<IngestDirectory>();
             _ingestDirectoriesLoaded = true;

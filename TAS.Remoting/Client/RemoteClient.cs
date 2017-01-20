@@ -1,4 +1,5 @@
-﻿using System;
+﻿#undef DEBUG
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -246,7 +247,7 @@ namespace TAS.Remoting.Client
             {
                 _disposed = true;
                 _referenceResolver.Dispose();
-                _clientSocket.Close(CloseStatusCode.Away);
+                _clientSocket.Close(CloseStatusCode.Normal);
             }
         }
     }

@@ -141,6 +141,9 @@
   <data name="_encodeWarningFFmpeg" xml:space="preserve">
     <value>Following error was announced by FFmpeg: {0}</value>
   </data>
+  <data name="_media" xml:space="preserve">
+    <value>Media</value>
+  </data>
   <data name="_message_CantInitializeEngines" xml:space="preserve">
     <value>Cannot initialize engines because of error: 
 {0}
@@ -220,6 +223,9 @@ Really start new one?</value>
     <value>The application is configured as backup for another installation and should be executing ONLY when that instance cannot operate.
 Simultaneous operation of the two instances is not permitted.
 Do you really want to run this BACKUP play-out?</value>
+  </data>
+  <data name="_rundown" xml:space="preserve">
+    <value>Rundown</value>
   </data>
   <data name="_rundowns" xml:space="preserve">
     <value>Rundowns</value>

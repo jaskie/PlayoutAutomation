@@ -1,0 +1,72 @@
+﻿<UserControl x:Class="TVPlayClient.ConfigurationView"
+             ResxExtension.DefaultResxName="TVPlayClient.ConfigurationView" Language="{UICulture}" 
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:local="clr-namespace:TVPlayClient"
+             mc:Ignorable="d" 
+             d:DataContext="{x:Type local:ConfigurationViewmodel}"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" FlowDirection="RightToLeft" Height="37">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Margin" Value="5" />
+                    <Setter Property="Width" Value="80" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="FlowDirection" Value="LeftToRight"/>
+                </Style>
+                <Style TargetType="Label">
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                    <Setter Property="Padding" Value="0"/>
+                </Style>
+                <Style TargetType="Image" >
+                    <Setter Property="Margin" Value="5, 0"/>
+                </Style>
+            </StackPanel.Resources>
+            <Button Command="{Binding CommandSave}">
+                <DockPanel>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png"></controls:AutoGreyableImage>
+                    <Label Content="{Resx _ok}" />
+                </DockPanel>
+            </Button>
+            <Button Command="{Binding CommandCancel}">
+                <DockPanel>
+                    <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png"></Image>
+                    <Label Content="{Resx _cancel}" />
+                </DockPanel>
+            </Button>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="40">
+            <Button Margin="5" Width="100" Command="{Binding CommandAdd}">
+                <DockPanel>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-add.png"></controls:AutoGreyableImage>
+                    <Label Content="{Resx _addNewChannel}"/>
+                </DockPanel>
+            </Button>
+            <Button Margin="5" Width="100" Command="{Binding CommandDelete}">
+                <DockPanel>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-delete.png"></controls:AutoGreyableImage>
+                    <Label Content="{Resx _deleteChannel}"/>
+                </DockPanel>
+            </Button>
+        </StackPanel>
+        <ListView DockPanel.Dock="Left" ItemsSource="{Binding Channels}" SelectedItem="{Binding SelectedChannel}">
+            <ListView.ItemTemplate>
+                <DataTemplate DataType="{x:Type local:ConfigurationChannel}">
+                    <StackPanel>
+                        <Label Content="{Resx _address}"/>
+                        <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"/>
+                        <CheckBox IsChecked="{Binding AllowControl}" Content="{Resx _allowControl}"/>
+                        <CheckBox IsChecked="{Binding ShowEngine}" Content="{Resx _showEngine}"/>
+                        <CheckBox IsChecked="{Binding ShowMedia}" Content="{Resx _showMedia}"/>
+                        <Border Height="5" BorderBrush="LightBlue"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </DockPanel>
+</UserControl>

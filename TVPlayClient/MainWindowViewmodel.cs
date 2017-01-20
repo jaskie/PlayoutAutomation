@@ -1,101 +1,72 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Input;
+using System.Xml.Serialization;
+using TAS.Client.Common;
 using TAS.Client.ViewModels;
-using TAS.Remoting.Client;
-using TAS.Remoting.Model;
-using TAS.Server.Interfaces;
 
-namespace TAS.Client
+namespace TVPlayClient
 {
-    public class MainWindowViewmodel : ViewModels.ViewmodelBase
+    public class MainWindowViewmodel : ViewmodelBase
     {
         public MainWindowViewmodel()
         {
-#if DEBUG
-            System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en");
-            Infralution.Localization.Wpf.CultureManager.UICulture = new System.Globalization.CultureInfo("en");
-            System.Threading.Thread.Sleep(2000); // wait for server to spin up
-#endif
-            Application.Current.Dispatcher.ShutdownStarted += Dispatcher_ShutdownStarted;
+            Application.Current.Dispatcher.ShutdownStarted += _dispatcher_ShutdownStarted;
             if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject()))
-                _createView();
-            else
-                _isLoading = false;
+                _loadTabs();
+            CommandConfigure = new UICommand { ExecuteDelegate = _configure };
         }
 
-        private RemoteClient _client;
-
-        private void Dispatcher_ShutdownStarted(object sender, EventArgs e)
+        private void _configure(object obj)
         {
-            var client = _client;
-            if (client != null)
-                client.Dispose();
+            (_content as ChannelsViewmodel)?.Dispose();
+            var vm = new ConfigurationViewmodel();
+            vm.Closed += _configClosed;
+            ShowConfigButton = false;
+            Content = vm;
         }
 
-        private void _client_Disconnected(object sender, EventArgs e)
+        private void _configClosed(object sender, EventArgs e)
         {
-            var client = sender as RemoteClient;
-            if (client != null)
-            {
-                client.Disconnected -= _client_Disconnected;
-                Application.Current?.Dispatcher.BeginInvoke((Action)delegate ()
-                {
-                    _viewmodel.Dispose();
-                    View = null;
-                });
-                _createView();
-            }
+            (sender as ConfigurationViewmodel).Dispose();
+            ShowConfigButton = true;
+            _loadTabs();
         }
 
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
-        private void _createView()
+        private void _dispatcher_ShutdownStarted(object sender, EventArgs e)
         {
-            IsLoading = true;
-            ThreadPool.QueueUserWorkItem((o) =>
-            {
-                while (true)
-                {
-                    _client = new RemoteClient(ConfigurationManager.AppSettings["Host"]);
-                    if (_client.IsConnected)
-                    {
-                        _client.Binder = new Remoting.ClientTypeNameBinder();
-                        _client.Disconnected += _client_Disconnected;
-                        Engine initalObject = _client.GetInitalObject<Engine>();
-                        if (initalObject != null)
-                        {
-                            Application.Current?.Dispatcher.BeginInvoke((Action)delegate ()
-                            {
-                                _viewmodel = new EngineViewmodel(initalObject, initalObject);
-                                View = new Views.EngineView(initalObject.FrameRate) { DataContext = _viewmodel };
-                                IsLoading = false;
-                            });
-                            return;
-                        }
-                    }
-                }
-            });
+            Dispose();
         }
-
-        private ViewmodelBase _viewmodel;
-
-        private UserControl _view;
-        public UserControl View { get { return _view; } set { SetField(ref _view, value, nameof(View)); } }
-
-        private bool _isLoading = true;
-        public bool IsLoading { get { return _isLoading; } set { SetField(ref _isLoading, value, nameof(IsLoading)); } }
 
         protected override void OnDispose()
         {
-            Debug.WriteLine(this, "Disposed");
+            (_content as ChannelsViewmodel)?.Dispose();
         }
 
+        private void _loadTabs()
+        {
+            string configurationFile = ConfigurationManager.AppSettings[ConfigurationViewmodel.ConfigurationFileKey];
+            if (string.IsNullOrWhiteSpace(configurationFile))
+                configurationFile = ConfigurationViewmodel.DefaultConfigurationFile;
+            if (File.Exists(configurationFile))
+            {
+                XmlSerializer reader = new XmlSerializer(typeof(List<ChannelWrapperViewmodel>), new XmlRootAttribute("Channels"));
+                using (StreamReader file = new StreamReader(configurationFile))
+                    Content = new ChannelsViewmodel((List<ChannelWrapperViewmodel>)reader.Deserialize(file));
+            }
+        }
+
+        private ViewmodelBase _content;
+        public ViewmodelBase Content { get { return _content; } private set { SetField(ref _content, value, nameof(Content)); } }
+
+        public ICommand CommandConfigure { get; private set; }
+        private bool _showConfigButton = true;
+        public bool ShowConfigButton { get { return _showConfigButton; }  private set { SetField(ref _showConfigButton, value, nameof(ShowConfigButton)); } }
+        
     }
 }

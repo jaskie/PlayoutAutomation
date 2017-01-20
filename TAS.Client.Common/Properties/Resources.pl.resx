@@ -141,6 +141,9 @@
   <data name="_encodeWarningFFmpeg" xml:space="preserve">
     <value>Błąd zgłoszony przez FFmpeg: {0}</value>
   </data>
+  <data name="_media" xml:space="preserve">
+    <value>Media</value>
+  </data>
   <data name="_message_CantInitializeEngines" xml:space="preserve">
     <value>Nie udalo się zainicjalizowanie silnika aplikacji z powodu błędu:
 {0}
@@ -220,6 +223,9 @@ Jeśli jego poprzednia kopia nie odpowiada i chcesz uruchomić nową, naciśnij 
     <value>Ten program został skonfigurowany jako zapasowy dla instalacji na innym komputerze i powinien być uruchomiony TYLKO w razie awarii.
 Jednoczesna praca na obydwu komputerach nie jest dozwolona.
 Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
+  </data>
+  <data name="_rundown" xml:space="preserve">
+    <value>Playlista</value>
   </data>
   <data name="_rundowns" xml:space="preserve">
     <value>Playlisty</value>

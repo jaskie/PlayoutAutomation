@@ -1,4 +1,5 @@
 ﻿<Window x:Class="TAS.Client.Common.OkCancelView"
+        ResxExtension.DefaultResxName="TAS.Client.Common.OkCancelView" Language="{UICulture}" 
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
@@ -33,13 +34,13 @@
             <Button IsDefault="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandOK}">
                 <DockPanel>
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png"></controls:AutoGreyableImage>
-                    <Label Content="OK" />
+                    <Label Content="{Resx _ok}" />
                 </DockPanel>
             </Button>
             <Button IsCancel="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandClose}">
                 <DockPanel>
                     <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png"></Image>
-                    <Label Content="Anuluj" />
+                    <Label Content="{Resx _cancel}" />
                 </DockPanel>
             </Button>
         </StackPanel>

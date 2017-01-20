@@ -123,7 +123,7 @@ namespace TAS.Client.ViewModels
 
         protected virtual void InvalidateRequerySuggested()
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)(() => CommandManager.InvalidateRequerySuggested()));
+            Application.Current?.Dispatcher.BeginInvoke((Action)(() => CommandManager.InvalidateRequerySuggested()));
         }
     }
 }

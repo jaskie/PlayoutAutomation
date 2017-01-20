@@ -30,16 +30,19 @@ namespace TAS.Server
             {
                 _imageFile = Path.Combine(FileUtils.CONFIGURATION_PATH, value);
                 if (File.Exists(_imageFile))
-                    _image = new Bitmap(_imageFile);
+                    lock(_imageLock)
+                        _image = new Bitmap(_imageFile);
             }
         }
 
+        private object _imageLock = new object();
         private Bitmap _image;
         public Bitmap Image
         {
             get
             {
-                return _image;
+                lock(_imageLock)
+                    return _image == null ? null : (Bitmap)_image.Clone();
             }
         }
     }

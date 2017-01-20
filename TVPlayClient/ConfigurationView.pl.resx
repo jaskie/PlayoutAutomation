@@ -117,13 +117,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="_media.ToolTip" xml:space="preserve">
-    <value>F12 - zmiana zakładki</value>
+  <data name="_addNewChannel" xml:space="preserve">
+    <value>Dodaj nowy</value>
   </data>
-  <data name="_playlist.ToolTip" xml:space="preserve">
-    <value>F12 - zmiana zakładki</value>
+  <data name="_address" xml:space="preserve">
+    <value>Adres serwera (z numerem portu)</value>
   </data>
-  <data name="_state" xml:space="preserve">
-    <value>Stan</value>
+  <data name="_allowControl" xml:space="preserve">
+    <value>Pozwól na sterowanie play-outem</value>
+  </data>
+  <data name="_cancel" xml:space="preserve">
+    <value>Anuluj</value>
+  </data>
+  <data name="_deleteChannel" xml:space="preserve">
+    <value>Usuń zaznaczony</value>
+  </data>
+  <data name="_ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="_showEngine" xml:space="preserve">
+    <value>Pokaż playlisty</value>
+  </data>
+  <data name="_showMedia" xml:space="preserve">
+    <value>Pokaż media</value>
   </data>
 </root>

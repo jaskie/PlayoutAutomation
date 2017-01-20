@@ -25,13 +25,6 @@ namespace TAS.Remoting.Client
 
         public Guid DtoGuid { get; set; }
         private RemoteClient _client;
-        private void SetClient(RemoteClient client)
-        {
-            if (_client != null)
-                return;
-            client.EventNotification += _onEventNotificationMessage;
-            _client = client;
-        }
 
         protected T Get<T>([CallerMemberName] string propertyName = null)
         {
@@ -188,6 +181,7 @@ namespace TAS.Remoting.Client
         protected virtual void DoDispose()
         {
             _client.EventNotification -= _onEventNotificationMessage;
+            _client = null;
             Disposed?.Invoke(this, EventArgs.Empty);
         }
 
@@ -196,7 +190,8 @@ namespace TAS.Remoting.Client
         [OnDeserialized]
         internal void OnDeserializedMethod(StreamingContext context)
         {
-            SetClient((RemoteClient)context.Context);
+            _client = context.Context as RemoteClient;
+            _client.EventNotification += _onEventNotificationMessage;
         }
 
     }

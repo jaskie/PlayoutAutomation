@@ -25,7 +25,7 @@ namespace TAS.Client
                 {
                     EngineController.Initialize();
                     var engines = EngineController.Engines;
-                    _channels = new List<ChannelViewmodel>(engines.Select(engine => new ChannelViewmodel(engine)));
+                    _channels = new List<ChannelViewmodel>(engines.Select(engine => new ChannelViewmodel(engine, true, true, true)));
                 }
                 catch (TypeInitializationException e)
                 {

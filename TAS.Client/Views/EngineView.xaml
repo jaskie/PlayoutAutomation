@@ -195,32 +195,32 @@
                 <ComboBox Margin="2" SelectedIndex="0" Grid.Column="0" Padding="5" >
                     <ComboBoxItem ToolTip="{Resx _toolbar.ClearAll}" >
                         <Button Command="{Binding CommandClearAll}" Style="{StaticResource controlPanelButtons}">
-                            <Image Source="/TAS.Client.Common;component/Images/EventActions/stop.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/stop.png" />
                         </Button>
                     </ComboBoxItem>
                     <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG1}" >
                         <Button Command="{Binding CommandClearLayer}" CommandParameter="17" Style="{StaticResource controlPanelButtons}">
-                            <Image Source="/TAS.Client.Common;component/Images/Layers/Layer1.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer1.png" />
                         </Button>
                     </ComboBoxItem>
                     <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG2}" >
                         <Button Command="{Binding CommandClearLayer}" CommandParameter="18" Style="{StaticResource controlPanelButtons}">
-                            <Image Source="/TAS.Client.Common;component/Images/Layers/Layer2.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer2.png" />
                         </Button>
                     </ComboBoxItem>
                     <ComboBoxItem ToolTip="{Resx _toolbar.ClearCG3}" >
                         <Button Command="{Binding CommandClearLayer}" CommandParameter="19" Style="{StaticResource controlPanelButtons}">
-                            <Image Source="/TAS.Client.Common;component/Images/Layers/Layer3.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/Layer3.png" />
                         </Button>
                     </ComboBoxItem>
                     <ComboBoxItem ToolTip="{Resx _toolbar.ClearAnimations}" >
                         <Button Command="{Binding CommandClearLayer}" CommandParameter="26" Style="{StaticResource controlPanelButtons}">
-                            <Image Source="/TAS.Client.Common;component/Images/Layers/LayerA.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/LayerA.png" />
                         </Button>
                     </ComboBoxItem>
                     <ComboBoxItem ToolTip="{Resx _toolbar.ClearMixer}" >
                         <Button Command="{Binding CommandClearMixer}" Style="{StaticResource controlPanelButtons}">
-                            <Image Source="/TAS.Client.Common;component/Images/Layers/LayerS.png" />
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Layers/LayerS.png" />
                         </Button>
                     </ComboBoxItem>
                 </ComboBox>

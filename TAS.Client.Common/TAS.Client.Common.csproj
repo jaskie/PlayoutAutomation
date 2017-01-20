@@ -1,5 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -143,6 +146,10 @@
     <Compile Include="WpfHacks.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
+      <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>
+      <Name>Infralution.Localization.Wpf</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
       <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
       <Name>TAS.Remoting</Name>
@@ -188,6 +195,12 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="OkCancelView.pl.resx" >
+      <DependentUpon>OkCancelView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OkCancelView.resx" >
+      <DependentUpon>OkCancelView.xaml</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.pl.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.pl.Designer.cs</LastGenOutput>
@@ -224,6 +237,7 @@
     <Resource Include="Images\Config\file-open.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -511,6 +525,11 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
   </Target>
+  <Import Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.Sql.UnitTesting.targets" Condition="'$(SQLDBExtensionsRefPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.Sql.UnitTesting.targets" Condition="'$(SQLDBExtensionsRefPath)' == ''" />
+  <PropertyGroup>
+    <SsdtUnitTestVersion>2.0</SsdtUnitTestVersion>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
