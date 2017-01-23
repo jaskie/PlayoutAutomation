@@ -68,6 +68,8 @@ namespace TAS.Client.Common.Controls
         protected TreeViewItem _findItemNodeInChildren(TreeViewItem parent, object item)
         {
             TreeViewItem node = null;
+            if (parent == null)
+                return null;
             bool isExpanded = parent.IsExpanded;
             if (!isExpanded) //Can't find child container unless the parent node is Expanded once
             {

@@ -111,7 +111,7 @@ namespace TAS.Client.ViewModels
                 _checking = false;
                 InvalidateRequerySuggested();
             }
-            _mediaManager.Export(Items.Select(mevm => mevm.MediaExport), _concatMedia, _concatMediaName, (IIngestDirectory)SelectedDirectory.Directory, _mXFAudioExportFormat, _mXFVideoExportFormat);
+            _mediaManager.Export(Items.Select(mevm => mevm.MediaExport).ToArray(), _concatMedia, _concatMediaName, (IIngestDirectory)SelectedDirectory.Directory, _mXFAudioExportFormat, _mXFVideoExportFormat);
             _view.Close();
         }
 

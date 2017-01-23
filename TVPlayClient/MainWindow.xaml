@@ -21,7 +21,7 @@
         <ContentControl Content="{Binding Content}">
             <ContentControl.Resources>
                 <DataTemplate DataType="{x:Type local:ChannelsViewmodel}">
-                    <TabControl TabStripPlacement="Bottom" ItemsSource="{Binding Channels}">
+                    <TabControl TabStripPlacement="Bottom" ItemsSource="{Binding Channels}" Padding="0" BorderThickness="0">
                         <TabControl.Resources>
                             <Style TargetType="TabItem">
                                 <Style.Triggers>
@@ -53,7 +53,10 @@
                 </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>
-        <Button Visibility="{Binding ShowConfigButton, Converter={StaticResource BoolToVis}}" Command="{Binding CommandConfigure}" HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="20" Height="20">
+        <Button Visibility="{Binding ShowConfigButton, Converter={StaticResource BoolToVis}}" 
+                Command="{Binding CommandConfigure}" 
+                ToolTip="{Resx _configureClient}"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="20" Height="20" Margin="1">
             <Path Margin="0, 1, 0, 0" Stroke="Black" StrokeThickness="3">
                 <Path.Data>
                     <GeometryGroup>

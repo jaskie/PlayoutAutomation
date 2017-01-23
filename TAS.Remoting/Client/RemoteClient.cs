@@ -247,6 +247,10 @@ namespace TAS.Remoting.Client
             {
                 _disposed = true;
                 _referenceResolver.Dispose();
+                _clientSocket.OnOpen -= _clientSocket_OnOpen;
+                _clientSocket.OnClose -= _clientSocket_OnClose;
+                _clientSocket.OnMessage -= _clientSocket_OnMessage;
+                _clientSocket.OnError -= _clientSocket_OnError;
                 _clientSocket.Close(CloseStatusCode.Normal);
             }
         }

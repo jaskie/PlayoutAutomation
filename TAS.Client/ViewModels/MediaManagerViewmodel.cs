@@ -432,12 +432,12 @@ namespace TAS.Client.ViewModels
 
         private void _moveSelectedToArchive(object o)
         {
-            _mediaManager.ArchiveMedia(_getSelections().Where(m => m is IServerMedia).Cast<IServerMedia>(), true);
+            _mediaManager.ArchiveMedia(_getSelections().Where(m => m is IServerMedia).Cast<IServerMedia>().ToArray(), true);
         }
 
         private void _copySelectedToArchive(object o)
         {
-            _mediaManager.ArchiveMedia(_getSelections().Where(m => m is IServerMedia).Cast<IServerMedia>(), false);
+            _mediaManager.ArchiveMedia(_getSelections().Where(m => m is IServerMedia).Cast<IServerMedia>().ToArray(), false);
         }
 
         private bool _filter(object item)
@@ -563,7 +563,7 @@ namespace TAS.Client.ViewModels
         public bool IsServerDirectory { get { return _selectedDirectory != null && _selectedDirectory.IsServerDirectory; } }
         public bool IsIngestOrArchiveDirectory { get { return _selectedDirectory != null && (_selectedDirectory.IsArchiveDirectory || _selectedDirectory.IsIngestDirectory); } }
         public bool IsAnimationDirectory { get { return _selectedDirectory != null && _selectedDirectory.IsAnimationDirectory; } }
-        public bool IsMediaExportVisible { get { return _mediaDirectories.Any(d => (d as IIngestDirectory)?.IsExport == true); } }
+        public bool IsMediaExportVisible { get { return _mediaDirectories.Any(d => d.IsExport); } }
 
         private void _selectedDirectoryPropertyChanged(object sender, PropertyChangedEventArgs e)
         {

@@ -33,7 +33,7 @@ namespace TVPlayClient
 
         public void Initialize()
         {
-            _client_Disconnected(null, EventArgs.Empty);
+            _clientReconnect(null, EventArgs.Empty);
         }
 
         private RemoteClient _client;
@@ -45,12 +45,12 @@ namespace TVPlayClient
                 client.Dispose();
         }
 
-        private void _client_Disconnected(object sender, EventArgs e)
+        private void _clientReconnect(object sender, EventArgs e)
         {
             var client = sender as RemoteClient;
             if (client != null)
             {
-                client.Disconnected -= _client_Disconnected;
+                client.Disconnected -= _clientReconnect;
                 var vm = _viewmodel;
                 Application.Current?.Dispatcher.BeginInvoke((Action)delegate ()
                 {
@@ -72,7 +72,7 @@ namespace TVPlayClient
                     if (_client.IsConnected)
                     {
                         _client.Binder = new ClientTypeNameBinder();
-                        _client.Disconnected += _client_Disconnected;
+                        _client.Disconnected += _clientReconnect;
                         Engine engine = _client.GetInitalObject<Engine>();
                         if (engine != null)
                         {
