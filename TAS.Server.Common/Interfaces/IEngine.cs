@@ -75,6 +75,7 @@ namespace TAS.Server.Interfaces
         void Schedule(IEvent aEvent);
         void ReSchedule(IEvent aEvent);
         void Restart();
+        void Execute(string command);
 
         DateTime CurrentTime { get; }
 

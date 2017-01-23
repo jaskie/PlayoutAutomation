@@ -9,6 +9,7 @@ using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using Newtonsoft.Json;
 using System.Drawing;
+using TAS.Remoting;
 
 namespace TAS.Server
 {
@@ -37,6 +38,9 @@ namespace TAS.Server
 
         private object _imageLock = new object();
         private Bitmap _image;
+
+        [JsonProperty]
+        [JsonConverter(typeof(BitmapConverter))]
         public Bitmap Image
         {
             get
@@ -45,5 +49,9 @@ namespace TAS.Server
                     return _image == null ? null : (Bitmap)_image.Clone();
             }
         }
+
+        [XmlAttribute]
+        public string Command { get; set; }
+
     }
 }

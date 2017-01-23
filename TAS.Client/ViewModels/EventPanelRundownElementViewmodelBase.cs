@@ -21,12 +21,6 @@ namespace TAS.Client.ViewModels
             ev.PositionChanged += _eventPositionChanged;
         }
 
-        protected override void OnEventSaved(object sender, EventArgs e)
-        {
-            base.OnEventSaved(sender, e);
-            NotifyPropertyChanged(nameof(IsInvalidInSchedule));
-        }
-
         protected override void OnDispose()
         {
             base.OnDispose();
@@ -471,21 +465,18 @@ namespace TAS.Client.ViewModels
                 || e.PropertyName == nameof(IEvent.IsCGEnabled)
                 || e.PropertyName == nameof(IEvent.Crawl)
                 || e.PropertyName == nameof(IEvent.Logo)
-                || e.PropertyName == nameof(IEvent.Parental))
+                || e.PropertyName == nameof(IEvent.Parental)
+                || e.PropertyName == nameof(IEvent.EndTime)
+                )
                 NotifyPropertyChanged(e.PropertyName);
             if (e.PropertyName == nameof(IEvent.ScheduledTc) || e.PropertyName == nameof(IEvent.Duration))
             {
                 NotifyPropertyChanged(nameof(IsEnabled));
                 NotifyPropertyChanged(nameof(MediaErrorInfo));
             }
-            if (e.PropertyName == nameof(IEvent.ScheduledTime) || e.PropertyName == nameof(IEvent.Duration))
-            {
-                NotifyPropertyChanged(nameof(EndTime));
-            }
             if (e.PropertyName == nameof(IEvent.PlayState))
             {
                 NotifyPropertyChanged(e.PropertyName);
-                NotifyPropertyChanged(nameof(ScheduledTime));
                 NotifyPropertyChanged(nameof(IsPlaying));
             }
             if (e.PropertyName == nameof(IEvent.StartType))

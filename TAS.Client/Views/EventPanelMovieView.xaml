@@ -137,12 +137,12 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="{Binding EventName}" FontSize="20" Style="{StaticResource EventPanelTextBlock}">
+                        <TextBlock FontSize="19" Text="{Binding EventName}" Style="{StaticResource EventPanelTextBlock}">
                             <TextBlock.ToolTip>
                                 <TextBlock Text="{Binding RootOwnerName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
                             </TextBlock.ToolTip>
                         </TextBlock>
-                        <TextBlock Text="{Binding MediaFileName}" FontSize="9" Style="{StaticResource MediaFileNameTextBlock}"/>
+                        <TextBlock Style="{StaticResource MediaFileNameTextBlock}"/>
                     </StackPanel>
                     <TextBlock Grid.Column="1" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
                 </Grid>

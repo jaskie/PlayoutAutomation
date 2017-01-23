@@ -56,6 +56,7 @@ namespace TAS.Server
         Thread _engineThread;
         internal long CurrentTicks;
 
+        public object RundownSync = new object();
         private static TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
         readonly ObservableSynchronizedCollection<IEvent> _visibleEvents = new ObservableSynchronizedCollection<IEvent>(); // list of visible events
         readonly ObservableSynchronizedCollection<IEvent> _runningEvents = new ObservableSynchronizedCollection<IEvent>(); // list of events loaded and playing 
@@ -1469,22 +1470,6 @@ namespace TAS.Server
         }
 
 
-        public void ReSchedule(IEvent aEvent)
-        {
-            ThreadPool.QueueUserWorkItem(o => {
-                try
-                {
-                    _reSchedule(aEvent as Event);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e, "ReScheduleDelayed exception");
-                }
-            });
-        }
-
-        public object RundownSync = new object();
-
         private void _reSchedule(Event aEvent)
         {
             if (aEvent == null)
@@ -1512,6 +1497,28 @@ namespace TAS.Server
             }
         }
 
+
+        public void ReSchedule(IEvent aEvent)
+        {
+            ThreadPool.QueueUserWorkItem(o => {
+                try
+                {
+                    _reSchedule(aEvent as Event);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "ReScheduleDelayed exception");
+                }
+            });
+        }
+
+        public void Execute(string command)
+        {
+            if (_playoutChannelPRI != null)
+                _playoutChannelPRI.Execute(command);
+            if (_playoutChannelSEC != null)
+                _playoutChannelSEC.Execute(command);
+        }
 
         #endregion // IEngine methods
 

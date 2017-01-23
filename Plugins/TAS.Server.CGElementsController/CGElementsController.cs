@@ -92,7 +92,7 @@ namespace TAS.Server
             }
         }
 
-        private ICGElement[] _deserializeList(XmlReader reader, string rootElementName, string childElementName)
+        private CGElement[] _deserializeList(XmlReader reader, string rootElementName, string childElementName)
         {
             XmlAttributeOverrides overrides = new XmlAttributeOverrides();
             XmlAttributes rootAttribs = new XmlAttributes { XmlRoot = new XmlRootAttribute(rootElementName) };
@@ -100,7 +100,7 @@ namespace TAS.Server
             overrides.Add(typeof(List<CGElement>), rootAttribs);
             overrides.Add(typeof(CGElement), elementAttribs);
             List<CGElement> elements = (List<CGElement>)(new XmlSerializer(typeof(List<CGElement>), overrides).Deserialize(reader.ReadSubtree()));
-            return elements.Cast<ICGElement>().ToArray();
+            return elements.ToArray();
         }
 
         [JsonProperty]
@@ -135,10 +135,18 @@ namespace TAS.Server
         public IEnumerable<ICGElement> Crawls { get { return _crawls; } }
 
         byte _logo;
-        public byte Logo { get { return _logo; } set { SetField(ref _logo, value, nameof(Logo)); } }
+        public byte Logo
+        {
+            get { return _logo; }
+            set
+            {
+                if (SetField(ref _logo, value, nameof(Logo)))
+                    _engine.Execute(_logos[value].Command);
+            }
+        }
 
         [JsonProperty(nameof(Logos), ItemTypeNameHandling = TypeNameHandling.Objects)]
-        ICGElement[] _logos = new ICGElement[0];
+        CGElement[] _logos = new CGElement[0];
         public IEnumerable<ICGElement> Logos { get { return _logos; } }
 
         byte _parental;
@@ -172,9 +180,11 @@ namespace TAS.Server
 
         public void SetState(ICGElementsState state)
         {
-            if (_isCGEnabled)
+            if (_isCGEnabled && state.IsCGEnabled)
             {
-
+                Logo = state.Logo;
+                Crawl = state.Crawl;
+                Parental = state.Parental;
             }
         }
     }

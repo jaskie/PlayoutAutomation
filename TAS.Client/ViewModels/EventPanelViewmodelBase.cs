@@ -69,16 +69,9 @@ namespace TAS.Client.ViewModels
                     _childrens.Add(DummyChild);
             }
             _event.PropertyChanged += OnEventPropertyChanged;
-            _event.Deleted += _eventDeleted;
             _event.SubEventChanged += OnSubeventChanged;
             _event.Relocated += OnRelocated;
-            _event.Saved += OnEventSaved;
             CreateCommands();
-        }
-
-        protected virtual void OnEventSaved(object sender, EventArgs e)
-        {
-            
         }
 
         protected override void OnDispose()
@@ -92,10 +85,8 @@ namespace TAS.Client.ViewModels
             if (_event != null)
             {
                 _event.PropertyChanged -= OnEventPropertyChanged;
-                _event.Deleted -= _eventDeleted;
                 _event.SubEventChanged -= OnSubeventChanged;
                 _event.Relocated -= OnRelocated;
-                _event.Saved -= OnEventSaved;
                 _engineViewmodel?.RemoveMultiSelected(this);
                 IsMultiSelected = false;
             }
@@ -142,14 +133,6 @@ namespace TAS.Client.ViewModels
         {
             if (_parent != null)
                 Application.Current.Dispatcher.BeginInvoke((Action)_updateLocation);
-        }
-
-        private void _eventDeleted(object sender, EventArgs e)
-        {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
-            {
-                Dispose();
-            });
         }
 
         protected virtual void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -414,7 +397,7 @@ namespace TAS.Client.ViewModels
 
         public override string ToString()
         {
-            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {_event}";
+            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {EventName}";
         }
 
         public Views.EventPanelView View;

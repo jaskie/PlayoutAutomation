@@ -1,27 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Elements Engine="TVP Szczecin">
   <Crawls>
-    <Crawl Id="0" Name="Wyłączony" />
-    <Crawl Id="1" Name="Normalny"/>
-    <Crawl Id="2" Name="Pilne"/>
+    <Crawl Id="0" Name="Off" />
+    <Crawl Id="1" Name="Normal"/>
+    <Crawl Id="2" Name="Urgent"/>
     <Crawl Id="3" Name="Sport"/>
   </Crawls>
   <Logos>
-    <Logo Id="0" Name="Brak loga"/>
-    <Logo Id="1" Name="Normalne"/>
-    <Logo Id="2" Name="Premiera"/>
-    <Logo Id="3" Name="Powtórka"/>
-    <Logo Id="4" Name="Na żywo"/>
+    <Logo Id="0" Name="None" Command="PLAY CG4 EMPTY MIX 25"/>
+    <Logo Id="1" Name="Normal"  Command="PLAY CG4 LOGO1 MIX 25"/>
+    <Logo Id="2" Name="Premiere"  Command="PLAY CG4 LOGO2 MIX 25"/>
+    <Logo Id="3" Name="Replay"  Command="PLAY CG4 LOGO3 MIX 25"/>
+    <Logo Id="4" Name="Live"   Command="PLAY CG4 LOGO4 MIX 25"/>
   </Logos>
   <Parentals>
-    <Parental Id="0" Name="Brak"/>
-    <Parental Id="1" Name="B/O" ImageFile="Parentals\BO.png"/>
+    <Parental Id="0" Name="None"/>
+    <Parental Id="1" Name="All" ImageFile="Parentals\BO.png"/>
     <Parental Id="2" Name="7"   ImageFile="Parentals\7.png"/>
     <Parental Id="3" Name="12"  ImageFile="Parentals\12.png"/>
     <Parental Id="4" Name="16"  ImageFile="Parentals\16.png"/>
     <Parental Id="5" Name="18"  ImageFile="Parentals\18.png"/>
   </Parentals>
   <Auxes>
-    <Aux Id="0" Name="Flaga"/>
+    <Aux Id="0" Name="Flag"/>
   </Auxes>
 </Elements>

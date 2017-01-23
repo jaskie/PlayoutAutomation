@@ -612,6 +612,7 @@ namespace TAS.Server
         {
             if (_eventType == TEventType.Movie || _eventType == TEventType.Rundown || _eventType == TEventType.Live)
             {
+                NotifyPropertyChanged(nameof(EndTime));
                 Event owner = _getVisualParent();
                 if (owner != null && owner._eventType == TEventType.Rundown)
                     owner.Duration = owner._computedDuration();

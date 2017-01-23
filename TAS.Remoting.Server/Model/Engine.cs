@@ -146,6 +146,11 @@ namespace TAS.Remoting.Model
                     crawl, logo, parental, autoStartFlags, command, fields, method, templateLayer});
         }
 
+        public void AddRootEvent(IEvent ev)
+        {
+            Invoke(parameters: new[] { ev });
+        }
+
         public void Clear() { Invoke(); }
 
         public void Clear(VideoLayer aVideoLayer) { Invoke(parameters: new[] { aVideoLayer }); } 
@@ -172,6 +177,11 @@ namespace TAS.Remoting.Model
         public void Start(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
         
         public void StartLoaded() { Invoke(); }
+
+        public void Execute(string command)
+        {
+            throw new NotImplementedException(); // method used by server plugin only
+        }
 
         #region Event handling
         event EventHandler<EngineOperationEventArgs> _engineOperation;
@@ -261,16 +271,11 @@ namespace TAS.Remoting.Model
         }
 
 #endregion // Event handling
-        public void AddRootEvent(IEvent ev)
-        {
-            Invoke(parameters: new[] { ev });
-        }
 
         public override string ToString()
         {
             return EngineName;
         }
-
 
     }
 }

@@ -15,6 +15,7 @@ namespace TAS.Client.ViewModels
         public EventPanelRootViewmodel(EngineViewmodel engineViewmodel): base(engineViewmodel)
         {
             _engine.EventSaved += _onEngineEventSaved;
+            _engine.EventDeleted += _engine_EventDeleted;
             foreach (var se in _engine.GetRootEvents())
                 _addRootEvent(se);
         }
@@ -25,20 +26,32 @@ namespace TAS.Client.ViewModels
             _engine.EventSaved -= _onEngineEventSaved;
         }
 
+        private void _engine_EventDeleted(object sender, IEventEventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+            {
+                EventPanelViewmodelBase evm = this.Find(e.Event);
+                if (evm != null)
+                    evm.Dispose();
+            });
+        }
+
         private void _onEngineEventSaved(object o, IEventEventArgs e) // when new event was created
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
             {
-                EventPanelViewmodelBase newVm = _placeEventInRundown(e.Event);
-                if (newVm != null
+                EventPanelViewmodelBase vm = _placeEventInRundown(e.Event);
+                if (vm != null
                     && e.Event.EventType != TEventType.StillImage
                     && e.Event == _engineViewmodel.LastAddedEvent)
                 {
-                    newVm.IsSelected = true;
+                    vm.IsSelected = true;
                     _engineViewmodel.ClearSelection();
                     if (e.Event.EventType == TEventType.Rundown)
-                        newVm.IsExpanded = true;
+                        vm.IsExpanded = true;
                 }
+                if (vm is EventPanelRundownElementViewmodelBase)
+                    NotifyPropertyChanged(nameof(EventPanelRundownElementViewmodelBase.IsInvalidInSchedule));
             });
         }
 
@@ -58,7 +71,7 @@ namespace TAS.Client.ViewModels
                         if (eventType == TEventType.Movie || eventType == TEventType.Rundown || eventType == TEventType.Live
                             || evm_vp.IsExpanded)
                         {
-                            if (e == _engineViewmodel.LastAddedEvent || _engineViewmodel.TrackPlayingEvent)
+                            if (e == _engineViewmodel.LastAddedEvent)
                             {
                                 evm_vp.IsExpanded = true;
                                 if (evm_vp.Find(e) == null) // find again after expand

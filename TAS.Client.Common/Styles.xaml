@@ -29,6 +29,8 @@
                 <Setter Property="Background" Value="#FFF05050"/>
             </DataTrigger>
         </Style.Triggers>
+        <Setter Property="FontSize" Value="9" />
+        <Setter Property="Text" Value="{Binding MediaFileName}"/>
     </Style>
     <Style TargetType="Image" x:Key="EventPanelImage" >
         <Style.Triggers>

@@ -566,10 +566,10 @@
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" MinHeight="50"/>
-                    <RowDefinition Height="Auto" MinHeight="50"/>
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <ContentControl Content="{Binding EventEditView}"/>
-                <GridSplitter Grid.Row="1" ResizeDirection="Rows" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="DarkGray" Height="3" Cursor="SizeNS"/>
+                <GridSplitter Visibility="{Binding PreviewView, Converter={StaticResource NullToVis}}" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="DarkGray" Height="3" Cursor="SizeNS"/>
                 <ContentControl Grid.Row="1" Margin="3, 3, 0, 0"  Content="{Binding PreviewView}"/>
             </Grid>
         </Grid>
