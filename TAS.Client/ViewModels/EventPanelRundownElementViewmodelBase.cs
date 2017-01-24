@@ -107,9 +107,14 @@ namespace TAS.Client.ViewModels
             };
             CommandAddAnimation = new UICommand()
             {
-                ExecuteDelegate = o => _engineViewmodel.AddMediaEvent(_event, TStartType.WithParent, TMediaType.Animation, VideoLayer.Animation, true)
+                ExecuteDelegate = o => _engineViewmodel.AddMediaEvent(_event, TStartType.WithParent, TMediaType.Animation, VideoLayer.Animation, true),
+                CanExecuteDelegate = o => _event.PlayState == TPlayState.Scheduled
             };
-            CommandAddCommandScript = new UICommand { ExecuteDelegate = o => _engineViewmodel.AddCommandScriptEvent(_event)};
+            CommandAddCommandScript = new UICommand
+            {
+                ExecuteDelegate = o => _engineViewmodel.AddCommandScriptEvent(_event),
+                CanExecuteDelegate = o => _event.PlayState == TPlayState.Scheduled
+            };
         }
 
         protected virtual bool canAddNextMovie(object o)
