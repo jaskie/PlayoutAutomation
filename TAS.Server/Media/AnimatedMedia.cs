@@ -17,7 +17,12 @@ namespace TAS.Server
             _fields.DictionaryOperation += _fields_DictionaryOperation;
             _mediaType = TMediaType.Animation;
         }
-        
+        protected override void DoDispose()
+        {
+            _fields.DictionaryOperation -= _fields_DictionaryOperation;
+            base.DoDispose();
+        }
+
         private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
         {
             IsModified = true;

@@ -16,9 +16,11 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using TAS.Remoting.Server;
+using TAS.Server.Database;
 
 namespace TAS.Server
 {
+    [DebuggerDisplay("{DirectoryName} ({_folder})")]
     public abstract class MediaDirectory : DtoBase, IMediaDirectory
     { 
         private FileSystemWatcher _watcher;
@@ -250,6 +252,20 @@ namespace TAS.Server
 
         public virtual void MediaAdd(Media media)
         {
+            Media prevMedia;
+            if (_files.TryGetValue(media.MediaGuid, out prevMedia))
+            {
+                if (prevMedia is IServerMedia || prevMedia is IAnimatedMedia)
+                {
+                    ThreadPool.QueueUserWorkItem(o =>
+                       {
+                           (prevMedia as IAnimatedMedia)?.DbDelete();
+                           (prevMedia as IServerMedia)?.DbDelete();
+                           Logger.Warn("Media {0} replaced in dictionary. Previous media deleted in database.", prevMedia);
+                       });
+                }
+                Debug.WriteLine(prevMedia, "Media replaced in dictionary");
+            }
             _files[media.MediaGuid] = media;
             media.PropertyChanged += _media_PropertyChanged;
             NotifyMediaAdded(media);

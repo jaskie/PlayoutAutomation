@@ -33,12 +33,9 @@ namespace TAS.Remoting.Server
             _serializer.ReferenceResolver = _referenceResolver;
             _serializer.TypeNameHandling = TypeNameHandling.Auto;
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting);
-//            _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
 #if DEBUG
             _serializer.Formatting = Formatting.Indented;
 #endif
-            //_converter = new ServerSerializationConverter();
-            //_serializer.Converters.Add(_converter);
         }
 
         private void _referenceResolver_ReferencePropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

@@ -16,6 +16,7 @@ using TAS.Remoting.Server;
 
 namespace TAS.Server
 {
+    [DebuggerDisplay("{_mediaName} ({_fileName})")]
     public abstract class Media : DtoBase, IMedia
     {
 
@@ -337,7 +338,7 @@ namespace TAS.Server
         
         public override string ToString()
         {
-            return string.Format("{0}:{1}", _directory.DirectoryName, MediaName);
+            return string.Format("{0}:{1}", _directory?.DirectoryName, MediaName);
         }
 
         public virtual bool FileExists()

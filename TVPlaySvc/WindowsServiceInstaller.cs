@@ -21,6 +21,7 @@ namespace DokMan.Svc
 
             processInstaller.Account = ServiceAccount.LocalSystem;
             serviceInstaller.StartType = ServiceStartMode.Automatic;
+            serviceInstaller.DelayedAutoStart = true;
             serviceInstaller.ServiceName = "TVPlaySvc";
             serviceInstaller.DisplayName = "TVPlay - application service";
             serviceInstaller.Description = "Controls play-out automation. Executes scheduled play-out servers commands, provides client access interface.";

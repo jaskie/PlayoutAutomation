@@ -60,6 +60,9 @@ namespace TAS.Client.ViewModels
             IAnimationDirectory animationDirectoryPRI = mediaManager.AnimationDirectoryPRI;
             if (animationDirectoryPRI != null)
                 _mediaDirectories.Insert(0, new MediaDirectoryViewmodel(animationDirectoryPRI));
+            IAnimationDirectory animationDirectorySEC = mediaManager.AnimationDirectorySEC;
+            if (animationDirectorySEC != null)
+                _mediaDirectories.Insert(0, new MediaDirectoryViewmodel(animationDirectorySEC));
 
             IServerDirectory serverDirectoryPRI = mediaManager.MediaDirectoryPRI;
             MediaDirectoryViewmodel serverDirectoryPRIVm = new MediaDirectoryViewmodel(serverDirectoryPRI);

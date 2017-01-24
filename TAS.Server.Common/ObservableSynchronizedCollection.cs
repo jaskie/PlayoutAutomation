@@ -10,6 +10,10 @@ namespace TAS.Server.Common
     public enum TCollectionOperation { Insert, Remove };
     public class ObservableSynchronizedCollection<T> : SynchronizedCollection<T> where T: INotifyPropertyChanged
     {
+        public ObservableSynchronizedCollection(): base() { }
+        public ObservableSynchronizedCollection(object syncRoot, IEnumerable<T> items) : base(syncRoot, items) { }
+
+
         protected override void InsertItem(int index, T item)
         {
             base.InsertItem(index, item);
@@ -70,7 +74,6 @@ namespace TAS.Server.Common
                     return false;
             }
         }
-
     }
 
     public class CollectionOperationEventArgs<T> : EventArgs

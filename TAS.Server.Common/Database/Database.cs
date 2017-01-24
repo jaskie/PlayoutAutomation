@@ -1307,7 +1307,9 @@ VALUES
         public static bool DbDelete(this IServerMedia serverMedia)
         {
             lock (_connection)
+            {
                 return _dbDelete(serverMedia);
+            }
         }
 
         public static bool DbDelete(this IAnimatedMedia animatedMedia)

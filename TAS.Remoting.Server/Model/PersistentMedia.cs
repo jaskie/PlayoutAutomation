@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,8 +14,10 @@ namespace TAS.Remoting.Model
         public TMediaEmphasis MediaEmphasis { get { return Get<TMediaEmphasis>(); } set { Set(value); } }
 
         public string IdAux { get { return Get<string>(); } set { Set(value); } }
-
-        public ObservableSynchronizedCollection<IMediaSegment> MediaSegments { get { return Get<ObservableSynchronizedCollection<IMediaSegment>>(); }  set { Set(value); }  }
+        [JsonProperty(nameof(IPersistentMedia.MediaSegments))]
+        private ObservableSynchronizedCollection<MediaSegment> _mediaSegments { get { return Get<ObservableSynchronizedCollection<MediaSegment>>(); }  set { SetLocalValue(value); } }
+        [JsonIgnore]
+        public ObservableSynchronizedCollection<IMediaSegment> MediaSegments { get { return new ObservableSynchronizedCollection<IMediaSegment>(new object(), _mediaSegments); } }
 
         public DateTime KillDate { get { return Get<DateTime>(); } set { Set(value); } }
 
