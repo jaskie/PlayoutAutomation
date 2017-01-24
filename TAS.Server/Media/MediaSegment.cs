@@ -6,30 +6,30 @@ using System.ComponentModel;
 using TAS.Server.Interfaces;
 using TAS.Remoting.Server;
 using TAS.Server.Database;
+using Newtonsoft.Json;
 
 namespace TAS.Server
 {
-    public class MediaSegment : DtoBase, IMediaSegment
+    public class MediaSegment : DtoBase, IMediaSegment, IPersistent
     {
-        public MediaSegment(Guid mediaGuid)
+        private UInt64 _id;
+        private readonly IMediaSegments _owner;
+
+        public MediaSegment(IMediaSegments owner)
         {
-            _mediaGuid = mediaGuid;
+            _owner = owner;
         }
 
-        public MediaSegment(Guid mediaGuid, UInt64 idMediaSegment)
-        {
-            _mediaGuid = mediaGuid;
-            _idMediaSegment = idMediaSegment;
-        }
+        public IMediaSegments Owner { get { return _owner; } }
 
-        internal UInt64 _idMediaSegment;
-
-        public UInt64 IdMediaSegment
+        public ulong Id
         {
-            get { return _idMediaSegment; }
+            get { return _id; }
+            set { _id = value; }
         }
         
         private string _segmentName;
+        [JsonProperty]
         public string SegmentName
         {
             get { return _segmentName; }
@@ -37,6 +37,7 @@ namespace TAS.Server
         }
 
         private TimeSpan _tcIn;
+        [JsonProperty]
         public TimeSpan TcIn
         {
             get { return _tcIn; }
@@ -44,27 +45,23 @@ namespace TAS.Server
         }
 
         private TimeSpan _tcOut;
+        [JsonProperty]
         public TimeSpan TcOut
         {
             get { return _tcOut; }
             set { SetField(ref _tcOut, value, nameof(TcOut)); }
         }
 
-        protected readonly Guid _mediaGuid;
-        public Guid MediaGuid
-        {
-            get { return _mediaGuid; }
-        }
-
-
         public void Save()
         {
-            _idMediaSegment = this.DbSave();
+            _id = this.DbSave();
         }
 
         public void Delete()
         {
-            this.DbDelete();
+            if (_owner.Remove(this))
+                this.DbDelete();
+
         }
 
     }

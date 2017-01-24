@@ -1469,60 +1469,49 @@ WHERE idArchiveMedia=@idArchiveMedia;";
         #endregion // Media
 
         #region MediaSegment
-        private static System.Collections.Hashtable _mediaSegments;
+        private static System.Collections.Hashtable _mediaSegments = new System.Collections.Hashtable();
         private static System.Reflection.ConstructorInfo _mediaSegmentsConstructorInfo;
 
-        public static ObservableSynchronizedCollection<IMediaSegment> DbMediaSegmentsRead<T>(this IPersistentMedia media) where T: IMediaSegment
+        public static T DbMediaSegmentsRead<T>(this IPersistentMedia media) where T : IMediaSegments 
         {
             lock (_connection)
             {
                 if (_mediaSegmentsConstructorInfo == null)
-                    _mediaSegmentsConstructorInfo = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(UInt64)});
+                    _mediaSegmentsConstructorInfo = typeof(T).GetConstructor(new[] { typeof(Guid) });
 
                 Guid mediaGuid = media.MediaGuid;
-                ObservableSynchronizedCollection<IMediaSegment> segments = null;
-                IMediaSegment newMediaSegment;
                 DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM MediaSegments where MediaGuid = @MediaGuid;", _connection);
                 cmd.Parameters.AddWithValue("@MediaGuid", mediaGuid);
-                if (_mediaSegments == null)
-                    _mediaSegments = new System.Collections.Hashtable();
-                segments = (ObservableSynchronizedCollection<IMediaSegment>)_mediaSegments[mediaGuid];
-                if (segments == null)
+                IMediaSegments segments = _mediaSegments[mediaGuid] as IMediaSegments
+                                ?? (IMediaSegments)_mediaSegmentsConstructorInfo.Invoke(new object[] { mediaGuid });
+                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                 {
-                    segments = new ObservableSynchronizedCollection<IMediaSegment>();
-                    using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                    while (dataReader.Read())
                     {
-                        while (dataReader.Read())
-                        {
-                            newMediaSegment = (T)_mediaSegmentsConstructorInfo.Invoke(new object[] { mediaGuid, dataReader.GetUInt64("idMediaSegment") });
-                            newMediaSegment.SegmentName = (dataReader.IsDBNull(dataReader.GetOrdinal("SegmentName")) ? string.Empty : dataReader.GetString("SegmentName"));
-                            newMediaSegment.TcIn = dataReader.IsDBNull(dataReader.GetOrdinal("TCIn")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCIn");
-                            newMediaSegment.TcOut = dataReader.IsDBNull(dataReader.GetOrdinal("TCOut")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCOut");
-                            segments.Add(newMediaSegment);
-                        }
-                        dataReader.Close();
+                        var newSegment = segments.Add(
+                            dataReader.IsDBNull(dataReader.GetOrdinal("TCIn")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCIn"),
+                            dataReader.IsDBNull(dataReader.GetOrdinal("TCOut")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCOut"),
+                            dataReader.IsDBNull(dataReader.GetOrdinal("SegmentName")) ? string.Empty : dataReader.GetString("SegmentName")
+                            );
+                        (newSegment as IPersistent).Id = dataReader.GetUInt64("idMediaSegment");
                     }
-                    _mediaSegments.Add(mediaGuid, segments);
+                    dataReader.Close();
                 }
-                return segments;
+                _mediaSegments.Add(mediaGuid, segments);
+                return (T)segments;
             }
         }
 
         public static void DbDelete(this IMediaSegment mediaSegment)
         {
-            if (mediaSegment.IdMediaSegment != 0)
+            var ps = mediaSegment as IPersistent;
+            if (ps != null && ps.Id!= 0)
             {
-                var segments = (ObservableSynchronizedCollection<IMediaSegment>)_mediaSegments[mediaSegment.MediaGuid];
-                if (segments != null)
-                {
-                    segments.Remove(mediaSegment);
-                }
                 lock (_connection)
                 {
-
                     string query = "DELETE FROM mediasegments WHERE idMediaSegment=@idMediaSegment;";
                     DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                    cmd.Parameters.AddWithValue("@idMediaSegment", mediaSegment.IdMediaSegment);
+                    cmd.Parameters.AddWithValue("@idMediaSegment", ps.Id);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -1531,17 +1520,18 @@ WHERE idArchiveMedia=@idArchiveMedia;";
 
         public static UInt64 DbSave(this IMediaSegment mediaSegment)
         {
+            var ps = mediaSegment as IPersistent;
             lock (_connection)
             {
                 DbCommandRedundant command;
-                if (mediaSegment.IdMediaSegment == 0)
+                if (ps.Id == 0)
                     command = new DbCommandRedundant("INSERT INTO mediasegments (MediaGuid, TCIn, TCOut, SegmentName) VALUES (@MediaGuid, @TCIn, @TCOut, @SegmentName);", _connection);
                 else
                 {
                     command = new DbCommandRedundant("UPDATE mediasegments SET TCIn = @TCIn, TCOut = @TCOut, SegmentName = @SegmentName WHERE idMediaSegment=@idMediaSegment AND MediaGuid = @MediaGuid;", _connection);
-                    command.Parameters.AddWithValue("@idMediaSegment", mediaSegment.IdMediaSegment);
+                    command.Parameters.AddWithValue("@idMediaSegment", ps.Id);
                 }
-                command.Parameters.AddWithValue("@MediaGuid", mediaSegment.MediaGuid);
+                command.Parameters.AddWithValue("@MediaGuid", mediaSegment.Owner.MediaGuid);
                 command.Parameters.AddWithValue("@TCIn", mediaSegment.TcIn);
                 command.Parameters.AddWithValue("@TCOut", mediaSegment.TcOut);
                 command.Parameters.AddWithValue("@SegmentName", mediaSegment.SegmentName);

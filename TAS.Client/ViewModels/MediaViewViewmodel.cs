@@ -21,20 +21,25 @@ namespace TAS.Client.ViewModels
         public MediaViewViewmodel(IMedia media)
         {
             Media = media;
-            Media.PropertyChanged += OnMediaPropertyChanged;
-            if (Media is IPersistentMedia)
+            media.PropertyChanged += OnMediaPropertyChanged;
+            IPersistentMedia pm = media as IPersistentMedia;
+            if (pm != null)
             {
-                (Media as IPersistentMedia).MediaSegments.CollectionOperation += _mediaSegmentsCollectionOperation;
-                foreach (IMediaSegment ms in (Media as IPersistentMedia).MediaSegments)
-                    _mediaSegments.Add(new MediaSegmentViewmodel((Media as IPersistentMedia), ms));
+                _mediaSegments = new ObservableCollection<MediaSegmentViewmodel>(pm.MediaSegments.Segments.Select(ms => new MediaSegmentViewmodel(pm, ms)));
+                pm.MediaSegments.SegmentAdded += MediaSegments_SegmentAdded;
+                pm.MediaSegments.SegmentRemoved += _mediaSegments_SegmentRemoved;
             }
         }
 
         protected override void OnDispose()
         {
             Media.PropertyChanged -= OnMediaPropertyChanged;
-            if (_mediaSegments != null && Media is IPersistentMedia)
-                (Media as IPersistentMedia).MediaSegments.CollectionOperation -= _mediaSegmentsCollectionOperation;
+            var pm = Media as IPersistentMedia;
+            if (pm != null)
+            {
+                pm.MediaSegments.SegmentAdded -= MediaSegments_SegmentAdded;
+                pm.MediaSegments.SegmentRemoved -= _mediaSegments_SegmentRemoved;
+            }
         }
 
 #if DEBUG
@@ -47,6 +52,28 @@ namespace TAS.Client.ViewModels
         }
 #endif
 
+        private void _mediaSegments_SegmentRemoved(object sender, MediaSegmentEventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            {
+                var segment = _mediaSegments.FirstOrDefault(ms => ms.MediaSegment == e.Segment);
+                if (segment != null)
+                    _mediaSegments.Remove(segment);
+                NotifyPropertyChanged(nameof(HasSegments));
+                if ((Media is IPersistentMedia) && (Media as IPersistentMedia).MediaSegments.Count == 0)
+                    IsExpanded = false;
+            }));
+        }
+
+        private void MediaSegments_SegmentAdded(object sender, MediaSegmentEventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            {
+                _mediaSegments.Add(new MediaSegmentViewmodel((Media as IPersistentMedia), e.Segment));
+                NotifyPropertyChanged(nameof(HasSegments));
+            }));
+        }
+        
         public string MediaName { get { return Media.MediaName; } }
         public string FileName { get { return Media.FileName; } }
         public string Folder { get { return Media.Folder; } }
@@ -86,27 +113,9 @@ namespace TAS.Client.ViewModels
         }
         public bool IsVerified { get { return Media.IsVerified; } }
 
-        private ObservableCollection<MediaSegmentViewmodel> _mediaSegments = new ObservableCollection<MediaSegmentViewmodel>();
+        private readonly ObservableCollection<MediaSegmentViewmodel> _mediaSegments;
 
         public ObservableCollection<MediaSegmentViewmodel> MediaSegments { get { return _mediaSegments; } }
-
-        private void _mediaSegmentsCollectionOperation(object o, CollectionOperationEventArgs<IMediaSegment> e)
-        {
-            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    if (e.Operation == TCollectionOperation.Insert)
-                        _mediaSegments.Add(new MediaSegmentViewmodel((Media as IPersistentMedia), e.Item));
-                    if (e.Operation == TCollectionOperation.Remove)
-                    {
-                        var segment = _mediaSegments.FirstOrDefault(ms => ms.MediaSegment == e.Item);
-                        if (segment != null)
-                            _mediaSegments.Remove(segment);
-                    }
-                    NotifyPropertyChanged(nameof(HasSegments));
-                    if ((Media is IPersistentMedia) && (Media as IPersistentMedia).MediaSegments.Count == 0)
-                        IsExpanded = false;
-                }));
-        }
 
         private MediaSegmentViewmodel _selectedSegment;
         public MediaSegmentViewmodel SelectedSegment

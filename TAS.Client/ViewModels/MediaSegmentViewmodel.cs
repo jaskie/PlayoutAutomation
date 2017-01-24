@@ -24,7 +24,10 @@ namespace TAS.Client.ViewModels
             Load();
         }
 
-        public MediaSegmentViewmodel(IPersistentMedia media) : this(media, media.CreateSegment()) { }
+        public MediaSegmentViewmodel(TimeSpan tcIn, TimeSpan tcOut, string segmentName)
+        {
+            _media.MediaSegments.Add(tcIn, tcOut, segmentName);
+        }
 
         protected override void OnDispose()
         {
@@ -138,13 +141,7 @@ namespace TAS.Client.ViewModels
                 mediaSegment.Save();
             }
         }
-
-        public void Delete()
-        {
-            if (_mediaSegment != null)
-                _mediaSegment.Delete();
-        }
-
+        
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {

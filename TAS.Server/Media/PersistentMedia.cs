@@ -55,22 +55,16 @@ namespace TAS.Server
             get { return _protected; }
             set { SetField(ref _protected, value, nameof(Protected)); }
         }
-
-        private ObservableSynchronizedCollection<IMediaSegment> _mediaSegments;
+        private MediaSegments _mediaSegments;
         [JsonProperty]
-        public ObservableSynchronizedCollection<IMediaSegment> MediaSegments
+        public IMediaSegments MediaSegments
         {
             get
             {
                 if (_mediaSegments == null)
-                    _mediaSegments = this.DbMediaSegmentsRead<MediaSegment>();
+                    _mediaSegments = this.DbMediaSegmentsRead<MediaSegments>();
                 return _mediaSegments;
             }
-        }
-
-        public IMediaSegment CreateSegment()
-        {
-            return new MediaSegment(this.MediaGuid);
         }
 
         public override void CloneMediaProperties(IMediaProperties fromMedia)

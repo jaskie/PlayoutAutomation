@@ -34,6 +34,8 @@ namespace TAS.Remoting
                     return typeof(Model.FileManager);
                 case "TAS.Server.MediaSegment":
                     return typeof(Model.MediaSegment);
+                case "TAS.Server.MediaSegments":
+                    return typeof(Model.MediaSegments);
                 case "TAS.Server.ConvertOperation":
                     return typeof(Model.ConvertOperation);
                 case "TAS.Server.FileOperation":

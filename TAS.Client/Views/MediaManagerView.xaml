@@ -247,7 +247,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="10" x:Name="isIngesteddColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsIngestOrArchiveDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                <DataGridTemplateColumn Width="10" x:Name="isIngestedColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsIngestOrArchiveDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Image ToolTip="{Binding IngestStatus}">
@@ -306,11 +306,6 @@
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                                 <GridViewColumn Width="{Binding ElementName=isArchivedColumn, Path=ActualWidth}" >
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate />
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Width="{Binding ElementName=isIngestedColumn, Path=ActualWidth}" >
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate />
                                     </GridViewColumn.CellTemplate>

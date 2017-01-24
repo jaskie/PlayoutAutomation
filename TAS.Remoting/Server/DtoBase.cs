@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 
 namespace TAS.Remoting.Server
 {
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.Objects, IsReference = true, MemberSerialization = MemberSerialization.OptIn)]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.Objects, IsReference = true, ItemIsReference = true, MemberSerialization = MemberSerialization.OptIn)]
     public abstract class DtoBase: IDto, INotifyPropertyChanged
     {
         [XmlIgnore]

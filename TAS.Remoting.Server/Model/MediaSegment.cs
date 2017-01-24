@@ -10,11 +10,10 @@ namespace TAS.Remoting.Model
 {
     public class MediaSegment : ProxyBase, IMediaSegment
     {
-        public UInt64 IdMediaSegment { get { return Get<UInt64>(); } set { Set(value); } }
-        public Guid MediaGuid { get { return Get<Guid>(); }  set { Set(value); } }
         public string SegmentName { get { return Get<string>(); } set { Set(value); } }
         public TimeSpan TcIn { get { return Get<TimeSpan>(); } set { Set(value); } }
         public TimeSpan TcOut { get { return Get<TimeSpan>(); } set { Set(value); } }
+        public IMediaSegments Owner { get { return Get<MediaSegments>(); } set { SetLocalValue(value); } }
 
         public void Delete()
         {

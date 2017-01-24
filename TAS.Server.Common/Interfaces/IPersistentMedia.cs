@@ -9,8 +9,7 @@ namespace TAS.Server.Interfaces
 {
     public interface IPersistentMedia: IMedia, IPersistentMediaProperties
     {
-        ObservableSynchronizedCollection<IMediaSegment> MediaSegments { get; }
-        IMediaSegment CreateSegment();
+        IMediaSegments MediaSegments { get; }
         bool IsModified { get; set; }
         bool Save();
     }

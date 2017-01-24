@@ -14,10 +14,6 @@ namespace TAS.Remoting.Model
         public TMediaEmphasis MediaEmphasis { get { return Get<TMediaEmphasis>(); } set { Set(value); } }
 
         public string IdAux { get { return Get<string>(); } set { Set(value); } }
-        [JsonProperty(nameof(IPersistentMedia.MediaSegments))]
-        private ObservableSynchronizedCollection<MediaSegment> _mediaSegments { get { return Get<ObservableSynchronizedCollection<MediaSegment>>(); }  set { SetLocalValue(value); } }
-        [JsonIgnore]
-        public ObservableSynchronizedCollection<IMediaSegment> MediaSegments { get { return new ObservableSynchronizedCollection<IMediaSegment>(new object(), _mediaSegments); } }
 
         public DateTime KillDate { get { return Get<DateTime>(); } set { Set(value); } }
 
@@ -29,10 +25,10 @@ namespace TAS.Remoting.Model
 
         public bool Protected { get { return Get<bool>(); } set { Set(value); } }
 
-        public IMediaSegment CreateSegment()
-        {
-            return Query<IMediaSegment>();
-        }
+        [JsonProperty(nameof(IPersistentMedia.MediaSegments))]
+        private MediaSegments _mediaSegments { get { return Get<MediaSegments>(); } set { SetLocalValue(value); } }
+        [JsonIgnore]
+        public IMediaSegments MediaSegments { get { return _mediaSegments; } }
 
         public bool Save()
         {

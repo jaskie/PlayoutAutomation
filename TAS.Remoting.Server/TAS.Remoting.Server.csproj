@@ -75,6 +75,7 @@
     <Compile Include="Model\MediaDirectory.cs" />
     <Compile Include="Model\MediaManager.cs" />
     <Compile Include="Model\MediaSegment.cs" />
+    <Compile Include="Model\MediaSegments.cs" />
     <Compile Include="Model\PersistentMedia.cs" />
     <Compile Include="Model\PlayoutServer.cs" />
     <Compile Include="Model\PlayoutServerChannel.cs" />

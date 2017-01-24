@@ -97,6 +97,7 @@
     <Compile Include="Media\MediaChecker.cs" />
     <Compile Include="Media\MediaDirectory.cs" />
     <Compile Include="Media\MediaSegment.cs" />
+    <Compile Include="Media\MediaSegments.cs" />
     <Compile Include="Media\PersistentMedia.cs" />
     <Compile Include="Media\PInvokeWindowsNetworking.cs" />
     <Compile Include="Media\ServerDirectory.cs" />
