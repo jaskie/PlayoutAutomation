@@ -44,7 +44,7 @@ namespace TAS.Remoting.Client
 
         private void _findPropertyName(ref string propertyName)
         {
-            var property = this.GetType().GetProperty(propertyName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var property = this.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.NonPublic);
             if (property != null)
             {
                 var attributes = property.GetCustomAttributes(typeof(JsonPropertyAttribute), true);

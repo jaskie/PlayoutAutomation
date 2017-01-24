@@ -21,7 +21,7 @@ namespace TAS.Server
     [DebuggerDisplay("{_eventName}")]
     public class Event : DtoBase, IEventPesistent, IComparable
     {
-
+        #region Constructor
         internal Event(
                     Engine engine,
                     UInt64 idRundownEvent,
@@ -123,6 +123,7 @@ namespace TAS.Server
                 return null;
             });
         }
+        #endregion //Constructor
 
 #if DEBUG
         ~Event()

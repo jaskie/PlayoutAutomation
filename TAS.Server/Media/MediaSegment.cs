@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace TAS.Server
 {
-    public class MediaSegment : DtoBase, IMediaSegment, IPersistent
+    public class MediaSegment : DtoBase, IMediaSegment, IMediaSegmentPersistent
     {
         private UInt64 _id;
         private readonly IMediaSegments _owner;

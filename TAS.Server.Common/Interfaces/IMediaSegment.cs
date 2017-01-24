@@ -13,6 +13,11 @@ namespace TAS.Server.Interfaces
         TimeSpan TcOut { get; set; }
         void Save();
         void Delete();
+        
+    }
+    public interface IMediaSegmentPersistent : IPersistent
+    {
         IMediaSegments Owner { get; }
     }
+
 }

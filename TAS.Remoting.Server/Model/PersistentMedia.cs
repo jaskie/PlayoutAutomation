@@ -25,10 +25,7 @@ namespace TAS.Remoting.Model
 
         public bool Protected { get { return Get<bool>(); } set { Set(value); } }
 
-        [JsonProperty(nameof(IPersistentMedia.MediaSegments))]
-        private MediaSegments _mediaSegments { get { return Get<MediaSegments>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
-        public IMediaSegments MediaSegments { get { return _mediaSegments; } }
+        public IMediaSegments MediaSegments { get { return Get<MediaSegments>(); } set { SetLocalValue(value); } }
 
         public bool Save()
         {

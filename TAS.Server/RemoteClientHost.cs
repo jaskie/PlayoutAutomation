@@ -16,8 +16,6 @@ namespace TAS.Server
     {
         [XmlAttribute]
         public ushort ListenPort { get; set; }
-        [XmlIgnore]
-        public Engine Engine { get; private set; }
         WebSocketServer _server;
         static SerializationBinder ServerBinder = new ServerSerializationBinder();
         public bool Initialize(Engine engine)
@@ -44,21 +42,18 @@ namespace TAS.Server
             if (!disposed)
             {
                 _disposed = true;
-                _server.Stop();
+                _server?.Stop();
             }
         }
 
         public void Dispose()
         {
-            lock (_server)
-            {
-                _doDispose(_disposed);
-            }
+            _doDispose(_disposed);
         }
 
-        internal void UnInitialize(Server.Engine engine)
+        internal void UnInitialize()
         {
-            _server.Stop();
+            _server?.Stop();
         }
     }
 }

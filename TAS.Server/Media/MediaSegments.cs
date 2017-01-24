@@ -4,11 +4,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TAS.Remoting.Server;
 using TAS.Server.Interfaces;
 
 namespace TAS.Server
 {
-    public class MediaSegments : Remoting.Server.DtoBase, Interfaces.IMediaSegments
+    public class MediaSegments : DtoBase, IMediaSegments
     {
         private readonly Guid _mediaGuid;
         private readonly ConcurrentDictionary<Guid, IMediaSegment> _segments;
@@ -37,10 +38,6 @@ namespace TAS.Server
 
         public event EventHandler<MediaSegmentEventArgs> SegmentAdded;
         public event EventHandler<MediaSegmentEventArgs> SegmentRemoved;
-
-        public void Add(IMediaSegment segment)
-        {
-        }
 
         public bool Remove(IMediaSegment segment)
         {

@@ -12,16 +12,61 @@ namespace TAS.Remoting.Model
     public class MediaSegments : ProxyBase, IMediaSegments
     {
         public int Count { get { return Get<int>(); } set { SetLocalValue(value); } }
-        
+
         public Guid MediaGuid { get { return Get<Guid>(); } set { SetLocalValue(value); } }
 
         [JsonProperty(nameof(IMediaSegments.Segments))]
-        private List<MediaSegment> _segments { get { return Get<List<MediaSegment>>(); }  set { SetLocalValue(value); } }
+        private List<MediaSegment> _segments { get { return Get<List<MediaSegment>>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
         public IEnumerable<IMediaSegment> Segments { get { return _segments; } }
 
-        public event EventHandler<MediaSegmentEventArgs> SegmentAdded;
-        public event EventHandler<MediaSegmentEventArgs> SegmentRemoved;
+        #region Event handling 
+        private event EventHandler<MediaSegmentEventArgs> _segmentAdded;
+        public event EventHandler<MediaSegmentEventArgs> SegmentAdded
+        {
+            add
+            {
+                EventAdd(_segmentAdded);
+                _segmentAdded += value;
+            }
+            remove
+            {
+                _segmentAdded -= value;
+                EventRemove(_segmentAdded);
+            }
+        }
+
+
+        private event EventHandler<MediaSegmentEventArgs> _segmentRemoved;
+        public event EventHandler<MediaSegmentEventArgs> SegmentRemoved
+        {
+            add
+
+            {
+                EventAdd(_segmentRemoved);
+                _segmentRemoved += value;
+            }
+            remove
+            {
+                _segmentRemoved -= value;
+                EventRemove(_segmentRemoved);
+            }
+        }
+
+        protected override void OnEventNotification(WebSocketMessage e)
+        {
+            switch (e.MemberName)
+            {
+                case nameof(IMediaSegments.SegmentAdded):
+                    _segmentAdded?.Invoke(this, ConvertEventArgs<MediaSegmentEventArgs>(e));
+                    break;
+                case nameof(IMediaSegments.SegmentRemoved):
+                    _segmentRemoved?.Invoke(this, ConvertEventArgs<MediaSegmentEventArgs>(e));
+                    break;
+            }
+        }
+
+        #endregion //Event handling
 
         public IMediaSegment Add(TimeSpan tcIn, TimeSpan tcOut, string segmentName)
         {
@@ -33,9 +78,5 @@ namespace TAS.Remoting.Model
             return Query<bool>(parameters: segment);
         }
 
-        protected override void OnEventNotification(WebSocketMessage e)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

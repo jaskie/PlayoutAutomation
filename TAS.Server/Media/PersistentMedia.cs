@@ -16,7 +16,11 @@ namespace TAS.Server
 {
     public abstract class PersistentMedia: Media, IPersistentMedia
     {
-        internal PersistentMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid) { IdPersistentMedia = idPersistentMedia; }
+        internal PersistentMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid)
+        {
+            IdPersistentMedia = idPersistentMedia;
+            _mediaSegments = new Lazy<MediaSegments>(() => this.DbMediaSegmentsRead<MediaSegments>());
+        }
         public UInt64 IdPersistentMedia { get; set; }
 
         // media properties
@@ -55,15 +59,12 @@ namespace TAS.Server
             get { return _protected; }
             set { SetField(ref _protected, value, nameof(Protected)); }
         }
-        private MediaSegments _mediaSegments;
-        [JsonProperty]
+        private readonly Lazy<MediaSegments> _mediaSegments;
         public IMediaSegments MediaSegments
         {
             get
             {
-                if (_mediaSegments == null)
-                    _mediaSegments = this.DbMediaSegmentsRead<MediaSegments>();
-                return _mediaSegments;
+                return _mediaSegments.Value;
             }
         }
 

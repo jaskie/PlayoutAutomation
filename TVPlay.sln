@@ -51,6 +51,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client", "TAS.Client\TAS.Client.csproj", "{F6E01E47-5075-42A7-B2A2-BC35BC074F9F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPlayClient", "TVPlayClient\TVPlayClient.csproj", "{881311DB-0898-4B7B-BB33-E9F16359195A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{29E2FF1E-7E0D-4CF6-B66A-3A116EB8209F} = {29E2FF1E-7E0D-4CF6-B66A-3A116EB8209F}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Remoting", "TAS.Remoting\TAS.Remoting.csproj", "{15324B69-7D18-49F3-9141-B024079356E8}"
 EndProject

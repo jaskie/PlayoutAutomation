@@ -13,7 +13,6 @@ namespace TAS.Remoting.Model
         public string SegmentName { get { return Get<string>(); } set { Set(value); } }
         public TimeSpan TcIn { get { return Get<TimeSpan>(); } set { Set(value); } }
         public TimeSpan TcOut { get { return Get<TimeSpan>(); } set { Set(value); } }
-        public IMediaSegments Owner { get { return Get<MediaSegments>(); } set { SetLocalValue(value); } }
 
         public void Delete()
         {

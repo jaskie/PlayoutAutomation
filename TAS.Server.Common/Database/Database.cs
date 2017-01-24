@@ -1469,8 +1469,20 @@ WHERE idArchiveMedia=@idArchiveMedia;";
         #endregion // Media
 
         #region MediaSegment
-        private static System.Collections.Hashtable _mediaSegments = new System.Collections.Hashtable();
+        private static System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference> _mediaSegments = new System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference>();
         private static System.Reflection.ConstructorInfo _mediaSegmentsConstructorInfo;
+        private static IMediaSegments _findInDictionary(Guid mediaGuid)
+        {
+            WeakReference existingRef;
+            if (_mediaSegments.TryGetValue(mediaGuid, out existingRef))
+            {
+                if (existingRef.IsAlive)
+                    return (IMediaSegments)existingRef.Target;
+                else
+                    _mediaSegments.TryRemove(mediaGuid, out existingRef);
+            }
+            return null;
+        }
 
         public static T DbMediaSegmentsRead<T>(this IPersistentMedia media) where T : IMediaSegments 
         {
@@ -1482,8 +1494,12 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                 Guid mediaGuid = media.MediaGuid;
                 DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM MediaSegments where MediaGuid = @MediaGuid;", _connection);
                 cmd.Parameters.AddWithValue("@MediaGuid", mediaGuid);
-                IMediaSegments segments = _mediaSegments[mediaGuid] as IMediaSegments
-                                ?? (IMediaSegments)_mediaSegmentsConstructorInfo.Invoke(new object[] { mediaGuid });
+                IMediaSegments segments = _findInDictionary(mediaGuid);
+                if (segments == null)
+                {
+                    segments = (IMediaSegments)_mediaSegmentsConstructorInfo.Invoke(new object[] { mediaGuid });
+                    _mediaSegments.TryAdd(mediaGuid, new WeakReference(segments));
+                }
                 using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
@@ -1497,7 +1513,6 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                     }
                     dataReader.Close();
                 }
-                _mediaSegments.Add(mediaGuid, segments);
                 return (T)segments;
             }
         }
@@ -1520,7 +1535,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
 
         public static UInt64 DbSave(this IMediaSegment mediaSegment)
         {
-            var ps = mediaSegment as IPersistent;
+            var ps = mediaSegment as IMediaSegmentPersistent;
             lock (_connection)
             {
                 DbCommandRedundant command;
@@ -1531,7 +1546,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                     command = new DbCommandRedundant("UPDATE mediasegments SET TCIn = @TCIn, TCOut = @TCOut, SegmentName = @SegmentName WHERE idMediaSegment=@idMediaSegment AND MediaGuid = @MediaGuid;", _connection);
                     command.Parameters.AddWithValue("@idMediaSegment", ps.Id);
                 }
-                command.Parameters.AddWithValue("@MediaGuid", mediaSegment.Owner.MediaGuid);
+                command.Parameters.AddWithValue("@MediaGuid", ps.Owner.MediaGuid);
                 command.Parameters.AddWithValue("@TCIn", mediaSegment.TcIn);
                 command.Parameters.AddWithValue("@TCOut", mediaSegment.TcOut);
                 command.Parameters.AddWithValue("@SegmentName", mediaSegment.SegmentName);
