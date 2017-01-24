@@ -422,7 +422,9 @@
                         </controls:SearchTextBox>
                         <TextBlock Text="{Resx _search.NotFound}" Visibility="{Binding IsSearchNotFound, Converter={StaticResource BoolToVis}}" Foreground="{DynamicResource {x:Static SystemColors.InactiveCaptionBrushKey}}" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Button Style="{StaticResource ClearButton}" HorizontalAlignment="Right" Margin="2, 0" Command="{Binding CommandSearchHidePanel}" IsCancel="True" ToolTip="{Resx _search.Close.ToolTip}"/>
+                    <Button Style="{StaticResource ClearButton}" HorizontalAlignment="Right" Margin="2, 0" Command="{Binding CommandSearchHidePanel}" IsCancel="True" ToolTip="{Resx _search.Close.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
+                    </Button>
                 </Grid>
                 <TreeView common:TreeViewExtensions.EnableMultiSelect="True" 
                       common:TreeViewExtensions.MultiSelectedItems="{Binding MultiSelectedEvents}" 

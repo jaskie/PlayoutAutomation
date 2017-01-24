@@ -331,7 +331,7 @@ namespace TAS.Server
                     Logger.Error($"{e}");
                 }
                 QueryUnbiasedInterruptTime(out currentUnbiasedTime);
-                int waitTime = (int)((frameUnbiasedTime - currentUnbiasedTime + previousUnbiasedTime + 5000) / 10000);
+                int waitTime = (int)((frameUnbiasedTime - currentUnbiasedTime + previousUnbiasedTime + 10000) / 10000);
                 if (waitTime > 0)
                     Thread.Sleep(waitTime);
 #if DEBUG
