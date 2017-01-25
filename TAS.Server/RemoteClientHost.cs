@@ -18,6 +18,7 @@ namespace TAS.Server
         public ushort ListenPort { get; set; }
         WebSocketServer _server;
         static SerializationBinder ServerBinder = new ServerSerializationBinder();
+        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(RemoteClientHost));
         public bool Initialize(Engine engine)
         {
             if (ListenPort < 1024)
@@ -32,6 +33,7 @@ namespace TAS.Server
             catch(Exception e)
             {
                 Debug.WriteLine(e, "Initialization of RemoteClientHost error");
+                Logger.Error(e, "Initialization of RemoteClientHost error");
             }
             return false;
         }

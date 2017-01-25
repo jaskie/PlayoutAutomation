@@ -171,7 +171,7 @@ namespace TAS.Remoting.Server
         {
             message.ConvertToResponse(response);
             var serialized = _serialize(message);
-            Debug.WriteLine(serialized);
+            //Debug.WriteLine(serialized);
             Send(serialized);
         }
 

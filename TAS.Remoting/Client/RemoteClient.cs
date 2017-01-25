@@ -79,7 +79,7 @@ namespace TAS.Remoting.Client
 
         private void _clientSocket_OnMessage(object sender, MessageEventArgs e)
         {
-            Debug.WriteLine(e.Data);
+            //Debug.WriteLine(e.Data);
             WebSocketMessage message;
             using (StringReader stringReader = new StringReader(e.Data))
             using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
@@ -133,7 +133,7 @@ namespace TAS.Remoting.Client
 
         private T _send<T>(WebSocketMessage query)
         {
-            if (_clientSocket.IsAlive)
+            if (_clientSocket.ReadyState == WebSocketState.Open)
             {
                 _clientSocket.Send(Serialize(query));
                 return MethodParametersAlignment.AlignType<T>(WaitForResponse(query).Response);
@@ -189,8 +189,8 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            if (_clientSocket.IsAlive)
-                _clientSocket.Send(Serialize(query));
+            if (_clientSocket.ReadyState == WebSocketState.Open)
+                _clientSocket.SendAsync(Serialize(query), null);
         }
 
         public void Set(ProxyBase dto, object value, string propertyName)
@@ -205,7 +205,7 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            if (_clientSocket.IsAlive)
+            if (_clientSocket.ReadyState == WebSocketState.Open)
                 _clientSocket.Send(Serialize(query));
         }
 
@@ -220,8 +220,8 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            if (_clientSocket.IsAlive)
-                _clientSocket.Send(Serialize(query));
+            if (_clientSocket.ReadyState == WebSocketState.Open)
+                _clientSocket.SendAsync(Serialize(query), null);
         }
 
         public void EventRemove(ProxyBase dto, string eventName)
@@ -235,8 +235,8 @@ namespace TAS.Remoting.Client
                 DtoName = dto.ToString()
 #endif
             };
-            if (_clientSocket.IsAlive)
-                _clientSocket.Send(Serialize(query));
+            if (_clientSocket.ReadyState == WebSocketState.Open)
+                _clientSocket.SendAsync(Serialize(query), null);
         }
 
         private bool _disposed = false;
