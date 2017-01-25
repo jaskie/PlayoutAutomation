@@ -237,9 +237,11 @@ namespace TAS.Client.ViewModels
 
         void _mediaUnload()
         {
-            LoadedMedia = null;
-            TcIn = TimeSpan.Zero;
-            TcOut = TimeSpan.Zero;
+            _tcIn = TimeSpan.Zero;
+            _tcOut = TimeSpan.Zero;
+            _loadedSeek = 0;
+            _preview.PreviewUnload();
+            _loadedMedia = null;
             _preview.PreviewUnload();
             NotifyPropertyChanged(null);
         }
