@@ -235,11 +235,15 @@ namespace TAS.Client.ViewModels
         private void _onPreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (_previewVm.LoadedMedia == Model
-                && (e.PropertyName == nameof(PreviewViewmodel.TcIn) || e.PropertyName == nameof(PreviewViewmodel.TcOut))
-                && _previewVm.SelectedSegment == null )
+                && _previewVm.SelectedSegment == null)
             {
-                TcPlay = _previewVm.TcIn;
-                DurationPlay = _previewVm.DurationSelection;
+                if (e.PropertyName == nameof(PreviewViewmodel.TcIn))
+                {
+                    TcPlay = _previewVm.TcIn;
+                    DurationPlay = _previewVm.DurationSelection;
+                }
+                if (e.PropertyName == nameof(PreviewViewmodel.TcOut))
+                    DurationPlay = _previewVm.DurationSelection;
             }
         }
 

@@ -110,7 +110,7 @@ namespace TAS.Client.ViewModels
             private set
             {
                 var pm = _loadedMedia as IPersistentMedia;
-                if (SetField(ref _loadedMedia, value, nameof(LoadedMedia)))
+                if (_loadedMedia != value)
                 {
                     if (pm != null)
                     {

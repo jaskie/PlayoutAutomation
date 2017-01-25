@@ -323,10 +323,6 @@
       <Project>{bccaca68-8bb6-4d9c-b546-795a2a8dee93}</Project>
       <Name>TAS.Client.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TAS.Client.Config\TAS.Client.Config.csproj">
-      <Project>{86071de4-1a5d-4889-b54a-08da101b2b51}</Project>
-      <Name>TAS.Client.Config</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
       <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
       <Name>TAS.Remoting</Name>

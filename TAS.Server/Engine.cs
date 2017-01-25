@@ -237,7 +237,7 @@ namespace TAS.Server
             if (Remote != null)
             {
                 Debug.WriteLine(this, "UnInitializing Remote interface");
-                Remote.UnInitialize(this);
+                Remote.UnInitialize();
             }
             if (_localGpis != null)
                 foreach (var gpi in _localGpis)

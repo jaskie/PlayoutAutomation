@@ -45,7 +45,7 @@ namespace TAS.Remoting.Client
 #if DEBUG
             _serializer.Formatting = Formatting.Indented;
 #endif
-            _clientSocket = new WebSocket(string.Format("ws://{0}/Engine", host));
+            _clientSocket = new WebSocket(string.Format("ws://{0}/Engine", host)) { Compression = CompressionMethod.Deflate };
             _clientSocket.OnOpen += _clientSocket_OnOpen;
             _clientSocket.OnClose += _clientSocket_OnClose;
             _clientSocket.OnMessage += _clientSocket_OnMessage;

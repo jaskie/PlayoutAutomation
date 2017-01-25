@@ -58,9 +58,13 @@ namespace TAS.Remoting.Model
             switch (e.MemberName)
             {
                 case nameof(IMediaSegments.SegmentAdded):
-                    _segmentAdded?.Invoke(this, ConvertEventArgs<MediaSegmentEventArgs>(e));
+                    var eAdded = ConvertEventArgs<MediaSegmentEventArgs>(e);
+                    _segments.Add(eAdded.Segment as MediaSegment);
+                    _segmentAdded?.Invoke(this, eAdded);
                     break;
                 case nameof(IMediaSegments.SegmentRemoved):
+                    var eRemoved = ConvertEventArgs<MediaSegmentEventArgs>(e);
+                    _segments.Remove(eRemoved.Segment as MediaSegment);
                     _segmentRemoved?.Invoke(this, ConvertEventArgs<MediaSegmentEventArgs>(e));
                     break;
             }

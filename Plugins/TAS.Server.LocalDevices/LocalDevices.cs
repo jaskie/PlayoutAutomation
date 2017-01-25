@@ -34,7 +34,7 @@ namespace TAS.Server
         public object CreateEnginePlugin(IEngine engine, Type type)
         {
             if (type.IsAssignableFrom(typeof(LocalGpiDeviceBinding)))
-                return EngineBindings.FirstOrDefault(b => b.IdEngine == engine.Id);
+                return EngineBindings.FirstOrDefault(b => b.IdEngine == (engine as IPersistent).Id);
             return null;
         }
 

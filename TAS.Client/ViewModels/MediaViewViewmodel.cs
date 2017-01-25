@@ -154,11 +154,12 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(sTcStart));
                 NotifyPropertyChanged(nameof(sDuration));
                 NotifyPropertyChanged(nameof(sDurationPlay));
-                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-                   {
-                       foreach (MediaSegmentViewmodel segment in _mediaSegments)
-                           segment.FrameRate = ((IMedia)media).FrameRate;
-                   }));
+                if (media is IPersistentMedia)
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                       {
+                           foreach (MediaSegmentViewmodel segment in _mediaSegments)
+                               segment.FrameRate = ((IMedia)media).FrameRate;
+                       }));
             }
             if (e.PropertyName == nameof(IMedia.IsVerified))
             {
