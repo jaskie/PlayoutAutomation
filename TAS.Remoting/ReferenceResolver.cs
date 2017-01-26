@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Serialization;
+﻿//#undef DEBUG
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -86,13 +87,13 @@ namespace TAS.Remoting
 
         private void _reference_Disposed(object sender, EventArgs e)
         {
+            ReferenceDisposed?.Invoke(sender, EventArgs.Empty);
             IDto disposed;
             if (sender is IDto && _knownDtos.TryRemove(((IDto)sender).DtoGuid, out disposed) && sender == disposed)
             {
                 disposed.PropertyChanged -= _referencePropertyChanged;
                 disposed.Disposed -= _reference_Disposed;
-                ReferenceDisposed?.Invoke(disposed, EventArgs.Empty);
-                Debug.WriteLine(disposed, "Reference resolver - object disposed");
+                Debug.WriteLine(disposed, $"Reference resolver - object disposed, generation is {GC.GetGeneration(sender)}");
             }
         }
         #endregion // Server-side methods

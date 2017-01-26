@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration.Install;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.ServiceProcess;
@@ -50,8 +51,15 @@ namespace TVPlaySvc
                             {
                                 // console commands here
                                 case "quit":
+                                case "q":
                                     return;
+                                case "gc":
+                                    Debug.WriteLine("Garbage collection requested.");
+                                    GC.Collect(GC.MaxGeneration);
+                                    Console.WriteLine("Garbage collection requested.");
+                                    break;
                                 default:
+                                    Console.WriteLine("Command not recognized");
                                     break;
                             }
                     }

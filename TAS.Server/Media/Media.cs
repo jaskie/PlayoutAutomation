@@ -413,6 +413,12 @@ namespace TAS.Server
         {
             _directory.MediaManager.FileManager.Queue(new LoudnessOperation() { SourceMedia = this, MeasureStart = this.TcPlay - this.TcStart, MeasureDuration = this.DurationPlay }, false);
         }
+
+        protected override void DoDispose()
+        {
+            Debug.WriteLine(this, "Disposed");
+            base.DoDispose();
+        }
     }
 
 }

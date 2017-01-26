@@ -1196,13 +1196,11 @@ namespace TAS.Server
                 }
                 ((Event)se)._delete();
             }
-            var media = _serverMediaPRI;
-            if (media != null && media.IsValueCreated && media.Value != null)
-                media.Value.PropertyChanged -= _serverMediaPRI_PropertyChanged;
             _isDeleted = true;
             this.DbDelete();
             NotifyDeleted();
             _isModified = false;
+            Dispose();
         }
 
         public MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media)
@@ -1245,7 +1243,13 @@ namespace TAS.Server
 
         protected override void DoDispose()
         {
-            _setMedia(null, Guid.Empty);
+            var media = _serverMediaPRI;
+            if (media != null && media.IsValueCreated && media.Value != null)
+                media.Value.PropertyChanged -= _serverMediaPRI_PropertyChanged;
+            _serverMediaPRI = null;
+            _serverMediaSEC = null;
+            _serverMediaPRV = null;
+            base.DoDispose();
         }
 
         protected override bool SetField<T>(ref T field, T value, string propertyName)

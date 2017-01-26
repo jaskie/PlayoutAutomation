@@ -70,6 +70,7 @@ namespace TAS.Server
             operation.ScheduledTime = DateTime.UtcNow;
             operation.OperationStatus = FileOperationStatus.Waiting;
             Logger.Info("Operation scheduled: {0}", operation);
+            NotifyOperation(OperationAdded, operation);
 
             if ((operation.Kind == TFileOperationKind.Copy || operation.Kind == TFileOperationKind.Move || operation.Kind == TFileOperationKind.Convert))
             {
@@ -125,7 +126,6 @@ namespace TAS.Server
                     }
                 }
             }
-            NotifyOperation(OperationAdded, operation);
         }
 
         public void CancelPending()
@@ -152,7 +152,10 @@ namespace TAS.Server
                     if (!op.Aborted)
                     {
                         if (op.Do())
+                        {
                             NotifyOperation(OperationCompleted, op);
+                            op.Dispose();
+                        }
                         else
                         {
                             if (op.TryCount > 0)
@@ -166,6 +169,7 @@ namespace TAS.Server
                                 NotifyOperation(OperationCompleted, op);
                                 if (op.DestMedia?.FileExists() == true)
                                     op.DestMedia.Delete();
+                                op.Dispose();
                             }
                         }
                     }

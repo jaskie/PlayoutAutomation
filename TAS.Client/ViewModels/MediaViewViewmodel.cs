@@ -39,7 +39,7 @@ namespace TAS.Client.ViewModels
         {
             Media.PropertyChanged -= OnMediaPropertyChanged;
             var pm = Media as IPersistentMedia;
-            if (pm != null)
+            if (pm != null && _mediaSegments.IsValueCreated)
             {
                 pm.MediaSegments.SegmentAdded -= MediaSegments_SegmentAdded;
                 pm.MediaSegments.SegmentRemoved -= _mediaSegments_SegmentRemoved;

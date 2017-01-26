@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#undef DEBUG
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -20,7 +21,6 @@ namespace TAS.Remoting.Server
         readonly JsonSerializer _serializer;
         readonly IDto _initialObject;
         readonly ReferenceResolver _referenceResolver;
-        //readonly ServerSerializationConverter _converter;
         public CommunicationBehavior(IDto initialObject)
         {
             _initialObject = initialObject;
@@ -29,7 +29,7 @@ namespace TAS.Remoting.Server
             _serializer = JsonSerializer.CreateDefault();
             _referenceResolver = new ReferenceResolver();
             _referenceResolver.ReferencePropertyChanged += _referenceResolver_ReferencePropertyChanged;
-            _referenceResolver.ReferenceDisposed += _notifyObjectDisposed;
+            _referenceResolver.ReferenceDisposed += _referencedObjectDisposed;
             _serializer.ReferenceResolver = _referenceResolver;
             _serializer.TypeNameHandling = TypeNameHandling.Auto;
             _serializer.Context = new StreamingContext(StreamingContextStates.Remoting);
@@ -156,9 +156,10 @@ namespace TAS.Remoting.Server
                 }
             }
             _referenceResolver.ReferencePropertyChanged -= _referenceResolver_ReferencePropertyChanged;
-            _referenceResolver.ReferenceDisposed -= _notifyObjectDisposed;
+            _referenceResolver.ReferenceDisposed -= _referencedObjectDisposed;
             _referenceResolver.Dispose();
             Debug.WriteLine("Server: connection closed.");
+            base.OnClose(e);
         }
 
         protected override void OnOpen()
@@ -200,7 +201,7 @@ namespace TAS.Remoting.Server
             if (_delegates.ContainsKey(signature))
                 return;
             Delegate delegateToInvoke = ConvertDelegate((Action<object, EventArgs>)delegate (object o, EventArgs ea) { _notifyClient(o, ea, ei.Name); }, ei.EventHandlerType);
-            Debug.WriteLine(objectToInvoke, string.Format("Server: delegate {0} added", ei.Name));
+            Debug.WriteLine($"Server: added delegate {ei.Name} on {objectToInvoke}");
             _delegates[signature] = delegateToInvoke;
             ei.AddEventHandler(objectToInvoke, delegateToInvoke);
         }
@@ -210,7 +211,10 @@ namespace TAS.Remoting.Server
             delegateKey signature = new delegateKey(objectToInvoke.DtoGuid, ei.Name);
             Delegate delegateToRemove;
             if (_delegates.TryRemove(signature, out delegateToRemove))
+            {
                 ei.RemoveEventHandler(objectToInvoke, delegateToRemove);
+                Debug.WriteLine($"Server: removed delegate {ei.Name} on {objectToInvoke}");
+            }
         }
 
         public static Delegate ConvertDelegate(Delegate originalDelegate, Type targetDelegateType)
@@ -271,14 +275,25 @@ namespace TAS.Remoting.Server
             };
             string s = _serialize(message);
             Send(s);
-            Debug.WriteLine($"Server: Notification {eventName} on {dto} sent:\n{s}");
+            //Debug.WriteLine($"Server: Notification {eventName} on {dto} sent:\n{s}");
         }
 
-        void _notifyObjectDisposed(object o, EventArgs a)
+        void _referencedObjectDisposed(object o, EventArgs a)
         {
             IDto dto = o as IDto;
             if (dto == null)
                 return;
+            var delegatesToRemove = _delegates.Keys.Where(k => k.Item1 == dto.DtoGuid);
+            foreach (var dk in delegatesToRemove)
+            {
+                Delegate delegateToRemove;
+                if (_delegates.TryRemove(dk, out delegateToRemove))
+                {
+                    EventInfo ei = dto.GetType().GetEvent(dk.Item2);
+                    ei.RemoveEventHandler(dto, delegateToRemove);
+                    Debug.WriteLine($"Server: Delegate {dk.Item2}  on {dto} removed;");
+                }
+            }
             WebSocketMessage message = new WebSocketMessage()
             {
                 DtoGuid = dto.DtoGuid,
