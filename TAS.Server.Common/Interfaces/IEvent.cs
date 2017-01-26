@@ -10,11 +10,10 @@ namespace TAS.Server.Interfaces
 {
     public interface IEventPesistent: IEvent
     {
-        ulong IdRundownEvent { get; set; }
         ulong IdEventBinding { get; }
     }
 
-    public interface IEvent: IEventProperties, INotifyPropertyChanged
+    public interface IEvent: IEventProperties, IPersistent, INotifyPropertyChanged
     {
         TPlayState PlayState { get; set; }
         IMedia Media { get; set; }

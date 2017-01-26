@@ -56,7 +56,7 @@ namespace TAS.Server
                     byte parental)
         {
             _engine = engine;
-            _idRundownEvent = idRundownEvent;
+            _id = idRundownEvent;
             _idEventBinding = idEventBinding;
             _layer = videoLayer;
             _eventType = eventType;
@@ -89,7 +89,7 @@ namespace TAS.Server
              _subEvents = new Lazy<SynchronizedCollection<Event>>(() =>
              {
                  var result = new SynchronizedCollection<Event>();
-                 if (_idRundownEvent != 0)
+                 if (_id != 0)
                  {
                      var seList = Engine.DbReadSubEvents(this);
                      foreach (Event e in seList)
@@ -135,17 +135,18 @@ namespace TAS.Server
         static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Event));
 
         #region IEventPesistent 
-        private ulong _idRundownEvent = 0;
+        private ulong _id = 0;
         [XmlIgnore]
-        public ulong IdRundownEvent
+        [JsonProperty]
+        public ulong Id
         {
             get
             {
-                if (_idRundownEvent == 0)
+                if (_id == 0)
                     Save();
-                return _idRundownEvent;
+                return _id;
             }
-            set { _idRundownEvent = value; }
+            set { _id = value; }
         }
         ulong _idEventBinding;
         public ulong IdEventBinding { get { return _idEventBinding; } }
@@ -416,7 +417,7 @@ namespace TAS.Server
             if (obj == null) return -1;
             int timecomp = this.ScheduledTime.CompareTo((obj as Event).ScheduledTime);
             timecomp = (timecomp == 0) ? this.ScheduledDelay.CompareTo((obj as Event).ScheduledDelay) : timecomp;
-            return (timecomp == 0) ? this.IdRundownEvent.CompareTo((obj as Event).IdRundownEvent) : timecomp;
+            return (timecomp == 0) ? this.Id.CompareTo((obj as Event).Id) : timecomp;
         }
 
         TPlayState _playState;
@@ -758,7 +759,7 @@ namespace TAS.Server
                     Event v = value as Event;
                     _parent = new Lazy<Event>(() => v);
                     if (v != null)
-                        _idEventBinding = v.IdRundownEvent;
+                        _idEventBinding = v.Id;
                     NotifyPropertyChanged(nameof(Parent));
                 }
             }
@@ -775,7 +776,7 @@ namespace TAS.Server
                     Event v = value as Event;
                     _prior = new Lazy<Event>(() => v);
                     if (value != null)
-                        _idEventBinding = v.IdRundownEvent;
+                        _idEventBinding = v.Id;
                     NotifyPropertyChanged(nameof(Prior));
                 }
             }
@@ -1108,7 +1109,7 @@ namespace TAS.Server
         {
             try
             {
-                if (_idRundownEvent == 0)
+                if (_id == 0)
                     this.DbInsert();
                 else
                     this.DbUpdate();

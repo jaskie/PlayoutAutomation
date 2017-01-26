@@ -75,10 +75,9 @@
         <Menu IsMainMenu="True" Height="23" HorizontalAlignment="Left" VerticalAlignment="Top">
             <MenuItem Header="{Resx _menu.Container}">
                 <MenuItem Header="{Resx _menu.Container.AddContainer}" Command="{Binding CommandNewContainer}"/>
-                <MenuItem Header="{Resx _menu.Container.Show}" Visibility="{Binding IsAnyContainerHidden, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding Path=RootEventViewModel.Containers}">
+                <MenuItem Header="{Resx _menu.Container.Show}" DataContext="{Binding RootEventViewModel}" Visibility="{Binding IsAnyContainerHidden, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding HiddenContainers}">
                     <MenuItem.ItemContainerStyle>
                         <Style TargetType="MenuItem">
-                            <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource InvertedBoolToVis}}"/>
                             <Setter Property="Command" Value="{Binding CommandShow}"/>
                             <Setter Property="Header" Value="{Binding EventName}"/>
                         </Style>

@@ -143,10 +143,10 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="ConfigurationView.pl.resx" >
+    <EmbeddedResource Include="ConfigurationView.pl.resx">
       <DependentUpon>ConfigurationView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ConfigurationView.resx" >
+    <EmbeddedResource Include="ConfigurationView.resx">
       <DependentUpon>ConfigurationView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.pl.resx">
@@ -218,11 +218,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="TVPlayClient.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="TVPlayClient.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />

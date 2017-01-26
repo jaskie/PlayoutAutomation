@@ -14,20 +14,15 @@ namespace TVPlayClient
 {
     public class ConfigurationViewmodel: ViewmodelBase
     {
-        public const string ConfigurationFileKey = "ConfigurationFile";
-        public const string DefaultConfigurationFile = "TVPlayClient.xml";
-
         private readonly ObservableCollection<ConfigurationChannel> _channels;
         private readonly string _configurationFile;
-        public ConfigurationViewmodel()
+        public ConfigurationViewmodel(string configurationFile)
         {
-            _configurationFile = ConfigurationManager.AppSettings[ConfigurationFileKey];
-            if (string.IsNullOrWhiteSpace(_configurationFile))
-                _configurationFile = DefaultConfigurationFile;
-            if (File.Exists(_configurationFile))
+            _configurationFile = configurationFile;
+            if (File.Exists(configurationFile))
             {
                 XmlSerializer reader = new XmlSerializer(typeof(ObservableCollection<ConfigurationChannel>), new XmlRootAttribute("Channels"));
-                using (StreamReader file = new StreamReader(_configurationFile))
+                using (StreamReader file = new StreamReader(configurationFile))
                     _channels = (ObservableCollection<ConfigurationChannel>)reader.Deserialize(file);
             }
             else
@@ -45,6 +40,9 @@ namespace TVPlayClient
 
         private void _save(object obj)
         {
+            var directoryName = Path.GetDirectoryName(_configurationFile);
+            if (!Directory.Exists(directoryName))
+                Directory.CreateDirectory(directoryName);
             XmlSerializer writer = new XmlSerializer(typeof(ObservableCollection<ConfigurationChannel>), new XmlRootAttribute("Channels"));
             using (StreamWriter file = new StreamWriter(_configurationFile))
                 writer.Serialize(file, Channels);

@@ -12,7 +12,7 @@ namespace TAS.Client.ViewModels
 {
     public class EventPanelRootViewmodel : EventPanelViewmodelBase
     {
-        public EventPanelRootViewmodel(EngineViewmodel engineViewmodel): base(engineViewmodel)
+        public EventPanelRootViewmodel(EngineViewmodel engineViewmodel) : base(engineViewmodel)
         {
             _engine.EventSaved += _onEngineEventSaved;
             _engine.EventDeleted += _engine_EventDeleted;
@@ -149,9 +149,17 @@ namespace TAS.Client.ViewModels
             return null;
         }
 
-        public IEnumerable<EventPanelContainerViewmodel> Containers
+        public IEnumerable<EventPanelContainerViewmodel> HiddenContainers
         {
-            get { return _childrens.Where(c => c is EventPanelContainerViewmodel).Select(c=> c as EventPanelContainerViewmodel); }
+            get { return _childrens.Where(c => (c as EventPanelContainerViewmodel)?.IsVisible == false).Cast<EventPanelContainerViewmodel>(); }
+        }
+
+        public bool IsAnyContainerHidden { get { return HiddenContainers.Any(); } }
+
+        internal void NotifyContainerVisibility()
+        {
+            NotifyPropertyChanged(nameof(IsAnyContainerHidden));
+            NotifyPropertyChanged(nameof(HiddenContainers));
         }
 
     }

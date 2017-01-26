@@ -9,14 +9,19 @@ using System.Windows.Input;
 using System.Xml.Serialization;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
+using TAS.Server.Common;
 
 namespace TVPlayClient
 {
     public class MainWindowViewmodel : ViewmodelBase
     {
+        private const string ConfigurationFileName = "Channels.xml";
+        private const string AppDataFilePath = "TVPlayClient";
+        private readonly string _configurationFile;
         public MainWindowViewmodel()
         {
             Application.Current.Dispatcher.ShutdownStarted += _dispatcher_ShutdownStarted;
+            _configurationFile = Path.Combine(FileUtils.LOCAL_APPLICATION_DATA_PATH, ConfigurationFileName);
             if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject()))
                 _loadTabs();
             CommandConfigure = new UICommand { ExecuteDelegate = _configure };
@@ -25,7 +30,7 @@ namespace TVPlayClient
         private void _configure(object obj)
         {
             (_content as ChannelsViewmodel)?.Dispose();
-            var vm = new ConfigurationViewmodel();
+            var vm = new ConfigurationViewmodel(_configurationFile);
             vm.Closed += _configClosed;
             ShowConfigButton = false;
             Content = vm;
@@ -50,13 +55,10 @@ namespace TVPlayClient
 
         private void _loadTabs()
         {
-            string configurationFile = ConfigurationManager.AppSettings[ConfigurationViewmodel.ConfigurationFileKey];
-            if (string.IsNullOrWhiteSpace(configurationFile))
-                configurationFile = ConfigurationViewmodel.DefaultConfigurationFile;
-            if (File.Exists(configurationFile))
+            if (File.Exists(_configurationFile))
             {
                 XmlSerializer reader = new XmlSerializer(typeof(List<ChannelWrapperViewmodel>), new XmlRootAttribute("Channels"));
-                using (StreamReader file = new StreamReader(configurationFile))
+                using (StreamReader file = new StreamReader(_configurationFile))
                     Content = new ChannelsViewmodel((List<ChannelWrapperViewmodel>)reader.Deserialize(file));
             }
         }

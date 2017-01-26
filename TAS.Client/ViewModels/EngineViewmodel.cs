@@ -96,7 +96,6 @@ namespace TAS.Client.ViewModels
             _engine.PropertyChanged += _enginePropertyChanged;
             _engine.VisibleEventsOperation += _onEngineVisibleEventsOperation;
             _engine.RunningEventsOperation += OnEngineRunningEventsOperation;
-            _engine.EventSaved += _engine_EventSaved;
             _composePlugins();
 
             // Creating View
@@ -136,12 +135,6 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(CGControllerIsMaster));
         }
 
-        private void _engine_EventSaved(object sender, IEventEventArgs e)
-        {
-            if (RootEventViewModel.Childrens.Any(evm => evm.Event == e.Event))
-                NotifyPropertyChanged(nameof(IsAnyContainerHidden));
-        }
-
         protected override void OnDispose()
         {
             _engine.EngineTick -= _engineTick;
@@ -151,7 +144,6 @@ namespace TAS.Client.ViewModels
             _engine.RunningEventsOperation -= OnEngineRunningEventsOperation;
 
             _multiSelectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
-            _engine.EventSaved -= _engine_EventSaved;
             EventClipboard.ClipboardChanged -= _engineViewmodel_ClipboardChanged;
             if (_engine.PlayoutChannelPRI != null)
                 _engine.PlayoutChannelPRI.OwnerServer.PropertyChanged -= OnPRIServerPropertyChanged;
@@ -925,11 +917,6 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _timeToAttention, value, nameof(TimeToAttention)); }
         }
 
-        public bool IsAnyContainerHidden
-        {
-            get { return _rootEventViewModel.Childrens.Any(evm => evm is EventPanelContainerViewmodel && !((EventPanelContainerViewmodel)evm).IsVisible); }
-        }
-        
         public string EngineName { get { return _engine.EngineName; } }
 
         public bool AllowPlayControl { get { return _allowPlayControl; } }

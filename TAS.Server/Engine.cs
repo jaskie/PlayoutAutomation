@@ -1375,7 +1375,7 @@ namespace TAS.Server
                     result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
                 if (idRundownEvent == 0)
                     result.Save();
-                if (_events.TryAdd(((Event)result).IdRundownEvent, result))
+                if (_events.TryAdd(((Event)result).Id, result))
                 {
                     result.Saved += _eventSaved;
                     result.Deleted += _eventDeleted;
@@ -1390,7 +1390,7 @@ namespace TAS.Server
         {
             _rootEvents.Remove(aEvent);
             IEvent eventToRemove;
-            if (_events.TryRemove(aEvent.IdRundownEvent, out eventToRemove))
+            if (_events.TryRemove(aEvent.Id, out eventToRemove))
             {
                 aEvent.Saved -= _eventSaved;
                 aEvent.Deleted -= _eventDeleted;

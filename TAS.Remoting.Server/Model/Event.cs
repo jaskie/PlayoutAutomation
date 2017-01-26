@@ -14,6 +14,8 @@ namespace TAS.Remoting.Model
     [DebuggerDisplay("{EventName}")]
     public class Event : ProxyBase, IEvent
     {
+        public ulong Id { get { return Get<ulong>(); } set { SetLocalValue(value); } }
+
         public decimal? AudioVolume { get { return Get<decimal?>(); }  set { Set(value); } }
 
         public AutoStartFlags AutoStartFlags { get { return Get<AutoStartFlags>(); } set { Set(value); } }

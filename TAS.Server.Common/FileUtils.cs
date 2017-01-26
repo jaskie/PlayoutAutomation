@@ -16,7 +16,8 @@ namespace TAS.Server.Common
         public readonly static string RundownFileExtension = ".rundown";
         public readonly static string TempFileExtension = ".tmp";
         public readonly static string CONFIGURATION_PATH = Path.Combine(Directory.GetCurrentDirectory(), "Configuration");
-
+        public readonly static string LOCAL_APPLICATION_DATA_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TVPlay");
+        
         public static string DefaultFileExtension(TMediaType type)
         {
             switch (type)

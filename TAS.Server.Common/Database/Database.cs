@@ -362,7 +362,7 @@ namespace TAS.Server.Database
                     {
                         while (dataReader.Read())
                         {
-                            if (!engine.GetRootEvents().Any(e => (e as IEventPesistent)?.IdRundownEvent == dataReader.GetUInt64("idRundownEvent")))
+                            if (!engine.GetRootEvents().Any(e => (e as IEventPesistent)?.Id == dataReader.GetUInt64("idRundownEvent")))
                             {
                                 newEvent = _eventRead(engine, dataReader);
                                 foundEvents.Add(newEvent);
@@ -373,7 +373,7 @@ namespace TAS.Server.Database
                     foreach (IEvent e in foundEvents)
                     {
                         if (e is ITemplated && e is IEventPesistent)
-                            _readAnimatedEvent(((IEventPesistent)e).IdRundownEvent, e as ITemplated);
+                            _readAnimatedEvent(((IEventPesistent)e).Id, e as ITemplated);
                         e.StartType = TStartType.Manual;
                         e.IsModified = false;
                         e.Save();
@@ -405,7 +405,7 @@ namespace TAS.Server.Database
                     foreach (var ev in foundEvents)
                         if (ev is ITemplated && ev is IEventPesistent)
                         {
-                            _readAnimatedEvent(((IEventPesistent)ev).IdRundownEvent, ev as ITemplated);
+                            _readAnimatedEvent(((IEventPesistent)ev).Id, ev as ITemplated);
                             ev.IsModified = false;
                         }
                     return foundEvents;
@@ -427,7 +427,7 @@ namespace TAS.Server.Database
                         futureScheduled = _eventRead(engine, reader);
                 if (futureScheduled is ITemplated && futureScheduled is IEventPesistent)
                 {
-                    _readAnimatedEvent(((IEventPesistent)futureScheduled).IdRundownEvent, futureScheduled as ITemplated);
+                    _readAnimatedEvent(((IEventPesistent)futureScheduled).Id, futureScheduled as ITemplated);
                     futureScheduled.IsModified = false;
                 }
                 if (futureScheduled != null)
@@ -634,7 +634,7 @@ namespace TAS.Server.Database
                         cmd.Parameters.AddWithValue("@StartTypeWithParent", TStartType.WithParent);
                         cmd.Parameters.AddWithValue("@StartTypeWithParentFromEnd", TStartType.WithParentFromEnd);
                     }
-                    cmd.Parameters.AddWithValue("@idEventBinding", eventOwner.IdRundownEvent);
+                    cmd.Parameters.AddWithValue("@idEventBinding", eventOwner.Id);
                     List<IEvent> subevents = new List<IEvent>();
                     using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                     {
@@ -644,7 +644,7 @@ namespace TAS.Server.Database
                     foreach (IEventPesistent e in subevents)
                         if (e is ITemplated)
                         {
-                            _readAnimatedEvent(e.IdRundownEvent, e as ITemplated);
+                            _readAnimatedEvent(e.Id, e as ITemplated);
                             e.IsModified = false;
                         }
                     return subevents;
@@ -661,7 +661,7 @@ namespace TAS.Server.Database
                 {
                     IEvent next = null;
                     DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM RundownEvent where idEventBinding = @idEventBinding and typStart=@StartType;", _connection);
-                    cmd.Parameters.AddWithValue("@idEventBinding", aEvent.IdRundownEvent);
+                    cmd.Parameters.AddWithValue("@idEventBinding", aEvent.Id);
                     cmd.Parameters.AddWithValue("@StartType", TStartType.After);
                     using (DbDataReaderRedundant reader = cmd.ExecuteReader())
                     {
@@ -670,7 +670,7 @@ namespace TAS.Server.Database
                     }
                     if (next is ITemplated && next is IEventPesistent)
                     {
-                        _readAnimatedEvent(((IEventPesistent)next).IdRundownEvent, next as ITemplated);
+                        _readAnimatedEvent(((IEventPesistent)next).Id, next as ITemplated);
                         next.IsModified = false;
                     }
                     return next;
@@ -717,7 +717,7 @@ namespace TAS.Server.Database
                     }
                     if (result is ITemplated && result is IEventPesistent)
                     {
-                        _readAnimatedEvent(((IEventPesistent)result).IdRundownEvent, result as ITemplated);
+                        _readAnimatedEvent(((IEventPesistent)result).Id, result as ITemplated);
                         result.IsModified = false;
                     }
                 }
@@ -854,10 +854,10 @@ VALUES
                     using (DbCommandRedundant cmd = new DbCommandRedundant(query, _connection))
                         if (_eventFillParamsAndExecute(cmd, aEvent))
                         {
-                            aEvent.IdRundownEvent = (ulong)cmd.LastInsertedId;
-                            Debug.WriteLine("Event DbInsert Id={0}, EventName={1}", aEvent.IdRundownEvent, aEvent.EventName);
+                            aEvent.Id = (ulong)cmd.LastInsertedId;
+                            Debug.WriteLine("Event DbInsert Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
                             if (aEvent is ITemplated)
-                                _eventAnimatedSave(aEvent.IdRundownEvent, aEvent as ITemplated, true);
+                                _eventAnimatedSave(aEvent.Id, aEvent as ITemplated, true);
                             transaction.Commit();
                             return true;
                         }
@@ -900,12 +900,12 @@ Commands=@Commands
 WHERE idRundownEvent=@idRundownEvent;";
                     using (DbCommandRedundant cmd = new DbCommandRedundant(query, _connection))
                     {
-                        cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.IdRundownEvent);
+                        cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
                         if (_eventFillParamsAndExecute(cmd, aEvent))
                         {
-                            Debug.WriteLine("Event DbUpdate Id={0}, EventName={1}", aEvent.IdRundownEvent, aEvent.EventName);
+                            Debug.WriteLine("Event DbUpdate Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
                             if (aEvent is ITemplated)
-                                _eventAnimatedSave(aEvent.IdRundownEvent, aEvent as ITemplated, false);
+                                _eventAnimatedSave(aEvent.Id, aEvent as ITemplated, false);
                             transaction.Commit();
                             return true;
                         }
@@ -922,10 +922,10 @@ WHERE idRundownEvent=@idRundownEvent;";
             {
                 string query = "DELETE FROM RundownEvent WHERE idRundownEvent=@idRundownEvent;";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.IdRundownEvent);
+                cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
                 cmd.ExecuteNonQuery();
                 success = true;
-                Debug.WriteLine("Event DbDelete Id={0}, EventName={1}", aEvent.IdRundownEvent, aEvent.EventName);
+                Debug.WriteLine("Event DbDelete Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
             }
             return success;
         }

@@ -92,6 +92,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HiddenEventsStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\CGElementViewmodel.cs" />
     <Compile Include="ViewModels\ChannelViewmodel.cs" />
@@ -219,7 +220,7 @@
       <Name>TAS.Client.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
-      <Project>{15324B69-7D18-49F3-9141-B024079356E8}</Project>
+      <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
       <Name>TAS.Remoting</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Server.Common\TAS.Server.Common.csproj">

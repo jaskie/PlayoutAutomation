@@ -8,7 +8,6 @@ namespace TAS.Server.Interfaces
 {
     public interface IPersistent
     {
-        [XmlIgnore]
         ulong Id { get; set; }
     }
 }

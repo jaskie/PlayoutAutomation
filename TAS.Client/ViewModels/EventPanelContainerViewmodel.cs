@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common;
@@ -18,6 +19,7 @@ namespace TAS.Client.ViewModels
         public EventPanelContainerViewmodel(IEvent ev, EventPanelViewmodelBase parent): base(ev, parent) {
             if (ev.EventType != TEventType.Container)
                 throw new ApplicationException(string.Format("Invalid panel type:{0} for event type:{1}", this.GetType(), ev.EventType));
+            _isVisible = !HiddenEventsStorage.Contains(ev);
         }
 
         public ICommand CommandHide { get; private set; }
@@ -30,12 +32,12 @@ namespace TAS.Client.ViewModels
             CommandHide = new UICommand()
             {
                 ExecuteDelegate = o => IsVisible = false,
-                CanExecuteDelegate = o => _event.IsEnabled == true
+                CanExecuteDelegate = o => _isVisible
             };
             CommandShow = new UICommand()
             {
                 ExecuteDelegate = o => IsVisible = true,
-                CanExecuteDelegate = o => _event.IsEnabled == false
+                CanExecuteDelegate = o => !_isVisible
             };
             CommandAddSubRundown = new UICommand()
             {
@@ -43,18 +45,21 @@ namespace TAS.Client.ViewModels
             };
         }
 
+        bool _isVisible;
         public override bool IsVisible
         {
-            get { return _event.IsEnabled; }
+            get { return _isVisible; }
             set
             {
-                if (_event.IsEnabled != value)
+                if (SetField(ref _isVisible, value, nameof(IsVisible)))
                 {
-                    _event.IsEnabled = value;
-                    _event.Save();
-                    NotifyPropertyChanged(nameof(IsVisible));
+                    if (value)
+                        HiddenEventsStorage.Remove(_event);
+                    else
+                        HiddenEventsStorage.Add(_event);
                     if (!value)
                         IsSelected = false;
+                    _root.NotifyContainerVisibility();
                 }
             }
         }
@@ -62,13 +67,6 @@ namespace TAS.Client.ViewModels
         void _addSubRundown(object o)
         {
             _engineViewmodel.AddSimpleEvent(_event, TEventType.Rundown, true);
-        }
-
-        protected override void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            base.OnEventPropertyChanged(sender, e);
-            if (e.PropertyName == nameof(IEvent.IsEnabled))
-                IsVisible = _event.IsEnabled;
         }
 
         protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
