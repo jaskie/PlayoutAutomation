@@ -26,23 +26,17 @@ namespace TAS.Server
         {
             DirectoryName = "Archiwum";
             GetVolumeInfo();
+            Search();
             IsInitialized = true;
             Debug.WriteLine("ArchiveDirectory {0} initialized", Folder, null);
         }
         public UInt64 idArchive { get; set; }
 
-        private string _searchString;
+        private string _searchString = string.Empty;
         public string SearchString
         {
             get { return _searchString; }
-            set
-            {
-                if (_searchString != value)
-                {
-                    _searchString = value;
-                    NotifyPropertyChanged(nameof(SearchString));
-                }
-            }
+            set { SetField(ref _searchString, value, nameof(SearchString)); }
         }
 
         public override void Refresh()

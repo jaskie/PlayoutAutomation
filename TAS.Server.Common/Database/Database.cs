@@ -512,17 +512,19 @@ namespace TAS.Server.Database
         public static void DbSearch<T>(this IArchiveDirectory dir) where T: IArchiveMedia
         {
             string search = dir.SearchString;
-            if (string.IsNullOrWhiteSpace(search))
-                return;
             lock (_connection)
             {
                 var textSearches = from text in search.ToLower().Split(' ').Where(s => !string.IsNullOrEmpty(s)) select "(LOWER(MediaName) LIKE \"%" + text + "%\" or LOWER(FileName) LIKE \"%" + text + "%\")";
                 DbCommandRedundant cmd;
                 if (dir.SearchMediaCategory == null)
-                    cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and " + string.Join(" and ", textSearches) + " LIMIT 0, 1000;", _connection);
+                    cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive" 
+                                                + ((textSearches.Count() > 0) ? " and" + string.Join(" and", textSearches) : string.Empty)
+                                                + " order by idArchiveMedia DESC LIMIT 0, 1000;", _connection);
                 else
                 {
-                    cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and ((flags >> 4) & 3)=@Category and  " + string.Join(" and ", textSearches) + " LIMIT 0, 1000;", _connection);
+                    cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and ((flags >> 4) & 3)=@Category"
+                                                + ((textSearches.Count() > 0) ? " and" + string.Join(" and", textSearches) : string.Empty)
+                                                + " order by idArchiveMedia DESC LIMIT 0, 1000;", _connection);
                     cmd.Parameters.AddWithValue("@Category", (uint)dir.SearchMediaCategory);
                 }
                 cmd.Parameters.AddWithValue("@idArchive", dir.idArchive);

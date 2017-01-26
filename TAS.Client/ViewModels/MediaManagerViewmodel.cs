@@ -360,10 +360,10 @@ namespace TAS.Client.ViewModels
         private bool _canSearch(object o)
         {
             var dir = _selectedDirectory?.Directory;
-            return (dir is IServerDirectory
+            return dir is IServerDirectory
                 || dir is IAnimationDirectory
-                || (dir is IIngestDirectory && !((IIngestDirectory)dir).IsWAN)
-                || _searchText.Length >= 3);
+                || dir is IArchiveDirectory
+                || (dir is IIngestDirectory && (!((IIngestDirectory)dir).IsWAN || _searchText.Length >= 3));
         }
 
         private void _search(object o)
