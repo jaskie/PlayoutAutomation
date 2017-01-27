@@ -67,6 +67,9 @@
                             <Trigger Property="Validation.HasError" Value="true">
                                 <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
                             </Trigger>
+                            <Trigger Property="IsReadOnly" Value="True">
+                                <Setter Property="Background" Value="#F0F0F0" />
+                            </Trigger>
                         </Style.Triggers>
                     </Style>
                     <Style TargetType="controls:TimecodeEdit" >
@@ -93,10 +96,6 @@
                 <DockPanel>
                     <Label Content="{Resx _clipName}"/>
                     <TextBox IsReadOnly="{Binding IsPersistentMedia, Converter={StaticResource InvertedBoolToVis}}" Text="{Binding MediaName, UpdateSourceTrigger=PropertyChanged}" />
-                </DockPanel>
-                <DockPanel>
-                    <Label Content="{Resx _fileName}" />
-                    <TextBox Text="{Binding FileName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
                 </DockPanel>
                 <DockPanel Visibility="{Binding IsIngestDataShown, Converter={StaticResource BoolToVis}}" >
                     <Label Content="{Resx _ingestTime}" />
@@ -209,17 +208,21 @@
                         <Button DockPanel.Dock="Right" Margin="5, 0" Padding="0" Height="21" Command="{Binding CommandRefreshStatus}" ToolTip="{Resx _checkStatus.ToolTip}" >
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
                         </Button>
-                        <TextBox FlowDirection="LeftToRight" Background="#F0F0F0" Text="{Binding MediaStatus, Mode=OneWay}" IsReadOnly="True" />
+                        <TextBox FlowDirection="LeftToRight" Text="{Binding MediaStatus, Mode=OneWay}" IsReadOnly="True" />
                     </DockPanel>
                 </DockPanel>
                 <CheckBox Content="{Resx _protect}" Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}" IsChecked="{Binding Protected}" />
                 <DockPanel>
                     <Label Content="{Resx _mediaType}" />
-                    <TextBox Background="#F0F0F0" Text="{Binding MediaType, Mode=OneWay}" IsReadOnly="True" />
+                    <TextBox Text="{Binding MediaType, Mode=OneWay}" IsReadOnly="True" />
+                </DockPanel>
+                <DockPanel>
+                    <Label Content="{Resx _fileName}" />
+                    <TextBox IsReadOnly="{Binding IsPersistentMedia}" Text="{Binding FileName, Mode=OneWay}" />
                 </DockPanel>
                 <DockPanel>
                     <Label Content="{Resx _mediaGuid}" />
-                    <TextBox Background="#F0F0F0" Text="{Binding MediaGuid, Mode=OneWay}" IsReadOnly="True" />
+                    <TextBox Text="{Binding MediaGuid, Mode=OneWay}" IsReadOnly="True" />
                 </DockPanel>
             </StackPanel>
         </ScrollViewer>

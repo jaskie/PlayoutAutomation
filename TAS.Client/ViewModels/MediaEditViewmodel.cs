@@ -271,7 +271,7 @@ namespace TAS.Client.ViewModels
         public bool ShowButtons { get { return _showButtons; } }
 
         private string _folder;
-        public string Folder { get { return _folder; } set { SetField(ref _folder, value, nameof(Folder)); } }
+        public string Folder { get { return _folder; } private set { SetField(ref _folder, value, nameof(Folder)); } }
         
         private string _fileName;
         public string FileName 
