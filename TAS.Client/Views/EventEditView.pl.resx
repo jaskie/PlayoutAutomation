@@ -162,6 +162,9 @@
   <data name="_command.ToolTip" xml:space="preserve">
     <value>Polecenie użytkownika do wykonania na serwerze</value>
   </data>
+  <data name="_delete.ToolTip" xml:space="preserve">
+    <value>Usuń | Ctrl + Del</value>
+  </data>
   <data name="_duration" xml:space="preserve">
     <value>Czas trwania</value>
   </data>
@@ -194,6 +197,12 @@
   </data>
   <data name="_loop" xml:space="preserve">
     <value>Pętla</value>
+  </data>
+  <data name="_moveDown.ToolTip" xml:space="preserve">
+    <value>Przesuń w dół | Alt + strzałka w dół</value>
+  </data>
+  <data name="_moveUp.ToolTip" xml:space="preserve">
+    <value>Przesuń do góry | Alt + strzałka w górę</value>
   </data>
   <data name="_name" xml:space="preserve">
     <value>Nazwa</value>

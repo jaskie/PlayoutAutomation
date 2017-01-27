@@ -192,8 +192,8 @@ namespace TAS.Client.ViewModels
 
 
             CommandEventHide = new UICommand { ExecuteDelegate = _eventHide };
-            CommandMoveUp = new UICommand { ExecuteDelegate = _moveUp };
-            CommandMoveDown = new UICommand { ExecuteDelegate = _moveDown };
+            CommandMoveUp = EventEditViewmodel.CommandMoveUp;
+            CommandMoveDown = EventEditViewmodel.CommandMoveDown;
             CommandAddNextMovie = new UICommand { ExecuteDelegate = _addNextMovie, CanExecuteDelegate = _canAddNextMovie  };
             CommandAddNextEmptyMovie = new UICommand { ExecuteDelegate = _addNextEmptyMovie, CanExecuteDelegate = _canAddNextEmptyMovie };
             CommandAddNextRundown = new UICommand { ExecuteDelegate = _addNextRundown, CanExecuteDelegate = _canAddNextRundown };
@@ -395,20 +395,6 @@ namespace TAS.Client.ViewModels
             var ep = Selected as EventPanelRundownElementViewmodelBase;
             if (ep != null)
                 ep.CommandAddNextMovie.Execute(obj);
-        }
-
-        private void _moveDown(object obj)
-        {
-            var ep = Selected as EventPanelRundownElementViewmodelBase;
-            if (ep != null)
-                ep.CommandMoveDown.Execute(obj);
-        }
-
-        private void _moveUp(object obj)
-        {
-            var ep = Selected as EventPanelRundownElementViewmodelBase;
-            if (ep != null)
-                ep.CommandMoveUp.Execute(obj);
         }
 
         private void _eventHide(object obj)

@@ -38,6 +38,17 @@ namespace TAS.Client.ViewModels
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = _canCheckVolume };
             CommandEditField = new UICommand { ExecuteDelegate = _editField };
             CommandTriggerStartType = new UICommand { ExecuteDelegate = _triggerStartType, CanExecuteDelegate = _canTriggerStartType };
+            CommandMoveUp = new UICommand() { ExecuteDelegate = o => _event?.MoveUp(), CanExecuteDelegate = _canMoveUp };
+            CommandMoveDown = new UICommand() { ExecuteDelegate = o => _event?.MoveDown(), CanExecuteDelegate = _canMoveDown };
+            CommandDelete = new UICommand
+            {
+                ExecuteDelegate = o =>
+                {
+                    if (_event != null && MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+                        _event.Delete();
+                },
+                CanExecuteDelegate = o => _event?.AllowDelete() == true
+            };
         }
 
         private void _fields_or_commands_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -68,12 +79,16 @@ namespace TAS.Client.ViewModels
         
         public ICommand CommandUndoEdit { get; private set; }
         public ICommand CommandSaveEdit { get; private set; }
+        public ICommand CommandMoveUp { get; private set; }
+        public ICommand CommandMoveDown { get; private set; }
         public ICommand CommandChangeMovie { get; private set; }
         public ICommand CommandEditMovie { get; private set; }
         public ICommand CommandCheckVolume { get; private set; }
         public ICommand CommandToggleEnabled { get; private set; }
         public ICommand CommandToggleHold { get; private set; }
         public ICommand CommandTriggerStartType { get; private set; }
+        public ICommand CommandDelete { get; private set; }
+
 
         private IEvent _event;
         public IEvent Event
@@ -485,6 +500,20 @@ namespace TAS.Client.ViewModels
             }
         }
 
+
+        bool _canMoveUp(object o)
+        {
+            IEvent prior = _event?.Prior;
+            return prior != null && prior.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled && !IsLoop
+                && (prior.StartType == TStartType.After || !IsHold);
+        }
+
+        bool _canMoveDown(object o)
+        {
+            IEvent next = _event?.Next;
+            return next != null && next.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled && !next.IsLoop
+                && (_event.StartType == TStartType.After || !next.IsHold);
+        }
         #endregion // command methods
 
         private bool _isVolumeChecking;

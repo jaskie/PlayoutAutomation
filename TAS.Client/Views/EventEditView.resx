@@ -162,6 +162,9 @@
   <data name="_command.ToolTip" xml:space="preserve">
     <value>Custom command to execute on server</value>
   </data>
+  <data name="_delete.ToolTip" xml:space="preserve">
+    <value>Delete | Ctrl + Del</value>
+  </data>
   <data name="_duration" xml:space="preserve">
     <value>Duration</value>
   </data>
@@ -194,6 +197,12 @@
   </data>
   <data name="_loop" xml:space="preserve">
     <value>Loop</value>
+  </data>
+  <data name="_moveDown.ToolTip" xml:space="preserve">
+    <value>Move down | Alt + Down arrow</value>
+  </data>
+  <data name="_moveUp.ToolTip" xml:space="preserve">
+    <value>Move up | Alt + Up arrow</value>
   </data>
   <data name="_name" xml:space="preserve">
     <value>Name</value>

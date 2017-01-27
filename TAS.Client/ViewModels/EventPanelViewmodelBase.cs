@@ -30,7 +30,6 @@ namespace TAS.Client.ViewModels
         protected readonly RationalNumber _frameRate;
         protected readonly ObservableCollection<EventPanelViewmodelBase> _childrens = new ObservableCollection<EventPanelViewmodelBase>();
         protected static readonly EventPanelViewmodelBase DummyChild = new EventPanelDummyViewmodel();
-        public ICommand CommandDelete { get; private set; }
 
 
         /// <summary>
@@ -95,15 +94,7 @@ namespace TAS.Client.ViewModels
 
         protected virtual void CreateCommands()
         {
-            CommandDelete = new UICommand
-            {
-                ExecuteDelegate = o =>
-                {
-                    if (_event != null && MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-                        _event.Delete();
-                },
-                CanExecuteDelegate = o => IsSelected && _event != null && _event.AllowDelete()
-            };
+
         }
 
         internal EventPanelViewmodelBase CreateChildEventPanelViewmodelForEvent(IEvent ev)
@@ -143,10 +134,12 @@ namespace TAS.Client.ViewModels
 
         protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
             {
                 if (e.Operation == TCollectionOperation.Remove && HasDummyChild && _event.SubEventsCount == 0)
                     Childrens.Remove(DummyChild);
+                if (e.Operation == TCollectionOperation.Insert && !HasDummyChild && _event.SubEventsCount > 0)
+                    Childrens.Add(DummyChild);
             });
         }
 
@@ -201,10 +194,10 @@ namespace TAS.Client.ViewModels
                 if (SetField(ref _isExpanded, value, nameof(IsExpanded)))
                 {
                     // Lazy load the child items, if necessary.
-                    if (value && this.HasDummyChild)
+                    if (value && HasDummyChild)
                     {
-                        this.Childrens.Remove(DummyChild);
-                        this.LoadChildrens();
+                        Childrens.Remove(DummyChild);
+                        LoadChildrens();
                     }
                     if (!value)
                         ClearChildrens();
@@ -259,17 +252,12 @@ namespace TAS.Client.ViewModels
         
         public string EventName
         {
-            get { return _event == null ? string.Empty : _event.EventName; }
+            get { return _event?.EventName; }
         }
 
         public TEventType? EventType
         {
             get { return _event?.EventType; }
-        }
-
-        public bool HasSubItems
-        {
-            get { return (_event == null || _event.EventType == TEventType.Live || _event.EventType == TEventType.Movie) ? false : _event.SubEvents.Any(e => e.EventType == TEventType.StillImage); }
         }
 
         public EventPanelViewmodelBase Find(IEvent aEvent)

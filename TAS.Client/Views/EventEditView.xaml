@@ -21,13 +21,29 @@
         <common:TimeSpanToFramesConverter x:Key="TimeSpanToFrames"/>
     </UserControl.Resources>
     <DockPanel>
-        <Grid DockPanel.Dock="Top">
+        <Grid DockPanel.Dock="Top" Height="37">
             <Grid.Resources>
                 <Style TargetType="Button">
-                    <Setter Property="Margin" Value="3"/>
+                    <Setter Property="Margin" Value="5"/>
+                </Style>
+                <Style TargetType="Image" >
+                    <Setter Property="Margin" Value="5, 0"/>
                 </Style>
             </Grid.Resources>
-            <StackPanel FlowDirection="RightToLeft" Orientation="Horizontal" Height="37">
+            <StackPanel Orientation="Horizontal">
+                <Button ToolTip="{Resx _moveUp.ToolTip}" Command="{Binding CommandMoveUp}" >
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-up.png" />
+                </Button>
+                <Button ToolTip="{Resx _moveDown.ToolTip}" Command="{Binding CommandMoveDown}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-down.png" />
+                </Button>
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
+                <Button ToolTip="{Resx _delete.ToolTip}" Command="{Binding CommandDelete}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/delete.png" />
+                </Button>
+
+            </StackPanel>
+            <StackPanel FlowDirection="RightToLeft" Orientation="Horizontal" >
                 <StackPanel.Resources>
                     <Style TargetType="Button">
                         <Setter Property="Margin" Value="5" />
@@ -39,9 +55,6 @@
                         <Setter Property="VerticalAlignment" Value="Center"/>
                         <Setter Property="HorizontalAlignment" Value="Center"/>
                         <Setter Property="Padding" Value="0"/>
-                    </Style>
-                    <Style TargetType="Image" >
-                        <Setter Property="Margin" Value="5, 0"/>
                     </Style>
                 </StackPanel.Resources>
                 <Button IsDefault="True" ToolTip="{Resx _buttonSave.ToolTip}" Command="{Binding CommandSaveEdit}" >

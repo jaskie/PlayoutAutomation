@@ -109,17 +109,6 @@
                     <Button Command="{Binding CommandAddNextLive}" ToolTip="{Resx _addNextLive.ToolTip}" >
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/new-next-live.png"/>
                     </Button>
-                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
-                    <Button ToolTip="{Resx _moveUp.ToolTip}" Command="{Binding CommandMoveUp}">
-                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-up.png" />
-                    </Button>
-                    <Button ToolTip="{Resx _moveDown.ToolTip}" Command="{Binding CommandMoveDown}">
-                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/go-down.png" />
-                    </Button>
-                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="5, 2"/>
-                    <Button ToolTip="{Resx _delete.ToolTip}" Command="{Binding CommandDelete}">
-                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/delete.png" />
-                    </Button>
                 </StackPanel>
                 <TextBlock Grid.Column="4" Text="{Binding TimeLeft}" FontSize="22" VerticalAlignment="Center" MinWidth="120" Margin="5, 0" Style="{StaticResource EventPanelTextBlock}" />
             </Grid>

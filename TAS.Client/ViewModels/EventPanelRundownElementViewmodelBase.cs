@@ -34,8 +34,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandPaste { get { return _engineViewmodel.CommandPasteSelected; } }
         public ICommand CommandToggleHold { get; private set; }
         public ICommand CommandToggleEnabled { get; private set; }
-        public ICommand CommandMoveUp { get; private set; }
-        public ICommand CommandMoveDown { get; private set; }
 
 
         public ICommand CommandToggleLayer { get; private set; }
@@ -83,8 +81,6 @@ namespace TAS.Client.ViewModels
                 },
                 CanExecuteDelegate = (o) => _event.PlayState == TPlayState.Scheduled || _event.PlayState == TPlayState.Playing || _event.PlayState == TPlayState.Paused
             };
-            CommandMoveUp = new UICommand() { ExecuteDelegate = (o) => _event.MoveUp(), CanExecuteDelegate = _canMoveUp };
-            CommandMoveDown = new UICommand() { ExecuteDelegate = o => _event.MoveDown(), CanExecuteDelegate = _canMoveDown };
             CommandAddNextRundown = new UICommand()
             {
                 ExecuteDelegate = o => _engineViewmodel.AddSimpleEvent(_event, TEventType.Rundown, false),
@@ -132,19 +128,6 @@ namespace TAS.Client.ViewModels
             return _event.PlayState != TPlayState.Played && !_event.IsLoop;
         }
 
-        bool _canMoveUp(object o)
-        {
-            IEvent prior = _event.Prior;
-            return prior != null && prior.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled && !IsLoop
-                && (prior.StartType == TStartType.After || !IsHold);
-        }
-
-        bool _canMoveDown(object o)
-        {
-            IEvent next = _event.Next;
-            return next != null && next.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled && !next.IsLoop
-                && (_event.StartType == TStartType.After || !next.IsHold);
-        }
         #endregion // Commands
 
         private string _timeLeft = string.Empty;

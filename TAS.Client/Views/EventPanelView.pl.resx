@@ -188,15 +188,6 @@ Konieczny kontakt z autorem aplikacji, tel. 601600516</value>
   <data name="_toggleLayer.ToolTip" xml:space="preserve">
     <value>Włącz/wyłącz grafikę na tej warstwie</value>
   </data>
-  <data name="_delete.ToolTip" xml:space="preserve">
-    <value>Usuń | Ctrl + Del</value>
-  </data>
-  <data name="_moveUp.ToolTip" xml:space="preserve">
-    <value>Przesuń do góry | Alt + strzałka w górę</value>
-  </data>
-  <data name="_moveDown.ToolTip" xml:space="preserve">
-    <value>Przesuń w dół | Alt + strzałka w dół</value>
-  </data>
   <data name="_scheduledDelay.ToolTip" xml:space="preserve">
     <value>Opóźnienie</value>
   </data>
