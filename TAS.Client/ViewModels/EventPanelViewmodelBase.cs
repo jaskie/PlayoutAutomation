@@ -134,11 +134,12 @@ namespace TAS.Client.ViewModels
 
         protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
+            Debug.WriteLine(e.Item, $"OnSubEventChanged {e.Operation}");
             Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
             {
-                if (e.Operation == TCollectionOperation.Remove && HasDummyChild && _event.SubEventsCount == 0)
+                if (e.Operation == TCollectionOperation.Remove && !IsExpanded && HasDummyChild && _event.SubEventsCount == 0)
                     Childrens.Remove(DummyChild);
-                if (e.Operation == TCollectionOperation.Insert && !HasDummyChild && _event.SubEventsCount > 0)
+                if (e.Operation == TCollectionOperation.Insert && !IsExpanded && !HasDummyChild && _event.SubEventsCount > 0)
                     Childrens.Add(DummyChild);
             });
         }

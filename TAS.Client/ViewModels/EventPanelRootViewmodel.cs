@@ -38,9 +38,10 @@ namespace TAS.Client.ViewModels
 
         private void _onEngineEventSaved(object o, IEventEventArgs e) // when new event was created
         {
+            Debug.WriteLine(e.Event, "Event saved");
             Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
             {
-                EventPanelViewmodelBase vm = _placeEventInRundown(e.Event);
+                EventPanelViewmodelBase vm = _placeEventInRundown(e.Event, false);
                 if (vm != null
                     && e.Event.EventType != TEventType.StillImage
                     && e.Event == _engineViewmodel.LastAddedEvent)
@@ -55,7 +56,7 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        private EventPanelViewmodelBase _placeEventInRundown(IEvent e)
+        private EventPanelViewmodelBase _placeEventInRundown(IEvent e, bool show)
         {
             EventPanelViewmodelBase newVm = null;
             EventPanelViewmodelBase evm = this.Find(e);
@@ -71,7 +72,7 @@ namespace TAS.Client.ViewModels
                         if (eventType == TEventType.Movie || eventType == TEventType.Rundown || eventType == TEventType.Live
                             || evm_vp.IsExpanded)
                         {
-                            if (e == _engineViewmodel.LastAddedEvent)
+                            if (show || e == _engineViewmodel.LastAddedEvent)
                             {
                                 evm_vp.IsExpanded = true;
                                 if (evm_vp.Find(e) == null) // find again after expand
@@ -88,7 +89,7 @@ namespace TAS.Client.ViewModels
                                         {
                                             var evm_prior = evm_vp.Find(prior);
                                             if (evm_prior == null)
-                                                evm_prior = _placeEventInRundown(prior); // recursion here
+                                                evm_prior = _placeEventInRundown(prior, true); // recursion here
                                             if (evm_prior != null)
                                             {
                                                 var pos = evm_vp.Childrens.IndexOf(evm_prior);

@@ -67,7 +67,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.CGElementsContro
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RemoteClient", "RemoteClient", "{3F966B33-01BF-49D9-9EEC-C6A81308D6F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Remoting.Server", "TAS.Remoting.Server\TAS.Remoting.Server.csproj", "{29E2FF1E-7E0D-4CF6-B66A-3A116EB8209F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Remoting.Proxy", "TAS.Remoting.Proxy\TAS.Remoting.Proxy.csproj", "{29E2FF1E-7E0D-4CF6-B66A-3A116EB8209F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPlaySvc", "TVPlaySvc\TVPlaySvc.csproj", "{1A1B92CF-3592-47D0-B721-DF40274B7F80}"
 EndProject

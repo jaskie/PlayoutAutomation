@@ -176,9 +176,9 @@
       <Project>{f6e01e47-5075-42a7-b2a2-bc35bc074f9f}</Project>
       <Name>TAS.Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TAS.Remoting.Server\TAS.Remoting.Server.csproj">
+    <ProjectReference Include="..\TAS.Remoting.Proxy\TAS.Remoting.Proxy.csproj">
       <Project>{29e2ff1e-7e0d-4cf6-b66a-3a116eb8209f}</Project>
-      <Name>TAS.Remoting.Server</Name>
+      <Name>TAS.Remoting.Proxy</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
       <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
