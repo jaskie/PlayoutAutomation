@@ -296,21 +296,20 @@ namespace TAS.Server
                     e.Save();
                 }
 
-            ulong currentUnbiasedTime;
-            ulong previousUnbiasedTime;
-            QueryUnbiasedInterruptTime(out currentUnbiasedTime);
-            previousUnbiasedTime = currentUnbiasedTime;
-            ulong frameUnbiasedTime = (ulong)_frameTicks;
-            TimeSpan frameDuration = TimeSpan.FromTicks(_frameTicks);
+            ulong currentTime;
+            ulong prevTime;
+            ulong frameDuration = (ulong)_frameTicks;
+            QueryUnbiasedInterruptTime(out currentTime);
+            prevTime = currentTime - frameDuration;
             while (!IsDisposed)
             {
                 try
                 {
                     CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
-                    QueryUnbiasedInterruptTime(out currentUnbiasedTime);
+                    QueryUnbiasedInterruptTime(out currentTime);
                     CurrentTicks = CurrentTime.Ticks;
-                    ulong nFrames = (currentUnbiasedTime - previousUnbiasedTime) / frameUnbiasedTime;
-                    previousUnbiasedTime = currentUnbiasedTime;
+                    ulong nFrames = (currentTime - prevTime) / frameDuration;
+                    prevTime += (nFrames * frameDuration);
                     _tick((long)nFrames);
                     EngineTick?.Invoke(this, new EngineTickEventArgs(CurrentTime, _getTimeToAttention()));
                     if (nFrames > 1)
@@ -321,17 +320,15 @@ namespace TAS.Server
                         else
                             Logger.Warn("LateFrame: {0}", nFrames);
                     }
-#if DEBUG
                     Debug.WriteLineIf(nFrames == 0, "Zero frames tick");
-#endif
                 }
                 catch (Exception e)
                 {
                     Debug.WriteLine(e, "Exception in engine tick");
                     Logger.Error($"{e}");
                 }
-                QueryUnbiasedInterruptTime(out currentUnbiasedTime);
-                int waitTime = (int)((frameUnbiasedTime - currentUnbiasedTime + previousUnbiasedTime + 10000) / 10000);
+                QueryUnbiasedInterruptTime(out currentTime);
+                int waitTime = (int)((prevTime + frameDuration - currentTime + 10000) / 10000);
                 if (waitTime > 0)
                     Thread.Sleep(waitTime);
 #if DEBUG

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#undef DEBUG
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -38,7 +39,7 @@ namespace TAS.Client.ViewModels
 
         private void _onEngineEventSaved(object o, IEventEventArgs e) // when new event was created
         {
-            Debug.WriteLine(e.Event, "Event saved");
+            Debug.WriteLine(e.Event, "EventSaved notified");
             Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
             {
                 EventPanelViewmodelBase vm = _placeEventInRundown(e.Event, false);
