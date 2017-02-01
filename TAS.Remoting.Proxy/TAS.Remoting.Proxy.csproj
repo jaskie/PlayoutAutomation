@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TAS.Remoting</RootNamespace>
-    <AssemblyName>TAS.Remoting.Server</AssemblyName>
+    <AssemblyName>TAS.Remoting.Proxy</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

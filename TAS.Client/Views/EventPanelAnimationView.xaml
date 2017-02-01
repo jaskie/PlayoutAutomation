@@ -45,12 +45,7 @@
                 <TextBlock.ToolTip>
                     <TextBlock Text="{Binding Parent.EventName, StringFormat={Resx _eventName.ToolTip, ResxName=TAS.Client.Views.EventPanelView}}" />
                 </TextBlock.ToolTip>
-                    </TextBlock>
-            <Grid Grid.Column="4" Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}" >
-                <Button ToolTip="{Resx _delete.ToolTip}" Command="{Binding CommandDelete}" Style="{StaticResource EventPanelCommandButton}">
-                    <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png"/>
-                </Button>
-            </Grid>
+            </TextBlock>
         </Grid>
     </Border>
 </local:EventPanelView>
