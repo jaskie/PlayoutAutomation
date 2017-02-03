@@ -1161,6 +1161,8 @@ namespace TAS.Server
             if ((_playState == TPlayState.Fading || _playState == TPlayState.Paused || _playState == TPlayState.Playing) &&
                 (_eventType == TEventType.Live || _eventType == TEventType.Movie || _eventType == TEventType.Rundown))
                 return false;
+            if (_eventType == TEventType.Container && SubEvents.Any())
+                return false;
             foreach (IEvent se in this.SubEvents)
             {
                 IEvent ne = se;
