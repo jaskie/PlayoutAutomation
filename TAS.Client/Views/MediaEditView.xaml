@@ -218,7 +218,7 @@
                 </DockPanel>
                 <DockPanel>
                     <Label Content="{Resx _fileName}" />
-                    <TextBox IsReadOnly="{Binding IsPersistentMedia}" Text="{Binding FileName, Mode=OneWay}" />
+                    <TextBox Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
                 </DockPanel>
                 <DockPanel>
                     <Label Content="{Resx _mediaGuid}" />

@@ -342,6 +342,17 @@ namespace TAS.Server
             return result;
         }
 
+        internal void UpdateMediaGuid(Guid oldGuid, Media media)
+        {
+            if (oldGuid != media.MediaGuid)
+            {
+                Media removed;
+                if (_files.TryRemove(oldGuid, out removed)
+                    && removed == media)
+                    _files[media.MediaGuid] = media;
+            }
+        }
+
         public virtual List<IMedia> FindMediaList(Func<IMedia, bool> condition)
         {
             return _files.Values.Where(condition).ToList();

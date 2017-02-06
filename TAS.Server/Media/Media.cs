@@ -56,13 +56,25 @@ namespace TAS.Server
             get { return _fileName; }
             set
             {
-                var oldFullPath = FullPath; 
-                if (SetField(ref _fileName, value, nameof(FileName)))
+                var oldFullPath = FullPath;
+                if (_fileName != value
+                    && MediaStatus == TMediaStatus.Available
+                    && File.Exists(oldFullPath))
                 {
-                    NotifyPropertyChanged(nameof(FullPath));
-                    if (MediaStatus == TMediaStatus.Available && File.Exists(oldFullPath))
-                        File.Move(oldFullPath, FullPath);
+                    try
+                    {
+                        File.Move(oldFullPath, _getFullPath(value));
+                        _fileName = value;
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Warn(e, "File {0} rename failed", this);
+                    }
+                    NotifyPropertyChanged(nameof(FileName));
                 }
+                else
+                if (SetField(ref _fileName, value, nameof(FileName)))
+                    NotifyPropertyChanged(nameof(FullPath));
             }
         }
 
@@ -220,7 +232,12 @@ namespace TAS.Server
         public virtual Guid MediaGuid
         {
             get { return _mediaGuid; }
-            internal set { SetField(ref _mediaGuid, value, nameof(MediaGuid)); }
+            internal set
+            {
+                Guid oldGuid = _mediaGuid;
+                if (SetField(ref _mediaGuid, value, nameof(MediaGuid)))
+                    _directory.UpdateMediaGuid(oldGuid, this);
+            }
         }
 
 
@@ -245,15 +262,16 @@ namespace TAS.Server
             get { return _directory; }
         }
 
+        private string _getFullPath(string fileName)
+        {
+            return string.IsNullOrWhiteSpace(_folder) ?
+                   string.Join(_directory.PathSeparator.ToString(), _directory.Folder.TrimEnd(_directory.PathSeparator), fileName) :
+                   string.Join(_directory.PathSeparator.ToString(), _directory.Folder.TrimEnd(_directory.PathSeparator), _folder, fileName);
+        }
+
         public string FullPath
         {
-            get
-            {
-                return 
-                    string.IsNullOrWhiteSpace(_folder) ?
-                    string.Join(_directory.PathSeparator.ToString(), _directory.Folder.TrimEnd(_directory.PathSeparator), _fileName) :
-                    string.Join(_directory.PathSeparator.ToString(), _directory.Folder.TrimEnd(_directory.PathSeparator), _folder, _fileName);
-            }
+            get { return _getFullPath(_fileName); }
             internal set
             {
                 string relativeName = value.Substring(_directory.Folder.Length);
@@ -404,7 +422,7 @@ namespace TAS.Server
             }
             catch (Exception e)
             {
-                Logger.Error(e, "Verify exception");
+                Logger.Error(e, "Verify {0} exception", this);
                 Debug.WriteLine(e);
             }
         }
