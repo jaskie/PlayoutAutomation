@@ -42,7 +42,7 @@ namespace TAS.Server.Common
             for (int i = 0; i < arr.Length; i++)
                 if (Path.GetInvalidFileNameChars().Contains(arr[i]))
                     arr[i] = '_';
-            return new string(arr);
+            return new string(arr).Trim();
         }
 
         public static string GetUniqueFileName(string folder, string fileName, int maxAttempts = 1024)
