@@ -340,4 +340,7 @@ Działa natychmiastowo, do końca odtwarzanego klipu.</value>
   <data name="_toolbar.ClearMixer" xml:space="preserve">
     <value>Wyczyść transformacje miksera</value>
   </data>
+  <data name="_menu.Edit.Undo" xml:space="preserve">
+    <value>Przywróć usunięte</value>
+  </data>
 </root>

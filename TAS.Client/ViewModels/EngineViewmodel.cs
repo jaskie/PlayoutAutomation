@@ -55,6 +55,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandPasteSelected { get; private set; }
         public ICommand CommandCutSelected { get; private set; }
         public ICommand CommandExportMedia { get; private set; }
+        public ICommand CommandUndelete { get; private set; }
         public ICommand CommandSaveRundown { get; private set; }
         public ICommand CommandLoadRundown { get; private set; }
         public ICommand CommandRestartLayer { get; private set; }
@@ -189,7 +190,7 @@ namespace TAS.Client.ViewModels
             CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _multiSelectedEvents.Count > 0  };
             CommandPasteSelected = new UICommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selected, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
             CommandExportMedia = new UICommand() { ExecuteDelegate = _exportMedia, CanExecuteDelegate = _canExportMedia };
-
+            CommandUndelete = new UICommand() { ExecuteDelegate = _undelete, CanExecuteDelegate = _canUndelete };
 
             CommandEventHide = new UICommand { ExecuteDelegate = _eventHide };
             CommandMoveUp = EventEditViewmodel.CommandMoveUp;
@@ -215,6 +216,17 @@ namespace TAS.Client.ViewModels
             CommandSaveRundown = new UICommand { ExecuteDelegate = _saveRundown, CanExecuteDelegate = o => Selected != null && Selected.Event.EventType == TEventType.Rundown };
             CommandLoadRundown = new UICommand { ExecuteDelegate = _loadRundown, CanExecuteDelegate = o => o.Equals("Under") ? _canAddSubRundown(o) : _canAddNextRundown(o) };
 
+        }
+
+        private bool _canUndelete(object obj)
+        {
+            return EventClipboard.CanUndo();
+        }
+
+        private void _undelete(object obj)
+        {
+            if (MessageBox.Show(string.Format(resources._query_Undelete), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK)
+                EventClipboard.Undo();
         }
 
         private bool _canClear(object obj)
@@ -565,6 +577,8 @@ namespace TAS.Client.ViewModels
                 && (containerList.Count() == 0
                     || MessageBox.Show(string.Format(resources._query_DeleteSelectedContainers, containerList.Count(), containerList.AsString(Environment.NewLine, 20)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
             {
+                var firstEvent = evmList.First().Event;
+                EventClipboard.SaveUndo(evmList.Select(evm => evm.Event), firstEvent.StartType == TStartType.After ? firstEvent.Prior : firstEvent.Parent);
                 ThreadPool.QueueUserWorkItem(
                     o =>
                     {

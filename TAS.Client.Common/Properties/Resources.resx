@@ -224,6 +224,9 @@ Really start new one?</value>
 Simultaneous operation of the two instances is not permitted.
 Do you really want to run this BACKUP play-out?</value>
   </data>
+  <data name="_query_Undelete" xml:space="preserve">
+    <value>Really undelete?</value>
+  </data>
   <data name="_rundown" xml:space="preserve">
     <value>Rundown</value>
   </data>

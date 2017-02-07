@@ -328,4 +328,7 @@ Effective until current clip ends.</value>
   <data name="_toolbar.ClearMixer" xml:space="preserve">
     <value>Clear mixer transformations</value>
   </data>
+  <data name="_menu.Edit.Undo" xml:space="preserve">
+    <value>Restore deleted</value>
+  </data>
 </root>

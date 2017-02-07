@@ -9,6 +9,7 @@ using TAS.Server.Interfaces;
 
 namespace TAS.Client
 {
+
     internal static class EventClipboard
     {
 
@@ -16,6 +17,11 @@ namespace TAS.Client
 
         internal enum ClipboardOperation { Cut, Copy };
 
+        static readonly List<IEventProperties> _undo = new List<IEventProperties>();
+        /// <summary>
+        /// original Undo location
+        /// </summary>
+        static IEvent _undoDest;
         static readonly List<IEventProperties> _clipboard = new List<IEventProperties>();
         static ClipboardOperation Operation;
         public static event Action ClipboardChanged;
@@ -26,11 +32,41 @@ namespace TAS.Client
         {
             ClipboardChanged?.Invoke();
         }
+        #region Undo
+        public static void SaveUndo(IEnumerable<IEvent> items, IEvent undoDest)
+        {
+            _undo.Clear();
+            _undoDest = undoDest;
+            foreach (var e in items)
+                _undo.Add(EventProxy.FromEvent(e));
+        }
+
+        public static bool CanUndo()
+        {
+            return _undo.Count > 0 && _undoDest?.IsDeleted == false;
+        }
+
+        public static void Undo()
+        {
+            IEvent dest = _undoDest;
+            using (var enumerator = _undo.GetEnumerator())
+            {
+                if (enumerator.MoveNext())
+                {
+                    TPasteLocation location = enumerator.Current.StartType == TStartType.After ? TPasteLocation.After : TPasteLocation.Under;
+                    dest = _paste(enumerator.Current, dest, location, ClipboardOperation.Copy);
+                    while (enumerator.MoveNext())
+                        dest = _paste(enumerator.Current, dest, TPasteLocation.After, ClipboardOperation.Copy);
+                }
+            }
+        }
+
+        #endregion //Undo
 
         public static void Copy(IEnumerable<EventPanelViewmodelBase> items)
         {
             _clipboard.Clear();
-            foreach (EventPanelViewmodelBase e in items)
+            foreach (var e in items)
                 _clipboard.Add(EventProxy.FromEvent(e.Event));
             Operation = ClipboardOperation.Copy;
             _notifyClipboardChanged();
@@ -39,7 +75,7 @@ namespace TAS.Client
         public static void Cut(IEnumerable<EventPanelViewmodelBase> items)
         {
             _clipboard.Clear();
-            foreach (EventPanelViewmodelBase e in items)
+            foreach (var e in items)
                 _clipboard.Add(e.Event);
             Operation = ClipboardOperation.Cut;
             _notifyClipboardChanged();

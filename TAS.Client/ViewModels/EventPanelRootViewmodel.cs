@@ -73,7 +73,7 @@ namespace TAS.Client.ViewModels
                         if (eventType == TEventType.Movie || eventType == TEventType.Rundown || eventType == TEventType.Live
                             || evm_vp.IsExpanded)
                         {
-                            if (show || e == _engineViewmodel.LastAddedEvent)
+                            if (evm_vp.IsExpanded || show || e == _engineViewmodel.LastAddedEvent)
                             {
                                 evm_vp.IsExpanded = true;
                                 if (evm_vp.Find(e) == null) // find again after expand

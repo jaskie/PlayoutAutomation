@@ -38,6 +38,7 @@
         <KeyBinding Command="{Binding CommandCopySelected}" Gesture="Ctrl+C" />
         <KeyBinding Command="{Binding CommandPasteSelected}" CommandParameter="After" Gesture="Ctrl+V" />
         <KeyBinding Command="{Binding CommandDeleteSelected}" Gesture="Ctrl+Delete" />
+        <KeyBinding Command="{Binding CommandUndelete}" Gesture="Ctrl+Z" />
 
         <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="Ctrl+S" />
         <KeyBinding Command="{Binding CommandUndoEdit}" Gesture="Ctrl+U" />
@@ -118,6 +119,8 @@
                 </MenuItem>
                 <Separator />
                 <MenuItem Header="{Resx _menu.Edit.DeleteSelected}" Command="{Binding CommandDeleteSelected}" InputGestureText="Ctrl+Delete" />
+                <Separator/>
+                <MenuItem Header="{Resx _menu.Edit.Undo}" Command="{Binding CommandUndelete}" InputGestureText="Ctrl+Z"/>
             </MenuItem>
             <MenuItem Header="{Resx _menu.Tools}">
                 <MenuItem Header="{Resx _menu.Tools.Export}">

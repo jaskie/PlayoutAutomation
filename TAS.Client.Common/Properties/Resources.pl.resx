@@ -224,6 +224,9 @@ Jeśli jego poprzednia kopia nie odpowiada i chcesz uruchomić nową, naciśnij 
 Jednoczesna praca na obydwu komputerach nie jest dozwolona.
 Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   </data>
+  <data name="_query_Undelete" xml:space="preserve">
+    <value>Przywrócić usunięte?</value>
+  </data>
   <data name="_rundown" xml:space="preserve">
     <value>Playlista</value>
   </data>

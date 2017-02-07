@@ -354,6 +354,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Really undelete?.
+        /// </summary>
+        public static string _query_Undelete {
+            get {
+                return ResourceManager.GetString("_query_Undelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Rundown.
         /// </summary>
         public static string _rundown {

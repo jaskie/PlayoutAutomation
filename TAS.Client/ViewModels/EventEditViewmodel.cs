@@ -45,7 +45,10 @@ namespace TAS.Client.ViewModels
                 ExecuteDelegate = o =>
                 {
                     if (_event != null && MessageBox.Show(resources._query_DeleteItem, resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+                    {
+                        EventClipboard.SaveUndo(new IEvent[] { _event }, _event.StartType == TStartType.After ? _event.Prior : _event.Parent );
                         _event.Delete();
+                    }
                 },
                 CanExecuteDelegate = o => _event?.AllowDelete() == true
             };
