@@ -124,7 +124,15 @@ namespace TAS.Server
 
         bool _isWideScreen;
         [JsonProperty]
-        public bool IsWideScreen { get { return _isWideScreen; } set { SetField(ref _isWideScreen, value, nameof(IsWideScreen)); } }
+        public bool IsWideScreen
+        {
+            get { return _isWideScreen; }
+            set
+            {
+                if (SetField(ref _isWideScreen, value, nameof(IsWideScreen)))
+                    _engine.IsWideScreen = value;
+            }
+        }
 
         private byte _crawl;
         [JsonProperty]

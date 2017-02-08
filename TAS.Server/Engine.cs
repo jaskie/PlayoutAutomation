@@ -384,7 +384,7 @@ namespace TAS.Server
         }
 
         #endregion //Database
-                
+
         #region FixedStartEvents
 
         readonly SynchronizedCollection<Event> _fixedTimeEvents = new SynchronizedCollection<Event>();
@@ -402,14 +402,14 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
-        public List<IEvent> FixedTimeEvents { get { lock(_fixedTimeEvents.SyncRoot) return _fixedTimeEvents.Cast<IEvent>().ToList(); } }
+        public List<IEvent> FixedTimeEvents { get { lock (_fixedTimeEvents.SyncRoot) return _fixedTimeEvents.Cast<IEvent>().ToList(); } }
 
         public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
 
         #endregion // FixedStartEvents
 
         public TArchivePolicyType ArchivePolicy;
-                
+
         private Event _playing;
         [XmlIgnore]
         public IEvent Playing
@@ -464,7 +464,23 @@ namespace TAS.Server
                 return e;
             }
         }
-    
+
+        bool _isWideScreen;
+        [JsonProperty]
+        [XmlIgnore]
+        public bool IsWideScreen
+        {
+            get { return _isWideScreen; }
+            set
+            {
+                if (SetField(ref _isWideScreen, value, nameof(IsWideScreen)))
+                    if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
+                    {
+                        _playoutChannelPRI?.SetAspect(VideoLayer.Program, !value);
+                        _playoutChannelSEC?.SetAspect(VideoLayer.Program, !value);
+                    }
+            }
+        }
         #region Preview Routines
 
         private IMedia _previewMedia;
@@ -795,11 +811,7 @@ namespace TAS.Server
                 return;
             IMedia media = aEvent.Media;
             bool narrow = media != null && (media.VideoFormat == TVideoFormat.PAL || media.VideoFormat == TVideoFormat.NTSC || media.VideoFormat == TVideoFormat.PAL_P);
-            if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
-            {
-                _playoutChannelPRI?.SetAspect(aEvent.Layer, narrow);
-                _playoutChannelSEC?.SetAspect(aEvent.Layer, narrow);
-            }
+            IsWideScreen = !narrow;
             if (AspectRatioControl == TAspectRatioControl.GPI || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
             {
                 var cgController = _cgElementsController;

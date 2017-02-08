@@ -53,6 +53,8 @@ namespace TAS.Remoting.Model
 
         public IPlayoutServerChannel PlayoutChannelSEC { get { return Get<PlayoutServerChannel>(); } set { SetLocalValue(value); } }
 
+        public bool IsWideScreen { get { return Get<bool>(); }  set { Set(value); } }
+
         #region IPreview
         public IPlayoutServerChannel PlayoutChannelPRV { get { return Get<IPlayoutServerChannel>(); } set { SetLocalValue(value); } }
         public decimal PreviewAudioLevel { get { return Get<decimal>(); } set { Set(value); } }
