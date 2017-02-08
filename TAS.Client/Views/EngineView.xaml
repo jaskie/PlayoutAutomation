@@ -24,7 +24,7 @@
         </Style>
     </UserControl.Resources>
     <UserControl.InputBindings>
-        <KeyBinding Command="{Binding CommandStartSelected}" Gesture="Ctrl+F3"/>
+        <KeyBinding Command="{Binding CommandStartSelected}" CommandParameter="Force" Gesture="Ctrl+F3"/>
         <KeyBinding Command="{Binding CommandStartLoaded}" Gesture="F3"/>
         <KeyBinding Command="{Binding CommandTrackingToggle}" Gesture="Scroll" />
         <KeyBinding Command="{Binding CommandClearAll}" Gesture="Shift+Pause" />

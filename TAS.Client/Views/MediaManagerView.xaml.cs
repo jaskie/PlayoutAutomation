@@ -53,19 +53,6 @@ namespace TAS.Client.Views
             }
         }
 
-        private void toggleButton_Click(object sender, RoutedEventArgs e)
-        {
-            DependencyObject obj = (DependencyObject)e.OriginalSource;
-            while (!(obj is DataGridRow) && obj != null)
-                obj = VisualTreeHelper.GetParent(obj);
-
-            if (obj is DataGridRow)
-                if ((obj as DataGridRow).DetailsVisibility == Visibility.Visible)
-                    (obj as DataGridRow).DetailsVisibility = Visibility.Collapsed;
-                else
-                    (obj as DataGridRow).DetailsVisibility = Visibility.Visible;
-        }
-
         private void UserControl_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.SystemKey == Key.LeftAlt)

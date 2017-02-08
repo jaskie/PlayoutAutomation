@@ -467,6 +467,7 @@ namespace TAS.Client.ViewModels
             var eventToStart = Selected.Event;
             if (_engine.EngineState != TEngineState.Running
                 || _engine.Playing?.EventType == TEventType.Live 
+                || (string)obj == "Force"
                 || MessageBox.Show(string.Format(resources._query_PlayWhileRunning), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
                 )
                 _engine.Start(eventToStart);
@@ -730,6 +731,7 @@ namespace TAS.Client.ViewModels
                     break;
                 case TEventType.Rundown:
                     newEvent = Engine.AddNewEvent(
+                        scheduledTime: DateTime.Today.AddDays(1) + new TimeSpan(DateTime.Now.Hour, 0, 0),
                         eventType: TEventType.Rundown,
                         eventName: resources._title_NewRundown);
                     break;

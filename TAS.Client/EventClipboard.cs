@@ -22,6 +22,8 @@ namespace TAS.Client
         /// original Undo location
         /// </summary>
         static IEvent _undoDest;
+        static IEngine _undoEngine;
+
         static readonly List<IEventProperties> _clipboard = new List<IEventProperties>();
         static ClipboardOperation Operation;
         public static event Action ClipboardChanged;
@@ -37,13 +39,19 @@ namespace TAS.Client
         {
             _undo.Clear();
             _undoDest = undoDest;
+            _undoEngine = items.FirstOrDefault()?.Engine;
             foreach (var e in items)
                 _undo.Add(EventProxy.FromEvent(e));
         }
 
         public static bool CanUndo()
         {
-            return _undo.Count > 0 && _undoDest?.IsDeleted == false;
+            if (_undoDest?.IsDeleted == true)
+            {
+                _clearUndo();
+                return false;
+            }
+            return _undo.Count > 0 && _undoEngine != null;
         }
 
         public static void Undo()
@@ -53,12 +61,43 @@ namespace TAS.Client
             {
                 if (enumerator.MoveNext())
                 {
-                    TPasteLocation location = enumerator.Current.StartType == TStartType.After ? TPasteLocation.After : TPasteLocation.Under;
-                    dest = _paste(enumerator.Current, dest, location, ClipboardOperation.Copy);
+                    dest = _pasteUndo(enumerator.Current);
                     while (enumerator.MoveNext())
                         dest = _paste(enumerator.Current, dest, TPasteLocation.After, ClipboardOperation.Copy);
                 }
             }
+            _clearUndo();
+        }
+
+        static void _clearUndo()
+        {
+            _undo.Clear();
+            _undoDest = null;
+            _undoEngine = null;
+        }
+
+        static IEvent _pasteUndo(IEventProperties source)
+        {
+            EventProxy sourceProxy = source as EventProxy;
+            if (sourceProxy != null && _undoEngine != null)
+            {
+                var mediaFiles = (_undoEngine.MediaManager.MediaDirectoryPRI ?? _undoEngine.MediaManager.MediaDirectorySEC)?.GetFiles();
+                var animationFiles = (_undoEngine.MediaManager.AnimationDirectoryPRI ?? _undoEngine.MediaManager.AnimationDirectorySEC)?.GetFiles();
+                switch (sourceProxy.StartType)
+                {
+                    case TStartType.After:
+                        return sourceProxy.InsertAfter(_undoDest, mediaFiles, animationFiles);
+                    case TStartType.WithParent:
+                    case TStartType.WithParentFromEnd:
+                        return sourceProxy.InsertUnder(_undoDest, sourceProxy.StartType == TStartType.WithParentFromEnd, mediaFiles, animationFiles);
+                    case TStartType.OnFixedTime:
+                    case TStartType.Manual:
+                        var newEvent = _undoDest == null ? sourceProxy.InsertRoot(_undoEngine, mediaFiles, animationFiles) : sourceProxy.InsertUnder(_undoDest, false, mediaFiles, animationFiles);
+                        newEvent.ScheduledTime = sourceProxy.ScheduledTime.AddDays(1);
+                        return newEvent;
+                }
+            }
+            throw new InvalidOperationException($"Cannot undo: {source.EventName}");
         }
 
         #endregion //Undo

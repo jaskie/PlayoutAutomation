@@ -70,6 +70,13 @@ namespace TAS.Server.Common
             return newEvent;
         }
 
+        public IEvent InsertRoot(IEngine engine, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        {
+            IEvent newEvent = _toEvent(engine, mediaFiles, animationFiles);
+            engine.AddRootEvent(newEvent);
+            return newEvent;
+        }
+
 
         private IEvent _toEvent(IEngine engine, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
         {
