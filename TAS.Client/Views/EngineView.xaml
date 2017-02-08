@@ -414,17 +414,18 @@
                 </TabControl.Resources>
                 <TabItem Padding="0, 20" Header="{Resx _tabs.Rundowns}">-->
             <DockPanel>
-                <Grid Height="25" DockPanel.Dock="Bottom" Visibility="{Binding IsSearchPanelVisible, Converter={StaticResource BoolToVis}}">
+                <Grid Height="28" DockPanel.Dock="Bottom" Visibility="{Binding IsSearchPanelVisible, Converter={StaticResource BoolToVis}}">
                     <StackPanel Orientation="Horizontal" >
                         <Label Content="{Resx _search.SearchFor}" VerticalAlignment="Center" Margin="5, 0" Padding="0"/>
-                        <controls:SearchTextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Prompt="{Resx _search.EnterTextToSearch}" Width="250" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Command="{Binding CommandSearchDo}" ButtonToolTip="{Resx _search.Search.ToolTip}" SearchMode="Regular">
+                        <controls:SearchTextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Prompt="{Resx _search.EnterTextToSearch}" 
+                                                Width="250" VerticalAlignment="Center" Command="{Binding CommandSearchDo}" ButtonToolTip="{Resx _search.Search.ToolTip}" SearchMode="Regular">
                             <i:Interaction.Behaviors>
                                 <common:FocusExtension IsFocused="{Binding IsSearchBoxFocused}"/>
                             </i:Interaction.Behaviors>
                         </controls:SearchTextBox>
-                        <TextBlock Text="{Resx _search.NotFound}" Visibility="{Binding IsSearchNotFound, Converter={StaticResource BoolToVis}}" Foreground="{DynamicResource {x:Static SystemColors.InactiveCaptionBrushKey}}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Resx _search.NotFound}" Visibility="{Binding IsSearchNotFound, Converter={StaticResource BoolToVis}}" Foreground="Red" Margin="5" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Button Style="{StaticResource ClearButton}" HorizontalAlignment="Right" Margin="2, 0" Command="{Binding CommandSearchHidePanel}" IsCancel="True" ToolTip="{Resx _search.Close.ToolTip}">
+                    <Button Style="{StaticResource ClearButton}" HorizontalAlignment="Right" Margin="3" Command="{Binding CommandSearchHidePanel}" IsCancel="True" ToolTip="{Resx _search.Close.ToolTip}">
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
                     </Button>
                 </Grid>

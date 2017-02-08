@@ -73,7 +73,6 @@
   <ItemGroup>
     <Compile Include="AudioVolumeEventArgs.cs" />
     <Compile Include="ColorAttribute.cs" />
-    <Compile Include="ConcurrentHashSet.cs" />
     <Compile Include="Database\Database.cs" />
     <Compile Include="Database\DbCommandRedundant.cs" />
     <Compile Include="Database\DbConnectionRedundant.cs" />
