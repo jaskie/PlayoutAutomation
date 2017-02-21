@@ -376,8 +376,8 @@ namespace TAS.Server.Database
                             _readAnimatedEvent(((IEventPesistent)e).Id, e as ITemplated);
                         e.StartType = TStartType.Manual;
                         e.IsModified = false;
-                        e.Save();
                         engine.AddRootEvent(e);
+                        e.Save();
                     }
                 }
             }

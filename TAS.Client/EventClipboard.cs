@@ -94,6 +94,7 @@ namespace TAS.Client
                     case TStartType.Manual:
                         var newEvent = _undoDest == null ? sourceProxy.InsertRoot(_undoEngine, mediaFiles, animationFiles) : sourceProxy.InsertUnder(_undoDest, false, mediaFiles, animationFiles);
                         newEvent.ScheduledTime = sourceProxy.ScheduledTime.AddDays(1);
+                        newEvent.Save();
                         return newEvent;
                 }
             }

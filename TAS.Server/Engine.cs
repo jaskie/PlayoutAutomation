@@ -1334,7 +1334,6 @@ namespace TAS.Server
         public void AddRootEvent(IEvent ev)
         {
             _rootEvents.Add(ev as IEventPesistent);
-            ev.Save();
         }
 
         public IEvent AddNewEvent(
