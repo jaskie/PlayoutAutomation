@@ -506,7 +506,7 @@ namespace TAS.Server
 
         private Event _getPredecessor()
         {
-            Event predecessor = _prior.Value;
+            Event predecessor = _prior.Value ?? _parent.Value;
             while (predecessor != null && predecessor.Length.Equals(TimeSpan.Zero))
                 predecessor = predecessor._getPredecessor();
             Event nextLevel = predecessor;
