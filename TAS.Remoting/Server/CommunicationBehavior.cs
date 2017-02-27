@@ -187,6 +187,7 @@ namespace TAS.Remoting.Server
 
         T Deserialize<T>(string s)
         {
+            //Debug.WriteLine(s);
             using (System.IO.StringReader stringReader = new System.IO.StringReader(s))
             using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
             {

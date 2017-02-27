@@ -30,7 +30,7 @@ namespace TAS.Server.Common
         public bool FieldOrderInverted { get; set; }
         public Guid MediaGuid { get; set; }
 
-        internal static MediaProxy FromMedia(IMediaProperties media)
+        public static MediaProxy FromMedia(IMediaProperties media)
         {
             return new MediaProxy()
             {
@@ -66,7 +66,7 @@ namespace TAS.Server.Common
         public ulong IdPersistentMedia { get; set; }
         public bool Protected { get; set; }
         public string IdAux { get; set; }
-        internal static PersistentMediaProxy FromMedia(IPersistentMediaProperties media)
+        public static PersistentMediaProxy FromMedia(IPersistentMediaProperties media)
         {
             return new PersistentMediaProxy()
             {

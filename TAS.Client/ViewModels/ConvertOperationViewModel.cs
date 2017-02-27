@@ -344,20 +344,27 @@ namespace TAS.Client.ViewModels
             _convertOperation.SourceFieldOrderEnforceConversion = _sourceFieldOrderEnforceConversion;
             _convertOperation.AudioChannelMappingConversion = _audioChannelMappingConversion;
 
-            _convertOperation.DestMediaProperties.MediaName = _destMediaName;
+            IMediaProperties newMediaProperties;
             if (_convertOperation.DestMediaProperties is IPersistentMediaProperties)
+                newMediaProperties = PersistentMediaProxy.FromMedia(_convertOperation.DestMediaProperties as IPersistentMediaProperties);
+            else
+                newMediaProperties = MediaProxy.FromMedia(_convertOperation.DestMediaProperties);
+
+            newMediaProperties.MediaName = _destMediaName;
+            if (newMediaProperties is IPersistentMediaProperties)
             {
-                ((IPersistentMediaProperties)_convertOperation.DestMediaProperties).IdAux = _idAux;
-                ((IPersistentMediaProperties)_convertOperation.DestMediaProperties).MediaEmphasis = _destMediaEmphasis;
+                ((IPersistentMediaProperties)newMediaProperties).IdAux = _idAux;
+                ((IPersistentMediaProperties)newMediaProperties).MediaEmphasis = _destMediaEmphasis;
             }
-            _convertOperation.DestMediaProperties.VideoFormat = _destMediaVideoFormat;
-            _convertOperation.DestMediaProperties.FileName = _destFileName;
-            _convertOperation.DestMediaProperties.TcStart = _startTC;
-            _convertOperation.DestMediaProperties.TcPlay = _startTC;
-            _convertOperation.DestMediaProperties.Duration = _duration;
-            _convertOperation.DestMediaProperties.DurationPlay = _duration;
-            _convertOperation.DestMediaProperties.MediaCategory = _destCategory;
-            _convertOperation.DestMediaProperties.Parental = _destParental;
+            newMediaProperties.VideoFormat = _destMediaVideoFormat;
+            newMediaProperties.FileName = _destFileName;
+            newMediaProperties.TcStart = _startTC;
+            newMediaProperties.TcPlay = _startTC;
+            newMediaProperties.Duration = _duration;
+            newMediaProperties.DurationPlay = _duration;
+            newMediaProperties.MediaCategory = _destCategory;
+            newMediaProperties.Parental = _destParental;
+            _convertOperation.DestMediaProperties = newMediaProperties;  //required to pass this parameter from client to server application
         }
 
         internal RationalNumber SourceMediaFrameRate { get { return _convertOperation.SourceMedia.FrameRate; } }

@@ -459,7 +459,7 @@ namespace TAS.Server
                 Event e = _playing;
                 if (e != null)
                     do
-                        e = e.getSuccessor();
+                        e = e.getSuccessorEnabled();
                     while (e != null && e.RequestedStartTime == null);
                 return e;
             }
@@ -633,7 +633,7 @@ namespace TAS.Server
         private bool _load(Event aEvent)
         {
             if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
-                aEvent = aEvent.getSuccessor();
+                aEvent = aEvent.getSuccessorEnabled();
             if (aEvent == null)
                 return false;
             Debug.WriteLine("{0} Load: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
@@ -660,7 +660,7 @@ namespace TAS.Server
         private bool _loadNext(Event aEvent)
         {
             if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
-                aEvent = aEvent.getSuccessor();
+                aEvent = aEvent.getSuccessorEnabled();
             if (aEvent == null)
                 return false;
             var eventType = aEvent.EventType;
@@ -709,7 +709,7 @@ namespace TAS.Server
         {
             var eventType = aEvent.EventType;
             if (aEvent != null && (!aEvent.IsEnabled || (aEvent.Length == TimeSpan.Zero && eventType != TEventType.Animation && eventType != TEventType.CommandScript)))
-                aEvent = aEvent.getSuccessor();
+                aEvent = aEvent.getSuccessorEnabled();
             if (aEvent as Event == null)
                 return false;
             Debug.WriteLine("{0} Play: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
@@ -1038,13 +1038,11 @@ namespace TAS.Server
             {
                 if (playingEvent != null)
                 {
-                    result = playingEvent.IsLoop ? playingEvent : playingEvent.getSuccessor();
+                    result = playingEvent.IsLoop ? playingEvent : playingEvent.getSuccessorEnabled();
                     if (result == null)
                         result = playingEvent.GetVisualRootTrack().FirstOrDefault(e => e.IsLoop) as Event;
                 }
             }
-            while (result != null && (!result.IsEnabled || (result.Length == TimeSpan.Zero)))
-                   result = result.getSuccessor();
             return result;
         }
 
@@ -1081,14 +1079,14 @@ namespace TAS.Server
             if (pe != null && (pe.PlayState == TPlayState.Playing || pe.PlayState == TPlayState.Paused))
             {
                 TimeSpan result = pe.Length - TimeSpan.FromTicks(pe.Position * _frameTicks);
-                pe = pe.getSuccessor();
+                pe = pe.getSuccessorEnabled();
                 while (pe != null)
                 {
                     TimeSpan? pauseTime = pe.GetAttentionTime();
                     if (pauseTime != null)
                         return result + pauseTime.Value - pe.TransitionTime;
                     result = result + pe.Length - pe.TransitionTime;
-                    pe = pe.getSuccessor();
+                    pe = pe.getSuccessorEnabled();
                 }
                 return result;
             }
@@ -1302,7 +1300,7 @@ namespace TAS.Server
                     break;
                 }
                 else
-                    ev = ev.getSuccessor();
+                    ev = ev.getSuccessorEnabled();
             }
             lock (_tickLock)
                 EngineState = TEngineState.Running;
@@ -1495,7 +1493,7 @@ namespace TAS.Server
                             _reSchedule(se);
                     }
 
-                    Event next = aEvent.getSuccessor();
+                    Event next = aEvent.getSuccessorEnabled();
                     if (next != null)
                         _reSchedule(next);
                 }

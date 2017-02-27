@@ -198,7 +198,11 @@ namespace TAS.Server
             set
             {
                 if (SetField(ref _isEnabled, value, nameof(IsEnabled)))
+                {
+                    if (value)
+                        _uppdateScheduledTime();
                     _durationChanged();
+                }
             }
         }
 
@@ -288,7 +292,7 @@ namespace TAS.Server
             if (SetField(ref _scheduledTime, time, nameof(ScheduledTime)))
             {
                 Debug.WriteLine($"Scheduled time updated: {this}");
-                Event toUpdate = getSuccessor() ?? _getVisualParent()?._next.Value;
+                Event toUpdate = _getSuccessor();
                 if (toUpdate != null)
                     toUpdate._uppdateScheduledTime();  // trigger update all next events
                 lock (_subEvents.Value.SyncRoot)
@@ -506,12 +510,10 @@ namespace TAS.Server
 
         private Event _getPredecessor()
         {
-            Event predecessor = _prior.Value ?? _parent.Value;
-            while (predecessor != null && predecessor.Length.Equals(TimeSpan.Zero))
-                predecessor = predecessor._getPredecessor();
+            Event predecessor = _prior.Value ?? _parent.Value?._prior.Value;
             Event nextLevel = predecessor;
             while (nextLevel != null)
-                if (nextLevel._eventType == TEventType.Rundown && nextLevel._isEnabled)
+                if (nextLevel._eventType == TEventType.Rundown)
                 {
                     lock (nextLevel._subEvents.Value.SyncRoot)
                         nextLevel = predecessor._subEvents.Value.FirstOrDefault();
@@ -526,30 +528,29 @@ namespace TAS.Server
             return predecessor;
         }
 
-        internal Event getSuccessor()
+        private Event _getSuccessor()
         {
             var eventType = _eventType;
             if (eventType == TEventType.Movie || eventType == TEventType.Live || eventType == TEventType.Rundown)
             {
-                Event current = _next.Value;
-                if (current != null)
-                {
-                    Event next = current._next.Value;
-                    while (next != null && current.Length.Equals(TimeSpan.Zero))
-                    {
-                        current = next;
-                        next = current._next.Value;
-                    }
-                }
-                if (current == null)
-                {
-                    current = _getVisualParent();
-                    if (current != null)
-                        current = current.getSuccessor();
-                }
-                return current;
+                Event result = _next.Value;
+                if (result == null)
+                    result = _getVisualParent()?._getSuccessor();
+                return result;
             }
             return null;
+        }
+
+        internal Event getSuccessorEnabled()
+        {
+            Event current = this;
+            Event next = _getSuccessor();
+            while (next != null && next.Length.Equals(TimeSpan.Zero))
+            {
+                current = next;
+                next = current._getSuccessor();
+            }
+            return next;
         }
 
         private void _uppdateScheduledTime()
@@ -616,13 +617,13 @@ namespace TAS.Server
         {
             if (_eventType == TEventType.Movie || _eventType == TEventType.Rundown || _eventType == TEventType.Live)
             {
-                NotifyPropertyChanged(nameof(EndTime));
                 Event owner = _getVisualParent();
                 if (owner != null && owner._eventType == TEventType.Rundown)
                     owner.Duration = owner._computedDuration();
-                Event ev = getSuccessor() ?? owner?._next.Value;
+                Event ev = _getSuccessor();
                 if (ev != null)
                     ev._uppdateScheduledTime();
+                NotifyPropertyChanged(nameof(EndTime));
             }
         }
 

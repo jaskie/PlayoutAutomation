@@ -118,23 +118,16 @@ namespace TAS.Server.Common
             var eventType = aEvent.EventType;
             if (eventType == TEventType.Movie || eventType == TEventType.Live || eventType == TEventType.Rundown)
             {
-                IEvent current = aEvent.Next;
-                if (current != null)
+                IEvent current = aEvent;
+                IEvent next = current.Next;
+                while (next != null && next.Length.Equals(TimeSpan.Zero))
                 {
-                    IEvent next = current.Next;
-                    while (next != null && current.Length.Equals(TimeSpan.Zero))
-                    {
-                        current = next;
-                        next = current.Next;
-                    }
+                    current = next;
+                    next = current.GetSuccessor();
                 }
-                if (current == null)
-                {
-                    current = aEvent.GetVisualParent();
-                    if (current != null)
-                        current = current.GetSuccessor();
-                }
-                return current;
+                if (next == null)
+                    next = current.GetVisualParent()?.GetSuccessor();
+                return next;
             }
             return null;
         }
