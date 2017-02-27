@@ -42,6 +42,7 @@ namespace TAS.Client
 
         static void Save()
         {
+            FileUtils.CreateDirectoryIfNotExists(FileUtils.LOCAL_APPLICATION_DATA_PATH);
             using (StreamWriter file = File.CreateText(_fileName))
                 {
                     JsonSerializer serializer = new JsonSerializer();
