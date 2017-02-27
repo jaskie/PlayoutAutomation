@@ -71,11 +71,11 @@ namespace TAS.Server
         public override void CloneMediaProperties(IMediaProperties fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
-            if (fromMedia is IPersistentMedia)
+            if (fromMedia is IPersistentMediaProperties)
             {
-                IdAux = (fromMedia as IPersistentMedia).IdAux;
-                IdProgramme = (fromMedia as IPersistentMedia).IdProgramme;
-                MediaEmphasis = (fromMedia as IPersistentMedia).MediaEmphasis;
+                IdAux = (fromMedia as IPersistentMediaProperties).IdAux;
+                IdProgramme = (fromMedia as IPersistentMediaProperties).IdProgramme;
+                MediaEmphasis = (fromMedia as IPersistentMediaProperties).MediaEmphasis;
             }
         }
 

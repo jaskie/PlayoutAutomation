@@ -50,9 +50,9 @@ namespace TAS.Server
         public override void CloneMediaProperties(IMediaProperties fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
-            if (fromMedia is ServerMedia)
+            if (fromMedia is IServerMediaProperties)
             {
-                DoNotArchive = (fromMedia as ServerMedia).DoNotArchive;
+                DoNotArchive = (fromMedia as IServerMediaProperties).DoNotArchive;
             }
         }
 

@@ -277,10 +277,10 @@ namespace TAS.Client.Common
         {
             if (targetType != typeof(Brush)) return null;
             if (!(value is TMediaEmphasis)) 
-                return null;
+                return Brushes.Transparent;
             var nAttributes = value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(ColorAttribute), false);
             if (!nAttributes.Any())
-                return null;
+                return Brushes.Transparent;
             return new SolidColorBrush((nAttributes.First() as ColorAttribute).Color);
         }
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

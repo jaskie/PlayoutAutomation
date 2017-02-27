@@ -132,9 +132,6 @@
   <data name="_conversions" xml:space="preserve">
     <value>Konwersje</value>
   </data>
-  <data name="_destExternalId" xml:space="preserve">
-    <value>Zewnętrzne ID (ZDP)</value>
-  </data>
   <data name="_destFileName" xml:space="preserve">
     <value>Nazwa pliku</value>
   </data>
@@ -154,7 +151,7 @@
     <value>Kolejność pól obrazu źródłowego</value>
   </data>
   <data name="_idAux" xml:space="preserve">
-    <value>Identyfikator audycji</value>
+    <value>Zewnętrzne ID (ZDP)</value>
   </data>
   <data name="_loudnessCheck" xml:space="preserve">
     <value>Sprawdź głośność po zakończeniu</value>

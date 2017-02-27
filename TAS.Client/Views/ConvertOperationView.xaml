@@ -9,7 +9,7 @@
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              d:DataContext="{x:Type vm:ConvertOperationViewModel}"
              mc:Ignorable="d" 
-             d:DesignHeight="360" DataContextChanged="UserControl_DataContextChanged">
+             d:DesignHeight="420" DataContextChanged="UserControl_DataContextChanged">
     <UserControl.Resources>
         <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <Style TargetType="TextBox">
@@ -28,8 +28,8 @@
             <TextBox Text="{Binding SourceFileName, Mode=OneWay}" IsReadOnly="True" IsEnabled="False" />
             <Label Content="{Resx _destMediaName}"/>
             <TextBox Text="{Binding DestMediaName, UpdateSourceTrigger=PropertyChanged}" />
-            <Label Content="{Resx _destExternalId}"/>
-            <TextBox Text="{Binding DestExternalId, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Content="{Resx _idAux}"/>
+            <TextBox Text="{Binding IdAux, UpdateSourceTrigger=PropertyChanged}" />
             <Label Content="{Resx _destFileName}" />
             <TextBox Text="{Binding DestFileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
             <StackPanel Visibility="{Binding IsStill, Converter={StaticResource BoolToVis}}">
@@ -53,7 +53,7 @@
                 <ComboBox ItemsSource="{Binding MediaEmphasises}" SelectedValue="{Binding DestMediaEmphasis}" >
                     <ComboBox.ItemContainerStyle>
                         <Style TargetType="{x:Type ComboBoxItem}">
-                            <Setter Property="Background" Value="{Binding Color, Converter={StaticResource ColorToBrush}}" />
+                            <Setter Property="Background" Value="{Binding Converter={StaticResource MediaEmphasisToBrush}}" />
                         </Style>
                     </ComboBox.ItemContainerStyle>
                 </ComboBox>
@@ -61,8 +61,6 @@
                     <Label Content="{Resx _parental}" />
                     <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValue="{Binding DestParental}" SelectedValuePath="Id" />
                 </StackPanel>
-                <Label Content="{Resx _idAux}"/>
-                <TextBox Text="{Binding IdAux, UpdateSourceTrigger=PropertyChanged}"/>
                 <CheckBox IsChecked="{Binding LoudnessCheck}"  Margin="5" Content="{Resx _loudnessCheck}"/>
             </StackPanel>
         </StackPanel>

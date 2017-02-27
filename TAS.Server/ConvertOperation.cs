@@ -54,22 +54,6 @@ namespace TAS.Server
         [JsonProperty]
         public TFieldOrder SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { SetField(ref _sourceFieldOrderEnforceConversion, value, nameof(SourceFieldOrderEnforceConversion)); } }
         [JsonProperty]
-        public string IdAux
-        {
-            get
-            {
-                var media = DestMedia as IPersistentMedia;
-                return (media == null) ? null : media.IdAux;
-            }
-            set
-            {
-                var media = DestMedia as IPersistentMedia;
-                if (media != null)
-                    media.IdAux = value;
-                NotifyPropertyChanged(nameof(IdAux));
-            }
-        }
-        [JsonProperty]
         public TimeSpan StartTC { get; set; }
         [JsonProperty]
         public TimeSpan Duration { get; set; }

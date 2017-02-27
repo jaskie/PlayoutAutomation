@@ -24,6 +24,10 @@ namespace TAS.Client.ViewModels
             _mediaManager = mediaManager;
             _destMediaName = operation.DestMediaProperties.MediaName;
             _destFileName = operation.DestMediaProperties.FileName;
+            _destCategory = operation.DestMediaProperties.MediaCategory;
+            _destMediaEmphasis = operation.DestMediaProperties is IPersistentMediaProperties ? ((IPersistentMediaProperties)operation.DestMediaProperties).MediaEmphasis : TMediaEmphasis.None;
+            _destParental = operation.DestMediaProperties.Parental;
+            _destMediaVideoFormat = operation.DestMediaProperties.VideoFormat;
             _duration = operation.Duration;
             _startTC = operation.StartTC;
             _trim = operation.Trim;
@@ -62,29 +66,13 @@ namespace TAS.Client.ViewModels
 
         static readonly Array _categories = Enum.GetValues(typeof(TMediaCategory)); 
         public Array Categories { get { return _categories; } }
-        public TMediaCategory DestCategory { get { return _convertOperation.DestMediaProperties.MediaCategory; } set { _convertOperation.DestMediaProperties.MediaCategory = value; } }
+        private TMediaCategory _destCategory;
+        public TMediaCategory DestCategory { get { return _destCategory; } set { SetField(ref _destCategory, value, nameof(DestCategory)); } }
 
-        public bool ShowParentalCombo { get { return _mediaManager?.CGElementsController?.Parentals != null; } }
+        
         public IEnumerable<ICGElement> Parentals { get { return _mediaManager?.CGElementsController?.Parentals; } }
-        public byte DestParental { get { return _convertOperation.DestMediaProperties.Parental; } set { _convertOperation.DestMediaProperties.Parental = value; } }
-
-        static readonly Array _mediaEmphasises = Enum.GetValues(typeof(TMediaEmphasis));
-        public Array MediaEmphasises { get { return _mediaEmphasises; } }
-        public TMediaEmphasis DestMediaEmphasis { 
-            get { return _convertOperation.DestMediaProperties is IPersistentMediaProperties ? ((IPersistentMediaProperties)_convertOperation.DestMediaProperties).MediaEmphasis : TMediaEmphasis.None; }
-            set { if (_convertOperation.DestMediaProperties is IPersistentMediaProperties) ((IPersistentMediaProperties)_convertOperation.DestMediaProperties).MediaEmphasis = value; }
-        }
-
-
-
-        static readonly Array _videoFormats = Enum.GetValues(typeof(TVideoFormat));
-        public Array VideoFormats { get { return _videoFormats; } }
-
-        public TVideoFormat DestMediaVideoFormat
-        {
-            get { return _convertOperation.DestMediaProperties.VideoFormat; }
-            set { _convertOperation.DestMediaProperties.VideoFormat = value; }
-        }
+        private byte _destParental;
+        public byte DestParental { get { return _destParental; } set { SetField(ref _destParental, value, nameof(DestParental)); } }
 
         static readonly Array _aspectConversions = Enum.GetValues(typeof(TAspectConversion));
         public Array AspectConversions { get { return _aspectConversions; } }
@@ -99,24 +87,27 @@ namespace TAS.Client.ViewModels
 
         static readonly Array _audioChannelMappingConversions = Enum.GetValues(typeof(TAudioChannelMappingConversion));
         public Array AudioChannelMappingConversions { get { return _audioChannelMappingConversions; } }
+        private TAudioChannelMappingConversion _audioChannelMappingConversion;
         public TAudioChannelMappingConversion AudioChannelMappingConversion
         {
-            get { return _convertOperation.AudioChannelMappingConversion; }
-            set { _convertOperation.AudioChannelMappingConversion = value; }
-        }
-        public decimal AudioVolume
-        {
-            get { return _convertOperation.AudioVolume; }
-            set { _convertOperation.AudioVolume = value; }
+            get { return _audioChannelMappingConversion; }
+            set { SetField(ref _audioChannelMappingConversion, value, nameof(AudioChannelMappingConversion)); }
         }
 
-        public string IdAux { get { return _convertOperation.IdAux; } set { _convertOperation.IdAux = value; } }
+        private decimal _audioVolume;
+        public decimal AudioVolume
+        {
+            get { return _audioVolume; }
+            set { SetField(ref _audioVolume, value, nameof(AudioVolume)); }
+        }
+
         static readonly Array _sourceFieldOrderEnforceConversions = Enum.GetValues(typeof(TFieldOrder));
         public Array SourceFieldOrderEnforceConversions { get { return _sourceFieldOrderEnforceConversions; } }
+        private TFieldOrder _sourceFieldOrderEnforceConversion;
         public TFieldOrder SourceFieldOrderEnforceConversion
         {
-            get { return _convertOperation.SourceFieldOrderEnforceConversion; }
-            set { _convertOperation.SourceFieldOrderEnforceConversion = value; }
+            get { return _sourceFieldOrderEnforceConversion; }
+            set { SetField(ref _sourceFieldOrderEnforceConversion, value, nameof(SourceFieldOrderEnforceConversion)); }
         }
     
         public bool EncodeVideo { get { return ((IIngestDirectory)_convertOperation.SourceMedia.Directory).VideoCodec != TVideoCodec.copy; } }
@@ -141,8 +132,8 @@ namespace TAS.Client.ViewModels
         void _makeFileName()
         {
             List<string> filenameParts = new List<string>();
-            if (!string.IsNullOrWhiteSpace(DestExternalId))
-                filenameParts.Add(DestExternalId);
+            if (!string.IsNullOrWhiteSpace(IdAux))
+                filenameParts.Add(IdAux);
             if (!string.IsNullOrWhiteSpace(DestMediaName))
                 filenameParts.Add(DestMediaName);
             DestFileName = FileUtils.SanitizeFileName(string.Join(" ", filenameParts)) + FileUtils.DefaultFileExtension(_convertOperation.DestMediaProperties.MediaType);
@@ -181,13 +172,13 @@ namespace TAS.Client.ViewModels
         }
 
 
-        string _destExternalId;
-        public string DestExternalId
+        string _idAux;
+        public string IdAux
         {
-            get { return _destExternalId; }
+            get { return _idAux; }
             set
             {
-                if (SetField(ref _destExternalId, value, nameof(DestExternalId)))
+                if (SetField(ref _idAux, value, nameof(IdAux)))
                     _makeFileName();
             }
         }
@@ -197,6 +188,29 @@ namespace TAS.Client.ViewModels
             get { return _destFileName; }
             set { SetField(ref _destFileName, value, nameof(DestFileName)); }
         }
+
+
+        static readonly Array _mediaEmphasises = Enum.GetValues(typeof(TMediaEmphasis));
+        public Array MediaEmphasises { get { return _mediaEmphasises; } }
+
+        private TMediaEmphasis _destMediaEmphasis;
+        public TMediaEmphasis DestMediaEmphasis
+        {
+            get { return _destMediaEmphasis; }
+            set { SetField(ref _destMediaEmphasis, value, nameof(DestMediaEmphasis)); }
+        }
+
+        static readonly Array _videoFormats = Enum.GetValues(typeof(TVideoFormat));
+        public Array VideoFormats { get { return _videoFormats; } }
+
+        private TVideoFormat _destMediaVideoFormat;
+        public TVideoFormat DestMediaVideoFormat
+        {
+            get { return _destMediaVideoFormat; }
+            set { SetField(ref _destMediaVideoFormat, value, nameof(DestMediaVideoFormat)); }
+        }
+
+        public bool ShowParentalCombo { get { return _mediaManager?.CGElementsController?.Parentals != null; } }
 
         public bool CanTrim
         {
@@ -322,18 +336,28 @@ namespace TAS.Client.ViewModels
 
         public void Apply()
         {
-            _convertOperation.DestMediaProperties.MediaName = _destMediaName;
-            if (_convertOperation.DestMediaProperties is IPersistentMediaProperties)
-                ((IPersistentMediaProperties)_convertOperation.DestMediaProperties).IdAux = _destExternalId;
-            _convertOperation.DestMediaProperties.FileName = _destFileName;
+            _convertOperation.Trim = _trim;
+            _convertOperation.LoudnessCheck = _loudnessCheck;
+            _convertOperation.AudioVolume = _audioVolume;
             _convertOperation.StartTC = _startTC;
             _convertOperation.Duration = _duration;
+            _convertOperation.SourceFieldOrderEnforceConversion = _sourceFieldOrderEnforceConversion;
+            _convertOperation.AudioChannelMappingConversion = _audioChannelMappingConversion;
+
+            _convertOperation.DestMediaProperties.MediaName = _destMediaName;
+            if (_convertOperation.DestMediaProperties is IPersistentMediaProperties)
+            {
+                ((IPersistentMediaProperties)_convertOperation.DestMediaProperties).IdAux = _idAux;
+                ((IPersistentMediaProperties)_convertOperation.DestMediaProperties).MediaEmphasis = _destMediaEmphasis;
+            }
+            _convertOperation.DestMediaProperties.VideoFormat = _destMediaVideoFormat;
+            _convertOperation.DestMediaProperties.FileName = _destFileName;
             _convertOperation.DestMediaProperties.TcStart = _startTC;
             _convertOperation.DestMediaProperties.TcPlay = _startTC;
             _convertOperation.DestMediaProperties.Duration = _duration;
             _convertOperation.DestMediaProperties.DurationPlay = _duration;
-            _convertOperation.Trim = _trim;
-            _convertOperation.LoudnessCheck = _loudnessCheck;
+            _convertOperation.DestMediaProperties.MediaCategory = _destCategory;
+            _convertOperation.DestMediaProperties.Parental = _destParental;
         }
 
         internal RationalNumber SourceMediaFrameRate { get { return _convertOperation.SourceMedia.FrameRate; } }

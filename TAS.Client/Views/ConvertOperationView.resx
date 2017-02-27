@@ -132,9 +132,6 @@
   <data name="_conversions" xml:space="preserve">
     <value>Conversions</value>
   </data>
-  <data name="_destExternalId" xml:space="preserve">
-    <value>External Id</value>
-  </data>
   <data name="_destFileName" xml:space="preserve">
     <value>Destination file name</value>
   </data>
