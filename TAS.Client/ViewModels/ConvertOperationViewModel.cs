@@ -28,6 +28,11 @@ namespace TAS.Client.ViewModels
             _destMediaEmphasis = operation.DestMediaProperties is IPersistentMediaProperties ? ((IPersistentMediaProperties)operation.DestMediaProperties).MediaEmphasis : TMediaEmphasis.None;
             _destParental = operation.DestMediaProperties.Parental;
             _destMediaVideoFormat = operation.DestMediaProperties.VideoFormat;
+
+            _audioChannelMappingConversion = operation.AudioChannelMappingConversion;
+            _aspectConversion = operation.AspectConversion;
+            _audioVolume = operation.AudioVolume;
+            _sourceFieldOrderEnforceConversion = operation.SourceFieldOrderEnforceConversion;
             _duration = operation.Duration;
             _startTC = operation.StartTC;
             _trim = operation.Trim;
@@ -79,10 +84,11 @@ namespace TAS.Client.ViewModels
         readonly Array _aspectConversionsEnforce = new TAspectConversion[3];
         public Array AspectConversionsEnforce { get { return _aspectConversionsEnforce; } }
 
+        private TAspectConversion _aspectConversion;
         public TAspectConversion AspectConversion
         {
-            get { return _convertOperation.AspectConversion; }
-            set { _convertOperation.AspectConversion = value; }
+            get { return _aspectConversion; }
+            set { SetField(ref _aspectConversion, value, nameof(AspectConversion)); }
         }
 
         static readonly Array _audioChannelMappingConversions = Enum.GetValues(typeof(TAudioChannelMappingConversion));
@@ -343,6 +349,8 @@ namespace TAS.Client.ViewModels
             _convertOperation.Duration = _duration;
             _convertOperation.SourceFieldOrderEnforceConversion = _sourceFieldOrderEnforceConversion;
             _convertOperation.AudioChannelMappingConversion = _audioChannelMappingConversion;
+            _convertOperation.AspectConversion = _aspectConversion;
+            _convertOperation.SourceFieldOrderEnforceConversion = _sourceFieldOrderEnforceConversion;
 
             IMediaProperties newMediaProperties;
             if (_convertOperation.DestMediaProperties is IPersistentMediaProperties)
