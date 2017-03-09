@@ -26,7 +26,7 @@ namespace TAS.Client.ViewModels
         public IMediaDirectory Directory { get { return _directory; } }
 
         public bool IsOK { get { return _directory.IsInitialized == true && DirectoryFreePercentage >= 20; } }
-        public long VolumeTotalSize { get { return _directory.VolumeFreeSize; } }
+        public long VolumeTotalSize { get { return _directory.VolumeTotalSize; } }
         public long VolumeFreeSize { get { return _directory.VolumeFreeSize; } }
         public float DirectoryFreePercentage
         {
