@@ -123,13 +123,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Osc\Extensions.cs" />
+    <Compile Include="Osc\Midi.cs" />
+    <Compile Include="Osc\OscBundle.cs" />
+    <Compile Include="Osc\OscEventArgs.cs" />
+    <Compile Include="Osc\OscMessage.cs" />
+    <Compile Include="Osc\OscPacket.cs" />
+    <Compile Include="Osc\Rgba.cs" />
+    <Compile Include="Osc\Symbol.cs" />
+    <Compile Include="Osc\Timetag.cs" />
+    <Compile Include="Osc\UdpListener.cs" />
+    <Compile Include="Osc\Utils.cs" />
     <Compile Include="ReconnectionHelper.cs" />
     <Compile Include="RemoteHostState.cs" />
     <Compile Include="ConnectionEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProtocolStrategy.cs" />
     <Compile Include="ServerConnection.cs" />
-    <Compile Include="ServerListener.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Osc\README.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

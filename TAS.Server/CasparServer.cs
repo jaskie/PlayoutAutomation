@@ -62,10 +62,16 @@ namespace TAS.Server
                     _casparDevice = new Svt.Caspar.CasparDevice();
                     _casparDevice.ConnectionStatusChanged += _casparDevice_ConnectionStatusChanged;
                     _casparDevice.UpdatedChannels += _casparDevice_UpdatedChannels;
+                    _casparDevice.OscMessage += _casparDevice_OscMessage;
                     _connect();
                     _isInitialized = true;
                 }
             }
+        }
+
+        private void _casparDevice_OscMessage(object sender, Svt.Network.Osc.OscPacketEventArgs e)
+        {
+            
         }
 
         List<CasparServerChannel> _serChannels;
@@ -104,7 +110,7 @@ namespace TAS.Server
             if (!(address.Length > 1 && int.TryParse(address[1], out port)))
                 port = 5250;
             if (_casparDevice != null && !_casparDevice.IsConnected)
-                _casparDevice.Connect(host, port, true);
+                _casparDevice.Connect(host, port, 6250, true);
             else throw new Exception($"Invalid server address: {ServerAddress}");
         }
 

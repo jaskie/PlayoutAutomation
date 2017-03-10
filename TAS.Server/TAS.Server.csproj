@@ -72,6 +72,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CasparRecorder.cs" />
     <Compile Include="CasparServer.cs" />
     <Compile Include="CasparServerChannel.cs" />
     <Compile Include="CommandScriptEvent.cs" />

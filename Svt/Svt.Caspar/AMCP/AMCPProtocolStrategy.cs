@@ -144,17 +144,7 @@ namespace Svt.Caspar.AMCP
 
 		void OnInfo(AMCPParserEventArgs e)
 		{
-			List<ChannelInfo> channelInfo = new List<ChannelInfo>();
-			foreach (string channelData in e.Data)
-			{
-				string[] data = channelData.Split(' ');
-				int id = Int32.Parse(data[0]);
-//				VideoMode vm = (VideoMode)Enum.Parse(typeof(VideoMode), data[1]);
-//				ChannelStatus cs = (ChannelStatus)Enum.Parse(typeof(ChannelStatus), data[2]);
-				channelInfo.Add(new ChannelInfo(id, VideoMode.Unknown, ChannelStatus.Stopped, ""));
-			}
-
-			device_.OnUpdatedChannelInfo(channelInfo);
+			device_.OnUpdatedChannelInfo(string.Join("\n", e.Data));
 		}
 
 		#region IProtocolStrategy Members

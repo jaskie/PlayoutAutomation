@@ -2,26 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Globalization;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace Svt.Caspar
 {
-	public class Channel
+    [XmlRoot("xmlElementName")]
+	public class Channel: System.Xml.Serialization.IXmlSerializable
 	{
-		public int ID { get; private set; }
+        const string xmlElementName = "channel";
+
+        private int _index;
+		public int ID { get { return _index; } }
         public CGManager CG { get; private set; }
         public VideoMode VideoMode { get; internal set; }
-        internal Svt.Network.ServerConnection Connection { get; private set; }
+        internal Svt.Network.ServerConnection Connection { get; set; }
 
-		internal Channel(Svt.Network.ServerConnection connection, int id, VideoMode videoMode)
+		internal Channel()
 		{
-			ID = id;
-            VideoMode = videoMode;
-            Connection = connection;
 			CG = new CGManager(this);
 		}
 
+        #region Commands
 
-		public bool Load(string clipname, bool loop)
+        public bool Load(string clipname, bool loop)
 		{
             clipname = clipname.Replace("\\", "\\\\");
 			Connection.SendString("LOAD " + ID + " " + clipname + (string)(loop ? " LOOP" : ""));
@@ -290,61 +295,85 @@ namespace Svt.Caspar
             else
                 Connection.SendString(string.Format(CultureInfo.InvariantCulture, "MIXER {0}-{1} CLIP {2} {3} {4} {5} {6} {7}", ID, videoLayer, x, y, scaleX, scaleY, duration, easing.ToString().ToUpperInvariant()));
         }
-
-
-
-
+        #endregion //Commands
 
         private string ToAMCPString(VideoMode mode)
-		{
-			string result = string.Empty;
-			switch (mode)
-			{
-				case VideoMode.Unknown:
-				case VideoMode.PAL:
-				case VideoMode.NTSC:
-					result = mode.ToString();
-					break;
+        {
+            string modestr = mode.ToString();
+            return (modestr.Length > 1) ? modestr.Substring(1) : modestr;
+        }
 
-				default:
-					{
-						string modestr = mode.ToString();
-						result = (modestr.Length > 2) ? modestr.Substring(2) : modestr;
-						break;
-					}
-			}
+        public XmlSchema GetSchema()
+        {
+            return null;
+        }
 
-			return result;
-		}
-	}
+        public void ReadXml(XmlReader reader)
+        {
+            reader.MoveToContent();
+            reader.Read();
+            while (!(reader.Name == xmlElementName && reader.NodeType == XmlNodeType.EndElement))
+            {
+                if (reader.NodeType == XmlNodeType.Element)
+                    switch (reader.Name)
+                    {
+                        case "video-mode":
+                            VideoMode mode;
+                            string value = "m" + reader.ReadElementContentAsString();
+                            if (Enum.TryParse<VideoMode>(value, out mode))
+                                VideoMode = mode;
+                            break;
+                        case "index":
+                            _index = reader.ReadElementContentAsInt();
+                            break;
+                        default:
+                            reader.Skip();
+                            break;
+                    }
+            }
+            reader.Read();
+        }
 
-	public enum VideoMode
-	{
-		PAL,
-		NTSC,
-		SD576p2500,
-		HD720p5000,
-		HD1080i5000,
-		Unknown
-	}
-	public enum ChannelStatus
-	{
-		Playing,
-		Stopped
-	}
-	internal class ChannelInfo
-	{
-		public ChannelInfo(int id, VideoMode vm, ChannelStatus cs, string activeClip)
-		{
-			ID = id;
-			VideoMode = vm;
-			Status = cs;
-			ActiveClip = activeClip;
-		}
+        public void WriteXml(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+    }
 
-        public int ID { get; set; }
-        public VideoMode VideoMode { get; set; }
-        public ChannelStatus Status { get; set; }
-        public string ActiveClip { get; set; }
-	}
+    public enum VideoMode
+    {
+        mPAL,
+        mNTSC,
+        m576p2500,
+        m720p2398,
+        m720p2400,
+        m720p2500,
+        m720p5000,
+        m720p2997,
+        m720p5994,
+        m720p3000,
+        m720p6000,
+        m1080p2398,
+        m1080p2400,
+        m1080i5000,
+        m1080i5994,
+        m1080i6000,
+        m1080p2500,
+        m1080p2997,
+        m1080p3000,
+        m1080p5000,
+        m1080p5994,
+        m1080p6000,
+        m1556p2398,
+        m1556p2400,
+        m1556p2500,
+        m2160p2398,
+        m2160p2400,
+        m2160p2500,
+        m2160p2997,
+        m2160p3000,
+        m2160p5000,
+        Unknown
+    }
+
 }

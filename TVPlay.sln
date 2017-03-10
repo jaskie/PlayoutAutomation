@@ -71,7 +71,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Remoting.Proxy", "TAS.R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPlaySvc", "TVPlaySvc\TVPlaySvc.csproj", "{1A1B92CF-3592-47D0-B721-DF40274B7F80}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Externals", "Externals", "{9E587B86-2AD9-446D-8DD5-D710167A7F54}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External dependencies", "External dependencies", "{9E587B86-2AD9-446D-8DD5-D710167A7F54}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace Svt.Caspar
 {
-	public class CasparDevice
-	{
+    public class CasparDevice
+    {
         internal Svt.Network.ServerConnection Connection { get; private set; }
+        private Network.Osc.UdpListener OscListener {get; set;}
         private Svt.Network.ReconnectionHelper ReconnectionHelper { get; set; }
 
         public CasparDeviceSettings Settings { get; private set; }
@@ -31,6 +34,7 @@ namespace Svt.Caspar
 		public event EventHandler<EventArgs> UpdatedTemplates;
 		public event EventHandler<EventArgs> UpdatedMediafiles;
 		public event EventHandler<EventArgs> UpdatedDatafiles;
+        public event EventHandler<Network.Osc.OscPacketEventArgs> OscMessage;
 
         volatile bool bIsDisconnecting = false;
 
@@ -38,6 +42,7 @@ namespace Svt.Caspar
 		{
             Settings = new CasparDeviceSettings();
             Connection = new Network.ServerConnection();
+            OscListener = new Network.Osc.UdpListener();
             Channels = new List<Channel>();
 		    Templates = new TemplatesCollection();
 		    Mediafiles = new List<MediaInfo>();
@@ -47,9 +52,15 @@ namespace Svt.Caspar
 
             Connection.ProtocolStrategy = new AMCP.AMCPProtocolStrategy(this);
             Connection.ConnectionStateChanged += server__ConnectionStateChanged;
+            OscListener.PacketReceived += oscListener_PacketReceived;
 		}
 
-		#region Server notifications
+        private void oscListener_PacketReceived(object sender, Network.Osc.OscPacketEventArgs e)
+        {
+            OscMessage?.Invoke(this, e);
+        }
+
+        #region Server notifications
         void server__ConnectionStateChanged(object sender, Network.ConnectionEventArgs e)
         {
             try
@@ -64,7 +75,7 @@ namespace Svt.Caspar
                 Connection.SendString("VERSION");
 
                 //Ask server for channels
-                Connection.SendString("INFO");
+                Connection.SendString("INFO SERVER");
 
                 //For compability with legacy users
                 try
@@ -151,15 +162,16 @@ namespace Svt.Caspar
 		#region Connection
         public bool Connect(string host, int port)
         {
-            return Connect(host, port, false);
+            return Connect(host, port, 0, false);
         }
 
-        public bool Connect(string host, int port, bool reconnect)
+        public bool Connect(string host, int amcpPort, int oscPort, bool reconnect)
         {
             if (!IsConnected)
             {
                 Settings.Hostname = host;
-                Settings.Port = port;
+                Settings.AmcpPort = amcpPort;
+                Settings.OscPort = oscPort;
                 Settings.AutoConnect = reconnect;
                 return Connect();
             }
@@ -167,9 +179,11 @@ namespace Svt.Caspar
         }
         public bool Connect()
 		{
-			if (!IsConnected)
+            if (Settings.OscPort > 0 && !OscListener.IsConnected)
+                OscListener.Connect(Settings.Hostname, Settings.OscPort);
+            if (!IsConnected)
 			{
-                Connection.InitiateConnection(Settings.Hostname, Settings.Port);
+                Connection.InitiateConnection(Settings.Hostname, Settings.AmcpPort);
 				return true;
 			}
 			return false;
@@ -192,27 +206,27 @@ namespace Svt.Caspar
 		}
 		#endregion
 
+        [XmlRoot("channels", Namespace ="")]
+        public class DeserializeChannels
+        {
+            [XmlElement("channel", Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
+            public List<Channel> Channels { get; set; }
+        }
+
 		#region AMCP-protocol callbacks
-		internal void OnUpdatedChannelInfo(List<ChannelInfo> channels)
+		internal void OnUpdatedChannelInfo(string channelsXml)
 		{
-            List<Channel> newChannels = new List<Channel>();
-			
-            foreach (ChannelInfo info in channels)
-			{
-                if (info.ID <= Channels.Count)
-                {
-                    Channels[info.ID - 1].VideoMode = info.VideoMode;
-                    newChannels.Add(Channels[info.ID - 1]);
-                }
-                else
-                    newChannels.Add(new Channel(Connection, info.ID, info.VideoMode));
-			}
+            var serializer = new XmlSerializer(typeof(DeserializeChannels));
+            using (StringReader reader = new StringReader(channelsXml))
+            {
+                var newChannels = (DeserializeChannels)serializer.Deserialize(reader);
+                foreach (Channel channel in newChannels.Channels)
+                    channel.Connection = this.Connection;
+                Channels = newChannels.Channels;
 
-            Channels = newChannels;
-
-			if (UpdatedChannels != null)
-				UpdatedChannels(this, EventArgs.Empty);
-		}
+                UpdatedChannels?.Invoke(this, EventArgs.Empty);
+            }
+        }
 
 		internal void OnUpdatedTemplatesList(List<TemplateInfo> templates)
 		{
@@ -281,8 +295,9 @@ namespace Svt.Caspar
         }
 
         public string Hostname { get; set; }
-        public int Port { get; set; }
+        public int AmcpPort { get; set; }
         public bool AutoConnect { get; set; }
         public int ReconnectInterval { get; set; }
+        public int OscPort { get; set; }
     }
 }

@@ -120,6 +120,7 @@
     <Compile Include="Interfaces\IPlayoutServer.cs" />
     <Compile Include="Interfaces\IPlayoutServerChannel.cs" />
     <Compile Include="Interfaces\IPreview.cs" />
+    <Compile Include="Interfaces\IRecorder.cs" />
     <Compile Include="Interfaces\IRemoteHostConfig.cs" />
     <Compile Include="Interfaces\ICommandScriptItem.cs" />
     <Compile Include="Interfaces\IServerDirectory.cs" />
