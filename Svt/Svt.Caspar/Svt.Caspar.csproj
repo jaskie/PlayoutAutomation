@@ -150,6 +150,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Recorder.cs" />
     <Compile Include="TemplateInfo.cs" />
     <Compile Include="TemplatesCollection.cs" />
     <Compile Include="Transition.cs" />

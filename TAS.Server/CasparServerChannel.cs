@@ -22,12 +22,14 @@ namespace TAS.Server
 {
     public class CasparServerChannel : DtoBase, IPlayoutServerChannel
     {
+        internal CasparServer ownerServer;
         [XmlIgnore]
-        public IPlayoutServer OwnerServer { get; set; }
+        public IPlayoutServer OwnerServer { get { return ownerServer; } }
         #region IPlayoutServerChannel
+        public int Id { get; set; }
+        public int ChannelNumber { get { return Id; } set { Id = value; } } // old field name; to avoid problems after field rename after version 1.1.1
         [JsonProperty]
         public string ChannelName { get; set; }
-        public int ChannelNumber { get; set; }
         [DefaultValue(typeof(Decimal), "1")]
         public decimal MasterVolume { get; set; }
         public string LiveDevice { get; set; }
@@ -215,7 +217,7 @@ namespace TAS.Server
             if (_checkConnected(channel))
             {
                 channel.Seek((int)videolayer, (uint)position);
-                Debug.WriteLine("CasparSeek Channel {0} Layer {1} Position {2}", ChannelNumber, (int)videolayer, position);
+                Debug.WriteLine("CasparSeek Channel {0} Layer {1} Position {2}", Id, (int)videolayer, position);
                 return true;
             }
             return false;

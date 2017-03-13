@@ -10,25 +10,27 @@ namespace TAS.Server
 
     public class CasparRecorder: DtoBase, IRecorder
     {
+        internal CasparServer ownerServer;
         public int RecorderNumber { get; set; }
-        public int RecordChannelNumber { get; set; }
+        public int Id { get; set; }
         public string RecorderName { get; set; }
         public void Capture(string fileName, TimeSpan tcIn, TimeSpan tcOut)
         {
 
         }
-        public void AbortCapture()
+        public bool AbortCapture()
         {
-
+            return true;
         }
 
-        public void Play()
+        public bool Play()
         {
 
+            return true;
         }
-        public void Stop()
+        public bool Stop()
         {
-
+            return true;
         }
     }
 }

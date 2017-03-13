@@ -22,7 +22,7 @@
         </ScrollViewer.Resources>
         <StackPanel MinWidth="200" MinHeight="200" >
             <Label Content="Channel number"/>
-            <TextBox Text="{Binding ChannelNumber, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox Text="{Binding Id, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Channel name"/>
             <TextBox Text="{Binding ChannelName, UpdateSourceTrigger=PropertyChanged}"/>
             <Label Content="Master volume"/>

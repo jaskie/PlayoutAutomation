@@ -423,4 +423,10 @@
   <data name="TStartType_WithParentFromEnd" xml:space="preserve">
     <value>Przy zakończeniu</value>
   </data>
+  <data name="TServerType_Caspar" xml:space="preserve">
+    <value>CasparCG (wersja podstawowa)</value>
+  </data>
+  <data name="TServerType_CasparTVP" xml:space="preserve">
+    <value>CasparCG (wersja TVP)</value>
+  </data>
 </root>

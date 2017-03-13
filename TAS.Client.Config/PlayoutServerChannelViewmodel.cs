@@ -10,7 +10,7 @@ namespace TAS.Client.Config
     public class PlayoutServerChannelViewmodel:EditViewmodelBase<CasparServerChannel>
     {
         private string _channelName;
-        private int _channelNumber;
+        private int _id;
         private decimal _masterVolume;
         private string _liveDevice;
         protected override void OnDispose() { }
@@ -18,9 +18,9 @@ namespace TAS.Client.Config
         {
 
         }
-        public string ChannelName { get { return _channelName; } set { SetField(ref _channelName, value, "ChannelName"); } }
-        public int ChannelNumber { get { return _channelNumber; } set { SetField(ref _channelNumber, value, "ChannelNumber"); } }
-        public decimal MasterVolume { get { return _masterVolume; } set { SetField(ref _masterVolume, value, "MasterVolume"); } }
-        public string LiveDevice { get { return _liveDevice; } set { SetField(ref _liveDevice, value, "LiveDevice"); } }
+        public string ChannelName { get { return _channelName; } set { SetField(ref _channelName, value, nameof(ChannelName)); } }
+        public int Id { get { return _id; } set { SetField(ref _id, value, nameof(Id)); } }
+        public decimal MasterVolume { get { return _masterVolume; } set { SetField(ref _masterVolume, value, nameof(MasterVolume)); } }
+        public string LiveDevice { get { return _liveDevice; } set { SetField(ref _liveDevice, value, nameof(LiveDevice)); } }
     }
 }

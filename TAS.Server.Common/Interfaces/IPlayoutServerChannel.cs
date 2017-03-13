@@ -9,13 +9,14 @@ namespace TAS.Server.Interfaces
 {
     public interface IPlayoutServerChannel: IPlayoutServerChannelProperties, IInitializable, INotifyPropertyChanged
     {
-        IPlayoutServer OwnerServer { get; set; }
+        IPlayoutServer OwnerServer { get; }
+
     }
 
     public interface IPlayoutServerChannelProperties
     {
+        int Id { get; }
         string ChannelName { get; set; }
-        int ChannelNumber { get; set; }
         decimal MasterVolume { get; set; }
         string LiveDevice { get; set; }
     }

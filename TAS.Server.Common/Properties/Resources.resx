@@ -420,4 +420,10 @@
   <data name="TStartType_WithParentFromEnd" xml:space="preserve">
     <value>With end of</value>
   </data>
+  <data name="TServerType_Caspar" xml:space="preserve">
+    <value>CasparCG (main release)</value>
+  </data>
+  <data name="TServerType_CasparTVP" xml:space="preserve">
+    <value>CasparCG (TVP's fork)</value>
+  </data>
 </root>

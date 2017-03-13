@@ -13,8 +13,8 @@ namespace TAS.Client.Config.Model
         {
             MasterVolume = 1m;
         }
+        public int Id { get; set; }
         public string ChannelName { get; set; }
-        public int ChannelNumber { get; set; }
         public decimal MasterVolume { get; set; } 
         public string LiveDevice { get; set; }
         

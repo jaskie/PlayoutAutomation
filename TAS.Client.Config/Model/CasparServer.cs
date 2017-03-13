@@ -12,10 +12,6 @@ namespace TAS.Client.Config.Model
 {
     public class CasparServer: IPlayoutServerProperties
     {
-        public CasparServer()
-        {
-            Channels = new List<CasparServerChannel>();
-        }
         [XmlIgnore]
         public bool IsNew = true;
         public string ServerAddress { get; set; }
@@ -24,7 +20,8 @@ namespace TAS.Client.Config.Model
         [XmlIgnore]
         public ulong Id { get; set; }
         public TServerType ServerType { get; set; }
-        public List<CasparServerChannel> Channels { get; set; }
+        public List<CasparServerChannel> Channels { get; set; } = new List<CasparServerChannel>();
+        public List<CasparRecorder> Recorders { get; set; } = new List<CasparRecorder>();
         public override string ToString()
         {
             return ServerAddress;

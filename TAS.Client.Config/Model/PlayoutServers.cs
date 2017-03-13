@@ -24,6 +24,7 @@ namespace TAS.Client.Config.Model
                     {
                         s.IsNew = false;
                         s.Channels.ForEach(c => c.Owner = s);
+                        s.Recorders.ForEach(r => r.Owner = s);
                     });
             }
             finally

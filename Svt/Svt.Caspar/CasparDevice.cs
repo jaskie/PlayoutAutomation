@@ -14,6 +14,7 @@ namespace Svt.Caspar
 
         public CasparDeviceSettings Settings { get; private set; }
         public List<Channel> Channels { get; private set; }
+        public List<Recorder> Recorders { get; private set; }
         public TemplatesCollection Templates { get; private set; }
         public List<MediaInfo> Mediafiles { get; private set; }
         public List<string> Datafiles { get; private set; }
@@ -31,7 +32,8 @@ namespace Svt.Caspar
 
 		public event EventHandler<DataEventArgs> DataRetrieved;
 		public event EventHandler<EventArgs> UpdatedChannels;
-		public event EventHandler<EventArgs> UpdatedTemplates;
+        public event EventHandler<EventArgs> UpdatedRecorders;
+        public event EventHandler<EventArgs> UpdatedTemplates;
 		public event EventHandler<EventArgs> UpdatedMediafiles;
 		public event EventHandler<EventArgs> UpdatedDatafiles;
         public event EventHandler<Network.Osc.OscPacketEventArgs> OscMessage;
@@ -44,6 +46,7 @@ namespace Svt.Caspar
             Connection = new Network.ServerConnection();
             OscListener = new Network.Osc.UdpListener();
             Channels = new List<Channel>();
+            Recorders = new List<Recorder>();
 		    Templates = new TemplatesCollection();
 		    Mediafiles = new List<MediaInfo>();
 		    Datafiles = new List<string>();
@@ -76,6 +79,9 @@ namespace Svt.Caspar
 
                 //Ask server for channels
                 Connection.SendString("INFO SERVER");
+
+                //Ask server for recorders
+                Connection.SendString("INFO RECORDERS");
 
                 //For compability with legacy users
                 try
@@ -228,7 +234,12 @@ namespace Svt.Caspar
             }
         }
 
-		internal void OnUpdatedTemplatesList(List<TemplateInfo> templates)
+        internal void OnUpdatedRecorderInfo(string recordersXml)
+        {
+
+        }
+
+        internal void OnUpdatedTemplatesList(List<TemplateInfo> templates)
 		{
             TemplatesCollection newTemplates = new TemplatesCollection();
             newTemplates.Populate(templates);

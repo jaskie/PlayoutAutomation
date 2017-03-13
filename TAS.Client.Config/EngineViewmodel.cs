@@ -24,19 +24,20 @@ namespace TAS.Client.Config
             _channels = new List<object>() { TAS.Client.Common.Properties.Resources._none_ };
             Model.Servers.ForEach(s => s.Channels.ForEach(c => _channels.Add(c)));
             _channelPRI = _channels.FirstOrDefault(c => c is Model.CasparServerChannel 
-                                                        && ((Model.CasparServerChannel)c).ChannelNumber == Model.ServerChannelPRI 
+                                                        && ((Model.CasparServerChannel)c).Id == Model.ServerChannelPRI 
                                                         && ((Model.CasparServerChannel)c).Owner is Model.CasparServer
                                                         && ((Model.CasparServer)(((Model.CasparServerChannel)c).Owner)).Id == Model.IdServerPRI);
             if (_channelPRI == null) _channelPRI = _channels.First();
             _channelSEC = _channels.FirstOrDefault(c => c is Model.CasparServerChannel
-                                                        && ((Model.CasparServerChannel)c).ChannelNumber == Model.ServerChannelSEC
+                                                        && ((Model.CasparServerChannel)c).Id == Model.ServerChannelSEC
                                                         && ((Model.CasparServerChannel)c).Owner is Model.CasparServer
                                                         && ((Model.CasparServer)(((Model.CasparServerChannel)c).Owner)).Id == Model.IdServerSEC);
             if (_channelSEC == null) _channelSEC = _channels.First();
             _channelPRV = _channels.FirstOrDefault(c => c is Model.CasparServerChannel
-                                                        && ((Model.CasparServerChannel)c).ChannelNumber == Model.ServerChannelPRV
+                                                        && ((Model.CasparServerChannel)c).Id == Model.ServerChannelPRV
                                                         && ((Model.CasparServerChannel)c).Owner is Model.CasparServer
                                                         && ((Model.CasparServer)(((Model.CasparServerChannel)c).Owner)).Id == Model.IdServerPRV);
+
             _archiveDirectories = new List<object>() { TAS.Client.Common.Properties.Resources._none_ };
             _archiveDirectories.AddRange(Model.ArchiveDirectories.Directories);
             _archiveDirectory = engine.IdArchive == 0 ? _archiveDirectories.First() : _archiveDirectories.FirstOrDefault(d => (d is Model.ArchiveDirectory) && ((Model.ArchiveDirectory)d).idArchive == engine.IdArchive);
@@ -90,6 +91,7 @@ namespace TAS.Client.Config
         public object ChannelSEC { get { return _channelSEC; } set { SetField(ref _channelSEC, value, nameof(ChannelSEC)); } }
         private object _channelPRV;
         public object ChannelPRV { get { return _channelPRV; } set { SetField(ref _channelPRV, value, nameof(ChannelPRV)); } }
+
         private List<object> _archiveDirectories;
         public List<object> ArchiveDirectories { get { return _archiveDirectories; } }
         private object _archiveDirectory;
@@ -108,13 +110,13 @@ namespace TAS.Client.Config
             {
                 var playoutServerChannelPRI = _channelPRI as Model.CasparServerChannel;
                 Model.IdServerPRI = playoutServerChannelPRI == null ? 0 : ((Model.CasparServer)playoutServerChannelPRI.Owner).Id;
-                Model.ServerChannelPRI = playoutServerChannelPRI == null ? 0 : playoutServerChannelPRI.ChannelNumber;
+                Model.ServerChannelPRI = playoutServerChannelPRI == null ? 0 : playoutServerChannelPRI.Id;
                 var playoutServerChannelSEC = _channelSEC as Model.CasparServerChannel;
                 Model.IdServerSEC = playoutServerChannelSEC == null ? 0 : ((Model.CasparServer)playoutServerChannelSEC.Owner).Id;
-                Model.ServerChannelSEC = playoutServerChannelSEC == null ? 0 : playoutServerChannelSEC.ChannelNumber;
+                Model.ServerChannelSEC = playoutServerChannelSEC == null ? 0 : playoutServerChannelSEC.Id;
                 var playoutServerChannelPRV = _channelPRV as Model.CasparServerChannel;
                 Model.IdServerPRV = playoutServerChannelPRV == null ? 0 : ((Model.CasparServer)playoutServerChannelPRV.Owner).Id;
-                Model.ServerChannelPRV = playoutServerChannelPRV == null ? 0 : playoutServerChannelPRV.ChannelNumber;
+                Model.ServerChannelPRV = playoutServerChannelPRV == null ? 0 : playoutServerChannelPRV.Id;
                 Model.Remote = _remoteHostEnabled ? new Model.RemoteHost() { ListenPort = RemoteHostListenPort } : null;
                 Model.IdArchive = _archiveDirectory is Model.ArchiveDirectory ? ((Model.ArchiveDirectory)_archiveDirectory).idArchive : 0;
                 Model.IsModified = true;

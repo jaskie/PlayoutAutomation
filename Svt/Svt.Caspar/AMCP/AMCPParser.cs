@@ -23,7 +23,7 @@ namespace Svt.Caspar.AMCP
 		CINF,
 		VERSION,
 		TLS,
-		INFO,
+		INFO, 
 		DATA,
 		CLEAR,
 		SET,
@@ -34,9 +34,21 @@ namespace Svt.Caspar.AMCP
         SWAP,
         STATUS,
         PAUSE,
+        CAPTURE,
+        RECORDER,
         Undefined
 	}
-	internal enum AMCPError
+
+    internal enum ACMPInfoKind
+    {
+        None,
+        SERVER,
+        RECORDERS,
+        Undefined
+    }
+
+
+    internal enum AMCPError
 	{
 		None,
 		InvalidCommand,

@@ -12,7 +12,7 @@ namespace TAS.Remoting.Model
     {
         public string ChannelName { get { return Get<string>(); } set { SetLocalValue(value); } }
 
-        public int ChannelNumber { get { return Get<int>(); } set { SetLocalValue(value); } }
+        public int Id { get { return Get<int>(); } set { SetLocalValue(value); } }
 
         public string LiveDevice { get { return Get<string>(); } set { SetLocalValue(value); } }
 

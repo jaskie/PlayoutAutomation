@@ -37,29 +37,54 @@
                     <Label Content="Server type"/>
                     <ComboBox SelectedItem="{Binding ServerType}" ItemsSource="{Binding ServerTypes}"/>
                 </StackPanel>
-                <Separator DockPanel.Dock="Top" Margin="5"/>
-                <Label DockPanel.Dock="Top" Content="Channels"/>
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="35">
-                    <StackPanel.Resources>
-                        <Style TargetType="Button">
-                            <Setter Property="Margin" Value="3"/>
-                            <Setter Property="Padding" Value="3"/>
-                        </Style>
-                    </StackPanel.Resources>
-                    <Button Command="{Binding CommandAdd}" ToolTip="Add new channel">
-                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-add.png"/>
-                    </Button>
-                    <Button Command="{Binding CommandDelete}" ToolTip="Delete channel">
-                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-delete.png"/>
-                    </Button>
-                </StackPanel>
-
-                <DataGrid ItemsSource="{Binding PlayoutServerChannels}" SelectedItem="{Binding SelectedPlayoutServerChannel}" AutoGenerateColumns="False" IsReadOnly="True">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Channel number" Binding="{Binding ChannelNumber}"/>
-                        <DataGridTextColumn Header="Channel name" Binding="{Binding ChannelName}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
+                <DockPanel DockPanel.Dock="Bottom" Visibility="{Binding IsRecordersVisible, Converter={StaticResource BoolToVis}}">
+                    <Separator DockPanel.Dock="Top" Margin="5"/>
+                    <Label DockPanel.Dock="Top" Content="Recorders"/>
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="35">
+                        <StackPanel.Resources>
+                            <Style TargetType="Button">
+                                <Setter Property="Margin" Value="3"/>
+                                <Setter Property="Padding" Value="3"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <Button Command="{Binding CommandAddRecorder}" ToolTip="Add new recorder">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-add.png"/>
+                        </Button>
+                        <Button Command="{Binding CommandDeleteRecorder}" ToolTip="Delete recorder">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-delete.png"/>
+                        </Button>
+                    </StackPanel>
+                    <DataGrid ItemsSource="{Binding PlayoutServerRecorders}" SelectedItem="{Binding SelectedPlayoutRecorder}" AutoGenerateColumns="False" IsReadOnly="False" MinHeight="80">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Recorder Id" Binding="{Binding Id}"/>
+                            <DataGridTextColumn Header="Recorder name" Binding="{Binding RecorderName}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+                <DockPanel DockPanel.Dock="Top">
+                    <Separator DockPanel.Dock="Top" Margin="5"/>
+                    <Label DockPanel.Dock="Top" Content="Channels"/>
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="35">
+                        <StackPanel.Resources>
+                            <Style TargetType="Button">
+                                <Setter Property="Margin" Value="3"/>
+                                <Setter Property="Padding" Value="3"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <Button Command="{Binding CommandAddChannel}" ToolTip="Add new channel">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-add.png"/>
+                        </Button>
+                        <Button Command="{Binding CommandDeleteChannel}" ToolTip="Delete channel">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Config/document-delete.png"/>
+                        </Button>
+                    </StackPanel>
+                    <DataGrid ItemsSource="{Binding PlayoutServerChannels}" SelectedItem="{Binding SelectedPlayoutServerChannel}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="80">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Channel Id" Binding="{Binding Id}"/>
+                            <DataGridTextColumn Header="Channel name" Binding="{Binding ChannelName}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
             </DockPanel>
             <ContentControl Margin="5, 0, 0, 0" Grid.Column="1" Content="{Binding SelectedPlayoutServerChannel.Editor}"/>
         </Grid>

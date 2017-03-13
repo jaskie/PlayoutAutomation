@@ -7,7 +7,17 @@ using System.Text;
 
 namespace TAS.Common
 {
-    public enum TServerType { Caspar = 0 }
+    [TypeConverter(typeof(TServerTypeEnumConverter))]
+    public enum TServerType {
+        Caspar = 0,
+        CasparTVP = 1 }
+
+    class TServerTypeEnumConverter : ResourceEnumConverter
+    {
+        public TServerTypeEnumConverter()
+            : base(typeof(TServerType), TAS.Server.Common.Properties.Resources.ResourceManager)
+        { }
+    }
 
     public enum TDirectoryAccessType { Direct, FTP };
 

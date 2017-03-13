@@ -26,15 +26,26 @@ namespace TAS.Server
 
         #endregion // static methods
         #region IEnginePersistent
+        // ignored properties are readed from table's fields, rest is from xml ("Config" field)
+        [XmlIgnore] 
         public UInt64 Id { get; set; }
+        [XmlIgnore]
         public UInt64 Instance { get; set; }
+        [XmlIgnore]
         public UInt64 IdArchive { get; set; }
+        [XmlIgnore]
         public ulong IdServerPRI { get; set; }
+        [XmlIgnore]
         public int ServerChannelPRI { get; set; }
+        [XmlIgnore]
         public ulong IdServerSEC { get; set; }
+        [XmlIgnore]
         public int ServerChannelSEC { get; set; }
+        [XmlIgnore]
         public ulong IdServerPRV { get; set; }
+        [XmlIgnore]
         public int ServerChannelPRV { get; set; }
+
         public int CGStartDelay { get; set; }
         #endregion //IEnginePersistent
 
@@ -129,9 +140,10 @@ namespace TAS.Server
         public IPlayoutServerChannel PlayoutChannelSEC { get { return _playoutChannelSEC; } }
 
         private CasparServerChannel _playoutChannelPRV;
-
         [XmlIgnore]
         public IPlayoutServerChannel PlayoutChannelPRV { get { return _playoutChannelPRV; } }
+        private List<CasparRecorder> _recorders;
+        public IEnumerable<IRecorder> Recorders { get { return _recorders.Cast<IRecorder>(); } }
 
         long _frameTicks;
         public long FrameTicks { get { return _frameTicks; } }
@@ -153,12 +165,19 @@ namespace TAS.Server
             Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Initializing engine {0}", this);
 
+            _recorders = new List<CasparRecorder>();
+
             var sPRI = servers.FirstOrDefault(S => S.Id == IdServerPRI);
-            _playoutChannelPRI = sPRI == null ? null : (CasparServerChannel)sPRI.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelPRI);
+            _playoutChannelPRI = sPRI == null ? null : (CasparServerChannel)sPRI.Channels.FirstOrDefault(c => c.Id == ServerChannelPRI);
+            _recorders.AddRange(sPRI.Recorders.Select(r => r as CasparRecorder));
             var sSEC = servers.FirstOrDefault(S => S.Id == IdServerSEC);
-            _playoutChannelSEC = sSEC == null ? null : (CasparServerChannel)sSEC.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelSEC);
+            _recorders.AddRange(sSEC.Recorders.Select(r => r as CasparRecorder));
+            _playoutChannelSEC = sSEC == null ? null : (CasparServerChannel)sSEC.Channels.FirstOrDefault(c => c.Id == ServerChannelSEC);
             var sPRV = servers.FirstOrDefault(S => S.Id == IdServerPRV);
-            _playoutChannelPRV = sPRV == null ? null : (CasparServerChannel)sPRV.Channels.FirstOrDefault(c => c.ChannelNumber == ServerChannelPRV);
+            _recorders.AddRange(sPRV.Recorders.Select(r => r as CasparRecorder));
+            _playoutChannelPRV = sPRV == null ? null : (CasparServerChannel)sPRV.Channels.FirstOrDefault(c => c.Id == ServerChannelPRV);
+
+            
 
             _localGpis = this.ComposeParts<IGpi>();
             _plugins = this.ComposeParts<IEnginePlugin>();
@@ -167,23 +186,21 @@ namespace TAS.Server
             FormatDescription = VideoFormatDescription.Descriptions[VideoFormat];
             _frameTicks = FormatDescription.FrameTicks;
             _frameRate = FormatDescription.FrameRate;
-            var chPRI = PlayoutChannelPRI;
-            var chSEC = PlayoutChannelSEC;
+            var chPRI = PlayoutChannelPRI as CasparServerChannel;
+            var chSEC = PlayoutChannelSEC as CasparServerChannel;
             if (chSEC != null
                 && chSEC != chPRI)
             {
-                ((CasparServer)chSEC.OwnerServer).MediaManager = this.MediaManager as MediaManager;
-                chSEC.OwnerServer.Initialize();
-                chSEC.OwnerServer.MediaDirectory.DirectoryName = chSEC.ChannelName;
-                chSEC.OwnerServer.PropertyChanged += _server_PropertyChanged;
+                chSEC.ownerServer.Initialize(MediaManager as MediaManager);
+                chSEC.ownerServer.MediaDirectory.DirectoryName = chSEC.ChannelName;
+                chSEC.ownerServer.PropertyChanged += _server_PropertyChanged;
             }
 
             if (chPRI != null)
             {
-                ((CasparServer)chPRI.OwnerServer).MediaManager = this.MediaManager as MediaManager;
-                chPRI.OwnerServer.Initialize();
-                chPRI.OwnerServer.MediaDirectory.DirectoryName = chPRI.ChannelName;
-                chPRI.OwnerServer.PropertyChanged += _server_PropertyChanged;
+                chPRI.ownerServer.Initialize(MediaManager as MediaManager);
+                chPRI.ownerServer.MediaDirectory.DirectoryName = chPRI.ChannelName;
+                chPRI.ownerServer.PropertyChanged += _server_PropertyChanged;
             }
 
             MediaManager.Initialize();
@@ -226,8 +243,8 @@ namespace TAS.Server
             _engineThread.Join();
             EngineState = TEngineState.NotInitialized;
 
-            var chPRI = PlayoutChannelPRI;
-            var chSEC = PlayoutChannelSEC;
+            var chPRI = PlayoutChannelPRI as CasparServerChannel;
+            var chSEC = PlayoutChannelSEC as CasparServerChannel;
             if (chSEC != null
                 && chSEC != chPRI)
                 chSEC.OwnerServer.PropertyChanged -= _server_PropertyChanged;
@@ -361,11 +378,9 @@ namespace TAS.Server
             if (e.PropertyName == nameof(IPlayoutServer.IsConnected) && ((IPlayoutServer)sender).IsConnected)
             {
                 var ve = _visibleEvents.ToList();
-                if (PlayoutChannelPRI != null
-                    && sender == PlayoutChannelPRI.OwnerServer)
+                if (sender == ((CasparServerChannel)PlayoutChannelPRI)?.OwnerServer)
                     channelConnected(_playoutChannelPRI, ve);
-                if (PlayoutChannelSEC != null
-                    && sender == PlayoutChannelSEC.OwnerServer
+                if (sender == ((CasparServerChannel)PlayoutChannelSEC)?.OwnerServer
                     && PlayoutChannelSEC != PlayoutChannelPRI)
                     channelConnected(_playoutChannelSEC, ve);
             }
@@ -615,7 +630,7 @@ namespace TAS.Server
 
         private Media _findPreviewMedia(Media media)
         {
-            IPlayoutServerChannel playoutChannel = _playoutChannelPRV;
+            var playoutChannel = _playoutChannelPRV;
             if (media is ServerMedia)
             {
                 if (playoutChannel == null)

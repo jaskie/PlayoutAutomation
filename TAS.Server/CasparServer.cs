@@ -33,37 +33,44 @@ namespace TAS.Server
         public string MediaFolder { get; set; }
         [JsonProperty]
         public string AnimationFolder { get; set; }
+        
+        public TServerType ServerType { get; set; }
+
         [XmlIgnore]
         public IServerDirectory MediaDirectory { get; private set; }
         [XmlIgnore]
         public IAnimationDirectory AnimationDirectory { get; private set; }
-        protected List<IPlayoutServerChannel> _channels;
-        [XmlIgnore]
-        public MediaManager MediaManager;
 
+        [XmlArray(nameof(Channels))]
+        public List<CasparServerChannel> _channels { get; set; }
         [XmlIgnore]
-        public List<IPlayoutServerChannel> Channels
-        {
-            get { return _serChannels.ConvertAll(new Converter<CasparServerChannel, IPlayoutServerChannel>(c => c)); }
-        }
+        public List<IPlayoutServerChannel> Channels { get { return _channels.Cast<IPlayoutServerChannel>().ToList(); } }
+
+        [XmlArray(nameof(Recorders))]
+        public List<CasparRecorder> _recorders { get; set; }
+        [XmlIgnore]
+        public List<IRecorder> Recorders { get { return _recorders.Cast<IRecorder>().ToList(); } }
+
         private Svt.Caspar.CasparDevice _casparDevice;
 
         protected bool _isInitialized;
-        public void Initialize()
+        public void Initialize(MediaManager mediaManager)
         {
             Debug.WriteLine(this, "CasparServer initialize");
             lock (this)
             {
                 if (!_isInitialized)
                 {
-                    MediaDirectory = new Server.ServerDirectory(this, MediaManager) { Folder = MediaFolder };
+                    MediaDirectory = new Server.ServerDirectory(this, mediaManager) { Folder = MediaFolder };
                     if (!string.IsNullOrWhiteSpace(AnimationFolder))
-                        AnimationDirectory = new Server.AnimationDirectory(this, MediaManager) { Folder = AnimationFolder };
+                        AnimationDirectory = new Server.AnimationDirectory(this, mediaManager) { Folder = AnimationFolder };
                     _casparDevice = new Svt.Caspar.CasparDevice();
                     _casparDevice.ConnectionStatusChanged += _casparDevice_ConnectionStatusChanged;
                     _casparDevice.UpdatedChannels += _casparDevice_UpdatedChannels;
                     _casparDevice.OscMessage += _casparDevice_OscMessage;
                     _connect();
+                    _channels.ForEach(c => c.ownerServer = this);
+                    _recorders.ForEach(r => r.ownerServer = this);
                     _isInitialized = true;
                 }
             }
@@ -72,15 +79,6 @@ namespace TAS.Server
         private void _casparDevice_OscMessage(object sender, Svt.Network.Osc.OscPacketEventArgs e)
         {
             
-        }
-
-        List<CasparServerChannel> _serChannels;
-
-        [XmlArray("Channels")]
-        public List<CasparServerChannel> serChannels
-        {
-            get { return _serChannels; }
-            set { _serChannels = value; }
         }
 
         protected bool _isConnected;
@@ -135,7 +133,7 @@ namespace TAS.Server
                 _needUpdateChannels = false;
                 foreach (CasparServerChannel C in Channels)
                 {
-                    C.CasparChannel = channels.Find(csc => csc.ID == C.ChannelNumber);
+                    C.CasparChannel = channels.Find(csc => csc.ID == C.Id);
                     C.Initialize();
                 }
             }

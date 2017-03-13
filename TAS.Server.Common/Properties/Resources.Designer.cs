@@ -862,6 +862,24 @@ namespace TAS.Server.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to CasparCG (main release).
+        /// </summary>
+        public static string TServerType_Caspar {
+            get {
+                return ResourceManager.GetString("TServerType_Caspar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CasparCG (TVP&apos;s fork).
+        /// </summary>
+        public static string TServerType_CasparTVP {
+            get {
+                return ResourceManager.GetString("TServerType_CasparTVP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to After finish.
         /// </summary>
         public static string TStartType_After {

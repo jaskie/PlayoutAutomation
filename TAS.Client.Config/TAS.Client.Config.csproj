@@ -126,6 +126,7 @@
     </Compile>
     <Compile Include="Model\ArchiveDirectories.cs" />
     <Compile Include="Model\ArchiveDirectory.cs" />
+    <Compile Include="Model\CasparRecorder.cs" />
     <Compile Include="Model\CreateDatabase.cs" />
     <Compile Include="CreateDatabaseViewmodel.cs" />
     <Compile Include="IngestDirectoriesView.xaml.cs">
@@ -144,6 +145,7 @@
     <Compile Include="Model\CasparServerChannel.cs" />
     <Compile Include="Model\PlayoutServers.cs" />
     <Compile Include="Model\RemoteHost.cs" />
+    <Compile Include="PlayoutRecorderViewmodel.cs" />
     <Compile Include="PlayoutServerChannelView.xaml.cs">
       <DependentUpon>PlayoutServerChannelView.xaml</DependentUpon>
     </Compile>
