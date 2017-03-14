@@ -61,6 +61,14 @@ namespace Svt.Caspar
         private void oscListener_PacketReceived(object sender, Network.Osc.OscPacketEventArgs e)
         {
             OscMessage?.Invoke(this, e);
+            var message = e.Packet as Svt.Network.Osc.OscMessage;
+            var recorders = Recorders;
+            if (message != null)
+                recorders.ForEach(r => r.OscMessage(message));
+            var bundle = e.Packet as Svt.Network.Osc.OscBundle;
+            if (bundle != null)
+                foreach (var m in bundle.Messages)
+                    recorders.ForEach(r => r.OscMessage(m));
         }
 
         #region Server notifications
@@ -115,8 +123,7 @@ namespace Svt.Caspar
                 //For compability with legacy users
                 try
                 {
-                    if (Disconnected != null)
-                        Disconnected(this, new Svt.Network.NetworkEventArgs(e.Hostname, e.Port));
+                    Disconnected?.Invoke(this, new Svt.Network.NetworkEventArgs(e.Hostname, e.Port));
                 }
                 catch { }
             }
@@ -211,21 +218,14 @@ namespace Svt.Caspar
             Connection.CloseConnection();
 		}
 		#endregion
-
-        [XmlRoot("channels", Namespace ="")]
-        public class DeserializeChannels
-        {
-            [XmlElement("channel", Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-            public List<Channel> Channels { get; set; }
-        }
-
+        
 		#region AMCP-protocol callbacks
 		internal void OnUpdatedChannelInfo(string channelsXml)
 		{
-            var serializer = new XmlSerializer(typeof(DeserializeChannels));
+            var serializer = new XmlSerializer(typeof(ChannelList));
             using (StringReader reader = new StringReader(channelsXml))
             {
-                var newChannels = (DeserializeChannels)serializer.Deserialize(reader);
+                var newChannels = (ChannelList)serializer.Deserialize(reader);
                 foreach (Channel channel in newChannels.Channels)
                     channel.Connection = this.Connection;
                 Channels = newChannels.Channels;
@@ -236,7 +236,15 @@ namespace Svt.Caspar
 
         internal void OnUpdatedRecorderInfo(string recordersXml)
         {
-
+            var serializer = new XmlSerializer(typeof(RecorderList));
+            using (StringReader reader = new StringReader(recordersXml))
+            {
+                var recorders = (RecorderList)serializer.Deserialize(reader);
+                foreach (Recorder recorder in recorders.Recorders)
+                    recorder.Connection = this.Connection;
+                Recorders = recorders.Recorders;
+                UpdatedRecorders?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         internal void OnUpdatedTemplatesList(List<TemplateInfo> templates)

@@ -8,6 +8,13 @@ using System.Xml.Serialization;
 
 namespace Svt.Caspar
 {
+    [XmlRoot("channels", Namespace = "")]
+    public class ChannelList
+    {
+        [XmlElement("channel", Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public List<Channel> Channels { get; set; }
+    }
+    
     [XmlRoot("xmlElementName")]
 	public class Channel: System.Xml.Serialization.IXmlSerializable
 	{
@@ -39,7 +46,6 @@ namespace Svt.Caspar
                 Load(clipname, loop);
             else
                 Connection.SendString("LOAD " + ID + "-" + videoLayer + " " + clipname + (string)(loop ? " LOOP" : ""));
-
             return true;
         }
 		public bool Load(CasparItem item)
@@ -84,7 +90,6 @@ namespace Svt.Caspar
                 Connection.SendString("LOADBG " + ID + " \"" + clipname + "\"" + (loop ? " LOOP" : ""));
             else
                 Connection.SendString("LOADBG " + ID + "-" + videoLayer + " \"" + clipname + "\"" + (loop ? " LOOP" : ""));
-           
             return true;
         }
         public bool LoadBG(int videoLayer, string clipname, bool loop, uint seek, uint length)

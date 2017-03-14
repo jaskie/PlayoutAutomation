@@ -67,7 +67,7 @@ namespace Svt.Network.Osc
                 {
                     bytes = receivingUdpClient.EndReceive(result, ref RemoteIpEndPoint);
                 }
-                catch (ObjectDisposedException e)
+                catch (ObjectDisposedException)
                 {
                     // Ignore if disposed. This happens when closing the listener
                 }
@@ -84,7 +84,7 @@ namespace Svt.Network.Osc
                         {
                             packet = OscPacket.GetPacket(bytes);
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
                             // If there is an error reading the packet, null is sent to the callback
                         }

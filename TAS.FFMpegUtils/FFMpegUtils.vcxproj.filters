@@ -80,6 +80,7 @@
     <None Include="app.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\svt\svt.caspar\mediainfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc">

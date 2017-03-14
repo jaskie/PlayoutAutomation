@@ -20,6 +20,8 @@ namespace TAS.Remoting.Model
 
         public IPlayoutServer OwnerServer { get { return Get<IPlayoutServer>(); } set { SetLocalValue(value); } }
 
+        public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { SetLocalValue(value); } }
+
         public void Clear()
         {
             Invoke();

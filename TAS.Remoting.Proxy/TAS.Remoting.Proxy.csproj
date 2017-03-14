@@ -79,6 +79,7 @@
     <Compile Include="Model\PersistentMedia.cs" />
     <Compile Include="Model\PlayoutServer.cs" />
     <Compile Include="Model\PlayoutServerChannel.cs" />
+    <Compile Include="Model\Recorder.cs" />
     <Compile Include="Model\ServerDirectory.cs" />
     <Compile Include="Model\ServerMedia.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using TAS.Common;
 using TAS.Server.Interfaces;
 
 namespace TAS.Client.Config.Model
@@ -17,6 +18,8 @@ namespace TAS.Client.Config.Model
         public string ChannelName { get; set; }
         public decimal MasterVolume { get; set; } 
         public string LiveDevice { get; set; }
+
+        public TVideoFormat VideoFormat { get; set; }
         
         internal object Owner;
         public override string ToString()

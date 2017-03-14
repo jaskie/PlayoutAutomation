@@ -19,5 +19,6 @@ namespace TAS.Server.Interfaces
         string ChannelName { get; set; }
         decimal MasterVolume { get; set; }
         string LiveDevice { get; set; }
+        TVideoFormat VideoFormat { get; }
     }
 }

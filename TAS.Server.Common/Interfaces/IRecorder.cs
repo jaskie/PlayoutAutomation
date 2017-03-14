@@ -1,8 +1,15 @@
-﻿namespace TAS.Server.Interfaces
+﻿using System;
+
+namespace TAS.Server.Interfaces
 {
     public interface IRecorder :IRecorderProperties
     {
-        bool Play();
+        void Play();
+        void Stop();
+        void Abort();
+        void FastForward();
+        void Rewind();
+        void Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, string fileName);
     }
 
     public interface IRecorderProperties

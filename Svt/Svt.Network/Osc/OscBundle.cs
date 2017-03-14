@@ -64,5 +64,10 @@ namespace Svt.Network.Osc
             return output;
         }
 
+        public override string ToString()
+        {
+            return string.Join("\n", Messages);
+        }
+
     }
 }

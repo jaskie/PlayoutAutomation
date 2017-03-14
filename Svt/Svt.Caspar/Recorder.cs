@@ -1,11 +1,167 @@
-﻿using System;
+﻿using Svt.Network;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace Svt.Caspar
 {
+    public enum RecorderKind
+    {
+        decklink,
+    }
+
+    [Flags]
+    public enum DeckState
+    {
+        disconnected = 0,
+        connected = 1,
+        not_vtr_control = 2,
+        playing = 4,
+        recording = 8,
+        still = 0x10,
+        shuttle_forward = 0x20,
+        shuttle_reverse = 0x40,
+        jog_forward = 0x80,
+        jog_reverse = 0x100,
+        stopped = 0x200
+    }
+
+    public enum DeckControl
+    {
+        export_prepare,
+        export_complete,
+        aborted,
+        capture_prepare,
+        capture_complete
+    }
+
+    [XmlRoot("recorders", Namespace = "")]
+    public class RecorderList
+    {
+        [XmlElement("recorder", Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public List<Recorder> Recorders { get; set; }
+    }
+
     public class Recorder
     {
+        #region Serialized
+        [XmlElement("recorder-kind")]
+        public RecorderKind RecorderKind { get; set; }
+        [XmlElement("device")]
+        public int Device { get; set; }
+        [XmlElement("preroll")]
+        public int Preroll { get; set; }
+        [XmlElement("index")]
+        public int Id { get; set; }
+        #endregion Serialized
+
+        internal ServerConnection Connection { get; set; }
+
+        public bool Play()
+        {
+            Connection.SendString($"RECORDER PLAY {Id}");
+            return true;
+        }
+
+        public bool Stop()
+        {
+            Connection.SendString($"RECORDER STOP {Id}");
+            return true;
+        }
+
+        public bool Abort()
+        {
+            Connection.SendString($"RECORDER ABORT {Id}");
+            return true;
+        }
+
+        public bool FastForward()
+        {
+            Connection.SendString($"RECORDER FF {Id}");
+            return true;
+        }
+        public bool Rewind()
+        {
+            Connection.SendString($"RECORDER REWIND {Id}");
+            return true;
+        }
+        public bool GotoTimecode(string Timecode)
+        {
+            Connection.SendString($"RECORDER GOTO {Id} TC {Timecode}");
+            return true;
+        }
+
+        public bool Capture(int channel, string tcIn, string tcOut, string filename)
+        {
+            Connection.SendString($"CAPTURE {channel} RECORDER {Id} IN {tcIn} OUT {tcOut} FILE {filename}");
+            return true;
+        }
+
+        #region OSC notifications
+
+        internal void OscMessage(Network.Osc.OscMessage message)
+        {
+            string[] path = message.Address.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            int id;
+            if (path.Length >= 3 && message.Arguments.Count == 1)
+            {
+                if (path[0] == "recorder" &&
+                    int.TryParse(path[1], out id) && id == Id)
+                {
+                    switch (path[2])
+                    {
+                        case "tc":
+                            Tc?.Invoke(this, new TcEventArgs(message.Arguments[0].ToString()));
+                            break;
+                        case "control":
+                            DeckControl control;
+                            if (Enum.TryParse(message.Arguments[0].ToString(), out control))
+                                DeckControl?.Invoke(this, new DeckControlEventArgs(control));
+                            break;
+                        case "state":
+                            DeckState state;
+                            if (Enum.TryParse(message.Arguments[0].ToString(), out state))
+                                DeckState?.Invoke(this, new DeckStateEventArgs(state));
+                            break;
+                    }
+                }
+            }
+        }
+  
+        public event EventHandler<TcEventArgs> Tc;
+        public event EventHandler<DeckStateEventArgs> DeckState;
+        public event EventHandler<DeckControlEventArgs> DeckControl;
+
+        #endregion OSC notifications
+    }
+
+    public class TcEventArgs : EventArgs
+    {
+        public TcEventArgs(string tc)
+        {
+            Tc = tc;
+        }
+        public string Tc { get; private set; }
+    }
+
+    public class DeckStateEventArgs: EventArgs
+    {
+        public DeckStateEventArgs(DeckState state)
+        {
+            State = state;
+        }
+        public DeckState State { get; private set; }
+    }
+
+    public class DeckControlEventArgs : EventArgs
+    {
+        public DeckControlEventArgs(DeckControl controlEvent)
+        {
+            ControlEvent = controlEvent;
+        }
+        public DeckControl ControlEvent { get; private set; }
     }
 }

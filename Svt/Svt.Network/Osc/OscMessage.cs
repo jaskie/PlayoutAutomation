@@ -156,5 +156,10 @@ namespace Svt.Network.Osc
 
             return output;
         }
+
+        public override string ToString()
+        {
+            return $"{Address}:{string.Join(",", Arguments)}";
+        }
     }
 }

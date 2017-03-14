@@ -20,9 +20,8 @@ namespace TAS.Server
 {
 
     public delegate void CommandNotifier(DateTime When, string Command, Event sender);
-    public delegate void VolumeChangeNotifier(IPlayoutServerChannel channel, VideoLayer layer, decimal newvalue);
 
-    public class CasparServer : DtoBase, IPlayoutServer, IDisposable 
+    public class CasparServer : DtoBase, IPlayoutServer, IDisposable
     {
         [XmlIgnore]
         [JsonProperty]
@@ -33,7 +32,7 @@ namespace TAS.Server
         public string MediaFolder { get; set; }
         [JsonProperty]
         public string AnimationFolder { get; set; }
-        
+
         public TServerType ServerType { get; set; }
 
         [XmlIgnore]
@@ -67,7 +66,7 @@ namespace TAS.Server
                     _casparDevice = new Svt.Caspar.CasparDevice();
                     _casparDevice.ConnectionStatusChanged += _casparDevice_ConnectionStatusChanged;
                     _casparDevice.UpdatedChannels += _casparDevice_UpdatedChannels;
-                    _casparDevice.OscMessage += _casparDevice_OscMessage;
+                    _casparDevice.UpdatedRecorders += _casparDevice_UpdatedRecorders;
                     _connect();
                     _channels.ForEach(c => c.ownerServer = this);
                     _recorders.ForEach(r => r.ownerServer = this);
@@ -76,9 +75,11 @@ namespace TAS.Server
             }
         }
 
-        private void _casparDevice_OscMessage(object sender, Svt.Network.Osc.OscPacketEventArgs e)
+        private void _casparDevice_UpdatedRecorders(object sender, EventArgs e)
         {
-            
+            var device_recorders = _casparDevice.Recorders.ToList();
+            foreach (Svt.Caspar.Recorder dev_rec in device_recorders)
+                _recorders.FirstOrDefault(r => r.Id == dev_rec.Id)?.SetRecorder(dev_rec);
         }
 
         protected bool _isConnected;
@@ -128,7 +129,7 @@ namespace TAS.Server
 
         private void _updateChannels(List<Svt.Caspar.Channel> channels)
         {
-            if (channels != null && channels.Count>0)
+            if (channels != null && channels.Count > 0)
             {
                 _needUpdateChannels = false;
                 foreach (CasparServerChannel C in Channels)
@@ -167,5 +168,7 @@ namespace TAS.Server
             AnimationDirectory.Dispose();
         }
     }
+
+
   
 }

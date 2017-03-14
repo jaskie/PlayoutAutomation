@@ -33,6 +33,8 @@ namespace TAS.Server
         [DefaultValue(typeof(Decimal), "1")]
         public decimal MasterVolume { get; set; }
         public string LiveDevice { get; set; }
+        [XmlIgnore]
+        public TVideoFormat VideoFormat { get; set; }
         #endregion // IPlayoutServerChannel
         protected SimpleDictionary<VideoLayer, bool> outputAspectNarrow = new SimpleDictionary<VideoLayer, bool>();
 
@@ -42,7 +44,10 @@ namespace TAS.Server
             set
             {
                 if (_casparChannel != value)
+                {
                     _casparChannel = value;
+                    VideoFormat = CasparModeToVideoFormat(_casparChannel.VideoMode);
+                }
             }
         }
 
@@ -63,7 +68,7 @@ namespace TAS.Server
             }
         }
 
-        public event VolumeChangeNotifier OnVolumeChanged;
+        public event EventHandler<VolumeChangedEventArgs> VolumeChanged;
 
         #region Utilites
 
@@ -417,8 +422,7 @@ namespace TAS.Server
                 outputAspectNarrow[VideoLayer.Program] = false;
                 _visible.Clear();
                 _loadedNext.Clear();
-                if (OnVolumeChanged != null)
-                    OnVolumeChanged(this, VideoLayer.Program, 1.0m);
+                VolumeChanged?.Invoke(this, new VolumeChangedEventArgs(VideoLayer.Program, 1.0m));
                 Debug.WriteLine(this, "CasparClear");
             }
         }
@@ -439,8 +443,7 @@ namespace TAS.Server
             if (_checkConnected(channel))
             {
                 channel.Volume((int)videolayer, (float)volume, transitionDuration, Easing.Linear);
-                if (OnVolumeChanged != null)
-                    OnVolumeChanged(this, videolayer, volume);
+                VolumeChanged?.Invoke(this, new VolumeChangedEventArgs(videolayer, volume));
             }
         }
 
@@ -531,6 +534,73 @@ namespace TAS.Server
             return false;
         }
 
+        static TVideoFormat CasparModeToVideoFormat(VideoMode mode)
+        {
+            switch (mode)
+            {
+                case VideoMode.mPAL:
+                    return TVideoFormat.PAL_FHA;
+                case VideoMode.mNTSC:
+                    return TVideoFormat.NTSC_FHA;
+                case VideoMode.m576p2500:
+                    return TVideoFormat.PAL_FHA_P;
+                case VideoMode.m720p2500:
+                    return TVideoFormat.HD720p2500;
+                case VideoMode.m720p5000:
+                    return TVideoFormat.HD720p5000;
+                case VideoMode.m720p5994:
+                    return TVideoFormat.HD720p5994;
+                case VideoMode.m720p6000:
+                    return TVideoFormat.HD720p6000;
+                case VideoMode.m1080p2398:
+                    return TVideoFormat.HD1080p2398;
+                case VideoMode.m1080p2400:
+                    return TVideoFormat.HD1080p2400;
+                case VideoMode.m1080i5000:
+                    return TVideoFormat.HD1080i5000;
+                case VideoMode.m1080i5994:
+                    return TVideoFormat.HD1080i5994;
+                case VideoMode.m1080i6000:
+                    return TVideoFormat.HD1080i6000;
+                case VideoMode.m1080p2500:
+                    return TVideoFormat.HD1080p2500;
+                case VideoMode.m1080p2997:
+                    return TVideoFormat.HD1080p2997;
+                case VideoMode.m1080p3000:
+                    return TVideoFormat.HD1080p3000;
+                case VideoMode.m1080p5000:
+                    return TVideoFormat.HD1080p5000;
+                case VideoMode.m1080p5994:
+                    return TVideoFormat.HD1080p5994;
+                case VideoMode.m1080p6000:
+                    return TVideoFormat.HD1080p6000;
+                case VideoMode.m2160p2398:
+                    return TVideoFormat.HD2160p2398;
+                case VideoMode.m2160p2400:
+                    return TVideoFormat.HD2160p2400;
+                case VideoMode.m2160p2500:
+                    return TVideoFormat.HD2160p2500;
+                case VideoMode.m2160p2997:
+                    return TVideoFormat.HD2160p2997;
+                case VideoMode.m2160p3000:
+                    return TVideoFormat.HD2160p3000;
+                case VideoMode.m2160p5000:
+                    return TVideoFormat.HD2160p5000;
+                default:
+                    return TVideoFormat.Other;
+            }
+        }
+    }
 
+    
+    public class VolumeChangedEventArgs : EventArgs
+    {
+        public VolumeChangedEventArgs(VideoLayer layer, decimal volume)
+        {
+            Layer = layer;
+            Volume = volume;
+        }
+        public decimal Volume { get; private set; }
+        public VideoLayer Layer { get; private set; }
     }
 }
