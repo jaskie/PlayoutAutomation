@@ -119,6 +119,11 @@ namespace TAS.Common
             return true;
         }
 
+        public static TimeSpan SMPTETimecodeToTimeSpan(this string timeCode, TVideoFormat format)
+        {
+            return SMPTETimecodeToTimeSpan(timeCode, VideoFormatDescription.Descriptions[format].FrameRate);
+        }
+
         public static TimeSpan SMPTETimecodeToTimeSpan(this string timeCode, RationalNumber rate)
         {
             if (rate.IsZero)

@@ -35,7 +35,7 @@ namespace TAS.Client.Config
         public Array MXFAudioExportFormats { get { return _mXFAudioExportFormats; } }
         static readonly Array _mXFVideoExportFormats = Enum.GetValues(typeof(TmXFVideoExportFormat));
         public Array MXFVideoExportFormats { get { return _mXFVideoExportFormats; } }
-        static readonly Array _exportContainerFormats = Enum.GetValues(typeof(TMediaExportContainerFormat));
+        static readonly Array _exportContainerFormats = Enum.GetValues(typeof(TMovieContainerFormat));
         public Array ExportContainerFormats { get { return _exportContainerFormats; } }
         static readonly Array _exportVideoFormats = Enum.GetValues(typeof(TVideoFormat));
         public Array ExportVideoFormats { get { return _exportVideoFormats; } }
@@ -96,8 +96,8 @@ namespace TAS.Client.Config
         public TmXFVideoExportFormat MXFVideoExportFormat { get { return _mXFVideoExportFormat; } set { SetField(ref _mXFVideoExportFormat, value, nameof(MXFVideoExportFormat)); } }
         string _encodeParams;
         public string EncodeParams { get { return _encodeParams; } set { SetField(ref _encodeParams, value, nameof(EncodeParams)); } }
-        TMediaExportContainerFormat _exportFormat;
-        public TMediaExportContainerFormat ExportContainerFormat
+        TMovieContainerFormat _exportFormat;
+        public TMovieContainerFormat ExportContainerFormat
         {
             get { return _exportFormat; }
             set
@@ -143,7 +143,7 @@ namespace TAS.Client.Config
 
         #endregion // IIngestDirectoryProperties
 
-        public bool IsMXF { get { return IsXDCAM || (!IsXDCAM && ExportContainerFormat == TMediaExportContainerFormat.mxf); } }
+        public bool IsMXF { get { return IsXDCAM || (!IsXDCAM && ExportContainerFormat == TMovieContainerFormat.mxf); } }
         public bool VideoDoNotEncode { get { return _videoCodec == TVideoCodec.copy; } }
         public bool AudioDoNotEncode { get { return _audioCodec == TAudioCodec.copy; } }
         private ObservableCollection<IngestDirectoryViewmodel> _subDirectoriesVM;

@@ -30,7 +30,7 @@ namespace TAS.Remoting.Model
         public TFieldOrder SourceFieldOrder { get { return Get<TFieldOrder>(); } set { SetLocalValue(value); } }
         public TmXFAudioExportFormat MXFAudioExportFormat { get; set; }
         public TmXFVideoExportFormat MXFVideoExportFormat { get; set; }
-        public TMediaExportContainerFormat ExportContainerFormat { get; set; }
+        public TMovieContainerFormat ExportContainerFormat { get; set; }
         public TVideoFormat ExportVideoFormat { get; set; }
         public TVideoCodec VideoCodec { get; set; }
         public TAudioCodec AudioCodec { get; set; }

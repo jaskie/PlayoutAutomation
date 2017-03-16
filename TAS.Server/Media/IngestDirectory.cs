@@ -84,7 +84,7 @@ namespace TAS.Server
         
         public string EncodeParams { get; set; }
 
-        public TMediaExportContainerFormat ExportContainerFormat { get; set; }
+        public TMovieContainerFormat ExportContainerFormat { get; set; }
 
         public TVideoFormat ExportVideoFormat { get; set; }
 

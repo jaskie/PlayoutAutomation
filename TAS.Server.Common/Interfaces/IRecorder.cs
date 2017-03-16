@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using TAS.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IRecorder :IRecorderProperties
+    public interface IRecorder :IRecorderProperties, INotifyPropertyChanged
     {
         void Play();
         void Stop();
@@ -10,6 +13,10 @@ namespace TAS.Server.Interfaces
         void FastForward();
         void Rewind();
         void Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, string fileName);
+        TimeSpan CurrentTc { get; }
+        TDeckControl DeckControl { get; }
+        TDeckState DeckState { get; }
+        IEnumerable<IPlayoutServerChannel> Channels { get; }
     }
 
     public interface IRecorderProperties

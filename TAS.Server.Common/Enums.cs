@@ -8,9 +8,11 @@ using System.Text;
 namespace TAS.Common
 {
     [TypeConverter(typeof(TServerTypeEnumConverter))]
-    public enum TServerType {
+    public enum TServerType
+    {
         Caspar = 0,
-        CasparTVP = 1 }
+        CasparTVP = 1
+    }
 
     class TServerTypeEnumConverter : ResourceEnumConverter
     {
@@ -42,7 +44,7 @@ namespace TAS.Common
     }
 
     [Flags]
-    public enum AutoStartFlags: byte
+    public enum AutoStartFlags : byte
     {
         None,
         Force,
@@ -86,7 +88,7 @@ namespace TAS.Common
     }
     public enum TEngineOperation { Play, Pause, Stop, Clear, Load, Schedule }
     public enum TEngineState { NotInitialized, Idle, Running, Hold }
-    public enum TemplateMethod: byte { Add, Play, Stop, Next, Remove, Clear, Update, Invoke }
+    public enum TemplateMethod : byte { Add, Play, Stop, Next, Remove, Clear, Update, Invoke }
 
     [Flags]
     [TypeConverter(typeof(TAspectRatioControlEnumConverter))]
@@ -145,7 +147,7 @@ namespace TAS.Common
         DV25
     }
 
-    public enum TMediaExportContainerFormat
+    public enum TMovieContainerFormat
     {
         mov,
         mp4,
@@ -167,7 +169,7 @@ namespace TAS.Common
         Default,
         FirstTwoChannels,
         SecondTwoChannels,
-        FirstChannelOnly, 
+        FirstChannelOnly,
         SecondChannelOnly,
         Combine1plus2,
         Combine3plus4
@@ -182,12 +184,12 @@ namespace TAS.Common
     [TypeConverter(typeof(TVideoFormatEnumConverter))]
     public enum TVideoFormat : byte
     {
-        PAL_FHA    = 0x0,
-        PAL        = 0x1,
-        NTSC       = 0x2,
-        PAL_FHA_P  = 0x3,
-        PAL_P      = 0x4,
-        NTSC_FHA   = 0x5,
+        PAL_FHA = 0x0,
+        PAL = 0x1,
+        NTSC = 0x2,
+        PAL_FHA_P = 0x3,
+        PAL_P = 0x4,
+        NTSC_FHA = 0x5,
         HD720p2500 = 0x8,
         HD720p5000 = 0x9,
         HD720p5994 = 0xA,
@@ -197,16 +199,16 @@ namespace TAS.Common
         HD1080p2500 = 0x12,
         HD1080p2997 = 0x13,
         HD1080p3000 = 0x14,
-        HD1080p5000	= 0x15,
-        HD1080i5000	= 0x16,
-        HD1080p5994	= 0x17,
-        HD1080i5994	= 0x18,
-        HD1080p6000	= 0x19,
-        HD1080i6000	= 0x1A,
-        HD2160p2398	= 0x20,
-        HD2160p2400	= 0x21,
-        HD2160p2500	= 0x22,
-        HD2160p2997	= 0x23,
+        HD1080p5000 = 0x15,
+        HD1080i5000 = 0x16,
+        HD1080p5994 = 0x17,
+        HD1080i5994 = 0x18,
+        HD1080p6000 = 0x19,
+        HD1080i6000 = 0x1A,
+        HD2160p2398 = 0x20,
+        HD2160p2400 = 0x21,
+        HD2160p2500 = 0x22,
+        HD2160p2997 = 0x23,
         HD2160p3000 = 0x24,
         HD2160p5000 = 0x25,
         HD2160p5994 = 0x26,
@@ -280,7 +282,7 @@ namespace TAS.Common
         { }
     }
     [TypeConverter(typeof(TMediaStatusEnumConverter))]
-    public enum TMediaStatus: byte
+    public enum TMediaStatus : byte
     {
         Unknown,
         Available,
@@ -298,7 +300,7 @@ namespace TAS.Common
             : base(typeof(TMediaStatus), TAS.Server.Common.Properties.Resources.ResourceManager)
         { }
     }
-    
+
 
     [TypeConverter(typeof(TMediaErrorInfoEnumConverter))]
     public enum TMediaErrorInfo
@@ -382,7 +384,8 @@ namespace TAS.Common
         { }
     }
 
-    public enum TTransitionType {
+    public enum TTransitionType
+    {
         Cut = 0,
         Mix = 1,
         Push = 2,
@@ -390,7 +393,7 @@ namespace TAS.Common
         Wipe = 4,
         Squeeze = 5,
     };
-    
+
     [TypeConverter(typeof(TMediaEmphasisEnumConverter))]
     public enum TMediaEmphasis : byte
     {
@@ -474,7 +477,7 @@ namespace TAS.Common
         mpeg2video,
         libx264
     }
-    
+
     public enum TAudioCodec
     {
         copy,
@@ -484,10 +487,37 @@ namespace TAS.Common
         mp2
     }
 
-    public enum TCrawlEnableBehavior: byte
+    public enum TCrawlEnableBehavior : byte
     {
         Never,
         ShowsOnly,
         AllButCommercials
     }
+
+    [Flags]
+    public enum TDeckState
+    {
+        Disconnected = 0,
+        Connected = 1,
+        NotInVtrControlMode = 2,
+        Playing = 4,
+        Pecording = 8,
+        Still = 0x10,
+        ShuttleForward = 0x20,
+        ShuttleReverse = 0x40,
+        JogForward = 0x80,
+        JogReverse = 0x100,
+        Stopped = 0x200
+    }
+
+    public enum  TDeckControl
+    {
+        ExportPrepare,
+        ExportComplete,
+        Aborted,
+        CapturePrepare,
+        CaptureComplete
+    }
+
+
 }

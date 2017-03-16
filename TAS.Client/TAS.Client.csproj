@@ -130,7 +130,7 @@
     <Compile Include="ViewModels\MediaSegmentViewmodel.cs" />
     <Compile Include="ViewModels\MediaViewViewmodel.cs" />
     <Compile Include="ViewModels\PreviewViewmodel.cs" />
-    <Compile Include="ViewModels\RecorderViewmodel.cs" />
+    <Compile Include="ViewModels\RecordersViewmodel.cs" />
     <Compile Include="Views\ChannelView.xaml.cs">
       <DependentUpon>ChannelView.xaml</DependentUpon>
     </Compile>
@@ -206,6 +206,9 @@
     </Compile>
     <Compile Include="Views\PreviewView.xaml.cs">
       <DependentUpon>PreviewView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RecorderView.xaml.cs">
+      <DependentUpon>RecorderView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TemplatedEditView.xaml.cs">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
@@ -329,6 +332,10 @@
     <Page Include="Views\PreviewView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\RecorderView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\TemplatedEditView.xaml">
       <SubType>Designer</SubType>

@@ -25,7 +25,7 @@ namespace TAS.Server.Interfaces
         decimal VideoBitrateRatio { get; set; }
         decimal AudioBitrateRatio { get; set; }
         string EncodeParams { get; set; }
-        TMediaExportContainerFormat ExportContainerFormat { get; set; }
+        TMovieContainerFormat ExportContainerFormat { get; set; }
         string ExportParams { get; set; }
         bool IsXDCAM { get; set; }
         bool IsWAN { get; set; }

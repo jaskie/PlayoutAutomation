@@ -66,7 +66,7 @@ namespace TAS.Client.ViewModels
 
         public bool ContainsExport { get { return IsExport || SubDirectories.Any(d => d.IsExport); } }
 
-        public TMediaExportContainerFormat? ExportContainerFormat { get { return (_directory as IIngestDirectory)?.ExportContainerFormat; } }
+        public TMovieContainerFormat? ExportContainerFormat { get { return (_directory as IIngestDirectory)?.ExportContainerFormat; } }
 
         public TmXFAudioExportFormat MXFAudioExportFormat { get { return (_directory as IIngestDirectory).MXFAudioExportFormat; } }
 

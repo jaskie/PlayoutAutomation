@@ -166,7 +166,7 @@ namespace TAS.Server
             StringBuilder overlayOutputs = new StringBuilder();
             List<ExportMedia> exportMedia = _exportMediaList.ToList();
             TimeSpan startTimecode = exportMedia.First().StartTC;
-            VideoFormatDescription outputFormatDesc = VideoFormatDescription.Descriptions[directory.IsXDCAM || directory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? TVideoFormat.PAL : directory.ExportVideoFormat];
+            VideoFormatDescription outputFormatDesc = VideoFormatDescription.Descriptions[directory.IsXDCAM || directory.ExportContainerFormat == TMovieContainerFormat.mxf ? TVideoFormat.PAL : directory.ExportVideoFormat];
             string scaleFilter = $"scale={outputFormatDesc.ImageSize.Width}:{outputFormatDesc.ImageSize.Height}:interl=-1";
             foreach (var e in exportMedia)
             {
@@ -199,7 +199,7 @@ namespace TAS.Server
                     overlayOutputs.AppendFormat("{0}[a{1}]", videoOutputName, audioIndex);
                 }
             }
-            if (directory.IsXDCAM || directory.ExportContainerFormat == TMediaExportContainerFormat.mxf)
+            if (directory.IsXDCAM || directory.ExportContainerFormat == TMovieContainerFormat.mxf)
                 if (MXFVideoExportFormat == TmXFVideoExportFormat.DV25)
                     complexFilterElements.Add(string.Format("{0}concat=n={1}:v=1:a=1[v][p]", string.Join(string.Empty, overlayOutputs), exportMedia.Count));            
                 else
@@ -217,7 +217,7 @@ namespace TAS.Server
                 //1
                 complexFilter,
                 //2
-                directory.IsXDCAM || directory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? 
+                directory.IsXDCAM || directory.ExportContainerFormat == TMovieContainerFormat.mxf ? 
                     String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0} {1}", 
                               MXFVideoExportFormat == TmXFVideoExportFormat.DV25 ? D10_PAL_DV25
                             : MXFVideoExportFormat == TmXFVideoExportFormat.IMX30 ? D10_PAL_IMX30
@@ -232,9 +232,9 @@ namespace TAS.Server
                 //3
                 startTimecode.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[DestMedia.VideoFormat].FrameRate),
                 //4
-                directory.IsXDCAM || directory.ExportContainerFormat == TMediaExportContainerFormat.mxf ? $" -metadata creation_time=\"{DateTime.UtcNow.ToString("o")}\"" : string.Empty,
+                directory.IsXDCAM || directory.ExportContainerFormat == TMovieContainerFormat.mxf ? $" -metadata creation_time=\"{DateTime.UtcNow.ToString("o")}\"" : string.Empty,
                 //5
-                (directory.IsXDCAM || directory.ExportContainerFormat == TMediaExportContainerFormat.mxf) && MXFVideoExportFormat != TmXFVideoExportFormat.DV25 ? "mxf_d10" : directory.ExportContainerFormat.ToString(),
+                (directory.IsXDCAM || directory.ExportContainerFormat == TMovieContainerFormat.mxf) && MXFVideoExportFormat != TmXFVideoExportFormat.DV25 ? "mxf_d10" : directory.ExportContainerFormat.ToString(),
                 outFile);
             if (RunProcess(command))
             {
