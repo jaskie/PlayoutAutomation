@@ -17,11 +17,9 @@ namespace TAS.Client.ViewModels
     public class RecordersViewmodel : ViewmodelBase
     {
         private readonly IEnumerable<IRecorder> _recorders;
-        private readonly IServerDirectory _directory;
-        public RecordersViewmodel(IEnumerable<IRecorder> recorders, IServerDirectory directory)
+        public RecordersViewmodel(IEnumerable<IRecorder> recorders)
         {
             _createCommands();
-            _directory = directory;
             _recorders = recorders;
             Recorder = _recorders.FirstOrDefault();
         }
@@ -29,20 +27,54 @@ namespace TAS.Client.ViewModels
         private void _createCommands()
         {
             CommandAbort = new UICommand { ExecuteDelegate = _abort, CanExecuteDelegate = _canAbort };
-            CommandFastForward = new UICommand { ExecuteDelegate = _fastForward, CanExecuteDelegate = _canControlDeck };
-            CommandPlay = new UICommand { ExecuteDelegate = _play, CanExecuteDelegate = _canControlDeck };
-            CommandStop = new UICommand { ExecuteDelegate = _stop, CanExecuteDelegate = _canControlDeck };
+            CommandFastForward = new UICommand { ExecuteDelegate = _fastForward, CanExecuteDelegate = o => _canExecute(TDeckState.ShuttleForward) };
+            CommandRewind = new UICommand { ExecuteDelegate = _rewind, CanExecuteDelegate = _canRewind };
+            CommandPlay = new UICommand { ExecuteDelegate = _play, CanExecuteDelegate = o => _canExecute(TDeckState.Playing) };
+            CommandStop = new UICommand { ExecuteDelegate = _stop, CanExecuteDelegate = o => _canExecute(TDeckState.Stopped) };
             CommandCapture = new UICommand { ExecuteDelegate = _capture, CanExecuteDelegate = _canCapture };
+            CommandGetCurrentTcToIn = new UICommand { ExecuteDelegate = o => TcIn = CurrentTc };
+            CommandGetCurrentTcToOut = new UICommand { ExecuteDelegate = o => TcOut = CurrentTc };
+            CommandGoToTimecode = new UICommand { ExecuteDelegate = _goToTimecode, CanExecuteDelegate = _canGoToTimecode };
+        }
+
+        private void _goToTimecode(object obj)
+        {
+            _recorder.GoToTimecode(_currentTc, _channel.VideoFormat);
+        }
+
+        private bool _canGoToTimecode(object obj)
+        {
+            IRecorder recorder = _recorder;
+            return recorder != null && recorder.IsConnected && _channel != null;
+        }
+
+        private void _rewind(object obj)
+        {
+            _recorder?.Rewind();
+        }
+
+        private bool _canRewind(object obj)
+        {
+            return _canExecute(TDeckState.ShuttleForward);
         }
 
         private void _capture(object obj)
         {
-            _recorder?.Capture(_channel, _tcIn, _tcOut, $"{FileName}.{_fileFormat}");
+            if (_recorder != null)
+            {
+                _recorder.Capture(_channel, _tcIn, _tcOut, $"{FileName}.{FileFormat}");
+            }
         }
 
         private bool _canCapture(object obj)
         {
-            return _recorder != null && _channel != null && _tcOut > _tcIn && this[nameof(FileName)] == null;
+            return _recorder != null && _channel != null && _tcOut > _tcIn && string.IsNullOrEmpty(_validateFileName());
+        }
+
+        private bool _canExecute(TDeckState state)
+        {
+            IRecorder recorder = _recorder;
+            return recorder != null && recorder.IsConnected && recorder.DeckState != state;
         }
 
         private void _stop(object obj)
@@ -58,11 +90,6 @@ namespace TAS.Client.ViewModels
         private void _fastForward(object obj)
         {
             _recorder?.FastForward();
-        }
-
-        private bool _canControlDeck(object obj)
-        {
-            throw new NotImplementedException();
         }
 
         private void _abort(object obj)
@@ -81,6 +108,9 @@ namespace TAS.Client.ViewModels
         public ICommand CommandRewind { get; private set; }
         public ICommand CommandAbort { get; private set; }
         public ICommand CommandCapture { get; private set; }
+        public ICommand CommandGetCurrentTcToIn { get; private set; }
+        public ICommand CommandGetCurrentTcToOut { get; private set; }
+        public ICommand CommandGoToTimecode { get; private set; }
 
         private string _fileName;
         public string FileName { get { return _fileName; } set { SetField(ref _fileName, value, nameof(FileName)); } }
@@ -94,8 +124,11 @@ namespace TAS.Client.ViewModels
                 var oldRecorder = _recorder;
                 if (SetField(ref _recorder, value, nameof(Recorder)))
                 {
-                    oldRecorder.PropertyChanged -= _recorder_PropertyChanged;
-                    value.PropertyChanged += _recorder_PropertyChanged;
+                    if (oldRecorder != null)
+                        oldRecorder.PropertyChanged -= _recorder_PropertyChanged;
+                    if (value != null)
+                        value.PropertyChanged += _recorder_PropertyChanged;
+                    Channels = value.Channels;
                     Channel = value.Channels.LastOrDefault();
                 }
             }
@@ -103,8 +136,13 @@ namespace TAS.Client.ViewModels
 
         public IEnumerable<IRecorder> Recorders { get { return _recorders; } }
 
+        private IEnumerable<IPlayoutServerChannel> _channels;
+        public IEnumerable<IPlayoutServerChannel> Channels { get { return _channels; } private set { SetField(ref _channels, value, nameof(Channels)); } }
+
         private IPlayoutServerChannel _channel;
         public IPlayoutServerChannel Channel { get { return _channel; }  set { SetField(ref _channel, value, nameof(Channel)); } }
+
+        public Array FileFormats { get { return Enum.GetValues(typeof(TMovieContainerFormat)); } }
 
         private TMovieContainerFormat _fileFormat;
         public TMovieContainerFormat FileFormat { get { return _fileFormat; } set { SetField(ref _fileFormat, value, nameof(FileFormat)); } }
@@ -116,13 +154,29 @@ namespace TAS.Client.ViewModels
         public TimeSpan TcOut { get { return _tcOut; } set { SetField(ref _tcOut, value, nameof(TcOut)); } }
 
         private TimeSpan _currentTc;
-        public TimeSpan CurrentTc { get { return _currentTc; }  private set { SetField(ref _currentTc, value, nameof(CurrentTc)); } }
+        public TimeSpan CurrentTc { get { return _currentTc; }  set { SetField(ref _currentTc, value, nameof(CurrentTc)); } }
 
         private TDeckState _deckState;
-        public TDeckState DeckState { get { return _deckState; } private set { SetField(ref _deckState, value, nameof(DeckState)); } }
+        public TDeckState DeckState
+        {
+            get { return _deckState; }
+            private set
+            {
+                if (SetField(ref _deckState, value, nameof(DeckState)))
+                    InvalidateRequerySuggested();
+            }
+        }
 
         private TDeckControl _deckControl;
-        public TDeckControl DeckControl { get { return _deckControl; }  private set { SetField(ref _deckControl, value, nameof(DeckControl)); } }
+        public TDeckControl DeckControl
+        {
+            get { return _deckControl; }
+            private set
+            {
+                if (SetField(ref _deckControl, value, nameof(DeckControl)))
+                    InvalidateRequerySuggested();
+            }
+        }
 
         public string this[string propertyName]
         {
@@ -153,11 +207,16 @@ namespace TAS.Client.ViewModels
                 else
                 {
                     newName = newName.ToLowerInvariant();
-                    if (_directory.FileExists(newName))
+                    if (_recorder?.RecordingDirectory.FileExists(newName) == true)
                         validationResult = resources._validate_FileAlreadyExists;
                 }
             }
             return validationResult;
+        }
+
+        public string Error
+        {
+            get { throw new NotImplementedException(); }
         }
 
         private void _recorder_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -168,11 +227,13 @@ namespace TAS.Client.ViewModels
                 Application.Current.Dispatcher.BeginInvoke((Action)(() => DeckControl = ((IRecorder)sender).DeckControl));
             if (e.PropertyName == nameof(IRecorder.DeckState))
                 Application.Current.Dispatcher.BeginInvoke((Action)(() => DeckState = ((IRecorder)sender).DeckState));
+            if (e.PropertyName == nameof(IRecorder.IsConnected))
+                Application.Current.Dispatcher.BeginInvoke((Action)(() => InvalidateRequerySuggested()));
         }
 
         protected override void OnDispose()
         {
-            _recorder = null; // ensure that event is disconnected
+            Recorder = null; // ensure that events are disconnected
         }
     }
 }

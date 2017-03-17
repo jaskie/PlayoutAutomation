@@ -95,6 +95,17 @@ namespace TAS.Server
 
             _loadIngestDirs(Path.Combine(Directory.GetCurrentDirectory(), ConfigurationManager.AppSettings["IngestFolders"]));
             _fileManager.VolumeReferenceLoudness = Convert.ToDecimal(_engine.VolumeReferenceLoudness);
+
+            _recorders = new List<CasparRecorder>();
+            var recorders = (_engine.PlayoutChannelPRI?.OwnerServer as CasparServer)._recorders;
+            if (recorders != null)
+                _recorders.AddRange(recorders);
+            if (_engine.PlayoutChannelPRI != _engine.PlayoutChannelSEC && _engine.PlayoutChannelPRI?.OwnerServer != _engine.PlayoutChannelSEC?.OwnerServer)
+            {
+                recorders = (_engine.PlayoutChannelSEC?.OwnerServer as CasparServer)?._recorders;
+                if (recorders != null)
+                    _recorders.AddRange(recorders);
+            }            
             Debug.WriteLine(this, "End initializing");
             Logger.Debug("End initializing");
         }
@@ -146,13 +157,11 @@ namespace TAS.Server
         }
         [JsonProperty(nameof(IMediaManager.IngestDirectories), IsReference = false, ItemIsReference = true, ItemTypeNameHandling = TypeNameHandling.All)]
         private List<IngestDirectory> _ingestDirectories;
-        public IEnumerable<IIngestDirectory> IngestDirectories
-        {
-            get
-            {
-                return _ingestDirectories;
-            }
-        }
+        public IEnumerable<IIngestDirectory> IngestDirectories { get { return _ingestDirectories; } }
+
+        [JsonProperty(nameof(IMediaManager.Recorders), IsReference = false, ItemIsReference = true, ItemTypeNameHandling = TypeNameHandling.All)]
+        private List<CasparRecorder> _recorders;
+        public IEnumerable<IRecorder> Recorders { get { return _recorders; } }
 
         private bool _ingestDirectoriesLoaded = false;
 

@@ -43,12 +43,12 @@ namespace TAS.Server
         [XmlArray(nameof(Channels))]
         public List<CasparServerChannel> _channels { get; set; }
         [XmlIgnore]
-        public List<IPlayoutServerChannel> Channels { get { return _channels.Cast<IPlayoutServerChannel>().ToList(); } }
+        public IEnumerable<IPlayoutServerChannel> Channels { get { return _channels; } }
 
         [XmlArray(nameof(Recorders))]
         public List<CasparRecorder> _recorders { get; set; }
         [XmlIgnore]
-        public List<IRecorder> Recorders { get { return _recorders.Cast<IRecorder>().ToList(); } }
+        public IEnumerable<IRecorder> Recorders { get { return _recorders; } }
 
         private Svt.Caspar.CasparDevice _casparDevice;
 

@@ -147,6 +147,9 @@
   <data name="_grid.IsTrimmed" xml:space="preserve">
     <value>Przycięty</value>
   </data>
+  <data name="_media" xml:space="preserve">
+    <value>Pliki medialne</value>
+  </data>
   <data name="_mediaCategory" xml:space="preserve">
     <value>Kategoria</value>
   </data>
@@ -158,6 +161,9 @@
   </data>
   <data name="_menu.Tools.SynchronizeSecToPri" xml:space="preserve">
     <value>Synchronizuj zawartość serwerów</value>
+  </data>
+  <data name="_recorders" xml:space="preserve">
+    <value>Nagrywanie</value>
   </data>
   <data name="_refresh" xml:space="preserve">
     <value>Odśwież | F5</value>

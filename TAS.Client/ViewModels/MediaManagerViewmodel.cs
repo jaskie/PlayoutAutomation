@@ -77,6 +77,7 @@ namespace TAS.Client.ViewModels
             _view = new MediaManagerView() { DataContext = this };
             if (mediaManager.FileManager != null)
                 _fileManagerVm = new FileManagerViewmodel(mediaManager.FileManager);
+            _recordersVm = new RecordersViewmodel(mediaManager.Recorders);
         }
 
         private readonly IPreview _preview;
@@ -87,6 +88,9 @@ namespace TAS.Client.ViewModels
 
         private readonly FileManagerViewmodel _fileManagerVm;
         public FileManagerViewmodel FileManagerVm { get { return _fileManagerVm; } }
+
+        private readonly RecordersViewmodel _recordersVm;
+        public RecordersViewmodel RecordersVm { get { return _recordersVm; } }
 
         bool _previewDisplay;
         public bool PreviewDisplay { get { return _previewDisplay; } set { SetField(ref _previewDisplay, value, nameof(PreviewDisplay)); } }

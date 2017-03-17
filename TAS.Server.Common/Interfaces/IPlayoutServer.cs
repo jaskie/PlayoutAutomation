@@ -12,8 +12,8 @@ namespace TAS.Server.Interfaces
         bool IsConnected { get; }
         IServerDirectory MediaDirectory { get; }
         IAnimationDirectory AnimationDirectory { get; }
-        List<IPlayoutServerChannel> Channels { get; }
-        List<IRecorder> Recorders { get; }
+        IEnumerable<IPlayoutServerChannel> Channels { get; }
+        IEnumerable<IRecorder> Recorders { get; }
     }
 
     public interface IPlayoutServerProperties : IPersistent

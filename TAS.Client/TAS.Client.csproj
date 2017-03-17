@@ -207,8 +207,8 @@
     <Compile Include="Views\PreviewView.xaml.cs">
       <DependentUpon>PreviewView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\RecorderView.xaml.cs">
-      <DependentUpon>RecorderView.xaml</DependentUpon>
+    <Compile Include="Views\RecordersView.xaml.cs">
+      <DependentUpon>RecordersView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TemplatedEditView.xaml.cs">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
@@ -333,7 +333,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\RecorderView.xaml">
+    <Page Include="Views\RecordersView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -432,6 +432,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\PreviewView.resx">
       <DependentUpon>PreviewView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\RecordersView.resx" >      
+      <DependentUpon>RecordersView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\RecordersView.pl.resx" >      
+      <DependentUpon>RecordersView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TemplatedEditView.pl.resx">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>

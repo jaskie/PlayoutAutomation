@@ -494,11 +494,9 @@ namespace TAS.Common
         AllButCommercials
     }
 
-    [Flags]
     public enum TDeckState
     {
-        Disconnected = 0,
-        Connected = 1,
+        Unknown = 0,
         NotInVtrControlMode = 2,
         Playing = 4,
         Pecording = 8,
@@ -512,6 +510,7 @@ namespace TAS.Common
 
     public enum  TDeckControl
     {
+        None,
         ExportPrepare,
         ExportComplete,
         Aborted,

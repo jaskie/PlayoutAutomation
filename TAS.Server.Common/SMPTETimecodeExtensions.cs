@@ -88,6 +88,11 @@ namespace TAS.Common
             return TimeSpan.FromTicks(totalFrames * TimeSpan.TicksPerSecond / rate);
         }
 
+        public static bool IsValidSMPTETimecode(this string timeCode, TVideoFormat format)
+        {
+            return IsValidSMPTETimecode(timeCode, VideoFormatDescription.Descriptions[format].FrameRate);
+        }
+
         public static bool IsValidSMPTETimecode(this string timeCode, RationalNumber rate)
         {
             if (rate.IsZero)

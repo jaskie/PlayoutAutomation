@@ -17,9 +17,9 @@ namespace TAS.Client.Views
     /// <summary>
     /// Interaction logic for RecorderView.xaml
     /// </summary>
-    public partial class RecorderView : UserControl
+    public partial class RecordersView : UserControl
     {
-        public RecorderView()
+        public RecordersView()
         {
             InitializeComponent();
         }

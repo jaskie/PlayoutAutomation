@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
 
 namespace Svt.Caspar
@@ -13,11 +11,9 @@ namespace Svt.Caspar
         decklink,
     }
 
-    [Flags]
     public enum DeckState
     {
-        disconnected = 0,
-        connected = 1,
+        unknown = 0,
         not_vtr_control = 2,
         playing = 4,
         recording = 8,
@@ -31,6 +27,7 @@ namespace Svt.Caspar
 
     public enum DeckControl
     {
+        none,
         export_prepare,
         export_complete,
         aborted,
@@ -56,6 +53,20 @@ namespace Svt.Caspar
         public int Preroll { get; set; }
         [XmlElement("index")]
         public int Id { get; set; }
+        private bool _isConnected;
+        [XmlElement("connected")]
+        public bool IsConnected
+        {
+            get { return _isConnected; }
+            set
+            {
+                if (_isConnected != value)
+                {
+                    _isConnected = value;
+                    DeckConnected?.Invoke(this, new DeckConnectedEventArgs(value));
+                }
+            }
+        }
         #endregion Serialized
 
         internal ServerConnection Connection { get; set; }
@@ -126,6 +137,14 @@ namespace Svt.Caspar
                             if (Enum.TryParse(message.Arguments[0].ToString(), out state))
                                 DeckState?.Invoke(this, new DeckStateEventArgs(state));
                             break;
+                        case "connected":
+                            bool isConnected;
+                            if (bool.TryParse(message.Arguments[0].ToString(), out isConnected))
+                                IsConnected = isConnected;
+                            break;
+                        default:
+                            Debug.WriteLine($"Unrecognized message: {path[2]}");
+                            break;
                     }
                 }
             }
@@ -134,6 +153,7 @@ namespace Svt.Caspar
         public event EventHandler<TcEventArgs> Tc;
         public event EventHandler<DeckStateEventArgs> DeckState;
         public event EventHandler<DeckControlEventArgs> DeckControl;
+        public event EventHandler<DeckConnectedEventArgs> DeckConnected;
 
         #endregion OSC notifications
     }
@@ -163,5 +183,14 @@ namespace Svt.Caspar
             ControlEvent = controlEvent;
         }
         public DeckControl ControlEvent { get; private set; }
+    }
+
+    public class DeckConnectedEventArgs : EventArgs
+    {
+        public DeckConnectedEventArgs(bool isConnected)
+        {
+            IsConnected = isConnected;
+        }
+        public bool IsConnected { get; private set; }
     }
 }

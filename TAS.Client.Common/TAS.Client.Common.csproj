@@ -513,6 +513,24 @@
   <ItemGroup>
     <Resource Include="Images\Config\document-folder-add.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\import-movie.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\MediaNavigation\media-playback-start.png" />
+    <Resource Include="Images\MediaNavigation\media-playback-stop.png" />
+    <Resource Include="Images\MediaNavigation\media-seek-backward.png" />
+    <Resource Include="Images\MediaNavigation\media-seek-forward.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\MediaNavigation\media-record.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\MediaNavigation\media-capture.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\go-jump.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
