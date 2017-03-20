@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace TAS.Server
         [XmlAttribute]
         public ushort ListenPort { get; set; }
         WebSocketServer _server;
-        static SerializationBinder ServerBinder = new ServerSerializationBinder();
+        static ISerializationBinder ServerBinder = new ServerSerializationBinder();
         static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(RemoteClientHost));
         public bool Initialize(Engine engine)
         {

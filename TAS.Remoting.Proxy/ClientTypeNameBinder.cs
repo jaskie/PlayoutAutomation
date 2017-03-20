@@ -8,9 +8,9 @@ using TAS.Remoting;
 
 namespace TAS.Remoting
 {
-    public class ClientTypeNameBinder : SerializationBinder
+    public class ClientTypeNameBinder : Newtonsoft.Json.Serialization.ISerializationBinder
     {
-        public override Type BindToType(string assemblyName, string typeName)
+        public Type BindToType(string assemblyName, string typeName)
         {
             switch (typeName)
             {
@@ -67,7 +67,7 @@ namespace TAS.Remoting
             }
         }
 
-        public override void BindToName(Type serializedType, out string assemblyName, out string typeName)
+        public void BindToName(Type serializedType, out string assemblyName, out string typeName)
         {
             var attribute = serializedType.GetCustomAttributes(typeof(TypeNameOverrideAttribute), true).FirstOrDefault() as TypeNameOverrideAttribute;
             if (attribute != null)

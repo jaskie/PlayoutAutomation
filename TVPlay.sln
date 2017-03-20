@@ -39,13 +39,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.Config", "TAS.Cl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPlay.config", "TVPlay.config\TVPlay.config.csproj", "{0BB48447-B299-4CE9-AF50-174384B269D0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FFBD2072-AD87-47DF-9FC1-CC439AD84916}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client", "TAS.Client\TAS.Client.csproj", "{F6E01E47-5075-42A7-B2A2-BC35BC074F9F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPlayClient", "TVPlayClient\TVPlayClient.csproj", "{881311DB-0898-4B7B-BB33-E9F16359195A}"

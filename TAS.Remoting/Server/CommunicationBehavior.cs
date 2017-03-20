@@ -13,6 +13,7 @@ using Newtonsoft.Json.Linq;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using delegateKey = System.Tuple<System.Guid, string>;
+using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting.Server
 {
@@ -43,7 +44,7 @@ namespace TAS.Remoting.Server
             _notifyClient(sender, e, nameof(INotifyPropertyChanged.PropertyChanged));
         }
 
-        public SerializationBinder Binder { get { return _serializer.Binder; } set { _serializer.Binder = value; } }
+        public ISerializationBinder Binder { get { return _serializer.SerializationBinder; } set { _serializer.SerializationBinder = value; } }
 
 #if DEBUG
         ~CommunicationBehavior()
@@ -307,7 +308,7 @@ namespace TAS.Remoting.Server
             Debug.WriteLine($"Server: ObjectDisposed notification on {dto} sent");
         }
 
-        protected override void OnError(ErrorEventArgs e)
+        protected override void OnError(WebSocketSharp.ErrorEventArgs e)
         {
             Debug.WriteLine(e.Exception);
             base.OnError(e);

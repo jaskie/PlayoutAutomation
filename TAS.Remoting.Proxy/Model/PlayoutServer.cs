@@ -13,9 +13,9 @@ namespace TAS.Remoting.Model
     {
         public IAnimationDirectory AnimationDirectory { get { return Get<AnimationDirectory>(); } protected set { SetLocalValue(value); } }
 
-        public List<IPlayoutServerChannel> Channels { get { return Get<List<PlayoutServerChannel>>().Cast<IPlayoutServerChannel>().ToList(); } protected set { SetLocalValue(value); } }
+        public IEnumerable<IPlayoutServerChannel> Channels { get { return Get<List<PlayoutServerChannel>>(); } protected set { SetLocalValue(value); } }
 
-        public List<IRecorder> Recorders{ get { return Get<List<Recorder>>().Cast<IRecorder>().ToList(); } protected set { SetLocalValue(value); } }
+        public IEnumerable<IRecorder> Recorders{ get { return Get<List<Recorder>>(); } protected set { SetLocalValue(value); } }
 
         public ulong Id { get { return Get<ulong>(); }  set { SetLocalValue(value); } }
 

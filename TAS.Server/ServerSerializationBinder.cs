@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -7,9 +8,9 @@ using TAS.Remoting;
 
 namespace TAS.Server
 {
-    public class ServerSerializationBinder : SerializationBinder
+    public class ServerSerializationBinder : ISerializationBinder
     {
-        public override Type BindToType(string assemblyName, string typeName)
+        public Type BindToType(string assemblyName, string typeName)
         {
             switch (typeName)
             {
@@ -48,7 +49,7 @@ namespace TAS.Server
                         return Type.GetType(string.Format("{0}, {1}", typeName, assemblyName), true);
             }
         }
-        public override void BindToName(Type serializedType, out string assemblyName, out string typeName)
+        public void BindToName(Type serializedType, out string assemblyName, out string typeName)
         {
             var attribute =  serializedType.GetCustomAttributes(typeof(TypeNameOverrideAttribute), true).FirstOrDefault() as TypeNameOverrideAttribute;
             if (attribute != null)

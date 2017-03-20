@@ -11,6 +11,7 @@ using System.Threading;
 using WebSocketSharp;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting.Client
 {
@@ -54,7 +55,7 @@ namespace TAS.Remoting.Client
             _clientSocket.Connect();
         }
 
-        public SerializationBinder Binder { get { return _serializer.Binder; }  set { _serializer.Binder = value; } }
+        public ISerializationBinder Binder { get { return _serializer.SerializationBinder; }  set { _serializer.SerializationBinder = value; } }
 
         private void _clientSocket_OnError(object sender, WebSocketSharp.ErrorEventArgs e)
         {

@@ -39,7 +39,6 @@ namespace TAS.Server
             {
                 FullPath = fullPath,
             };
-
         }
 
         protected override bool AcceptFile(string fullPath)
