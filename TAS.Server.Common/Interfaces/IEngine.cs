@@ -14,7 +14,6 @@ namespace TAS.Server.Interfaces
         long FrameTicks { get; }
         IPlayoutServerChannel PlayoutChannelPRI { get; }
         IPlayoutServerChannel PlayoutChannelSEC { get; }
-        IEnumerable<IRecorder> Recorders { get; }
         IMediaManager MediaManager { get; }
         ConnectionStateRedundant DatabaseConnectionState { get; }
         bool Pst2Prv { get; set; }

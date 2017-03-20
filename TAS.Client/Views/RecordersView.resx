@@ -123,8 +123,14 @@
   <data name="_channel" xml:space="preserve">
     <value>Channel to record</value>
   </data>
+  <data name="_crashRecording" xml:space="preserve">
+    <value>Crash recording</value>
+  </data>
   <data name="_currentTc" xml:space="preserve">
     <value>Current TC</value>
+  </data>
+  <data name="_deckRecording" xml:space="preserve">
+    <value>Deck recording</value>
   </data>
   <data name="_ff.ToolTip" xml:space="preserve">
     <value>Forward tape</value>
@@ -144,11 +150,23 @@
   <data name="_play.ToolTip" xml:space="preserve">
     <value>Play</value>
   </data>
+  <data name="_record.ToolTip" xml:space="preserve">
+    <value>Record now</value>
+  </data>
+  <data name="_recordEnd.ToolTip" xml:space="preserve">
+    <value>Finish the recording</value>
+  </data>
   <data name="_recorder" xml:space="preserve">
     <value>Recorder</value>
   </data>
+  <data name="_recordTimeLimit" xml:space="preserve">
+    <value>Recording limit time</value>
+  </data>
   <data name="_rewind.ToolTip" xml:space="preserve">
     <value>Rewind tape</value>
+  </data>
+  <data name="_setRecordLimit.ToolTip" xml:space="preserve">
+    <value>Set new record time limit</value>
   </data>
   <data name="_stop.ToolTip" xml:space="preserve">
     <value>Stop</value>

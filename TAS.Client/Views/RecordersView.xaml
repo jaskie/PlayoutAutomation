@@ -14,7 +14,7 @@
              d:DesignHeight="500" d:DesignWidth="600">
     <UserControl.Resources>
         <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
-        <Style x:Key="controlButtonProperties" BasedOn="{StaticResource {x:Type Button}}" TargetType="Button" >
+        <Style TargetType="Button" >
             <Setter Property="Width" Value="40" />
             <Setter Property="Margin" Value="8" />
         </Style>
@@ -24,6 +24,12 @@
                     <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
                 </Trigger>
             </Style.Triggers>
+        </Style>
+        <Style TargetType="controls:TimecodeEdit" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
     </UserControl.Resources>
     <StackPanel>
@@ -37,57 +43,81 @@
             <Label Content="{Resx _fileName}"/>
             <TextBox Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="220" VerticalAlignment="Center"/>
             <Label Content="{Resx _fileFormat}"/>
-            <ComboBox ItemsSource="{Binding FileFormats}" SelectedItem="{Binding FileFormat}" Width="80"/>
+            <ComboBox ItemsSource="{Binding FileFormats}" SelectedItem="{Binding FileFormat, ValidatesOnDataErrors=True}" Width="80"/>
         </StackPanel>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-            <StackPanel.Resources>
-                <Style TargetType="Label">
-                    <Setter Property="VerticalContentAlignment" Value="Center"/>
-                </Style>
-                <Style TargetType="controls:TimecodeEdit">
-                    <Setter Property="Width" Value="80"/>
-                    <Setter Property="VerticalAlignment" Value="Center"/>
-                </Style>
-                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                    <Setter Property="Height" Value="20"/>
-                    <Setter Property="Width" Value="20"/>
-                </Style>
-            </StackPanel.Resources>
-            <Label Content="{Resx _tcIn}"/>
-            <controls:TimecodeEdit Text="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
-            <Button Command="{Binding CommandGetCurrentTcToIn}" ToolTip="{Resx _getTC.ToolTip}">
-                <Image  Source="/TAS.Client.Common;component/Images/Actions/import-movie.png"/>
-            </Button>
-            <Label Content="{Resx _currentTc}"/>
-            <controls:TimecodeEdit Text="{Binding CurrentTc, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
-            <Button Command="{Binding CommandGoToTimecode}" ToolTip="{Resx _gotoTC.ToolTip}">
-                <Image  Source="/TAS.Client.Common;component/Images/Actions/go-jump.png"/>
-            </Button>
-            <Label Content="{Resx _tcOut}"/>
-            <controls:TimecodeEdit Text="{Binding TcOut, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
-            <Button Command="{Binding CommandGetCurrentTcToOut}" ToolTip="{Resx _getTC.ToolTip}">
-                <Image  Source="/TAS.Client.Common;component/Images/Actions/import-movie.png"/>
-            </Button>
-        </StackPanel>
-        <ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked="True" Height="35">
-            <ToolBar.Resources>
-            </ToolBar.Resources>
-            <Button Command="{Binding CommandRewind}" ToolTip="{Resx _rewind.ToolTip}">
-                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-seek-backward.png" />
-            </Button>
-            <Button Command="{Binding CommandPlay}" ToolTip="{Resx _play.ToolTip}" >
-                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-start.png" />
-            </Button>
-            <Button Command="{Binding CommandStop}" ToolTip="{Resx _stop.ToolTip}">
-                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png" />
-            </Button>
-            <Button Command="{Binding CommandFastForward}" ToolTip="{Resx _ff.ToolTip}">
-                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-seek-forward.png" />
-            </Button>
-            <Separator/>
-            <Button Command="{Binding CommandCapture}" ToolTip="{Resx _capture.ToolTip}">
-                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-capture.png" />
-            </Button>
-        </ToolBar>
+        <Expander IsExpanded="True">
+            <Expander.Header>
+                <TextBlock Text="{Resx _deckRecording}"/>
+            </Expander.Header>
+            <StackPanel >
+                <ToolBar ToolBarTray.IsLocked="True" Height="35">
+                    <Button Command="{Binding CommandRewind}" ToolTip="{Resx _rewind.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-seek-backward.png" />
+                    </Button>
+                    <Button Command="{Binding CommandPlay}" ToolTip="{Resx _play.ToolTip}" >
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-start.png" />
+                    </Button>
+                    <Button Command="{Binding CommandStop}" ToolTip="{Resx _stop.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png" />
+                    </Button>
+                    <Button Command="{Binding CommandFastForward}" ToolTip="{Resx _ff.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-seek-forward.png" />
+                    </Button>
+                    <Separator/>
+                    <Button Command="{Binding CommandCapture}" ToolTip="{Resx _capture.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-capture.png" />
+                    </Button>
+                </ToolBar>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel.Resources>
+                        <Style TargetType="Label">
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                        </Style>
+                        <Style TargetType="controls:TimecodeEdit">
+                            <Setter Property="Width" Value="80"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                        </Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                            <Setter Property="Height" Value="20"/>
+                            <Setter Property="Width" Value="20"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <Label Content="{Resx _tcIn}"/>
+                    <controls:TimecodeEdit Text="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Margin="0" Command="{Binding CommandGetCurrentTcToIn}" ToolTip="{Resx _getTC.ToolTip}">
+                        <Image  Source="/TAS.Client.Common;component/Images/Actions/import-movie.png"/>
+                    </Button>
+                    <Label Content="{Resx _currentTc}"/>
+                    <controls:TimecodeEdit Text="{Binding CurrentTc, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Margin="0" Command="{Binding CommandGoToTimecode}" ToolTip="{Resx _gotoTC.ToolTip}">
+                        <Image  Source="/TAS.Client.Common;component/Images/Actions/go-jump.png"/>
+                    </Button>
+                    <Label Content="{Resx _tcOut}"/>
+                    <controls:TimecodeEdit Text="{Binding TcOut, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Margin="0" Command="{Binding CommandGetCurrentTcToOut}" ToolTip="{Resx _getTC.ToolTip}">
+                        <Image  Source="/TAS.Client.Common;component/Images/Actions/import-movie.png"/>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Expander>
+        <Expander IsExpanded="True">
+            <Expander.Header>
+                <TextBlock Text="{Resx _crashRecording}"/>
+            </Expander.Header>
+            <ToolBar ToolBarTray.IsLocked="True" Height="35">
+                <Button Command="{Binding CommandRecordStart}" ToolTip="{Resx _record.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-record.png" />
+                </Button>
+                <Button Command="{Binding CommandRecordEnd}" ToolTip="{Resx _recordEnd.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png" />
+                </Button>
+                <Separator/>
+                <Label Content="{Resx _recordTimeLimit}"/>
+                <controls:TimecodeEdit Timecode="{Binding RecorderTimeLimit, UpdateSourceTrigger=PropertyChanged}" />
+                <Button Command="{Binding CommandSetRecordLimit}" Height="20" Margin="0" ToolTip="{Resx _setRecordLimit.ToolTip}">
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/save-small.png" />
+                </Button>
+            </ToolBar>
+        </Expander>
     </StackPanel>
 </UserControl>

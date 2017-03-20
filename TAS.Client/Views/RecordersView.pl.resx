@@ -123,8 +123,14 @@
   <data name="_channel" xml:space="preserve">
     <value>Kanał nagrania</value>
   </data>
+  <data name="_crashRecording" xml:space="preserve">
+    <value>Nagrywanie ciągłe</value>
+  </data>
   <data name="_currentTc" xml:space="preserve">
     <value>Bieżący TC</value>
+  </data>
+  <data name="_deckRecording" xml:space="preserve">
+    <value>Nagrywanie z magnetowidu</value>
   </data>
   <data name="_ff.ToolTip" xml:space="preserve">
     <value>Przewiń do przodu</value>
@@ -144,11 +150,23 @@
   <data name="_play.ToolTip" xml:space="preserve">
     <value>Odtwarzaj</value>
   </data>
+  <data name="_record.ToolTip" xml:space="preserve">
+    <value>Nagraj od teraz</value>
+  </data>
+  <data name="_recordEnd.ToolTip" xml:space="preserve">
+    <value>Zakończ nagrywanie</value>
+  </data>
   <data name="_recorder" xml:space="preserve">
     <value>Nagrywarka</value>
   </data>
+  <data name="_recordTimeLimit" xml:space="preserve">
+    <value>Limit czasu nagrania</value>
+  </data>
   <data name="_rewind.ToolTip" xml:space="preserve">
     <value>Przewiń do tyłu</value>
+  </data>
+  <data name="_setRecordLimit.ToolTip" xml:space="preserve">
+    <value>Ustaw zmieniony limit czasu nagrania</value>
   </data>
   <data name="_stop.ToolTip" xml:space="preserve">
     <value>Stop</value>

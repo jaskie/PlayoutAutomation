@@ -45,8 +45,6 @@ namespace TAS.Remoting.Model
 
         public IMediaManager MediaManager { get { return Get<MediaManager>(); } set { SetLocalValue(value); } }
 
-        public IEnumerable<IRecorder> Recorders { get { return Get<List<Recorder>>(); }  set { SetLocalValue(value); } }
-
         public IEvent NextToPlay { get { return Get<Event>(); } set { SetLocalValue(value); } }
 
         public IEvent NextWithRequestedStartTime { get { return Get<Event>(); } set { SetLocalValue(value); } }

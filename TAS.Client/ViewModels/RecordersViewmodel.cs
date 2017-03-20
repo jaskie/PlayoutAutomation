@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -112,6 +113,9 @@ namespace TAS.Client.ViewModels
         public ICommand CommandGetCurrentTcToIn { get; private set; }
         public ICommand CommandGetCurrentTcToOut { get; private set; }
         public ICommand CommandGoToTimecode { get; private set; }
+        public ICommand CommandRecordEnd { get; private set; }
+        public ICommand CommandRecordStart { get; private set; }
+        public ICommand CommandSetRecordLimit { get; private set; }
 
         private string _fileName;
         public string FileName { get { return _fileName; } set { SetField(ref _fileName, value, nameof(FileName)); } }
@@ -157,6 +161,17 @@ namespace TAS.Client.ViewModels
         private TimeSpan _currentTc;
         public TimeSpan CurrentTc { get { return _currentTc; }  set { SetField(ref _currentTc, value, nameof(CurrentTc)); } }
 
+        private TimeSpan _recorderTimeLimit;
+        public TimeSpan RecorderTimeLimit
+        {
+            get { return _recorderTimeLimit; }
+            set
+            {
+                if (SetField(ref _recorderTimeLimit, value, nameof(RecorderTimeLimit)))
+                    Debug.WriteLine(value);
+            }
+        }
+
         private TDeckState _deckState;
         public TDeckState DeckState
         {
@@ -187,6 +202,7 @@ namespace TAS.Client.ViewModels
                 switch (propertyName)
                 {
                     case nameof(FileName):
+                    case nameof(FileFormat):
                         validationResult = _validateFileName();
                         break;
                 }

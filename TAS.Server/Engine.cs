@@ -142,8 +142,6 @@ namespace TAS.Server
         private CasparServerChannel _playoutChannelPRV;
         [XmlIgnore]
         public IPlayoutServerChannel PlayoutChannelPRV { get { return _playoutChannelPRV; } }
-        private List<CasparRecorder> _recorders;
-        public IEnumerable<IRecorder> Recorders { get { return _recorders.Cast<IRecorder>(); } }
 
         long _frameTicks;
         public long FrameTicks { get { return _frameTicks; } }
@@ -165,18 +163,18 @@ namespace TAS.Server
             Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Initializing engine {0}", this);
 
-            _recorders = new List<CasparRecorder>();
+            var recorders = new List<CasparRecorder>();
 
             var sPRI = servers.FirstOrDefault(S => S.Id == IdServerPRI);
             _playoutChannelPRI = sPRI == null ? null : (CasparServerChannel)sPRI.Channels.FirstOrDefault(c => c.Id == ServerChannelPRI);
-            _recorders.AddRange(sPRI.Recorders.Select(r => r as CasparRecorder));
+            recorders.AddRange(sPRI.Recorders.Select(r => r as CasparRecorder));
             var sSEC = servers.FirstOrDefault(S => S.Id == IdServerSEC);
-            _recorders.AddRange(sSEC.Recorders.Select(r => r as CasparRecorder));
+            recorders.AddRange(sSEC.Recorders.Select(r => r as CasparRecorder));
             _playoutChannelSEC = sSEC == null ? null : (CasparServerChannel)sSEC.Channels.FirstOrDefault(c => c.Id == ServerChannelSEC);
             var sPRV = servers.FirstOrDefault(S => S.Id == IdServerPRV);
-            _recorders.AddRange(sPRV.Recorders.Select(r => r as CasparRecorder));
+            recorders.AddRange(sPRV.Recorders.Select(r => r as CasparRecorder));
             _playoutChannelPRV = sPRV == null ? null : (CasparServerChannel)sPRV.Channels.FirstOrDefault(c => c.Id == ServerChannelPRV);
-
+            _mediaManager.Recorders = recorders;
             
 
             _localGpis = this.ComposeParts<IGpi>();
