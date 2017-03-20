@@ -305,6 +305,9 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   <data name="_validate_FileNameCanNotStartOrEndWithSpace" xml:space="preserve">
     <value>Nazwa pliku nie może się zaczynać ani kończyć spacją.</value>
   </data>
+  <data name="_validate_FileNameEmpty" xml:space="preserve">
+    <value>Musisz podać nazwę pliku.</value>
+  </data>
   <data name="_validate_ScheduledDelayInvalid" xml:space="preserve">
     <value>Suma długości i opóźnienia przekracza czas trwania elementu.</value>
   </data>

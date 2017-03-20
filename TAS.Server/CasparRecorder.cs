@@ -49,7 +49,28 @@ namespace TAS.Server
 
         private void _recorder_DeckControl(object sender, DeckControlEventArgs e)
         {
+            if (e.ControlEvent == Svt.Caspar.DeckControl.capture_complete)
+                _captureCompleted();
+            if (e.ControlEvent == Svt.Caspar.DeckControl.capture_complete)
+                _captureAborted();
             DeckControl = (TDeckControl)e.ControlEvent;
+        }
+
+        private void _captureAborted()
+        {
+            _recordingMedia?.Delete();
+            RecordingMedia = null;
+        }
+
+        private void _captureCompleted()
+        {
+            var media = _recordingMedia;
+            if (media != null)
+            {
+                media.Verify();
+                if (media.MediaStatus == TMediaStatus.Available)
+                    CaptureSuccess?.Invoke(this, EventArgs.Empty);
+            }            
         }
 
         private void _recorder_DeckConnected(object sender, DeckConnectedEventArgs e)
@@ -63,6 +84,7 @@ namespace TAS.Server
                 CurrentTc = e.Tc.SMPTETimecodeToTimeSpan(_tcFormat);
         }
 
+        public event EventHandler CaptureSuccess;
 
         #region Deserialized properties
         public int RecorderNumber { get; set; }
@@ -70,6 +92,7 @@ namespace TAS.Server
         public string RecorderName { get; set; }
         #endregion Deserialized properties
 
+        #region IRecorder
         private TimeSpan _currentTc;
         [XmlIgnore]
         public TimeSpan CurrentTc { get { return _currentTc; }  private set { SetField(ref _currentTc, value, nameof(CurrentTc)); } }
@@ -88,10 +111,19 @@ namespace TAS.Server
 
         public IEnumerable<IPlayoutServerChannel> Channels { get { return ownerServer.Channels; } }
 
-        public void Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, string fileName)
+        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, string fileName)
         {
             _tcFormat = channel.VideoFormat;
-            _recorder?.Capture(channel.Id, tcIn.ToSMPTETimecodeString(channel.VideoFormat), tcOut.ToSMPTETimecodeString(channel.VideoFormat), fileName);
+            var mediaProxy = new Common.MediaProxy() { FileName = fileName, MediaName = fileName, TcStart = tcIn, Duration = tcOut - tcIn, MediaStatus = TMediaStatus.Required };
+            var newMedia = ((ServerDirectory)ownerServer.MediaDirectory).CreateMedia(mediaProxy);
+            if (_recorder?.Capture(channel.Id, tcIn.ToSMPTETimecodeString(channel.VideoFormat), tcOut.ToSMPTETimecodeString(channel.VideoFormat), fileName) == true)
+            {
+                RecordingMedia = newMedia;
+                return newMedia;
+            }
+            // delete if capture didn't started
+            newMedia.Delete();
+            return null;
         }
         public void Abort()
         {
@@ -122,11 +154,14 @@ namespace TAS.Server
             _recorder?.GotoTimecode(tc.ToSMPTETimecodeString(format));
         }
 
-        private IServerMedia _recordingMedia;
+        private IMedia _recordingMedia;
         [XmlIgnore]
-        public IServerMedia RecordingMedia { get { return _recordingMedia; } private set { SetField(ref _recordingMedia, value, nameof(RecordingMedia)); } }
+        public IMedia RecordingMedia { get { return _recordingMedia; } private set { SetField(ref _recordingMedia, value, nameof(RecordingMedia)); } }
 
-        public IServerDirectory RecordingDirectory { get { return ownerServer.MediaDirectory; } }
-                
+        public IMediaDirectory RecordingDirectory { get { return ownerServer.MediaDirectory; } }
+
+        #endregion IRecorder
+
+
     }
 }

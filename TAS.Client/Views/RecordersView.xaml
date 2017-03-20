@@ -18,6 +18,13 @@
             <Setter Property="Width" Value="40" />
             <Setter Property="Margin" Value="8" />
         </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
     <StackPanel>
         <ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked="True">
@@ -28,7 +35,7 @@
         </ToolBar>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
             <Label Content="{Resx _fileName}"/>
-            <TextBox Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged}" Width="220" VerticalAlignment="Center"/>
+            <TextBox Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="220" VerticalAlignment="Center"/>
             <Label Content="{Resx _fileFormat}"/>
             <ComboBox ItemsSource="{Binding FileFormats}" SelectedItem="{Binding FileFormat}" Width="80"/>
         </StackPanel>

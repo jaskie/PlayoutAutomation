@@ -59,7 +59,7 @@ namespace TAS.Server
         #region Fields
 
         [JsonProperty(nameof(MediaManager))]
-        private readonly IMediaManager _mediaManager;
+        private readonly MediaManager _mediaManager;
         [XmlIgnore]
         public IMediaManager MediaManager { get { return _mediaManager; } }
         [XmlIgnore]
@@ -191,19 +191,19 @@ namespace TAS.Server
             if (chSEC != null
                 && chSEC != chPRI)
             {
-                chSEC.ownerServer.Initialize(MediaManager as MediaManager);
+                chSEC.ownerServer.Initialize(_mediaManager);
                 chSEC.ownerServer.MediaDirectory.DirectoryName = chSEC.ChannelName;
                 chSEC.ownerServer.PropertyChanged += _server_PropertyChanged;
             }
 
             if (chPRI != null)
             {
-                chPRI.ownerServer.Initialize(MediaManager as MediaManager);
+                chPRI.ownerServer.Initialize(_mediaManager);
                 chPRI.ownerServer.MediaDirectory.DirectoryName = chPRI.ChannelName;
                 chPRI.ownerServer.PropertyChanged += _server_PropertyChanged;
             }
 
-            MediaManager.Initialize();
+            _mediaManager.Initialize();
 
             Debug.WriteLine(this, "Reading Root Events");
             this.DbReadRootEvents();
@@ -1424,9 +1424,9 @@ namespace TAS.Server
                 && aEvent.PlayState == TPlayState.Played
                 && media.MediaType == TMediaType.Movie
                 && ArchivePolicy == TArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
-                && MediaManager.ArchiveDirectory != null
+                && _mediaManager.ArchiveDirectory != null
                 && CanDeleteMedia(media).Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
-                ThreadPool.QueueUserWorkItem(o => MediaManager.ArchiveMedia(new List<IServerMedia>(new [] { media }), true));
+                ThreadPool.QueueUserWorkItem(o => _mediaManager.ArchiveMedia(new List<IServerMedia>(new [] { media }), true));
         }
 
         private TEngineState _engineState;

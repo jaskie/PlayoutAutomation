@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class RecordersViewmodel : ViewmodelBase
+    public class RecordersViewmodel : ViewmodelBase, IDataErrorInfo
     {
         private readonly IEnumerable<IRecorder> _recorders;
         public RecordersViewmodel(IEnumerable<IRecorder> recorders)
@@ -68,7 +69,7 @@ namespace TAS.Client.ViewModels
 
         private bool _canCapture(object obj)
         {
-            return _recorder != null && _channel != null && _tcOut > _tcIn && string.IsNullOrEmpty(_validateFileName());
+            return _recorder != null && _channel != null && _tcOut > _tcIn && _recorder.IsConnected && string.IsNullOrEmpty(_validateFileName());
         }
 
         private bool _canExecute(TDeckState state)
@@ -195,28 +196,21 @@ namespace TAS.Client.ViewModels
 
         private string _validateFileName()
         {
-            string validationResult = string.Empty;
+            if (string.IsNullOrWhiteSpace(_fileName))
+                return resources._validate_FileNameEmpty;
             string newName = $"{_fileName}.{_fileFormat}";
-            if (_fileName != null)
-            {
-                if (newName.StartsWith(" ") || newName.EndsWith(" "))
-                    validationResult = resources._validate_FileNameCanNotStartOrEndWithSpace;
-                else
-                if (newName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
-                    validationResult = resources._validate_FileNameCanNotContainSpecialCharacters;
-                else
-                {
-                    newName = newName.ToLowerInvariant();
-                    if (_recorder?.RecordingDirectory.FileExists(newName) == true)
-                        validationResult = resources._validate_FileAlreadyExists;
-                }
-            }
-            return validationResult;
+            if (newName.StartsWith(" ") || newName.EndsWith(" "))
+                return resources._validate_FileNameCanNotStartOrEndWithSpace;
+            if (newName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
+                return resources._validate_FileNameCanNotContainSpecialCharacters;
+            if (_recorder?.RecordingDirectory.FileExists(newName) == true)
+                    return resources._validate_FileAlreadyExists;
+            return string.Empty;
         }
 
         public string Error
         {
-            get { throw new NotImplementedException(); }
+            get { return null; }
         }
 
         private void _recorder_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

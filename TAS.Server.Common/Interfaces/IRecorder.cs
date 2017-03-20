@@ -12,15 +12,15 @@ namespace TAS.Server.Interfaces
         void Abort();
         void FastForward();
         void Rewind();
-        void Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, string fileName);
+        IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, string fileName);
         void GoToTimecode(TimeSpan tc, TVideoFormat format);
         TimeSpan CurrentTc { get; }
         TDeckControl DeckControl { get; }
         TDeckState DeckState { get; }
         bool IsConnected { get; }
         IEnumerable<IPlayoutServerChannel> Channels { get; }
-        IServerMedia RecordingMedia { get; }
-        IServerDirectory RecordingDirectory { get; }
+        IMedia RecordingMedia { get; }
+        IMediaDirectory RecordingDirectory { get; }
     }
 
     public interface IRecorderProperties

@@ -579,11 +579,20 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to File name can&apos;t start orend with space..
+        ///   Looks up a localized string similar to File name can&apos;t start or end with space..
         /// </summary>
         public static string _validate_FileNameCanNotStartOrEndWithSpace {
             get {
                 return ResourceManager.GetString("_validate_FileNameCanNotStartOrEndWithSpace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have to provide a valid file name..
+        /// </summary>
+        public static string _validate_FileNameEmpty {
+            get {
+                return ResourceManager.GetString("_validate_FileNameEmpty", resourceCulture);
             }
         }
         

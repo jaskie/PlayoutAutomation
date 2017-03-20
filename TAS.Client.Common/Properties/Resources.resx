@@ -303,7 +303,10 @@ Do you really want to run this BACKUP play-out?</value>
     <value>File name can't contain special characters.</value>
   </data>
   <data name="_validate_FileNameCanNotStartOrEndWithSpace" xml:space="preserve">
-    <value>File name can't start orend with space.</value>
+    <value>File name can't start or end with space.</value>
+  </data>
+  <data name="_validate_FileNameEmpty" xml:space="preserve">
+    <value>You have to provide a valid file name.</value>
   </data>
   <data name="_validate_ScheduledDelayInvalid" xml:space="preserve">
     <value>Sum of duration and start delay exceeds item length.</value>
