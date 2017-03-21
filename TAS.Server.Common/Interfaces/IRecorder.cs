@@ -7,17 +7,20 @@ namespace TAS.Server.Interfaces
 {
     public interface IRecorder :IRecorderProperties, INotifyPropertyChanged
     {
-        void Play();
-        void Stop();
+        void DeckPlay();
+        void DeckStop();
         void Abort();
-        void FastForward();
-        void Rewind();
+        void DeckFastForward();
+        void DeckRewind();
         IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, string fileName);
+        IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, string fileName);
         void GoToTimecode(TimeSpan tc, TVideoFormat format);
+        void SetTimeLimit(TimeSpan limit);
         TimeSpan CurrentTc { get; }
+        TimeSpan TimeLimit { get; }
         TDeckControl DeckControl { get; }
         TDeckState DeckState { get; }
-        bool IsConnected { get; }
+        bool IsDeckConnected { get; }
         IEnumerable<IPlayoutServerChannel> Channels { get; }
         IMedia RecordingMedia { get; }
         IMediaDirectory RecordingDirectory { get; }

@@ -123,7 +123,7 @@
   <data name="_channel" xml:space="preserve">
     <value>Kanał nagrania</value>
   </data>
-  <data name="_crashRecording" xml:space="preserve">
+  <data name="_manualRecording" xml:space="preserve">
     <value>Nagrywanie ciągłe</value>
   </data>
   <data name="_currentTc" xml:space="preserve">
@@ -176,5 +176,8 @@
   </data>
   <data name="_tcOut" xml:space="preserve">
     <value>TC końca</value>
+  </data>
+  <data name="_recordTimeLeft" xml:space="preserve">
+    <value>Pozostały czas</value>
   </data>
 </root>

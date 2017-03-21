@@ -23,6 +23,8 @@ namespace TAS.Client.ViewModels
         {
             _createCommands();
             _recorders = recorders;
+            _frameRate = VideoFormatDescription.Descriptions[TVideoFormat.PAL].FrameRate;
+            TimeLimit = TimeSpan.FromHours(2);
             Recorder = _recorders.FirstOrDefault();
         }
 
@@ -37,6 +39,28 @@ namespace TAS.Client.ViewModels
             CommandGetCurrentTcToIn = new UICommand { ExecuteDelegate = o => TcIn = CurrentTc };
             CommandGetCurrentTcToOut = new UICommand { ExecuteDelegate = o => TcOut = CurrentTc };
             CommandGoToTimecode = new UICommand { ExecuteDelegate = _goToTimecode, CanExecuteDelegate = _canGoToTimecode };
+            CommandSetRecordLimit = new UICommand { ExecuteDelegate = _setRecordTimeLimit, CanExecuteDelegate = _canSetRecordTimeLimit };
+            CommandRecordStart = new UICommand { ExecuteDelegate = _startRecord, CanExecuteDelegate = _canStartRecord };
+        }
+
+        private bool _canStartRecord(object obj)
+        {
+            return _recorder != null && _channel != null && string.IsNullOrEmpty(_validateFileName());
+        }
+
+        private void _startRecord(object obj)
+        {
+            _recorder?.Capture(_channel, _timeLimit, $"{FileName}.{FileFormat}");
+        }
+
+        private bool _canSetRecordTimeLimit(object obj)
+        {
+            return _recorder?.RecordingMedia != null;
+        }
+
+        private void _setRecordTimeLimit(object obj)
+        {
+            _recorder?.SetTimeLimit(TimeLimit);
         }
 
         private void _goToTimecode(object obj)
@@ -47,12 +71,12 @@ namespace TAS.Client.ViewModels
         private bool _canGoToTimecode(object obj)
         {
             IRecorder recorder = _recorder;
-            return recorder != null && recorder.IsConnected && _channel != null;
+            return recorder != null && recorder.IsDeckConnected && _channel != null;
         }
 
         private void _rewind(object obj)
         {
-            _recorder?.Rewind();
+            _recorder?.DeckRewind();
         }
 
         private bool _canRewind(object obj)
@@ -64,34 +88,35 @@ namespace TAS.Client.ViewModels
         {
             if (_recorder != null)
             {
+                FrameRate = VideoFormatDescription.Descriptions[_channel.VideoFormat].FrameRate;
                 _recorder.Capture(_channel, _tcIn, _tcOut, $"{FileName}.{FileFormat}");
             }
         }
 
         private bool _canCapture(object obj)
         {
-            return _recorder != null && _channel != null && _tcOut > _tcIn && _recorder.IsConnected && string.IsNullOrEmpty(_validateFileName());
+            return _recorder != null && _channel != null && _tcOut > _tcIn && _recorder.IsDeckConnected && string.IsNullOrEmpty(_validateFileName());
         }
 
         private bool _canExecute(TDeckState state)
         {
             IRecorder recorder = _recorder;
-            return recorder != null && recorder.IsConnected && recorder.DeckState != state;
+            return recorder != null && recorder.IsDeckConnected && recorder.DeckState != state;
         }
 
         private void _stop(object obj)
         {
-            _recorder?.Stop();
+            _recorder?.DeckStop();
         }
 
         private void _play(object obj)
         {
-            _recorder?.Play();
+            _recorder?.DeckPlay();
         }
 
         private void _fastForward(object obj)
         {
-            _recorder?.FastForward();
+            _recorder?.DeckFastForward();
         }
 
         private void _abort(object obj)
@@ -161,15 +186,23 @@ namespace TAS.Client.ViewModels
         private TimeSpan _currentTc;
         public TimeSpan CurrentTc { get { return _currentTc; }  set { SetField(ref _currentTc, value, nameof(CurrentTc)); } }
 
-        private TimeSpan _recorderTimeLimit;
-        public TimeSpan RecorderTimeLimit
+        private TimeSpan _timeLimit;
+        public TimeSpan TimeLimit
         {
-            get { return _recorderTimeLimit; }
+            get { return _timeLimit; }
             set
             {
-                if (SetField(ref _recorderTimeLimit, value, nameof(RecorderTimeLimit)))
+                if (SetField(ref _timeLimit, value, nameof(TimeLimit)))
+                {
                     Debug.WriteLine(value);
+                }
             }
+        }
+        private TimeSpan _recorderTimeLeft;
+        public TimeSpan RecorderTimeLeft
+        {
+            get { return _recorderTimeLeft; }
+            private set { SetField(ref _recorderTimeLeft, value, nameof(RecorderTimeLeft)); }
         }
 
         private TDeckState _deckState;
@@ -193,6 +226,9 @@ namespace TAS.Client.ViewModels
                     InvalidateRequerySuggested();
             }
         }
+
+        private RationalNumber _frameRate;
+        public RationalNumber FrameRate { get { return _frameRate; }  private set { SetField(ref _frameRate, value, nameof(FrameRate)); } }
 
         public string this[string propertyName]
         {
@@ -237,8 +273,10 @@ namespace TAS.Client.ViewModels
                 Application.Current.Dispatcher.BeginInvoke((Action)(() => DeckControl = ((IRecorder)sender).DeckControl));
             if (e.PropertyName == nameof(IRecorder.DeckState))
                 Application.Current.Dispatcher.BeginInvoke((Action)(() => DeckState = ((IRecorder)sender).DeckState));
-            if (e.PropertyName == nameof(IRecorder.IsConnected))
+            if (e.PropertyName == nameof(IRecorder.IsDeckConnected))
                 Application.Current.Dispatcher.BeginInvoke((Action)(() => InvalidateRequerySuggested()));
+            if (e.PropertyName == nameof(IRecorder.TimeLimit))
+                Application.Current.Dispatcher.BeginInvoke((Action)(() => RecorderTimeLeft = ((IRecorder)sender).TimeLimit));
         }
 
         protected override void OnDispose()

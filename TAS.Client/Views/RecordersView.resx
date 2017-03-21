@@ -123,7 +123,7 @@
   <data name="_channel" xml:space="preserve">
     <value>Channel to record</value>
   </data>
-  <data name="_crashRecording" xml:space="preserve">
+  <data name="_manualRecording" xml:space="preserve">
     <value>Crash recording</value>
   </data>
   <data name="_currentTc" xml:space="preserve">
@@ -166,7 +166,7 @@
     <value>Rewind tape</value>
   </data>
   <data name="_setRecordLimit.ToolTip" xml:space="preserve">
-    <value>Set new record time limit</value>
+    <value>Set record time limit</value>
   </data>
   <data name="_stop.ToolTip" xml:space="preserve">
     <value>Stop</value>
@@ -176,5 +176,8 @@
   </data>
   <data name="_tcOut" xml:space="preserve">
     <value>TC Out</value>
+  </data>
+  <data name="_recordTimeLeft" xml:space="preserve">
+    <value>Time left</value>
   </data>
 </root>

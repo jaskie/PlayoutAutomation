@@ -43,11 +43,21 @@ namespace TAS.Common
             }
         }
 
+        public static long ToSMPTEFrames(this TimeSpan t, TVideoFormat format)
+        {
+            return t.ToSMPTEFrames(VideoFormatDescription.Descriptions[format].FrameRate);
+        }
+
         public static long ToSMPTEFrames(this TimeSpan t, RationalNumber rate)
         {
             if (rate.IsInvalid)
                 return 0L;
             return (t.Ticks +1) * rate.Num / (TimeSpan.TicksPerSecond * rate.Den);
+        }
+
+        public static TimeSpan SMPTEFramesToTimeSpan(this long totalFrames, TVideoFormat format)
+        {
+            return totalFrames.SMPTEFramesToTimeSpan(VideoFormatDescription.Descriptions[format].FrameRate);
         }
 
         public static TimeSpan SMPTEFramesToTimeSpan(this long totalFrames, RationalNumber rate)

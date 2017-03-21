@@ -24,6 +24,7 @@ namespace TAS.Server
                 if (oldRecorder != null)
                 {
                     oldRecorder.Tc -= _recorder_Tc;
+                    oldRecorder.FramesLeft -= _recorder_FramesLeft;
                     oldRecorder.DeckConnected -= _recorder_DeckConnected;
                     oldRecorder.DeckControl -= _recorder_DeckControl;
                     oldRecorder.DeckState -= _recorder_DeckState;
@@ -35,11 +36,19 @@ namespace TAS.Server
                     value.DeckConnected += _recorder_DeckConnected;
                     value.DeckControl += _recorder_DeckControl;
                     value.DeckState += _recorder_DeckState;
-                    IsConnected = value.IsConnected;
+                    value.FramesLeft += _recorder_FramesLeft;
+                    IsDeckConnected = value.IsConnected;
                     DeckState = TDeckState.Unknown;
                     DeckControl = TDeckControl.None;
                 }
             }
+        }
+
+        private void _recorder_FramesLeft(object sender, FramesLeftEventArgs e)
+        {
+            var media = _recordingMedia;
+            if (media != null)
+                TimeLimit = e.FramesLeft.SMPTEFramesToTimeSpan(media.VideoFormat);
         }
 
         private void _recorder_DeckState(object sender, DeckStateEventArgs e)
@@ -75,7 +84,7 @@ namespace TAS.Server
 
         private void _recorder_DeckConnected(object sender, DeckConnectedEventArgs e)
         {
-            IsConnected = e.IsConnected;
+            IsDeckConnected = e.IsConnected;
         }
 
         private void _recorder_Tc(object sender, TcEventArgs e)
@@ -97,6 +106,10 @@ namespace TAS.Server
         [XmlIgnore]
         public TimeSpan CurrentTc { get { return _currentTc; }  private set { SetField(ref _currentTc, value, nameof(CurrentTc)); } }
 
+        private TimeSpan _timeLimit;
+        [XmlIgnore]
+        public TimeSpan TimeLimit { get { return _timeLimit; }  private set { SetField(ref _timeLimit, value, nameof(TimeLimit)); } }
+
         private TDeckState _deckState;
         [XmlIgnore]
         public TDeckState DeckState { get { return _deckState; } private set { SetField(ref _deckState, value, nameof(DeckState)); } }
@@ -107,7 +120,7 @@ namespace TAS.Server
 
         private bool _isConnected;
         [XmlIgnore]
-        public bool IsConnected { get { return _isConnected; } private set { SetField(ref _isConnected, value, nameof(IsConnected)); } }
+        public bool IsDeckConnected { get { return _isConnected; } private set { SetField(ref _isConnected, value, nameof(IsDeckConnected)); } }
 
         public IEnumerable<IPlayoutServerChannel> Channels { get { return ownerServer.Channels; } }
 
@@ -125,26 +138,50 @@ namespace TAS.Server
             newMedia.Delete();
             return null;
         }
+
+        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, string fileName)
+        {
+            _tcFormat = channel.VideoFormat;
+            var mediaProxy = new Common.MediaProxy() { FileName = fileName, MediaName = fileName, TcStart = TimeSpan.Zero, Duration = timeLimit, MediaStatus = TMediaStatus.Required };
+            var newMedia = ((ServerDirectory)ownerServer.MediaDirectory).CreateMedia(mediaProxy);
+            if (_recorder?.Capture(channel.Id,  timeLimit.ToSMPTEFrames(channel.VideoFormat), fileName) == true)
+            {
+                RecordingMedia = newMedia;
+                return newMedia;
+            }
+            // delete if capture didn't started
+            newMedia.Delete();
+            return null;
+
+        }
+
+        public void SetTimeLimit(TimeSpan limit)
+        {
+            var videoFormat = _recordingMedia?.VideoFormat;
+            if (videoFormat.HasValue)
+                _recorder.SetTimeLimit(limit.ToSMPTEFrames(videoFormat.Value));
+        }
+
         public void Abort()
         {
             _recorder?.Abort();
         }
 
-        public void Play()
+        public void DeckPlay()
         {
             _recorder?.Play();
         }
-        public void Stop()
+        public void DeckStop()
         {
             _recorder?.Stop();
         }
 
-        public void FastForward()
+        public void DeckFastForward()
         {
             _recorder.FastForward();
         }
 
-        public void Rewind()
+        public void DeckRewind()
         {
             _recorder.Rewind();
         }

@@ -111,6 +111,18 @@ namespace Svt.Caspar
             return true;
         }
 
+        public bool Capture(int channel, long frames, string filename)
+        {
+            Connection.SendString($"CAPTURE {channel} RECORDER {Id} LIMIT {frames} FILE {filename}");
+            return true;
+        }
+
+        public bool SetTimeLimit(long frames)
+        {
+            Connection.SendString($"RECORDER CALL {Id} LIMIT {frames}");
+            return true;
+        }
+
         #region OSC notifications
 
         internal void OscMessage(Network.Osc.OscMessage message)
@@ -142,6 +154,10 @@ namespace Svt.Caspar
                             if (bool.TryParse(message.Arguments[0].ToString(), out isConnected))
                                 IsConnected = isConnected;
                             break;
+                        case "frames_left":
+                            if (message.Arguments[0] is long)
+                                FramesLeft?.Invoke(this, new FramesLeftEventArgs((long)message.Arguments[0]));
+                            break;
                         default:
                             Debug.WriteLine($"Unrecognized message: {path[2]}");
                             break;
@@ -151,6 +167,7 @@ namespace Svt.Caspar
         }
   
         public event EventHandler<TcEventArgs> Tc;
+        public event EventHandler<FramesLeftEventArgs> FramesLeft;
         public event EventHandler<DeckStateEventArgs> DeckState;
         public event EventHandler<DeckControlEventArgs> DeckControl;
         public event EventHandler<DeckConnectedEventArgs> DeckConnected;
@@ -165,6 +182,15 @@ namespace Svt.Caspar
             Tc = tc;
         }
         public string Tc { get; private set; }
+    }
+
+    public class FramesLeftEventArgs: EventArgs
+    {
+        public FramesLeftEventArgs(long frames)
+        {
+            FramesLeft = frames;
+        }
+        public long FramesLeft { get; private set; }
     }
 
     public class DeckStateEventArgs: EventArgs

@@ -24,7 +24,7 @@ namespace TAS.Client.Common.Controls
             "Timecode",
             typeof(TimeSpan),
             typeof(TimecodeEdit),
-            new PropertyMetadata(TimeSpan.Zero, OnTimecodeChanged));
+            new FrameworkPropertyMetadata(TimeSpan.Zero, OnTimecodeChanged) { BindsTwoWayByDefault = true });
 
         public static readonly DependencyProperty FrameRateProperty =
             DependencyProperty.Register(
@@ -39,6 +39,9 @@ namespace TAS.Client.Common.Controls
         }
         protected override void OnTextChanged(TextChangedEventArgs e)
         {
+            var text = (string)GetValue(TextProperty);
+            if (text.IsValidSMPTETimecode(FrameRate))
+                SetValue(TimecodeProperty, text.SMPTETimecodeToTimeSpan(FrameRate));
             base.OnTextChanged(e);
         }
 

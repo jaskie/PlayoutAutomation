@@ -50,7 +50,7 @@ namespace TAS.Remoting.Model
             }
         }
 
-        public bool IsConnected
+        public bool IsDeckConnected
         {
             get
             {
@@ -92,7 +92,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public void FastForward()
+        public void DeckFastForward()
         {
             throw new NotImplementedException();
         }
@@ -107,12 +107,12 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public void Rewind()
+        public void DeckRewind()
         {
             throw new NotImplementedException();
         }
 
-        public void Stop()
+        public void DeckStop()
         {
             throw new NotImplementedException();
         }
@@ -122,7 +122,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        void IRecorder.Play()
+        void IRecorder.DeckPlay()
         {
             throw new NotImplementedException();
         }
