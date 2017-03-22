@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -7,20 +8,20 @@ using System.Text;
 
 namespace TAS.Common
 {
-    [DataContract]
+    [JsonObject]
     public sealed class VideoFormatDescription
     {
-        [DataMember]
+        [JsonProperty]
         public readonly TVideoFormat Format;
-        [DataMember]
+        [JsonProperty]
         public readonly Size ImageSize;
-        [DataMember]
+        [JsonProperty]
         public readonly RationalNumber FrameRate;
-        [DataMember]
+        [JsonProperty]
         public readonly bool Interlaced;
-        [DataMember]
+        [JsonProperty]
         public readonly RationalNumber SAR;
-        [DataMember]
+        [JsonProperty]
         public readonly bool IsWideScreen;
         private VideoFormatDescription(TVideoFormat format)
         {
@@ -245,7 +246,6 @@ namespace TAS.Common
 
         private VideoFormatDescription() { }
 
-
         public static Dictionary<TVideoFormat, VideoFormatDescription> Descriptions = new Dictionary<TVideoFormat, VideoFormatDescription>()
         {
             {TVideoFormat.PAL_FHA, new VideoFormatDescription(TVideoFormat.PAL_FHA)},
@@ -289,8 +289,8 @@ namespace TAS.Common
             return result != null ? result : new VideoFormatDescription(imageSize, frameRate, sar, interlaced);
         }
 
-        public TimeSpan FrameDuration { get { return FrameRate.IsInvalid ? TimeSpan.Zero : new TimeSpan(TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num); } }
-        public long FrameTicks { get { return FrameRate.IsInvalid ? 0L : TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num; } }
+        public TimeSpan FrameDuration { get { return FrameRate.IsZero ? TimeSpan.Zero : new TimeSpan(TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num); } }
+        public long FrameTicks { get { return FrameRate.IsZero ? 0L : TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num; } }
 
         public override string ToString()
         {

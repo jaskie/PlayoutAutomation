@@ -32,6 +32,8 @@ namespace TAS.Remoting
                     return typeof(Model.AnimationDirectory);
                 case "TAS.Server.FileManager":
                     return typeof(Model.FileManager);
+                case "TAS.Server.CasparRecorder":
+                    return typeof(Model.Recorder);
                 case "TAS.Server.MediaSegment":
                     return typeof(Model.MediaSegment);
                 case "TAS.Server.MediaSegments":

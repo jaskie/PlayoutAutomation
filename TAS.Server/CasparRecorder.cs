@@ -1,4 +1,5 @@
-﻿using Svt.Caspar;
+﻿using Newtonsoft.Json;
+using Svt.Caspar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -104,24 +105,30 @@ namespace TAS.Server
         #region IRecorder
         private TimeSpan _currentTc;
         [XmlIgnore]
+        [JsonProperty]
         public TimeSpan CurrentTc { get { return _currentTc; }  private set { SetField(ref _currentTc, value, nameof(CurrentTc)); } }
 
         private TimeSpan _timeLimit;
         [XmlIgnore]
+        [JsonProperty]
         public TimeSpan TimeLimit { get { return _timeLimit; }  private set { SetField(ref _timeLimit, value, nameof(TimeLimit)); } }
 
         private TDeckState _deckState;
         [XmlIgnore]
+        [JsonProperty]
         public TDeckState DeckState { get { return _deckState; } private set { SetField(ref _deckState, value, nameof(DeckState)); } }
 
         private TDeckControl _deckControl;
         [XmlIgnore]
+        [JsonProperty]
         public TDeckControl DeckControl { get { return _deckControl; }  private set { SetField(ref _deckControl, value, nameof(DeckControl)); } }
 
         private bool _isConnected;
         [XmlIgnore]
+        [JsonProperty]
         public bool IsDeckConnected { get { return _isConnected; } private set { SetField(ref _isConnected, value, nameof(IsDeckConnected)); } }
 
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
         public IEnumerable<IPlayoutServerChannel> Channels { get { return ownerServer.Channels; } }
 
         public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, string fileName)
@@ -193,6 +200,7 @@ namespace TAS.Server
 
         private IMedia _recordingMedia;
         [XmlIgnore]
+        [JsonProperty]
         public IMedia RecordingMedia { get { return _recordingMedia; } private set { SetField(ref _recordingMedia, value, nameof(RecordingMedia)); } }
 
         public IMediaDirectory RecordingDirectory { get { return ownerServer.MediaDirectory; } }

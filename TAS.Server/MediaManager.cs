@@ -146,12 +146,12 @@ namespace TAS.Server
                     m.IsArchived = false;
             }
         }
-        [JsonProperty(nameof(IMediaManager.IngestDirectories), IsReference = false, ItemIsReference = true, ItemTypeNameHandling = TypeNameHandling.All)]
         private List<IngestDirectory> _ingestDirectories;
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
         public IEnumerable<IIngestDirectory> IngestDirectories { get { return _ingestDirectories; } }
 
-        [JsonProperty(nameof(IMediaManager.Recorders), IsReference = false, ItemIsReference = true, ItemTypeNameHandling = TypeNameHandling.All)]
         private readonly List<CasparRecorder> _recorders;
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
         public IEnumerable<IRecorder> Recorders
         {
             get { return _recorders; }

@@ -58,7 +58,7 @@ namespace TAS.Server
         }
         #region Fields
 
-        [JsonProperty(nameof(MediaManager))]
+        [JsonProperty(nameof(MediaManager), TypeNameHandling = TypeNameHandling.Objects)]
         private readonly MediaManager _mediaManager;
         [XmlIgnore]
         public IMediaManager MediaManager { get { return _mediaManager; } }

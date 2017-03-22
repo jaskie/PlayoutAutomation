@@ -80,7 +80,7 @@ namespace TAS.Remoting.Client
 
         private void _clientSocket_OnMessage(object sender, MessageEventArgs e)
         {
-            //Debug.WriteLine(e.Data);
+            Debug.WriteLine(e.Data);
             WebSocketMessage message;
             using (StringReader stringReader = new StringReader(e.Data))
             using (JsonTextReader jsonReader = new JsonTextReader(stringReader))

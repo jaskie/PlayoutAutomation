@@ -34,12 +34,12 @@ namespace TAS.Remoting.Model
         public IArchiveDirectory ArchiveDirectory { get { return Get<ArchiveDirectory>(); } set { SetLocalValue(value); } }
 
 
-        public IFileManager FileManager { get { return Get<FileManager>(); }  set { SetLocalValue(value); } }
+        public IFileManager FileManager { get { return Get<FileManager>(); } set { SetLocalValue(value); } }
 
         public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetLocalValue(value); } }
 
         [JsonProperty(nameof(IMediaManager.IngestDirectories))]
-        private List<IngestDirectory> _ingestDirectories { get { return Get<List<IngestDirectory>>(); }  set { SetLocalValue(value); } }
+        private List<IngestDirectory> _ingestDirectories { get { return Get<List<IngestDirectory>>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
         public IEnumerable<IIngestDirectory> IngestDirectories
         {
@@ -63,7 +63,7 @@ namespace TAS.Remoting.Model
         public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { SetLocalValue(value); } }
 
         public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool toTop) { Invoke(parameters: new object[] { mediaList, toTop }); }
-        
+
         public void Initialize()
         {
             throw new NotImplementedException();
@@ -94,15 +94,12 @@ namespace TAS.Remoting.Model
         [JsonIgnore]
         public ICGElementsController CGElementsController { get { return _cgElementsController; } }
 
-        public IEngine Engine { get { return Get<Engine>(); }  set { SetLocalValue(value); } }
+        public IEngine Engine { get { return Get<Engine>(); } set { SetLocalValue(value); } }
 
-        public IEnumerable<IRecorder> Recorders
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        [JsonProperty(nameof(IMediaManager.Recorders))]
+        private List<Recorder> _recorders { get { return Get<List<Recorder>>(); } set { SetLocalValue(value); } }
+        [JsonIgnore]
+        public IEnumerable<IRecorder> Recorders { get { return _recorders; } }
 
         protected override void OnEventNotification(WebSocketMessage e) { }
 
