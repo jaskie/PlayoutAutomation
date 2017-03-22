@@ -591,7 +591,7 @@ namespace TAS.Client.ViewModels
             return media != null 
                 && (media.Directory is IServerDirectory || media.Directory is IArchiveDirectory || (media.Directory is IIngestDirectory && ((IIngestDirectory)media.Directory).AccessType == TDirectoryAccessType.Direct))
                 && media.MediaStatus == TMediaStatus.Available 
-                && media.FrameRate.Equals(_preview.FormatDescription.FrameRate);
+                && media.FrameRate().Equals(_preview.FormatDescription.FrameRate);
         }
 
         #endregion // Commands

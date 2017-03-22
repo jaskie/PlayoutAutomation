@@ -38,8 +38,6 @@ namespace TAS.Remoting.Model
 
         public string Folder { get { return Get<string>(); } set { Set(value); } }
 
-        public RationalNumber FrameRate { get { return Get<RationalNumber>(); } set { Set(value); } }
-
         public DateTime LastUpdated { get { return Get<DateTime>(); } set { Set(value); } }
 
         public TMediaCategory MediaCategory { get { return Get<TMediaCategory>(); } set { Set(value); } }
@@ -63,8 +61,6 @@ namespace TAS.Remoting.Model
         public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { Set(value); } }
 
         public bool FieldOrderInverted { get { return Get<bool>(); } set { Set(value); } }
-
-        public VideoFormatDescription VideoFormatDescription { get { return Get<VideoFormatDescription>(); } set { Set(value); } }
 
         public bool Delete()
         {

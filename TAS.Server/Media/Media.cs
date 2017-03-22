@@ -159,15 +159,7 @@ namespace TAS.Server
         public virtual TVideoFormat VideoFormat
         {
             get { return _videoFormat; }
-            set
-            {
-                if (SetField(ref _videoFormat, value, nameof(VideoFormat)))
-                {
-                    _videoFormatDescription = null;
-                    NotifyPropertyChanged(nameof(FrameRate));
-                    NotifyPropertyChanged(nameof(VideoFormatDescription));
-                }
-            }
+            set { SetField(ref _videoFormat, value, nameof(VideoFormat)); }
         }
         protected bool _fieldOrderInverted;
         [JsonProperty]
@@ -238,21 +230,6 @@ namespace TAS.Server
                 if (SetField(ref _mediaGuid, value, nameof(MediaGuid)))
                     _directory.UpdateMediaGuid(oldGuid, this);
             }
-        }
-
-
-        protected VideoFormatDescription _videoFormatDescription;
-        [JsonProperty(IsReference = false, TypeNameHandling = TypeNameHandling.None)]
-        public VideoFormatDescription VideoFormatDescription
-        {
-            get
-            {
-                if (_videoFormatDescription == null) 
-                    if (!VideoFormatDescription.Descriptions.TryGetValue(VideoFormat, out _videoFormatDescription))
-                        _videoFormatDescription = VideoFormatDescription.Descriptions[TVideoFormat.Other];
-                return _videoFormatDescription;
-            }
-            internal set { _videoFormatDescription = value; }
         }
 
         protected readonly MediaDirectory _directory;
@@ -376,9 +353,6 @@ namespace TAS.Server
             get { return _verified; }
             set { SetField(ref _verified, value, nameof(IsVerified)); }
         }
-
-        [JsonProperty(TypeNameHandling = TypeNameHandling.None)]
-        public RationalNumber FrameRate { get { return VideoFormatDescription.FrameRate; } }
 
         public void ReVerify()
         {

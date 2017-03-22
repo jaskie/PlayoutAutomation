@@ -14,9 +14,7 @@ namespace TAS.Server.Interfaces
         bool IsVerified { get; set; }
         void ReVerify();
         void Verify();
-        RationalNumber FrameRate { get; }
         void GetLoudness();
-        VideoFormatDescription VideoFormatDescription { get; }
     }
 
     public interface IMediaProperties

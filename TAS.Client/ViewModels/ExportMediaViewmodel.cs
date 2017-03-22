@@ -49,7 +49,7 @@ namespace TAS.Client.ViewModels
                     TMediaType.Still, 
                     VideoLayer.CG1,
                     true, // close ater add
-                    MediaExport.Media.VideoFormatDescription);
+                    MediaExport.Media.FormatDescription());
                 svm.MediaChoosen += _searchMediaChoosen;
                 svm.SearchWindowClosed += _searchWindowClosed;
                 svm.ExecuteAction = (e) =>

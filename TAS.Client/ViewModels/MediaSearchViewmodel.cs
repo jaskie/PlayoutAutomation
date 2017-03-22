@@ -107,8 +107,8 @@ namespace TAS.Client.ViewModels
                 media != null
                 && media.MediaType == requiredMediaType
                 &&
-                   ((requiredMediaType == TMediaType.Still && media.VideoFormatDescription.IsWideScreen == _videoFormatDescription?.IsWideScreen)
-                 || (media.MediaType == TMediaType.Movie && media.VideoFormatDescription.FrameRate.Equals(_frameRate))
+                   ((requiredMediaType == TMediaType.Still && media.FormatDescription().IsWideScreen == _videoFormatDescription?.IsWideScreen)
+                 || (media.MediaType == TMediaType.Movie && media.FrameRate().Equals(_frameRate))
                  || media.MediaType == TMediaType.Animation);
         }
 

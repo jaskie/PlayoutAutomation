@@ -375,7 +375,7 @@ namespace TAS.Client.ViewModels
             _convertOperation.DestMediaProperties = newMediaProperties;  //required to pass this parameter from client to server application
         }
 
-        internal RationalNumber SourceMediaFrameRate { get { return _convertOperation.SourceMedia.FrameRate; } }
+        internal RationalNumber SourceMediaFrameRate { get { return _convertOperation.SourceMedia.FrameRate(); } }
 
         public string Error
         {

@@ -122,6 +122,7 @@
     <Compile Include="Database\DbSchema.cs" />
     <Compile Include="Interfaces\IXdcamMedia.cs" />
     <Compile Include="MediaEventArgs.cs" />
+    <Compile Include="MediaExtensions.cs" />
     <Compile Include="MediaProxy.cs" />
     <Compile Include="RedundantConnectionStateEventArgs.cs" />
     <Compile Include="MediaConversion.cs" />

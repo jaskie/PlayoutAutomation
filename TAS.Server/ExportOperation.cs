@@ -178,7 +178,7 @@ namespace TAS.Server
                     List<string> itemVideoFilters = new List<string>();
                     if (((Media)media).HasExtraLines)
                         itemVideoFilters.Add("crop=720:576:0:32");
-                    itemVideoFilters.Add(media.VideoFormatDescription.IsWideScreen ? "setdar=dar=16/9" : "setdar=dar=4/3");
+                    itemVideoFilters.Add(media.FormatDescription().IsWideScreen ? "setdar=dar=16/9" : "setdar=dar=4/3");
                     itemVideoFilters.Add(scaleFilter);
                     complexFilterElements.Add($"[{index}]{string.Join(",", itemVideoFilters)}{videoOutputName}");
                     int audioIndex = index;

@@ -23,7 +23,7 @@ namespace TAS.Client.ViewModels
         private readonly PreviewViewmodel _previewVm;
         private readonly bool _showButtons;
         private readonly IMediaManager _mediaManager;
-        public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, PreviewViewmodel previewVm, bool showButtons) : base(media, new MediaEditView(media.FrameRate))
+        public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, PreviewViewmodel previewVm, bool showButtons) : base(media, new MediaEditView(media.FrameRate()))
         {
             CommandSaveEdit = new UICommand() { ExecuteDelegate = ModelUpdate, CanExecuteDelegate = _canSave };
             CommandCancelEdit = new UICommand() { ExecuteDelegate = ModelLoad, CanExecuteDelegate = o => IsModified };
@@ -209,9 +209,9 @@ namespace TAS.Client.ViewModels
                             IsModified = oldModified;
                             NotifyPropertyChanged(e.PropertyName);
                         }
-                        if (e.PropertyName == nameof(IMedia.FrameRate))
+                        if (e.PropertyName == nameof(VideoFormat))
                         {
-                            ((MediaEditView)Editor).SetFrameRate(Model.FrameRate);
+                            ((MediaEditView)Editor).SetFrameRate(Model.FrameRate());
                             NotifyPropertyChanged(nameof(TcStart));
                             NotifyPropertyChanged(nameof(TcPlay));
                             NotifyPropertyChanged(nameof(Duration));

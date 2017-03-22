@@ -154,7 +154,7 @@ namespace TAS.Server
             if (destMedia != null)
             {
                 destMedia.MediaType = TMediaType.Still;
-                Size destSize = destMedia.VideoFormat == TVideoFormat.Other ? VideoFormatDescription.Descriptions[TVideoFormat.HD1080i5000].ImageSize : destMedia.VideoFormatDescription.ImageSize;
+                Size destSize = destMedia.VideoFormat == TVideoFormat.Other ? VideoFormatDescription.Descriptions[TVideoFormat.HD1080i5000].ImageSize : destMedia.FormatDescription().ImageSize;
                 Image bmp = new Bitmap(destSize.Width, destSize.Height, PixelFormat.Format32bppArgb);
                 Graphics graphics = Graphics.FromImage(bmp);
                 graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -206,9 +206,9 @@ namespace TAS.Server
             }
             else
             {
-                ep.AppendFormat(" -b:v {0}k", (int)(inputMedia.VideoFormatDescription.ImageSize.Height * 13 * (double)sourceDir.VideoBitrateRatio));
-                VideoFormatDescription outputFormatDescription = DestMedia.VideoFormatDescription;
-                VideoFormatDescription inputFormatDescription = inputMedia.VideoFormatDescription;
+                ep.AppendFormat(" -b:v {0}k", (int)(inputMedia.FormatDescription().ImageSize.Height * 13 * (double)sourceDir.VideoBitrateRatio));
+                VideoFormatDescription outputFormatDescription = DestMedia.FormatDescription();
+                VideoFormatDescription inputFormatDescription = inputMedia.FormatDescription();
                 _addConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], video_filters);
                 if (inputMedia.HasExtraLines)
                 {
@@ -356,7 +356,7 @@ namespace TAS.Server
                         ingestRegion,
                         localSourceMedia.FullPath,
                         encodeParams,
-                        StartTC.ToSMPTETimecodeString(destMedia.VideoFormatDescription.FrameRate),
+                        StartTC.ToSMPTETimecodeString(destMedia.FrameRate()),
                     destMedia.FullPath);
             if (DestMedia is ArchiveMedia)
                 FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(destMedia.FullPath));
@@ -371,7 +371,7 @@ namespace TAS.Server
                         destMedia.MediaStatus = TMediaStatus.CopyError;
                         if (destMedia is PersistentMedia)
                             (destMedia as PersistentMedia).Save();
-                        _addWarningMessage(string.Format(resources._encodeWarningDifferentDurations, localSourceMedia.Duration.ToSMPTETimecodeString(localSourceMedia.VideoFormatDescription.FrameRate), destMedia.Duration.ToSMPTETimecodeString(destMedia.VideoFormatDescription.FrameRate)));
+                        _addWarningMessage(string.Format(resources._encodeWarningDifferentDurations, localSourceMedia.Duration.ToSMPTETimecodeString(localSourceMedia.FrameRate()), destMedia.Duration.ToSMPTETimecodeString(destMedia.FrameRate())));
                         Debug.WriteLine(this, "Convert operation succeed, but durations are diffrent");
                     }
                     else

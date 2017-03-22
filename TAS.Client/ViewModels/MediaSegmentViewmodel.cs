@@ -19,7 +19,7 @@ namespace TAS.Client.ViewModels
         {
             _mediaSegment = mediaSegment;
             _media = media;
-            _frameRate = media.FrameRate;
+            _frameRate = media.FrameRate();
             mediaSegment.PropertyChanged += OnPropertyChanged;
             Load();
         }
@@ -72,7 +72,7 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan Duration
         {
-            get { return TcOut - TcIn + _media.VideoFormatDescription.FrameDuration; }
+            get { return TcOut - TcIn + _media.FormatDescription().FrameDuration; }
         }
 
         public string sTcIn { get { return _tcIn.ToSMPTETimecodeString(_frameRate); } }
