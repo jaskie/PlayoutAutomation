@@ -18,7 +18,6 @@ namespace TAS.Client.ViewModels
         private readonly IPreview _preview;
         private readonly IPlayoutServerChannel _channelPRV;
         private readonly VideoFormatDescription _formatDescription;
-        private readonly Views.PreviewView _view;
         private IMediaSegment _lastAddedSegment;
         public PreviewViewmodel(IPreview preview)
         {
@@ -28,7 +27,6 @@ namespace TAS.Client.ViewModels
                 _channelPRV.OwnerServer.PropertyChanged += this.OnServerPropertyChanged;
             _preview = preview;
             _formatDescription = _preview.FormatDescription;
-            _view = new Views.PreviewView(_formatDescription.FrameRate) { DataContext = this };
             CreateCommands();
         }
 
@@ -43,7 +41,7 @@ namespace TAS.Client.ViewModels
             SelectedSegment = null;
         }
 
-        public Views.PreviewView View { get { return _view; } }
+        public TVideoFormat VideoFormat { get { return _formatDescription.Format; } }
 
         public IMedia Media
         {

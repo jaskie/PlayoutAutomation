@@ -17,16 +17,13 @@ using System.Globalization;
 using TAS.Common;
 using TAS.Client.Common;
 
-namespace TAS.Client
+namespace TAS.Client.Views
 {
     public partial class EventEditView : UserControl
     {
-        public EventEditView(RationalNumber frameRate)
+        public EventEditView()
         {
             InitializeComponent();
-            ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
-            ((DateTimeToSMPTEConverter)Resources["DateTimeToSMPTE"]).FrameRate = frameRate;
-            ((TimeSpanToFramesConverter)Resources["TimeSpanToFrames"]).FrameRate = frameRate;
         }
     }
 }

@@ -7,13 +7,11 @@
              xmlns:local="clr-namespace:TAS.Client.Views"
              mc:Ignorable="d" 
              xmlns:client="clr-namespace:TAS.Client"
-             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              d:DataContext="{x:Type vm:RecordersViewmodel}"
              d:DesignHeight="500" d:DesignWidth="600">
     <UserControl.Resources>
-        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <Style TargetType="Button" >
             <Setter Property="Width" Value="40" />
             <Setter Property="Margin" Value="8" />
@@ -83,17 +81,17 @@
                         </Style>
                     </StackPanel.Resources>
                     <Label Content="{Resx _tcIn}"/>
-                    <controls:TimecodeEdit Text="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                    <controls:TimecodeEdit Timecode="{Binding TcIn}" VideoFormat="{Binding VideoFormat}"/>
                     <Button Margin="0" Command="{Binding CommandGetCurrentTcToIn}" ToolTip="{Resx _getTC.ToolTip}">
                         <Image  Source="/TAS.Client.Common;component/Images/Actions/import-movie.png"/>
                     </Button>
                     <Label Content="{Resx _currentTc}"/>
-                    <controls:TimecodeEdit Text="{Binding CurrentTc, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                    <controls:TimecodeEdit Timecode="{Binding CurrentTc}" VideoFormat="{Binding VideoFormat}"/>
                     <Button Margin="0" Command="{Binding CommandGoToTimecode}" ToolTip="{Resx _gotoTC.ToolTip}">
                         <Image  Source="/TAS.Client.Common;component/Images/Actions/go-jump.png"/>
                     </Button>
                     <Label Content="{Resx _tcOut}"/>
-                    <controls:TimecodeEdit Text="{Binding TcOut, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                    <controls:TimecodeEdit Timecode="{Binding TcOut}" VideoFormat="{Binding VideoFormat}"/>
                     <Button Margin="0" Command="{Binding CommandGetCurrentTcToOut}" ToolTip="{Resx _getTC.ToolTip}">
                         <Image  Source="/TAS.Client.Common;component/Images/Actions/import-movie.png"/>
                     </Button>
@@ -113,12 +111,12 @@
                 </Button>
                 <Separator/>
                 <Label Content="{Resx _recordTimeLimit}"/>
-                <controls:TimecodeEdit Timecode="{Binding TimeLimit}" FrameRate="{Binding FrameRate}" />
+                <controls:TimecodeEdit Timecode="{Binding TimeLimit}" VideoFormat="{Binding VideoFormat}" />
                 <Button Command="{Binding CommandSetRecordLimit}" Height="20" Margin="0" ToolTip="{Resx _setRecordLimit.ToolTip}">
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/save-small.png" />
                 </Button>
                 <Label Content="{Resx _recordTimeLeft}"/>
-                <controls:TimecodeEdit Timecode="{Binding RecorderTimeLeft}" Background="{DynamicResource {x:Static SystemColors.ControlLightLightBrush}}" IsReadOnly="True" FrameRate="{Binding FrameRate}" />
+                <controls:TimecodeEdit Timecode="{Binding RecorderTimeLeft}"  VideoFormat="{Binding VideoFormat}" Background="{DynamicResource {x:Static SystemColors.ControlLightLightBrush}}" IsReadOnly="True"/>
             </ToolBar>
         </Expander>
     </StackPanel>

@@ -223,8 +223,7 @@ namespace TAS.Client.ViewModels
             get { return EncodeVideo && EncodeAudio && _convertOperation.SourceMedia.MediaStatus == TMediaStatus.Available && _convertOperation.SourceMedia.Duration > TimeSpan.Zero; }
         }
 
-        public PreviewViewmodel Preview { get { return _previewVm; } }
-        public Views.PreviewView View { get { return _previewVm.View;  } }
+        public PreviewViewmodel PreviewViewmodel { get { return _previewVm; } }
 
         public bool CanPreview
         {

@@ -13,10 +13,9 @@ namespace TAS.Client.Views
     /// </summary>
     public partial class PreviewView : UserControl
     {
-        public PreviewView(RationalNumber frameRate)
+        public PreviewView()
         {
             InitializeComponent();
-            ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
         }
     }
 }

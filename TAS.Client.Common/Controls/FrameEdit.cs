@@ -11,44 +11,39 @@ using Xceed.Wpf.Toolkit;
 
 namespace TAS.Client.Common.Controls
 {
-    public class TimecodeEdit: MaskedTextBox
+    public class FrameEdit: TextBox
     {
-        const string mask = "00:00:00:00";
-        public TimecodeEdit(): base()
-        {
-            Mask = mask;
-        }
-
         public static readonly DependencyProperty TimecodeProperty =
             DependencyProperty.Register(
             "Timecode",
             typeof(TimeSpan),
-            typeof(TimecodeEdit),
+            typeof(FrameEdit),
             new FrameworkPropertyMetadata(TimeSpan.Zero, OnTimecodeChanged) { BindsTwoWayByDefault = true });
 
         public static readonly DependencyProperty VideoFormatProperty =
             DependencyProperty.Register(
                 "VideoFormat",
                 typeof(TVideoFormat),
-                typeof(TimecodeEdit),
+                typeof(FrameEdit),
                 new PropertyMetadata(TVideoFormat.PAL, OnTimecodeChanged));
 
         private static void OnTimecodeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as TimecodeEdit)._updateText();
+            (d as FrameEdit)._updateText();
         }
 
         protected override void OnTextChanged(TextChangedEventArgs e)
         {
             var text = (string)GetValue(TextProperty);
-            if (text.IsValidSMPTETimecode(VideoFormat))
-                SetValue(TimecodeProperty, text.SMPTETimecodeToTimeSpan(VideoFormat));
+            long frames;
+            if (long.TryParse(text, out frames))
+                SetValue(TimecodeProperty, frames.SMPTEFramesToTimeSpan(VideoFormat));
             base.OnTextChanged(e);
         }
 
         private void _updateText()
         {
-            Text = Timecode.ToSMPTETimecodeString(VideoFormat);
+            Text = Timecode.ToSMPTEFrames(VideoFormat).ToString();
         }
 
         public TimeSpan Timecode

@@ -4,7 +4,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TAS.Client.Views"
              xmlns:vievmodels="clr-namespace:TAS.Client.ViewModels" 
              xmlns:views="clr-namespace:TAS.Client.Views" 
              mc:Ignorable="d" 
@@ -14,10 +13,16 @@
         <KeyBinding Gesture="F12" Command="{Binding CommandSwitchTab}"/>
     </UserControl.InputBindings>
     <TabControl TabStripPlacement="Bottom" BorderThickness="1" Padding="0" SelectedItem="{Binding SelectedTab}" ItemsSource="{Binding Tabs}" >
-        <TabControl.ContentTemplate>
-            <DataTemplate>
-                <ContentControl Content="{Binding View}"/>
+        <TabControl.Resources>
+            <DataTemplate x:Key="engineTemplate">
+                <views:EngineView/>
             </DataTemplate>
-        </TabControl.ContentTemplate>
+            <DataTemplate x:Key="mediaManagerTemplate">
+                <views:MediaManagerView/>
+            </DataTemplate>
+        </TabControl.Resources>
+        <TabControl.ContentTemplateSelector>
+            <views:TabSelector EngineTemplate="{StaticResource engineTemplate}" MediaManagerTemplate="{StaticResource mediaManagerTemplate}"/>
+        </TabControl.ContentTemplateSelector>
     </TabControl>
 </UserControl>

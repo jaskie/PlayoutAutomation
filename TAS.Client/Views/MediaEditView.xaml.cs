@@ -21,15 +21,9 @@ namespace TAS.Client
     /// </summary>
     public partial class MediaEditView : UserControl
     {
-        public MediaEditView(RationalNumber frameRate)
+        public MediaEditView()
         {
             InitializeComponent();
-            ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
-        }
-
-        public void SetFrameRate(RationalNumber frameRate)
-        {
-            ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
         }
 
 #if DEBUG

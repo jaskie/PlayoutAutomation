@@ -10,7 +10,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1200"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
-             xmlns:client="clr-namespace:TAS.Client.Views"
+             xmlns:views="clr-namespace:TAS.Client.Views"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              d:DataContext="{x:Type vm:MediaManagerViewmodel}"
@@ -381,7 +381,7 @@
                 </DockPanel>
             </TabItem>
             <TabItem Header="{Resx _recorders}">
-                <client:RecordersView DataContext="{Binding RecordersVm}"/>
+                <views:RecordersView DataContext="{Binding RecordersViewmodel}"/>
             </TabItem>
         </TabControl>
         <GridSplitter Grid.Column="1" ResizeDirection="Columns" Grid.RowSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Left"  Background="DarkGray" Width="3" Cursor="SizeWE" />
@@ -392,10 +392,22 @@
             </Grid.RowDefinitions>
             <ContentControl Content="{Binding EditMedia.Editor}" />
             <GridSplitter Grid.Row="1" VerticalAlignment="Top" Visibility="{Binding PreviewDisplay, Converter={StaticResource BoolToVis}}" HorizontalAlignment="Stretch" Background="DarkGray" Cursor="SizeNS" Height="3" ShowsPreview="True"/>
-            <ContentControl Visibility="{Binding PreviewDisplay, Converter={StaticResource BoolToVis}}" Margin="3, 3, 0, 0" Grid.Row="1" Content="{Binding PreviewView}" />
+            <ContentControl Visibility="{Binding PreviewDisplay, Converter={StaticResource BoolToVis}}" Margin="3, 3, 0, 0" Grid.Row="1" Content="{Binding PreviewViewmodel}" >
+                <ContentControl.ContentTemplate>
+                    <DataTemplate DataType="{x:Type vm:PreviewViewmodel}">
+                        <views:PreviewView/>
+                    </DataTemplate>
+                </ContentControl.ContentTemplate>
+            </ContentControl>
         </Grid>
         <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-        <ContentControl Grid.Row="2" Content="{Binding FileManagerVm.View}" />
+        <ContentControl Grid.Row="2" Content="{Binding FileManagerViewmodel}" >
+            <ContentControl.ContentTemplate>
+                <DataTemplate DataType="{x:Type vm:FileManagerViewmodel}">
+                    <views:FileManagerView/>
+                </DataTemplate>
+            </ContentControl.ContentTemplate>
+        </ContentControl>
         <StatusBar Grid.Row="3" Grid.ColumnSpan="2">
             <StackPanel Orientation="Horizontal" Visibility="{Binding DisplayDirectoryInfo, Converter={StaticResource BoolToVis}}" >
                 <common:StatusIndicator IsGreen="{Binding IsMediaDirectoryOK}" Margin="10,0,0,0"/>

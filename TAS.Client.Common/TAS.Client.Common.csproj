@@ -93,6 +93,8 @@
     <Compile Include="BindableSelectedItems.cs" />
     <Compile Include="BindingProxy.cs" />
     <Compile Include="Controls\SearchTextBox.cs" />
+    <Compile Include="Controls\FrameEdit.cs" />
+    <Compile Include="Controls\TimecodeTextBlock.cs" />
     <Compile Include="Controls\TreeViewEx.cs" />
     <Compile Include="DispatcherHelper.cs" />
     <Compile Include="EditViewModelBase.cs" />

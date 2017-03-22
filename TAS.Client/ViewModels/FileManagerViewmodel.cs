@@ -18,7 +18,6 @@ namespace TAS.Client.ViewModels
     {
         private ObservableCollection<FileOperationViewmodel> _operationList;
         private readonly IFileManager _fileManager;
-        public Views.FileManagerView View { get; private set; }
         public ICommand CommandClearFinished { get; private set; }
         public ICommand CommandCancelPending { get; private set; }
 
@@ -30,7 +29,6 @@ namespace TAS.Client.ViewModels
             _operationList = new ObservableCollection<FileOperationViewmodel>(fileManager.GetOperationQueue().Select(fo => new FileOperationViewmodel(fo)));
             CommandClearFinished = new UICommand { ExecuteDelegate = _clearFinishedOperations, CanExecuteDelegate = o => _operationList.Any(op => op.Finished) };
             CommandCancelPending = new UICommand { ExecuteDelegate = o => _fileManager.CancelPending(), CanExecuteDelegate = o => _operationList.Any(op => op.OperationStatus == FileOperationStatus.Waiting) };
-            View = new Views.FileManagerView() { DataContext = this };
             DispatcherTimer clearTimer = new DispatcherTimer();
             clearTimer.Tick += (o, e) =>
             {

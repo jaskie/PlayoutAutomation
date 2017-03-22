@@ -25,7 +25,7 @@ namespace TAS.Client
         public MediaSearchView(RationalNumber frameRate)
         {
             InitializeComponent();
-            ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
+            Owner = System.Windows.Application.Current.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive);
         }
 
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -66,10 +66,6 @@ namespace TAS.Client
                 gSearch.SelectedIndex++;
             if (e.Key == Key.Up && gSearch.SelectedIndex > 0)
                 gSearch.SelectedIndex--;
-        }
-
-        private void MediaSearchWindow_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
         }
 
         private void ButtonOK_Click(object sender, RoutedEventArgs e)

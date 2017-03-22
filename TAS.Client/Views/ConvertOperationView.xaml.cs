@@ -28,14 +28,6 @@ namespace TAS.Client.Views
             InitializeComponent();
         }
 
-        private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            ConvertOperationViewModel vm = e.NewValue as ConvertOperationViewModel;
-            if (vm != null)
-                ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = vm.SourceMediaFrameRate;
-        }
-
-
 #if DEBUG
         ~ConvertOperationView()
         {

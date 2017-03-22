@@ -16,7 +16,6 @@ using TAS.Server.Common;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition;
 using TAS.Client.Common.Plugin;
-using TAS.Client.Views;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
@@ -24,10 +23,8 @@ namespace TAS.Client.ViewModels
     public class EngineViewmodel : ViewmodelBase
     {
         private readonly IEngine _engine;
-        private readonly EngineView _engineView;
         private readonly PreviewViewmodel _previewViewmodel;
         private readonly EventEditViewmodel _eventEditViewmodel;
-        private readonly EventEditView _eventEditView;
         private readonly VideoFormatDescription _videoFormatDescription;
         private readonly Server.Interfaces.ICGElementsController _cGElementsController;
         private readonly EngineCGElementsControllerViewmodel _cGElementsControllerViewmodel;
@@ -86,7 +83,7 @@ namespace TAS.Client.ViewModels
         {
             Debug.WriteLine($"Creating EngineViewmodel for {engine}");
             _engine = engine;
-            _frameRate = engine.FrameRate;
+            _videoFormat = engine.VideoFormat;
             _videoFormatDescription = engine.FormatDescription;
             _allowPlayControl = allowPlayControl;
 
@@ -99,9 +96,6 @@ namespace TAS.Client.ViewModels
             _engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _composePlugins();
 
-            // Creating View
-            _engineView = new EngineView(this._frameRate);
-            _engineView.DataContext = this;
 
             // Creating PreviewViewmodel
             if (preview != null && allowPlayControl)
@@ -109,7 +103,6 @@ namespace TAS.Client.ViewModels
             
             // Creating EventEditViewmodel
             _eventEditViewmodel = new EventEditViewmodel(this, _previewViewmodel);
-            _eventEditView = new EventEditView(_frameRate) { DataContext = _eventEditViewmodel };
 
             _createCommands();
 
@@ -159,9 +152,7 @@ namespace TAS.Client.ViewModels
             InvalidateRequerySuggested();
         }
 
-        public EngineView View { get { return _engineView; } }
-        public PreviewView PreviewView { get { return _previewViewmodel?.View; } }
-        public EventEditView EventEditView { get { return _eventEditView; } }
+        public PreviewViewmodel PreviewViewmodel { get { return _previewViewmodel; } }
         public EngineCGElementsControllerViewmodel CGElementsControllerViewmodel { get { return _cGElementsControllerViewmodel; } }
 
         #region Commands
@@ -909,8 +900,8 @@ namespace TAS.Client.ViewModels
             private set { SetField(ref _currentTime, value, nameof(CurrentTime)); }
         }
 
-        private RationalNumber _frameRate;
-        public RationalNumber FrameRate { get { return _frameRate; } }
+        private TVideoFormat _videoFormat;
+        public TVideoFormat VideoFormat { get { return _videoFormat; } }
 
         private TimeSpan _timeToAttention;
         public TimeSpan TimeToAttention

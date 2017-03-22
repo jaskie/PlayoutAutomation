@@ -11,11 +11,18 @@ namespace TAS.Common
     {
         public static VideoFormatDescription FormatDescription(this IMedia media)
         {
-            return VideoFormatDescription.Descriptions[media.VideoFormat];
+            TVideoFormat format = media.VideoFormat;
+            if (!Enum.IsDefined(typeof(TVideoFormat), format))
+                format = TVideoFormat.Other;
+            return VideoFormatDescription.Descriptions[format];
         }
+
         public static RationalNumber FrameRate(this IMedia media)
         {
-            return VideoFormatDescription.Descriptions[media.VideoFormat].FrameRate;
+            TVideoFormat format = media.VideoFormat;
+            if (!Enum.IsDefined(typeof(TVideoFormat), format))
+                format = TVideoFormat.Other;
+            return VideoFormatDescription.Descriptions[format].FrameRate;
         }
     }
 }

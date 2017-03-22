@@ -949,7 +949,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public RationalNumber FrameRate { get { return _engineViewModel.FrameRate; } }
+        public TVideoFormat VideoFormat { get { return _engineViewModel.VideoFormat; } }
 
         private TimeSpan _scheduledDelay;
         public TimeSpan ScheduledDelay
@@ -1016,7 +1016,6 @@ namespace TAS.Client.ViewModels
                 return (ev != null) && ev.EventType != TEventType.Rundown;
             }
         }
-
 
         public bool IsCGElementsEnabled
         {

@@ -11,49 +11,45 @@ using Xceed.Wpf.Toolkit;
 
 namespace TAS.Client.Common.Controls
 {
-    public class TimecodeEdit: MaskedTextBox
+    public class TimecodeTextBlock: TextBlock
     {
-        const string mask = "00:00:00:00";
-        public TimecodeEdit(): base()
-        {
-            Mask = mask;
-        }
-
         public static readonly DependencyProperty TimecodeProperty =
             DependencyProperty.Register(
             "Timecode",
             typeof(TimeSpan),
-            typeof(TimecodeEdit),
-            new FrameworkPropertyMetadata(TimeSpan.Zero, OnTimecodeChanged) { BindsTwoWayByDefault = true });
+            typeof(TimecodeTextBlock),
+            new PropertyMetadata(TimeSpan.Zero, OnTimecodeChanged));
 
         public static readonly DependencyProperty VideoFormatProperty =
             DependencyProperty.Register(
                 "VideoFormat",
                 typeof(TVideoFormat),
-                typeof(TimecodeEdit),
+                typeof(TimecodeTextBlock),
                 new PropertyMetadata(TVideoFormat.PAL, OnTimecodeChanged));
+
+        public static readonly DependencyProperty HideZeroProperty =
+            DependencyProperty.Register(
+                "HideZero",
+                typeof(bool),
+                typeof(TimecodeTextBlock),
+                new PropertyMetadata(false, OnTimecodeChanged));
 
         private static void OnTimecodeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as TimecodeEdit)._updateText();
-        }
-
-        protected override void OnTextChanged(TextChangedEventArgs e)
-        {
-            var text = (string)GetValue(TextProperty);
-            if (text.IsValidSMPTETimecode(VideoFormat))
-                SetValue(TimecodeProperty, text.SMPTETimecodeToTimeSpan(VideoFormat));
-            base.OnTextChanged(e);
+            (d as TimecodeTextBlock)._updateText();
         }
 
         private void _updateText()
         {
-            Text = Timecode.ToSMPTETimecodeString(VideoFormat);
+            if (HideZero && Timecode == TimeSpan.Zero)
+                Text = string.Empty;
+            else
+                Text = Timecode.ToSMPTETimecodeString(VideoFormat);
         }
 
         public TimeSpan Timecode
         {
-           get { return (TimeSpan)GetValue(TimecodeProperty); }
+            get { return (TimeSpan)GetValue(TimecodeProperty); }
             set
             {
                 if (value != Timecode)
@@ -66,7 +62,7 @@ namespace TAS.Client.Common.Controls
 
         public TVideoFormat VideoFormat
         {
-            private get
+            get
             {
                 return (TVideoFormat)GetValue(VideoFormatProperty);
             }
@@ -79,5 +75,19 @@ namespace TAS.Client.Common.Controls
                 }
             }
         }
+
+        public bool HideZero
+        {
+            get { return (bool)GetValue(HideZeroProperty); }
+            set
+            {
+                if (value != HideZero)
+                {
+                    SetValue(HideZeroProperty, value);
+                    _updateText();
+                }
+            }
+        }
+
     }
 }

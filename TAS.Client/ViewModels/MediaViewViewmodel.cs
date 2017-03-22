@@ -100,6 +100,7 @@ namespace TAS.Client.ViewModels
         public bool IsArchived { get { return Media is IServerMedia ? ((IServerMedia)Media).IsArchived : false; } }
         public string ClipNr { get { return (Media as IXdcamMedia)?.ClipNr > 0  ? $"{(Media as IXdcamMedia).ClipNr}/{(Media.Directory as IIngestDirectory)?.XdcamClipCount}" : string.Empty; } }
         public TIngestStatus IngestStatus { get { return Media is IIngestMedia ? ((IIngestMedia)Media).IngestStatus : Media is IArchiveMedia ? ((IArchiveMedia)Media).IngestStatus : TIngestStatus.NotReady; } }
+        public TVideoFormat VideoFormat { get { return Media.VideoFormat; } }
         private bool _isExpanded;
         public bool IsExpanded
         {
@@ -154,6 +155,7 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(sDurationPlay));
             if (e.PropertyName == nameof(IMedia.VideoFormat))
             {
+                NotifyPropertyChanged(nameof(VideoFormat));
                 NotifyPropertyChanged(nameof(sTcPlay));
                 NotifyPropertyChanged(nameof(sTcStart));
                 NotifyPropertyChanged(nameof(sDuration));
@@ -162,7 +164,7 @@ namespace TAS.Client.ViewModels
                     Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                        {
                            foreach (MediaSegmentViewmodel segment in _mediaSegments.Value)
-                               segment.FrameRate = ((IMedia)media).FrameRate();
+                               segment.VideoFormat = ((IMedia)media).VideoFormat;
                        }));
             }
             if (e.PropertyName == nameof(IMedia.IsVerified))

@@ -76,21 +76,22 @@ namespace TAS.Client.ViewModels
             SelectedDirectory = serverDirectoryPRIVm;
             _view = new MediaManagerView() { DataContext = this };
             if (mediaManager.FileManager != null)
-                _fileManagerVm = new FileManagerViewmodel(mediaManager.FileManager);
-            _recordersVm = new RecordersViewmodel(mediaManager.Recorders);
+                _fileManagerViewmodel = new FileManagerViewmodel(mediaManager.FileManager);
+            _recordersViewmodel = new RecordersViewmodel(mediaManager.Recorders);
+            _previewDisplay = true;
         }
 
         private readonly IPreview _preview;
         private readonly PreviewViewmodel _previewViewModel;
-        public PreviewView PreviewView { get { return _previewViewModel.View; } }
+        public PreviewViewmodel PreviewViewmodel { get { return _previewViewModel; } }
 
         public MediaManagerView View { get { return _view; } }
 
-        private readonly FileManagerViewmodel _fileManagerVm;
-        public FileManagerViewmodel FileManagerVm { get { return _fileManagerVm; } }
+        private readonly FileManagerViewmodel _fileManagerViewmodel;
+        public FileManagerViewmodel FileManagerViewmodel { get { return _fileManagerViewmodel; } }
 
-        private readonly RecordersViewmodel _recordersVm;
-        public RecordersViewmodel RecordersVm { get { return _recordersVm; } }
+        private readonly RecordersViewmodel _recordersViewmodel;
+        public RecordersViewmodel RecordersViewmodel { get { return _recordersViewmodel; } }
 
         bool _previewDisplay;
         public bool PreviewDisplay { get { return _previewDisplay; } set { SetField(ref _previewDisplay, value, nameof(PreviewDisplay)); } }
@@ -303,7 +304,7 @@ namespace TAS.Client.ViewModels
                         MediaCategory = sourceMedia.MediaCategory
                     };
                         ingestList.Add(
-                            FileManagerVm.CreateConvertOperation(
+                            FileManagerViewmodel.CreateConvertOperation(
                             sourceMedia,
                             destMediaProperties,
                             directory,

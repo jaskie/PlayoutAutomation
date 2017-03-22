@@ -9,9 +9,8 @@
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              d:DataContext="{x:Type vm:ConvertOperationViewModel}"
              mc:Ignorable="d" 
-             d:DesignHeight="420" DataContextChanged="UserControl_DataContextChanged">
+             d:DesignHeight="420">
     <UserControl.Resources>
-        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <Style TargetType="TextBox">
             <Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="true">
@@ -104,15 +103,15 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <Label Content="{Resx _startTC}" />
-                            <controls:TimecodeEdit Text="{Binding StartTC, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" Margin="0, 0, 4, 0" />
+                            <controls:TimecodeEdit Timecode="{Binding StartTC}" VideoFormat="{Binding DestMediaVideoFormat}" Margin="0, 0, 4, 0" />
                         </StackPanel>
                         <StackPanel Grid.Column="1">
                             <Label Content="{Resx _duration}" />
-                            <controls:TimecodeEdit Text="{Binding Duration, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" Margin="4, 0, 0, 0" />
+                            <controls:TimecodeEdit Timecode="{Binding Duration}" VideoFormat="{Binding DestMediaVideoFormat}" Margin="4, 0, 0, 0" />
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <Label Content="{Resx _endTC}" />
-                            <controls:TimecodeEdit Text="{Binding EndTC, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToSMPTE}}" Margin="4, 0, 0, 0" />
+                            <controls:TimecodeEdit Timecode="{Binding EndTC}" VideoFormat="{Binding DestMediaVideoFormat}" Margin="4, 0, 0, 0" />
                         </StackPanel>
                     </Grid>
                 </StackPanel>

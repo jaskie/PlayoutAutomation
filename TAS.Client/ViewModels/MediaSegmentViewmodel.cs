@@ -14,12 +14,12 @@ namespace TAS.Client.ViewModels
     {
         private readonly IMediaSegment _mediaSegment;
         private readonly IPersistentMedia _media;
-        private RationalNumber _frameRate;
+        private TVideoFormat _videoFormat;
         public MediaSegmentViewmodel(IPersistentMedia media, IMediaSegment mediaSegment)
         {
             _mediaSegment = mediaSegment;
             _media = media;
-            _frameRate = media.FrameRate();
+            _videoFormat = media.VideoFormat;
             mediaSegment.PropertyChanged += OnPropertyChanged;
             Load();
         }
@@ -75,15 +75,15 @@ namespace TAS.Client.ViewModels
             get { return TcOut - TcIn + _media.FormatDescription().FrameDuration; }
         }
 
-        public string sTcIn { get { return _tcIn.ToSMPTETimecodeString(_frameRate); } }
-        public string sDuration { get { return Duration.ToSMPTETimecodeString(_frameRate); } }
+        public string sTcIn { get { return _tcIn.ToSMPTETimecodeString(_videoFormat); } }
+        public string sDuration { get { return Duration.ToSMPTETimecodeString(_videoFormat); } }
 
-        public RationalNumber FrameRate
+        public TVideoFormat VideoFormat
         {
-            get { return _frameRate; }
+            get { return _videoFormat; }
             set
             {
-                if (SetField(ref _frameRate, value, nameof(FrameRate)))
+                if (SetField(ref _videoFormat, value, nameof(VideoFormat)))
                 {
                     NotifyPropertyChanged(nameof(sDuration));
                     NotifyPropertyChanged(nameof(sTcIn));

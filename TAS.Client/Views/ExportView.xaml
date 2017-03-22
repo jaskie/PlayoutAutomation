@@ -15,9 +15,6 @@
         Title="{Resx Window.Title}" 
         FontSize="13"
         Height="400" Width="600">
-    <Window.Resources>
-        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
-    </Window.Resources>
     <DockPanel>
         <DockPanel DockPanel.Dock="Top" Height="35">
             <Label Content="{Resx _destination}" VerticalAlignment="Center"/>
@@ -67,7 +64,7 @@
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{Resx _statusBar.StringFormat, ResxName=TAS.Client.Views.ExportView}">
                                 <Binding Path="ExportMediaCount"/>
-                                <Binding Path="TotalTime" Converter="{StaticResource TimeSpanToSMPTE}" />
+                                <Binding Path="TotalTime"/>
                             </MultiBinding>
                         </TextBlock.Text>
                     </TextBlock>
@@ -90,7 +87,13 @@
             </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="{Resx _grid.Header.ClipName, ResxName=TAS.Client.Views.ExportView}" Binding="{Binding MediaName, Mode=OneWay}" IsReadOnly="True" />
-                <DataGridTextColumn Header="{Resx _grid.Header.TCStart, ResxName=TAS.Client.Views.ExportView}" Binding="{Binding StartTC, Converter={StaticResource TimeSpanToSMPTE}}"/>
+                <DataGridTemplateColumn Header="{Resx _grid.Header.TCStart, ResxName=TAS.Client.Views.ExportView}" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <controls:TimecodeTextBlock Timecode="{Binding StartTC}" VideoFormat="{Binding VideoFormat}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="{Resx _grid.Header.Duration, ResxName=TAS.Client.Views.ExportView}" Binding="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}}"/>
                 <DataGridTextColumn Header="{Resx _grid.Header.AudioVolume, ResxName=TAS.Client.Views.ExportView}" Binding="{Binding AudioVolume, StringFormat={}{0:0.0 dB}}"/>
                 <DataGridTemplateColumn Header="{Resx _grid.Header.Logos, ResxName=TAS.Client.Views.ExportView}">

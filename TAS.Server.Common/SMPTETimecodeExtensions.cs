@@ -18,6 +18,8 @@ namespace TAS.Common
 
         public static string ToSMPTETimecodeString(this TimeSpan t, TVideoFormat format)
         {
+            if (!Enum.IsDefined(typeof(TVideoFormat), format))
+                format = TVideoFormat.PAL_FHA;
             return t.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[format].FrameRate);
         }
 
@@ -45,6 +47,8 @@ namespace TAS.Common
 
         public static long ToSMPTEFrames(this TimeSpan t, TVideoFormat format)
         {
+            if (!Enum.IsDefined(typeof(TVideoFormat), format))
+                format = TVideoFormat.PAL_FHA;
             return t.ToSMPTEFrames(VideoFormatDescription.Descriptions[format].FrameRate);
         }
 
@@ -57,6 +61,8 @@ namespace TAS.Common
 
         public static TimeSpan SMPTEFramesToTimeSpan(this long totalFrames, TVideoFormat format)
         {
+            if (!Enum.IsDefined(typeof(TVideoFormat), format))
+                format = TVideoFormat.PAL_FHA;
             return totalFrames.SMPTEFramesToTimeSpan(VideoFormatDescription.Descriptions[format].FrameRate);
         }
 
@@ -100,6 +106,8 @@ namespace TAS.Common
 
         public static bool IsValidSMPTETimecode(this string timeCode, TVideoFormat format)
         {
+            if (!Enum.IsDefined(typeof(TVideoFormat), format))
+                format = TVideoFormat.PAL_FHA;
             return IsValidSMPTETimecode(timeCode, VideoFormatDescription.Descriptions[format].FrameRate);
         }
 
@@ -136,6 +144,8 @@ namespace TAS.Common
 
         public static TimeSpan SMPTETimecodeToTimeSpan(this string timeCode, TVideoFormat format)
         {
+            if (!Enum.IsDefined(typeof(TVideoFormat), format))
+                format = TVideoFormat.PAL_FHA;
             return SMPTETimecodeToTimeSpan(timeCode, VideoFormatDescription.Descriptions[format].FrameRate);
         }
 

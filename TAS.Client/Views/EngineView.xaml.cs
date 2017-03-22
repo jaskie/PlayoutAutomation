@@ -17,30 +17,9 @@ namespace TAS.Client.Views
     /// 
     public partial class EngineView : UserControl
     {
-        public EngineView(RationalNumber frameRate)
-        {
-            InitializeComponent();
-            ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = frameRate;
-        }
-
         public EngineView()
         {
             InitializeComponent();
         }
-
-        private RationalNumber _frameRate;
-        public RationalNumber FrameRate
-        {
-            get { return _frameRate; }
-            set
-            {
-                if (value != _frameRate)
-                {
-                    ((TimeSpanToSMPTEConverter)Resources["TimeSpanToSMPTE"]).FrameRate = value;
-                    _frameRate = value;
-                }
-            }
-        }
-
     }
 }

@@ -23,7 +23,7 @@ namespace TAS.Client.ViewModels
         {
             _createCommands();
             _recorders = recorders;
-            _frameRate = VideoFormatDescription.Descriptions[TVideoFormat.PAL].FrameRate;
+            _videoFormat = TVideoFormat.PAL_FHA;
             TimeLimit = TimeSpan.FromHours(2);
             Recorder = _recorders.FirstOrDefault();
         }
@@ -88,8 +88,7 @@ namespace TAS.Client.ViewModels
         {
             if (_recorder != null)
             {
-                FrameRate = VideoFormatDescription.Descriptions[_channel.VideoFormat].FrameRate;
-                _recorder.Capture(_channel, _tcIn, _tcOut, $"{FileName}.{FileFormat}");
+                VideoFormat = _channel.VideoFormat;
             }
         }
 
@@ -170,7 +169,15 @@ namespace TAS.Client.ViewModels
         public IEnumerable<IPlayoutServerChannel> Channels { get { return _channels; } private set { SetField(ref _channels, value, nameof(Channels)); } }
 
         private IPlayoutServerChannel _channel;
-        public IPlayoutServerChannel Channel { get { return _channel; }  set { SetField(ref _channel, value, nameof(Channel)); } }
+        public IPlayoutServerChannel Channel
+        {
+            get { return _channel; }
+            set
+            {
+                if (SetField(ref _channel, value, nameof(Channel)))
+                    VideoFormat = value.VideoFormat;
+            }
+        }
 
         public Array FileFormats { get { return Enum.GetValues(typeof(TMovieContainerFormat)); } }
 
@@ -227,8 +234,8 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private RationalNumber _frameRate;
-        public RationalNumber FrameRate { get { return _frameRate; }  private set { SetField(ref _frameRate, value, nameof(FrameRate)); } }
+        private TVideoFormat _videoFormat;
+        public TVideoFormat VideoFormat { get { return _videoFormat; }  private set { SetField(ref _videoFormat, value, nameof(VideoFormat)); } }
 
         public string this[string propertyName]
         {

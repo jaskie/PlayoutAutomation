@@ -24,4 +24,19 @@ namespace TAS.Client.Views
             InitializeComponent();
         }
     }
+
+    public class TabSelector : DataTemplateSelector
+    {
+        public DataTemplate EngineTemplate { get; set; }
+        public DataTemplate MediaManagerTemplate { get; set; }
+
+        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+        {
+            if (item is ViewModels.EngineViewmodel)
+                return EngineTemplate;
+            if (item is ViewModels.MediaManagerViewmodel)
+                return MediaManagerTemplate;
+            return null;
+        }
+    }
 }

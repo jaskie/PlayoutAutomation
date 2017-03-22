@@ -13,7 +13,6 @@
              FontSize="12" 
              >
     <UserControl.Resources>
-        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <Style x:Key="controlButtonProperties" TargetType="Button" >
             <Setter Property="Width" Value="40" />
             <Setter Property="Margin" Value="8" />
@@ -78,8 +77,8 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <Label Content="Start TC" />
-                        <controls:TimecodeEdit Text="{Binding StartTc, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True"/>
-                        <controls:TimecodeEdit Text="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                        <controls:TimecodeEdit Timecode="{Binding StartTc, Mode=OneWay}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
+                        <controls:TimecodeEdit Timecode="{Binding TcIn}" VideoFormat="{Binding VideoFormat}" />
                     </StackPanel>
                     <StackPanel Grid.Column="1">
                         <Button ToolTip="{Resx _secondBack.ToolTip}" Command="{Binding CommandSeek}" CommandParameter="rsecond" >
@@ -94,7 +93,7 @@
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <Label Content="{Resx _currentTC}" />
-                        <controls:TimecodeEdit Text="{Binding Position, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
+                        <controls:TimecodeEdit Timecode="{Binding Position}" VideoFormat="{Binding VideoFormat}" />
                         <Grid Margin="0, 1">
                             <Label Content="In" HorizontalAlignment="Left" />
                             <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Resx _wholeFile.ToolTip}" IsChecked="{Binding PlayWholeClip}" />
@@ -114,8 +113,8 @@
                     </StackPanel>
                     <StackPanel Grid.Column="4">
                         <Label Content="{Resx _duration}" />
-                        <controls:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True"/>
-                        <controls:TimecodeEdit Text="{Binding TcOut, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                        <controls:TimecodeEdit Timecode="{Binding Duration, Mode=OneWay}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
+                        <controls:TimecodeEdit Timecode="{Binding TcOut}" VideoFormat="{Binding VideoFormat}" />
                     </StackPanel>
                 </Grid>
      
@@ -136,8 +135,8 @@
                     <DataGrid MinHeight="80" ItemsSource="{Binding MediaSegments}" SelectedItem="{Binding SelectedSegment}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single">
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding SegmentName}" Header="{Resx ResxName=TAS.Client.Views.PreviewView, Key=_name}" Width="*"/>
-                            <DataGridTextColumn Binding="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}}" Header="TC In" Width="100"/>
-                            <DataGridTextColumn Binding="{Binding TcOut, Converter={StaticResource TimeSpanToSMPTE}}" Header="TC Out" Width="100"/>
+                            <DataGridTextColumn Binding="{Binding sTcIn}" Header="TC In" Width="100"/>
+                            <DataGridTextColumn Binding="{Binding sTcOut}" Header="TC Out" Width="100"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>
