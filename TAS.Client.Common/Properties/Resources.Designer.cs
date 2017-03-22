@@ -115,24 +115,6 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Convert operation finished successfully, but durations are diffrent, original: {0}, encoded {1}.
-        /// </summary>
-        public static string _encodeWarningDifferentDurations {
-            get {
-                return ResourceManager.GetString("_encodeWarningDifferentDurations", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Following error was announced by FFmpeg: {0}.
-        /// </summary>
-        public static string _encodeWarningFFmpeg {
-            get {
-                return ResourceManager.GetString("_encodeWarningFFmpeg", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Media.
         /// </summary>
         public static string _media {

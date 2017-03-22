@@ -128,10 +128,6 @@
       <Project>{e963b766-56bf-4966-8917-88c1ee69d61a}</Project>
       <Name>System.Net.FtpClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TAS.Client.Common\TAS.Client.Common.csproj">
-      <Project>{bccaca68-8bb6-4d9c-b546-795a2a8dee93}</Project>
-      <Name>TAS.Client.Common</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
       <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
       <Name>TAS.Remoting</Name>

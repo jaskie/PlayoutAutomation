@@ -13,7 +13,6 @@ using System.Text;
 using System.ComponentModel;
 using TAS.FFMpegUtils;
 using TAS.Common;
-using resources = TAS.Client.Common.Properties.Resources;
 using TAS.Server.Interfaces;
 using Newtonsoft.Json;
 using System.Drawing;
@@ -371,7 +370,7 @@ namespace TAS.Server
                         destMedia.MediaStatus = TMediaStatus.CopyError;
                         if (destMedia is PersistentMedia)
                             (destMedia as PersistentMedia).Save();
-                        _addWarningMessage(string.Format(resources._encodeWarningDifferentDurations, localSourceMedia.Duration.ToSMPTETimecodeString(localSourceMedia.FrameRate()), destMedia.Duration.ToSMPTETimecodeString(destMedia.FrameRate())));
+                        _addWarningMessage($"Durations are different: {localSourceMedia.Duration.ToSMPTETimecodeString(localSourceMedia.FrameRate())} vs {destMedia.Duration.ToSMPTETimecodeString(destMedia.FrameRate())}");
                         Debug.WriteLine(this, "Convert operation succeed, but durations are diffrent");
                     }
                     else
@@ -407,7 +406,7 @@ namespace TAS.Server
             base.ProcOutputHandler(sendingProcess, outLine);
             if (!string.IsNullOrEmpty(outLine.Data) 
                 && outLine.Data.Contains("error")) 
-                _addWarningMessage(string.Format(resources._encodeWarningFFmpeg, outLine.Data));
+                _addWarningMessage($"FFmpeg error: {outLine.Data}");
         }
 
     }

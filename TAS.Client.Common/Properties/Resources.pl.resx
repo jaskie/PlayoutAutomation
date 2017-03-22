@@ -135,12 +135,6 @@
   <data name="_caption_Warning" xml:space="preserve">
     <value>Ostrzeżenie</value>
   </data>
-  <data name="_encodeWarningDifferentDurations" xml:space="preserve">
-    <value>Operacja zakończona pomyślnie, ale czas trwania jest inny, oryginał: {0}, po kodowaniu {1}</value>
-  </data>
-  <data name="_encodeWarningFFmpeg" xml:space="preserve">
-    <value>Błąd zgłoszony przez FFmpeg: {0}</value>
-  </data>
   <data name="_media" xml:space="preserve">
     <value>Media</value>
   </data>

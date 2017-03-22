@@ -135,12 +135,6 @@
   <data name="_caption_Warning" xml:space="preserve">
     <value>Warning</value>
   </data>
-  <data name="_encodeWarningDifferentDurations" xml:space="preserve">
-    <value>Convert operation finished successfully, but durations are diffrent, original: {0}, encoded {1}</value>
-  </data>
-  <data name="_encodeWarningFFmpeg" xml:space="preserve">
-    <value>Following error was announced by FFmpeg: {0}</value>
-  </data>
   <data name="_media" xml:space="preserve">
     <value>Media</value>
   </data>
