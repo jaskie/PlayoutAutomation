@@ -167,12 +167,15 @@ namespace TAS.Server
 
             var sPRI = servers.FirstOrDefault(S => S.Id == IdServerPRI);
             _playoutChannelPRI = sPRI == null ? null : (CasparServerChannel)sPRI.Channels.FirstOrDefault(c => c.Id == ServerChannelPRI);
-            recorders.AddRange(sPRI.Recorders.Select(r => r as CasparRecorder));
+            if (sPRI != null)
+                recorders.AddRange(sPRI.Recorders.Select(r => r as CasparRecorder));
             var sSEC = servers.FirstOrDefault(S => S.Id == IdServerSEC);
-            recorders.AddRange(sSEC.Recorders.Select(r => r as CasparRecorder));
+            if (sSEC != null && sSEC != sPRI)
+                recorders.AddRange(sSEC.Recorders.Select(r => r as CasparRecorder));
             _playoutChannelSEC = sSEC == null ? null : (CasparServerChannel)sSEC.Channels.FirstOrDefault(c => c.Id == ServerChannelSEC);
             var sPRV = servers.FirstOrDefault(S => S.Id == IdServerPRV);
-            recorders.AddRange(sPRV.Recorders.Select(r => r as CasparRecorder));
+            if (sPRV != null && sPRV != sPRI && sPRV != sSEC)
+                recorders.AddRange(sPRV.Recorders.Select(r => r as CasparRecorder));
             _playoutChannelPRV = sPRV == null ? null : (CasparServerChannel)sPRV.Channels.FirstOrDefault(c => c.Id == ServerChannelPRV);
             _mediaManager.Recorders = recorders;
             

@@ -29,6 +29,9 @@
         <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
     </UserControl.Resources>
     <StackPanel>
         <ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked="True">
@@ -42,6 +45,7 @@
             <TextBox Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="220" VerticalAlignment="Center"/>
             <Label Content="{Resx _fileFormat}"/>
             <ComboBox ItemsSource="{Binding FileFormats}" SelectedItem="{Binding FileFormat, ValidatesOnDataErrors=True}" Width="80"/>
+            <CheckBox Visibility="{Binding IsStandardDefinition, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsNarrowMode}" Content="4:3" VerticalAlignment="Center" Margin="5, 0"/>
         </StackPanel>
         <Expander IsExpanded="True">
             <Expander.Header>
@@ -76,8 +80,8 @@
                             <Setter Property="VerticalAlignment" Value="Center"/>
                         </Style>
                         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                            <Setter Property="Height" Value="20"/>
-                            <Setter Property="Width" Value="20"/>
+                            <Setter Property="Height" Value="19"/>
+                            <Setter Property="Width" Value="19"/>
                         </Style>
                     </StackPanel.Resources>
                     <Label Content="{Resx _tcIn}"/>
@@ -106,7 +110,7 @@
                 <Button Command="{Binding CommandRecordStart}" ToolTip="{Resx _record.ToolTip}">
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-record.png" />
                 </Button>
-                <Button Command="{Binding CommandRecordEnd}" ToolTip="{Resx _recordEnd.ToolTip}">
+                <Button Command="{Binding CommandRecordFinish}" ToolTip="{Resx _recordEnd.ToolTip}">
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png" />
                 </Button>
                 <Separator/>

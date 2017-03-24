@@ -22,6 +22,7 @@ namespace Svt.Caspar
         public string Version { get; private set; }
 
         public bool IsConnected { get { return (Connection == null) ? false : Connection.IsConnected; } }
+        public bool IsRecordingSupported { get; set; }
 
         [Obsolete("This event is obsolete. Use the new ConnectionStatusChanged instead")]
 		public event EventHandler<Svt.Network.NetworkEventArgs> Connected;
@@ -89,7 +90,8 @@ namespace Svt.Caspar
                 Connection.SendString("INFO SERVER");
 
                 //Ask server for recorders
-                Connection.SendString("INFO RECORDERS");
+                if (IsRecordingSupported)
+                    Connection.SendString("INFO RECORDERS");
 
                 //For compability with legacy users
                 try

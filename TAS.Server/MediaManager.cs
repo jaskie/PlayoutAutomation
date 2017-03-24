@@ -162,15 +162,21 @@ namespace TAS.Server
                 _recorders.Clear();
                 foreach (CasparRecorder recorder in value)
                 {
+                    recorder.ArchiveDirectory = ArchiveDirectory;
                     _recorders.Add(recorder);
                     recorder.CaptureSuccess += _recorder_CaptureSuccess;
                 }
             }
         }
 
-        private void _recorder_CaptureSuccess(object sender, EventArgs e)
+        private void _recorder_CaptureSuccess(object sender, MediaEventArgs e)
         {
-            throw new NotImplementedException();
+            CasparRecorder recorder = sender as CasparRecorder;
+            if (recorder != null)
+            {
+                if ((recorder.RecordingDirectory == MediaDirectorySEC || recorder.RecordingDirectory != MediaDirectoryPRV) && recorder.RecordingDirectory != MediaDirectoryPRI)
+                    CopyMediaToPlayout(new[] { e.Media }, true);
+            }
         }
 
         private bool _ingestDirectoriesLoaded = false;
@@ -333,14 +339,11 @@ namespace TAS.Server
         {
             foreach (IMedia sourceMedia in mediaList)
             {
-                if (sourceMedia is ArchiveMedia)
-                {
-                    IServerDirectory destDir = MediaDirectoryPRI != null && MediaDirectoryPRI.DirectoryExists() ? MediaDirectoryPRI :
-                                               MediaDirectoryPRV != null && MediaDirectoryPRV.DirectoryExists() ? MediaDirectoryPRV :
-                                               null;
-                    if (destDir != null)
-                            _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = sourceMedia,  DestDirectory = destDir}, toTop);
-                }
+                IServerDirectory destDir = MediaDirectoryPRI != null && MediaDirectoryPRI.DirectoryExists() ? MediaDirectoryPRI :
+                                           MediaDirectoryPRV != null && MediaDirectoryPRV.DirectoryExists() ? MediaDirectoryPRV :
+                                           null;
+                if (sourceMedia is PersistentMedia && destDir != null && destDir != sourceMedia.Directory)
+                    _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = sourceMedia, DestDirectory = destDir }, toTop);
             }
         }
 

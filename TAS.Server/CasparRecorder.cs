@@ -4,9 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Xml.Serialization;
 using TAS.Common;
 using TAS.Remoting.Server;
+using TAS.Server.Common;
 using TAS.Server.Interfaces;
 
 namespace TAS.Server
@@ -17,6 +19,9 @@ namespace TAS.Server
         internal CasparServer ownerServer;
         private TVideoFormat _tcFormat = TVideoFormat.PAL;
         private Recorder _recorder;
+        private IMedia _recordingMedia;
+        internal IArchiveDirectory ArchiveDirectory;
+
         internal void SetRecorder(Recorder value)
         {
             var oldRecorder = _recorder;
@@ -61,7 +66,7 @@ namespace TAS.Server
         {
             if (e.ControlEvent == Svt.Caspar.DeckControl.capture_complete)
                 _captureCompleted();
-            if (e.ControlEvent == Svt.Caspar.DeckControl.capture_complete)
+            if (e.ControlEvent == Svt.Caspar.DeckControl.aborted)
                 _captureAborted();
             DeckControl = (TDeckControl)e.ControlEvent;
         }
@@ -77,9 +82,14 @@ namespace TAS.Server
             var media = _recordingMedia;
             if (media != null)
             {
-                media.Verify();
-                if (media.MediaStatus == TMediaStatus.Available)
-                    CaptureSuccess?.Invoke(this, EventArgs.Empty);
+                media.MediaStatus = TMediaStatus.Copied;
+                ThreadPool.QueueUserWorkItem((o) =>
+                {
+                    Thread.Sleep(500);
+                    media.Verify();
+                    if (media.MediaStatus == TMediaStatus.Available)
+                        CaptureSuccess?.Invoke(this, new MediaEventArgs(media));
+                });
             }            
         }
 
@@ -94,7 +104,7 @@ namespace TAS.Server
                 CurrentTc = e.Tc.SMPTETimecodeToTimeSpan(_tcFormat);
         }
 
-        public event EventHandler CaptureSuccess;
+        public event EventHandler<MediaEventArgs> CaptureSuccess;
 
         #region Deserialized properties
         public int RecorderNumber { get; set; }
@@ -131,33 +141,31 @@ namespace TAS.Server
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
         public IEnumerable<IPlayoutServerChannel> Channels { get { return ownerServer.Channels; } }
 
-        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, string fileName)
+        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string fileName)
         {
             _tcFormat = channel.VideoFormat;
-            var mediaProxy = new Common.MediaProxy() { FileName = fileName, MediaName = fileName, TcStart = tcIn, Duration = tcOut - tcIn, MediaStatus = TMediaStatus.Required };
-            var newMedia = ((ServerDirectory)ownerServer.MediaDirectory).CreateMedia(mediaProxy);
-            if (_recorder?.Capture(channel.Id, tcIn.ToSMPTETimecodeString(channel.VideoFormat), tcOut.ToSMPTETimecodeString(channel.VideoFormat), fileName) == true)
+            var directory = (ServerDirectory)ownerServer.MediaDirectory;
+            var newMedia = new ServerMedia(directory, Guid.NewGuid(), 0, ArchiveDirectory) { FileName = fileName, MediaName = fileName, TcStart = tcIn, TcPlay = tcIn, Duration = tcOut - tcIn, MediaStatus = TMediaStatus.Copying, LastUpdated = DateTime.UtcNow, MediaType = TMediaType.Movie };
+            if (_recorder?.Capture(channel.Id, tcIn.ToSMPTETimecodeString(channel.VideoFormat), tcOut.ToSMPTETimecodeString(channel.VideoFormat), narrowMode, fileName) == true)
             {
+                directory.MediaAdd(newMedia);
                 RecordingMedia = newMedia;
                 return newMedia;
             }
-            // delete if capture didn't started
-            newMedia.Delete();
             return null;
         }
 
-        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, string fileName)
+        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string fileName)
         {
             _tcFormat = channel.VideoFormat;
-            var mediaProxy = new Common.MediaProxy() { FileName = fileName, MediaName = fileName, TcStart = TimeSpan.Zero, Duration = timeLimit, MediaStatus = TMediaStatus.Required };
-            var newMedia = ((ServerDirectory)ownerServer.MediaDirectory).CreateMedia(mediaProxy);
-            if (_recorder?.Capture(channel.Id,  timeLimit.ToSMPTEFrames(channel.VideoFormat), fileName) == true)
+            var directory = (ServerDirectory)ownerServer.MediaDirectory;
+            var newMedia = new ServerMedia(directory, Guid.NewGuid(), 0, ArchiveDirectory) { FileName = fileName, MediaName = fileName, TcStart = TimeSpan.Zero, TcPlay=TimeSpan.Zero, Duration = timeLimit, MediaStatus = TMediaStatus.Copying, LastUpdated = DateTime.UtcNow, MediaType = TMediaType.Movie };
+            if (_recorder?.Capture(channel.Id,  timeLimit.ToSMPTEFrames(channel.VideoFormat), narrowMode, fileName) == true)
             {
+                directory.MediaAdd(newMedia);
                 RecordingMedia = newMedia;
                 return newMedia;
             }
-            // delete if capture didn't started
-            newMedia.Delete();
             return null;
 
         }
@@ -169,6 +177,11 @@ namespace TAS.Server
                 _recorder.SetTimeLimit(limit.ToSMPTEFrames(videoFormat.Value));
         }
 
+        public void Finish()
+        {
+            _recorder?.Finish();
+        }
+        
         public void Abort()
         {
             _recorder?.Abort();
@@ -198,7 +211,7 @@ namespace TAS.Server
             _recorder?.GotoTimecode(tc.ToSMPTETimecodeString(format));
         }
 
-        private IMedia _recordingMedia;
+
         [XmlIgnore]
         [JsonProperty]
         public IMedia RecordingMedia { get { return _recordingMedia; } private set { SetField(ref _recordingMedia, value, nameof(RecordingMedia)); } }

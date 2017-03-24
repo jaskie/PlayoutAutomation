@@ -61,12 +61,17 @@
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="330" />
         </Grid.ColumnDefinitions>
-        <Menu Name="mainMenu" IsMainMenu="True" Visibility="Collapsed" >
+        <Menu Name="mainMenu" IsMainMenu="True" Background="Transparent" FontSize="12">
             <MenuItem Header="{Resx _menu.Tools}">
                 <MenuItem Header="{Resx _menu.Tools.SynchronizeSecToPri}" Command="{Binding CommandSyncPriToSec}"/>
             </MenuItem>
         </Menu>
-        <TabControl Grid.Row="1">
+        <TabControl Grid.RowSpan="2" >
+            <TabControl.Resources>
+            <Style TargetType="TabPanel">
+                <Setter Property="HorizontalAlignment" Value="Right"/>
+                </Style>
+            </TabControl.Resources>
             <TabItem Header="{Resx _media}">
                 <DockPanel >
                     <DockPanel Height="30" Margin="2" DockPanel.Dock="Top">

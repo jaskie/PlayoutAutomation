@@ -105,15 +105,21 @@ namespace Svt.Caspar
             return true;
         }
 
-        public bool Capture(int channel, string tcIn, string tcOut, string filename)
+        public bool Capture(int channel, string tcIn, string tcOut, bool narrowMode, string filename)
         {
-            Connection.SendString($"CAPTURE {channel} RECORDER {Id} IN {tcIn} OUT {tcOut} FILE {filename}");
+            Connection.SendString($"CAPTURE {channel} RECORDER {Id} IN {tcIn} OUT {tcOut} NARROW {narrowMode} FILE \"{filename}\"");
             return true;
         }
 
-        public bool Capture(int channel, long frames, string filename)
+        public bool Capture(int channel, long frames, bool narrowMode, string filename)
         {
-            Connection.SendString($"CAPTURE {channel} RECORDER {Id} LIMIT {frames} FILE {filename}");
+            Connection.SendString($"CAPTURE {channel} RECORDER {Id} LIMIT {frames} NARROW {narrowMode} FILE \"{filename}\"");
+            return true;
+        }
+
+        public bool Finish()
+        {
+            Connection.SendString($"RECORDER FINISH {Id}");
             return true;
         }
 

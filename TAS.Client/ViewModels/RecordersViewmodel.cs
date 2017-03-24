@@ -41,6 +41,17 @@ namespace TAS.Client.ViewModels
             CommandGoToTimecode = new UICommand { ExecuteDelegate = _goToTimecode, CanExecuteDelegate = _canGoToTimecode };
             CommandSetRecordLimit = new UICommand { ExecuteDelegate = _setRecordTimeLimit, CanExecuteDelegate = _canSetRecordTimeLimit };
             CommandRecordStart = new UICommand { ExecuteDelegate = _startRecord, CanExecuteDelegate = _canStartRecord };
+            CommandRecordFinish = new UICommand { ExecuteDelegate = _finishRecord, CanExecuteDelegate = _canFinishRecord };
+        }
+
+        private bool _canFinishRecord(object obj)
+        {
+            return _recorder != null && _recordMedia != null;
+        }
+
+        private void _finishRecord(object obj)
+        {
+            _recorder.Finish();
         }
 
         private bool _canStartRecord(object obj)
@@ -50,7 +61,7 @@ namespace TAS.Client.ViewModels
 
         private void _startRecord(object obj)
         {
-            _recorder?.Capture(_channel, _timeLimit, $"{FileName}.{FileFormat}");
+            RecordMedia = _recorder?.Capture(_channel, _timeLimit, IsNarrowMode, $"{FileName}.{FileFormat}");
         }
 
         private bool _canSetRecordTimeLimit(object obj)
@@ -86,10 +97,7 @@ namespace TAS.Client.ViewModels
 
         private void _capture(object obj)
         {
-            if (_recorder != null)
-            {
-                VideoFormat = _channel.VideoFormat;
-            }
+            RecordMedia = _recorder.Capture(_channel, TcIn, TcOut, IsNarrowMode, $"{FileName}.{FileFormat}");
         }
 
         private bool _canCapture(object obj)
@@ -139,6 +147,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandGoToTimecode { get; private set; }
         public ICommand CommandRecordEnd { get; private set; }
         public ICommand CommandRecordStart { get; private set; }
+        public ICommand CommandRecordFinish { get; private set; }
         public ICommand CommandSetRecordLimit { get; private set; }
 
         private string _fileName;
@@ -183,6 +192,9 @@ namespace TAS.Client.ViewModels
 
         private TMovieContainerFormat _fileFormat;
         public TMovieContainerFormat FileFormat { get { return _fileFormat; } set { SetField(ref _fileFormat, value, nameof(FileFormat)); } }
+
+        private bool _isNarrowMode;
+        public bool IsNarrowMode { get { return _isNarrowMode; } set { SetField(ref _isNarrowMode, value, nameof(IsNarrowMode)); } }
 
         private TimeSpan _tcIn;
         public TimeSpan TcIn { get { return _tcIn; } set { SetField(ref _tcIn, value, nameof(TcIn)); } }
@@ -235,7 +247,20 @@ namespace TAS.Client.ViewModels
         }
 
         private TVideoFormat _videoFormat;
-        public TVideoFormat VideoFormat { get { return _videoFormat; }  private set { SetField(ref _videoFormat, value, nameof(VideoFormat)); } }
+        public TVideoFormat VideoFormat
+        {
+            get { return _videoFormat; }
+            private set
+            {
+                if (SetField(ref _videoFormat, value, nameof(VideoFormat)))
+                    NotifyPropertyChanged(nameof(IsNarrowMode));
+            }
+        }
+
+        private IMedia _recordMedia;
+        public IMedia RecordMedia { get { return _recordMedia; } private set { SetField(ref _recordMedia, value, nameof(RecordMedia)); } }
+
+        public bool IsStandardDefinition { get { return _videoFormat < TVideoFormat.HD720p2500; } }
 
         public string this[string propertyName]
         {

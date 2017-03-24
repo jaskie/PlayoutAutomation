@@ -72,7 +72,7 @@
             <RowDefinition Height="*"  />
             <RowDefinition Height="28" />
         </Grid.RowDefinitions>
-        <Menu IsMainMenu="True" Height="23" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Menu IsMainMenu="True" Height="23" HorizontalAlignment="Left" FontSize="12" Background="Transparent">
             <MenuItem Header="{Resx _menu.Container}">
                 <MenuItem Header="{Resx _menu.Container.AddContainer}" Command="{Binding CommandNewContainer}"/>
                 <MenuItem Header="{Resx _menu.Container.Show}" DataContext="{Binding RootEventViewModel}" Visibility="{Binding IsAnyContainerHidden, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding HiddenContainers}">

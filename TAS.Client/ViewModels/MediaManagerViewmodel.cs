@@ -78,7 +78,14 @@ namespace TAS.Client.ViewModels
             if (mediaManager.FileManager != null)
                 _fileManagerViewmodel = new FileManagerViewmodel(mediaManager.FileManager);
             _recordersViewmodel = new RecordersViewmodel(mediaManager.Recorders);
+            _recordersViewmodel.PropertyChanged += _recordersViewmodel_PropertyChanged;
             _previewDisplay = true;
+        }
+
+        private void _recordersViewmodel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(RecordersViewmodel.RecordMedia))
+                EditMedia = new MediaEditViewmodel(((RecordersViewmodel)sender).RecordMedia, _mediaManager, _previewViewModel, true);
         }
 
         private readonly IPreview _preview;
@@ -682,6 +689,8 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             SelectedDirectory = null;
+            if (_recordersViewmodel != null)
+                _recordersViewmodel.PropertyChanged -= _recordersViewmodel_PropertyChanged;
         }
 
         private ObservableCollection<MediaViewViewmodel> _mediaItems;

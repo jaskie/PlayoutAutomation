@@ -72,8 +72,11 @@
                     <Style TargetType="controls:TimecodeEdit" >
                         <Setter Property="Margin" Value="5, 3" />
                         <Style.Triggers>
-                            <Trigger Property="Validation.HasError" Value="true">
+                            <Trigger Property="Validation.HasError" Value="True">
                                 <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                            </Trigger>
+                            <Trigger Property="IsReadOnly" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}" />
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -106,14 +109,14 @@
                     <StackPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource InvertedBoolToVis}}">
                         <DockPanel>
                             <Label Content="{Resx _tCStart}" />
-                            <controls:TimecodeEdit Timecode="{Binding TcStart}" VideoFormat="{Binding VideoFormat}" />
+                            <controls:TimecodeEdit Timecode="{Binding TcStart}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True" />
                         </DockPanel>
                         <DockPanel>
                             <Label Content="{Resx _duration}" />
-                            <controls:TimecodeEdit Timecode="{Binding Duration}" VideoFormat="{Binding VideoFormat}" />
+                            <controls:TimecodeEdit Timecode="{Binding Duration}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
                         </DockPanel>
                     </StackPanel>
-                    <StackPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}" >
                         <DockPanel >
                             <Label Content="{Resx _times}"/>
                             <UniformGrid Columns="2">
