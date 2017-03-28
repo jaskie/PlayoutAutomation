@@ -74,17 +74,20 @@
             </TabControl.Resources>
             <TabItem Header="{Resx _media}">
                 <DockPanel >
-                    <DockPanel Height="30" Margin="2" DockPanel.Dock="Top">
+                    <DockPanel Height="26" Margin="2" DockPanel.Dock="Top">
                         <DockPanel.Resources>
-                            <Style TargetType="ComboBox">
+                            <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
                                 <Setter Property="Width" Value="120"/>
                                 <Setter Property="Margin" Value="5, 1"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
                             </Style>
                         </DockPanel.Resources>
                         <Label Content="{Resx _directory}"/>
                         <toolkit:DropDownButton Name="folderCombo" Margin="0, 1" Width="120" BorderThickness="2" HorizontalContentAlignment="Stretch" ToolTip="{Binding SelectedDirectory.Folder}"
-                                    Content="{Binding SelectedDirectory}" 
                                     Template="{StaticResource ComboBoxTreeTemplate}">
+                            <toolkit:DropDownButton.Content>
+                                <TextBlock Text="{Binding SelectedDirectory}" Margin="2"/>
+                            </toolkit:DropDownButton.Content>
                             <toolkit:DropDownButton.DropDownContent>
                                 <controls:TreeViewEx Width="120" ItemsSource="{Binding MediaDirectories}" SelectedItem="{Binding SelectedDirectory}" SelectedItemChanged="TreeViewEx_SelectedItemChanged">
                                     <TreeView.ItemTemplate>
@@ -114,7 +117,7 @@
                         <Button DockPanel.Dock="Right" Margin="0, 1" Style="{StaticResource ClearButton}" Command="{Binding CommandClearFilters}" ToolTip="{Resx _toolbar.Clear.ToolTip}">
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
                         </Button>
-                        <controls:SearchTextBox Prompt="{Resx _searchFor}" VerticalAlignment="Stretch" Margin="0, 1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" SearchMode="Regular" Command="{Binding CommandSearch}" />
+                        <controls:SearchTextBox Prompt="{Resx _searchFor}" VerticalAlignment="Center" Margin="0, 1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" SearchMode="Regular" Command="{Binding CommandSearch}" />
                     </DockPanel>
                     <ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked="True" Height="35" >
                         <ToolBar.Resources>

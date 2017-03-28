@@ -24,7 +24,7 @@ namespace TAS.Client.ViewModels
             preview.PropertyChanged += this.PreviewPropertyChanged;
             _channelPRV = preview.PlayoutChannelPRV;
             if (_channelPRV != null)
-                _channelPRV.OwnerServer.PropertyChanged += this.OnServerPropertyChanged;
+                _channelPRV.PropertyChanged += this.OnChannelPropertyChanged;
             _preview = preview;
             _formatDescription = _preview.FormatDescription;
             CreateCommands();
@@ -36,7 +36,7 @@ namespace TAS.Client.ViewModels
                 _preview.PreviewUnload();
             _preview.PropertyChanged -= this.PreviewPropertyChanged;
             if (_channelPRV != null)
-                _channelPRV.OwnerServer.PropertyChanged -= this.OnServerPropertyChanged;
+                _channelPRV.PropertyChanged -= this.OnChannelPropertyChanged;
             LoadedMedia = null;
             SelectedSegment = null;
         }
@@ -324,10 +324,9 @@ namespace TAS.Client.ViewModels
 
         public long FramesPerSecond { get { return _formatDescription.FrameRate.Num / _formatDescription.FrameRate.Den; } }
 
-        public void OnServerPropertyChanged(object sender, PropertyChangedEventArgs e)
+        public void OnChannelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (_channelPRV != null
-                && sender == _channelPRV.OwnerServer)
+            if (e.PropertyName == nameof(IPlayoutServerChannel.IsServerConnected))
                 NotifyPropertyChanged(nameof(IsEnabled));
         }
         
@@ -380,16 +379,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsEnabled
         {
-            get
-            {
-                if (_channelPRV != null)
-                {
-                    var server = _channelPRV.OwnerServer;
-                    if (server != null)
-                        return server.IsConnected;
-                }
-                return false;
-            }
+            get { return _channelPRV?.IsServerConnected == true; }
         } 
 
         

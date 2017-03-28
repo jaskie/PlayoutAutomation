@@ -133,10 +133,15 @@ namespace TAS.Server
         [JsonProperty]
         public TDeckControl DeckControl { get { return _deckControl; }  private set { SetField(ref _deckControl, value, nameof(DeckControl)); } }
 
-        private bool _isConnected;
+        private bool _isDeckConnected;
         [XmlIgnore]
         [JsonProperty]
-        public bool IsDeckConnected { get { return _isConnected; } private set { SetField(ref _isConnected, value, nameof(IsDeckConnected)); } }
+        public bool IsDeckConnected { get { return _isDeckConnected; } private set { SetField(ref _isDeckConnected, value, nameof(IsDeckConnected)); } }
+
+        private bool _isServerConnected;
+        [XmlIgnore]
+        [JsonProperty]
+        public bool IsServerConnected { get { return _isServerConnected; } internal set { SetField(ref _isServerConnected, value, nameof(IsServerConnected)); } }
 
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
         public IEnumerable<IPlayoutServerChannel> Channels { get { return ownerServer.Channels; } }
@@ -162,7 +167,6 @@ namespace TAS.Server
             var newMedia = new ServerMedia(directory, Guid.NewGuid(), 0, ArchiveDirectory) { FileName = fileName, MediaName = fileName, TcStart = TimeSpan.Zero, TcPlay=TimeSpan.Zero, Duration = timeLimit, MediaStatus = TMediaStatus.Copying, LastUpdated = DateTime.UtcNow, MediaType = TMediaType.Movie };
             if (_recorder?.Capture(channel.Id,  timeLimit.ToSMPTEFrames(channel.VideoFormat), narrowMode, fileName) == true)
             {
-                directory.MediaAdd(newMedia);
                 RecordingMedia = newMedia;
                 return newMedia;
             }

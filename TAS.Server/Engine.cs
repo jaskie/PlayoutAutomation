@@ -248,9 +248,9 @@ namespace TAS.Server
             var chSEC = PlayoutChannelSEC as CasparServerChannel;
             if (chSEC != null
                 && chSEC != chPRI)
-                chSEC.OwnerServer.PropertyChanged -= _server_PropertyChanged;
+                chSEC.ownerServer.PropertyChanged -= _server_PropertyChanged;
             if (chPRI != null)
-                chPRI.OwnerServer.PropertyChanged -= _server_PropertyChanged;
+                chPRI.ownerServer.PropertyChanged -= _server_PropertyChanged;
 
             if (Remote != null)
             {
@@ -379,9 +379,9 @@ namespace TAS.Server
             if (e.PropertyName == nameof(IPlayoutServer.IsConnected) && ((IPlayoutServer)sender).IsConnected)
             {
                 var ve = _visibleEvents.ToList();
-                if (sender == ((CasparServerChannel)PlayoutChannelPRI)?.OwnerServer)
+                if (sender == ((CasparServerChannel)PlayoutChannelPRI)?.ownerServer)
                     channelConnected(_playoutChannelPRI, ve);
-                if (sender == ((CasparServerChannel)PlayoutChannelSEC)?.OwnerServer
+                if (sender == ((CasparServerChannel)PlayoutChannelSEC)?.ownerServer
                     && PlayoutChannelSEC != PlayoutChannelPRI)
                     channelConnected(_playoutChannelSEC, ve);
             }
@@ -637,7 +637,7 @@ namespace TAS.Server
                 if (playoutChannel == null)
                     return null;
                 else
-                    return media.Directory == playoutChannel.OwnerServer.MediaDirectory ? media : ((ServerDirectory)playoutChannel.OwnerServer.MediaDirectory).FindMediaByMediaGuid(media.MediaGuid);
+                    return media.Directory == playoutChannel.ownerServer.MediaDirectory ? media : ((ServerDirectory)playoutChannel.ownerServer.MediaDirectory).FindMediaByMediaGuid(media.MediaGuid);
             }
             else
                 return media;

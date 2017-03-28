@@ -44,7 +44,7 @@ namespace TAS.Server
 
         protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
-            AnimatedMedia newMedia = _files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath)) as AnimatedMedia;
+            AnimatedMedia newMedia = _files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath, StringComparison.CurrentCultureIgnoreCase)) as AnimatedMedia;
             if (newMedia == null && AcceptFile(fullPath))
             {
                 newMedia = (AnimatedMedia)CreateMedia(fullPath, guid);

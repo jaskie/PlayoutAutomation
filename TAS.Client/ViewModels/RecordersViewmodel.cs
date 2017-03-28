@@ -56,7 +56,7 @@ namespace TAS.Client.ViewModels
 
         private bool _canStartRecord(object obj)
         {
-            return _recorder != null && _channel != null && string.IsNullOrEmpty(_validateFileName());
+            return _recorder != null && _channel != null && Recorder.IsServerConnected && string.IsNullOrEmpty(_validateFileName());
         }
 
         private void _startRecord(object obj)
@@ -305,8 +305,9 @@ namespace TAS.Client.ViewModels
                 Application.Current.Dispatcher.BeginInvoke((Action)(() => DeckControl = ((IRecorder)sender).DeckControl));
             if (e.PropertyName == nameof(IRecorder.DeckState))
                 Application.Current.Dispatcher.BeginInvoke((Action)(() => DeckState = ((IRecorder)sender).DeckState));
-            if (e.PropertyName == nameof(IRecorder.IsDeckConnected))
-                Application.Current.Dispatcher.BeginInvoke((Action)(() => InvalidateRequerySuggested()));
+            if (e.PropertyName == nameof(IRecorder.IsDeckConnected)
+                || e.PropertyName == nameof(IRecorder.IsServerConnected))
+                NotifyPropertyChanged(null);
             if (e.PropertyName == nameof(IRecorder.TimeLimit))
                 Application.Current.Dispatcher.BeginInvoke((Action)(() => RecorderTimeLeft = ((IRecorder)sender).TimeLimit));
         }

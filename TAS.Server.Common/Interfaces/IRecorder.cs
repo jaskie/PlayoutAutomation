@@ -23,6 +23,7 @@ namespace TAS.Server.Interfaces
         TDeckControl DeckControl { get; }
         TDeckState DeckState { get; }
         bool IsDeckConnected { get; }
+        bool IsServerConnected { get; }
         IEnumerable<IPlayoutServerChannel> Channels { get; }
         IMedia RecordingMedia { get; }
         IMediaDirectory RecordingDirectory { get; }

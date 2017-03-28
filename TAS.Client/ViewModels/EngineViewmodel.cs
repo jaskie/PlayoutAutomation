@@ -110,11 +110,11 @@ namespace TAS.Client.ViewModels
             _multiSelectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged += _engineViewmodel_ClipboardChanged;
             if (engine.PlayoutChannelPRI != null)
-                engine.PlayoutChannelPRI.OwnerServer.PropertyChanged += OnPRIServerPropertyChanged;
+                engine.PlayoutChannelPRI.PropertyChanged += OnServerChannelPropertyChanged;
             if (engine.PlayoutChannelSEC != null)
-                engine.PlayoutChannelSEC.OwnerServer.PropertyChanged += OnSECServerPropertyChanged;
+                engine.PlayoutChannelSEC.PropertyChanged += OnServerChannelPropertyChanged;
             if (engine.PlayoutChannelPRV != null)
-                engine.PlayoutChannelPRV.OwnerServer.PropertyChanged += OnPRVServerPropertyChanged;
+                engine.PlayoutChannelPRV.PropertyChanged += OnServerChannelPropertyChanged;
             _cGElementsController = engine.CGElementsController;
             if (_cGElementsController != null)
             {
@@ -140,11 +140,11 @@ namespace TAS.Client.ViewModels
             _multiSelectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged -= _engineViewmodel_ClipboardChanged;
             if (_engine.PlayoutChannelPRI != null)
-                _engine.PlayoutChannelPRI.OwnerServer.PropertyChanged -= OnPRIServerPropertyChanged;
+                _engine.PlayoutChannelPRI.PropertyChanged -= OnServerChannelPropertyChanged;
             if (_engine.PlayoutChannelSEC != null)
-                _engine.PlayoutChannelSEC.OwnerServer.PropertyChanged -= OnSECServerPropertyChanged;
+                _engine.PlayoutChannelSEC.PropertyChanged -= OnServerChannelPropertyChanged;
             if (_engine.PlayoutChannelPRV != null)
-                _engine.PlayoutChannelPRV.OwnerServer.PropertyChanged -= OnPRVServerPropertyChanged;
+                _engine.PlayoutChannelPRV.PropertyChanged -= OnServerChannelPropertyChanged;
         }
 
         void _engineViewmodel_ClipboardChanged()
@@ -946,7 +946,7 @@ namespace TAS.Client.ViewModels
 
         public bool ServerConnectedPRI
         {
-            get { return _engine?.PlayoutChannelPRI?.OwnerServer?.IsConnected == true; }
+            get { return _engine?.PlayoutChannelPRI?.IsServerConnected == true; }
         }
         public bool ServerSECExists
         {
@@ -954,7 +954,7 @@ namespace TAS.Client.ViewModels
         }
         public bool ServerConnectedSEC
         {
-            get { return _engine?.PlayoutChannelSEC?.OwnerServer?.IsConnected == true; }
+            get { return _engine?.PlayoutChannelSEC?.IsServerConnected == true; }
         }
         public bool ServerPRVExists
         {
@@ -962,7 +962,7 @@ namespace TAS.Client.ViewModels
         }
         public bool ServerConnectedPRV
         {
-            get { return _engine?.PlayoutChannelPRV?.OwnerServer?.IsConnected == true; }
+            get { return _engine?.PlayoutChannelPRV?.IsServerConnected == true; }
         }
 
         public bool DatabaseOK
@@ -1153,29 +1153,11 @@ namespace TAS.Client.ViewModels
             TimeToAttention = e.TimeToAttention;
         }
 
-        public void OnPRIServerPropertyChanged(object sender, PropertyChangedEventArgs e)
+        public void OnServerChannelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IPlayoutServer.IsConnected))
+            if (e.PropertyName == nameof(IPlayoutServerChannel.IsServerConnected))
             {
                 NotifyPropertyChanged(nameof(ServerConnectedPRI));
-                NotifyPropertyChanged(nameof(NoAlarms));
-            }
-        }
-
-        public void OnSECServerPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(IPlayoutServer.IsConnected))
-            {
-                NotifyPropertyChanged(nameof(ServerConnectedSEC));
-                NotifyPropertyChanged(nameof(NoAlarms));
-            }
-        }
-
-        public void OnPRVServerPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(IPlayoutServer.IsConnected))
-            {
-                NotifyPropertyChanged(nameof(ServerConnectedPRV));
                 NotifyPropertyChanged(nameof(NoAlarms));
             }
         }

@@ -78,29 +78,26 @@ namespace TAS.Server
         private void _casparDevice_UpdatedRecorders(object sender, EventArgs e)
         {
             var device_recorders = _casparDevice.Recorders.ToList();
-            foreach (Svt.Caspar.Recorder dev_rec in device_recorders)
+            foreach (var dev_rec in device_recorders)
                 _recorders.FirstOrDefault(r => r.Id == dev_rec.Id)?.SetRecorder(dev_rec);
         }
 
         protected bool _isConnected;
         [JsonProperty]
+        [XmlIgnore]
         public bool IsConnected
         {
             get { return _isConnected; }
-            set
+            private set
             {
-                if (_isConnected != value)
+                if (SetField(ref _isConnected, value, nameof(IsConnected)))
                 {
-                    if (value)
-                        _connect();
-                    else
-                        _disconnect();
-                    NotifyPropertyChanged(nameof(IsConnected));
+                    _recorders.ForEach(r => r.IsServerConnected = value);
+                    _channels.ForEach(c => c.IsServerConnected = value);
                 }
             }
         }
-
-
+        
         protected void _connect()
         {
             string[] address = ServerAddress.Split(':');
@@ -132,16 +129,15 @@ namespace TAS.Server
             if (channels != null && channels.Count > 0)
             {
                 _needUpdateChannels = false;
-                foreach (CasparServerChannel C in Channels)
+                foreach (CasparServerChannel c in Channels)
                 {
-                    C.CasparChannel = channels.Find(csc => csc.ID == C.Id);
-                    C.Initialize();
+                    c.CasparChannel = channels.Find(csc => csc.ID == c.Id);
+                    c.Initialize();
                 }
             }
         }
         private void _casparDevice_ConnectionStatusChanged(object sender, Svt.Network.ConnectionEventArgs e)
         {
-            _isConnected = e.Connected;
             if (e.Connected)
             {
                 _casparDevice.RefreshTemplates();
@@ -150,8 +146,8 @@ namespace TAS.Server
                 else
                     _needUpdateChannels = true;
             }
+            IsConnected = e.Connected;
             Debug.WriteLine(e.Connected, "Caspar connected");
-            NotifyPropertyChanged(nameof(IsConnected));
         }
 
         public override string ToString()
@@ -164,6 +160,7 @@ namespace TAS.Server
             _disconnect();
             _casparDevice.ConnectionStatusChanged -= _casparDevice_ConnectionStatusChanged;
             _casparDevice.UpdatedChannels -= _casparDevice_UpdatedChannels;
+            _casparDevice.UpdatedRecorders -= _casparDevice_UpdatedRecorders;
             MediaDirectory.Dispose();
             AnimationDirectory.Dispose();
         }
