@@ -161,6 +161,7 @@ namespace TAS.Server
             _casparDevice.ConnectionStatusChanged -= _casparDevice_ConnectionStatusChanged;
             _casparDevice.UpdatedChannels -= _casparDevice_UpdatedChannels;
             _casparDevice.UpdatedRecorders -= _casparDevice_UpdatedRecorders;
+            _casparDevice.Dispose();
             MediaDirectory.Dispose();
             AnimationDirectory.Dispose();
         }

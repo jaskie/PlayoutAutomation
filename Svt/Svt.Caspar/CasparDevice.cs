@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 
 namespace Svt.Caspar
 {
-    public class CasparDevice
+    public class CasparDevice: IDisposable
     {
         internal Svt.Network.ServerConnection Connection { get; private set; }
         private Network.Osc.UdpListener OscListener {get; set;}
@@ -58,6 +58,16 @@ namespace Svt.Caspar
             Connection.ConnectionStateChanged += server__ConnectionStateChanged;
             OscListener.PacketReceived += oscListener_PacketReceived;
 		}
+
+        bool _disposed;
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                Connection.CloseConnection();
+            }
+        }
 
         private void oscListener_PacketReceived(object sender, Network.Osc.OscPacketEventArgs e)
         {

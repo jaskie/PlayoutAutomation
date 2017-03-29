@@ -51,7 +51,7 @@ namespace TVPlayClient
             if (client != null)
             {
                 client.Disconnected -= _clientDisconected;
-                var vm = _viewmodel;
+                var vm = _channel;
                 Application.Current?.Dispatcher.BeginInvoke((Action)delegate ()
                 {
                     vm.Dispose();
@@ -60,7 +60,6 @@ namespace TVPlayClient
             _createView();
         }
 
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
         private void _createView()
         {
             IsLoading = true;
@@ -78,10 +77,8 @@ namespace TVPlayClient
                             _client.Disconnected += _clientDisconected;
                             Application.Current?.Dispatcher.BeginInvoke((Action)delegate ()
                             {
-                                ChannelViewmodel vm = new ChannelViewmodel(engine, ShowEngine, ShowMedia, AllowControl);
-                                _viewmodel = vm;
-                                TabName = vm.ChannelName;
-                                View = vm.View;
+                                Channel = new ChannelViewmodel(engine, ShowEngine, ShowMedia, AllowControl);
+                                TabName = Channel.ChannelName;
                                 IsLoading = false;
                             });
                             return;
@@ -92,11 +89,9 @@ namespace TVPlayClient
             });
         }
 
-        private ViewmodelBase _viewmodel;
-
-        private UserControl _view;
+        private ChannelViewmodel _channel;
         [XmlIgnore]
-        public UserControl View { get { return _view; } private set { SetField(ref _view, value, nameof(View)); } }
+        public ChannelViewmodel Channel { get { return _channel; } private set { SetField(ref _channel, value, nameof(Channel)); } }
 
         private bool _isLoading = true;
 
@@ -109,11 +104,10 @@ namespace TVPlayClient
 
         protected override void OnDispose()
         {
-            View = null;
             var client = _client;
             if (client != null)
                 client.Dispose();
-            var vm = _viewmodel;
+            var vm = _channel;
             if (vm != null)
                 vm.Dispose();
             Debug.WriteLine(this, "Disposed");

@@ -85,7 +85,15 @@ namespace TAS.Client.ViewModels
         private void _recordersViewmodel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(RecordersViewmodel.RecordMedia))
-                EditMedia = new MediaEditViewmodel(((RecordersViewmodel)sender).RecordMedia, _mediaManager, _previewViewModel, true);
+            {
+                var media = ((RecordersViewmodel)sender).RecordMedia;
+                if (media != null)
+                {
+                    EditMedia = new MediaEditViewmodel(media, _mediaManager, _previewViewModel, true);
+                    if (_previewViewModel != null)
+                        _previewViewModel.Media = media;
+                }
+            }
         }
 
         private readonly IPreview _preview;

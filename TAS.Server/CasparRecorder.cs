@@ -80,7 +80,7 @@ namespace TAS.Server
         private void _captureCompleted()
         {
             var media = _recordingMedia;
-            if (media != null)
+            if (media?.MediaStatus == TMediaStatus.Copying)
             {
                 media.MediaStatus = TMediaStatus.Copied;
                 ThreadPool.QueueUserWorkItem((o) =>
