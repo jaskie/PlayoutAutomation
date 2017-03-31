@@ -209,14 +209,9 @@ namespace TAS.Client.ViewModels
         public TimeSpan TimeLimit
         {
             get { return _timeLimit; }
-            set
-            {
-                if (SetField(ref _timeLimit, value, nameof(TimeLimit)))
-                {
-                    Debug.WriteLine(value);
-                }
-            }
+            set { SetField(ref _timeLimit, value, nameof(TimeLimit)); }
         }
+
         private TimeSpan _recorderTimeLeft;
         public TimeSpan RecorderTimeLeft
         {

@@ -72,6 +72,15 @@ namespace Svt.Network.Osc
                     // Ignore if disposed. This happens when closing the listener
                 }
 
+                if (closing)
+                    ClosingEvent.Set();
+                else
+                {
+                    // Setup next async event
+                    AsyncCallback callBack = new AsyncCallback(ReceiveCallback);
+                    receivingUdpClient.BeginReceive(callBack, null);
+                }
+
                 // Process bytes
                 if (bytes?.Length > 0 && RemoteAddreses.Any(a => a.Equals(RemoteIpEndPoint.Address)))
                 {
@@ -91,17 +100,6 @@ namespace Svt.Network.Osc
                         if (packet != null)
                             packetCallback.Invoke(this, new OscPacketEventArgs(packet));
                     }
-
-                }
-
-                if (closing)
-                    ClosingEvent.Set();
-
-                else
-                {
-                    // Setup next async event
-                    AsyncCallback callBack = new AsyncCallback(ReceiveCallback);
-                    receivingUdpClient.BeginReceive(callBack, null);
                 }
             }
         }
