@@ -179,6 +179,9 @@ namespace Svt.Caspar
         public event EventHandler<DeckConnectedEventArgs> DeckConnected;
 
         #endregion OSC notifications
+
+        
+
     }
 
     public class TcEventArgs : EventArgs

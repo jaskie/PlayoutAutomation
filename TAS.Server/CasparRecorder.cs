@@ -21,6 +21,7 @@ namespace TAS.Server
         private Recorder _recorder;
         private IMedia _recordingMedia;
         internal IArchiveDirectory ArchiveDirectory;
+        private static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(CasparRecorder));
 
         internal void SetRecorder(Recorder value)
         {

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -9,9 +11,8 @@ namespace Svt.Caspar
     public class CasparDevice: IDisposable
     {
         internal Svt.Network.ServerConnection Connection { get; private set; }
-        private Network.Osc.UdpListener OscListener {get; set;}
         private Svt.Network.ReconnectionHelper ReconnectionHelper { get; set; }
-
+        private System.Net.IPAddress[] HostAddresses;
         public CasparDeviceSettings Settings { get; private set; }
         public List<Channel> Channels { get; private set; }
         public List<Recorder> Recorders { get; private set; }
@@ -45,18 +46,17 @@ namespace Svt.Caspar
 		{
             Settings = new CasparDeviceSettings();
             Connection = new Network.ServerConnection();
-            OscListener = new Network.Osc.UdpListener();
             Channels = new List<Channel>();
             Recorders = new List<Recorder>();
 		    Templates = new TemplatesCollection();
 		    Mediafiles = new List<MediaInfo>();
 		    Datafiles = new List<string>();
+            HostAddresses = new System.Net.IPAddress[0];
 
             Version = "unknown";
 
             Connection.ProtocolStrategy = new AMCP.AMCPProtocolStrategy(this);
             Connection.ConnectionStateChanged += server__ConnectionStateChanged;
-            OscListener.PacketReceived += oscListener_PacketReceived;
 		}
 
         bool _disposed;
@@ -65,25 +65,28 @@ namespace Svt.Caspar
             if (!_disposed)
             {
                 _disposed = true;
-                Connection.CloseConnection();
+                Disconnect();
             }
         }
 
-        private void oscListener_PacketReceived(object sender, Network.Osc.OscPacketEventArgs e)
+        private void oscListener_PacketReceived(Network.Osc.OscPacketEventArgs e)
         {
-            OscMessage?.Invoke(this, e);
-            var message = e.Packet as Svt.Network.Osc.OscMessage;
-            var recorders = Recorders;
-            if (message != null)
-                recorders.ForEach(r => r.OscMessage(message));
-            var bundle = e.Packet as Svt.Network.Osc.OscBundle;
-            if (bundle != null)
-                foreach (var m in bundle.Messages)
-                    recorders.ForEach(r => r.OscMessage(m));
+            if (HostAddresses.Any(a => a.Equals(e.SourceAddress)))
+            {
+                OscMessage?.Invoke(this, e);
+                var message = e.Packet as Svt.Network.Osc.OscMessage;
+                var recorders = Recorders;
+                if (message != null)
+                    recorders.ForEach(r => r.OscMessage(message));
+                var bundle = e.Packet as Svt.Network.Osc.OscBundle;
+                if (bundle != null)
+                    foreach (var m in bundle.Messages)
+                        recorders.ForEach(r => r.OscMessage(m));
+            }
         }
 
         #region Server notifications
-        void server__ConnectionStateChanged(object sender, Network.ConnectionEventArgs e)
+        private void server__ConnectionStateChanged(object sender, Network.ConnectionEventArgs e)
         {
             try
             {
@@ -202,10 +205,14 @@ namespace Svt.Caspar
             }
             return false;
         }
+
         public bool Connect()
 		{
-            if (Settings.OscPort > 0 && !OscListener.IsConnected)
-                OscListener.Connect(Settings.Hostname, Settings.OscPort);
+            if (Settings.OscPort > 0)
+            {
+                HostAddresses = System.Net.Dns.GetHostAddresses(Settings.Hostname);
+                Network.Osc.OscPacketDispatcher.Bind(Settings.OscPort, oscListener_PacketReceived);
+            }
             if (!IsConnected)
 			{
                 Connection.InitiateConnection(Settings.Hostname, Settings.AmcpPort);
@@ -214,21 +221,19 @@ namespace Svt.Caspar
 			return false;
 		}
 
-		public void Disconnect()
-		{
-            lock (this)
+        public void Disconnect()
+        {
+            bIsDisconnecting = true;
+            if (ReconnectionHelper != null)
             {
-                bIsDisconnecting = true;
-                if (ReconnectionHelper != null)
-                {
-                    ReconnectionHelper.Close();
-                    ReconnectionHelper = null;
-                    Connection.ConnectionStateChanged += server__ConnectionStateChanged;
-                }
+                ReconnectionHelper.Close();
+                ReconnectionHelper = null;
+                Connection.ConnectionStateChanged += server__ConnectionStateChanged;
             }
-
             Connection.CloseConnection();
-		}
+            if (Settings.OscPort > 0)
+                Network.Osc.OscPacketDispatcher.UnBind(Settings.OscPort, oscListener_PacketReceived);
+        }
 		#endregion
         
 		#region AMCP-protocol callbacks
@@ -256,6 +261,7 @@ namespace Svt.Caspar
                     recorder.Connection = this.Connection;
                 Recorders = recorders.Recorders;
                 UpdatedRecorders?.Invoke(this, EventArgs.Empty);
+                Debug.WriteLine($"Updated {Connection.Hostname}");
             }
         }
 
