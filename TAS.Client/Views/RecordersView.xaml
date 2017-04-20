@@ -107,9 +107,34 @@
                 <TextBlock Text="{Resx _manualRecording}"/>
             </Expander.Header>
             <ToolBar ToolBarTray.IsLocked="True" Height="35">
-                <Button Command="{Binding CommandRecordStart}" ToolTip="{Resx _record.ToolTip}">
+                <ToggleButton IsChecked="{Binding IsRecording}" IsEnabled="{Binding CanStartRecord}" ToolTip="{Resx _record.ToolTip}">
+                    <ToggleButton.Style>
+                        <Style TargetType="ToggleButton" BasedOn="{StaticResource {x:Type ToggleButton}}">
+                            <Style.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation From="Transparent" To="Red" RepeatBehavior="Forever" AutoReverse="True" Duration="00:00:01" Storyboard.TargetProperty="(Background).(SolidColorBrush.Color)" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation To="Transparent" Duration="00:00:00.3" Storyboard.TargetProperty="(Background).(SolidColorBrush.Color)" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="False">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Trigger>
+                            </Style.Triggers>  
+                        </Style>
+                    </ToggleButton.Style>
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-record.png" />
-                </Button>
+                </ToggleButton>
                 <Button Command="{Binding CommandRecordFinish}" ToolTip="{Resx _recordEnd.ToolTip}">
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png" />
                 </Button>
