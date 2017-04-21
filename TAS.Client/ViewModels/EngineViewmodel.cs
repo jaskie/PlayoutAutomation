@@ -1019,6 +1019,10 @@ namespace TAS.Client.ViewModels
 
         public IList<Common.Plugin.IUiPlugin> Plugins { get { return _plugins; } }
 
+        [Import(AllowDefault = true)]
+        IVideoPreview _videoPreview;
+        public IVideoPreview VideoPreview { get { return _videoPreview; } }
+
         public bool IsAnyPluginActive { get { return _plugins != null && _plugins.Length > 0; } }
 
         private void _composePlugins()

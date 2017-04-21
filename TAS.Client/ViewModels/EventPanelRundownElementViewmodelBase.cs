@@ -275,18 +275,6 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public TVideoFormat VideoFormat
-        {
-            get
-            {
-                IMedia media = _event.Media;
-                if (media == null)
-                    return TVideoFormat.Other;
-                else
-                    return media.VideoFormat;
-            }
-        }
-
         public string Layer
         {
             get { return _event.Layer.ToString(); }
