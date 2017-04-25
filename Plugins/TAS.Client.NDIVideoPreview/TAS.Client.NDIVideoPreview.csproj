@@ -60,6 +60,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
+      <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>
+      <Name>Infralution.Localization.Wpf</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TAS.Client.Common\TAS.Client.Common.csproj">
       <Project>{bccaca68-8bb6-4d9c-b546-795a2a8dee93}</Project>
       <Name>TAS.Client.Common</Name>

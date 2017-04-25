@@ -67,6 +67,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External dependencies", "External dependencies", "{9E587B86-2AD9-446D-8DD5-D710167A7F54}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.NDIVideoPreview", "Plugins\TAS.Client.NDIVideoPreview\TAS.Client.NDIVideoPreview.csproj", "{41219373-E25E-48C8-AD64-EAB58244E713}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B2FD5EA3-CB51-470B-A58B-E2400983DD79} = {B2FD5EA3-CB51-470B-A58B-E2400983DD79}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

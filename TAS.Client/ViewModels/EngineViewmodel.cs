@@ -928,6 +928,11 @@ namespace TAS.Client.ViewModels
             get { return _engine.MediaManager.AnimationDirectoryPRI != null || _engine.MediaManager.AnimationDirectorySEC != null;  }
         }
 
+        public bool IsPreviewPanelVisible
+        {
+            get { return PreviewViewmodel != null || VideoPreview != null; }
+        }
+
         public bool NoAlarms
         {
             get
@@ -1014,13 +1019,16 @@ namespace TAS.Client.ViewModels
         #region Plugin
         CompositionContainer _uiContainer;
 
+#pragma warning disable CS0649 
         [ImportMany]
         IUiPlugin[] _plugins = null;
+        [Import(AllowDefault = true)]
+        IVideoPreview _videoPreview = null;
+#pragma warning restore
 
         public IList<Common.Plugin.IUiPlugin> Plugins { get { return _plugins; } }
 
-        [Import(AllowDefault = true)]
-        IVideoPreview _videoPreview;
+
         public IVideoPreview VideoPreview { get { return _videoPreview; } }
 
         public bool IsAnyPluginActive { get { return _plugins != null && _plugins.Length > 0; } }

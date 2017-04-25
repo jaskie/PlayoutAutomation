@@ -569,21 +569,26 @@
             <GridSplitter Grid.Column="0" ResizeDirection="Columns" HorizontalAlignment="Right" Background="DarkGray" Width="3" Cursor="SizeWE"/>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="2*" MinHeight="50"/>
-                    <RowDefinition />
+                    <RowDefinition Height="*" MinHeight="50"/>
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <views:EventEditView DataContext="{Binding EventEditViewmodel}"/>
-                <GridSplitter Visibility="{Binding PreviewViewmodel, Converter={StaticResource NullToVis}}" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-                <ContentControl Grid.Row="1" Margin="3, 3, 0, 0"  Content="{Binding PreviewViewmodel}">
-                    <ContentControl.ContentTemplate>
-                        <DataTemplate DataType="{x:Type vievmodels:PreviewViewmodel}" >
-                            <views:PreviewView/>
-                        </DataTemplate>
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
-                <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-                <ContentControl Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="2" Margin="3, 3, 0, 0"  Content="{Binding VideoPreview.View}"/>
+                <GridSplitter Visibility="{Binding IsPreviewPanelVisible, Converter={StaticResource BoolToVis}}" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="DarkGray" Height="3" Cursor="SizeNS"/>
+                <Grid Grid.Row="1" Margin="0, 3, 0, 0" Visibility="{Binding IsPreviewPanelVisible, Converter={StaticResource BoolToVis}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <ContentControl Content="{Binding PreviewViewmodel}">
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate DataType="{x:Type vievmodels:PreviewViewmodel}" >
+                                <views:PreviewView/>
+                            </DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                    <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
+                    <ContentControl Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" Margin="0, 3, 0, 0"  Content="{Binding VideoPreview.View}"/>
+                </Grid>
             </Grid>
         </Grid>
     </Grid>
