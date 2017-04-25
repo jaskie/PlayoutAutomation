@@ -48,70 +48,70 @@ namespace TAS.Client.Config
 
         #region IIngestDirectoryProperties
         string _directoryName;
-        public string DirectoryName { get { return _directoryName; } set { SetField(ref _directoryName, value, nameof(DirectoryName)); } }
+        public string DirectoryName { get { return _directoryName; } set { SetField(ref _directoryName, value); } }
         string _folder;
-        public string Folder { get { return _folder; } set { SetField(ref _folder, value, nameof(Folder)); } }
+        public string Folder { get { return _folder; } set { SetField(ref _folder, value); } }
         string _username;
-        public string Username { get { return _username; } set { SetField(ref _username, value, nameof(Username)); } }
+        public string Username { get { return _username; } set { SetField(ref _username, value); } }
         string _password;
-        public string Password { get { return _password; } set { SetField(ref _password, value, nameof(Password)); } }
+        public string Password { get { return _password; } set { SetField(ref _password, value); } }
         TAspectConversion _aspectConversion;
-        public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value, nameof(AspectConversion)); } }
+        public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value); } }
         decimal _audioVolume;
-        public decimal AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value, nameof(AudioVolume)); } }
+        public decimal AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value); } }
         bool _deleteSource;
-        public bool DeleteSource { get { return _deleteSource; } set { SetField(ref _deleteSource, value, nameof(DeleteSource)); } }
+        public bool DeleteSource { get { return _deleteSource; } set { SetField(ref _deleteSource, value); } }
         bool _isXDCAM;
         public bool IsXDCAM
         {
             get { return _isXDCAM; }
             set
             {
-                if (SetField(ref _isXDCAM, value, nameof(IsXDCAM)))
+                if (SetField(ref _isXDCAM, value))
                     NotifyPropertyChanged(nameof(IsMXF));
             }
         }
         bool _isWAN;
-        public bool IsWAN { get { return _isWAN; } set { SetField(ref _isWAN, value, nameof(IsWAN)); } }
+        public bool IsWAN { get { return _isWAN; } set { SetField(ref _isWAN, value); } }
         bool _isRecursive;
-        public bool IsRecursive { get { return _isRecursive; }  set { SetField(ref _isRecursive, value, nameof(IsRecursive)); } }
+        public bool IsRecursive { get { return _isRecursive; }  set { SetField(ref _isRecursive, value); } }
         bool _isExport;
-        public bool IsExport { get { return _isExport; }  set { SetField(ref _isExport, value, nameof(IsExport)); } }
+        public bool IsExport { get { return _isExport; }  set { SetField(ref _isExport, value); } }
         bool _isImport = true;
-        public bool IsImport { get { return _isImport; } set { SetField(ref _isImport, value, nameof(IsImport)); } }
+        public bool IsImport { get { return _isImport; } set { SetField(ref _isImport, value); } }
 
         TMediaCategory _mediaCategory;
-        public TMediaCategory MediaCategory { get { return _mediaCategory; } set { SetField(ref _mediaCategory, value, nameof(MediaCategory)); } }
+        public TMediaCategory MediaCategory { get { return _mediaCategory; } set { SetField(ref _mediaCategory, value); } }
         bool _mediaDoNotArchive;
-        public bool MediaDoNotArchive { get { return _mediaDoNotArchive; } set { SetField(ref _mediaDoNotArchive, value, nameof(MediaDoNotArchive)); } }
+        public bool MediaDoNotArchive { get { return _mediaDoNotArchive; } set { SetField(ref _mediaDoNotArchive, value); } }
         int _mediaRetentionDays;
-        public int MediaRetnentionDays { get { return _mediaRetentionDays; } set { SetField(ref _mediaRetentionDays, value, nameof(MediaRetnentionDays)); } }
+        public int MediaRetnentionDays { get { return _mediaRetentionDays; } set { SetField(ref _mediaRetentionDays, value); } }
         bool _mediaLoudnessCheckAfterIngest;
-        public bool MediaLoudnessCheckAfterIngest { get { return _mediaLoudnessCheckAfterIngest; } set { SetField(ref _mediaLoudnessCheckAfterIngest, value, nameof(MediaLoudnessCheckAfterIngest)); } }
+        public bool MediaLoudnessCheckAfterIngest { get { return _mediaLoudnessCheckAfterIngest; } set { SetField(ref _mediaLoudnessCheckAfterIngest, value); } }
         TFieldOrder _sourceFieldOrder;
-        public TFieldOrder SourceFieldOrder { get { return _sourceFieldOrder; } set { SetField(ref _sourceFieldOrder, value, nameof(SourceFieldOrder)); } }
+        public TFieldOrder SourceFieldOrder { get { return _sourceFieldOrder; } set { SetField(ref _sourceFieldOrder, value); } }
         TmXFAudioExportFormat _mXFAudioExportFormat;
-        public TmXFAudioExportFormat MXFAudioExportFormat { get { return _mXFAudioExportFormat; } set { SetField(ref _mXFAudioExportFormat, value, nameof(MXFAudioExportFormat)); } }
+        public TmXFAudioExportFormat MXFAudioExportFormat { get { return _mXFAudioExportFormat; } set { SetField(ref _mXFAudioExportFormat, value); } }
         TmXFVideoExportFormat _mXFVideoExportFormat;
-        public TmXFVideoExportFormat MXFVideoExportFormat { get { return _mXFVideoExportFormat; } set { SetField(ref _mXFVideoExportFormat, value, nameof(MXFVideoExportFormat)); } }
+        public TmXFVideoExportFormat MXFVideoExportFormat { get { return _mXFVideoExportFormat; } set { SetField(ref _mXFVideoExportFormat, value); } }
         string _encodeParams;
-        public string EncodeParams { get { return _encodeParams; } set { SetField(ref _encodeParams, value, nameof(EncodeParams)); } }
+        public string EncodeParams { get { return _encodeParams; } set { SetField(ref _encodeParams, value); } }
         TMovieContainerFormat _exportFormat;
         public TMovieContainerFormat ExportContainerFormat
         {
             get { return _exportFormat; }
             set
             {
-                if (SetField(ref _exportFormat, value, nameof(ExportContainerFormat)))
+                if (SetField(ref _exportFormat, value))
                     NotifyPropertyChanged(nameof(IsMXF));
             }
         }
         TVideoFormat _exportVideoFormat;
-        public TVideoFormat ExportVideoFormat { get { return _exportVideoFormat; } set { SetField(ref _exportVideoFormat, value, nameof(ExportVideoFormat)); } }
+        public TVideoFormat ExportVideoFormat { get { return _exportVideoFormat; } set { SetField(ref _exportVideoFormat, value); } }
         string _exportParams;
-        public string ExportParams { get { return _exportParams; }  set { SetField(ref _exportParams, value, nameof(ExportParams)); } }
+        public string ExportParams { get { return _exportParams; }  set { SetField(ref _exportParams, value); } }
         string[] _extensions;
-        public string[] Extensions { get { return _extensions; } set { SetField(ref _extensions, value, nameof(Extensions)); } }
+        public string[] Extensions { get { return _extensions; } set { SetField(ref _extensions, value); } }
 
         TVideoCodec _videoCodec;
         public TVideoCodec VideoCodec
@@ -119,7 +119,7 @@ namespace TAS.Client.Config
             get { return _videoCodec; }
             set
             {
-                if (SetField(ref _videoCodec, value, nameof(VideoCodec)))
+                if (SetField(ref _videoCodec, value))
                     NotifyPropertyChanged(nameof(VideoDoNotEncode));
             }
         }
@@ -129,15 +129,15 @@ namespace TAS.Client.Config
             get { return _audioCodec; }
             set
             {
-                if (SetField(ref _audioCodec, value, nameof(AudioCodec)))
+                if (SetField(ref _audioCodec, value))
                     NotifyPropertyChanged(nameof(AudioDoNotEncode));
             }
         }
 
         decimal _videoBitrateRatio;
         decimal _audioBitrateRatio;
-        public decimal VideoBitrateRatio { get { return _videoBitrateRatio; } set { SetField(ref _videoBitrateRatio, value, nameof(VideoBitrateRatio)); }}
-        public decimal AudioBitrateRatio { get { return _audioBitrateRatio; } set { SetField(ref _audioBitrateRatio, value, nameof(AudioBitrateRatio)); } }
+        public decimal VideoBitrateRatio { get { return _videoBitrateRatio; } set { SetField(ref _videoBitrateRatio, value); }}
+        public decimal AudioBitrateRatio { get { return _audioBitrateRatio; } set { SetField(ref _audioBitrateRatio, value); } }
 
         public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return _subDirectoriesVM.Select(vm => vm.Model); } }
 

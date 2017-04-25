@@ -28,14 +28,14 @@ namespace TAS.Client.ViewModels
             get { return _keyData.Key; }
             set
             {
-                if (SetField(ref _keyData.Key, value, nameof(Key)))
+                if (SetField(ref _keyData.Key, value))
                     Title = value;
             }
         }
 
         public bool KeyIsEnabled { get { return !_keyIsReadOnly; } }
 
-        public string Value { get { return _keyData.Value; } set { SetField(ref _keyData.Value, value, nameof(Value)); } }
+        public string Value { get { return _keyData.Value; } set { SetField(ref _keyData.Value, value); } }
 
         public KeyValuePair<string, string> Result { get { return new KeyValuePair<string, string>(Key, Value); } }
 

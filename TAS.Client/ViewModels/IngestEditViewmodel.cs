@@ -51,7 +51,7 @@ namespace TAS.Client.ViewModels
         public ConvertOperationViewModel SelectedOperation
         {
             get { return _selectedOperation; }
-            set { SetField(ref _selectedOperation, value, nameof(SelectedOperation)); }
+            set { SetField(ref _selectedOperation, value); }
         }
 
         public ICommand CommandDeleteOperation { get; private set; }

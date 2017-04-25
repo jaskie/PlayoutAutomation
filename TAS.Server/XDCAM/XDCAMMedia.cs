@@ -19,7 +19,7 @@ namespace TAS.Server.XDCAM
         internal XDCAM.Alias.ClipAlias XdcamAlias;
         internal XDCAM.Index.EditList XdcamEdl;
         private int _clipNr;
-        public int ClipNr { get { return _clipNr; } set { SetField(ref _clipNr, value, nameof(ClipNr)); } }
+        public int ClipNr { get { return _clipNr; } set { SetField(ref _clipNr, value); } }
 
         public override Stream GetFileStream(bool forWrite)
         {

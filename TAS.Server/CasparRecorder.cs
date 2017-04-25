@@ -117,32 +117,32 @@ namespace TAS.Server
         private TimeSpan _currentTc;
         [XmlIgnore]
         [JsonProperty]
-        public TimeSpan CurrentTc { get { return _currentTc; }  private set { SetField(ref _currentTc, value, nameof(CurrentTc)); } }
+        public TimeSpan CurrentTc { get { return _currentTc; }  private set { SetField(ref _currentTc, value); } }
 
         private TimeSpan _timeLimit;
         [XmlIgnore]
         [JsonProperty]
-        public TimeSpan TimeLimit { get { return _timeLimit; }  private set { SetField(ref _timeLimit, value, nameof(TimeLimit)); } }
+        public TimeSpan TimeLimit { get { return _timeLimit; }  private set { SetField(ref _timeLimit, value); } }
 
         private TDeckState _deckState;
         [XmlIgnore]
         [JsonProperty]
-        public TDeckState DeckState { get { return _deckState; } private set { SetField(ref _deckState, value, nameof(DeckState)); } }
+        public TDeckState DeckState { get { return _deckState; } private set { SetField(ref _deckState, value); } }
 
         private TDeckControl _deckControl;
         [XmlIgnore]
         [JsonProperty]
-        public TDeckControl DeckControl { get { return _deckControl; }  private set { SetField(ref _deckControl, value, nameof(DeckControl)); } }
+        public TDeckControl DeckControl { get { return _deckControl; }  private set { SetField(ref _deckControl, value); } }
 
         private bool _isDeckConnected;
         [XmlIgnore]
         [JsonProperty]
-        public bool IsDeckConnected { get { return _isDeckConnected; } private set { SetField(ref _isDeckConnected, value, nameof(IsDeckConnected)); } }
+        public bool IsDeckConnected { get { return _isDeckConnected; } private set { SetField(ref _isDeckConnected, value); } }
 
         private bool _isServerConnected;
         [XmlIgnore]
         [JsonProperty]
-        public bool IsServerConnected { get { return _isServerConnected; } internal set { SetField(ref _isServerConnected, value, nameof(IsServerConnected)); } }
+        public bool IsServerConnected { get { return _isServerConnected; } internal set { SetField(ref _isServerConnected, value); } }
 
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
         public IEnumerable<IPlayoutServerChannel> Channels { get { return ownerServer.Channels; } }
@@ -219,7 +219,7 @@ namespace TAS.Server
 
         [XmlIgnore]
         [JsonProperty]
-        public IMedia RecordingMedia { get { return _recordingMedia; } private set { SetField(ref _recordingMedia, value, nameof(RecordingMedia)); } }
+        public IMedia RecordingMedia { get { return _recordingMedia; } private set { SetField(ref _recordingMedia, value); } }
 
         public IMediaDirectory RecordingDirectory { get { return ownerServer.MediaDirectory; } }
 

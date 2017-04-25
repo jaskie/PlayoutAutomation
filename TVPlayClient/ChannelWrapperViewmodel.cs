@@ -91,16 +91,16 @@ namespace TVPlayClient
 
         private ChannelViewmodel _channel;
         [XmlIgnore]
-        public ChannelViewmodel Channel { get { return _channel; } private set { SetField(ref _channel, value, nameof(Channel)); } }
+        public ChannelViewmodel Channel { get { return _channel; } private set { SetField(ref _channel, value); } }
 
         private bool _isLoading = true;
 
         [XmlIgnore]
-        public bool IsLoading { get { return _isLoading; } set { SetField(ref _isLoading, value, nameof(IsLoading)); } }
+        public bool IsLoading { get { return _isLoading; } set { SetField(ref _isLoading, value); } }
 
         private string _tabName;
         [XmlIgnore]
-        public string TabName { get { return _tabName; }  private set { SetField(ref _tabName, value, nameof(TabName)); } }
+        public string TabName { get { return _tabName; }  private set { SetField(ref _tabName, value); } }
 
         protected override void OnDispose()
         {

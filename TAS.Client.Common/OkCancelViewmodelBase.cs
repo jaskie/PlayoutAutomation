@@ -25,7 +25,7 @@ namespace TAS.Client.Common
         }
 
         private string _title;
-        public string Title { get { return _title; } set { SetField(ref _title, value, "Title"); } }
+        public string Title { get { return _title; } set { SetField(ref _title, value); } }
 
         public bool OkCancelButtonsActivateViaKeyboard { get; set; } = true;
 

@@ -90,7 +90,7 @@ namespace TAS.Server
             get { return _isConnected; }
             private set
             {
-                if (SetField(ref _isConnected, value, nameof(IsConnected)))
+                if (SetField(ref _isConnected, value))
                 {
                     _recorders.ForEach(r => r.IsServerConnected = value);
                     _channels.ForEach(c => c.IsServerConnected = value);

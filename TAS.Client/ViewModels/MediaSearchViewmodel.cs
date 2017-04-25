@@ -209,7 +209,7 @@ namespace TAS.Client.ViewModels
         {
             get { return _mediaCategory; }
             set {
-                if (SetField(ref _mediaCategory, value, nameof(MediaCategory)))
+                if (SetField(ref _mediaCategory, value))
                 {
                     NotifyPropertyChanged(nameof(IsServerOrArchiveDirectory));
                     _itemsView.Refresh();

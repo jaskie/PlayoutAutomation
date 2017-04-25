@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -37,7 +38,7 @@ namespace TAS.Client.Common
             get { return _isModified; }
             protected set
             {
-                if (base.SetField(ref _isModified, value, nameof(IsModified))
+                if (base.SetField(ref _isModified, value)
                     && value)
                     OnModified();
             }
@@ -45,7 +46,7 @@ namespace TAS.Client.Common
 
         public event EventHandler Modified;
 
-        protected override bool SetField<T>(ref T field, T value, string propertyName)
+        protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             bool isModified = base.SetField(ref field, value, propertyName);
             if (isModified)

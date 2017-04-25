@@ -90,11 +90,11 @@ namespace TAS.Server
 
         private TemplateMethod _method;
         [JsonProperty]
-        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value, nameof(Method)); } }
+        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value); } }
 
         private int _templateLayer;
         [JsonProperty]
-        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, nameof(TemplateLayer)); } }
+        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value); } }
 
 
     }

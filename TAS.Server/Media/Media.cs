@@ -44,7 +44,7 @@ namespace TAS.Server
             get { return _folder; }
             set
             {
-                if (SetField(ref _folder, value, nameof(Folder)))
+                if (SetField(ref _folder, value))
                     NotifyPropertyChanged(nameof(FullPath));
             }
         }
@@ -73,7 +73,7 @@ namespace TAS.Server
                     NotifyPropertyChanged(nameof(FileName));
                 }
                 else
-                if (SetField(ref _fileName, value, nameof(FileName)))
+                if (SetField(ref _fileName, value))
                     NotifyPropertyChanged(nameof(FullPath));
             }
         }
@@ -83,7 +83,7 @@ namespace TAS.Server
         public UInt64 FileSize 
         {
             get { return _fileSize; }
-            set { SetField(ref _fileSize, value, nameof(FileSize)); }
+            set { SetField(ref _fileSize, value); }
         }
 
         protected DateTime _lastUpdated;
@@ -91,7 +91,7 @@ namespace TAS.Server
         public DateTime LastUpdated
         {
             get { return _lastUpdated; }
-            set { SetField(ref _lastUpdated, value, nameof(LastUpdated)); }
+            set { SetField(ref _lastUpdated, value); }
         }
         //// to enable LastAccess: "FSUTIL behavior set disablelastaccess 0" on NTFS volume
         //// not stored in datebase
@@ -115,7 +115,7 @@ namespace TAS.Server
         public virtual string MediaName
         {
             get { return _mediaName; }
-            set { SetField(ref _mediaName, value, nameof(MediaName)); }
+            set { SetField(ref _mediaName, value); }
         }
 
         protected TMediaType _mediaType;
@@ -123,7 +123,7 @@ namespace TAS.Server
         public virtual TMediaType MediaType
         {
             get { return _mediaType; }
-            set { SetField(ref _mediaType, value, nameof(MediaType)); }
+            set { SetField(ref _mediaType, value); }
         }
 
         protected TimeSpan _duration;
@@ -131,42 +131,42 @@ namespace TAS.Server
         public virtual TimeSpan Duration
         {
             get { return _duration; }
-            set { SetField(ref _duration, value, nameof(Duration)); }
+            set { SetField(ref _duration, value); }
         }
         protected TimeSpan _durationPlay;
         [JsonProperty]
         public virtual TimeSpan DurationPlay
         {
             get { return _durationPlay; }
-            set { SetField(ref _durationPlay, value, nameof(DurationPlay)); }
+            set { SetField(ref _durationPlay, value); }
         }
         protected TimeSpan _tcStart;
         [JsonProperty]
         public virtual TimeSpan TcStart 
         {
             get { return _tcStart; }
-            set { SetField(ref _tcStart, value, nameof(TcStart)); }
+            set { SetField(ref _tcStart, value); }
         }
         protected TimeSpan _tcPlay;
         [JsonProperty]
         public virtual TimeSpan TcPlay
         {
             get { return _tcPlay; }
-            set { SetField(ref _tcPlay, value, nameof(TcPlay)); }
+            set { SetField(ref _tcPlay, value); }
         }
         protected TVideoFormat _videoFormat;
         [JsonProperty]
         public virtual TVideoFormat VideoFormat
         {
             get { return _videoFormat; }
-            set { SetField(ref _videoFormat, value, nameof(VideoFormat)); }
+            set { SetField(ref _videoFormat, value); }
         }
         protected bool _fieldOrderInverted;
         [JsonProperty]
         public bool FieldOrderInverted
         {
             get { return _fieldOrderInverted; }
-            set { SetField(ref _fieldOrderInverted, value, nameof(FieldOrderInverted)); }
+            set { SetField(ref _fieldOrderInverted, value); }
         }
 
         protected TAudioChannelMapping _audioChannelMapping;
@@ -175,14 +175,14 @@ namespace TAS.Server
         public virtual TAudioChannelMapping AudioChannelMapping 
         {
             get { return _audioChannelMapping; }
-            set { SetField(ref _audioChannelMapping, value, nameof(AudioChannelMapping)); }
+            set { SetField(ref _audioChannelMapping, value); }
         }
         protected decimal _audioVolume;
         [JsonProperty]
         public virtual decimal AudioVolume // correction amount on play
         {
             get { return _audioVolume; }
-            set { SetField(ref _audioVolume, value, nameof(AudioVolume)); }
+            set { SetField(ref _audioVolume, value); }
         }
 
         protected decimal _audioLevelIntegrated;
@@ -190,7 +190,7 @@ namespace TAS.Server
         public virtual decimal AudioLevelIntegrated //measured
         {
             get { return _audioLevelIntegrated; }
-            set { SetField(ref _audioLevelIntegrated, value, nameof(AudioLevelIntegrated)); }
+            set { SetField(ref _audioLevelIntegrated, value); }
         }
 
         protected decimal _audioLevelPeak;
@@ -198,7 +198,7 @@ namespace TAS.Server
         public virtual decimal AudioLevelPeak //measured
         {
             get { return _audioLevelPeak; }
-            set { SetField(ref _audioLevelPeak, value, nameof(AudioLevelPeak)); }
+            set { SetField(ref _audioLevelPeak, value); }
         }
 
         protected TMediaCategory _mediaCategory;
@@ -206,7 +206,7 @@ namespace TAS.Server
         public virtual TMediaCategory MediaCategory
         {
             get { return _mediaCategory; }
-            set { SetField(ref _mediaCategory, value, nameof(MediaCategory)); }
+            set { SetField(ref _mediaCategory, value); }
         }
 
         protected byte _parental;
@@ -214,7 +214,7 @@ namespace TAS.Server
         public virtual byte Parental
         {
             get { return _parental; }
-            set { SetField(ref _parental, value, nameof(Parental)); }
+            set { SetField(ref _parental, value); }
         }
 
 #endregion //IMediaProperties
@@ -227,7 +227,7 @@ namespace TAS.Server
             internal set
             {
                 Guid oldGuid = _mediaGuid;
-                if (SetField(ref _mediaGuid, value, nameof(MediaGuid)))
+                if (SetField(ref _mediaGuid, value))
                     _directory.UpdateMediaGuid(oldGuid, this);
             }
         }
@@ -267,7 +267,7 @@ namespace TAS.Server
         public TMediaStatus MediaStatus
         {
             get { return _mediaStatus; }
-            set { SetField(ref _mediaStatus, value, nameof(MediaStatus)); }
+            set { SetField(ref _mediaStatus, value); }
         }
 
         internal bool HasExtraLines; // VBI lines that shouldn't be displayed
@@ -351,7 +351,7 @@ namespace TAS.Server
         public bool IsVerified
         {
             get { return _verified; }
-            set { SetField(ref _verified, value, nameof(IsVerified)); }
+            set { SetField(ref _verified, value); }
         }
 
         public void ReVerify()

@@ -134,7 +134,7 @@ namespace TAS.Client.ViewModels
         public string TimeLeft
         {
             get { return _timeLeft; }
-            set { SetField(ref _timeLeft, value, nameof(TimeLeft)); }
+            set { SetField(ref _timeLeft, value); }
         }
 
         public string EndTime

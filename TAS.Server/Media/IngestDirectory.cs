@@ -97,7 +97,7 @@ namespace TAS.Server
         private int _xdcamClipCount;
         [XmlIgnore]
         [JsonProperty]
-        public int XdcamClipCount { get { return _xdcamClipCount; } protected set { SetField(ref _xdcamClipCount, value, nameof(XdcamClipCount)); } }
+        public int XdcamClipCount { get { return _xdcamClipCount; } protected set { SetField(ref _xdcamClipCount, value); } }
 
         [JsonProperty]
         public bool IsRecursive { get; set; }

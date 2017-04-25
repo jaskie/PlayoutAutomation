@@ -64,7 +64,7 @@ namespace TAS.Client.ViewModels
             get { return _fileName; }
             set
             {
-                if (SetField(ref _fileName, value, nameof(FileName)))
+                if (SetField(ref _fileName, value))
                     NotifyPropertyChanged(nameof(CanStartRecord));
             }
         }
@@ -75,7 +75,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 var oldRecorder = _recorder;
-                if (SetField(ref _recorder, value, nameof(Recorder)))
+                if (SetField(ref _recorder, value))
                 {
                     if (oldRecorder != null)
                         oldRecorder.PropertyChanged -= Recorder_PropertyChanged;
@@ -89,14 +89,14 @@ namespace TAS.Client.ViewModels
 
         public IEnumerable<IRecorder> Recorders { get { return _recorders; } }
 
-        public IEnumerable<IPlayoutServerChannel> Channels { get { return _channels; } private set { SetField(ref _channels, value, nameof(Channels)); } }
+        public IEnumerable<IPlayoutServerChannel> Channels { get { return _channels; } private set { SetField(ref _channels, value); } }
 
         public IPlayoutServerChannel Channel
         {
             get { return _channel; }
             set
             {
-                if (SetField(ref _channel, value, nameof(Channel)))
+                if (SetField(ref _channel, value))
                 {
                     VideoFormat = value.VideoFormat;
                     NotifyPropertyChanged(nameof(CanStartRecord));
@@ -107,26 +107,26 @@ namespace TAS.Client.ViewModels
         public Array FileFormats { get { return Enum.GetValues(typeof(TMovieContainerFormat)); } }
 
         private TMovieContainerFormat _fileFormat;
-        public TMovieContainerFormat FileFormat { get { return _fileFormat; } set { SetField(ref _fileFormat, value, nameof(FileFormat)); } }
+        public TMovieContainerFormat FileFormat { get { return _fileFormat; } set { SetField(ref _fileFormat, value); } }
 
-        public bool IsNarrowMode { get { return _isNarrowMode; } set { SetField(ref _isNarrowMode, value, nameof(IsNarrowMode)); } }
+        public bool IsNarrowMode { get { return _isNarrowMode; } set { SetField(ref _isNarrowMode, value); } }
 
-        public TimeSpan TcIn { get { return _tcIn; } set { SetField(ref _tcIn, value, nameof(TcIn)); } }
+        public TimeSpan TcIn { get { return _tcIn; } set { SetField(ref _tcIn, value); } }
 
-        public TimeSpan TcOut { get { return _tcOut; } set { SetField(ref _tcOut, value, nameof(TcOut)); } }
+        public TimeSpan TcOut { get { return _tcOut; } set { SetField(ref _tcOut, value); } }
 
-        public TimeSpan CurrentTc { get { return _currentTc; }  set { SetField(ref _currentTc, value, nameof(CurrentTc)); } }
+        public TimeSpan CurrentTc { get { return _currentTc; }  set { SetField(ref _currentTc, value); } }
 
         public TimeSpan TimeLimit
         {
             get { return _timeLimit; }
-            set { SetField(ref _timeLimit, value, nameof(TimeLimit)); }
+            set { SetField(ref _timeLimit, value); }
         }
 
         public TimeSpan RecorderTimeLeft
         {
             get { return _recorderTimeLeft; }
-            private set { SetField(ref _recorderTimeLeft, value, nameof(RecorderTimeLeft)); }
+            private set { SetField(ref _recorderTimeLeft, value); }
         }
 
         public TDeckState DeckState
@@ -134,7 +134,7 @@ namespace TAS.Client.ViewModels
             get { return _deckState; }
             private set
             {
-                if (SetField(ref _deckState, value, nameof(DeckState)))
+                if (SetField(ref _deckState, value))
                     InvalidateRequerySuggested();
             }
         }
@@ -144,7 +144,7 @@ namespace TAS.Client.ViewModels
             get { return _deckControl; }
             private set
             {
-                if (SetField(ref _deckControl, value, nameof(DeckControl)))
+                if (SetField(ref _deckControl, value))
                     InvalidateRequerySuggested();
             }
         }
@@ -154,7 +154,7 @@ namespace TAS.Client.ViewModels
             get { return _videoFormat; }
             private set
             {
-                if (SetField(ref _videoFormat, value, nameof(VideoFormat)))
+                if (SetField(ref _videoFormat, value))
                     NotifyPropertyChanged(nameof(IsNarrowMode));
             }
         }
@@ -165,7 +165,7 @@ namespace TAS.Client.ViewModels
             private set
             {
                 var oldRecordMedia = _recordMedia;
-                if (SetField(ref _recordMedia, value, nameof(RecordMedia)))
+                if (SetField(ref _recordMedia, value))
                 {
                     if (oldRecordMedia != null)
                         oldRecordMedia.PropertyChanged -= RecordMedia_PropertyChanged;

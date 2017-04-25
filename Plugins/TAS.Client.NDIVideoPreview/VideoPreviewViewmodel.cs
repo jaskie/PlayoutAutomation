@@ -28,7 +28,7 @@ namespace TAS.Client.NDIVideoPreview
             get { return _selectedVideoSource; }
             set
             {
-                if (SetField(ref _selectedVideoSource, value, nameof(SelectedVideoSource)))
+                if (SetField(ref _selectedVideoSource, value))
                 {
 
                 }

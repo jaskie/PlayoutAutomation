@@ -24,7 +24,7 @@ namespace TAS.Server
         public string Command
         {
             get { return _command; }
-            set { SetField(ref _command, value, nameof(Command)); }
+            set { SetField(ref _command, value); }
         }
     }
 }

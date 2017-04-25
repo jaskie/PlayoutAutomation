@@ -73,33 +73,33 @@ namespace TAS.Client.Config
         static readonly Array _crawlEnableBehaviors = Enum.GetValues(typeof(TCrawlEnableBehavior));
         public Array CrawlEnableBehaviors { get { return _crawlEnableBehaviors; } }
 
-        public string EngineName { get { return _engineName; } set { SetField(ref _engineName, value, nameof(EngineName)); } }
-        public TAspectRatioControl AspectRatioControl { get { return _aspectRatioControl; } set { SetField(ref _aspectRatioControl, value, nameof(AspectRatioControl)); } }
-        public int TimeCorrection { get { return _timeCorrection; } set { SetField(ref _timeCorrection, value, nameof(TimeCorrection)); } }
-        public TVideoFormat VideoFormat { get { return _videoFormat; } set { SetField(ref _videoFormat, value, nameof(VideoFormat)); } }
-        public ulong Instance { get { return _instance; } set { SetField(ref _instance, value, nameof(Instance)); } }
-        public double VolumeReferenceLoudness { get { return _volumeReferenceLoudness; } set { SetField(ref _volumeReferenceLoudness, value, nameof(VolumeReferenceLoudness)); } }
-        public bool EnableCGElementsForNewEvents { get { return _enableCGElementsForNewEvents; } set { SetField(ref _enableCGElementsForNewEvents, value, nameof(EnableCGElementsForNewEvents)); } }
-        public TCrawlEnableBehavior CrawlEnableBehavior { get { return _crawlEnableBehavior; } set { SetField(ref _crawlEnableBehavior, value, nameof(CrawlEnableBehavior)); } }
-        public int CGStartDelay { get { return _cgStartDelay; } set { SetField(ref _cgStartDelay, value, nameof(CGStartDelay)); } }
+        public string EngineName { get { return _engineName; } set { SetField(ref _engineName, value); } }
+        public TAspectRatioControl AspectRatioControl { get { return _aspectRatioControl; } set { SetField(ref _aspectRatioControl, value); } }
+        public int TimeCorrection { get { return _timeCorrection; } set { SetField(ref _timeCorrection, value); } }
+        public TVideoFormat VideoFormat { get { return _videoFormat; } set { SetField(ref _videoFormat, value); } }
+        public ulong Instance { get { return _instance; } set { SetField(ref _instance, value); } }
+        public double VolumeReferenceLoudness { get { return _volumeReferenceLoudness; } set { SetField(ref _volumeReferenceLoudness, value); } }
+        public bool EnableCGElementsForNewEvents { get { return _enableCGElementsForNewEvents; } set { SetField(ref _enableCGElementsForNewEvents, value); } }
+        public TCrawlEnableBehavior CrawlEnableBehavior { get { return _crawlEnableBehavior; } set { SetField(ref _crawlEnableBehavior, value); } }
+        public int CGStartDelay { get { return _cgStartDelay; } set { SetField(ref _cgStartDelay, value); } }
 
         readonly List<object> _channels;
         public List<object> Channels { get { return _channels; } }
         private object _channelPRI;
-        public object ChannelPRI { get { return _channelPRI; } set { SetField(ref _channelPRI, value, nameof(ChannelPRI)); } }
+        public object ChannelPRI { get { return _channelPRI; } set { SetField(ref _channelPRI, value); } }
         private object _channelSEC;
-        public object ChannelSEC { get { return _channelSEC; } set { SetField(ref _channelSEC, value, nameof(ChannelSEC)); } }
+        public object ChannelSEC { get { return _channelSEC; } set { SetField(ref _channelSEC, value); } }
         private object _channelPRV;
-        public object ChannelPRV { get { return _channelPRV; } set { SetField(ref _channelPRV, value, nameof(ChannelPRV)); } }
+        public object ChannelPRV { get { return _channelPRV; } set { SetField(ref _channelPRV, value); } }
 
         private List<object> _archiveDirectories;
         public List<object> ArchiveDirectories { get { return _archiveDirectories; } }
         private object _archiveDirectory;
-        public object ArchiveDirectory { get { return _archiveDirectory; } set { SetField(ref _archiveDirectory, value, nameof(ArchiveDirectory)); } }
+        public object ArchiveDirectory { get { return _archiveDirectory; } set { SetField(ref _archiveDirectory, value); } }
         private bool _remoteHostEnabled;
-        public bool RemoteHostEnabled { get { return _remoteHostEnabled; } set { SetField(ref _remoteHostEnabled, value, nameof(RemoteHostEnabled)); } }
+        public bool RemoteHostEnabled { get { return _remoteHostEnabled; } set { SetField(ref _remoteHostEnabled, value); } }
         private ushort _remoteHostListenPort;
-        public ushort RemoteHostListenPort { get { return _remoteHostListenPort; } set { SetField(ref _remoteHostListenPort, value, nameof(RemoteHostListenPort)); } }
+        public ushort RemoteHostListenPort { get { return _remoteHostListenPort; } set { SetField(ref _remoteHostListenPort, value); } }
 
         public UICommand CommandManageArchiveDirectories { get; private set; }
 

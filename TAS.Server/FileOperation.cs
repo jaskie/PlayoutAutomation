@@ -41,20 +41,20 @@ namespace TAS.Server
         private NLog.Logger Logger;
 
         protected Media _sourceMedia;
-        public IMedia SourceMedia { get { return _sourceMedia; } set { SetField(ref _sourceMedia, value as Media, nameof(SourceMedia)); } }
+        public IMedia SourceMedia { get { return _sourceMedia; } set { SetField(ref _sourceMedia, value as Media); } }
         protected IMediaProperties _destMediaProperties;
         [JsonProperty]
         public IMediaProperties DestMediaProperties { get { return _destMediaProperties; } set { SetField(ref _destMediaProperties, value, nameof(Title)); } }
         [JsonProperty]
         public IMediaDirectory DestDirectory { get; set; }
-        public IMedia DestMedia { get { return _destMedia; }  protected set { SetField(ref _destMedia, value as Media, nameof(DestMedia)); } }
+        public IMedia DestMedia { get { return _destMedia; }  protected set { SetField(ref _destMedia, value as Media); } }
 
         private int _tryCount = 15;
         [JsonProperty]
         public int TryCount
         {
             get { return _tryCount; }
-            set { SetField(ref _tryCount, value, nameof(TryCount)); }
+            set { SetField(ref _tryCount, value); }
         }
         
         private int _progress;
@@ -65,7 +65,7 @@ namespace TAS.Server
             set
             {
                 if (value > 0 && value <= 100)
-                    SetField(ref _progress, value, nameof(Progress));
+                    SetField(ref _progress, value);
                 IsIndeterminate = false;
             }
         }
@@ -77,7 +77,7 @@ namespace TAS.Server
             get { return _scheduledTime; }
             internal set
             {
-                if (SetField(ref _scheduledTime, value, nameof(ScheduledTime)))
+                if (SetField(ref _scheduledTime, value))
                     AddOutputMessage("Operation scheduled");
             }
         }
@@ -86,14 +86,14 @@ namespace TAS.Server
         public DateTime StartTime
         {
             get { return _startTime; }
-            protected set { SetField(ref _startTime, value, nameof(StartTime)); }
+            protected set { SetField(ref _startTime, value); }
         }
         private DateTime _finishedTime;
         [JsonProperty]
         public DateTime FinishedTime 
         {
             get { return _finishedTime; }
-            protected set { SetField(ref _finishedTime, value, nameof(FinishedTime)); }
+            protected set { SetField(ref _finishedTime, value); }
         }
 
         private FileOperationStatus _operationStatus;
@@ -103,7 +103,7 @@ namespace TAS.Server
             get { return _operationStatus; }
             set
             {
-                if (SetField(ref _operationStatus, value, nameof(OperationStatus)))
+                if (SetField(ref _operationStatus, value))
                 {
                     IServerIngestStatusMedia m = _sourceMedia as IServerIngestStatusMedia;
                     if (m != null)
@@ -155,7 +155,7 @@ namespace TAS.Server
         public bool IsIndeterminate
         {
             get { return _isIndeterminate; }
-            set { SetField(ref _isIndeterminate, value, nameof(IsIndeterminate)); }
+            set { SetField(ref _isIndeterminate, value); }
         }
 
 
@@ -166,7 +166,7 @@ namespace TAS.Server
             get { return _aborted; }
             private set
             {
-                if (SetField(ref _aborted, value, nameof(Aborted)))
+                if (SetField(ref _aborted, value))
                 {
                     lock (_destMediaLock)
                     {

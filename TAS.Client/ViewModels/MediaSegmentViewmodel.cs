@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Windows;
 using TAS.Common;
 using TAS.Server.Interfaces;
+using System.Runtime.CompilerServices;
 
 namespace TAS.Client.ViewModels
 {
@@ -38,7 +39,7 @@ namespace TAS.Client.ViewModels
         public string SegmentName
         {
             get { return _segmentName; }
-            set { SetField(ref _segmentName, value, nameof(SegmentName)); }
+            set { SetField(ref _segmentName, value); }
         }
         
         private TimeSpan _tcIn;
@@ -47,7 +48,7 @@ namespace TAS.Client.ViewModels
             get { return _tcIn; }
             set
             {
-                if (SetField(ref _tcIn, value, nameof(TcIn)))
+                if (SetField(ref _tcIn, value))
                 {
                     NotifyPropertyChanged(nameof(sTcIn));
                     NotifyPropertyChanged(nameof(Duration));
@@ -62,7 +63,7 @@ namespace TAS.Client.ViewModels
             get { return _tcOut; }
             set
             {
-                if (SetField(ref _tcOut, value, nameof(TcOut)))
+                if (SetField(ref _tcOut, value))
                 {
                     NotifyPropertyChanged(nameof(Duration));
                     NotifyPropertyChanged(nameof(sDuration));
@@ -83,7 +84,7 @@ namespace TAS.Client.ViewModels
             get { return _videoFormat; }
             set
             {
-                if (SetField(ref _videoFormat, value, nameof(VideoFormat)))
+                if (SetField(ref _videoFormat, value))
                 {
                     NotifyPropertyChanged(nameof(sDuration));
                     NotifyPropertyChanged(nameof(sTcIn));
@@ -160,7 +161,7 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        protected override bool SetField<T>(ref T field, T value, string propertyName)
+        protected override bool SetField<T>(ref T field, T value, [CallerMemberName]string propertyName = null)
         {
             if (base.SetField(ref field, value, propertyName))
             {

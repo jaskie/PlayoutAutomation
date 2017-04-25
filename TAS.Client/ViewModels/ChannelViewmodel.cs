@@ -32,7 +32,7 @@ namespace TAS.Client.ViewModels
 
         private int  _selectedTabIndex;
 
-        public int SelectedTabIndex { get { return _selectedTabIndex; } set { SetField(ref _selectedTabIndex, value, nameof(SelectedTabIndex)); } }
+        public int SelectedTabIndex { get { return _selectedTabIndex; } set { SetField(ref _selectedTabIndex, value); } }
 
 
         protected override void OnDispose()

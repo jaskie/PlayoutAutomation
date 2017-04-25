@@ -52,7 +52,7 @@ namespace TAS.Client.ViewModels
                 {
                     IMedia oldVal = _media;
                     IMedia newVal = value;
-                    if (SetField(ref _media, newVal, nameof(Media)))
+                    if (SetField(ref _media, newVal))
                     {
                         if (oldVal != null)
                             oldVal.PropertyChanged -= Media_PropertyChanged;
@@ -88,7 +88,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 IEvent oldEvent = _event;
-                if (SetField(ref _event, value, nameof(Event)))
+                if (SetField(ref _event, value))
                 {
                     if (oldEvent != null)
                         oldEvent.PropertyChanged -= Event_PropertyChanged;
@@ -197,7 +197,7 @@ namespace TAS.Client.ViewModels
         }
 
         private bool _isSegmentsVisible;
-        public bool IsSegmentsVisible { get { return _isSegmentsVisible; } set { SetField(ref _isSegmentsVisible, value, nameof(IsSegmentsVisible)); } }
+        public bool IsSegmentsVisible { get { return _isSegmentsVisible; } set { SetField(ref _isSegmentsVisible, value); } }
 
         public bool IsSegmentsEnabled { get { return _preview.PreviewMedia is IServerMedia; } }
 
@@ -250,7 +250,7 @@ namespace TAS.Client.ViewModels
             get { return _tcIn; }
             set
             {
-                if (SetField(ref _tcIn, value, nameof(TcIn)))
+                if (SetField(ref _tcIn, value))
                     InvalidateRequerySuggested();
             }
         }
@@ -261,7 +261,7 @@ namespace TAS.Client.ViewModels
             get { return _tcOut; }
             set
             {
-                if (SetField(ref _tcOut, value, nameof(TcOut)))
+                if (SetField(ref _tcOut, value))
                     InvalidateRequerySuggested();
             }
         }
@@ -392,7 +392,7 @@ namespace TAS.Client.ViewModels
             get { return _playWholeClip; }
             set
             {
-                if (SetField(ref _playWholeClip, value, nameof(PlayWholeClip)))
+                if (SetField(ref _playWholeClip, value))
                     _mediaLoad(_loadedMedia, false);
             }
         }

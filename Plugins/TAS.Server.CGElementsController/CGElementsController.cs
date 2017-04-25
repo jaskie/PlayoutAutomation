@@ -111,7 +111,7 @@ namespace TAS.Server
 
         private bool _isCGEnabled;
         [JsonProperty]
-        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value, nameof(IsCGEnabled)); } }
+        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value); } }
 
         [JsonProperty]
         public bool IsMaster
@@ -129,14 +129,14 @@ namespace TAS.Server
             get { return _isWideScreen; }
             set
             {
-                if (SetField(ref _isWideScreen, value, nameof(IsWideScreen)))
+                if (SetField(ref _isWideScreen, value))
                     _engine.IsWideScreen = value;
             }
         }
 
         private byte _crawl;
         [JsonProperty]
-        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value, nameof(Crawl)); } }
+        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value); } }
 
         [JsonProperty(nameof(Crawls), ItemTypeNameHandling = TypeNameHandling.Objects)]
         ICGElement[] _crawls = new ICGElement[0];
@@ -148,7 +148,7 @@ namespace TAS.Server
             get { return _logo; }
             set
             {
-                if (SetField(ref _logo, value, nameof(Logo)))
+                if (SetField(ref _logo, value))
                     _engine.Execute(_logos[value].Command);
             }
         }
@@ -159,7 +159,7 @@ namespace TAS.Server
 
         byte _parental;
         [JsonProperty]
-        public byte Parental { get { return _parental; } set { SetField(ref _parental, value, nameof(Parental)); } }
+        public byte Parental { get { return _parental; } set { SetField(ref _parental, value); } }
 
         [JsonProperty(nameof(Parentals), ItemTypeNameHandling = TypeNameHandling.Objects)]
         ICGElement[] _parentals = new ICGElement[0];

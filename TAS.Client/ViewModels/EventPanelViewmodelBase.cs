@@ -192,7 +192,7 @@ namespace TAS.Client.ViewModels
             get { return _isExpanded; }
             set
             {
-                if (SetField(ref _isExpanded, value, nameof(IsExpanded)))
+                if (SetField(ref _isExpanded, value))
                 {
                     // Lazy load the child items, if necessary.
                     if (value && HasDummyChild)
@@ -212,7 +212,7 @@ namespace TAS.Client.ViewModels
             get { return _isSelected; }
             set
             {
-                if (SetField(ref _isSelected, value, nameof(IsSelected)))
+                if (SetField(ref _isSelected, value))
                 {
                     if (value)
                     {
@@ -228,7 +228,7 @@ namespace TAS.Client.ViewModels
         public bool IsMultiSelected
         {
             get { return _isMultiSelected; }
-            set { SetField(ref _isMultiSelected, value, nameof(IsMultiSelected)); }
+            set { SetField(ref _isMultiSelected, value); }
         }
 
         public virtual bool IsVisible { get { return true; } set { } }

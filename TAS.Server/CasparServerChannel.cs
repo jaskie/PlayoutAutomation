@@ -36,7 +36,7 @@ namespace TAS.Server
         private bool _isServerConnected;
         [XmlIgnore]
         [JsonProperty]
-        public bool IsServerConnected { get { return _isServerConnected; } internal set { SetField(ref _isServerConnected, value, nameof(IsServerConnected)); } }
+        public bool IsServerConnected { get { return _isServerConnected; } internal set { SetField(ref _isServerConnected, value); } }
 
 
         #endregion // IPlayoutServerChannel

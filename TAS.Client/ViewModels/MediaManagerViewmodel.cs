@@ -109,7 +109,7 @@ namespace TAS.Client.ViewModels
         public RecordersViewmodel RecordersViewmodel { get { return _recordersViewmodel; } }
 
         bool _previewDisplay;
-        public bool PreviewDisplay { get { return _previewDisplay; } set { SetField(ref _previewDisplay, value, nameof(PreviewDisplay)); } }
+        public bool PreviewDisplay { get { return _previewDisplay; } set { SetField(ref _previewDisplay, value); } }
 
         private MediaViewViewmodel _selectedMedia;
         public MediaViewViewmodel SelectedMedia
@@ -123,7 +123,7 @@ namespace TAS.Client.ViewModels
                     return;
                 }
                 var oldSelectedMedia = _selectedMedia;
-                if (SetField(ref _selectedMedia, value, nameof(SelectedMedia)))
+                if (SetField(ref _selectedMedia, value))
                 {
                     if (oldSelectedMedia != null)
                         oldSelectedMedia.SelectedSegment = null;
@@ -145,7 +145,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 MediaEditViewmodel oldEditMedia = _editMedia;
-                if (SetField(ref _editMedia, value, nameof(EditMedia)) && oldEditMedia != null)
+                if (SetField(ref _editMedia, value) && oldEditMedia != null)
                     oldEditMedia.Dispose();
             }
         }
@@ -413,7 +413,7 @@ namespace TAS.Client.ViewModels
             get { return _searchText; }
             set
             {
-                if (SetField(ref _searchText, value, nameof(SearchText)))
+                if (SetField(ref _searchText, value))
                     _searchTextSplit = value.ToLower().Split(' ');
             }
         }
@@ -485,7 +485,7 @@ namespace TAS.Client.ViewModels
             get { return _mediaCategory; }
             set
             {
-                if (SetField(ref _mediaCategory, value, nameof(MediaCategory)))
+                if (SetField(ref _mediaCategory, value))
                 {
                     NotifyPropertyChanged(nameof(IsDisplayMediaCategory));
                     _search(null);
@@ -502,7 +502,7 @@ namespace TAS.Client.ViewModels
             get { return _mediaType; }
             set
             {
-                if (SetField(ref _mediaType, value, nameof(MediaType)))
+                if (SetField(ref _mediaType, value))
                 {
                     NotifyPropertyChanged(nameof(IsMediaCategoryVisible));
                     _search(null);
@@ -708,7 +708,7 @@ namespace TAS.Client.ViewModels
             get { return _mediaItems; }
             private set
             {
-                if (SetField(ref _mediaItems, value, nameof(MediaItems)))
+                if (SetField(ref _mediaItems, value))
                     SelectedMedia = null;
             }
         }

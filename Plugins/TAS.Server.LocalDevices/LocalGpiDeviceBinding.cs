@@ -62,7 +62,7 @@ namespace TAS.Server
 
             set
             {
-                if (SetField(ref _isWideScreen, value, nameof(IsWideScreen)))
+                if (SetField(ref _isWideScreen, value))
                 {
                     _isWideScreen = value;
                     var pin = WideScreen;

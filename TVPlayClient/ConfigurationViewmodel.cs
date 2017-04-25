@@ -67,7 +67,7 @@ namespace TVPlayClient
         public IEnumerable<ConfigurationChannel> Channels { get { return _channels; } }
 
         private ConfigurationChannel _selectedChannel;
-        public ConfigurationChannel SelectedChannel { get { return _selectedChannel; } set { SetField(ref _selectedChannel, value, nameof(SelectedChannel)); } }
+        public ConfigurationChannel SelectedChannel { get { return _selectedChannel; } set { SetField(ref _selectedChannel, value); } }
         
         public ICommand CommandSave { get; private set; }
         public ICommand CommandAdd { get; private set; }

@@ -750,7 +750,7 @@ namespace TAS.Client.ViewModels
         #region Search panel
 
         private bool _isSearchPanelVisible;
-        public bool IsSearchPanelVisible { get { return _isSearchPanelVisible; }  set { SetField(ref _isSearchPanelVisible, value, nameof(IsSearchPanelVisible)); } }
+        public bool IsSearchPanelVisible { get { return _isSearchPanelVisible; }  set { SetField(ref _isSearchPanelVisible, value); } }
         private void _showSearchPanel(object obj)
         {
             IsSearchNotFound = false;
@@ -765,10 +765,10 @@ namespace TAS.Client.ViewModels
         }
 
         private bool _isSearchBoxFocused;
-        public bool IsSearchBoxFocused { get { return _isSearchBoxFocused; } set { SetField(ref _isSearchBoxFocused, value, nameof(IsSearchBoxFocused)); } }
+        public bool IsSearchBoxFocused { get { return _isSearchBoxFocused; } set { SetField(ref _isSearchBoxFocused, value); } }
 
         private bool _isSearchNotFound;
-        public bool IsSearchNotFound { get { return _isSearchNotFound; }  set { SetField(ref _isSearchNotFound, value, nameof(IsSearchNotFound)); } }
+        public bool IsSearchNotFound { get { return _isSearchNotFound; }  set { SetField(ref _isSearchNotFound, value); } }
 
         private string _searchText;
         public string SearchText
@@ -776,7 +776,7 @@ namespace TAS.Client.ViewModels
             get { return _searchText; }
             set
             {
-                if (SetField(ref _searchText, value, nameof(SearchText)))
+                if (SetField(ref _searchText, value))
                     IsSearchNotFound = false;
             }
         }
@@ -897,7 +897,7 @@ namespace TAS.Client.ViewModels
         public DateTime CurrentTime
         {
             get { return _currentTime; }
-            private set { SetField(ref _currentTime, value, nameof(CurrentTime)); }
+            private set { SetField(ref _currentTime, value); }
         }
 
         private TVideoFormat _videoFormat;
@@ -907,7 +907,7 @@ namespace TAS.Client.ViewModels
         public TimeSpan TimeToAttention
         {
             get { return _timeToAttention; }
-            set { SetField(ref _timeToAttention, value, nameof(TimeToAttention)); }
+            set { SetField(ref _timeToAttention, value); }
         }
 
         public string EngineName { get { return _engine.EngineName; } }
@@ -1260,7 +1260,7 @@ namespace TAS.Client.ViewModels
             get { return _trackPlayingEvent; }
             set
             {
-                if (SetField(ref _trackPlayingEvent, value, nameof(TrackPlayingEvent)))
+                if (SetField(ref _trackPlayingEvent, value))
                     if (value)
                     {
                         IEvent cp = _engine.Playing;

@@ -72,12 +72,12 @@ namespace TAS.Client.ViewModels
         static readonly Array _categories = Enum.GetValues(typeof(TMediaCategory)); 
         public Array Categories { get { return _categories; } }
         private TMediaCategory _destCategory;
-        public TMediaCategory DestCategory { get { return _destCategory; } set { SetField(ref _destCategory, value, nameof(DestCategory)); } }
+        public TMediaCategory DestCategory { get { return _destCategory; } set { SetField(ref _destCategory, value); } }
 
         
         public IEnumerable<ICGElement> Parentals { get { return _mediaManager?.CGElementsController?.Parentals; } }
         private byte _destParental;
-        public byte DestParental { get { return _destParental; } set { SetField(ref _destParental, value, nameof(DestParental)); } }
+        public byte DestParental { get { return _destParental; } set { SetField(ref _destParental, value); } }
 
         static readonly Array _aspectConversions = Enum.GetValues(typeof(TAspectConversion));
         public Array AspectConversions { get { return _aspectConversions; } }
@@ -88,7 +88,7 @@ namespace TAS.Client.ViewModels
         public TAspectConversion AspectConversion
         {
             get { return _aspectConversion; }
-            set { SetField(ref _aspectConversion, value, nameof(AspectConversion)); }
+            set { SetField(ref _aspectConversion, value); }
         }
 
         static readonly Array _audioChannelMappingConversions = Enum.GetValues(typeof(TAudioChannelMappingConversion));
@@ -97,14 +97,14 @@ namespace TAS.Client.ViewModels
         public TAudioChannelMappingConversion AudioChannelMappingConversion
         {
             get { return _audioChannelMappingConversion; }
-            set { SetField(ref _audioChannelMappingConversion, value, nameof(AudioChannelMappingConversion)); }
+            set { SetField(ref _audioChannelMappingConversion, value); }
         }
 
         private decimal _audioVolume;
         public decimal AudioVolume
         {
             get { return _audioVolume; }
-            set { SetField(ref _audioVolume, value, nameof(AudioVolume)); }
+            set { SetField(ref _audioVolume, value); }
         }
 
         static readonly Array _sourceFieldOrderEnforceConversions = Enum.GetValues(typeof(TFieldOrder));
@@ -113,14 +113,14 @@ namespace TAS.Client.ViewModels
         public TFieldOrder SourceFieldOrderEnforceConversion
         {
             get { return _sourceFieldOrderEnforceConversion; }
-            set { SetField(ref _sourceFieldOrderEnforceConversion, value, nameof(SourceFieldOrderEnforceConversion)); }
+            set { SetField(ref _sourceFieldOrderEnforceConversion, value); }
         }
     
         public bool EncodeVideo { get { return ((IIngestDirectory)_convertOperation.SourceMedia.Directory).VideoCodec != TVideoCodec.copy; } }
         public bool EncodeAudio { get { return ((IIngestDirectory)_convertOperation.SourceMedia.Directory).AudioCodec != TAudioCodec.copy; } }
 
         private bool _trim;
-        public bool Trim { get { return _trim; } set { SetField(ref _trim, value, nameof(Trim)); } }
+        public bool Trim { get { return _trim; } set { SetField(ref _trim, value); } }
 
         public string SourceFileName { get { return string.Format("{0}:{1}", _convertOperation.SourceMedia.Directory.DirectoryName, _convertOperation.SourceMedia.FileName); } }
 
@@ -130,7 +130,7 @@ namespace TAS.Client.ViewModels
             get { return _destMediaName; }
             set
             {
-                if (SetField(ref _destMediaName, value, nameof(DestMediaName)))
+                if (SetField(ref _destMediaName, value))
                     _makeFileName();
             }
         }
@@ -151,7 +151,7 @@ namespace TAS.Client.ViewModels
             get { return _startTC; }
             set
             {
-                if (SetField(ref _startTC, value, nameof(StartTC)))
+                if (SetField(ref _startTC, value))
                     NotifyPropertyChanged(nameof(EndTC));
             }
         }
@@ -162,7 +162,7 @@ namespace TAS.Client.ViewModels
             get { return _duration; }
             set
             {
-                if (SetField(ref _duration, value, nameof(Duration)))
+                if (SetField(ref _duration, value))
                     NotifyPropertyChanged(nameof(EndTC));
             }
         }
@@ -172,7 +172,7 @@ namespace TAS.Client.ViewModels
             get { return _startTC+_duration; }
             set
             {
-                if (SetField(ref _duration, value - StartTC, nameof(EndTC)))
+                if (SetField(ref _duration, value - StartTC))
                     NotifyPropertyChanged(nameof(Duration));
             }
         }
@@ -184,7 +184,7 @@ namespace TAS.Client.ViewModels
             get { return _idAux; }
             set
             {
-                if (SetField(ref _idAux, value, nameof(IdAux)))
+                if (SetField(ref _idAux, value))
                     _makeFileName();
             }
         }
@@ -192,7 +192,7 @@ namespace TAS.Client.ViewModels
         string _destFileName;
         public string DestFileName { 
             get { return _destFileName; }
-            set { SetField(ref _destFileName, value, nameof(DestFileName)); }
+            set { SetField(ref _destFileName, value); }
         }
 
 
@@ -203,7 +203,7 @@ namespace TAS.Client.ViewModels
         public TMediaEmphasis DestMediaEmphasis
         {
             get { return _destMediaEmphasis; }
-            set { SetField(ref _destMediaEmphasis, value, nameof(DestMediaEmphasis)); }
+            set { SetField(ref _destMediaEmphasis, value); }
         }
 
         static readonly Array _videoFormats = Enum.GetValues(typeof(TVideoFormat));
@@ -213,7 +213,7 @@ namespace TAS.Client.ViewModels
         public TVideoFormat DestMediaVideoFormat
         {
             get { return _destMediaVideoFormat; }
-            set { SetField(ref _destMediaVideoFormat, value, nameof(DestMediaVideoFormat)); }
+            set { SetField(ref _destMediaVideoFormat, value); }
         }
 
         public bool ShowParentalCombo { get { return _mediaManager?.CGElementsController?.Parentals != null; } }
@@ -233,7 +233,7 @@ namespace TAS.Client.ViewModels
         bool _loudnessCheck;
         public bool LoudnessCheck {
             get { return _loudnessCheck; }
-            set { SetField(ref _loudnessCheck, value, nameof(LoudnessCheck)); }
+            set { SetField(ref _loudnessCheck, value); }
         }
 
 

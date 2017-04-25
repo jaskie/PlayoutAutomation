@@ -85,7 +85,7 @@ namespace TAS.Client.ViewModels
             get { return _clearFinished; }
             set
             {
-                if (SetField(ref _clearFinished, value, "ClearFinished") && value)
+                if (SetField(ref _clearFinished, value) && value)
                     _clearFinishedOperations(null);
             }
         }
