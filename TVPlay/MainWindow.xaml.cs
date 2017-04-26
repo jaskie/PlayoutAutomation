@@ -82,6 +82,10 @@ namespace TAS.Client
                 e.Handled = true;
             }
         }
-        
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+        }
+
     }
 }

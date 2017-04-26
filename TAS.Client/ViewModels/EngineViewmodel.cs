@@ -145,6 +145,8 @@ namespace TAS.Client.ViewModels
                 _engine.PlayoutChannelSEC.PropertyChanged -= OnServerChannelPropertyChanged;
             if (_engine.PlayoutChannelPRV != null)
                 _engine.PlayoutChannelPRV.PropertyChanged -= OnServerChannelPropertyChanged;
+            if (_videoPreview != null)
+                _videoPreview.Dispose();
         }
 
         void _engineViewmodel_ClipboardChanged()
@@ -1050,7 +1052,6 @@ namespace TAS.Client.ViewModels
             {
                 Debug.WriteLine(e);
             }
-
         }
 
         private void _updatePluginCanExecute()

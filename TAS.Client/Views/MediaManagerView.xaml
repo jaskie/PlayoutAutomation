@@ -400,13 +400,21 @@
             </Grid.RowDefinitions>
             <ContentControl Content="{Binding EditMedia.Editor}" />
             <GridSplitter Grid.Row="1" VerticalAlignment="Top" Visibility="{Binding PreviewDisplay, Converter={StaticResource BoolToVis}}" HorizontalAlignment="Stretch" Background="DarkGray" Cursor="SizeNS" Height="3" ShowsPreview="True"/>
-            <ContentControl Visibility="{Binding PreviewDisplay, Converter={StaticResource BoolToVis}}" Margin="3, 3, 0, 0" Grid.Row="1" Content="{Binding PreviewViewmodel}" >
-                <ContentControl.ContentTemplate>
-                    <DataTemplate DataType="{x:Type vm:PreviewViewmodel}">
-                        <views:PreviewView/>
-                    </DataTemplate>
-                </ContentControl.ContentTemplate>
-            </ContentControl>
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition MinHeight="55"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ContentControl Visibility="{Binding PreviewDisplay, Converter={StaticResource BoolToVis}}" Margin="3, 3, 0, 0" Content="{Binding PreviewViewmodel}" >
+                    <ContentControl.ContentTemplate>
+                        <DataTemplate DataType="{x:Type vm:PreviewViewmodel}">
+                            <views:PreviewView/>
+                        </DataTemplate>
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
+                <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
+                <ContentControl Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" Margin="0, 3, 0, 0"  Content="{Binding VideoPreview.View}"/>
+            </Grid>
         </Grid>
         <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>
         <ContentControl Grid.Row="2" Content="{Binding FileManagerViewmodel}" >

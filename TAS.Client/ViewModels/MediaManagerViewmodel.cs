@@ -18,16 +18,18 @@ using TAS.Client.Common;
 using resources = TAS.Client.Common.Properties.Resources;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
-using TAS.Client.Views;
 using System.IO;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 
 namespace TAS.Client.ViewModels
 {
     public class MediaManagerViewmodel : ViewmodelBase
     {
         private readonly IMediaManager _mediaManager;
-        private readonly MediaManagerView _view;
         private ICollectionView _mediaView;
+
+
 
         public ICommand CommandSearch { get; private set; }
         public ICommand CommandClearFilters { get; private set; }
@@ -74,12 +76,12 @@ namespace TAS.Client.ViewModels
 
             _mediaCategory = _mediaCategories.FirstOrDefault();
             SelectedDirectory = serverDirectoryPRIVm;
-            _view = new MediaManagerView() { DataContext = this };
             if (mediaManager.FileManager != null)
                 _fileManagerViewmodel = new FileManagerViewmodel(mediaManager.FileManager);
             _recordersViewmodel = new RecordersViewmodel(mediaManager.Recorders);
             _recordersViewmodel.PropertyChanged += _recordersViewmodel_PropertyChanged;
             _previewDisplay = true;
+            ComposePlugins();
         }
 
         private void _recordersViewmodel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -100,7 +102,11 @@ namespace TAS.Client.ViewModels
         private readonly PreviewViewmodel _previewViewModel;
         public PreviewViewmodel PreviewViewmodel { get { return _previewViewModel; } }
 
-        public MediaManagerView View { get { return _view; } }
+        #pragma warning disable CS0649 
+        [Import(AllowDefault = true)]
+        Common.Plugin.IVideoPreview _videoPreview = null;
+        #pragma warning restore
+        public Common.Plugin.IVideoPreview VideoPreview { get { return _videoPreview; } }
 
         private readonly FileManagerViewmodel _fileManagerViewmodel;
         public FileManagerViewmodel FileManagerViewmodel { get { return _fileManagerViewmodel; } }
@@ -702,7 +708,6 @@ namespace TAS.Client.ViewModels
         }
 
         private ObservableCollection<MediaViewViewmodel> _mediaItems;
-
         public ObservableCollection<MediaViewViewmodel> MediaItems
         {
             get { return _mediaItems; }
@@ -712,6 +717,25 @@ namespace TAS.Client.ViewModels
                     SelectedMedia = null;
             }
         }
+
+        private void ComposePlugins()
+        {
+            try
+            {
+                var pluginPath = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
+                if (Directory.Exists(pluginPath))
+                {
+                    DirectoryCatalog catalog = new DirectoryCatalog(pluginPath);
+                    var container = new CompositionContainer(catalog);
+                    container.SatisfyImportsOnce(this);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
+        }
+
         public override string ToString()
         {
             return resources._media;

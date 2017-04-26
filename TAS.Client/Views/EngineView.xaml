@@ -576,7 +576,7 @@
                 <GridSplitter Visibility="{Binding IsPreviewPanelVisible, Converter={StaticResource BoolToVis}}" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="DarkGray" Height="3" Cursor="SizeNS"/>
                 <Grid Grid.Row="1" Margin="0, 3, 0, 0" Visibility="{Binding IsPreviewPanelVisible, Converter={StaticResource BoolToVis}}">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
+                        <RowDefinition MinHeight="55"/>
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <ContentControl Content="{Binding PreviewViewmodel}">

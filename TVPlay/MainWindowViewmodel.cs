@@ -42,6 +42,9 @@ namespace TAS.Client
         
         public List<ChannelViewmodel> Channels { get { return _channels; } }
 
-        protected override void OnDispose() { }
+        protected override void OnDispose()
+        {
+            _channels.ToList().ForEach(c => c.Dispose());
+        }
     }
 }

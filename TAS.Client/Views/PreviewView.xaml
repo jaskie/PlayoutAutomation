@@ -11,6 +11,7 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              d:DataContext="{x:Type vm:PreviewViewmodel}"
              FontSize="12" 
+             MinHeight="55"
              >
     <UserControl.Resources>
         <Style x:Key="controlButtonProperties" TargetType="Button" >

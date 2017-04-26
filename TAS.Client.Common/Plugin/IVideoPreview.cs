@@ -1,6 +1,8 @@
-﻿namespace TAS.Client.Common.Plugin
+﻿using System;
+
+namespace TAS.Client.Common.Plugin
 {
-    public interface IVideoPreview
+    public interface IVideoPreview: IDisposable
     {
         System.Windows.Controls.UserControl View { get; }
     }
