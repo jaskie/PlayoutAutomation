@@ -159,10 +159,18 @@ namespace TAS.Server
 
         byte _parental;
         [JsonProperty]
-        public byte Parental { get { return _parental; } set { SetField(ref _parental, value, nameof(Parental)); } }
+        public byte Parental
+        {
+            get { return _parental; }
+            set
+            {
+                if (SetField(ref _parental, value, nameof(Parental)))
+                    _engine.Execute(_parentals[value].Command);
+            }
+        }
 
         [JsonProperty(nameof(Parentals), ItemTypeNameHandling = TypeNameHandling.Objects)]
-        ICGElement[] _parentals = new ICGElement[0];
+        CGElement[] _parentals = new CGElement[0];
         public IEnumerable<ICGElement> Parentals { get { return _parentals; } }
 
         [JsonProperty(nameof(VisibleAuxes), ItemTypeNameHandling = TypeNameHandling.Objects)]

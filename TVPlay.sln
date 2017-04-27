@@ -57,6 +57,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.EnginePluginExample", "Plugins\TAS.Server.EnginePluginExample\TAS.Server.EnginePluginExample.csproj", "{12EE9232-10AD-4E0F-A848-42C8A79876B8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.CGElementsController", "Plugins\TAS.Server.CGElementsController\TAS.Server.CGElementsController.csproj", "{7970C290-A9E8-4ED3-83BC-9E8654ECD8D6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B2FD5EA3-CB51-470B-A58B-E2400983DD79} = {B2FD5EA3-CB51-470B-A58B-E2400983DD79}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RemoteClient", "RemoteClient", "{3F966B33-01BF-49D9-9EEC-C6A81308D6F6}"
 EndProject

@@ -530,6 +530,7 @@ namespace TAS.Server
                 }
                 channel.LoadBG(item);
                 channel.Play(item.VideoLayer);
+                return true;
             }
             return false;
         }
