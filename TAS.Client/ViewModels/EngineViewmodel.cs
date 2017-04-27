@@ -1018,6 +1018,13 @@ namespace TAS.Client.ViewModels
             get { return _engine.ForcedNext != null; }
         }
 
+        private int _audioVolumePGM = -60;
+        public int AudioLevelPRI 
+        {
+            get { return _audioVolumePGM; }
+            private set { SetField(ref _audioVolumePGM, value); }
+        }
+
         #region Plugin
         CompositionContainer _uiContainer;
 
@@ -1173,6 +1180,8 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(ServerConnectedPRI));
                 NotifyPropertyChanged(nameof(NoAlarms));
             }
+            if (sender == _engine.PlayoutChannelPRI && e.PropertyName == nameof(IPlayoutServerChannel.AudioLevel))
+                AudioLevelPRI = ((IPlayoutServerChannel)sender).AudioLevel;
         }
 
         public decimal ProgramAudioVolume //decibels
@@ -1180,9 +1189,9 @@ namespace TAS.Client.ViewModels
             get { return (decimal)(20 * Math.Log10((double)_engine.ProgramAudioVolume)); }
             set
             {
-                decimal volumeDB = (decimal)Math.Pow(10, (double)value / 20);
-                if (value != volumeDB)
-                    _engine.ProgramAudioVolume = volumeDB;
+                decimal volume = (decimal)Math.Pow(10, (double)value / 20);
+                if (value != volume)
+                    _engine.ProgramAudioVolume = volume;
             }
         }
 

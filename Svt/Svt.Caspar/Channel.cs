@@ -6,6 +6,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Svt.Caspar
 {
@@ -313,13 +314,44 @@ namespace Svt.Caspar
                 switch (address[2])
                 {
                     case "mixer":
-
+                        if (address.Length >= 5)
+                        {
+                            if (address[3] == "audio")
+                            {
+                                if (address[4] == "nb_channels" && arguments[0] is long)
+                                    NotifyAudio((int)(long)arguments[0]);
+                                else
+                                {
+                                    int audioChannel;
+                                    if (address.Length == 6
+                                        && arguments[0] is float
+                                        && int.TryParse(address[4], out audioChannel)
+                                        && audioChannel-- > 0)
+                                    {
+                                        var ad = _currentAudioData;
+                                        if (ad != null)
+                                            switch (address[5])
+                                            {
+                                                case "dBFS":
+                                                    if (ad.NumChannels > audioChannel)
+                                                        ad.dBFS[audioChannel] = (float)arguments[0];
+                                                    break;
+                                                case "pFS":
+                                                    if (ad.NumChannels > audioChannel)
+                                                        ad.pFS[audioChannel] = (float)arguments[0];
+                                                    break;
+                                            }
+                                    }
+                                }
+                                break;
+                            }
+                        }
                         Debug.WriteLine($"Unrecognized message: {string.Join("/", address)}:{string.Join(",", arguments)}");
                         break;
                     case "stage":
                     case "output":
                     default:
-                        Debug.WriteLine($"Unrecognized message: {string.Join("/", address)}:{string.Join(",", arguments)}");
+                        //Debug.WriteLine($"Unrecognized message: {string.Join("/", address)}:{string.Join(",", arguments)}");
                         break;
                 }
             }
@@ -327,9 +359,9 @@ namespace Svt.Caspar
 
         private void NotifyAudio(int numChannels)
         {
-            var oldAudioData = _currentAudioData;
-            if (oldAudioData != null)
-                AudioDataReceived?.Invoke(this, new AudioDataEventArgs(oldAudioData));
+            var audioData = _currentAudioData;
+            if (audioData != null && (audioData.dBFS.Any(v => v != null) || audioData.pFS.Any(v => v != null)))
+                AudioDataReceived?.Invoke(this, new AudioDataEventArgs(audioData));
             _currentAudioData = new AudioData(numChannels);
         }
         #endregion OSC
@@ -416,15 +448,19 @@ namespace Svt.Caspar
 
     public class AudioData
     {
-        public AudioData(int numChannels)
+        internal AudioData(int numChannels)
         {
             NumChannels = numChannels;
-            dBFS = new double[numChannels];
-            pFS = new double[numChannels];
+            dBFS = new float?[numChannels];
+            pFS =  new float?[numChannels];
         }
-        public double[] dBFS;
-        public double[] pFS;
+        public float?[] dBFS;
+        public float?[] pFS;
         public readonly int NumChannels;
+        public override string ToString()
+        {
+            return $"Audio data: {NumChannels}, dBFS:[{string.Join(", ", dBFS)}], pFS:[{string.Join(", ", pFS)}]";
+        }
     }
 
     public class AudioDataEventArgs: EventArgs

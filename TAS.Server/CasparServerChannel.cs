@@ -23,6 +23,7 @@ namespace TAS.Server
     public class CasparServerChannel : DtoBase, IPlayoutServerChannel
     {
         internal CasparServer ownerServer;
+        private Channel _casparChannel;
         #region IPlayoutServerChannel
         public int Id { get; set; }
         public int ChannelNumber { get { return Id; } set { Id = value; } } // old field name; to avoid problems after field rename after version 1.1.1
@@ -38,41 +39,58 @@ namespace TAS.Server
         [JsonProperty]
         public bool IsServerConnected { get { return _isServerConnected; } internal set { SetField(ref _isServerConnected, value); } }
 
+        private int _audiolevel;
+        [XmlIgnore]
+        [JsonProperty]
+        public int  AudioLevel { get { return _audiolevel; } private set { SetField(ref _audiolevel, value); } }
+
+        public void Initialize()
+        {
+            if (CheckConnected(_casparChannel))
+            {
+                ClearMixer();
+                _casparChannel.MasterVolume((float)MasterVolume);
+            }
+        }
 
         #endregion // IPlayoutServerChannel
 
-
         protected SimpleDictionary<VideoLayer, bool> outputAspectNarrow = new SimpleDictionary<VideoLayer, bool>();
 
-        private Channel _casparChannel;
         internal Channel CasparChannel
         {
             set
             {
+                var oldChannel = _casparChannel;
                 if (_casparChannel != value)
                 {
                     _casparChannel = value;
+                    if (oldChannel != null)
+                        oldChannel.AudioDataReceived -= Channel_AudioDataReceived;
+                    if (value != null)
+                        value.AudioDataReceived += Channel_AudioDataReceived;
                     VideoFormat = CasparModeToVideoFormat(_casparChannel.VideoMode);
                     Debug.WriteLine(this, "Caspar channel assigned");
                 }
             }
         }
 
-        private bool _checkConnected(Channel channel)
+        private void Channel_AudioDataReceived(object sender, AudioDataEventArgs e)
+        {
+            if (sender == _casparChannel)
+            {
+                var values = e.AudioData.dBFS.Where(f => f != null);
+                if (values.Any())
+                    AudioLevel = (int)values.Average();
+            }
+        }
+
+        private bool CheckConnected(Channel channel)
         {
             var server = ownerServer;
             if (server != null && channel != null)
                 return server.IsConnected;
             return false;
-        }
-
-        public void Initialize()
-        {
-            if (_checkConnected(_casparChannel))
-            {
-                ClearMixer();
-                _casparChannel.MasterVolume((float)MasterVolume);
-            }
         }
 
         public event EventHandler<VolumeChangedEventArgs> VolumeChanged;
@@ -139,7 +157,7 @@ namespace TAS.Server
         public bool LoadNext(Event aEvent)
         {
             var channel = _casparChannel;
-            if (aEvent != null && _checkConnected(channel))
+            if (aEvent != null && CheckConnected(channel))
             {
                 var eventType = aEvent.EventType;
                 if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
@@ -161,7 +179,7 @@ namespace TAS.Server
         public bool Load(Event aEvent)
         {
             var channel = _casparChannel;
-            if (aEvent != null && _checkConnected(channel))
+            if (aEvent != null && CheckConnected(channel))
             {
                 var eventType = aEvent.EventType;
                 if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
@@ -187,7 +205,7 @@ namespace TAS.Server
         public bool Load(Media media, VideoLayer videolayer, long seek, long duration)
         {
             var channel = _casparChannel;
-            if (_checkConnected(channel) 
+            if (CheckConnected(channel) 
                 && media != null)
             {
                 CasparItem item = _getItem(media, videolayer, seek);
@@ -208,7 +226,7 @@ namespace TAS.Server
         public bool Load(System.Drawing.Color color, VideoLayer videolayer)
         {
             var channel = _casparChannel;
-            if (_checkConnected(channel))
+            if (CheckConnected(channel))
             {
                 var scolor = '#' + color.ToArgb().ToString("X8");
                 CasparItem item = new CasparItem((int)videolayer, scolor);
@@ -226,7 +244,7 @@ namespace TAS.Server
         public bool Seek(VideoLayer videolayer, long position)
         {
             var channel = _casparChannel;
-            if (_checkConnected(channel))
+            if (CheckConnected(channel))
             {
                 channel.Seek((int)videolayer, (uint)position);
                 Debug.WriteLine("CasparSeek Channel {0} Layer {1} Position {2}", Id, (int)videolayer, position);
@@ -238,7 +256,7 @@ namespace TAS.Server
         public bool Play(Event aEvent)
         {
             var channel = _casparChannel;
-            if (_checkConnected(channel))
+            if (CheckConnected(channel))
             {
                 var eventType = aEvent.EventType;
                 if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
@@ -318,7 +336,7 @@ namespace TAS.Server
         public bool Play(VideoLayer videolayer)
         {
             var channel = _casparChannel;
-            if (_checkConnected(channel))
+            if (CheckConnected(channel))
             {
                 {
                     channel.Play((int)videolayer);
@@ -335,7 +353,7 @@ namespace TAS.Server
         public bool Stop(Event aEvent)
         {
             var channel = _casparChannel;
-            if (_checkConnected(channel))
+            if (CheckConnected(channel))
             {
                 Event playing;
                 if (_visible.TryGetValue(aEvent.Layer, out playing) && playing == aEvent)
@@ -355,7 +373,7 @@ namespace TAS.Server
         public bool Pause(Event aEvent)
         {
             var channel = _casparChannel;
-            if (_checkConnected(channel))
+            if (CheckConnected(channel))
             {
                 Event visible;
                 if (_visible.TryRemove(aEvent.Layer, out visible) && visible == aEvent)
@@ -374,7 +392,7 @@ namespace TAS.Server
         public bool Pause(VideoLayer videolayer)
         {
             var channel = _casparChannel;
-            if (_checkConnected(channel))
+            if (CheckConnected(channel))
             {
                 {
                     channel.Pause((int)videolayer);
@@ -389,7 +407,7 @@ namespace TAS.Server
         public void ReStart(Event ev)
         {
             var channel = _casparChannel;
-            if (_checkConnected(channel)
+            if (CheckConnected(channel)
                 && ev != null)
             {
                 CasparItem item = _getItem(ev);
@@ -409,7 +427,7 @@ namespace TAS.Server
         public void Clear(VideoLayer aVideoLayer)
         {
             var channel = _casparChannel;
-            if (_checkConnected(channel))
+            if (CheckConnected(channel))
             {
                 channel.Clear((int)aVideoLayer);
                 Event removed;
@@ -422,7 +440,7 @@ namespace TAS.Server
         public void Clear()
         {
             var channel = _casparChannel;
-            if (_checkConnected(channel))
+            if (CheckConnected(channel))
             {
                 channel.Clear();
                 channel.ClearMixer((int)VideoLayer.Program);
@@ -437,7 +455,7 @@ namespace TAS.Server
         public void ClearMixer()
         {
             var channel = _casparChannel;
-            if (_checkConnected(channel))
+            if (CheckConnected(channel))
             {
                 channel.ClearMixer();
                 channel.CG.Clear();
@@ -447,7 +465,7 @@ namespace TAS.Server
         public void SetVolume(VideoLayer videolayer, decimal volume, int transitionDuration)
         {
             var channel = _casparChannel;
-            if (_checkConnected(channel))
+            if (CheckConnected(channel))
             {
                 channel.Volume((int)videolayer, (float)volume, transitionDuration, Easing.Linear);
                 VolumeChanged?.Invoke(this, new VolumeChangedEventArgs(videolayer, volume));
@@ -457,7 +475,7 @@ namespace TAS.Server
         public void SetFieldOrderInverted(VideoLayer videolayer, bool invert)
         {
             var channel = _casparChannel;
-            if (_checkConnected(channel))
+            if (CheckConnected(channel))
                 channel.SetInvertedFieldOrder((int)videolayer, invert);
         }
 
@@ -466,7 +484,7 @@ namespace TAS.Server
             var channel = _casparChannel;
             var oldAspectNarrow = outputAspectNarrow[layer];
             if (oldAspectNarrow != narrow
-                && _checkConnected(channel))
+                && CheckConnected(channel))
             {
                 outputAspectNarrow[layer] = narrow;
                 if (narrow)
@@ -481,32 +499,32 @@ namespace TAS.Server
         public bool Execute(string command)
         {
             var channel = _casparChannel;
-            if (string.IsNullOrWhiteSpace(command) || !_checkConnected(channel))
+            if (string.IsNullOrWhiteSpace(command) || !CheckConnected(channel))
                 return false;
             Match match = EventExtensions.RegexMixerFill.Match(command);
             if (match.Success)
             {
                 VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
-                float x = float.Parse(match.Groups["x"].Value, System.Globalization.CultureInfo.InvariantCulture);
-                float y = float.Parse(match.Groups["y"].Value, System.Globalization.CultureInfo.InvariantCulture);
-                float sx = float.Parse(match.Groups["sx"].Value, System.Globalization.CultureInfo.InvariantCulture);
-                float sy = float.Parse(match.Groups["sy"].Value, System.Globalization.CultureInfo.InvariantCulture);
+                float x = float.Parse(match.Groups["x"].Value, CultureInfo.InvariantCulture);
+                float y = float.Parse(match.Groups["y"].Value, CultureInfo.InvariantCulture);
+                float sx = float.Parse(match.Groups["sx"].Value, CultureInfo.InvariantCulture);
+                float sy = float.Parse(match.Groups["sy"].Value, CultureInfo.InvariantCulture);
                 int duration = string.IsNullOrWhiteSpace(match.Groups["duration"].Value) ? 0 : int.Parse(match.Groups["duration"].Value);
                 TEasing easing = match.Groups["easing"].Success ? (TEasing)Enum.Parse(typeof(TEasing), match.Groups["easing"].Value, true) : TEasing.Linear;
-                channel.Fill((int)layer, x, y, sx, sy, duration, (Svt.Caspar.Easing)easing);
+                channel.Fill((int)layer, x, y, sx, sy, duration, (Easing)easing);
                 return true;
             }
             match = EventExtensions.RegexMixerClip.Match(command);
             if (match.Success)
             {
                 VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);
-                float x = float.Parse(match.Groups["x"].Value, System.Globalization.CultureInfo.InvariantCulture);
-                float y = float.Parse(match.Groups["y"].Value, System.Globalization.CultureInfo.InvariantCulture);
-                float sx = float.Parse(match.Groups["sx"].Value, System.Globalization.CultureInfo.InvariantCulture);
-                float sy = float.Parse(match.Groups["sy"].Value, System.Globalization.CultureInfo.InvariantCulture);
+                float x = float.Parse(match.Groups["x"].Value, CultureInfo.InvariantCulture);
+                float y = float.Parse(match.Groups["y"].Value, CultureInfo.InvariantCulture);
+                float sx = float.Parse(match.Groups["sx"].Value, CultureInfo.InvariantCulture);
+                float sy = float.Parse(match.Groups["sy"].Value, CultureInfo.InvariantCulture);
                 int duration = string.IsNullOrWhiteSpace(match.Groups["duration"].Value) ? 0 : int.Parse(match.Groups["duration"].Value);
                 TEasing easing = match.Groups["easing"].Success ? (TEasing)Enum.Parse(typeof(TEasing), match.Groups["easing"].Value, true) : TEasing.Linear;
-                channel.Clip((int)layer, x, y, sx, sy, duration, (Svt.Caspar.Easing)easing);
+                channel.Clip((int)layer, x, y, sx, sy, duration, (Easing)easing);
                 return true;
             }
             match = EventExtensions.RegexClearMixer.Match(command);
@@ -599,7 +617,6 @@ namespace TAS.Server
             }
         }
     }
-
     
     public class VolumeChangedEventArgs : EventArgs
     {
@@ -611,4 +628,6 @@ namespace TAS.Server
         public decimal Volume { get; private set; }
         public VideoLayer Layer { get; private set; }
     }
+
+
 }

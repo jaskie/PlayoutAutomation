@@ -175,7 +175,7 @@
                 <ColumnDefinition Width="430"/>
                 <ColumnDefinition Width="140"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="120"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Row="1" Grid.Column="1" Grid.RowSpan="3" Orientation="Horizontal" FocusManager.IsFocusScope="True">
                 <Button Command="{Binding CommandStartSelected}" ToolTip="{Resx _toolbar.StartSelected}">
@@ -270,6 +270,7 @@
                 </TextBlock.ToolTip>
             </TextBlock>
             <DockPanel Grid.Column="4" Grid.RowSpan="4">
+                <ProgressBar Value="{Binding AudioLevelPRI}" DockPanel.Dock="Left" Orientation="Vertical" Minimum="-60" Maximum="0" Width="15" Margin="0, 0, 5, 0" Style="{DynamicResource VerticalVolumeGaugeStyle}" />
                 <CheckBox DockPanel.Dock="Top" Visibility="{Binding IsInterlacedFormat, Converter={StaticResource BoolToVis}}" Content="{Resx _toolbar.FieldOrderInverted}" ToolTip="{Resx _toolbar.FieldOrderInverted.ToolTip}" IsChecked="{Binding FieldOrderInverted}" IsEnabled="{Binding IsPlayingMovie}"/>
                 <Label DockPanel.Dock="Top" Content="Audio"/>
                 <Grid DockPanel.Dock="Top">
@@ -535,30 +536,30 @@
                             </Style.Triggers>
                         </Style>
                     </TreeView.ItemContainerStyle>
-                <TreeView.Resources>
-                    <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelMovieViewmodel}" >
-                        <views:EventPanelMovieView />
-                    </HierarchicalDataTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelLiveViewmodel}" >
-                        <views:EventPanelLiveView />
-                    </HierarchicalDataTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelContainerViewmodel}" >
-                        <views:EventPanelContainerView />
-                    </HierarchicalDataTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelRundownViewmodel}" >
-                        <views:EventPanelRundownView />
-                    </HierarchicalDataTemplate>
-                    <DataTemplate DataType="{x:Type vievmodels:EventPanelStillViewmodel}" >
-                        <views:EventPanelStillView />
-                    </DataTemplate>
-                    <DataTemplate DataType="{x:Type vievmodels:EventPanelAnimationViewmodel}" >
-                        <views:EventPanelAnimationView />
-                    </DataTemplate>
-                    <DataTemplate DataType="{x:Type vievmodels:EventPanelCommandScriptViewmodel}" >
-                        <views:EventPanelCommandScriptView />
-                    </DataTemplate>
-                </TreeView.Resources>
-            </TreeView>
+                    <TreeView.Resources>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelMovieViewmodel}" >
+                            <views:EventPanelMovieView />
+                        </HierarchicalDataTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelLiveViewmodel}" >
+                            <views:EventPanelLiveView />
+                        </HierarchicalDataTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelContainerViewmodel}" >
+                            <views:EventPanelContainerView />
+                        </HierarchicalDataTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Childrens}" DataType="{x:Type vievmodels:EventPanelRundownViewmodel}" >
+                            <views:EventPanelRundownView />
+                        </HierarchicalDataTemplate>
+                        <DataTemplate DataType="{x:Type vievmodels:EventPanelStillViewmodel}" >
+                            <views:EventPanelStillView />
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type vievmodels:EventPanelAnimationViewmodel}" >
+                            <views:EventPanelAnimationView />
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type vievmodels:EventPanelCommandScriptViewmodel}" >
+                            <views:EventPanelCommandScriptView />
+                        </DataTemplate>
+                    </TreeView.Resources>
+                </TreeView>
             </DockPanel>
             <!--</TabItem>
                 <TabItem Padding="0, 20" Header="{Resx _tabs.State}">

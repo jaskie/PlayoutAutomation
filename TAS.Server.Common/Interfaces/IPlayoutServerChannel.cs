@@ -4,12 +4,14 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using TAS.Common;
+using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
     public interface IPlayoutServerChannel: IPlayoutServerChannelProperties, IInitializable, INotifyPropertyChanged
     {
         bool IsServerConnected { get; }
+        int  AudioLevel { get; } 
     }
 
     public interface IPlayoutServerChannelProperties

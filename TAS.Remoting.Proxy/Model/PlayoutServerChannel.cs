@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using TAS.Common;
 using TAS.Remoting.Client;
+using TAS.Server.Common;
 using TAS.Server.Interfaces;
 
 namespace TAS.Remoting.Model
@@ -21,6 +22,8 @@ namespace TAS.Remoting.Model
         public bool IsServerConnected { get { return Get<bool>(); } set { SetLocalValue(value); } }
 
         public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { SetLocalValue(value); } }
+
+        public int AudioLevel { get { return Get<int>(); } set { SetLocalValue(value); } }
 
         public void Clear()
         {
