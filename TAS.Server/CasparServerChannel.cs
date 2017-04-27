@@ -53,6 +53,7 @@ namespace TAS.Server
                 {
                     _casparChannel = value;
                     VideoFormat = CasparModeToVideoFormat(_casparChannel.VideoMode);
+                    Debug.WriteLine(this, "Caspar channel assigned");
                 }
             }
         }
