@@ -506,6 +506,7 @@ namespace TAS.Server
         public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal previewAudioVolume)
         {
             Media mediaToLoad = _findPreviewMedia(media as Media);
+            Debug.WriteLine(mediaToLoad, "Loading");
             if (mediaToLoad != null)
             {
                 _previewDuration = duration;

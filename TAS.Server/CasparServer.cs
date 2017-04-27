@@ -124,14 +124,14 @@ namespace TAS.Server
                 _updateChannels(_casparDevice.Channels);
         }
 
-        private void _updateChannels(List<Svt.Caspar.Channel> channels)
+        private void _updateChannels(Svt.Caspar.Channel[] channels)
         {
-            if (channels != null && channels.Count > 0)
+            if (channels != null && channels.Length > 0)
             {
                 _needUpdateChannels = false;
                 foreach (CasparServerChannel c in Channels)
                 {
-                    c.CasparChannel = channels.Find(csc => csc.ID == c.Id);
+                    c.CasparChannel = Array.Find(channels, csc => csc.ID == c.Id);
                     c.Initialize();
                 }
             }
@@ -141,7 +141,7 @@ namespace TAS.Server
             if (e.Connected)
             {
                 _casparDevice.RefreshTemplates();
-                if (_casparDevice.Channels.Count > 0)
+                if (_casparDevice.Channels.Length > 0)
                     _updateChannels(_casparDevice.Channels);
                 else
                     _needUpdateChannels = true;

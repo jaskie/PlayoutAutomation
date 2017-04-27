@@ -17,7 +17,6 @@ namespace Svt.Network.Osc
         UdpClient receivingUdpClient;
         IPEndPoint RemoteIpEndPoint;
 
-        public event EventHandler<OscPacketEventArgs> PacketReceived;
         ManualResetEvent ClosingEvent = new ManualResetEvent(false);
         private HashSet<Action<OscPacketEventArgs>> _deletates = new HashSet<Action<OscPacketEventArgs>>();
 

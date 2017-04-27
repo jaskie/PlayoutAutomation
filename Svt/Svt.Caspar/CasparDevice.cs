@@ -14,8 +14,8 @@ namespace Svt.Caspar
         private Svt.Network.ReconnectionHelper ReconnectionHelper { get; set; }
         private System.Net.IPAddress[] HostAddresses;
         public CasparDeviceSettings Settings { get; private set; }
-        public List<Channel> Channels { get; private set; }
-        public List<Recorder> Recorders { get; private set; }
+        public Channel[] Channels { get; private set; }
+        public Recorder[] Recorders { get; private set; }
         public TemplatesCollection Templates { get; private set; }
         public List<MediaInfo> Mediafiles { get; private set; }
         public List<string> Datafiles { get; private set; }
@@ -46,8 +46,8 @@ namespace Svt.Caspar
 		{
             Settings = new CasparDeviceSettings();
             Connection = new Network.ServerConnection();
-            Channels = new List<Channel>();
-            Recorders = new List<Recorder>();
+            Channels = new Channel[0];
+            Recorders = new Recorder[0];
 		    Templates = new TemplatesCollection();
 		    Mediafiles = new List<MediaInfo>();
 		    Datafiles = new List<string>();
@@ -69,7 +69,9 @@ namespace Svt.Caspar
             }
         }
 
-        private void oscListener_PacketReceived(Network.Osc.OscPacketEventArgs e)
+        #region OSC
+
+        private void OscListener_PacketReceived(Network.Osc.OscPacketEventArgs e)
         {
             if (HostAddresses.Any(a => a.Equals(e.SourceAddress)))
             {
@@ -77,15 +79,42 @@ namespace Svt.Caspar
                 var message = e.Packet as Svt.Network.Osc.OscMessage;
                 var recorders = Recorders;
                 if (message != null)
-                    recorders.ForEach(r => r.OscMessage(message));
-                var bundle = e.Packet as Svt.Network.Osc.OscBundle;
-                if (bundle != null)
-                    foreach (var m in bundle.Messages)
-                        recorders.ForEach(r => r.OscMessage(m));
+                    OscMessageReceived(message);
+                else
+                {
+                    var bundle = e.Packet as Svt.Network.Osc.OscBundle;
+                    if (bundle != null)
+                        foreach (var m in bundle.Messages)
+                           OscMessageReceived(m);
+                }
             }
         }
 
-        #region Server notifications
+        private void OscMessageReceived(Network.Osc.OscMessage message)
+        {
+            string[] path = message.Address.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            if (path.Length >= 2)
+            {
+                int id;
+                if (int.TryParse(path[1], out id))
+                    switch (path[0])
+                    {
+                        case "channel":
+                            var channels = Channels;
+                            channels.FirstOrDefault(c => c.ID == id)?.OscMessage(path, message.Arguments);
+                            break;
+                        case "recorder":
+                            var recorders = Recorders;
+                            recorders.FirstOrDefault(r => r.Id == id)?.OscMessage(path, message.Arguments);
+                            break;
+                    }
+            }
+        }
+
+
+        #endregion OSC
+
+            #region Server notifications
         private void server__ConnectionStateChanged(object sender, Network.ConnectionEventArgs e)
         {
             try
@@ -211,7 +240,7 @@ namespace Svt.Caspar
             if (Settings.OscPort > 0)
             {
                 HostAddresses = System.Net.Dns.GetHostAddresses(Settings.Hostname);
-                Network.Osc.OscPacketDispatcher.Bind(Settings.OscPort, oscListener_PacketReceived);
+                Network.Osc.OscPacketDispatcher.Bind(Settings.OscPort, OscListener_PacketReceived);
             }
             if (!IsConnected)
 			{
@@ -232,7 +261,7 @@ namespace Svt.Caspar
             }
             Connection.CloseConnection();
             if (Settings.OscPort > 0)
-                Network.Osc.OscPacketDispatcher.UnBind(Settings.OscPort, oscListener_PacketReceived);
+                Network.Osc.OscPacketDispatcher.UnBind(Settings.OscPort, OscListener_PacketReceived);
         }
 		#endregion
         

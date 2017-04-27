@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using System.Diagnostics;
 
 namespace Svt.Caspar
 {
@@ -12,7 +13,7 @@ namespace Svt.Caspar
     public class ChannelList
     {
         [XmlElement("channel", Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        public List<Channel> Channels { get; set; }
+        public Channel[] Channels { get; set; }
     }
     
     [XmlRoot("xmlElementName")]
@@ -21,6 +22,7 @@ namespace Svt.Caspar
         const string xmlElementName = "channel";
 
         private int _index;
+        private AudioData _currentAudioData;
 		public int ID { get { return _index; } }
         public CGManager CG { get; private set; }
         public VideoMode VideoMode { get; internal set; }
@@ -302,6 +304,37 @@ namespace Svt.Caspar
         }
         #endregion //Commands
 
+        public event EventHandler<AudioDataEventArgs> AudioDataReceived;
+        #region OSC
+        internal void OscMessage(string[] address, List<object> arguments)
+        {
+            if (address.Length >= 3 && arguments.Count == 1)
+            {
+                switch (address[2])
+                {
+                    case "mixer":
+
+                        Debug.WriteLine($"Unrecognized message: {string.Join("/", address)}:{string.Join(",", arguments)}");
+                        break;
+                    case "stage":
+                    case "output":
+                    default:
+                        Debug.WriteLine($"Unrecognized message: {string.Join("/", address)}:{string.Join(",", arguments)}");
+                        break;
+                }
+            }
+        }
+
+        private void NotifyAudio(int numChannels)
+        {
+            var oldAudioData = _currentAudioData;
+            if (oldAudioData != null)
+                AudioDataReceived?.Invoke(this, new AudioDataEventArgs(oldAudioData));
+            _currentAudioData = new AudioData(numChannels);
+        }
+        #endregion OSC
+
+       
         private string ToAMCPString(VideoMode mode)
         {
             string modestr = mode.ToString();
@@ -379,6 +412,28 @@ namespace Svt.Caspar
         m2160p3000,
         m2160p5000,
         Unknown
+    }
+
+    public class AudioData
+    {
+        public AudioData(int numChannels)
+        {
+            NumChannels = numChannels;
+            dBFS = new double[numChannels];
+            pFS = new double[numChannels];
+        }
+        public double[] dBFS;
+        public double[] pFS;
+        public readonly int NumChannels;
+    }
+
+    public class AudioDataEventArgs: EventArgs
+    {
+        internal AudioDataEventArgs(AudioData audioData)
+        {
+            AudioData = audioData;
+        }
+        public AudioData AudioData { get; private set; }
     }
 
 }

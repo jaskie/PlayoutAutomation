@@ -39,7 +39,7 @@ namespace Svt.Caspar
     public class RecorderList
     {
         [XmlElement("recorder", Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        public List<Recorder> Recorders { get; set; }
+        public Recorder[] Recorders { get; set; }
     }
 
     public class Recorder
@@ -131,43 +131,37 @@ namespace Svt.Caspar
 
         #region OSC notifications
 
-        internal void OscMessage(Network.Osc.OscMessage message)
+        internal void OscMessage(string[] address, List<object> arguments)
         {
-            string[] path = message.Address.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-            int id;
-            if (path.Length >= 3 && message.Arguments.Count == 1)
+            if (address.Length >= 3 && arguments.Count == 1)
             {
-                if (path[0] == "recorder" &&
-                    int.TryParse(path[1], out id) && id == Id)
+                switch (address[2])
                 {
-                    switch (path[2])
-                    {
-                        case "tc":
-                            Tc?.Invoke(this, new TcEventArgs(message.Arguments[0].ToString()));
-                            break;
-                        case "control":
-                            DeckControl control;
-                            if (Enum.TryParse(message.Arguments[0].ToString(), out control))
-                                DeckControl?.Invoke(this, new DeckControlEventArgs(control));
-                            break;
-                        case "state":
-                            DeckState state;
-                            if (Enum.TryParse(message.Arguments[0].ToString(), out state))
-                                DeckState?.Invoke(this, new DeckStateEventArgs(state));
-                            break;
-                        case "connected":
-                            bool isConnected;
-                            if (bool.TryParse(message.Arguments[0].ToString(), out isConnected))
-                                IsConnected = isConnected;
-                            break;
-                        case "frames_left":
-                            if (message.Arguments[0] is long)
-                                FramesLeft?.Invoke(this, new FramesLeftEventArgs((long)message.Arguments[0]));
-                            break;
-                        default:
-                            Debug.WriteLine($"Unrecognized message: {path[2]}");
-                            break;
-                    }
+                    case "tc":
+                        Tc?.Invoke(this, new TcEventArgs(arguments[0].ToString()));
+                        break;
+                    case "control":
+                        DeckControl control;
+                        if (Enum.TryParse(arguments[0].ToString(), out control))
+                            DeckControl?.Invoke(this, new DeckControlEventArgs(control));
+                        break;
+                    case "state":
+                        DeckState state;
+                        if (Enum.TryParse(arguments[0].ToString(), out state))
+                            DeckState?.Invoke(this, new DeckStateEventArgs(state));
+                        break;
+                    case "connected":
+                        bool isConnected;
+                        if (bool.TryParse(arguments[0].ToString(), out isConnected))
+                            IsConnected = isConnected;
+                        break;
+                    case "frames_left":
+                        if (arguments[0] is long)
+                            FramesLeft?.Invoke(this, new FramesLeftEventArgs((long)arguments[0]));
+                        break;
+                    default:
+                        Debug.WriteLine($"Unrecognized message: {string.Join("/", address)}:{string.Join(",", arguments)}");
+                        break;
                 }
             }
         }
