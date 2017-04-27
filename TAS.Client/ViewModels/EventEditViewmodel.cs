@@ -15,6 +15,7 @@ using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using resources = TAS.Client.Common.Properties.Resources;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 
 namespace TAS.Client.ViewModels
 {
@@ -212,7 +213,7 @@ namespace TAS.Client.ViewModels
         }
 
         bool _isLoading;
-        protected override bool SetField<T>(ref T field, T value, string propertyName)
+        protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (base.SetField(ref field, value, propertyName))
             {
@@ -383,7 +384,7 @@ namespace TAS.Client.ViewModels
             get { return _media; }
             set
             {
-                SetField(ref _media, value, nameof(Media));
+                SetField(ref _media, value);
             }
         }
 
@@ -525,7 +526,7 @@ namespace TAS.Client.ViewModels
             get { return _isVolumeChecking; }
             set
             {
-                if (base.SetField(ref _isVolumeChecking, value, nameof(IsVolumeChecking))) //not set Modified
+                if (base.SetField(ref _isVolumeChecking, value)) //not set Modified
                     InvalidateRequerySuggested();
             }
         }
@@ -547,14 +548,14 @@ namespace TAS.Client.ViewModels
         public TEventType EventType
         {
             get { return _eventType; }
-            set { SetField(ref _eventType, value, nameof(EventType)); }
+            set { SetField(ref _eventType, value); }
         }
 
         private string _eventName;
         public string EventName
         {
             get { return _eventName; }
-            set { SetField(ref _eventName, value, nameof(EventName)); }
+            set { SetField(ref _eventName, value); }
         }
 
         public bool IsEditEnabled
@@ -601,16 +602,16 @@ namespace TAS.Client.ViewModels
         byte _crawl;
         byte _logo;
         byte _parental;           
-        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value, nameof(IsCGEnabled)); } }
-        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value, nameof(Crawl)); } }
-        public byte Logo { get { return _logo; } set { SetField(ref _logo, value, nameof(Logo)); } }
-        public byte Parental { get { return _parental; } set { SetField(ref _parental, value, nameof(Parental)); } }
+        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value); } }
+        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value); } }
+        public byte Logo { get { return _logo; } set { SetField(ref _logo, value); } }
+        public byte Parental { get { return _parental; } set { SetField(ref _parental, value); } }
         #endregion ICGElementsState
 
         #region ITemplatedEdit
 
         private int _templateLayer;
-        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, nameof(TemplateLayer)); } }
+        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value); } }
 
         public object SelectedField { get; set; }
 
@@ -630,7 +631,7 @@ namespace TAS.Client.ViewModels
         public Array Methods { get { return _methods; } }
 
         private TemplateMethod _method;
-        public TemplateMethod Method { get { return _method; }  set { SetField(ref _method, value, nameof(Method)); } }
+        public TemplateMethod Method { get { return _method; }  set { SetField(ref _method, value); } }
 
         public bool KeyIsReadOnly { get { return true; } }
 
@@ -641,7 +642,7 @@ namespace TAS.Client.ViewModels
         #endregion //ITemplatedEdit
 
         private string _command;
-        public string Command { get { return _command; } set { SetField(ref _command, value, nameof(Command)); } }
+        public string Command { get { return _command; } set { SetField(ref _command, value); } }
 
         public bool IsMovie { get { return _event?.EventType == TEventType.Movie; } }
 
@@ -672,7 +673,7 @@ namespace TAS.Client.ViewModels
         public bool IsEnabled
         {
             get { return _isEnabled; }
-            set { SetField(ref _isEnabled, value, nameof(IsEnabled)); }
+            set { SetField(ref _isEnabled, value); }
         }
 
         private bool _isHold;
@@ -681,7 +682,7 @@ namespace TAS.Client.ViewModels
             get { return _isHold; }
             set
             {
-                if (SetField(ref _isHold, value, nameof(IsHold)))
+                if (SetField(ref _isHold, value))
                 {
                     if (value)
                         TransitionTime = TimeSpan.Zero;
@@ -694,7 +695,7 @@ namespace TAS.Client.ViewModels
         public bool IsLoop
         {
             get { return _isLoop; }
-            set { SetField(ref _isLoop, value, nameof(IsLoop)); }
+            set { SetField(ref _isLoop, value); }
         }
 
         private TStartType _startType;
@@ -703,7 +704,7 @@ namespace TAS.Client.ViewModels
             get { return _startType; }
             set
             {
-                if (SetField(ref _startType, value, nameof(StartType)))
+                if (SetField(ref _startType, value))
                 {
                     BindToEnd = value == TStartType.WithParentFromEnd;
                     NotifyPropertyChanged(nameof(IsAutoStartEvent));
@@ -717,7 +718,7 @@ namespace TAS.Client.ViewModels
             get { return _autoStartFlags; }
             set
             {
-                if (SetField(ref _autoStartFlags, value, nameof(AutoStartFlags)))
+                if (SetField(ref _autoStartFlags, value))
                 {
                     NotifyPropertyChanged(nameof(AutoStartForced));
                     NotifyPropertyChanged(nameof(AutoStartDaily));
@@ -772,7 +773,7 @@ namespace TAS.Client.ViewModels
             get { return _bindToEnd; }
             set
             {
-                if (SetField(ref _bindToEnd, value, nameof(BindToEnd)))
+                if (SetField(ref _bindToEnd, value))
                 {
                     if (_startType == TStartType.WithParent || _startType == TStartType.WithParentFromEnd)
                     {
@@ -803,7 +804,7 @@ namespace TAS.Client.ViewModels
         {
             get { return _scheduledTc; }
             set { 
-                SetField(ref _scheduledTc, value, nameof(ScheduledTc));
+                SetField(ref _scheduledTc, value);
                 NotifyPropertyChanged(nameof(Duration));
             }
         }
@@ -820,7 +821,7 @@ namespace TAS.Client.ViewModels
             get { return _transitionType; }
             set
             {
-                if (SetField(ref _transitionType, value, nameof(TransitionType)))
+                if (SetField(ref _transitionType, value))
                 {
                     if (value == TTransitionType.Cut)
                     {
@@ -836,21 +837,21 @@ namespace TAS.Client.ViewModels
         public TEasing TransitionEasing
         {
             get { return _transitionEasing; }
-            set { SetField(ref _transitionEasing, value, nameof(TransitionEasing)); }
+            set { SetField(ref _transitionEasing, value); }
         }
 
         private TimeSpan _transitionTime;
         public TimeSpan TransitionTime
         {
             get { return _transitionTime; }
-            set { SetField(ref _transitionTime, value, nameof(TransitionTime)); }
+            set { SetField(ref _transitionTime, value); }
         }
 
         private TimeSpan _transitionPauseTime;
         public TimeSpan TransitionPauseTime
         {
             get { return _transitionPauseTime; }
-            set { SetField(ref _transitionPauseTime, value, nameof(TransitionPauseTime)); }
+            set { SetField(ref _transitionPauseTime, value); }
         }
 
 
@@ -860,7 +861,7 @@ namespace TAS.Client.ViewModels
             get { return _audioVolume; }
             set
             {
-                if (SetField(ref _audioVolume, value, nameof(AudioVolume)))
+                if (SetField(ref _audioVolume, value))
                 {
                     NotifyPropertyChanged(nameof(HasAudioVolume));
                     NotifyPropertyChanged(nameof(AudioVolumeLevel));
@@ -873,7 +874,7 @@ namespace TAS.Client.ViewModels
             get { return _audioVolume != null ? (decimal)_audioVolume : _media != null ? _media.AudioVolume : 0m; }
             set
             {
-                if (SetField(ref _audioVolume, value, nameof(AudioVolumeLevel)))
+                if (SetField(ref _audioVolume, value))
                 {
                     NotifyPropertyChanged(nameof(HasAudioVolume));
                     NotifyPropertyChanged(nameof(AudioVolume));
@@ -886,7 +887,7 @@ namespace TAS.Client.ViewModels
             get { return _audioVolume != null; }
             set
             {
-                if (SetField(ref _audioVolume, value? (_media != null ? (decimal?)_media.AudioVolume : 0m) : null, nameof(HasAudioVolume)))
+                if (SetField(ref _audioVolume, value? (_media != null ? (decimal?)_media.AudioVolume : 0m) : null))
                 {
                     NotifyPropertyChanged(nameof(AudioVolume));
                     NotifyPropertyChanged(nameof(AudioVolumeLevel));
@@ -900,7 +901,7 @@ namespace TAS.Client.ViewModels
             get { return _scheduledTime; }
             set
             {
-                if (SetField(ref _scheduledTime, value, nameof(ScheduledTime)))
+                if (SetField(ref _scheduledTime, value))
                 {
                     NotifyPropertyChanged(nameof(ScheduledDate));
                     NotifyPropertyChanged(nameof(ScheduledTimeOfDay));
@@ -934,7 +935,7 @@ namespace TAS.Client.ViewModels
         public TimeSpan? RequestedStartTime
         {
             get { return _requestedStartTime; }
-            set { SetField(ref _requestedStartTime, value, nameof(RequestedStartTime)); }
+            set { SetField(ref _requestedStartTime, value); }
         }
 
 
@@ -944,25 +945,25 @@ namespace TAS.Client.ViewModels
             get { return _duration; }
             set
             {
-                SetField(ref _duration, value, nameof(Duration));
+                SetField(ref _duration, value);
                 NotifyPropertyChanged(nameof(ScheduledTc));
             }
         }
 
-        public RationalNumber FrameRate { get { return _engineViewModel.FrameRate; } }
+        public TVideoFormat VideoFormat { get { return _engineViewModel.VideoFormat; } }
 
         private TimeSpan _scheduledDelay;
         public TimeSpan ScheduledDelay
         {
             get { return _scheduledDelay; }
-            set { SetField(ref _scheduledDelay, value, nameof(ScheduledDelay)); }
+            set { SetField(ref _scheduledDelay, value); }
         }
 
         private sbyte _layer;
         public sbyte Layer
         {
             get { return _layer; }
-            set { SetField(ref _layer, value, nameof(Layer)); }
+            set { SetField(ref _layer, value); }
         }
 
         public bool HasSubItemOnLayer1
@@ -1016,7 +1017,6 @@ namespace TAS.Client.ViewModels
                 return (ev != null) && ev.EventType != TEventType.Rundown;
             }
         }
-
 
         public bool IsCGElementsEnabled
         {

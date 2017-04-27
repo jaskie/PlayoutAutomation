@@ -9,8 +9,7 @@ namespace TAS.Server.Interfaces
 {
     public interface IPlayoutServerChannel: IPlayoutServerChannelProperties, IInitializable, INotifyPropertyChanged
     {
-        IPlayoutServer OwnerServer { get; }
-
+        bool IsServerConnected { get; }
     }
 
     public interface IPlayoutServerChannelProperties

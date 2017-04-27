@@ -1,5 +1,5 @@
 ﻿<UserControl ResxExtension.DefaultResxName="TAS.Client.Views.EventEditView" Language="{UICulture}" 
-             x:Class="TAS.Client.EventEditView"
+             x:Class="TAS.Client.Views.EventEditView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -15,11 +15,6 @@
              d:DataContext="{x:Type vm:EventEditViewmodel}"
              d:DesignWidth="360"
              >
-    <UserControl.Resources>
-        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
-        <common:DateTimeToSMPTEConverter x:Key="DateTimeToSMPTE" />
-        <common:TimeSpanToFramesConverter x:Key="TimeSpanToFrames"/>
-    </UserControl.Resources>
     <DockPanel>
         <Grid DockPanel.Dock="Top" Height="37">
             <Grid.Resources>
@@ -177,12 +172,12 @@
                         <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsStartEvent}">
                             <TextBox Text="{Binding ScheduledDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, StringFormat=d}" Width="100" Visibility="{Binding IsScheduledDateVisible, Converter={StaticResource BoolToVis}}"/>
                             <Label Content="{Resx _at}" Width="Auto"/>
-                            <controls:TimecodeEdit Grid.Column="1" Text="{Binding ScheduledTimeOfDay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
+                            <controls:TimecodeEdit Grid.Column="1" Timecode="{Binding ScheduledTimeOfDay, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
                         </StackPanel>
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovieOrLiveOrRundown, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _requiredAt}" />
-                        <controls:TimecodeEdit Mask="00:00:00" AllowPromptAsInput="True" AutoSelectBehavior="OnFocus" Text="{Binding RequestedStartTime, Converter={StaticResource TimeOfDayToStringConverter}, ValidatesOnDataErrors=True}" ToolTip="{Resx _requiredAt.ToolTip}"/>
+                        <TextBox Text="{Binding RequestedStartTime, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Resx _requiredAt.ToolTip}"/>
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _clip}" />
@@ -202,11 +197,11 @@
                             </Grid.ColumnDefinitions>
                             <DockPanel>
                                 <Label Content="{Resx _duration}" />
-                                <controls:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsDurationEnabled}" Height="21" VerticalAlignment="Top" />
+                                <controls:TimecodeEdit Timecode="{Binding Duration, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" IsEnabled="{Binding IsDurationEnabled}" Height="21" VerticalAlignment="Top" />
                             </DockPanel>
                             <DockPanel Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                                 <Label Content="{Resx _scheduledTC}" />
-                                <controls:TimecodeEdit Text="{Binding ScheduledTc, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
+                                <controls:TimecodeEdit Text="{Binding ScheduledTc, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
                             </DockPanel>
                         </Grid>
                         <DockPanel>
@@ -236,9 +231,9 @@
                                     <ColumnDefinition/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <TextBox Text="{Binding TransitionTime, Converter={StaticResource TimeSpanToFrames}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+                                <controls:FrameEdit Timecode="{Binding TransitionTime, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
                                 <Label Grid.Column="1"  Width="Auto" Content="{Resx _transitionPauseLength}" ToolTip="{Resx _transitionPauseLength.ToolTip}" />
-                                <TextBox Grid.Column="2" Text="{Binding TransitionPauseTime, Converter={StaticResource TimeSpanToFrames}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+                                <controls:FrameEdit Grid.Column="2" Timecode="{Binding TransitionPauseTime, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
                             </Grid>
                         </DockPanel>
                         <DockPanel>
@@ -273,7 +268,7 @@
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <Label Content="{Resx _duration}" />
-                        <controls:TimecodeEdit Grid.Column="1" Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsDurationEnabled}"  />
+                        <controls:TimecodeEdit Grid.Column="1" Text="{Binding Duration}" VideoFormat="{Binding VideoFormat}" IsEnabled="{Binding IsDurationEnabled}"  />
                     </Grid>
                     <Grid Visibility="{Binding IsDisplayBindToEnd,Converter={StaticResource BoolToVis}}">
                         <Grid.ColumnDefinitions>
@@ -283,7 +278,7 @@
                         </Grid.ColumnDefinitions>
                         <Label Content="{Resx _scheduledDelay}" />
                         <DockPanel Grid.Column="1" DockPanel.Dock="Top" >
-                            <controls:TimecodeEdit Text="{Binding ScheduledDelay, Converter={StaticResource TimeSpanToSMPTE}, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
+                            <controls:TimecodeEdit Text="{Binding ScheduledDelay}" VideoFormat="{Binding VideoFormat}" />
                         </DockPanel>
                         <CheckBox Grid.Column="2" Content="{Resx _fromEnd}" IsChecked="{Binding BindToEnd}" />
                     </Grid>

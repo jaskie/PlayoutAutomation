@@ -30,7 +30,7 @@ namespace TAS.Server
         public DateTime KillDate
         {
             get { return _killDate; }
-            set { SetField(ref _killDate, value, nameof(KillDate)); }
+            set { SetField(ref _killDate, value); }
         }
 
         // content properties
@@ -41,7 +41,7 @@ namespace TAS.Server
         public string IdAux
         {
             get { return _idAux; }
-            set { SetField(ref _idAux, value, nameof(IdAux)); }
+            set { SetField(ref _idAux, value); }
         } // auxiliary Id from external system
 
         internal TMediaEmphasis _mediaEmphasis;
@@ -49,7 +49,7 @@ namespace TAS.Server
         public TMediaEmphasis MediaEmphasis
         {
             get { return _mediaEmphasis; }
-            set { SetField(ref _mediaEmphasis, value, nameof(MediaEmphasis)); }
+            set { SetField(ref _mediaEmphasis, value); }
         }
 
         protected bool _protected;
@@ -57,7 +57,7 @@ namespace TAS.Server
         public bool Protected
         {
             get { return _protected; }
-            set { SetField(ref _protected, value, nameof(Protected)); }
+            set { SetField(ref _protected, value); }
         }
         private readonly Lazy<MediaSegments> _mediaSegments;
         public IMediaSegments MediaSegments
@@ -83,9 +83,9 @@ namespace TAS.Server
 
         public bool IsModified { get; set; }
 
-        protected override bool SetField<T>(ref T field, T value, string propertyName)
+        protected override bool SetField<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
         {
-            bool modified = base.SetField<T>(ref field, value, propertyName);
+            bool modified = base.SetField(ref field, value, propertyName);
             if (modified && propertyName != nameof(IsVerified)) 
                 IsModified = true; 
             return modified;

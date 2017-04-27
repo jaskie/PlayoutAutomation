@@ -8,7 +8,9 @@
         xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         xmlns:client="clr-namespace:TAS.Client"
         xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+        xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
         xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+        xmlns:views="clr-namespace:TAS.Client.Views"
         d:DataContext="{x:Type vm:MediaSearchViewmodel}"
         Title="{Resx Window.Title}" 
         Height="450" 
@@ -20,7 +22,6 @@
         FontSize="12"
         >
     <Window.Resources>
-        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
         <ControlTemplate x:Key="toggleButtonTemplate" TargetType="ToggleButton">
             <Grid
@@ -84,7 +85,9 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <ContentControl Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" Content="{Binding PreviewView}" Width="330" Grid.ColumnSpan="3"/>
+            <ContentControl Grid.Column="1"  Width="330" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" >
+                <views:PreviewView DataContext="{Binding PreviewViewmodel}"/>
+            </ContentControl>
             <DockPanel>
                 <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Left" Margin="5" IsChecked="{Binding EnableCGElementsForNewEvents}" Content="{Resx _enableCGForNewEvents}" Visibility="{Binding CanEnableCGElements, Converter={StaticResource BoolToVis}}"/>
                 <DataGrid 
@@ -178,7 +181,13 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.IngestDate}" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" />
-                        <DataGridTextColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Binding="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}"/>
+                        <DataGridTemplateColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <controls:TimecodeTextBlock Timecode="{Binding DurationPlay}" VideoFormat="{Binding VideoFormat}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                     </DataGrid.Columns>
                     <DataGrid.RowDetailsTemplate >
                         <DataTemplate>
@@ -211,7 +220,13 @@
                                                 <DataTemplate />
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn DisplayMemberBinding="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, Mode=OneWay}" Width="{Binding ElementName=durationColumn, Path=ActualWidth}" TextBlock.TextAlignment="Left" />
+                                        <GridViewColumn Width="{Binding ElementName=durationColumn, Path=ActualWidth}" >
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <controls:TimecodeTextBlock TextAlignment="Left" Timecode="{Binding Duration}" VideoFormat="{Binding VideoFormat}"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
                                     </GridView>
                                 </ListView.View>
                             </ListView>

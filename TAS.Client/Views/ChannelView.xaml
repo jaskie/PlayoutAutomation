@@ -4,20 +4,22 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TAS.Client.Views"
              xmlns:vievmodels="clr-namespace:TAS.Client.ViewModels" 
              xmlns:views="clr-namespace:TAS.Client.Views" 
              mc:Ignorable="d" 
              d:DataContext="{x:Type vievmodels:ChannelViewmodel}"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="800" d:DesignWidth="1000">
     <UserControl.InputBindings>
         <KeyBinding Gesture="F12" Command="{Binding CommandSwitchTab}"/>
     </UserControl.InputBindings>
-    <TabControl TabStripPlacement="Bottom" BorderThickness="1" Padding="0" SelectedItem="{Binding SelectedTab}" ItemsSource="{Binding Tabs}" >
-        <TabControl.ContentTemplate>
-            <DataTemplate>
-                <ContentControl Content="{Binding View}"/>
-            </DataTemplate>
-        </TabControl.ContentTemplate>
+    <TabControl TabStripPlacement="Bottom" BorderThickness="1" Padding="0" SelectedIndex="{Binding SelectedTabIndex}" >
+        <TabControl.Items>
+            <TabItem Header="Playlista" DataContext="{Binding Engine}" Visibility="{Binding Converter={StaticResource NullToVis}}" >
+                <views:EngineView />
+            </TabItem>
+            <TabItem Header="Media" DataContext="{Binding MediaManager}" Visibility="{Binding Converter={StaticResource NullToVis}}">
+                <views:MediaManagerView />
+            </TabItem>
+        </TabControl.Items>
     </TabControl>
 </UserControl>

@@ -47,57 +47,6 @@ namespace TAS.Client.Common
 
 
     [ValueConversion(typeof(TimeSpan), typeof(string))]
-    public class TimeSpanToSMPTEConverter : IValueConverter
-    {
-        private RationalNumber _frameRate = new RationalNumber(25, 1);
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is TimeSpan)
-            {
-                if (parameter is string
-                    && (string)parameter == "HIDE_ZERO_VALUE"
-                    && (TimeSpan)value == TimeSpan.Zero)
-                    return string.Empty;
-                return ((TimeSpan)value).ToSMPTETimecodeString(_frameRate);
-            }
-            else
-                return null;
-        }
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is string && ((string)value).IsValidSMPTETimecode(_frameRate))
-                return ((string)value).SMPTETimecodeToTimeSpan(_frameRate);
-            else
-                return null;
-        }
-        public RationalNumber FrameRate { get { return _frameRate; } set { _frameRate = value; } }
-    }
-
-    [ValueConversion(typeof(TimeSpan), typeof(long))]
-    public class TimeSpanToFramesConverter : IValueConverter
-    {
-        private RationalNumber _frameRate = new RationalNumber(25, 1);
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return ((TimeSpan)value).ToSMPTEFrames(_frameRate);
-        }
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            long val;
-            if (value is string)
-            {
-                if (long.TryParse((string)value, out val))
-                    return val.SMPTEFramesToTimeSpan(_frameRate);
-                else
-                    return null;
-            }
-            else return ((long)value).SMPTEFramesToTimeSpan(_frameRate);
-
-        }
-        public RationalNumber FrameRate { get { return _frameRate; } set { _frameRate = value; } }
-    }
-
-    [ValueConversion(typeof(TimeSpan), typeof(string))]
     public class TimeSpanToSignedStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

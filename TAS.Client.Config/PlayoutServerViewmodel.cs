@@ -104,15 +104,15 @@ namespace TAS.Client.Config
         public override bool IsModified { get { return  _isModified || _isAnyChildChanged || _playoutServerChannels.Any(c => c.IsModified) || _playoutRecorders.Any(r => r.IsModified); } }
         public bool IsRecordersVisible { get { return _serverType == TServerType.CasparTVP; } }
 
-        public string ServerAddress { get { return _serverAddress; } set { SetField(ref _serverAddress, value, nameof(ServerAddress)); } }
-        public string MediaFolder { get { return _mediaFolder; } set { SetField(ref _mediaFolder, value, nameof(MediaFolder)); } }
-        public string AnimationFolder { get { return _animationFolder; } set { SetField(ref _animationFolder, value, nameof(AnimationFolder)); } }
+        public string ServerAddress { get { return _serverAddress; } set { SetField(ref _serverAddress, value); } }
+        public string MediaFolder { get { return _mediaFolder; } set { SetField(ref _mediaFolder, value); } }
+        public string AnimationFolder { get { return _animationFolder; } set { SetField(ref _animationFolder, value); } }
         public TServerType ServerType
         {
             get { return _serverType; }
             set
             {
-                if (SetField(ref _serverType, value, nameof(ServerType)))
+                if (SetField(ref _serverType, value))
                     NotifyPropertyChanged(nameof(IsRecordersVisible));
             }
         }

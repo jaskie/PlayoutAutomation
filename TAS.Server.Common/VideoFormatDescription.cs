@@ -28,6 +28,7 @@ namespace TAS.Common
             this.Format = format;
             switch (format)
             {
+                case TVideoFormat.Other:
                 case TVideoFormat.PAL_FHA:
                     Interlaced = true;
                     ImageSize = new Size(720, 576);

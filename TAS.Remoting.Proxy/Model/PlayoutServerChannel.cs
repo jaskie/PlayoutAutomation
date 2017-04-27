@@ -18,7 +18,7 @@ namespace TAS.Remoting.Model
 
         public decimal MasterVolume { get { return Get<decimal>(); } set { SetLocalValue(value); } }
 
-        public IPlayoutServer OwnerServer { get { return Get<IPlayoutServer>(); } set { SetLocalValue(value); } }
+        public bool IsServerConnected { get { return Get<bool>(); } set { SetLocalValue(value); } }
 
         public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { SetLocalValue(value); } }
 

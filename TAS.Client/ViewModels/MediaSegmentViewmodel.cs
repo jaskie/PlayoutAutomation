@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Windows;
 using TAS.Common;
 using TAS.Server.Interfaces;
+using System.Runtime.CompilerServices;
 
 namespace TAS.Client.ViewModels
 {
@@ -14,12 +15,12 @@ namespace TAS.Client.ViewModels
     {
         private readonly IMediaSegment _mediaSegment;
         private readonly IPersistentMedia _media;
-        private RationalNumber _frameRate;
+        private TVideoFormat _videoFormat;
         public MediaSegmentViewmodel(IPersistentMedia media, IMediaSegment mediaSegment)
         {
             _mediaSegment = mediaSegment;
             _media = media;
-            _frameRate = media.FrameRate();
+            _videoFormat = media.VideoFormat;
             mediaSegment.PropertyChanged += OnPropertyChanged;
             Load();
         }
@@ -38,7 +39,7 @@ namespace TAS.Client.ViewModels
         public string SegmentName
         {
             get { return _segmentName; }
-            set { SetField(ref _segmentName, value, nameof(SegmentName)); }
+            set { SetField(ref _segmentName, value); }
         }
         
         private TimeSpan _tcIn;
@@ -47,7 +48,7 @@ namespace TAS.Client.ViewModels
             get { return _tcIn; }
             set
             {
-                if (SetField(ref _tcIn, value, nameof(TcIn)))
+                if (SetField(ref _tcIn, value))
                 {
                     NotifyPropertyChanged(nameof(sTcIn));
                     NotifyPropertyChanged(nameof(Duration));
@@ -62,7 +63,7 @@ namespace TAS.Client.ViewModels
             get { return _tcOut; }
             set
             {
-                if (SetField(ref _tcOut, value, nameof(TcOut)))
+                if (SetField(ref _tcOut, value))
                 {
                     NotifyPropertyChanged(nameof(Duration));
                     NotifyPropertyChanged(nameof(sDuration));
@@ -75,15 +76,15 @@ namespace TAS.Client.ViewModels
             get { return TcOut - TcIn + _media.FormatDescription().FrameDuration; }
         }
 
-        public string sTcIn { get { return _tcIn.ToSMPTETimecodeString(_frameRate); } }
-        public string sDuration { get { return Duration.ToSMPTETimecodeString(_frameRate); } }
+        public string sTcIn { get { return _tcIn.ToSMPTETimecodeString(_videoFormat); } }
+        public string sDuration { get { return Duration.ToSMPTETimecodeString(_videoFormat); } }
 
-        public RationalNumber FrameRate
+        public TVideoFormat VideoFormat
         {
-            get { return _frameRate; }
+            get { return _videoFormat; }
             set
             {
-                if (SetField(ref _frameRate, value, nameof(FrameRate)))
+                if (SetField(ref _videoFormat, value))
                 {
                     NotifyPropertyChanged(nameof(sDuration));
                     NotifyPropertyChanged(nameof(sTcIn));
@@ -160,7 +161,7 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        protected override bool SetField<T>(ref T field, T value, string propertyName)
+        protected override bool SetField<T>(ref T field, T value, [CallerMemberName]string propertyName = null)
         {
             if (base.SetField(ref field, value, propertyName))
             {

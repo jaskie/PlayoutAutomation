@@ -71,7 +71,7 @@ namespace TAS.Client.Config
 
         public ObservableCollection<EngineViewmodel> Engines { get { return _engines; } }
         EngineViewmodel _selectedEngine;
-        public EngineViewmodel SelectedEngine { get { return _selectedEngine; } set { SetField(ref _selectedEngine, value, nameof(SelectedEngine)); } }
+        public EngineViewmodel SelectedEngine { get { return _selectedEngine; } set { SetField(ref _selectedEngine, value); } }
         public ICommand CommandAdd { get { return _commandAdd; } }
         public ICommand CommandDelete { get { return _commandDelete; } }
 

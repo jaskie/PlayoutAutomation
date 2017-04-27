@@ -58,8 +58,12 @@ namespace TVPlaySvc
                                     GC.Collect(GC.MaxGeneration);
                                     Console.WriteLine("Garbage collection requested.");
                                     break;
+                                case "help":
+                                case "?":
+                                    DisplayHelpInfo();
+                                    break;
                                 default:
-                                    Console.WriteLine("Command not recognized");
+                                    Console.WriteLine("Command not recognized. Type help to get list of available commands.");
                                     break;
                             }
                     }
@@ -69,6 +73,15 @@ namespace TVPlaySvc
                     EngineController.ShutDown();
                 }
             }
+        }
+
+        private static void DisplayHelpInfo()
+        {
+            Console.Write(@"Avaliable commands:
+    quit, q - exits application,
+    gc      - forces garbage collection,
+    help, ? - display this info.
+");
         }
 
         static void Main(string[] args)

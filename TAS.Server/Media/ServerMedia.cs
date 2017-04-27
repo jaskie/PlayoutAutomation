@@ -33,7 +33,7 @@ namespace TAS.Server
         public bool DoNotArchive
         {
             get { return _doNotArchive; }
-            set { SetField(ref _doNotArchive, value, nameof(DoNotArchive)); }
+            set { SetField(ref _doNotArchive, value); }
         }
 
         Lazy<bool> _isArchived;
@@ -43,7 +43,7 @@ namespace TAS.Server
             set
             {
                 if (_isArchived.IsValueCreated && _isArchived.Value != value)
-                    SetField(ref _isArchived, new Lazy<bool>(() => value), nameof(IsArchived));
+                    SetField(ref _isArchived, new Lazy<bool>(() => value));
             }
         }
 

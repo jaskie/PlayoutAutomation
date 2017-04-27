@@ -33,7 +33,7 @@ namespace TAS.Server
         public string SegmentName
         {
             get { return _segmentName; }
-            set { SetField(ref _segmentName, value, nameof(SegmentName)); }
+            set { SetField(ref _segmentName, value); }
         }
 
         private TimeSpan _tcIn;
@@ -41,7 +41,7 @@ namespace TAS.Server
         public TimeSpan TcIn
         {
             get { return _tcIn; }
-            set { SetField(ref _tcIn, value, nameof(TcIn)); }
+            set { SetField(ref _tcIn, value); }
         }
 
         private TimeSpan _tcOut;
@@ -49,7 +49,7 @@ namespace TAS.Server
         public TimeSpan TcOut
         {
             get { return _tcOut; }
-            set { SetField(ref _tcOut, value, nameof(TcOut)); }
+            set { SetField(ref _tcOut, value); }
         }
 
         public void Save()

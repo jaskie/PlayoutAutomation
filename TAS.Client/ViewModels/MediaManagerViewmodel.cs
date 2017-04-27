@@ -18,16 +18,18 @@ using TAS.Client.Common;
 using resources = TAS.Client.Common.Properties.Resources;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
-using TAS.Client.Views;
 using System.IO;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 
 namespace TAS.Client.ViewModels
 {
     public class MediaManagerViewmodel : ViewmodelBase
     {
         private readonly IMediaManager _mediaManager;
-        private readonly MediaManagerView _view;
         private ICollectionView _mediaView;
+
+
 
         public ICommand CommandSearch { get; private set; }
         public ICommand CommandClearFilters { get; private set; }
@@ -74,26 +76,46 @@ namespace TAS.Client.ViewModels
 
             _mediaCategory = _mediaCategories.FirstOrDefault();
             SelectedDirectory = serverDirectoryPRIVm;
-            _view = new MediaManagerView() { DataContext = this };
             if (mediaManager.FileManager != null)
-                _fileManagerVm = new FileManagerViewmodel(mediaManager.FileManager);
-            _recordersVm = new RecordersViewmodel(mediaManager.Recorders);
+                _fileManagerViewmodel = new FileManagerViewmodel(mediaManager.FileManager);
+            _recordersViewmodel = new RecordersViewmodel(mediaManager.Recorders);
+            _recordersViewmodel.PropertyChanged += _recordersViewmodel_PropertyChanged;
+            _previewDisplay = true;
+            ComposePlugins();
+        }
+
+        private void _recordersViewmodel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(RecordersViewmodel.RecordMedia))
+            {
+                var media = ((RecordersViewmodel)sender).RecordMedia;
+                if (media != null)
+                {
+                    EditMedia = new MediaEditViewmodel(media, _mediaManager, _previewViewModel, true);
+                    if (_previewViewModel != null)
+                        _previewViewModel.Media = media;
+                }
+            }
         }
 
         private readonly IPreview _preview;
         private readonly PreviewViewmodel _previewViewModel;
-        public PreviewView PreviewView { get { return _previewViewModel.View; } }
+        public PreviewViewmodel PreviewViewmodel { get { return _previewViewModel; } }
 
-        public MediaManagerView View { get { return _view; } }
+        #pragma warning disable CS0649 
+        [Import(AllowDefault = true)]
+        Common.Plugin.IVideoPreview _videoPreview = null;
+        #pragma warning restore
+        public Common.Plugin.IVideoPreview VideoPreview { get { return _videoPreview; } }
 
-        private readonly FileManagerViewmodel _fileManagerVm;
-        public FileManagerViewmodel FileManagerVm { get { return _fileManagerVm; } }
+        private readonly FileManagerViewmodel _fileManagerViewmodel;
+        public FileManagerViewmodel FileManagerViewmodel { get { return _fileManagerViewmodel; } }
 
-        private readonly RecordersViewmodel _recordersVm;
-        public RecordersViewmodel RecordersVm { get { return _recordersVm; } }
+        private readonly RecordersViewmodel _recordersViewmodel;
+        public RecordersViewmodel RecordersViewmodel { get { return _recordersViewmodel; } }
 
         bool _previewDisplay;
-        public bool PreviewDisplay { get { return _previewDisplay; } set { SetField(ref _previewDisplay, value, nameof(PreviewDisplay)); } }
+        public bool PreviewDisplay { get { return _previewDisplay; } set { SetField(ref _previewDisplay, value); } }
 
         private MediaViewViewmodel _selectedMedia;
         public MediaViewViewmodel SelectedMedia
@@ -107,7 +129,7 @@ namespace TAS.Client.ViewModels
                     return;
                 }
                 var oldSelectedMedia = _selectedMedia;
-                if (SetField(ref _selectedMedia, value, nameof(SelectedMedia)))
+                if (SetField(ref _selectedMedia, value))
                 {
                     if (oldSelectedMedia != null)
                         oldSelectedMedia.SelectedSegment = null;
@@ -129,7 +151,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 MediaEditViewmodel oldEditMedia = _editMedia;
-                if (SetField(ref _editMedia, value, nameof(EditMedia)) && oldEditMedia != null)
+                if (SetField(ref _editMedia, value) && oldEditMedia != null)
                     oldEditMedia.Dispose();
             }
         }
@@ -303,7 +325,7 @@ namespace TAS.Client.ViewModels
                         MediaCategory = sourceMedia.MediaCategory
                     };
                         ingestList.Add(
-                            FileManagerVm.CreateConvertOperation(
+                            FileManagerViewmodel.CreateConvertOperation(
                             sourceMedia,
                             destMediaProperties,
                             directory,
@@ -397,7 +419,7 @@ namespace TAS.Client.ViewModels
             get { return _searchText; }
             set
             {
-                if (SetField(ref _searchText, value, nameof(SearchText)))
+                if (SetField(ref _searchText, value))
                     _searchTextSplit = value.ToLower().Split(' ');
             }
         }
@@ -469,7 +491,7 @@ namespace TAS.Client.ViewModels
             get { return _mediaCategory; }
             set
             {
-                if (SetField(ref _mediaCategory, value, nameof(MediaCategory)))
+                if (SetField(ref _mediaCategory, value))
                 {
                     NotifyPropertyChanged(nameof(IsDisplayMediaCategory));
                     _search(null);
@@ -486,7 +508,7 @@ namespace TAS.Client.ViewModels
             get { return _mediaType; }
             set
             {
-                if (SetField(ref _mediaType, value, nameof(MediaType)))
+                if (SetField(ref _mediaType, value))
                 {
                     NotifyPropertyChanged(nameof(IsMediaCategoryVisible));
                     _search(null);
@@ -681,19 +703,39 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             SelectedDirectory = null;
+            if (_recordersViewmodel != null)
+                _recordersViewmodel.PropertyChanged -= _recordersViewmodel_PropertyChanged;
         }
 
         private ObservableCollection<MediaViewViewmodel> _mediaItems;
-
         public ObservableCollection<MediaViewViewmodel> MediaItems
         {
             get { return _mediaItems; }
             private set
             {
-                if (SetField(ref _mediaItems, value, nameof(MediaItems)))
+                if (SetField(ref _mediaItems, value))
                     SelectedMedia = null;
             }
         }
+
+        private void ComposePlugins()
+        {
+            try
+            {
+                var pluginPath = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
+                if (Directory.Exists(pluginPath))
+                {
+                    DirectoryCatalog catalog = new DirectoryCatalog(pluginPath);
+                    var container = new CompositionContainer(catalog);
+                    container.SatisfyImportsOnce(this);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
+        }
+
         public override string ToString()
         {
             return resources._media;

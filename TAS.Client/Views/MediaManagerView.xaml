@@ -10,7 +10,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1200"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
-             xmlns:client="clr-namespace:TAS.Client.Views"
+             xmlns:views="clr-namespace:TAS.Client.Views"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              d:DataContext="{x:Type vm:MediaManagerViewmodel}"
@@ -61,25 +61,33 @@
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="330" />
         </Grid.ColumnDefinitions>
-        <Menu Name="mainMenu" IsMainMenu="True" Visibility="Collapsed" >
+        <Menu Name="mainMenu" IsMainMenu="True" Background="Transparent" FontSize="12">
             <MenuItem Header="{Resx _menu.Tools}">
                 <MenuItem Header="{Resx _menu.Tools.SynchronizeSecToPri}" Command="{Binding CommandSyncPriToSec}"/>
             </MenuItem>
         </Menu>
-        <TabControl Grid.Row="1">
+        <TabControl Grid.RowSpan="2" >
+            <TabControl.Resources>
+            <Style TargetType="TabPanel">
+                <Setter Property="HorizontalAlignment" Value="Right"/>
+                </Style>
+            </TabControl.Resources>
             <TabItem Header="{Resx _media}">
                 <DockPanel >
-                    <DockPanel Height="30" Margin="2" DockPanel.Dock="Top">
+                    <DockPanel Height="26" Margin="2" DockPanel.Dock="Top">
                         <DockPanel.Resources>
-                            <Style TargetType="ComboBox">
+                            <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
                                 <Setter Property="Width" Value="120"/>
                                 <Setter Property="Margin" Value="5, 1"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
                             </Style>
                         </DockPanel.Resources>
                         <Label Content="{Resx _directory}"/>
                         <toolkit:DropDownButton Name="folderCombo" Margin="0, 1" Width="120" BorderThickness="2" HorizontalContentAlignment="Stretch" ToolTip="{Binding SelectedDirectory.Folder}"
-                                    Content="{Binding SelectedDirectory}" 
                                     Template="{StaticResource ComboBoxTreeTemplate}">
+                            <toolkit:DropDownButton.Content>
+                                <TextBlock Text="{Binding SelectedDirectory}" Margin="2"/>
+                            </toolkit:DropDownButton.Content>
                             <toolkit:DropDownButton.DropDownContent>
                                 <controls:TreeViewEx Width="120" ItemsSource="{Binding MediaDirectories}" SelectedItem="{Binding SelectedDirectory}" SelectedItemChanged="TreeViewEx_SelectedItemChanged">
                                     <TreeView.ItemTemplate>
@@ -109,7 +117,7 @@
                         <Button DockPanel.Dock="Right" Margin="0, 1" Style="{StaticResource ClearButton}" Command="{Binding CommandClearFilters}" ToolTip="{Resx _toolbar.Clear.ToolTip}">
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
                         </Button>
-                        <controls:SearchTextBox Prompt="{Resx _searchFor}" VerticalAlignment="Stretch" Margin="0, 1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" SearchMode="Regular" Command="{Binding CommandSearch}" />
+                        <controls:SearchTextBox Prompt="{Resx _searchFor}" VerticalAlignment="Center" Margin="0, 1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" SearchMode="Regular" Command="{Binding CommandSearch}" />
                     </DockPanel>
                     <ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked="True" Height="35" >
                         <ToolBar.Resources>
@@ -381,7 +389,7 @@
                 </DockPanel>
             </TabItem>
             <TabItem Header="{Resx _recorders}">
-                <client:RecordersView DataContext="{Binding RecordersVm}"/>
+                <views:RecordersView DataContext="{Binding RecordersViewmodel}"/>
             </TabItem>
         </TabControl>
         <GridSplitter Grid.Column="1" ResizeDirection="Columns" Grid.RowSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Left"  Background="DarkGray" Width="3" Cursor="SizeWE" />
@@ -392,10 +400,30 @@
             </Grid.RowDefinitions>
             <ContentControl Content="{Binding EditMedia.Editor}" />
             <GridSplitter Grid.Row="1" VerticalAlignment="Top" Visibility="{Binding PreviewDisplay, Converter={StaticResource BoolToVis}}" HorizontalAlignment="Stretch" Background="DarkGray" Cursor="SizeNS" Height="3" ShowsPreview="True"/>
-            <ContentControl Visibility="{Binding PreviewDisplay, Converter={StaticResource BoolToVis}}" Margin="3, 3, 0, 0" Grid.Row="1" Content="{Binding PreviewView}" />
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition MinHeight="55"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ContentControl Visibility="{Binding PreviewDisplay, Converter={StaticResource BoolToVis}}" Margin="3, 3, 0, 0" Content="{Binding PreviewViewmodel}" >
+                    <ContentControl.ContentTemplate>
+                        <DataTemplate DataType="{x:Type vm:PreviewViewmodel}">
+                            <views:PreviewView/>
+                        </DataTemplate>
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
+                <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
+                <ContentControl Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" Margin="0, 3, 0, 0"  Content="{Binding VideoPreview.View}"/>
+            </Grid>
         </Grid>
         <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-        <ContentControl Grid.Row="2" Content="{Binding FileManagerVm.View}" />
+        <ContentControl Grid.Row="2" Content="{Binding FileManagerViewmodel}" >
+            <ContentControl.ContentTemplate>
+                <DataTemplate DataType="{x:Type vm:FileManagerViewmodel}">
+                    <views:FileManagerView/>
+                </DataTemplate>
+            </ContentControl.ContentTemplate>
+        </ContentControl>
         <StatusBar Grid.Row="3" Grid.ColumnSpan="2">
             <StackPanel Orientation="Horizontal" Visibility="{Binding DisplayDirectoryInfo, Converter={StaticResource BoolToVis}}" >
                 <common:StatusIndicator IsGreen="{Binding IsMediaDirectoryOK}" Margin="10,0,0,0"/>

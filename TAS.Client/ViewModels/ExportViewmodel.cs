@@ -36,7 +36,7 @@ namespace TAS.Client.ViewModels
             get { return _selectedDirectory; }
             set
             {
-                if (SetField(ref _selectedDirectory, value, nameof(SelectedDirectory)))
+                if (SetField(ref _selectedDirectory, value))
                 {
                     NotifyPropertyChanged(nameof(IsConcatMediaNameVisible));
                     NotifyPropertyChanged(nameof(IsXDCAM));
@@ -61,7 +61,7 @@ namespace TAS.Client.ViewModels
             get { return _concatMedia; }
             set
             {
-                if (SetField(ref _concatMedia, value, nameof(ConcatMedia)))
+                if (SetField(ref _concatMedia, value))
                 {
                     NotifyPropertyChanged(nameof(IsConcatMediaNameVisible));
                 }
@@ -74,7 +74,7 @@ namespace TAS.Client.ViewModels
             get { return _concatMediaName; }
             set
             {
-                if (SetField(ref _concatMediaName, value, nameof(ConcatMediaName)))
+                if (SetField(ref _concatMediaName, value))
                     InvalidateRequerySuggested();
             }
         }
@@ -92,8 +92,8 @@ namespace TAS.Client.ViewModels
 
         private TmXFAudioExportFormat _mXFAudioExportFormat;
         private TmXFVideoExportFormat _mXFVideoExportFormat;
-        public TmXFAudioExportFormat MXFAudioExportFormat { get { return _mXFAudioExportFormat; } set { SetField(ref _mXFAudioExportFormat, value, nameof(MXFAudioExportFormat)); } }
-        public TmXFVideoExportFormat MXFVideoExportFormat { get { return _mXFVideoExportFormat; } set { SetField(ref _mXFVideoExportFormat, value, nameof(MXFVideoExportFormat)); } }
+        public TmXFAudioExportFormat MXFAudioExportFormat { get { return _mXFAudioExportFormat; } set { SetField(ref _mXFAudioExportFormat, value); } }
+        public TmXFVideoExportFormat MXFVideoExportFormat { get { return _mXFVideoExportFormat; } set { SetField(ref _mXFVideoExportFormat, value); } }
 
 
         public bool CanConcatMedia { get { return Items.Count > 1; } }

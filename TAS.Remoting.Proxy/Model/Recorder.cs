@@ -27,6 +27,8 @@ namespace TAS.Remoting.Model
 
         public bool IsDeckConnected { get { return Get<bool>(); } set { SetLocalValue(value); } }
 
+        public bool IsServerConnected { get { return Get<bool>(); } set { SetLocalValue(value); } }
+
         public string RecorderName { get { return Get<string>(); } set { SetLocalValue(value); } }
         
         public IMediaDirectory RecordingDirectory { get { return Get<MediaDirectory>(); } set { SetLocalValue(value); } }
@@ -37,9 +39,14 @@ namespace TAS.Remoting.Model
 
         public void Abort() { Invoke(); }
 
-        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, string fileName)
+        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string fileName)
         {
-            return Query<IMedia>(parameters: new object[] { channel, tcIn, tcOut, fileName });
+            return Query<IMedia>(parameters: new object[] { channel, tcIn, tcOut, narrowMode, fileName });
+        }
+
+        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string fileName)
+        {
+            return Query<IMedia>(parameters: new object[] { channel, timeLimit, narrowMode, fileName });
         }
 
         public void DeckFastForward() { Invoke(); }
@@ -51,6 +58,8 @@ namespace TAS.Remoting.Model
         public void DeckStop() { Invoke(); }
 
         public void DeckPlay() { Invoke(); }
+
+        public void Finish() { Invoke(); }
 
         public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, string fileName)
         {

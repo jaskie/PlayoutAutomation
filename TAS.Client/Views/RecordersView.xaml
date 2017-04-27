@@ -7,13 +7,11 @@
              xmlns:local="clr-namespace:TAS.Client.Views"
              mc:Ignorable="d" 
              xmlns:client="clr-namespace:TAS.Client"
-             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              d:DataContext="{x:Type vm:RecordersViewmodel}"
              d:DesignHeight="500" d:DesignWidth="600">
     <UserControl.Resources>
-        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <Style TargetType="Button" >
             <Setter Property="Width" Value="40" />
             <Setter Property="Margin" Value="8" />
@@ -31,6 +29,9 @@
         <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
     </UserControl.Resources>
     <StackPanel>
         <ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked="True">
@@ -44,6 +45,7 @@
             <TextBox Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="220" VerticalAlignment="Center"/>
             <Label Content="{Resx _fileFormat}"/>
             <ComboBox ItemsSource="{Binding FileFormats}" SelectedItem="{Binding FileFormat, ValidatesOnDataErrors=True}" Width="80"/>
+            <CheckBox Visibility="{Binding IsStandardDefinition, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsNarrowMode}" Content="4:3" VerticalAlignment="Center" Margin="5, 0"/>
         </StackPanel>
         <Expander IsExpanded="True">
             <Expander.Header>
@@ -78,22 +80,22 @@
                             <Setter Property="VerticalAlignment" Value="Center"/>
                         </Style>
                         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                            <Setter Property="Height" Value="20"/>
-                            <Setter Property="Width" Value="20"/>
+                            <Setter Property="Height" Value="19"/>
+                            <Setter Property="Width" Value="19"/>
                         </Style>
                     </StackPanel.Resources>
                     <Label Content="{Resx _tcIn}"/>
-                    <controls:TimecodeEdit Text="{Binding TcIn, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                    <controls:TimecodeEdit Timecode="{Binding TcIn}" VideoFormat="{Binding VideoFormat}"/>
                     <Button Margin="0" Command="{Binding CommandGetCurrentTcToIn}" ToolTip="{Resx _getTC.ToolTip}">
                         <Image  Source="/TAS.Client.Common;component/Images/Actions/import-movie.png"/>
                     </Button>
                     <Label Content="{Resx _currentTc}"/>
-                    <controls:TimecodeEdit Text="{Binding CurrentTc, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                    <controls:TimecodeEdit Timecode="{Binding CurrentTc}" VideoFormat="{Binding VideoFormat}"/>
                     <Button Margin="0" Command="{Binding CommandGoToTimecode}" ToolTip="{Resx _gotoTC.ToolTip}">
                         <Image  Source="/TAS.Client.Common;component/Images/Actions/go-jump.png"/>
                     </Button>
                     <Label Content="{Resx _tcOut}"/>
-                    <controls:TimecodeEdit Text="{Binding TcOut, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}"/>
+                    <controls:TimecodeEdit Timecode="{Binding TcOut}" VideoFormat="{Binding VideoFormat}"/>
                     <Button Margin="0" Command="{Binding CommandGetCurrentTcToOut}" ToolTip="{Resx _getTC.ToolTip}">
                         <Image  Source="/TAS.Client.Common;component/Images/Actions/import-movie.png"/>
                     </Button>
@@ -105,20 +107,45 @@
                 <TextBlock Text="{Resx _manualRecording}"/>
             </Expander.Header>
             <ToolBar ToolBarTray.IsLocked="True" Height="35">
-                <Button Command="{Binding CommandRecordStart}" ToolTip="{Resx _record.ToolTip}">
+                <ToggleButton IsChecked="{Binding IsRecording}" IsEnabled="{Binding CanStartRecord}" ToolTip="{Resx _record.ToolTip}">
+                    <ToggleButton.Style>
+                        <Style TargetType="ToggleButton" BasedOn="{StaticResource {x:Type ToggleButton}}">
+                            <Style.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation From="Transparent" To="Red" RepeatBehavior="Forever" AutoReverse="True" Duration="00:00:01" Storyboard.TargetProperty="(Background).(SolidColorBrush.Color)" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation To="Transparent" Duration="00:00:00.3" Storyboard.TargetProperty="(Background).(SolidColorBrush.Color)" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="False">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Trigger>
+                            </Style.Triggers>  
+                        </Style>
+                    </ToggleButton.Style>
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-record.png" />
-                </Button>
-                <Button Command="{Binding CommandRecordEnd}" ToolTip="{Resx _recordEnd.ToolTip}">
+                </ToggleButton>
+                <Button Command="{Binding CommandRecordFinish}" ToolTip="{Resx _recordEnd.ToolTip}">
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png" />
                 </Button>
                 <Separator/>
                 <Label Content="{Resx _recordTimeLimit}"/>
-                <controls:TimecodeEdit Timecode="{Binding TimeLimit}" FrameRate="{Binding FrameRate}" />
+                <controls:TimecodeEdit Timecode="{Binding TimeLimit}" VideoFormat="{Binding VideoFormat}" />
                 <Button Command="{Binding CommandSetRecordLimit}" Height="20" Margin="0" ToolTip="{Resx _setRecordLimit.ToolTip}">
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/save-small.png" />
                 </Button>
                 <Label Content="{Resx _recordTimeLeft}"/>
-                <controls:TimecodeEdit Timecode="{Binding RecorderTimeLeft}" Background="{DynamicResource {x:Static SystemColors.ControlLightLightBrush}}" IsReadOnly="True" FrameRate="{Binding FrameRate}" />
+                <controls:TimecodeEdit Timecode="{Binding RecorderTimeLeft}"  VideoFormat="{Binding VideoFormat}" Background="{DynamicResource {x:Static SystemColors.ControlLightLightBrush}}" IsReadOnly="True"/>
             </ToolBar>
         </Expander>
     </StackPanel>

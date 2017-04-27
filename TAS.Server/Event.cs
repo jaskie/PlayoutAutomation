@@ -15,6 +15,7 @@ using TAS.Server.Common;
 using TAS.Remoting.Server;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using System.Runtime.CompilerServices;
 
 namespace TAS.Server
 {
@@ -159,7 +160,7 @@ namespace TAS.Server
         public decimal? AudioVolume
         {
             get { return _audioVolume; }
-            set { SetField(ref _audioVolume, value, nameof(AudioVolume)); }
+            set { SetField(ref _audioVolume, value); }
         }
 
         TimeSpan _duration;
@@ -172,7 +173,7 @@ namespace TAS.Server
 
         private void _setDuration(TimeSpan newDuration)
         {
-            if (SetField(ref _duration, newDuration, nameof(Duration)))
+            if (SetField(ref _duration, newDuration))
             {
                 if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
                 {
@@ -197,7 +198,7 @@ namespace TAS.Server
             }
             set
             {
-                if (SetField(ref _isEnabled, value, nameof(IsEnabled)))
+                if (SetField(ref _isEnabled, value))
                 {
                     if (value)
                         _uppdateScheduledTime();
@@ -211,7 +212,7 @@ namespace TAS.Server
         public string EventName
         {
             get { return _eventName; }
-            set { SetField(ref _eventName, value, nameof(EventName)); }
+            set { SetField(ref _eventName, value); }
         }
 
         TEventType _eventType;
@@ -221,7 +222,7 @@ namespace TAS.Server
             get { return _eventType; }
             set
             {
-                if (SetField(ref _eventType, value, nameof(EventType)))
+                if (SetField(ref _eventType, value))
                     if (value == TEventType.Live || value == TEventType.Rundown)
                     {
                         _serverMediaPRI = null;
@@ -233,23 +234,23 @@ namespace TAS.Server
 
         bool _isHold;
         [JsonProperty]
-        public bool IsHold { get { return _isHold; } set { SetField(ref _isHold, value, nameof(IsHold)); } }
+        public bool IsHold { get { return _isHold; } set { SetField(ref _isHold, value); } }
         
         bool _isLoop;
         [JsonProperty]
-        public bool IsLoop { get { return _isLoop; } set { SetField(ref _isLoop, value, nameof(IsLoop)); } }
+        public bool IsLoop { get { return _isLoop; } set { SetField(ref _isLoop, value); } }
 
         string _idAux; 
         [JsonProperty]
-        public string IdAux { get { return _idAux; } set { SetField(ref _idAux, value, nameof(IdAux)); } }
+        public string IdAux { get { return _idAux; } set { SetField(ref _idAux, value); } }
 
         ulong _idProgramme;
         [JsonProperty]
-        public ulong IdProgramme { get { return _idProgramme; } set { SetField(ref _idProgramme, value, nameof(IdProgramme)); } }
+        public ulong IdProgramme { get { return _idProgramme; } set { SetField(ref _idProgramme, value); } }
 
         VideoLayer _layer = VideoLayer.None;
         [JsonProperty]
-        public VideoLayer Layer { get { return _layer; } set { SetField(ref _layer, value, nameof(Layer)); } }
+        public VideoLayer Layer { get { return _layer; } set { SetField(ref _layer, value); } }
 
         TimeSpan? _requestedStartTime;
         [JsonProperty]
@@ -258,7 +259,7 @@ namespace TAS.Server
             get { return _requestedStartTime; }
             set
             {
-                if (SetField(ref _requestedStartTime, value, nameof(RequestedStartTime)))
+                if (SetField(ref _requestedStartTime, value))
                     NotifyPropertyChanged(nameof(Offset)); 
             }
         }
@@ -268,12 +269,12 @@ namespace TAS.Server
         public TimeSpan ScheduledDelay
         {
             get { return _scheduledDelay; }
-            set { SetField(ref _scheduledDelay, ((Engine)Engine).AlignTimeSpan(value), nameof(ScheduledDelay)); }
+            set { SetField(ref _scheduledDelay, ((Engine)Engine).AlignTimeSpan(value)); }
         }
 
         TimeSpan _scheduledTc = TimeSpan.Zero;
         [JsonProperty]
-        public TimeSpan ScheduledTc { get { return _scheduledTc; } set { SetField(ref _scheduledTc, ((Engine)Engine).AlignTimeSpan(value), nameof(ScheduledTc)); } }
+        public TimeSpan ScheduledTc { get { return _scheduledTc; } set { SetField(ref _scheduledTc, ((Engine)Engine).AlignTimeSpan(value)); } }
 
         DateTime _scheduledTime;
         [JsonProperty]
@@ -312,7 +313,7 @@ namespace TAS.Server
             get { return _startTime; }
             internal set
             {
-                if (SetField(ref _startTime, value, nameof(StartTime)))
+                if (SetField(ref _startTime, value))
                 {
                     if (value != default(DateTime))
                         _setScheduledTime(value);
@@ -328,7 +329,7 @@ namespace TAS.Server
             set
             {
                 var oldValue = _startType;
-                if (SetField(ref _startType, value, nameof(StartType)))
+                if (SetField(ref _startType, value))
                 {
                     if (value == TStartType.OnFixedTime)
                         _engine.AddFixedTimeEvent(this);
@@ -345,7 +346,7 @@ namespace TAS.Server
             get { return _transitionTime; }
             set
             {
-                if (SetField(ref _transitionTime, ((Engine)Engine).AlignTimeSpan(value), nameof(TransitionTime)))
+                if (SetField(ref _transitionTime, ((Engine)Engine).AlignTimeSpan(value)))
                 {
                     _uppdateScheduledTime();
                     _durationChanged();
@@ -358,7 +359,7 @@ namespace TAS.Server
         public TimeSpan TransitionPauseTime
         {
             get { return _transitionPauseTime; }
-            set { SetField(ref _transitionPauseTime, ((Engine)Engine).AlignTimeSpan(value), nameof(TransitionPauseTime)); }
+            set { SetField(ref _transitionPauseTime, ((Engine)Engine).AlignTimeSpan(value)); }
         }
 
         TTransitionType _transitionType;
@@ -366,7 +367,7 @@ namespace TAS.Server
         public TTransitionType TransitionType
         {
             get { return _transitionType; }
-            set { SetField(ref _transitionType, value, nameof(TransitionType)); }
+            set { SetField(ref _transitionType, value); }
         }
 
         TEasing _transitionEasing;
@@ -374,12 +375,12 @@ namespace TAS.Server
         public TEasing TransitionEasing
         {
             get { return _transitionEasing; }
-            set { SetField(ref _transitionEasing, value, nameof(TransitionEasing)); }
+            set { SetField(ref _transitionEasing, value); }
         }
 
         AutoStartFlags _autoStartFlags;
         [JsonProperty]
-        public AutoStartFlags AutoStartFlags { get { return _autoStartFlags; } set { SetField(ref _autoStartFlags, value, nameof(AutoStartFlags)); } }
+        public AutoStartFlags AutoStartFlags { get { return _autoStartFlags; } set { SetField(ref _autoStartFlags, value); } }
 
         Guid _mediaGuid;
         [JsonProperty]
@@ -398,7 +399,7 @@ namespace TAS.Server
 
         bool _isForcedNext;
         [JsonProperty]
-        public bool IsForcedNext { get { return _isForcedNext; } set { SetField(ref _isForcedNext, value, nameof(IsForcedNext)); } }
+        public bool IsForcedNext { get { return _isForcedNext; } set { SetField(ref _isForcedNext, value); } }
 
         private bool _isModified;
         public bool IsModified
@@ -639,7 +640,7 @@ namespace TAS.Server
             set
             {
                 value = ((Engine)Engine).AlignTimeSpan(value);
-                SetField(ref _startTc, value, nameof(StartTc));
+                SetField(ref _startTc, value);
             }
         }
 
@@ -960,7 +961,7 @@ namespace TAS.Server
                     parent._subEventsRemove(this);
                     if (next != null)
                         parent._subEvents.Value.Add(next);
-                    if (parent.SetField(ref parent._duration, parent._computedDuration(), "Duration"))
+                    if (parent.SetField(ref parent._duration, parent._computedDuration(), nameof(Duration)))
                         parent._durationChanged();
                     if (next != null)
                         parent.NotifySubEventChanged(next, TCollectionOperation.Insert);
@@ -1231,16 +1232,16 @@ namespace TAS.Server
 
         private bool _isCGEnabled;
         [JsonProperty]
-        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value, nameof(IsCGEnabled)); } }
+        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value); } }
         private byte _crawl;
         [JsonProperty]
-        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value, nameof(Crawl)); } }
+        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value); } }
         private byte _logo;
         [JsonProperty]
-        public byte Logo { get { return _logo; }  set { SetField(ref _logo, value, nameof(Logo)); } }
+        public byte Logo { get { return _logo; }  set { SetField(ref _logo, value); } }
         private byte _parental;
         [JsonProperty]
-        public byte Parental { get { return _parental; } set { SetField(ref _parental, value, nameof(Parental)); } }
+        public byte Parental { get { return _parental; } set { SetField(ref _parental, value); } }
         
         public override string ToString()
         {
@@ -1258,7 +1259,7 @@ namespace TAS.Server
             base.DoDispose();
         }
 
-        protected override bool SetField<T>(ref T field, T value, string propertyName)
+        protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (base.SetField(ref field, value, propertyName))
             {

@@ -21,9 +21,9 @@ namespace TAS.Client.Config
         }
         protected override void OnDispose() { }
         string _connectionString;
-        public string ConnectionString { get { return _connectionString; } set { SetField(ref _connectionString, value, nameof(ConnectionString)); } }
+        public string ConnectionString { get { return _connectionString; } set { SetField(ref _connectionString, value); } }
         string _collation;
-        public string Collation { get { return _collation; } set { SetField(ref _collation, value, nameof(Collation)); } }
+        public string Collation { get { return _collation; } set { SetField(ref _collation, value); } }
         readonly UICommand _commandEditConnectionString;
         public ICommand CommandEditConnectionString { get { return _commandEditConnectionString; } }
         public static string[] Collations { get { return TAS.Client.Config.Model.CreateDatabase.Collations; } }

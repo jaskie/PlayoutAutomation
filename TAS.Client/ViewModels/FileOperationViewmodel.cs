@@ -62,7 +62,7 @@ namespace TAS.Client.ViewModels
         public string OperationOutput { get { return string.Join(Environment.NewLine, _fileOperation.OperationOutput); } }
         public string OperationWarning { get { return _fileOperation.OperationWarning.AsString(Environment.NewLine); } }
         private bool _isWarning;
-        public bool IsWarning { get { return _isWarning; } set { SetField(ref _isWarning, value, nameof(IsWarning)); } }
+        public bool IsWarning { get { return _isWarning; } private set { SetField(ref _isWarning, value); } }
         public string Title { get { return _fileOperation.Title; } }
 
         public ICommand CommandAbort { get; private set; }

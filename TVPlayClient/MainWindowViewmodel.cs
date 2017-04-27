@@ -64,11 +64,11 @@ namespace TVPlayClient
         }
 
         private ViewmodelBase _content;
-        public ViewmodelBase Content { get { return _content; } private set { SetField(ref _content, value, nameof(Content)); } }
+        public ViewmodelBase Content { get { return _content; } private set { SetField(ref _content, value); } }
 
         public ICommand CommandConfigure { get; private set; }
         private bool _showConfigButton = true;
-        public bool ShowConfigButton { get { return _showConfigButton; }  private set { SetField(ref _showConfigButton, value, nameof(ShowConfigButton)); } }
+        public bool ShowConfigButton { get { return _showConfigButton; }  private set { SetField(ref _showConfigButton, value); } }
         
     }
 }

@@ -27,7 +27,7 @@ namespace TAS.Client.ViewModels
         protected EventPanelViewmodelBase _parent;
         protected readonly EventPanelRootViewmodel _root;
         protected readonly EngineViewmodel _engineViewmodel;
-        protected readonly RationalNumber _frameRate;
+        protected readonly TVideoFormat _videoFormat;
         protected readonly ObservableCollection<EventPanelViewmodelBase> _childrens = new ObservableCollection<EventPanelViewmodelBase>();
         protected static readonly EventPanelViewmodelBase DummyChild = new EventPanelDummyViewmodel();
 
@@ -42,7 +42,7 @@ namespace TAS.Client.ViewModels
             _engine = engineViewmodel.Engine;
             _level = 0;
             _isExpanded = true;
-            _frameRate = engineViewmodel.FrameRate;
+            _videoFormat = engineViewmodel.VideoFormat;
             _root = (EventPanelRootViewmodel)this;
         }
 
@@ -56,7 +56,7 @@ namespace TAS.Client.ViewModels
             if (aEvent == null) // dummy child
                 return;
             _engine = aEvent.Engine;
-            _frameRate = _engine.FrameRate;
+            _videoFormat = _engine.VideoFormat;
             _event = aEvent;
             if (parent != null)
             {
@@ -192,7 +192,7 @@ namespace TAS.Client.ViewModels
             get { return _isExpanded; }
             set
             {
-                if (SetField(ref _isExpanded, value, nameof(IsExpanded)))
+                if (SetField(ref _isExpanded, value))
                 {
                     // Lazy load the child items, if necessary.
                     if (value && HasDummyChild)
@@ -212,7 +212,7 @@ namespace TAS.Client.ViewModels
             get { return _isSelected; }
             set
             {
-                if (SetField(ref _isSelected, value, nameof(IsSelected)))
+                if (SetField(ref _isSelected, value))
                 {
                     if (value)
                     {
@@ -228,10 +228,12 @@ namespace TAS.Client.ViewModels
         public bool IsMultiSelected
         {
             get { return _isMultiSelected; }
-            set { SetField(ref _isMultiSelected, value, nameof(IsMultiSelected)); }
+            set { SetField(ref _isMultiSelected, value); }
         }
 
         public virtual bool IsVisible { get { return true; } set { } }
+
+        public TVideoFormat VideoFormat { get { return _videoFormat; } }
 
         public EventPanelViewmodelBase Parent
         {

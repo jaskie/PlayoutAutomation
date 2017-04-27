@@ -51,7 +51,7 @@ namespace TAS.Client.ViewModels
             get { return _isVisible; }
             set
             {
-                if (SetField(ref _isVisible, value, nameof(IsVisible)))
+                if (SetField(ref _isVisible, value))
                 {
                     if (value)
                         HiddenEventsStorage.Remove(_event);

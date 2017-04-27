@@ -26,34 +26,29 @@ namespace TAS.Client.Common.Controls
             typeof(TimecodeEdit),
             new FrameworkPropertyMetadata(TimeSpan.Zero, OnTimecodeChanged) { BindsTwoWayByDefault = true });
 
-        public static readonly DependencyProperty FrameRateProperty =
+        public static readonly DependencyProperty VideoFormatProperty =
             DependencyProperty.Register(
-                "FrameRate",
-                typeof(RationalNumber),
+                "VideoFormat",
+                typeof(TVideoFormat),
                 typeof(TimecodeEdit),
-                new PropertyMetadata(new RationalNumber(25, 1), OnTimecodeChanged));
+                new PropertyMetadata(TVideoFormat.PAL, OnTimecodeChanged));
 
         private static void OnTimecodeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             (d as TimecodeEdit)._updateText();
         }
+
         protected override void OnTextChanged(TextChangedEventArgs e)
         {
             var text = (string)GetValue(TextProperty);
-            if (text.IsValidSMPTETimecode(FrameRate))
-                SetValue(TimecodeProperty, text.SMPTETimecodeToTimeSpan(FrameRate));
+            if (text.IsValidSMPTETimecode(VideoFormat))
+                SetValue(TimecodeProperty, text.SMPTETimecodeToTimeSpan(VideoFormat));
             base.OnTextChanged(e);
         }
 
         private void _updateText()
         {
-            Text = Timecode.ToSMPTETimecodeString(FrameRate);
-        }
-
-        protected override void ValidateValue(object value)
-        {
-            Debug.WriteLine(value, "ValidateValue");
-            base.ValidateValue(value);
+            Text = Timecode.ToSMPTETimecodeString(VideoFormat);
         }
 
         public TimeSpan Timecode
@@ -63,24 +58,23 @@ namespace TAS.Client.Common.Controls
             {
                 if (value != Timecode)
                 {
-                    Debug.WriteLine(value, "Timecode");
                     SetValue(TimecodeProperty, value);
                     _updateText();
                 }
             }
         }
 
-        public RationalNumber FrameRate
+        public TVideoFormat VideoFormat
         {
             private get
             {
-                return (RationalNumber)GetValue(FrameRateProperty);
+                return (TVideoFormat)GetValue(VideoFormatProperty);
             }
             set
             {
-                if (value != FrameRate)
+                if (value != VideoFormat)
                 {
-                    SetValue(FrameRateProperty, value);
+                    SetValue(VideoFormatProperty, value);
                     _updateText();
                 }
             }

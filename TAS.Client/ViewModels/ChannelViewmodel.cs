@@ -5,45 +5,39 @@ using System.Text;
 using System.Windows.Controls;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Client.Views;
 using TAS.Server.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
     public class ChannelViewmodel : ViewmodelBase
     {
-        readonly ChannelView _channelView;
         readonly string _channelName;
         public ICommand CommandSwitchTab { get; private set; }
         public ChannelViewmodel(IEngine engine, bool showEngine, bool showMedia, bool allowPlayControl)
         {
             _channelName = engine.EngineName;
-            _tabs = new List<ViewmodelBase>();
             if (showEngine)
-                _tabs.Add(new EngineViewmodel(engine, engine, allowPlayControl));
+                Engine = new EngineViewmodel(engine, engine, allowPlayControl);
             if (showMedia)
-                _tabs.Add(new MediaManagerViewmodel(engine.MediaManager, engine));
-            //_engineStateViewmodel = new EngineStateViewmodel(engine);
-            _channelView = new ChannelView { DataContext = this };
-            CommandSwitchTab = new UICommand { ExecuteDelegate = o => SelectedTab = _selectedTab == _tabs[0] ? _tabs[1] : _tabs[0], CanExecuteDelegate = o => _tabs.Count > 1 };
-            if (_tabs.Count > 0)
-                _selectedTab = _tabs[0];
+                MediaManager = new MediaManagerViewmodel(engine.MediaManager, engine);
+            CommandSwitchTab = new UICommand { ExecuteDelegate = o => SelectedTabIndex = _selectedTabIndex == 0 ? 1 : 0, CanExecuteDelegate = o => showEngine && showMedia };
+            SelectedTabIndex = showEngine ? 0 : 1;
         }
 
-
-        public ChannelView View { get { return _channelView; } }
         public string ChannelName { get { return _channelName; } }
 
-        private ViewmodelBase _selectedTab;
-        private readonly List<ViewmodelBase> _tabs;
+        public EngineViewmodel Engine { get; private set; }
+        public MediaManagerViewmodel MediaManager { get; private set; }
 
-        public ViewmodelBase SelectedTab { get { return _selectedTab; } set { SetField(ref _selectedTab, value, nameof(SelectedTab)); } }
+        private int  _selectedTabIndex;
 
-        public List<ViewmodelBase> Tabs { get { return _tabs; } }
+        public int SelectedTabIndex { get { return _selectedTabIndex; } set { SetField(ref _selectedTabIndex, value); } }
+
 
         protected override void OnDispose()
         {
-            _tabs.ForEach(t => t.Dispose());
+            Engine.Dispose();
+            MediaManager.Dispose();
         }
     }
 }

@@ -16,7 +16,6 @@ using TAS.Server.Common;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition;
 using TAS.Client.Common.Plugin;
-using TAS.Client.Views;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
@@ -24,10 +23,8 @@ namespace TAS.Client.ViewModels
     public class EngineViewmodel : ViewmodelBase
     {
         private readonly IEngine _engine;
-        private readonly EngineView _engineView;
         private readonly PreviewViewmodel _previewViewmodel;
         private readonly EventEditViewmodel _eventEditViewmodel;
-        private readonly EventEditView _eventEditView;
         private readonly VideoFormatDescription _videoFormatDescription;
         private readonly Server.Interfaces.ICGElementsController _cGElementsController;
         private readonly EngineCGElementsControllerViewmodel _cGElementsControllerViewmodel;
@@ -86,7 +83,7 @@ namespace TAS.Client.ViewModels
         {
             Debug.WriteLine($"Creating EngineViewmodel for {engine}");
             _engine = engine;
-            _frameRate = engine.FrameRate;
+            _videoFormat = engine.VideoFormat;
             _videoFormatDescription = engine.FormatDescription;
             _allowPlayControl = allowPlayControl;
 
@@ -99,9 +96,6 @@ namespace TAS.Client.ViewModels
             _engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _composePlugins();
 
-            // Creating View
-            _engineView = new EngineView(this._frameRate);
-            _engineView.DataContext = this;
 
             // Creating PreviewViewmodel
             if (preview != null && allowPlayControl)
@@ -109,7 +103,6 @@ namespace TAS.Client.ViewModels
             
             // Creating EventEditViewmodel
             _eventEditViewmodel = new EventEditViewmodel(this, _previewViewmodel);
-            _eventEditView = new EventEditView(_frameRate) { DataContext = _eventEditViewmodel };
 
             _createCommands();
 
@@ -117,11 +110,11 @@ namespace TAS.Client.ViewModels
             _multiSelectedEvents.CollectionChanged += _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged += _engineViewmodel_ClipboardChanged;
             if (engine.PlayoutChannelPRI != null)
-                engine.PlayoutChannelPRI.OwnerServer.PropertyChanged += OnPRIServerPropertyChanged;
+                engine.PlayoutChannelPRI.PropertyChanged += OnServerChannelPropertyChanged;
             if (engine.PlayoutChannelSEC != null)
-                engine.PlayoutChannelSEC.OwnerServer.PropertyChanged += OnSECServerPropertyChanged;
+                engine.PlayoutChannelSEC.PropertyChanged += OnServerChannelPropertyChanged;
             if (engine.PlayoutChannelPRV != null)
-                engine.PlayoutChannelPRV.OwnerServer.PropertyChanged += OnPRVServerPropertyChanged;
+                engine.PlayoutChannelPRV.PropertyChanged += OnServerChannelPropertyChanged;
             _cGElementsController = engine.CGElementsController;
             if (_cGElementsController != null)
             {
@@ -147,11 +140,13 @@ namespace TAS.Client.ViewModels
             _multiSelectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged -= _engineViewmodel_ClipboardChanged;
             if (_engine.PlayoutChannelPRI != null)
-                _engine.PlayoutChannelPRI.OwnerServer.PropertyChanged -= OnPRIServerPropertyChanged;
+                _engine.PlayoutChannelPRI.PropertyChanged -= OnServerChannelPropertyChanged;
             if (_engine.PlayoutChannelSEC != null)
-                _engine.PlayoutChannelSEC.OwnerServer.PropertyChanged -= OnSECServerPropertyChanged;
+                _engine.PlayoutChannelSEC.PropertyChanged -= OnServerChannelPropertyChanged;
             if (_engine.PlayoutChannelPRV != null)
-                _engine.PlayoutChannelPRV.OwnerServer.PropertyChanged -= OnPRVServerPropertyChanged;
+                _engine.PlayoutChannelPRV.PropertyChanged -= OnServerChannelPropertyChanged;
+            if (_videoPreview != null)
+                _videoPreview.Dispose();
         }
 
         void _engineViewmodel_ClipboardChanged()
@@ -159,9 +154,7 @@ namespace TAS.Client.ViewModels
             InvalidateRequerySuggested();
         }
 
-        public EngineView View { get { return _engineView; } }
-        public PreviewView PreviewView { get { return _previewViewmodel?.View; } }
-        public EventEditView EventEditView { get { return _eventEditView; } }
+        public PreviewViewmodel PreviewViewmodel { get { return _previewViewmodel; } }
         public EngineCGElementsControllerViewmodel CGElementsControllerViewmodel { get { return _cGElementsControllerViewmodel; } }
 
         #region Commands
@@ -759,7 +752,7 @@ namespace TAS.Client.ViewModels
         #region Search panel
 
         private bool _isSearchPanelVisible;
-        public bool IsSearchPanelVisible { get { return _isSearchPanelVisible; }  set { SetField(ref _isSearchPanelVisible, value, nameof(IsSearchPanelVisible)); } }
+        public bool IsSearchPanelVisible { get { return _isSearchPanelVisible; }  set { SetField(ref _isSearchPanelVisible, value); } }
         private void _showSearchPanel(object obj)
         {
             IsSearchNotFound = false;
@@ -774,10 +767,10 @@ namespace TAS.Client.ViewModels
         }
 
         private bool _isSearchBoxFocused;
-        public bool IsSearchBoxFocused { get { return _isSearchBoxFocused; } set { SetField(ref _isSearchBoxFocused, value, nameof(IsSearchBoxFocused)); } }
+        public bool IsSearchBoxFocused { get { return _isSearchBoxFocused; } set { SetField(ref _isSearchBoxFocused, value); } }
 
         private bool _isSearchNotFound;
-        public bool IsSearchNotFound { get { return _isSearchNotFound; }  set { SetField(ref _isSearchNotFound, value, nameof(IsSearchNotFound)); } }
+        public bool IsSearchNotFound { get { return _isSearchNotFound; }  set { SetField(ref _isSearchNotFound, value); } }
 
         private string _searchText;
         public string SearchText
@@ -785,7 +778,7 @@ namespace TAS.Client.ViewModels
             get { return _searchText; }
             set
             {
-                if (SetField(ref _searchText, value, nameof(SearchText)))
+                if (SetField(ref _searchText, value))
                     IsSearchNotFound = false;
             }
         }
@@ -906,17 +899,17 @@ namespace TAS.Client.ViewModels
         public DateTime CurrentTime
         {
             get { return _currentTime; }
-            private set { SetField(ref _currentTime, value, nameof(CurrentTime)); }
+            private set { SetField(ref _currentTime, value); }
         }
 
-        private RationalNumber _frameRate;
-        public RationalNumber FrameRate { get { return _frameRate; } }
+        private TVideoFormat _videoFormat;
+        public TVideoFormat VideoFormat { get { return _videoFormat; } }
 
         private TimeSpan _timeToAttention;
         public TimeSpan TimeToAttention
         {
             get { return _timeToAttention; }
-            set { SetField(ref _timeToAttention, value, nameof(TimeToAttention)); }
+            set { SetField(ref _timeToAttention, value); }
         }
 
         public string EngineName { get { return _engine.EngineName; } }
@@ -937,6 +930,11 @@ namespace TAS.Client.ViewModels
             get { return _engine.MediaManager.AnimationDirectoryPRI != null || _engine.MediaManager.AnimationDirectorySEC != null;  }
         }
 
+        public bool IsPreviewPanelVisible
+        {
+            get { return PreviewViewmodel != null || VideoPreview != null; }
+        }
+
         public bool NoAlarms
         {
             get
@@ -955,7 +953,7 @@ namespace TAS.Client.ViewModels
 
         public bool ServerConnectedPRI
         {
-            get { return _engine?.PlayoutChannelPRI?.OwnerServer?.IsConnected == true; }
+            get { return _engine?.PlayoutChannelPRI?.IsServerConnected == true; }
         }
         public bool ServerSECExists
         {
@@ -963,7 +961,7 @@ namespace TAS.Client.ViewModels
         }
         public bool ServerConnectedSEC
         {
-            get { return _engine?.PlayoutChannelSEC?.OwnerServer?.IsConnected == true; }
+            get { return _engine?.PlayoutChannelSEC?.IsServerConnected == true; }
         }
         public bool ServerPRVExists
         {
@@ -971,7 +969,7 @@ namespace TAS.Client.ViewModels
         }
         public bool ServerConnectedPRV
         {
-            get { return _engine?.PlayoutChannelPRV?.OwnerServer?.IsConnected == true; }
+            get { return _engine?.PlayoutChannelPRV?.IsServerConnected == true; }
         }
 
         public bool DatabaseOK
@@ -1023,10 +1021,17 @@ namespace TAS.Client.ViewModels
         #region Plugin
         CompositionContainer _uiContainer;
 
+#pragma warning disable CS0649 
         [ImportMany]
         IUiPlugin[] _plugins = null;
+        [Import(AllowDefault = true)]
+        IVideoPreview _videoPreview = null;
+#pragma warning restore
 
         public IList<Common.Plugin.IUiPlugin> Plugins { get { return _plugins; } }
+
+
+        public IVideoPreview VideoPreview { get { return _videoPreview; } }
 
         public bool IsAnyPluginActive { get { return _plugins != null && _plugins.Length > 0; } }
 
@@ -1047,7 +1052,6 @@ namespace TAS.Client.ViewModels
             {
                 Debug.WriteLine(e);
             }
-
         }
 
         private void _updatePluginCanExecute()
@@ -1162,29 +1166,11 @@ namespace TAS.Client.ViewModels
             TimeToAttention = e.TimeToAttention;
         }
 
-        public void OnPRIServerPropertyChanged(object sender, PropertyChangedEventArgs e)
+        public void OnServerChannelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IPlayoutServer.IsConnected))
+            if (e.PropertyName == nameof(IPlayoutServerChannel.IsServerConnected))
             {
                 NotifyPropertyChanged(nameof(ServerConnectedPRI));
-                NotifyPropertyChanged(nameof(NoAlarms));
-            }
-        }
-
-        public void OnSECServerPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(IPlayoutServer.IsConnected))
-            {
-                NotifyPropertyChanged(nameof(ServerConnectedSEC));
-                NotifyPropertyChanged(nameof(NoAlarms));
-            }
-        }
-
-        public void OnPRVServerPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(IPlayoutServer.IsConnected))
-            {
-                NotifyPropertyChanged(nameof(ServerConnectedPRV));
                 NotifyPropertyChanged(nameof(NoAlarms));
             }
         }
@@ -1275,7 +1261,7 @@ namespace TAS.Client.ViewModels
             get { return _trackPlayingEvent; }
             set
             {
-                if (SetField(ref _trackPlayingEvent, value, nameof(TrackPlayingEvent)))
+                if (SetField(ref _trackPlayingEvent, value))
                     if (value)
                     {
                         IEvent cp = _engine.Playing;

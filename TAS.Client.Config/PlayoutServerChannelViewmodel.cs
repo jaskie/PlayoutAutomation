@@ -18,9 +18,9 @@ namespace TAS.Client.Config
         {
 
         }
-        public string ChannelName { get { return _channelName; } set { SetField(ref _channelName, value, nameof(ChannelName)); } }
-        public int Id { get { return _id; } set { SetField(ref _id, value, nameof(Id)); } }
-        public decimal MasterVolume { get { return _masterVolume; } set { SetField(ref _masterVolume, value, nameof(MasterVolume)); } }
-        public string LiveDevice { get { return _liveDevice; } set { SetField(ref _liveDevice, value, nameof(LiveDevice)); } }
+        public string ChannelName { get { return _channelName; } set { SetField(ref _channelName, value); } }
+        public int Id { get { return _id; } set { SetField(ref _id, value); } }
+        public decimal MasterVolume { get { return _masterVolume; } set { SetField(ref _masterVolume, value); } }
+        public string LiveDevice { get { return _liveDevice; } set { SetField(ref _liveDevice, value); } }
     }
 }

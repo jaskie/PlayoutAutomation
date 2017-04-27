@@ -202,8 +202,8 @@ namespace TAS.Server
         {
             if (media.Directory == this)
             {
-                bool isLastWithTheName = false;
-                    isLastWithTheName = !_files.Values.Any(m => m.FullPath == ((Media)media).FullPath && m != media);
+                string fullPath = ((Media)media).FullPath;
+                bool isLastWithTheName = !_files.Values.Any(m => m.FullPath.Equals(fullPath, StringComparison.CurrentCultureIgnoreCase) && m != media);
                 if (isLastWithTheName && media.FileExists())
                 {
                     try
@@ -239,7 +239,7 @@ namespace TAS.Server
         protected virtual IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
             Media newMedia;
-            newMedia = (Media)_files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath));
+            newMedia = (Media)_files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath, StringComparison.CurrentCultureIgnoreCase));
             if (newMedia == null && AcceptFile(fullPath))
             {
                 newMedia = (Media)CreateMedia(fullPath, guid);
@@ -290,7 +290,7 @@ namespace TAS.Server
 
         protected virtual void FileRemoved(string fullPath)
         {
-            foreach (Media m in _files.Values.Where(m => fullPath == m.FullPath && m.MediaStatus != TMediaStatus.Required).ToList())
+            foreach (Media m in _files.Values.Where(m => fullPath.Equals(m.FullPath, StringComparison.CurrentCultureIgnoreCase) && m.MediaStatus != TMediaStatus.Required).ToList())
             {
                 MediaRemove(m);
                 OnMediaDeleted(m);
@@ -506,7 +506,7 @@ namespace TAS.Server
         {
             try
             {
-                IMedia m = _files.Values.FirstOrDefault(f => e.FullPath == f.FullPath);
+                IMedia m = _files.Values.FirstOrDefault(f => e.FullPath.Equals(f.FullPath, StringComparison.CurrentCultureIgnoreCase));
                 if (m != null)
                     OnMediaChanged(m);
                 GetVolumeInfo();

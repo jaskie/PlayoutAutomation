@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using System.Runtime.CompilerServices;
 
 namespace TAS.Client.ViewModels
 {
@@ -113,7 +114,7 @@ namespace TAS.Client.ViewModels
 
         #endregion // IDisposable Members
 
-        protected virtual bool SetField<T>(ref T field, T value, string propertyName)
+        protected virtual bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
             field = value;

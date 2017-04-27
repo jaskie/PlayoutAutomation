@@ -134,12 +134,12 @@ namespace TAS.Client.ViewModels
         public string TimeLeft
         {
             get { return _timeLeft; }
-            set { SetField(ref _timeLeft, value, nameof(TimeLeft)); }
+            set { SetField(ref _timeLeft, value); }
         }
 
         public string EndTime
         {
-            get { return (_event == null || _event.GetSuccessor() != null) ? string.Empty : _event.EndTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(_frameRate); }
+            get { return (_event == null || _event.GetSuccessor() != null) ? string.Empty : _event.EndTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(_videoFormat); }
         }
 
         public bool IsLastEvent
@@ -275,18 +275,6 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public TVideoFormat VideoFormat
-        {
-            get
-            {
-                IMedia media = _event.Media;
-                if (media == null)
-                    return TVideoFormat.Other;
-                else
-                    return media.VideoFormat;
-            }
-        }
-
         public string Layer
         {
             get { return _event.Layer.ToString(); }
@@ -318,17 +306,17 @@ namespace TAS.Client.ViewModels
 
         public string ScheduledTime
         {
-            get { return _event.ScheduledTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(_frameRate); }
+            get { return _event.ScheduledTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(_videoFormat); }
         }
 
         public string ScheduledDelay
         {
-            get { return _event.ScheduledDelay.ToSMPTETimecodeString(_frameRate); }
+            get { return _event.ScheduledDelay.ToSMPTETimecodeString(_videoFormat); }
         }
 
         public string Duration
         {
-            get { return _event.Duration.ToSMPTETimecodeString(_frameRate); }
+            get { return _event.Duration.ToSMPTETimecodeString(_videoFormat); }
         }
 
         public virtual bool IsEnabled
@@ -435,7 +423,7 @@ namespace TAS.Client.ViewModels
 
         protected void _eventPositionChanged(object sender, EventPositionEventArgs e)
         {
-            TimeLeft = (e.TimeToFinish == TimeSpan.Zero || _event.PlayState == TPlayState.Scheduled) ? string.Empty : e.TimeToFinish.ToSMPTETimecodeString(_frameRate);
+            TimeLeft = (e.TimeToFinish == TimeSpan.Zero || _event.PlayState == TPlayState.Scheduled) ? string.Empty : e.TimeToFinish.ToSMPTETimecodeString(_videoFormat);
         }
 
         protected override void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)

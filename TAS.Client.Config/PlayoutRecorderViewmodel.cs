@@ -15,8 +15,8 @@ namespace TAS.Client.Config
             _recorderName = r.RecorderName;
         }
         private int _id;
-        public int Id { get { return _id; } set { SetField(ref _id, value, nameof(Id)); } }
+        public int Id { get { return _id; } set { SetField(ref _id, value); } }
         private string _recorderName;
-        public string RecorderName { get { return _recorderName; } set { SetField(ref _recorderName, value, nameof(RecorderName)); } }
+        public string RecorderName { get { return _recorderName; } set { SetField(ref _recorderName, value); } }
     }
 }

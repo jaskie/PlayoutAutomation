@@ -36,7 +36,7 @@ namespace TAS.Server
         public string SearchString
         {
             get { return _searchString; }
-            set { SetField(ref _searchString, value, nameof(SearchString)); }
+            set { SetField(ref _searchString, value); }
         }
 
         public override void Refresh()

@@ -16,7 +16,6 @@
              FontSize="13"
              >
     <UserControl.Resources>
-        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
         <Style x:Key="controlPanelButtons" TargetType="Button" >
             <Setter Property="Padding" Value="4" />
             <Setter Property="Width" Value="40" />
@@ -73,7 +72,7 @@
             <RowDefinition Height="*"  />
             <RowDefinition Height="28" />
         </Grid.RowDefinitions>
-        <Menu IsMainMenu="True" Height="23" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Menu IsMainMenu="True" Height="23" HorizontalAlignment="Left" FontSize="12" Background="Transparent">
             <MenuItem Header="{Resx _menu.Container}">
                 <MenuItem Header="{Resx _menu.Container.AddContainer}" Command="{Binding CommandNewContainer}"/>
                 <MenuItem Header="{Resx _menu.Container.Show}" DataContext="{Binding RootEventViewModel}" Visibility="{Binding IsAnyContainerHidden, Converter={StaticResource BoolToVis}}" ItemsSource="{Binding HiddenContainers}">
@@ -240,7 +239,7 @@
             <TextBlock Grid.Row="1" FontSize="13" HorizontalAlignment="Right" Text="{Binding CurrentTime, StringFormat=(ddd)}" />
             <TextBlock Grid.Row="2" Text="{Binding CurrentTime, StringFormat=T}" />
             <Label Grid.Column="2" Content="{Resx _toolbar.TimeToAttention}" />
-            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding TimeToAttention, Converter={StaticResource TimeSpanToSMPTE}, ConverterParameter=HIDE_ZERO_VALUE}" VerticalAlignment="Center" FontSize="22" Margin="5, 0">
+            <controls:TimecodeTextBlock Grid.Row="1" Grid.Column="2" Timecode="{Binding TimeToAttention}" VideoFormat="{Binding VideoFormat}" HideZero="True" VerticalAlignment="Center" FontSize="22" Margin="5, 0">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Style.Triggers>
@@ -253,7 +252,7 @@
                         </Style.Triggers>
                     </Style>
                 </TextBlock.Style>
-            </TextBlock>
+            </controls:TimecodeTextBlock>
             <Label Grid.Column="3" Content="{Resx _toolbar.NowPlaying}"  />
             <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding PlayingEventName}">
                 <TextBlock.ContextMenu>
@@ -387,7 +386,7 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding Path=SelectedCount, StringFormat={Resx _statusbar.Selected, ResxName=TAS.Client.Views.EngineView}}" VerticalAlignment="Center"/>
                     <TextBlock Text="{Resx _statusbar.Total}"/>
-                    <TextBlock Text="{Binding SelectedTime, Converter={StaticResource TimeSpanToSMPTE}}" VerticalAlignment="Center" />
+                    <controls:TimecodeTextBlock Timecode="{Binding SelectedTime}" VideoFormat="{Binding VideoFormat}" VerticalAlignment="Center" />
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>
@@ -573,9 +572,23 @@
                     <RowDefinition Height="*" MinHeight="50"/>
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <ContentControl Content="{Binding EventEditView}"/>
-                <GridSplitter Visibility="{Binding PreviewView, Converter={StaticResource NullToVis}}" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-                <ContentControl Grid.Row="1" Margin="3, 3, 0, 0"  Content="{Binding PreviewView}"/>
+                <views:EventEditView DataContext="{Binding EventEditViewmodel}"/>
+                <GridSplitter Visibility="{Binding IsPreviewPanelVisible, Converter={StaticResource BoolToVis}}" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="DarkGray" Height="3" Cursor="SizeNS"/>
+                <Grid Grid.Row="1" Margin="0, 3, 0, 0" Visibility="{Binding IsPreviewPanelVisible, Converter={StaticResource BoolToVis}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="55"/>
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <ContentControl Content="{Binding PreviewViewmodel}">
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate DataType="{x:Type vievmodels:PreviewViewmodel}" >
+                                <views:PreviewView/>
+                            </DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                    <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
+                    <ContentControl Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" Margin="0, 3, 0, 0"  Content="{Binding VideoPreview.View}"/>
+                </Grid>
             </Grid>
         </Grid>
     </Grid>

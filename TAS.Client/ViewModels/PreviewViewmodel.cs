@@ -18,17 +18,15 @@ namespace TAS.Client.ViewModels
         private readonly IPreview _preview;
         private readonly IPlayoutServerChannel _channelPRV;
         private readonly VideoFormatDescription _formatDescription;
-        private readonly Views.PreviewView _view;
         private IMediaSegment _lastAddedSegment;
         public PreviewViewmodel(IPreview preview)
         {
             preview.PropertyChanged += this.PreviewPropertyChanged;
             _channelPRV = preview.PlayoutChannelPRV;
             if (_channelPRV != null)
-                _channelPRV.OwnerServer.PropertyChanged += this.OnServerPropertyChanged;
+                _channelPRV.PropertyChanged += this.OnChannelPropertyChanged;
             _preview = preview;
             _formatDescription = _preview.FormatDescription;
-            _view = new Views.PreviewView(_formatDescription.FrameRate) { DataContext = this };
             CreateCommands();
         }
 
@@ -38,12 +36,12 @@ namespace TAS.Client.ViewModels
                 _preview.PreviewUnload();
             _preview.PropertyChanged -= this.PreviewPropertyChanged;
             if (_channelPRV != null)
-                _channelPRV.OwnerServer.PropertyChanged -= this.OnServerPropertyChanged;
+                _channelPRV.PropertyChanged -= this.OnChannelPropertyChanged;
             LoadedMedia = null;
             SelectedSegment = null;
         }
 
-        public Views.PreviewView View { get { return _view; } }
+        public TVideoFormat VideoFormat { get { return _formatDescription.Format; } }
 
         public IMedia Media
         {
@@ -54,7 +52,7 @@ namespace TAS.Client.ViewModels
                 {
                     IMedia oldVal = _media;
                     IMedia newVal = value;
-                    if (SetField(ref _media, newVal, nameof(Media)))
+                    if (SetField(ref _media, newVal))
                     {
                         if (oldVal != null)
                             oldVal.PropertyChanged -= Media_PropertyChanged;
@@ -90,7 +88,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 IEvent oldEvent = _event;
-                if (SetField(ref _event, value, nameof(Event)))
+                if (SetField(ref _event, value))
                 {
                     if (oldEvent != null)
                         oldEvent.PropertyChanged -= Event_PropertyChanged;
@@ -199,7 +197,7 @@ namespace TAS.Client.ViewModels
         }
 
         private bool _isSegmentsVisible;
-        public bool IsSegmentsVisible { get { return _isSegmentsVisible; } set { SetField(ref _isSegmentsVisible, value, nameof(IsSegmentsVisible)); } }
+        public bool IsSegmentsVisible { get { return _isSegmentsVisible; } set { SetField(ref _isSegmentsVisible, value); } }
 
         public bool IsSegmentsEnabled { get { return _preview.PreviewMedia is IServerMedia; } }
 
@@ -252,7 +250,7 @@ namespace TAS.Client.ViewModels
             get { return _tcIn; }
             set
             {
-                if (SetField(ref _tcIn, value, nameof(TcIn)))
+                if (SetField(ref _tcIn, value))
                     InvalidateRequerySuggested();
             }
         }
@@ -263,7 +261,7 @@ namespace TAS.Client.ViewModels
             get { return _tcOut; }
             set
             {
-                if (SetField(ref _tcOut, value, nameof(TcOut)))
+                if (SetField(ref _tcOut, value))
                     InvalidateRequerySuggested();
             }
         }
@@ -326,10 +324,9 @@ namespace TAS.Client.ViewModels
 
         public long FramesPerSecond { get { return _formatDescription.FrameRate.Num / _formatDescription.FrameRate.Den; } }
 
-        public void OnServerPropertyChanged(object sender, PropertyChangedEventArgs e)
+        public void OnChannelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (_channelPRV != null
-                && sender == _channelPRV.OwnerServer)
+            if (e.PropertyName == nameof(IPlayoutServerChannel.IsServerConnected))
                 NotifyPropertyChanged(nameof(IsEnabled));
         }
         
@@ -382,16 +379,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsEnabled
         {
-            get
-            {
-                if (_channelPRV != null)
-                {
-                    var server = _channelPRV.OwnerServer;
-                    if (server != null)
-                        return server.IsConnected;
-                }
-                return false;
-            }
+            get { return _channelPRV?.IsServerConnected == true; }
         } 
 
         
@@ -404,7 +392,7 @@ namespace TAS.Client.ViewModels
             get { return _playWholeClip; }
             set
             {
-                if (SetField(ref _playWholeClip, value, nameof(PlayWholeClip)))
+                if (SetField(ref _playWholeClip, value))
                     _mediaLoad(_loadedMedia, false);
             }
         }

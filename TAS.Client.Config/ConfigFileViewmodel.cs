@@ -132,24 +132,24 @@ namespace TAS.Client.Config
         }
 
         string _ingestFolders;
-        public string IngestFolders { get { return _ingestFolders; } set { SetField(ref _ingestFolders, value, "IngestFolders"); } }
+        public string IngestFolders { get { return _ingestFolders; } set { SetField(ref _ingestFolders, value); } }
         string _localDevices;
-        public string LocalDevices { get { return _localDevices; } set { SetField(ref _localDevices, value, "LocalDevices"); } }
+        public string LocalDevices { get { return _localDevices; } set { SetField(ref _localDevices, value); } }
         string _tempDirectory;
-        public string TempDirectory { get { return _tempDirectory; } set { SetField(ref _tempDirectory, value, "TempDirectory"); } }
+        public string TempDirectory { get { return _tempDirectory; } set { SetField(ref _tempDirectory, value); } }
         int _instance;
-        public int Instance { get { return _instance; } set { SetField(ref _instance, value, "Instance"); } }
+        public int Instance { get { return _instance; } set { SetField(ref _instance, value); } }
         string _tasConnectionString;
-        public string tasConnectionString { get { return _tasConnectionString; } set { SetField(ref _tasConnectionString, value, "tasConnectionString"); } }
+        public string tasConnectionString { get { return _tasConnectionString; } set { SetField(ref _tasConnectionString, value); } }
         string _tasConnectionStringSecondary;
         bool _isBackupInstance;
-        public bool IsBackupInstance { get { return _isBackupInstance; } set { SetField(ref _isBackupInstance, value, "IsBackupInstance"); } }
+        public bool IsBackupInstance { get { return _isBackupInstance; } set { SetField(ref _isBackupInstance, value); } }
 
-        public string tasConnectionStringSecondary { get { return _tasConnectionStringSecondary; } set { SetField(ref _tasConnectionStringSecondary, value, "tasConnectionStringSecondary"); } }
+        public string tasConnectionStringSecondary { get { return _tasConnectionStringSecondary; } set { SetField(ref _tasConnectionStringSecondary, value); } }
         private bool _isConnectionStringSecondary;
-        public bool IsSConnectionStringSecondary { get { return _isConnectionStringSecondary; } set { SetField(ref _isConnectionStringSecondary, value, "IsSConnectionStringSecondary"); } }
+        public bool IsSConnectionStringSecondary { get { return _isConnectionStringSecondary; } set { SetField(ref _isConnectionStringSecondary, value); } }
         string _uiLanguage;
-        public string UiLanguage { get { return _uiLanguage; } set { SetField(ref _uiLanguage, value, "UiLanguage"); } }
+        public string UiLanguage { get { return _uiLanguage; } set { SetField(ref _uiLanguage, value); } }
         
         public string ExeDirectory { get { return Path.GetDirectoryName(Model.FileName); } }
 

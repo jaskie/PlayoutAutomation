@@ -45,13 +45,13 @@ namespace TAS.Server
         private TFieldOrder _sourceFieldOrderEnforceConversion;
 
         [JsonProperty]
-        public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value, nameof(AspectConversion)); } }
+        public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value); } }
         [JsonProperty]
-        public TAudioChannelMappingConversion AudioChannelMappingConversion { get { return _audioChannelMappingConversion; } set { SetField(ref _audioChannelMappingConversion, value, nameof(AudioChannelMappingConversion)); } }
+        public TAudioChannelMappingConversion AudioChannelMappingConversion { get { return _audioChannelMappingConversion; } set { SetField(ref _audioChannelMappingConversion, value); } }
         [JsonProperty]
-        public decimal AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value, nameof(AudioVolume)); } }
+        public decimal AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value); } }
         [JsonProperty]
-        public TFieldOrder SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { SetField(ref _sourceFieldOrderEnforceConversion, value, nameof(SourceFieldOrderEnforceConversion)); } }
+        public TFieldOrder SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { SetField(ref _sourceFieldOrderEnforceConversion, value); } }
         [JsonProperty]
         public TimeSpan StartTC { get; set; }
         [JsonProperty]

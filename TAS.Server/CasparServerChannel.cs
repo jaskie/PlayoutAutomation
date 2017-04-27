@@ -23,8 +23,6 @@ namespace TAS.Server
     public class CasparServerChannel : DtoBase, IPlayoutServerChannel
     {
         internal CasparServer ownerServer;
-        [XmlIgnore]
-        public IPlayoutServer OwnerServer { get { return ownerServer; } }
         #region IPlayoutServerChannel
         public int Id { get; set; }
         public int ChannelNumber { get { return Id; } set { Id = value; } } // old field name; to avoid problems after field rename after version 1.1.1
@@ -35,7 +33,15 @@ namespace TAS.Server
         public string LiveDevice { get; set; }
         [XmlIgnore]
         public TVideoFormat VideoFormat { get; set; }
+        private bool _isServerConnected;
+        [XmlIgnore]
+        [JsonProperty]
+        public bool IsServerConnected { get { return _isServerConnected; } internal set { SetField(ref _isServerConnected, value); } }
+
+
         #endregion // IPlayoutServerChannel
+
+
         protected SimpleDictionary<VideoLayer, bool> outputAspectNarrow = new SimpleDictionary<VideoLayer, bool>();
 
         private Channel _casparChannel;
@@ -53,7 +59,7 @@ namespace TAS.Server
 
         private bool _checkConnected(Channel channel)
         {
-            var server = OwnerServer;
+            var server = ownerServer;
             if (server != null && channel != null)
                 return server.IsConnected;
             return false;

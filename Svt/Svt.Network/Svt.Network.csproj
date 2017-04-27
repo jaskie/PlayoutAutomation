@@ -142,6 +142,7 @@
     <Compile Include="Osc\Symbol.cs" />
     <Compile Include="Osc\Timetag.cs" />
     <Compile Include="Osc\UdpListener.cs" />
+    <Compile Include="Osc\OscPacketDispatcher.cs" />
     <Compile Include="Osc\Utils.cs" />
     <Compile Include="ReconnectionHelper.cs" />
     <Compile Include="RemoteHostState.cs" />

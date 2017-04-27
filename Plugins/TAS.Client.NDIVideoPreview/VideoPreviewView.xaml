@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="TAS.Client.NDIVideoPreview.VideoPreviewView"
+             ResxExtension.DefaultResxName="TAS.Client.NDIVideoPreview.VideoPreviewView" Language="{UICulture}"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TAS.Client.NDIVideoPreview"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             mc:Ignorable="d" 
+             d:DesignHeight="200"
+             d:DesignWidth="300"
+             d:DataContext="{x:Type local:VideoPreviewViewmodel}"
+             >
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="28"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <DockPanel DockPanel.Dock="Top">
+            <Label Content="{Resx _source}" VerticalAlignment="Center"/>
+            <Button Command="{Binding CommandRefreshSources}" DockPanel.Dock="Right" Height="{Binding ElementName=Selector, Path=ActualHeight}" ToolTip="{Resx _refreshSources}">
+                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
+            </Button>
+            <ComboBox ItemsSource="{Binding VideoSources}" SelectedItem="{Binding VideoSource}" VerticalAlignment="Center" x:Name="Selector" />
+        </DockPanel>
+        <Image Visibility="{Binding DisplaySource, Converter={StaticResource BoolToVis}}" Name="VideoSurface" Source="{Binding VideoBitmap}" Grid.Row="1" />
+    </Grid>
+</UserControl>

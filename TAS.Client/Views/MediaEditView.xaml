@@ -18,9 +18,6 @@
     <UserControl.InputBindings>
         <KeyBinding Command="{Binding CommandSaveEdit}" Gesture="Ctrl+S" />
     </UserControl.InputBindings>
-    <UserControl.Resources>
-        <common:TimeSpanToSMPTEConverter x:Key="TimeSpanToSMPTE" />
-    </UserControl.Resources>
     <DockPanel MinWidth="200" >
         <StackPanel DockPanel.Dock="Top" Visibility="{Binding ShowButtons, Converter={StaticResource BoolToVis}}" FlowDirection="RightToLeft" Orientation="Horizontal" Height="37">
             <StackPanel.Resources>
@@ -75,8 +72,11 @@
                     <Style TargetType="controls:TimecodeEdit" >
                         <Setter Property="Margin" Value="5, 3" />
                         <Style.Triggers>
-                            <Trigger Property="Validation.HasError" Value="true">
+                            <Trigger Property="Validation.HasError" Value="True">
                                 <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                            </Trigger>
+                            <Trigger Property="IsReadOnly" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}" />
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -109,14 +109,14 @@
                     <StackPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource InvertedBoolToVis}}">
                         <DockPanel>
                             <Label Content="{Resx _tCStart}" />
-                            <controls:TimecodeEdit Text="{Binding TcStart, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
+                            <controls:TimecodeEdit Timecode="{Binding TcStart}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True" />
                         </DockPanel>
                         <DockPanel>
                             <Label Content="{Resx _duration}" />
-                            <controls:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
+                            <controls:TimecodeEdit Timecode="{Binding Duration}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
                         </DockPanel>
                     </StackPanel>
-                    <StackPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}" >
                         <DockPanel >
                             <Label Content="{Resx _times}"/>
                             <UniformGrid Columns="2">
@@ -129,15 +129,15 @@
                         <DockPanel >
                             <Label Content="{Resx _tCStart}" />
                             <UniformGrid Columns="2">
-                                <controls:TimecodeEdit Text="{Binding TcStart, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
-                                <controls:TimecodeEdit Text="{Binding TcPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                                <controls:TimecodeEdit Timecode="{Binding TcStart}" VideoFormat="{Binding VideoFormat}" />
+                                <controls:TimecodeEdit Timecode="{Binding TcPlay}" VideoFormat="{Binding VideoFormat}" />
                             </UniformGrid>
                         </DockPanel>
                         <DockPanel>
                             <Label Content="{Resx _duration}" />
                             <UniformGrid Columns="2">
-                                <controls:TimecodeEdit Text="{Binding Duration, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged}" />
-                                <controls:TimecodeEdit Text="{Binding DurationPlay, Converter={StaticResource TimeSpanToSMPTE}, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                                <controls:TimecodeEdit Timecode="{Binding Duration, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
+                                <controls:TimecodeEdit Timecode="{Binding DurationPlay, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
                             </UniformGrid>
                         </DockPanel>
                         <!--<DockPanel Visibility="{Binding IsIngestDataShown, Converter={StaticResource BoolToVis}}">

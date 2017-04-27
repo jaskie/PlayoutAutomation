@@ -97,8 +97,6 @@ namespace TAS.Client.ViewModels
             Debug.WriteLine("MediaSearchViewModel disposed");
         }
 
-        public Views.PreviewView PreviewView { get { return _previewViewmodel?.View; } }
-
         public double WindowWidth { get; set; }
 
         bool _canAddMediaToCollection(IMedia media, TMediaType requiredMediaType)
@@ -211,7 +209,7 @@ namespace TAS.Client.ViewModels
         {
             get { return _mediaCategory; }
             set {
-                if (SetField(ref _mediaCategory, value, nameof(MediaCategory)))
+                if (SetField(ref _mediaCategory, value))
                 {
                     NotifyPropertyChanged(nameof(IsServerOrArchiveDirectory));
                     _itemsView.Refresh();

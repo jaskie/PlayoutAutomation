@@ -64,7 +64,7 @@ namespace TAS.Client.Config
         public ICommand CommandAdd { get { return _commandAdd; } }
         public ICommand CommandDelete { get { return _commandDelete; } }
         PlayoutServerViewmodel _selectedServer;
-        public PlayoutServerViewmodel SelectedServer { get { return _selectedServer; } set { SetField(ref _selectedServer, value, nameof(SelectedServer)); } }
+        public PlayoutServerViewmodel SelectedServer { get { return _selectedServer; } set { SetField(ref _selectedServer, value); } }
         readonly ObservableCollection<PlayoutServerViewmodel> _playoutServers;
         public ObservableCollection<PlayoutServerViewmodel> PlayoutServers { get { return _playoutServers; } }
     }

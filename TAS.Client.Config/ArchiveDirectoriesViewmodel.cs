@@ -63,7 +63,7 @@ namespace TAS.Client.Config
         public ObservableCollection<ArchiveDirectory> Directories { get { return _directories; } }
         ArchiveDirectory _selectedDirectory;
         
-        public ArchiveDirectory SelectedDirectory { get { return _selectedDirectory; } set { SetField(ref _selectedDirectory, value, nameof(SelectedDirectory)); } }
+        public ArchiveDirectory SelectedDirectory { get { return _selectedDirectory; } set { SetField(ref _selectedDirectory, value); } }
         
         protected override void OnDispose()
         {

@@ -42,7 +42,7 @@
                                     <xctk:BusyIndicator.BusyContent>
                                         <TextBlock Text="{Resx ResxName=TVPlayClient.MainWindow, Key=_pleaseWait}"/>
                                     </xctk:BusyIndicator.BusyContent>
-                                    <ContentControl Content="{Binding View}"/>
+                                    <views:ChannelView DataContext="{Binding Channel}"/>
                                 </xctk:BusyIndicator>
                             </DataTemplate>
                         </TabControl.ContentTemplate>

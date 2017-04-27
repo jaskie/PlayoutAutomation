@@ -43,11 +43,11 @@ namespace TAS.Server
 
         private TemplateMethod _method;
         [JsonProperty]
-        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value, "Method"); } }
+        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value); } }
 
         private int _templateLayer;
         [JsonProperty]
-        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value, "TemplateLayer"); } }
+        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value); } }
 
         public override bool Save()
         {

@@ -167,12 +167,15 @@ namespace TAS.Server
 
             var sPRI = servers.FirstOrDefault(S => S.Id == IdServerPRI);
             _playoutChannelPRI = sPRI == null ? null : (CasparServerChannel)sPRI.Channels.FirstOrDefault(c => c.Id == ServerChannelPRI);
-            recorders.AddRange(sPRI.Recorders.Select(r => r as CasparRecorder));
+            if (sPRI != null)
+                recorders.AddRange(sPRI.Recorders.Select(r => r as CasparRecorder));
             var sSEC = servers.FirstOrDefault(S => S.Id == IdServerSEC);
-            recorders.AddRange(sSEC.Recorders.Select(r => r as CasparRecorder));
+            if (sSEC != null && sSEC != sPRI)
+                recorders.AddRange(sSEC.Recorders.Select(r => r as CasparRecorder));
             _playoutChannelSEC = sSEC == null ? null : (CasparServerChannel)sSEC.Channels.FirstOrDefault(c => c.Id == ServerChannelSEC);
             var sPRV = servers.FirstOrDefault(S => S.Id == IdServerPRV);
-            recorders.AddRange(sPRV.Recorders.Select(r => r as CasparRecorder));
+            if (sPRV != null && sPRV != sPRI && sPRV != sSEC)
+                recorders.AddRange(sPRV.Recorders.Select(r => r as CasparRecorder));
             _playoutChannelPRV = sPRV == null ? null : (CasparServerChannel)sPRV.Channels.FirstOrDefault(c => c.Id == ServerChannelPRV);
             _mediaManager.Recorders = recorders;
             
@@ -245,9 +248,9 @@ namespace TAS.Server
             var chSEC = PlayoutChannelSEC as CasparServerChannel;
             if (chSEC != null
                 && chSEC != chPRI)
-                chSEC.OwnerServer.PropertyChanged -= _server_PropertyChanged;
+                chSEC.ownerServer.PropertyChanged -= _server_PropertyChanged;
             if (chPRI != null)
-                chPRI.OwnerServer.PropertyChanged -= _server_PropertyChanged;
+                chPRI.ownerServer.PropertyChanged -= _server_PropertyChanged;
 
             if (Remote != null)
             {
@@ -376,9 +379,9 @@ namespace TAS.Server
             if (e.PropertyName == nameof(IPlayoutServer.IsConnected) && ((IPlayoutServer)sender).IsConnected)
             {
                 var ve = _visibleEvents.ToList();
-                if (sender == ((CasparServerChannel)PlayoutChannelPRI)?.OwnerServer)
+                if (sender == ((CasparServerChannel)PlayoutChannelPRI)?.ownerServer)
                     channelConnected(_playoutChannelPRI, ve);
-                if (sender == ((CasparServerChannel)PlayoutChannelSEC)?.OwnerServer
+                if (sender == ((CasparServerChannel)PlayoutChannelSEC)?.ownerServer
                     && PlayoutChannelSEC != PlayoutChannelPRI)
                     channelConnected(_playoutChannelSEC, ve);
             }
@@ -431,7 +434,7 @@ namespace TAS.Server
             private set
             {
                 var oldPlaying = _playing;
-                if (SetField(ref _playing, (Event)value, nameof(Playing)))
+                if (SetField(ref _playing, (Event)value))
                 {
                     if (oldPlaying != null)
                         oldPlaying.SubEventChanged -= _playingSubEventsChanged;
@@ -486,7 +489,7 @@ namespace TAS.Server
             get { return _isWideScreen; }
             set
             {
-                if (SetField(ref _isWideScreen, value, nameof(IsWideScreen)))
+                if (SetField(ref _isWideScreen, value))
                     if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
                     {
                         _playoutChannelPRI?.SetAspect(VideoLayer.Program, !value);
@@ -566,7 +569,7 @@ namespace TAS.Server
                     long maxSeek = _previewDuration-1;
                     if (newSeek > maxSeek)
                         newSeek = maxSeek;
-                    if (SetField(ref _previewPosition, newSeek, nameof(PreviewPosition)))
+                    if (SetField(ref _previewPosition, newSeek))
                     {
                         _playoutChannelPRV.Seek(VideoLayer.Preview, _previewSeek + newSeek);
                         _previewPosition = newSeek;
@@ -582,7 +585,7 @@ namespace TAS.Server
             get { return _previewAudioLevel; }
             set
             {
-                if (SetField(ref _previewAudioLevel, value, nameof(PreviewAudioLevel)))
+                if (SetField(ref _previewAudioLevel, value))
                     _playoutChannelPRV.SetVolume(VideoLayer.Preview, (decimal)Math.Pow(10, (double)value / 20), 0);
             }
         }
@@ -612,7 +615,7 @@ namespace TAS.Server
             get { return _previewLoaded; }
             private set
             {
-                if (SetField(ref _previewLoaded, value, nameof(PreviewLoaded)))
+                if (SetField(ref _previewLoaded, value))
                 {
                     decimal vol = (_previewLoaded) ? 0 : _programAudioVolume;
                     if (_playoutChannelPRV != null)
@@ -624,7 +627,7 @@ namespace TAS.Server
         private bool _previewIsPlaying;
         [XmlIgnore]
         [JsonProperty]
-        public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value, nameof(PreviewIsPlaying)); } }
+        public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value); } }
 
         private Media _findPreviewMedia(Media media)
         {
@@ -634,7 +637,7 @@ namespace TAS.Server
                 if (playoutChannel == null)
                     return null;
                 else
-                    return media.Directory == playoutChannel.OwnerServer.MediaDirectory ? media : ((ServerDirectory)playoutChannel.OwnerServer.MediaDirectory).FindMediaByMediaGuid(media.MediaGuid);
+                    return media.Directory == playoutChannel.ownerServer.MediaDirectory ? media : ((ServerDirectory)playoutChannel.ownerServer.MediaDirectory).FindMediaByMediaGuid(media.MediaGuid);
             }
             else
                 return media;
@@ -1207,7 +1210,7 @@ namespace TAS.Server
                 lock (_tickLock)
                 {
                     var oldForcedNext = _forcedNext;
-                    if (SetField(ref _forcedNext, value as Event, nameof(ForcedNext)))
+                    if (SetField(ref _forcedNext, (Event)value))
                     {
                         Debug.WriteLine(value, "ForcedNext");
                         NotifyPropertyChanged(nameof(NextToPlay));
@@ -1435,7 +1438,7 @@ namespace TAS.Server
             private set
             {
                 lock (_runningEvents.SyncRoot)
-                if (SetField(ref _engineState, value, nameof(EngineState)))
+                if (SetField(ref _engineState, value))
                     {
                         if (value == TEngineState.Hold)
                             foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && ((Event)e).IsFinished()).ToList())
@@ -1462,7 +1465,7 @@ namespace TAS.Server
             get { return _programAudioVolume; }
             set
             {
-                if (SetField(ref _programAudioVolume, value, nameof(ProgramAudioVolume)))
+                if (SetField(ref _programAudioVolume, value))
                 {
                     var playing = Playing;
                     int transitioDuration = playing == null ? 0 : (int)playing.TransitionTime.ToSMPTEFrames(_frameRate);
@@ -1479,7 +1482,7 @@ namespace TAS.Server
         public bool FieldOrderInverted
         {
             get { return _fieldOrderInverted; }
-            set { if (SetField(ref _fieldOrderInverted, value, nameof(FieldOrderInverted)))
+            set { if (SetField(ref _fieldOrderInverted, value))
                 {
                     if (_playoutChannelPRI != null)
                         _playoutChannelPRI.SetFieldOrderInverted(VideoLayer.Program, value);
@@ -1600,7 +1603,7 @@ namespace TAS.Server
             get { return _pst2Prv; }
             set
             {
-                if (SetField(ref _pst2Prv, value, nameof(Pst2Prv)))
+                if (SetField(ref _pst2Prv, value))
                 {
                     if (value)
                         _loadPST();
