@@ -19,14 +19,15 @@ namespace TAS.Client.NDIVideoPreview
     [Export(typeof(Common.Plugin.IVideoPreview))]
     public class VideoPreviewViewmodel : ViewModels.ViewmodelBase, Common.Plugin.IVideoPreview
     {
+
         public ICommand CommandRefreshSources { get; private set; }
 
         public VideoPreviewViewmodel()
         {
             View = new VideoPreviewView { DataContext = this };
-            _videoSources = new ObservableCollection<string>();
+            _videoSources = new ObservableCollection<string>(new []{ Common.Properties.Resources._none_ });
             CommandRefreshSources = new UICommand { ExecuteDelegate = RefreshSources, CanExecuteDelegate = o => _ndiFindInstance != IntPtr.Zero};
-            InitFind();
+            InitNdiFind();
             if (_ndiFindInstance != IntPtr.Zero)
             ThreadPool.QueueUserWorkItem(o =>
             {
@@ -51,6 +52,8 @@ namespace TAS.Client.NDIVideoPreview
                 {
                     if (!string.IsNullOrEmpty(value))
                     {
+                        Disconnect();
+                        VideoBitmap = null;
                         DisplaySource = _ndiSources.ContainsKey(value);
                         if (DisplaySource)
                             ThreadPool.QueueUserWorkItem(o => Connect(value));
@@ -71,8 +74,8 @@ namespace TAS.Client.NDIVideoPreview
         }
 
         // private members
-        private readonly ObservableCollection<string> _videoSources;
-        private ConcurrentDictionary<string, NDIlib_source_t> _ndiSources = new ConcurrentDictionary<string, NDIlib_source_t>();
+        private Dictionary<string, NDIlib_source_t> _ndiSources;
+        private ObservableCollection<string> _videoSources;
         private string _videoSource;
         private IntPtr _ndiFindInstance;
         private IntPtr _ndiReceiveInstance;
@@ -86,29 +89,32 @@ namespace TAS.Client.NDIVideoPreview
             if (_ndiFindInstance != IntPtr.Zero)
             {
                 int numSources = 0;
-                var sources = Ndi.NDIlib_find_get_current_sources(_ndiFindInstance, ref numSources);
+                var ndi_sources = Ndi.NDIlib_find_get_current_sources(_ndiFindInstance, ref numSources);
                 if (numSources > 0)
                 {
-                    _videoSources.Clear();
-                    _videoSources.Add(Common.Properties.Resources._none_);
-                    _ndiSources.Clear();
                     int SourceSizeInBytes = System.Runtime.InteropServices.Marshal.SizeOf(typeof(NDIlib_source_t));
+                    Dictionary<string, NDIlib_source_t> sources = new Dictionary<string, NDIlib_source_t>();
                     for (int i = 0; i < numSources; i++)
                     {
-                        IntPtr p = IntPtr.Add(sources, (i * SourceSizeInBytes));
+                        IntPtr p = IntPtr.Add(ndi_sources, (i * SourceSizeInBytes));
                         NDIlib_source_t src = (NDIlib_source_t)System.Runtime.InteropServices.Marshal.PtrToStructure(p, typeof(NDIlib_source_t));
                         var ndiName = Ndi.Utf8ToString(src.p_ndi_name);
-                        if (!_ndiSources.ContainsKey(ndiName) && !VideoSources.Contains(ndiName))
-                        {
-                            _ndiSources.TryAdd(ndiName, src);
-                            _videoSources.Add(ndiName);
-                        }
+                        sources.Add(ndiName, src);
                     }
+                    // removing non-existing sources
+                    var notExistingSources = _videoSources.Where(s => !(sources.ContainsKey(s) || s == Common.Properties.Resources._none_)).ToArray();
+                    foreach (var source in notExistingSources)
+                        _videoSources.Remove(source);
+                    //adding new sources
+                    foreach (var source in sources)
+                        if (!_videoSources.Contains(source.Key))
+                            _videoSources.Add(source.Key);
+                    _ndiSources = sources;
                 }
             }
         }
 
-        private void InitFind()
+        private void InitNdiFind()
         {
             Ndi.AddRuntimeDir();
             var findDesc = new NDIlib_find_create_t()
@@ -122,8 +128,7 @@ namespace TAS.Client.NDIVideoPreview
 
         private void Connect(string sourceName)
         {
-            Disconnect();
-            if (string.IsNullOrEmpty(sourceName) || !_ndiSources.ContainsKey(sourceName))
+            if (string.IsNullOrEmpty(sourceName) || _ndiSources == null || !_ndiSources.ContainsKey(sourceName))
                 return;
             NDIlib_source_t source = _ndiSources[sourceName];
             NDIlib_recv_create_t recvDescription = new NDIlib_recv_create_t()
