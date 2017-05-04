@@ -107,8 +107,9 @@ namespace TAS.Server.Database
                 {
                     using (MySqlCommand cmd = new MySqlCommand())
                     {
-                        using (MySqlBackup mb = new MySqlBackup(cmd))
+                        using (MySqlBackup mb = new MySqlBackup(cmd) )
                         {
+                            mb.ExportInfo.MaxSqlLength = 1024 * 1024; // 1M
                             cmd.Connection = conn;
                             conn.Open();
                             mb.ExportToFile(backupFile);
