@@ -6,6 +6,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TAS.Client.NDIVideoPreview"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
+             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:s="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="200"
              d:DesignWidth="300"
@@ -21,6 +24,31 @@
         </Grid.RowDefinitions>
         <DockPanel DockPanel.Dock="Top">
             <Label Content="{Resx _source}" VerticalAlignment="Center"/>
+            <Label Name="ndiLabel" DockPanel.Dock="Right" Content="NDI™" VerticalAlignment="Center">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseEnter">
+                        <i:InvokeCommandAction Command="{Binding CommandShowPopup}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Label>
+
+            <Popup AllowsTransparency="True" IsOpen="{Binding DisplayPopup}">
+                <Border Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" BorderThickness="3" CornerRadius="3" >
+                    <StackPanel Margin="3">
+                        <Grid Background="{DynamicResource {x:Static SystemColors.InactiveCaptionBrushKey}}">
+                            <Button Width="16" Height="16" HorizontalAlignment="Right" Command="{Binding CommandHidePopup}">
+                                <Image Source="/TAS.Client.Common;component/Images/Actions/close.png" />
+                            </Button>
+                        </Grid>
+                        <TextBlock Text="{Resx _ndiInformation}"/>
+                        <TextBlock>
+                            <Hyperlink NavigateUri="{Resx _ndiUrl}" Command="{Binding CommandGotoNdiWebsite}" CommandParameter="{Resx _ndiUrl}">
+                                <TextBlock Text="{Resx _ndiUrl}"/>
+                            </Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </Popup>
             <Button Command="{Binding CommandRefreshSources}" DockPanel.Dock="Right" Height="{Binding ElementName=Selector, Path=ActualHeight}" ToolTip="{Resx _refreshSources}">
                 <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
             </Button>

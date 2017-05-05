@@ -21,12 +21,18 @@ namespace TAS.Client.NDIVideoPreview
     {
 
         public ICommand CommandRefreshSources { get; private set; }
+        public ICommand CommandGotoNdiWebsite { get; private set; }
+        public ICommand CommandShowPopup { get; private set; }
+        public ICommand CommandHidePopup { get; private set; }
 
         public VideoPreviewViewmodel()
         {
             View = new VideoPreviewView { DataContext = this };
             _videoSources = new ObservableCollection<string>(new []{ Common.Properties.Resources._none_ });
             CommandRefreshSources = new UICommand { ExecuteDelegate = RefreshSources, CanExecuteDelegate = o => _ndiFindInstance != IntPtr.Zero};
+            CommandGotoNdiWebsite = new UICommand { ExecuteDelegate = GotoNdiWebsite };
+            CommandShowPopup = new UICommand { ExecuteDelegate = o => DisplayPopup = true };
+            CommandHidePopup = new UICommand { ExecuteDelegate = o => DisplayPopup = false };
             InitNdiFind();
             if (_ndiFindInstance != IntPtr.Zero)
             ThreadPool.QueueUserWorkItem(o =>
@@ -39,7 +45,18 @@ namespace TAS.Client.NDIVideoPreview
             });
         }
 
+
+
+        #region IVideoPreview
+
         public UserControl View { get; private set; }
+
+        public void SetSource(string sourceUrl)
+        { 
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate { VideoSource = sourceUrl; });
+        }
+
+        #endregion IVideoPreview
 
         public IEnumerable<string> VideoSources { get { return _videoSources; } }
 
@@ -83,6 +100,20 @@ namespace TAS.Client.NDIVideoPreview
         private volatile bool _exitReceiveThread = false;
         private WriteableBitmap _videoBitmap = null;
         private bool _displaySource;
+        private bool _displayPopup;
+
+        private void GotoNdiWebsite(object obj)
+        {
+            DisplayPopup = false;
+            Process.Start(obj.ToString());
+        }
+
+        public bool DisplayPopup
+        {
+            get { return _displayPopup; }
+            set { SetField(ref _displayPopup, value); }
+        }
+
 
         private void RefreshSources(object obj)
         {
@@ -100,6 +131,7 @@ namespace TAS.Client.NDIVideoPreview
                         NDIlib_source_t src = (NDIlib_source_t)System.Runtime.InteropServices.Marshal.PtrToStructure(p, typeof(NDIlib_source_t));
                         var ndiName = Ndi.Utf8ToString(src.p_ndi_name);
                         sources.Add(ndiName, src);
+                        Debug.WriteLine($"Added source name:{Ndi.Utf8ToString(src.p_ndi_name)} address :{Ndi.Utf8ToString(src.p_ip_address)}");
                     }
                     // removing non-existing sources
                     var notExistingSources = _videoSources.Where(s => !(sources.ContainsKey(s) || s == Common.Properties.Resources._none_)).ToArray();
@@ -186,7 +218,6 @@ namespace TAS.Client.NDIVideoPreview
                             VideoBitmap.Lock();
                             VideoBitmap.WritePixels(new Int32Rect(0, 0, xres, yres), videoFrame.p_data, bufferSize, stride);
                             VideoBitmap.Unlock();
-
                             Ndi.NDIlib_recv_free_video(recvInstance, ref videoFrame);
                         }));
                         break;
@@ -215,6 +246,7 @@ namespace TAS.Client.NDIVideoPreview
             Ndi.NDIlib_recv_destroy(_ndiReceiveInstance);
             _ndiReceiveInstance = IntPtr.Zero;
         }
+
 
     }
 }
