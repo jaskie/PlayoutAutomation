@@ -534,6 +534,24 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to End timecode is behind end of clip (clip ends at {0})..
+        /// </summary>
+        public static string _validate_EndTCAfterFile {
+            get {
+                return ResourceManager.GetString("_validate_EndTCAfterFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to End timecode is before start of clip (clip starts at {0})..
+        /// </summary>
+        public static string _validate_EndTCBeforeFile {
+            get {
+                return ResourceManager.GetString("_validate_EndTCBeforeFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to File of this name already exists..
         /// </summary>
         public static string _validate_FileAlreadyExists {

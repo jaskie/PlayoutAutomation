@@ -16,6 +16,6 @@ namespace TAS.Server.Interfaces
         bool PreviewIsPlaying { get; }
         long PreviewPosition { get; set; }
         long PreviewSeek { get; }
-        decimal PreviewAudioLevel { get; set; }
+        decimal PreviewAudioVolume { get; set; }
     }
 }

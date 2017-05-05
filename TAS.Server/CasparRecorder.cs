@@ -16,14 +16,13 @@ namespace TAS.Server
 
     public class CasparRecorder: DtoBase, IRecorder
     {
-        internal CasparServer ownerServer;
         private TVideoFormat _tcFormat = TVideoFormat.PAL;
         private Recorder _recorder;
         private IMedia _recordingMedia;
         internal IArchiveDirectory ArchiveDirectory;
         private static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(CasparRecorder));
 
-        internal void SetRecorder(Recorder value)
+        internal void SetRecorder(Recorder value, CasparServer owner)
         {
             var oldRecorder = _recorder;
             if (_recorder != value)
@@ -47,9 +46,14 @@ namespace TAS.Server
                     IsDeckConnected = value.IsConnected;
                     DeckState = TDeckState.Unknown;
                     DeckControl = TDeckControl.None;
+                    CaptureChannel = owner.Channels.LastOrDefault();
                 }
             }
+            _ownerServer = owner;
         }
+
+        private CasparServer _ownerServer;
+
 
         private void _recorder_FramesLeft(object sender, FramesLeftEventArgs e)
         {
@@ -115,47 +119,71 @@ namespace TAS.Server
 
         #region IRecorder
         private TimeSpan _currentTc;
-        [XmlIgnore]
-        [JsonProperty]
+        [JsonProperty, XmlIgnore]
         public TimeSpan CurrentTc { get { return _currentTc; }  private set { SetField(ref _currentTc, value); } }
 
         private TimeSpan _timeLimit;
-        [XmlIgnore]
-        [JsonProperty]
+        [JsonProperty, XmlIgnore]
         public TimeSpan TimeLimit { get { return _timeLimit; }  private set { SetField(ref _timeLimit, value); } }
 
         private TDeckState _deckState;
-        [XmlIgnore]
-        [JsonProperty]
+        [JsonProperty, XmlIgnore]
         public TDeckState DeckState { get { return _deckState; } private set { SetField(ref _deckState, value); } }
 
         private TDeckControl _deckControl;
-        [XmlIgnore]
-        [JsonProperty]
+        [JsonProperty, XmlIgnore]
         public TDeckControl DeckControl { get { return _deckControl; }  private set { SetField(ref _deckControl, value); } }
 
         private bool _isDeckConnected;
-        [XmlIgnore]
-        [JsonProperty]
+        [JsonProperty, XmlIgnore]
         public bool IsDeckConnected { get { return _isDeckConnected; } private set { SetField(ref _isDeckConnected, value); } }
 
         private bool _isServerConnected;
-        [XmlIgnore]
-        [JsonProperty]
+        [JsonProperty, XmlIgnore]
         public bool IsServerConnected { get { return _isServerConnected; } internal set { SetField(ref _isServerConnected, value); } }
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
-        public IEnumerable<IPlayoutServerChannel> Channels { get { return ownerServer.Channels; } }
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects), XmlIgnore]
+        public IEnumerable<IPlayoutServerChannel> Channels { get { return _ownerServer.Channels; } }
+
+        private string _captureFileName;
+        [JsonProperty, XmlIgnore]
+        public string CaptureFileName { get { return _captureFileName; } private set { SetField(ref _captureFileName, value); } }
+
+        private TimeSpan _captureTcIn;
+        [JsonProperty, XmlIgnore]
+        public TimeSpan CaptureTcIn { get { return _captureTcIn; } private set { SetField(ref _captureTcIn, value); } }
+
+        private TimeSpan _captureTcOut;
+        [JsonProperty, XmlIgnore]
+        public TimeSpan CaptureTcOut { get { return _captureTcOut; } private set { SetField(ref _captureTcOut, value); } }
+
+        private TimeSpan _captureTimeLimit = TimeSpan.FromHours(2);
+        [JsonProperty, XmlIgnore]
+        public TimeSpan CaptureTimeLimit { get { return _captureTimeLimit; } private set { SetField(ref _captureTimeLimit, value); } }
+
+        private bool _captureNarrowMode;
+        [JsonProperty, XmlIgnore]
+        public bool CaptureNarrowMode { get { return _captureNarrowMode; } private set { SetField(ref _captureNarrowMode, value); } }
+
+        private IPlayoutServerChannel _captureChannel;
+        [XmlIgnore]
+        public IPlayoutServerChannel CaptureChannel { get { return _captureChannel; } set { SetField(ref _captureChannel, value); } }
+
 
         public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string fileName)
         {
             _tcFormat = channel.VideoFormat;
-            var directory = (ServerDirectory)ownerServer.MediaDirectory;
+            var directory = (ServerDirectory)_ownerServer.MediaDirectory;
             var newMedia = new ServerMedia(directory, Guid.NewGuid(), 0, ArchiveDirectory) { FileName = fileName, MediaName = fileName, TcStart = tcIn, TcPlay = tcIn, Duration = tcOut - tcIn, MediaStatus = TMediaStatus.Copying, LastUpdated = DateTime.UtcNow, MediaType = TMediaType.Movie };
             if (_recorder?.Capture(channel.Id, tcIn.ToSMPTETimecodeString(channel.VideoFormat), tcOut.ToSMPTETimecodeString(channel.VideoFormat), narrowMode, fileName) == true)
             {
-                directory.MediaAdd(newMedia);
+//                directory.MediaAdd(newMedia);
                 RecordingMedia = newMedia;
+                CaptureFileName = fileName;
+                CaptureTcIn = tcIn;
+                CaptureTcOut = tcOut;
+                CaptureTimeLimit = tcOut - tcIn;
+                CaptureNarrowMode = narrowMode;
                 return newMedia;
             }
             return null;
@@ -164,11 +192,16 @@ namespace TAS.Server
         public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string fileName)
         {
             _tcFormat = channel.VideoFormat;
-            var directory = (ServerDirectory)ownerServer.MediaDirectory;
+            var directory = (ServerDirectory)_ownerServer.MediaDirectory;
             var newMedia = new ServerMedia(directory, Guid.NewGuid(), 0, ArchiveDirectory) { FileName = fileName, MediaName = fileName, TcStart = TimeSpan.Zero, TcPlay=TimeSpan.Zero, Duration = timeLimit, MediaStatus = TMediaStatus.Copying, LastUpdated = DateTime.UtcNow, MediaType = TMediaType.Movie };
             if (_recorder?.Capture(channel.Id,  timeLimit.ToSMPTEFrames(channel.VideoFormat), narrowMode, fileName) == true)
             {
                 RecordingMedia = newMedia;
+                CaptureFileName = fileName;
+                CaptureTcIn = TimeSpan.Zero;
+                CaptureTcOut = TimeSpan.Zero;
+                CaptureTimeLimit = timeLimit;
+                CaptureNarrowMode = narrowMode;
                 return newMedia;
             }
             return null;
@@ -179,7 +212,10 @@ namespace TAS.Server
         {
             var videoFormat = _recordingMedia?.VideoFormat;
             if (videoFormat.HasValue)
+            {
                 _recorder.SetTimeLimit(limit.ToSMPTEFrames(videoFormat.Value));
+                CaptureTimeLimit = limit;
+            }
         }
 
         public void Finish()
@@ -218,10 +254,10 @@ namespace TAS.Server
 
 
         [XmlIgnore]
-        [JsonProperty]
         public IMedia RecordingMedia { get { return _recordingMedia; } private set { SetField(ref _recordingMedia, value); } }
 
-        public IMediaDirectory RecordingDirectory { get { return ownerServer.MediaDirectory; } }
+        [XmlIgnore]
+        public IMediaDirectory RecordingDirectory { get { return _ownerServer.MediaDirectory; } }
 
         #endregion IRecorder
 

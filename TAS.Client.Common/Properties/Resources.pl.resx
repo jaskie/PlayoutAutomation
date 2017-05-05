@@ -287,6 +287,12 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   <data name="_validate_DurationInvalid" xml:space="preserve">
     <value>Czas trwania (z uwzględnieniem TC startu) jest dłuższy, niż klipu.</value>
   </data>
+  <data name="_validate_EndTCAfterFile" xml:space="preserve">
+    <value>Timecode końca jest za klipem (końcowy TC klipu to {0}).</value>
+  </data>
+  <data name="_validate_EndTCBeforeFile" xml:space="preserve">
+    <value>Timecode końca jest przed klipem (początkowy TC klipu to {0}).</value>
+  </data>
   <data name="_validate_FileAlreadyExists" xml:space="preserve">
     <value>Plik o takiej nazwie już istnieje.</value>
   </data>

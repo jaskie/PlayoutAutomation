@@ -69,7 +69,7 @@ namespace TAS.Client.ViewModels
         private void Media_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IMedia.AudioVolume) && _preview.PreviewLoaded && _media != null)
-                _preview.PreviewAudioLevel = _media.AudioVolume;
+                _preview.PreviewAudioVolume = _media.AudioVolume;
             if (e.PropertyName == nameof(IMedia.MediaStatus) && _media != null)
                 InvalidateRequerySuggested();
         }
@@ -79,7 +79,7 @@ namespace TAS.Client.ViewModels
             IEvent ev = _event;
             IMedia media = ev == null ? null : ev.Media;
             if (e.PropertyName == nameof(IEvent.AudioVolume) && _preview.PreviewLoaded && ev != null && media != null)
-                _preview.PreviewAudioLevel = ev.AudioVolume == null? media.AudioVolume : (decimal)ev.AudioVolume;
+                _preview.PreviewAudioVolume = ev.AudioVolume == null? media.AudioVolume : (decimal)ev.AudioVolume;
         }
 
         public IEvent Event

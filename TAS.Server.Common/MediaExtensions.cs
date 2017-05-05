@@ -24,5 +24,12 @@ namespace TAS.Common
                 format = TVideoFormat.Other;
             return VideoFormatDescription.Descriptions[format].FrameRate;
         }
+
+        public static TimeSpan TcLastFrame(this IMedia media)
+        {
+            var frameRate = FrameRate(media);
+            return ((media.TcStart + media.Duration).ToSMPTEFrames(frameRate) -1).SMPTEFramesToTimeSpan(frameRate);
+        }
+
     }
 }

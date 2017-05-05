@@ -35,11 +35,6 @@ namespace TAS.Remoting.Model
             Invoke(parameters: new[] { aVideoLayer });
         }
 
-        public void Initialize()
-        {
-            throw new NotImplementedException();
-        }
-
         public bool Load(IEventPesistent aEvent)
         {
             throw new NotImplementedException();

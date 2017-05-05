@@ -86,9 +86,9 @@ namespace TAS.Client.ViewModels
 
         private void _recordersViewmodel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(RecordersViewmodel.RecordMedia))
+            if (e.PropertyName == nameof(RecordersViewmodel.RecordingMedia))
             {
-                var media = ((RecordersViewmodel)sender).RecordMedia;
+                var media = ((RecordersViewmodel)sender).RecordingMedia;
                 if (media != null)
                 {
                     EditMedia = new MediaEditViewmodel(media, _mediaManager, _previewViewModel, true);

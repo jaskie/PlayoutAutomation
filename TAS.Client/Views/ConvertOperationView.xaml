@@ -5,13 +5,23 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             xmlns:views="clr-namespace:TAS.Client.Views"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              d:DataContext="{x:Type vm:ConvertOperationViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="420">
     <UserControl.Resources>
-        <Style TargetType="TextBox">
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="true">
+                    <Setter Property="ToolTip"
+                    Value="{Binding RelativeSource={RelativeSource Self}, 
+                           Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="controls:TimecodeEdit" BasedOn="{StaticResource {x:Type TextBox}}">
             <Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="true">
                     <Setter Property="ToolTip"
@@ -103,19 +113,25 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <Label Content="{Resx _startTC}" />
-                            <controls:TimecodeEdit Timecode="{Binding StartTC}" VideoFormat="{Binding DestMediaVideoFormat}" Margin="0, 0, 4, 0" />
+                            <controls:TimecodeEdit Timecode="{Binding StartTC, ValidatesOnDataErrors=True}" VideoFormat="{Binding DestMediaVideoFormat}" Margin="0, 0, 4, 0" />
                         </StackPanel>
                         <StackPanel Grid.Column="1">
                             <Label Content="{Resx _duration}" />
-                            <controls:TimecodeEdit Timecode="{Binding Duration}" VideoFormat="{Binding DestMediaVideoFormat}" Margin="4, 0, 0, 0" />
+                            <controls:TimecodeEdit Timecode="{Binding Duration, ValidatesOnDataErrors=True}" VideoFormat="{Binding DestMediaVideoFormat}" Margin="4, 0, 0, 0" />
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <Label Content="{Resx _endTC}" />
-                            <controls:TimecodeEdit Timecode="{Binding EndTC}" VideoFormat="{Binding DestMediaVideoFormat}" Margin="4, 0, 0, 0" />
+                            <controls:TimecodeEdit Timecode="{Binding EndTC, ValidatesOnDataErrors=True}" VideoFormat="{Binding DestMediaVideoFormat}" Margin="4, 0, 0, 0" />
                         </StackPanel>
                     </Grid>
                 </StackPanel>
-                <ContentControl Content="{Binding View}"/>
+                <ContentControl Content="{Binding PreviewViewmodel}">
+                    <ContentControl.ContentTemplate>
+                        <DataTemplate DataType="vm:PreviewViewModel">
+                            <views:PreviewView />
+                        </DataTemplate>
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
             </StackPanel>
         </Expander>
     </StackPanel>

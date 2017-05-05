@@ -287,6 +287,12 @@ Do you really want to run this BACKUP play-out?</value>
   <data name="_validate_DurationInvalid" xml:space="preserve">
     <value>Duration (considering start TC) is longer than clip.</value>
   </data>
+  <data name="_validate_EndTCAfterFile" xml:space="preserve">
+    <value>End timecode is behind end of clip (clip ends at {0}).</value>
+  </data>
+  <data name="_validate_EndTCBeforeFile" xml:space="preserve">
+    <value>End timecode is before start of clip (clip starts at {0}).</value>
+  </data>
   <data name="_validate_FileAlreadyExists" xml:space="preserve">
     <value>File of this name already exists.</value>
   </data>

@@ -27,6 +27,12 @@ namespace TAS.Server.Interfaces
         IEnumerable<IPlayoutServerChannel> Channels { get; }
         IMedia RecordingMedia { get; }
         IMediaDirectory RecordingDirectory { get; }
+        string CaptureFileName { get; }
+        TimeSpan CaptureTcIn { get; }
+        TimeSpan CaptureTcOut { get; }
+        TimeSpan CaptureTimeLimit { get; }
+        bool CaptureNarrowMode { get; }
+        IPlayoutServerChannel CaptureChannel { get; }
     }
 
     public interface IRecorderProperties

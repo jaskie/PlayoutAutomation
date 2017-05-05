@@ -517,7 +517,7 @@ namespace TAS.Server
                                             || media.VideoFormat == TVideoFormat.PAL
                                             || media.VideoFormat == TVideoFormat.PAL_P);
                 PreviewLoaded = true;
-                PreviewAudioLevel = previewAudioVolume;
+                PreviewAudioVolume = previewAudioVolume;
                 _playoutChannelPRV.Load(mediaToLoad, VideoLayer.Preview, seek+position, duration-position);
                 PreviewIsPlaying = false;
                 NotifyPropertyChanged(nameof(PreviewMedia));
@@ -579,14 +579,14 @@ namespace TAS.Server
             }
         }
 
-        private decimal _previewAudioLevel;
+        private decimal _previewAudioVolume;
         [XmlIgnore]
-        public decimal PreviewAudioLevel
+        public decimal PreviewAudioVolume
         {
-            get { return _previewAudioLevel; }
+            get { return _previewAudioVolume; }
             set
             {
-                if (SetField(ref _previewAudioLevel, value))
+                if (SetField(ref _previewAudioVolume, value))
                     _playoutChannelPRV.SetVolume(VideoLayer.Preview, (decimal)Math.Pow(10, (double)value / 20), 0);
             }
         }

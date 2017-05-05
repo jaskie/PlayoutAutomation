@@ -8,7 +8,7 @@ using TAS.Server.Common;
 
 namespace TAS.Server.Interfaces
 {
-    public interface IPlayoutServerChannel: IPlayoutServerChannelProperties, IInitializable, INotifyPropertyChanged
+    public interface IPlayoutServerChannel: IPlayoutServerChannelProperties, INotifyPropertyChanged
     {
         bool IsServerConnected { get; }
         int  AudioLevel { get; } 

@@ -44,34 +44,28 @@ namespace TAS.Server
         [JsonProperty]
         public int  AudioLevel { get { return _audiolevel; } private set { SetField(ref _audiolevel, value); } }
 
-        public void Initialize()
-        {
-            if (CheckConnected(_casparChannel))
-            {
-                ClearMixer();
-                _casparChannel.MasterVolume((float)MasterVolume);
-            }
-        }
-
         #endregion // IPlayoutServerChannel
 
         protected SimpleDictionary<VideoLayer, bool> outputAspectNarrow = new SimpleDictionary<VideoLayer, bool>();
 
-        internal Channel CasparChannel
+        internal void Initialize(Channel casparChannel, CasparServer owner)
         {
-            set
+            var oldChannel = _casparChannel;
+            if (oldChannel != casparChannel)
             {
-                var oldChannel = _casparChannel;
-                if (_casparChannel != value)
-                {
-                    _casparChannel = value;
-                    if (oldChannel != null)
-                        oldChannel.AudioDataReceived -= Channel_AudioDataReceived;
-                    if (value != null)
-                        value.AudioDataReceived += Channel_AudioDataReceived;
-                    VideoFormat = CasparModeToVideoFormat(_casparChannel.VideoMode);
-                    Debug.WriteLine(this, "Caspar channel assigned");
-                }
+                _casparChannel = casparChannel;
+                if (oldChannel != null)
+                    oldChannel.AudioDataReceived -= Channel_AudioDataReceived;
+                if (casparChannel != null)
+                    casparChannel.AudioDataReceived += Channel_AudioDataReceived;
+                VideoFormat = CasparModeToVideoFormat(_casparChannel.VideoMode);
+                Debug.WriteLine(this, "Caspar channel assigned");
+            }
+            ownerServer = owner;
+            if (owner.IsConnected)
+            {
+                ClearMixer();
+                casparChannel.MasterVolume((float)MasterVolume);
             }
         }
 

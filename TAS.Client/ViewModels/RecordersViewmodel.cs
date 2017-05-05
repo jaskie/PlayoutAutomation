@@ -24,7 +24,6 @@ namespace TAS.Client.ViewModels
             _createCommands();
             _recorders = recorders;
             _videoFormat = TVideoFormat.PAL_FHA;
-            TimeLimit = TimeSpan.FromHours(2);
             Recorder = _recorders.FirstOrDefault();
         }
 
@@ -35,6 +34,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandRewind { get; private set; }
         public ICommand CommandAbort { get; private set; }
         public ICommand CommandCapture { get; private set; }
+        public ICommand CommandStartRecord { get; private set; }
         public ICommand CommandGetCurrentTcToIn { get; private set; }
         public ICommand CommandGetCurrentTcToOut { get; private set; }
         public ICommand CommandGoToTimecode { get; private set; }
@@ -42,22 +42,6 @@ namespace TAS.Client.ViewModels
         public ICommand CommandRecordFinish { get; private set; }
         public ICommand CommandSetRecordLimit { get; private set; }
 
-        public bool IsRecording
-        {
-            get { return _recordMedia?.MediaStatus == TMediaStatus.Copying; }
-            set
-            {
-                if (value)
-                    _startRecord();
-                else
-                    _finishRecord(null);
-            }
-        }
-
-        public bool CanStartRecord
-        {
-            get { return _recorder != null && _channel != null && Recorder.IsServerConnected && string.IsNullOrEmpty(_validateFileName()); }
-        }
 
         public string FileName
         {
@@ -65,7 +49,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 if (SetField(ref _fileName, value))
-                    NotifyPropertyChanged(nameof(CanStartRecord));
+                    NotifyPropertyChanged(nameof(_canStartRecord));
             }
         }
 
@@ -82,7 +66,24 @@ namespace TAS.Client.ViewModels
                     if (value != null)
                         value.PropertyChanged += Recorder_PropertyChanged;
                     Channels = value.Channels;
-                    Channel = value.Channels.LastOrDefault();
+                    Channel = value.CaptureChannel;
+                    CurrentTc = value.CurrentTc;
+                    RecorderTimeLeft = value.TimeLimit;
+                    DeckState = value.DeckState;
+                    DeckControl = value.DeckControl;
+                    TimeLimit = value.CaptureTimeLimit;
+                    TcIn = value.CaptureTcIn;
+                    TcOut = value.CaptureTcOut;
+                    IsNarrowMode = value.CaptureNarrowMode;
+                    FileName = Path.GetFileNameWithoutExtension(value.CaptureFileName);
+                    TMovieContainerFormat fileFormat;
+                    string extension = Path.GetExtension(value.CaptureFileName);
+                    if (extension?.Length > 1
+                        && Enum.TryParse(extension.Substring(1), out fileFormat))
+                        FileFormat = fileFormat;
+                    else
+                        FileFormat = TMovieContainerFormat.mov;
+                    RecordingMedia = value.RecordingMedia;
                 }
             }
         }
@@ -99,7 +100,7 @@ namespace TAS.Client.ViewModels
                 if (SetField(ref _channel, value))
                 {
                     VideoFormat = value.VideoFormat;
-                    NotifyPropertyChanged(nameof(CanStartRecord));
+                    NotifyPropertyChanged(nameof(_canStartRecord));
                 }
             }
         }
@@ -159,9 +160,9 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public IMedia RecordMedia
+        public IMedia RecordingMedia
         {
-            get { return _recordMedia; }
+            get { return _recorder?.RecordingMedia; }
             private set
             {
                 var oldRecordMedia = _recordMedia;
@@ -171,6 +172,7 @@ namespace TAS.Client.ViewModels
                         oldRecordMedia.PropertyChanged -= RecordMedia_PropertyChanged;
                     if (value != null)
                         value.PropertyChanged += RecordMedia_PropertyChanged;
+                    InvalidateRequerySuggested();
                 }
             }
         }
@@ -202,7 +204,7 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             Recorder = null; // ensure that events are disconnected
-            RecordMedia = null;
+            RecordingMedia = null;
         }
 
         private void Recorder_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -226,8 +228,8 @@ namespace TAS.Client.ViewModels
         {
             if (e.PropertyName == nameof(IMedia.MediaStatus))
             {
-                NotifyPropertyChanged(nameof(IsRecording));
-                NotifyPropertyChanged(nameof(CanStartRecord));
+                NotifyPropertyChanged(nameof(CommandStartRecord));
+                NotifyPropertyChanged(nameof(CommandCapture));
             }
         }
 
@@ -268,6 +270,7 @@ namespace TAS.Client.ViewModels
             CommandPlay = new UICommand { ExecuteDelegate = _play, CanExecuteDelegate = o => _canExecute(TDeckState.Playing) };
             CommandStop = new UICommand { ExecuteDelegate = _stop, CanExecuteDelegate = o => _canExecute(TDeckState.Stopped) };
             CommandCapture = new UICommand { ExecuteDelegate = _capture, CanExecuteDelegate = _canCapture };
+            CommandStartRecord = new UICommand { ExecuteDelegate = _startRecord, CanExecuteDelegate = _canStartRecord };
             CommandGetCurrentTcToIn = new UICommand { ExecuteDelegate = o => TcIn = CurrentTc };
             CommandGetCurrentTcToOut = new UICommand { ExecuteDelegate = o => TcOut = CurrentTc };
             CommandGoToTimecode = new UICommand { ExecuteDelegate = _goToTimecode, CanExecuteDelegate = _canGoToTimecode };
@@ -285,9 +288,18 @@ namespace TAS.Client.ViewModels
             _recorder.Finish();
         }
 
-        private void _startRecord()
+        private void _startRecord(object obj)
         {
-            RecordMedia = _recorder?.Capture(_channel, _timeLimit, IsNarrowMode, $"{FileName}.{FileFormat}");
+            RecordingMedia = _recorder?.Capture(_channel, _timeLimit, IsNarrowMode, $"{FileName}.{FileFormat}");
+        }
+
+        private bool _canStartRecord(object obj)
+        {
+            return _recorder != null && _channel != null
+                && _recorder.IsServerConnected
+                && _timeLimit > TimeSpan.FromSeconds(1)
+                && _recordMedia?.MediaStatus != TMediaStatus.Copying
+                && string.IsNullOrEmpty(_validateFileName());
         }
 
         private bool _canSetRecordTimeLimit(object obj)
@@ -323,13 +335,15 @@ namespace TAS.Client.ViewModels
 
         private void _capture(object obj)
         {
-            RecordMedia = _recorder.Capture(_channel, TcIn, TcOut, IsNarrowMode, $"{FileName}.{FileFormat}");
+            RecordingMedia = _recorder.Capture(_channel, TcIn, TcOut, IsNarrowMode, $"{FileName}.{FileFormat}");
         }
 
         private bool _canCapture(object obj)
         {
             return _recorder != null && _channel != null && _tcOut > _tcIn && _recorder.IsDeckConnected && string.IsNullOrEmpty(_validateFileName());
         }
+
+ 
 
         private bool _canExecute(TDeckState state)
         {

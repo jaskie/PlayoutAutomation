@@ -32,7 +32,6 @@ namespace TAS.Server
             _servers.ForEach(s =>
             {
                 s._channels.ForEach(c => c.ownerServer = s);
-                s._recorders.ForEach(r => r.ownerServer = s);
             });
             Engines = Database.Database.DbLoadEngines<Engine>(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]));
             foreach (Engine e in Engines)

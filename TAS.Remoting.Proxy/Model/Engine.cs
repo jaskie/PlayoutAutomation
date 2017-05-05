@@ -57,7 +57,7 @@ namespace TAS.Remoting.Model
 
         #region IPreview
         public IPlayoutServerChannel PlayoutChannelPRV { get { return Get<IPlayoutServerChannel>(); } set { SetLocalValue(value); } }
-        public decimal PreviewAudioLevel { get { return Get<decimal>(); } set { Set(value); } }
+        public decimal PreviewAudioVolume { get { return Get<decimal>(); } set { Set(value); } }
         public bool PreviewIsPlaying { get { return Get<bool>(); } set { SetLocalValue(value); } }
         public bool PreviewLoaded { get { return Get<bool>(); } set { SetLocalValue(value); } }
         [JsonProperty(nameof(IEngine.PreviewMedia))]

@@ -37,6 +37,18 @@ namespace TAS.Remoting.Model
 
         public TimeSpan TimeLimit { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
 
+        public TimeSpan CaptureTimeLimit { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
+
+        public TimeSpan CaptureTcIn { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
+
+        public TimeSpan CaptureTcOut { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
+
+        public bool CaptureNarrowMode { get { return Get<bool>(); } set { SetLocalValue(value); } }
+
+        public IPlayoutServerChannel CaptureChannel { get { return Get<PlayoutServerChannel>(); } set { SetLocalValue(value); } }
+
+        public string CaptureFileName { get { return Get<string>(); } set { SetLocalValue(value); } }
+
         public void Abort() { Invoke(); }
 
         public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string fileName)

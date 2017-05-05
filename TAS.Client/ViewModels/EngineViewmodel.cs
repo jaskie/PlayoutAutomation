@@ -1018,7 +1018,7 @@ namespace TAS.Client.ViewModels
             get { return _engine.ForcedNext != null; }
         }
 
-        private int _audioVolumePGM = -60;
+        private int _audioVolumePGM = -100;
         public int AudioLevelPRI 
         {
             get { return _audioVolumePGM; }

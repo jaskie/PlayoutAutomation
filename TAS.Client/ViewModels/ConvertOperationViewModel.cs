@@ -169,10 +169,11 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan EndTC
         {
-            get { return _startTC+_duration; }
+            get { return ((_startTC + _duration).ToSMPTEFrames(SourceMediaFrameRate) - 1).SMPTEFramesToTimeSpan(SourceMediaFrameRate); }
             set
             {
-                if (SetField(ref _duration, value - StartTC))
+                var end = ((value - StartTC).ToSMPTEFrames(SourceMediaFrameRate) + 1).SMPTEFramesToTimeSpan(SourceMediaFrameRate);
+                if (SetField(ref _duration, end))
                     NotifyPropertyChanged(nameof(Duration));
             }
         }
@@ -245,16 +246,33 @@ namespace TAS.Client.ViewModels
                 switch (propertyName)
                 {
                     case nameof(DestFileName):
-                        validationResult = _validateDestFileName();
+                        validationResult = ValidateDestFileName();
+                        break;
+                    case nameof(StartTC):
+                    case nameof(EndTC):
+                    case nameof(Duration):
+                        validationResult = ValidateTc();
                         break;
                 }
                 return validationResult;
             }
         }
 
-        private string _validateDestFileName()
+        private string ValidateTc()
         {
-            string validationResult = string.Empty;
+            if (StartTC < _convertOperation.SourceMedia.TcStart)
+                return string.Format(resources._validate_StartTCBeforeFile, _convertOperation.SourceMedia.TcStart.ToSMPTETimecodeString(_convertOperation.SourceMedia.VideoFormat));
+            if (StartTC > _convertOperation.SourceMedia.TcLastFrame())
+                return string.Format(resources._validate_StartTCAfterFile, _convertOperation.SourceMedia.TcLastFrame().ToSMPTETimecodeString(_convertOperation.SourceMedia.VideoFormat));
+            if (EndTC < _convertOperation.SourceMedia.TcStart)
+                return string.Format(resources._validate_EndTCBeforeFile, _convertOperation.SourceMedia.TcStart.ToSMPTETimecodeString(_convertOperation.SourceMedia.VideoFormat));
+            if (EndTC > _convertOperation.SourceMedia.TcLastFrame())
+                return string.Format(resources._validate_EndTCAfterFile, _convertOperation.SourceMedia.TcLastFrame().ToSMPTETimecodeString(_convertOperation.SourceMedia.VideoFormat));
+            return null;
+        }
+
+        private string ValidateDestFileName()
+        {
             IMediaProperties media = _convertOperation.DestMediaProperties;
             if (media != null)
             {
@@ -262,29 +280,29 @@ namespace TAS.Client.ViewModels
                 if (dir != null)
                 {
                     if (_destFileName.StartsWith(" ") || _destFileName.EndsWith(" "))
-                        validationResult = resources._validate_FileNameCanNotStartOrEndWithSpace;
+                        return resources._validate_FileNameCanNotStartOrEndWithSpace;
                     else
                     if (_destFileName.IndexOfAny(Path.GetInvalidFileNameChars()) > 0)
-                        validationResult = resources._validate_FileNameCanNotContainSpecialCharacters;
+                        return resources._validate_FileNameCanNotContainSpecialCharacters;
                     else
                     {
                         var newName = _destFileName.ToLowerInvariant();
                         if (dir.FileExists(newName, media.Folder))
-                            validationResult = resources._validate_FileAlreadyExists;
+                            return resources._validate_FileAlreadyExists;
                         else
                             if (media is IPersistentMediaProperties)
                             {
                                 if (media.MediaType == TMediaType.Movie
                                     && !FileUtils.VideoFileTypes.Contains(Path.GetExtension(newName).ToLower()))
-                                    validationResult = string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.VideoFileTypes));
+                                    return string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.VideoFileTypes));
                                 if (media.MediaType == TMediaType.Still
                                     && !FileUtils.StillFileTypes.Contains(Path.GetExtension(newName).ToLower()))
-                                    validationResult = string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.StillFileTypes));
+                                    return string.Format(resources._validate_FileMustHaveExtension, string.Join(resources._or_, FileUtils.StillFileTypes));
                             }
                     }
                 }
             }
-            return validationResult;
+            return null;
         }
         
         protected override void OnFileOperationPropertyChanged(object sender, PropertyChangedEventArgs e)
