@@ -28,9 +28,7 @@ namespace TAS.Client.ViewModels
     {
         private readonly IMediaManager _mediaManager;
         private ICollectionView _mediaView;
-
-
-
+        
         public ICommand CommandSearch { get; private set; }
         public ICommand CommandClearFilters { get; private set; }
         public ICommand CommandSaveSelected { get; private set; }
@@ -95,6 +93,10 @@ namespace TAS.Client.ViewModels
                     if (_previewViewModel != null)
                         _previewViewModel.Media = media;
                 }
+            }
+            if (e.PropertyName == nameof(RecordersViewmodel.Channel))
+            {
+                VideoPreview?.SetSource(((RecordersViewmodel)sender).Channel?.PreviewUrl);
             }
         }
 

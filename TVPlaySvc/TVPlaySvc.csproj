@@ -58,10 +58,12 @@
     <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
       <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>
       <Name>TAS.Remoting</Name>
+      <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Server\TAS.Server.csproj">
       <Project>{f268cd0e-804f-49cd-a3f2-341e5b6a9927}</Project>
       <Name>TAS.Server</Name>
+      <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

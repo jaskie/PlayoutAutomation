@@ -29,6 +29,8 @@
             <TextBox Text="{Binding MasterVolume}"/>
             <Label Content="Live device name"/>
             <TextBox Text="{Binding LiveDevice, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label Content="Preview URL"/>
+            <TextBox Text="{Binding PreviewUrl, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

@@ -10,9 +10,9 @@ using System.Windows.Input;
 
 namespace TAS.Client.Common
 {
-    public delegate bool OnOkDelegate(object parameter);
     public abstract class OkCancelViewmodelBase<M> : EditViewmodelBase<M>
     {
+        public delegate bool OnOkDelegate(object parameter);
         private bool? _showResult;
         private OkCancelView _currentWindow;
 

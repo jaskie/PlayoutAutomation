@@ -25,6 +25,8 @@ namespace TAS.Remoting.Model
 
         public int AudioLevel { get { return Get<int>(); } set { SetLocalValue(value); } }
 
+        public string PreviewUrl { get { return Get<string>(); } set { SetLocalValue(value); } }
+
         public void Clear()
         {
             Invoke();

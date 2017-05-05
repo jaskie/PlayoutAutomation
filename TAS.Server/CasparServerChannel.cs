@@ -29,11 +29,18 @@ namespace TAS.Server
         public int ChannelNumber { get { return Id; } set { Id = value; } } // old field name; to avoid problems after field rename after version 1.1.1
         [JsonProperty]
         public string ChannelName { get; set; }
+
         [DefaultValue(typeof(Decimal), "1")]
         public decimal MasterVolume { get; set; }
+
+        [JsonProperty]
+        public string PreviewUrl { get; set; }
+
         public string LiveDevice { get; set; }
+
         [XmlIgnore]
         public TVideoFormat VideoFormat { get; set; }
+
         private bool _isServerConnected;
         [XmlIgnore]
         [JsonProperty]

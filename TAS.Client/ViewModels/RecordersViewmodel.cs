@@ -98,10 +98,7 @@ namespace TAS.Client.ViewModels
             set
             {
                 if (SetField(ref _channel, value))
-                {
                     VideoFormat = value.VideoFormat;
-                    NotifyPropertyChanged(nameof(_canStartRecord));
-                }
             }
         }
 

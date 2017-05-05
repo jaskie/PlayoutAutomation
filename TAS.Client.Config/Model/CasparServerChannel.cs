@@ -18,6 +18,7 @@ namespace TAS.Client.Config.Model
         public string ChannelName { get; set; }
         public decimal MasterVolume { get; set; } 
         public string LiveDevice { get; set; }
+        public string PreviewUrl { get; set; }
 
         public TVideoFormat VideoFormat { get; set; }
         
