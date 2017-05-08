@@ -51,9 +51,44 @@ namespace TAS.Client.NDIVideoPreview
 
         public UserControl View { get; private set; }
 
+        /// <summary>
+        /// Method accepts address in form ndi://ip_address:port and ndi://ip_address:ndi_name
+        /// </summary>
+        /// <param name="sourceUrl"></param>
         public void SetSource(string sourceUrl)
-        { 
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate { VideoSource = sourceUrl; });
+        {
+            if (string.IsNullOrWhiteSpace(sourceUrl))
+                return;
+            Uri sourceUri = null;
+            if ((Uri.TryCreate(sourceUrl, UriKind.Absolute, out sourceUri) && sourceUri.Scheme == "ndi")
+                || string.Equals(sourceUrl.Substring(0, sourceUrl.IndexOf(':')), "ndi", StringComparison.InvariantCultureIgnoreCase))
+                Application.Current.Dispatcher.BeginInvoke((Action)delegate
+                {
+                    string source = null;
+                    if (sourceUri != null)
+                        source = _ndiSources.FirstOrDefault(s => Ndi.Utf8ToString(s.Value.p_ip_address) == sourceUri.Host).Key;
+                    else
+                    {
+                        string address = sourceUrl.Substring(sourceUrl.IndexOf("//") + 2);
+                        string host = address.Substring(0, address.IndexOf(':'));
+                        string name = address.Substring(address.IndexOf(':') + 1);
+                        source = _ndiSources.FirstOrDefault(s =>
+                           {
+                               string ndiFullAddress = Ndi.Utf8ToString(s.Value.p_ip_address);
+                               string ndiFullName = Ndi.Utf8ToString(s.Value.p_ndi_name);
+                               int openingBraceIndex = ndiFullName.IndexOf('(', 1);
+                               int closingBraceIndex = ndiFullName.IndexOf(')', openingBraceIndex);
+                               if (openingBraceIndex > 0
+                                   && closingBraceIndex > openingBraceIndex
+                                   && ndiFullAddress.Substring(0, ndiFullAddress.IndexOf(':')).Equals(host, StringComparison.InvariantCultureIgnoreCase)
+                                   && ndiFullName.Substring(openingBraceIndex + 1, closingBraceIndex - openingBraceIndex - 1).Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                                   return true;
+                               return false;
+                           }).Key;
+                    }
+                    if (!string.IsNullOrWhiteSpace(source))
+                        VideoSource = source;
+                });
         }
 
         #endregion IVideoPreview

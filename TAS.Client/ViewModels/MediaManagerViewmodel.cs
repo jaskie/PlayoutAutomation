@@ -80,6 +80,8 @@ namespace TAS.Client.ViewModels
             _recordersViewmodel.PropertyChanged += _recordersViewmodel_PropertyChanged;
             _previewDisplay = true;
             ComposePlugins();
+
+            VideoPreview?.SetSource(_recordersViewmodel.Channel?.PreviewUrl);
         }
 
         private void _recordersViewmodel_PropertyChanged(object sender, PropertyChangedEventArgs e)

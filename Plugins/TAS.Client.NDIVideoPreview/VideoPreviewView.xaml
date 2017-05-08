@@ -19,19 +19,16 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="28"/>
+            <RowDefinition Height="31"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <DockPanel DockPanel.Dock="Top">
-            <Label Content="{Resx _source}" VerticalAlignment="Center"/>
-            <Label Name="ndiLabel" DockPanel.Dock="Right" Content="NDI™" VerticalAlignment="Center">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="MouseEnter">
-                        <i:InvokeCommandAction Command="{Binding CommandShowPopup}" />
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
+        <DockPanel DockPanel.Dock="Top" Margin="3">
+            <Label VerticalAlignment="Center" >
+                <Hyperlink Command="{Binding CommandShowPopup}">
+                    <TextBlock Text="NDI™" />
+                </Hyperlink>
             </Label>
-
+            <Label Content="{Resx _source}" VerticalAlignment="Center"/>
             <Popup AllowsTransparency="True" IsOpen="{Binding DisplayPopup}">
                 <Border Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" BorderThickness="3" CornerRadius="3" >
                     <StackPanel Margin="3">
@@ -42,7 +39,7 @@
                         </Grid>
                         <TextBlock Text="{Resx _ndiInformation}"/>
                         <TextBlock>
-                            <Hyperlink NavigateUri="{Resx _ndiUrl}" Command="{Binding CommandGotoNdiWebsite}" CommandParameter="{Resx _ndiUrl}">
+                            <Hyperlink Command="{Binding CommandGotoNdiWebsite}" CommandParameter="{Resx _ndiUrl}">
                                 <TextBlock Text="{Resx _ndiUrl}"/>
                             </Hyperlink>
                         </TextBlock>
