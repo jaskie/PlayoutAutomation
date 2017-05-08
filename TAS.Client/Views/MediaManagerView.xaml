@@ -176,17 +176,11 @@
                         <i:Interaction.Behaviors>
                             <common:BindableSelectedItems SelectedItems="{Binding SelectedMediaList, Mode=OneWayToSource}"/>
                         </i:Interaction.Behaviors>
-                        <DataGrid.RowStyle>
+                        <DataGrid.Resources>
                             <Style TargetType="DataGridRow">
-                                <Style.Resources>
-                                    <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Navy"/>
-                                    <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="White"/>
-                                </Style.Resources>
                                 <Setter Property="DetailsVisibility" Value="{Binding IsExpanded, Converter={StaticResource BoolToVis}}" />
                                 <Setter Property="Background" Value="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}" />
                             </Style>
-                        </DataGrid.RowStyle>
-                        <DataGrid.Resources>
                             <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
                             <common:BoolToStringConverter x:Key="isArchivedConverter" TrueValue="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.IsArchived}" />
                             <common:BoolToStringConverter x:Key="isTrimmedConverter" TrueValue="{Resx ResxName=TAS.Client.Views.MediaManagerView, Key=_grid.IsTrimmed}" />

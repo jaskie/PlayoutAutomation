@@ -72,5 +72,11 @@ namespace TAS.Client
         {
             tbSearch.SelectAll();
         }
+
+        private void CellDoubleClick(object sender, RoutedEventArgs e)
+        {
+            if (tbSearch.Focus())
+                tbSearch.SelectAll();
+        }
     }
 }

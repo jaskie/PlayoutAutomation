@@ -177,7 +177,7 @@
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovieOrLiveOrRundown, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _requiredAt}" />
-                        <TextBox Text="{Binding RequestedStartTime, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Resx _requiredAt.ToolTip}"/>
+                        <xctk:MaskedTextBox Text="{Binding RequestedStartTime, UpdateSourceTrigger=PropertyChanged}" Mask="00:00:00" ToolTip="{Resx _requiredAt.ToolTip}" Margin="1" />
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _clip}" />

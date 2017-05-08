@@ -173,7 +173,7 @@ namespace TAS.Server
 
         private void _setDuration(TimeSpan newDuration)
         {
-            if (SetField(ref _duration, newDuration))
+            if (SetField(ref _duration, newDuration, nameof(Duration)))
             {
                 if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
                 {
@@ -1104,7 +1104,7 @@ namespace TAS.Server
             {
                 var rrt = _requestedStartTime;
                 if (rrt != null)
-                    return _scheduledTime.TimeOfDay - rrt;
+                    return _scheduledTime.ToLocalTime().TimeOfDay - rrt;
                 return null;
             }
         }

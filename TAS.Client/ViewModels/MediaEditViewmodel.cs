@@ -25,7 +25,7 @@ namespace TAS.Client.ViewModels
         private readonly IMediaManager _mediaManager;
         public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, PreviewViewmodel previewVm, bool showButtons) : base(media, new MediaEditView())
         {
-            CommandSaveEdit = new UICommand() { ExecuteDelegate = ModelUpdate, CanExecuteDelegate = _canSave };
+            CommandSaveEdit = new UICommand() { ExecuteDelegate = ModelUpdate, CanExecuteDelegate = o => CanSave() };
             CommandCancelEdit = new UICommand() { ExecuteDelegate = ModelLoad, CanExecuteDelegate = o => IsModified };
             CommandRefreshStatus = new UICommand() { ExecuteDelegate = _refreshStatus };
             CommandCheckVolume = new UICommand() { ExecuteDelegate = _checkVolume, CanExecuteDelegate = (o) => !_isVolumeChecking };
@@ -84,7 +84,7 @@ namespace TAS.Client.ViewModels
                 ((IPersistentMedia)Model).Save();
         }
 
-        private bool _canSave(object obj)
+        public bool CanSave()
         {
             return IsModified && IsValid && Model.MediaStatus == TMediaStatus.Available;
         }
