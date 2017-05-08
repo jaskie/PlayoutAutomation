@@ -247,7 +247,7 @@ namespace TAS.Client.ViewModels
                 else
                 {
                     IMedia media = _event.Media;
-                    if (media == null || media.MediaStatus == TMediaStatus.Deleted)
+                    if (media == null || media.MediaStatus == TMediaStatus.Deleted || !media.FileExists())
                         return TMediaErrorInfo.Missing;
                     else
                         if (media.MediaStatus == TMediaStatus.Available)
