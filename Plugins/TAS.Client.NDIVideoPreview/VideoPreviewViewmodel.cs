@@ -44,9 +44,7 @@ namespace TAS.Client.NDIVideoPreview
                 }
             });
         }
-
-
-
+        
         #region IVideoPreview
 
         public UserControl View { get; private set; }
@@ -64,27 +62,32 @@ namespace TAS.Client.NDIVideoPreview
                 || string.Equals(sourceUrl.Substring(0, sourceUrl.IndexOf(':')), "ndi", StringComparison.InvariantCultureIgnoreCase))
                 Application.Current.Dispatcher.BeginInvoke((Action)delegate
                 {
+                    if (_ndiSources == null)
+                        return;
                     string source = null;
                     if (sourceUri != null)
                         source = _ndiSources.FirstOrDefault(s => Ndi.Utf8ToString(s.Value.p_ip_address) == sourceUri.Host).Key;
                     else
                     {
                         string address = sourceUrl.Substring(sourceUrl.IndexOf("//") + 2);
-                        string host = address.Substring(0, address.IndexOf(':'));
-                        string name = address.Substring(address.IndexOf(':') + 1);
-                        source = _ndiSources.FirstOrDefault(s =>
-                           {
-                               string ndiFullAddress = Ndi.Utf8ToString(s.Value.p_ip_address);
-                               string ndiFullName = Ndi.Utf8ToString(s.Value.p_ndi_name);
-                               int openingBraceIndex = ndiFullName.IndexOf('(', 1);
-                               int closingBraceIndex = ndiFullName.IndexOf(')', openingBraceIndex);
-                               if (openingBraceIndex > 0
-                                   && closingBraceIndex > openingBraceIndex
-                                   && ndiFullAddress.Substring(0, ndiFullAddress.IndexOf(':')).Equals(host, StringComparison.InvariantCultureIgnoreCase)
-                                   && ndiFullName.Substring(openingBraceIndex + 1, closingBraceIndex - openingBraceIndex - 1).Equals(name, StringComparison.InvariantCultureIgnoreCase))
-                                   return true;
-                               return false;
-                           }).Key;
+                        if (!string.IsNullOrWhiteSpace(address))
+                        {
+                            string host = address.Substring(0, address.IndexOf(':'));
+                            string name = address.Substring(address.IndexOf(':') + 1);
+                            var ndi = _ndiSources.FirstOrDefault(s =>
+                               {
+                                   string ndiFullAddress = Ndi.Utf8ToString(s.Value.p_ip_address);
+                                   string ndiFullName = Ndi.Utf8ToString(s.Value.p_ndi_name);
+                                   int openingBraceIndex = ndiFullName.IndexOf('(', 1);
+                                   int closingBraceIndex = ndiFullName.IndexOf(')', openingBraceIndex);
+                                   if (openingBraceIndex > 0
+                                       && closingBraceIndex > openingBraceIndex
+                                       && ndiFullAddress.Substring(0, ndiFullAddress.IndexOf(':')).Equals(host, StringComparison.InvariantCultureIgnoreCase)
+                                       && ndiFullName.Substring(openingBraceIndex + 1, closingBraceIndex - openingBraceIndex - 1).Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                                       return true;
+                                   return false;
+                               }).Key;
+                        }
                     }
                     if (!string.IsNullOrWhiteSpace(source))
                         VideoSource = source;
