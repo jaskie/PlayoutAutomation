@@ -77,7 +77,7 @@ namespace TAS.Server
         {
             var device_recorders = _casparDevice.Recorders.ToList();
             foreach (var dev_rec in device_recorders)
-                _recorders.FirstOrDefault(r => r.Id == dev_rec.Id)?.SetRecorder(dev_rec, this);
+                _recorders.FirstOrDefault(r => r.Id == dev_rec.Id)?.SetRecorder(dev_rec);
         }
 
         protected bool _isConnected;
@@ -128,7 +128,7 @@ namespace TAS.Server
             {
                 _needUpdateChannels = false;
                 foreach (CasparServerChannel c in Channels)
-                    c.Initialize(Array.Find(channels, csc => csc.ID == c.Id), this);
+                    c.SetChannel(Array.Find(channels, csc => csc.ID == c.Id));
             }
         }
         private void _casparDevice_ConnectionStatusChanged(object sender, Svt.Network.ConnectionEventArgs e)

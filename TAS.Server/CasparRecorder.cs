@@ -21,8 +21,9 @@ namespace TAS.Server
         private IMedia _recordingMedia;
         internal IArchiveDirectory ArchiveDirectory;
         private static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(CasparRecorder));
+        private CasparServer _ownerServer;
 
-        internal void SetRecorder(Recorder value, CasparServer owner)
+        internal void SetRecorder(Recorder value)
         {
             var oldRecorder = _recorder;
             if (_recorder != value)
@@ -46,14 +47,15 @@ namespace TAS.Server
                     IsDeckConnected = value.IsConnected;
                     DeckState = TDeckState.Unknown;
                     DeckControl = TDeckControl.None;
-                    CaptureChannel = owner.Channels.LastOrDefault();
                 }
             }
-            _ownerServer = owner;
         }
 
-        private CasparServer _ownerServer;
-
+        internal void SetOwner(CasparServer owner)
+        {
+            _ownerServer = owner;
+            CaptureChannel = owner.Channels.LastOrDefault();
+        }
 
         private void _recorder_FramesLeft(object sender, FramesLeftEventArgs e)
         {

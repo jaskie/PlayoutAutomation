@@ -22,7 +22,7 @@ namespace TAS.Server
 {
     public class CasparServerChannel : DtoBase, IPlayoutServerChannel
     {
-        internal CasparServer ownerServer;
+        private CasparServer _ownerServer;
         private Channel _casparChannel;
         #region IPlayoutServerChannel
         public int Id { get; set; }
@@ -55,7 +55,7 @@ namespace TAS.Server
 
         protected SimpleDictionary<VideoLayer, bool> outputAspectNarrow = new SimpleDictionary<VideoLayer, bool>();
 
-        internal void Initialize(Channel casparChannel, CasparServer owner)
+        internal void SetChannel(Channel casparChannel)
         {
             var oldChannel = _casparChannel;
             if (oldChannel != casparChannel)
@@ -68,12 +68,17 @@ namespace TAS.Server
                 VideoFormat = CasparModeToVideoFormat(_casparChannel.VideoMode);
                 Debug.WriteLine(this, "Caspar channel assigned");
             }
-            ownerServer = owner;
-            if (owner.IsConnected)
+            if (_ownerServer?.IsConnected == true)
             {
                 ClearMixer();
                 casparChannel.MasterVolume((float)MasterVolume);
             }
+        }
+
+        internal CasparServer Owner
+        {
+            get { return _ownerServer; }
+            set { _ownerServer = value; }
         }
 
         private void Channel_AudioDataReceived(object sender, AudioDataEventArgs e)
@@ -88,7 +93,7 @@ namespace TAS.Server
 
         private bool CheckConnected(Channel channel)
         {
-            var server = ownerServer;
+            var server = _ownerServer;
             if (server != null && channel != null)
                 return server.IsConnected;
             return false;

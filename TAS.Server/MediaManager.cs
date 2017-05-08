@@ -55,12 +55,12 @@ namespace TAS.Server
             Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Begin initializing");
             ArchiveDirectory = this.LoadArchiveDirectory<ArchiveDirectory>(_engine.IdArchive);
-            MediaDirectoryPRI = (_engine.PlayoutChannelPRI == null) ? null : ((CasparServerChannel)_engine.PlayoutChannelPRI).ownerServer.MediaDirectory;
-            MediaDirectorySEC = (_engine.PlayoutChannelSEC == null) ? null : ((CasparServerChannel)_engine.PlayoutChannelSEC).ownerServer.MediaDirectory;
-            MediaDirectoryPRV = (_engine.PlayoutChannelPRV == null) ? null : ((CasparServerChannel)_engine.PlayoutChannelPRV).ownerServer.MediaDirectory;
-            AnimationDirectoryPRI = (_engine.PlayoutChannelPRI == null) ? null : ((CasparServerChannel)_engine.PlayoutChannelPRI).ownerServer.AnimationDirectory;
-            AnimationDirectorySEC = (_engine.PlayoutChannelSEC == null) ? null : ((CasparServerChannel)_engine.PlayoutChannelSEC).ownerServer.AnimationDirectory;
-            AnimationDirectoryPRV = (_engine.PlayoutChannelPRV == null) ? null : ((CasparServerChannel)_engine.PlayoutChannelPRV).ownerServer.AnimationDirectory;
+            MediaDirectoryPRI = (_engine.PlayoutChannelPRI == null) ? null : ((CasparServerChannel)_engine.PlayoutChannelPRI).Owner.MediaDirectory;
+            MediaDirectorySEC = (_engine.PlayoutChannelSEC == null) ? null : ((CasparServerChannel)_engine.PlayoutChannelSEC).Owner.MediaDirectory;
+            MediaDirectoryPRV = (_engine.PlayoutChannelPRV == null) ? null : ((CasparServerChannel)_engine.PlayoutChannelPRV).Owner.MediaDirectory;
+            AnimationDirectoryPRI = (_engine.PlayoutChannelPRI == null) ? null : ((CasparServerChannel)_engine.PlayoutChannelPRI).Owner.AnimationDirectory;
+            AnimationDirectorySEC = (_engine.PlayoutChannelSEC == null) ? null : ((CasparServerChannel)_engine.PlayoutChannelSEC).Owner.AnimationDirectory;
+            AnimationDirectoryPRV = (_engine.PlayoutChannelPRV == null) ? null : ((CasparServerChannel)_engine.PlayoutChannelPRV).Owner.AnimationDirectory;
             IMediaDirectory[] initializationList = new IMediaDirectory[] { MediaDirectoryPRI, MediaDirectorySEC, MediaDirectoryPRV, AnimationDirectoryPRI, AnimationDirectorySEC, AnimationDirectoryPRV, ArchiveDirectory };
             foreach (MediaDirectory dir in initializationList.OfType<IMediaDirectory>().Distinct())
                 dir.Initialize();
@@ -392,12 +392,12 @@ namespace TAS.Server
         {
             var chPRI = (CasparServerChannel)_engine.PlayoutChannelPRI;
             var chSEC = (CasparServerChannel)_engine.PlayoutChannelSEC;
-            if (chPRI != null && chSEC != null && chPRI.ownerServer != chSEC.ownerServer)
+            if (chPRI != null && chSEC != null && chPRI.Owner!= chSEC.Owner)
             {
-                if ((originalMedia.Directory as ServerDirectory).Server == chPRI.ownerServer)
-                    return (ServerMedia)((MediaDirectory)chSEC.ownerServer.MediaDirectory).FindMediaByMediaGuid(originalMedia.MediaGuid);
-                if ((originalMedia.Directory as ServerDirectory).Server == chSEC.ownerServer)
-                    return (ServerMedia)((MediaDirectory)chPRI.ownerServer.MediaDirectory).FindMediaByMediaGuid(originalMedia.MediaGuid);
+                if ((originalMedia.Directory as ServerDirectory).Server == chPRI.Owner)
+                    return (ServerMedia)((MediaDirectory)chSEC.Owner.MediaDirectory).FindMediaByMediaGuid(originalMedia.MediaGuid);
+                if ((originalMedia.Directory as ServerDirectory).Server == chSEC.Owner)
+                    return (ServerMedia)((MediaDirectory)chPRI.Owner.MediaDirectory).FindMediaByMediaGuid(originalMedia.MediaGuid);
             }
             return null;
         }
