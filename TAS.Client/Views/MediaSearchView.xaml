@@ -67,7 +67,7 @@
                     <common:FocusExtension SelectAllOnFocus="True"/>
                 </i:Interaction.Behaviors>
             </TextBox>
-            <Button Grid.Column="4" HorizontalAlignment="Right" Content="{Binding OkButtonText}" Margin="5,3" Width="70" Command="{Binding CommandAdd}" Click="ButtonOK_Click"  IsDefault="True" />
+            <Button Grid.Column="4" HorizontalAlignment="Right" Content="{Binding OkButtonText}" Margin="5,3" Width="70" Command="{Binding CommandAdd}" Click="ButtonOKClick"  IsDefault="True" />
             <Button Grid.Column="4" HorizontalAlignment="Left" Content="{Resx _cancel}" Margin="5,3" Width="70" IsCancel="True" Click="ButtonCancel_Click" />
             <ComboBox Grid.Column="3" Margin="5,3" VerticalAlignment="Center" ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" >
                 <ComboBox.ItemTemplate>
@@ -109,7 +109,7 @@
                             <Setter Property="DetailsVisibility" Value="{Binding IsExpanded, Converter={StaticResource BoolToVis}}" />
                             <Setter Property="common:MouseDoubleClick.Command" Value="{Binding ElementName=gSearch, Path=DataContext.CommandAdd}" />
                             <Setter Property="Background" Value="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}" />
-                            <EventSetter Event="MouseDoubleClick" Handler="CellDoubleClick"/>
+                            <EventSetter Event="MouseDoubleClick" Handler="ButtonOKClick"/>
                         </Style>
                     </DataGrid.RowStyle>
                     <DataGrid.Columns>

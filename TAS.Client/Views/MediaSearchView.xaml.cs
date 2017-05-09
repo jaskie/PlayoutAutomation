@@ -22,10 +22,10 @@ namespace TAS.Client
     /// </summary>
     public partial class MediaSearchView : Window
     {
-        public MediaSearchView(RationalNumber frameRate)
+        public MediaSearchView()
         {
             InitializeComponent();
-            Owner = System.Windows.Application.Current.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive);
+            Owner = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive);
         }
 
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -68,15 +68,11 @@ namespace TAS.Client
                 gSearch.SelectedIndex--;
         }
 
-        private void ButtonOK_Click(object sender, RoutedEventArgs e)
-        {
-            tbSearch.SelectAll();
-        }
-
-        private void CellDoubleClick(object sender, RoutedEventArgs e)
+        private void ButtonOKClick(object sender, RoutedEventArgs e)
         {
             if (tbSearch.Focus())
                 tbSearch.SelectAll();
         }
+
     }
 }

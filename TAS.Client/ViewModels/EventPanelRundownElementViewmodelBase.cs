@@ -426,6 +426,11 @@ namespace TAS.Client.ViewModels
             TimeLeft = (e.TimeToFinish == TimeSpan.Zero || _event.PlayState == TPlayState.Scheduled) ? string.Empty : e.TimeToFinish.ToSMPTETimecodeString(_videoFormat);
         }
 
+        internal void VerifyIsInvalidInSchedule()
+        {
+            NotifyPropertyChanged(nameof(IsInvalidInSchedule));
+        }
+
         protected override void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             base.OnEventPropertyChanged(sender, e);

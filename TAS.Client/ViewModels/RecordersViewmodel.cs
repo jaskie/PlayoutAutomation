@@ -46,11 +46,7 @@ namespace TAS.Client.ViewModels
         public string FileName
         {
             get { return _fileName; }
-            set
-            {
-                if (SetField(ref _fileName, value))
-                    NotifyPropertyChanged(nameof(_canStartRecord));
-            }
+            set { SetField(ref _fileName, value); }
         }
 
         public IRecorder Recorder

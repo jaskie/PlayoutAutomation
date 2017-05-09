@@ -25,7 +25,7 @@ namespace TAS.Client.Common.Controls
                 "VideoFormat",
                 typeof(TVideoFormat),
                 typeof(TimecodeTextBlock),
-                new PropertyMetadata(TVideoFormat.PAL, OnTimecodeChanged));
+                new PropertyMetadata(TVideoFormat.Other, OnTimecodeChanged));
 
         public static readonly DependencyProperty HideZeroProperty =
             DependencyProperty.Register(

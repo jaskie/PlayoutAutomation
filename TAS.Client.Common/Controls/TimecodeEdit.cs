@@ -31,7 +31,7 @@ namespace TAS.Client.Common.Controls
                 "VideoFormat",
                 typeof(TVideoFormat),
                 typeof(TimecodeEdit),
-                new PropertyMetadata(TVideoFormat.PAL, OnTimecodeChanged));
+                new PropertyMetadata(TVideoFormat.Other, OnTimecodeChanged));
 
         private static void OnTimecodeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

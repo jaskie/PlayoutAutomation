@@ -72,9 +72,7 @@ namespace TAS.Client.ViewModels
             _itemsView = CollectionViewSource.GetDefaultView(_items);
             _itemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.MediaName), ListSortDirection.Ascending));
             _itemsView.Filter += _itemsFilter;
-            _view = new MediaSearchView(_frameRate ?? manager.FormatDescription.FrameRate);
-            _view.Owner = System.Windows.Application.Current.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive);
-            _view.DataContext = this;
+            _view = new MediaSearchView() { DataContext = this };
             _view.Closed += _windowClosed;
             _view.Show();
         }

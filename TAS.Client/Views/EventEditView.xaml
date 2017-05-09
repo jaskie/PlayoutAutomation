@@ -177,7 +177,7 @@
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovieOrLiveOrRundown, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _requiredAt}" />
-                        <xctk:MaskedTextBox Text="{Binding RequestedStartTime, UpdateSourceTrigger=PropertyChanged}" Mask="00:00:00" ToolTip="{Resx _requiredAt.ToolTip}" Margin="1" />
+                        <xctk:MaskedTextBox AutoSelectBehavior="OnFocus" Text="{Binding RequestedStartTime, UpdateSourceTrigger=PropertyChanged}" Mask="00:00:00" ToolTip="{Resx _requiredAt.ToolTip}" Margin="1" />
                     </DockPanel>
                     <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                         <Label Content="{Resx _clip}" />
@@ -201,7 +201,7 @@
                             </DockPanel>
                             <DockPanel Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                                 <Label Content="{Resx _scheduledTC}" />
-                                <controls:TimecodeEdit Text="{Binding ScheduledTc, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
+                                <controls:TimecodeEdit Timecode="{Binding ScheduledTc, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
                             </DockPanel>
                         </Grid>
                         <DockPanel>

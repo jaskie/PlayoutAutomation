@@ -114,7 +114,7 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
                         <Label Content="{Resx _search}"  VerticalAlignment="Center" />
-                        <Button DockPanel.Dock="Right" Margin="0, 1" Style="{StaticResource ClearButton}" Command="{Binding CommandClearFilters}" ToolTip="{Resx _toolbar.Clear.ToolTip}">
+                        <Button DockPanel.Dock="Right" Margin="1, 2" Style="{StaticResource ClearButton}" Command="{Binding CommandClearFilters}" ToolTip="{Resx _toolbar.Clear.ToolTip}">
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/search_clear.png"/>
                         </Button>
                         <controls:SearchTextBox Prompt="{Resx _searchFor}" VerticalAlignment="Center" Margin="0, 1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" SearchMode="Regular" Command="{Binding CommandSearch}" />
