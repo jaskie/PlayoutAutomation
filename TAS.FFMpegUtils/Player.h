@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "Input.h"
 #include "VideoDecoder.h"
-#include "DirectXRendererManager.h"
 #include "FrameEventArgs.h"
 
 namespace TAS {
@@ -29,7 +28,6 @@ namespace TAS {
 			VideoDecoder * _videoDecoder;
 			PLAY_STATE _playState;
 			AVFrame * _lastFrame = NULL;
-			DirectXRendererManager *_renderManager = NULL;
 			HRESULT _ensureRenderManager();
 			void _closeTimer();
 		public:
@@ -43,7 +41,6 @@ namespace TAS {
 			void Close();
 			PLAY_STATE GetPlayState() const;
 			int64_t GetFramesCount() const;
-			IDirect3DSurface9* GetDXBackBufferNoRef();
 			// should be internal
 			tickProc _frameTickTimerProc;
 			int _frameTickTimerId;
@@ -66,7 +63,6 @@ namespace TAS {
 			void Play();
 			event System::EventHandler<FrameEventArgs^> ^ TimerTick;
 			property int64_t FrameCount { int64_t get(); }
-			IntPtr GetDXBackBufferNoRef();
 			void SetSize(int width, int height);
 		private:
 			String^ _fileName;

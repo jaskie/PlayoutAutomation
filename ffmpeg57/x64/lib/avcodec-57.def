@@ -9,6 +9,21 @@ EXPORTS
     av_bitstream_filter_filter
     av_bitstream_filter_init
     av_bitstream_filter_next
+    av_bsf_alloc
+    av_bsf_free
+    av_bsf_get_by_name
+    av_bsf_get_class
+    av_bsf_get_null_filter
+    av_bsf_init
+    av_bsf_list_alloc
+    av_bsf_list_append
+    av_bsf_list_append2
+    av_bsf_list_finalize
+    av_bsf_list_free
+    av_bsf_list_parse_str
+    av_bsf_next
+    av_bsf_receive_packet
+    av_bsf_send_packet
     av_codec_ffversion DATA
     av_codec_get_chroma_intra_matrix
     av_codec_get_codec_descriptor
@@ -64,6 +79,10 @@ EXPORTS
     av_mdct_calc
     av_mdct_end
     av_mdct_init
+    av_mediacodec_alloc_context
+    av_mediacodec_default_free
+    av_mediacodec_default_init
+    av_mediacodec_release_buffer
     av_new_packet
     av_packet_add_side_data
     av_packet_alloc
@@ -164,8 +183,12 @@ EXPORTS
     avcodec_parameters_to_context
     avcodec_pix_fmt_to_codec_tag
     avcodec_profile_name
+    avcodec_receive_frame
+    avcodec_receive_packet
     avcodec_register
     avcodec_register_all
+    avcodec_send_frame
+    avcodec_send_packet
     avcodec_set_dimensions
     avcodec_string
     avcodec_version
@@ -181,6 +204,7 @@ EXPORTS
     avpriv_ac3_parse_header
     avpriv_align_put_bits
     avpriv_bprint_to_extradata
+    avpriv_codec_get_cap_skip_frame_fill_param
     avpriv_copy_bits
     avpriv_copy_pce_data
     avpriv_dca_convert_bitstream

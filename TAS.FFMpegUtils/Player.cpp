@@ -28,11 +28,6 @@ namespace TAS {
 
 		HRESULT _Player::_ensureRenderManager()
 		{
-			if (!_renderManager)
-			{
-				if (FAILED(DirectXRendererManager::Create(&_renderManager)))
-					return NULL;
-			}
 			return S_OK;
 		}
 
@@ -63,8 +58,6 @@ namespace TAS {
 		{
 			_width = width;
 			_height = height;
-			if (_ensureRenderManager() == S_OK)
-				_renderManager->SetSize(_width, _height);
 		}
 
 		void _Player::Play()
@@ -130,18 +123,6 @@ namespace TAS {
 			return 0;
 		}
 
-		IDirect3DSurface9* _Player::GetDXBackBufferNoRef()
-		{
-			if (FAILED(_ensureRenderManager()))
-				return nullptr;
-			IDirect3DSurface9* result;
-			if (FAILED(_renderManager->GetBackBufferNoRef(&result)))
-				return nullptr;
-			if (FAILED(_renderManager->Render(_lastFrame)))
-				return nullptr;
-			return result;
-		}
-
 #pragma endregion Umanaged code
 
 #pragma region Managed code
@@ -183,10 +164,6 @@ namespace TAS {
 			_player->Play();
 		}
 
-		IntPtr Player::GetDXBackBufferNoRef()
-		{
-			return (IntPtr)_player->GetDXBackBufferNoRef();
-		}
 
 		int64_t Player::FrameCount::get() { return _player->GetFramesCount(); }
 

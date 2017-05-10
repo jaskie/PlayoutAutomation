@@ -17,11 +17,8 @@ extern "C"
 
 // Windows Header Files:
 #include <Windows.h>
-#include <d3d9.h>
-#include <d3dx9.h>
 #include <MMSystem.h>
 #include <assert.h>
-#include "DirectXRenderer.h"
 
 #define IFC(x) { hr = (x); if (FAILED(hr)) goto Cleanup; }
 #define IFCOOM(x) { if ((x) == NULL) { hr = E_OUTOFMEMORY; IFC(hr); } }
