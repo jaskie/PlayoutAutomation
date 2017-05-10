@@ -17,6 +17,7 @@ namespace TAS.Client.Config
             _playoutServerChannels.CollectionChanged -= _playoutServerChannels_CollectionChanged;
         }
         private string _serverAddress;
+        private int _oscPort = 6250;
         private string _mediaFolder;
         private string _animationFolder;
         private TServerType _serverType;
@@ -105,6 +106,7 @@ namespace TAS.Client.Config
         public bool IsRecordersVisible { get { return _serverType == TServerType.CasparTVP; } }
 
         public string ServerAddress { get { return _serverAddress; } set { SetField(ref _serverAddress, value); } }
+        public int OscPort { get { return _oscPort; } set{ SetField(ref _oscPort, value); } }
         public string MediaFolder { get { return _mediaFolder; } set { SetField(ref _mediaFolder, value); } }
         public string AnimationFolder { get { return _animationFolder; } set { SetField(ref _animationFolder, value); } }
         public TServerType ServerType

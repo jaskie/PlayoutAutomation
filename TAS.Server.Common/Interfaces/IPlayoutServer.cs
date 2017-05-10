@@ -19,6 +19,7 @@ namespace TAS.Server.Interfaces
     public interface IPlayoutServerProperties : IPersistent
     {
         string ServerAddress { get; set; }
+        int OscPort { get; set; }
         string MediaFolder { get; set; }
         string AnimationFolder { get; set; }
         TServerType ServerType { get; }

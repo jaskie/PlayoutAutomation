@@ -29,6 +29,8 @@ namespace TAS.Remoting.Model
 
         public string ServerAddress { get { return Get<string>(); } set { SetLocalValue(value); } }
 
+        public int OscPort { get { return Get<int>(); } set { SetLocalValue(value); } }
+
         public TServerType ServerType { get { return Get<TServerType>(); } set { SetLocalValue(value); } }
 
         public void Initialize()

@@ -29,7 +29,9 @@
             <DockPanel MinWidth="200" MinHeight="300" >
                 <StackPanel DockPanel.Dock="Top">
                     <Label Content="Server address [host:port]"/>
-                    <TextBox Text="{Binding ServerAddress, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox Text="{Binding ServerAddress, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Label Content="OSC port"/>
+                    <TextBox Text="{Binding OscPort, UpdateSourceTrigger=PropertyChanged}"/>
                     <Label Content="Media folder"/>
                     <TextBox Text="{Binding MediaFolder, UpdateSourceTrigger=PropertyChanged}"/>
                     <Label Content="Animation folder"/>

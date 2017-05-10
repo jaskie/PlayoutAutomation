@@ -25,9 +25,9 @@ namespace TAS.Server
     {
         [XmlIgnore]
         [JsonProperty]
-        public UInt64 Id { get; set; }
-        [JsonProperty]
+        public ulong Id { get; set; }
         public string ServerAddress { get; set; }
+        public int OscPort { get; set; }
         [JsonProperty]
         public string MediaFolder { get; set; }
         [JsonProperty]
@@ -104,7 +104,7 @@ namespace TAS.Server
             if (!(address.Length > 1 && int.TryParse(address[1], out port)))
                 port = 5250;
             if (_casparDevice != null && !_casparDevice.IsConnected)
-                _casparDevice.Connect(host, port, 6250, true);
+                _casparDevice.Connect(host, port, OscPort, true);
             else throw new Exception($"Invalid server address: {ServerAddress}");
         }
 

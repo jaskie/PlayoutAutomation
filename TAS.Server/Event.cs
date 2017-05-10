@@ -447,9 +447,7 @@ namespace TAS.Server
                     StartTime = default(DateTime);
                     StartTc = ScheduledTc;
                     Position = 0;
-                    Event prev = _getPredecessor();
-                    if (prev != null)
-                        _setScheduledTime(prev.EndTime - _transitionTime);
+                    _uppdateScheduledTime();
                 }
                 return true;
             }

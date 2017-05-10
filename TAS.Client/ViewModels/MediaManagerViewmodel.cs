@@ -28,7 +28,8 @@ namespace TAS.Client.ViewModels
     {
         private readonly IMediaManager _mediaManager;
         private ICollectionView _mediaView;
-        
+        private readonly IPreview _preview;
+
         public ICommand CommandSearch { get; private set; }
         public ICommand CommandClearFilters { get; private set; }
         public ICommand CommandSaveSelected { get; private set; }
@@ -102,7 +103,6 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private readonly IPreview _preview;
         private readonly PreviewViewmodel _previewViewModel;
         public PreviewViewmodel PreviewViewmodel { get { return _previewViewModel; } }
 

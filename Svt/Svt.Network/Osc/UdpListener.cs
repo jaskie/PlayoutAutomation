@@ -51,8 +51,7 @@ namespace Svt.Network.Osc
             }
             RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
             // setup first async event
-            AsyncCallback callBack = new AsyncCallback(ReceiveCallback);
-            receivingUdpClient.BeginReceive(callBack, null);
+            receivingUdpClient.BeginReceive(ReceiveCallback, null);
             IsConnected = true;
         }
 
@@ -66,7 +65,7 @@ namespace Svt.Network.Osc
         {
             lock (callbackLock)
             {
-                Byte[] bytes = null;
+                byte[] bytes = null;
 
                 try
                 {
@@ -82,8 +81,7 @@ namespace Svt.Network.Osc
                 else
                 {
                     // Setup next async event
-                    AsyncCallback callBack = new AsyncCallback(ReceiveCallback);
-                    receivingUdpClient.BeginReceive(callBack, null);
+                    receivingUdpClient.BeginReceive(ReceiveCallback, null);
                 }
 
                 // Process bytes

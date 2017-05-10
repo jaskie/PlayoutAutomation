@@ -10,24 +10,28 @@ namespace Svt.Network.Osc
     public static class OscPacketDispatcher
     {
 
+        
         public static void Bind(int port, Action<OscPacketEventArgs> packetReceivedDelegate)
         {
             UdpListener listener = null;
-            if (!_listeners.TryGetValue(port, out listener))
+            lock (_listeners)
             {
-                listener = new UdpListener(port);
-                _listeners[port] = listener;
+                if (!_listeners.TryGetValue(port, out listener))
+                {
+                    listener = new UdpListener(port);
+                    _listeners[port] = listener;
+                }
             }
-            listener.AddDelegate(packetReceivedDelegate);
+            listener?.AddDelegate(packetReceivedDelegate);
         }
 
         public static bool UnBind(int port, Action<OscPacketEventArgs> packetReceivedDelegate)
         {
             UdpListener listener = null;
-            if (_listeners.TryGetValue(port, out listener))
+            if (_listeners.TryRemove(port, out listener) && listener != null)
             {
                 listener.RemoveDelegate(packetReceivedDelegate);
-                if (listener.DelegatesCount() == 0 && _listeners.TryRemove(port, out listener))
+                if (listener.DelegatesCount() == 0)
                     listener.Dispose();
                 return true;
             }
