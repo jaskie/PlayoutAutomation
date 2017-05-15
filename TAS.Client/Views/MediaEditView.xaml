@@ -105,6 +105,16 @@
                     <Label Content="{Resx _videoFormat}" />
                     <ComboBox  ItemsSource="{Binding VideoFormats}" SelectedValue="{Binding VideoFormat}" />
                 </DockPanel>
+                <DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
+                    <Label Content="{Resx _emphasis}" />
+                    <ComboBox ItemsSource="{Binding MediaEmphasises}" SelectedValue="{Binding MediaEmphasis}" >
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="{x:Type ComboBoxItem}">
+                                <Setter Property="Background" Value="{Binding Converter={StaticResource MediaEmphasisToBrush}}" />
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                    </ComboBox>
+                </DockPanel>
                 <StackPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
                     <StackPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource InvertedBoolToVis}}">
                         <DockPanel>
@@ -159,16 +169,6 @@
                                         </StackPanel>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </DockPanel>
-                        <DockPanel Visibility="{Binding IsPersistentMedia, Converter={StaticResource BoolToVis}}">
-                            <Label Content="{Resx _emphasis}" />
-                            <ComboBox ItemsSource="{Binding MediaEmphasises}" SelectedValue="{Binding MediaEmphasis}" >
-                                <ComboBox.ItemContainerStyle>
-                                    <Style TargetType="{x:Type ComboBoxItem}">
-                                        <Setter Property="Background" Value="{Binding Converter={StaticResource MediaEmphasisToBrush}}" />
-                                    </Style>
-                                </ComboBox.ItemContainerStyle>
                             </ComboBox>
                         </DockPanel>
                         <DockPanel Visibility="{Binding ShowParentalCombo, Converter={StaticResource BoolToVis}}">
