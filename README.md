@@ -18,6 +18,7 @@ It can be used as a simple (even multi-) channel-in-a-box solution, as well as i
 ### Ingest
 - from watchfolders
 - from ftp's
+- [NEW] linear (tape) ingest with deck control using our [CasparCG fork](https://github.com/jaskie/Server)
 - from Sony [XDCAM](http://en.wikipedia.org/wiki/XDCAM) decks, supports metadata and subclip ingest
 - partial movie playout (via media trimming or logical sub-clips)
 - extensive clip playout-related metadata
