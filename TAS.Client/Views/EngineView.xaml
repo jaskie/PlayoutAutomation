@@ -451,10 +451,10 @@
                                             <ToggleButton IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press" Name="Expander">
                                                 <ToggleButton.Style>
                                                     <Style TargetType="ToggleButton">
-                                                        <Setter Property="UIElement.Focusable" Value="false" />
-                                                        <Setter Property="FrameworkElement.Width" Value="20" />
-                                                        <Setter Property="FrameworkElement.Height" Value="24" />
-                                                        <Setter Property="Control.Template">
+                                                        <Setter Property="Focusable" Value="false" />
+                                                        <Setter Property="Width" Value="20" />
+                                                        <Setter Property="Height" Value="24" />
+                                                        <Setter Property="Template">
                                                             <Setter.Value>
                                                                 <ControlTemplate TargetType="ToggleButton">
                                                                     <Border Background="#00FFFFFF" Width="20" Height="24" >

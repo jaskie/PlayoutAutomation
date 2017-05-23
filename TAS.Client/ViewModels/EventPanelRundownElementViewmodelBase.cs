@@ -1,52 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Server.Common;
 using TAS.Server.Interfaces;
-using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
     public abstract class EventPanelRundownElementViewmodelBase : EventPanelViewmodelBase
     {
-        public EventPanelRundownElementViewmodelBase(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent) {
+        public EventPanelRundownElementViewmodelBase(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
+        {
             Media = ev.Media;
             ev.PositionChanged += _eventPositionChanged;
-        }
 
-        protected override void OnDispose()
-        {
-            base.OnDispose();
-            Media = null;
-            _event.PositionChanged -= _eventPositionChanged;
-        }
-
-        #region Commands
-        public ICommand CommandCut { get { return _engineViewmodel.CommandCutSelected; } }
-        public ICommand CommandCopy { get { return _engineViewmodel.CommandCopySelected; } }
-        public ICommand CommandPaste { get { return _engineViewmodel.CommandPasteSelected; } }
-        public ICommand CommandToggleHold { get; private set; }
-        public ICommand CommandToggleEnabled { get; private set; }
-
-
-        public ICommand CommandToggleLayer { get; private set; }
-        public ICommand CommandAddNextRundown { get; private set; }
-        public ICommand CommandAddNextMovie { get; private set; }
-        public ICommand CommandAddNextEmptyMovie { get; private set; }
-        public ICommand CommandAddNextLive { get; private set; }
-        public ICommand CommandAddAnimation { get; private set; }
-        public ICommand CommandAddCommandScript { get; private set; }
-
-        protected override void CreateCommands()
-        {
-            base.CreateCommands();
             CommandToggleHold = new UICommand()
             {
                 ExecuteDelegate = (o) =>
@@ -54,7 +23,8 @@ namespace TAS.Client.ViewModels
                     _event.IsHold = !_event.IsHold;
                     _event.Save();
                 },
-                CanExecuteDelegate = (o) => _event.PlayState == TPlayState.Scheduled && _event.StartType == TStartType.After
+                CanExecuteDelegate = (o) => _event.PlayState == TPlayState.Scheduled &&
+                                            _event.StartType == TStartType.After
             };
             CommandToggleEnabled = new UICommand()
             {
@@ -69,17 +39,18 @@ namespace TAS.Client.ViewModels
             {
                 ExecuteDelegate = (l) =>
                 {
-                    VideoLayer layer = (VideoLayer)sbyte.Parse((string)l);
+                    VideoLayer layer = (VideoLayer) sbyte.Parse((string) l);
                     if (_hasSubItemsOnLayer(layer))
                     {
                         var layerEvent = _event.SubEvents.FirstOrDefault(e => e.Layer == layer);
-                        if (layerEvent != null)
-                            layerEvent.Delete();
+                        layerEvent?.Delete();
                     }
                     else
                         _engineViewmodel.AddMediaEvent(_event, TStartType.WithParent, TMediaType.Still, layer, true);
                 },
-                CanExecuteDelegate = (o) => _event.PlayState == TPlayState.Scheduled || _event.PlayState == TPlayState.Playing || _event.PlayState == TPlayState.Paused
+                CanExecuteDelegate = (o) => _event.PlayState == TPlayState.Scheduled ||
+                                            _event.PlayState == TPlayState.Playing ||
+                                            _event.PlayState == TPlayState.Paused
             };
             CommandAddNextRundown = new UICommand()
             {
@@ -89,21 +60,23 @@ namespace TAS.Client.ViewModels
             CommandAddNextEmptyMovie = new UICommand()
             {
                 ExecuteDelegate = o => _engineViewmodel.AddSimpleEvent(_event, TEventType.Movie, false),
-                CanExecuteDelegate = canAddNextMovie
+                CanExecuteDelegate = CanAddNextMovie
             };
             CommandAddNextLive = new UICommand()
             {
                 ExecuteDelegate = o => _engineViewmodel.AddSimpleEvent(_event, TEventType.Live, false),
-                CanExecuteDelegate = canAddNewLive
+                CanExecuteDelegate = CanAddNewLive
             };
             CommandAddNextMovie = new UICommand()
             {
-                ExecuteDelegate = o => _engineViewmodel.AddMediaEvent(_event, TStartType.After, TMediaType.Movie, VideoLayer.Program, false),
-                CanExecuteDelegate = canAddNextMovie
+                ExecuteDelegate = o => _engineViewmodel.AddMediaEvent(_event, TStartType.After, TMediaType.Movie,
+                    VideoLayer.Program, false),
+                CanExecuteDelegate = CanAddNextMovie
             };
             CommandAddAnimation = new UICommand()
             {
-                ExecuteDelegate = o => _engineViewmodel.AddMediaEvent(_event, TStartType.WithParent, TMediaType.Animation, VideoLayer.Animation, true),
+                ExecuteDelegate = o => _engineViewmodel.AddMediaEvent(_event, TStartType.WithParent,
+                    TMediaType.Animation, VideoLayer.Animation, true),
                 CanExecuteDelegate = o => _event.PlayState == TPlayState.Scheduled
             };
             CommandAddCommandScript = new UICommand
@@ -113,12 +86,36 @@ namespace TAS.Client.ViewModels
             };
         }
 
-        protected virtual bool canAddNextMovie(object o)
+        protected override void OnDispose()
+        {
+            base.OnDispose();
+            Media = null;
+            _event.PositionChanged -= _eventPositionChanged;
+        }
+
+        #region Commands
+        public ICommand CommandCut => _engineViewmodel.CommandCutSelected;
+        public ICommand CommandCopy => _engineViewmodel.CommandCopySelected;
+        public ICommand CommandPaste => _engineViewmodel.CommandPasteSelected;
+        public ICommand CommandToggleHold { get; }
+        public ICommand CommandToggleEnabled { get; }
+
+
+        public ICommand CommandToggleLayer { get; }
+        public ICommand CommandAddNextRundown { get; }
+        public ICommand CommandAddNextMovie { get; }
+        public ICommand CommandAddNextEmptyMovie { get; }
+        public ICommand CommandAddNextLive { get; }
+        public ICommand CommandAddAnimation { get; }
+        public ICommand CommandAddCommandScript { get; }
+
+
+        protected virtual bool CanAddNextMovie(object o)
         {
             return _canAddNextItem(o);
         }
 
-        protected virtual bool canAddNewLive(object o)
+        protected virtual bool CanAddNewLive(object o)
         {
             return _canAddNextItem(o);
         }
@@ -137,10 +134,7 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _timeLeft, value); }
         }
 
-        public string EndTime
-        {
-            get { return (_event == null || _event.GetSuccessor() != null) ? string.Empty : _event.EndTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(_videoFormat); }
-        }
+        public string EndTime => (_event == null || _event.GetSuccessor() != null) ? string.Empty : _event.EndTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(VideoFormat);
 
         public bool IsLastEvent
         {
@@ -261,6 +255,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
+
         public TPlayState PlayState { get { return _event.PlayState; } }
 
         public TMediaEmphasis MediaEmphasis
@@ -304,20 +299,11 @@ namespace TAS.Client.ViewModels
             get { return _event.IsLoop; }
         }
 
-        public string ScheduledTime
-        {
-            get { return _event.ScheduledTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(_videoFormat); }
-        }
+        public string ScheduledTime => _event.ScheduledTime.ToLocalTime().TimeOfDay.ToSMPTETimecodeString(VideoFormat);
 
-        public string ScheduledDelay
-        {
-            get { return _event.ScheduledDelay.ToSMPTETimecodeString(_videoFormat); }
-        }
+        public string ScheduledDelay => _event.ScheduledDelay.ToSMPTETimecodeString(VideoFormat);
 
-        public string Duration
-        {
-            get { return _event.Duration.ToSMPTETimecodeString(_videoFormat); }
-        }
+        public string Duration => _event.Duration.ToSMPTETimecodeString(VideoFormat);
 
         public virtual bool IsEnabled
         {
@@ -365,26 +351,27 @@ namespace TAS.Client.ViewModels
                         oldMedia.PropertyChanged -= _onMediaPropertyChanged;
                     _media = value;
                     if (value != null)
+                    {
                         value.PropertyChanged += _onMediaPropertyChanged;
+                        VideoFormat = value.VideoFormat;
+                    }
                 }
             }
         }
 
         private void _onMediaPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if ((_event != null)
-                && (sender is IMedia))
-            {
-                if (e.PropertyName == nameof(IMedia.MediaStatus))
-                    NotifyPropertyChanged(nameof(MediaErrorInfo));
-                if (e.PropertyName == nameof(IMedia.FileName))
-                    NotifyPropertyChanged(nameof(MediaFileName));
-                if (e.PropertyName == nameof(IMedia.MediaCategory)
-                    || e.PropertyName == nameof(IMedia.VideoFormat)
-                    || e.PropertyName == nameof(IPersistentMedia.MediaEmphasis)
-                    )
-                    NotifyPropertyChanged(e.PropertyName);
-            }
+            if (_event == null || !(sender is IMedia))
+                return;
+            if (e.PropertyName == nameof(IMedia.MediaStatus))
+                NotifyPropertyChanged(nameof(MediaErrorInfo));
+            if (e.PropertyName == nameof(IMedia.FileName))
+                NotifyPropertyChanged(nameof(MediaFileName));
+            if (e.PropertyName == nameof(IMedia.MediaCategory)
+                || e.PropertyName == nameof(IPersistentMedia.MediaEmphasis))
+                NotifyPropertyChanged(e.PropertyName);
+            if (e.PropertyName == nameof(IMedia.VideoFormat))
+                VideoFormat = ((IMedia) sender).VideoFormat;
         }
 
 
@@ -423,7 +410,7 @@ namespace TAS.Client.ViewModels
 
         protected void _eventPositionChanged(object sender, EventPositionEventArgs e)
         {
-            TimeLeft = (e.TimeToFinish == TimeSpan.Zero || _event.PlayState == TPlayState.Scheduled) ? string.Empty : e.TimeToFinish.ToSMPTETimecodeString(_videoFormat);
+            TimeLeft = (e.TimeToFinish == TimeSpan.Zero || _event.PlayState == TPlayState.Scheduled) ? string.Empty : e.TimeToFinish.ToSMPTETimecodeString(VideoFormat);
         }
 
         internal void VerifyIsInvalidInSchedule()

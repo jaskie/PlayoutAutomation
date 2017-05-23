@@ -15,14 +15,9 @@ namespace TAS.Client.ViewModels
     {
         public EventPanelRundownViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
         {
-        }
-
-        protected override void CreateCommands()
-        {
-            base.CreateCommands();
-            CommandAddSubMovie = new UICommand() { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = (o) => _event.SubEventsCount == 0 };
-            CommandAddSubRundown = new UICommand() { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = (o) => _event.SubEventsCount == 0 };
-            CommandAddSubLive = new UICommand() { ExecuteDelegate = _addSubLive, CanExecuteDelegate = (o) => _event.SubEventsCount == 0 };
+            CommandAddSubMovie = new UICommand { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = o => _event.SubEventsCount == 0 };
+            CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = o => _event.SubEventsCount == 0 };
+            CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive, CanExecuteDelegate = o => _event.SubEventsCount == 0 };
         }
 
         private void _addSubLive(object obj)
@@ -36,13 +31,13 @@ namespace TAS.Client.ViewModels
             InvalidateRequerySuggested();
         }
 
-        protected override bool canAddNextMovie(object o)
+        protected override bool CanAddNextMovie(object o)
         {
-            return _parent is EventPanelRundownViewmodel && base.canAddNextMovie(o);
+            return _parent is EventPanelRundownViewmodel && base.CanAddNextMovie(o);
         }
-        protected override bool canAddNewLive(object o)
+        protected override bool CanAddNewLive(object o)
         {
-            return _parent is EventPanelRundownViewmodel && base.canAddNewLive(o);
+            return _parent is EventPanelRundownViewmodel && base.CanAddNewLive(o);
         }
 
         private void _addSubRundown(object obj)
@@ -65,8 +60,8 @@ namespace TAS.Client.ViewModels
             base.OnDispose();
         }
 
-        public ICommand CommandAddSubRundown { get; private set; }
-        public ICommand CommandAddSubMovie { get; private set; }
-        public ICommand CommandAddSubLive { get; private set; }
+        public ICommand CommandAddSubRundown { get; }
+        public ICommand CommandAddSubMovie { get; }
+        public ICommand CommandAddSubLive { get; }
     }
 }

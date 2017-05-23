@@ -23,7 +23,7 @@ namespace TAS.Server
 
         public override void Initialize()
         {
-            if (!_isInitialized)
+            if (!IsInitialized)
             {
                 this.Load<ServerMedia>(MediaManager.ArchiveDirectory, Server.Id);
                 base.Initialize();

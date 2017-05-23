@@ -90,7 +90,7 @@ namespace TAS.Server.Interfaces
         TVideoFormat VideoFormat { get; set; }
         bool EnableCGElementsForNewEvents { get; set; }
         TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
-        bool IsWideScreen { get; set; }
+        bool IsWideScreen { get; }
 
         event EventHandler<IEventEventArgs> EventSaved;
         event EventHandler<IEventEventArgs> EventDeleted;

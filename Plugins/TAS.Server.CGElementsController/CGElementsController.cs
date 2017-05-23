@@ -17,7 +17,7 @@ namespace TAS.Server
     public class PluginExamplefactory : IEnginePluginFactory
     {
         static Dictionary<IEngine, CGElementsController> _plugins = new Dictionary<IEngine, CGElementsController>();
-        static object pluginLock = new object();
+        static readonly object pluginLock = new object();
         public object CreateEnginePlugin(IEngine engine, Type type)
         {
             if (type.IsAssignableFrom(typeof(CGElementsController)))
@@ -34,8 +34,7 @@ namespace TAS.Server
                 }
                 return plugin;
             }
-            else
-                return null;
+            return null;
         }
 
         public IEnumerable<Type> Types()
@@ -104,34 +103,24 @@ namespace TAS.Server
         }
 
         [JsonProperty]
-        public byte DefaultCrawl { get { return 1; } }
+        public byte DefaultCrawl => 1;
 
         [JsonProperty]
-        public virtual bool IsConnected { get { return true; } }
+        public virtual bool IsConnected => true;
 
         private bool _isCGEnabled;
         [JsonProperty]
         public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value); } }
 
         [JsonProperty]
-        public bool IsMaster
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public bool IsMaster  => true;
 
         bool _isWideScreen;
         [JsonProperty]
         public bool IsWideScreen
         {
             get { return _isWideScreen; }
-            set
-            {
-                if (SetField(ref _isWideScreen, value))
-                    _engine.IsWideScreen = value;
-            }
+            set { SetField(ref _isWideScreen, value); }
         }
 
         private byte _crawl;
@@ -140,7 +129,7 @@ namespace TAS.Server
 
         [JsonProperty(nameof(Crawls), ItemTypeNameHandling = TypeNameHandling.Objects)]
         ICGElement[] _crawls = new ICGElement[0];
-        public IEnumerable<ICGElement> Crawls { get { return _crawls; } }
+        public IEnumerable<ICGElement> Crawls => _crawls;
 
         byte _logo;
         public byte Logo
@@ -155,7 +144,7 @@ namespace TAS.Server
 
         [JsonProperty(nameof(Logos), ItemTypeNameHandling = TypeNameHandling.Objects)]
         CGElement[] _logos = new CGElement[0];
-        public IEnumerable<ICGElement> Logos { get { return _logos; } }
+        public IEnumerable<ICGElement> Logos => _logos;
 
         byte _parental;
         [JsonProperty]
@@ -171,15 +160,15 @@ namespace TAS.Server
 
         [JsonProperty(nameof(Parentals), ItemTypeNameHandling = TypeNameHandling.Objects)]
         CGElement[] _parentals = new CGElement[0];
-        public IEnumerable<ICGElement> Parentals { get { return _parentals; } }
+        public IEnumerable<ICGElement> Parentals => _parentals;
 
         [JsonProperty(nameof(VisibleAuxes), ItemTypeNameHandling = TypeNameHandling.Objects)]
         byte[] _visibleAuxes = new byte[0];
-        public byte[] VisibleAuxes { get { return _visibleAuxes; } }
+        public byte[] VisibleAuxes => _visibleAuxes;
 
         [JsonProperty(nameof(Auxes), ItemTypeNameHandling = TypeNameHandling.Objects)]
         ICGElement[] _auxes = new ICGElement[0];
-        public IEnumerable<ICGElement> Auxes { get { return _auxes; } }
+        public IEnumerable<ICGElement> Auxes => _auxes;
 
         public event EventHandler Started;
 

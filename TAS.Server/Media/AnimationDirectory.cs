@@ -23,7 +23,7 @@ namespace TAS.Server
 
         public override void Initialize()
         {
-            if (!_isInitialized)
+            if (!IsInitialized)
             {
                 DirectoryName = "Animacje";
                 this.Load<AnimatedMedia>(Server.Id);

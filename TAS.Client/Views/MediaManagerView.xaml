@@ -17,20 +17,6 @@
              FontSize="13" KeyUp="UserControl_KeyUp"
              >
     <UserControl.Resources>
-        <Style x:Key="fieldNameLabels" TargetType="Label" >
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="HorizontalContentAlignment" Value="Right" />
-            <Setter Property="Margin" Value="10, 0" />
-            <Setter Property="Width" Value="130" />
-        </Style>
-        <Style x:Key="fieldsDetail" TargetType="TextBox" >
-            <Setter Property="Margin" Value="10, 3" />
-            <Setter Property="Width" Value="150" />
-        </Style>
-        <Style x:Key="combosDetail" TargetType="ComboBox" >
-            <Setter Property="Margin" Value="10, 3" />
-            <Setter Property="Width" Value="150" />
-        </Style>
         <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
         <ControlTemplate x:Key="toggleButtonTemplate" TargetType="ToggleButton">
             <Grid Width="15" Height="13" Background="Transparent">
@@ -83,23 +69,23 @@
                             </Style>
                         </DockPanel.Resources>
                         <Label Content="{Resx _directory}"/>
-                        <toolkit:DropDownButton Name="folderCombo" Margin="0, 1" Width="120" BorderThickness="2" HorizontalContentAlignment="Stretch" ToolTip="{Binding SelectedDirectory.Folder}"
+                        <toolkit:DropDownButton Name="folderCombo" VerticalAlignment="Center" Width="120" HorizontalContentAlignment="Stretch" ToolTip="{Binding SelectedDirectory.Folder}"
                                     Template="{StaticResource ComboBoxTreeTemplate}">
                             <toolkit:DropDownButton.Content>
                                 <TextBlock Text="{Binding SelectedDirectory}" Margin="2"/>
                             </toolkit:DropDownButton.Content>
                             <toolkit:DropDownButton.DropDownContent>
-                                <controls:TreeViewEx Width="120" ItemsSource="{Binding MediaDirectories}" SelectedItem="{Binding SelectedDirectory}" SelectedItemChanged="TreeViewEx_SelectedItemChanged">
-                                    <TreeView.ItemTemplate>
+                                <controls:TreeViewEx MinWidth="120" ItemsSource="{Binding MediaDirectories}" SelectedItem="{Binding SelectedDirectory}" SelectedItemChanged="TreeViewEx_SelectedItemChanged">
+                                    <controls:TreeViewEx.ItemTemplate>
                                         <HierarchicalDataTemplate DataType="{x:Type vm:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">
                                             <TextBlock Text="{Binding DirectoryName}" ToolTip="{Binding Folder}"/>
                                         </HierarchicalDataTemplate>
-                                    </TreeView.ItemTemplate>
+                                    </controls:TreeViewEx.ItemTemplate>
                                 </controls:TreeViewEx>
                             </toolkit:DropDownButton.DropDownContent>
                         </toolkit:DropDownButton>
 
-                        <Button ToolTip="{Resx _refresh}" Command="{Binding CommandRefresh}" Margin="1">
+                        <Button ToolTip="{Resx _refresh}" Margin="0, 2, 5, 2" Command="{Binding CommandRefresh}" VerticalAlignment="Center">
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/view-refresh.png" />
                         </Button>
                         <ComboBox ItemsSource="{Binding MediaTypes}"  SelectedValue="{Binding MediaType}" Margin="0,1" ToolTip="{Resx _mediaType}"/>
@@ -420,7 +406,7 @@
         </ContentControl>
         <StatusBar Grid.Row="3" Grid.ColumnSpan="2">
             <StackPanel Orientation="Horizontal" Visibility="{Binding DisplayDirectoryInfo, Converter={StaticResource BoolToVis}}" >
-                <common:StatusIndicator IsGreen="{Binding IsMediaDirectoryOK}" Margin="10,0,0,0"/>
+                <common:StatusIndicator IsGreen="{Binding IsMediaDirectoryOk}" Margin="10,0,0,0"/>
                 <TextBlock Text="{Resx _statusbar.TotalItems}" Margin="5, 0"/>
                 <TextBlock Text="{Binding ItemsCount}" />
                 <StackPanel Orientation="Horizontal" Visibility="{Binding DirectoryTotalSpace, Converter={StaticResource ZeroToVis}}">

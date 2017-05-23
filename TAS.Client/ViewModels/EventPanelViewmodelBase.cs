@@ -27,7 +27,7 @@ namespace TAS.Client.ViewModels
         protected EventPanelViewmodelBase _parent;
         protected readonly EventPanelRootViewmodel _root;
         protected readonly EngineViewmodel _engineViewmodel;
-        protected readonly TVideoFormat _videoFormat;
+        private TVideoFormat _videoFormat;
         protected readonly ObservableCollection<EventPanelViewmodelBase> _childrens = new ObservableCollection<EventPanelViewmodelBase>();
         protected static readonly EventPanelViewmodelBase DummyChild = new EventPanelDummyViewmodel();
 
@@ -70,7 +70,6 @@ namespace TAS.Client.ViewModels
             _event.PropertyChanged += OnEventPropertyChanged;
             _event.SubEventChanged += OnSubeventChanged;
             _event.Relocated += OnRelocated;
-            CreateCommands();
         }
 
         protected override void OnDispose()
@@ -92,11 +91,6 @@ namespace TAS.Client.ViewModels
             Debug.WriteLine(this, "EventPanelViewmodel Disposed");
         }
 
-        protected virtual void CreateCommands()
-        {
-
-        }
-
         internal EventPanelViewmodelBase CreateChildEventPanelViewmodelForEvent(IEvent ev)
         {
             switch (ev.EventType)
@@ -116,7 +110,7 @@ namespace TAS.Client.ViewModels
                 case TEventType.CommandScript:
                     return new EventPanelCommandScriptViewmodel(ev, this);
                 default:
-                    throw new ApplicationException(string.Format("Invalid event type {0} to create panel", ev.EventType));
+                    throw new ApplicationException($"Invalid event type {ev.EventType} to create panel");
             }
         }
 
@@ -145,15 +139,9 @@ namespace TAS.Client.ViewModels
         }
 
 
-        public ObservableCollection<EventPanelViewmodelBase> Childrens
-        {
-            get { return _childrens; }
-        }
+        public ObservableCollection<EventPanelViewmodelBase> Childrens => _childrens;
 
-        public bool HasDummyChild
-        {
-            get { return _childrens.Contains(DummyChild); }
-        }
+        public bool HasDummyChild => _childrens.Contains(DummyChild);
 
         protected void LoadChildrens()
         {
@@ -171,20 +159,18 @@ namespace TAS.Client.ViewModels
         }
         protected void ClearChildrens()
         {
-            if (this._childrens.Count() > 0)
+            if (!this._childrens.Any()) return;
+            if (!HasDummyChild)
             {
-                if (!HasDummyChild)
-                {
-                    UiServices.SetBusyState();
-                    foreach (var c in _childrens.ToList())
-                        c.Dispose();
-                    if (Event.SubEventsCount > 0)
-                        _childrens.Add(DummyChild);
-                }
+                UiServices.SetBusyState();
+                foreach (var c in _childrens.ToList())
+                    c.Dispose();
+                if (Event.SubEventsCount > 0)
+                    _childrens.Add(DummyChild);
             }
         }
 
-        public int Level { get { return _level; } }
+        public int Level => _level;
 
         bool _isExpanded;
         public bool IsExpanded
@@ -231,9 +217,13 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _isMultiSelected, value); }
         }
 
-        public virtual bool IsVisible { get { return true; } set { } }
+        public virtual bool IsVisible { get { return true; } protected set { } }
 
-        public TVideoFormat VideoFormat { get { return _videoFormat; } }
+        public virtual TVideoFormat VideoFormat
+        {
+            get { return _videoFormat; }
+            protected set { SetField(ref _videoFormat, value); }
+        }
 
         public EventPanelViewmodelBase Parent
         {
@@ -253,15 +243,9 @@ namespace TAS.Client.ViewModels
             }
         }
         
-        public string EventName
-        {
-            get { return _event?.EventName; }
-        }
+        public string EventName => _event?.EventName;
 
-        public TEventType? EventType
-        {
-            get { return _event?.EventType; }
-        }
+        public TEventType? EventType => _event?.EventType;
 
         public EventPanelViewmodelBase Find(IEvent aEvent)
         {
@@ -358,15 +342,12 @@ namespace TAS.Client.ViewModels
                     if (parentVm != null)
                     {
                         if (parentVm == _parent)
-                        {
-                            if (prior == null)
-                                parentVm.Childrens.Move(parentVm.Childrens.IndexOf(this), 0);
-                        }
+                            parentVm.Childrens.Move(parentVm.Childrens.IndexOf(this), 0);
                         else
                             Parent = parentVm;
                     }
                 }
-                this.BringIntoView();
+                BringIntoView();
             }
         }
         
@@ -384,7 +365,7 @@ namespace TAS.Client.ViewModels
         }
 
   
-        public IEvent Event { get { return _event; } }
+        public IEvent Event => _event;
 
         public override string ToString()
         {
@@ -393,7 +374,7 @@ namespace TAS.Client.ViewModels
 
         public Views.EventPanelView View;
 
-        protected EventPanelViewmodelBase _rootOwner
+        protected EventPanelViewmodelBase RootOwner
         {
             get
             {
@@ -404,7 +385,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public string RootOwnerName { get { return _rootOwner.EventName; } }
+        public string RootOwnerName => RootOwner.EventName;
 
         internal virtual void SetOnTop() { }
 

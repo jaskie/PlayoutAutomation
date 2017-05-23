@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Diagnostics;
-using System.Collections;
 using System.Threading;
 using System.Net.FtpClient;
 using System.Net;
@@ -28,12 +26,7 @@ namespace TAS.Server
             VideoBitrateRatio = 1.0M;
         }
 
-        private bool _deleteSource;
-        public bool DeleteSource
-        {
-            get { return _deleteSource; }
-            set { _deleteSource = value; }
-        }
+        public bool DeleteSource { get; set; }
 
         public override void Initialize()
         {
@@ -43,7 +36,7 @@ namespace TAS.Server
                 IsInitialized = true;
             }
             else
-                if (IsXDCAM)
+            if (IsXDCAM)
             {
                 IsInitialized = true;
             }
@@ -51,10 +44,8 @@ namespace TAS.Server
             {
                 if (string.IsNullOrWhiteSpace(Username)
                     || _connectToRemoteDirectory())
-                    if (!IsWAN && IsImport)
-                        BeginWatch("*", IsRecursive, TimeSpan.Zero);
-                    else
-                        IsInitialized = true;
+                    if (IsImport)
+                        BeginWatch(_filter, IsRecursive, TimeSpan.Zero);
             }
         }
 
@@ -62,20 +53,20 @@ namespace TAS.Server
         {
             base.DoDispose();
             if (AccessType == TDirectoryAccessType.Direct && !IsXDCAM && string.IsNullOrWhiteSpace(Username))
-                PinvokeWindowsNetworking.disconnectRemote(Path.GetPathRoot(Folder));
-            if (_ftpClient != null)
-                _ftpClient.Dispose();
+                PinvokeWindowsNetworking.DisconnectRemote(Path.GetPathRoot(Folder));
+            _ftpClient?.Dispose();
         }
 
         private bool _connectToRemoteDirectory()
         {
             string dir = Path.GetPathRoot(Folder);
-            string ret = PinvokeWindowsNetworking.disconnectRemote(dir);
+            string ret = PinvokeWindowsNetworking.DisconnectRemote(dir);
             if (ret != null)
                 Debug.WriteLine(ret, $"DisconnectRemote {dir}");
-            ret = PinvokeWindowsNetworking.connectToRemote(dir, Username, Password);
+            ret = PinvokeWindowsNetworking.ConnectToRemote(dir, Username, Password);
             if (ret == null)
                 return true;
+            Logger.Warn("Cannot connect to remote {0}. Error was: {1}", dir, ret);
             Debug.WriteLine(ret, $"ConnectToRemote {dir}");
             return false;
         }
@@ -261,6 +252,7 @@ namespace TAS.Server
 
 
         bool _isRefreshing;
+
         public override void Refresh()
         {
             if (_isRefreshing)
@@ -276,7 +268,8 @@ namespace TAS.Server
                             if (AccessType == TDirectoryAccessType.FTP)
                             {
                                 var client = GetFtpClient() as XdcamClient;
-                                Uri uri = new Uri(_folder, UriKind.Absolute);
+                                if (client == null)
+                                    return;
                                 client.Connect();
                                 try
                                 {
@@ -284,7 +277,7 @@ namespace TAS.Server
                                     _readXDCAM(client);
                                 }
                                 finally
-                                { 
+                                {
                                     client.Disconnect();
                                 }
                             }
@@ -298,9 +291,10 @@ namespace TAS.Server
                     else
                         throw new ApplicationException("Nie udało się uzyskać dostępu do XDCAM");
                 }
+                else if (AccessType == TDirectoryAccessType.FTP)
+                    _ftpDirectoryList();
                 else
-                    if (AccessType == TDirectoryAccessType.FTP)
-                        _ftpDirectoryList();
+                    Reinitialize();
             }
             finally
             {

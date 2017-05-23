@@ -140,30 +140,20 @@ namespace TAS.Server
         }
 
 
-        public static string connectToRemote(string remoteUNC, string username, string password)
-        {
-            return connectToRemote(remoteUNC, username, password, false);
-        }
-
-        public static string connectToRemote(string remoteUNC, string username, string password, bool promptUser)
+        public static string ConnectToRemote(string remoteUnc, string username, string password)
         {
             NETRESOURCE nr = new NETRESOURCE();
             nr.dwType = RESOURCETYPE_DISK;
-            nr.lpRemoteName = remoteUNC;
+            nr.lpRemoteName = remoteUnc;
             
-            int ret;
-            if (promptUser)
-                ret = WNetUseConnection(IntPtr.Zero, nr, "", "", CONNECT_INTERACTIVE | CONNECT_PROMPT, null, null, null);
-            else
-                ret = WNetUseConnection(IntPtr.Zero, nr, password, username, 0, null, null, null);
+            int ret = WNetUseConnection(IntPtr.Zero, nr, password, username, 0, null, null, null);
 
-            if (ret == NO_ERROR) return null;
-            return getErrorForNumber(ret);
+            return ret == NO_ERROR ? null : getErrorForNumber(ret);
         }
 
-        public static string disconnectRemote(string remoteUNC)
+        public static string DisconnectRemote(string remoteUnc)
         {
-            int ret = WNetCancelConnection2(remoteUNC, CONNECT_UPDATE_PROFILE, false);
+            int ret = WNetCancelConnection2(remoteUnc, CONNECT_UPDATE_PROFILE, false);
             if (ret == NO_ERROR) return null;
             return getErrorForNumber(ret);
         }

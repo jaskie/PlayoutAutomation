@@ -18,38 +18,24 @@ namespace TAS.Client.ViewModels
     {
         public EventPanelContainerViewmodel(IEvent ev, EventPanelViewmodelBase parent): base(ev, parent) {
             if (ev.EventType != TEventType.Container)
-                throw new ApplicationException(string.Format("Invalid panel type:{0} for event type:{1}", this.GetType(), ev.EventType));
+                throw new ApplicationException($"Invalid panel type:{GetType()} for event type:{ev.EventType}");
             _isVisible = !HiddenEventsStorage.Contains(ev);
+
+            CommandHide = new UICommand {ExecuteDelegate = o => IsVisible = false,CanExecuteDelegate = o => _isVisible };
+            CommandShow = new UICommand {ExecuteDelegate = o => IsVisible = true, CanExecuteDelegate = o => !_isVisible };
+            CommandAddSubRundown = new UICommand {ExecuteDelegate = _addSubRundown};
         }
 
-        public ICommand CommandHide { get; private set; }
-        public ICommand CommandShow { get; private set; }
-        public ICommand CommandPaste { get { return _engineViewmodel.CommandPasteSelected; } }
-        public ICommand CommandAddSubRundown { get; private set; }
-
-        protected override void CreateCommands()
-        {
-            CommandHide = new UICommand()
-            {
-                ExecuteDelegate = o => IsVisible = false,
-                CanExecuteDelegate = o => _isVisible
-            };
-            CommandShow = new UICommand()
-            {
-                ExecuteDelegate = o => IsVisible = true,
-                CanExecuteDelegate = o => !_isVisible
-            };
-            CommandAddSubRundown = new UICommand()
-            {
-                ExecuteDelegate = _addSubRundown
-            };
-        }
+        public ICommand CommandHide { get; }
+        public ICommand CommandShow { get; }
+        public ICommand CommandPaste => _engineViewmodel.CommandPasteSelected;
+        public ICommand CommandAddSubRundown { get; }
 
         bool _isVisible;
         public override bool IsVisible
         {
             get { return _isVisible; }
-            set
+            protected set
             {
                 if (SetField(ref _isVisible, value))
                 {
@@ -75,8 +61,6 @@ namespace TAS.Client.ViewModels
             NotifyPropertyChanged(nameof(ChildrenCount));
         }
 
-        public int ChildrenCount { get { return _event.SubEventsCount; } }
-
-
+        public int ChildrenCount => _event.SubEventsCount;
     }
 }
