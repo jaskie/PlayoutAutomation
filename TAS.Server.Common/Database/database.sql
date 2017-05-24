@@ -45,6 +45,7 @@ CREATE TABLE `asrunlog` (
   `SecEvents` varchar(100) COLLATE `utf8_general_ci` DEFAULT NULL,
   `typVideo` tinyint(4) DEFAULT NULL,
   `typAudio` tinyint(4) DEFAULT NULL,
+  `Flags` bigint(20) unsigned DEFAULT NULL,
   PRIMARY KEY (`idAsRunLog`),
   KEY `ixExecuteTime` (`ExecuteTime`)
 ) ENGINE=InnoDB;

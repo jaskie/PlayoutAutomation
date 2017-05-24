@@ -386,7 +386,7 @@ namespace TAS.Server
         private void _database_ConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
         {
             NotifyPropertyChanged(nameof(DatabaseConnectionState));
-            Logger.Trace("Database state changed from {0} to {1}. Stack trace was {2}", e.OldState, e.NewState, new StackTrace());
+            Logger.Error("Database state changed from {0} to {1}. Stack trace was {2}", e.OldState, e.NewState, new StackTrace());
         }
 
         public ConnectionStateRedundant DatabaseConnectionState { get; } = Database.Database.ConnectionState;
@@ -776,7 +776,7 @@ namespace TAS.Server
             NotifyEngineOperation(aEvent, TEngineOperation.Play);
             if (aEvent.Layer == VideoLayer.Program
                 && (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.Live))
-                ThreadPool.QueueUserWorkItem(o => ((Event)aEvent).AsRunLogWrite());
+                ThreadPool.QueueUserWorkItem(o => aEvent.AsRunLogWrite());
         }
 
         private void _clearRunning()

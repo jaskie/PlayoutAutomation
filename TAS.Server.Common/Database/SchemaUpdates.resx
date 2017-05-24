@@ -181,4 +181,8 @@ ADD COLUMN `Commands` TEXT NULL;
 ALTER TABLE `rundownevent_templated` 
 CHANGE COLUMN `idrundownevent_templated` `idrundownevent_templated` BIGINT UNSIGNED NOT NULL ;</value>
   </data>
+  <data name="V7" xml:space="preserve">
+    <value>ALTER TABLE `asrunlog` 
+ADD COLUMN `Flags` BIGINT UNSIGNED NULL AFTER `typAudio`;</value>
+  </data>
 </root>
