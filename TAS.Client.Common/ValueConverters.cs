@@ -5,10 +5,10 @@ using System.Text;
 using System.Windows.Data;
 using System.Globalization;
 using System.Windows.Controls;
-using TAS.Common;
 using TAS.Server;
 using System.ComponentModel;
 using System.Windows.Media;
+using TAS.Server.Common;
 
 namespace TAS.Client.Common
 {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TAS.Server.Interfaces
+﻿namespace TAS.Server.Common.Interfaces
 {
     public interface IInitializable
     {

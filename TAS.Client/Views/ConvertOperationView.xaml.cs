@@ -13,7 +13,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
-using TAS.Common;
 
 namespace TAS.Client.Views
 {

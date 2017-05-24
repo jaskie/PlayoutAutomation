@@ -1,10 +1,8 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Newtonsoft.Json;
 
-namespace TAS.Server.Interfaces
+namespace TAS.Server.Common.Interfaces
 {
     public interface IMediaSegments
     {

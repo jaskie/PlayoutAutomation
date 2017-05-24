@@ -5,8 +5,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
-using TAS.Common;
-using TAS.Server.Interfaces;
+using TAS.Server.Common;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.Config
 {

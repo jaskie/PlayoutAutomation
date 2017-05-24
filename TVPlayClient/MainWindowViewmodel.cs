@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using System.Xml.Serialization;
@@ -16,12 +13,11 @@ namespace TVPlayClient
     public class MainWindowViewmodel : ViewmodelBase
     {
         private const string ConfigurationFileName = "Channels.xml";
-        private const string AppDataFilePath = "TVPlayClient";
         private readonly string _configurationFile;
         public MainWindowViewmodel()
         {
             Application.Current.Dispatcher.ShutdownStarted += _dispatcher_ShutdownStarted;
-            _configurationFile = Path.Combine(FileUtils.LOCAL_APPLICATION_DATA_PATH, ConfigurationFileName);
+            _configurationFile = Path.Combine(FileUtils.LocalApplicationDataPath, ConfigurationFileName);
             if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject()))
                 _loadTabs();
             CommandConfigure = new UICommand { ExecuteDelegate = _configure };

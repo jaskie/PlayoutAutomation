@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using TAS.Common;
 
-namespace TAS.Server.Interfaces
+namespace TAS.Server.Common.Interfaces
 {
     public interface IRecorder :IRecorderProperties, INotifyPropertyChanged
     {

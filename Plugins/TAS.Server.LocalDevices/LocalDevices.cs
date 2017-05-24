@@ -8,8 +8,8 @@ using System.Diagnostics;
 using System.IO;
 using System.ComponentModel.Composition;
 using System.Xml;
-using TAS.Server.Interfaces;
 using System.Collections.Specialized;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server
 {

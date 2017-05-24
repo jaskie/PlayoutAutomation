@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 
-namespace TAS.Common
+namespace TAS.Server.Common
 {
     public static class MediaExtensions
     {

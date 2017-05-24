@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {

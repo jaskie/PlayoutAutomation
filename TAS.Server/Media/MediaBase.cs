@@ -1,28 +1,23 @@
 ﻿//#undef DEBUG
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
-using System.IO;
-using TAS.Common;
 using System.Diagnostics;
-using TAS.Server.Interfaces;
-using TAS.Server.Common;
-using Newtonsoft.Json;
+using System.IO;
 using System.Threading;
+using Newtonsoft.Json;
 using TAS.Remoting.Server;
+using TAS.Server.Common;
+using TAS.Server.Common.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
     [DebuggerDisplay("{_mediaName} ({_fileName})")]
-    public abstract class Media : DtoBase, IMedia
+    public abstract class MediaBase : DtoBase, IMedia
     {
 
-        private static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Media));
+        private static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(MediaBase));
 
-        public Media(IMediaDirectory directory, Guid mediaGuid = default(Guid))
+        protected MediaBase(IMediaDirectory directory, Guid mediaGuid = default(Guid))
         {
             _directory = (MediaDirectory)directory;
             _mediaGuid = mediaGuid == default(Guid)? Guid.NewGuid() : mediaGuid;
@@ -30,7 +25,7 @@ namespace TAS.Server
         }
 
 #if DEBUG
-        ~Media()
+        ~MediaBase()
         {
             Debug.WriteLine("{0} finalized: {1}", GetType(), this);
         }
@@ -294,7 +289,7 @@ namespace TAS.Server
             return new FileStream(FullPath, forWrite ? FileMode.Create : FileMode.Open);
         }
 
-        public virtual bool CopyMediaTo(Media destMedia, ref bool abortCopy)
+        public virtual bool CopyMediaTo(MediaBase destMedia, ref bool abortCopy)
         {
             bool copyResult = true;
             var sIngestDir = _directory as IngestDirectory;
@@ -403,7 +398,7 @@ namespace TAS.Server
 
         public void GetLoudness()
         {
-            _directory.MediaManager.FileManager.Queue(new LoudnessOperation() { SourceMedia = this, MeasureStart = this.TcPlay - this.TcStart, MeasureDuration = this.DurationPlay }, false);
+            _directory.MediaManager.FileManager.Queue(new LoudnessOperation() { Source = this, MeasureStart = this.TcPlay - this.TcStart, MeasureDuration = this.DurationPlay }, false);
         }
 
         protected override void DoDispose()

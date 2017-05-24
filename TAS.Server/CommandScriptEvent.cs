@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
-using TAS.Common;
 using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server
 {

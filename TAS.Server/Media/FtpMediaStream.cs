@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
     public class FtpMediaStream : Stream
     {

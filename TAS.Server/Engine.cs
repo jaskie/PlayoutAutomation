@@ -5,14 +5,14 @@ using System.Linq;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Xml.Serialization;
-using TAS.Common;
-using TAS.Server.Interfaces;
 using TAS.Server.Common;
-using TAS.Server.Database;
 using System.Collections.Concurrent;
 using TAS.Remoting.Server;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
+using TAS.Server.Common.Database;
+using TAS.Server.Common.Interfaces;
+using TAS.Server.Media;
 
 namespace TAS.Server
 {
@@ -103,7 +103,7 @@ namespace TAS.Server
             _runningEvents.CollectionOperation += _runningEventsOperation;
             _engineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
-            Database.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
+            Common.Database.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
         }
 
         #endregion Constructor
@@ -120,7 +120,7 @@ namespace TAS.Server
             _cgElementsController?.Dispose();
             var remote = Remote;
             remote?.Dispose();
-            Database.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
+            Common.Database.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
         }
 
         #endregion //IDisposable
@@ -389,7 +389,7 @@ namespace TAS.Server
             Logger.Error("Database state changed from {0} to {1}. Stack trace was {2}", e.OldState, e.NewState, new StackTrace());
         }
 
-        public ConnectionStateRedundant DatabaseConnectionState { get; } = Database.Database.ConnectionState;
+        public ConnectionStateRedundant DatabaseConnectionState { get; } = Common.Database.Database.ConnectionState;
 
         #endregion //Database
 
@@ -493,7 +493,7 @@ namespace TAS.Server
 
         public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal previewAudioVolume)
         {
-            Media mediaToLoad = _findPreviewMedia(media as Media);
+            MediaBase mediaToLoad = _findPreviewMedia(media as MediaBase);
             Debug.WriteLine(mediaToLoad, "Loading");
             if (mediaToLoad != null)
             {
@@ -617,7 +617,7 @@ namespace TAS.Server
         [JsonProperty]
         public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value); } }
 
-        private Media _findPreviewMedia(Media media)
+        private MediaBase _findPreviewMedia(MediaBase media)
         {
             var playoutChannel = _playoutChannelPRV;
             if (!(media is ServerMedia))
@@ -879,7 +879,7 @@ namespace TAS.Server
             Event ev = NextToPlay as Event;
             if (ev != null && PlayoutChannelPRV != null)
             {
-                Media media = ev.ServerMediaPRV;
+                MediaBase media = ev.ServerMediaPRV;
                 if (media != null)
                 {
                     _playoutChannelPRV.Load(media, VideoLayer.Preset, 0, -1);

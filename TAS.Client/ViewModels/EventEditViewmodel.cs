@@ -9,13 +9,12 @@ using System.Reflection;
 using System.ComponentModel;
 using System.Runtime.Remoting.Messaging;
 using System.Windows.Input;
-using TAS.Common;
 using TAS.Client.Common;
-using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using resources = TAS.Client.Common.Properties.Resources;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
@@ -441,7 +440,7 @@ namespace TAS.Client.ViewModels
             IsVolumeChecking = true;
             var fileManager = _engine.MediaManager.FileManager;
             var operation = fileManager.CreateLoudnessOperation();
-            operation.SourceMedia = _event.Media;
+            operation.Source = _event.Media;
             operation.MeasureStart = _event.StartTc - _media.TcStart;
             operation.MeasureDuration = _event.Duration;
             operation.AudioVolumeMeasured += _audioVolumeMeasured;

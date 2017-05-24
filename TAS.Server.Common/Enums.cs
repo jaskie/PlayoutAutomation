@@ -1,11 +1,8 @@
-﻿using Infralution.Localization.Wpf;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
+using Infralution.Localization.Wpf;
 
-namespace TAS.Common
+namespace TAS.Server.Common
 {
     [TypeConverter(typeof(TServerTypeEnumConverter))]
     public enum TServerType

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {

@@ -1,19 +1,14 @@
 ﻿#undef DEBUG
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Threading;
 using System.Data;
 using System.Diagnostics;
-using TAS.Server.Interfaces;
-using TAS.Common;
-using System.Xml;
+using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
-using TAS.Server.Common;
+using TAS.Server.Common.Interfaces;
 
-namespace TAS.Server.Database
+namespace TAS.Server.Common.Database
 {
     public static class Database
     {

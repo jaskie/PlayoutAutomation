@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.ComponentModel;
-using MySql.Data.MySqlClient;
 using System.IO;
-using TAS.Server.Common;
+using System.Threading;
+using MySql.Data.MySqlClient;
 
-namespace TAS.Server.Database
+namespace TAS.Server.Common.Database
 {
 
 

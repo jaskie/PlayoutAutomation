@@ -1,20 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.ComponentModel;
-using System.Runtime.Remoting.Messaging;
-using System.Diagnostics;
-using TAS.Common;
-using TAS.Server.Interfaces;
-using TAS.Server.Common;
-using TAS.Server.Database;
 using Newtonsoft.Json;
+using TAS.Server.Common;
+using TAS.Server.Common.Database;
+using TAS.Server.Common.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
-    public abstract class PersistentMedia: Media, IPersistentMedia
+    public abstract class PersistentMedia: MediaBase, IPersistentMedia
     {
         internal PersistentMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid)
         {

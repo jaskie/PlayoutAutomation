@@ -9,7 +9,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server
 {
@@ -54,7 +54,7 @@ namespace TAS.Server
 
         public void Initialize()
         {
-            ReadElements(Path.Combine(FileUtils.CONFIGURATION_PATH, ELEMENTS));
+            ReadElements(Path.Combine(FileUtils.ConfigurationPath, ELEMENTS));
             IsCGEnabled = true;
             IsWideScreen = true;
         }

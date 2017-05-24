@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
-using TAS.Server;
 
-namespace TAS.Common
+namespace TAS.Server.Common
 {
     public sealed class MediaConversion 
     {

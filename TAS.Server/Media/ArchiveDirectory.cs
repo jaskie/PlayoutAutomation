@@ -1,38 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.Remoting.Messaging;
-using TAS.Common;
-using TAS.Server.Interfaces;
+using System.Linq;
 using TAS.Server.Common;
-using TAS.Server.Database;
+using TAS.Server.Common.Database;
+using TAS.Server.Common.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
     public class ArchiveDirectory : MediaDirectory, IArchiveDirectory
     {
 
+        private string _searchString = string.Empty;
+
         public ArchiveDirectory(IMediaManager mediaManager, UInt64 id, string folder) : base((MediaManager)mediaManager)
         {
             idArchive = id;
-            _folder = folder;
+            Folder = folder;
         }
         
         public override void Initialize()
         {
+            //TODO: Checki if not executing twice on initialization
             DirectoryName = "Archiwum";
             GetVolumeInfo();
             Search();
             IsInitialized = true;
-            Debug.WriteLine("ArchiveDirectory {0} initialized", Folder, null);
+            Debug.WriteLine(this, $"ArchiveDirectory {Folder} initialized");
         }
-        public UInt64 idArchive { get; set; }
 
-        private string _searchString = string.Empty;
+        public ulong idArchive { get; set; }
+
         public string SearchString
         {
             get { return _searchString; }
@@ -46,7 +45,7 @@ namespace TAS.Server
 
         public void Search()
         {
-            this.Clear();
+            Clear();
             this.DbSearch<ArchiveMedia>();
         }
 
@@ -54,9 +53,8 @@ namespace TAS.Server
 
         public override void SweepStaleMedia()
         {
-            DateTime currentDate = DateTime.UtcNow.Date;
-            IEnumerable<IMedia> StaleMediaList = this.DbFindStaleMedia<ArchiveMedia>();
-            foreach (Media m in StaleMediaList)
+            IEnumerable<IMedia> staleMediaList = this.DbFindStaleMedia<ArchiveMedia>();
+            foreach (var m in staleMediaList)
                 m.Delete();
         }
 
@@ -64,18 +62,6 @@ namespace TAS.Server
         {
             return this.DbMediaFind<ArchiveMedia>(media);
         }
-
-        internal void Clear()
-        {
-            foreach (Media m in _files.Values.ToList())
-                base.MediaRemove(m); //base: to not actually delete file and db
-        }
-
-        protected override IMedia CreateMedia(string fullPath, Guid guid = default(Guid))
-        {
-            throw new NotImplementedException();
-        }
-
 
         public override bool DeleteMedia(IMedia media)
         {
@@ -96,7 +82,7 @@ namespace TAS.Server
             }
             return false;
         }
-        
+
         public override void MediaRemove(IMedia media)
         {
             ArchiveMedia m = (ArchiveMedia)media;
@@ -104,11 +90,6 @@ namespace TAS.Server
             m.IsVerified = false;
             m.Save();
             base.MediaRemove(media);
-        }
-
-        protected override void OnMediaRenamed(Media media, string newName)
-        {
-            ((ArchiveMedia)media).Save();
         }
 
         public override IMedia CreateMedia(IMediaProperties mediaProperties)
@@ -125,20 +106,36 @@ namespace TAS.Server
         public void ArchiveSave(IServerMedia media, bool deleteAfterSuccess)
         {
             ArchiveMedia archived;
-            if (media.IsArchived 
+            if (media.IsArchived
                 && (archived = this.DbMediaFind<ArchiveMedia>(media)) != null
                 && archived.FileExists())
             {
                 if (deleteAfterSuccess)
-                    MediaManager.FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = media}, false);
+                    MediaManager.FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, Source = media }, false);
             }
             else
-                _archiveCopy((Media)media, this, deleteAfterSuccess, false);
+                _archiveCopy((MediaBase)media, this, deleteAfterSuccess, false);
         }
 
         public void ArchiveRestore(IArchiveMedia srcMedia, IServerDirectory destDirectory, bool toTop)
         {
-                _archiveCopy((Media)srcMedia, destDirectory, false, toTop);
+            _archiveCopy((MediaBase)srcMedia, destDirectory, false, toTop);
+        }
+
+        internal void Clear()
+        {
+            foreach (var m in Files.Values.ToList())
+                base.MediaRemove(m); //base: to not actually delete file and db
+        }
+
+        protected override IMedia CreateMedia(string fullPath, Guid guid = default(Guid))
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnMediaRenamed(MediaBase media, string newName)
+        {
+            ((ArchiveMedia)media).Save();
         }
 
         internal string GetCurrentFolder()
@@ -146,9 +143,9 @@ namespace TAS.Server
             return DateTime.UtcNow.ToString("yyyyMM"); 
         }
 
-        private void _archiveCopy(Media fromMedia, IMediaDirectory destDirectory, bool deleteAfterSuccess, bool toTop)
+        private void _archiveCopy(MediaBase fromMedia, IMediaDirectory destDirectory, bool deleteAfterSuccess, bool toTop)
         {
-            FileOperation operation = new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, SourceMedia = fromMedia, DestDirectory = destDirectory };
+            FileOperation operation = new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, Source = fromMedia, DestDirectory = destDirectory };
             operation.Success += _archived;
             operation.Failure += _failure;
             MediaManager.FileManager.Queue(operation, toTop);
@@ -169,7 +166,7 @@ namespace TAS.Server
             var operation = sender as FileOperation;
             if (operation != null)
             {
-                var sourceMedia = operation.SourceMedia as ServerMedia;
+                var sourceMedia = operation.Source as ServerMedia;
                 if (sourceMedia != null)
                     sourceMedia.IsArchived = true;
                 operation.Success -= _archived;

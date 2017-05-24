@@ -12,7 +12,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TAS.Client.Common;
-using TAS.Common;
 
 namespace TAS.Client
 {

@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using TAS.Client.Common.Plugin;
-using TAS.Server.Interfaces;
+using TAS.Server.Common;
 
 namespace UiPluginExample
 {
@@ -31,7 +31,7 @@ namespace UiPluginExample
         public bool CanExecute(object parameter)
         {
             var ec = _executionContext();
-            return ec.Event != null && ec.Event.EventType == TAS.Common.TEventType.Rundown;
+            return ec.Event != null && ec.Event.EventType == TEventType.Rundown;
         }
 
         public void Execute(object parameter)

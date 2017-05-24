@@ -9,10 +9,9 @@ using System.Windows.Data;
 using System.Diagnostics;
 using System.Windows.Input;
 using System.Threading;
-using TAS.Common;
 using TAS.Client.Common;
 using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels

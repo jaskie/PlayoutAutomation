@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using TAS.Remoting;
+using TAS.Server.Media;
 
 namespace TAS.Server
 {
@@ -15,21 +16,21 @@ namespace TAS.Server
             switch (typeName)
             {
                 case "TAS.Client.Model.ServerMedia":
-                    return typeof(TAS.Server.ServerMedia);
+                    return typeof(ServerMedia);
                 case "TAS.Client.Model.IngestMedia":
-                    return typeof(TAS.Server.IngestMedia);
+                    return typeof(IngestMedia);
                 case "TAS.Client.Model.ArchiveMedia":
-                    return typeof(TAS.Server.ArchiveMedia);
+                    return typeof(ArchiveMedia);
                 case "TAS.Client.Model.ServerDirectory":
-                    return typeof(TAS.Server.ServerDirectory);
+                    return typeof(ServerDirectory);
                 case "TAS.Client.Model.IngestDirectory":
-                    return typeof(TAS.Server.IngestDirectory);
+                    return typeof(IngestDirectory);
                 case "TAS.Client.Model.ArchiveDirectory":
-                    return typeof(TAS.Server.ArchiveDirectory);
+                    return typeof(ArchiveDirectory);
                 case "TAS.Client.Model.FileManager":
                     return typeof(TAS.Server.FileManager);
                 case "TAS.Client.Model.MediaSegment":
-                    return typeof(TAS.Server.MediaSegment);
+                    return typeof(MediaSegment);
                 case "TAS.Client.Model.ConvertOperation":
                     return typeof(TAS.Server.ConvertOperation);
                 case "TAS.Client.Model.FileOperation":

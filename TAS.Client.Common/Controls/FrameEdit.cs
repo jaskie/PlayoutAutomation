@@ -6,7 +6,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using TAS.Common;
+using TAS.Server.Common;
 using Xceed.Wpf.Toolkit;
 
 namespace TAS.Client.Common.Controls

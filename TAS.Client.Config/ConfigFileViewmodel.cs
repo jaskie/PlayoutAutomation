@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Server.Common;
-using TAS.Server.Database;
+using TAS.Server.Common.Database;
 
 namespace TAS.Client.Config
 {

@@ -1,31 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using TAS.Client.Common.Plugin;
 using TAS.Client.ViewModels;
 using TAS.Server;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client
 {
-    public class MainWindowViewmodel : ViewModels.ViewmodelBase
+    public class MainWindowViewmodel : ViewmodelBase
     {
-        readonly List<ChannelViewmodel> _channels;
         
         public MainWindowViewmodel()
         {
-            if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject()))
+            if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()))
             {
                 try
                 {
                     EngineController.Initialize();
                     var engines = EngineController.Engines;
-                    _channels = new List<ChannelViewmodel>(engines.Select(engine => new ChannelViewmodel(engine, true, true, true)));
+                    Channels = new List<ChannelViewmodel>(engines.Select(engine => new ChannelViewmodel(engine, true, true, true)));
                 }
                 catch (TypeInitializationException e)
                 {
@@ -40,11 +34,11 @@ namespace TAS.Client
             }
         }
         
-        public List<ChannelViewmodel> Channels { get { return _channels; } }
+        public List<ChannelViewmodel> Channels { get; }
 
         protected override void OnDispose()
         {
-            _channels.ToList().ForEach(c => c.Dispose());
+            Channels.ToList().ForEach(c => c.Dispose());
         }
     }
 }

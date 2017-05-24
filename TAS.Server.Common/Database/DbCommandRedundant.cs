@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
 using MySql.Data.MySqlClient;
-using TAS.Server.Common;
 
-namespace TAS.Server.Database
+namespace TAS.Server.Common.Database
 {
 
 

@@ -6,11 +6,11 @@ using System.Runtime.Remoting.Messaging;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Threading;
-using TAS.Common;
-using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
+using TAS.Server.Common.Interfaces;
+using TAS.Server.Media;
 
 namespace TAS.Server
 {
@@ -74,7 +74,7 @@ namespace TAS.Server
 
             if ((operation.Kind == TFileOperationKind.Copy || operation.Kind == TFileOperationKind.Move || operation.Kind == TFileOperationKind.Convert))
             {
-                IMedia destMedia = operation.DestMedia;
+                IMedia destMedia = operation.Dest;
                 if (destMedia != null)
                     destMedia.MediaStatus = TMediaStatus.CopyPending;
             }
@@ -151,7 +151,7 @@ namespace TAS.Server
                     queue.Remove(op);
                     if (!op.Aborted)
                     {
-                        if (op.Do())
+                        if (op.Execute())
                         {
                             NotifyOperation(OperationCompleted, op);
                             op.Dispose();
@@ -167,8 +167,8 @@ namespace TAS.Server
                             {
                                 op.Fail();
                                 NotifyOperation(OperationCompleted, op);
-                                if (op.DestMedia?.FileExists() == true)
-                                    op.DestMedia.Delete();
+                                if (op.Dest?.FileExists() == true)
+                                    op.Dest.Delete();
                                 op.Dispose();
                             }
                         }

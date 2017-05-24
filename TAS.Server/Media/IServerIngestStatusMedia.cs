@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Common;
-using TAS.Server.Interfaces;
+﻿using TAS.Server.Common;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
     interface IServerIngestStatusMedia
     {

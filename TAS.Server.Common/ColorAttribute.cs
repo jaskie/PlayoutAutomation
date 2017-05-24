@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security;
 using System.Windows.Media;
 
-
-namespace TAS.Common
+namespace TAS.Server.Common
 {
     [AttributeUsage(AttributeTargets.All, AllowMultiple=false)]
     public class ColorAttribute: Attribute

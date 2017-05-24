@@ -1,30 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.IO;
 using System.Diagnostics;
-using System.Configuration;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Runtime.Remoting.Messaging;
-using System.Globalization;
 using System.Text;
 using System.ComponentModel;
 using TAS.FFMpegUtils;
-using TAS.Common;
-using TAS.Server.Interfaces;
 using Newtonsoft.Json;
 using System.Drawing;
 using System.Drawing.Imaging;
 using TAS.Server.Common;
+using TAS.Server.Common.Interfaces;
+using TAS.Server.Dependencies;
+using TAS.Server.Media;
 
 namespace TAS.Server
 {
     public class ConvertOperation : FFMpegOperation, IConvertOperation
     {
-        
-        #region Properties
+
+        private TAspectConversion _aspectConversion;
+        private TAudioChannelMappingConversion _audioChannelMappingConversion;
+        private decimal _audioVolume;
+        private TFieldOrder _sourceFieldOrderEnforceConversion;
 
         public ConvertOperation()
         {
@@ -34,39 +33,31 @@ namespace TAS.Server
             _audioChannelMappingConversion = TAudioChannelMappingConversion.FirstTwoChannels;
         }
 
-        #endregion // properties
-
-
-        #region IConvertOperation implementation
-
-        private TAspectConversion _aspectConversion;
-        private TAudioChannelMappingConversion _audioChannelMappingConversion;
-        private decimal _audioVolume;
-        private TFieldOrder _sourceFieldOrderEnforceConversion;
-
         [JsonProperty]
         public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value); } }
+
         [JsonProperty]
         public TAudioChannelMappingConversion AudioChannelMappingConversion { get { return _audioChannelMappingConversion; } set { SetField(ref _audioChannelMappingConversion, value); } }
+
         [JsonProperty]
         public decimal AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value); } }
+
         [JsonProperty]
         public TFieldOrder SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { SetField(ref _sourceFieldOrderEnforceConversion, value); } }
+
         [JsonProperty]
         public TimeSpan StartTC { get; set; }
+
         [JsonProperty]
         public TimeSpan Duration { get; set; }
+
         [JsonProperty]
         public bool Trim { get; set; }
 
         [JsonProperty]
         public bool LoudnessCheck { get; set; }
-
-
-        #endregion // IConvertOperation implementation
-
-
-        public override bool Do()
+        
+        internal override bool Execute()
         {
             if (Kind == TFileOperationKind.Convert)
             {
@@ -75,29 +66,29 @@ namespace TAS.Server
                 IsIndeterminate = true;
                 try
                 {
-                    Media sourceMedia = SourceMedia as IngestMedia;
+                    MediaBase sourceMedia = Source as IngestMedia;
                     if (sourceMedia == null)
-                        throw new ArgumentException("ConvertOperation: SourceMedia is not of type IngestMedia");
+                        throw new ArgumentException("ConvertOperation: Source is not of type IngestMedia");
                     bool success = false;
                     if (((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia _localSourceMedia = (TempMedia)Owner.TempDirectory.CreateMedia(sourceMedia))
+                        using (TempMedia localSourceMedia = (TempMedia)Owner.TempDirectory.CreateMedia(sourceMedia))
                         {
-                            AddOutputMessage($"Copying to local file {_localSourceMedia.FullPath}");
-                            _localSourceMedia.PropertyChanged += _localSourceMedia_PropertyChanged;
-                            if (sourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
+                            AddOutputMessage($"Copying to local file {localSourceMedia.FullPath}");
+                            localSourceMedia.PropertyChanged += LocalSourceMedia_PropertyChanged;
+                            if (sourceMedia.CopyMediaTo(localSourceMedia, ref _aborted))
                             {
                                 AddOutputMessage("Verifing local file");
-                                _localSourceMedia.Verify();
+                                localSourceMedia.Verify();
                                 try
                                 {
-                                    if (DestMediaProperties.MediaType == TMediaType.Still)
-                                        success = _convertStill(_localSourceMedia);
+                                    if (DestProperties.MediaType == TMediaType.Still)
+                                        success = ConvertStill(localSourceMedia);
                                     else
-                                        success = _convertMovie(_localSourceMedia, _localSourceMedia.StreamInfo);
+                                        success = ConvertMovie(localSourceMedia, localSourceMedia.StreamInfo);
                                 }
                                 finally
                                 {
-                                    _localSourceMedia.PropertyChanged -= _localSourceMedia_PropertyChanged;
+                                    localSourceMedia.PropertyChanged -= LocalSourceMedia_PropertyChanged;
                                 }
 
                                 if (!success)
@@ -109,12 +100,12 @@ namespace TAS.Server
 
                     else
                     {
-                        if (sourceMedia is IngestMedia && sourceMedia.IsVerified)
+                        if (sourceMedia.IsVerified)
                         {
-                            if (DestMediaProperties.MediaType == TMediaType.Still)
-                                success = _convertStill(sourceMedia);
+                            if (DestProperties.MediaType == TMediaType.Still)
+                                success = ConvertStill(sourceMedia);
                             else
-                                success = _convertMovie(sourceMedia, ((IngestMedia)sourceMedia).StreamInfo);
+                                success = ConvertMovie(sourceMedia, ((IngestMedia)sourceMedia).StreamInfo);
                             if (!success)
                                 TryCount--;
                         }
@@ -133,23 +124,23 @@ namespace TAS.Server
 
             }
             else
-                return base.Do();
+                return base.Execute();
         }
 
-        void _localSourceMedia_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void LocalSourceMedia_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(IMedia.FileSize))
             {
-                ulong fs = SourceMedia.FileSize;
-                if (fs > 0 && sender is Media)
-                    Progress = (int)(((sender as Media).FileSize * 100ul) / fs);
+                ulong fs = Source.FileSize;
+                if (fs > 0 && sender is MediaBase)
+                    Progress = (int)(((sender as MediaBase).FileSize * 100ul) / fs);
             }
         }
 
-        private bool _convertStill(Media localSourceMedia)
+        private bool ConvertStill(MediaBase localSourceMedia)
         {
             CreateDestMediaIfNotExists();
-            Media destMedia = DestMedia as Media;
+            MediaBase destMedia = Dest as MediaBase;
             if (destMedia != null)
             {
                 destMedia.MediaType = TMediaType.Still;
@@ -159,7 +150,7 @@ namespace TAS.Server
                 graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
                 if (Path.GetExtension(localSourceMedia.FileName).ToLowerInvariant() == ".tga")
                 {
-                    var tgaImage = new Paloma.TargaImage(localSourceMedia.FullPath);
+                    var tgaImage = new TargaImage(localSourceMedia.FullPath);
                     graphics.DrawImage(tgaImage.Image, 0, 0, destSize.Width, destSize.Height);
                 }
                 else
@@ -171,7 +162,7 @@ namespace TAS.Server
                 encoderParameters.Param[0] = encoderParameter;
                 bmp.Save(destMedia.FullPath, imageCodecInfo, encoderParameters);
                 destMedia.MediaStatus = TMediaStatus.Copied;
-                ((Media)destMedia).Verify();
+                destMedia.Verify();
                 OperationStatus = FileOperationStatus.Finished;
                 return true;
             }
@@ -179,7 +170,7 @@ namespace TAS.Server
         }
 
         #region Movie conversion
-        private void _addConversion(MediaConversion conversion, List<string> filters)
+        private void AddConversion(MediaConversion conversion, List<string> filters)
         {
             if (conversion != null)
             {
@@ -188,11 +179,11 @@ namespace TAS.Server
             }
         }
 
-        private string _encodeParameters(Media inputMedia, StreamInfo[] inputStreams)
+        private string GetEncodeParameters(MediaBase inputMedia, StreamInfo[] inputStreams)
         {
-            List<string> video_filters = new List<string>();
+            List<string> videoFilters = new List<string>();
             StringBuilder ep = new StringBuilder();
-            var sourceDir = SourceMedia.Directory as IngestDirectory;
+            var sourceDir = Source.Directory as IngestDirectory;
             #region Video
             ep.AppendFormat(" -c:v {0}", sourceDir.VideoCodec);
             if (sourceDir.VideoCodec == TVideoCodec.copy)
@@ -206,49 +197,49 @@ namespace TAS.Server
             else
             {
                 ep.AppendFormat(" -b:v {0}k", (int)(inputMedia.FormatDescription().ImageSize.Height * 13 * (double)sourceDir.VideoBitrateRatio));
-                VideoFormatDescription outputFormatDescription = DestMedia.FormatDescription();
+                VideoFormatDescription outputFormatDescription = Dest.FormatDescription();
                 VideoFormatDescription inputFormatDescription = inputMedia.FormatDescription();
-                _addConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], video_filters);
+                AddConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], videoFilters);
                 if (inputMedia.HasExtraLines)
                 {
-                    video_filters.Add("crop=720:576:0:32");
+                    videoFilters.Add("crop=720:576:0:32");
                     if (AspectConversion == TAspectConversion.NoConversion)
                     {
                         if (inputFormatDescription.IsWideScreen)
-                            video_filters.Add("setdar=dar=16/9");
+                            videoFilters.Add("setdar=dar=16/9");
                         else
-                            video_filters.Add("setdar=dar=4/3");
+                            videoFilters.Add("setdar=dar=4/3");
                     }
                 }
                 if (AspectConversion == TAspectConversion.NoConversion)
                 {
                     if (inputFormatDescription.IsWideScreen)
-                        video_filters.Add("setdar=dar=16/9");
+                        videoFilters.Add("setdar=dar=16/9");
                     else
-                        video_filters.Add("setdar=dar=4/3");
+                        videoFilters.Add("setdar=dar=4/3");
                 }
                 if (AspectConversion != TAspectConversion.NoConversion)
-                    _addConversion(MediaConversion.AspectConversions[AspectConversion], video_filters);
+                    AddConversion(MediaConversion.AspectConversions[AspectConversion], videoFilters);
                 if (inputFormatDescription.FrameRate / outputFormatDescription.FrameRate == 2 && outputFormatDescription.Interlaced)
-                    video_filters.Add("tinterlace=interleave_top");
-                video_filters.Add($"fps=fps={outputFormatDescription.FrameRate}");
+                    videoFilters.Add("tinterlace=interleave_top");
+                videoFilters.Add($"fps=fps={outputFormatDescription.FrameRate}");
                 if (outputFormatDescription.Interlaced)
                 {
-                    video_filters.Add("fieldorder=tff");
+                    videoFilters.Add("fieldorder=tff");
                     ep.Append(" -flags +ildct+ilme");
                 }
                 else
                 {
-                    video_filters.Add("w3fdif");
+                    videoFilters.Add("w3fdif");
                 }
-                var additionalEncodeParams = ((IngestDirectory)SourceMedia.Directory).EncodeParams;
+                var additionalEncodeParams = ((IngestDirectory)Source.Directory).EncodeParams;
                 if (!string.IsNullOrWhiteSpace(additionalEncodeParams))
                     ep.Append(" ").Append(additionalEncodeParams.Trim());
             }
-            int lastFilterIndex = video_filters.Count() - 1;
+            int lastFilterIndex = videoFilters.Count() - 1;
             if (lastFilterIndex >= 0)
             {
-                video_filters[lastFilterIndex] = $"{video_filters[lastFilterIndex]}[v]";
+                videoFilters[lastFilterIndex] = $"{videoFilters[lastFilterIndex]}[v]";
                 ep.Append(" -map \"[v]\"");
             } else
             {
@@ -259,7 +250,7 @@ namespace TAS.Server
             #endregion // Video
 
             #region Audio
-            List<string> audio_filters = new List<string>();
+            List<string> audioFilters = new List<string>();
             StreamInfo[] audioStreams = inputStreams.Where(s => s.StreamType == StreamType.AUDIO).ToArray();
             if (audioStreams.Length > 0)
             {
@@ -297,18 +288,18 @@ namespace TAS.Server
                             pf.AppendFormat("[0:{0}]", stream.Index);
                             audio_stream_count += stream.ChannelCount;
                         }
-                        audio_filters.Add(string.Format("{0}amerge=inputs={1}", pf.ToString(), audioStreams.Length));
+                        audioFilters.Add(string.Format("{0}amerge=inputs={1}", pf.ToString(), audioStreams.Length));
                     }
-                    _addConversion(audiChannelMappingConversion, audio_filters);
+                    AddConversion(audiChannelMappingConversion, audioFilters);
                     if (AudioVolume != 0)
-                        _addConversion(new MediaConversion(AudioVolume), audio_filters);
+                        AddConversion(new MediaConversion(AudioVolume), audioFilters);
                     ep.Append(" -ar 48000");
                 }
             }
-            lastFilterIndex = audio_filters.Count() - 1;
+            lastFilterIndex = audioFilters.Count() - 1;
             if (lastFilterIndex >= 0)
             {
-                audio_filters[lastFilterIndex] = $"{audio_filters[lastFilterIndex]}[a]";
+                audioFilters[lastFilterIndex] = $"{audioFilters[lastFilterIndex]}[a]";
                 ep.Append(" -map \"[a]\"");
             }
             else
@@ -318,18 +309,18 @@ namespace TAS.Server
                     ep.AppendFormat(" -map 0:{0}", audioStream.Index);
             }
             #endregion // audio
-            var filters = video_filters.Concat(audio_filters);
+            var filters = videoFilters.Concat(audioFilters);
             if (filters.Any())
                 ep.AppendFormat(" -filter_complex \"{0}\"", string.Join(",", filters));
             return ep.ToString();
         }
 
-        private bool _is_trimmed()
+        private bool IsTrimmed()
         {
-            return Trim && Duration > TimeSpan.Zero && ((IngestDirectory)SourceMedia.Directory).VideoCodec != TVideoCodec.copy ;
+            return Trim && Duration > TimeSpan.Zero && ((IngestDirectory)Source.Directory).VideoCodec != TVideoCodec.copy ;
         }
 
-        private bool _convertMovie(Media localSourceMedia, StreamInfo[] streams)
+        private bool ConvertMovie(MediaBase localSourceMedia, StreamInfo[] streams)
         {
             if (!localSourceMedia.FileExists() || streams == null)
             {
@@ -338,18 +329,18 @@ namespace TAS.Server
                 return false;
             }
             CreateDestMediaIfNotExists();
-            Media destMedia = DestMedia as Media;
+            MediaBase destMedia = Dest as MediaBase;
             if (destMedia != null)
             {
-                _progressDuration = localSourceMedia.Duration;
+                ProgressDuration = localSourceMedia.Duration;
                 Debug.WriteLine(this, "Convert operation started");
                 AddOutputMessage("Starting convert operation:");
                 destMedia.MediaStatus = TMediaStatus.Copying;
                 //CheckInputFile(media);
-                string encodeParams = _encodeParameters(localSourceMedia, streams);
-                //TimeSpan outStartTC = _is_trimmed() ? 
-                string ingestRegion = _is_trimmed() ?
-                    string.Format(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1}", StartTC - SourceMedia.TcStart, Duration) : string.Empty;
+                string encodeParams = GetEncodeParameters(localSourceMedia, streams);
+                //TimeSpan outStartTC = IsTrimmed() ? 
+                string ingestRegion = IsTrimmed() ?
+                    string.Format(System.Globalization.CultureInfo.InvariantCulture, " -ss {0} -t {1}", StartTC - Source.TcStart, Duration) : string.Empty;
                 string Params = string.Format(System.Globalization.CultureInfo.InvariantCulture,
                         " -i \"{1}\"{0} -vsync cfr{2} -timecode {3} -y \"{4}\"",
                         ingestRegion,
@@ -357,29 +348,29 @@ namespace TAS.Server
                         encodeParams,
                         StartTC.ToSMPTETimecodeString(destMedia.FrameRate()),
                     destMedia.FullPath);
-            if (DestMedia is ArchiveMedia)
+            if (Dest is ArchiveMedia)
                 FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(destMedia.FullPath));
-            DestMedia.AudioChannelMapping = (TAudioChannelMapping)MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion].OutputFormat;
+            Dest.AudioChannelMapping = (TAudioChannelMapping)MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion].OutputFormat;
                 if (RunProcess(Params)  // FFmpeg 
                     && destMedia.FileExists())
                 {
                     destMedia.MediaStatus = TMediaStatus.Copied;
-                    ((Media)destMedia).Verify();
-                    if (Math.Abs(destMedia.Duration.Ticks - (_is_trimmed() ? Duration.Ticks : localSourceMedia.Duration.Ticks)) > TimeSpan.TicksPerSecond / 2)
+                    destMedia.Verify();
+                    if (Math.Abs(destMedia.Duration.Ticks - (IsTrimmed() ? Duration.Ticks : localSourceMedia.Duration.Ticks)) > TimeSpan.TicksPerSecond / 2)
                     {
                         destMedia.MediaStatus = TMediaStatus.CopyError;
                         if (destMedia is PersistentMedia)
                             (destMedia as PersistentMedia).Save();
-                        _addWarningMessage($"Durations are different: {localSourceMedia.Duration.ToSMPTETimecodeString(localSourceMedia.FrameRate())} vs {destMedia.Duration.ToSMPTETimecodeString(destMedia.FrameRate())}");
+                        AddWarningMessage($"Durations are different: {localSourceMedia.Duration.ToSMPTETimecodeString(localSourceMedia.FrameRate())} vs {destMedia.Duration.ToSMPTETimecodeString(destMedia.FrameRate())}");
                         Debug.WriteLine(this, "Convert operation succeed, but durations are diffrent");
                     }
                     else
                     {
-                        if ((SourceMedia.Directory is IngestDirectory) && ((IngestDirectory)SourceMedia.Directory).DeleteSource)
+                        if ((Source.Directory is IngestDirectory) && ((IngestDirectory)Source.Directory).DeleteSource)
                             ThreadPool.QueueUserWorkItem((o) =>
                             {
                                 Thread.Sleep(2000);
-                                Owner.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = SourceMedia });
+                                Owner.Queue(new FileOperation { Kind = TFileOperationKind.Delete, Source = Source });
                             });
                         AddOutputMessage("Convert operation finished successfully");
                         Debug.WriteLine(this, "Convert operation succeed");
@@ -390,12 +381,12 @@ namespace TAS.Server
                         ThreadPool.QueueUserWorkItem((o) =>
                         {
                             Thread.Sleep(2000);
-                            Owner.Queue(new LoudnessOperation() { SourceMedia = destMedia });
+                            Owner.Queue(new LoudnessOperation() { Source = destMedia });
                         });
                     }
                     return true;
                 }
-                Debug.WriteLine("FFmpeg rewraper Do(): Failed for {0}. Command line was {1}", (object)SourceMedia, Params);
+                Debug.WriteLine("FFmpeg rewraper Execute(): Failed for {0}. Command line was {1}", (object)Source, Params);
             }
             return false;
         }
@@ -406,7 +397,7 @@ namespace TAS.Server
             base.ProcOutputHandler(sendingProcess, outLine);
             if (!string.IsNullOrEmpty(outLine.Data) 
                 && outLine.Data.Contains("error")) 
-                _addWarningMessage($"FFmpeg error: {outLine.Data}");
+                AddWarningMessage($"FFmpeg error: {outLine.Data}");
         }
 
     }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
-using TAS.Common;
 using TAS.Remoting;
 
 namespace TAS.Remoting
@@ -14,30 +13,30 @@ namespace TAS.Remoting
         {
             switch (typeName)
             {
-                case "TAS.Server.ServerMedia":
+                case "TAS.Server.Media.ServerMedia":
                     return typeof(Model.ServerMedia);
-                case "TAS.Server.IngestMedia":
+                case "TAS.Server.Media.IngestMedia":
                     return typeof(Model.IngestMedia);
-                case "TAS.Server.ArchiveMedia":
+                case "TAS.Server.Media.ArchiveMedia":
                     return typeof(Model.ArchiveMedia);
-                case "TAS.Server.AnimatedMedia":
+                case "TAS.Server.Media.AnimatedMedia":
                     return typeof(Model.AnimatedMedia);
-                case "TAS.Server.ServerDirectory":
+                case "TAS.Server.Media.ServerDirectory":
                     return typeof(Model.ServerDirectory);
-                case "TAS.Server.IngestDirectory":
+                case "TAS.Server.Media.IngestDirectory":
                     return typeof(Model.IngestDirectory);
-                case "TAS.Server.ArchiveDirectory":
+                case "TAS.Server.Media.ArchiveDirectory":
                     return typeof(Model.ArchiveDirectory);
-                case "TAS.Server.AnimationDirectory":
+                case "TAS.Server.Media.AnimationDirectory":
                     return typeof(Model.AnimationDirectory);
+                case "TAS.Server.Media.MediaSegment":
+                    return typeof(Model.MediaSegment);
+                case "TAS.Server.Media.MediaSegments":
+                    return typeof(Model.MediaSegments);
                 case "TAS.Server.FileManager":
                     return typeof(Model.FileManager);
                 case "TAS.Server.CasparRecorder":
                     return typeof(Model.Recorder);
-                case "TAS.Server.MediaSegment":
-                    return typeof(Model.MediaSegment);
-                case "TAS.Server.MediaSegments":
-                    return typeof(Model.MediaSegments);
                 case "TAS.Server.ConvertOperation":
                     return typeof(Model.ConvertOperation);
                 case "TAS.Server.FileOperation":

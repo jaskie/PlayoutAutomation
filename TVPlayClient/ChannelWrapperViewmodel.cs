@@ -13,7 +13,6 @@ using TAS.Client.ViewModels;
 using TAS.Remoting;
 using TAS.Remoting.Client;
 using TAS.Remoting.Model;
-using TAS.Server.Interfaces;
 
 namespace TVPlayClient
 {

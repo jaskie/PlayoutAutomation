@@ -9,13 +9,12 @@ using System.Windows;
 using System.Windows.Input;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using TAS.Common;
 using TAS.Client.Common;
-using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition;
 using TAS.Client.Common.Plugin;
+using TAS.Server.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
@@ -26,7 +25,7 @@ namespace TAS.Client.ViewModels
         private readonly PreviewViewmodel _previewViewmodel;
         private readonly EventEditViewmodel _eventEditViewmodel;
         private readonly VideoFormatDescription _videoFormatDescription;
-        private readonly Server.Interfaces.ICGElementsController _cGElementsController;
+        private readonly ICGElementsController _cGElementsController;
         private readonly EngineCGElementsControllerViewmodel _cGElementsControllerViewmodel;
         private readonly bool _allowPlayControl;
 
@@ -125,7 +124,7 @@ namespace TAS.Client.ViewModels
 
         private void _cGElementsController_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(Server.Interfaces.ICGElementsController.IsMaster))
+            if (e.PropertyName == nameof(ICGElementsController.IsMaster))
                 NotifyPropertyChanged(nameof(CGControllerIsMaster));
         }
 

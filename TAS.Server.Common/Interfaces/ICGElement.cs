@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+﻿using System.Drawing;
 
-namespace TAS.Server.Interfaces
+namespace TAS.Server.Common.Interfaces
 {
     public interface ICGElement
     {

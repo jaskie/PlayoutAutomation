@@ -5,9 +5,8 @@ using System.Text;
 using TAS.Server;
 using System.IO;
 using System.ComponentModel;
-using TAS.Common;
-using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using TAS.Server.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
@@ -22,12 +21,12 @@ namespace TAS.Client.ViewModels
         {
             _convertOperation = operation;
             _mediaManager = mediaManager;
-            _destMediaName = operation.DestMediaProperties.MediaName;
-            _destFileName = operation.DestMediaProperties.FileName;
-            _destCategory = operation.DestMediaProperties.MediaCategory;
-            _destMediaEmphasis = operation.DestMediaProperties is IPersistentMediaProperties ? ((IPersistentMediaProperties)operation.DestMediaProperties).MediaEmphasis : TMediaEmphasis.None;
-            _destParental = operation.DestMediaProperties.Parental;
-            _destMediaVideoFormat = operation.DestMediaProperties.VideoFormat;
+            _destMediaName = operation.DestProperties.MediaName;
+            _destFileName = operation.DestProperties.FileName;
+            _destCategory = operation.DestProperties.MediaCategory;
+            _destMediaEmphasis = operation.DestProperties is IPersistentMediaProperties ? ((IPersistentMediaProperties)operation.DestProperties).MediaEmphasis : TMediaEmphasis.None;
+            _destParental = operation.DestProperties.Parental;
+            _destMediaVideoFormat = operation.DestProperties.VideoFormat;
 
             _audioChannelMappingConversion = operation.AudioChannelMappingConversion;
             _aspectConversion = operation.AspectConversion;
@@ -37,18 +36,18 @@ namespace TAS.Client.ViewModels
             _startTC = operation.StartTC;
             _trim = operation.Trim;
             _loudnessCheck = operation.LoudnessCheck;
-            operation.SourceMedia.PropertyChanged += OnSourceMediaPropertyChanged;
+            operation.Source.PropertyChanged += OnSourceMediaPropertyChanged;
             Array.Copy(_aspectConversions, _aspectConversionsEnforce, 3);
             if (preview != null)
             {
-                _previewVm = new PreviewViewmodel(preview) { Media = operation.SourceMedia };
+                _previewVm = new PreviewViewmodel(preview) { Media = operation.Source };
                 _previewVm.PropertyChanged += _previewVm_PropertyChanged;
             }
         }
 
         protected override void OnDispose()
         {
-            _convertOperation.SourceMedia.PropertyChanged -= OnSourceMediaPropertyChanged;
+            _convertOperation.Source.PropertyChanged -= OnSourceMediaPropertyChanged;
             if (_previewVm != null)
             {
                 _previewVm.PropertyChanged -= _previewVm_PropertyChanged;
@@ -60,7 +59,7 @@ namespace TAS.Client.ViewModels
         private void _previewVm_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (_trim
-                && _previewVm.LoadedMedia == _convertOperation.SourceMedia
+                && _previewVm.LoadedMedia == _convertOperation.Source
                 && (e.PropertyName == nameof(PreviewViewmodel.TcIn)
                  || e.PropertyName == nameof(PreviewViewmodel.TcOut)))
             {
@@ -116,13 +115,13 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _sourceFieldOrderEnforceConversion, value); }
         }
     
-        public bool EncodeVideo { get { return ((IIngestDirectory)_convertOperation.SourceMedia.Directory).VideoCodec != TVideoCodec.copy; } }
-        public bool EncodeAudio { get { return ((IIngestDirectory)_convertOperation.SourceMedia.Directory).AudioCodec != TAudioCodec.copy; } }
+        public bool EncodeVideo { get { return ((IIngestDirectory)_convertOperation.Source.Directory).VideoCodec != TVideoCodec.copy; } }
+        public bool EncodeAudio { get { return ((IIngestDirectory)_convertOperation.Source.Directory).AudioCodec != TAudioCodec.copy; } }
 
         private bool _trim;
         public bool Trim { get { return _trim; } set { SetField(ref _trim, value); } }
 
-        public string SourceFileName { get { return string.Format("{0}:{1}", _convertOperation.SourceMedia.Directory.DirectoryName, _convertOperation.SourceMedia.FileName); } }
+        public string SourceFileName { get { return string.Format("{0}:{1}", _convertOperation.Source.Directory.DirectoryName, _convertOperation.Source.FileName); } }
 
         private string _destMediaName;
         public string DestMediaName
@@ -142,7 +141,7 @@ namespace TAS.Client.ViewModels
                 filenameParts.Add(IdAux);
             if (!string.IsNullOrWhiteSpace(DestMediaName))
                 filenameParts.Add(DestMediaName);
-            DestFileName = FileUtils.SanitizeFileName(string.Join(" ", filenameParts)) + FileUtils.DefaultFileExtension(_convertOperation.DestMediaProperties.MediaType);
+            DestFileName = FileUtils.SanitizeFileName(string.Join(" ", filenameParts)) + FileUtils.DefaultFileExtension(_convertOperation.DestProperties.MediaType);
         }
 
         private TimeSpan _startTC;
@@ -221,14 +220,14 @@ namespace TAS.Client.ViewModels
 
         public bool CanTrim
         {
-            get { return EncodeVideo && EncodeAudio && _convertOperation.SourceMedia.MediaStatus == TMediaStatus.Available && _convertOperation.SourceMedia.Duration > TimeSpan.Zero; }
+            get { return EncodeVideo && EncodeAudio && _convertOperation.Source.MediaStatus == TMediaStatus.Available && _convertOperation.Source.Duration > TimeSpan.Zero; }
         }
 
         public PreviewViewmodel PreviewViewmodel { get { return _previewVm; } }
 
         public bool CanPreview
         {
-            get { return (_previewVm != null && ((IIngestDirectory)_convertOperation.SourceMedia.Directory).AccessType == TDirectoryAccessType.Direct); }
+            get { return (_previewVm != null && ((IIngestDirectory)_convertOperation.Source.Directory).AccessType == TDirectoryAccessType.Direct); }
         }
 
         bool _loudnessCheck;
@@ -260,20 +259,20 @@ namespace TAS.Client.ViewModels
 
         private string ValidateTc()
         {
-            if (StartTC < _convertOperation.SourceMedia.TcStart)
-                return string.Format(resources._validate_StartTCBeforeFile, _convertOperation.SourceMedia.TcStart.ToSMPTETimecodeString(_convertOperation.SourceMedia.VideoFormat));
-            if (StartTC > _convertOperation.SourceMedia.TcLastFrame())
-                return string.Format(resources._validate_StartTCAfterFile, _convertOperation.SourceMedia.TcLastFrame().ToSMPTETimecodeString(_convertOperation.SourceMedia.VideoFormat));
-            if (EndTC < _convertOperation.SourceMedia.TcStart)
-                return string.Format(resources._validate_EndTCBeforeFile, _convertOperation.SourceMedia.TcStart.ToSMPTETimecodeString(_convertOperation.SourceMedia.VideoFormat));
-            if (EndTC > _convertOperation.SourceMedia.TcLastFrame())
-                return string.Format(resources._validate_EndTCAfterFile, _convertOperation.SourceMedia.TcLastFrame().ToSMPTETimecodeString(_convertOperation.SourceMedia.VideoFormat));
+            if (StartTC < _convertOperation.Source.TcStart)
+                return string.Format(resources._validate_StartTCBeforeFile, _convertOperation.Source.TcStart.ToSMPTETimecodeString(_convertOperation.Source.VideoFormat));
+            if (StartTC > _convertOperation.Source.TcLastFrame())
+                return string.Format(resources._validate_StartTCAfterFile, _convertOperation.Source.TcLastFrame().ToSMPTETimecodeString(_convertOperation.Source.VideoFormat));
+            if (EndTC < _convertOperation.Source.TcStart)
+                return string.Format(resources._validate_EndTCBeforeFile, _convertOperation.Source.TcStart.ToSMPTETimecodeString(_convertOperation.Source.VideoFormat));
+            if (EndTC > _convertOperation.Source.TcLastFrame())
+                return string.Format(resources._validate_EndTCAfterFile, _convertOperation.Source.TcLastFrame().ToSMPTETimecodeString(_convertOperation.Source.VideoFormat));
             return null;
         }
 
         private string ValidateDestFileName()
         {
-            IMediaProperties media = _convertOperation.DestMediaProperties;
+            IMediaProperties media = _convertOperation.DestProperties;
             if (media != null)
             {
                 IMediaDirectory dir = _convertOperation.DestDirectory;
@@ -328,11 +327,11 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(CanTrim));
             if (e.PropertyName == nameof(IMedia.DurationPlay))
             {
-                Duration = _convertOperation.SourceMedia.DurationPlay;
+                Duration = _convertOperation.Source.DurationPlay;
                 NotifyPropertyChanged(nameof(CanTrim));
             }
             if (e.PropertyName == nameof(IMedia.TcPlay))
-                StartTC = _convertOperation.SourceMedia.TcPlay;
+                StartTC = _convertOperation.Source.TcPlay;
         }
 
         public bool IsValid
@@ -344,7 +343,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                var media = _convertOperation.DestMediaProperties;
+                var media = _convertOperation.DestProperties;
                 return (media != null && media.MediaType == TMediaType.Movie);
             }
         }
@@ -352,7 +351,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                var media = _convertOperation.DestMediaProperties;
+                var media = _convertOperation.DestProperties;
                 return (media != null && media.MediaType == TMediaType.Still);
             }
         }
@@ -370,10 +369,10 @@ namespace TAS.Client.ViewModels
             _convertOperation.SourceFieldOrderEnforceConversion = _sourceFieldOrderEnforceConversion;
 
             IMediaProperties newMediaProperties;
-            if (_convertOperation.DestMediaProperties is IPersistentMediaProperties)
-                newMediaProperties = PersistentMediaProxy.FromMedia(_convertOperation.DestMediaProperties as IPersistentMediaProperties);
+            if (_convertOperation.DestProperties is IPersistentMediaProperties)
+                newMediaProperties = PersistentMediaProxy.FromMedia(_convertOperation.DestProperties as IPersistentMediaProperties);
             else
-                newMediaProperties = MediaProxy.FromMedia(_convertOperation.DestMediaProperties);
+                newMediaProperties = MediaProxy.FromMedia(_convertOperation.DestProperties);
 
             newMediaProperties.MediaName = _destMediaName;
             if (newMediaProperties is IPersistentMediaProperties)
@@ -389,10 +388,10 @@ namespace TAS.Client.ViewModels
             newMediaProperties.DurationPlay = _duration;
             newMediaProperties.MediaCategory = _destCategory;
             newMediaProperties.Parental = _destParental;
-            _convertOperation.DestMediaProperties = newMediaProperties;  //required to pass this parameter from client to server application
+            _convertOperation.DestProperties = newMediaProperties;  //required to pass this parameter from client to server application
         }
 
-        internal RationalNumber SourceMediaFrameRate { get { return _convertOperation.SourceMedia.FrameRate(); } }
+        internal RationalNumber SourceMediaFrameRate { get { return _convertOperation.Source.FrameRate(); } }
 
         public string Error
         {

@@ -3,9 +3,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Common;
 using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {

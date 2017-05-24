@@ -5,12 +5,11 @@ using System.Text;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Windows;
-using TAS.Server.Interfaces;
 using TAS.Server.Common;
-using TAS.Common;
 using System.Windows.Input;
 using TAS.Client.Common;
 using System.Windows.Threading;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
@@ -99,8 +98,8 @@ namespace TAS.Client.ViewModels
         internal IConvertOperation CreateConvertOperation(IMedia sourceMedia, IMediaProperties destMediaProperties, IMediaDirectory destDirectory, TVideoFormat outputFormat, decimal audioVolume, TFieldOrder sourceFieldOrderEnforceConversion, TAspectConversion aspectConversion, bool loudnessCheck)
         {
             IConvertOperation result = _fileManager.CreateConvertOperation();
-            result.SourceMedia = sourceMedia;
-            result.DestMediaProperties = destMediaProperties;
+            result.Source = sourceMedia;
+            result.DestProperties = destMediaProperties;
             result.DestDirectory = destDirectory;
             result.AudioVolume = audioVolume;
             result.SourceFieldOrderEnforceConversion = sourceFieldOrderEnforceConversion;

@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using TAS.Common;
 using TAS.Remoting;
 using TAS.Remoting.Client;
-using TAS.Server.Interfaces;
+using TAS.Server.Common;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
@@ -16,7 +16,7 @@ namespace TAS.Remoting.Model
         public bool Aborted { get { return Get<bool>(); } set { Set(value); } }
 
         [JsonProperty(IsReference = false, TypeNameHandling = TypeNameHandling.Auto)]
-        public IMediaProperties DestMediaProperties { get { return Get<IMediaProperties>(); } set { Set(value); } }
+        public IMediaProperties DestProperties { get { return Get<IMediaProperties>(); } set { Set(value); } }
 
         public IMediaDirectory DestDirectory { get { return Get<IMediaDirectory>(); } set { Set(value); } }
 
@@ -36,7 +36,7 @@ namespace TAS.Remoting.Model
 
         public DateTime ScheduledTime { get { return Get<DateTime>(); } set { SetLocalValue(value); } }
 
-        public IMedia SourceMedia { get { return Get<Media>(); } set { Set(value); } }
+        public IMedia Source { get { return Get<Media>(); } set { Set(value); } }
 
         public DateTime StartTime { get { return Get<DateTime>(); } set { SetLocalValue(value); } }
 

@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
-using TAS.Common;
-using TAS.Server.Database;
-using TAS.Server.Interfaces;
 using System.IO;
-using Newtonsoft.Json;
+using System.Linq;
 using TAS.Server.Common;
-using System.ComponentModel;
+using TAS.Server.Common.Database;
+using TAS.Server.Common.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
     public class AnimationDirectory : MediaDirectory, IAnimationDirectory
     {
@@ -44,7 +39,7 @@ namespace TAS.Server
 
         protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
-            AnimatedMedia newMedia = _files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath, StringComparison.CurrentCultureIgnoreCase)) as AnimatedMedia;
+            AnimatedMedia newMedia = Files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath, StringComparison.CurrentCultureIgnoreCase)) as AnimatedMedia;
             if (newMedia == null && AcceptFile(fullPath))
             {
                 newMedia = (AnimatedMedia)CreateMedia(fullPath, guid);

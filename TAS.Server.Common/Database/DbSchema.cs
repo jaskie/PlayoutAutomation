@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.IO;
-using System.Linq;
-using System.Text;
 
-namespace TAS.Server.Database
+namespace TAS.Server.Common.Database
 {
     static class DbSchema
     {

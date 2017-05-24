@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TAS.Server.Database;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Database;
 
 namespace TAS.Client.Config.Model
 {

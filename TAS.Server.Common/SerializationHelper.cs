@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Xml.Serialization;
 
-namespace TAS.Common
+namespace TAS.Server.Common
 {
     public static class SerializationHelper
     {

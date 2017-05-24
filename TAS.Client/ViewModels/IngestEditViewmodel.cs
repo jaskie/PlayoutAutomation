@@ -5,10 +5,10 @@ using System.Text;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.ComponentModel;
-using TAS.Server.Interfaces;
 using TAS.Client.Common;
 using resources = TAS.Client.Common.Properties.Resources;
 using System.Windows.Input;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {

@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.IO;
 using System.Diagnostics;
-using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Threading;
-using TAS.Common;
-using TAS.Server.Database;
-using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using TAS.Server.Common.Database;
+using TAS.Server.Common.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
     public class ServerDirectory : MediaDirectory, IServerDirectory
     {
         internal readonly IPlayoutServer Server;
+
         public ServerDirectory(IPlayoutServer server, MediaManager manager)
             : base(manager)
         {
@@ -33,31 +32,11 @@ namespace TAS.Server
 
         public override void Refresh() { }
 
-        protected override IMedia CreateMedia(string fullPath, Guid guid)
-        {
-            return new ServerMedia(this, guid, 0, MediaManager.ArchiveDirectory)
-            {
-                FullPath = fullPath,
-            };
-        }
-
-        protected override bool AcceptFile(string fullPath)
-        {
-            string ext = Path.GetExtension(fullPath).ToLowerInvariant();
-            return FileUtils.VideoFileTypes.Contains(ext) || FileUtils.StillFileTypes.Contains(ext);
-        }
-
-        public event EventHandler<MediaEventArgs> MediaSaved;
-        internal virtual void OnMediaSaved(Media media)
-        {
-            MediaSaved?.Invoke(this, new MediaEventArgs(media));
-        }
-
-        public override void MediaAdd(Media media)
+        public override void MediaAdd(MediaBase media)
         {
             base.MediaAdd(media);
             if (media.MediaStatus != TMediaStatus.Required && File.Exists(media.FullPath))
-                ThreadPool.QueueUserWorkItem(o => ((Media)media).Verify());
+                ThreadPool.QueueUserWorkItem(o => media.Verify());
         }
 
         public override void MediaRemove(IMedia media)
@@ -71,20 +50,23 @@ namespace TAS.Server
         public override void SweepStaleMedia()
         {
             DateTime currentDateTime = DateTime.UtcNow.Date;
-            IEnumerable<IMedia> StaleMediaList = FindMediaList(m => (m is ServerMedia) && currentDateTime > (m as ServerMedia).KillDate);
-            foreach (Media m in StaleMediaList)
+            IEnumerable<IMedia> staleMediaList = FindMediaList(m => (m is ServerMedia) && currentDateTime > (m as ServerMedia).KillDate);
+            foreach (var media in staleMediaList)
+            {
+                var m = (MediaBase)media;
                 m.Delete();
+            }
         }
 
         public override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
             var newFileName = mediaProperties.FileName;
-            if (File.Exists(Path.Combine(_folder, newFileName)))
+            if (File.Exists(Path.Combine(Folder, newFileName)))
             {
                 Logger.Trace("{0}: File {1} already exists", nameof(CreateMedia), newFileName);
-                newFileName = FileUtils.GetUniqueFileName(_folder, newFileName);
+                newFileName = FileUtils.GetUniqueFileName(Folder, newFileName);
             }
-            var newFileFullPath = Path.Combine(_folder, newFileName);
+            var newFileFullPath = Path.Combine(Folder, newFileName);
             var result = (new ServerMedia(this, FindMediaByMediaGuid(mediaProperties.MediaGuid) == null ? mediaProperties.MediaGuid : Guid.NewGuid(), 0, MediaManager.ArchiveDirectory)
             {
                 FullPath = newFileFullPath,
@@ -95,7 +77,30 @@ namespace TAS.Server
             return result;
         }
 
-        protected override void OnMediaRenamed(Media media, string newFullPath)
+        public event EventHandler<MediaEventArgs> MediaSaved;
+
+        protected override IMedia CreateMedia(string fullPath, Guid guid = new Guid())
+        {
+            return new ServerMedia(this, guid, 0, MediaManager.ArchiveDirectory)
+            {
+                FullPath = fullPath,
+            };
+        }
+
+        protected override bool AcceptFile(string fullPath)
+        {
+            if (string.IsNullOrWhiteSpace(fullPath))
+                return false;
+            string ext = Path.GetExtension(fullPath).ToLowerInvariant();
+            return FileUtils.VideoFileTypes.Contains(ext) || FileUtils.StillFileTypes.Contains(ext);
+        }
+
+        internal virtual void OnMediaSaved(MediaBase media)
+        {
+            MediaSaved?.Invoke(this, new MediaEventArgs(media));
+        }
+
+        protected override void OnMediaRenamed(MediaBase media, string newFullPath)
         {
             ((ServerMedia)media).Save();
             base.OnMediaRenamed(media, newFullPath);
@@ -104,7 +109,7 @@ namespace TAS.Server
         protected override void EnumerateFiles(string directory, string filter, bool includeSubdirectories, CancellationToken cancelationToken)
         {
             base.EnumerateFiles(directory, filter, includeSubdirectories, cancelationToken);
-            var unverifiedFiles = _files.Values.Where(mf => ((ServerMedia)mf).IsVerified == false).Cast<Media>().ToList();
+            var unverifiedFiles = Files.Values.Where(mf => ((ServerMedia)mf).IsVerified == false).ToList();
             unverifiedFiles.ForEach(media => media.Verify());
         }
     }

@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client
 {
@@ -22,7 +22,7 @@ namespace TAS.Client
 
     public static class HiddenEventsStorage
     {
-        private static readonly string _fileName = Path.Combine(FileUtils.LOCAL_APPLICATION_DATA_PATH, "HiddenEvents.json");
+        private static readonly string _fileName = Path.Combine(FileUtils.LocalApplicationDataPath, "HiddenEvents.json");
         static HashSet<eventSignature> _disabledEvents = new HashSet<eventSignature>();
         static HiddenEventsStorage()
         {
@@ -42,7 +42,7 @@ namespace TAS.Client
 
         static void Save()
         {
-            FileUtils.CreateDirectoryIfNotExists(FileUtils.LOCAL_APPLICATION_DATA_PATH);
+            FileUtils.CreateDirectoryIfNotExists(FileUtils.LocalApplicationDataPath);
             using (StreamWriter file = File.CreateText(_fileName))
                 {
                     JsonSerializer serializer = new JsonSerializer();

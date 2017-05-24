@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using TAS.Common;
 
-namespace TAS.Server.Interfaces
+namespace TAS.Server.Common.Interfaces
 {
     public interface IPlayoutServer: IPlayoutServerProperties, INotifyPropertyChanged
     {

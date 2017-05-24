@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TAS.Client.Common;
-using TAS.Common;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditWindowViewmodel : OkCancelViewmodelBase<TAS.Server.Interfaces.IMedia>
+    public class MediaEditWindowViewmodel : OkCancelViewmodelBase<IMedia>
     {
         public readonly MediaEditViewmodel editViewModel;
         public MediaEditWindowViewmodel(IMedia media, IMediaManager mediaManager)

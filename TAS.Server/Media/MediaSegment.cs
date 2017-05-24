@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
-using TAS.Server.Interfaces;
-using TAS.Remoting.Server;
-using TAS.Server.Database;
 using Newtonsoft.Json;
+using TAS.Remoting.Server;
+using TAS.Server.Common.Database;
+using TAS.Server.Common.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
     public class MediaSegment : DtoBase, IMediaSegment, IMediaSegmentPersistent
     {

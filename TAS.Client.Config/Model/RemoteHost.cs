@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 
 
 namespace TAS.Client.Config.Model

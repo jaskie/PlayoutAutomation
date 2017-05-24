@@ -1,16 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Net.FtpClient;
-using System.Text.RegularExpressions;
+using TAS.Server.Media;
 
 namespace TAS.Server.XDCAM
 {
     public class XdcamStream: Stream
     {
-        public XdcamStream(XDCAMMedia media, bool forWrite)
+        private readonly bool _isEditList;
+        private int _smilIndex;
+        private readonly XdcamMedia _media;
+        private Stream _currentStream;
+        private readonly FtpClient _client;
+
+        public XdcamStream(XdcamMedia media, bool forWrite)
         {
             
             if (media == null || media.Directory == null)
@@ -20,7 +24,7 @@ namespace TAS.Server.XDCAM
             try
             {
                 _client.Connect();
-                _smil_index = 0;
+                _smilIndex = 0;
                 _media = media;
                 _isEditList = media.XdcamEdl != null;
                 if (_isEditList)
@@ -43,33 +47,6 @@ namespace TAS.Server.XDCAM
 
         }
 
-        private readonly bool _isEditList;
-        private int _smil_index;
-        private readonly XDCAMMedia _media;
-        private Stream _currentStream;
-        private readonly FtpClient _client;
-
-        protected override void Dispose(bool disposing)
-        {
-            try
-            {
-                if (disposing)
-                {
-                    var stream = _currentStream;
-                    if (stream != null)
-                    {
-                        stream.Flush();
-                        stream.Close();
-                    }
-                }
-            }
-            finally
-            {
-                base.Dispose(disposing);
-                _client.Disconnect();
-            }
-        }
-
         public override void Write(byte[] buffer, int offset, int count)
         {
             _currentStream.Write(buffer, offset, count);
@@ -90,32 +67,6 @@ namespace TAS.Server.XDCAM
                 bytesRead += actualRead;
             }
             return bytesRead;
-        }
-
-        private Stream _getNextStream()
-        {
-            Stream result = null;
-            if (_isEditList 
-                &&_media.XdcamEdl.smil.body.par.refList.Count > _smil_index)
-            {
-                var r = _media.XdcamEdl.smil.body.par.refList[_smil_index];
-                if (r.src.StartsWith(@"urn:smpte:umid:"))
-                {
-                    string umid = r.src.Substring(35);
-                    int startFrame = r.clipBegin.SmpteToFrame();
-                    int length = r.clipEnd.SmpteToFrame() - startFrame;
-                    var media = _media.Directory.GetFiles().Select( m => (XDCAMMedia)m).FirstOrDefault( m => umid.Equals(m.XdcamClip?.umid));
-                    if (media != null)
-                    {
-                        string fileName = string.Join("/", "/Clip", $"{media.XdcamClip.clipId}.MXF");
-                        if (!_client.FileExists(fileName))
-                            fileName = string.Join("/", "/Clip", $"{media.XdcamAlias.value}.MXF");
-                        result = ((XdcamClient)_client).OpenPart(fileName, startFrame, length);
-                    }
-                }
-                _smil_index++;
-            }
-            return result;
         }
 
         public override bool CanRead
@@ -164,6 +115,53 @@ namespace TAS.Server.XDCAM
             throw new NotSupportedException();
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            try
+            {
+                if (disposing)
+                {
+                    var stream = _currentStream;
+                    if (stream != null)
+                    {
+                        stream.Flush();
+                        stream.Close();
+                    }
+                }
+            }
+            finally
+            {
+                base.Dispose(disposing);
+                _client.Disconnect();
+            }
+        }
+
+        private Stream _getNextStream()
+        {
+            Stream result = null;
+            if (_isEditList
+                && _media.XdcamEdl.smil.body.par.refList.Count > _smilIndex)
+            {
+                var r = _media.XdcamEdl.smil.body.par.refList[_smilIndex];
+                if (r.src.StartsWith(@"urn:smpte:umid:"))
+                {
+                    string umid = r.src.Substring(35);
+                    int startFrame = r.clipBegin.SmpteToFrame();
+                    int length = r.clipEnd.SmpteToFrame() - startFrame;
+                    var media = _media.Directory.GetFiles().Select(m => (XdcamMedia)m).FirstOrDefault(m => umid.Equals(m.XdcamClip?.umid));
+                    if (media != null)
+                    {
+                        string fileName = string.Join("/", "/Clip", $"{media.XdcamClip.clipId}.MXF");
+                        if (!_client.FileExists(fileName))
+                            fileName = string.Join("/", "/Clip", $"{media.XdcamAlias.value}.MXF");
+                        result = ((XdcamClient)_client).OpenPart(fileName, startFrame, length);
+                    }
+                }
+                _smilIndex++;
+            }
+            return result;
+        }
+
     }
     public static class SmpteExtensions
     {
@@ -182,7 +180,7 @@ namespace TAS.Server.XDCAM
                      && int.TryParse(values[2], out s)
                      && int.TryParse(values[3], out f))
                     {
-                        return (((h * 60 + m) * 60) + s) * fps + f;
+                        return ((h * 60 + m) * 60 + s) * fps + f;
                     }
                 }
             }

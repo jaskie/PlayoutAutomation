@@ -8,10 +8,9 @@ using System.Reflection;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Windows;
-using TAS.Common;
-using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using System.Diagnostics;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {

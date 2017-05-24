@@ -11,12 +11,12 @@ using System.Reflection;
 using System.Threading;
 using System.Diagnostics;
 using System.ServiceModel;
-using TAS.Common;
-using TAS.Server.Interfaces;
 using TAS.Server.Common;
-using TAS.Server.Database;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
+using TAS.Server.Common.Database;
+using TAS.Server.Common.Interfaces;
+using TAS.Server.Media;
 
 namespace TAS.Server
 {
@@ -343,7 +343,7 @@ namespace TAS.Server
                                            MediaDirectoryPRV != null && MediaDirectoryPRV.DirectoryExists() ? MediaDirectoryPRV :
                                            null;
                 if (sourceMedia is PersistentMedia && destDir != null && destDir != sourceMedia.Directory)
-                    _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = sourceMedia, DestDirectory = destDir }, toTop);
+                    _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, Source = sourceMedia, DestDirectory = destDir }, toTop);
             }
         }
 
@@ -352,14 +352,14 @@ namespace TAS.Server
         {
             if (forceDelete)
             {
-                _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = media });
+                _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, Source = media });
                 return MediaDeleteDenyReason.NoDeny;
             }
             else
             {
                 MediaDeleteDenyReason reason = (media is PersistentMedia) ? _engine.CanDeleteMedia(media as PersistentMedia) : MediaDeleteDenyReason.NoDeny;
                 if (reason.Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
-                    _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = media });
+                    _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, Source = media });
                 return reason;
             }
         }
@@ -439,7 +439,7 @@ namespace TAS.Server
                                                secMedia.Verify();
                                            }
                                            else
-                                               _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, SourceMedia = pRImedia, DestDirectory = sec });
+                                               _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Copy, Source = pRImedia, DestDirectory = sec });
                                        }
                                    }
                                }
@@ -458,7 +458,7 @@ namespace TAS.Server
                                foreach (ServerMedia secMedia in secMediaList)
                                {
                                    if ((ServerMedia)pri.FindMediaByMediaGuid(secMedia.MediaGuid) == null)
-                                       _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, SourceMedia = secMedia });
+                                       _fileManager.Queue(new FileOperation() { Kind = TFileOperationKind.Delete, Source = secMedia });
                                }
                                var duplicatesList = secMediaList.Where(m => secMediaList.FirstOrDefault(d => d.MediaGuid == m.MediaGuid && ((ServerMedia)d).IdPersistentMedia != ((ServerMedia)m).IdPersistentMedia) != null).Select(m => m.MediaGuid).Distinct();
                                foreach (var mediaGuid in duplicatesList)
@@ -573,7 +573,7 @@ namespace TAS.Server
                             && e.Media.FileName == sm.FileName && sm.FileExists()) as ServerMedia;
                 if (e.Media.MediaStatus == TMediaStatus.Available)
                     if (sECMedia == null)
-                        FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Copy, SourceMedia = e.Media, DestDirectory = sec }, false);
+                        FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Copy, Source = e.Media, DestDirectory = sec }, false);
                     else
                     {
                         sECMedia.CloneMediaProperties(e.Media);
@@ -591,7 +591,7 @@ namespace TAS.Server
             {
                 IMedia mediaToDelete = ((MediaDirectory)MediaDirectorySEC).FindMediaByMediaGuid(e.Media.MediaGuid);
                 if (mediaToDelete != null && mediaToDelete.FileExists())
-                    FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, SourceMedia = mediaToDelete }, false);
+                    FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, Source = mediaToDelete }, false);
             }
         }
     }

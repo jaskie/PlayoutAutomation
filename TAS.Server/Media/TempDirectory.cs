@@ -1,36 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 using System.Configuration;
-using System.Diagnostics;
-using TAS.Server.Interfaces;
+using System.IO;
+using TAS.Server.Common.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
     public class TempDirectory: MediaDirectory
     {
         public TempDirectory(MediaManager manager): base(manager)
         {
-            _folder = ConfigurationManager.AppSettings["TempDirectory"];
+            Folder = ConfigurationManager.AppSettings["TempDirectory"];
         }
 
-        protected override IMedia CreateMedia(string fileNameOnly, Guid guid)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void MediaAdd(Media media)
+        public override void MediaAdd(MediaBase media)
         {
             // do not add to _files
         }
 
-        public override void Refresh()
-        {
-            
-        }
-        
+        public override void Refresh() { }
+
         public override IMedia CreateMedia(IMediaProperties media)
         {
             return new TempMedia(this, media);
@@ -38,12 +26,20 @@ namespace TAS.Server
 
         public override void SweepStaleMedia()
         {
-            foreach (string fileName in Directory.GetFiles(_folder))
+            foreach (string fileName in Directory.GetFiles(Folder))
                 try
                 {
                     File.Delete(fileName);
                 }
                 catch { }
         }
+
+        protected override IMedia CreateMedia(string fileNameOnly, Guid guid = new Guid())
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void Reinitialize() {}
+
     }
 }

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using System.IO;
-using TAS.Common;
-using TAS.Server.Common;
 
-namespace TAS.Server.Interfaces
+namespace TAS.Server.Common.Interfaces
 {
     public interface IMedia: IMediaProperties, INotifyPropertyChanged
     {

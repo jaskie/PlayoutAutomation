@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Threading;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
     public class PinvokeWindowsNetworking
     {

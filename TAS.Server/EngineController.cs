@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Configuration;
 using System.IO;
 using System.Xml.Serialization;
-using TAS.Server.Interfaces;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Reflection;
@@ -27,15 +26,15 @@ namespace TAS.Server
             Logger.Debug("Connecting to database");
             ConnectionStringSettings connectionStringPrimary = ConfigurationManager.ConnectionStrings["tasConnectionString"];
             ConnectionStringSettings connectionStringSecondary = ConfigurationManager.ConnectionStrings["tasConnectionStringSecondary"];
-            Database.Database.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
-            _servers = Database.Database.DbLoadServers<CasparServer>();
+            Common.Database.Database.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
+            _servers = Common.Database.Database.DbLoadServers<CasparServer>();
             _servers.ForEach(s =>
             {
-                s._channels.ForEach(c => c.Owner = s);
-                s._recorders.ForEach(r => r.SetOwner(s));
+                s.ChannelsSer.ForEach(c => c.Owner = s);
+                s.RecordersSer.ForEach(r => r.SetOwner(s));
             });
             
-            Engines = Database.Database.DbLoadEngines<Engine>(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]));
+            Engines = Common.Database.Database.DbLoadEngines<Engine>(UInt64.Parse(ConfigurationManager.AppSettings["Instance"]));
             foreach (Engine e in Engines)
                 e.Initialize(_servers);
             Logger.Debug("Engines initialized");

@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using TAS.Common;
 
-namespace TAS.Server.Interfaces
+namespace TAS.Server.Common.Interfaces
 {
     public interface IFileOperation: INotifyPropertyChanged
     {
         TFileOperationKind Kind { get; set; }
-        IMedia SourceMedia { get; set; }
-        IMediaProperties DestMediaProperties { get; set; }
+        IMedia Source { get; set; }
+        IMediaProperties DestProperties { get; set; }
         IMediaDirectory DestDirectory { get; set; }
         DateTime ScheduledTime { get; }
         DateTime StartTime { get; }

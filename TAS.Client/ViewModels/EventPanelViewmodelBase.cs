@@ -10,10 +10,9 @@ using System.Collections;
 using System.Diagnostics;
 using System.Windows;
 using System.Runtime.Remoting.Messaging;
-using TAS.Common;
 using TAS.Client.Common;
-using TAS.Server.Interfaces;
 using TAS.Server.Common;
+using TAS.Server.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
 
 

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.EnginePluginExample
 {

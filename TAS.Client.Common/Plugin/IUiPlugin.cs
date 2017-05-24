@@ -1,5 +1,5 @@
 ﻿using System;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.Common.Plugin
 {

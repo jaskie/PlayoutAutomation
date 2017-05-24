@@ -5,9 +5,9 @@ using System.Text;
 using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
-using TAS.Common;
-using TAS.Server.Interfaces;
 using System.Runtime.CompilerServices;
+using TAS.Server.Common;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {

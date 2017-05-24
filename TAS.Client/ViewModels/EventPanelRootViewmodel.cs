@@ -5,9 +5,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using TAS.Common;
 using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {

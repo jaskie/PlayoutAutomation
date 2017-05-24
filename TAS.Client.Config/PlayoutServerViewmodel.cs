@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Common;
+using TAS.Server.Common;
 
 namespace TAS.Client.Config
 {

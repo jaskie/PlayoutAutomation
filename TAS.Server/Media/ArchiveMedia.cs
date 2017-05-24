@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Common;
-using TAS.Server.Interfaces;
-using TAS.Server.Database;
+using TAS.Server.Common;
+using TAS.Server.Common.Database;
+using TAS.Server.Common.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
     public class ArchiveMedia : PersistentMedia, IArchiveMedia, IServerIngestStatusMedia
     {

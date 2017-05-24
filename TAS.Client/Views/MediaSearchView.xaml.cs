@@ -13,7 +13,6 @@ using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using TAS.Client.ViewModels;
 using TAS.Client.Common;
-using TAS.Common;
 
 namespace TAS.Client
 {

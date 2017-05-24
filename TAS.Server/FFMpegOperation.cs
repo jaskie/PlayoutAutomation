@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -11,17 +8,17 @@ namespace TAS.Server
 {
     public abstract class FFMpegOperation: FileOperation
     {
-        const string _ffExe = "ffmpeg.exe";
-        const string _lProgressPattern = "time=" + @"\d\d:\d\d:\d\d\.?\d*";
-        const string _progressPattern = @"\d\d:\d\d:\d\d\.?\d*";
-        protected readonly Regex _regexlProgress = new Regex(_lProgressPattern, RegexOptions.None);
-        protected readonly Regex _regexProgress = new Regex(_progressPattern, RegexOptions.None);
-        protected TimeSpan _progressDuration;
-        
+        const string FFmpegExe = "ffmpeg.exe";
+        const string LProgressPattern = "time=" + @"\d\d:\d\d:\d\d\.?\d*";
+        const string ProgressPattern = @"\d\d:\d\d:\d\d\.?\d*";
+        protected readonly Regex RegexlProgress = new Regex(LProgressPattern, RegexOptions.None);
+        protected readonly Regex RegexProgress = new Regex(ProgressPattern, RegexOptions.None);
+        protected TimeSpan ProgressDuration;
+       
         protected bool RunProcess(string parameters)
         {
             //create a process info
-            ProcessStartInfo oInfo = new ProcessStartInfo(_ffExe, parameters);
+            ProcessStartInfo oInfo = new ProcessStartInfo(FFmpegExe, parameters);
             oInfo.UseShellExecute = false;
             oInfo.CreateNoWindow = true;
             oInfo.RedirectStandardError = true;
@@ -31,23 +28,23 @@ namespace TAS.Server
             AddOutputMessage($"ffmpeg.exe {parameters}");
             try
             {
-                using (Process _procFFmpeg = Process.Start(oInfo))
+                using (Process procFFmpeg = Process.Start(oInfo))
                 {
-                    _procFFmpeg.ErrorDataReceived += ProcOutputHandler;
-                    _procFFmpeg.BeginErrorReadLine();
+                    procFFmpeg.ErrorDataReceived += ProcOutputHandler;
+                    procFFmpeg.BeginErrorReadLine();
                     bool finished = false;
                     while (!(Aborted || finished))
-                        finished = _procFFmpeg.WaitForExit(1000);
+                        finished = procFFmpeg.WaitForExit(1000);
                     if (Aborted)
                     {
-                        _procFFmpeg.Kill();
+                        procFFmpeg.Kill();
                         Thread.Sleep(1000);
-                        Media destMedia = DestMedia as Media;
+                        var destMedia = Dest as Media.MediaBase;
                         if (destMedia != null)
                             System.IO.File.Delete(destMedia.FullPath);
                         Debug.WriteLine(this, "Aborted");
                     }
-                    return finished && (_procFFmpeg.ExitCode == 0);
+                    return finished && (procFFmpeg.ExitCode == 0);
                 }
             }
             catch (Exception e)
@@ -62,14 +59,14 @@ namespace TAS.Server
         {
             if (!String.IsNullOrEmpty(outLine.Data))
             {
-                Match mProgressLine = _regexlProgress.Match(outLine.Data);
+                Match mProgressLine = RegexlProgress.Match(outLine.Data);
                 if (mProgressLine.Success)
                 {
-                    Match mProgressVal = _regexProgress.Match(mProgressLine.Value);
+                    Match mProgressVal = RegexProgress.Match(mProgressLine.Value);
                     if (mProgressVal.Success)
                     {
                         TimeSpan progressSeconds;
-                        long duration = _progressDuration.Ticks;
+                        long duration = ProgressDuration.Ticks;
                         if (duration > 0
                             && TimeSpan.TryParse(mProgressVal.Value.Trim(), CultureInfo.InvariantCulture, out progressSeconds))
                             Progress = (int)((progressSeconds.Ticks * 100) / duration);

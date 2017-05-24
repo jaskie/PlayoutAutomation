@@ -1,12 +1,7 @@
-﻿using Infralution.Localization.Wpf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using TAS.Server.Interfaces;
+﻿using System.Runtime.Serialization;
+using TAS.Server.Common.Interfaces;
 
-namespace TAS.Common
+namespace TAS.Server.Common
 {
     [DataContract]
     public struct MediaDeleteDenyReason

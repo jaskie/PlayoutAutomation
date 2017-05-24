@@ -8,7 +8,7 @@ using System.ServiceModel;
 using System.Text;
 using System.Xml.Serialization;
 using TAS.Remoting.Server;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 using WebSocketSharp.Server;
 
 namespace TAS.Server

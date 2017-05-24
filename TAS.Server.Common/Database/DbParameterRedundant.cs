@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace TAS.Server.Database
+namespace TAS.Server.Common.Database
 {
     public class DbParameterRedundant
     {

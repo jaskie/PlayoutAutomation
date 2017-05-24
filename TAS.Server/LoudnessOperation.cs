@@ -7,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using TAS.Common;
 using TAS.Server;
 using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
+using TAS.Server.Media;
 
 namespace TAS.Server
 {
@@ -38,12 +38,14 @@ namespace TAS.Server
         }
 
         public event EventHandler<AudioVolumeEventArgs> AudioVolumeMeasured; // will not save to Media object if not null
+
         [JsonProperty]
         public TimeSpan MeasureStart { get; set; }
+
         [JsonProperty]
         public TimeSpan MeasureDuration { get; set; }
 
-        public override bool Do()
+        internal override bool Execute()
         {
             if (Kind == TFileOperationKind.Loudness)
             {
@@ -53,14 +55,14 @@ namespace TAS.Server
                 {
 
                     bool success = false;
-                    if (_sourceMedia == null)
-                        throw new ArgumentException("LoudnessOperation: SourceMedia is not of type Media");
-                    if (_sourceMedia.Directory is IngestDirectory && ((IngestDirectory)_sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia _localSourceMedia = (TempMedia)Owner.TempDirectory.CreateMedia(_sourceMedia))
+                    if (Source == null)
+                        throw new ArgumentException("LoudnessOperation: Source is not of type Media");
+                    if (Source.Directory is IngestDirectory && ((IngestDirectory)Source.Directory).AccessType != TDirectoryAccessType.Direct)
+                        using (TempMedia _localSourceMedia = (TempMedia)Owner.TempDirectory.CreateMedia(Source))
                         {
-                            if (_sourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
+                            if (SourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
                             {
-                                success = _do(_localSourceMedia);
+                                success = InternalExecute(_localSourceMedia);
                                 if (!success)
                                     TryCount--;
                                 return success;
@@ -71,7 +73,7 @@ namespace TAS.Server
 
                     else
                     {
-                        success = _do(_sourceMedia);
+                        success = InternalExecute(SourceMedia);
                         if (!success)
                             TryCount--;
                         return success;
@@ -84,10 +86,10 @@ namespace TAS.Server
                 }
             }
             else
-                return base.Do();
+                return base.Execute();
         }
 
-        private bool _do(Media inputMedia)
+        private bool InternalExecute(MediaBase inputMedia)
         {
             Debug.WriteLine(this, "Loudness operation started");
             string Params = string.Format("-nostats -i \"{0}\" -ss {1} -t {2} -filter_complex ebur128=peak=sample -f null -", inputMedia.FullPath, MeasureStart, MeasureDuration == TimeSpan.Zero ? inputMedia.DurationPlay: MeasureDuration);
@@ -98,7 +100,7 @@ namespace TAS.Server
                 OperationStatus = FileOperationStatus.Finished;
                 return true;
             }
-            Debug.WriteLine("FFmpeg rewraper Do(): Failed for {0}. Command line was {1}", _sourceMedia, Params);
+            Debug.WriteLine("FFmpeg rewraper Execute(): Failed for {0}. Command line was {1}", Source, Params);
             return false;
         }
 
@@ -113,7 +115,7 @@ namespace TAS.Server
                     Match valueMatch = _regexLoudnessProgress.Match(lineMatch.Value);
                     if (valueMatch.Success)
                     {
-                        double totalSeconds = _sourceMedia.Duration.TotalSeconds;
+                        double totalSeconds = Source.Duration.TotalSeconds;
                         double currentPos;
                         if (totalSeconds != 0
                             && double.TryParse(valueMatch.Value.Trim(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out currentPos))
@@ -150,11 +152,11 @@ namespace TAS.Server
                         var h = AudioVolumeMeasured;
                         if (h == null)
                         {
-                            _sourceMedia.AudioLevelIntegrated = _loudness;
-                            _sourceMedia.AudioLevelPeak = _samplePeak;
-                            _sourceMedia.AudioVolume = volume;
-                            if (_sourceMedia is PersistentMedia)
-                                (_sourceMedia as PersistentMedia).Save();
+                            Source.AudioLevelIntegrated = _loudness;
+                            Source.AudioLevelPeak = _samplePeak;
+                            Source.AudioVolume = volume;
+                            if (Source is PersistentMedia)
+                                (Source as PersistentMedia).Save();
                         }
                         else
                             h(this, new AudioVolumeEventArgs(volume));

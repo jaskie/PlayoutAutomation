@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
-using TAS.Common;
 
-namespace TAS.Server.Interfaces
+namespace TAS.Server.Common.Interfaces
 {
     public interface IPreview: INotifyPropertyChanged
     {

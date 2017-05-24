@@ -1,12 +1,10 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
+using Newtonsoft.Json;
 
-namespace TAS.Common
+namespace TAS.Server.Common
 {
     [JsonObject]
     public sealed class VideoFormatDescription

@@ -1,30 +1,26 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Xml.Serialization;
-using System.ComponentModel;
-using System.Net;
-using System.Runtime.InteropServices;
-using TAS.Common;
-using TAS.Server.Interfaces;
-using TAS.Server.Common;
-using System.Runtime.Serialization;
 using Newtonsoft.Json;
-using System.Collections.Concurrent;
 using TAS.Remoting.Server;
-using TAS.Server.Database;
+using TAS.Server.Common;
+using TAS.Server.Common.Database;
+using TAS.Server.Common.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
     [DebuggerDisplay("{DirectoryName} ({_folder})")]
     public abstract class MediaDirectory : DtoBase, IMediaDirectory
     { 
         private FileSystemWatcher _watcher;
-        protected ConcurrentDictionary<Guid, Media> _files = new ConcurrentDictionary<Guid, Media>();
+        protected ConcurrentDictionary<Guid, MediaBase> Files = new ConcurrentDictionary<Guid, MediaBase>();
         internal MediaManager MediaManager;
 
         public event EventHandler<MediaEventArgs> MediaAdded;
@@ -36,7 +32,7 @@ namespace TAS.Server
         private bool _isInitialized;
         protected readonly NLog.Logger Logger;
 
-        public MediaDirectory(MediaManager mediaManager)
+        protected MediaDirectory(MediaManager mediaManager)
         {
             MediaManager = mediaManager;
             Logger = NLog.LogManager.GetLogger(this.GetType().Name);
@@ -92,7 +88,7 @@ namespace TAS.Server
 
         protected virtual void ClearFiles()
         {
-            _files.Values.ToList().ForEach(m => ((Media)m).Remove());
+            Files.Values.ToList().ForEach(m => m.Remove());
         }
 
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
@@ -153,10 +149,10 @@ namespace TAS.Server
 
         public virtual ICollection<IMedia> GetFiles()
         {
-            return _files.Values.Cast<IMedia>().ToList();
+            return Files.Values.Cast<IMedia>().ToList();
         }
 
-        protected string _folder;
+        private string _folder;
         [JsonProperty]
         public string Folder
         {
@@ -191,13 +187,13 @@ namespace TAS.Server
         {
             if (media.Directory == this)
             {
-                string fullPath = ((Media)media).FullPath;
-                bool isLastWithTheName = !_files.Values.Any(m => m.FullPath.Equals(fullPath, StringComparison.CurrentCultureIgnoreCase) && m != media);
+                string fullPath = ((MediaBase)media).FullPath;
+                bool isLastWithTheName = !Files.Values.Any(m => m.FullPath.Equals(fullPath, StringComparison.CurrentCultureIgnoreCase) && m != media);
                 if (isLastWithTheName && media.FileExists())
                 {
                     try
                     {
-                        File.Delete(((Media)media).FullPath);
+                        File.Delete(((MediaBase)media).FullPath);
                         Debug.WriteLine(media, "File deleted");
                         return true;
                     }
@@ -227,11 +223,12 @@ namespace TAS.Server
 
         protected virtual IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
-            Media newMedia;
-            newMedia = (Media)_files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath, StringComparison.CurrentCultureIgnoreCase));
+            if (string.IsNullOrWhiteSpace(fullPath))
+                return null;
+            MediaBase newMedia = Files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath, StringComparison.CurrentCultureIgnoreCase));
             if (newMedia == null && AcceptFile(fullPath))
             {
-                newMedia = (Media)CreateMedia(fullPath, guid);
+                newMedia = (MediaBase)CreateMedia(fullPath, guid);
                 newMedia.MediaName = Path.GetFileName(fullPath);
                 newMedia.LastUpdated = lastWriteTime == default(DateTime) && File.Exists(fullPath) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
                 newMedia.MediaType = (FileUtils.StillFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Still : (FileUtils.VideoFileTypes.Any(ve => ve == Path.GetExtension(fullPath).ToLowerInvariant())) ? TMediaType.Movie : TMediaType.Unknown;
@@ -239,10 +236,10 @@ namespace TAS.Server
             return newMedia;
         }
 
-        public virtual void MediaAdd(Media media)
+        public virtual void MediaAdd(MediaBase media)
         {
-            Media prevMedia;
-            if (_files.TryGetValue(media.MediaGuid, out prevMedia))
+            MediaBase prevMedia;
+            if (Files.TryGetValue(media.MediaGuid, out prevMedia))
             {
                 if (prevMedia is IServerMedia || prevMedia is IAnimatedMedia)
                 {
@@ -255,7 +252,7 @@ namespace TAS.Server
                 }
                 Debug.WriteLine(prevMedia, "Media replaced in dictionary");
             }
-            _files[media.MediaGuid] = media;
+            Files[media.MediaGuid] = media;
             media.PropertyChanged += _media_PropertyChanged;
             NotifyMediaAdded(media);
         }
@@ -267,8 +264,8 @@ namespace TAS.Server
 
         public virtual void MediaRemove(IMedia media)
         {
-            Media removed;
-            _files.TryRemove(media.MediaGuid, out removed);
+            MediaBase removed;
+            Files.TryRemove(media.MediaGuid, out removed);
             MediaRemoved?.Invoke(this, new MediaEventArgs(media));
             if (removed != null)
             {
@@ -279,7 +276,7 @@ namespace TAS.Server
 
         protected virtual void FileRemoved(string fullPath)
         {
-            foreach (Media m in _files.Values.Where(m => fullPath.Equals(m.FullPath, StringComparison.CurrentCultureIgnoreCase) && m.MediaStatus != TMediaStatus.Required).ToList())
+            foreach (MediaBase m in Files.Values.Where(m => fullPath.Equals(m.FullPath, StringComparison.CurrentCultureIgnoreCase) && m.MediaStatus != TMediaStatus.Required).ToList())
             {
                 MediaRemove(m);
                 OnMediaDeleted(m);
@@ -322,32 +319,32 @@ namespace TAS.Server
 
         public bool Exists => Directory.Exists(_folder);
 
-        public virtual Media FindMediaByMediaGuid(Guid mediaGuid)
+        public virtual MediaBase FindMediaByMediaGuid(Guid mediaGuid)
         {
-            Media result;
-            _files.TryGetValue(mediaGuid, out result);
+            MediaBase result;
+            Files.TryGetValue(mediaGuid, out result);
             return result;
         }
 
-        internal void UpdateMediaGuid(Guid oldGuid, Media media)
+        internal void UpdateMediaGuid(Guid oldGuid, MediaBase media)
         {
             if (oldGuid != media.MediaGuid)
             {
-                Media removed;
-                if (_files.TryRemove(oldGuid, out removed)
+                MediaBase removed;
+                if (Files.TryRemove(oldGuid, out removed)
                     && removed == media)
-                    _files[media.MediaGuid] = media;
+                    Files[media.MediaGuid] = media;
             }
         }
 
         public virtual List<IMedia> FindMediaList(Func<IMedia, bool> condition)
         {
-            return _files.Values.Where(condition).ToList();
+            return Files.Values.Where(condition).ToList();
         }
 
         public virtual IMedia FindMediaFirst(Func<IMedia, bool> condition)
         {
-            return _files.Values.FirstOrDefault(condition);
+            return Files.Values.FirstOrDefault(condition);
         }
 
 
@@ -440,7 +437,7 @@ namespace TAS.Server
             {
                 _watcherTaskCancelationTokenSource.Cancel();
                 watcherTask.Wait();
-                Debug.WriteLine("MediaDirectory: BeginWatch for {0} canceled.", _folder, null);
+                Debug.WriteLine($"MediaDirectory: BeginWatch for {Folder} canceled.", _folder);
                 Logger.Debug("BeginWatch for {0} canceled.", _folder, null);
             }
         }
@@ -470,7 +467,7 @@ namespace TAS.Server
         {
             try
             {
-                Media m = (Media)_files.Values.FirstOrDefault(f => e.OldFullPath == f.FullPath);
+                MediaBase m = (MediaBase)Files.Values.FirstOrDefault(f => e.OldFullPath == f.FullPath);
                 if (m == null)
                 {
                     FileInfo fi = new FileInfo(e.FullPath);
@@ -490,7 +487,7 @@ namespace TAS.Server
             catch { }
         }
 
-        protected virtual void OnMediaRenamed(Media media, string newFullPath)
+        protected virtual void OnMediaRenamed(MediaBase media, string newFullPath)
         {
             Logger.Trace("Media {0} renamed: {1}", media, newFullPath);
         }
@@ -499,7 +496,7 @@ namespace TAS.Server
         {
             try
             {
-                IMedia m = _files.Values.FirstOrDefault(f => e.FullPath.Equals(f.FullPath, StringComparison.CurrentCultureIgnoreCase));
+                IMedia m = Files.Values.FirstOrDefault(f => e.FullPath.Equals(f.FullPath, StringComparison.CurrentCultureIgnoreCase));
                 if (m != null)
                     OnMediaChanged(m);
                 GetVolumeInfo();

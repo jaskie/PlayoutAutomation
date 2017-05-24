@@ -8,7 +8,6 @@ using System.Windows.Input;
 using System.Xml.Serialization;
 using TAS.Client.Common;
 using TAS.Client.Config.Model;
-using TAS.Server.Interfaces;
 
 namespace TAS.Client.Config
 {

@@ -7,14 +7,13 @@ using System.Reflection;
 using System.Windows;
 using System.IO;
 using System.Windows.Input;
-using TAS.Common;
 using TAS.Client.Common;
 using System.Threading;
-using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using resources = TAS.Client.Common.Properties.Resources;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
@@ -159,7 +158,7 @@ namespace TAS.Client.ViewModels
             IsVolumeChecking = true;
             IFileManager fileManager = _mediaManager.FileManager;
             ILoudnessOperation operation = fileManager.CreateLoudnessOperation();
-            operation.SourceMedia = this.Model;
+            operation.Source = this.Model;
             operation.MeasureStart = this.TcPlay - this.TcStart;
             operation.MeasureDuration = this.DurationPlay;
             operation.AudioVolumeMeasured += _audioVolumeMeasured;

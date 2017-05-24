@@ -10,14 +10,13 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
 using System.Threading;
-using TAS.Common;
 using TAS.Client.Common;
 using resources = TAS.Client.Common.Properties.Resources;
 using TAS.Server.Common;
-using TAS.Server.Interfaces;
 using System.IO;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {

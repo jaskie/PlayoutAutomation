@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using TAS.Common;
 using TAS.FFMpegUtils;
 using TAS.Server.Common;
-using TAS.Server.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
     public static class MediaChecker
     {
-        internal static TMediaStatus Check(Media media)
+        internal static TMediaStatus Check(MediaBase media)
         {
             if (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Unknown)
             {

@@ -7,8 +7,6 @@ using Svt.Caspar;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using TAS.Common;
-using TAS.Server.Interfaces;
 using System.Xml.Serialization;
 using System.ComponentModel;
 using TAS.Remoting.Server;
@@ -17,6 +15,8 @@ using System.Collections.Concurrent;
 using TAS.Server.Common;
 using System.Threading;
 using System.Text.RegularExpressions;
+using TAS.Server.Common.Interfaces;
+using TAS.Server.Media;
 
 namespace TAS.Server
 {
@@ -129,7 +129,7 @@ namespace TAS.Server
             return null;
         }
 
-        private CasparItem _getItem(Media media, VideoLayer videolayer, long seek)
+        private CasparItem _getItem(MediaBase media, VideoLayer videolayer, long seek)
         {
             if (media != null && media.MediaType == TMediaType.Movie)
             {
@@ -208,7 +208,7 @@ namespace TAS.Server
             return false;
         }
 
-        public bool Load(Media media, VideoLayer videolayer, long seek, long duration)
+        public bool Load(MediaBase media, VideoLayer videolayer, long seek, long duration)
         {
             var channel = _casparChannel;
             if (CheckConnected(channel) 

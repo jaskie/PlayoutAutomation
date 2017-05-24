@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TAS.Client.Common;
-using TAS.Common;
+using TAS.Server.Common;
 
 namespace TAS.Client.Config
 {

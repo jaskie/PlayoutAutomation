@@ -5,7 +5,7 @@ using System.Text;
 using TAS.Remoting;
 using TAS.Remoting.Client;
 using TAS.Server.Common;
-using TAS.Server.Interfaces;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {

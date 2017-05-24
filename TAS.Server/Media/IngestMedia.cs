@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using System.Diagnostics;
-using TAS.Common;
-using TAS.Server.Interfaces;
-using Newtonsoft.Json;
 using TAS.FFMpegUtils;
+using TAS.Server.Common;
+using TAS.Server.Common.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
-    public class IngestMedia : Media, IIngestMedia, IServerIngestStatusMedia
+    public class IngestMedia : MediaBase, IIngestMedia, IServerIngestStatusMedia
     {
         internal IngestMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
 

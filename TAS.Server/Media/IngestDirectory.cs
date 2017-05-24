@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.FtpClient;
+using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
-using System.Diagnostics;
-using System.Threading;
-using System.Net.FtpClient;
-using System.Net;
-using System.ComponentModel;
 using Newtonsoft.Json;
-using TAS.Common;
-using TAS.Server.Interfaces;
 using TAS.Server.Common;
-using TAS.Server.XDCAM;
+using TAS.Server.Common.Interfaces;
 
-namespace TAS.Server
+namespace TAS.Server.Media
 {
     public class IngestDirectory : MediaDirectory, IIngestDirectory
     {
@@ -30,7 +28,7 @@ namespace TAS.Server
 
         public override void Initialize()
         {
-            if (_folder.StartsWith("ftp://"))
+            if (Folder.StartsWith("ftp://"))
             {
                 AccessType = TDirectoryAccessType.FTP;
                 IsInitialized = true;
@@ -191,7 +189,7 @@ namespace TAS.Server
             string newPath = localPath + '/' + item.Name;
             if (item.Type == FtpFileSystemObjectType.Movie || item.Type == FtpFileSystemObjectType.File)
             {
-                IMedia newmedia = AddFile(_folder + newPath, item.Modified == default(DateTime) ? item.Created : item.Modified);
+                IMedia newmedia = AddFile(Folder + newPath, item.Modified == default(DateTime) ? item.Created : item.Modified);
                 if (item.Type == FtpFileSystemObjectType.Movie)
                 {
                     newmedia.Duration = item.Size.SMPTEFramesToTimeSpan("50"); // assuming Grass Valley K2 PAL server
@@ -208,14 +206,14 @@ namespace TAS.Server
             if (_ftpClient == null)
             {
                 FtpClient newClient = IsXDCAM ?
-                    new XdcamClient()
+                    new XdcamClient
                     {
-                        Host = new Uri(_folder, UriKind.Absolute).Host,
+                        Host = new Uri(Folder, UriKind.Absolute).Host,
                         Credentials = _getNetworkCredential()
                     }
-                    : new FtpClient()
+                    : new FtpClient
                     {
-                        Host = new Uri(_folder, UriKind.Absolute).Host,
+                        Host = new Uri(Folder, UriKind.Absolute).Host,
                         Credentials = _getNetworkCredential()
                     };
                 _ftpClient = newClient;
@@ -229,7 +227,7 @@ namespace TAS.Server
             try
             {
                 FtpClient _ftpClient = GetFtpClient();
-                Uri uri = new Uri(_folder, UriKind.Absolute);
+                Uri uri = new Uri(Folder, UriKind.Absolute);
                 try
                 {
                     _ftpClient.Connect();
@@ -315,7 +313,7 @@ namespace TAS.Server
             XmlDocument xMLDoc = new XmlDocument();
             if (AccessType == TDirectoryAccessType.Direct)
             {
-                string fileName = Path.Combine(_folder, documentName);
+                string fileName = Path.Combine(Folder, documentName);
                 if (File.Exists(fileName))
                     xMLDoc.Load(fileName);
             }
@@ -347,7 +345,7 @@ namespace TAS.Server
                     foreach (XDCAM.Index.Clip clip in xdcamIndex.clipTable.clipTable.Where(c => c.playable))
                     {
                         var clipAlias = xdcamAlias == null ? null : xdcamAlias.clipTable.FirstOrDefault(a => a.clipId == clip.clipId);
-                        var newMedia = AddFile(string.Join(this.PathSeparator.ToString(), _folder, "Clip", $"{(clipAlias != null? clipAlias.value : clip.clipId)}.MXF"), default(DateTime), new Guid(clip.umid.Substring(12))) as XDCAMMedia;
+                        var newMedia = AddFile(string.Join(this.PathSeparator.ToString(), Folder, "Clip", $"{(clipAlias != null? clipAlias.value : clip.clipId)}.MXF"), default(DateTime), new Guid(clip.umid.Substring(12))) as XDCAM.XdcamMedia;
                         if (newMedia != null)
                         {
                             newMedia.ClipNr = ++index;
@@ -363,12 +361,11 @@ namespace TAS.Server
                                 newMedia.VideoFormat = TVideoFormat.PAL_FHA;
                         }
                     }
-                    index = 0;
                     if (xdcamIndex.editlistTable != null && xdcamIndex.editlistTable.editlistTable != null)
                         foreach (XDCAM.Index.EditList edl in xdcamIndex.editlistTable.editlistTable)
                         {
                             var edlAlias = xdcamAlias == null ? null : xdcamAlias.editlistTable.FirstOrDefault(a => a.editlistId == edl.editlistId);
-                            var newMedia = AddFile(string.Join(this.PathSeparator.ToString(), _folder, "Edit", $"{(edlAlias != null? edlAlias.value : edl.editlistId)}.SMI"), default(DateTime), new Guid(edl.umid.Substring(12))) as XDCAMMedia;
+                            var newMedia = AddFile(string.Join(this.PathSeparator.ToString(), Folder, "Edit", $"{(edlAlias != null? edlAlias.value : edl.editlistId)}.SMI"), default(DateTime), new Guid(edl.umid.Substring(12))) as XDCAM.XdcamMedia;
                             if (newMedia != null)
                             {
                                 newMedia.MediaName = $"{edl.editlistId}";
@@ -418,7 +415,7 @@ namespace TAS.Server
         {
             return IsXDCAM
                 ?
-                new XDCAMMedia(this, guid)
+                new XDCAM.XdcamMedia(this, guid)
                 {
                     FullPath = fullPath,
                     MediaStatus = TMediaStatus.Unknown,
@@ -438,7 +435,7 @@ namespace TAS.Server
             if (Path.GetExtension(fullPath).ToLowerInvariant() == ".xml")
             {
                 _bMDXmlFiles.Remove(fullPath);
-                    foreach (Media fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == fullPath))
+                    foreach (var fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == fullPath))
                         ((IngestMedia)fd).XmlFile = string.Empty;
             }
             else
@@ -451,7 +448,7 @@ namespace TAS.Server
             // remove xmlfile if it was last media file
             if (media is IngestMedia && (media as IngestMedia).XmlFile != string.Empty)
             {
-                if (!_files.Values.Any(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == (media as IngestMedia).XmlFile))
+                if (!Files.Values.Any(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == (media as IngestMedia).XmlFile))
                     try
                     {
                         string fn = (media as IngestMedia).XmlFile;
@@ -474,7 +471,7 @@ namespace TAS.Server
                     {
                         _bMDXmlFiles.Remove(xf);
                         _bMDXmlFiles.Add(e.FullPath);
-                        foreach (Media fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == xf))
+                        foreach (var fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == xf))
                             ((IngestMedia)fd).XmlFile = e.FullPath;
                     }
                 }
@@ -484,7 +481,7 @@ namespace TAS.Server
             catch { }
         }
 
-        protected override void OnMediaRenamed(Media media, string newFullPath)
+        protected override void OnMediaRenamed(MediaBase media, string newFullPath)
         {
             Debug.WriteLine(newFullPath, "OnMediaRenamed");
             string ext = Path.GetExtension(newFullPath).ToLowerInvariant();
@@ -497,7 +494,7 @@ namespace TAS.Server
             {
                 _scanXML(e.FullPath);
             }
-            Media m = (Media)_files.Values.FirstOrDefault(f => e.FullPath == f.FullPath);
+            var m = Files.Values.FirstOrDefault(f => e.FullPath == f.FullPath);
             if (m!=null)
             {
                 if (m.IsVerified)
@@ -515,7 +512,7 @@ namespace TAS.Server
         // parse files from BMD's MediaExpress
         private void _scanXML(string xmlFileName)
         {
-                foreach (Media fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == xmlFileName))
+                foreach (var fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).XmlFile == xmlFileName))
                     ((IngestMedia)fd).XmlFile = string.Empty;
             try
             {
@@ -603,7 +600,7 @@ namespace TAS.Server
                 if (media.Directory == this)
                 {
                     FtpClient client = GetFtpClient();
-                    Uri uri = new Uri(((Media)media).FullPath);
+                    Uri uri = new Uri(((MediaBase)media).FullPath);
                     try
                     {
                         client.DeleteFile(uri.LocalPath);
@@ -626,7 +623,7 @@ namespace TAS.Server
             if (AccessType == TDirectoryAccessType.FTP)
             {
                 FtpClient client = GetFtpClient();
-                Uri uri = new Uri(_folder + (string.IsNullOrWhiteSpace(subfolder) ? "/" : $"/{subfolder}/") + filename);
+                Uri uri = new Uri(Folder + (string.IsNullOrWhiteSpace(subfolder) ? "/" : $"/{subfolder}/") + filename);
                 try
                 {
                     return client.FileExists(uri.LocalPath);

@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
-using TAS.Common;
 
 namespace TAS.Server.Common
 {
     public static class FileUtils
     {
-        public readonly static string[] VideoFileTypes = { ".mov", ".mxf", ".mkv", ".mp4", ".wmv", ".avi", ".lxf", ".mpg", ".mpeg" };
-        public readonly static string[] StillFileTypes = { ".png", ".tif", ".tga", ".tiff", ".jpg", ".gif", ".bmp" };
-        public readonly static string[] AudioFileTypes = { ".mp3" };
-        public readonly static string[] AnimationFileTypes = { ".ft", ".htm", ".html" };
-        public readonly static string RundownFileExtension = ".rundown";
-        public readonly static string TempFileExtension = ".tmp";
-        public readonly static string CONFIGURATION_PATH = Path.Combine(Directory.GetCurrentDirectory(), "Configuration");
-        public readonly static string LOCAL_APPLICATION_DATA_PATH = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TVPlay");
+        public static readonly string[] VideoFileTypes = { ".mov", ".mxf", ".mkv", ".mp4", ".wmv", ".avi", ".lxf", ".mpg", ".mpeg" };
+        public static readonly string[] StillFileTypes = { ".png", ".tif", ".tga", ".tiff", ".jpg", ".gif", ".bmp" };
+        public static readonly string[] AudioFileTypes = { ".mp3" };
+        public static readonly string[] AnimationFileTypes = { ".ft", ".htm", ".html" };
+        public static readonly string RundownFileExtension = ".rundown";
+        public static readonly string TempFileExtension = ".tmp";
+        public static readonly string ConfigurationPath = Path.Combine(Directory.GetCurrentDirectory(), "Configuration");
+        public static readonly string LocalApplicationDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TVPlay");
         
         public static string DefaultFileExtension(TMediaType type)
         {
@@ -73,6 +71,8 @@ namespace TAS.Server.Common
 
         public static string GetFileNameWithoutExtension(string fileName, TMediaType mediaType)
         {
+            if (fileName == null)
+                return string.Empty;
             string fileExt = Path.GetExtension(fileName).ToLowerInvariant();
             switch (mediaType)
             {

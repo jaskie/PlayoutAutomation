@@ -5,11 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
-using TAS.Server.Interfaces;
 using TAS.Server.Common;
 using Newtonsoft.Json;
 using System.Drawing;
 using TAS.Remoting;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server
 {
@@ -29,7 +29,7 @@ namespace TAS.Server
             get { return _imageFile; }
             set
             {
-                _imageFile = Path.Combine(FileUtils.CONFIGURATION_PATH, value);
+                _imageFile = Path.Combine(FileUtils.ConfigurationPath, value);
                 if (File.Exists(_imageFile))
                     lock(_imageLock)
                         _image = new Bitmap(_imageFile);
