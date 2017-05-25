@@ -21,7 +21,7 @@ namespace TAS.Remoting.Model
             return Query<List<MediaDeleteDenyReason>>(parameters: new object[] { mediaList, forceDelete });
         }
 
-        public void Export(IEnumerable<ExportMedia> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat)
+        public void Export(IEnumerable<MediaExportDescription> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat)
         {
             Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory, mXFAudioExportFormat, mXFVideoExportFormat });
         }
@@ -83,7 +83,7 @@ namespace TAS.Remoting.Model
             Invoke();
         }
 
-        public void Export(IEnumerable<ExportMedia> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory)
+        public void Export(IEnumerable<MediaExportDescription> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory)
         {
             Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory });
         }

@@ -11,7 +11,8 @@ namespace TAS.Server.Media
     public class AnimationDirectory : MediaDirectory, IAnimationDirectory
     {
         public readonly CasparServer Server;
-        public AnimationDirectory(CasparServer server, MediaManager manager) : base(manager)
+
+        internal AnimationDirectory(CasparServer server, MediaManager manager) : base(manager)
         {
             Server = server;
         }
@@ -32,33 +33,9 @@ namespace TAS.Server.Media
 
         }
 
-        protected override bool AcceptFile(string fullPath)
-        {
-            return FileUtils.AnimationFileTypes.Contains(Path.GetExtension(fullPath).ToLowerInvariant());
-        }
-
-        protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
-        {
-            AnimatedMedia newMedia = Files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath, StringComparison.CurrentCultureIgnoreCase)) as AnimatedMedia;
-            if (newMedia == null && AcceptFile(fullPath))
-            {
-                newMedia = (AnimatedMedia)CreateMedia(fullPath, guid);
-                newMedia.MediaName = FileUtils.GetFileNameWithoutExtension(fullPath, TMediaType.Animation).ToUpper();
-                newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
-                newMedia.MediaStatus = TMediaStatus.Available;
-                newMedia.Save();
-            }
-            return newMedia;
-        }
-
         public override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
             throw new NotImplementedException();
-        }
-
-        protected override IMedia CreateMedia(string fullPath, Guid guid)
-        {
-            return new AnimatedMedia(this, guid, 0) { FullPath = fullPath, IsVerified = true };
         }
 
         public IAnimatedMedia CloneMedia(IAnimatedMedia source, Guid newMediaGuid)
@@ -84,6 +61,31 @@ namespace TAS.Server.Media
         }
 
         public override void SweepStaleMedia() { }
+
+        protected override bool AcceptFile(string fullPath)
+        {
+            return FileUtils.AnimationFileTypes.Contains(Path.GetExtension(fullPath).ToLowerInvariant());
+        }
+
+        protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
+        {
+            AnimatedMedia newMedia = Files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath, StringComparison.CurrentCultureIgnoreCase)) as AnimatedMedia;
+            if (newMedia == null && AcceptFile(fullPath))
+            {
+                newMedia = (AnimatedMedia)CreateMedia(fullPath, guid);
+                newMedia.MediaName = FileUtils.GetFileNameWithoutExtension(fullPath, TMediaType.Animation).ToUpper();
+                newMedia.LastUpdated = lastWriteTime == default(DateTime) ? File.GetLastWriteTimeUtc(fullPath) : lastWriteTime;
+                newMedia.MediaStatus = TMediaStatus.Available;
+                newMedia.Save();
+            }
+            return newMedia;
+        }
+
+
+        protected override IMedia CreateMedia(string fullPath, Guid guid = new Guid())
+        {
+            return new AnimatedMedia(this, guid, 0) { FullPath = fullPath, IsVerified = true };
+        }
 
     }
 }

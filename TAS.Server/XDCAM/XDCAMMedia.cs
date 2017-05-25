@@ -137,7 +137,7 @@ namespace TAS.Server.XDCAM
             {
                 if (!client.IsConnected)
                     client.Connect();
-                return dir.ReadXMLDocument(documentName, client);
+                return dir.ReadXmlDocument(documentName, client);
             }
             finally
             {

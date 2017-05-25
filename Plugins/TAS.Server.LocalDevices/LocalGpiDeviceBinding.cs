@@ -26,7 +26,7 @@ namespace TAS.Server
         internal LocalDevices Owner;
 
         [XmlAttribute]
-        public UInt64 IdEngine;
+        public ulong IdEngine;
 
         public event EventHandler Started;
 

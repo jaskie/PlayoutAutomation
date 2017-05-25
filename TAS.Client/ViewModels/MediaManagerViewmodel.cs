@@ -22,6 +22,7 @@ namespace TAS.Client.ViewModels
 {
     public class MediaManagerViewmodel : ViewmodelBase
     {
+        private const int MinSearchLength = 3;
         private readonly IMediaManager _mediaManager;
         private ICollectionView _mediaView;
         private readonly IPreview _preview;
@@ -86,10 +87,16 @@ namespace TAS.Client.ViewModels
             CommandSweepStaleMedia = new UICommand { ExecuteDelegate = _sweepStaleMedia };
             CommandGetLoudness = new UICommand { ExecuteDelegate = _getLoudness, CanExecuteDelegate = _isSomethingSelected };
             CommandExport = new UICommand { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
-            CommandRefresh = new UICommand { ExecuteDelegate = ob => _refreshMediaDirectory(_selectedDirectory?.Directory), CanExecuteDelegate = o => _selectedDirectory?.IsIngestDirectory == true };
+            CommandRefresh = new UICommand { ExecuteDelegate = ob => _refreshMediaDirectory(_selectedDirectory?.Directory), CanExecuteDelegate = _canRefresh };
             CommandSyncPriToSec = new UICommand { ExecuteDelegate = _syncSecToPri, CanExecuteDelegate = o => _selectedDirectory.IsServerDirectory };
             CommandCloneAnimation = new UICommand { ExecuteDelegate = _cloneAnimation, CanExecuteDelegate = _canCloneAnimation };
 
+        }
+
+        private bool _canRefresh(object obj)
+        {
+            var directory = _selectedDirectory?.Directory as IIngestDirectory;
+            return directory != null && (!directory.IsWAN || _searchText.Length >= MinSearchLength);
         }
 
         private void _recordersViewmodel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -259,7 +266,7 @@ namespace TAS.Client.ViewModels
 
         private void _export(object obj)
         {
-            var selections = _getSelections().Select(m => new ExportMedia(m, new List<IMedia>(), m.TcPlay, m.DurationPlay, m.AudioVolume));
+            var selections = _getSelections().Select(m => new MediaExportDescription(m, new List<IMedia>(), m.TcPlay, m.DurationPlay, m.AudioVolume));
             using (new ExportViewmodel(_mediaManager, selections))
             { }
         }
@@ -366,7 +373,7 @@ namespace TAS.Client.ViewModels
             return dir is IServerDirectory
                 || dir is IAnimationDirectory
                 || dir is IArchiveDirectory
-                || (dir is IIngestDirectory && (!((IIngestDirectory)dir).IsWAN || _searchText.Length >= 3));
+                || (dir is IIngestDirectory && (!((IIngestDirectory)dir).IsWAN || _searchText.Length >= MinSearchLength));
         }
 
         private void _search(object o)

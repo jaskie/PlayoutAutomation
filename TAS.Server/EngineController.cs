@@ -15,10 +15,11 @@ namespace TAS.Server
 {
     public static class EngineController
     {
-        public static List<Engine> Engines;
 
-        static List<CasparServer> _servers;
-        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(EngineController));
+        private static List<CasparServer> _servers;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(EngineController));
+
+        public static List<Engine> Engines;
 
         public static void Initialize()
         {

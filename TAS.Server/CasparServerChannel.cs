@@ -20,18 +20,22 @@ using TAS.Server.Media;
 
 namespace TAS.Server
 {
-    public class CasparServerChannel : DtoBase, IPlayoutServerChannel
+    public class CasparServerChannel : DtoBase, IPlayoutServerChannelProperties, IPlayoutServerChannel
     {
-        private CasparServer _ownerServer;
         private Channel _casparChannel;
+        private readonly SimpleDictionary<VideoLayer, bool> outputAspectNarrow = new SimpleDictionary<VideoLayer, bool>();
+        private readonly ConcurrentDictionary<VideoLayer, Event> _loadedNext = new ConcurrentDictionary<VideoLayer, Event>();
+        private readonly ConcurrentDictionary<VideoLayer, Event> _visible = new ConcurrentDictionary<VideoLayer, Event>();
+        private bool _isServerConnected;
+        private int _audiolevel;
+
         #region IPlayoutServerChannel
         public int Id { get; set; }
-        public int ChannelNumber { get { return Id; } set { Id = value; } } // old field name; to avoid problems after field rename after version 1.1.1
+
         [JsonProperty]
         public string ChannelName { get; set; }
 
-        [DefaultValue(typeof(Decimal), "1")]
-        public decimal MasterVolume { get; set; }
+        public decimal MasterVolume { get; set; } = 1;
 
         [JsonProperty]
         public string PreviewUrl { get; set; }
@@ -41,124 +45,13 @@ namespace TAS.Server
         [XmlIgnore]
         public TVideoFormat VideoFormat { get; set; }
 
-        private bool _isServerConnected;
         [XmlIgnore]
         [JsonProperty]
         public bool IsServerConnected { get { return _isServerConnected; } internal set { SetField(ref _isServerConnected, value); } }
 
-        private int _audiolevel;
         [XmlIgnore]
         [JsonProperty]
-        public int  AudioLevel { get { return _audiolevel; } private set { SetField(ref _audiolevel, value); } }
-
-        #endregion // IPlayoutServerChannel
-
-        protected SimpleDictionary<VideoLayer, bool> outputAspectNarrow = new SimpleDictionary<VideoLayer, bool>();
-
-        internal void SetChannel(Channel casparChannel)
-        {
-            var oldChannel = _casparChannel;
-            if (oldChannel != casparChannel)
-            {
-                _casparChannel = casparChannel;
-                if (oldChannel != null)
-                    oldChannel.AudioDataReceived -= Channel_AudioDataReceived;
-                if (casparChannel != null)
-                    casparChannel.AudioDataReceived += Channel_AudioDataReceived;
-                VideoFormat = CasparModeToVideoFormat(_casparChannel.VideoMode);
-                Debug.WriteLine(this, "Caspar channel assigned");
-            }
-            if (_ownerServer?.IsConnected == true)
-            {
-                ClearMixer();
-                casparChannel.MasterVolume((float)MasterVolume);
-            }
-        }
-
-        internal CasparServer Owner
-        {
-            get { return _ownerServer; }
-            set { _ownerServer = value; }
-        }
-
-        private void Channel_AudioDataReceived(object sender, AudioDataEventArgs e)
-        {
-            if (sender == _casparChannel)
-            {
-                var values = e.AudioData.dBFS.Where(f => f != null);
-                if (values.Any())
-                    AudioLevel = (int)values.Average();
-            }
-        }
-
-        private bool CheckConnected(Channel channel)
-        {
-            var server = _ownerServer;
-            if (server != null && channel != null)
-                return server.IsConnected;
-            return false;
-        }
-
-        public event EventHandler<VolumeChangedEventArgs> VolumeChanged;
-
-        #region Utilites
-
-        private CasparItem _getItem(Event aEvent)
-        {
-            CasparItem item = new CasparItem(string.Empty);
-            IPersistentMedia media = (aEvent.Engine.PlayoutChannelPRI == this) ? aEvent.ServerMediaPRI : aEvent.ServerMediaSEC;
-            if (aEvent.EventType == TEventType.Live || media != null)
-            {
-                if (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
-                    item.Clipname = string.Format($"\"{Path.GetFileNameWithoutExtension(media.FileName)}\"");
-                if (aEvent.EventType == TEventType.Live)
-                    item.Clipname = string.IsNullOrWhiteSpace(LiveDevice) ? "BLACK" : LiveDevice;
-                if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie)
-                    item.ChannelLayout = ChannelLayout.Stereo;
-                if (aEvent.EventType == TEventType.Movie)
-                    item.FieldOrderInverted = media.FieldOrderInverted;
-                item.VideoLayer = (int)aEvent.Layer;
-                item.Loop = false;
-                item.Transition.Type = (Svt.Caspar.TransitionType)aEvent.TransitionType;
-                item.Transition.Duration = (int)((aEvent.TransitionTime.Ticks - aEvent.TransitionPauseTime.Ticks) / aEvent.Engine.FrameTicks);
-                item.Transition.Pause = (int)(aEvent.TransitionPauseTime.Ticks / aEvent.Engine.FrameTicks);
-                item.Transition.Easing = (Easing)aEvent.TransitionEasing; 
-                item.Seek = (int)aEvent.MediaSeek;
-                return item;
-            }
-            return null;
-        }
-
-        private CasparItem _getItem(MediaBase media, VideoLayer videolayer, long seek)
-        {
-            if (media != null && media.MediaType == TMediaType.Movie)
-            {
-                CasparItem item = new CasparItem(string.Empty);
-                item.Clipname = $"\"{(media is ServerMedia ? Path.GetFileNameWithoutExtension(media.FileName) : media.FullPath)}\"";
-                item.ChannelLayout = ChannelLayout.Stereo;                 
-                item.VideoLayer = (int)videolayer;
-                item.Seek = (int)seek;
-                item.FieldOrderInverted = media.FieldOrderInverted;
-                return item;
-            }
-            else
-                return null;
-        }
-                
-        private CasparCGDataCollection _getContainerData(ITemplated template)
-        {
-            var data =  new CasparCGDataCollection();
-            foreach (var field in template.Fields)
-                data.DataPairs.Add(new CGDataPair(field.Key, new CGTextFieldData(field.Value)));
-            return data;
-        }
-
-        #endregion // Utilities
-
-        private readonly ConcurrentDictionary<VideoLayer, Event> _loadedNext = new ConcurrentDictionary<VideoLayer, Event>();
-        private readonly ConcurrentDictionary<VideoLayer, Event> _visible = new ConcurrentDictionary<VideoLayer, Event>();
-
-        #region IPlayoutServerChannel
+        public int AudioLevel { get { return _audiolevel; } private set { SetField(ref _audiolevel, value); } }
 
         public bool LoadNext(Event aEvent)
         {
@@ -211,7 +104,7 @@ namespace TAS.Server
         public bool Load(MediaBase media, VideoLayer videolayer, long seek, long duration)
         {
             var channel = _casparChannel;
-            if (CheckConnected(channel) 
+            if (CheckConnected(channel)
                 && media != null)
             {
                 CasparItem item = _getItem(media, videolayer, seek);
@@ -245,7 +138,7 @@ namespace TAS.Server
             }
             return false;
         }
-        
+
 
         public bool Seek(VideoLayer videolayer, long position)
         {
@@ -500,8 +393,7 @@ namespace TAS.Server
                 Debug.WriteLine("SetAspect narrow: {0}", narrow);
             }
         }
-        #endregion //IPlayoutServerChannel
-
+        
         public bool Execute(string command)
         {
             var channel = _casparChannel;
@@ -566,6 +458,104 @@ namespace TAS.Server
             return false;
         }
 
+        #endregion //IPlayoutServerChannel
+
+        internal CasparServer Owner { get; set; }
+        internal void SetChannel(Channel casparChannel)
+        {
+            var oldChannel = _casparChannel;
+            if (oldChannel != casparChannel)
+            {
+                _casparChannel = casparChannel;
+                if (oldChannel != null)
+                    oldChannel.AudioDataReceived -= Channel_AudioDataReceived;
+                if (casparChannel != null)
+                    casparChannel.AudioDataReceived += Channel_AudioDataReceived;
+                VideoFormat = CasparModeToVideoFormat(_casparChannel.VideoMode);
+                Debug.WriteLine(this, "Caspar channel assigned");
+            }
+            if (Owner?.IsConnected == true)
+            {
+                ClearMixer();
+                casparChannel?.MasterVolume((float)MasterVolume);
+            }
+        }
+
+        #region Utilites
+
+        private void Channel_AudioDataReceived(object sender, AudioDataEventArgs e)
+        {
+            if (sender == _casparChannel)
+            {
+                var values = e.AudioData.dBFS.Where(f => f != null);
+                if (values.Any())
+                    AudioLevel = (int)values.Average();
+            }
+        }
+
+        private bool CheckConnected(Channel channel)
+        {
+            var server = Owner;
+            if (server != null && channel != null)
+                return server.IsConnected;
+            return false;
+        }
+
+        public event EventHandler<VolumeChangedEventArgs> VolumeChanged;
+
+        
+        private CasparItem _getItem(Event aEvent)
+        {
+            CasparItem item = new CasparItem(string.Empty);
+            IPersistentMedia media = (aEvent.Engine.PlayoutChannelPRI == this) ? aEvent.ServerMediaPRI : aEvent.ServerMediaSEC;
+            if (aEvent.EventType == TEventType.Live || media != null)
+            {
+                if (aEvent.EventType == TEventType.Movie || aEvent.EventType == TEventType.StillImage)
+                    item.Clipname = string.Format($"\"{Path.GetFileNameWithoutExtension(media.FileName)}\"");
+                if (aEvent.EventType == TEventType.Live)
+                    item.Clipname = string.IsNullOrWhiteSpace(LiveDevice) ? "BLACK" : LiveDevice;
+                if (aEvent.EventType == TEventType.Live || aEvent.EventType == TEventType.Movie)
+                    item.ChannelLayout = ChannelLayout.Stereo;
+                if (aEvent.EventType == TEventType.Movie)
+                    item.FieldOrderInverted = media.FieldOrderInverted;
+                item.VideoLayer = (int)aEvent.Layer;
+                item.Loop = false;
+                item.Transition.Type = (Svt.Caspar.TransitionType)aEvent.TransitionType;
+                item.Transition.Duration = (int)((aEvent.TransitionTime.Ticks - aEvent.TransitionPauseTime.Ticks) / aEvent.Engine.FrameTicks);
+                item.Transition.Pause = (int)(aEvent.TransitionPauseTime.Ticks / aEvent.Engine.FrameTicks);
+                item.Transition.Easing = (Easing)aEvent.TransitionEasing; 
+                item.Seek = (int)aEvent.MediaSeek;
+                return item;
+            }
+            return null;
+        }
+
+        private CasparItem _getItem(MediaBase media, VideoLayer videolayer, long seek)
+        {
+            if (media != null && media.MediaType == TMediaType.Movie)
+            {
+                CasparItem item = new CasparItem(string.Empty);
+                item.Clipname = $"\"{(media is ServerMedia ? Path.GetFileNameWithoutExtension(media.FileName) : media.FullPath)}\"";
+                item.ChannelLayout = ChannelLayout.Stereo;                 
+                item.VideoLayer = (int)videolayer;
+                item.Seek = (int)seek;
+                item.FieldOrderInverted = media.FieldOrderInverted;
+                return item;
+            }
+            else
+                return null;
+        }
+                
+        private CasparCGDataCollection _getContainerData(ITemplated template)
+        {
+            var data =  new CasparCGDataCollection();
+            foreach (var field in template.Fields)
+                data.DataPairs.Add(new CGDataPair(field.Key, new CGTextFieldData(field.Value)));
+            return data;
+        }
+
+        #endregion // Utilities
+        
         static TVideoFormat CasparModeToVideoFormat(VideoMode mode)
         {
             switch (mode)

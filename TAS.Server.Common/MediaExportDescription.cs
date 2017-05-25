@@ -7,15 +7,15 @@ using TAS.Server.Common.Interfaces;
 namespace TAS.Server.Common
 {
     [DataContract]
-    public class ExportMedia
+    public class MediaExportDescription
     {
-        public ExportMedia(IMedia media, List<IMedia> logos, TimeSpan startTC, TimeSpan duration, decimal audioVolume)
+        public MediaExportDescription(IMedia media, List<IMedia> logos, TimeSpan startTC, TimeSpan duration, decimal audioVolume)
         {
-            this.Media = media;
-            this.Logos = logos.ToArray();
-            this.StartTC = startTC;
-            this.Duration = duration;
-            this.AudioVolume = audioVolume;
+            Media = media;
+            Logos = logos.ToArray();
+            StartTC = startTC;
+            Duration = duration;
+            AudioVolume = audioVolume;
         }
         [DataMember]
         public IMedia Media { get; private set; }

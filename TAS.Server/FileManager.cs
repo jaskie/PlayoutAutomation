@@ -20,25 +20,32 @@ namespace TAS.Server
         [JsonProperty]
         private readonly string Dummy; // at  least one property should be serialized to resolve references
 #pragma warning restore
-        private SynchronizedCollection<IFileOperation> _queueSimpleOperation = new SynchronizedCollection<IFileOperation>();
-        private SynchronizedCollection<IFileOperation> _queueConvertOperation = new SynchronizedCollection<IFileOperation>();
-        private SynchronizedCollection<IFileOperation> _queueExportOperation = new SynchronizedCollection<IFileOperation>();
-        private bool _isRunningSimpleOperation = false;
-        private bool _isRunningConvertOperation = false;
-        private bool _isRunningExportOperation = false;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(FileManager));
+        private readonly SynchronizedCollection<IFileOperation> _queueSimpleOperation = new SynchronizedCollection<IFileOperation>();
+        private readonly SynchronizedCollection<IFileOperation> _queueConvertOperation = new SynchronizedCollection<IFileOperation>();
+        private readonly SynchronizedCollection<IFileOperation> _queueExportOperation = new SynchronizedCollection<IFileOperation>();
+        private bool _isRunningSimpleOperation;
+        private bool _isRunningConvertOperation;
+        private bool _isRunningExportOperation;
+        internal readonly TempDirectory TempDirectory;
+        internal readonly decimal ReferenceLoudness;
 
+        internal FileManager(TempDirectory tempDirectory, decimal referenceLoudness)
+        {
+            ReferenceLoudness = referenceLoudness;
+            TempDirectory = tempDirectory;
+        }
+        
         public event EventHandler<FileOperationEventArgs> OperationAdded;
         public event EventHandler<FileOperationEventArgs> OperationCompleted;
 
-        public IConvertOperation CreateConvertOperation() { return new ConvertOperation(); }
-        public ILoudnessOperation CreateLoudnessOperation() { return new LoudnessOperation(); }
-        public IFileOperation CreateSimpleOperation() { return new FileOperation(); }
-
-        public TempDirectory TempDirectory;
-        public decimal VolumeReferenceLoudness;
-
-        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(FileManager));
-
+        public IConvertOperation CreateConvertOperation() { return new ConvertOperation(this); }
+        public ILoudnessOperation CreateLoudnessOperation()
+        {
+            return new LoudnessOperation(this);
+        }
+        public IFileOperation CreateSimpleOperation() { return new FileOperation(this); }
+        
         public IEnumerable<IFileOperation> GetOperationQueue()
         {
             List<IFileOperation> retList;
@@ -64,9 +71,19 @@ namespace TAS.Server
                 _queue(op, toTop);
         }
 
+        public void CancelPending()
+        {
+            lock (_queueSimpleOperation.SyncRoot)
+                _queueSimpleOperation.Where(op => op.OperationStatus == FileOperationStatus.Waiting).ToList().ForEach(op => op.Abort());
+            lock (_queueConvertOperation.SyncRoot)
+                _queueConvertOperation.Where(op => op.OperationStatus == FileOperationStatus.Waiting).ToList().ForEach(op => op.Abort());
+            lock (_queueExportOperation.SyncRoot)
+                _queueExportOperation.Where(op => op.OperationStatus == FileOperationStatus.Waiting).ToList().ForEach(op => op.Abort());
+            Logger.Trace("Cancelled pending operations");
+        }
+
         private void _queue(FileOperation operation, bool toTop)
         {
-            operation.Owner = this;
             operation.ScheduledTime = DateTime.UtcNow;
             operation.OperationStatus = FileOperationStatus.Waiting;
             Logger.Info("Operation scheduled: {0}", operation);
@@ -128,17 +145,6 @@ namespace TAS.Server
             }
         }
 
-        public void CancelPending()
-        {
-            lock (_queueSimpleOperation.SyncRoot)
-                _queueSimpleOperation.Where(op => op.OperationStatus == FileOperationStatus.Waiting).ToList().ForEach(op => op.Abort());
-            lock (_queueConvertOperation.SyncRoot)
-                _queueConvertOperation.Where(op => op.OperationStatus == FileOperationStatus.Waiting).ToList().ForEach(op => op.Abort());
-            lock (_queueExportOperation.SyncRoot)
-                _queueExportOperation.Where(op => op.OperationStatus == FileOperationStatus.Waiting).ToList().ForEach(op => op.Abort());
-            Logger.Trace("Cancelled pending operations");
-        }
-
         private void _runOperation(SynchronizedCollection<IFileOperation> queue, ref bool queueRunningIndicator)
         {
             FileOperation op;
@@ -149,7 +155,7 @@ namespace TAS.Server
                 try
                 {
                     queue.Remove(op);
-                    if (!op.Aborted)
+                    if (!op.IsAborted)
                     {
                         if (op.Execute())
                         {

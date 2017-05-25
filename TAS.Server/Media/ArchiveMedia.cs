@@ -5,27 +5,22 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Media
 {
-    public class ArchiveMedia : PersistentMedia, IArchiveMedia, IServerIngestStatusMedia
+    public class ArchiveMedia : PersistentMedia, IArchiveMedia
     {
-        private NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ArchiveMedia));
-
-        public ArchiveMedia(IArchiveDirectory directory, Guid guid, UInt64 idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
-
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ArchiveMedia));
         private TIngestStatus _ingestStatus;
+
+        public ArchiveMedia(IArchiveDirectory directory, Guid guid, ulong idPersistentMedia) : base(directory, guid, idPersistentMedia) { }
+
         public TIngestStatus IngestStatus
         {
             get
             {
-                if (_ingestStatus == TIngestStatus.Unknown)
-                {
-                    var sdir = _directory.MediaManager.MediaDirectoryPRI as ServerDirectory;
-                    if (sdir != null)
-                    {
-                        var media = sdir.FindMediaByMediaGuid(_mediaGuid);
-                        if (media != null && media.MediaStatus == TMediaStatus.Available)
-                            _ingestStatus = TIngestStatus.Ready;
-                    }
-                }
+                if (_ingestStatus != TIngestStatus.Unknown) return _ingestStatus;
+                var sdir = _directory.MediaManager.MediaDirectoryPRI as ServerDirectory;
+                var media = sdir?.FindMediaByMediaGuid(_mediaGuid);
+                if (media != null && media.MediaStatus == TMediaStatus.Available)
+                    _ingestStatus = TIngestStatus.Ready;
                 return _ingestStatus;
             }
             set { SetField(ref _ingestStatus, value); }

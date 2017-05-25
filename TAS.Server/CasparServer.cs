@@ -18,7 +18,6 @@ namespace TAS.Server
 
     public class CasparServer : DtoBase, IPlayoutServer
     {
-
         private bool _isConnected;
         private bool _isInitialized;
         private bool _needUpdateChannels;
@@ -91,6 +90,12 @@ namespace TAS.Server
             }
         }
 
+        public override string ToString()
+        {
+            return $"{GetType().Name} {ServerAddress}";
+        }
+
+        // private methods
         private void CasparDevice_UpdatedRecorders(object sender, EventArgs e)
         {
             var deviceRecorders = _casparDevice.Recorders.ToList();
@@ -145,12 +150,7 @@ namespace TAS.Server
             IsConnected = e.Connected;
             Debug.WriteLine(e.Connected, "Caspar connected");
         }
-
-        public override string ToString()
-        {
-            return $"{this.GetType().Name} {ServerAddress}";
-        }
-
+        
         protected override void DoDispose()
         {
             Disconnect();

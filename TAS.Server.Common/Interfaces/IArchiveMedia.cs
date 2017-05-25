@@ -1,6 +1,7 @@
 ﻿namespace TAS.Server.Common.Interfaces
 {
-    public interface IArchiveMedia: IPersistentMedia, IIngestStatusMedia
+    public interface IArchiveMedia: IPersistentMedia
     {
+        TIngestStatus IngestStatus { get; }
     }
 }

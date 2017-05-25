@@ -105,7 +105,7 @@ namespace TAS.Remoting.Model
             }
         }
 
-        public IEvent AddNewEvent(
+        public IEvent CreateNewEvent(
                     UInt64 idRundownEvent = 0,
                     UInt64 idEventBinding = 0,
                     VideoLayer videoLayer = VideoLayer.None,

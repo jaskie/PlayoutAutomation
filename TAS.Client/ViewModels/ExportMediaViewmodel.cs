@@ -11,10 +11,10 @@ namespace TAS.Client.ViewModels
 {
     public class ExportMediaViewmodel: ViewmodelBase
     {
-        public readonly ExportMedia MediaExport;
+        public readonly MediaExportDescription MediaExport;
         public readonly IMediaManager MediaManager;
         private readonly ObservableCollection<ExportMediaLogoViewmodel> _logos;
-        public ExportMediaViewmodel(IMediaManager manager, ExportMedia mediaExport)
+        public ExportMediaViewmodel(IMediaManager manager, MediaExportDescription mediaExport)
         {
             this.MediaExport = mediaExport;
             MediaManager = manager;

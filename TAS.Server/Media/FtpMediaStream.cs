@@ -15,7 +15,7 @@ namespace TAS.Server.Media
                 throw new ApplicationException();
             Uri uri = new Uri(media.FullPath);
             _client = new System.Net.FtpClient.FtpClient();
-            _client.Credentials = ((IngestDirectory)media.Directory)._getNetworkCredential();
+            _client.Credentials = ((IngestDirectory)media.Directory).GetNetworkCredential();
             _client.Host = uri.Host;
             try
             {

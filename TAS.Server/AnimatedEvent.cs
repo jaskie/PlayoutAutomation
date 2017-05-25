@@ -10,10 +10,14 @@ namespace TAS.Server
 {
     public class AnimatedEvent : Event, ITemplated
     {
+        private int _templateLayer;
+        private TemplateMethod _method;
+        private readonly SimpleDictionary<string, string> _fields;
+        
         internal AnimatedEvent(
                     Engine engine,
-                    UInt64 idRundownEvent,
-                    UInt64 idEventBinding,
+                    ulong idRundownEvent,
+                    ulong idEventBinding,
                     VideoLayer videoLayer,
                     TStartType startType,
                     TPlayState playState,
@@ -69,12 +73,7 @@ namespace TAS.Server
             base.DoDispose();
             _fields.DictionaryOperation -= _fields_DictionaryOperation;
         }
-        private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
-        {
-            IsModified = true;
-        }
         
-        private readonly SimpleDictionary<string, string> _fields;
         [JsonProperty]
         public IDictionary<string, string> Fields
         {
@@ -87,14 +86,16 @@ namespace TAS.Server
             }
         }
 
-        private TemplateMethod _method;
         [JsonProperty]
         public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value); } }
 
-        private int _templateLayer;
         [JsonProperty]
         public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value); } }
 
+        private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
+        {
+            IsModified = true;
+        }
 
     }
 }

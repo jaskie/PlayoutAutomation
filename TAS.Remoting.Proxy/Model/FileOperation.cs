@@ -13,7 +13,7 @@ namespace TAS.Remoting.Model
 {
     public class FileOperation : ProxyBase, IFileOperation
     {
-        public bool Aborted { get { return Get<bool>(); } set { Set(value); } }
+        public bool IsAborted { get { return Get<bool>(); } set { Set(value); } }
 
         [JsonProperty(IsReference = false, TypeNameHandling = TypeNameHandling.Auto)]
         public IMediaProperties DestProperties { get { return Get<IMediaProperties>(); } set { Set(value); } }

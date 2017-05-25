@@ -14,7 +14,6 @@ namespace TAS.Server.Common.Interfaces
         IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string fileName);
         IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string fileName);
         void Finish();
-
         void GoToTimecode(TimeSpan tc, TVideoFormat format);
         void SetTimeLimit(TimeSpan limit);
         TimeSpan CurrentTc { get; }

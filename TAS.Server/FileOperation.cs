@@ -20,7 +20,7 @@ namespace TAS.Server
         private readonly object _destMediaLock = new object();
         protected MediaBase DestMedia;
         protected MediaBase SourceMedia;
-        private NLog.Logger Logger;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(FileOperation));
         private IMediaProperties _destMediaProperties;
         private int _tryCount = 15;
         private DateTime _scheduledTime;
@@ -31,11 +31,13 @@ namespace TAS.Server
         private bool _isIndeterminate;
         private readonly SynchronizedCollection<string> _operationOutput = new SynchronizedCollection<string>();
         private readonly SynchronizedCollection<string> _operationWarning = new SynchronizedCollection<string>();
-        
-        internal FileManager Owner;
-        public FileOperation()
+
+        protected readonly FileManager OwnerFileManager;
+        protected bool Aborted;
+
+        internal FileOperation(FileManager ownerFileManager)
         {
-            Logger = NLog.LogManager.GetLogger(this.GetType().Name);
+            OwnerFileManager = ownerFileManager;
         }
 
 #if DEBUG
@@ -107,21 +109,27 @@ namespace TAS.Server
             {
                 if (SetField(ref _operationStatus, value))
                 {
-                    IServerIngestStatusMedia m = SourceMedia as IServerIngestStatusMedia;
-                    if (m != null)
+                    TIngestStatus newIngestStatus;
                         switch (value)
                         {
                             case FileOperationStatus.Finished:
-                                m.IngestStatus = TIngestStatus.Ready;
+                                newIngestStatus = TIngestStatus.Ready;
                                 break;
                             case FileOperationStatus.Waiting:
                             case FileOperationStatus.InProgress:
-                                m.IngestStatus = TIngestStatus.InProgress;
+                                newIngestStatus = TIngestStatus.InProgress;
                                 break;
                             default:
-                                m.IngestStatus = TIngestStatus.Unknown;
+                                newIngestStatus = TIngestStatus.Unknown;
                                 break;
                         }
+                    var im = SourceMedia as IngestMedia;
+                    if (im != null)
+                        im.IngestStatus = newIngestStatus;
+                    var am = SourceMedia as ArchiveMedia;
+                    if (am != null)
+                        am.IngestStatus = newIngestStatus;
+
                     EventHandler h;
                     if (value == FileOperationStatus.Finished)
                     {
@@ -160,14 +168,13 @@ namespace TAS.Server
         }
 
 
-        protected bool _aborted;
         [JsonProperty]
-        public bool Aborted
+        public bool IsAborted
         {
-            get { return _aborted; }
+            get { return Aborted; }
             private set
             {
-                if (SetField(ref _aborted, value))
+                if (SetField(ref Aborted, value))
                 {
                     lock (_destMediaLock)
                     {
@@ -194,7 +201,7 @@ namespace TAS.Server
 
         public virtual void Abort()
         {
-            Aborted = true;
+            IsAborted = true;
         }
 
         public event EventHandler Success;
@@ -202,7 +209,18 @@ namespace TAS.Server
         public event EventHandler Finished;
 
 
-        // private methods
+        // utility methods
+        internal virtual bool Execute()
+        {
+            if (InternalExecute())
+            {
+                OperationStatus = FileOperationStatus.Finished;
+            }
+            else
+                TryCount--;
+            return OperationStatus == FileOperationStatus.Finished;
+        }
+
         internal void Fail()
         {
             OperationStatus = FileOperationStatus.Failed;
@@ -236,17 +254,6 @@ namespace TAS.Server
             }
         }
         
-        internal virtual bool Execute()
-        {
-            if (InternalExecute())
-            {
-                OperationStatus = FileOperationStatus.Finished;
-            }
-            else
-                TryCount--;
-            return OperationStatus == FileOperationStatus.Finished;
-        }
-
         private bool InternalExecute()
         {
             AddOutputMessage($"Operation {Title} started");
@@ -271,7 +278,7 @@ namespace TAS.Server
                             {
                                 DestMedia.MediaStatus = TMediaStatus.Copying;
                                 IsIndeterminate = true;
-                                if (!SourceMedia.CopyMediaTo(DestMedia, ref _aborted))
+                                if (!SourceMedia.CopyMediaTo(DestMedia, ref Aborted))
                                     return false;
                             }
                             DestMedia.MediaStatus = TMediaStatus.Copied;
@@ -340,8 +347,6 @@ namespace TAS.Server
                     return false;
             }
         }
-
-
-
+        
     }
 }

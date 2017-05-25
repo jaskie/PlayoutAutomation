@@ -9,23 +9,16 @@ namespace TAS.Server.Media
 {
     public class AnimatedMedia : PersistentMedia, IAnimatedMedia
     {
+        private TemplateMethod _method;
+        private int _templateLayer;
+        private readonly SimpleDictionary<string, string> _fields = new SimpleDictionary<string, string>();
+
         public AnimatedMedia(IMediaDirectory directory, Guid guid, ulong idPersistentMedia) : base(directory, guid, idPersistentMedia)
         {
             _fields.DictionaryOperation += _fields_DictionaryOperation;
             _mediaType = TMediaType.Animation;
         }
-        protected override void DoDispose()
-        {
-            _fields.DictionaryOperation -= _fields_DictionaryOperation;
-            base.DoDispose();
-        }
 
-        private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
-        {
-            IsModified = true;
-        }
-
-        private readonly SimpleDictionary<string, string> _fields = new SimpleDictionary<string, string>();
         [JsonProperty]
         public IDictionary<string, string> Fields
         {
@@ -38,11 +31,9 @@ namespace TAS.Server.Media
             }
         }
 
-        private TemplateMethod _method;
         [JsonProperty]
         public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value); } }
 
-        private int _templateLayer;
         [JsonProperty]
         public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value); } }
 
@@ -84,5 +75,17 @@ namespace TAS.Server.Media
                 MediaStatus = TMediaStatus.Available;
             }
         }
+
+        protected override void DoDispose()
+        {
+            _fields.DictionaryOperation -= _fields_DictionaryOperation;
+            base.DoDispose();
+        }
+
+        private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
+        {
+            IsModified = true;
+        }
+
     }
 }

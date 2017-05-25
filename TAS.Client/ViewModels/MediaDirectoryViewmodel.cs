@@ -23,11 +23,12 @@ namespace TAS.Client.ViewModels
                     .Select(d => new MediaDirectoryViewmodel((IIngestDirectory)d, includeImport, includeExport)).ToList()
                 : new List<MediaDirectoryViewmodel>();
         }
-        public IMediaDirectory Directory { get { return _directory; } }
+        public IMediaDirectory Directory => _directory;
 
-        public bool IsOK { get { return _directory.IsInitialized == true && DirectoryFreePercentage >= 20; } }
-        public long VolumeTotalSize { get { return _directory.VolumeTotalSize; } }
-        public long VolumeFreeSize { get { return _directory.VolumeFreeSize; } }
+        public bool IsOK => _directory?.IsInitialized == true && DirectoryFreePercentage >= 20;
+        public long VolumeTotalSize => _directory.VolumeTotalSize;
+        public long VolumeFreeSize => _directory.VolumeFreeSize;
+
         public float DirectoryFreePercentage
         {
             get
@@ -38,45 +39,45 @@ namespace TAS.Client.ViewModels
         }
         public void SweepStaleMedia() { _directory.SweepStaleMedia(); }
 
-        public bool IsInitialized { get { return _directory.IsInitialized; } }
+        public bool IsInitialized => _directory.IsInitialized;
 
-        public string DirectoryName { get { return _directory.DirectoryName; } }
+        public string DirectoryName => _directory.DirectoryName;
 
-        public string Folder { get { return _directory.Folder; } }
+        public string Folder => _directory.Folder;
 
-        public bool IsIngestDirectory { get { return _directory is IIngestDirectory; } }
+        public bool IsIngestDirectory => _directory is IIngestDirectory;
 
-        public bool IsArchiveDirectory { get { return _directory is IArchiveDirectory; } }
-        
-        public bool IsServerDirectory { get { return _directory is IServerDirectory; } }
+        public bool IsArchiveDirectory => _directory is IArchiveDirectory;
 
-        public bool IsPersistentDirectory { get { return _directory is IServerDirectory || _directory is IArchiveDirectory; } }
+        public bool IsServerDirectory => _directory is IServerDirectory;
 
-        public bool IsAnimationDirectory { get { return _directory is IAnimationDirectory; } }
-                
-        public bool IsXdcam { get { return (_directory as IIngestDirectory)?.IsXDCAM == true; } }
+        public bool IsPersistentDirectory => _directory is IServerDirectory || _directory is IArchiveDirectory;
 
-        public bool IsWan { get { return (_directory as IIngestDirectory)?.IsWAN == true; } }
+        public bool IsAnimationDirectory => _directory is IAnimationDirectory;
 
-        public bool IsExport { get { return (_directory as IIngestDirectory)?.IsExport == true; } }
+        public bool IsXdcam => (_directory as IIngestDirectory)?.IsXDCAM == true;
 
-        public bool IsImport { get { return (_directory as IIngestDirectory)?.IsImport == true; } }
+        public bool IsWan => (_directory as IIngestDirectory)?.IsWAN == true;
+
+        public bool IsExport => (_directory as IIngestDirectory)?.IsExport == true;
+
+        public bool IsImport => (_directory as IIngestDirectory)?.IsImport == true;
 
         public bool ContainsImport { get { return IsImport || SubDirectories.Any(d => d.IsImport); } }
 
         public bool ContainsExport { get { return IsExport || SubDirectories.Any(d => d.IsExport); } }
 
-        public TMovieContainerFormat? ExportContainerFormat { get { return (_directory as IIngestDirectory)?.ExportContainerFormat; } }
+        public TMovieContainerFormat? ExportContainerFormat => (_directory as IIngestDirectory)?.ExportContainerFormat;
 
-        public TmXFAudioExportFormat MXFAudioExportFormat { get { return (_directory as IIngestDirectory).MXFAudioExportFormat; } }
+        public TmXFAudioExportFormat MXFAudioExportFormat => (_directory as IIngestDirectory).MXFAudioExportFormat;
 
-        public TmXFVideoExportFormat MXFVideoExportFormat { get { return (_directory as IIngestDirectory).MXFVideoExportFormat; } }
+        public TmXFVideoExportFormat MXFVideoExportFormat => (_directory as IIngestDirectory).MXFVideoExportFormat;
 
-        public bool IsRecursive { get { return (_directory as IIngestDirectory)?.IsRecursive == true; } }
+        public bool IsRecursive => (_directory as IIngestDirectory)?.IsRecursive == true;
 
-        public TDirectoryAccessType AccessType { get { return _directory is IIngestDirectory ? ((IIngestDirectory)_directory).AccessType : TDirectoryAccessType.Direct; } }
+        public TDirectoryAccessType AccessType => _directory is IIngestDirectory ? ((IIngestDirectory)_directory).AccessType : TDirectoryAccessType.Direct;
 
-        public List<MediaDirectoryViewmodel> SubDirectories { get { return _subdirectories; } }
+        public List<MediaDirectoryViewmodel> SubDirectories => _subdirectories;
 
         public override string ToString()
         {

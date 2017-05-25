@@ -18,7 +18,7 @@ namespace TAS.Server.Common.Interfaces
         bool IsIndeterminate { get; }
         int TryCount { get; }
         int Progress { get; }
-        bool Aborted { get; }
+        bool IsAborted { get; }
         List<string> OperationOutput { get; }
         List<string> OperationWarning { get; }
         void Abort();

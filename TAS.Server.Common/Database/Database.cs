@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Xml.Serialization;
 using TAS.Server.Common.Interfaces;
 
@@ -538,7 +539,7 @@ namespace TAS.Server.Common.Database
             lock (_connection)
             {
                 if (_archiveDirectoryConstructorInfo == null)
-                    _archiveDirectoryConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IMediaManager), typeof(UInt64), typeof(string) });
+                    _archiveDirectoryConstructorInfo = typeof(T).GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, CallingConventions.Any,  new[] { typeof(IMediaManager), typeof(ulong), typeof(string) }, null);
                 string query = "SELECT Folder FROM archive WHERE idArchive=@idArchive;";
                 string folder = null;
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
@@ -727,7 +728,7 @@ namespace TAS.Server.Common.Database
             uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flagsEvent")) ? 0 : dataReader.GetUInt32("flagsEvent");
             ushort transitionType = dataReader.GetUInt16("typTransition");
             TEventType eventType = (TEventType)dataReader.GetByte("typEvent");
-            IEvent newEvent = engine.AddNewEvent(
+            IEvent newEvent = engine.CreateNewEvent(
                 dataReader.GetUInt64("idRundownEvent"),
                 dataReader.GetUInt64("idEventBinding"),
                 (VideoLayer)dataReader.GetSByte("Layer"),
@@ -770,7 +771,7 @@ namespace TAS.Server.Common.Database
         {
 
             Debug.WriteLineIf(aEvent.Duration.Days > 1, aEvent, "Duration extremely long");
-            cmd.Parameters.AddWithValue("@idEngine", ((IEnginePersistent)aEvent.Engine).Id);
+            cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)aEvent.Engine).Id);
             cmd.Parameters.AddWithValue("@idEventBinding", aEvent.IdEventBinding);
             cmd.Parameters.AddWithValue("@Layer", (sbyte)aEvent.Layer);
             cmd.Parameters.AddWithValue("@typEvent", aEvent.EventType);

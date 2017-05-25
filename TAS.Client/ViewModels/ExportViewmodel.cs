@@ -16,7 +16,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandExport { get; private set; }
         readonly IMediaManager _mediaManager;
         Views.ExportView _view;
-        public ExportViewmodel(IMediaManager mediaManager, IEnumerable<ExportMedia> exportList)
+        public ExportViewmodel(IMediaManager mediaManager, IEnumerable<MediaExportDescription> exportList)
         {
             _mediaManager = mediaManager;
             Items = new ObservableCollection<ExportMediaViewmodel>(exportList.Select(media => new ExportMediaViewmodel(mediaManager, media)));

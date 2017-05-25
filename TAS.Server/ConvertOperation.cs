@@ -25,7 +25,7 @@ namespace TAS.Server
         private decimal _audioVolume;
         private TFieldOrder _sourceFieldOrderEnforceConversion;
 
-        public ConvertOperation()
+        internal ConvertOperation(FileManager ownerFileManager) : base(ownerFileManager)
         {
             Kind = TFileOperationKind.Convert;
             _aspectConversion = TAspectConversion.NoConversion;
@@ -71,11 +71,11 @@ namespace TAS.Server
                         throw new ArgumentException("ConvertOperation: Source is not of type IngestMedia");
                     bool success = false;
                     if (((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia localSourceMedia = (TempMedia)Owner.TempDirectory.CreateMedia(sourceMedia))
+                        using (TempMedia localSourceMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(sourceMedia))
                         {
                             AddOutputMessage($"Copying to local file {localSourceMedia.FullPath}");
                             localSourceMedia.PropertyChanged += LocalSourceMedia_PropertyChanged;
-                            if (sourceMedia.CopyMediaTo(localSourceMedia, ref _aborted))
+                            if (sourceMedia.CopyMediaTo(localSourceMedia, ref Aborted))
                             {
                                 AddOutputMessage("Verifing local file");
                                 localSourceMedia.Verify();
@@ -367,10 +367,10 @@ namespace TAS.Server
                     else
                     {
                         if ((Source.Directory is IngestDirectory) && ((IngestDirectory)Source.Directory).DeleteSource)
-                            ThreadPool.QueueUserWorkItem((o) =>
+                            ThreadPool.QueueUserWorkItem( o =>
                             {
                                 Thread.Sleep(2000);
-                                Owner.Queue(new FileOperation { Kind = TFileOperationKind.Delete, Source = Source });
+                                OwnerFileManager.Queue(new FileOperation(OwnerFileManager) { Kind = TFileOperationKind.Delete, Source = Source });
                             });
                         AddOutputMessage("Convert operation finished successfully");
                         Debug.WriteLine(this, "Convert operation succeed");
@@ -381,7 +381,7 @@ namespace TAS.Server
                         ThreadPool.QueueUserWorkItem((o) =>
                         {
                             Thread.Sleep(2000);
-                            Owner.Queue(new LoudnessOperation() { Source = destMedia });
+                            OwnerFileManager.Queue( new LoudnessOperation(OwnerFileManager) { Source = destMedia });
                         });
                     }
                     return true;

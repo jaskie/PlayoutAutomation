@@ -77,29 +77,29 @@ namespace TAS.Client.ViewModels
             }));
         }
         
-        public string MediaName { get { return Media.MediaName; } }
-        public string FileName { get { return Media.FileName; } }
-        public string Folder { get { return Media.Folder; } }
-        public string Location { get { return Media.Directory.DirectoryName; } }
-        public TimeSpan TcStart { get { return Media.TcStart; } }
-        public TimeSpan TcPlay { get { return Media.TcPlay; } }
-        public TimeSpan Duration { get { return Media.Duration; } }
-        public TimeSpan DurationPlay { get { return Media.DurationPlay; } }
-        public string sTcStart { get { return Media.IsVerified ? Media.TcStart.ToSMPTETimecodeString(Media.FrameRate()) : string.Empty; } }
-        public string sTcPlay { get { return Media.IsVerified ? Media.TcPlay.ToSMPTETimecodeString(Media.FrameRate()) :string.Empty; } }
-        public string sDuration { get { return Media.Duration != TimeSpan.Zero ? Media.Duration.ToSMPTETimecodeString(Media.FrameRate()): string.Empty; } }
-        public string sDurationPlay { get { return Media.DurationPlay != TimeSpan.Zero ? Media.DurationPlay.ToSMPTETimecodeString(Media.FrameRate()): string.Empty; } }
-        public DateTime LastUpdated { get { return Media.LastUpdated; } }
-        public TMediaCategory MediaCategory { get { return Media.MediaType == TMediaType.Movie ? Media.MediaCategory : TMediaCategory.Uncategorized; } }
-        public TMediaStatus MediaStatus { get { return Media.MediaStatus; } }
-        public TMediaEmphasis MediaEmphasis { get { return (Media is IPersistentMedia) ? (Media as IPersistentMedia).MediaEmphasis : TMediaEmphasis.None; } }
-        public int SegmentCount { get { return (Media is IPersistentMedia) ? (Media as IPersistentMedia).MediaSegments.Count : 0; } }
-        public bool HasSegments { get { return SegmentCount != 0; } }
-        public bool IsTrimmed { get { return TcPlay != TcStart || Duration != DurationPlay; } }
-        public bool IsArchived { get { return Media is IServerMedia ? ((IServerMedia)Media).IsArchived : false; } }
-        public string ClipNr { get { return (Media as IXdcamMedia)?.ClipNr > 0  ? $"{(Media as IXdcamMedia).ClipNr}/{(Media.Directory as IIngestDirectory)?.XdcamClipCount}" : string.Empty; } }
-        public TIngestStatus IngestStatus { get { return Media is IIngestMedia ? ((IIngestMedia)Media).IngestStatus : Media is IArchiveMedia ? ((IArchiveMedia)Media).IngestStatus : TIngestStatus.NotReady; } }
-        public TVideoFormat VideoFormat { get { return Media.VideoFormat; } }
+        public string MediaName => Media.MediaName;
+        public string FileName => Media.FileName;
+        public string Folder => Media.Folder;
+        public string Location => Media.Directory.DirectoryName;
+        public TimeSpan TcStart => Media.TcStart;
+        public TimeSpan TcPlay => Media.TcPlay;
+        public TimeSpan Duration => Media.Duration;
+        public TimeSpan DurationPlay => Media.DurationPlay;
+        public string sTcStart => Media.IsVerified ? Media.TcStart.ToSMPTETimecodeString(Media.FrameRate()) : string.Empty;
+        public string sTcPlay => Media.IsVerified ? Media.TcPlay.ToSMPTETimecodeString(Media.FrameRate()) :string.Empty;
+        public string sDuration => Media.Duration != TimeSpan.Zero ? Media.Duration.ToSMPTETimecodeString(Media.FrameRate()): string.Empty;
+        public string sDurationPlay => Media.DurationPlay != TimeSpan.Zero ? Media.DurationPlay.ToSMPTETimecodeString(Media.FrameRate()): string.Empty;
+        public DateTime LastUpdated => Media.LastUpdated;
+        public TMediaCategory MediaCategory => Media.MediaType == TMediaType.Movie ? Media.MediaCategory : TMediaCategory.Uncategorized;
+        public TMediaStatus MediaStatus => Media.MediaStatus;
+        public TMediaEmphasis MediaEmphasis => (Media is IPersistentMedia) ? (Media as IPersistentMedia).MediaEmphasis : TMediaEmphasis.None;
+        public int SegmentCount => (Media is IPersistentMedia) ? (Media as IPersistentMedia).MediaSegments.Count : 0;
+        public bool HasSegments => SegmentCount != 0;
+        public bool IsTrimmed => TcPlay != TcStart || Duration != DurationPlay;
+        public bool IsArchived => Media is IServerMedia ? ((IServerMedia)Media).IsArchived : false;
+        public string ClipNr => (Media as IXdcamMedia)?.ClipNr > 0  ? $"{(Media as IXdcamMedia).ClipNr}/{(Media.Directory as IIngestDirectory)?.XdcamClipCount}" : string.Empty;
+        public TIngestStatus IngestStatus => Media is IIngestMedia ? ((IIngestMedia)Media).IngestStatus : Media is IArchiveMedia ? ((IArchiveMedia)Media).IngestStatus : TIngestStatus.NotReady;
+        public TVideoFormat VideoFormat => Media.VideoFormat;
         private bool _isExpanded;
         public bool IsExpanded
         {
@@ -115,7 +115,7 @@ namespace TAS.Client.ViewModels
                 }
             }
         }
-        public bool IsVerified { get { return Media.IsVerified; } }
+        public bool IsVerified => Media.IsVerified;
 
         private readonly Lazy<ObservableCollection<MediaSegmentViewmodel>> _mediaSegments;
 

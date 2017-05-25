@@ -6,8 +6,12 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Media
 {
-    public class IngestMedia : MediaBase, IIngestMedia, IServerIngestStatusMedia
+    public class IngestMedia : MediaBase, IIngestMedia
     {
+        private TIngestStatus _ingestStatus;
+        internal string BmdXmlFile; // Blackmagic's Media Express Xml file containing media information
+        internal StreamInfo[] StreamInfo;
+
         internal IngestMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
 
         public override bool FileExists()
@@ -15,15 +19,9 @@ namespace TAS.Server.Media
             var dir = _directory as IngestDirectory;
             if (dir?.AccessType == TDirectoryAccessType.FTP)
                 return dir.FileExists(_fileName, _folder);
-            else
-                return base.FileExists();
+            return base.FileExists();
         }
-
-        internal string XmlFile;
-        internal StreamInfo[] StreamInfo;
-
-        private TIngestStatus _ingestStatus;
-
+        
         public TIngestStatus IngestStatus
         {
             get

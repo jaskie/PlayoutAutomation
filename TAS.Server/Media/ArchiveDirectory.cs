@@ -11,23 +11,39 @@ namespace TAS.Server.Media
 {
     public class ArchiveDirectory : MediaDirectory, IArchiveDirectory
     {
-
         private string _searchString = string.Empty;
 
-        public ArchiveDirectory(IMediaManager mediaManager, UInt64 id, string folder) : base((MediaManager)mediaManager)
+        internal ArchiveDirectory(IMediaManager mediaManager, UInt64 id, string folder) : base((MediaManager)mediaManager)
         {
             idArchive = id;
             Folder = folder;
         }
-        
-        public override void Initialize()
+
+        public IArchiveMedia Find(IMediaProperties media)
         {
-            //TODO: Checki if not executing twice on initialization
-            DirectoryName = "Archiwum";
-            GetVolumeInfo();
-            Search();
-            IsInitialized = true;
-            Debug.WriteLine(this, $"ArchiveDirectory {Folder} initialized");
+            return this.DbMediaFind<ArchiveMedia>(media);
+        }
+
+        public void ArchiveSave(IServerMedia media, bool deleteAfterSuccess)
+        {
+            ArchiveMedia archived;
+            if (media.IsArchived
+                && (archived = this.DbMediaFind<ArchiveMedia>(media)) != null
+                && archived.FileExists())
+            {
+                if (deleteAfterSuccess)
+                {
+                    MediaManager.FileManager.Queue(new FileOperation((FileManager)MediaManager.FileManager) { Kind = TFileOperationKind.Delete, Source = media },
+                        false);
+                }
+            }
+            else
+                _archiveCopy((MediaBase)media, this, deleteAfterSuccess, false);
+        }
+
+        public void ArchiveRestore(IArchiveMedia srcMedia, IServerDirectory destDirectory, bool toTop)
+        {
+            _archiveCopy((MediaBase)srcMedia, destDirectory, false, toTop);
         }
 
         public ulong idArchive { get; set; }
@@ -38,11 +54,6 @@ namespace TAS.Server.Media
             set { SetField(ref _searchString, value); }
         }
 
-        public override void Refresh()
-        {
-            Search();
-        }
-
         public void Search()
         {
             Clear();
@@ -51,16 +62,25 @@ namespace TAS.Server.Media
 
         public TMediaCategory? SearchMediaCategory { get; set; }
 
+        public override void Initialize()
+        {
+            DirectoryName = "Archiwum";
+            GetVolumeInfo();
+            Search();
+            IsInitialized = true;
+            Debug.WriteLine(this, $"ArchiveDirectory {Folder} initialized");
+        }
+
+        public override void Refresh()
+        {
+            Search();
+        }
+
         public override void SweepStaleMedia()
         {
             IEnumerable<IMedia> staleMediaList = this.DbFindStaleMedia<ArchiveMedia>();
             foreach (var m in staleMediaList)
                 m.Delete();
-        }
-
-        public IArchiveMedia Find(IMediaProperties media)
-        {
-            return this.DbMediaFind<ArchiveMedia>(media);
         }
 
         public override bool DeleteMedia(IMedia media)
@@ -103,29 +123,15 @@ namespace TAS.Server.Media
             return result;
         }
 
-        public void ArchiveSave(IServerMedia media, bool deleteAfterSuccess)
-        {
-            ArchiveMedia archived;
-            if (media.IsArchived
-                && (archived = this.DbMediaFind<ArchiveMedia>(media)) != null
-                && archived.FileExists())
-            {
-                if (deleteAfterSuccess)
-                    MediaManager.FileManager.Queue(new FileOperation { Kind = TFileOperationKind.Delete, Source = media }, false);
-            }
-            else
-                _archiveCopy((MediaBase)media, this, deleteAfterSuccess, false);
-        }
-
-        public void ArchiveRestore(IArchiveMedia srcMedia, IServerDirectory destDirectory, bool toTop)
-        {
-            _archiveCopy((MediaBase)srcMedia, destDirectory, false, toTop);
-        }
-
         internal void Clear()
         {
             foreach (var m in Files.Values.ToList())
                 base.MediaRemove(m); //base: to not actually delete file and db
+        }
+
+        internal string GetCurrentFolder()
+        {
+            return DateTime.UtcNow.ToString("yyyyMM");
         }
 
         protected override IMedia CreateMedia(string fullPath, Guid guid = default(Guid))
@@ -138,14 +144,9 @@ namespace TAS.Server.Media
             ((ArchiveMedia)media).Save();
         }
 
-        internal string GetCurrentFolder()
-        {
-            return DateTime.UtcNow.ToString("yyyyMM"); 
-        }
-
         private void _archiveCopy(MediaBase fromMedia, IMediaDirectory destDirectory, bool deleteAfterSuccess, bool toTop)
         {
-            FileOperation operation = new FileOperation { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, Source = fromMedia, DestDirectory = destDirectory };
+            FileOperation operation = new FileOperation((FileManager)MediaManager.FileManager) { Kind = deleteAfterSuccess ? TFileOperationKind.Move : TFileOperationKind.Copy, Source = fromMedia, DestDirectory = destDirectory };
             operation.Success += _archived;
             operation.Failure += _failure;
             MediaManager.FileManager.Queue(operation, toTop);
@@ -173,7 +174,6 @@ namespace TAS.Server.Media
                 operation.Failure -= _failure;
             }
         }
-
 
     }
 }

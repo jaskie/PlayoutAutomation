@@ -15,7 +15,7 @@ namespace TAS.Server.Media
     public abstract class MediaBase : DtoBase, IMedia
     {
 
-        private static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(MediaBase));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(MediaBase));
 
         protected MediaBase(IMediaDirectory directory, Guid mediaGuid = default(Guid))
         {
@@ -398,7 +398,7 @@ namespace TAS.Server.Media
 
         public void GetLoudness()
         {
-            _directory.MediaManager.FileManager.Queue(new LoudnessOperation() { Source = this, MeasureStart = this.TcPlay - this.TcStart, MeasureDuration = this.DurationPlay }, false);
+            _directory.MediaManager.FileManager.Queue(new LoudnessOperation((FileManager)_directory.MediaManager.FileManager) { Source = this, MeasureStart = this.TcPlay - this.TcStart, MeasureDuration = this.DurationPlay }, false);
         }
 
         protected override void DoDispose()

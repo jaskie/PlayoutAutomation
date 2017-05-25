@@ -1,13 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using TAS.Server;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
 using TAS.Server.Media;
@@ -22,17 +17,17 @@ namespace TAS.Server
         private static readonly string LufsPattern = @"-?\d+\.\d";
         private static readonly string lProgressPattern = @" t: \d*\.?\d*";
         private static readonly string ProgressPattern = @"\d+\.?\d*";
-        private static readonly Regex _regexlLufs = new Regex(lLufsPattern, RegexOptions.None);
-        private static readonly Regex _regexlPeak = new Regex(lPeakPattern, RegexOptions.None);
-        private static readonly Regex _regexLoudnesslProgress = new Regex(lProgressPattern, RegexOptions.None);
-        private static readonly Regex _regexLoudnessProgress = new Regex(ProgressPattern, RegexOptions.None);
+        private static readonly Regex RegexlLufs = new Regex(lLufsPattern, RegexOptions.None);
+        private static readonly Regex RegexlPeak = new Regex(lPeakPattern, RegexOptions.None);
+        private static readonly Regex RegexLoudnesslProgress = new Regex(lProgressPattern, RegexOptions.None);
+        private static readonly Regex RegexLoudnessProgress = new Regex(ProgressPattern, RegexOptions.None);
 
-        private decimal _loudness = 0;
+        private decimal _loudness;
         private decimal _samplePeak = decimal.MinValue;
-        private bool _loudnessMeasured = false;
-        private bool _samplePeakMeasured = false;
+        private bool _loudnessMeasured;
+        private bool _samplePeakMeasured;
 
-        public LoudnessOperation()
+        public LoudnessOperation(FileManager ownerFileManager) : base(ownerFileManager)
         {
             Kind = TFileOperationKind.Loudness;
         }
@@ -54,30 +49,26 @@ namespace TAS.Server
                 try
                 {
 
-                    bool success = false;
+                    bool success;
                     if (Source == null)
                         throw new ArgumentException("LoudnessOperation: Source is not of type Media");
                     if (Source.Directory is IngestDirectory && ((IngestDirectory)Source.Directory).AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia _localSourceMedia = (TempMedia)Owner.TempDirectory.CreateMedia(Source))
+                        using (TempMedia localSourceMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(Source))
                         {
-                            if (SourceMedia.CopyMediaTo(_localSourceMedia, ref _aborted))
+                            if (SourceMedia.CopyMediaTo(localSourceMedia, ref Aborted))
                             {
-                                success = InternalExecute(_localSourceMedia);
+                                success = InternalExecute(localSourceMedia);
                                 if (!success)
                                     TryCount--;
                                 return success;
                             }
-                            else
-                                return false;
+                            return false;
                         }
 
-                    else
-                    {
-                        success = InternalExecute(SourceMedia);
-                        if (!success)
-                            TryCount--;
-                        return success;
-                    }
+                    success = InternalExecute(SourceMedia);
+                    if (!success)
+                        TryCount--;
+                    return success;
                 }
                 catch
                 {
@@ -85,8 +76,7 @@ namespace TAS.Server
                     return false;
                 }
             }
-            else
-                return base.Execute();
+            return base.Execute();
         }
 
         private bool InternalExecute(MediaBase inputMedia)
@@ -109,10 +99,10 @@ namespace TAS.Server
             // Collect the process command output. 
             if (!String.IsNullOrEmpty(outLine.Data))
             {
-                Match lineMatch = _regexLoudnesslProgress.Match(outLine.Data);
+                Match lineMatch = RegexLoudnesslProgress.Match(outLine.Data);
                 if (lineMatch.Success)
                 {
-                    Match valueMatch = _regexLoudnessProgress.Match(lineMatch.Value);
+                    Match valueMatch = RegexLoudnessProgress.Match(lineMatch.Value);
                     if (valueMatch.Success)
                     {
                         double totalSeconds = Source.Duration.TotalSeconds;
@@ -124,21 +114,21 @@ namespace TAS.Server
                 }
                 else
                 {
-                    Match luFSLineMatch = _regexlLufs.Match(outLine.Data);
-                    if (luFSLineMatch.Success)
+                    Match luFsLineMatch = RegexlLufs.Match(outLine.Data);
+                    if (luFsLineMatch.Success)
                     {
-                        Regex _regexLufs = new Regex(LufsPattern, RegexOptions.None);
-                        Match valueMatch = _regexLufs.Match(luFSLineMatch.Value);
+                        Regex regexLufs = new Regex(LufsPattern, RegexOptions.None);
+                        Match valueMatch = regexLufs.Match(luFsLineMatch.Value);
                         if (valueMatch.Success)
                             _loudnessMeasured = (decimal.TryParse(valueMatch.Value.Trim(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out _loudness));
                     }
                     if (!_samplePeakMeasured)
                     {
-                        Match truePeakLineMatch = _regexlPeak.Match(outLine.Data);
+                        Match truePeakLineMatch = RegexlPeak.Match(outLine.Data);
                         if (truePeakLineMatch.Success)
                         {
-                            Regex _regexLufs = new Regex(LufsPattern, RegexOptions.None);
-                            Match valueMatch = _regexLufs.Match(truePeakLineMatch.Value);
+                            Regex regexLufs = new Regex(LufsPattern, RegexOptions.None);
+                            Match valueMatch = regexLufs.Match(truePeakLineMatch.Value);
                             if (valueMatch.Success)
                                 _samplePeakMeasured = (decimal.TryParse(valueMatch.Value.Trim(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out _samplePeak));
                             else
@@ -147,8 +137,7 @@ namespace TAS.Server
                     }
                     if (_samplePeakMeasured && _loudnessMeasured)
                     {
-                        var refLoudness = this.Owner.VolumeReferenceLoudness;
-                        decimal volume = -Math.Max(_loudness - refLoudness, _samplePeak); // prevents automatic amplification over 0dBFS
+                        decimal volume = -Math.Max(_loudness - OwnerFileManager.ReferenceLoudness, _samplePeak); // prevents automatic amplification over 0dBFS
                         var h = AudioVolumeMeasured;
                         if (h == null)
                         {

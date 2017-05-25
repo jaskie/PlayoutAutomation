@@ -15,7 +15,7 @@ namespace TAS.Remoting.Server
     public abstract class DtoBase: IDto, INotifyPropertyChanged
     {
         [XmlIgnore]
-        public Guid DtoGuid { get; private set; } = Guid.NewGuid();
+        public Guid DtoGuid { get; } = Guid.NewGuid();
 
 #if DEBUG
         ~DtoBase()

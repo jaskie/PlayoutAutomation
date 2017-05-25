@@ -82,7 +82,7 @@ namespace TAS.Server.Common
             IEvent result = null;
             try
             {
-                result = engine.AddNewEvent(
+                result = engine.CreateNewEvent(
                         videoLayer: Layer,
                         eventType: EventType,
                         startType: StartType,

@@ -88,7 +88,6 @@
     <Compile Include="Media\FtpMediaStream.cs" />
     <Compile Include="Media\IngestDirectory.cs" />
     <Compile Include="Media\IngestMedia.cs" />
-    <Compile Include="Media\IServerIngestStatusMedia.cs" />
     <Compile Include="Media\MediaBase.cs" />
     <Compile Include="Media\MediaChecker.cs" />
     <Compile Include="Media\MediaDirectory.cs" />

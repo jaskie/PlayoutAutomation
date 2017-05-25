@@ -445,7 +445,7 @@ namespace TAS.Client.ViewModels
                 return m != null
                     && (m.IsEnabled || exportAll)
                     && m.Media?.FileExists() == true;
-            }).Select(e => new ExportMedia(
+            }).Select(e => new MediaExportDescription(
                 e.Event.Media, 
                 e.Event.SubEvents.Where(sev => sev.EventType == TEventType.StillImage && sev.Media != null).Select(sev => sev.Media).ToList(),
                 e.Event.ScheduledTc, 
@@ -541,7 +541,7 @@ namespace TAS.Client.ViewModels
 
         private void _addNewRootRundown(object o)
         {
-            IEvent newEvent = _engine.AddNewEvent(
+            IEvent newEvent = _engine.CreateNewEvent(
                 eventType: TEventType.Rundown,
                 eventName: resources._title_NewRundown,
                 startType: TStartType.Manual,
@@ -553,7 +553,7 @@ namespace TAS.Client.ViewModels
 
         private void _newContainer(object o)
         {
-            IEvent newEvent = _engine.AddNewEvent(
+            IEvent newEvent = _engine.CreateNewEvent(
                 eventType: TEventType.Container,
                 eventName: resources._title_NewContainer);
             _engine.AddRootEvent(newEvent);
@@ -651,7 +651,7 @@ namespace TAS.Client.ViewModels
                         TMediaCategory category = e.Media.MediaCategory;
                         var cgController = Engine.CGElementsController;
                         var defaultCrawl = cgController == null ? 0 : cgController.DefaultCrawl;
-                        newEvent = _engine.AddNewEvent(
+                        newEvent = _engine.CreateNewEvent(
                             eventName: e.MediaName,
                             videoLayer: VideoLayer.Program,
                             eventType: TEventType.Movie,
@@ -667,14 +667,14 @@ namespace TAS.Client.ViewModels
                             );
                         break;
                     case TMediaType.Still:
-                        newEvent = _engine.AddNewEvent(
+                        newEvent = _engine.CreateNewEvent(
                             eventName: e.MediaName,
                             eventType: TEventType.StillImage,
                             videoLayer: mediaSearchVm.Layer,
                             duration: mediaSearchVm.BaseEvent.Duration);
                         break;
                     case TMediaType.Animation:
-                        newEvent = _engine.AddNewEvent(
+                        newEvent = _engine.CreateNewEvent(
                             eventName: e.MediaName,
                             eventType: TEventType.Animation,
                             videoLayer: VideoLayer.Animation);
@@ -698,7 +698,7 @@ namespace TAS.Client.ViewModels
         
         public void AddCommandScriptEvent(IEvent baseEvent)
         {
-            var newEvent = Engine.AddNewEvent(eventType: TEventType.CommandScript, duration:baseEvent.Duration, eventName:resources._title_NewCommandScript);
+            var newEvent = Engine.CreateNewEvent(eventType: TEventType.CommandScript, duration:baseEvent.Duration, eventName:resources._title_NewCommandScript);
             baseEvent.InsertUnder(newEvent, false);
             LastAddedEvent = newEvent;
         }
@@ -709,20 +709,20 @@ namespace TAS.Client.ViewModels
             switch (eventType)
             {
                 case TEventType.Live:
-                    newEvent = Engine.AddNewEvent(
+                    newEvent = Engine.CreateNewEvent(
                         eventType: TEventType.Live,
                         eventName: resources._title_NewLive,
                         videoLayer: VideoLayer.Program,
                         duration: new TimeSpan(0, 10, 0));
                     break;
                 case TEventType.Movie:
-                    newEvent = Engine.AddNewEvent(
+                    newEvent = Engine.CreateNewEvent(
                         eventType: TEventType.Movie,
                         eventName: resources._title_EmptyMovie,
                         videoLayer: VideoLayer.Program);
                     break;
                 case TEventType.Rundown:
-                    newEvent = Engine.AddNewEvent(
+                    newEvent = Engine.CreateNewEvent(
                         scheduledTime: DateTime.Today.AddDays(1) + new TimeSpan(DateTime.Now.Hour, 0, 0),
                         eventType: TEventType.Rundown,
                         eventName: resources._title_NewRundown);

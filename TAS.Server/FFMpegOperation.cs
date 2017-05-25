@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading;
+using TAS.Server.Media;
 
 namespace TAS.Server
 {
@@ -11,6 +12,9 @@ namespace TAS.Server
         const string FFmpegExe = "ffmpeg.exe";
         const string LProgressPattern = "time=" + @"\d\d:\d\d:\d\d\.?\d*";
         const string ProgressPattern = @"\d\d:\d\d:\d\d\.?\d*";
+
+        internal FFMpegOperation(FileManager ownerFileManager): base(ownerFileManager) { }
+
         protected readonly Regex RegexlProgress = new Regex(LProgressPattern, RegexOptions.None);
         protected readonly Regex RegexProgress = new Regex(ProgressPattern, RegexOptions.None);
         protected TimeSpan ProgressDuration;
@@ -33,9 +37,9 @@ namespace TAS.Server
                     procFFmpeg.ErrorDataReceived += ProcOutputHandler;
                     procFFmpeg.BeginErrorReadLine();
                     bool finished = false;
-                    while (!(Aborted || finished))
+                    while (!(IsAborted || finished))
                         finished = procFFmpeg.WaitForExit(1000);
-                    if (Aborted)
+                    if (IsAborted)
                     {
                         procFFmpeg.Kill();
                         Thread.Sleep(1000);

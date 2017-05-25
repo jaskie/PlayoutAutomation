@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 namespace TAS.Server.Common.Interfaces
 {
-    public interface IEngine : IPreview, INotifyPropertyChanged
+    public interface IEngine : IPreview, IEngineProperties
     {
         long FrameTicks { get; }
         IPlayoutServerChannel PlayoutChannelPRI { get; }
@@ -12,17 +12,14 @@ namespace TAS.Server.Common.Interfaces
         IMediaManager MediaManager { get; }
         ConnectionStateRedundant DatabaseConnectionState { get; }
         bool Pst2Prv { get; set; }
-
         decimal ProgramAudioVolume { get; set; }
         bool FieldOrderInverted { get; set; }
         TEngineState EngineState { get; }
-
         RationalNumber FrameRate { get; }
         IEnumerable<IEvent> GetRootEvents();
         void AddRootEvent(IEvent ev);
         List<IEvent> FixedTimeEvents { get; }
-
-        IEvent AddNewEvent(
+        IEvent CreateNewEvent(
                     UInt64 idRundownEvent = 0,
                     UInt64 idEventBinding = 0,
                     VideoLayer videoLayer = VideoLayer.None,
@@ -71,22 +68,13 @@ namespace TAS.Server.Common.Interfaces
         void ReSchedule(IEvent aEvent);
         void Restart();
         void Execute(string command);
-
         DateTime CurrentTime { get; }
-
         ICGElementsController CGElementsController { get; }
-
         void SearchMissingEvents();
         IEvent Playing { get; }
         IEvent NextToPlay { get; }
         IEvent NextWithRequestedStartTime { get; }
-
-        string EngineName { get; }
-        TVideoFormat VideoFormat { get; set; }
-        bool EnableCGElementsForNewEvents { get; set; }
-        TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
         bool IsWideScreen { get; }
-
         event EventHandler<IEventEventArgs> EventSaved;
         event EventHandler<IEventEventArgs> EventDeleted;
         event EventHandler<EngineTickEventArgs> EngineTick;
@@ -95,8 +83,16 @@ namespace TAS.Server.Common.Interfaces
         event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
     }
+    
+    public interface IEngineProperties
+    {
+        string EngineName { get; }
+        TVideoFormat VideoFormat { get; set; }
+        bool EnableCGElementsForNewEvents { get; set; }
+        TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
+    }
 
-    public interface IEnginePersistent : IPersistent
+    public interface IEnginePersistent : IEngineProperties, IPersistent
     {
         TAspectRatioControl AspectRatioControl { get; set; }
         int TimeCorrection { get; set; }
@@ -110,7 +106,5 @@ namespace TAS.Server.Common.Interfaces
         ulong IdServerPRV { get; set; }
         int ServerChannelPRV { get; set; }
         ulong IdArchive { get; set; }
-        string EngineName { get; }
     }
-
 }

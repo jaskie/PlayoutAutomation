@@ -18,134 +18,153 @@ namespace TAS.Server
 {
     public class Engine : DtoBase, IEngine, IEnginePersistent
     {
-        #region static methods        
-        [DllImport("kernel32.dll")]
-        private static extern int QueryUnbiasedInterruptTime(out ulong unbiasedTime);
-        #endregion // static methods
-        
-        #region IEnginePersistent
-        // ignored properties are readed from table's fields, rest is from xml ("Config" field)
+        private string _engineName;
+        private bool _pst2Prv;
+        private CasparServerChannel _playoutChannelPRI;
+        private CasparServerChannel _playoutChannelSEC;
+        private CasparServerChannel _playoutChannelPRV;
+
+        [JsonProperty(nameof(MediaManager), TypeNameHandling = TypeNameHandling.Objects)]
+        private readonly MediaManager _mediaManager;
+        Thread _engineThread;
+        private long _currentTicks;
+        public readonly object RundownSync = new object();
+        private readonly object _tickLock = new object();
+        private readonly ObservableSynchronizedCollection<IEvent> _visibleEvents = new ObservableSynchronizedCollection<IEvent>(); // list of visible events
+        private readonly ObservableSynchronizedCollection<IEvent> _runningEvents = new ObservableSynchronizedCollection<IEvent>(); // list of events loaded and playing 
+        private readonly ConcurrentDictionary<VideoLayer, IEvent> _preloadedEvents = new ConcurrentDictionary<VideoLayer, IEvent>();
+        private readonly SynchronizedCollection<IEvent> _rootEvents = new SynchronizedCollection<IEvent>();
+        private readonly SynchronizedCollection<Event> _fixedTimeEvents = new SynchronizedCollection<Event>();
+        private readonly ConcurrentDictionary<ulong, IEvent> _events = new ConcurrentDictionary<ulong, IEvent>();
+        private Event _playing;
+        private Event _forcedNext;
+        private IEnumerable<IGpi> _localGpis;
+        private IEnumerable<IEnginePlugin> _plugins;
+        private TimeSpan _timeCorrection;
+        private bool _isWideScreen;
+        private TEngineState _engineState;
+        private decimal _programAudioVolume = 1;
+        private bool _fieldOrderInverted;
+
+        private IMedia _previewMedia;
+        private long _previewDuration;
+        private long _previewPosition;
+        private long _previewSeek;
+        private decimal _previewAudioVolume;
+        private bool _previewLoaded;
+        private bool _previewIsPlaying;
+
+
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Engine));
+        private static TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
+
+
+        public Engine()
+        {
+            _visibleEvents.CollectionOperation += NotifyVisibleEventsOperation;
+            _runningEvents.CollectionOperation += _runningEventsOperation;
+            _engineState = TEngineState.NotInitialized;
+            _mediaManager = new MediaManager(this);
+            Database.ConnectionStateChanged += _database_ConnectionStateChanged;
+        }
+
+        public event EventHandler<EngineTickEventArgs> EngineTick;
+        public event EventHandler<EngineOperationEventArgs> EngineOperation;
+        public event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
+        public event EventHandler<CollectionOperationEventArgs<IEvent>> PreloadedEventsOperation;
+        public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
+        public event EventHandler<IEventEventArgs> EventSaved;
+        public event EventHandler<IEventEventArgs> EventDeleted;
+        public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
+
+
+        #region IEngineProperties
+        // xml-ignored properties are readed from table's fields, rest is from xml ("Config" field)
         [XmlIgnore] 
-        public UInt64 Id { get; set; }
+        public ulong Id { get; set; }
+
         [XmlIgnore]
-        public UInt64 Instance { get; set; }
+        public ulong Instance { get; set; }
+
         [XmlIgnore]
-        public UInt64 IdArchive { get; set; }
+        public ulong IdArchive { get; set; }
+
         [XmlIgnore]
         public ulong IdServerPRI { get; set; }
+
         [XmlIgnore]
         public int ServerChannelPRI { get; set; }
+
         [XmlIgnore]
         public ulong IdServerSEC { get; set; }
+
         [XmlIgnore]
         public int ServerChannelSEC { get; set; }
+
         [XmlIgnore]
         public ulong IdServerPRV { get; set; }
+
         [XmlIgnore]
         public int ServerChannelPRV { get; set; }
 
         public int CGStartDelay { get; set; }
-        #endregion //IEnginePersistent
 
-        string _engineName;
         [JsonProperty]
         public string EngineName
         {
             get { return _engineName; }
             set { SetField(ref _engineName, value); }
         }
-        #region Fields
 
-        [JsonProperty(nameof(MediaManager), TypeNameHandling = TypeNameHandling.Objects)]
-        private readonly MediaManager _mediaManager;
-        [XmlIgnore]
-        public IMediaManager MediaManager { get { return _mediaManager; } }
-        [XmlIgnore]
-
-        Thread _engineThread;
-        internal long CurrentTicks;
-
-        public object RundownSync = new object();
-        private static TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
-        readonly ObservableSynchronizedCollection<IEvent> _visibleEvents = new ObservableSynchronizedCollection<IEvent>(); // list of visible events
-        readonly ObservableSynchronizedCollection<IEvent> _runningEvents = new ObservableSynchronizedCollection<IEvent>(); // list of events loaded and playing 
-        readonly ConcurrentDictionary<VideoLayer, IEvent> _preloadedEvents = new ConcurrentDictionary<VideoLayer, IEvent>();
-        readonly SynchronizedCollection<IEvent> _rootEvents = new SynchronizedCollection<IEvent>();
-        readonly ConcurrentDictionary<ulong, IEvent> _events = new ConcurrentDictionary<ulong, IEvent>();
-
-        private Event _forcedNext;
-
-        public event EventHandler<EngineTickEventArgs> EngineTick;
-        public event EventHandler<EngineOperationEventArgs> EngineOperation;
         [JsonProperty]
         public bool EnableCGElementsForNewEvents { get; set; }
+
         [JsonProperty]
         public TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
-        private IEnumerable<IGpi> _localGpis;
-        private IEnumerable<IEnginePlugin> _plugins;
+        #endregion //IEngineProperties
+        
+        public TArchivePolicyType ArchivePolicy { get; set; } = TArchivePolicyType.NoArchive;
+
+        [XmlIgnore]
+        public IMediaManager MediaManager => _mediaManager;
+
+        [XmlIgnore]
         [JsonProperty(nameof(CGElementsController))]
-        private ICGElementsController _cgElementsController;
-        public ICGElementsController CGElementsController => _cgElementsController;
+        public ICGElementsController CGElementsController { get; private set; }
 
         public RemoteClientHost Remote { get; set; }
         public TAspectRatioControl AspectRatioControl { get; set; }
         public double VolumeReferenceLoudness { get; set; }
 
         public int TimeCorrection { get { return (int)_timeCorrection.TotalMilliseconds; } set { _timeCorrection = TimeSpan.FromMilliseconds(value); } }
-        private TimeSpan _timeCorrection;
+        [XmlIgnore]
+        public DateTime CurrentTime { get; private set; }
 
-        #endregion Fields
-
-        #region Constructor
-        public Engine()
+        public DateTime AlignDateTime(DateTime dt)
         {
-            _visibleEvents.CollectionOperation += _visibleEventsOperation;
-            _runningEvents.CollectionOperation += _runningEventsOperation;
-            _engineState = TEngineState.NotInitialized;
-            _mediaManager = new MediaManager(this);
-            Common.Database.Database.ConnectionStateChanged += _database_ConnectionStateChanged;
+            return new DateTime((dt.Ticks / FrameTicks) * FrameTicks, dt.Kind);
         }
 
-        #endregion Constructor
-
-        #region IDisposable implementation
-
-        protected override void DoDispose()
+        public TimeSpan AlignTimeSpan(TimeSpan ts)
         {
-            base.DoDispose();
-            _visibleEvents.CollectionOperation -= _visibleEventsOperation;
-            _runningEvents.CollectionOperation -= _runningEventsOperation;
-            foreach (Event e in _rootEvents)
-                e.SaveLoadedTree();
-            _cgElementsController?.Dispose();
-            var remote = Remote;
-            remote?.Dispose();
-            Common.Database.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
+            return new TimeSpan((ts.Ticks / FrameTicks) * FrameTicks);
         }
-
-        #endregion //IDisposable
-
-        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Engine));
-
-        private CasparServerChannel _playoutChannelPRI;
+        
         [XmlIgnore]
         public IPlayoutServerChannel PlayoutChannelPRI => _playoutChannelPRI;
 
-        private CasparServerChannel _playoutChannelSEC;
         [XmlIgnore]
         public IPlayoutServerChannel PlayoutChannelSEC => _playoutChannelSEC;
 
-        private CasparServerChannel _playoutChannelPRV;
         [XmlIgnore]
         public IPlayoutServerChannel PlayoutChannelPRV => _playoutChannelPRV;
 
-        long _frameTicks;
-        public long FrameTicks => _frameTicks;
-        RationalNumber _frameRate;
+        [XmlIgnore]
+        public long FrameTicks { get; private set; }
 
         [XmlIgnore]
         [JsonProperty]
-        public RationalNumber FrameRate => _frameRate;
+        public RationalNumber FrameRate { get; private set; }
 
         [JsonProperty]
         public TVideoFormat VideoFormat { get; set; }
@@ -153,6 +172,66 @@ namespace TAS.Server
         [XmlIgnore]
         [JsonProperty(IsReference = false)]
         public VideoFormatDescription FormatDescription { get; private set; }
+
+        [XmlIgnore]
+        public TEngineState EngineState
+        {
+            get { return _engineState; }
+            private set
+            {
+                lock (_runningEvents.SyncRoot)
+                    if (SetField(ref _engineState, value))
+                    {
+                        if (value == TEngineState.Hold)
+                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && ((Event)e).IsFinished()).ToList())
+                            {
+                                _pause(ev, true);
+                                Debug.WriteLine(ev, "Hold: Played");
+                            }
+                        if (value == TEngineState.Idle && _runningEvents.Count > 0)
+                        {
+                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && ((Event)e).IsFinished()).ToList())
+                            {
+                                _pause(ev, true);
+                                Debug.WriteLine(ev, "Idle: Played");
+                            }
+                        }
+                    }
+            }
+        }
+
+        [XmlIgnore]
+        public bool FieldOrderInverted
+        {
+            get { return _fieldOrderInverted; }
+            set
+            {
+                if (SetField(ref _fieldOrderInverted, value))
+                {
+                    _playoutChannelPRI?.SetFieldOrderInverted(VideoLayer.Program, value);
+                    if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
+                        _playoutChannelSEC.SetFieldOrderInverted(VideoLayer.Program, value);
+                }
+            }
+        }
+
+        [XmlIgnore]
+        public decimal ProgramAudioVolume
+        {
+            get { return _programAudioVolume; }
+            set
+            {
+                if (SetField(ref _programAudioVolume, value))
+                {
+                    var playing = Playing;
+                    int transitioDuration = playing == null ? 0 : (int)playing.TransitionTime.ToSMPTEFrames(FrameRate);
+                    _playoutChannelPRI?.SetVolume(VideoLayer.Program, value, transitioDuration);
+                    if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
+                        _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
+                }
+            }
+        }
+
 
         public void Initialize(IList<CasparServer> servers)
         {
@@ -178,11 +257,11 @@ namespace TAS.Server
 
             _localGpis = this.ComposeParts<IGpi>();
             _plugins = this.ComposeParts<IEnginePlugin>();
-            _cgElementsController = this.ComposePart<ICGElementsController>();
+            CGElementsController = this.ComposePart<ICGElementsController>();
 
             FormatDescription = VideoFormatDescription.Descriptions[VideoFormat];
-            _frameTicks = FormatDescription.FrameTicks;
-            _frameRate = FormatDescription.FrameRate;
+            FrameTicks = FormatDescription.FrameTicks;
+            FrameRate = FormatDescription.FrameRate;
             var chPRI = PlayoutChannelPRI as CasparServerChannel;
             var chSEC = PlayoutChannelSEC as CasparServerChannel;
             if (chSEC != null
@@ -206,7 +285,7 @@ namespace TAS.Server
             this.DbReadRootEvents();
 
             EngineState = TEngineState.Idle;
-            var cgElementsController = _cgElementsController;
+            var cgElementsController = CGElementsController;
             if (cgElementsController != null)
             {
                 Debug.WriteLine(this, "Initializing CGElementsController");
@@ -232,193 +311,16 @@ namespace TAS.Server
             Debug.WriteLine(this, "Engine initialized");
             Logger.Debug("Engine {0} initialized", this);
         }
-
-        internal void UnInitialize()
-        {
-            Debug.WriteLine(this, "Aborting engine thread");
-            _engineThread.Abort();
-            _engineThread.Join();
-            EngineState = TEngineState.NotInitialized;
-
-            var chPRI = PlayoutChannelPRI as CasparServerChannel;
-            var chSEC = PlayoutChannelSEC as CasparServerChannel;
-            if (chSEC != null
-                && chSEC != chPRI)
-                chSEC.Owner.PropertyChanged -= _server_PropertyChanged;
-            if (chPRI != null)
-                chPRI.Owner.PropertyChanged -= _server_PropertyChanged;
-
-            if (Remote != null)
-            {
-                Debug.WriteLine(this, "UnInitializing Remote interface");
-                Remote.UnInitialize();
-            }
-            if (_localGpis != null)
-                foreach (var gpi in _localGpis)
-                    gpi.Started -= _startLoaded;
-
-            var cgElementsController = _cgElementsController;
-            if (cgElementsController != null)
-            {
-                Debug.WriteLine(this, "Uninitializing CGElementsController");
-                cgElementsController.Started -= _startLoaded;
-                cgElementsController.Dispose();
-            }
-
-            Debug.WriteLine(this, "Engine uninitialized");
-        }
-
-        private void _startLoaded(object o, EventArgs e)
-        {
-            StartLoaded();
-        }
-
-        private void _engineThreadProc()
-        {
-            Debug.WriteLine(this, "Engine thread started");
-            Logger.Debug("Started engine thread for {0}", this);
-            CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
-            CurrentTicks = CurrentTime.Ticks;
-
-            var playingEvents = this.DbSearchPlaying();
-            var playing = playingEvents.FirstOrDefault(e => e.Layer == VideoLayer.Program && (e.EventType == TEventType.Live || e.EventType == TEventType.Movie));
-            if (playing != null)
-            {
-                Debug.WriteLine(playing, "Playing event found");
-                if (CurrentTicks < (playing.ScheduledTime + playing.Duration).Ticks)
-                {
-                    foreach (var e in playingEvents)
-                    {
-                        ((Event)e).Position = (CurrentTicks - e.ScheduledTime.Ticks) / _frameTicks;
-                        _runningEvents.Add(e);
-                        _visibleEvents.Add(e);
-                    }
-                    _engineState = TEngineState.Running;
-                    Playing = playing;
-                }
-                else
-                    foreach (var e in playingEvents)
-                    {
-                        e.PlayState = TPlayState.Aborted;
-                        e.Save();
-                    }
-            }
-            else
-                foreach (var e in playingEvents)
-                {
-                    e.PlayState = TPlayState.Aborted;
-                    e.Save();
-                }
-
-            ulong currentTime;
-            ulong frameDuration = (ulong)_frameTicks;
-            QueryUnbiasedInterruptTime(out currentTime);
-            ulong prevTime = currentTime - frameDuration;
-            while (!IsDisposed)
-            {
-                try
-                {
-                    CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
-                    QueryUnbiasedInterruptTime(out currentTime);
-                    CurrentTicks = CurrentTime.Ticks;
-                    ulong nFrames = (currentTime - prevTime) / frameDuration;
-                    prevTime += (nFrames * frameDuration);
-                    _tick((long)nFrames);
-                    EngineTick?.Invoke(this, new EngineTickEventArgs(CurrentTime, _getTimeToAttention()));
-                    if (nFrames > 1)
-                    {
-                        Debug.WriteLine(nFrames, "LateFrame");
-                        if (nFrames > 20)
-                            Logger.Error("LateFrame: {0}", nFrames);
-                        else
-                            Logger.Warn("LateFrame: {0}", nFrames);
-                    }
-                    Debug.WriteLineIf(nFrames == 0, "Zero frames tick");
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(e, "Exception in engine tick");
-                    Logger.Error($"{e}");
-                }
-                QueryUnbiasedInterruptTime(out currentTime);
-                int waitTime = (int)((prevTime + frameDuration - currentTime + 10000) / 10000);
-                if (waitTime > 0)
-                    Thread.Sleep(waitTime);
-#if DEBUG
-                else
-                    Debug.WriteLine("Negative waitTime");
-#endif
-            }
-            Debug.WriteLine(this, "Engine thread finished");
-            Logger.Debug("Engine thread finished: {0}", this);
-        }
-
-        private void _server_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            Action<CasparServerChannel, List<IEvent>> channelConnected = (channel, ve) =>
-            {
-                foreach (Event ev in ve)
-                {
-                    channel.ReStart(ev);
-                    channel.SetVolume(VideoLayer.Program, _programAudioVolume, 0);
-                    if (ev.Layer == VideoLayer.Program || ev.Layer == VideoLayer.Preset)
-                    {
-                        IMedia media = ev.Media;
-                        bool narrow = media != null && (media.VideoFormat == TVideoFormat.PAL || media.VideoFormat == TVideoFormat.NTSC || media.VideoFormat == TVideoFormat.PAL_P);
-                        if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
-                            channel.SetAspect(VideoLayer.Program, narrow);
-                    }
-                }
-            };
-
-            if (e.PropertyName == nameof(IPlayoutServer.IsConnected) && ((IPlayoutServer)sender).IsConnected)
-            {
-                var ve = _visibleEvents.ToList();
-                if (sender == ((CasparServerChannel)PlayoutChannelPRI)?.Owner)
-                    channelConnected(_playoutChannelPRI, ve);
-                if (sender == ((CasparServerChannel)PlayoutChannelSEC)?.Owner
-                    && PlayoutChannelSEC != PlayoutChannelPRI)
-                    channelConnected(_playoutChannelSEC, ve);
-            }
-        }
-
-        #region Database
-        private void _database_ConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
-        {
-            NotifyPropertyChanged(nameof(DatabaseConnectionState));
-            Logger.Error("Database state changed from {0} to {1}. Stack trace was {2}", e.OldState, e.NewState, new StackTrace());
-        }
-
-        public ConnectionStateRedundant DatabaseConnectionState { get; } = Common.Database.Database.ConnectionState;
-
-        #endregion //Database
-
-        #region FixedStartEvents
-
-        private readonly SynchronizedCollection<Event> _fixedTimeEvents = new SynchronizedCollection<Event>();
-        internal void AddFixedTimeEvent(Event e)
-        {
-            _fixedTimeEvents.Add(e);
-            FixedTimeEventOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, TCollectionOperation.Insert));
-        }
-        internal void RemoveFixedTimeEvent(Event e)
-        {
-            if (_fixedTimeEvents.Remove(e))
-            {
-                FixedTimeEventOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, TCollectionOperation.Remove));
-            }
-        }
+        
+        public ConnectionStateRedundant DatabaseConnectionState { get; } = Database.ConnectionState;
+        
 
         [XmlIgnore]
         public List<IEvent> FixedTimeEvents { get { lock (_fixedTimeEvents.SyncRoot) return _fixedTimeEvents.Cast<IEvent>().ToList(); } }
 
-        public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
+        [XmlIgnore]
+        public ICollection<IEventPesistent> VisibleEvents => _visibleEvents.Cast<IEventPesistent>().ToList();
 
-        #endregion // FixedStartEvents
-
-        public TArchivePolicyType ArchivePolicy;
-
-        private Event _playing;
         [XmlIgnore]
         public IEvent Playing
         {
@@ -439,6 +341,7 @@ namespace TAS.Server
             }
         }
 
+        [XmlIgnore]
         public IEvent NextToPlay
         {
             get
@@ -455,6 +358,7 @@ namespace TAS.Server
             }
         }
 
+        [XmlIgnore]
         public IEvent NextWithRequestedStartTime
         {
             get
@@ -469,7 +373,29 @@ namespace TAS.Server
             }
         }
 
-        bool _isWideScreen;
+        [XmlIgnore]
+        public IEvent ForcedNext
+        {
+            get { return _forcedNext; }
+            set
+            {
+
+                lock (_tickLock)
+                {
+                    var oldForcedNext = _forcedNext;
+                    if (SetField(ref _forcedNext, (Event)value))
+                    {
+                        Debug.WriteLine(value, "ForcedNext");
+                        NotifyPropertyChanged(nameof(NextToPlay));
+                        if (_forcedNext != null)
+                            _forcedNext.IsForcedNext = true;
+                        if (oldForcedNext != null)
+                            oldForcedNext.IsForcedNext = false;
+                    }
+                }
+            }
+        }
+
         [JsonProperty]
         [XmlIgnore]
         public bool IsWideScreen
@@ -485,11 +411,346 @@ namespace TAS.Server
                     }
             }
         }
-        #region Preview Routines
 
-        private IMedia _previewMedia;
+        [XmlIgnore]
+        public bool Pst2Prv
+        {
+            get { return _pst2Prv; }
+            set
+            {
+                if (SetField(ref _pst2Prv, value))
+                {
+                    if (value)
+                        _loadPST();
+                    else
+                    if (_playoutChannelPRV != null)
+                        _playoutChannelPRV.Clear(VideoLayer.Preset);
+                }
+            }
+        }
+        
         [JsonProperty]
         public  IMedia PreviewMedia => _previewMedia;
+        
+        [XmlIgnore]
+        [JsonProperty]
+        public long PreviewSeek => _previewSeek;
+
+        [XmlIgnore]
+        [JsonProperty]
+        public long PreviewPosition // from 0 to duration
+        {
+            get { return _previewPosition; }
+            set
+            {
+                if (_playoutChannelPRV != null && _previewMedia!=null)
+                {
+                    PreviewPause();
+                    long newSeek = value < 0 ? 0 : value;
+                    long maxSeek = _previewDuration-1;
+                    if (newSeek > maxSeek)
+                        newSeek = maxSeek;
+                    if (SetField(ref _previewPosition, newSeek))
+                    {
+                        _playoutChannelPRV.Seek(VideoLayer.Preview, _previewSeek + newSeek);
+                        _previewPosition = newSeek;
+                    }
+                }
+            }
+        }
+
+        [XmlIgnore]
+        public decimal PreviewAudioVolume
+        {
+            get { return _previewAudioVolume; }
+            set
+            {
+                if (SetField(ref _previewAudioVolume, value))
+                    _playoutChannelPRV.SetVolume(VideoLayer.Preview, (decimal)Math.Pow(10, (double)value / 20), 0);
+            }
+        }
+        
+        [XmlIgnore]
+        [JsonProperty]
+        public bool PreviewLoaded {
+            get { return _previewLoaded; }
+            private set
+            {
+                if (SetField(ref _previewLoaded, value))
+                {
+                    var vol = _previewLoaded ? 0 : _programAudioVolume;
+                    _playoutChannelPRV?.SetVolume(VideoLayer.Program, vol, 0);
+                }
+            }
+        }
+
+        [XmlIgnore]
+        [JsonProperty]
+        public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value); } }
+        
+        public void Load(IEvent aEvent)
+        {
+            Debug.WriteLine(aEvent, "Load");
+            lock (_tickLock)
+            {
+                EngineState = TEngineState.Hold;
+                foreach (var e in _visibleEvents.ToList())
+                    _stop(e);
+                foreach (Event e in _runningEvents.ToList())
+                {
+                    _runningEvents.Remove(e);
+                    if (e.Position == 0)
+                        e.PlayState = TPlayState.Scheduled;
+                    else
+                        e.PlayState = TPlayState.Aborted;
+                }
+            }
+            _load(aEvent as Event);
+        }
+
+        public void StartLoaded()
+        {
+            Debug.WriteLine("StartLoaded executed");
+            lock (_tickLock)
+                if (EngineState == TEngineState.Hold)
+                {
+                    _visibleEvents.Where(e => e.PlayState == TPlayState.Played).ToList().ForEach(e => _stop(e));
+                    foreach (Event e in _runningEvents.ToList())
+                    {
+                        if (!(e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading))
+                            _play(e, false);
+                    }
+                    EngineState = TEngineState.Running;
+                }
+        }
+
+        public void Start(IEvent aEvent)
+        {
+            Debug.WriteLine(aEvent, "Start");
+            var ets = aEvent as Event;
+            if (ets == null)
+                return;
+            lock (_tickLock)
+            {
+                EngineState = TEngineState.Running;
+                var eventsToStop = _visibleEvents.Where(e => e.PlayState == TPlayState.Played || e.PlayState == TPlayState.Playing).ToList();
+                foreach (Event e in _runningEvents.ToList())
+                {
+                    _runningEvents.Remove(e);
+                    if (e.Position == 0)
+                        e.PlayState = TPlayState.Scheduled;
+                    else
+                        e.PlayState = TPlayState.Aborted;
+                }
+                _play(ets, true);
+                foreach (Event e in eventsToStop)
+                    _stop(e);
+            }
+        }
+
+        public void Schedule(IEvent aEvent)
+        {
+            Debug.WriteLine(aEvent, $"Schedule {aEvent.PlayState}");
+            lock (_tickLock)
+                EngineState = TEngineState.Running;
+            _run((Event)aEvent);
+            NotifyEngineOperation(aEvent, TEngineOperation.Schedule);
+        }
+
+        public void Clear(VideoLayer aVideoLayer)
+        {
+            Debug.WriteLine(aVideoLayer, "Clear");
+            Logger.Info("{0} {1}: Clear layer {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aVideoLayer);
+            IEvent ev;
+            lock (_visibleEvents.SyncRoot)
+                ev = _visibleEvents.FirstOrDefault(e => e.Layer == aVideoLayer);
+            if (ev != null)
+            {
+                ev.PlayState = TPlayState.Aborted;
+                ev.SaveDelayed();
+                _visibleEvents.Remove(ev);
+                _runningEvents.Remove(ev);
+            }
+            if (ev != null)
+            {
+                ev.PlayState = TPlayState.Scheduled;
+                ev.SaveDelayed();
+                _runningEvents.Remove(ev);
+            }
+            _playoutChannelPRI?.Clear(aVideoLayer);
+            _playoutChannelSEC?.Clear(aVideoLayer);
+            if (aVideoLayer == VideoLayer.Program)
+                lock (_tickLock)
+                    Playing = null;
+        }
+
+        public void Clear()
+        {
+            Logger.Info("{0} {1}: Clear all", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this);
+            _clearRunning();
+            _visibleEvents.Clear();
+            ForcedNext = null;
+            _playoutChannelPRI?.Clear();
+            _playoutChannelSEC?.Clear();
+            PreviewUnload();
+            NotifyEngineOperation(null, TEngineOperation.Clear);
+            ProgramAudioVolume = 1.0m;
+            lock (_tickLock)
+            {
+                EngineState = TEngineState.Idle;
+                Playing = null;
+            }
+        }
+
+        public void ClearMixer()
+        {
+            _playoutChannelPRI?.ClearMixer();
+            _playoutChannelSEC?.ClearMixer();
+        }
+
+        public void Restart()
+        {
+            Logger.Info("{0} {1}: Restart", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this);
+            foreach (var e in _visibleEvents.ToList())
+                _restartEvent(e);
+        }
+
+        public void RestartRundown(IEvent aRundown)
+        {
+            Action<Event> rerun = aEvent =>
+            {
+                if (!_runningEvents.Contains(aEvent))
+                    _runningEvents.Add(aEvent);
+                if (aEvent.EventType != TEventType.Rundown)
+                {
+                    _visibleEvents.Add(aEvent);
+                    _restartEvent(aEvent);
+                }
+            };
+
+            var ev = aRundown as Event;
+            while (ev != null)
+            {
+                if (_currentTicks >= ev.ScheduledTime.Ticks && _currentTicks < ev.ScheduledTime.Ticks + ev.Duration.Ticks)
+                {
+                    ev.Position = (_currentTicks - ev.ScheduledTime.Ticks) / FrameTicks;
+                    var st = ev.StartTime;
+                    ev.PlayState = TPlayState.Playing;
+                    ev.StartTime = st;
+                    rerun(ev);
+                    foreach (var se in ev.SubEvents)
+                        RestartRundown(se);
+                    break;
+                }
+                ev = ev.getSuccessorEnabled();
+            }
+            lock (_tickLock)
+                EngineState = TEngineState.Running;
+        }
+        
+        public MediaDeleteDenyReason CanDeleteMedia(PersistentMedia media)
+        {
+            MediaDeleteDenyReason reason = MediaDeleteDenyReason.NoDeny;
+            if (media.Protected)
+                return new MediaDeleteDenyReason { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.Protected, Media = media };
+            ServerMedia serverMedia = media as ServerMedia;
+            if (serverMedia == null)
+                return reason;
+            foreach (Event e in _rootEvents.ToList())
+            {
+                reason = e.CheckCanDeleteMedia(serverMedia);
+                if (reason.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
+                    return reason;
+            }
+            return this.DbMediaInUse(serverMedia);
+        }
+
+        public IEnumerable<IEvent> GetRootEvents() { lock (_rootEvents.SyncRoot) return _rootEvents.ToList(); }
+
+        public void AddRootEvent(IEvent ev)
+        {
+            if (ev == null)
+                return;
+            _rootEvents.Add(ev);
+        }
+
+        public IEvent CreateNewEvent(
+            ulong idRundownEvent = 0,
+            ulong idEventBinding = 0,
+            VideoLayer videoLayer = VideoLayer.None,
+            TEventType eventType = TEventType.Rundown,
+            TStartType startType = TStartType.None,
+            TPlayState playState = TPlayState.Scheduled,
+            DateTime scheduledTime = default(DateTime),
+            TimeSpan duration = default(TimeSpan),
+            TimeSpan scheduledDelay = default(TimeSpan),
+            TimeSpan scheduledTC = default(TimeSpan),
+            Guid mediaGuid = default(Guid),
+            string eventName = "",
+            DateTime startTime = default(DateTime),
+            TimeSpan startTC = default(TimeSpan),
+            TimeSpan? requestedStartTime = null,
+            TimeSpan transitionTime = default(TimeSpan),
+            TimeSpan transitionPauseTime = default(TimeSpan),
+            TTransitionType transitionType = TTransitionType.Cut,
+            TEasing transitionEasing = TEasing.Linear,
+            decimal? audioVolume = null,
+            ulong idProgramme = 0,
+            string idAux = "",
+            bool isEnabled = true,
+            bool isHold = false,
+            bool isLoop = false,
+            bool isCGEnabled = false,
+            byte crawl = 0,
+            byte logo = 0,
+            byte parental = 0,
+            AutoStartFlags autoStartFlags = AutoStartFlags.None,
+            string command = null,
+            IDictionary<string, string> fields = null,
+            TemplateMethod method = TemplateMethod.Add,
+            int templateLayer = -1
+        )
+        {
+            IEvent result;
+            if (_events.TryGetValue(idRundownEvent, out result))
+                return result;
+            if (eventType == TEventType.Animation)
+                result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, fields, method, templateLayer);
+            else if (eventType == TEventType.CommandScript)
+                result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, startType, playState, scheduledDelay, eventName, startTime, isEnabled, command);
+            else
+                result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
+            if (idRundownEvent == 0)
+                result.Save();
+            if (_events.TryAdd(((Event)result).Id, result))
+            {
+                result.Saved += _eventSaved;
+                result.Deleted += _eventDeleted;
+            }
+            if (startType == TStartType.OnFixedTime)
+                _fixedTimeEvents.Add((Event)result);
+            return result;
+        }
+
+        public void ReSchedule(IEvent aEvent)
+        {
+            ThreadPool.QueueUserWorkItem(o => {
+                try
+                {
+                    _reSchedule(aEvent as Event);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "ReScheduleDelayed exception");
+                }
+            });
+        }
+
+        public void Execute(string command)
+        {
+            _playoutChannelPRI?.Execute(command);
+            _playoutChannelSEC?.Execute(command);
+        }
 
         public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal previewAudioVolume)
         {
@@ -502,11 +763,11 @@ namespace TAS.Server
                 _previewPosition = position;
                 _previewMedia = media;
                 _playoutChannelPRV.SetAspect(VideoLayer.Preview, media.VideoFormat == TVideoFormat.NTSC
-                                            || media.VideoFormat == TVideoFormat.PAL
-                                            || media.VideoFormat == TVideoFormat.PAL_P);
+                                                                 || media.VideoFormat == TVideoFormat.PAL
+                                                                 || media.VideoFormat == TVideoFormat.PAL_P);
                 PreviewLoaded = true;
                 PreviewAudioVolume = previewAudioVolume;
-                _playoutChannelPRV.Load(mediaToLoad, VideoLayer.Preview, seek+position, duration-position);
+                _playoutChannelPRV.Load(mediaToLoad, VideoLayer.Preview, seek + position, duration - position);
                 PreviewIsPlaying = false;
                 NotifyPropertyChanged(nameof(PreviewMedia));
                 NotifyPropertyChanged(nameof(PreviewPosition));
@@ -535,50 +796,6 @@ namespace TAS.Server
             }
         }
 
-        private long _previewDuration;
-
-        private long _previewPosition;
-
-        private long _previewSeek;
-        [XmlIgnore]
-        [JsonProperty]
-        public long PreviewSeek => _previewSeek;
-
-        [XmlIgnore]
-        [JsonProperty]
-        public long PreviewPosition // from 0 to duration
-        {
-            get { return _previewPosition; }
-            set
-            {
-                if (_playoutChannelPRV != null && _previewMedia!=null)
-                {
-                    PreviewPause();
-                    long newSeek = value < 0 ? 0 : value;
-                    long maxSeek = _previewDuration-1;
-                    if (newSeek > maxSeek)
-                        newSeek = maxSeek;
-                    if (SetField(ref _previewPosition, newSeek))
-                    {
-                        _playoutChannelPRV.Seek(VideoLayer.Preview, _previewSeek + newSeek);
-                        _previewPosition = newSeek;
-                    }
-                }
-            }
-        }
-
-        private decimal _previewAudioVolume;
-        [XmlIgnore]
-        public decimal PreviewAudioVolume
-        {
-            get { return _previewAudioVolume; }
-            set
-            {
-                if (SetField(ref _previewAudioVolume, value))
-                    _playoutChannelPRV.SetVolume(VideoLayer.Preview, (decimal)Math.Pow(10, (double)value / 20), 0);
-            }
-        }
-
         public void PreviewPlay()
         {
             var channel = _playoutChannelPRV;
@@ -590,56 +807,124 @@ namespace TAS.Server
         public void PreviewPause()
         {
             var channel = _playoutChannelPRV;
-            if (PreviewIsPlaying 
-                && channel != null 
+            if (PreviewIsPlaying
+                && channel != null
                 && channel.Pause(VideoLayer.Preview))
                 PreviewIsPlaying = false;
         }
 
-        private bool _previewLoaded;
+        public void SearchMissingEvents()
+        {
+            this.DbSearchMissing();
+        }
 
-        [XmlIgnore]
-        [JsonProperty]
-        public bool PreviewLoaded {
-            get { return _previewLoaded; }
-            private set
+
+        // internal methods
+        internal void UnInitialize()
+        {
+            Debug.WriteLine(this, "Aborting engine thread");
+            _engineThread.Abort();
+            _engineThread.Join();
+            EngineState = TEngineState.NotInitialized;
+
+            var chPRI = PlayoutChannelPRI as CasparServerChannel;
+            var chSEC = PlayoutChannelSEC as CasparServerChannel;
+            if (chSEC != null
+                && chSEC != chPRI)
+                chSEC.Owner.PropertyChanged -= _server_PropertyChanged;
+            if (chPRI != null)
+                chPRI.Owner.PropertyChanged -= _server_PropertyChanged;
+
+            if (Remote != null)
             {
-                if (SetField(ref _previewLoaded, value))
+                Debug.WriteLine(this, "UnInitializing Remote interface");
+                Remote.UnInitialize();
+            }
+            if (_localGpis != null)
+                foreach (var gpi in _localGpis)
+                    gpi.Started -= _startLoaded;
+
+            var cgElementsController = CGElementsController;
+            if (cgElementsController != null)
+            {
+                Debug.WriteLine(this, "Uninitializing CGElementsController");
+                cgElementsController.Started -= _startLoaded;
+                cgElementsController.Dispose();
+            }
+
+            Debug.WriteLine(this, "Engine uninitialized");
+        }
+        internal void AddFixedTimeEvent(Event e)
+        {
+            _fixedTimeEvents.Add(e);
+            FixedTimeEventOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, TCollectionOperation.Insert));
+        }
+        internal void RemoveFixedTimeEvent(Event e)
+        {
+            if (_fixedTimeEvents.Remove(e))
+            {
+                FixedTimeEventOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, TCollectionOperation.Remove));
+            }
+        }
+        
+        // private methods
+
+        private void _removeEvent(Event aEvent)
+        {
+            _rootEvents.Remove(aEvent);
+            IEvent eventToRemove;
+            if (_events.TryRemove(aEvent.Id, out eventToRemove))
+            {
+                aEvent.Saved -= _eventSaved;
+                aEvent.Deleted -= _eventDeleted;
+            }
+            if (aEvent.StartType == TStartType.OnFixedTime)
+                RemoveFixedTimeEvent(aEvent);
+            var media = aEvent.Media as ServerMedia;
+            if (media != null
+                && aEvent.PlayState == TPlayState.Played
+                && media.MediaType == TMediaType.Movie
+                && ArchivePolicy == TArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
+                && _mediaManager.ArchiveDirectory != null
+                && CanDeleteMedia(media).Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
+                ThreadPool.QueueUserWorkItem(o => _mediaManager.ArchiveMedia(new List<IServerMedia>(new[] { media }), true));
+        }
+        
+        private void _reSchedule(Event aEvent)
+        {
+            if (aEvent == null)
+                return;
+            lock (RundownSync)
+            {
+                try
                 {
-                    var vol = _previewLoaded ? 0 : _programAudioVolume;
-                    _playoutChannelPRV?.SetVolume(VideoLayer.Program, vol, 0);
+                    if (aEvent.PlayState == TPlayState.Aborted
+                        || aEvent.PlayState == TPlayState.Played)
+                    {
+                        aEvent.PlayState = TPlayState.Scheduled;
+                        foreach (Event se in aEvent.SubEvents)
+                            _reSchedule(se);
+                    }
+
+                    Event next = aEvent.getSuccessorEnabled();
+                    if (next != null)
+                        _reSchedule(next);
+                }
+                finally
+                {
+                    aEvent.Save();
                 }
             }
         }
 
-        private bool _previewIsPlaying;
-        [XmlIgnore]
-        [JsonProperty]
-        public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value); } }
-
-        private MediaBase _findPreviewMedia(MediaBase media)
-        {
-            var playoutChannel = _playoutChannelPRV;
-            if (!(media is ServerMedia))
-                return media;
-            if (playoutChannel == null)
-                return null;
-            return media.Directory == playoutChannel.Owner.MediaDirectory
-                ? media
-                : ((ServerDirectory) playoutChannel.Owner.MediaDirectory).FindMediaByMediaGuid(media.MediaGuid);
-        }
-
-        #endregion // Preview Routines
-
-        #region private methods
         private void _load(Event aEvent)
         {
             if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
                 aEvent = aEvent.getSuccessorEnabled();
             if (aEvent == null)
                 return;
-            Debug.WriteLine("{0} Load: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
-            Logger.Info("{0} {1}: Load {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this, aEvent);
+            Debug.WriteLine("{0} Load: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent);
+            Logger.Info("{0} {1}: Load {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent);
             var eventType = aEvent.EventType;
             if (eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage)
             {
@@ -667,12 +952,12 @@ namespace TAS.Server
             if ((eventType == TEventType.Live || eventType == TEventType.Movie || eventType == TEventType.StillImage) && 
                 !(_preloadedEvents.TryGetValue(aEvent.Layer, out preloaded) && preloaded == aEvent))
             {
-                Debug.WriteLine("{0} LoadNext: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
-                Logger.Info("{0} {1}: Preload {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this, aEvent);
+                Debug.WriteLine("{0} LoadNext: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent);
+                Logger.Info("{0} {1}: Preload {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent);
                 _preloadedEvents[aEvent.Layer] = aEvent;
                 _playoutChannelPRI?.LoadNext(aEvent);
                 _playoutChannelSEC?.LoadNext(aEvent);
-                var cgElementsController = _cgElementsController;
+                var cgElementsController = CGElementsController;
                 if (!aEvent.IsHold
                     && cgElementsController?.IsConnected == true
                     && cgElementsController.IsCGEnabled
@@ -708,8 +993,8 @@ namespace TAS.Server
             var eventType = aEvent.EventType;
             if (!aEvent.IsEnabled || (aEvent.Length == TimeSpan.Zero && eventType != TEventType.Animation && eventType != TEventType.CommandScript))
                 aEvent = aEvent.getSuccessorEnabled();
-            Debug.WriteLine("{0} Play: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
-            Logger.Info("{0} {1}: Play {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this, aEvent);
+            Debug.WriteLine("{0} Play: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent);
+            Logger.Info("{0} {1}: Play {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent);
             eventType = aEvent.EventType;
             if (aEvent == _forcedNext)
             {
@@ -738,7 +1023,7 @@ namespace TAS.Server
                     Playing = aEvent;
                     ProgramAudioVolume = (decimal)Math.Pow(10, (double)aEvent.GetAudioVolume() / 20); ;
                     _setAspectRatio(aEvent);
-                    var cgController = _cgElementsController;
+                    var cgController = CGElementsController;
                     if (cgController?.IsConnected == true && cgController.IsCGEnabled)
                     {
                         if (CGStartDelay <= 0)
@@ -806,7 +1091,7 @@ namespace TAS.Server
             if (AspectRatioControl != TAspectRatioControl.GPI &&
                 AspectRatioControl != TAspectRatioControl.GPIandImageResize)
                 return;
-            var cgController = _cgElementsController;
+            var cgController = CGElementsController;
             if (cgController?.IsConnected == true && cgController.IsCGEnabled)
                 cgController.IsWideScreen = !narrow;
             var lGpis = _localGpis;
@@ -837,8 +1122,8 @@ namespace TAS.Server
                     var eventType = aEvent.EventType;
                     if (eventType != TEventType.Live && eventType != TEventType.CommandScript && aEvent is Event)
                     {
-                        Debug.WriteLine("{0} Stop: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
-                        Logger.Info("{0} {1}: Stop {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this, aEvent);
+                        Debug.WriteLine("{0} Stop: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent);
+                        Logger.Info("{0} {1}: Stop {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent);
                         _playoutChannelPRI?.Stop((Event)aEvent);
                         _playoutChannelSEC?.Stop((Event)aEvent);
                     }
@@ -853,8 +1138,8 @@ namespace TAS.Server
             lock (_visibleEvents)
                 if (_visibleEvents.Contains(aEvent))
                 {
-                    Debug.WriteLine("{0} Pause: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), aEvent);
-                    Logger.Info("{0} {1}: Pause {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this, aEvent);
+                    Debug.WriteLine("{0} Pause: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent);
+                    Logger.Info("{0} {1}: Pause {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent);
                     if (aEvent.EventType != TEventType.Live && aEvent.EventType != TEventType.StillImage && aEvent is Event)
                     {
                         _playoutChannelPRI?.Pause((Event)aEvent);
@@ -899,7 +1184,6 @@ namespace TAS.Server
             }
         }
 
-        private readonly object _tickLock = new object();
         private void _tick(long nFrames)
         {
             lock (_tickLock)
@@ -917,12 +1201,12 @@ namespace TAS.Server
                         succEvent = _successor(playingEvent);
                         if (succEvent != null)
                         {
-                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
+                            if (playingEvent.Position * FrameTicks >= playingEvent.Duration.Ticks - succEvent.TransitionTime.Ticks)
                             {
                                 if (playingEvent.PlayState == TPlayState.Playing)
                                     playingEvent.PlayState = TPlayState.Fading;
                             }
-                            if (playingEvent.Position * _frameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks)
+                            if (playingEvent.Position * FrameTicks >= playingEvent.Duration.Ticks - _preloadTime.Ticks)
                                 _loadNext(succEvent);
                             if (playingEvent.Position >= playingEvent.LengthInFrames() - succEvent.TransitionInFrames())
                             {
@@ -935,7 +1219,7 @@ namespace TAS.Server
                         playingEvent = _playing; // in case when succEvent just started 
                         if (playingEvent != null && playingEvent.SubEventsCount > 0)
                         {
-                            TimeSpan playingEventPosition = TimeSpan.FromTicks(playingEvent.Position * _frameTicks);
+                            TimeSpan playingEventPosition = TimeSpan.FromTicks(playingEvent.Position * FrameTicks);
                             TimeSpan playingEventDuration = playingEvent.Duration;
                             var sel = playingEvent.SubEvents.Where(e => e.PlayState == TPlayState.Scheduled);
                             foreach (Event se in sel)
@@ -998,7 +1282,6 @@ namespace TAS.Server
             }
         }
 
-
         private void _executeAutoStartEvents()
         {
             var currentTimeOfDayTicks = CurrentTime.TimeOfDay.Ticks;
@@ -1011,7 +1294,7 @@ namespace TAS.Server
                                                                && e.IsEnabled
                                                                && ((e.AutoStartFlags & AutoStartFlags.Daily) == AutoStartFlags.Daily ?
                                                                     currentTimeOfDayTicks >= e.ScheduledTime.TimeOfDay.Ticks && currentTimeOfDayTicks < e.ScheduledTime.TimeOfDay.Ticks + TimeSpan.TicksPerSecond :
-                                                                    CurrentTicks >= e.ScheduledTime.Ticks && CurrentTicks < e.ScheduledTime.Ticks + TimeSpan.TicksPerSecond) // auto start only within 1 second slot
+                                                                    _currentTicks >= e.ScheduledTime.Ticks && _currentTicks < e.ScheduledTime.Ticks + TimeSpan.TicksPerSecond) // auto start only within 1 second slot
                     );
                 if (startEvent != null)
                 {
@@ -1064,7 +1347,7 @@ namespace TAS.Server
             var pe = _playing;
             if (pe == null || (pe.PlayState != TPlayState.Playing && pe.PlayState != TPlayState.Paused))
                 return TimeSpan.Zero;
-            var result = pe.Length - TimeSpan.FromTicks(pe.Position * _frameTicks);
+            var result = pe.Length - TimeSpan.FromTicks(pe.Position * FrameTicks);
             pe = pe.getSuccessorEnabled();
             while (pe != null)
             {
@@ -1077,466 +1360,154 @@ namespace TAS.Server
             return result;
         }
 
-        [XmlIgnore]
-        public DateTime CurrentTime { get; private set; }
-
-        public DateTime AlignDateTime(DateTime dt)
+        private void _database_ConnectionStateChanged(object sender, RedundantConnectionStateEventArgs e)
         {
-            return new DateTime((dt.Ticks / _frameTicks) * _frameTicks, dt.Kind);
-        }
-
-        public TimeSpan AlignTimeSpan(TimeSpan ts)
-        {
-            return new TimeSpan((ts.Ticks / _frameTicks) * _frameTicks);
-        }
-
-        public override string ToString()
-        {
-            return EngineName;
-        }
-
-        #endregion // private methods
-
-        #region IEngine methods
-
-        public void Load(IEvent aEvent)
-        {
-            Debug.WriteLine(aEvent, "Load");
-            lock (_tickLock)
-            {
-                EngineState = TEngineState.Hold;
-                foreach (Event e in _visibleEvents.ToList())
-                    _stop(e);
-                foreach (Event e in _runningEvents.ToList())
-                {
-                    _runningEvents.Remove(e);
-                    if (e.Position == 0)
-                        e.PlayState = TPlayState.Scheduled;
-                    else
-                        e.PlayState = TPlayState.Aborted;
-                }
-            }
-            _load(aEvent as Event);
-        }
-
-        public void StartLoaded()
-        {
-            Debug.WriteLine("StartLoaded executed");
-            lock (_tickLock)
-                if (EngineState == TEngineState.Hold)
-                {
-                    _visibleEvents.Where(e => e.PlayState == TPlayState.Played).ToList().ForEach(e => _stop(e));
-                    foreach (Event e in _runningEvents.ToList())
-                    {
-                        if (!(e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading))
-                            _play(e, false);
-                    }
-                    EngineState = TEngineState.Running;
-                }
-        }
-
-        public void Start(IEvent aEvent)
-        {
-            Debug.WriteLine(aEvent, "Start");
-            var ets = aEvent as Event;
-            if (ets == null)
-                return;
-            lock (_tickLock)
-            {
-                EngineState = TEngineState.Running;
-                var eventsToStop = _visibleEvents.Where(e=> e.PlayState == TPlayState.Played || e.PlayState == TPlayState.Playing).ToList();
-                foreach (Event e in _runningEvents.ToList())
-                {
-                    _runningEvents.Remove(e);
-                    if (e.Position == 0)
-                        e.PlayState = TPlayState.Scheduled;
-                    else
-                        e.PlayState = TPlayState.Aborted;
-                }
-                _play(ets, true);
-                foreach (Event e in eventsToStop)
-                    _stop(e);
-            }
-        }
-
-        public void Schedule(IEvent aEvent)
-        {
-            Debug.WriteLine(aEvent, $"Schedule {aEvent.PlayState}");
-            lock (_tickLock)
-                EngineState = TEngineState.Running;
-            _run((Event)aEvent);
-            NotifyEngineOperation(aEvent, TEngineOperation.Schedule);
-        }
-
-        [XmlIgnore]
-        public IEvent ForcedNext
-        {
-            get { return _forcedNext; }
-            set
-            {
-
-                lock (_tickLock)
-                {
-                    var oldForcedNext = _forcedNext;
-                    if (SetField(ref _forcedNext, (Event)value))
-                    {
-                        Debug.WriteLine(value, "ForcedNext");
-                        NotifyPropertyChanged(nameof(NextToPlay));
-                        if (_forcedNext != null)
-                            _forcedNext.IsForcedNext = true;
-                        if (oldForcedNext != null)
-                            oldForcedNext.IsForcedNext = false;
-                    }
-                }
-            }
-        }
-
-        public void Clear(VideoLayer aVideoLayer)
-        {
-            Debug.WriteLine(aVideoLayer, "Clear");
-            Logger.Info("{0} {1}: Clear layer {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this, aVideoLayer);
-            IEvent ev;
-            lock (_visibleEvents.SyncRoot)
-                ev = _visibleEvents.FirstOrDefault(e => e.Layer == aVideoLayer);
-            if (ev != null)
-            {
-                ev.PlayState = TPlayState.Aborted;
-                ev.SaveDelayed();
-                _visibleEvents.Remove(ev);
-                _runningEvents.Remove(ev);
-            }
-            if (ev != null)
-            {
-                ev.PlayState = TPlayState.Scheduled;
-                ev.SaveDelayed();
-                _runningEvents.Remove(ev);
-            }
-            _playoutChannelPRI?.Clear(aVideoLayer);
-            _playoutChannelSEC?.Clear(aVideoLayer);
-            if (aVideoLayer == VideoLayer.Program)
-                lock(_tickLock)
-                    Playing = null;
+            NotifyPropertyChanged(nameof(DatabaseConnectionState));
+            Logger.Error("Database state changed from {0} to {1}. Stack trace was {2}", e.OldState, e.NewState, new StackTrace());
         }
         
-        public void Clear()
+        protected override void DoDispose()
         {
-            Logger.Info("{0} {1}: Clear all", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this);
-            _clearRunning();
-            _visibleEvents.Clear();
-            ForcedNext = null;
-            _playoutChannelPRI?.Clear();
-            _playoutChannelSEC?.Clear();
-            PreviewUnload();
-            NotifyEngineOperation(null, TEngineOperation.Clear);
-            ProgramAudioVolume = 1.0m;
-            lock (_tickLock)
-            {
-                EngineState = TEngineState.Idle;
-                Playing = null;
-            }
+            base.DoDispose();
+            _visibleEvents.CollectionOperation -= NotifyVisibleEventsOperation;
+            _runningEvents.CollectionOperation -= _runningEventsOperation;
+            foreach (Event e in _rootEvents)
+                e.SaveLoadedTree();
+            CGElementsController?.Dispose();
+            var remote = Remote;
+            remote?.Dispose();
+            Common.Database.Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
         }
 
-        public void ClearMixer()
-        {
-            _playoutChannelPRI?.ClearMixer();
-            _playoutChannelSEC?.ClearMixer();
-        }
-
-        public void Restart()
-        {
-            Logger.Info("{0} {1}: Restart", CurrentTime.TimeOfDay.ToSMPTETimecodeString(_frameRate), this);
-            foreach (var e in _visibleEvents.ToList())
-                _restartEvent(e);
-        }
-
-        public void RestartRundown(IEvent aRundown)
-        {
-            Action<Event> rerun = aEvent =>
-                {
-                    if (!_runningEvents.Contains(aEvent))
-                        _runningEvents.Add(aEvent);
-                    if (aEvent.EventType != TEventType.Rundown)
-                    {
-                        _visibleEvents.Add(aEvent);
-                        _restartEvent(aEvent);
-                    }
-                };
-
-            var ev = aRundown as Event;
-            while (ev != null)
-            {
-                if (CurrentTicks >= ev.ScheduledTime.Ticks && CurrentTicks < ev.ScheduledTime.Ticks + ev.Duration.Ticks)
-                {
-                    ev.Position = (CurrentTicks - ev.ScheduledTime.Ticks) / _frameTicks;
-                    var st = ev.StartTime;
-                    ev.PlayState = TPlayState.Playing;
-                    ev.StartTime = st;
-                    rerun(ev);
-                    foreach (var se in ev.SubEvents)
-                        RestartRundown(se);
-                    break;
-                }
-                ev = ev.getSuccessorEnabled();
-            }
-            lock (_tickLock)
-                EngineState = TEngineState.Running;
-        }
-
-        
-        public MediaDeleteDenyReason CanDeleteMedia(PersistentMedia media)
-        {
-            MediaDeleteDenyReason reason = MediaDeleteDenyReason.NoDeny;
-            if (media.Protected)
-                return new MediaDeleteDenyReason { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.Protected, Media = media };
-            ServerMedia serverMedia = media as ServerMedia;
-            if (serverMedia == null)
-                return reason;
-            foreach (Event e in _rootEvents.ToList())
-            {
-                reason = e.CheckCanDeleteMedia(serverMedia);
-                if (reason.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
-                    return reason;
-            }
-            return this.DbMediaInUse(serverMedia);
-        }
-
-        public IEnumerable<IEvent> GetRootEvents() { return _rootEvents.ToList(); } 
-
-        public void AddRootEvent(IEvent ev)
-        {
-            if (ev == null)
-                return;
-            _rootEvents.Add(ev);
-        }
-
-        public IEvent AddNewEvent(
-                    UInt64 idRundownEvent = 0,
-                    UInt64 idEventBinding = 0,
-                    VideoLayer videoLayer = VideoLayer.None,
-                    TEventType eventType = TEventType.Rundown,
-                    TStartType startType = TStartType.None,
-                    TPlayState playState = TPlayState.Scheduled,
-                    DateTime scheduledTime = default(DateTime),
-                    TimeSpan duration = default(TimeSpan),
-                    TimeSpan scheduledDelay = default(TimeSpan),
-                    TimeSpan scheduledTC = default(TimeSpan),
-                    Guid mediaGuid = default(Guid),
-                    string eventName = "",
-                    DateTime startTime = default(DateTime),
-                    TimeSpan startTC = default(TimeSpan),
-                    TimeSpan? requestedStartTime = null,
-                    TimeSpan transitionTime = default(TimeSpan),
-                    TimeSpan transitionPauseTime = default(TimeSpan), 
-                    TTransitionType transitionType = TTransitionType.Cut,
-                    TEasing transitionEasing = TEasing.Linear,
-                    decimal? audioVolume = null,
-                    UInt64 idProgramme = 0,
-                    string idAux = "",
-                    bool isEnabled = true,
-                    bool isHold = false,
-                    bool isLoop = false,
-                    bool isCGEnabled = false,
-                    byte crawl = 0,
-                    byte logo = 0,
-                    byte parental = 0,
-                    AutoStartFlags autoStartFlags = AutoStartFlags.None,
-                    string command = null,
-                    IDictionary<string, string> fields = null,
-                    TemplateMethod method = TemplateMethod.Add,
-                    int templateLayer = -1
-                    )
-        {
-            IEvent result;
-            if (_events.TryGetValue(idRundownEvent, out result))
-                return result;
-            if (eventType == TEventType.Animation)
-                result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, fields, method, templateLayer);
-            else if (eventType == TEventType.CommandScript)
-                result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, startType, playState, scheduledDelay, eventName, startTime, isEnabled, command);
-            else
-                result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
-            if (idRundownEvent == 0)
-                result.Save();
-            if (_events.TryAdd(((Event)result).Id, result))
-            {
-                result.Saved += _eventSaved;
-                result.Deleted += _eventDeleted;
-            }
-            if (startType == TStartType.OnFixedTime)
-                _fixedTimeEvents.Add((Event) result);
-            return result;
-        }
-
-        private void _removeEvent(Event aEvent)
-        {
-            _rootEvents.Remove(aEvent);
-            IEvent eventToRemove;
-            if (_events.TryRemove(aEvent.Id, out eventToRemove))
-            {
-                aEvent.Saved -= _eventSaved;
-                aEvent.Deleted -= _eventDeleted;
-            }
-            if (aEvent.StartType == TStartType.OnFixedTime)
-                RemoveFixedTimeEvent(aEvent);
-            var media = aEvent.Media as ServerMedia;
-            if (media != null
-                && aEvent.PlayState == TPlayState.Played
-                && media.MediaType == TMediaType.Movie
-                && ArchivePolicy == TArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
-                && _mediaManager.ArchiveDirectory != null
-                && CanDeleteMedia(media).Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
-                ThreadPool.QueueUserWorkItem(o => _mediaManager.ArchiveMedia(new List<IServerMedia>(new [] { media }), true));
-        }
-
-        private TEngineState _engineState;
-        [XmlIgnore]
-        public TEngineState EngineState
-        {
-            get { return _engineState; }
-            private set
-            {
-                lock (_runningEvents.SyncRoot)
-                if (SetField(ref _engineState, value))
-                    {
-                        if (value == TEngineState.Hold)
-                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && ((Event)e).IsFinished()).ToList())
-                            {
-                                _pause(ev, true);
-                                Debug.WriteLine(ev, "Hold: Played");
-                            }
-                        if (value == TEngineState.Idle && _runningEvents.Count > 0)
-                        {
-                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && ((Event)e).IsFinished()).ToList())
-                            {
-                                _pause(ev, true);
-                                Debug.WriteLine(ev, "Idle: Played");
-                            }
-                        }
-                    }
-            }
-        }
-
-        private decimal _programAudioVolume = 1;
-        [XmlIgnore]
-        public decimal ProgramAudioVolume
-        {
-            get { return _programAudioVolume; }
-            set
-            {
-                if (SetField(ref _programAudioVolume, value))
-                {
-                    var playing = Playing;
-                    int transitioDuration = playing == null ? 0 : (int)playing.TransitionTime.ToSMPTEFrames(_frameRate);
-                    _playoutChannelPRI?.SetVolume(VideoLayer.Program, value, transitioDuration);
-                    if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
-                        _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
-                }
-            }
-        }
-
-        bool _fieldOrderInverted;
-        [XmlIgnore]
-        public bool FieldOrderInverted
-        {
-            get { return _fieldOrderInverted; }
-            set { if (SetField(ref _fieldOrderInverted, value))
-                {
-                    _playoutChannelPRI?.SetFieldOrderInverted(VideoLayer.Program, value);
-                    if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
-                        _playoutChannelSEC.SetFieldOrderInverted(VideoLayer.Program, value);
-                }
-            }
-        }
-
-
-        private void _reSchedule(Event aEvent)
-        {
-            if (aEvent == null)
-                return;
-            lock (RundownSync)
-            {
-                try
-                {
-                    if (aEvent.PlayState == TPlayState.Aborted
-                        || aEvent.PlayState == TPlayState.Played)
-                    {
-                        aEvent.PlayState = TPlayState.Scheduled;
-                        foreach (Event se in aEvent.SubEvents)
-                            _reSchedule(se);
-                    }
-
-                    Event next = aEvent.getSuccessorEnabled();
-                    if (next != null)
-                        _reSchedule(next);
-                }
-                finally
-                {
-                    aEvent.Save();
-                }
-            }
-        }
-
-
-        public void ReSchedule(IEvent aEvent)
-        {
-            ThreadPool.QueueUserWorkItem(o => {
-                try
-                {
-                    _reSchedule(aEvent as Event);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e, "ReScheduleDelayed exception");
-                }
-            });
-        }
-
-        public void Execute(string command)
-        {
-            _playoutChannelPRI?.Execute(command);
-            _playoutChannelSEC?.Execute(command);
-        }
-
-        #endregion // IEngine methods
-
-        #region IEngine properties
-
-        [XmlIgnore]
-        public ICollection<IEventPesistent> VisibleEvents { get { return _visibleEvents.Cast<IEventPesistent>().ToList(); } }
-
-        #endregion // IEngine properties
-
-
-        protected virtual void NotifyEngineOperation(IEvent aEvent, TEngineOperation operation)
+        private void NotifyEngineOperation(IEvent aEvent, TEngineOperation operation)
         {
             EngineOperation?.Invoke(this, new EngineOperationEventArgs(aEvent, operation));
         }
 
-        public event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
-        private void _visibleEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
+        private void NotifyVisibleEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
         {
             VisibleEventsOperation?.Invoke(o, new CollectionOperationEventArgs<IEvent>(e.Item, e.Operation));
         }
 
-        public event EventHandler<CollectionOperationEventArgs<IEvent>> PreloadedEventsOperation;
-        private void _loadedNextEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
+        private void NotifyLoadedNextEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
         {
             PreloadedEventsOperation?.Invoke(o, e);
         }
 
-        public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
-        private void _runningEventsOperation(object sender, CollectionOperationEventArgs<IEvent> e)
+        private void _engineThreadProc()
         {
-            RunningEventsOperation?.Invoke(sender, new CollectionOperationEventArgs<IEvent>(e.Item, e.Operation));
+            Debug.WriteLine(this, "Engine thread started");
+            Logger.Debug("Started engine thread for {0}", this);
+            CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
+            _currentTicks = CurrentTime.Ticks;
+
+            var playingEvents = this.DbSearchPlaying();
+            var playing = playingEvents.FirstOrDefault(e => e.Layer == VideoLayer.Program && (e.EventType == TEventType.Live || e.EventType == TEventType.Movie));
+            if (playing != null)
+            {
+                Debug.WriteLine(playing, "Playing event found");
+                if (_currentTicks < (playing.ScheduledTime + playing.Duration).Ticks)
+                {
+                    foreach (var e in playingEvents)
+                    {
+                        ((Event)e).Position = (_currentTicks - e.ScheduledTime.Ticks) / FrameTicks;
+                        _runningEvents.Add(e);
+                        _visibleEvents.Add(e);
+                    }
+                    _engineState = TEngineState.Running;
+                    Playing = playing;
+                }
+                else
+                    foreach (var e in playingEvents)
+                    {
+                        e.PlayState = TPlayState.Aborted;
+                        e.Save();
+                    }
+            }
+            else
+                foreach (var e in playingEvents)
+                {
+                    e.PlayState = TPlayState.Aborted;
+                    e.Save();
+                }
+
+            ulong currentTime;
+            ulong frameDuration = (ulong)FrameTicks;
+            QueryUnbiasedInterruptTime(out currentTime);
+            ulong prevTime = currentTime - frameDuration;
+            while (!IsDisposed)
+            {
+                try
+                {
+                    CurrentTime = AlignDateTime(DateTime.UtcNow + _timeCorrection);
+                    QueryUnbiasedInterruptTime(out currentTime);
+                    _currentTicks = CurrentTime.Ticks;
+                    ulong nFrames = (currentTime - prevTime) / frameDuration;
+                    prevTime += (nFrames * frameDuration);
+                    _tick((long)nFrames);
+                    EngineTick?.Invoke(this, new EngineTickEventArgs(CurrentTime, _getTimeToAttention()));
+                    if (nFrames > 1)
+                    {
+                        Debug.WriteLine(nFrames, "LateFrame");
+                        if (nFrames > 20)
+                            Logger.Error("LateFrame: {0}", nFrames);
+                        else
+                            Logger.Warn("LateFrame: {0}", nFrames);
+                    }
+                    Debug.WriteLineIf(nFrames == 0, "Zero frames tick");
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e, "Exception in engine tick");
+                    Logger.Error($"{e}");
+                }
+                QueryUnbiasedInterruptTime(out currentTime);
+                int waitTime = (int)((prevTime + frameDuration - currentTime + 10000) / 10000);
+                if (waitTime > 0)
+                    Thread.Sleep(waitTime);
+#if DEBUG
+                else
+                    Debug.WriteLine("Negative waitTime");
+#endif
+            }
+            Debug.WriteLine(this, "Engine thread finished");
+            Logger.Debug("Engine thread finished: {0}", this);
         }
 
-        public event EventHandler<IEventEventArgs> EventSaved; 
-        private void _eventSaved(object sender, EventArgs e)
+        private void _startLoaded(object o, EventArgs e)
         {
-            EventSaved?.Invoke(this, new IEventEventArgs(sender as IEvent));
+            StartLoaded();
+        }
+        
+        private void _server_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Action<CasparServerChannel, List<IEvent>> channelConnected = (channel, ve) =>
+            {
+                foreach (Event ev in ve)
+                {
+                    channel.ReStart(ev);
+                    channel.SetVolume(VideoLayer.Program, _programAudioVolume, 0);
+                    if (ev.Layer == VideoLayer.Program || ev.Layer == VideoLayer.Preset)
+                    {
+                        IMedia media = ev.Media;
+                        bool narrow = media != null && (media.VideoFormat == TVideoFormat.PAL || media.VideoFormat == TVideoFormat.NTSC || media.VideoFormat == TVideoFormat.PAL_P);
+                        if (AspectRatioControl == TAspectRatioControl.ImageResize || AspectRatioControl == TAspectRatioControl.GPIandImageResize)
+                            channel.SetAspect(VideoLayer.Program, narrow);
+                    }
+                }
+            };
+
+            if (e.PropertyName == nameof(IPlayoutServer.IsConnected) && ((IPlayoutServer)sender).IsConnected)
+            {
+                var ve = _visibleEvents.ToList();
+                if (sender == ((CasparServerChannel)PlayoutChannelPRI)?.Owner)
+                    channelConnected(_playoutChannelPRI, ve);
+                if (sender == ((CasparServerChannel)PlayoutChannelSEC)?.Owner
+                    && PlayoutChannelSEC != PlayoutChannelPRI)
+                    channelConnected(_playoutChannelSEC, ve);
+            }
         }
 
-        public event EventHandler<IEventEventArgs> EventDeleted;
         private void _eventDeleted(object sender, EventArgs e)
         {
             _removeEvent(sender as Event);
@@ -1544,29 +1515,33 @@ namespace TAS.Server
             ((IDisposable)sender).Dispose();
         }
 
-        public void SearchMissingEvents()
+        private void _eventSaved(object sender, EventArgs e)
         {
-            this.DbSearchMissing();
+            EventSaved?.Invoke(this, new IEventEventArgs(sender as IEvent));
         }
 
-        private bool _pst2Prv;
-
-        [XmlIgnore]
-        public bool Pst2Prv
+        private void _runningEventsOperation(object sender, CollectionOperationEventArgs<IEvent> e)
         {
-            get { return _pst2Prv; }
-            set
-            {
-                if (SetField(ref _pst2Prv, value))
-                {
-                    if (value)
-                        _loadPST();
-                    else
-                        if (_playoutChannelPRV != null)
-                            _playoutChannelPRV.Clear(VideoLayer.Preset);
-                }
-            }
+            RunningEventsOperation?.Invoke(sender, new CollectionOperationEventArgs<IEvent>(e.Item, e.Operation));
         }
+
+        private MediaBase _findPreviewMedia(MediaBase media)
+        {
+            var playoutChannel = _playoutChannelPRV;
+            if (!(media is ServerMedia))
+                return media;
+            if (playoutChannel == null)
+                return null;
+            return media.Directory == playoutChannel.Owner.MediaDirectory
+                ? media
+                : ((ServerDirectory)playoutChannel.Owner.MediaDirectory).FindMediaByMediaGuid(media.MediaGuid);
+        }
+
+
+        #region PInvoke
+        [DllImport("kernel32.dll")]
+        private static extern int QueryUnbiasedInterruptTime(out ulong unbiasedTime);
+        #endregion // static methods
 
     }
 

@@ -24,15 +24,15 @@ namespace TAS.Server
 
         private ulong _progressFileSize;
         private NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ExportOperation));
-        private readonly List<ExportMedia> _exportMediaList = new List<ExportMedia>();
+        private readonly List<MediaExportDescription> _exportMediaList = new List<MediaExportDescription>();
 
-        public ExportOperation()
+        internal ExportOperation(FileManager fileManager) : base(fileManager)
         {
             Kind = TFileOperationKind.Export;
             TryCount = 1;
         }
 
-        public IEnumerable<ExportMedia> ExportMediaList
+        public IEnumerable<MediaExportDescription> ExportMediaList
         {
             get { return _exportMediaList; }
             set
@@ -56,6 +56,35 @@ namespace TAS.Server
 
         public override string Title => $"Export {string.Join(", ", _exportMediaList)} -> {DestDirectory.DirectoryName}";
 
+        internal override bool Execute()
+        {
+            if (Kind == TFileOperationKind.Export)
+            {
+                StartTime = DateTime.UtcNow;
+                OperationStatus = FileOperationStatus.InProgress;
+                IsIndeterminate = true;
+                try
+                {
+
+                    bool success = false;
+                    success = InternalExecute();
+                    if (!success)
+                        TryCount--;
+                    else
+                        AddOutputMessage("Operation completed successfully.");
+                    return success;
+                }
+                catch (Exception e)
+                {
+                    AddOutputMessage($"Error: {e.Message}");
+                    Logger.Error(e, "Execute exception");
+                    TryCount--;
+                    return false;
+                }
+            }
+            return false;
+        }
+
         private bool InternalExecute()
         {
             bool result = false;
@@ -64,11 +93,12 @@ namespace TAS.Server
             var destDirectory = DestDirectory as IngestDirectory;
             if (destDirectory == null)
                 throw new InvalidOperationException("Can only export to IngestDirectory");
-            destDirectory.Refresh();
+            if (destDirectory.IsXDCAM)
+                destDirectory.Refresh();
 
             if (destDirectory.AccessType == TDirectoryAccessType.FTP)
             {
-                using (TempMedia localDestMedia = (TempMedia)Owner.TempDirectory.CreateMedia(Source))
+                using (TempMedia localDestMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(Source))
                 {
                     Dest = _createDestMedia(destDirectory);
                     Dest.PropertyChanged += destMedia_PropertyChanged;
@@ -79,7 +109,7 @@ namespace TAS.Server
                         {
                             _progressFileSize = (UInt64)(new FileInfo(localDestMedia.FullPath)).Length;
                             AddOutputMessage($"Transfering file to device as {Dest.FileName}");
-                            result = localDestMedia.CopyMediaTo((MediaBase)Dest, ref _aborted);
+                            result = localDestMedia.CopyMediaTo((MediaBase)Dest, ref Aborted);
                         }
                     }
 
@@ -103,14 +133,15 @@ namespace TAS.Server
         {
             if (destDirectory.IsXDCAM)
             {
-                var existingFiles = DestDirectory.GetFiles().Where(f => f.FileName.StartsWith("C", true, System.Globalization.CultureInfo.InvariantCulture));
-                int maxFile = existingFiles.Count() == 0 ? 1 : existingFiles.Max(m => int.Parse(m.FileName.Substring(1, 4))) + 1;
-                return new XdcamMedia(destDirectory) { MediaName = string.Format("C{0:D4}", maxFile), FileName = string.Format("C{0:D4}.MXF", maxFile), Folder = "Clip", MediaStatus = TMediaStatus.Copying };
+                var existingFiles = DestDirectory.GetFiles().Where(f => f.FileName.StartsWith("C", true, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
+                int maxFile = existingFiles.Length == 0 ? 1 : existingFiles.Max(m => int.Parse(m.FileName.Substring(1, 4))) + 1;
+                return new XdcamMedia(destDirectory) { MediaName = $"C{maxFile:D4}", FileName = $"C{maxFile:D4}.MXF", Folder = "Clip", MediaStatus = TMediaStatus.Copying };
             }
             return new IngestMedia(destDirectory)
             {
                 MediaName = DestMediaName,
-                FileName = FileUtils.GetUniqueFileName(DestDirectory.Folder, string.Format("{0}.{1}", DestMediaName, destDirectory.ExportContainerFormat)),
+                FileName = FileUtils.GetUniqueFileName(DestDirectory.Folder,
+                    $"{FileUtils.SanitizeFileName(DestMediaName)}.{destDirectory.ExportContainerFormat}"),
                 MediaStatus = TMediaStatus.Copying
             };
         }
@@ -133,7 +164,7 @@ namespace TAS.Server
             int index = 0;
             List<string> complexFilterElements = new List<string>();
             StringBuilder overlayOutputs = new StringBuilder();
-            List<ExportMedia> exportMedia = _exportMediaList.ToList();
+            List<MediaExportDescription> exportMedia = _exportMediaList.ToList();
             TimeSpan startTimecode = exportMedia.First().StartTC;
             VideoFormatDescription outputFormatDesc = VideoFormatDescription.Descriptions[directory.IsXDCAM || directory.ExportContainerFormat == TMovieContainerFormat.mxf ? TVideoFormat.PAL : directory.ExportVideoFormat];
             string scaleFilter = $"scale={outputFormatDesc.ImageSize.Width}:{outputFormatDesc.ImageSize.Height}:interl=-1";
@@ -215,34 +246,6 @@ namespace TAS.Server
             return false;
         }
 
-        internal override bool Execute()
-        {
-            if (Kind == TFileOperationKind.Export)
-            {
-                StartTime = DateTime.UtcNow;
-                OperationStatus = FileOperationStatus.InProgress;
-                IsIndeterminate = true;
-                try
-                {
-
-                    bool success = false;
-                    success = InternalExecute();
-                    if (!success)
-                        TryCount--;
-                    else
-                        AddOutputMessage("Operation completed successfully.");
-                    return success;
-                }
-                catch (Exception e)
-                {
-                    AddOutputMessage($"Error: {e.Message}");
-                    Logger.Error(e, "Execute exception");
-                    TryCount--;
-                    return false;
-                }
-            }
-            return false;
-        }
 
 
     }

@@ -8,20 +8,20 @@ namespace TAS.Server.Media
 {
     public class ServerMedia: PersistentMedia, IServerMedia
     {
-        private NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ServerMedia));
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(ServerMedia));
+        private bool _isPRI;
+        private bool _doNotArchive;
+        Lazy<bool> _isArchived;
 
-        readonly IArchiveDirectory _archiveDirectory;
         public ServerMedia(IMediaDirectory directory, Guid guid, UInt64 idPersistentMedia, IArchiveDirectory archiveDirectory) : base(directory, guid, idPersistentMedia)
         {
             IdPersistentMedia = idPersistentMedia;
-            _archiveDirectory = archiveDirectory;
-            _isArchived = new Lazy<bool>(() => _archiveDirectory == null ? false :_archiveDirectory.DbArchiveContainsMedia(this));
+            _isArchived = new Lazy<bool>(() => archiveDirectory?.DbArchiveContainsMedia(this) ?? false);
         }
 
         // media properties
-        private bool _isPRI;
-        public bool IsPRI { get { return _isPRI; } set { if (value) _isPRI = true; } } //one way to true only possible
-        internal bool _doNotArchive;
+        public bool IsPRI { get { return _isPRI; } set { if (value) _isPRI = true; } } //one-way to true only
+
         [JsonProperty]
         public bool DoNotArchive
         {
@@ -29,7 +29,6 @@ namespace TAS.Server.Media
             set { SetField(ref _doNotArchive, value); }
         }
 
-        Lazy<bool> _isArchived;
         public bool IsArchived
         {
             get { return _isArchived.Value; }

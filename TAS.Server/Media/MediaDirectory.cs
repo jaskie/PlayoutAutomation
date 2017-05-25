@@ -57,12 +57,9 @@ namespace TAS.Server.Media
 
         public virtual void UnInitialize()
         {
-            if (_isInitialized)
-            {
-                CancelBeginWatch();
-                ClearFiles();
-                IsInitialized = false;
-            }
+            CancelBeginWatch();
+            ClearFiles();
+            IsInitialized = false;
         }
 
         protected override void DoDispose()
@@ -79,11 +76,8 @@ namespace TAS.Server.Media
 
         protected virtual void Reinitialize()
         {
-            if (_isInitialized)
-            {
-                UnInitialize();
-                Initialize();
-            }
+            UnInitialize();
+            Initialize();
         }
 
         protected virtual void ClearFiles()
@@ -157,11 +151,7 @@ namespace TAS.Server.Media
         public string Folder
         {
             get { return _folder; }
-            set
-            {
-                if (SetField(ref _folder, value))
-                    Reinitialize();
-            }
+            set { SetField(ref _folder, value); }
         }
 
         [JsonProperty]
