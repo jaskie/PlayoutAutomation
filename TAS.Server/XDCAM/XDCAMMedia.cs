@@ -24,7 +24,7 @@ namespace TAS.Server.XDCAM
 
         public override Stream GetFileStream(bool forWrite)
         {
-            var dir = _directory as IngestDirectory;
+            var dir = Directory as IngestDirectory;
             if (dir != null)
             {
                 if (Monitor.TryEnter(dir.XdcamLockObject, 1000))
@@ -52,7 +52,7 @@ namespace TAS.Server.XDCAM
         {
             try
             {
-                var dir = _directory as IngestDirectory;
+                var dir = Directory as IngestDirectory;
                 if (dir == null)
                     throw new InvalidOperationException("XDCAMMedia: _directory is not IngestDirectory");
                 if (Monitor.TryEnter(dir.XdcamLockObject, 1000))
@@ -63,7 +63,7 @@ namespace TAS.Server.XDCAM
                         {
                             string clipFileName = XdcamAlias == null ? clip.clipId : XdcamAlias.value;
                             if (!string.IsNullOrWhiteSpace(clipFileName))
-                                clip.ClipMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(_readXmlDocument($"/Clip/{clipFileName}M01.XML"));
+                                clip.ClipMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(ReadXml($"/Clip/{clipFileName}M01.XML"));
                             if (clip.ClipMeta != null)
                             {
                                 LastUpdated = clip.ClipMeta.lastUpdate == default(DateTime) ? clip.ClipMeta.CreationDate.Value : clip.ClipMeta.lastUpdate;
@@ -88,8 +88,8 @@ namespace TAS.Server.XDCAM
                             string edlFileName = XdcamAlias == null ? edl.editlistId : XdcamAlias.value;
                             if (!string.IsNullOrWhiteSpace(edlFileName))
                             {
-                                edl.EdlMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(_readXmlDocument($"/Edit/{edlFileName}M01.XML"));
-                                edl.smil = SerializationHelper<Smil>.Deserialize(_readXmlDocument($"/Edit/{edlFileName}E01.SMI"));
+                                edl.EdlMeta = SerializationHelper<NonRealTimeMeta>.Deserialize(ReadXml($"/Edit/{edlFileName}M01.XML"));
+                                edl.smil = SerializationHelper<Smil>.Deserialize(ReadXml($"/Edit/{edlFileName}E01.SMI"));
                             }
                             if (edl.EdlMeta != null)
                             {
@@ -127,11 +127,10 @@ namespace TAS.Server.XDCAM
             throw new NotImplementedException();
         }
 
-        private System.Xml.XmlDocument _readXmlDocument(string documentName)
+        private System.Xml.XmlDocument ReadXml(string documentName)
         {
-            var dir = _directory as IngestDirectory;
-            if (dir == null)
-                throw new InvalidOperationException("XDCAMMedia: _directory is not IngestDirectory");
+            var dir = Directory as IngestDirectory;
+            Debug.Assert(dir != null, "XDCAMMedia: Directory is not IngestDirectory");
             var client = dir.GetFtpClient();
             try
             {

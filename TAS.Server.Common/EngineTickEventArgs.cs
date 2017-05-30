@@ -9,10 +9,10 @@ namespace TAS.Server.Common
     {
         public EngineTickEventArgs(DateTime currentTime, TimeSpan timeToAttention)
         {
-            this.CurrentTime = currentTime;
-            this.TimeToAttention = timeToAttention;
+            CurrentTime = currentTime;
+            TimeToAttention = timeToAttention;
         }
-        public DateTime CurrentTime { get; private set; }
-        public TimeSpan TimeToAttention { get; private set; }
+        public DateTime CurrentTime { get; }
+        public TimeSpan TimeToAttention { get; }
     }
 }

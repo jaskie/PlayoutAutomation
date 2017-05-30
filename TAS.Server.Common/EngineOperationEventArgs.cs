@@ -8,14 +8,14 @@ namespace TAS.Server.Common
 {
     public class EngineOperationEventArgs : EventArgs
     {
-        public EngineOperationEventArgs(IEvent AEvent, TEngineOperation AOperation)
+        public EngineOperationEventArgs(IEvent aEvent, TEngineOperation aOperation)
         {
-            Operation = AOperation;
-            Event = AEvent;
+            Operation = aOperation;
+            Event = aEvent;
         }
         [Newtonsoft.Json.JsonProperty]
-        public TEngineOperation Operation { get; private set; }
+        public TEngineOperation Operation { get; }
         [Newtonsoft.Json.JsonProperty(IsReference = true)]
-        public IEvent Event { get; private set; }
+        public IEvent Event { get; }
     }
 }

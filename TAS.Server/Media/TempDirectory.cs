@@ -31,7 +31,10 @@ namespace TAS.Server.Media
                 {
                     File.Delete(fileName);
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
         }
 
         protected override IMedia CreateMedia(string fileNameOnly, Guid guid = new Guid())

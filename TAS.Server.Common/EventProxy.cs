@@ -227,11 +227,6 @@ namespace TAS.Server.Common
                 TemplateLayer = source is ITemplated ? ((ITemplated)source).TemplateLayer : -1,
             };
         }
-
-        public override string ToString()
-        {
-            return string.Format("{0}:{1}", EventName, SubEvents.Length);
-        }
     }
 
     static class IEventExtensions

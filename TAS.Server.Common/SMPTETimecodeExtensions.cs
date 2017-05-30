@@ -5,10 +5,6 @@ namespace TAS.Server.Common
 {
     public static class SMPTETimecodeExtensions
     {
-        const long SecondsPerDay = 86400L;
-        const long SecondsPerHour = 3600L;
-        const long SecondsPerMinute = 60L;
-
         const string LTCREGEXSTRING = "\\d{8}";
 
         static readonly Regex validateLTC = new Regex(LTCREGEXSTRING, RegexOptions.ECMAScript);

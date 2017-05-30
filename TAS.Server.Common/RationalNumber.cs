@@ -15,21 +15,15 @@ namespace TAS.Server.Common
 
         public RationalNumber(long numerator, long denominator)
         {
-            this._num = numerator;
-            this._den = denominator;
+            _num = numerator;
+            _den = denominator;
         }
-        public long Num { get { return _num; }}
-        public long Den { get { return _den; }}
+        public long Num => _num;
+        public long Den => _den;
 
-        public bool IsZero
-        {
-            get { return _num == 0; }
-        }
+        public bool IsZero => _num == 0;
 
-        public bool IsInvalid
-        {
-            get { return _den == 0 && _num != 0; }
-        }
+        public bool IsInvalid => _den == 0 && _num != 0;
 
         public bool Equals(RationalNumber r)
         {
@@ -55,6 +49,7 @@ namespace TAS.Server.Common
                 return Int32.MinValue;
             return ((float)_num / _den).GetHashCode();
         }
+
         public static RationalNumber Zero = new RationalNumber(0, 1);
 
         public override string ToString()

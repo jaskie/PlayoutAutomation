@@ -13,7 +13,7 @@ namespace TAS.Server.Common
             Media = media;
         }
         [Newtonsoft.Json.JsonProperty]
-        public IMedia Media { get; private set; }
+        public IMedia Media { get; }
     }
 
 

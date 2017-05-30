@@ -19,12 +19,6 @@ namespace TAS.Client.NDIVideoPreview
     [Export(typeof(Common.Plugin.IVideoPreview))]
     public class VideoPreviewViewmodel : ViewModels.ViewmodelBase, Common.Plugin.IVideoPreview
     {
-
-        public ICommand CommandRefreshSources { get; private set; }
-        public ICommand CommandGotoNdiWebsite { get; private set; }
-        public ICommand CommandShowPopup { get; private set; }
-        public ICommand CommandHidePopup { get; private set; }
-
         public VideoPreviewViewmodel()
         {
             View = new VideoPreviewView { DataContext = this };
@@ -40,14 +34,18 @@ namespace TAS.Client.NDIVideoPreview
                 if (Ndi.NDIlib_find_wait_for_sources(_ndiFindInstance, 5000))
                 {
                     Thread.Sleep(3000);
-                    Application.Current.Dispatcher.BeginInvoke((Action) delegate { RefreshSources(null); });
+                    Application.Current?.Dispatcher.BeginInvoke((Action) delegate { RefreshSources(null); });
                 }
             });
         }
-        
-        #region IVideoPreview
 
-        public UserControl View { get; private set; }
+        public ICommand CommandRefreshSources { get; }
+        public ICommand CommandGotoNdiWebsite { get; }
+        public ICommand CommandShowPopup { get; }
+        public ICommand CommandHidePopup { get; }
+
+        #region IVideoPreview
+        public UserControl View { get; }
 
         /// <summary>
         /// Method accepts address in form ndi://ip_address:port and ndi://ip_address:ndi_name
@@ -96,7 +94,7 @@ namespace TAS.Client.NDIVideoPreview
 
         #endregion IVideoPreview
 
-        public IEnumerable<string> VideoSources { get { return _videoSources; } }
+        public IEnumerable<string> VideoSources => _videoSources;
 
         public string VideoSource
         {
@@ -284,7 +282,6 @@ namespace TAS.Client.NDIVideoPreview
             Ndi.NDIlib_recv_destroy(_ndiReceiveInstance);
             _ndiReceiveInstance = IntPtr.Zero;
         }
-
 
     }
 }

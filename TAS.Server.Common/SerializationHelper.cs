@@ -20,10 +20,9 @@ namespace TAS.Server.Common
             using (var inStream = new StringReader(serialized))
             {
                 XmlSerializer ser;
-                if (string.IsNullOrEmpty(xmlAttributeOverrides))
-                    ser = new XmlSerializer(typeof(T));
-                else
-                    ser = new XmlSerializer(typeof(T), new XmlRootAttribute(xmlAttributeOverrides));
+                ser = string.IsNullOrEmpty(xmlAttributeOverrides)
+                    ? new XmlSerializer(typeof(T))
+                    : new XmlSerializer(typeof(T), new XmlRootAttribute(xmlAttributeOverrides));
                 return (T)ser.Deserialize(inStream);
             }
         }

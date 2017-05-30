@@ -11,9 +11,32 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Media
 {
-    [DebuggerDisplay("{_mediaName} ({_fileName})")]
+    [DebuggerDisplay("{_directory.DirectoryName}:{_mediaName} ({FullPath})")]
     public abstract class MediaBase : DtoBase, IMedia
     {
+        private string _folder = string.Empty;
+        private string _fileName = string.Empty;
+        private ulong _fileSize;
+        private DateTime _lastUpdated;
+        private string _mediaName;
+        private TMediaType _mediaType;
+        private TimeSpan _duration;
+        private TimeSpan _durationPlay;
+        private TimeSpan _tcStart;
+        private TimeSpan _tcPlay;
+        private TVideoFormat _videoFormat;
+        private bool _fieldOrderInverted;
+        private TAudioChannelMapping _audioChannelMapping;
+        private decimal _audioVolume;
+        private decimal _audioLevelIntegrated;
+        private decimal _audioLevelPeak;
+        private TMediaCategory _mediaCategory;
+        private byte _parental;
+        private Guid _mediaGuid;
+        private bool _verified;
+        private TMediaStatus _mediaStatus;
+        private readonly MediaDirectory _directory;
+
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(MediaBase));
 
@@ -32,7 +55,6 @@ namespace TAS.Server.Media
 #endif
 
         // file properties
-        protected string _folder = string.Empty;
         [JsonProperty]
         public string Folder
         {
@@ -44,7 +66,6 @@ namespace TAS.Server.Media
             }
         }
 #region IMediaProperties
-        protected string _fileName = string.Empty;
         [JsonProperty]
         public string FileName
         {
@@ -73,15 +94,13 @@ namespace TAS.Server.Media
             }
         }
 
-        protected UInt64 _fileSize;
         [JsonProperty]
-        public UInt64 FileSize 
+        public ulong FileSize 
         {
             get { return _fileSize; }
             set { SetField(ref _fileSize, value); }
         }
 
-        protected DateTime _lastUpdated;
         [JsonProperty]
         public DateTime LastUpdated
         {
@@ -105,7 +124,6 @@ namespace TAS.Server.Media
         //}
 
         // media parameters
-        protected string _mediaName;
         [JsonProperty]
         public virtual string MediaName
         {
@@ -113,7 +131,6 @@ namespace TAS.Server.Media
             set { SetField(ref _mediaName, value); }
         }
 
-        protected TMediaType _mediaType;
         [JsonProperty]
         public virtual TMediaType MediaType
         {
@@ -121,50 +138,48 @@ namespace TAS.Server.Media
             set { SetField(ref _mediaType, value); }
         }
 
-        protected TimeSpan _duration;
         [JsonProperty]
         public virtual TimeSpan Duration
         {
             get { return _duration; }
             set { SetField(ref _duration, value); }
         }
-        protected TimeSpan _durationPlay;
+
         [JsonProperty]
         public virtual TimeSpan DurationPlay
         {
             get { return _durationPlay; }
             set { SetField(ref _durationPlay, value); }
         }
-        protected TimeSpan _tcStart;
+
         [JsonProperty]
         public virtual TimeSpan TcStart 
         {
             get { return _tcStart; }
             set { SetField(ref _tcStart, value); }
         }
-        protected TimeSpan _tcPlay;
+
         [JsonProperty]
         public virtual TimeSpan TcPlay
         {
             get { return _tcPlay; }
             set { SetField(ref _tcPlay, value); }
         }
-        protected TVideoFormat _videoFormat;
+
         [JsonProperty]
         public virtual TVideoFormat VideoFormat
         {
             get { return _videoFormat; }
             set { SetField(ref _videoFormat, value); }
         }
-        protected bool _fieldOrderInverted;
+
         [JsonProperty]
-        public bool FieldOrderInverted
+        public virtual bool FieldOrderInverted
         {
             get { return _fieldOrderInverted; }
             set { SetField(ref _fieldOrderInverted, value); }
         }
 
-        protected TAudioChannelMapping _audioChannelMapping;
         [JsonProperty]
         [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public virtual TAudioChannelMapping AudioChannelMapping 
@@ -172,7 +187,7 @@ namespace TAS.Server.Media
             get { return _audioChannelMapping; }
             set { SetField(ref _audioChannelMapping, value); }
         }
-        protected decimal _audioVolume;
+
         [JsonProperty]
         public virtual decimal AudioVolume // correction amount on play
         {
@@ -180,7 +195,6 @@ namespace TAS.Server.Media
             set { SetField(ref _audioVolume, value); }
         }
 
-        protected decimal _audioLevelIntegrated;
         [JsonProperty]
         public virtual decimal AudioLevelIntegrated //measured
         {
@@ -188,7 +202,6 @@ namespace TAS.Server.Media
             set { SetField(ref _audioLevelIntegrated, value); }
         }
 
-        protected decimal _audioLevelPeak;
         [JsonProperty]
         public virtual decimal AudioLevelPeak //measured
         {
@@ -196,7 +209,6 @@ namespace TAS.Server.Media
             set { SetField(ref _audioLevelPeak, value); }
         }
 
-        protected TMediaCategory _mediaCategory;
         [JsonProperty]
         public virtual TMediaCategory MediaCategory
         {
@@ -204,7 +216,6 @@ namespace TAS.Server.Media
             set { SetField(ref _mediaCategory, value); }
         }
 
-        protected byte _parental;
         [JsonProperty]
         public virtual byte Parental
         {
@@ -212,11 +223,10 @@ namespace TAS.Server.Media
             set { SetField(ref _parental, value); }
         }
 
-#endregion //IMediaProperties
 
-        protected Guid _mediaGuid;
+
         [JsonProperty]
-        public virtual Guid MediaGuid
+        public Guid MediaGuid
         {
             get { return _mediaGuid; }
             internal set
@@ -227,19 +237,31 @@ namespace TAS.Server.Media
             }
         }
 
-        protected readonly MediaDirectory _directory;
-
-        public IMediaDirectory Directory
+        [JsonProperty]
+        public TMediaStatus MediaStatus
         {
-            get { return _directory; }
+            get { return _mediaStatus; }
+            set
+            {
+                if (SetField(ref _mediaStatus, value))
+                {
+                    if (value == TMediaStatus.Available)
+                        _directory?.NotifyMediaVerified(this);
+                }
+            }
         }
 
-        private string _getFullPath(string fileName)
+        [JsonProperty]
+        public bool IsVerified
         {
-            return string.IsNullOrWhiteSpace(_folder) ?
-                   string.Join(_directory.PathSeparator.ToString(), _directory.Folder.TrimEnd(_directory.PathSeparator), fileName) :
-                   string.Join(_directory.PathSeparator.ToString(), _directory.Folder.TrimEnd(_directory.PathSeparator), _folder, fileName);
+            get { return _verified; }
+            set { SetField(ref _verified, value); }
         }
+
+        public IMediaDirectory Directory => _directory;
+
+        #endregion //IMediaProperties
+
 
         public string FullPath
         {
@@ -257,13 +279,6 @@ namespace TAS.Server.Media
             return ((MediaDirectory)Directory).DeleteMedia(this);
         }
 
-        protected TMediaStatus _mediaStatus;
-        [JsonProperty]
-        public TMediaStatus MediaStatus
-        {
-            get { return _mediaStatus; }
-            set { SetField(ref _mediaStatus, value); }
-        }
 
         internal bool HasExtraLines; // VBI lines that shouldn't be displayed
 
@@ -341,13 +356,6 @@ namespace TAS.Server.Media
             ((MediaDirectory)Directory).MediaRemove(this);
         }
 
-        private bool _verified = false;
-        [JsonProperty]
-        public bool IsVerified
-        {
-            get { return _verified; }
-            set { SetField(ref _verified, value); }
-        }
 
         public void ReVerify()
         {
@@ -384,8 +392,7 @@ namespace TAS.Server.Media
                     LastUpdated = DateTimeExtensions.FromFileTime(fi.LastWriteTimeUtc, DateTimeKind.Utc);
                     //this.LastAccess = DateTimeExtensions.FromFileTime(fi.LastAccessTimeUtc, DateTimeKind.Utc);
 
-                    if (SetField(ref _mediaStatus, MediaChecker.Check(this), nameof(MediaStatus)))
-                        _directory?.OnMediaVerified(this);
+                    MediaStatus = MediaChecker.Check(this);
                 }                
                 IsVerified = true;
             }
@@ -406,6 +413,15 @@ namespace TAS.Server.Media
             Debug.WriteLine(this, "Disposed");
             base.DoDispose();
         }
+
+
+        private string _getFullPath(string fileName)
+        {
+            return string.IsNullOrWhiteSpace(_folder) ?
+                string.Join(_directory.PathSeparator.ToString(), _directory.Folder.TrimEnd(_directory.PathSeparator), fileName) :
+                string.Join(_directory.PathSeparator.ToString(), _directory.Folder.TrimEnd(_directory.PathSeparator), _folder, fileName);
+        }
+
     }
 
 }

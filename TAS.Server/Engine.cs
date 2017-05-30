@@ -367,7 +367,7 @@ namespace TAS.Server
                 if (e == null)
                     return null;
                 do
-                    e = e.getSuccessorEnabled();
+                    e = e.GetEnabledSuccessor();
                 while (e != null && e.RequestedStartTime == null);
                 return e;
             }
@@ -642,7 +642,7 @@ namespace TAS.Server
                         RestartRundown(se);
                     break;
                 }
-                ev = ev.getSuccessorEnabled();
+                ev = ev.GetEnabledSuccessor();
             }
             lock (_tickLock)
                 EngineState = TEngineState.Running;
@@ -857,13 +857,13 @@ namespace TAS.Server
         internal void AddFixedTimeEvent(Event e)
         {
             _fixedTimeEvents.Add(e);
-            FixedTimeEventOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, TCollectionOperation.Insert));
+            FixedTimeEventOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Insert));
         }
         internal void RemoveFixedTimeEvent(Event e)
         {
             if (_fixedTimeEvents.Remove(e))
             {
-                FixedTimeEventOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, TCollectionOperation.Remove));
+                FixedTimeEventOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Remove));
             }
         }
         
@@ -906,7 +906,7 @@ namespace TAS.Server
                             _reSchedule(se);
                     }
 
-                    Event next = aEvent.getSuccessorEnabled();
+                    Event next = aEvent.GetEnabledSuccessor();
                     if (next != null)
                         _reSchedule(next);
                 }
@@ -920,7 +920,7 @@ namespace TAS.Server
         private void _load(Event aEvent)
         {
             if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
-                aEvent = aEvent.getSuccessorEnabled();
+                aEvent = aEvent.GetEnabledSuccessor();
             if (aEvent == null)
                 return;
             Debug.WriteLine("{0} Load: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent);
@@ -944,7 +944,7 @@ namespace TAS.Server
         private void _loadNext(Event aEvent)
         {
             if (aEvent != null && (!aEvent.IsEnabled || aEvent.Length == TimeSpan.Zero))
-                aEvent = aEvent.getSuccessorEnabled();
+                aEvent = aEvent.GetEnabledSuccessor();
             if (aEvent == null)
                 return;
             var eventType = aEvent.EventType;
@@ -992,7 +992,7 @@ namespace TAS.Server
                 return;
             var eventType = aEvent.EventType;
             if (!aEvent.IsEnabled || (aEvent.Length == TimeSpan.Zero && eventType != TEventType.Animation && eventType != TEventType.CommandScript))
-                aEvent = aEvent.getSuccessorEnabled();
+                aEvent = aEvent.GetEnabledSuccessor();
             Debug.WriteLine("{0} Play: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent);
             Logger.Info("{0} {1}: Play {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent);
             eventType = aEvent.EventType;
@@ -1312,7 +1312,7 @@ namespace TAS.Server
                 return result;
             if (playingEvent == null)
                 return null;
-            result = (playingEvent.IsLoop ? playingEvent : playingEvent.getSuccessorEnabled()) ?? playingEvent.GetVisualRootTrack().FirstOrDefault(e => e.IsLoop) as Event;
+            result = (playingEvent.IsLoop ? playingEvent : playingEvent.GetEnabledSuccessor()) ?? playingEvent.GetVisualRootTrack().FirstOrDefault(e => e.IsLoop) as Event;
             return result;
         }
 
@@ -1320,7 +1320,7 @@ namespace TAS.Server
         {
             if (_playing != sender)
                 return;
-            if (e.Operation == TCollectionOperation.Remove)
+            if (e.Operation == CollectionOperation.Remove)
                 _stop((Event)e.Item);
             else
             {
@@ -1348,14 +1348,14 @@ namespace TAS.Server
             if (pe == null || (pe.PlayState != TPlayState.Playing && pe.PlayState != TPlayState.Paused))
                 return TimeSpan.Zero;
             var result = pe.Length - TimeSpan.FromTicks(pe.Position * FrameTicks);
-            pe = pe.getSuccessorEnabled();
+            pe = pe.GetEnabledSuccessor();
             while (pe != null)
             {
                 var pauseTime = pe.GetAttentionTime();
                 if (pauseTime != null)
                     return result + pauseTime.Value - pe.TransitionTime;
                 result = result + pe.Length - pe.TransitionTime;
-                pe = pe.getSuccessorEnabled();
+                pe = pe.GetEnabledSuccessor();
             }
             return result;
         }

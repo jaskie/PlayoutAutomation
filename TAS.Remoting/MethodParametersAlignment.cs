@@ -14,7 +14,6 @@ namespace TAS.Remoting
         {
             if (input == null)
                 return default(T);
-            Type resultType = typeof(T);
             AlignType(ref input, typeof(T));
             return (T)input;
         }
@@ -25,6 +24,9 @@ namespace TAS.Remoting
                 input = Enum.Parse(type, input.ToString());
             else
             if (input is string && type == typeof(TimeSpan))
+                input = TimeSpan.Parse((string)input, System.Globalization.CultureInfo.InvariantCulture);
+            else
+            if (input is string && type == typeof(TimeSpan?))
                 input = TimeSpan.Parse((string)input, System.Globalization.CultureInfo.InvariantCulture);
             else
             if (input is string && type == typeof(Guid))

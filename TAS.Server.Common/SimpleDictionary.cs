@@ -8,6 +8,7 @@ using System.Collections;
 namespace TAS.Server.Common
 {
     public enum TDictionaryOperation {Add, Remove};
+
     public class SimpleDictionary<TKey, TValue>: IDictionary<TKey, TValue>
     {
         private readonly ConcurrentDictionary<TKey, TValue> _dict;
@@ -64,24 +65,12 @@ namespace TAS.Server.Common
             return false;
         }
 
-        public ICollection<TKey> Keys { get { return _dict.Keys; } }
-        public ICollection<TValue> Values { get { return _dict.Values; } }
+        public ICollection<TKey> Keys => _dict.Keys;
+        public ICollection<TValue> Values => _dict.Values;
 
-        public int Count
-        {
-            get
-            {
-                return _dict.Count;
-            }
-        }
+        public int Count => _dict.Count;
 
-        public bool IsReadOnly
-        {
-            get
-            {
-                return ((IDictionary<TKey, TValue>)_dict).IsReadOnly;
-            }
-        }
+        public bool IsReadOnly => ((IDictionary<TKey, TValue>)_dict).IsReadOnly;
 
         public void Add(TKey key, TValue value)
         {
@@ -157,6 +146,7 @@ namespace TAS.Server.Common
         }
 
         public event EventHandler<DictionaryOperationEventArgs<TKey, TValue>> DictionaryOperation;
+
         private void NotifyDictionaryOperation(TKey key, TValue value, TDictionaryOperation operation)
         {
             DictionaryOperation?.Invoke(this, new DictionaryOperationEventArgs<TKey, TValue>(key, value, operation));

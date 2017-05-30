@@ -67,7 +67,7 @@ namespace TAS.Remoting.Client
             Disconnected?.Invoke(this, e);
         }
 
-        public bool IsConnected { get { return _clientSocket.ReadyState == WebSocketState.Open; } }
+        public bool IsConnected => _clientSocket.ReadyState == WebSocketState.Open;
 
         private string Serialize(object o)
         {

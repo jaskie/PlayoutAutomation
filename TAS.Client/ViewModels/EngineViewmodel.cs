@@ -1204,7 +1204,7 @@ namespace TAS.Client.ViewModels
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                if (e.Operation == TCollectionOperation.Insert)
+                if (e.Operation == CollectionOperation.Insert)
                     _visibleEvents.Add(e.Item);
                 else
                     _visibleEvents.Remove(e.Item);
@@ -1215,7 +1215,7 @@ namespace TAS.Client.ViewModels
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
             {
-                if (e.Operation == TCollectionOperation.Insert)
+                if (e.Operation == CollectionOperation.Insert)
                     _runningEvents.Add(e.Item);
                 else
                     _runningEvents.Remove(e.Item);

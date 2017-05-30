@@ -13,6 +13,6 @@ namespace TAS.Server
         {
             PropertyName = propertyName;
         }
-        public string PropertyName { get; private set; }
+        public string PropertyName { get; }
     }
 }

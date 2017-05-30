@@ -9,16 +9,16 @@ namespace TAS.Server.Media
     public class IngestMedia : MediaBase, IIngestMedia
     {
         private TIngestStatus _ingestStatus;
-        internal string BmdXmlFile; // Blackmagic's Media Express Xml file containing media information
+        internal string BmdXmlFile; // Blackmagic's Media Express Xml file containing this media information
         internal StreamInfo[] StreamInfo;
 
         internal IngestMedia(IngestDirectory directory, Guid guid = default(Guid)) : base(directory, guid) { }
 
         public override bool FileExists()
         {
-            var dir = _directory as IngestDirectory;
+            var dir = Directory as IngestDirectory;
             if (dir?.AccessType == TDirectoryAccessType.FTP)
-                return dir.FileExists(_fileName, _folder);
+                return dir.FileExists(FileName, Folder);
             return base.FileExists();
         }
         
@@ -28,10 +28,10 @@ namespace TAS.Server.Media
             {
                 if (_ingestStatus == TIngestStatus.Unknown)
                 {
-                    var sdir = _directory.MediaManager.MediaDirectoryPRI as ServerDirectory;
+                    var sdir = ((IngestDirectory)Directory).MediaManager.MediaDirectoryPRI as ServerDirectory;
                     if (sdir != null)
                     {
-                        var media = sdir.FindMediaByMediaGuid(_mediaGuid);
+                        var media = sdir.FindMediaByMediaGuid(MediaGuid);
                         if (media != null && media.MediaStatus == TMediaStatus.Available)
                             _ingestStatus = TIngestStatus.Ready;
                     }
@@ -43,7 +43,7 @@ namespace TAS.Server.Media
 
         public override Stream GetFileStream(bool forWrite)
         {
-            var dir = _directory as IngestDirectory;
+            var dir = Directory as IngestDirectory;
             if (dir != null)
             {
                 if (dir.AccessType == TDirectoryAccessType.Direct)

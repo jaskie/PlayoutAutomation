@@ -8,31 +8,25 @@ namespace TAS.Server.Media
 {
     public class MediaSegment : DtoBase, IMediaSegment, IMediaSegmentPersistent
     {
-        private UInt64 _id;
-        private readonly IMediaSegments _owner;
+        private string _segmentName;
+        private TimeSpan _tcIn;
+        private TimeSpan _tcOut;
 
         public MediaSegment(IMediaSegments owner)
         {
-            _owner = owner;
+            Owner = owner;
         }
 
-        public IMediaSegments Owner { get { return _owner; } }
+        public IMediaSegments Owner { get; }
 
-        public ulong Id
-        {
-            get { return _id; }
-            set { _id = value; }
-        }
+        public ulong Id { get; set; }
         
-        private string _segmentName;
         [JsonProperty]
         public string SegmentName
         {
             get { return _segmentName; }
             set { SetField(ref _segmentName, value); }
         }
-
-        private TimeSpan _tcIn;
         [JsonProperty]
         public TimeSpan TcIn
         {
@@ -40,7 +34,6 @@ namespace TAS.Server.Media
             set { SetField(ref _tcIn, value); }
         }
 
-        private TimeSpan _tcOut;
         [JsonProperty]
         public TimeSpan TcOut
         {
@@ -50,12 +43,12 @@ namespace TAS.Server.Media
 
         public void Save()
         {
-            _id = this.DbSave();
+            Id = this.DbSave();
         }
 
         public void Delete()
         {
-            if (_owner.Remove(this))
+            if (Owner.Remove(this))
                 this.DbDelete();
 
         }

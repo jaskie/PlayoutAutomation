@@ -3,7 +3,7 @@ using System.Windows.Media;
 
 namespace TAS.Server.Common
 {
-    [AttributeUsage(AttributeTargets.All, AllowMultiple=false)]
+    [AttributeUsage(AttributeTargets.All)]
     public class ColorAttribute: Attribute
     {
         protected Color _color;

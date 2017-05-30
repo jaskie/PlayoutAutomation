@@ -1,12 +1,8 @@
 ﻿#undef DEBUG
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Diagnostics;
-using System.Runtime.Remoting.Messaging;
 using System.ComponentModel;
 using TAS.Server.Common;
 using TAS.Remoting.Server;
@@ -22,6 +18,52 @@ namespace TAS.Server
     [DebuggerDisplay("{_eventName}")]
     public class Event : DtoBase, IEventPesistent, IComparable
     {
+        bool _isForcedNext;
+        private bool _isModified;
+        TPlayState _playState;
+        private long _position;
+        private readonly Engine _engine;
+        private Lazy<SynchronizedCollection<Event>> _subEvents;
+        private Lazy<PersistentMedia> _serverMediaPRI;
+        private Lazy<PersistentMedia> _serverMediaSEC;
+        private Lazy<PersistentMedia> _serverMediaPRV;
+        private Lazy<Event> _parent;
+        private Lazy<Event> _prior;
+        private Lazy<Event> _next;
+        private bool _isDeleted;
+        private bool _isCGEnabled;
+        private byte _crawl;
+        private byte _logo;
+        private byte _parental;
+
+        private ulong _id;
+        private ulong _idEventBinding;
+
+        private decimal? _audioVolume;
+        private TimeSpan _duration;
+        private bool _isEnabled = true;
+        private TEventType _eventType;
+        private bool _isHold;
+        private bool _isLoop;
+        private string _idAux;
+        private ulong _idProgramme;
+        private VideoLayer _layer = VideoLayer.None;
+        private TimeSpan? _requestedStartTime;
+        private TimeSpan _scheduledDelay;
+        private TimeSpan _scheduledTc;
+        private DateTime _scheduledTime;
+        private DateTime _startTime;
+        private TimeSpan _startTc;
+        private TStartType _startType;
+        private TimeSpan _transitionTime;
+        private TimeSpan _transitionPauseTime;
+        private TTransitionType _transitionType;
+        private TEasing _transitionEasing;
+        private AutoStartFlags _autoStartFlags;
+        private Guid _mediaGuid;
+        
+        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Event));
+
         #region Constructor
         internal Event(
                     Engine engine,
@@ -133,10 +175,7 @@ namespace TAS.Server
         }
 #endif
 
-        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Event));
-
         #region IEventPesistent 
-        private ulong _id = 0;
         [XmlIgnore]
         [JsonProperty]
         public ulong Id
@@ -149,13 +188,12 @@ namespace TAS.Server
             }
             set { _id = value; }
         }
-        ulong _idEventBinding;
-        public ulong IdEventBinding { get { return _idEventBinding; } }
+        public ulong IdEventBinding => _idEventBinding;
+
         #endregion
 
         #region IEventProperties
 
-        decimal? _audioVolume;
         [JsonProperty]
         public decimal? AudioVolume
         {
@@ -163,7 +201,6 @@ namespace TAS.Server
             set { SetField(ref _audioVolume, value); }
         }
 
-        TimeSpan _duration;
         [JsonProperty]
         public TimeSpan Duration
         {
@@ -188,7 +225,6 @@ namespace TAS.Server
 
         }
 
-        bool _isEnabled = true;
         [JsonProperty]
         public bool IsEnabled
         {
@@ -215,7 +251,6 @@ namespace TAS.Server
             set { SetField(ref _eventName, value); }
         }
 
-        TEventType _eventType;
         [JsonProperty]
         public TEventType EventType
         {
@@ -232,27 +267,21 @@ namespace TAS.Server
             }
         }
 
-        bool _isHold;
         [JsonProperty]
         public bool IsHold { get { return _isHold; } set { SetField(ref _isHold, value); } }
         
-        bool _isLoop;
         [JsonProperty]
         public bool IsLoop { get { return _isLoop; } set { SetField(ref _isLoop, value); } }
 
-        string _idAux; 
         [JsonProperty]
         public string IdAux { get { return _idAux; } set { SetField(ref _idAux, value); } }
 
-        ulong _idProgramme;
         [JsonProperty]
         public ulong IdProgramme { get { return _idProgramme; } set { SetField(ref _idProgramme, value); } }
-
-        VideoLayer _layer = VideoLayer.None;
+        
         [JsonProperty]
         public VideoLayer Layer { get { return _layer; } set { SetField(ref _layer, value); } }
 
-        TimeSpan? _requestedStartTime;
         [JsonProperty]
         public TimeSpan? RequestedStartTime
         {
@@ -264,7 +293,6 @@ namespace TAS.Server
             }
         }
 
-        TimeSpan _scheduledDelay;
         [JsonProperty]
         public TimeSpan ScheduledDelay
         {
@@ -272,11 +300,9 @@ namespace TAS.Server
             set { SetField(ref _scheduledDelay, ((Engine)Engine).AlignTimeSpan(value)); }
         }
 
-        TimeSpan _scheduledTc = TimeSpan.Zero;
         [JsonProperty]
         public TimeSpan ScheduledTc { get { return _scheduledTc; } set { SetField(ref _scheduledTc, ((Engine)Engine).AlignTimeSpan(value)); } }
 
-        DateTime _scheduledTime;
         [JsonProperty]
         public DateTime ScheduledTime
         {
@@ -306,7 +332,6 @@ namespace TAS.Server
             }
         }
 
-        DateTime _startTime;
         [JsonProperty]
         public DateTime StartTime
         {
@@ -321,7 +346,6 @@ namespace TAS.Server
             }
         }
 
-        TStartType _startType;
         [JsonProperty]
         public TStartType StartType
         {
@@ -339,7 +363,6 @@ namespace TAS.Server
             }
         }
 
-        TimeSpan _transitionTime;
         [JsonProperty]
         public TimeSpan TransitionTime
         {
@@ -354,7 +377,6 @@ namespace TAS.Server
             }
         }
 
-        TimeSpan _transitionPauseTime;
         [JsonProperty]
         public TimeSpan TransitionPauseTime
         {
@@ -362,7 +384,6 @@ namespace TAS.Server
             set { SetField(ref _transitionPauseTime, ((Engine)Engine).AlignTimeSpan(value)); }
         }
 
-        TTransitionType _transitionType;
         [JsonProperty]
         public TTransitionType TransitionType
         {
@@ -370,7 +391,6 @@ namespace TAS.Server
             set { SetField(ref _transitionType, value); }
         }
 
-        TEasing _transitionEasing;
         [JsonProperty]
         public TEasing TransitionEasing
         {
@@ -378,11 +398,9 @@ namespace TAS.Server
             set { SetField(ref _transitionEasing, value); }
         }
 
-        AutoStartFlags _autoStartFlags;
         [JsonProperty]
         public AutoStartFlags AutoStartFlags { get { return _autoStartFlags; } set { SetField(ref _autoStartFlags, value); } }
 
-        Guid _mediaGuid;
         [JsonProperty]
         public Guid MediaGuid
         {
@@ -394,14 +412,10 @@ namespace TAS.Server
         }
         
         #endregion //IEventProperties
-
-
-
-        bool _isForcedNext;
+        
         [JsonProperty]
         public bool IsForcedNext { get { return _isForcedNext; } set { SetField(ref _isForcedNext, value); } }
 
-        private bool _isModified;
         public bool IsModified
         {
             get { return _isModified; }
@@ -415,17 +429,6 @@ namespace TAS.Server
             }
         }
 
-        public int CompareTo(object obj)
-        {
-            if (object.Equals(obj, this))
-                return 0;
-            if (obj == null) return -1;
-            int timecomp = this.ScheduledTime.CompareTo((obj as Event).ScheduledTime);
-            timecomp = (timecomp == 0) ? this.ScheduledDelay.CompareTo((obj as Event).ScheduledDelay) : timecomp;
-            return (timecomp == 0) ? this.Id.CompareTo((obj as Event).Id) : timecomp;
-        }
-
-        TPlayState _playState;
         [JsonProperty]
         public virtual TPlayState PlayState
         {
@@ -433,7 +436,606 @@ namespace TAS.Server
             set { _setPlayState(value); }
         }
 
-        private bool _setPlayState(TPlayState newPlayState)
+        [JsonProperty]
+        public long Position // in frames
+        {
+            get { return _position; }
+            set
+            {
+                if (_position != value)
+                {
+                    _position = value;
+                    PositionChanged?.Invoke(this, new EventPositionEventArgs(value, _duration - TimeSpan.FromTicks(Engine.FrameTicks * value)));
+                }
+            }
+        }
+
+        public event EventHandler<EventPositionEventArgs> PositionChanged;
+        public IList<IEvent> SubEvents { get { lock (_subEvents.Value.SyncRoot) return _subEvents.Value.Cast<IEvent>().ToList(); } }
+
+        public int SubEventsCount => _subEvents.Value.Count;
+
+        public IEngine Engine => _engine;
+
+        [JsonProperty]
+        public TimeSpan Length => _isEnabled ? _duration : TimeSpan.Zero;
+
+        [JsonProperty]
+        public DateTime EndTime => _scheduledTime + Length;
+
+        [JsonProperty]
+        public TimeSpan StartTc
+        {
+            get { return _startTc; }
+            set
+            {
+                value = ((Engine)Engine).AlignTimeSpan(value);
+                SetField(ref _startTc, value);
+            }
+        }
+
+        [JsonProperty]
+        public IMedia Media
+        {
+            get { return ServerMediaPRI; }
+            set
+            {
+                var newMedia = value as PersistentMedia;
+                _setMedia(newMedia, newMedia == null ? Guid.Empty: newMedia.MediaGuid);
+            }
+        }
+
+        public IEvent Parent
+        {
+            get { return _parent.Value; }
+            protected set            {
+                if (value != _parent.Value)
+                {
+                    Event v = value as Event;
+                    _parent = new Lazy<Event>(() => v);
+                    if (v != null)
+                        _idEventBinding = v.Id;
+                    NotifyPropertyChanged(nameof(Parent));
+                }
+            }
+        }
+
+        public IEvent Prior
+        {
+            get { return _prior.Value; }
+            protected set
+            {
+                if (value != _prior.Value)
+                {
+                    Event e = (Event)value;
+                    _prior = new Lazy<Event>(() => e);
+                    if (value != null)
+                        _idEventBinding = e.Id;
+                    NotifyPropertyChanged(nameof(Prior));
+                }
+            }
+        }
+
+        public IEvent Next
+        {
+            get { return _next.Value; }
+            protected set
+            {
+                if (value != _next.Value)
+                {
+                    _next = new Lazy<Event>(() => value as Event);
+                    NotifyPropertyChanged(nameof(Next));
+                    if (value != null)
+                        IsLoop = false;
+                }
+            }
+        }
+
+        public TimeSpan? Offset
+        {
+            get
+            {
+                var rrt = _requestedStartTime;
+                if (rrt != null)
+                    return _scheduledTime.ToLocalTime().TimeOfDay - rrt;
+                return null;
+            }
+        }
+        
+        public bool IsDeleted => _isDeleted;
+        
+        [JsonProperty]
+        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value); } }
+
+        [JsonProperty]
+        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value); } }
+
+        [JsonProperty]
+        public byte Logo { get { return _logo; }  set { SetField(ref _logo, value); } }
+
+        [JsonProperty]
+        public byte Parental { get { return _parental; } set { SetField(ref _parental, value); } }
+        
+        public event EventHandler Relocated;
+
+        public event EventHandler Deleted;
+        
+        public event EventHandler Saved;
+
+        public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
+
+        public void Remove()
+        {
+            lock (((Engine)Engine).RundownSync)
+            {
+                Event parent = Parent as Event;
+                Event next = Next as Event;
+                Event prior = Prior as Event;
+                TStartType startType = _startType;
+                if (next != null)
+                {
+                    next.Parent = parent;
+                    next.Prior = prior;
+                    next.StartType = startType;
+                    if (prior == null)
+                        next._uppdateScheduledTime();
+                }
+                if (parent != null)
+                {
+                    parent._subEventsRemove(this);
+                    if (next != null)
+                        parent._subEvents.Value.Add(next);
+                    if (parent.SetField(ref parent._duration, parent._computedDuration(), nameof(Duration)))
+                        parent._durationChanged();
+                    if (next != null)
+                        parent.NotifySubEventChanged(next, CollectionOperation.Insert);
+                }
+                if (prior != null)
+                {
+                    prior.Next = next;
+                    prior._durationChanged();
+                }
+                next?.Save();
+                Next = null;
+                Prior = null;
+                Parent = null;
+                _idEventBinding = 0;
+                StartType = TStartType.None;
+            }
+        }
+
+        public void MoveUp()
+        {
+            lock (((Engine)Engine).RundownSync)
+            {
+                // this = e3
+                Event e2 = Prior as Event;
+                Event e4 = Next as Event; // load if nescessary
+                Debug.Assert(e2 != null, "Cannot move up - it's the first event");
+                if (e2 == null)
+                    return;
+                Event e2Parent = e2.Parent as Event;
+                Event e2Prior = e2.Prior as Event;
+                if (e2Parent != null)
+                {
+                    e2Parent._subEvents.Value.Remove(e2);
+                    e2Parent.NotifySubEventChanged(e2, CollectionOperation.Remove);
+                    e2Parent._subEvents.Value.Add(this);
+                    e2Parent.NotifySubEventChanged(this, CollectionOperation.Insert);
+                }
+                if (e2Prior != null)
+                    e2Prior.Next = this;
+                StartType = e2._startType;
+                AutoStartFlags = e2.AutoStartFlags;
+                Prior = e2Prior;
+                Parent = e2Parent;
+                _idEventBinding = e2._idEventBinding;
+                e2.Prior = this;
+                e2.StartType = TStartType.After;
+                e2.Next = e4;
+                e2.Parent = null;
+                Next = e2;
+                if (e4 != null)
+                    e4.Prior = e2;
+                _uppdateScheduledTime();
+                if (e4 != null)
+                    e4.Save();
+                e2.Save();
+                Save();
+                NotifyRelocated();
+            }
+        }
+
+        public void MoveDown()
+        {
+            lock (((Engine)Engine).RundownSync)
+            {
+                // this = e2
+                Event e3 = Next as Event; // load if nescessary
+                Debug.Assert(e3 != null, "Cannot move down - it's the last event");
+                if (e3 == null)
+                    return;
+                Event e4 = e3.Next as Event;
+                Event e2Parent = Parent as Event;
+                Event e2Prior = Prior as Event;
+                if (e2Parent != null)
+                {
+                    e2Parent._subEvents.Value.Remove(this);
+                    e2Parent.NotifySubEventChanged(this, CollectionOperation.Remove);
+                    e2Parent._subEvents.Value.Add(e3);
+                    e2Parent.NotifySubEventChanged(e3, CollectionOperation.Insert);
+                }
+                if (e2Prior != null)
+                    e2Prior.Next = e3;
+                e3.StartType = _startType;
+                e3.AutoStartFlags = _autoStartFlags;
+                e3.Prior = e2Prior;
+                e3.Parent = e2Parent;
+                e3._idEventBinding = _idEventBinding;
+                StartType = TStartType.After;
+                e3.Next = this;
+                Parent = null;
+                Prior = e3;
+                Next = e4;
+                if (e4 != null)
+                    e4.Prior = this;
+                e3._uppdateScheduledTime();
+                if (e4 != null)
+                    e4.Save();
+                Save();
+                e3.Save();
+                NotifyRelocated();
+            }
+        }
+
+        public void InsertAfter(IEvent e)
+        {
+            Event eventToInsert = e as Event;
+            if (eventToInsert != null)
+                lock (((Engine)Engine).RundownSync)
+                {
+                    Event oldParent = eventToInsert.Parent as Event;
+                    Event oldPrior = eventToInsert.Prior as Event;
+                    if (oldParent != null)
+                        oldParent._subEventsRemove(eventToInsert);
+                    if (oldPrior != null)
+                        oldPrior.Next = null;
+
+                    Event next = this.Next as Event;
+                    if (next == eventToInsert)
+                        return;
+                    this.Next = eventToInsert;
+                    eventToInsert.StartType = TStartType.After;
+                    eventToInsert.Prior = this;
+
+                    // notify about relocation
+                    eventToInsert.NotifyRelocated();
+                    eventToInsert.Next = next;
+
+                    if (next != null)
+                        next.Prior = eventToInsert;
+
+                    //time calculations
+                    eventToInsert._uppdateScheduledTime();
+                    eventToInsert._durationChanged();
+
+                    // save key events
+                    eventToInsert.Save();
+                    if (next != null)
+                        next.Save();
+                }
+        }
+
+        public void InsertBefore(IEvent e)
+        {
+            Event eventToInsert = e as Event;
+            if (eventToInsert != null)
+                lock (((Engine)Engine).RundownSync)
+                {
+                    Event prior = this.Prior as Event;
+                    Event parent = this.Parent as Event;
+                    Event oldParent = eventToInsert.Parent as Event;
+                    Event oldPrior = eventToInsert.Prior as Event;
+                    if (oldParent != null)
+                        oldParent._subEventsRemove(eventToInsert);
+                    if (oldPrior != null)
+                        oldPrior.Next = null;
+
+                    eventToInsert.StartType = _startType;
+                    if (prior == null)
+                        eventToInsert.IsHold = false;
+
+                    if (parent != null)
+                    {
+                        parent._subEvents.Value.Remove(this);
+                        parent._subEvents.Value.Add(eventToInsert);
+                        parent.NotifySubEventChanged(eventToInsert, CollectionOperation.Insert);
+                        Parent = null;
+                    }
+                    eventToInsert.Parent = parent;
+                    eventToInsert.Prior = prior;
+
+                    if (prior != null)
+                        prior.Next = eventToInsert;
+
+                    // notify about relocation
+                    eventToInsert.NotifyRelocated();
+                    this.Prior = eventToInsert;
+                    eventToInsert.Next = this;
+                    this.StartType = TStartType.After;
+
+                    // time calculations
+                    eventToInsert._uppdateScheduledTime();
+                    eventToInsert._durationChanged();
+
+                    eventToInsert.Save();
+                    this.Save();
+                }
+        }
+
+        public void InsertUnder(IEvent se, bool fromEnd)
+        {
+            Event subEventToAdd = se as Event;
+            if (subEventToAdd != null)
+                lock (((Engine)Engine).RundownSync)
+                {
+                    Event oldPrior = subEventToAdd.Prior as Event;
+                    Event oldParent = subEventToAdd.Parent as Event;
+                    if (oldParent != null)
+                        oldParent._subEventsRemove(subEventToAdd);
+                    if (oldPrior != null)
+                        oldPrior.Next = null;
+                    if (EventType == TEventType.Container)
+                    {
+                        if (!(subEventToAdd.StartType == TStartType.Manual || subEventToAdd.StartType == TStartType.OnFixedTime)) // do not change if valid
+                            subEventToAdd.StartType = TStartType.Manual;
+                    }
+                    else
+                        subEventToAdd.StartType = fromEnd ? TStartType.WithParentFromEnd : TStartType.WithParent;
+                    subEventToAdd.Parent = this;
+                    subEventToAdd.IsHold = false;
+                    _subEvents.Value.Add(subEventToAdd);
+                    NotifySubEventChanged(subEventToAdd, CollectionOperation.Insert);
+                    Duration = _computedDuration();
+                    Event prior = subEventToAdd.Prior as Event;
+                    if (prior != null)
+                    {
+                        prior.Next = null;
+                        subEventToAdd.Prior = null;
+                        prior._durationChanged();
+                    }
+                    subEventToAdd._uppdateScheduledTime();
+                    // notify about relocation
+                    subEventToAdd.NotifyRelocated();
+                    Event lastToInsert = subEventToAdd.Next as Event;
+                    while (lastToInsert != null)
+                    {
+                        lastToInsert.NotifyRelocated();
+                        lastToInsert = lastToInsert.Next as Event;
+                    }
+                    subEventToAdd.Save();
+                }
+        }
+
+        /// <summary>
+        /// Gets time of event that requires attention event, or null if event does not contain such an element
+        /// </summary>
+        /// <returns></returns> 
+        public TimeSpan? GetAttentionTime()
+        {
+            if (_isHold || _eventType == TEventType.Live)
+                return TimeSpan.Zero;
+            if (_eventType == TEventType.Movie)
+            {
+                IMedia m = Media;
+                if (m == null
+                    || m.MediaStatus != TMediaStatus.Available
+                    || _scheduledTc < m.TcStart
+                    || _duration + _scheduledTc > m.Duration + m.TcStart)
+                    return TimeSpan.Zero;
+            }
+            if (_eventType == TEventType.Rundown)
+            {
+                TimeSpan pauseTime = TimeSpan.Zero;
+                Event ev = SubEvents.FirstOrDefault(e => e.EventType == TEventType.Movie || e.EventType == TEventType.Live || e.EventType == TEventType.Rundown) as Event;
+                while (ev != null)
+                {
+                    TimeSpan? pt = ev.GetAttentionTime();
+                    if (pt.HasValue)
+                        return pauseTime + pt.Value;
+                    pauseTime += ev.Length - ev.TransitionTime;
+                    ev = ev.Next as Event;
+                }
+            }
+            return null;
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (object.Equals(obj, this))
+                return 0;
+            if (obj == null) return -1;
+            var timecomp = ScheduledTime.CompareTo(((Event)obj).ScheduledTime);
+            timecomp = timecomp == 0 ? ScheduledDelay.CompareTo((obj as Event).ScheduledDelay) : timecomp;
+            return timecomp == 0 ? Id.CompareTo(((Event)obj).Id) : timecomp;
+        }
+
+        public void Delete()
+        {
+            if (!IsDeleted && AllowDelete())
+                _delete();
+        }
+
+        public MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media)
+        {
+            Event nev = this;
+            while (nev != null)
+            {
+                if (nev.EventType == TEventType.Movie
+                    && nev.Media == media
+                    && nev.ScheduledTime >= Engine.CurrentTime)
+                    return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Event = nev, Media = media };
+                foreach (Event se in nev._subEvents.Value.ToList())
+                {
+                    MediaDeleteDenyReason reason = se.CheckCanDeleteMedia(media);
+                    if (reason.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
+                        return reason;
+                }
+                nev = nev.Next as Event;
+            }
+            return MediaDeleteDenyReason.NoDeny;
+        }
+
+        public void Save()
+        {
+            try
+            {
+                if (_id == 0)
+                    this.DbInsert();
+                else
+                    this.DbUpdate();
+                IsModified = false;
+                NotifySaved();
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Exception saving event {0}", EventName);
+            }
+        }
+
+        public bool AllowDelete()
+        {
+            if ((_playState == TPlayState.Fading || _playState == TPlayState.Paused || _playState == TPlayState.Playing) &&
+                (_eventType == TEventType.Live || _eventType == TEventType.Movie || _eventType == TEventType.Rundown))
+                return false;
+            if (_eventType == TEventType.Container && SubEvents.Any())
+                return false;
+            foreach (var se in SubEvents)
+            {
+                IEvent ne = se;
+                while (ne != null)
+                {
+                    if (!ne.AllowDelete())
+                        return false;
+                    ne = ne.Next;
+                }
+            }
+            return true;
+        }
+        
+        internal PersistentMedia ServerMediaPRI => _serverMediaPRI?.Value;
+
+        internal PersistentMedia ServerMediaSEC => _serverMediaSEC?.Value;
+
+        internal PersistentMedia ServerMediaPRV => _serverMediaPRV?.Value;
+
+        internal void SaveLoadedTree()
+        {
+            if (IsModified && _engine != null)
+                Save();
+            var se = _subEvents;
+            if (se != null && se.IsValueCreated && se.Value != null)
+            {
+                foreach (Event e in se.Value)
+                {
+                    Event ce = e;
+                    do
+                    {
+                        ce.SaveLoadedTree();
+                        var lne = ce._next;
+                        if (lne != null && lne.IsValueCreated)
+                            ce = lne.Value;
+                        else
+                            ce = null;
+                    } while (ce != null);
+                }
+            }
+        }
+
+        internal Event GetEnabledSuccessor()
+        {
+            var next = _getSuccessor();
+            while (next != null && next.Length.Equals(TimeSpan.Zero))
+            {
+                var current = next;
+                next = current._getSuccessor();
+            }
+            return next;
+        }
+
+        internal Event FindVisibleSubEvent()
+        {
+            if (_eventType != TEventType.Rundown)
+                throw new InvalidOperationException("FindVisibleSubEvent: EventType is not Rundown");
+            var se = SubEvents.FirstOrDefault(e => ((e.EventType == TEventType.Live || e.EventType == TEventType.Movie) && e.Layer == VideoLayer.Program) || e.EventType == TEventType.Rundown) as Event;
+            if (se != null && se.EventType == TEventType.Rundown)
+                return se.FindVisibleSubEvent();
+            return se;
+        }
+
+        internal long MediaSeek
+        {
+            get
+            {
+                if (ServerMediaPRI != null)
+                {
+                    long seek = (ScheduledTc.Ticks - ServerMediaPRI.TcStart.Ticks) / Engine.FrameTicks;
+                    return seek < 0 ? 0 : seek;
+                }
+                return 0;
+            }
+        }
+
+        internal bool IsFinished()
+        {
+            return _position >= _duration.Ticks / Engine.FrameTicks;
+        }
+
+
+        protected override void DoDispose()
+        {
+            var media = _serverMediaPRI;
+            if (media != null && media.IsValueCreated && media.Value != null)
+                media.Value.PropertyChanged -= _serverMediaPRI_PropertyChanged;
+            _serverMediaPRI = null;
+            _serverMediaSEC = null;
+            _serverMediaPRV = null;
+            base.DoDispose();
+        }
+
+        protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (base.SetField(ref field, value, propertyName))
+            {
+                IsModified = true;
+                return true;
+            }
+            return false;
+        }
+
+
+        private void _delete()
+        {
+            Remove();
+            foreach (var se in SubEvents)
+            {
+                var ne = se as Event;
+                while (ne != null)
+                {
+                    var next = ne.Next as Event;
+                    ne._delete();
+                    ne = next;
+                }
+                (se as Event)?._delete();
+            }
+            _isDeleted = true;
+            this.DbDelete();
+            NotifyDeleted();
+            _isModified = false;
+            Dispose();
+        }
+
+        private void _setPlayState(TPlayState newPlayState)
         {
             if (SetField(ref _playState, newPlayState, nameof(PlayState)))
             {
@@ -449,40 +1051,9 @@ namespace TAS.Server
                     Position = 0;
                     _uppdateScheduledTime();
                 }
-                return true;
-            }
-            return false;
-        }
-
-        private long _position = 0;
-        public long Position // in frames
-        {
-            get { return _position; }
-            set
-            {
-                if (_position != value)
-                {
-                    _position = value;
-                    PositionChanged?.Invoke(this, new EventPositionEventArgs(value, _duration - TimeSpan.FromTicks(Engine.FrameTicks * value)));
-                }
             }
         }
 
-        public bool IsFinished()
-        {
-            return _position >= _duration.Ticks / Engine.FrameTicks;
-        }
-
-        public event EventHandler<EventPositionEventArgs> PositionChanged;
-        Lazy<SynchronizedCollection<Event>> _subEvents;
-        public IList<IEvent> SubEvents { get { lock (_subEvents.Value.SyncRoot)  return _subEvents.Value.Cast<IEvent>().ToList(); } }
-
-        public int SubEventsCount { get { return _subEvents.Value.Count; } }
-        
-        private readonly Engine _engine;
-        public IEngine Engine { get { return _engine; } }
-
-        
         private Event _getVisualParent()
         {
             Event curr = this;
@@ -540,53 +1111,6 @@ namespace TAS.Server
             return null;
         }
 
-        internal Event getSuccessorEnabled()
-        {
-            Event current = this;
-            Event next = _getSuccessor();
-            while (next != null && next.Length.Equals(TimeSpan.Zero))
-            {
-                current = next;
-                next = current._getSuccessor();
-            }
-            return next;
-        }
-
-        private void _uppdateScheduledTime()
-        {
-            DateTime nt = _scheduledTime; 
-            Event baseEvent = null;
-            DateTime determinedTime = DateTime.MinValue;
-            switch (StartType)
-            {
-                case TStartType.After:
-                    baseEvent = _getPredecessor();
-                    if (baseEvent != null)
-                        determinedTime = ((Engine)Engine).AlignDateTime(baseEvent.EndTime - _transitionTime);
-                    break;
-                case TStartType.WithParent:
-                    baseEvent = _parent.Value;
-                    if (baseEvent != null)
-                        determinedTime = ((Engine)Engine).AlignDateTime(baseEvent.ScheduledTime + _scheduledDelay);
-                    break;
-                case TStartType.WithParentFromEnd:
-                    baseEvent = _parent.Value;
-                    if (baseEvent != null)
-                        determinedTime = ((Engine)Engine).AlignDateTime(baseEvent.EndTime - _scheduledDelay - _duration);
-                    break;
-                default:
-                    return;
-            }
-            if (determinedTime != DateTime.MinValue)
-                _setScheduledTime(determinedTime);
-        }
-                
-        [JsonProperty]
-        public TimeSpan Length { get { return _isEnabled ? _duration : TimeSpan.Zero; } }
-
-        [JsonProperty]
-        public DateTime EndTime { get { return _scheduledTime + Length; } }
-
         private TimeSpan _computedDuration()
         {
             if (_eventType == TEventType.Rundown)
@@ -626,36 +1150,46 @@ namespace TAS.Server
             }
         }
 
-        TimeSpan _startTc = TimeSpan.Zero;
-
-        [JsonProperty]
-        public TimeSpan StartTc
+        private void _uppdateScheduledTime()
         {
-            get
+            Event baseEvent;
+            DateTime determinedTime = DateTime.MinValue;
+            switch (StartType)
             {
-                return _startTc;
+                case TStartType.After:
+                    baseEvent = _getPredecessor();
+                    if (baseEvent != null)
+                        determinedTime = ((Engine)Engine).AlignDateTime(baseEvent.EndTime - _transitionTime);
+                    break;
+                case TStartType.WithParent:
+                    baseEvent = _parent.Value;
+                    if (baseEvent != null)
+                        determinedTime = ((Engine)Engine).AlignDateTime(baseEvent.ScheduledTime + _scheduledDelay);
+                    break;
+                case TStartType.WithParentFromEnd:
+                    baseEvent = _parent.Value;
+                    if (baseEvent != null)
+                        determinedTime = ((Engine)Engine).AlignDateTime(baseEvent.EndTime - _scheduledDelay - _duration);
+                    break;
+                default:
+                    return;
             }
-            set
-            {
-                value = ((Engine)Engine).AlignTimeSpan(value);
-                SetField(ref _startTc, value);
-            }
+            if (determinedTime != DateTime.MinValue)
+                _setScheduledTime(determinedTime);
         }
 
-        [JsonProperty]
-        public IMedia Media
+        private void _subEventsRemove(Event subEventToRemove)
         {
-            get { return ServerMediaPRI; }
-            set
+            if (_subEvents.Value.Remove(subEventToRemove))
             {
-                var newMedia = value as PersistentMedia;
-                _setMedia(newMedia, newMedia == null ? Guid.Empty: newMedia.MediaGuid);
+                Duration = _computedDuration();
+                NotifySubEventChanged(subEventToRemove, CollectionOperation.Remove);
             }
         }
 
         private void _serverMediaPRI_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(AudioVolume) && this.AudioVolume == null)
+            if (e.PropertyName == nameof(AudioVolume) && AudioVolume == null)
                 NotifyPropertyChanged(nameof(AudioVolume));
         }
 
@@ -673,12 +1207,12 @@ namespace TAS.Server
             if (mediaGuid != Guid.Empty)
             {
                 _serverMediaPRI = new Lazy<PersistentMedia>(() =>
-                    {
-                        var priMedia = media != null ? media : _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRI : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI);
-                        if (priMedia != null)
-                            priMedia.PropertyChanged += _serverMediaPRI_PropertyChanged;
-                        return priMedia;
-                    });
+                {
+                    var priMedia = media ?? _getMediaFromDir(mediaGuid, _eventType == TEventType.Animation ? (MediaDirectory)Engine.MediaManager.AnimationDirectoryPRI : (MediaDirectory)Engine.MediaManager.MediaDirectoryPRI);
+                    if (priMedia != null)
+                        priMedia.PropertyChanged += _serverMediaPRI_PropertyChanged;
+                    return priMedia;
+                });
                 if (media != null)
                     media = _serverMediaPRI.Value; // only to imediately read lazy's value
 
@@ -688,6 +1222,11 @@ namespace TAS.Server
             _mediaGuid = mediaGuid;
             NotifyPropertyChanged(nameof(MediaGuid));
             NotifyPropertyChanged(nameof(Media));
+        }
+
+        private void NotifySubEventChanged(Event e, CollectionOperation operation)
+        {
+            SubEventChanged?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, operation));
         }
 
         private PersistentMedia _getMediaFromDir(Guid mediaGuid, MediaDirectory dir)
@@ -700,596 +1239,22 @@ namespace TAS.Server
             }
             return null;
         }
-
-        private Lazy<PersistentMedia> _serverMediaPRI;
-        public PersistentMedia ServerMediaPRI
-        {
-            get
-            {
-                var l = _serverMediaPRI;
-                if (l != null)
-                    return l.Value;
-                return null;
-            }
-        }
-
-        private Lazy<PersistentMedia> _serverMediaSEC;
-        public PersistentMedia ServerMediaSEC
-        {
-            get
-            {
-                var l = _serverMediaSEC;
-                if (l != null)
-                    return l.Value;
-                return null;
-            }
-        }
-
-        private Lazy<PersistentMedia> _serverMediaPRV;
-        public PersistentMedia ServerMediaPRV
-        {
-            get
-            {
-                var l = _serverMediaPRV;
-                if (l != null)
-                    return l.Value;
-                return null;
-            }
-        }
-
-        public long MediaSeek
-        {
-            get
-            {
-                if (ServerMediaPRI != null)
-                {
-                    long seek = (this.ScheduledTc.Ticks - ServerMediaPRI.TcStart.Ticks) / Engine.FrameTicks;
-                    return (seek < 0) ? 0 : seek;
-                }
-                return 0;
-            }
-        }
-
-
-        Lazy<Event> _parent;
-        public IEvent Parent
-        {
-            get { return _parent.Value; }
-            protected set            {
-                if (value != _parent.Value)
-                {
-                    Event v = value as Event;
-                    _parent = new Lazy<Event>(() => v);
-                    if (v != null)
-                        _idEventBinding = v.Id;
-                    NotifyPropertyChanged(nameof(Parent));
-                }
-            }
-        }
-
-        private Lazy<Event> _prior;
-        public IEvent Prior
-        {
-            get { return _prior.Value; }
-            protected set
-            {
-                if (value != _prior.Value)
-                {
-                    Event v = value as Event;
-                    _prior = new Lazy<Event>(() => v);
-                    if (value != null)
-                        _idEventBinding = v.Id;
-                    NotifyPropertyChanged(nameof(Prior));
-                }
-            }
-        }
-
-        private Lazy<Event> _next;
-        public IEvent Next
-        {
-            get { return _next.Value; }
-            protected set
-            {
-                if (value != _next.Value)
-                {
-                    _next = new Lazy<Event>(() => value as Event);
-                    NotifyPropertyChanged(nameof(Next));
-                    if (value != null)
-                        IsLoop = false;
-                }
-            }
-        }
-
-        public void InsertAfter(IEvent e)
-        {
-            Event eventToInsert = e as Event;
-            if (eventToInsert != null)
-                lock ((Engine as Engine).RundownSync)
-                {
-                    Event oldParent = eventToInsert.Parent as Event;
-                    Event oldPrior = eventToInsert.Prior as Event;
-                    if (oldParent != null)
-                        oldParent._subEventsRemove(eventToInsert);
-                    if (oldPrior != null)
-                        oldPrior.Next = null;
-
-                    Event next = this.Next as Event;
-                    if (next == eventToInsert)
-                        return;
-                    this.Next = eventToInsert;
-                    eventToInsert.StartType = TStartType.After;
-                    eventToInsert.Prior = this;
-
-                    // notify about relocation
-                    eventToInsert.NotifyRelocated();
-                    eventToInsert.Next = next;
-
-                    if (next != null)
-                        next.Prior = eventToInsert;
-
-                    //time calculations
-                    eventToInsert._uppdateScheduledTime();
-                    eventToInsert._durationChanged();
-
-                    // save key events
-                    eventToInsert.Save();
-                    if (next != null)
-                        next.Save();
-                }
-        }
-
-        public void InsertBefore(IEvent e)
-        {
-            Event eventToInsert = e as Event;
-            if (eventToInsert != null)
-                lock ((Engine as Engine).RundownSync)
-                {
-                    Event prior = this.Prior as Event;
-                    Event parent = this.Parent as Event;
-                    Event oldParent = eventToInsert.Parent as Event;
-                    Event oldPrior = eventToInsert.Prior as Event;
-                    if (oldParent != null)
-                        oldParent._subEventsRemove(eventToInsert);
-                    if (oldPrior != null)
-                        oldPrior.Next = null;
-
-                    eventToInsert.StartType = _startType;
-                    if (prior == null)
-                        eventToInsert.IsHold = false;
-
-                    if (parent != null)
-                    {
-                        parent._subEvents.Value.Remove(this);
-                        parent._subEvents.Value.Add(eventToInsert);
-                        parent.NotifySubEventChanged(eventToInsert, TCollectionOperation.Insert);
-                        Parent = null;
-                    }
-                    eventToInsert.Parent = parent;
-                    eventToInsert.Prior = prior;
-
-                    if (prior != null)
-                        prior.Next = eventToInsert;
-
-                    // notify about relocation
-                    eventToInsert.NotifyRelocated();
-                    this.Prior = eventToInsert;
-                    eventToInsert.Next = this;
-                    this.StartType = TStartType.After;
-
-                    // time calculations
-                    eventToInsert._uppdateScheduledTime();
-                    eventToInsert._durationChanged();
-
-                    eventToInsert.Save();
-                    this.Save();
-                }
-        }
-
-        public void InsertUnder(IEvent se, bool fromEnd)
-        {
-            Event subEventToAdd = se as Event;
-            if (subEventToAdd != null)
-                lock ((Engine as Engine).RundownSync)
-                {
-                    Event oldPrior = subEventToAdd.Prior as Event;
-                    Event oldParent = subEventToAdd.Parent as Event;
-                    if (oldParent != null)
-                        oldParent._subEventsRemove(subEventToAdd);
-                    if (oldPrior != null)
-                        oldPrior.Next = null;
-                    if (EventType == TEventType.Container)
-                    {
-                        if (!(subEventToAdd.StartType == TStartType.Manual || subEventToAdd.StartType == TStartType.OnFixedTime)) // do not change if valid
-                            subEventToAdd.StartType = TStartType.Manual;
-                    }
-                    else
-                        subEventToAdd.StartType = fromEnd ? TStartType.WithParentFromEnd : TStartType.WithParent;
-                    subEventToAdd.Parent = this;
-                    subEventToAdd.IsHold = false;
-                    _subEvents.Value.Add(subEventToAdd);
-                    NotifySubEventChanged(subEventToAdd, TCollectionOperation.Insert);
-                    Duration = _computedDuration();
-                    Event prior = subEventToAdd.Prior as Event;
-                    if (prior != null)
-                    {
-                        prior.Next = null;
-                        subEventToAdd.Prior = null;
-                        prior._durationChanged();
-                    }
-                    subEventToAdd._uppdateScheduledTime();
-                    // notify about relocation
-                    subEventToAdd.NotifyRelocated();
-                    Event lastToInsert = subEventToAdd.Next as Event;
-                    while (lastToInsert != null)
-                    {
-                        lastToInsert.NotifyRelocated();
-                        lastToInsert = lastToInsert.Next as Event;
-                    }
-                    subEventToAdd.Save();
-                }
-        }
-
-        private void _subEventsRemove(Event subEventToRemove)
-        {
-            if (_subEvents.Value.Remove(subEventToRemove))
-            {
-                Duration = _computedDuration();
-                NotifySubEventChanged(subEventToRemove, TCollectionOperation.Remove);
-            }
-        }
-
-        public void Remove()
-        {
-            lock ((Engine as Engine).RundownSync)
-            {
-                Event parent = Parent as Event;
-                Event next = Next as Event;
-                Event prior = Prior as Event;
-                TStartType startType = _startType;
-                if (next != null)
-                {
-                    next.Parent = parent;
-                    next.Prior = prior;
-                    next.StartType = startType;
-                    if (prior == null)
-                        next._uppdateScheduledTime();
-                }
-                if (parent != null)
-                {
-                    parent._subEventsRemove(this);
-                    if (next != null)
-                        parent._subEvents.Value.Add(next);
-                    if (parent.SetField(ref parent._duration, parent._computedDuration(), nameof(Duration)))
-                        parent._durationChanged();
-                    if (next != null)
-                        parent.NotifySubEventChanged(next, TCollectionOperation.Insert);
-                }
-                if (prior != null)
-                {
-                    prior.Next = next;
-                    prior._durationChanged();
-                }
-                if (next != null)
-                    next.Save();
-                Next = null;
-                Prior = null;
-                Parent = null;
-                _idEventBinding = 0;
-                StartType = TStartType.None;
-            }
-        }
-
-        public void MoveUp()
-        {
-            lock ((Engine as Engine).RundownSync)
-            {
-                // this = e3
-                Event e2 = Prior as Event;
-                Event e4 = Next as Event; // load if nescessary
-                Debug.Assert(e2 != null, "Cannot move up - it's the first event");
-                if (e2 == null)
-                    return;
-                Event e2parent = e2.Parent as Event;
-                Event e2prior = e2.Prior as Event;
-                if (e2parent != null)
-                {
-                    e2parent._subEvents.Value.Remove(e2);
-                    e2parent.NotifySubEventChanged(e2, TCollectionOperation.Remove);
-                    e2parent._subEvents.Value.Add(this);
-                    e2parent.NotifySubEventChanged(this, TCollectionOperation.Insert);
-                }
-                if (e2prior != null)
-                    e2prior.Next = this;
-                StartType = e2._startType;
-                AutoStartFlags = e2.AutoStartFlags;
-                Prior = e2prior;
-                Parent = e2parent;
-                _idEventBinding = e2._idEventBinding;
-                e2.Prior = this;
-                e2.StartType = TStartType.After;
-                e2.Next = e4;
-                e2.Parent = null;
-                Next = e2;
-                if (e4 != null)
-                    e4.Prior = e2;
-                _uppdateScheduledTime();
-                if (e4 != null)
-                    e4.Save();
-                e2.Save();
-                Save();
-                NotifyRelocated();
-            }
-        }
-
-        public void MoveDown()
-        {
-            lock ((Engine as Engine).RundownSync)
-            {
-                // this = e2
-                Event e3 = Next as Event; // load if nescessary
-                Debug.Assert(e3 != null, "Cannot move down - it's the last event");
-                if (e3 == null)
-                    return;
-                Event e4 = e3.Next as Event;
-                Event e2parent = Parent as Event;
-                Event e2prior = Prior as Event;
-                if (e2parent != null)
-                {
-                    e2parent._subEvents.Value.Remove(this);
-                    e2parent.NotifySubEventChanged(this, TCollectionOperation.Remove);
-                    e2parent._subEvents.Value.Add(e3);
-                    e2parent.NotifySubEventChanged(e3, TCollectionOperation.Insert);
-                }
-                if (e2prior != null)
-                    e2prior.Next = e3;
-                e3.StartType = _startType;
-                e3.AutoStartFlags = _autoStartFlags;
-                e3.Prior = e2prior;
-                e3.Parent = e2parent;
-                e3._idEventBinding = _idEventBinding;
-                StartType = TStartType.After;
-                e3.Next = this;
-                Parent = null;
-                Prior = e3;
-                Next = e4;
-                if (e4 != null)
-                    e4.Prior = this;
-                e3._uppdateScheduledTime();
-                if (e4 != null)
-                    e4.Save();
-                Save();
-                e3.Save();
-                NotifyRelocated();
-            }
-        }
-
-        /// <summary>
-        /// Gets time of event that requires attention event, or null if event does not contain such an element
-        /// </summary>
-        /// <returns></returns> 
-        public Nullable<TimeSpan> GetAttentionTime()
-        {
-            if (_isHold || _eventType == TEventType.Live)
-                return TimeSpan.Zero;
-            if (_eventType == TEventType.Movie)
-            {
-                IMedia m = Media;
-                if (m == null
-                    || m.MediaStatus != TMediaStatus.Available
-                    || _scheduledTc < m.TcStart
-                    || _duration + _scheduledTc > m.Duration + m.TcStart)
-                    return TimeSpan.Zero;
-            }
-            if (_eventType == TEventType.Rundown)
-            {
-                TimeSpan pauseTime = TimeSpan.Zero;
-                Event ev = SubEvents.FirstOrDefault(e => e.EventType == TEventType.Movie || e.EventType == TEventType.Live || e.EventType == TEventType.Rundown) as Event;
-                while (ev != null)
-                {
-                    TimeSpan? pt = ev.GetAttentionTime();
-                    if (pt.HasValue)
-                        return pauseTime + pt.Value;
-                    pauseTime += ev.Length - ev.TransitionTime;
-                    ev = ev.Next as Event;
-                }
-            }
-            return null;
-        }
-
-        public TimeSpan? Offset
-        {
-            get
-            {
-                var rrt = _requestedStartTime;
-                if (rrt != null)
-                    return _scheduledTime.ToLocalTime().TimeOfDay - rrt;
-                return null;
-            }
-        }
         
-        public void Save()
-        {
-            try
-            {
-                if (_id == 0)
-                    this.DbInsert();
-                else
-                    this.DbUpdate();
-                IsModified = false;
-                NotifySaved();
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Exception saving event {0}", EventName);
-            }
-        }
-
-        internal Event FindVisibleSubEvent()
-        {
-            if (_eventType != TEventType.Rundown)
-                throw new InvalidOperationException("FindVisibleSubEvent: EventType is not Rundown");
-            var se = SubEvents.FirstOrDefault(e => ((e.EventType == TEventType.Live || e.EventType == TEventType.Movie) && e.Layer == VideoLayer.Program) || e.EventType == TEventType.Rundown) as Event;
-            if (se != null && se.EventType == TEventType.Rundown)
-                return se.FindVisibleSubEvent();
-            else
-                return se;
-        }
-
-        public void SaveLoadedTree()
-        {
-            if (IsModified && _engine != null)
-                Save();
-            var se = _subEvents;
-            if (se != null && se.IsValueCreated && se.Value != null)
-            {
-                foreach (Event e in se.Value)
-                {
-                    Event ce = e;
-                    do
-                    {
-                        ce.SaveLoadedTree();
-                        var lne = ce._next;
-                        if (lne != null && lne.IsValueCreated)
-                            ce = lne.Value;
-                        else
-                            ce = null;
-                    } while (ce != null);
-                }
-            }
-        }
-
-        public bool AllowDelete()
-        {
-            if ((_playState == TPlayState.Fading || _playState == TPlayState.Paused || _playState == TPlayState.Playing) &&
-                (_eventType == TEventType.Live || _eventType == TEventType.Movie || _eventType == TEventType.Rundown))
-                return false;
-            if (_eventType == TEventType.Container && SubEvents.Any())
-                return false;
-            foreach (IEvent se in this.SubEvents)
-            {
-                IEvent ne = se;
-                while (ne != null)
-                {
-                    if (!ne.AllowDelete())
-                        return false;
-                    ne = ne.Next;
-                }
-            }
-            return true;
-        }
-    
-
-        private bool _isDeleted = false;
-        public bool IsDeleted { get { return _isDeleted; } }
-        public void Delete()
-        {
-            if (!IsDeleted && AllowDelete())
-                _delete();
-        }
-
-        protected void _delete()
-        {
-            Remove();
-            foreach (IEvent se in SubEvents)
-            {
-                Event ne = se as Event;
-                while (ne != null)
-                {
-                    var next = ne.Next as Event;
-                    ne._delete();
-                    ne = next;
-                }
-                ((Event)se)._delete();
-            }
-            _isDeleted = true;
-            this.DbDelete();
-            NotifyDeleted();
-            _isModified = false;
-            Dispose();
-        }
-
-        public MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media)
-        {
-            Event nev = this;
-            while (nev != null)
-            {
-                if (nev.EventType == TEventType.Movie
-                    && nev.Media == media
-                    && nev.ScheduledTime >= Engine.CurrentTime)
-                    return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Event = nev, Media = media };
-                foreach (Event se in nev._subEvents.Value.ToList())
-                {
-                    MediaDeleteDenyReason reason = se.CheckCanDeleteMedia(media);
-                    if (reason.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
-                        return reason;
-                }
-                nev = nev.Next as Event;
-            }
-            return MediaDeleteDenyReason.NoDeny;
-        }
-
-        private bool _isCGEnabled;
-        [JsonProperty]
-        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value); } }
-        private byte _crawl;
-        [JsonProperty]
-        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value); } }
-        private byte _logo;
-        [JsonProperty]
-        public byte Logo { get { return _logo; }  set { SetField(ref _logo, value); } }
-        private byte _parental;
-        [JsonProperty]
-        public byte Parental { get { return _parental; } set { SetField(ref _parental, value); } }
-        
-        public override string ToString()
-        {
-            return EventName;
-        }
-
-        protected override void DoDispose()
-        {
-            var media = _serverMediaPRI;
-            if (media != null && media.IsValueCreated && media.Value != null)
-                media.Value.PropertyChanged -= _serverMediaPRI_PropertyChanged;
-            _serverMediaPRI = null;
-            _serverMediaSEC = null;
-            _serverMediaPRV = null;
-            base.DoDispose();
-        }
-
-        protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (base.SetField(ref field, value, propertyName))
-            {
-                IsModified = true;
-                return true;
-            }
-            return false;
-        }
-
-        public event EventHandler Relocated;
-        protected virtual void NotifyRelocated()
-        {
-            Relocated?.Invoke(this, EventArgs.Empty);
-        }
-
-        public event EventHandler Deleted;
-        protected virtual void NotifyDeleted()
-        {
-            Deleted?.Invoke(this, EventArgs.Empty);
-        }
-
-        public event EventHandler Saved;
-        protected virtual void NotifySaved()
+        private void NotifySaved()
         {
             Saved?.Invoke(this, EventArgs.Empty);
         }
 
-        public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
-        protected virtual void NotifySubEventChanged(Event e, TCollectionOperation operation)
+        private void NotifyDeleted()
         {
-            SubEventChanged?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, operation));
+            Deleted?.Invoke(this, EventArgs.Empty);
         }
+
+        private void NotifyRelocated()
+        {
+            Relocated?.Invoke(this, EventArgs.Empty);
+        }
+       
     }
 
 }

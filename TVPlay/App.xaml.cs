@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
+﻿using System.Configuration;
 using System.Windows;
 using TAS.Server;
-using System.Reflection;
 using Infralution.Localization.Wpf;
-using System.Threading;
 
 namespace TAS.Client
 {
@@ -36,11 +30,11 @@ namespace TAS.Client
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            var window = App.Current?.MainWindow;
+            var window = Current?.MainWindow;
             if (window == null)
-                MessageBox.Show(e.Exception.Message, TAS.Client.Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(e.Exception.Message, Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             else
-                MessageBox.Show(window, e.Exception.Message, TAS.Client.Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(window, e.Exception.Message, Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
         }
     }

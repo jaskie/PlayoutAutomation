@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -17,14 +18,17 @@ namespace TAS.Server.Media
 {
     public class IngestDirectory : MediaDirectory, IIngestDirectory
     {
-        private readonly SynchronizedCollection<string> _bMDXmlFiles = new SynchronizedCollection<string>();
+        private readonly List<string> _bMdXmlFiles = new List<string>();
         private string _filter;
         private int _xdcamClipCount;
-        internal object XdcamLockObject = new object();
         private NetworkCredential _networkCredential;
         private FtpClient _ftpClient;
         private bool _isRefreshing;
-        
+
+        private const string XmlFileExtension = ".xml";
+
+        internal object XdcamLockObject = new object();
+
         internal IngestDirectory() : base(null)
         {
             IsImport = true;
@@ -210,8 +214,8 @@ namespace TAS.Server.Media
         public override void SweepStaleMedia()
         {
             DateTime currentDateTime = DateTime.UtcNow.Date;
-            List<IMedia> StaleMediaList = FindMediaList(m => currentDateTime > m.LastUpdated.Date + TimeSpan.FromDays(MediaRetnentionDays));
-            foreach (IMedia m in StaleMediaList)
+            List<IMedia> staleMediaList = FindMediaList(m => currentDateTime > m.LastUpdated.Date + TimeSpan.FromDays(MediaRetnentionDays));
+            foreach (IMedia m in staleMediaList)
                 m.Delete();
         }
 
@@ -220,30 +224,36 @@ namespace TAS.Server.Media
             base.MediaRemove(media);
             // remove xmlfile if it was last media file
             var ingestMedia = media as IngestMedia;
-            if (ingestMedia != null && ingestMedia.BmdXmlFile != string.Empty)
-            {
-                if (!Files.Values.Any(f => (f is IngestMedia) && ((IngestMedia) f).BmdXmlFile == ingestMedia.BmdXmlFile))
-                    try
-                    {
-                        string fn = ingestMedia.BmdXmlFile;
-                        if (!string.IsNullOrWhiteSpace(fn) && File.Exists(fn))
-                            File.Delete(fn);
-                    }
-                    catch { };
-            }
+            if (!string.IsNullOrEmpty(ingestMedia?.BmdXmlFile)
+                && FindMediaFirst(f => (f as IngestMedia)?.BmdXmlFile == ingestMedia.BmdXmlFile) == null)
+                try
+                {
+                    var xmlFile = ingestMedia.BmdXmlFile;
+                    if (!string.IsNullOrWhiteSpace(xmlFile) && File.Exists(xmlFile))
+                        File.Delete(xmlFile);
+                }
+                catch
+                {
+                    // ignored
+                }
         }
+
 
         public IngestMedia FindMedia(string clipName)
         {
             string clipNameLowered = clipName.ToLower();
-            IngestMedia result = (IngestMedia)FindMediaFirst(f => Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName)).ToLower() == clipNameLowered);
+            IngestMedia result = (IngestMedia)FindMediaFirst(f =>
+            {
+                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(Path.GetFileName(f.FileName));
+                return fileNameWithoutExtension != null && fileNameWithoutExtension.ToLower() == clipNameLowered;
+            });
             if (result == null & IsWAN)
                 {
-                    string[] files = Directory.GetFiles(this.Folder, string.Format("{0}.*", clipName));
+                    string[] files = Directory.GetFiles(Folder, string.Format("{0}.*", clipName));
                     if (files.Length > 0)
                     {
                         string fileName = files[0];
-                        result = (IngestMedia)this.CreateMedia(fileName);
+                        result = (IngestMedia)CreateMedia(fileName);
                         result.MediaName = Path.GetFileNameWithoutExtension(fileName);
                     }
                 }
@@ -341,50 +351,59 @@ namespace TAS.Server.Media
         {
             try
             {
-                Debug.WriteLine(e.FullPath, "OnFileRenamed");
-                if (Path.GetExtension(e.Name).ToLowerInvariant() == ".xml")
+                if (Path.GetExtension(e.Name).ToLowerInvariant() == XmlFileExtension)
                 {
-                    string xf = _bMDXmlFiles.FirstOrDefault(s => s == e.OldFullPath);
-                    if (xf != null)
+                    lock (((IList) _bMdXmlFiles).SyncRoot)
                     {
-                        _bMDXmlFiles.Remove(xf);
-                        _bMDXmlFiles.Add(e.FullPath);
-                        foreach (var fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).BmdXmlFile == xf))
-                            ((IngestMedia)fd).BmdXmlFile = e.FullPath;
+                        string xf = _bMdXmlFiles.FirstOrDefault(s => s == e.OldFullPath);
+                        if (xf != null)
+                        {
+                            _bMdXmlFiles.Remove(xf);
+                            _bMdXmlFiles.Add(e.FullPath);
+                            foreach (var fd in FindMediaList(
+                                f => (f is IngestMedia) && (f as IngestMedia).BmdXmlFile == xf))
+                                ((IngestMedia) fd).BmdXmlFile = e.FullPath;
+                        }
                     }
                 }
                 else
                     base.OnFileRenamed(source, e);
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
 
         protected override void OnMediaRenamed(MediaBase media, string newFullPath)
         {
             Debug.WriteLine(newFullPath, "OnMediaRenamed");
-            string ext = Path.GetExtension(newFullPath).ToLowerInvariant();
             media.MediaName = FileUtils.GetFileNameWithoutExtension(newFullPath, media.MediaType);
         }
 
         protected override void OnFileChanged(object source, FileSystemEventArgs e)
         {
-            if (Path.GetExtension(e.Name).ToLower() == ".xml" && _bMDXmlFiles.Contains(e.FullPath))
+            lock (((IList)_bMdXmlFiles).SyncRoot)
             {
-                _scanXML(e.FullPath);
+                var extension = Path.GetExtension(e.Name);
+                if (extension != null && extension.ToLower() == XmlFileExtension && _bMdXmlFiles.Contains(e.FullPath))
+                {
+                    _scanXML(e.FullPath);
+                    return;
+                }
             }
-            var m = Files.Values.FirstOrDefault(f => e.FullPath == f.FullPath);
+            var m = FindMediaFirstByFullPath(e.FullPath);
             if (m != null)
-            {
-                if (m.IsVerified)
                     m.IsVerified = false;
-            }
         }
 
-        protected override void EnumerateFiles(string directory, string filter, bool includeSubdirectories, CancellationToken cancelationToken)
+        protected override void EnumerateFiles(string directory, string filter, bool includeSubdirectories,
+            CancellationToken cancelationToken)
         {
             base.EnumerateFiles(directory, filter, includeSubdirectories, cancelationToken);
-            foreach (string xml in _bMDXmlFiles)
-                _scanXML(xml);
+            lock (((IList) _bMdXmlFiles).SyncRoot)
+                foreach (string xml in _bMdXmlFiles)
+                    _scanXML(xml);
         }
 
         protected override bool AcceptFile(string fullPath)
@@ -396,15 +415,16 @@ namespace TAS.Server.Media
                    || (IsXDCAM && ext == XDCAM.Smil.FileExtension);
         }
 
-        protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
+        protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime),
+            Guid guid = default(Guid))
         {
-            if (Path.GetExtension(fullPath).ToLowerInvariant() == ".xml")
+            if (Path.GetExtension(fullPath).ToLowerInvariant() == XmlFileExtension)
             {
-                _bMDXmlFiles.Add(fullPath);
+                lock (((IList) _bMdXmlFiles).SyncRoot)
+                    _bMdXmlFiles.Add(fullPath);
                 return null;
             }
-            else
-                return base.AddFile(fullPath, lastWriteTime, guid);
+            return base.AddFile(fullPath, lastWriteTime, guid);
         }
 
         protected override IMedia CreateMedia(string fullPath, Guid guid = default(Guid))
@@ -428,9 +448,10 @@ namespace TAS.Server.Media
 
         protected override void FileRemoved(string fullPath)
         {
-            if (Path.GetExtension(fullPath).ToLowerInvariant() == ".xml")
+            if (Path.GetExtension(fullPath).ToLowerInvariant() == XmlFileExtension)
             {
-                _bMDXmlFiles.Remove(fullPath);
+                lock (((IList)_bMdXmlFiles).SyncRoot)
+                    _bMdXmlFiles.Remove(fullPath);
                 foreach (var fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).BmdXmlFile == fullPath))
                     ((IngestMedia)fd).BmdXmlFile = string.Empty;
             }
@@ -440,25 +461,25 @@ namespace TAS.Server.Media
 
         internal XmlDocument ReadXmlDocument(string documentName, FtpClient client)
         {
-            XmlDocument xMLDoc = new XmlDocument();
+            XmlDocument xMlDoc = new XmlDocument();
             if (AccessType == TDirectoryAccessType.Direct)
             {
                 string fileName = Path.Combine(Folder, documentName);
                 if (File.Exists(fileName))
-                    xMLDoc.Load(fileName);
+                    xMlDoc.Load(fileName);
             }
             if (AccessType == TDirectoryAccessType.FTP)
             {
                 try
                 {
                     using (Stream stream = client.OpenRead(documentName))
-                        xMLDoc.Load(stream);
+                        xMlDoc.Load(stream);
                 }
                 catch (FtpCommandException)
                 {
                 }
             }
-            return xMLDoc;
+            return xMlDoc;
         }
 
         internal NetworkCredential GetNetworkCredential()

@@ -16,7 +16,7 @@ namespace TAS.Server.Common
 
         static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(PluginManager));
         private static readonly CompositionContainer ServerContainer;
-        static IEnumerable<IEnginePluginFactory> _enginePlugins = null;
+        static readonly IEnumerable<IEnginePluginFactory> _enginePlugins;
 
 
         static PluginManager()
@@ -52,9 +52,7 @@ namespace TAS.Server.Common
             var factories = _enginePlugins?.Where(f => f.Types().Any(t => typeof(T).IsAssignableFrom(t)));
             if (factories != null)
                 return factories.Select(f => (T)f.CreateEnginePlugin(engine, typeof(T))).Where(f => f != null);
-            else
-                return null;
-
+            return null;
         }
 
     }

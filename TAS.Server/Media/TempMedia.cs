@@ -8,34 +8,104 @@ namespace TAS.Server.Media
 {
     public class TempMedia: MediaBase, ITempMedia
     {
-        public TempMedia(TempDirectory directory, IMediaProperties originalMedia): base(directory, originalMedia == null? Guid.NewGuid(): originalMedia.MediaGuid)
+       
+        public TempMedia(TempDirectory directory, IMediaProperties originalMedia): base(directory, originalMedia.MediaGuid)
         {
             OriginalMedia = originalMedia;
-            FileName = $"{_mediaGuid}{(originalMedia == null ? FileUtils.TempFileExtension : Path.GetExtension(originalMedia.FileName))}";
+            FileName = $"{originalMedia.MediaGuid}{Path.GetExtension(originalMedia.FileName)}";
         }
 
         internal IMediaProperties OriginalMedia;
         internal StreamInfo[] StreamInfo;
 
-        public override string MediaName => OriginalMedia == null ? _mediaName : OriginalMedia.MediaName;
-
-        public override TMediaType MediaType => OriginalMedia?.MediaType ?? _mediaType;
-
-        public override TimeSpan Duration => OriginalMedia == null || OriginalMedia.Duration == TimeSpan.Zero ? _duration : OriginalMedia.Duration;
-
-        public override TimeSpan DurationPlay => OriginalMedia == null || OriginalMedia.DurationPlay == TimeSpan.Zero ? _durationPlay : OriginalMedia.DurationPlay;
-
-        public override TimeSpan TcStart => OriginalMedia == null || OriginalMedia.TcStart == TimeSpan.Zero ? _tcStart : OriginalMedia.TcStart;
-
-        public override TimeSpan TcPlay => OriginalMedia == null || OriginalMedia.TcPlay == TimeSpan.Zero ? _tcPlay : OriginalMedia.TcPlay;
-
-        public override decimal AudioVolume => OriginalMedia?.AudioVolume ?? _audioVolume;
-
-        protected override void DoDispose()
+        public override TAudioChannelMapping AudioChannelMapping
         {
-            base.DoDispose();
-            _directory.DeleteMedia(this);
+            get { return OriginalMedia.AudioChannelMapping; }
+            set { }
         }
 
+        public override decimal AudioLevelIntegrated
+        {
+            get { return OriginalMedia.AudioLevelIntegrated; }
+            set {  }
+        }
+
+        public override decimal AudioLevelPeak
+        {
+            get { return OriginalMedia.AudioLevelPeak; }
+            set { }
+        }
+
+        public override decimal AudioVolume
+        {
+            get { return OriginalMedia.AudioVolume; }
+            set { }
+        }
+
+        public override TimeSpan Duration
+        {
+            get { return OriginalMedia.Duration; }
+            set { }
+        }
+
+        public override TimeSpan DurationPlay
+        {
+            get { return OriginalMedia.DurationPlay; }
+            set { }
+        }
+
+        public override TMediaCategory MediaCategory
+        {
+            get { return OriginalMedia.MediaCategory; }
+            set {  }
+        }
+
+        public override byte Parental
+        {
+            get { return OriginalMedia.Parental; }
+            set {  }
+        }
+
+        public override string MediaName
+        {
+            get { return OriginalMedia.MediaName; }
+            set { }
+        }
+
+        public override TMediaType MediaType
+        {
+            get { return OriginalMedia.MediaType; }
+            set { }
+        }
+
+        public override TimeSpan TcPlay
+        {
+            get { return OriginalMedia.TcPlay; }
+            set { }
+        }
+
+        public override TimeSpan TcStart
+        {
+            get { return OriginalMedia.TcStart; }
+            set { }
+        }
+
+        public override TVideoFormat VideoFormat
+        {
+            get { return OriginalMedia.VideoFormat; }
+            set { }
+        }
+
+        public override bool FieldOrderInverted
+        {
+            get { return OriginalMedia.FieldOrderInverted; }
+            set { }
+        }
+        
+        protected override void DoDispose()
+        {
+            Delete();
+            base.DoDispose();
+        }
     }
 }

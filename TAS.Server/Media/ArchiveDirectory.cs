@@ -96,7 +96,7 @@ namespace TAS.Server.Media
                 {
                     return false;
                 }
-                OnMediaDeleted(m);
+                NotifyMediaDeleted(m);
                 MediaRemove(media);
                 return true;
             }
@@ -125,7 +125,7 @@ namespace TAS.Server.Media
 
         internal void Clear()
         {
-            foreach (var m in Files.Values.ToList())
+            foreach (var m in GetFiles())
                 base.MediaRemove(m); //base: to not actually delete file and db
         }
 

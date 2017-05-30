@@ -13,10 +13,11 @@ namespace TAS.Server.Media
         private int _templateLayer;
         private readonly SimpleDictionary<string, string> _fields = new SimpleDictionary<string, string>();
 
+
         public AnimatedMedia(IMediaDirectory directory, Guid guid, ulong idPersistentMedia) : base(directory, guid, idPersistentMedia)
         {
             _fields.DictionaryOperation += _fields_DictionaryOperation;
-            _mediaType = TMediaType.Animation;
+            base.MediaType = TMediaType.Animation;
         }
 
         [JsonProperty]

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -64,12 +65,13 @@ namespace TAS.Server.Media
 
         protected override bool AcceptFile(string fullPath)
         {
-            return FileUtils.AnimationFileTypes.Contains(Path.GetExtension(fullPath).ToLowerInvariant());
+            return !string.IsNullOrWhiteSpace(fullPath) 
+                && FileUtils.AnimationFileTypes.Contains(Path.GetExtension(fullPath).ToLowerInvariant());
         }
 
         protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime), Guid guid = default(Guid))
         {
-            AnimatedMedia newMedia = Files.Values.FirstOrDefault(m => fullPath.Equals(m.FullPath, StringComparison.CurrentCultureIgnoreCase)) as AnimatedMedia;
+            var newMedia = FindMediaFirstByFullPath(fullPath) as AnimatedMedia;
             if (newMedia == null && AcceptFile(fullPath))
             {
                 newMedia = (AnimatedMedia)CreateMedia(fullPath, guid);

@@ -12,7 +12,7 @@ namespace TAS.Server.Common
             Position = position;
             TimeToFinish = timeToFinish;
         }
-        public long Position { get; private set; }
-        public TimeSpan TimeToFinish { get; private set; }
+        public long Position { get; }
+        public TimeSpan TimeToFinish { get; }
     }
 }

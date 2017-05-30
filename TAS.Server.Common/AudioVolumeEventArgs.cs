@@ -11,6 +11,6 @@ namespace TAS.Server.Common
         {
             AudioVolume = audioVolume;
         }
-        public decimal AudioVolume { get; private set; }
+        public decimal AudioVolume { get; }
     }
 }

@@ -9,7 +9,6 @@ namespace TAS {
 		_FFMpegWrapper::_FFMpegWrapper(char* fileName)
 		{
 			av_register_all();
-			av_log_set_level(AV_LOG_DEBUG);
 			pFormatCtx=NULL;
 			if (avformat_open_input(&pFormatCtx, fileName, NULL, NULL) == 0)
 				avformat_find_stream_info(pFormatCtx, NULL);
@@ -261,9 +260,9 @@ namespace TAS {
 		FFMpegWrapper::FFMpegWrapper(String^ fileName)
 		{
 			_fileName = fileName;
-			char* fn = (char*)Marshal::StringToHGlobalAnsi(fileName).ToPointer();
-			wrapper = new _FFMpegWrapper(fn);
-			Marshal::FreeHGlobal(IntPtr((void*)fn));
+			IntPtr fn = Marshal::StringToHGlobalAnsi(fileName);
+			wrapper = new _FFMpegWrapper((char *)fn.ToPointer());
+			Marshal::FreeHGlobal(fn);
 		};
 
 		FFMpegWrapper::~FFMpegWrapper()

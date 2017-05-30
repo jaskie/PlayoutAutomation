@@ -109,7 +109,7 @@ namespace TAS.Server.Media
         protected override void EnumerateFiles(string directory, string filter, bool includeSubdirectories, CancellationToken cancelationToken)
         {
             base.EnumerateFiles(directory, filter, includeSubdirectories, cancelationToken);
-            var unverifiedFiles = Files.Values.Where(mf => ((ServerMedia)mf).IsVerified == false).ToList();
+            var unverifiedFiles = FindMediaList(mf => ((ServerMedia)mf).IsVerified == false);
             unverifiedFiles.ForEach(media => media.Verify());
         }
     }

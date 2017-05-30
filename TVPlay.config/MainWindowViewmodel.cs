@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
@@ -13,11 +9,11 @@ namespace TAS.Client.Config
     {
         public MainWindowViewmodel()
         {
-            _commandIngestFoldersSetup = new UICommand() { ExecuteDelegate = _ingestFoldersSetup };
-            _commandConfigFileEdit = new UICommand() { ExecuteDelegate = _configFileEdit };
-            _commandConfigFileSelect = new UICommand() { ExecuteDelegate = _configFileSelect };
-            _commandPlayoutServersSetup = new UICommand() { ExecuteDelegate = _serversSetup };
-            _commandEnginesSetup = new UICommand() { ExecuteDelegate = _enginesSetup };
+            CommandIngestFoldersSetup = new UICommand { ExecuteDelegate = _ingestFoldersSetup };
+            CommandConfigFileEdit = new UICommand { ExecuteDelegate = _configFileEdit };
+            CommandConfigFileSelect = new UICommand { ExecuteDelegate = _configFileSelect };
+            CommandPlayoutServersSetup = new UICommand { ExecuteDelegate = _serversSetup };
+            CommandEnginesSetup = new UICommand { ExecuteDelegate = _enginesSetup };
             if (File.Exists("TVPlay.exe"))
                 ConfigFile = new Model.ConfigFile("TVPlay.exe");
         }
@@ -54,16 +50,11 @@ namespace TAS.Client.Config
             vm.ShowDialog();
         }
 
-        readonly UICommand _commandIngestFoldersSetup;
-        readonly UICommand _commandConfigFileEdit;
-        readonly UICommand _commandConfigFileSelect;
-        readonly UICommand _commandPlayoutServersSetup;
-        readonly UICommand _commandEnginesSetup;
-        public ICommand CommandIngestFoldersSetup { get { return _commandIngestFoldersSetup; } }
-        public ICommand CommandConfigFileEdit { get { return _commandConfigFileEdit; } }
-        public ICommand CommandConfigFileSelect { get { return _commandConfigFileSelect; } }
-        public ICommand CommandPlayoutServersSetup { get { return _commandPlayoutServersSetup; } }
-        public ICommand CommandEnginesSetup { get { return _commandEnginesSetup; } }
+        public ICommand CommandIngestFoldersSetup { get; } 
+        public ICommand CommandConfigFileEdit { get; }
+        public ICommand CommandConfigFileSelect { get; }
+        public ICommand CommandPlayoutServersSetup { get; }
+        public ICommand CommandEnginesSetup { get; }
 
         Model.ConfigFile _configFile;
         public Model.ConfigFile ConfigFile

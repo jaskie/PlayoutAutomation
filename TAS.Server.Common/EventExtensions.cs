@@ -136,8 +136,7 @@ namespace TAS.Server.Common
             var volume = aEvent.AudioVolume;
             if (volume != null)
                 return (decimal)volume;
-            else
-                if (aEvent.EventType == TEventType.Movie)
+            if (aEvent.EventType == TEventType.Movie)
             {
                 var m = aEvent.Media;
                 if (m != null)

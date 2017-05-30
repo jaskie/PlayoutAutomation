@@ -17,8 +17,8 @@ namespace TAS.Server.Media
             get
             {
                 if (_ingestStatus != TIngestStatus.Unknown) return _ingestStatus;
-                var sdir = _directory.MediaManager.MediaDirectoryPRI as ServerDirectory;
-                var media = sdir?.FindMediaByMediaGuid(_mediaGuid);
+                var sdir = ((ArchiveDirectory)Directory).MediaManager.MediaDirectoryPRI as ServerDirectory;
+                var media = sdir?.FindMediaByMediaGuid(MediaGuid);
                 if (media != null && media.MediaStatus == TMediaStatus.Available)
                     _ingestStatus = TIngestStatus.Ready;
                 return _ingestStatus;
@@ -41,10 +41,10 @@ namespace TAS.Server.Media
                     else
                     {
                         if (IdPersistentMedia == 0)
-                            result = this.DbInsert(((ArchiveDirectory)_directory).idArchive);
+                            result = this.DbInsert(((ArchiveDirectory)Directory).idArchive);
                         else
                         if (IsModified)
-                            result = this.DbUpdate(((ArchiveDirectory)_directory).idArchive);
+                            result = this.DbUpdate(((ArchiveDirectory)Directory).idArchive);
                         IsModified = false;
                     }
                 }

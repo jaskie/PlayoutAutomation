@@ -1,21 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 using System.Diagnostics;
-using TAS.Server;
-using TAS.Client.Common;
-using TAS.Client.ViewModels;
 using System.Threading;
 using resources = TAS.Client.Common.Properties.Resources;
 using System.Configuration;
@@ -27,7 +14,7 @@ namespace TAS.Client
     /// </summary>
     public partial class MainWindow : Window
     {
-        static Mutex mutex = new Mutex(false, "TASClientApplication");
+        private static readonly Mutex Mutex = new Mutex(false, "TASClientApplication");
         bool _systemShutdown;
         public MainWindow()
         {
@@ -36,7 +23,7 @@ namespace TAS.Client
             {
                 bool isBackupInstance;
                 bool.TryParse(ConfigurationManager.AppSettings["IsBackupInstance"], out isBackupInstance);
-                if ((!mutex.WaitOne(5000) && (MessageBox.Show(resources._query_StartAnotherInstance, resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel))
+                if ((!Mutex.WaitOne(5000) && (MessageBox.Show(resources._query_StartAnotherInstance, resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel))
                     || (isBackupInstance && MessageBox.Show(resources._query_StartBackupInstance, resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes))
                 {
                     _systemShutdown = true;
@@ -49,8 +36,8 @@ namespace TAS.Client
             }
             catch (AbandonedMutexException)
             {
-                mutex.ReleaseMutex();
-                mutex.WaitOne();
+                Mutex.ReleaseMutex();
+                Mutex.WaitOne();
             }
         }
 
@@ -82,10 +69,5 @@ namespace TAS.Client
                 e.Handled = true;
             }
         }
-        protected override void OnClosed(EventArgs e)
-        {
-            base.OnClosed(e);
-        }
-
     }
 }

@@ -17,9 +17,10 @@ namespace TAS.Server
     {
         [XmlAttribute]
         public ushort ListenPort { get; set; }
-        WebSocketServer _server;
-        static ISerializationBinder ServerBinder = new ServerSerializationBinder();
-        static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(RemoteClientHost));
+        private WebSocketServer _server;
+        private static ISerializationBinder ServerBinder = new ServerSerializationBinder();
+        private static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(RemoteClientHost));
+
         public bool Initialize(Engine engine)
         {
             if (ListenPort < 1024)
@@ -45,7 +46,7 @@ namespace TAS.Server
             if (!disposed)
             {
                 _disposed = true;
-                _server?.Stop();
+                UnInitialize();
             }
         }
 

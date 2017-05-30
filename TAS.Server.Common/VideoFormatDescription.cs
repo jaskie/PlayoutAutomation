@@ -9,18 +9,7 @@ namespace TAS.Server.Common
     [JsonObject]
     public sealed class VideoFormatDescription
     {
-        [JsonProperty]
-        public readonly TVideoFormat Format;
-        [JsonProperty]
-        public readonly Size ImageSize;
-        [JsonProperty]
-        public readonly RationalNumber FrameRate;
-        [JsonProperty]
-        public readonly bool Interlaced;
-        [JsonProperty]
-        public readonly RationalNumber SAR;
-        [JsonProperty]
-        public readonly bool IsWideScreen;
+        #region Constructors
         private VideoFormatDescription(TVideoFormat format)
         {
             this.Format = format;
@@ -244,8 +233,22 @@ namespace TAS.Server.Common
         }
 
         private VideoFormatDescription() { }
+        #endregion
 
-        public static Dictionary<TVideoFormat, VideoFormatDescription> Descriptions = new Dictionary<TVideoFormat, VideoFormatDescription>()
+        [JsonProperty]
+        public readonly TVideoFormat Format;
+        [JsonProperty]
+        public readonly Size ImageSize;
+        [JsonProperty]
+        public readonly RationalNumber FrameRate;
+        [JsonProperty]
+        public readonly bool Interlaced;
+        [JsonProperty]
+        public readonly RationalNumber SAR;
+        [JsonProperty]
+        public readonly bool IsWideScreen;
+
+        public static Dictionary<TVideoFormat, VideoFormatDescription> Descriptions = new Dictionary<TVideoFormat, VideoFormatDescription>
         {
             {TVideoFormat.PAL_FHA, new VideoFormatDescription(TVideoFormat.PAL_FHA)},
             {TVideoFormat.PAL, new VideoFormatDescription(TVideoFormat.PAL)},
@@ -288,8 +291,8 @@ namespace TAS.Server.Common
             return result != null ? result : new VideoFormatDescription(imageSize, frameRate, sar, interlaced);
         }
 
-        public TimeSpan FrameDuration { get { return FrameRate.IsZero ? TimeSpan.Zero : new TimeSpan(TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num); } }
-        public long FrameTicks { get { return FrameRate.IsZero ? 0L : TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num; } }
+        public TimeSpan FrameDuration => FrameRate.IsZero ? TimeSpan.Zero : new TimeSpan(TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num);
+        public long FrameTicks => FrameRate.IsZero ? 0L : TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num;
 
         public override string ToString()
         {

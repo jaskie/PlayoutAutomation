@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using TAS.FFMpegUtils;
 using TAS.Server.Common;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Media
 {
@@ -11,15 +12,13 @@ namespace TAS.Server.Media
         {
             if (media.MediaType == TMediaType.Movie || media.MediaType == TMediaType.Unknown)
             {
-                TimeSpan videoDuration;
-                TimeSpan audioDuration;
                 int startTickCunt = Environment.TickCount;
                 using (FFMpegWrapper ffmpeg = new FFMpegWrapper(media.FullPath))
                 {
                     Rational r = ffmpeg.GetFrameRate();
                     RationalNumber frameRate = new RationalNumber(r.Num, r.Den);
-                    videoDuration = ffmpeg.GetFrameCount().SMPTEFramesToTimeSpan(frameRate);
-                    audioDuration = (TimeSpan)ffmpeg.GetAudioDuration();
+                    var videoDuration = ffmpeg.GetFrameCount().SMPTEFramesToTimeSpan(frameRate);
+                    var audioDuration = (TimeSpan)ffmpeg.GetAudioDuration();
                     var mediaDuration = ((videoDuration > audioDuration) && (audioDuration > TimeSpan.Zero) ? audioDuration : videoDuration).Round(frameRate);
                     media.Duration = mediaDuration;
                     if (media.DurationPlay == TimeSpan.Zero || media.DurationPlay > mediaDuration)
@@ -50,10 +49,12 @@ namespace TAS.Server.Media
                     
                     var vfd = VideoFormatDescription.Match(new System.Drawing.Size(w, h), new RationalNumber(frameRate.Num, frameRate.Den), sAR, order != FieldOrder.PROGRESSIVE);
                     media.VideoFormat = vfd.Format;
-                    if (media is IngestMedia)
-                        ((IngestMedia)media).StreamInfo = ffmpeg.GetStreamInfo();
-                    if (media is TempMedia)
-                        ((TempMedia)media).StreamInfo = ffmpeg.GetStreamInfo();
+                    var ingestMedia = media as IngestMedia;
+                    if (ingestMedia != null)
+                        ingestMedia.StreamInfo = ffmpeg.GetStreamInfo();
+                    var tempMedia = media as TempMedia;
+                    if (tempMedia != null)
+                        tempMedia.StreamInfo = ffmpeg.GetStreamInfo();
 
                     Debug.WriteLine("FFmpeg check of {0} finished. It took {1} milliseconds", media.FullPath, Environment.TickCount - startTickCunt);
 
@@ -64,15 +65,12 @@ namespace TAS.Server.Media
                             && audioDuration != TimeSpan.Zero)
                             // when more than 0.5 sec difference
                             return TMediaStatus.ValidationError;
-                        else
-                            return TMediaStatus.Available;
+                        return TMediaStatus.Available;
                     }
-                    else
-                        return TMediaStatus.ValidationError;
+                    return TMediaStatus.ValidationError;
                 }
             }
-            else
-                return TMediaStatus.Available;
+            return TMediaStatus.Available;
         }
     }
 }

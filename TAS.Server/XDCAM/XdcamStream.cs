@@ -163,6 +163,7 @@ namespace TAS.Server.XDCAM
         }
 
     }
+
     public static class SmpteExtensions
     {
         public static int SmpteToFrame(this string smpte)

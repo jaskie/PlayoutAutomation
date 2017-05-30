@@ -31,7 +31,7 @@ namespace TAS.Server.Common
 
         public static MediaProxy FromMedia(IMediaProperties media)
         {
-            return new MediaProxy()
+            return new MediaProxy
             {
                 AudioChannelMapping = media.AudioChannelMapping,
                 AudioLevelIntegrated = media.AudioLevelIntegrated,
@@ -65,6 +65,7 @@ namespace TAS.Server.Common
         public ulong IdPersistentMedia { get; set; }
         public bool Protected { get; set; }
         public string IdAux { get; set; }
+
         public static PersistentMediaProxy FromMedia(IPersistentMediaProperties media)
         {
             return new PersistentMediaProxy()

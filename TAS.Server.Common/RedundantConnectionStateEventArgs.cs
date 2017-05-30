@@ -53,13 +53,12 @@ namespace TAS.Server.Common
 
     public class RedundantConnectionStateEventArgs : EventArgs
     {
-
         public RedundantConnectionStateEventArgs(ConnectionStateRedundant oldState, ConnectionStateRedundant newState)
         {
             OldState = oldState;
             NewState = newState;
         }
-        public ConnectionStateRedundant OldState { get; private set; }
-        public ConnectionStateRedundant NewState { get; private set; }
+        public ConnectionStateRedundant OldState { get; }
+        public ConnectionStateRedundant NewState { get; }
     }
 }
