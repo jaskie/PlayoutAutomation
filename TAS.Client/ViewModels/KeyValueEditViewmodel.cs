@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace TAS.Client.ViewModels
 {
@@ -33,15 +30,14 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool KeyIsEnabled { get { return !_keyIsReadOnly; } }
+        public bool KeyIsEnabled => !_keyIsReadOnly;
 
         public string Value { get { return _keyData.Value; } set { SetField(ref _keyData.Value, value); } }
 
-        public KeyValuePair<string, string> Result { get { return new KeyValuePair<string, string>(Key, Value); } }
+        public KeyValuePair<string, string> Result => new KeyValuePair<string, string>(Key, Value);
 
         protected override void OnDispose()
         {
-            
         }
     }
 }

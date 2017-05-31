@@ -1,34 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Client.Common;
+﻿using TAS.Client.Common;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
     public class ExportMediaLogoViewmodel
     {
-        readonly ExportMediaViewmodel Owner;
-        public readonly IMedia Logo;
+        private readonly ExportMediaViewmodel _owner;
         public ExportMediaLogoViewmodel(ExportMediaViewmodel owner, IMedia logo )
         {
             Logo = logo;
-            Owner = owner;
+            _owner = owner;
             CommandRemove = new UICommand() { ExecuteDelegate = _remove };
         }
 
-        private void _remove(object obj)
-        {
-            Owner.Remove(this);
-        }
+        public IMedia Logo { get; }
 
-        public UICommand CommandRemove { get; private set; }
-
-
+        public UICommand CommandRemove { get; }
+        
         public override string ToString()
         {
             return Logo.MediaName;
         }
+
+
+        private void _remove(object obj)
+        {
+            _owner.Remove(this);
+        }
+
     }
 }

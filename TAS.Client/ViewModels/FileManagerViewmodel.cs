@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Windows;
 using TAS.Server.Common;
@@ -15,25 +12,22 @@ namespace TAS.Client.ViewModels
 {
     public class FileManagerViewmodel : ViewmodelBase
     {
-        private ObservableCollection<FileOperationViewmodel> _operationList;
         private readonly IFileManager _fileManager;
-        public ICommand CommandClearFinished { get; private set; }
-        public ICommand CommandCancelPending { get; private set; }
 
         public FileManagerViewmodel(IFileManager fileManager)
         {
             _fileManager = fileManager;
             fileManager.OperationAdded += FileManager_OperationAdded;
             fileManager.OperationCompleted += FileManager_OperationCompleted;
-            _operationList = new ObservableCollection<FileOperationViewmodel>(fileManager.GetOperationQueue().Select(fo => new FileOperationViewmodel(fo)));
-            CommandClearFinished = new UICommand { ExecuteDelegate = _clearFinishedOperations, CanExecuteDelegate = o => _operationList.Any(op => op.Finished) };
-            CommandCancelPending = new UICommand { ExecuteDelegate = o => _fileManager.CancelPending(), CanExecuteDelegate = o => _operationList.Any(op => op.OperationStatus == FileOperationStatus.Waiting) };
+            OperationList = new ObservableCollection<FileOperationViewmodel>(fileManager.GetOperationQueue().Select(fo => new FileOperationViewmodel(fo)));
+            CommandClearFinished = new UICommand { ExecuteDelegate = _clearFinishedOperations, CanExecuteDelegate = o => OperationList.Any(op => op.Finished) };
+            CommandCancelPending = new UICommand { ExecuteDelegate = o => _fileManager.CancelPending(), CanExecuteDelegate = o => OperationList.Any(op => op.OperationStatus == FileOperationStatus.Waiting) };
             DispatcherTimer clearTimer = new DispatcherTimer();
             clearTimer.Tick += (o, e) =>
             {
-                foreach (FileOperationViewmodel vm in _operationList.Where(op => op.FileOperation.OperationStatus == FileOperationStatus.Finished && op.FinishedTime > DateTime.Now+TimeSpan.FromHours(1)).ToList())
+                foreach (FileOperationViewmodel vm in OperationList.Where(op => op.FileOperation.OperationStatus == FileOperationStatus.Finished && op.FinishedTime > DateTime.Now+TimeSpan.FromHours(1)).ToList())
                 {
-                    _operationList.Remove(vm);
+                    OperationList.Remove(vm);
                     vm.Dispose();
                 }
             };
@@ -41,44 +35,11 @@ namespace TAS.Client.ViewModels
             clearTimer.Start();
         }
 
-        private void FileManager_OperationCompleted(object sender, FileOperationEventArgs e)
-        {
-            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
-            {
-                if (_clearFinished)
-                {
-                    FileOperationViewmodel fovm = _operationList.FirstOrDefault(vm => vm.FileOperation == e.Operation);
-                    if (fovm != null)
-                    {
-                        _operationList.Remove(fovm);
-                        fovm.Dispose();
-                    }
-                }
-                InvalidateRequerySuggested();
-            }), null);
-        }
+        public ICommand CommandClearFinished { get; }
+        public ICommand CommandCancelPending { get; }
 
-        private void FileManager_OperationAdded(object sender, FileOperationEventArgs e)
-        {
-            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
-            {
-                _operationList.Insert(0, new FileOperationViewmodel(e.Operation));
-            })
-                , null);
-        }
+        public ObservableCollection<FileOperationViewmodel> OperationList { get; }
 
-        public ObservableCollection<FileOperationViewmodel> OperationList { get { return _operationList; } }
-        
-        private void _clearFinishedOperations(object parameter)
-        {
-            foreach (FileOperationViewmodel vm in _operationList.Where(f => f.Finished).ToList())
-            {
-                _operationList.Remove(vm);
-                vm.Dispose();
-            }
-        }
-
-        private bool _clearFinished;
         public bool ClearFinished
         {
             get { return _clearFinished; }
@@ -87,12 +48,6 @@ namespace TAS.Client.ViewModels
                 if (SetField(ref _clearFinished, value) && value)
                     _clearFinishedOperations(null);
             }
-        }
-
-        protected override void OnDispose()
-        {
-            _fileManager.OperationAdded -= FileManager_OperationAdded;
-            _fileManager.OperationCompleted -= FileManager_OperationCompleted;
         }
 
         internal IConvertOperation CreateConvertOperation(IMedia sourceMedia, IMediaProperties destMediaProperties, IMediaDirectory destDirectory, TVideoFormat outputFormat, decimal audioVolume, TFieldOrder sourceFieldOrderEnforceConversion, TAspectConversion aspectConversion, bool loudnessCheck)
@@ -108,6 +63,49 @@ namespace TAS.Client.ViewModels
             result.Duration = sourceMedia.DurationPlay;
             result.LoudnessCheck = loudnessCheck;
             return result;
+        }
+
+        private void FileManager_OperationCompleted(object sender, FileOperationEventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            {
+                if (_clearFinished)
+                {
+                    FileOperationViewmodel fovm = OperationList.FirstOrDefault(vm => vm.FileOperation == e.Operation);
+                    if (fovm != null)
+                    {
+                        OperationList.Remove(fovm);
+                        fovm.Dispose();
+                    }
+                }
+                InvalidateRequerySuggested();
+            }), null);
+        }
+
+        private void FileManager_OperationAdded(object sender, FileOperationEventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            {
+                OperationList.Insert(0, new FileOperationViewmodel(e.Operation));
+            })
+                , null);
+        }
+
+        private void _clearFinishedOperations(object parameter)
+        {
+            foreach (FileOperationViewmodel vm in OperationList.Where(f => f.Finished).ToList())
+            {
+                OperationList.Remove(vm);
+                vm.Dispose();
+            }
+        }
+
+        private bool _clearFinished;
+
+        protected override void OnDispose()
+        {
+            _fileManager.OperationAdded -= FileManager_OperationAdded;
+            _fileManager.OperationCompleted -= FileManager_OperationCompleted;
         }
 
     }

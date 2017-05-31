@@ -566,10 +566,11 @@ namespace TAS.Server
 
         public void Remove()
         {
-            lock (((Engine)Engine).RundownSync)
+            Event next;
+            lock (_engine.RundownSync)
             {
                 Event parent = Parent as Event;
-                Event next = Next as Event;
+                next = Next as Event;
                 Event prior = Prior as Event;
                 TStartType startType = _startType;
                 if (next != null)
@@ -595,22 +596,24 @@ namespace TAS.Server
                     prior.Next = next;
                     prior._durationChanged();
                 }
-                next?.Save();
-                Next = null;
-                Prior = null;
-                Parent = null;
-                _idEventBinding = 0;
-                StartType = TStartType.None;
             }
+            next?.Save();
+            Next = null;
+            Prior = null;
+            Parent = null;
+            _idEventBinding = 0;
+            StartType = TStartType.None;
         }
 
         public void MoveUp()
         {
-            lock (((Engine)Engine).RundownSync)
+            Event e2;
+            Event e4;
+            lock (_engine.RundownSync)
             {
                 // this = e3
-                Event e2 = Prior as Event;
-                Event e4 = Next as Event; // load if nescessary
+                e2 = Prior as Event;
+                e4 = Next as Event; // load if nescessary
                 Debug.Assert(e2 != null, "Cannot move up - it's the first event");
                 if (e2 == null)
                     return;
@@ -637,25 +640,27 @@ namespace TAS.Server
                 Next = e2;
                 if (e4 != null)
                     e4.Prior = e2;
-                _uppdateScheduledTime();
-                if (e4 != null)
-                    e4.Save();
-                e2.Save();
-                Save();
-                NotifyRelocated();
             }
+            _uppdateScheduledTime();
+            e4?.Save();
+            e2.Save();
+            Save();
+            NotifyRelocated();
+
         }
 
         public void MoveDown()
         {
-            lock (((Engine)Engine).RundownSync)
+            Event e3;
+            Event e4;
+            lock (_engine.RundownSync)
             {
                 // this = e2
-                Event e3 = Next as Event; // load if nescessary
+                e3 = Next as Event; // load if nescessary
                 Debug.Assert(e3 != null, "Cannot move down - it's the last event");
                 if (e3 == null)
                     return;
-                Event e4 = e3.Next as Event;
+                e4 = e3.Next as Event;
                 Event e2Parent = Parent as Event;
                 Event e2Prior = Prior as Event;
                 if (e2Parent != null)
@@ -679,20 +684,21 @@ namespace TAS.Server
                 Next = e4;
                 if (e4 != null)
                     e4.Prior = this;
-                e3._uppdateScheduledTime();
-                if (e4 != null)
-                    e4.Save();
-                Save();
-                e3.Save();
-                NotifyRelocated();
             }
+            e3._uppdateScheduledTime();
+            e4?.Save();
+            Save();
+            e3.Save();
+            NotifyRelocated();
         }
 
         public void InsertAfter(IEvent e)
         {
             Event eventToInsert = e as Event;
             if (eventToInsert != null)
-                lock (((Engine)Engine).RundownSync)
+            {
+                Event next;
+                lock (_engine.RundownSync)
                 {
                     Event oldParent = eventToInsert.Parent as Event;
                     Event oldPrior = eventToInsert.Prior as Event;
@@ -701,7 +707,7 @@ namespace TAS.Server
                     if (oldPrior != null)
                         oldPrior.Next = null;
 
-                    Event next = this.Next as Event;
+                    next = this.Next as Event;
                     if (next == eventToInsert)
                         return;
                     this.Next = eventToInsert;
@@ -714,23 +720,23 @@ namespace TAS.Server
 
                     if (next != null)
                         next.Prior = eventToInsert;
-
-                    //time calculations
-                    eventToInsert._uppdateScheduledTime();
-                    eventToInsert._durationChanged();
-
-                    // save key events
-                    eventToInsert.Save();
-                    if (next != null)
-                        next.Save();
                 }
+                //time calculations
+                eventToInsert._uppdateScheduledTime();
+                eventToInsert._durationChanged();
+
+                // save key events
+                eventToInsert.Save();
+                next?.Save();
+            }
         }
 
         public void InsertBefore(IEvent e)
         {
             Event eventToInsert = e as Event;
             if (eventToInsert != null)
-                lock (((Engine)Engine).RundownSync)
+            {
+                lock (_engine.RundownSync)
                 {
                     Event prior = this.Prior as Event;
                     Event parent = this.Parent as Event;
@@ -763,21 +769,22 @@ namespace TAS.Server
                     this.Prior = eventToInsert;
                     eventToInsert.Next = this;
                     this.StartType = TStartType.After;
-
-                    // time calculations
-                    eventToInsert._uppdateScheduledTime();
-                    eventToInsert._durationChanged();
-
-                    eventToInsert.Save();
-                    this.Save();
                 }
+                // time calculations
+                eventToInsert._uppdateScheduledTime();
+                eventToInsert._durationChanged();
+
+                eventToInsert.Save();
+                this.Save();
+            }
         }
 
         public void InsertUnder(IEvent se, bool fromEnd)
         {
             Event subEventToAdd = se as Event;
             if (subEventToAdd != null)
-                lock (((Engine)Engine).RundownSync)
+            {
+                lock (_engine.RundownSync)
                 {
                     Event oldPrior = subEventToAdd.Prior as Event;
                     Event oldParent = subEventToAdd.Parent as Event;
@@ -787,7 +794,8 @@ namespace TAS.Server
                         oldPrior.Next = null;
                     if (EventType == TEventType.Container)
                     {
-                        if (!(subEventToAdd.StartType == TStartType.Manual || subEventToAdd.StartType == TStartType.OnFixedTime)) // do not change if valid
+                        if (!(subEventToAdd.StartType == TStartType.Manual ||
+                              subEventToAdd.StartType == TStartType.OnFixedTime)) // do not change if valid
                             subEventToAdd.StartType = TStartType.Manual;
                     }
                     else
@@ -804,17 +812,18 @@ namespace TAS.Server
                         subEventToAdd.Prior = null;
                         prior._durationChanged();
                     }
-                    subEventToAdd._uppdateScheduledTime();
-                    // notify about relocation
-                    subEventToAdd.NotifyRelocated();
-                    Event lastToInsert = subEventToAdd.Next as Event;
-                    while (lastToInsert != null)
-                    {
-                        lastToInsert.NotifyRelocated();
-                        lastToInsert = lastToInsert.Next as Event;
-                    }
-                    subEventToAdd.Save();
                 }
+                subEventToAdd._uppdateScheduledTime();
+                // notify about relocation
+                subEventToAdd.NotifyRelocated();
+                Event lastToInsert = subEventToAdd.Next as Event;
+                while (lastToInsert != null)
+                {
+                    lastToInsert.NotifyRelocated();
+                    lastToInsert = lastToInsert.Next as Event;
+                }
+                subEventToAdd.Save();
+            }
         }
 
         /// <summary>

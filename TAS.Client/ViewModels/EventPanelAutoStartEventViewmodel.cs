@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Server.Common;
+﻿using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
@@ -21,10 +17,7 @@ namespace TAS.Client.ViewModels
 
         public EventPanelAutoStartEventViewmodel(IEvent ev):base(ev, null) { }
 
-        public string ScheduledDate
-        {
-            get { return _event.ScheduledTime.ToLocalTime().ToString("d"); }
-        }
+        public string ScheduledDate => _event.ScheduledTime.ToLocalTime().ToString("d");
 
         public TAutoStartPlayState AutoStartPlayState
         {
@@ -45,7 +38,6 @@ namespace TAS.Client.ViewModels
             }
         }
         
-
         protected override void NotifyPropertyChanged(string propertyName)
         {
             base.NotifyPropertyChanged(propertyName);

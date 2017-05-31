@@ -9,30 +9,24 @@ namespace TAS.Client.ViewModels
 {
     public class MediaEditWindowViewmodel : OkCancelViewmodelBase<IMedia>
     {
-        public readonly MediaEditViewmodel editViewModel;
+        private readonly MediaEditViewmodel _editViewModel;
         public MediaEditWindowViewmodel(IMedia media, IMediaManager mediaManager)
             : base(media, new MediaEditView(), media.MediaName)
         {
-            editViewModel = new MediaEditViewmodel(media, mediaManager, null, false);
-            Editor.DataContext = editViewModel;
+            _editViewModel = new MediaEditViewmodel(media, mediaManager, null, false);
+            Editor.DataContext = _editViewModel;
         }
 
         protected override void OnDispose()
         {
-            editViewModel.Dispose();
+            _editViewModel.Dispose();
         }
 
-        public override bool IsModified
-        {
-            get
-            {
-                return _isModified || editViewModel.IsModified;
-            }
-        }
+        public override bool IsModified => _isModified || _editViewModel.IsModified;
 
         public override void ModelUpdate(object destObject = null)
         {
-            editViewModel.ModelUpdate();
+            _editViewModel.ModelUpdate();
             base.ModelUpdate(destObject);
         }
     }

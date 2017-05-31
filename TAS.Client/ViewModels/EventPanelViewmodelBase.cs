@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
-using System.Windows.Data;
-using System.Collections;
 using System.Diagnostics;
 using System.Windows;
-using System.Runtime.Remoting.Messaging;
-using TAS.Client.Common;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
@@ -22,27 +15,29 @@ namespace TAS.Client.ViewModels
     {
         protected readonly IEvent _event;
         protected readonly IEngine _engine;
-        readonly int _level;
-        protected EventPanelViewmodelBase _parent;
-        protected readonly EventPanelRootViewmodel _root;
-        protected readonly EngineViewmodel _engineViewmodel;
-        private TVideoFormat _videoFormat;
+        protected readonly EventPanelRootViewmodel Root;
+        protected readonly EngineViewmodel EngineViewmodel;
         protected readonly ObservableCollection<EventPanelViewmodelBase> _childrens = new ObservableCollection<EventPanelViewmodelBase>();
         protected static readonly EventPanelViewmodelBase DummyChild = new EventPanelDummyViewmodel();
+        protected EventPanelViewmodelBase _parent;
 
+        private TVideoFormat _videoFormat;
+        bool _isExpanded;
+        bool _isSelected;
+        bool _isMultiSelected;
 
         /// <summary>
         /// Constructor for root event
         /// </summary>
         /// <param name="engineViewmodel"></param>
-        public EventPanelViewmodelBase(EngineViewmodel engineViewmodel) : base()
+        protected EventPanelViewmodelBase(EngineViewmodel engineViewmodel)
         {
-            _engineViewmodel = engineViewmodel;
+            EngineViewmodel = engineViewmodel;
             _engine = engineViewmodel.Engine;
-            _level = 0;
+            Level = 0;
             _isExpanded = true;
             _videoFormat = engineViewmodel.VideoFormat;
-            _root = (EventPanelRootViewmodel)this;
+            Root = (EventPanelRootViewmodel)this;
         }
 
         /// <summary>
@@ -50,7 +45,7 @@ namespace TAS.Client.ViewModels
         /// </summary>
         /// <param name="aEvent"></param>
         /// <param name="parent"></param>
-        protected EventPanelViewmodelBase(IEvent aEvent, EventPanelViewmodelBase parent) : base()
+        protected EventPanelViewmodelBase(IEvent aEvent, EventPanelViewmodelBase parent)
         {
             if (aEvent == null) // dummy child
                 return;
@@ -60,9 +55,9 @@ namespace TAS.Client.ViewModels
             if (parent != null)
             {
                 _parent = parent;
-                _root = parent._root;
-                _engineViewmodel = parent._engineViewmodel;
-                _level = (_parent == null) ? 0 : _parent._level + 1;
+                Root = parent.Root;
+                EngineViewmodel = parent.EngineViewmodel;
+                Level = (_parent == null) ? 0 : _parent.Level + 1;
                 if (aEvent.SubEventsCount > 0)
                     _childrens.Add(DummyChild);
             }
@@ -84,94 +79,18 @@ namespace TAS.Client.ViewModels
                 _event.PropertyChanged -= OnEventPropertyChanged;
                 _event.SubEventChanged -= OnSubeventChanged;
                 _event.Relocated -= OnRelocated;
-                _engineViewmodel?.RemoveMultiSelected(this);
+                EngineViewmodel?.RemoveMultiSelected(this);
                 IsMultiSelected = false;
             }
             Debug.WriteLine(this, "EventPanelViewmodel Disposed");
         }
 
-        internal EventPanelViewmodelBase CreateChildEventPanelViewmodelForEvent(IEvent ev)
-        {
-            switch (ev.EventType)
-            {
-                case TEventType.Rundown:
-                    return new EventPanelRundownViewmodel(ev, this);
-                case TEventType.Container:
-                    return new EventPanelContainerViewmodel(ev, this);
-                case TEventType.Movie:
-                    return new EventPanelMovieViewmodel(ev, this);
-                case TEventType.Live:
-                    return new EventPanelLiveViewmodel(ev, this);
-                case TEventType.StillImage:
-                    return new EventPanelStillViewmodel(ev, this);
-                case TEventType.Animation:
-                    return new EventPanelAnimationViewmodel(ev, this);
-                case TEventType.CommandScript:
-                    return new EventPanelCommandScriptViewmodel(ev, this);
-                default:
-                    throw new ApplicationException($"Invalid event type {ev.EventType} to create panel");
-            }
-        }
-
-        protected virtual void OnRelocated(object sender, EventArgs e)
-        {
-            if (_parent != null)
-                Application.Current.Dispatcher.BeginInvoke((Action)_updateLocation);
-        }
-
-        protected virtual void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(IEvent.EventName))
-                NotifyPropertyChanged(e.PropertyName);
-        }
-
-        protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
-        {
-            Debug.WriteLine(e.Item, $"OnSubEventChanged {e.Operation}");
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
-            {
-                if (e.Operation == CollectionOperation.Remove && !IsExpanded && HasDummyChild && _event.SubEventsCount == 0)
-                    Childrens.Remove(DummyChild);
-                if (e.Operation == CollectionOperation.Insert && !IsExpanded && !HasDummyChild && _event.SubEventsCount > 0)
-                    Childrens.Add(DummyChild);
-            });
-        }
-
-
         public ObservableCollection<EventPanelViewmodelBase> Childrens => _childrens;
 
         public bool HasDummyChild => _childrens.Contains(DummyChild);
 
-        protected void LoadChildrens()
-        {
-            UiServices.SetBusyState();
-            foreach (IEvent se in _event.SubEvents)
-            {
-                _childrens.Add(CreateChildEventPanelViewmodelForEvent(se));
-                IEvent ne = se.Next;
-                while (ne != null)
-                {
-                    _childrens.Add(CreateChildEventPanelViewmodelForEvent(ne));
-                    ne = ne.Next;
-                }
-            }
-        }
-        protected void ClearChildrens()
-        {
-            if (!this._childrens.Any()) return;
-            if (!HasDummyChild)
-            {
-                UiServices.SetBusyState();
-                foreach (var c in _childrens.ToList())
-                    c.Dispose();
-                if (Event.SubEventsCount > 0)
-                    _childrens.Add(DummyChild);
-            }
-        }
+        public int Level { get; }
 
-        public int Level => _level;
-
-        bool _isExpanded;
         public bool IsExpanded
         {
             get { return _isExpanded; }
@@ -191,7 +110,6 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        bool _isSelected;
         public bool IsSelected
         {
             get { return _isSelected; }
@@ -201,7 +119,7 @@ namespace TAS.Client.ViewModels
                 {
                     if (value)
                     {
-                        _engineViewmodel.Selected = this;
+                        EngineViewmodel.SelectedEvent = this;
                         BringIntoView();
                     }
                     InvalidateRequerySuggested();
@@ -209,7 +127,6 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        bool _isMultiSelected;
         public bool IsMultiSelected
         {
             get { return _isMultiSelected; }
@@ -260,6 +177,142 @@ namespace TAS.Client.ViewModels
             }
             return null;
         }
+        
+        public bool Contains(IEvent  aEvent)
+        {
+            foreach (EventPanelViewmodelBase m in _childrens)
+            {
+                if (m._event == aEvent)
+                    return true;
+                if (m.Contains(aEvent))
+                    return true;
+            }
+            return false;
+        }
+
+        public IEvent Event => _event;
+        
+        public string RootOwnerName => RootOwner.EventName;
+
+        public override string ToString()
+        {
+            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {EventName}";
+        }
+
+        public Views.EventPanelView View;
+
+        internal EventPanelViewmodelBase CreateChildEventPanelViewmodelForEvent(IEvent ev)
+        {
+            switch (ev.EventType)
+            {
+                case TEventType.Rundown:
+                    return new EventPanelRundownViewmodel(ev, this);
+                case TEventType.Container:
+                    return new EventPanelContainerViewmodel(ev, this);
+                case TEventType.Movie:
+                    return new EventPanelMovieViewmodel(ev, this);
+                case TEventType.Live:
+                    return new EventPanelLiveViewmodel(ev, this);
+                case TEventType.StillImage:
+                    return new EventPanelStillViewmodel(ev, this);
+                case TEventType.Animation:
+                    return new EventPanelAnimationViewmodel(ev, this);
+                case TEventType.CommandScript:
+                    return new EventPanelCommandScriptViewmodel(ev, this);
+                default:
+                    throw new ApplicationException($"Invalid event type {ev.EventType} to create panel");
+            }
+        }
+
+        internal virtual void SetOnTop() { }
+
+        internal void BringIntoView()
+        {
+            var p = Parent;
+            if (p != null)
+                if (p.IsExpanded)
+                {
+                    View?.BringIntoView();
+                }
+                else
+                    p.BringIntoView();
+        }
+
+        internal bool Focus()
+        {
+            DependencyObject current = View;
+            while (current != null)
+            {
+                if (current is System.Windows.Controls.TreeViewItem)
+                    return (current as UIElement)?.Focus() == true;
+                current = System.Windows.Media.VisualTreeHelper.GetParent(current);
+            }
+            return false;
+        }
+
+
+        protected virtual void OnRelocated(object sender, EventArgs e)
+        {
+            if (_parent != null)
+                Application.Current.Dispatcher.BeginInvoke((Action)_updateLocation);
+        }
+
+        protected virtual void OnEventPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(IEvent.EventName))
+                NotifyPropertyChanged(e.PropertyName);
+        }
+
+        protected virtual void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
+        {
+            Debug.WriteLine(e.Item, $"OnSubEventChanged {e.Operation}");
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+            {
+                if (e.Operation == CollectionOperation.Remove && !IsExpanded && HasDummyChild && _event.SubEventsCount == 0)
+                    Childrens.Remove(DummyChild);
+                if (e.Operation == CollectionOperation.Insert && !IsExpanded && !HasDummyChild && _event.SubEventsCount > 0)
+                    Childrens.Add(DummyChild);
+            });
+        }
+
+        protected EventPanelViewmodelBase RootOwner
+        {
+            get
+            {
+                var result = this;
+                while (result.Parent is EventPanelRundownElementViewmodelBase || result.Parent is EventPanelContainerViewmodel)
+                    result = result.Parent;
+                return result;
+            }
+        }
+
+        protected void LoadChildrens()
+        {
+            UiServices.SetBusyState();
+            foreach (IEvent se in _event.SubEvents)
+            {
+                _childrens.Add(CreateChildEventPanelViewmodelForEvent(se));
+                IEvent ne = se.Next;
+                while (ne != null)
+                {
+                    _childrens.Add(CreateChildEventPanelViewmodelForEvent(ne));
+                    ne = ne.Next;
+                }
+            }
+        }
+
+        protected void ClearChildrens()
+        {
+            if (!this._childrens.Any()) return;
+            if (!HasDummyChild)
+            {
+                UiServices.SetBusyState();
+                foreach (var c in _childrens.ToList())
+                    c.Dispose();
+                if (Event.SubEventsCount > 0)
+                    _childrens.Add(DummyChild);
+            }
+        }
 
         private void _updateLocation()
         {
@@ -276,7 +329,7 @@ namespace TAS.Client.ViewModels
                         || index <= 0
                         || _parent._childrens[index - 1]._event != prior)
                     {
-                        EventPanelViewmodelBase priorVm = _root.Find(prior);
+                        EventPanelViewmodelBase priorVm = Root.Find(prior);
                         if (priorVm != null)
                         {
                             EventPanelViewmodelBase newParent = priorVm._parent;
@@ -306,7 +359,7 @@ namespace TAS.Client.ViewModels
                         || index <= 0
                         || _parent._childrens[index]._event != next)
                     {
-                        EventPanelViewmodelBase nextVm = _root.Find(next);
+                        EventPanelViewmodelBase nextVm = Root.Find(next);
                         if (nextVm != null)
                         {
                             EventPanelViewmodelBase newParent = nextVm._parent;
@@ -316,7 +369,7 @@ namespace TAS.Client.ViewModels
                                 if (index >= nextIndex)
                                     newParent._childrens.Move(index, nextIndex);
                                 else
-                                    newParent._childrens.Move(index, nextIndex -1);
+                                    newParent._childrens.Move(index, nextIndex - 1);
                             }
                             else
                             {
@@ -332,12 +385,12 @@ namespace TAS.Client.ViewModels
                 if (parent == null)
                 {
                     _parent._childrens.Remove(this);
-                    _root._childrens.Add(this);
-                    _parent = _root;
+                    Root._childrens.Add(this);
+                    _parent = Root;
                 }
                 else
                 {
-                    EventPanelViewmodelBase parentVm = _root.Find(parent);
+                    EventPanelViewmodelBase parentVm = Root.Find(parent);
                     if (parentVm != null)
                     {
                         if (parentVm == _parent)
@@ -349,67 +402,6 @@ namespace TAS.Client.ViewModels
                 BringIntoView();
             }
         }
-        
 
-        public bool Contains(IEvent  aEvent)
-        {
-            foreach (EventPanelViewmodelBase m in _childrens)
-            {
-                if (m._event == aEvent)
-                    return true;
-                if (m.Contains(aEvent))
-                    return true;
-            }
-            return false;
-        }
-
-  
-        public IEvent Event => _event;
-
-        public override string ToString()
-        {
-            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {EventName}";
-        }
-
-        public Views.EventPanelView View;
-
-        protected EventPanelViewmodelBase RootOwner
-        {
-            get
-            {
-                var result = this;
-                while (result.Parent is EventPanelRundownElementViewmodelBase || result.Parent is EventPanelContainerViewmodel)
-                    result = result.Parent;
-                return result;
-            }
-        }
-
-        public string RootOwnerName => RootOwner.EventName;
-
-        internal virtual void SetOnTop() { }
-
-        internal void BringIntoView()
-        {
-            var p = Parent;
-            if (p != null)
-                if (p.IsExpanded)
-                {
-                    View?.BringIntoView();
-                }
-                else
-                    p.BringIntoView();
-        }
-
-        internal bool Focus()
-        {
-            DependencyObject current = View;
-            while (current != null)
-            {
-                if (current is System.Windows.Controls.TreeViewItem)
-                    return (current as UIElement)?.Focus() == true;
-                current = System.Windows.Media.VisualTreeHelper.GetParent(current);
-            }
-            return false;
-        }
     }
 }

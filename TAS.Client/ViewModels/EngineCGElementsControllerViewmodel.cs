@@ -1,65 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
     public class EngineCGElementsControllerViewmodel : ViewmodelBase, ICGElementsState
     {
-        public readonly ICGElementsController Controller;
-        const byte None = 0;
+        private const byte None = 0;
+        private readonly ICGElementsController _controller;
+        
         public EngineCGElementsControllerViewmodel(ICGElementsController controller)
         {
-            Controller = controller;
-            _crawls = controller.Crawls.Select(element => new CGElementViewmodel(element)).ToList();
-            _logos = controller.Logos.Select(element => new CGElementViewmodel(element)).ToList();
-            _parentals = controller.Parentals.Select(element => new CGElementViewmodel(element)).ToList();
-            _auxes = controller.Auxes.Select(element => new CGElementViewmodel(element)).ToList();
-            _visibleAuxes = controller.VisibleAuxes;
+            _controller = controller;
+            Crawls = controller.Crawls.Select(element => new CGElementViewmodel(element)).ToList();
+            Logos = controller.Logos.Select(element => new CGElementViewmodel(element)).ToList();
+            Parentals = controller.Parentals.Select(element => new CGElementViewmodel(element)).ToList();
+            Auxes = controller.Auxes.Select(element => new CGElementViewmodel(element)).ToList();
+            VisibleAuxes = controller.VisibleAuxes;
             controller.PropertyChanged += controller_PropertyChanged;
+        }
+
+        public byte Logo { get { return _controller?.Logo ?? None; }  set { if (_controller != null) _controller.Logo = value; } }
+
+        public byte Crawl { get { return _controller?.Crawl ?? None; } set { if (_controller != null) _controller.Crawl = value; } }
+
+        public byte Parental { get { return _controller?.Parental ?? None; } set { if (_controller != null) _controller.Parental = value; } }
+
+        public IEnumerable<CGElementViewmodel> Crawls { get; private set; }
+
+        public IEnumerable<CGElementViewmodel> Parentals { get; private set; }
+
+        public IEnumerable<CGElementViewmodel> Logos { get; private set; }
+
+        public IEnumerable<CGElementViewmodel> Auxes { get; private set; }
+
+        public byte[] VisibleAuxes { get; private set; }
+
+        public bool IsWideScreen { get { return _controller?.IsWideScreen ?? false; } set { if (_controller != null) _controller.IsWideScreen = value; } }
+
+        public bool IsCGEnabled { get { return _controller?.IsCGEnabled ?? false; } set { if (_controller != null) _controller.IsCGEnabled = value; } }
+
+        public bool IsMaster => _controller?.IsMaster ?? false;
+
+        public bool IsConnected => _controller?.IsConnected ?? false;
+
+        public bool Exists => _controller != null;
+
+        protected override void OnDispose()
+        {
+            _controller.PropertyChanged -= controller_PropertyChanged;
         }
 
         private void controller_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(ICGElementsController.Crawls))
-                _crawls = Controller.Crawls.Select(element => new CGElementViewmodel(element)).ToList();
+                Crawls = _controller.Crawls.Select(element => new CGElementViewmodel(element)).ToList();
             if (e.PropertyName == nameof(ICGElementsController.Parentals))
-                _parentals = Controller.Parentals.Select(element => new CGElementViewmodel(element)).ToList();
+                Parentals = _controller.Parentals.Select(element => new CGElementViewmodel(element)).ToList();
             if (e.PropertyName == nameof(ICGElementsController.Logos))
-                _logos = Controller.Logos.Select(element => new CGElementViewmodel(element)).ToList();
+                Logos = _controller.Logos.Select(element => new CGElementViewmodel(element)).ToList();
             if (e.PropertyName == nameof(ICGElementsController.Auxes))
-                _auxes = Controller.Auxes.Select(element => new CGElementViewmodel(element)).ToList();
+                Auxes = _controller.Auxes.Select(element => new CGElementViewmodel(element)).ToList();
+            if (e.PropertyName == nameof(ICGElementsController.VisibleAuxes))
+                VisibleAuxes = _controller.VisibleAuxes.ToArray();
             NotifyPropertyChanged(e.PropertyName);
         }
-
-        public byte Logo { get { return Controller == null ? None : Controller.Logo; }  set { if (Controller != null) Controller.Logo = value; } }
-        public byte Crawl { get { return Controller == null ? None : Controller.Crawl; } set { if (Controller != null) Controller.Crawl = value; } }
-        public byte Parental { get { return Controller == null ? None : Controller.Parental; } set { if (Controller != null) Controller.Parental = value; } }
-        private IEnumerable<CGElementViewmodel> _crawls;
-        public IEnumerable<CGElementViewmodel> Crawls { get { return _crawls; } }
-        private IEnumerable<CGElementViewmodel> _parentals;
-        public IEnumerable<CGElementViewmodel> Parentals { get { return _parentals; } }
-        private IEnumerable<CGElementViewmodel> _logos;
-        public IEnumerable<CGElementViewmodel> Logos { get { return _logos; } }
-        private IEnumerable<CGElementViewmodel> _auxes;
-        public IEnumerable<CGElementViewmodel> Auxes { get { return _auxes; } }
-        private byte[] _visibleAuxes;
-        public byte[] VisibleAuxes { get { return _visibleAuxes; } }
-
-        public bool IsWideScreen { get { return Controller == null ? false : Controller.IsWideScreen; } set { if (Controller != null) Controller.IsWideScreen = value; } }
-        public bool IsCGEnabled { get { return Controller == null ? false : Controller.IsCGEnabled; } set { if (Controller != null) Controller.IsCGEnabled = value; } }
-        public bool IsMaster { get { return Controller == null ? false : Controller.IsMaster; } }
-        public bool IsConnected { get { return Controller == null ? false : Controller.IsConnected; } }
-        public bool Exists { get { return Controller != null; } }
-
-        protected override void OnDispose()
-        {
-            Controller.PropertyChanged -= controller_PropertyChanged;
-        }
-
 
     }
 }

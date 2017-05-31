@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Server.Common;
@@ -12,24 +11,29 @@ namespace TAS.Client.ViewModels
 {
     public class ExportViewmodel : ViewmodelBase
     {
-        public ObservableCollection<ExportMediaViewmodel> Items { get; private set; }
-        public ICommand CommandExport { get; private set; }
-        readonly IMediaManager _mediaManager;
-        Views.ExportView _view;
+        private readonly IMediaManager _mediaManager;
+        private MediaDirectoryViewmodel _selectedDirectory;
+        private Views.ExportView _view;
+        private bool _concatMedia;
+        private string _concatMediaName;
+        private TmXFAudioExportFormat _mXFAudioExportFormat;
+        private TmXFVideoExportFormat _mXFVideoExportFormat;
+
         public ExportViewmodel(IMediaManager mediaManager, IEnumerable<MediaExportDescription> exportList)
         {
             _mediaManager = mediaManager;
             Items = new ObservableCollection<ExportMediaViewmodel>(exportList.Select(media => new ExportMediaViewmodel(mediaManager, media)));
             Directories = mediaManager.IngestDirectories.Where(d => d.ContainsExport()).Select(d => new MediaDirectoryViewmodel(d, false, true)).ToList();
             SelectedDirectory = Directories.FirstOrDefault();
-            CommandExport = new UICommand() { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
-            this._view = new Views.ExportView() { DataContext = this, Owner = System.Windows.Application.Current.MainWindow, ShowInTaskbar=false };
+            CommandExport = new UICommand { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
+            _view = new Views.ExportView { DataContext = this, Owner = System.Windows.Application.Current.MainWindow, ShowInTaskbar=false };
             _view.ShowDialog();
         }
-        
-        public List<MediaDirectoryViewmodel> Directories { get; private set; }
 
-        MediaDirectoryViewmodel _selectedDirectory;
+        public ICommand CommandExport { get; }
+
+        public List<MediaDirectoryViewmodel> Directories { get; }
+        
         public MediaDirectoryViewmodel SelectedDirectory
         {
             get { return _selectedDirectory; }
@@ -51,10 +55,12 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsXDCAM { get { return _selectedDirectory?.IsXdcam == true; } }
-        public bool IsMXF { get { return _selectedDirectory?.ExportContainerFormat == TMovieContainerFormat.mxf || _selectedDirectory?.IsXdcam == true; } }
+        public ObservableCollection<ExportMediaViewmodel> Items { get; }
 
-        private bool _concatMedia;
+        public bool IsXDCAM => _selectedDirectory?.IsXdcam == true;
+
+        public bool IsMXF => _selectedDirectory?.ExportContainerFormat == TMovieContainerFormat.mxf || _selectedDirectory?.IsXdcam == true;
+
         public bool ConcatMedia
         {
             get { return _concatMedia; }
@@ -67,7 +73,6 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        private string _concatMediaName;
         public string ConcatMediaName
         {
             get { return _concatMediaName; }
@@ -78,26 +83,24 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsConcatMediaNameVisible
-        {
-            get { return _concatMedia && !IsXDCAM; }
-        }
+        public bool IsConcatMediaNameVisible => _concatMedia && !IsXDCAM;
 
-        static readonly Array _mXFVideoExportFormats = Enum.GetValues(typeof(TmXFVideoExportFormat));
-        public Array MXFVideoExportFormats { get { return _mXFVideoExportFormats; } }
+        public Array MXFVideoExportFormats { get; } = Enum.GetValues(typeof(TmXFVideoExportFormat));
 
-        static readonly Array _mXFAudioExportFormats = Enum.GetValues(typeof(TmXFAudioExportFormat));
-        public Array MXFAudioExportFormats { get { return _mXFAudioExportFormats; } }
+        public Array MXFAudioExportFormats { get; } = Enum.GetValues(typeof(TmXFAudioExportFormat));
 
-        private TmXFAudioExportFormat _mXFAudioExportFormat;
-        private TmXFVideoExportFormat _mXFVideoExportFormat;
         public TmXFAudioExportFormat MXFAudioExportFormat { get { return _mXFAudioExportFormat; } set { SetField(ref _mXFAudioExportFormat, value); } }
+
         public TmXFVideoExportFormat MXFVideoExportFormat { get { return _mXFVideoExportFormat; } set { SetField(ref _mXFVideoExportFormat, value); } }
 
+        public bool CanConcatMedia => Items.Count > 1;
 
-        public bool CanConcatMedia { get { return Items.Count > 1; } }
+        public int ExportMediaCount => Items.Count;
 
-        void _export (object o)
+        public TimeSpan TotalTime { get { return TimeSpan.FromTicks(Items.Sum(m => m.Duration.Ticks)); } }
+
+
+        private void _export (object o)
         {
             _checking = true;
             InvalidateRequerySuggested();
@@ -114,17 +117,14 @@ namespace TAS.Client.ViewModels
             _view.Close();
         }
 
-        bool _checking;
-        bool _canExport(object o)
+        private bool _checking;
+        private bool _canExport(object o)
         {
             return !_checking && Items.Count > 0
-                && SelectedDirectory.IsExport == true
+                && SelectedDirectory.IsExport
                 && (!IsConcatMediaNameVisible || !string.IsNullOrWhiteSpace(_concatMediaName));
         }
-
-        public int ExportMediaCount { get { return Items.Count; } }
-        public TimeSpan TotalTime { get { return TimeSpan.FromTicks(Items.Sum(m => m.Duration.Ticks)); } }
-
+        
         protected override void OnDispose()
         {
             _view = null;

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using TAS.Client.Common;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
@@ -11,29 +9,31 @@ namespace TAS.Client.ViewModels
 {
     public class ExportMediaViewmodel: ViewmodelBase
     {
-        public readonly MediaExportDescription MediaExport;
-        public readonly IMediaManager MediaManager;
+        
         private readonly ObservableCollection<ExportMediaLogoViewmodel> _logos;
-        public ExportMediaViewmodel(IMediaManager manager, MediaExportDescription mediaExport)
+        private readonly IMediaManager _mediaManager;
+        public ExportMediaViewmodel(IMediaManager mediaManager, MediaExportDescription mediaExport)
         {
-            this.MediaExport = mediaExport;
-            MediaManager = manager;
+            MediaExport = mediaExport;
+            _mediaManager = mediaManager;
             _logos = new ObservableCollection<ExportMediaLogoViewmodel>(mediaExport.Logos.Select(l => new ExportMediaLogoViewmodel(this, l)));
-            CommandAddLogo = new UICommand() { ExecuteDelegate = _addLogo };
+            CommandAddLogo = new UICommand { ExecuteDelegate = _addLogo };
         }
+        
+        public string MediaName => MediaExport.Media.MediaName;
+        public TimeSpan StartTC { get { return MediaExport.StartTC; } set { SetField(ref MediaExport.StartTC, value); } }
+        public TimeSpan Duration { get { return MediaExport.Duration; } set { SetField(ref MediaExport.Duration, value); } }
+        public decimal AudioVolume { get { return MediaExport.AudioVolume; } set { SetField(ref MediaExport.AudioVolume, value); } }
+        public ObservableCollection<ExportMediaLogoViewmodel> Logos => _logos;
+        public UICommand CommandAddLogo { get; }
+        public MediaExportDescription MediaExport { get; }
+
 
         internal void Remove(ExportMediaLogoViewmodel exportMediaLogoViewModel)
         {
             _logos.Remove(exportMediaLogoViewModel);
             MediaExport.RemoveLogo(exportMediaLogoViewModel.Logo);
         }
-
-        public string MediaName { get { return this.MediaExport.Media.MediaName; } }
-        public TimeSpan StartTC { get { return this.MediaExport.StartTC; } set { SetField(ref this.MediaExport.StartTC, value); } }
-        public TimeSpan Duration { get { return this.MediaExport.Duration; } set { SetField(ref this.MediaExport.Duration, value); } }
-        public decimal AudioVolume { get { return this.MediaExport.AudioVolume; } set { SetField(ref this.MediaExport.AudioVolume, value); } }
-        public ObservableCollection<ExportMediaLogoViewmodel> Logos { get { return _logos; } }
-        public UICommand CommandAddLogo { get; private set; }
 
         private MediaSearchViewmodel _searchViewmodel;
 
@@ -44,7 +44,7 @@ namespace TAS.Client.ViewModels
             {
                 svm = new MediaSearchViewmodel(
                     null, // preview
-                    MediaManager,
+                    _mediaManager,
                     TMediaType.Still, 
                     VideoLayer.CG1,
                     true, // close ater add
@@ -74,8 +74,7 @@ namespace TAS.Client.ViewModels
             _searchViewmodel.Dispose();
             _searchViewmodel = null;
         }
-
-
+        
         protected override void OnDispose() { }
     }
 }

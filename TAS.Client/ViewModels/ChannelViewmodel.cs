@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Controls;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Server.Common.Interfaces;
 
@@ -11,11 +6,11 @@ namespace TAS.Client.ViewModels
 {
     public class ChannelViewmodel : ViewmodelBase
     {
-        readonly string _channelName;
-        public ICommand CommandSwitchTab { get; private set; }
+        private int _selectedTabIndex;
+
         public ChannelViewmodel(IEngine engine, bool showEngine, bool showMedia, bool allowPlayControl)
         {
-            _channelName = engine.EngineName;
+            ChannelName = engine.EngineName;
             if (showEngine)
                 Engine = new EngineViewmodel(engine, engine, allowPlayControl);
             if (showMedia)
@@ -24,15 +19,15 @@ namespace TAS.Client.ViewModels
             SelectedTabIndex = showEngine ? 0 : 1;
         }
 
-        public string ChannelName { get { return _channelName; } }
+        public ICommand CommandSwitchTab { get; }
 
-        public EngineViewmodel Engine { get; private set; }
-        public MediaManagerViewmodel MediaManager { get; private set; }
+        public string ChannelName { get; }
 
-        private int  _selectedTabIndex;
+        public EngineViewmodel Engine { get; }
+
+        public MediaManagerViewmodel MediaManager { get; }
 
         public int SelectedTabIndex { get { return _selectedTabIndex; } set { SetField(ref _selectedTabIndex, value); } }
-
 
         protected override void OnDispose()
         {

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
-using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
@@ -19,10 +14,10 @@ namespace TAS.Client.ViewModels
             CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive, CanExecuteDelegate = o => _event.SubEventsCount == 0 };
         }
 
-        private void _addSubLive(object obj)
-        {
-            _engineViewmodel.AddSimpleEvent(_event, TEventType.Live, true);
-        }
+        public ICommand CommandAddSubRundown { get; }
+        public ICommand CommandAddSubMovie { get; }
+        public ICommand CommandAddSubLive { get; }
+
 
         protected override void OnSubeventChanged(object o, CollectionOperationEventArgs<IEvent> e)
         {
@@ -34,20 +29,12 @@ namespace TAS.Client.ViewModels
         {
             return _parent is EventPanelRundownViewmodel && base.CanAddNextMovie(o);
         }
+
         protected override bool CanAddNewLive(object o)
         {
             return _parent is EventPanelRundownViewmodel && base.CanAddNewLive(o);
         }
 
-        private void _addSubRundown(object obj)
-        {
-            _engineViewmodel.AddSimpleEvent(_event, TEventType.Rundown, true);
-        }
-
-        private void _addSubMovie(object obj)
-        {
-            _engineViewmodel.AddMediaEvent(_event, TStartType.WithParent, TMediaType.Movie, VideoLayer.Program, false);
-        }
         protected override void OnDispose()
         {
             if (IsSelected)
@@ -59,8 +46,20 @@ namespace TAS.Client.ViewModels
             base.OnDispose();
         }
 
-        public ICommand CommandAddSubRundown { get; }
-        public ICommand CommandAddSubMovie { get; }
-        public ICommand CommandAddSubLive { get; }
+        private void _addSubLive(object obj)
+        {
+            EngineViewmodel.AddSimpleEvent(_event, TEventType.Live, true);
+        }
+
+        private void _addSubRundown(object obj)
+        {
+            EngineViewmodel.AddSimpleEvent(_event, TEventType.Rundown, true);
+        }
+
+        private void _addSubMovie(object obj)
+        {
+            EngineViewmodel.AddMediaEvent(_event, TStartType.WithParent, TMediaType.Movie, VideoLayer.Program, false);
+        }
+
     }
 }
