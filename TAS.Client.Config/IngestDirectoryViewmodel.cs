@@ -15,7 +15,7 @@ namespace TAS.Client.Config
         // only required by serializer
         public IngestDirectoryViewmodel(IngestDirectory model, ObservableCollection<IngestDirectoryViewmodel> ownerCollection):base(model, new IngestDirectoryView())
         {
-            Array.Copy(_aspectConversions, _aspectConversionsEnforce, 3);
+            Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
             OwnerCollection = ownerCollection;
             _subDirectoriesVM = new System.Collections.ObjectModel.ObservableCollection<IngestDirectoryViewmodel>();
             foreach (var item in model._subDirectories.Select(s => new IngestDirectoryViewmodel(s, _subDirectoriesVM)))
@@ -23,26 +23,18 @@ namespace TAS.Client.Config
         }
         
         #region Enumerations
-        static readonly Array _aspectConversions = Enum.GetValues(typeof(TAspectConversion));
-        public Array AspectConversions { get { return _aspectConversions; } }
-        static readonly Array _aspectConversionsEnforce = new TAspectConversion[3];
-        public Array AspectConversionsEnforce { get { return _aspectConversionsEnforce; } }
-        static readonly Array _mediaCategories = Enum.GetValues(typeof(TMediaCategory));
-        public Array MediaCategories { get { return _mediaCategories; } }
-        static readonly Array _sourceFieldOrders = Enum.GetValues(typeof(TFieldOrder));
-        public Array SourceFieldOrders { get { return _sourceFieldOrders; } }
-        static readonly Array _mXFAudioExportFormats = Enum.GetValues(typeof(TmXFAudioExportFormat));
-        public Array MXFAudioExportFormats { get { return _mXFAudioExportFormats; } }
-        static readonly Array _mXFVideoExportFormats = Enum.GetValues(typeof(TmXFVideoExportFormat));
-        public Array MXFVideoExportFormats { get { return _mXFVideoExportFormats; } }
-        static readonly Array _exportContainerFormats = Enum.GetValues(typeof(TMovieContainerFormat));
-        public Array ExportContainerFormats { get { return _exportContainerFormats; } }
-        static readonly Array _exportVideoFormats = Enum.GetValues(typeof(TVideoFormat));
-        public Array ExportVideoFormats { get { return _exportVideoFormats; } }
-        static readonly Array _videoCodecs = Enum.GetValues(typeof(TVideoCodec));
-        public Array VideoCodecs { get { return _videoCodecs; } }
-        static readonly Array _audioCodecs = Enum.GetValues(typeof(TAudioCodec));
-        public Array AudioCodecs { get { return _audioCodecs; } }
+        public Array AspectConversions { get; } = Enum.GetValues(typeof(TAspectConversion));
+        public Array AspectConversionsEnforce { get; } = new TAspectConversion[3];
+        public Array MediaCategories { get; } = Enum.GetValues(typeof(TMediaCategory));
+        public Array SourceFieldOrders { get; } = Enum.GetValues(typeof(TFieldOrder));
+        public Array MXFAudioExportFormats { get; } = Enum.GetValues(typeof(TmXFAudioExportFormat));
+        public Array MXFVideoExportFormats { get; } = Enum.GetValues(typeof(TmXFVideoExportFormat));
+        public Array ExportContainerFormats { get; } = Enum.GetValues(typeof(TMovieContainerFormat));
+        public Array ExportVideoFormats { get; } = Enum.GetValues(typeof(TVideoFormat));
+        public Array VideoCodecs { get; } = Enum.GetValues(typeof(TVideoCodec));
+        public Array AudioCodecs { get; } = Enum.GetValues(typeof(TAudioCodec));
+        public Array IngestDirectoryKinds { get; } = Enum.GetValues(typeof(TIngestDirectoryKind));
+
         #endregion // Enumerations
 
 
@@ -61,13 +53,13 @@ namespace TAS.Client.Config
         public decimal AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value); } }
         bool _deleteSource;
         public bool DeleteSource { get { return _deleteSource; } set { SetField(ref _deleteSource, value); } }
-        bool _isXDCAM;
-        public bool IsXDCAM
+        TIngestDirectoryKind _kind;
+        public TIngestDirectoryKind Kind
         {
-            get { return _isXDCAM; }
+            get { return _kind; }
             set
             {
-                if (SetField(ref _isXDCAM, value))
+                if (SetField(ref _kind, value))
                     NotifyPropertyChanged(nameof(IsMXF));
             }
         }
@@ -143,11 +135,12 @@ namespace TAS.Client.Config
 
         #endregion // IIngestDirectoryProperties
 
-        public bool IsMXF { get { return IsXDCAM || (!IsXDCAM && ExportContainerFormat == TMovieContainerFormat.mxf); } }
-        public bool VideoDoNotEncode { get { return _videoCodec == TVideoCodec.copy; } }
-        public bool AudioDoNotEncode { get { return _audioCodec == TAudioCodec.copy; } }
+        public bool IsMXF => Kind == TIngestDirectoryKind.XDCAM || (ExportContainerFormat == TMovieContainerFormat.mxf);
+        public bool VideoDoNotEncode => _videoCodec == TVideoCodec.copy;
+        public bool AudioDoNotEncode => _audioCodec == TAudioCodec.copy;
         private ObservableCollection<IngestDirectoryViewmodel> _subDirectoriesVM;
-        public ObservableCollection<IngestDirectoryViewmodel> SubDirectoriesVM { get { return _subDirectoriesVM; } }
+        public ObservableCollection<IngestDirectoryViewmodel> SubDirectoriesVM => _subDirectoriesVM;
+
         public IngestDirectoryViewmodel AddSubdirectory()
         {
             var dir = new IngestDirectory() { DirectoryName = Common.Properties.Resources._title_NewDirectory };

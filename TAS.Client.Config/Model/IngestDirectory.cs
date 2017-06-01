@@ -24,8 +24,8 @@ namespace TAS.Client.Config.Model
         public decimal AudioVolume { get; set; }
         [DefaultValue(false)]
         public bool DeleteSource { get; set; }
-        [DefaultValue(false)]
-        public bool IsXDCAM { get; set; }
+        [DefaultValue(default(TIngestDirectoryKind))]
+        public TIngestDirectoryKind Kind { get; set; }
         [DefaultValue(false)]
         public bool IsWAN { get; set; }
         [DefaultValue(false)]

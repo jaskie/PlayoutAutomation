@@ -93,7 +93,7 @@ namespace TAS.Server
             var destDirectory = DestDirectory as IngestDirectory;
             if (destDirectory == null)
                 throw new InvalidOperationException("Can only export to IngestDirectory");
-            if (destDirectory.IsXDCAM)
+            if (destDirectory.Kind == TIngestDirectoryKind.XDCAM)
                 destDirectory.Refresh();
 
             if (destDirectory.AccessType == TDirectoryAccessType.FTP)
@@ -131,7 +131,7 @@ namespace TAS.Server
 
         private IngestMedia _createDestMedia(IngestDirectory destDirectory)
         {
-            if (destDirectory.IsXDCAM)
+            if (destDirectory.Kind == TIngestDirectoryKind.XDCAM)
             {
                 var existingFiles = DestDirectory.GetFiles().Where(f => f.FileName.StartsWith("C", true, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
                 int maxFile = existingFiles.Length == 0 ? 1 : existingFiles.Max(m => int.Parse(m.FileName.Substring(1, 4))) + 1;
@@ -166,7 +166,8 @@ namespace TAS.Server
             StringBuilder overlayOutputs = new StringBuilder();
             List<MediaExportDescription> exportMedia = _exportMediaList.ToList();
             TimeSpan startTimecode = exportMedia.First().StartTC;
-            VideoFormatDescription outputFormatDesc = VideoFormatDescription.Descriptions[directory.IsXDCAM || directory.ExportContainerFormat == TMovieContainerFormat.mxf ? TVideoFormat.PAL : directory.ExportVideoFormat];
+            bool isXdcamDirectory = directory.Kind == TIngestDirectoryKind.XDCAM;
+            VideoFormatDescription outputFormatDesc = VideoFormatDescription.Descriptions[isXdcamDirectory || directory.ExportContainerFormat == TMovieContainerFormat.mxf ? TVideoFormat.PAL : directory.ExportVideoFormat];
             string scaleFilter = $"scale={outputFormatDesc.ImageSize.Width}:{outputFormatDesc.ImageSize.Height}:interl=-1";
             foreach (var e in exportMedia)
             {
@@ -199,7 +200,7 @@ namespace TAS.Server
                     overlayOutputs.AppendFormat("{0}[a{1}]", videoOutputName, audioIndex);
                 }
             }
-            if (directory.IsXDCAM || directory.ExportContainerFormat == TMovieContainerFormat.mxf)
+            if (isXdcamDirectory || directory.ExportContainerFormat == TMovieContainerFormat.mxf)
                 if (MXFVideoExportFormat == TmXFVideoExportFormat.DV25)
                     complexFilterElements.Add(string.Format("{0}concat=n={1}:v=1:a=1[v][p]", string.Join(string.Empty, overlayOutputs), exportMedia.Count));            
                 else
@@ -217,7 +218,7 @@ namespace TAS.Server
                 //1
                 complexFilter,
                 //2
-                directory.IsXDCAM || directory.ExportContainerFormat == TMovieContainerFormat.mxf ? 
+                isXdcamDirectory || directory.ExportContainerFormat == TMovieContainerFormat.mxf ? 
                     String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0} {1}", 
                               MXFVideoExportFormat == TmXFVideoExportFormat.DV25 ? D10PalDv25
                             : MXFVideoExportFormat == TmXFVideoExportFormat.IMX30 ? D10PalImx30
@@ -232,9 +233,9 @@ namespace TAS.Server
                 //3
                 startTimecode.ToSMPTETimecodeString(VideoFormatDescription.Descriptions[Dest.VideoFormat].FrameRate),
                 //4
-                directory.IsXDCAM || directory.ExportContainerFormat == TMovieContainerFormat.mxf ? $" -metadata creation_time=\"{DateTime.UtcNow.ToString("o")}\"" : string.Empty,
+                isXdcamDirectory|| directory.ExportContainerFormat == TMovieContainerFormat.mxf ? $" -metadata creation_time=\"{DateTime.UtcNow.ToString("o")}\"" : string.Empty,
                 //5
-                (directory.IsXDCAM || directory.ExportContainerFormat == TMovieContainerFormat.mxf) && MXFVideoExportFormat != TmXFVideoExportFormat.DV25 ? "mxf_d10" : directory.ExportContainerFormat.ToString(),
+                (isXdcamDirectory || directory.ExportContainerFormat == TMovieContainerFormat.mxf) && MXFVideoExportFormat != TmXFVideoExportFormat.DV25 ? "mxf_d10" : directory.ExportContainerFormat.ToString(),
                 outFile);
             if (RunProcess(command))
             {

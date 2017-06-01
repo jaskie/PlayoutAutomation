@@ -136,8 +136,20 @@
                     <DataGrid MinHeight="80" ItemsSource="{Binding MediaSegments}" SelectedItem="{Binding SelectedSegment}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single">
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding SegmentName}" Header="{Resx ResxName=TAS.Client.Views.PreviewView, Key=_name}" Width="*"/>
-                            <DataGridTextColumn Binding="{Binding sTcIn}" Header="TC In" Width="100"/>
-                            <DataGridTextColumn Binding="{Binding sTcOut}" Header="TC Out" Width="100"/>
+                            <DataGridTemplateColumn Header="TC In" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <controls:TimecodeTextBlock Timecode="{Binding TcIn}" VideoFormat="{Binding VideoFormat}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="TC Out" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <controls:TimecodeTextBlock Timecode="{Binding TcOut}" VideoFormat="{Binding VideoFormat}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>

@@ -46,7 +46,7 @@ namespace TAS.Server.Media
                 IsInitialized = true;
             }
             else
-            if (IsXDCAM)
+            if (Kind == TIngestDirectoryKind.XDCAM)
             {
                 IsInitialized = true;
             }
@@ -66,7 +66,7 @@ namespace TAS.Server.Media
         public TVideoFormat ExportVideoFormat { get; set; }
 
         [JsonProperty]
-        public bool IsXDCAM { get; set; }
+        public TIngestDirectoryKind Kind { get; set; }
 
         [JsonProperty]
         public bool IsWAN { get; set; }
@@ -169,7 +169,7 @@ namespace TAS.Server.Media
             _isRefreshing = true;
             try
             {
-                if (IsXDCAM)
+                if (Kind == TIngestDirectoryKind.XDCAM)
                 {
                     if (Monitor.TryEnter(XdcamLockObject, 1000))
                         try
@@ -312,7 +312,7 @@ namespace TAS.Server.Media
         protected override void DoDispose()
         {
             base.DoDispose();
-            if (AccessType == TDirectoryAccessType.Direct && !IsXDCAM && string.IsNullOrWhiteSpace(Username))
+            if (AccessType == TDirectoryAccessType.Direct &&  Kind != TIngestDirectoryKind.XDCAM && !string.IsNullOrWhiteSpace(Username))
                 PinvokeWindowsNetworking.DisconnectRemote(Path.GetPathRoot(Folder));
             _ftpClient?.Dispose();
         }
@@ -351,7 +351,8 @@ namespace TAS.Server.Media
         {
             try
             {
-                if (Path.GetExtension(e.Name).ToLowerInvariant() == XmlFileExtension)
+                if (Kind == TIngestDirectoryKind.BmdMediaExpressWatchFolder &&
+                    Path.GetExtension(e.Name).ToLowerInvariant() == XmlFileExtension)
                 {
                     lock (((IList) _bMdXmlFiles).SyncRoot)
                     {
@@ -383,15 +384,17 @@ namespace TAS.Server.Media
 
         protected override void OnFileChanged(object source, FileSystemEventArgs e)
         {
-            lock (((IList)_bMdXmlFiles).SyncRoot)
-            {
-                var extension = Path.GetExtension(e.Name);
-                if (extension != null && extension.ToLower() == XmlFileExtension && _bMdXmlFiles.Contains(e.FullPath))
+            if (Kind == TIngestDirectoryKind.BmdMediaExpressWatchFolder)
+                lock (((IList) _bMdXmlFiles).SyncRoot)
                 {
-                    _scanXML(e.FullPath);
-                    return;
+                    var extension = Path.GetExtension(e.Name);
+                    if (extension != null && extension.ToLower() == XmlFileExtension &&
+                        _bMdXmlFiles.Contains(e.FullPath))
+                    {
+                        _scanXML(e.FullPath);
+                        return;
+                    }
                 }
-            }
             var m = FindMediaFirstByFullPath(e.FullPath);
             if (m != null)
                     m.IsVerified = false;
@@ -401,9 +404,10 @@ namespace TAS.Server.Media
             CancellationToken cancelationToken)
         {
             base.EnumerateFiles(directory, filter, includeSubdirectories, cancelationToken);
-            lock (((IList) _bMdXmlFiles).SyncRoot)
-                foreach (string xml in _bMdXmlFiles)
-                    _scanXML(xml);
+            if (Kind == TIngestDirectoryKind.BmdMediaExpressWatchFolder)
+                lock (((IList) _bMdXmlFiles).SyncRoot)
+                    foreach (string xml in _bMdXmlFiles)
+                        _scanXML(xml);
         }
 
         protected override bool AcceptFile(string fullPath)
@@ -412,7 +416,7 @@ namespace TAS.Server.Media
             return Extensions == null
                    || Extensions.Length == 0
                    || Extensions.Any(e => e == ext)
-                   || (IsXDCAM && ext == XDCAM.Smil.FileExtension);
+                   || (Kind == TIngestDirectoryKind.XDCAM && ext == XDCAM.Smil.FileExtension);
         }
 
         protected override IMedia AddFile(string fullPath, DateTime lastWriteTime = default(DateTime),
@@ -429,7 +433,7 @@ namespace TAS.Server.Media
 
         protected override IMedia CreateMedia(string fullPath, Guid guid = default(Guid))
         {
-            return IsXDCAM
+            return Kind == TIngestDirectoryKind.XDCAM
                 ?
                 new XDCAM.XdcamMedia(this, guid)
                 {
@@ -493,7 +497,7 @@ namespace TAS.Server.Media
         {
             if (_ftpClient == null)
             {
-                FtpClient newClient = IsXDCAM ?
+                FtpClient newClient = Kind == TIngestDirectoryKind.XDCAM ?
                     new XdcamClient
                     {
                         Host = new Uri(Folder, UriKind.Absolute).Host,
@@ -514,7 +518,7 @@ namespace TAS.Server.Media
         // parse files from BMD's MediaExpress
         private void _scanXML(string xmlFileName)
         {
-            foreach (var fd in FindMediaList(f => (f is IngestMedia) && (f as IngestMedia).BmdXmlFile == xmlFileName))
+            foreach (var fd in FindMediaList(f => f is IngestMedia && ((IngestMedia) f).BmdXmlFile == xmlFileName))
                 ((IngestMedia)fd).BmdXmlFile = string.Empty;
             try
             {
@@ -523,6 +527,8 @@ namespace TAS.Server.Media
                 try
                 {
                     XmlNodeList clips = doc.SelectNodes(@"/xmeml/clip|/xmeml/bin/children/clip");
+                    if (clips == null)
+                        return;
                     foreach (XmlNode clip in clips)
                     {
                         string fileName = Path.GetFileName((new Uri(Uri.UnescapeDataString(clip.SelectSingleNode(@"file/pathurl").InnerText))).LocalPath);
@@ -531,7 +537,7 @@ namespace TAS.Server.Media
                         {
                             m.TcStart = clip.SelectSingleNode(@"file/timecode/string").InnerText.SMPTETimecodeToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
                             m.TcPlay = m.TcStart;
-                            m.Duration = Int64.Parse(clip.SelectSingleNode(@"duration").InnerText).SMPTEFramesToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
+                            m.Duration = long.Parse(clip.SelectSingleNode(@"duration").InnerText).SMPTEFramesToTimeSpan(new RationalNumber(int.Parse(clip.SelectSingleNode(@"rate/timebase").InnerText), 1));
                             m.DurationPlay = m.Duration;
                             m.BmdXmlFile = xmlFileName;
                         }
@@ -634,7 +640,6 @@ namespace TAS.Server.Media
         
         private void _ftpDirectoryList()
         {
-            bool exists = true;
             try
             {
                 FtpClient _ftpClient = GetFtpClient();
@@ -653,10 +658,8 @@ namespace TAS.Server.Media
             }
             catch (Exception ex)
             {
-                exists = false;
                 Debug.WriteLine(ex, ex.Message);
             }
-            return;
         }
 
         #endregion

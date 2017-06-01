@@ -151,6 +151,13 @@ namespace TAS.Server.Common
         mxf,
     }
 
+    public enum TIngestDirectoryKind
+    {
+        WatchFolder,
+        BmdMediaExpressWatchFolder,
+        XDCAM
+    }
+
     public enum TArchivePolicyType { NoArchive, ArchivePlayedAndNotUsedWhenDeleteEvent };
     class TArchivePolicyTypeConversionEnumConverter : ResourceEnumConverter
     {

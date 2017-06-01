@@ -54,7 +54,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsAnimationDirectory => Directory is IAnimationDirectory;
 
-        public bool IsXdcam => (Directory as IIngestDirectory)?.IsXDCAM == true;
+        public bool IsXdcam => (Directory as IIngestDirectory)?.Kind == TIngestDirectoryKind.XDCAM;
 
         public bool IsWan => (Directory as IIngestDirectory)?.IsWAN == true;
 

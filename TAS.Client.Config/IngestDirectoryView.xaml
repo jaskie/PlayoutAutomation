@@ -44,7 +44,8 @@
                 <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
             <CheckBox Content="On slow link (WAN connection)" IsChecked="{Binding IsWAN}"/>
-            <CheckBox Content="Is XDCAM" IsChecked="{Binding IsXDCAM}"/>
+            <Label Content="Directory kind"/>
+            <ComboBox ItemsSource="{Binding IngestDirectoryKinds}" SelectedItem="{Binding Kind}"/>
             <CheckBox IsChecked="{Binding IsImport}" Content="Allow import from this directory"/>
             <StackPanel Visibility="{Binding IsImport, Converter={StaticResource BoolToVis}}">
                 <TextBlock TextWrapping="WrapWithOverflow">

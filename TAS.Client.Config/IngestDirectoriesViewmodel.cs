@@ -51,6 +51,48 @@ namespace TAS.Client.Config
             }
         }
 
+        public ObservableCollection<IngestDirectoryViewmodel> Directories { get { return _directories; } }
+        IngestDirectoryViewmodel _selectedDirectory;
+        
+        private bool _added;
+        private bool _deleted;
+        private bool _moved;
+
+        public IngestDirectoryViewmodel SelectedDirectory
+        {
+            get { return _selectedDirectory; }
+            set
+            {
+                if (_selectedDirectory != value)
+                {
+                    _selectedDirectory = value;
+                    NotifyPropertyChanged(nameof(SelectedDirectory));
+                }
+            }
+        }
+        
+        protected override void OnDispose()
+        {
+            
+        }
+        
+        public override bool IsModified { get { return _added || _deleted || _moved|| _directories.Any(d => d.IsModified); } }
+
+        public override void ModelUpdate(object parameter)
+        {
+            _directories.Where(d => d.IsModified).All(d =>
+            {
+                d.ModelUpdate();
+                return true;
+            });
+            XmlSerializer writer = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(_fileName))
+            {
+                writer.Serialize(file, _directories.Select(d => d.Model).ToList());
+                file.Close();
+            }
+        }
+
         private void _createCommands()
         {
             CommandAdd = new UICommand() { ExecuteDelegate = _add };
@@ -101,7 +143,7 @@ namespace TAS.Client.Config
 
         private void _add(object obj)
         {
-            var newDir = new IngestDirectoryViewmodel( new IngestDirectory(), _directories) { DirectoryName = Common.Properties.Resources._title_NewDirectory };
+            var newDir = new IngestDirectoryViewmodel(new IngestDirectory(), _directories) { DirectoryName = Common.Properties.Resources._title_NewDirectory };
             _directories.Add(newDir);
             _added = true;
             SelectedDirectory = newDir;
@@ -156,47 +198,6 @@ namespace TAS.Client.Config
                 return false;
         }
 
-        public ObservableCollection<IngestDirectoryViewmodel> Directories { get { return _directories; } }
-        IngestDirectoryViewmodel _selectedDirectory;
-        
-        private bool _added;
-        private bool _deleted;
-        private bool _moved;
-
-        public IngestDirectoryViewmodel SelectedDirectory
-        {
-            get { return _selectedDirectory; }
-            set
-            {
-                if (_selectedDirectory != value)
-                {
-                    _selectedDirectory = value;
-                    NotifyPropertyChanged(nameof(SelectedDirectory));
-                }
-            }
-        }
-        
-        protected override void OnDispose()
-        {
-            
-        }
-        
-        public override bool IsModified { get { return _added || _deleted || _moved|| _directories.Any(d => d.IsModified); } }
-
-        public override void ModelUpdate(object parameter)
-        {
-            _directories.Where(d => d.IsModified).All(d =>
-            {
-                d.ModelUpdate();
-                return true;
-            });
-            XmlSerializer writer = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(_fileName))
-            {
-                writer.Serialize(file, _directories.Select(d => d.Model).ToList());
-                file.Close();
-            }
-        }
 
     }
 }

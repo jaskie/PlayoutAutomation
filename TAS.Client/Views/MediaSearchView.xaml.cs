@@ -69,8 +69,8 @@ namespace TAS.Client
 
         private void ButtonOKClick(object sender, RoutedEventArgs e)
         {
-            if (tbSearch.Focus())
-                tbSearch.SelectAll();
+            if (TbSearch.Focus())
+                TbSearch.SelectAll();
         }
 
     }

@@ -19,7 +19,7 @@ namespace TAS.Remoting.Model
         public string ExportParams { get { return Get<string>(); } set { SetLocalValue(value); } }
         public string Filter { get { return Get<string>(); } set { Set(value); } }
         public bool IsWAN { get { return Get<bool>(); } set { SetLocalValue(value); } }
-        public bool IsXDCAM { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        public TIngestDirectoryKind Kind { get { return Get<TIngestDirectoryKind>(); } set { SetLocalValue(value); } }
         public bool IsRecursive { get { return Get<bool>(); } set { SetLocalValue(value); } }
         public bool IsExport { get { return Get<bool>(); } set { SetLocalValue(value); } }
         public bool IsImport { get { return Get<bool>(); } set { SetLocalValue(value); } }
@@ -37,7 +37,7 @@ namespace TAS.Remoting.Model
         public decimal VideoBitrateRatio { get; set; }
         public decimal AudioBitrateRatio { get; set; }
         public string[] Extensions { get; set; }
-        public NetworkCredential NetworkCredential { get { return null; } }
+        public NetworkCredential NetworkCredential => null;
         public string Password { get; set; }
         public string Username { get; set; }
         public int XdcamClipCount { get; set; }

@@ -5,8 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
-        xmlns:client="clr-namespace:TAS.Client"
         xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
         xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
         xmlns:vm="clr-namespace:TAS.Client.ViewModels"
@@ -18,12 +16,12 @@
         WindowStartupLocation="CenterOwner"
         mc:Ignorable="d" 
         ShowInTaskbar="False" SnapsToDevicePixels="True"
-        FocusManager.FocusedElement="{Binding ElementName=tbSearch}"
+        FocusManager.FocusedElement="{Binding ElementName=TbSearch}"
         FontSize="12"
         >
     <Window.Resources>
         <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
-        <ControlTemplate x:Key="toggleButtonTemplate" TargetType="ToggleButton">
+        <ControlTemplate x:Key="ToggleButtonTemplate" TargetType="ToggleButton">
             <Grid
             Width="15"
             Height="13"
@@ -44,8 +42,8 @@
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
-        <Style x:Key="toggleButtonStyle" TargetType="ToggleButton">
-            <Setter Property="Template" Value="{StaticResource toggleButtonTemplate}" />
+        <Style x:Key="ToggleButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Template" Value="{StaticResource ToggleButtonTemplate}" />
         </Style>
     </Window.Resources>
     <Grid Width="Auto">
@@ -62,7 +60,7 @@
                 <ColumnDefinition Width="160" />
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" Content="{Resx _search}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <TextBox Name="tbSearch" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="tbSearch_KeyDown" >
+            <TextBox Name="TbSearch" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="tbSearch_KeyDown" >
                 <i:Interaction.Behaviors>
                     <common:FocusExtension SelectAllOnFocus="True"/>
                 </i:Interaction.Behaviors>
@@ -116,7 +114,7 @@
                         <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" CanUserSort="False" Width="20" Visibility="{Binding Data.IsServerOrArchiveDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <ToggleButton Visibility="{Binding HasSegments, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsExpanded, UpdateSourceTrigger=PropertyChanged}" Width="14" Height="14" Style="{StaticResource toggleButtonStyle}"  />
+                                    <ToggleButton Visibility="{Binding HasSegments, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsExpanded, UpdateSourceTrigger=PropertyChanged}" Width="14" Height="14" Style="{StaticResource ToggleButtonStyle}"  />
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

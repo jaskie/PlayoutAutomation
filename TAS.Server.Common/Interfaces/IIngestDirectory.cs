@@ -23,7 +23,7 @@ namespace TAS.Server.Common.Interfaces
         string EncodeParams { get; set; }
         TMovieContainerFormat ExportContainerFormat { get; set; }
         string ExportParams { get; set; }
-        bool IsXDCAM { get; set; }
+        TIngestDirectoryKind Kind { get; set; }
         bool IsWAN { get; set; }
         bool IsRecursive { get; set; }
         string Username { get; set; }
