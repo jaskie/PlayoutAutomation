@@ -38,7 +38,7 @@ namespace TAS.Server
         {
             _engine = engine;
             _recorders = new List<CasparRecorder>();
-            _fileManager = new FileManager(new TempDirectory(this), Convert.ToDecimal(_engine.VolumeReferenceLoudness));
+            _fileManager = new FileManager(new TempDirectory(this));
         }
 
         public IFileManager FileManager => _fileManager;
@@ -92,6 +92,7 @@ namespace TAS.Server
         {
             Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Begin initializing");
+            _fileManager.ReferenceLoudness = Convert.ToDecimal(_engine.VolumeReferenceLoudness);
             ArchiveDirectory = this.LoadArchiveDirectory<ArchiveDirectory>(_engine.IdArchive);
             MediaDirectoryPRI = ((CasparServerChannel)_engine.PlayoutChannelPRI)?.Owner.MediaDirectory;
             MediaDirectorySEC = ((CasparServerChannel)_engine.PlayoutChannelSEC)?.Owner.MediaDirectory;

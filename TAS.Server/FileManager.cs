@@ -28,11 +28,10 @@ namespace TAS.Server
         private bool _isRunningConvertOperation;
         private bool _isRunningExportOperation;
         internal readonly TempDirectory TempDirectory;
-        internal readonly decimal ReferenceLoudness;
+        internal decimal ReferenceLoudness;
 
-        internal FileManager(TempDirectory tempDirectory, decimal referenceLoudness)
+        internal FileManager(TempDirectory tempDirectory)
         {
-            ReferenceLoudness = referenceLoudness;
             TempDirectory = tempDirectory;
         }
         

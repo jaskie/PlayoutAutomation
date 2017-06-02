@@ -421,6 +421,33 @@ namespace TAS.Server.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Watch folder with BMD&apos;s MediaExpress XML files.
+        /// </summary>
+        public static string TIngestDirectoryKind_BmdMediaExpressWatchFolder {
+            get {
+                return ResourceManager.GetString("TIngestDirectoryKind_BmdMediaExpressWatchFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Simple watch folder.
+        /// </summary>
+        public static string TIngestDirectoryKind_WatchFolder {
+            get {
+                return ResourceManager.GetString("TIngestDirectoryKind_WatchFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to XDCAM drive.
+        /// </summary>
+        public static string TIngestDirectoryKind_XDCAM {
+            get {
+                return ResourceManager.GetString("TIngestDirectoryKind_XDCAM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Ingest in progress.
         /// </summary>
         public static string TIngestStatus_InProgress {

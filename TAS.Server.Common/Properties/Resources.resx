@@ -426,4 +426,13 @@
   <data name="TServerType_CasparTVP" xml:space="preserve">
     <value>CasparCG (TVP's fork)</value>
   </data>
+  <data name="TIngestDirectoryKind_BmdMediaExpressWatchFolder" xml:space="preserve">
+    <value>Watch folder with BMD's MediaExpress XML files</value>
+  </data>
+  <data name="TIngestDirectoryKind_WatchFolder" xml:space="preserve">
+    <value>Simple watch folder</value>
+  </data>
+  <data name="TIngestDirectoryKind_XDCAM" xml:space="preserve">
+    <value>XDCAM drive</value>
+  </data>
 </root>

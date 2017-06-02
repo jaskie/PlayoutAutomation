@@ -14,7 +14,7 @@ namespace TAS.Client.Common.Controls
     public class TimecodeEdit: MaskedTextBox
     {
         const string mask = "00:00:00:00";
-        public TimecodeEdit(): base()
+        public TimecodeEdit()
         {
             Mask = mask;
         }
@@ -35,7 +35,7 @@ namespace TAS.Client.Common.Controls
 
         private static void OnTimecodeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as TimecodeEdit)._updateText();
+            (d as TimecodeEdit)?._updateText();
         }
 
         protected override void OnTextChanged(TextChangedEventArgs e)

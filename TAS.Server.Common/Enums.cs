@@ -150,12 +150,19 @@ namespace TAS.Server.Common
         mp4,
         mxf,
     }
-
+    [TypeConverter(typeof(TIngestDirectoryKindEnumConverter))]
     public enum TIngestDirectoryKind
     {
         WatchFolder,
         BmdMediaExpressWatchFolder,
         XDCAM
+    }
+
+    class TIngestDirectoryKindEnumConverter : ResourceEnumConverter
+    {
+        public TIngestDirectoryKindEnumConverter()
+            : base(typeof(TIngestDirectoryKind), TAS.Server.Common.Properties.Resources.ResourceManager)
+        { }
     }
 
     public enum TArchivePolicyType { NoArchive, ArchivePlayedAndNotUsedWhenDeleteEvent };

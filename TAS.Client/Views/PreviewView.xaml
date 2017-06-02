@@ -43,7 +43,7 @@
                     <TextBox Text="{Binding FileName, Mode=OneWay}" Margin="3" IsEnabled="{Binding IsLoaded}" IsReadOnly="True"/>
                 </StackPanel>
             </DockPanel>
-            <DockPanel Grid.Row="1" IsEnabled="{Binding IsPlayable}">
+            <DockPanel IsEnabled="{Binding IsPlayable}">
                 <DockPanel.Resources>
                     <Style TargetType="Button">
                         <Setter Property="Width" Value="22" />
@@ -78,7 +78,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <Label Content="Start TC" />
-                        <controls:TimecodeEdit Timecode="{Binding StartTc, Mode=OneWay}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
+                        <controls:TimecodeEdit Timecode="{Binding StartTc}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
                         <controls:TimecodeEdit Timecode="{Binding TcIn}" VideoFormat="{Binding VideoFormat}" />
                     </StackPanel>
                     <StackPanel Grid.Column="1">
@@ -114,7 +114,7 @@
                     </StackPanel>
                     <StackPanel Grid.Column="4">
                         <Label Content="{Resx _duration}" />
-                        <controls:TimecodeEdit Timecode="{Binding Duration, Mode=OneWay}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
+                        <controls:TimecodeEdit Timecode="{Binding Duration}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
                         <controls:TimecodeEdit Timecode="{Binding TcOut}" VideoFormat="{Binding VideoFormat}" />
                     </StackPanel>
                 </Grid>

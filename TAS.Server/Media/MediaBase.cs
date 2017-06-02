@@ -36,6 +36,7 @@ namespace TAS.Server.Media
         private bool _verified;
         private TMediaStatus _mediaStatus;
         private readonly MediaDirectory _directory;
+        internal bool HasExtraLines; // VBI lines that shouldn't be displayed
 
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(MediaBase));
@@ -54,7 +55,7 @@ namespace TAS.Server.Media
         }
 #endif
 
-        // file properties
+        #region IMediaProperties
         [JsonProperty]
         public string Folder
         {
@@ -65,7 +66,7 @@ namespace TAS.Server.Media
                     NotifyPropertyChanged(nameof(FullPath));
             }
         }
-#region IMediaProperties
+
         [JsonProperty]
         public string FileName
         {
@@ -222,9 +223,7 @@ namespace TAS.Server.Media
             get { return _parental; }
             set { SetField(ref _parental, value); }
         }
-
-
-
+        
         [JsonProperty]
         public Guid MediaGuid
         {
@@ -262,7 +261,6 @@ namespace TAS.Server.Media
 
         #endregion //IMediaProperties
 
-
         public string FullPath
         {
             get { return _getFullPath(_fileName); }
@@ -278,9 +276,6 @@ namespace TAS.Server.Media
         {
             return ((MediaDirectory)Directory).DeleteMedia(this);
         }
-
-
-        internal bool HasExtraLines; // VBI lines that shouldn't be displayed
 
         public virtual void CloneMediaProperties(IMediaProperties fromMedia)
         {

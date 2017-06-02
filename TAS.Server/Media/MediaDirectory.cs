@@ -427,7 +427,7 @@ namespace TAS.Server.Media
         {
             if (string.IsNullOrEmpty(fullPath))
                 return null;
-            lock (((IDictionary)Files).SyncRoot)
+            lock (((IDictionary) Files).SyncRoot)
                 return Files.Values.FirstOrDefault(f => fullPath.Equals(f.FullPath, StringComparison.CurrentCultureIgnoreCase));
         }
 

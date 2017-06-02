@@ -429,4 +429,13 @@
   <data name="TServerType_CasparTVP" xml:space="preserve">
     <value>CasparCG (wersja TVP)</value>
   </data>
+  <data name="TIngestDirectoryKind_BmdMediaExpressWatchFolder" xml:space="preserve">
+    <value>Folder obserwowany z plikami XML Blackmagic Media Express</value>
+  </data>
+  <data name="TIngestDirectoryKind_WatchFolder" xml:space="preserve">
+    <value>Normalny folder obserwowany</value>
+  </data>
+  <data name="TIngestDirectoryKind_XDCAM" xml:space="preserve">
+    <value>Napęd XDCAM</value>
+  </data>
 </root>
