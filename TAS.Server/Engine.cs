@@ -423,8 +423,7 @@ namespace TAS.Server
                     if (value)
                         _loadPST();
                     else
-                    if (_playoutChannelPRV != null)
-                        _playoutChannelPRV.Clear(VideoLayer.Preset);
+                        _playoutChannelPRV?.Clear(VideoLayer.Preset);
                 }
             }
         }
@@ -445,7 +444,8 @@ namespace TAS.Server
             {
                 if (_playoutChannelPRV != null && _previewMedia!=null)
                 {
-                    PreviewPause();
+                    if (_previewIsPlaying)
+                        PreviewPause();
                     long newSeek = value < 0 ? 0 : value;
                     long maxSeek = _previewDuration-1;
                     if (newSeek > maxSeek)
@@ -798,27 +798,21 @@ namespace TAS.Server
 
         public void PreviewPlay()
         {
-            var channel = _playoutChannelPRV;
-            var media = PreviewMedia;
-            if (channel != null && channel.Play(VideoLayer.Preview) && media != null)
+            if (_previewMedia != null && _playoutChannelPRV?.Play(VideoLayer.Preview) == true)
                 PreviewIsPlaying = true;
         }
 
         public void PreviewPause()
         {
-            var channel = _playoutChannelPRV;
-            if (PreviewIsPlaying
-                && channel != null
-                && channel.Pause(VideoLayer.Preview))
-                PreviewIsPlaying = false;
+            _playoutChannelPRV?.Pause(VideoLayer.Preview);
+           PreviewIsPlaying = false;
         }
 
         public void SearchMissingEvents()
         {
             this.DbSearchMissing();
         }
-
-
+        
         // internal methods
         internal void UnInitialize()
         {
@@ -1276,8 +1270,6 @@ namespace TAS.Server
                         _previewPosition += nFrames;
                         NotifyPropertyChanged(nameof(PreviewPosition));
                     }
-                    else
-                        PreviewPause();
                 }
             }
         }

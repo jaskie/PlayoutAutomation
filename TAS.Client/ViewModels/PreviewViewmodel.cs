@@ -21,10 +21,10 @@ namespace TAS.Client.ViewModels
         private IMediaSegment _lastAddedSegment;
         public PreviewViewmodel(IPreview preview)
         {
-            preview.PropertyChanged += this.PreviewPropertyChanged;
+            preview.PropertyChanged += PreviewPropertyChanged;
             _channelPRV = preview.PlayoutChannelPRV;
             if (_channelPRV != null)
-                _channelPRV.PropertyChanged += this.OnChannelPropertyChanged;
+                _channelPRV.PropertyChanged += OnChannelPropertyChanged;
             _preview = preview;
             _formatDescription = _preview.FormatDescription;
             CreateCommands();
@@ -34,14 +34,14 @@ namespace TAS.Client.ViewModels
         {
             if (LoadedMedia == _preview.PreviewMedia)
                 _preview.PreviewUnload();
-            _preview.PropertyChanged -= this.PreviewPropertyChanged;
+            _preview.PropertyChanged -= PreviewPropertyChanged;
             if (_channelPRV != null)
-                _channelPRV.PropertyChanged -= this.OnChannelPropertyChanged;
+                _channelPRV.PropertyChanged -= OnChannelPropertyChanged;
             LoadedMedia = null;
             SelectedSegment = null;
         }
 
-        public TVideoFormat VideoFormat { get { return _formatDescription.Format; } }
+        public TVideoFormat VideoFormat => _formatDescription.Format;
 
         public IMedia Media
         {
@@ -412,7 +412,7 @@ namespace TAS.Client.ViewModels
 
         private void CreateCommands()
         {
-            CommandPause = new UICommand()
+            CommandPause = new UICommand
             {
                 ExecuteDelegate = o =>
                     {
@@ -434,7 +434,7 @@ namespace TAS.Client.ViewModels
                             || _canLoad(media);
                     }
             };
-            CommandPlay = new UICommand()
+            CommandPlay = new UICommand
             {
                 ExecuteDelegate = o =>
                     {
@@ -455,22 +455,20 @@ namespace TAS.Client.ViewModels
                     },
                 CanExecuteDelegate = o =>
                     {
-                        IMedia media = Media ?? (Event != null ? Event.Media : null);
+                        IMedia media = Media ?? Event?.Media;
                         return (LoadedMedia != null && LoadedMedia.MediaStatus == TMediaStatus.Available)
                             || _canLoad(media);
                     }
             };
-            CommandStop = new UICommand()
+            CommandStop = new UICommand
             {
                 ExecuteDelegate = o => _mediaUnload(),
                 CanExecuteDelegate = _canStop                   
             };
-            CommandSeek = new UICommand()
+            CommandSeek = new UICommand
             {
                 ExecuteDelegate = param =>
                     {
-                        if (_preview.PreviewIsPlaying)
-                            _preview.PreviewPause();
                         long seekFrames;
                         switch ((string)param)
                         {
@@ -496,19 +494,19 @@ namespace TAS.Client.ViewModels
                 CanExecuteDelegate = _canStop
             };
 
-            CommandCopyToTcIn = new UICommand()
+            CommandCopyToTcIn = new UICommand
             {
                 ExecuteDelegate = o => TcIn = Position,
                 CanExecuteDelegate = _canStop
             };
 
-            CommandCopyToTcOut = new UICommand()
+            CommandCopyToTcOut = new UICommand
             {
                 ExecuteDelegate = o => TcOut = Position,
                 CanExecuteDelegate = _canStop
             };
 
-            CommandSaveSegment = new UICommand()
+            CommandSaveSegment = new UICommand
             {
                 ExecuteDelegate = o =>
                     {
