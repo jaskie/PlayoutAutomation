@@ -102,8 +102,8 @@ namespace TAS.Client.Config
             base.ModelUpdate(destObject);
         }
 
-        public override bool IsModified { get { return  _isModified || _isAnyChildChanged || _playoutServerChannels.Any(c => c.IsModified) || _playoutRecorders.Any(r => r.IsModified); } }
-        public bool IsRecordersVisible { get { return _serverType == TServerType.CasparTVP; } }
+        public override bool IsModified { get { return  IsModified || _isAnyChildChanged || _playoutServerChannels.Any(c => c.IsModified) || _playoutRecorders.Any(r => r.IsModified); } }
+        public bool IsRecordersVisible => _serverType == TServerType.CasparTVP;
 
         public string ServerAddress { get { return _serverAddress; } set { SetField(ref _serverAddress, value); } }
         public int OscPort { get { return _oscPort; } set{ SetField(ref _oscPort, value); } }

@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Xml.Serialization;
+using TAS.Client.Common;
 using TAS.Client.ViewModels;
 using TAS.Remoting;
 using TAS.Remoting.Client;
@@ -19,16 +14,12 @@ namespace TVPlayClient
     [XmlType("Channel")]
     public class ChannelWrapperViewmodel : ViewmodelBase
     {
-        #region Serialization properties
-        [XmlAttribute]
-        public string Address { get; set; }
-        [XmlAttribute]
-        public bool AllowControl { get; set; } = true;
-        [XmlAttribute]
-        public bool ShowEngine { get; set; } = true;
-        [XmlAttribute]
-        public bool ShowMedia { get; set; } = true;
-        #endregion
+
+        private readonly ConfigurationChannel _configurationChannel;
+        public ChannelWrapperViewmodel(ConfigurationChannel channel)
+        {
+            _configurationChannel = channel;
+        }
 
         public void Initialize()
         {
@@ -37,13 +28,6 @@ namespace TVPlayClient
 
         private RemoteClient _client;
 
-        private void Dispatcher_ShutdownStarted(object sender, EventArgs e)
-        {
-            var client = _client;
-            if (client != null)
-                client.Dispose();
-        }
-
         private void _clientDisconected(object sender, EventArgs e)
         {
             var client = sender as RemoteClient;
@@ -51,7 +35,7 @@ namespace TVPlayClient
             {
                 client.Disconnected -= _clientDisconected;
                 var vm = _channel;
-                Application.Current?.Dispatcher.BeginInvoke((Action)delegate ()
+                Application.Current?.Dispatcher.BeginInvoke((Action)delegate 
                 {
                     vm.Dispose();
                 });
@@ -66,7 +50,7 @@ namespace TVPlayClient
             {
                 while (true)
                 {
-                    _client = new RemoteClient(Address);
+                    _client = new RemoteClient(_configurationChannel.Address);
                     if (_client.IsConnected)
                     {
                         _client.Binder = new ClientTypeNameBinder();
@@ -74,9 +58,9 @@ namespace TVPlayClient
                         if (engine != null)
                         {
                             _client.Disconnected += _clientDisconected;
-                            Application.Current?.Dispatcher.BeginInvoke((Action)delegate ()
+                            Application.Current?.Dispatcher.BeginInvoke((Action)delegate 
                             {
-                                Channel = new ChannelViewmodel(engine, ShowEngine, ShowMedia, AllowControl);
+                                Channel = new ChannelViewmodel(engine, _configurationChannel.ShowEngine, _configurationChannel.ShowMedia, _configurationChannel.AllowControl);
                                 TabName = Channel.ChannelName;
                                 IsLoading = false;
                             });
@@ -103,14 +87,11 @@ namespace TVPlayClient
 
         protected override void OnDispose()
         {
-            var client = _client;
-            if (client != null)
-                client.Dispose();
-            var vm = _channel;
-            if (vm != null)
-                vm.Dispose();
+            _client?.Dispose();
+            _channel?.Dispose();
             Debug.WriteLine(this, "Disposed");
         }
 
     }
+
 }

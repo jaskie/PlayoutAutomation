@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Common
@@ -48,28 +45,28 @@ namespace TAS.Server.Common
         public IDictionary<string, string> Fields { get; set; }
 
 
-        public IEvent InsertAfter(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        public IEvent InsertAfter(IEvent prior, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
         {
             IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
             prior.InsertAfter(newEvent);
             return newEvent;
         }
 
-        public IEvent InsertUnder(IEvent parent, bool fromEnd, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        public IEvent InsertUnder(IEvent parent, bool fromEnd, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
         {
             IEvent newEvent = _toEvent(parent.Engine, mediaFiles, animationFiles);
             parent.InsertUnder(newEvent, fromEnd);
             return newEvent;
         }
 
-        public IEvent InsertBefore(IEvent prior, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        public IEvent InsertBefore(IEvent prior, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
         {
             IEvent newEvent = _toEvent(prior.Engine, mediaFiles, animationFiles);
             prior.InsertBefore(newEvent);
             return newEvent;
         }
 
-        public IEvent InsertRoot(IEngine engine, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        public IEvent InsertRoot(IEngine engine, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
         {
             IEvent newEvent = _toEvent(engine, mediaFiles, animationFiles);
             engine.AddRootEvent(newEvent);
@@ -77,7 +74,7 @@ namespace TAS.Server.Common
         }
 
 
-        private IEvent _toEvent(IEngine engine, IEnumerable<IMedia> mediaFiles, IEnumerable<IMedia> animationFiles)
+        private IEvent _toEvent(IEngine engine, IList<IMedia> mediaFiles, IList<IMedia> animationFiles)
         {
             IEvent result = null;
             try
@@ -122,7 +119,7 @@ namespace TAS.Server.Common
                     if (media == null
                         && Media is IPersistentMediaProperties
                         && !string.IsNullOrEmpty(((IPersistentMediaProperties)Media).IdAux))
-                        media = mediaFiles.FirstOrDefault(m => m is IPersistentMedia ? ((IPersistentMedia)m).IdAux == ((IPersistentMediaProperties)Media).IdAux : false);
+                        media = mediaFiles.FirstOrDefault(m => m is IPersistentMedia && ((IPersistentMedia)m).IdAux == ((IPersistentMediaProperties)Media).IdAux);
                     if (media == null)
                         media = mediaFiles.FirstOrDefault(m =>
                                m.MediaName == Media.MediaName
@@ -141,7 +138,7 @@ namespace TAS.Server.Common
                     if (media == null
                         && Media is IPersistentMediaProperties
                         && !string.IsNullOrEmpty(((IPersistentMediaProperties)Media).IdAux))
-                        media = animationFiles.FirstOrDefault(m => m is IPersistentMedia ? ((IPersistentMedia)m).IdAux == ((IPersistentMediaProperties)Media).IdAux : false);
+                        media = animationFiles.FirstOrDefault(m => m is IPersistentMedia && ((IPersistentMedia)m).IdAux == ((IPersistentMediaProperties)Media).IdAux);
                     if (media == null)
                         media = animationFiles.FirstOrDefault(m => m.FileName == Media.FileName && m.FileSize == Media.FileSize);
                     result.Media = media;
@@ -168,10 +165,10 @@ namespace TAS.Server.Common
                                 ne = e;
                             }
                             else
-                                throw new ApplicationException(string.Format("Previous item for {0} not found", seProxy));
+                                throw new ApplicationException($"Previous item for {seProxy} not found");
                             break;
                         default:
-                            throw new ApplicationException(string.Format("Invalid start type of { 0 }", seProxy));
+                            throw new ApplicationException($"Invalid start type of {seProxy}");
                     }
                 }
             }
@@ -187,10 +184,7 @@ namespace TAS.Server.Common
         public static EventProxy FromEvent(IEvent source)
         {
             IMedia eventMedia = source.Media;
-            MediaProxy mediaProxy = eventMedia == null ? null :
-                eventMedia is IPersistentMedia ? PersistentMediaProxy.FromMedia((IPersistentMedia)eventMedia) :
-                MediaProxy.FromMedia(eventMedia);
-            return new EventProxy()
+            return new EventProxy
             {
                 AudioVolume = source.AudioVolume,
                 Duration = source.Duration,
@@ -215,7 +209,7 @@ namespace TAS.Server.Common
                 TransitionPauseTime = source.TransitionPauseTime,
                 TransitionType = source.TransitionType,
                 TransitionEasing = source.TransitionEasing,
-                SubEvents = source.AllSubEvents().Select(e => FromEvent(e)).ToArray(),
+                SubEvents = source.AllSubEvents().Select(FromEvent).ToArray(),
                 IsCGEnabled = source.IsCGEnabled,
                 Crawl = source.Crawl,
                 Logo = source.Logo,
@@ -223,24 +217,10 @@ namespace TAS.Server.Common
                 AutoStartFlags = source.AutoStartFlags,
                 Command = (source as ICommandScript)?.Command,
                 Fields = source is ITemplated ? new Dictionary<string, string>(((ITemplated)source).Fields) : null,
-                Method = source is ITemplated ? ((ITemplated)source).Method : TemplateMethod.Add,
-                TemplateLayer = source is ITemplated ? ((ITemplated)source).TemplateLayer : -1,
+                Method = (source as ITemplated)?.Method ?? TemplateMethod.Add,
+                TemplateLayer = (source as ITemplated)?.TemplateLayer ?? -1
             };
         }
     }
 
-    static class IEventExtensions
-    {
-        public static IEnumerable<IEvent> AllSubEvents(this IEvent e)
-        {
-            IEnumerable<IEvent> sel = e.SubEvents;
-            foreach (IEvent selItem in sel)
-            {
-                yield return selItem;
-                IEvent nextItem = selItem;
-                while ((nextItem = nextItem.Next)!= null)
-                    yield return nextItem;
-            }
-        }
-    }
 }

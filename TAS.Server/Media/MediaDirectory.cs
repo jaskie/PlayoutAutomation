@@ -125,7 +125,7 @@ namespace TAS.Server.Media
      
         public abstract void Refresh();
 
-        public virtual ICollection<IMedia> GetFiles()
+        public virtual IList<IMedia> GetFiles()
         {
             lock (((IDictionary)Files).SyncRoot)
                 return Files.Values.Cast<IMedia>().ToList();

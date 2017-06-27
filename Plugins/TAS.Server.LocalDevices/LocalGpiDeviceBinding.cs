@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
 using TAS.Server.Common.Interfaces;
 
@@ -47,12 +44,11 @@ namespace TAS.Server
 
         internal void NotifyChange(byte deviceId, byte port, byte bit, bool newValue)
         {
-            var pin = Start;
             if (newValue)
                 _actionCheckAndExecute(Started, Start, deviceId, port, bit);
         }
                 
-        bool _isWideScreen = false;
+        bool _isWideScreen;
         public bool IsWideScreen
         {
             get
@@ -74,16 +70,5 @@ namespace TAS.Server
 
         public void ShowAux(int auxNr) { }
         public void HideAux(int auxNr) { }
-                
-        void _setSinglePin(GPIPin[] pins, int value)
-        {
-            var owner = Owner;
-            if (pins != null && owner != null)
-            {
-                pins.Where(p => p.Param != value).ToList().ForEach(p => owner.SetPortState(p.DeviceId, p.PortNumber, p.PinNumber, false));
-                pins.Where(p => p.Param == value).ToList().ForEach(p => owner.SetPortState(p.DeviceId, p.PortNumber, p.PinNumber, true));
-            }
-        }
-
     }
 }

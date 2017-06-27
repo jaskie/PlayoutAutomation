@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Common
@@ -14,8 +11,8 @@ namespace TAS.Server.Common
             Event = aEvent;
         }
         [Newtonsoft.Json.JsonProperty]
-        public TEngineOperation Operation { get; }
+        public TEngineOperation Operation { get; private set; }
         [Newtonsoft.Json.JsonProperty(IsReference = true)]
-        public IEvent Event { get; }
+        public IEvent Event { get; private set; }
     }
 }

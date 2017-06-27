@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using TAS.Server.Common.Interfaces;
@@ -11,21 +9,46 @@ namespace TAS.Server.Common
     public static class EventExtensions
     {
 
-        private static readonly string MIXER_FILL_COMMAND = string.Format(@"\s*MIXER\s+(?<layer>{0})\s+FILL\s+(?<x>[+-]?([0-9]*[.])?[0-9]+)\s+(?<y>[+-]?([0-9]*[.])?[0-9]+)\s+(?<sx>[+-]?([0-9]*[.])?[0-9]+)\s+(?<sy>[+-]?([0-9]*[.])?[0-9]+)(\s+(?<duration>([0-9]+)))?(\s+(?<easing>({1})))?", string.Join("|", Enum.GetNames(typeof(VideoLayer))), string.Join("|", Enum.GetNames(typeof(TEasing))));
-        public static readonly Regex RegexMixerFill = new Regex(MIXER_FILL_COMMAND, RegexOptions.IgnoreCase);
-        private static readonly string MIXER_CLIP_COMMAND = string.Format(@"\s*MIXER\s+(?<layer>{0})\s+CLIP\s+(?<x>[+-]?([0-9]*[.])?[0-9]+)\s+(?<y>[+-]?([0-9]*[.])?[0-9]+)\s+(?<sx>[+-]?([0-9]*[.])?[0-9]+)\s+(?<sy>[+-]?([0-9]*[.])?[0-9]+)(\s+(?<duration>([0-9]+)))?(\s+(?<easing>({1})))?", string.Join("|", Enum.GetNames(typeof(VideoLayer))), string.Join("|", Enum.GetNames(typeof(TEasing))));
-        public static readonly Regex RegexMixerClip = new Regex(MIXER_CLIP_COMMAND, RegexOptions.IgnoreCase);
-        private static readonly string MIXER_CLEAR_COMMAND = string.Format(@"\s*MIXER\s+(?<layer>{0})\s+CLEAR\s*", string.Join("|", Enum.GetNames(typeof(VideoLayer))));
-        public static readonly Regex RegexClearMixer = new Regex(MIXER_CLEAR_COMMAND, RegexOptions.IgnoreCase);
-        private static readonly string PLAY_COMMAND = $@"\s*PLAY\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+(?<file>\w+|""[\w\s]*"")(?<transition_block>\s+(?<transition_type>({string.Join("|", Enum.GetNames(typeof(TTransitionType)))}))\s+(?<transition_duration>[0-9]+)(\s+(?<easing>({string.Join("|", Enum.GetNames(typeof(TEasing)))})))?)?";
-        public static readonly Regex RegexPlay = new Regex(PLAY_COMMAND, RegexOptions.IgnoreCase);
+        private static readonly string MixerFillCommand =
+            $@"\s*MIXER\s+(?<layer>{
+                string.Join("|", Enum.GetNames(typeof(VideoLayer)))
+            })\s+FILL\s+(?<x>[+-]?([0-9]*[.])?[0-9]+)\s+(?<y>[+-]?([0-9]*[.])?[0-9]+)\s+(?<sx>[+-]?([0-9]*[.])?[0-9]+)\s+(?<sy>[+-]?([0-9]*[.])?[0-9]+)(\s+(?<duration>([0-9]+)))?(\s+(?<easing>({
+                string.Join("|", Enum.GetNames(typeof(TEasing)))
+            })))?";
+
+        public static readonly Regex RegexMixerFill = new Regex(MixerFillCommand, RegexOptions.IgnoreCase);
+
+        private static readonly string MixerClipCommand =
+            $@"\s*MIXER\s+(?<layer>{
+                string.Join("|", Enum.GetNames(typeof(VideoLayer)))
+            })\s+CLIP\s+(?<x>[+-]?([0-9]*[.])?[0-9]+)\s+(?<y>[+-]?([0-9]*[.])?[0-9]+)\s+(?<sx>[+-]?([0-9]*[.])?[0-9]+)\s+(?<sy>[+-]?([0-9]*[.])?[0-9]+)(\s+(?<duration>([0-9]+)))?(\s+(?<easing>({
+                string.Join("|", Enum.GetNames(typeof(TEasing)))
+            })))?";
+
+        public static readonly Regex RegexMixerClip = new Regex(MixerClipCommand, RegexOptions.IgnoreCase);
+
+        private static readonly string MixerClearCommand =
+            $@"\s*MIXER\s+(?<layer>{string.Join("|", Enum.GetNames(typeof(VideoLayer)))})\s+CLEAR\s*";
+
+        public static readonly Regex RegexMixerClear = new Regex(MixerClearCommand, RegexOptions.IgnoreCase);
+
+        private static readonly string PlayCommand =
+                $@"\s*PLAY\s+(?<layer>{
+                        string.Join("|", Enum.GetNames(typeof(VideoLayer)))
+                    })\s+(?<file>\w+|""[\w\s]*"")(?<transition_block>\s+(?<transition_type>({
+                        string.Join("|", Enum.GetNames(typeof(TTransitionType)))
+                    }))\s+(?<transition_duration>[0-9]+)(\s+(?<easing>({
+                        string.Join("|", Enum.GetNames(typeof(TEasing)))
+                    })))?)?";
+
+        public static readonly Regex RegexPlay = new Regex(PlayCommand, RegexOptions.IgnoreCase);
 
         public static bool IsValidCommand(string commandText)
         {
             return !string.IsNullOrWhiteSpace(commandText)
                 && (RegexMixerFill.IsMatch(commandText)
                 || RegexMixerClip.IsMatch(commandText)
-                || RegexClearMixer.IsMatch(commandText));
+                || RegexMixerClear.IsMatch(commandText));
         }
 
         public static IEvent FindNext(this IEvent startEvent, Func<IEvent, bool> searchFunc)
@@ -59,7 +82,7 @@ namespace TAS.Server.Common
 
         public static IEnumerable<IEvent> GetVisualRootTrack(this IEvent aEvent)
         {
-            IEvent pe = aEvent;
+            var pe = aEvent;
             while (pe != null)
             {
                 yield return pe;
@@ -70,8 +93,8 @@ namespace TAS.Server.Common
 
         public static IEvent GetVisualParent(this IEvent aEvent)
         {
-            IEvent curr = aEvent;
-            IEvent prior = curr.Prior;
+            var curr = aEvent;
+            var prior = curr.Prior;
             while (prior != null)
             {
                 curr = prior;
@@ -82,7 +105,7 @@ namespace TAS.Server.Common
 
         public static bool IsContainedIn(this IEvent aEvent, IEvent parent)
         {
-            IEvent pe = aEvent;
+            var pe = aEvent;
             while (true)
             {
                 if (pe == null)
@@ -114,21 +137,22 @@ namespace TAS.Server.Common
         /// <returns></returns>
         public static IEvent GetSuccessor(this IEvent aEvent)
         {
-            var eventType = aEvent.EventType;
-            if (eventType == TEventType.Movie || eventType == TEventType.Live || eventType == TEventType.Rundown)
+            while (true)
             {
-                IEvent current = aEvent;
-                IEvent next = current.Next;
+                var eventType = aEvent.EventType;
+                if (eventType != TEventType.Movie && eventType != TEventType.Live && eventType != TEventType.Rundown)
+                    return null;
+                var current = aEvent;
+                var next = current.Next;
                 while (next != null && next.Length.Equals(TimeSpan.Zero))
                 {
                     current = next;
                     next = current.GetSuccessor();
                 }
-                if (next == null)
-                    next = current.GetVisualParent()?.GetSuccessor();
-                return next;
+                if (next != null)
+                    return next;
+                aEvent = current.GetVisualParent();
             }
-            return null;
         }
 
         public static decimal GetAudioVolume(this IEvent aEvent)
@@ -144,6 +168,17 @@ namespace TAS.Server.Common
             }
             return 0m;
         }
-        
+
+        public static IEnumerable<IEvent> AllSubEvents(this IEvent e)
+        {
+            IEnumerable<IEvent> sel = e.SubEvents;
+            foreach (var selItem in sel)
+            {
+                yield return selItem;
+                var nextItem = selItem;
+                while ((nextItem = nextItem.Next) != null)
+                    yield return nextItem;
+            }
+        }
     }
 }

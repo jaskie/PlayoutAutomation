@@ -3,18 +3,27 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Threading;
 
 namespace TAS.Remoting.Client
 {
-    public abstract class ProxyBase : IDto, INotifyPropertyChanged
+    public abstract class ProxyBase : IDto
     {
+        private int _isDisposed;
+        private RemoteClient _client;
+
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref _isDisposed, 1) == default(int))
+                DoDispose();
+        }
+
 
 #if DEBUG
         ~ProxyBase()
@@ -24,12 +33,15 @@ namespace TAS.Remoting.Client
 #endif
 
         public Guid DtoGuid { get; set; }
-        private RemoteClient _client;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public event EventHandler Disposed;
 
         protected T Get<T>([CallerMemberName] string propertyName = null)
         {
             object result;
-            _findPropertyName(ref propertyName);
+            FindPropertyName(ref propertyName);
             if (Properties.TryGetValue(propertyName, out result))
                 return  (T)result;
             var client = _client;
@@ -41,31 +53,13 @@ namespace TAS.Remoting.Client
             }
             return default(T);
         }
-
-        private void _findPropertyName(ref string propertyName)
-        {
-            var property = this.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.NonPublic);
-            if (property != null)
-            {
-                var attributes = property.GetCustomAttributes(typeof(JsonPropertyAttribute), true);
-                foreach (JsonPropertyAttribute attr in attributes)
-                    if (!string.IsNullOrWhiteSpace(attr.PropertyName))
-                    {
-                        propertyName = attr.PropertyName;
-                        return;
-                    }
-            }
-        }
-
+        
         protected void Set<T>(T value, [CallerMemberName] string propertyName = null)
         {
-            _findPropertyName(ref propertyName);
+            FindPropertyName(ref propertyName);
             var client = _client;
             if (SetLocalValue(value, propertyName))
-            {
-                if (client != null)
-                    client.Set(this, value, propertyName);
-            }
+                client?.Set(this, value, propertyName);
         }
 
         protected void Invoke([CallerMemberName] string methodName = null, params object[] parameters)
@@ -74,6 +68,7 @@ namespace TAS.Remoting.Client
             if (client != null)
                 client.Invoke(this, methodName, parameters);
         }
+
         protected T Query<T>([CallerMemberName] string methodName = "", params object[] parameters)
         {
             var client = _client;
@@ -107,7 +102,7 @@ namespace TAS.Remoting.Client
         protected bool SetLocalValue(object value, [CallerMemberName] string propertyName = null)
         {
             object oldValue;
-            _findPropertyName(ref propertyName);
+            FindPropertyName(ref propertyName);
             if (!Properties.TryGetValue(propertyName, out oldValue)  // here values may be boxed
                 || (oldValue != value && (oldValue != null && !oldValue.Equals(value)) || (value != null && !value.Equals(oldValue))))
             {
@@ -116,36 +111,6 @@ namespace TAS.Remoting.Client
                 return true;
             }
             return false;
-        }
-
-        void _onEventNotificationMessage(object sender, WebSocketMessageEventArgs e)
-        {
-            if (e.Message.DtoGuid == DtoGuid)
-            {
-                Debug.WriteLine($"ProxyBase: Event {e.Message.MemberName} notified on {this} with value {e.Message.Response}");
-                if (e.Message.MemberName == nameof(INotifyPropertyChanged.PropertyChanged))
-                {
-                    PropertyChangedWithValueEventArgs eav = e.Message.Response as PropertyChangedWithValueEventArgs;
-                    if (eav != null)
-                    {
-                        Type type = this.GetType();
-                        PropertyInfo property =
-                            type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).FirstOrDefault(p => p.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Where(a => ((JsonPropertyAttribute)a).PropertyName == eav.PropertyName).Any());
-                        if (property != null)
-                            Debug.WriteLine(property.Name);
-                        if (property == null)
-                            property = type.GetProperty(eav.PropertyName);
-//                        if (property.Name == "Commands")
-//                            Debug.WriteLine(property.Name);
-                        object value = eav.Value;
-                        if (property != null)
-                            MethodParametersAlignment.AlignType(ref value, property.PropertyType);
-                        Properties[eav.PropertyName] = value;
-                        NotifyPropertyChanged(eav.PropertyName);
-                    }
-                }
-                else OnEventNotification(e.Message);
-            }
         }
 
         protected abstract void OnEventNotification(WebSocketMessage e);
@@ -164,35 +129,68 @@ namespace TAS.Remoting.Client
 
         protected ConcurrentDictionary<string, object> Properties = new ConcurrentDictionary<string, object>();
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private bool _isDisposed = false;
-
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public void Dispose()
-        {
-            if (!_isDisposed)
-            {
-                _isDisposed = true;
-                DoDispose();
-            }
-        }
-
         protected virtual void DoDispose()
         {
-            _client.EventNotification -= _onEventNotificationMessage;
+            _client.EventNotification -= OnEventNotificationMessage;
             _client = null;
             Disposed?.Invoke(this, EventArgs.Empty);
         }
 
-        public event EventHandler Disposed;
-
         [OnDeserialized]
-        internal void OnDeserializedMethod(StreamingContext context)
+        internal void OnDeserialized(StreamingContext context)
         {
-            _client = context.Context as RemoteClient;
-            _client.EventNotification += _onEventNotificationMessage;
+            var client = context.Context as RemoteClient;
+            if (client == null)
+                return;
+            client.EventNotification += OnEventNotificationMessage;
+            _client = client;
         }
+
+        private void FindPropertyName(ref string propertyName)
+        {
+            var property = GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.NonPublic);
+            if (property != null)
+            {
+                var attributes = property.GetCustomAttributes(typeof(JsonPropertyAttribute), true);
+                foreach (JsonPropertyAttribute attr in attributes)
+                    if (!string.IsNullOrWhiteSpace(attr.PropertyName))
+                    {
+                        propertyName = attr.PropertyName;
+                        return;
+                    }
+            }
+        }
+
+        private void OnEventNotificationMessage(object sender, WebSocketMessageEventArgs e)
+        {
+            if (e.Message.DtoGuid == DtoGuid)
+            {
+                Debug.WriteLine($"ProxyBase: Event {e.Message.MemberName} notified on {this} with value {e.Message.Response}");
+                if (e.Message.MemberName == nameof(INotifyPropertyChanged.PropertyChanged))
+                {
+                    PropertyChangedWithValueEventArgs eav = e.Message.Response as PropertyChangedWithValueEventArgs;
+                    if (eav != null)
+                    {
+                        Type type = GetType();
+                        PropertyInfo property =
+                            type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).FirstOrDefault(p => p.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Any(a => ((JsonPropertyAttribute)a).PropertyName == eav.PropertyName));
+                        if (property != null)
+                            Debug.WriteLine(property.Name);
+                        if (property == null)
+                            property = type.GetProperty(eav.PropertyName);
+                        //                        if (property.Name == "Commands")
+                        //                            Debug.WriteLine(property.Name);
+                        object value = eav.Value;
+                        if (property != null)
+                            MethodParametersAlignment.AlignType(ref value, property.PropertyType);
+                        Properties[eav.PropertyName] = value;
+                        NotifyPropertyChanged(eav.PropertyName);
+                    }
+                }
+                else OnEventNotification(e.Message);
+            }
+        }
+
 
     }
 }

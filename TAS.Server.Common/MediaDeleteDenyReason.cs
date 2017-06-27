@@ -6,7 +6,7 @@ namespace TAS.Server.Common
     [DataContract]
     public struct MediaDeleteDenyReason
     {
-        public static MediaDeleteDenyReason NoDeny = new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReasonEnum.NoDeny };
+        public static MediaDeleteDenyReason NoDeny = new MediaDeleteDenyReason { Reason = MediaDeleteDenyReasonEnum.NoDeny };
         public enum MediaDeleteDenyReasonEnum
         {
             NoDeny,

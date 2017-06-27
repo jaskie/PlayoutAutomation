@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using TAS.Server.Common.Database;
 
 namespace TAS.Client.Config.Model
 {
     public class Engines
     {
-        readonly List<Engine> _engines;
         internal readonly List<CasparServer> Servers;
         internal readonly ArchiveDirectories ArchiveDirectories;
         public readonly string ConnectionStringPrimary;
@@ -21,18 +17,18 @@ namespace TAS.Client.Config.Model
             try
             {
                 Database.Open();
-                _engines = Database.DbLoadEngines<Engine>();
+                EngineList = Database.DbLoadEngines<Engine>();
                 Servers = Database.DbLoadServers<CasparServer>();
                 Servers.ForEach(s =>
                 {
                     s.Channels.ForEach(c => c.Owner = s);
                     s.Recorders.ForEach(r => r.Owner = s);
                 });
-                _engines.ForEach(e =>
+                EngineList.ForEach(e =>
                     {
                         e.IsNew = false;
-                        e.Servers = this.Servers;
-                        e.ArchiveDirectories = this.ArchiveDirectories;
+                        e.Servers = Servers;
+                        e.ArchiveDirectories = ArchiveDirectories;
                     });
             }
             finally
@@ -46,7 +42,7 @@ namespace TAS.Client.Config.Model
             try
             {
                 Database.Open(ConnectionStringPrimary, ConnectionStringSecondary);
-                _engines.ForEach(e =>
+                EngineList.ForEach(e =>
                 {
                     if (e.IsModified)
                     {
@@ -64,7 +60,7 @@ namespace TAS.Client.Config.Model
             }
         }
 
-        public List<Engine> EngineList { get { return _engines; } }
+        public List<Engine> EngineList { get; }
         public List<Engine> DeletedEngines = new List<Engine>();
     }
 }

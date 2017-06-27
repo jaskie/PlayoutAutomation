@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,8 +15,19 @@ using TAS.Client.NDIVideoPreview.Interop;
 namespace TAS.Client.NDIVideoPreview
 {
     [Export(typeof(Common.Plugin.IVideoPreview))]
-    public class VideoPreviewViewmodel : ViewModels.ViewmodelBase, Common.Plugin.IVideoPreview
+    public class VideoPreviewViewmodel : ViewmodelBase, Common.Plugin.IVideoPreview
     {
+        private Dictionary<string, NDIlib_source_t> _ndiSources;
+        private readonly ObservableCollection<string> _videoSources;
+        private string _videoSource;
+        private IntPtr _ndiFindInstance;
+        private IntPtr _ndiReceiveInstance;
+        private Thread _ndiReceiveThread;
+        private volatile bool _exitReceiveThread;
+        private WriteableBitmap _videoBitmap;
+        private bool _displaySource;
+        private bool _displayPopup;
+
         public VideoPreviewViewmodel()
         {
             View = new VideoPreviewView { DataContext = this };
@@ -55,7 +64,7 @@ namespace TAS.Client.NDIVideoPreview
         {
             if (string.IsNullOrWhiteSpace(sourceUrl))
                 return;
-            Uri sourceUri = null;
+            Uri sourceUri;
             if ((Uri.TryCreate(sourceUrl, UriKind.Absolute, out sourceUri) && sourceUri.Scheme == "ndi")
                 || string.Equals(sourceUrl.Substring(0, sourceUrl.IndexOf(':')), "ndi", StringComparison.InvariantCultureIgnoreCase))
                 Application.Current.Dispatcher.BeginInvoke((Action)delegate
@@ -72,7 +81,7 @@ namespace TAS.Client.NDIVideoPreview
                         {
                             string host = address.Substring(0, address.IndexOf(':'));
                             string name = address.Substring(address.IndexOf(':') + 1);
-                            var ndi = _ndiSources.FirstOrDefault(s =>
+                            source = _ndiSources.FirstOrDefault(s =>
                                {
                                    string ndiFullAddress = Ndi.Utf8ToString(s.Value.p_ip_address);
                                    string ndiFullName = Ndi.Utf8ToString(s.Value.p_ndi_name);
@@ -119,24 +128,13 @@ namespace TAS.Client.NDIVideoPreview
 
         public WriteableBitmap VideoBitmap { get { return _videoBitmap; } private set { SetField(ref _videoBitmap, value); } }
 
+
         protected override void OnDispose()
         {
             Disconnect();
             if (_ndiFindInstance != IntPtr.Zero)
                 Ndi.NDIlib_find_destroy(_ndiFindInstance);
         }
-
-        // private members
-        private Dictionary<string, NDIlib_source_t> _ndiSources;
-        private ObservableCollection<string> _videoSources;
-        private string _videoSource;
-        private IntPtr _ndiFindInstance;
-        private IntPtr _ndiReceiveInstance;
-        private Thread _ndiReceiveThread = null;
-        private volatile bool _exitReceiveThread = false;
-        private WriteableBitmap _videoBitmap = null;
-        private bool _displaySource;
-        private bool _displayPopup;
 
         private void GotoNdiWebsite(object obj)
         {
@@ -150,20 +148,19 @@ namespace TAS.Client.NDIVideoPreview
             set { SetField(ref _displayPopup, value); }
         }
 
-
         private void RefreshSources(object obj)
         {
             if (_ndiFindInstance != IntPtr.Zero)
             {
                 int numSources = 0;
-                var ndi_sources = Ndi.NDIlib_find_get_current_sources(_ndiFindInstance, ref numSources);
+                var ndiSources = Ndi.NDIlib_find_get_current_sources(_ndiFindInstance, ref numSources);
                 if (numSources > 0)
                 {
-                    int SourceSizeInBytes = System.Runtime.InteropServices.Marshal.SizeOf(typeof(NDIlib_source_t));
+                    int sourceSizeInBytes = System.Runtime.InteropServices.Marshal.SizeOf(typeof(NDIlib_source_t));
                     Dictionary<string, NDIlib_source_t> sources = new Dictionary<string, NDIlib_source_t>();
                     for (int i = 0; i < numSources; i++)
                     {
-                        IntPtr p = IntPtr.Add(ndi_sources, (i * SourceSizeInBytes));
+                        IntPtr p = IntPtr.Add(ndiSources, (i * sourceSizeInBytes));
                         NDIlib_source_t src = (NDIlib_source_t)System.Runtime.InteropServices.Marshal.PtrToStructure(p, typeof(NDIlib_source_t));
                         var ndiName = Ndi.Utf8ToString(src.p_ndi_name);
                         sources.Add(ndiName, src);
@@ -244,16 +241,15 @@ namespace TAS.Client.NDIVideoPreview
                         int bufferSize = yres * stride;
                         Application.Current?.Dispatcher.BeginInvoke(new Action(delegate
                         {
-
                             if (VideoBitmap == null
                                 || VideoBitmap.PixelWidth != xres
                                 || VideoBitmap.PixelHeight != yres)
                                 VideoBitmap = new WriteableBitmap(xres, yres, 96, dpiY, System.Windows.Media.PixelFormats.Pbgra32, null);
 
                             // update the writeable bitmap
-                            VideoBitmap.Lock();
-                            VideoBitmap.WritePixels(new Int32Rect(0, 0, xres, yres), videoFrame.p_data, bufferSize, stride);
-                            VideoBitmap.Unlock();
+                            VideoBitmap?.Lock();
+                            VideoBitmap?.WritePixels(new Int32Rect(0, 0, xres, yres), videoFrame.p_data, bufferSize, stride);
+                            VideoBitmap?.Unlock();
                             Ndi.NDIlib_recv_free_video(recvInstance, ref videoFrame);
                         }));
                         break;

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using TAS.Client.Common;
@@ -16,7 +14,7 @@ namespace TAS.Client.ViewModels
         private IMedia _media;
         private IEvent _event;
         private readonly IPreview _preview;
-        private readonly IPlayoutServerChannel _channelPRV;
+        private readonly IPlayoutServerChannel _channelPrv;
         private readonly VideoFormatDescription _formatDescription;
         private IMediaSegment _lastAddedSegment;
         private bool _playWholeClip;
@@ -36,9 +34,9 @@ namespace TAS.Client.ViewModels
         public PreviewViewmodel(IPreview preview)
         {
             preview.PropertyChanged += PreviewPropertyChanged;
-            _channelPRV = preview.PlayoutChannelPRV;
-            if (_channelPRV != null)
-                _channelPRV.PropertyChanged += OnChannelPropertyChanged;
+            _channelPrv = preview.PlayoutChannelPRV;
+            if (_channelPrv != null)
+                _channelPrv.PropertyChanged += OnChannelPropertyChanged;
             _preview = preview;
             _formatDescription = _preview.FormatDescription;
             CreateCommands();
@@ -51,7 +49,7 @@ namespace TAS.Client.ViewModels
             get { return _media; }
             set
             {
-                if (_channelPRV != null)
+                if (_channelPrv != null)
                 {
                     IMedia oldVal = _media;
                     IMedia newVal = value;
@@ -112,17 +110,9 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public TimeSpan StartTc
-        {
-            get { return _startTc; }
-            private set { SetField(ref _startTc, value); }
-        }
+        public TimeSpan StartTc => _startTc;
 
-        public TimeSpan Duration
-        {
-            get { return _duration; }
-            private set { SetField(ref _duration, value); }
-        }
+        public TimeSpan Duration => _duration;
 
         public bool IsSegmentsVisible { get { return _isSegmentsVisible; } set { SetField(ref _isSegmentsVisible, value); } }
 
@@ -154,7 +144,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                return _preview.PreviewMedia == null ? TimeSpan.Zero : TimeSpan.FromTicks((long)((_preview.PreviewPosition + _preview.PreviewSeek) * TimeSpan.TicksPerSecond * _formatDescription.FrameRate.Den / _formatDescription.FrameRate.Num + _preview.PreviewMedia.TcStart.Ticks));
+                return _preview.PreviewMedia == null ? TimeSpan.Zero : TimeSpan.FromTicks((_preview.PreviewPosition + _preview.PreviewSeek) * TimeSpan.TicksPerSecond * _formatDescription.FrameRate.Den / _formatDescription.FrameRate.Num + _preview.PreviewMedia.TcStart.Ticks);
             }
             set
             {
@@ -236,7 +226,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsEnabled => _channelPRV?.IsServerConnected == true;
+        public bool IsEnabled => _channelPrv?.IsServerConnected == true;
         
         public bool IsSegmentNameFocused { get; set; }
         
@@ -365,6 +355,8 @@ namespace TAS.Client.ViewModels
                     {
                         MediaSegmentViewmodel msVm = _selectedSegment;
                         IPersistentMedia media = LoadedMedia as IPersistentMedia;
+                        if (media == null)
+                            return;
                         if (msVm == null)
                         {
                             _lastAddedSegment = media.MediaSegments.Add(TcIn, TcOut, SelectedSegmentName);
@@ -440,8 +432,8 @@ namespace TAS.Client.ViewModels
             if (LoadedMedia == _preview.PreviewMedia)
                 _preview.PreviewUnload();
             _preview.PropertyChanged -= PreviewPropertyChanged;
-            if (_channelPRV != null)
-                _channelPRV.PropertyChanged -= OnChannelPropertyChanged;
+            if (_channelPrv != null)
+                _channelPrv.PropertyChanged -= OnChannelPropertyChanged;
             LoadedMedia = null;
             SelectedSegment = null;
         }
@@ -541,31 +533,30 @@ namespace TAS.Client.ViewModels
 
         private void _mediaSegments_SegmentRemoved(object sender, MediaSegmentEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate
             {
                 IPersistentMedia media = _loadedMedia as IPersistentMedia;
-                if (media != null && sender == media.MediaSegments)
-                {
-                    var vM = _mediaSegments.FirstOrDefault(s => s.MediaSegment == e.Segment);
-                    if (vM != null)
-                        _mediaSegments.Remove(vM);
-                    if (_selectedSegment == vM)
-                        SelectedSegment = null;
-                }
+                if (media == null || sender != media.MediaSegments)
+                    return;
+                var vM = _mediaSegments.FirstOrDefault(s => s.MediaSegment == e.Segment);
+                if (vM != null)
+                    _mediaSegments.Remove(vM);
+                if (_selectedSegment == vM)
+                    SelectedSegment = null;
             });
         }
 
         private void _mediaSegments_SegmentAdded(object sender, MediaSegmentEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate 
             {
                 IPersistentMedia media = _loadedMedia as IPersistentMedia;
                 if (media != null && sender == media.MediaSegments)
                 {
-                    var newVM = new MediaSegmentViewmodel(media, e.Segment);
-                    _mediaSegments.Add(newVM);
+                    var newVm = new MediaSegmentViewmodel(media, e.Segment);
+                    _mediaSegments.Add(newVm);
                     if (e.Segment == _lastAddedSegment)
-                        SelectedSegment = newVM;
+                        SelectedSegment = newVm;
                 }
             });
         }

@@ -9,9 +9,9 @@ namespace TAS.Client.ViewModels
     {
         public EventPanelRundownViewmodel(IEvent ev, EventPanelViewmodelBase parent) : base(ev, parent)
         {
-            CommandAddSubMovie = new UICommand { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = o => _event.SubEventsCount == 0 };
-            CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = o => _event.SubEventsCount == 0 };
-            CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive, CanExecuteDelegate = o => _event.SubEventsCount == 0 };
+            CommandAddSubMovie = new UICommand { ExecuteDelegate = _addSubMovie, CanExecuteDelegate = o => Event.SubEventsCount == 0 };
+            CommandAddSubRundown = new UICommand { ExecuteDelegate = _addSubRundown, CanExecuteDelegate = o => Event.SubEventsCount == 0 };
+            CommandAddSubLive = new UICommand { ExecuteDelegate = _addSubLive, CanExecuteDelegate = o => Event.SubEventsCount == 0 };
         }
 
         public ICommand CommandAddSubRundown { get; }
@@ -27,12 +27,12 @@ namespace TAS.Client.ViewModels
 
         protected override bool CanAddNextMovie(object o)
         {
-            return _parent is EventPanelRundownViewmodel && base.CanAddNextMovie(o);
+            return Parent is EventPanelRundownViewmodel && base.CanAddNextMovie(o);
         }
 
         protected override bool CanAddNewLive(object o)
         {
-            return _parent is EventPanelRundownViewmodel && base.CanAddNewLive(o);
+            return Parent is EventPanelRundownViewmodel && base.CanAddNewLive(o);
         }
 
         protected override void OnDispose()
@@ -48,17 +48,17 @@ namespace TAS.Client.ViewModels
 
         private void _addSubLive(object obj)
         {
-            EngineViewmodel.AddSimpleEvent(_event, TEventType.Live, true);
+            EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, true);
         }
 
         private void _addSubRundown(object obj)
         {
-            EngineViewmodel.AddSimpleEvent(_event, TEventType.Rundown, true);
+            EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, true);
         }
 
         private void _addSubMovie(object obj)
         {
-            EngineViewmodel.AddMediaEvent(_event, TStartType.WithParent, TMediaType.Movie, VideoLayer.Program, false);
+            EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, TMediaType.Movie, VideoLayer.Program, false);
         }
 
     }

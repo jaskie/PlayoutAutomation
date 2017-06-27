@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
+using TAS.Client.Common;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
 
@@ -26,7 +27,7 @@ namespace TAS.Client.ViewModels
 
 
         readonly ObservableCollection<EventPanelAutoStartEventViewmodel> _fixedTimeEvents;
-        public ObservableCollection<EventPanelAutoStartEventViewmodel> FixedTimeEvents { get { return _fixedTimeEvents; } }
+        public ObservableCollection<EventPanelAutoStartEventViewmodel> FixedTimeEvents => _fixedTimeEvents;
 
 
         protected override void OnDispose()

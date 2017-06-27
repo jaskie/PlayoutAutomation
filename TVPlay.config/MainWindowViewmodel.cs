@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Client.ViewModels;
 
 namespace TAS.Client.Config
 {

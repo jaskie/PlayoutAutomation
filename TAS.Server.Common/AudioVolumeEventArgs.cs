@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace TAS.Server.Common
 {
@@ -11,6 +8,8 @@ namespace TAS.Server.Common
         {
             AudioVolume = audioVolume;
         }
-        public decimal AudioVolume { get; }
+
+        [Newtonsoft.Json.JsonProperty]
+        public decimal AudioVolume { get; private set; }
     }
 }

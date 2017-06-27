@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
-using System.Runtime.CompilerServices;
+using TAS.Client.Common;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
 
@@ -18,7 +15,6 @@ namespace TAS.Client.ViewModels
         private TimeSpan _tcIn;
         private TimeSpan _tcOut;
         private string _segmentName;
-        private bool _isModified;
 
         public MediaSegmentViewmodel(IPersistentMedia media, IMediaSegment mediaSegment)
         {
@@ -77,7 +73,7 @@ namespace TAS.Client.ViewModels
             var mediaSegment = _mediaSegment;
             if (mediaSegment != null)
             {
-                PropertyInfo[] copiedProperties = this.GetType().GetProperties();
+                PropertyInfo[] copiedProperties = GetType().GetProperties();
                 foreach (PropertyInfo copyPi in copiedProperties)
                 {
                     PropertyInfo sourcePi = mediaSegment.GetType().GetProperty(copyPi.Name);
@@ -87,7 +83,7 @@ namespace TAS.Client.ViewModels
             }
             else // mediaSegment is null
             {
-                PropertyInfo[] zeroedProperties = this.GetType().GetProperties();
+                PropertyInfo[] zeroedProperties = GetType().GetProperties();
                 foreach (PropertyInfo zeroPi in zeroedProperties)
                 {
                     PropertyInfo sourcePi = typeof(IMediaSegment).GetProperty(zeroPi.Name);
@@ -104,7 +100,7 @@ namespace TAS.Client.ViewModels
             var mediaSegment = _mediaSegment;
             if (IsModified && mediaSegment != null)
             {
-                PropertyInfo[] copiedProperties = this.GetType().GetProperties();
+                PropertyInfo[] copiedProperties = GetType().GetProperties();
                 foreach (PropertyInfo copyPi in copiedProperties)
                 {
                     PropertyInfo destPi = mediaSegment.GetType().GetProperty(copyPi.Name);
@@ -118,30 +114,7 @@ namespace TAS.Client.ViewModels
                 mediaSegment.Save();
             }
         }
-        
-        protected override bool SetField<T>(ref T field, T value, [CallerMemberName]string propertyName = null)
-        {
-            if (base.SetField(ref field, value, propertyName))
-            {
-                IsModified = true;
-                return true;
-            }
-            return false;
-        }
-        
-        public bool IsModified
-        {
-            get { return _isModified; }
-            private set
-            {
-                if (value != _isModified)
-                {
-                    _isModified = value;
-                    NotifyPropertyChanged(nameof(IsModified));
-                }
-            }
-        }
-
+       
         public string DisplayName { get; protected set; }
 
         public bool IsSelected { get; set; }
@@ -153,10 +126,10 @@ namespace TAS.Client.ViewModels
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate 
             {
                 PropertyInfo sourcePi = _mediaSegment.GetType().GetProperty(e.PropertyName);
-                PropertyInfo destPi = this.GetType().GetProperty(e.PropertyName);
+                PropertyInfo destPi = GetType().GetProperty(e.PropertyName);
                 if (sourcePi != null && destPi != null)
                 {
                     bool oldModified = IsModified;

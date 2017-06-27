@@ -17,20 +17,20 @@ namespace TAS.Client.ViewModels
 
         public EventPanelAutoStartEventViewmodel(IEvent ev):base(ev, null) { }
 
-        public string ScheduledDate => _event.ScheduledTime.ToLocalTime().ToString("d");
+        public string ScheduledDate => Event.ScheduledTime.ToLocalTime().ToString("d");
 
         public TAutoStartPlayState AutoStartPlayState
         {
             get
             {
-                if (!_event.IsEnabled)
+                if (!Event.IsEnabled)
                     return TAutoStartPlayState.Disabled;
-                if (_event.PlayState == TPlayState.Playing)
+                if (Event.PlayState == TPlayState.Playing)
                     return TAutoStartPlayState.Playing;
-                if (_event.PlayState == TPlayState.Played)
+                if (Event.PlayState == TPlayState.Played)
                     return TAutoStartPlayState.Played;
-                if (_event.PlayState == TPlayState.Scheduled)
-                    if (_engine.CurrentTime < _event.ScheduledTime || (_event.AutoStartFlags & AutoStartFlags.Daily )!= AutoStartFlags.None)
+                if (Event.PlayState == TPlayState.Scheduled)
+                    if (Engine.CurrentTime < Event.ScheduledTime || (Event.AutoStartFlags & AutoStartFlags.Daily )!= AutoStartFlags.None)
                         return TAutoStartPlayState.ScheduledFuture;
                 else
                 return TAutoStartPlayState.ScheduledPast;

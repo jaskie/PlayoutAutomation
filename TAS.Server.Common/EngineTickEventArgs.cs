@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace TAS.Server.Common
 {
@@ -12,7 +9,11 @@ namespace TAS.Server.Common
             CurrentTime = currentTime;
             TimeToAttention = timeToAttention;
         }
-        public DateTime CurrentTime { get; }
-        public TimeSpan TimeToAttention { get; }
+
+        [Newtonsoft.Json.JsonProperty]
+        public DateTime CurrentTime { get; private set; }
+
+        [Newtonsoft.Json.JsonProperty]
+        public TimeSpan TimeToAttention { get; private set; }
     }
 }

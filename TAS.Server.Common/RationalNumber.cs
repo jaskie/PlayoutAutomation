@@ -73,9 +73,9 @@ namespace TAS.Server.Common
         {
             if (r1.IsZero)
             {
-                return RationalNumber.Zero;
+                return Zero;
             }
-            else if (r2.IsZero)
+            if (r2.IsZero)
             {
                 throw new DivideByZeroException();
             }
@@ -92,16 +92,17 @@ namespace TAS.Server.Common
                                 r1.Den * r2.Den);
         }
 
-        static public implicit operator double(RationalNumber value)
+        public static implicit operator double(RationalNumber value)
         {
             return (double)value.Num / value.Den;
         }
 
-        static public implicit operator long(RationalNumber value)
+        public static implicit operator long(RationalNumber value)
         {
             return value.Num / value.Den;
         }
-        static public implicit operator int(RationalNumber value)
+
+        public static implicit operator int(RationalNumber value)
         {
             return (int)(value.Num / value.Den);
         }

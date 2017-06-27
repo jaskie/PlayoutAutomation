@@ -12,7 +12,7 @@ namespace TAS.Server.Common
         #region Constructors
         private VideoFormatDescription(TVideoFormat format)
         {
-            this.Format = format;
+            Format = format;
             switch (format)
             {
                 case TVideoFormat.Other:
@@ -294,9 +294,6 @@ namespace TAS.Server.Common
         public TimeSpan FrameDuration => FrameRate.IsZero ? TimeSpan.Zero : new TimeSpan(TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num);
         public long FrameTicks => FrameRate.IsZero ? 0L : TimeSpan.TicksPerSecond * FrameRate.Den / FrameRate.Num;
 
-        public override string ToString()
-        {
-            return Enum.GetName(typeof(TVideoFormat), Format);
-        }
+        public override string ToString() => Enum.GetName(typeof(TVideoFormat), Format);
     }
 }

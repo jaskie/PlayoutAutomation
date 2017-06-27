@@ -17,7 +17,7 @@ namespace TAS.Remoting.Model
             Debug.WriteLine("Engine created.");
         }
 
-        public DateTime CurrentTime { get { return Get<DateTime>(); } }
+        public DateTime CurrentTime => Get<DateTime>();
 
         public string EngineName { get { return Get<string>(); } set { SetLocalValue(value); } }
 
@@ -34,7 +34,7 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEngine.CGElementsController))]
         private CGElementsController _cGElementsController { get { return Get<CGElementsController>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
-        public ICGElementsController CGElementsController { get { return _cGElementsController; } }
+        public ICGElementsController CGElementsController => _cGElementsController;
 
         public bool EnableCGElementsForNewEvents { get { return Get<bool>(); } set { SetLocalValue(value); } }
 
@@ -95,7 +95,7 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEngine.Playing))]
         private Event _playing { get { return Get<Event>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
-        public IEvent Playing { get { return _playing; } }
+        public IEvent Playing => _playing;
 
         public List<IEvent> FixedTimeEvents
         {
@@ -217,8 +217,8 @@ namespace TAS.Remoting.Model
 #endif
             }
         }
-        event EventHandler<IEventEventArgs> _eventSaved;
-        public event EventHandler<IEventEventArgs> EventSaved
+        event EventHandler<EventEventArgs> _eventSaved;
+        public event EventHandler<EventEventArgs> EventSaved
         {
             add
             {
@@ -231,8 +231,8 @@ namespace TAS.Remoting.Model
                 EventRemove(_eventSaved);
             }
         }
-        event EventHandler<IEventEventArgs> _eventDeleted;
-        public event EventHandler<IEventEventArgs> EventDeleted
+        event EventHandler<EventEventArgs> _eventDeleted;
+        public event EventHandler<EventEventArgs> EventDeleted
         {
             add
             {
@@ -248,7 +248,9 @@ namespace TAS.Remoting.Model
         // do not implement this in remote client as is used only for debugging puproses
         public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
         // do not implement this in remote client as is used only for debugging puproses
-        public event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
+        public event EventHandler<EventEventArgs> VisibleEventAdded;
+        // do not implement this in remote client as is used only for debugging puproses
+        public event EventHandler<EventEventArgs> VisibleEventRemoved;
         // do not implement this in remote client as is used only for debugging puproses
         public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
 
@@ -263,10 +265,10 @@ namespace TAS.Remoting.Model
                     _engineOperation?.Invoke(this, ConvertEventArgs<EngineOperationEventArgs>(e));
                     break;
                 case nameof(IEngine.EventSaved):
-                    _eventSaved?.Invoke(this, ConvertEventArgs<IEventEventArgs>(e));
+                    _eventSaved?.Invoke(this, ConvertEventArgs<EventEventArgs>(e));
                     break;
                 case nameof(IEngine.EventDeleted):
-                    _eventDeleted?.Invoke(this, ConvertEventArgs<IEventEventArgs>(e));
+                    _eventDeleted?.Invoke(this, ConvertEventArgs<EventEventArgs>(e));
                     break;
             }
         }

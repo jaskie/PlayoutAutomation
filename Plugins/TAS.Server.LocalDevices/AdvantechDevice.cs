@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using Automation.BDaq;
 using System.Xml.Serialization;
 
@@ -10,12 +8,14 @@ namespace TAS.Server
 {
     public class AdvantechDevice : IDisposable
     {
-        DeviceInformation _deviceInformation;
-        InstantDiCtrl _di;
-        InstantDoCtrl _do;
+        private DeviceInformation _deviceInformation;
+        private InstantDiCtrl _di;
+        private InstantDoCtrl _do;
+        private int _disposed;
+        private readonly object _writeLock = new object();
 
-        [NonSerialized]
-        public byte[] inputPortState;
+        [XmlIgnore]
+        public byte[] InputPortState;
 
         [XmlAttribute]
         public byte DeviceId;
@@ -29,7 +29,7 @@ namespace TAS.Server
             _di = new InstantDiCtrl();
             _di.SelectedDevice = _deviceInformation;
             InputPortCount = _di.Features.PortCount;
-            inputPortState = new byte[InputPortCount];
+            InputPortState = new byte[InputPortCount];
             _do = new InstantDoCtrl();
             _do.SelectedDevice = _deviceInformation;
             OutputPortCount = _do.Features.PortCount;
@@ -37,16 +37,15 @@ namespace TAS.Server
 
         public bool Read(int port, out byte currentData, out byte oldData)
         {
-            oldData = inputPortState[port];
+            oldData = InputPortState[port];
             bool ret = _di.Read(port, out currentData) == ErrorCode.Success;
-            inputPortState[port] = currentData;
+            InputPortState[port] = currentData;
             return ret;
         }
 
-        object writeLock = new object();
         public bool Write(int port, int pin, bool value)
         {
-            lock (writeLock)
+            lock (_writeLock)
             {
                 byte portValue;
                 if (_do.Read(port, out portValue) == ErrorCode.Success)
@@ -61,16 +60,12 @@ namespace TAS.Server
             return false;
         }
 
-        bool disposed = false;
         public void Dispose()
         {
-            if (!disposed)
+            if (Interlocked.Exchange(ref _disposed, 1) == default(int))
             {
-                disposed = true;
-                if (_di != null)
-                    _di.Dispose();
-                if (_do != null)
-                    _do.Dispose();
+                _di?.Dispose();
+                _do?.Dispose();
             }
         }
     }

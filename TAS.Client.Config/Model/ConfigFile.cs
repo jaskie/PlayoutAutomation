@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Data.Common;
 using System.Configuration;
 
 namespace TAS.Client.Config.Model
@@ -47,7 +43,7 @@ namespace TAS.Client.Config.Model
             {
                 object newValue = setting.GetValue(appSettings, null);
                 if (_configuration.AppSettings.Settings[setting.Name] == null)
-                    _configuration.AppSettings.Settings.Add(setting.Name, newValue == null ? string.Empty : newValue.ToString());
+                    _configuration.AppSettings.Settings.Add(setting.Name, newValue?.ToString() ?? string.Empty);
                 else
                     _configuration.AppSettings.Settings[setting.Name].Value = newValue == null ? string.Empty : setting.GetValue(appSettings, null).ToString();
             }
@@ -73,6 +69,6 @@ namespace TAS.Client.Config.Model
         }
         public AppSettings appSettings { get; set; }
 
-        public string FileName { get { return _configuration.FilePath; } }
+        public string FileName => _configuration.FilePath;
     }
 }

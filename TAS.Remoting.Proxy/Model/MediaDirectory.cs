@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Net;
-using System.Runtime.Serialization;
-using System.Text;
-using TAS.Remoting;
 using TAS.Remoting.Client;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
@@ -14,14 +8,11 @@ namespace TAS.Remoting.Model
 {
     public abstract class MediaDirectory : ProxyBase, IMediaDirectory
     {
-        public MediaDirectory()
-        {
-        }
         public TDirectoryAccessType AccessType { get; set; }
         public string DirectoryName { get { return Get<string>(); } set { Set(value); } }
 
         private List<IMedia> _files;
-        public  ICollection<IMedia> GetFiles()
+        public  IList<IMedia> GetFiles()
         {
             _files = Query<List<IMedia>>();
             return _files;
@@ -38,74 +29,74 @@ namespace TAS.Remoting.Model
         public long VolumeTotalSize { get { return Get<long>(); } internal set { Set(value); } }
 
         #region Event handling
-        event EventHandler<MediaEventArgs> _mediaAdded;
+        private event EventHandler<MediaEventArgs> MediaAddedEvent;
         public event EventHandler<MediaEventArgs> MediaAdded
         {
             add
             {
-                EventAdd(_mediaAdded);
-                _mediaAdded += value;
+                EventAdd(MediaAddedEvent);
+                MediaAddedEvent += value;
             }
             remove
             {
-                _mediaAdded -= value;
-                EventRemove(_mediaAdded);
+                MediaAddedEvent -= value;
+                EventRemove(MediaAddedEvent);
             }
         }
 
-        event EventHandler<MediaEventArgs> _mediaRemoved;
+        private event EventHandler<MediaEventArgs> MediaRemovedEvent;
         public event EventHandler<MediaEventArgs> MediaRemoved
         {
             add
             {
-                EventAdd(_mediaRemoved);
-                _mediaRemoved += value;
+                EventAdd(MediaRemovedEvent);
+                MediaRemovedEvent += value;
             }
             remove
             {
-                _mediaRemoved -= value;
-                EventRemove(_mediaRemoved);
+                MediaRemovedEvent -= value;
+                EventRemove(MediaRemovedEvent);
             }
         }
 
-        event EventHandler<MediaEventArgs> _mediaDeleted;
+        private event EventHandler<MediaEventArgs> MediaDeletedEvent;
         public event EventHandler<MediaEventArgs> MediaDeleted
         {
             add
             {
-                EventAdd(_mediaDeleted);
-                _mediaDeleted += value;
+                EventAdd(MediaDeletedEvent);
+                MediaDeletedEvent += value;
             }
             remove
             {
-                _mediaDeleted -= value;
-                EventRemove(_mediaDeleted);
+                MediaDeletedEvent -= value;
+                EventRemove(MediaDeletedEvent);
             }
         }
 
-        event EventHandler<MediaEventArgs> _mediaVerified;
+        private event EventHandler<MediaEventArgs> MediaVerifiedEvent;
         public event EventHandler<MediaEventArgs> MediaVerified
         {
             add
             {
-                EventAdd(_mediaVerified);
-                _mediaVerified += value;
+                EventAdd(MediaVerifiedEvent);
+                MediaVerifiedEvent += value;
             }
             remove
             {
-                _mediaVerified -= value;
-                EventRemove(_mediaVerified);
+                MediaVerifiedEvent -= value;
+                EventRemove(MediaVerifiedEvent);
             }
         }
 
         protected override void OnEventNotification(WebSocketMessage e)
         {
             if (e.MemberName == nameof(MediaAdded))
-                    _mediaAdded?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
+                    MediaAddedEvent?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
             if (e.MemberName == nameof(MediaRemoved))
-                _mediaRemoved?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
+                MediaRemovedEvent?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
             if (e.MemberName == nameof(MediaVerified))
-                _mediaVerified?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
+                MediaVerifiedEvent?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
         }
 
         #endregion // Ehent handling

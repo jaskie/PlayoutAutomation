@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Serialization;
-using TAS.Server.Common;
+﻿using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
@@ -25,7 +20,7 @@ namespace TAS.Client.Config.Model
         internal object Owner;
         public override string ToString()
         {
-            return string.Format("{0} - {1}", Owner, ChannelName);
+            return $"{Owner} - {ChannelName}";
         }
     }
 }

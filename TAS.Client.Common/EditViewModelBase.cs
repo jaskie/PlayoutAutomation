@@ -3,55 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Xml.Serialization;
 
 namespace TAS.Client.Common
 {
-    public abstract class EditViewmodelBase<M> : ViewModels.ViewmodelBase 
+    public abstract class EditViewmodelBase<M> : ViewmodelBase 
     {
         public readonly M Model;
         public readonly UserControl _editor;
-        public EditViewmodelBase(M model, UserControl editor)
+
+        protected EditViewmodelBase(M model, UserControl editor)
         {
             Model = model;
             _editor = editor;
             ModelLoad();
             if (editor != null)
                 editor.DataContext = this;
-        }
-
-        protected bool _isModified;
-        protected virtual void OnModified()
-        {
-            Modified?.Invoke(this, EventArgs.Empty);
-            InvalidateRequerySuggested();
-            NotifyPropertyChanged(nameof(IsModified));
-        }
-
-        [XmlIgnore]
-        public virtual bool IsModified
-        {
-            get { return _isModified; }
-            protected set
-            {
-                if (base.SetField(ref _isModified, value)
-                    && value)
-                    OnModified();
-            }
-        }
-
-        public event EventHandler Modified;
-
-        protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-        {
-            bool isModified = base.SetField(ref field, value, propertyName);
-            if (isModified)
-                IsModified = true;
-            return isModified;
         }
 
         protected virtual void ModelLoad(object source = null)
@@ -87,7 +55,7 @@ namespace TAS.Client.Common
         }
 
         [XmlIgnore]
-        public UserControl Editor { get { return _editor; } }
+        public UserControl Editor => _editor;
 
         public override string ToString()
         {

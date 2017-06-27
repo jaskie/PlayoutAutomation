@@ -27,7 +27,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandPaste => EngineViewmodel.CommandPasteSelected;
         public ICommand CommandAddSubRundown { get; }
 
-        public int ChildrenCount => _event.SubEventsCount;
+        public int ChildrenCount => Event.SubEventsCount;
 
         public override bool IsVisible
         {
@@ -37,9 +37,9 @@ namespace TAS.Client.ViewModels
                 if (SetField(ref _isVisible, value))
                 {
                     if (value)
-                        HiddenEventsStorage.Remove(_event);
+                        HiddenEventsStorage.Remove(Event);
                     else
-                        HiddenEventsStorage.Add(_event);
+                        HiddenEventsStorage.Add(Event);
                     if (!value)
                         IsSelected = false;
                     Root.NotifyContainerVisibility();
@@ -55,7 +55,7 @@ namespace TAS.Client.ViewModels
 
         private void _addSubRundown(object o)
         {
-            EngineViewmodel.AddSimpleEvent(_event, TEventType.Rundown, true);
+            EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, true);
         }
     }
 }

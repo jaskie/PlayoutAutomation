@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Collections.Concurrent;
 using System.Collections;
 
 namespace TAS.Server.Common
 {
-    public enum TDictionaryOperation {Add, Remove};
+    public enum DictionaryOperation {Add, Remove}
 
     public class SimpleDictionary<TKey, TValue>: IDictionary<TKey, TValue>
     {
@@ -44,13 +43,13 @@ namespace TAS.Server.Common
                     _dict[key] = value;
                 }
                 if (val == null && value != null)
-                    NotifyDictionaryOperation(key, value, TDictionaryOperation.Add);
+                    NotifyDictionaryOperation(key, value, Common.DictionaryOperation.Add);
                 if (val != null && value == null)
-                    NotifyDictionaryOperation(key, val, TDictionaryOperation.Remove);
+                    NotifyDictionaryOperation(key, val, Common.DictionaryOperation.Remove);
                 if (val != null && value != null)
                 {
-                    NotifyDictionaryOperation(key, val, TDictionaryOperation.Remove);
-                    NotifyDictionaryOperation(key, value, TDictionaryOperation.Add);
+                    NotifyDictionaryOperation(key, val, Common.DictionaryOperation.Remove);
+                    NotifyDictionaryOperation(key, value, Common.DictionaryOperation.Add);
                 }
             }
         }
@@ -59,7 +58,7 @@ namespace TAS.Server.Common
         {
             if (_dict.TryRemove(key, out value))
             {
-                NotifyDictionaryOperation(key, value, TDictionaryOperation.Remove);
+                NotifyDictionaryOperation(key, value, Common.DictionaryOperation.Remove);
                 return true;
             }
             return false;
@@ -80,7 +79,7 @@ namespace TAS.Server.Common
         public void Clear()
         {
             foreach (TKey k in _dict.Keys.ToList())
-                NotifyDictionaryOperation(k, this[k], TDictionaryOperation.Remove);
+                NotifyDictionaryOperation(k, this[k], Common.DictionaryOperation.Remove);
             _dict.Clear();
         }
 
@@ -99,7 +98,7 @@ namespace TAS.Server.Common
             TValue removed;
             if (_dict.TryRemove(key, out removed))
             {
-                NotifyDictionaryOperation(key, removed, TDictionaryOperation.Remove);
+                NotifyDictionaryOperation(key, removed, Common.DictionaryOperation.Remove);
                 return true;
             }
             return false;
@@ -128,7 +127,7 @@ namespace TAS.Server.Common
                 TValue removed;
                 if (_dict.TryRemove(item.Key, out removed))
                 {
-                    NotifyDictionaryOperation(item.Key, removed, TDictionaryOperation.Remove);
+                    NotifyDictionaryOperation(item.Key, removed, Common.DictionaryOperation.Remove);
                     return true;
                 }
             }
@@ -147,7 +146,7 @@ namespace TAS.Server.Common
 
         public event EventHandler<DictionaryOperationEventArgs<TKey, TValue>> DictionaryOperation;
 
-        private void NotifyDictionaryOperation(TKey key, TValue value, TDictionaryOperation operation)
+        private void NotifyDictionaryOperation(TKey key, TValue value, DictionaryOperation operation)
         {
             DictionaryOperation?.Invoke(this, new DictionaryOperationEventArgs<TKey, TValue>(key, value, operation));
         }
@@ -155,13 +154,13 @@ namespace TAS.Server.Common
 
     public class DictionaryOperationEventArgs<TKey, TValue> : EventArgs
     {
-        public DictionaryOperationEventArgs(TKey key, TValue value, TDictionaryOperation operation)
+        public DictionaryOperationEventArgs(TKey key, TValue value, DictionaryOperation operation)
         {
             Operation  = operation;
             Key = key;
             Value = value;
         }
-        public TDictionaryOperation Operation { get; private set; }
+        public DictionaryOperation Operation { get; private set; }
         public TKey Key { get; private set; }
         public TValue Value { get; private set; }
     }

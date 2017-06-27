@@ -82,7 +82,7 @@
     <Compile Include="FileUtils.cs" />
     <Compile Include="Interfaces\IEnginePlugin.cs" />
     <Compile Include="Interfaces\IEnginePluginFactory.cs" />
-    <Compile Include="IEventEventArgs.cs" />
+    <Compile Include="EventEventArgs.cs" />
     <Compile Include="Interfaces\IAnimationDirectory.cs" />
     <Compile Include="Interfaces\IArchiveDirectory.cs" />
     <Compile Include="Interfaces\IArchiveMedia.cs" />
@@ -140,7 +140,6 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="RationalNumber.cs" />
-    <Compile Include="SerializationHelper.cs" />
     <Compile Include="SimpleDictionary.cs" />
     <Compile Include="SMPTETimecodeExtensions.cs" />
     <Compile Include="VideoFormatDescription.cs" />

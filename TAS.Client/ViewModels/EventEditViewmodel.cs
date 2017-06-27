@@ -25,7 +25,6 @@ namespace TAS.Client.ViewModels
         private bool _isLoading;
         private IMedia _media;
         private bool _isVolumeChecking;
-        private bool _isModified;
         private TEventType _eventType;
         private string _eventName;
         private string _command;
@@ -99,7 +98,7 @@ namespace TAS.Client.ViewModels
                     throw new InvalidOperationException("Edit event engine invalid");
                 if (value != ev)
                 {
-                    if (this.IsModified
+                    if (IsModified
                     && MessageBox.Show(String.Format(resources._query_SaveChangedData, this), resources._caption_Confirmation, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         _save(null);
                     if (ev != null)
@@ -157,43 +156,6 @@ namespace TAS.Client.ViewModels
             }
         }
         
-        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType, VideoFormatDescription videoFormatDescription = null)
-        {
-            if (_mediaSearchViewModel == null)
-            {
-                _mediaSearchViewModel = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, mediaType, VideoLayer.Program, true, videoFormatDescription);
-                _mediaSearchViewModel.BaseEvent = baseEvent;
-                _mediaSearchViewModel.NewEventStartType = startType;
-                _mediaSearchViewModel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
-                _mediaSearchViewModel.SearchWindowClosed += _searchWindowClosed;
-            }
-        }
-        
-        private void _searchWindowClosed(object sender, EventArgs e)
-        {
-            MediaSearchViewmodel mvs = (MediaSearchViewmodel)sender;
-            mvs.SearchWindowClosed -= _searchWindowClosed;
-            mvs.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
-            _mediaSearchViewModel.Dispose();
-            _mediaSearchViewModel = null;
-        }        
-
-        private void _mediaSearchViewModelMediaChoosen(object o, MediaSearchEventArgs e)
-        {
-            if (e.Media != null)
-            {
-                if (e.Media.MediaType == TMediaType.Movie)
-                {
-                    Media = e.Media;
-                    Duration = e.Duration;
-                    ScheduledTc = e.TCIn;
-                    AudioVolume = null;
-                    EventName = e.MediaName;
-                    _setCGElements(e.Media);
-                }
-            }
-        }
-
         public IMedia Media
         {
             get { return _media; }
@@ -213,17 +175,6 @@ namespace TAS.Client.ViewModels
             }
         }
         
-        public bool IsModified
-        {
-            get { return _isModified; }
-            private set
-            {
-                _isModified = value;
-                if (value)
-                    InvalidateRequerySuggested();
-            }
-        }
-
         public TEventType EventType
         {
             get { return _eventType; }
@@ -272,8 +223,8 @@ namespace TAS.Client.ViewModels
             get { return _eventType == TEventType.Animation; }
         }
 
-        public bool IsCommandScript { get { return _event is ICommandScript; } }
-        
+        public bool IsCommandScript => _event is ICommandScript;
+
         #region ICGElementsState
         bool _isCGEnabled;
         byte _crawl;
@@ -304,17 +255,18 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        static readonly Array _methods = Enum.GetValues(typeof(TemplateMethod));
-        public Array Methods { get { return _methods; } }
+        public Array Methods { get; } = Enum.GetValues(typeof(TemplateMethod));
 
         private TemplateMethod _method;
         public TemplateMethod Method { get { return _method; }  set { SetField(ref _method, value); } }
 
-        public bool KeyIsReadOnly { get { return true; } }
+        public bool KeyIsReadOnly => true;
 
-        public ICommand CommandEditField { get; private set; }
-        public ICommand CommandAddField { get; private set; }
-        public ICommand CommandDeleteField { get; private set; }
+        public ICommand CommandEditField { get; }
+
+        public ICommand CommandAddField { get; } = null;
+
+        public ICommand CommandDeleteField { get; } = null;
 
         #endregion //ITemplatedEdit
 
@@ -343,6 +295,7 @@ namespace TAS.Client.ViewModels
         }
 
         public bool CanHold => _event != null && _event.Prior != null;
+
         public bool CanLoop => _event != null && _event.GetSuccessor() == null;
 
         public bool IsEnabled
@@ -433,7 +386,7 @@ namespace TAS.Client.ViewModels
                 if (ev == null)
                     return string.Empty;
                 TStartType st = ev.StartType;
-                IEvent boundEvent = ev == null ? null : (st == TStartType.WithParent || st == TStartType.WithParentFromEnd) ? ev.Parent : (st == TStartType.After) ? ev.Prior : null;
+                IEvent boundEvent = st == TStartType.WithParent || st == TStartType.WithParentFromEnd ? ev.Parent : (st == TStartType.After) ? ev.Prior : null;
                 return boundEvent == null ? string.Empty : boundEvent.EventName;
             }
         }
@@ -700,15 +653,20 @@ namespace TAS.Client.ViewModels
         public IEnumerable<ICGElement> Crawls => _engine.CGElementsController?.Crawls;
         public IEnumerable<ICGElement> Parentals => _engine.CGElementsController?.Parentals;
 
+        public override string ToString()
+        {
+            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {EventName}";
+        }
+
         internal void _previewPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(Media))
                 InvalidateRequerySuggested();
         }
 
-        protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        protected override bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null, bool setIsModified = true)
         {
-            if (base.SetField(ref field, value, propertyName))
+            if (base.SetField(ref field, value, propertyName, setIsModified))
             {
                 if (!_isLoading &&
                     (propertyName != nameof(ScheduledTime) || IsStartEvent))
@@ -732,7 +690,7 @@ namespace TAS.Client.ViewModels
             IEvent e2Save = Event;
             if (IsModified && e2Save != null)
             {
-                PropertyInfo[] copiedProperties = this.GetType().GetProperties();
+                PropertyInfo[] copiedProperties = GetType().GetProperties();
                 foreach (PropertyInfo copyPi in copiedProperties)
                 {
                     PropertyInfo destPi = e2Save.GetType().GetProperty(copyPi.Name);
@@ -761,7 +719,7 @@ namespace TAS.Client.ViewModels
                 IEvent e2Load = _event;
                 if (e2Load != null)
                 {
-                    PropertyInfo[] copiedProperties = this.GetType().GetProperties();
+                    PropertyInfo[] copiedProperties = GetType().GetProperties();
                     foreach (PropertyInfo copyPi in copiedProperties)
                     {
                         PropertyInfo sourcePi = e2Load.GetType().GetProperty(copyPi.Name);
@@ -775,7 +733,7 @@ namespace TAS.Client.ViewModels
                 }
                 else // _event is null
                 {
-                    PropertyInfo[] zeroedProperties = this.GetType().GetProperties();
+                    PropertyInfo[] zeroedProperties = GetType().GetProperties();
                     foreach (PropertyInfo zeroPi in zeroedProperties)
                     {
                         PropertyInfo sourcePi = typeof(IEvent).GetProperty(zeroPi.Name);
@@ -812,7 +770,6 @@ namespace TAS.Client.ViewModels
             var editObject = obj ?? SelectedField;
             if (editObject != null)
             {
-                var kv = (KeyValuePair<string, string>)editObject;
                 var kve = new KeyValueEditViewmodel((KeyValuePair<string, string>)editObject, true);
                 if (kve.ShowDialog() == true)
                     _fields[kve.Key] = kve.Value;
@@ -919,7 +876,7 @@ namespace TAS.Client.ViewModels
         
         private void PreviewViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (_previewViewModel.LoadedMedia == this.Media
+            if (_previewViewModel.LoadedMedia == Media
                 && IsEditEnabled
                 && (e.PropertyName == nameof(PreviewViewmodel.TcIn) || e.PropertyName == nameof(PreviewViewmodel.TcOut))
                 && _previewViewModel.SelectedSegment == null)
@@ -936,15 +893,15 @@ namespace TAS.Client.ViewModels
 
         private void _eventPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate
             {
-                bool oldModified = _isModified;
+                bool oldModified = IsModified;
                 PropertyInfo sourcePi = sender.GetType().GetProperty(e.PropertyName);
-                PropertyInfo destPi = this.GetType().GetProperty(e.PropertyName);
+                PropertyInfo destPi = GetType().GetProperty(e.PropertyName);
                 if (sourcePi != null && destPi != null
-                    && sourcePi.PropertyType.Equals(destPi.PropertyType))
+                    && sourcePi.PropertyType == destPi.PropertyType)
                     destPi.SetValue(this, sourcePi.GetValue(sender, null), null);
-                _isModified = oldModified;
+                IsModified = oldModified;
             });
             if (e.PropertyName == nameof(IEvent.PlayState))
             {
@@ -1065,10 +1022,45 @@ namespace TAS.Client.ViewModels
             return validationResult;
         }
 
-        public override string ToString()
+        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType, VideoFormatDescription videoFormatDescription = null)
         {
-            return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {EventName}";
+            if (_mediaSearchViewModel == null)
+            {
+                _mediaSearchViewModel = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager, mediaType, VideoLayer.Program, true, videoFormatDescription);
+                _mediaSearchViewModel.BaseEvent = baseEvent;
+                _mediaSearchViewModel.NewEventStartType = startType;
+                _mediaSearchViewModel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
+                _mediaSearchViewModel.SearchWindowClosed += _searchWindowClosed;
+            }
         }
+
+        private void _searchWindowClosed(object sender, EventArgs e)
+        {
+            MediaSearchViewmodel mvs = (MediaSearchViewmodel)sender;
+            mvs.SearchWindowClosed -= _searchWindowClosed;
+            mvs.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
+            _mediaSearchViewModel.Dispose();
+            _mediaSearchViewModel = null;
+        }
+
+        private void _mediaSearchViewModelMediaChoosen(object o, MediaSearchEventArgs e)
+        {
+            if (e.Media != null)
+            {
+                if (e.Media.MediaType == TMediaType.Movie)
+                {
+                    Media = e.Media;
+                    Duration = e.Duration;
+                    ScheduledTc = e.TCIn;
+                    AudioVolume = null;
+                    EventName = e.MediaName;
+                    _setCGElements(e.Media);
+                }
+            }
+        }
+
+
+        
 
     }
 

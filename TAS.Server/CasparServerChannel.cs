@@ -425,7 +425,7 @@ namespace TAS.Server
                 channel.Clip((int)layer, x, y, sx, sy, duration, (Easing)easing);
                 return true;
             }
-            match = EventExtensions.RegexClearMixer.Match(command);
+            match = EventExtensions.RegexMixerClear.Match(command);
             if (match.Success)
             {
                 VideoLayer layer = (VideoLayer)Enum.Parse(typeof(VideoLayer), match.Groups["layer"].Value, true);

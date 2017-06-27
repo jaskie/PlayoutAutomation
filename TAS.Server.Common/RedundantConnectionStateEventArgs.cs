@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 
 namespace TAS.Server.Common
 {
@@ -58,7 +55,9 @@ namespace TAS.Server.Common
             OldState = oldState;
             NewState = newState;
         }
-        public ConnectionStateRedundant OldState { get; }
-        public ConnectionStateRedundant NewState { get; }
+        [Newtonsoft.Json.JsonProperty]
+        public ConnectionStateRedundant OldState { get; private set; }
+        [Newtonsoft.Json.JsonProperty]
+        public ConnectionStateRedundant NewState { get; private set; }
     }
 }

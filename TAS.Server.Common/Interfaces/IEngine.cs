@@ -19,42 +19,43 @@ namespace TAS.Server.Common.Interfaces
         IEnumerable<IEvent> GetRootEvents();
         void AddRootEvent(IEvent ev);
         List<IEvent> FixedTimeEvents { get; }
+
         IEvent CreateNewEvent(
-                    UInt64 idRundownEvent = 0,
-                    UInt64 idEventBinding = 0,
-                    VideoLayer videoLayer = VideoLayer.None,
-                    TEventType eventType = TEventType.Rundown,
-                    TStartType startType = TStartType.None,
-                    TPlayState playState = TPlayState.Scheduled,
-                    DateTime scheduledTime = default(DateTime),
-                    TimeSpan duration = default(TimeSpan),
-                    TimeSpan scheduledDelay = default(TimeSpan),
-                    TimeSpan scheduledTC = default(TimeSpan),
-                    Guid mediaGuid = default(Guid),
-                    string eventName = "",
-                    DateTime startTime = default(DateTime),
-                    TimeSpan startTC = default(TimeSpan),
-                    TimeSpan? requestedStartTime = null,
-                    TimeSpan transitionTime = default(TimeSpan),
-                    TimeSpan transitionPauseTime = default(TimeSpan),
-                    TTransitionType transitionType = TTransitionType.Cut,
-                    TEasing transitionEasing = TEasing.Linear,
-                    decimal? audioVolume = null,
-                    UInt64 idProgramme = 0,
-                    string idAux = "",
-                    bool isEnabled = true,
-                    bool isHold = false,
-                    bool isLoop = false,
-                    bool isCGEnabled = false,
-                    byte crawl = 0,
-                    byte logo = 0,
-                    byte parental = 0,
-                    AutoStartFlags autoStartFlags = AutoStartFlags.None,
-                    string command = null,
-                    IDictionary<string, string> fields = null,
-                    TemplateMethod method = TemplateMethod.Add,
-                    int templateLayer = -1
-            );
+            ulong idRundownEvent = 0,
+            ulong idEventBinding = 0,
+            VideoLayer videoLayer = VideoLayer.None,
+            TEventType eventType = TEventType.Rundown,
+            TStartType startType = TStartType.None,
+            TPlayState playState = TPlayState.Scheduled,
+            DateTime scheduledTime = default(DateTime),
+            TimeSpan duration = default(TimeSpan),
+            TimeSpan scheduledDelay = default(TimeSpan),
+            TimeSpan scheduledTC = default(TimeSpan),
+            Guid mediaGuid = default(Guid),
+            string eventName = "",
+            DateTime startTime = default(DateTime),
+            TimeSpan startTC = default(TimeSpan),
+            TimeSpan? requestedStartTime = null,
+            TimeSpan transitionTime = default(TimeSpan),
+            TimeSpan transitionPauseTime = default(TimeSpan),
+            TTransitionType transitionType = TTransitionType.Cut,
+            TEasing transitionEasing = TEasing.Linear,
+            decimal? audioVolume = null,
+            ulong idProgramme = 0,
+            string idAux = "",
+            bool isEnabled = true,
+            bool isHold = false,
+            bool isLoop = false,
+            bool isCGEnabled = false,
+            byte crawl = 0,
+            byte logo = 0,
+            byte parental = 0,
+            AutoStartFlags autoStartFlags = AutoStartFlags.None,
+            string command = null,
+            IDictionary<string, string> fields = null,
+            TemplateMethod method = TemplateMethod.Add,
+            int templateLayer = -1
+        );
 
         void Load(IEvent aEvent);
         void StartLoaded();
@@ -62,7 +63,7 @@ namespace TAS.Server.Common.Interfaces
         void Clear();
         void Clear(VideoLayer aVideoLayer);
         void ClearMixer();
-        void RestartRundown(IEvent ARundown);
+        void RestartRundown(IEvent aRundown);
         IEvent ForcedNext { get; set; }
         void Schedule(IEvent aEvent);
         void ReSchedule(IEvent aEvent);
@@ -75,15 +76,16 @@ namespace TAS.Server.Common.Interfaces
         IEvent NextToPlay { get; }
         IEvent NextWithRequestedStartTime { get; }
         bool IsWideScreen { get; }
-        event EventHandler<IEventEventArgs> EventSaved;
-        event EventHandler<IEventEventArgs> EventDeleted;
+        event EventHandler<EventEventArgs> EventSaved;
+        event EventHandler<EventEventArgs> EventDeleted;
         event EventHandler<EngineTickEventArgs> EngineTick;
         event EventHandler<EngineOperationEventArgs> EngineOperation;
-        event EventHandler<CollectionOperationEventArgs<IEvent>> VisibleEventsOperation;
         event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
+        event EventHandler<EventEventArgs> VisibleEventAdded;
+        event EventHandler<EventEventArgs> VisibleEventRemoved;
         event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
     }
-    
+
     public interface IEngineProperties
     {
         string EngineName { get; }

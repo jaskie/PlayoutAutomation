@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
 using System.Threading;
 using System.Diagnostics;
@@ -16,8 +15,7 @@ namespace TAS.Server
     [Export(typeof(IEnginePluginFactory))]
     public class LocalDevices : IEnginePluginFactory
     {
-
-        NLog.Logger Logger = NLog.LogManager.GetLogger("TAS.Server.LocalDevices");
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger("TAS.Server.LocalDevices");
 
         [ImportingConstructor]
         public LocalDevices([Import("AppSettings")] NameValueCollection settings)
@@ -34,7 +32,7 @@ namespace TAS.Server
         public object CreateEnginePlugin(IEngine engine, Type type)
         {
             if (type.IsAssignableFrom(typeof(LocalGpiDeviceBinding)))
-                return EngineBindings.FirstOrDefault(b => b.IdEngine == (engine as IPersistent).Id);
+                return EngineBindings.FirstOrDefault(b => b.IdEngine == (engine as IPersistent)?.Id);
             return null;
         }
 
@@ -48,14 +46,31 @@ namespace TAS.Server
                 {
                     XmlDocument settings = new XmlDocument();
                     settings.Load(settingsFileName);
-                    var devicesXml = settings.DocumentElement.SelectSingleNode("Devices");
-                    XmlSerializer deviceSerializer = new XmlSerializer(typeof(AdvantechDevice));
-                    foreach (XmlNode deviceXml in devicesXml.SelectNodes("AdvantechDevice"))
-                        Devices.Add((AdvantechDevice)deviceSerializer.Deserialize(new StringReader(deviceXml.OuterXml)));
-                    var engineBindingsXml = settings.DocumentElement.SelectSingleNode("EngineBindings");
-                    XmlSerializer bindingSerializer = new XmlSerializer(typeof(LocalGpiDeviceBinding), new XmlRootAttribute("EngineBinding"));
-                    foreach (XmlNode bindingXml in engineBindingsXml.SelectNodes("EngineBinding"))
-                        EngineBindings.Add((LocalGpiDeviceBinding)bindingSerializer.Deserialize(new StringReader(bindingXml.OuterXml)));
+                    if (settings.DocumentElement != null)
+                    {
+                        var devicesXml = settings.DocumentElement.SelectSingleNode("Devices");
+                        var advantechDeviceNodes = devicesXml?.SelectNodes("AdvantechDevice");
+                        if (advantechDeviceNodes != null)
+                        {
+                            XmlSerializer deviceSerializer = new XmlSerializer(typeof(AdvantechDevice));
+                            foreach (XmlNode deviceXml in advantechDeviceNodes)
+                                Devices.Add(
+                                    (AdvantechDevice) deviceSerializer
+                                        .Deserialize(new StringReader(deviceXml.OuterXml)));
+                            var engineBindingsXml = settings.DocumentElement.SelectSingleNode("EngineBindings");
+                            var engineBindingsXmlNodes = engineBindingsXml?.SelectNodes("EngineBinding");
+                            if (engineBindingsXmlNodes != null)
+                            {
+                                XmlSerializer bindingSerializer = new XmlSerializer(typeof(LocalGpiDeviceBinding),
+                                    new XmlRootAttribute("EngineBinding"));
+                                foreach (XmlNode bindingXml in engineBindingsXmlNodes)
+                                    EngineBindings.Add(
+                                        (LocalGpiDeviceBinding) bindingSerializer.Deserialize(new StringReader(
+                                            bindingXml
+                                                .OuterXml)));
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception e) {
@@ -79,7 +94,7 @@ namespace TAS.Server
                 }
                 Thread poolingThread = new Thread(_advantechPoolingThreadExecute);
                 poolingThread.IsBackground = true;
-                poolingThread.Name = string.Format("Thread for Advantech devices pooling");
+                poolingThread.Name = "Thread for Advantech devices pooling";
                 poolingThread.Priority = ThreadPriority.AboveNormal;
                 poolingThread.Start();
             }
@@ -87,23 +102,19 @@ namespace TAS.Server
                 binding.Owner = this;
         }
 
-        bool disposed = false;
+        private int _disposed;
         public void Dispose()
         {
-            if (!disposed)
-            {
-                disposed = true;
+            if (Interlocked.Exchange(ref _disposed, 1) == 0)
                 foreach (AdvantechDevice device in Devices)
                     device.Dispose();
-            }
         }
 
         void _advantechPoolingThreadExecute()
         {
-            byte newPortState, oldPortState;
             Debug.WriteLine("Startting AdvantechPoolingThread thread");
             Logger.Debug("Startting AdvantechPoolingThread thread");
-            while (!disposed)
+            while (_disposed == default(int))
             {
                 try
                 {
@@ -111,6 +122,8 @@ namespace TAS.Server
                     {
                         for (byte port = 0; port < device.InputPortCount; port++)
                         {
+                            byte newPortState;
+                            byte oldPortState;
                             if (device.Read(port, out newPortState, out oldPortState))
                             {
                                 int changedBits = newPortState ^ oldPortState;

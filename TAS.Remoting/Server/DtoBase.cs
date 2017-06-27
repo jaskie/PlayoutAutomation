@@ -3,19 +3,19 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
+using System.Threading;
 using System.Xml.Serialization;
 
 namespace TAS.Remoting.Server
 {
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.Objects, IsReference = true, MemberSerialization = MemberSerialization.OptIn)]
-    public abstract class DtoBase: IDto, INotifyPropertyChanged
+    public abstract class DtoBase: IDto
     {
         [XmlIgnore]
         public Guid DtoGuid { get; } = Guid.NewGuid();
+
+        private int _disposed;
 
 #if DEBUG
         ~DtoBase()
@@ -34,31 +34,26 @@ namespace TAS.Remoting.Server
 
         public event PropertyChangedEventHandler PropertyChanged;
         
-        protected virtual void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         public event EventHandler Disposed;
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
         public void Dispose()
         {
-            if (!_disposed)
-            {
-                _disposed = true;
+            if (Interlocked.Exchange(ref _disposed, 1) == default(int))
                 DoDispose();
-            }
         }
 
-        private bool _disposed = false;
-
-        protected bool IsDisposed { get { return _disposed; } }
+        protected bool IsDisposed => _disposed != default(int);
 
         protected virtual void DoDispose()
         {
             Disposed?.Invoke(this, EventArgs.Empty);
         }
+
+        protected virtual void NotifyPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
 
     }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Windows;
+using TAS.Client.Common;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
 

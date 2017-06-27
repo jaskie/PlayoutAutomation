@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -17,8 +16,8 @@ namespace TAS.Client.Config
         {
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
             OwnerCollection = ownerCollection;
-            _subDirectoriesVM = new System.Collections.ObjectModel.ObservableCollection<IngestDirectoryViewmodel>();
-            foreach (var item in model._subDirectories.Select(s => new IngestDirectoryViewmodel(s, _subDirectoriesVM)))
+            _subDirectoriesVM = new ObservableCollection<IngestDirectoryViewmodel>();
+            foreach (var item in model.SubDirectoriesSerialized.Select(s => new IngestDirectoryViewmodel(s, _subDirectoriesVM)))
                 _subDirectoriesVM.Add(item);
         }
         
@@ -36,8 +35,7 @@ namespace TAS.Client.Config
         public Array IngestDirectoryKinds { get; } = Enum.GetValues(typeof(TIngestDirectoryKind));
 
         #endregion // Enumerations
-
-
+        
         #region IIngestDirectoryProperties
         string _directoryName;
         public string DirectoryName { get { return _directoryName; } set { SetField(ref _directoryName, value); } }
@@ -136,9 +134,13 @@ namespace TAS.Client.Config
         #endregion // IIngestDirectoryProperties
 
         public bool IsMXF => Kind == TIngestDirectoryKind.XDCAM || (ExportContainerFormat == TMovieContainerFormat.mxf);
+
         public bool VideoDoNotEncode => _videoCodec == TVideoCodec.copy;
+
         public bool AudioDoNotEncode => _audioCodec == TAudioCodec.copy;
+
         private ObservableCollection<IngestDirectoryViewmodel> _subDirectoriesVM;
+
         public ObservableCollection<IngestDirectoryViewmodel> SubDirectoriesVM => _subDirectoriesVM;
 
         public IngestDirectoryViewmodel AddSubdirectory()
@@ -150,7 +152,7 @@ namespace TAS.Client.Config
             return dirVM;
         }
 
-        public ObservableCollection<IngestDirectoryViewmodel> OwnerCollection { get; private set; }
+        public ObservableCollection<IngestDirectoryViewmodel> OwnerCollection { get; }
 
         protected override void OnDispose() { }
 
@@ -168,7 +170,6 @@ namespace TAS.Client.Config
             {
                 return base.IsModified || _subDirectoriesVM.Any(d => d.IsModified);
             }
-
             protected set
             {
                 base.IsModified = value;

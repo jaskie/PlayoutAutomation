@@ -9,7 +9,7 @@ namespace TAS.Server.Common.Interfaces
         bool FileExists(string filename, string subfolder = null);
         bool DirectoryExists();
         bool IsInitialized { get; }
-        ICollection<IMedia> GetFiles();
+        IList<IMedia> GetFiles();
         void Refresh();
         void SweepStaleMedia();
         long VolumeTotalSize { get; }

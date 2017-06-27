@@ -52,7 +52,8 @@ namespace TAS.Client.ViewModels
             _engine.EngineTick += _engineTick;
             _engine.EngineOperation += _engineOperation;
             _engine.PropertyChanged += _enginePropertyChanged;
-            _engine.VisibleEventsOperation += _onEngineVisibleEventsOperation;
+            _engine.VisibleEventAdded += _engine_VisibleEventAdded;
+            _engine.VisibleEventRemoved += _engine_VisibleEventRemoved;
             _engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _composePlugins();
 
@@ -82,7 +83,23 @@ namespace TAS.Client.ViewModels
                 _cGElementsControllerViewmodel = new EngineCGElementsControllerViewmodel(engine.CGElementsController);
             }
         }
-        
+
+        private void _engine_VisibleEventRemoved(object sender, EventEventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate 
+            {
+                _visibleEvents.Remove(e.Event);
+            });
+        }
+
+        private void _engine_VisibleEventAdded(object sender, EventEventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate 
+            {
+                    _visibleEvents.Add(e.Event);
+            });
+        }
+
         public ICommand CommandClearAll { get; private set; }
         public ICommand CommandClearMixer { get; private set; }
         public ICommand CommandClearLayer { get; private set; }
@@ -164,7 +181,8 @@ namespace TAS.Client.ViewModels
             _engine.EngineTick -= _engineTick;
             _engine.EngineOperation -= _engineOperation;
             _engine.PropertyChanged -= _enginePropertyChanged;
-            _engine.VisibleEventsOperation -= _onEngineVisibleEventsOperation;
+            _engine.VisibleEventAdded -= _engine_VisibleEventAdded;
+            _engine.VisibleEventRemoved -= _engine_VisibleEventRemoved;
             _engine.RunningEventsOperation -= OnEngineRunningEventsOperation;
 
             _multiSelectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
@@ -260,10 +278,10 @@ namespace TAS.Client.ViewModels
             if (dlg.ShowDialog() == true)
             {
                 UiServices.SetBusyState();
-                using (var reader = System.IO.File.OpenText(dlg.FileName))
+                using (var reader = File.OpenText(dlg.FileName))
                 using (var jreader = new Newtonsoft.Json.JsonTextReader(reader))
                 {
-                    var proxy = (new Newtonsoft.Json.JsonSerializer() { DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Populate })
+                    var proxy = (new Newtonsoft.Json.JsonSerializer { DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Populate })
                         .Deserialize<EventProxy>(jreader);
                     if (proxy != null)
                     {
@@ -288,7 +306,7 @@ namespace TAS.Client.ViewModels
             };
             if (dlg.ShowDialog() == true)
             {
-                using (var writer = System.IO.File.CreateText(dlg.FileName))
+                using (var writer = File.CreateText(dlg.FileName))
                     new Newtonsoft.Json.JsonSerializer() { Formatting = Newtonsoft.Json.Formatting.Indented, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore, DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Ignore, TypeNameHandling=Newtonsoft.Json.TypeNameHandling.Auto }
                     .Serialize(writer, proxy);
             }
@@ -475,7 +493,7 @@ namespace TAS.Client.ViewModels
                 e.Event.ScheduledTc, 
                 e.Event.Duration, 
                 e.Event.GetAudioVolume()));
-            using (ExportViewmodel evm = new ExportViewmodel(_engine.MediaManager, selections)) { }
+            using (new ExportViewmodel(_engine.MediaManager, selections)) { }
         }
 
         private void _startSelected(object obj)
@@ -532,21 +550,6 @@ namespace TAS.Client.ViewModels
             return ev != null && (ev.PlayState == TPlayState.Aborted || ev.PlayState == TPlayState.Played);
         }
 
-        private bool _canCut(object o)
-        {
-            IEvent ev = _selectedEvent?.Event;
-            return ev != null
-                && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live)
-                && ev.PlayState == TPlayState.Scheduled;
-        }
-
-        private bool _canCopySingle(object o)
-        {
-            IEvent ev = _selectedEvent?.Event;
-            return ev != null
-                && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Movie || ev.EventType == TEventType.Live);
-        }
-
         private void _restartRundown(object o)
         {
             if (!_allowPlayControl)
@@ -588,11 +591,11 @@ namespace TAS.Client.ViewModels
         private void _deleteSelected(object ob)
         {
             var evmList = _multiSelectedEvents.ToList();
-            var containerList = evmList.Where(evm => evm is EventPanelContainerViewmodel);
-            if (evmList.Count() > 0
-                && MessageBox.Show(string.Format(resources._query_DeleteSelected, evmList.Count(), evmList.AsString(Environment.NewLine, 20)), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
-                && (containerList.Count() == 0
-                    || MessageBox.Show(string.Format(resources._query_DeleteSelectedContainers, containerList.Count(), containerList.AsString(Environment.NewLine, 20)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
+            var containerList = evmList.Where(evm => evm is EventPanelContainerViewmodel).ToList();
+            if (evmList.Count > 0
+                && MessageBox.Show(string.Format(resources._query_DeleteSelected, evmList.Count, evmList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
+                && (containerList.Count == 0
+                    || MessageBox.Show(string.Format(resources._query_DeleteSelectedContainers, containerList.Count, containerList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
             {
                 var firstEvent = evmList.First().Event;
                 EventClipboard.SaveUndo(evmList.Select(evm => evm.Event), firstEvent.StartType == TStartType.After ? firstEvent.Prior : firstEvent.Parent);
@@ -610,7 +613,7 @@ namespace TAS.Client.ViewModels
                         }
                         catch (Exception e)
                         {
-                            Application.Current.Dispatcher.BeginInvoke((Action)delegate ()
+                            Application.Current.Dispatcher.BeginInvoke((Action)delegate 
                             {
                                 MessageBox.Show(string.Format(resources._message_CommandFailed, e.Message), resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Hand);
                             });
@@ -687,7 +690,7 @@ namespace TAS.Client.ViewModels
             }
             if (newEvent != null)
             {
-                if (insertUnder == true)
+                if (insertUnder)
                 {
                     if (baseEvent.EventType == TEventType.Container)
                         newEvent.ScheduledTime = _currentTime;
@@ -782,8 +785,6 @@ namespace TAS.Client.ViewModels
             }
         }
         #endregion
-
-
 
         public EventPanelViewmodelBase RootEventViewModel => _rootEventViewModel;
 
@@ -1026,6 +1027,7 @@ namespace TAS.Client.ViewModels
         }
 
         #endregion // Plugin
+
         public bool CGControllerExists
         {
             get { return _engine.CGElementsController != null; }

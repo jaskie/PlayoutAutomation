@@ -1,11 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using TAS.Server.Common;
@@ -16,14 +13,14 @@ namespace TAS.Server
     [Export(typeof(IEnginePluginFactory))]
     public class PluginExamplefactory : IEnginePluginFactory
     {
-        static Dictionary<IEngine, CGElementsController> _plugins = new Dictionary<IEngine, CGElementsController>();
-        static readonly object pluginLock = new object();
+        private readonly Dictionary<IEngine, CGElementsController> _plugins = new Dictionary<IEngine, CGElementsController>();
+        private readonly object _pluginLock = new object();
         public object CreateEnginePlugin(IEngine engine, Type type)
         {
             if (type.IsAssignableFrom(typeof(CGElementsController)))
             {
                 CGElementsController plugin;
-                lock (pluginLock)
+                lock (_pluginLock)
                 {
                     if (!_plugins.TryGetValue(engine, out plugin))
                     {

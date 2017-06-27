@@ -527,10 +527,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsValid
-        {
-            get { return !(from pi in GetType().GetProperties() select this[pi.Name]).Where(s => !string.IsNullOrEmpty(s)).Any(); }
-        }
+        public bool IsValid => (from pi in GetType().GetProperties() select this[pi.Name]).All(string.IsNullOrEmpty);
 
         public override string ToString()
         {

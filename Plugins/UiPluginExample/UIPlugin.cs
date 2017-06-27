@@ -2,30 +2,28 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using TAS.Client.Common.Plugin;
 using TAS.Server.Common;
 
 namespace UiPluginExample
 {
     [Export(typeof(IUiPlugin))]
-    public class UIPlugin : IUiPlugin
+    public class UiPlugin : IUiPlugin
     {
-        public UIPlugin()
+        public UiPlugin()
         {
             Debug.WriteLine(this, "Plugin created");
         }
         private PluginExecuteContext _executionContext()
         {
             var h = ExecutionContext;
-            return h == null ? new PluginExecuteContext { } : h();
+            return h?.Invoke() ?? new PluginExecuteContext();
         }
         
-        public string Header { get { return "Play"; } }
+        public string Header => "Play";
 
-        public IEnumerable<IUiMenuItem> Items { get { return null; } }
-        
+        public IEnumerable<IUiMenuItem> Items => null;
+
         public event EventHandler CanExecuteChanged;
                 
         public bool CanExecute(object parameter)

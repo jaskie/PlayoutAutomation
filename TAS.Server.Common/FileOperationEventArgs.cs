@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Common
@@ -13,6 +10,6 @@ namespace TAS.Server.Common
             Operation = operation;
         }
         [Newtonsoft.Json.JsonProperty(ItemIsReference = true)]
-        public IFileOperation Operation { get; }
+        public IFileOperation Operation { get; private set; }
     }
 }

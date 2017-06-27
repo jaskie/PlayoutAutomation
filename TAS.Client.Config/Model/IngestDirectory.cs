@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
@@ -74,8 +73,8 @@ namespace TAS.Client.Config.Model
         [DefaultValue(typeof(Decimal), "1")]
         public decimal AudioBitrateRatio { get; set; }
         [XmlArray(nameof(SubDirectories))]
-        public IngestDirectory[] _subDirectories = new IngestDirectory[0];
+        public IngestDirectory[] SubDirectoriesSerialized = new IngestDirectory[0];
         [XmlIgnore]
-        public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return _subDirectories; }  set { _subDirectories = value.Cast<IngestDirectory>().ToArray(); } }
+        public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return SubDirectoriesSerialized; }  set { SubDirectoriesSerialized = value.Cast<IngestDirectory>().ToArray(); } }
     }
 }

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Common
@@ -13,7 +10,7 @@ namespace TAS.Server.Common
             Media = media;
         }
         [Newtonsoft.Json.JsonProperty]
-        public IMedia Media { get; }
+        public IMedia Media { get; private set; }
     }
 
 
