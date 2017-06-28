@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TAS.Remoting.Client;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
@@ -40,10 +38,7 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IMediaManager.IngestDirectories))]
         private List<IngestDirectory> _ingestDirectories { get { return Get<List<IngestDirectory>>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
-        public IEnumerable<IIngestDirectory> IngestDirectories
-        {
-            get { return _ingestDirectories; }
-        }
+        public IEnumerable<IIngestDirectory> IngestDirectories => _ingestDirectories;
 
         public void MeasureLoudness(IEnumerable<IMedia> mediaList)
         {
@@ -91,14 +86,14 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEngine.CGElementsController))]
         private CGElementsController _cgElementsController { get { return Get<CGElementsController>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
-        public ICGElementsController CGElementsController { get { return _cgElementsController; } }
+        public ICGElementsController CGElementsController => _cgElementsController;
 
         public IEngine Engine { get { return Get<Engine>(); } set { SetLocalValue(value); } }
 
         [JsonProperty(nameof(IMediaManager.Recorders))]
         private List<Recorder> _recorders { get { return Get<List<Recorder>>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
-        public IEnumerable<IRecorder> Recorders { get { return _recorders; } }
+        public IEnumerable<IRecorder> Recorders => _recorders;
 
         protected override void OnEventNotification(WebSocketMessage e) { }
 

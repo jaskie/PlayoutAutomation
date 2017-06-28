@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TAS.Remoting.Client;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
@@ -15,7 +13,7 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IRecorder.Channels))]
         private List<PlayoutServerChannel> _channels { get { return Get<List<PlayoutServerChannel>>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
-        public IEnumerable<IPlayoutServerChannel> Channels { get { return _channels; } }
+        public IEnumerable<IPlayoutServerChannel> Channels => _channels;
 
         public TimeSpan CurrentTc { get { return Get<TimeSpan>(); }  set { SetLocalValue(value); } }
 

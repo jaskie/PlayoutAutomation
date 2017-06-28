@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace TAS.Client.Common
 {
-    public abstract class OkCancelViewmodelBase<M> : EditViewmodelBase<M>
+    public abstract class OkCancelViewmodelBase<TM> : EditViewmodelBase<TM>
     {
         public delegate bool OnOkDelegate(object parameter);
         private bool? _showResult;
         private OkCancelView _currentWindow;
 
-        public OkCancelViewmodelBase(M model, UserControl editor, string windowTitle):base(model, editor)
+        public OkCancelViewmodelBase(TM model, UserControl editor, string windowTitle):base(model, editor)
         {
-            CommandClose = new UICommand() { CanExecuteDelegate = CanClose, ExecuteDelegate = Close };
-            CommandApply = new UICommand() { CanExecuteDelegate = CanApply, ExecuteDelegate = o => ModelUpdate() };
-            CommandOK = new UICommand() { CanExecuteDelegate = CanOK, ExecuteDelegate = Ok };
+            CommandClose = new UICommand { CanExecuteDelegate = CanClose, ExecuteDelegate = Close };
+            CommandApply = new UICommand { CanExecuteDelegate = CanApply, ExecuteDelegate = o => ModelUpdate() };
+            CommandOK = new UICommand { CanExecuteDelegate = CanOK, ExecuteDelegate = Ok };
             _title = windowTitle;
         }
 
@@ -40,10 +34,10 @@ namespace TAS.Client.Common
             _currentWindow = new OkCancelView()
             {
                 DataContext = this,
-                Owner = System.Windows.Application.Current.MainWindow,
-                WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner,
-                MaxHeight = System.Windows.SystemParameters.PrimaryScreenHeight,
-                MaxWidth = System.Windows.SystemParameters.PrimaryScreenWidth,
+                Owner = Application.Current.MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                MaxHeight = SystemParameters.PrimaryScreenHeight,
+                MaxWidth = SystemParameters.PrimaryScreenWidth,
                 ShowInTaskbar = false,
                 ResizeMode = ResizeMode.NoResize
             };
@@ -58,11 +52,10 @@ namespace TAS.Client.Common
         {
             if (_currentWindow == null)
                 return MessageBox.Show(messageBoxText, caption, button, icon);
-            else
-                return MessageBox.Show(_currentWindow, messageBoxText, caption, button, icon);
+            return MessageBox.Show(_currentWindow, messageBoxText, caption, button, icon);
         }
 
-        public bool? ShowResult { get { return _showResult; } }
+        public bool? ShowResult => _showResult;
 
         protected virtual void Close(object parameter)
         {

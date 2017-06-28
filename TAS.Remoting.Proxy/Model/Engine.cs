@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using TAS.Remoting.Client;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
@@ -106,8 +104,8 @@ namespace TAS.Remoting.Model
         }
 
         public IEvent CreateNewEvent(
-                    UInt64 idRundownEvent = 0,
-                    UInt64 idEventBinding = 0,
+                    ulong idRundownEvent = 0,
+                    ulong idEventBinding = 0,
                     VideoLayer videoLayer = VideoLayer.None,
                     TEventType eventType = TEventType.Rundown,
                     TStartType startType = TStartType.None,
@@ -126,7 +124,7 @@ namespace TAS.Remoting.Model
                     TTransitionType transitionType = TTransitionType.Cut,
                     TEasing transitionEasing = TEasing.Linear,
                     decimal? audioVolume = null,
-                    UInt64 idProgramme = 0,
+                    ulong idProgramme = 0,
                     string idAux = "",
                     bool isEnabled = true,
                     bool isHold = false,
@@ -149,7 +147,7 @@ namespace TAS.Remoting.Model
 
         public void AddRootEvent(IEvent ev)
         {
-            Invoke(parameters: new[] { ev });
+            Invoke(parameters: new object[] { ev });
         }
 
         public void Clear() { Invoke(); }
@@ -158,24 +156,24 @@ namespace TAS.Remoting.Model
 
         public void ClearMixer() { Invoke(); }
 
-        public void Load(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
+        public void Load(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 
-        public void RemoveEvent(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
+        public void RemoveEvent(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 
-        public void ReSchedule(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
+        public void ReSchedule(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 
         public void Restart() { Invoke(); }
 
-        public void RestartRundown(IEvent aRundown) { Invoke(parameters: new[] { aRundown }); }
+        public void RestartRundown(IEvent aRundown) { Invoke(parameters: new object[] { aRundown }); }
 
-        public void Schedule(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
+        public void Schedule(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 
         public void SearchMissingEvents()
         {
             throw new NotImplementedException();
         }
 
-        public void Start(IEvent aEvent) { Invoke(parameters: new[] { aEvent }); }
+        public void Start(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
         
         public void StartLoaded() { Invoke(); }
 

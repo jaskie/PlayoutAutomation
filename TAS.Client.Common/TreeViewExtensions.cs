@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.ComponentModel;
 using System.Collections;
 using System.Windows.Media;
-using System.Windows.Controls.Primitives;
-using System.Windows.Threading;
 
 namespace TAS.Client.Common
 {
@@ -35,7 +31,7 @@ namespace TAS.Client.Common
 
 		public static IList GetMultiSelectedItems(DependencyObject obj)
 		{
-            return obj == null ? null : (IList)obj.GetValue(MultiSelectedItemsProperty);
+            return (IList) obj?.GetValue(MultiSelectedItemsProperty);
 		}
 
 		public static void SetMultiSelectedItems(DependencyObject obj, IList value)
@@ -117,7 +113,6 @@ namespace TAS.Client.Common
 
 		static void KeyDown(object sender, KeyEventArgs e)
 		{
-			TreeView tree = (TreeView)sender;
 			if(e.Key == Key.Enter)
 			{
                 ItemSelected((TreeView)sender, FindTreeViewItem(e.OriginalSource), MouseButton.Left);
@@ -208,12 +203,7 @@ namespace TAS.Client.Common
 					return;
 				}
 				MakeSingleSelection(tree, item);
-				return;
 			}
-			//MakeAnchorSelection(item, false);
-
-
-			//SetIsSelected(tree.SelectedItem
 		}
 
 		private static TreeViewItem FindTreeViewItem(object obj)
@@ -267,7 +257,7 @@ namespace TAS.Client.Common
 			bool betweenBoundary = false;
 			foreach(var item in items)
 			{
-				bool isBoundary = item == anchor || item == actionItem;
+				bool isBoundary = Equals(item, anchor) || Equals(item, actionItem);
 				if(isBoundary)
 				{
 					betweenBoundary = !betweenBoundary;
@@ -292,14 +282,9 @@ namespace TAS.Client.Common
 		{
 			foreach(TreeViewItem selectedItem in GetExpandedTreeViewItems(tree))
 			{
-				if(selectedItem == null)
+			    if(selectedItem == null)
 					continue;
-				if(selectedItem != item)
-					SetIsMultiSelected(selectedItem, false);
-				else
-				{
-					SetIsMultiSelected(selectedItem, true);
-				}
+			    SetIsMultiSelected(selectedItem, Equals(selectedItem, item));
 			}
 			UpdateAnchorAndActionItem(tree, item);
 		}

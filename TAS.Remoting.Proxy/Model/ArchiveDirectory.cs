@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TAS.Server.Common;
+﻿using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
     public class ArchiveDirectory : MediaDirectory, IArchiveDirectory
     {
-        public ulong idArchive { get { return Get<UInt64>(); } set { Set(value); } }
+        public ulong idArchive { get { return Get<ulong>(); } set { Set(value); } }
 
         public TMediaCategory? SearchMediaCategory { get { return Get<TMediaCategory?>(); } set { Set(value); } }
         
@@ -27,7 +23,7 @@ namespace TAS.Remoting.Model
 
         public override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
-            return Query<IMedia>(parameters: new [] { mediaProperties });
+            return Query<IMedia>(parameters: new object[] { mediaProperties });
         }
 
         public IArchiveMedia Find(IMediaProperties media)

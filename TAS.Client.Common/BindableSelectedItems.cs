@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Interactivity;
+﻿using System.Windows.Interactivity;
 using System.Windows.Controls;
 using System.Windows;
 using System.Collections;
@@ -17,10 +13,6 @@ namespace TAS.Client.Common
 
         private static void OnSelectedItemsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
-            var grid = ((BindableSelectedItems)sender).AssociatedObject;
-            if (grid == null) return;
-
-            // Add logic to select items in grid
         }
 
         public IList SelectedItems

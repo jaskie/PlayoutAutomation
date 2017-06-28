@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Configuration;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows.Input;
 using System.Xml.Serialization;
 using TAS.Client.Common;
-using TAS.Client.ViewModels;
 
 namespace TVPlayClient
 {
@@ -41,6 +37,8 @@ namespace TVPlayClient
         private void _save(object obj)
         {
             var directoryName = Path.GetDirectoryName(_configurationFile);
+            if (string.IsNullOrEmpty(directoryName))
+                return;
             if (!Directory.Exists(directoryName))
                 Directory.CreateDirectory(directoryName);
             XmlSerializer writer = new XmlSerializer(typeof(ObservableCollection<ConfigurationChannel>), new XmlRootAttribute("Channels"));
@@ -61,18 +59,18 @@ namespace TVPlayClient
 
         private void _add(object obj)
         {
-            _channels.Add(new ConfigurationChannel() { Address = "127.0.0.1:1061" });
+            _channels.Add(new ConfigurationChannel { Address = "127.0.0.1:1061" });
         }
 
-        public IEnumerable<ConfigurationChannel> Channels { get { return _channels; } }
+        public IEnumerable<ConfigurationChannel> Channels => _channels;
 
         private ConfigurationChannel _selectedChannel;
         public ConfigurationChannel SelectedChannel { get { return _selectedChannel; } set { SetField(ref _selectedChannel, value); } }
         
-        public ICommand CommandSave { get; private set; }
-        public ICommand CommandAdd { get; private set; }
-        public ICommand CommandDelete { get; private set; }
-        public ICommand CommandCancel { get; private set; }
+        public ICommand CommandSave { get; }
+        public ICommand CommandAdd { get; }
+        public ICommand CommandDelete { get; }
+        public ICommand CommandCancel { get; }
 
         public event EventHandler Closed;
 

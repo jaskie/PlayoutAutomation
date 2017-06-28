@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using TAS.Remoting;
 
 namespace TAS.Remoting
 {
@@ -64,7 +60,7 @@ namespace TAS.Remoting
                 case "TAS.Server.CGElement":
                     return typeof(Model.CGElement);
                 default:
-                        return Type.GetType(string.Format("{0}, {1}", typeName, assemblyName), true);
+                        return Type.GetType($"{typeName}, {assemblyName}", true);
             }
         }
 

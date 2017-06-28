@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
 
@@ -45,7 +43,7 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(SubDirectories))]
         public List<IngestDirectory> _subDirectories;
         [JsonIgnore]
-        public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return _subDirectories; } }
+        public IEnumerable<IIngestDirectoryProperties> SubDirectories => _subDirectories;
 
         public override IMedia CreateMedia(IMediaProperties mediaProperties)
         {

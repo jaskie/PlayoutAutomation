@@ -598,7 +598,7 @@ namespace TAS.Client.ViewModels
                     || MessageBox.Show(string.Format(resources._query_DeleteSelectedContainers, containerList.Count, containerList.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK))
             {
                 var firstEvent = evmList.First().Event;
-                EventClipboard.SaveUndo(evmList.Select(evm => evm.Event), firstEvent.StartType == TStartType.After ? firstEvent.Prior : firstEvent.Parent);
+                EventClipboard.SaveUndo(evmList.Select(evm => evm.Event).ToList(), firstEvent.StartType == TStartType.After ? firstEvent.Prior : firstEvent.Parent);
                 ThreadPool.QueueUserWorkItem(
                     o =>
                     {
@@ -1041,6 +1041,7 @@ namespace TAS.Client.ViewModels
         public TEngineState EngineState => _engine.EngineState;
 
         public IEnumerable<IEvent> VisibleEvents => _visibleEvents;
+
         public IEnumerable<IEvent> RunningEvents => _runningEvents;
 
         public IEnumerable<EventPanelViewmodelBase> MultiSelectedEvents => _multiSelectedEvents;

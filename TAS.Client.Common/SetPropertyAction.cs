@@ -71,8 +71,8 @@ namespace TAS.Client.Common
                 PropertyName,
                 BindingFlags.Instance | BindingFlags.Public
                 | BindingFlags.NonPublic | BindingFlags.InvokeMethod);
-
-            propertyInfo.SetValue(target, PropertyValue, null);
+            if (propertyInfo != null)
+                propertyInfo.SetValue(target, PropertyValue, null);
         }
     }
 }

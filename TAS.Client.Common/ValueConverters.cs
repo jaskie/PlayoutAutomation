@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows.Data;
 using System.Globalization;
 using System.Windows.Controls;
-using TAS.Server;
-using System.ComponentModel;
 using System.Windows.Media;
 using TAS.Server.Common;
 
@@ -17,10 +13,9 @@ namespace TAS.Client.Common
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if ((bool)value == true)
+            if ((bool)value)
                 return Brushes.LawnGreen;
-            else
-                return new Button { }.Background;
+            return new Button().Background;
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -33,11 +28,10 @@ namespace TAS.Client.Common
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if ((bool)value == true
+            if ((bool)value
                 && !string.IsNullOrEmpty((string)parameter))
                 return new SolidColorBrush((Color)ColorConverter.ConvertFromString((string)parameter));
-            else
-                return null;
+            return null;
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -144,8 +138,7 @@ namespace TAS.Client.Common
                         return null;
                     }
                 }
-                else
-                    return null;
+                return null;
             }
         }
         public RationalNumber FrameRate { get { return _frameRate; } set { _frameRate = value; } }
@@ -175,8 +168,7 @@ namespace TAS.Client.Common
         {
             if ((bool)value)
                 return 1.0;
-            else
-                return 0.5;
+            return 0.5;
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -206,14 +198,14 @@ namespace TAS.Client.Common
     [ValueConversion(typeof(Color), typeof(Brush))]
     public class ColorToBrushConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (targetType != typeof(Brush)) return null;
             if (!(value is Color)) return null;
             return new SolidColorBrush((Color)value);
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return Binding.DoNothing;
         }
@@ -222,7 +214,7 @@ namespace TAS.Client.Common
     [ValueConversion(typeof(TMediaEmphasis), typeof(Brush))]
     public class MediaEmphasisToBrushConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (targetType != typeof(Brush)) return null;
             if (!(value is TMediaEmphasis)) 
@@ -232,7 +224,7 @@ namespace TAS.Client.Common
                 return Brushes.Transparent;
             return new SolidColorBrush((nAttributes.First() as ColorAttribute).Color);
         }
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return Binding.DoNothing;
         }
@@ -244,7 +236,7 @@ namespace TAS.Client.Common
         public string FalseValue { get; set; }
         public string TrueValue { get; set; }
 
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
                 return FalseValue;
@@ -252,7 +244,7 @@ namespace TAS.Client.Common
                 return (bool)value ? TrueValue : FalseValue;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return value != null ? value.Equals(TrueValue) : false;
         }
@@ -261,12 +253,12 @@ namespace TAS.Client.Common
     [ValueConversion(typeof(bool), typeof(System.Windows.Visibility))]
     public class InvertedBooleanToVisibilityConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return (bool)value ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return Binding.DoNothing;
         }
@@ -275,12 +267,12 @@ namespace TAS.Client.Common
     [ValueConversion(typeof(object), typeof(System.Windows.Visibility))]
     public class NullToVisibilityConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return value == null ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return Binding.DoNothing;
         }
@@ -289,12 +281,12 @@ namespace TAS.Client.Common
     [ValueConversion(typeof(long), typeof(System.Windows.Visibility))]
     public class ZeroToVisibilityConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return System.Convert.ToInt64(value) == 0 ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return Binding.DoNothing;
         }
@@ -305,14 +297,14 @@ namespace TAS.Client.Common
     public class StringArrayToDelimitedStringConverter: IValueConverter
     {
         private static string[] separators = new string[] { ";" };
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is string[])
                 return string.Join(separators[0], (string[])value);
             else
                 return null;
         }
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return value.ToString().Split(separators, StringSplitOptions.RemoveEmptyEntries);
         }

@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Windows;
-using System.Xml.Serialization;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
 using TAS.Remoting;
@@ -11,11 +10,15 @@ using TAS.Remoting.Model;
 
 namespace TVPlayClient
 {
-    [XmlType("Channel")]
     public class ChannelWrapperViewmodel : ViewmodelBase
     {
 
         private readonly ConfigurationChannel _configurationChannel;
+        private RemoteClient _client;
+        private ChannelViewmodel _channel;
+        private bool _isLoading = true;
+        private string _tabName;
+
         public ChannelWrapperViewmodel(ConfigurationChannel channel)
         {
             _configurationChannel = channel;
@@ -26,7 +29,18 @@ namespace TVPlayClient
             _createView();
         }
 
-        private RemoteClient _client;
+        public string TabName { get { return _tabName; } private set { SetField(ref _tabName, value); } }
+
+        public bool IsLoading { get { return _isLoading; } set { SetField(ref _isLoading, value); } }
+
+        public ChannelViewmodel Channel { get { return _channel; } private set { SetField(ref _channel, value); } }
+
+        protected override void OnDispose()
+        {
+            _client?.Dispose();
+            _channel?.Dispose();
+            Debug.WriteLine(this, "Disposed");
+        }
 
         private void _clientDisconected(object sender, EventArgs e)
         {
@@ -70,26 +84,6 @@ namespace TVPlayClient
                     Thread.Sleep(1000);
                 }
             });
-        }
-
-        private ChannelViewmodel _channel;
-        [XmlIgnore]
-        public ChannelViewmodel Channel { get { return _channel; } private set { SetField(ref _channel, value); } }
-
-        private bool _isLoading = true;
-
-        [XmlIgnore]
-        public bool IsLoading { get { return _isLoading; } set { SetField(ref _isLoading, value); } }
-
-        private string _tabName;
-        [XmlIgnore]
-        public string TabName { get { return _tabName; }  private set { SetField(ref _tabName, value); } }
-
-        protected override void OnDispose()
-        {
-            _client?.Dispose();
-            _channel?.Dispose();
-            Debug.WriteLine(this, "Disposed");
         }
 
     }

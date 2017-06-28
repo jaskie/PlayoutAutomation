@@ -9,7 +9,6 @@ using System.Windows.Input;
 using TAS.Client.Common;
 using System.Threading;
 using TAS.Server.Common;
-using System.Collections.ObjectModel;
 using TAS.Server.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
 

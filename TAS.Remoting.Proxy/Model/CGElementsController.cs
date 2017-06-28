@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TAS.Remoting.Client;
 using TAS.Server.Common.Interfaces;
 
@@ -14,19 +12,22 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(ICGElementsController.Crawls))]
         private List<CGElement> _crawls { get { return Get<List<CGElement>>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
-        public IEnumerable<ICGElement> Crawls { get { return _crawls; } }
+        public IEnumerable<ICGElement> Crawls => _crawls;
+
         [JsonProperty(nameof(ICGElementsController.Logos))]
         private List<CGElement> _logos { get { return Get<List<CGElement>>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
-        public IEnumerable<ICGElement> Logos { get { return _logos; } }
+        public IEnumerable<ICGElement> Logos => _logos;
+
         [JsonProperty(nameof(ICGElementsController.Parentals))]
         private List<CGElement> _parentals { get { return Get<List<CGElement>>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
-        public IEnumerable<ICGElement> Parentals { get { return _parentals; } }
+        public IEnumerable<ICGElement> Parentals => _parentals;
+
         [JsonProperty(nameof(ICGElementsController.Auxes))]
         private List<CGElement> _auxes { get { return Get<List<CGElement>>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
-        public IEnumerable<ICGElement> Auxes { get { return _auxes; } }
+        public IEnumerable<ICGElement> Auxes => _auxes;
 
         public byte Crawl { get { return Get<byte>(); } set { Set(value); } }
         
@@ -54,7 +55,7 @@ namespace TAS.Remoting.Model
 
         public void SetState(ICGElementsState state)
         {
-            Invoke(parameters: new[] { state });
+            Invoke(parameters: new object[] { state });
         }
 
         public void ShowAux(int auxNr)

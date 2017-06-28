@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Xml.Serialization;
 using TAS.Client.Common;
-using TAS.Client.ViewModels;
 using TAS.Server.Common;
 
 namespace TVPlayClient
@@ -14,13 +13,27 @@ namespace TVPlayClient
     {
         private const string ConfigurationFileName = "Channels.xml";
         private readonly string _configurationFile;
+        private ViewmodelBase _content;
+        private bool _showConfigButton = true;
+
         public MainWindowViewmodel()
         {
             Application.Current.Dispatcher.ShutdownStarted += _dispatcher_ShutdownStarted;
             _configurationFile = Path.Combine(FileUtils.LocalApplicationDataPath, ConfigurationFileName);
-            if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject()))
+            if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()))
                 _loadTabs();
             CommandConfigure = new UICommand { ExecuteDelegate = _configure };
+        }
+
+        public ICommand CommandConfigure { get; }
+
+        public ViewmodelBase Content { get { return _content; } private set { SetField(ref _content, value); } }
+
+        public bool ShowConfigButton { get { return _showConfigButton; } private set { SetField(ref _showConfigButton, value); } }
+
+        protected override void OnDispose()
+        {
+            (_content as ChannelsViewmodel)?.Dispose();
         }
 
         private void _configure(object obj)
@@ -49,11 +62,6 @@ namespace TVPlayClient
             Dispose();
         }
 
-        protected override void OnDispose()
-        {
-            (_content as ChannelsViewmodel)?.Dispose();
-        }
-
         private void _loadTabs()
         {
             if (File.Exists(_configurationFile))
@@ -63,13 +71,6 @@ namespace TVPlayClient
                     Content = new ChannelsViewmodel((List<ConfigurationChannel>)reader.Deserialize(file));
             }
         }
-
-        private ViewmodelBase _content;
-        public ViewmodelBase Content { get { return _content; } private set { SetField(ref _content, value); } }
-
-        public ICommand CommandConfigure { get; }
-        private bool _showConfigButton = true;
-        public bool ShowConfigButton { get { return _showConfigButton; }  private set { SetField(ref _showConfigButton, value); } }
         
     }
 }

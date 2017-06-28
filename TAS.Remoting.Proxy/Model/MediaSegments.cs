@@ -1,9 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TAS.Remoting.Client;
 using TAS.Server.Common.Interfaces;
 
@@ -18,7 +15,7 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IMediaSegments.Segments))]
         private List<MediaSegment> _segments { get { return Get<List<MediaSegment>>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
-        public IEnumerable<IMediaSegment> Segments { get { return _segments; } }
+        public IEnumerable<IMediaSegment> Segments => _segments;
 
         #region Event handling 
         private event EventHandler<MediaSegmentEventArgs> _segmentAdded;

@@ -63,6 +63,6 @@ namespace TAS.Remoting
         {
             Message = message;
         }
-        public WebSocketMessage Message { get; private set; }
+        public WebSocketMessage Message { get; }
     }
 }

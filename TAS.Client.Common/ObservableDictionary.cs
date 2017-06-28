@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 
-namespace System.Collections.ObjectModel
+namespace TAS.Client.Common
 {
-    public partial class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INotifyCollectionChanged, INotifyPropertyChanged
+    public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INotifyCollectionChanged, INotifyPropertyChanged
     {
-        public ObservableDictionary() : base() { }
+        public ObservableDictionary() { }
         public ObservableDictionary(int capacity) : base(capacity) { }
         public ObservableDictionary(IEqualityComparer<TKey> comparer) : base(comparer) { }
         public ObservableDictionary(IDictionary<TKey, TValue> dictionary) : base(dictionary) { }
@@ -28,29 +26,29 @@ namespace System.Collections.ObjectModel
             set
             {
                 TValue oldValue;
-                bool exist = base.TryGetValue(key, out oldValue);
+                bool exist = TryGetValue(key, out oldValue);
                 var oldItem = new KeyValuePair<TKey, TValue>(key, oldValue);
                 base[key] = value;
                 var newItem = new KeyValuePair<TKey, TValue>(key, value);
                 if (exist)
                 {
-                    this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItem, oldItem, base.Keys.ToList().IndexOf(key)));
+                    OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItem, oldItem, Keys.ToList().IndexOf(key)));
                 }
                 else {
-                    this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, newItem, base.Keys.ToList().IndexOf(key)));
-                    this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+                    OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, newItem, Keys.ToList().IndexOf(key)));
+                    OnPropertyChanged(new PropertyChangedEventArgs("Count"));
                 }
             }
         }
 
         public new void Add(TKey key, TValue value)
         {
-            if (!base.ContainsKey(key))
+            if (!ContainsKey(key))
             {
                 var item = new KeyValuePair<TKey, TValue>(key, value);
                 base.Add(key, value);
-                this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, base.Keys.ToList().IndexOf(key)));
-                this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, Keys.ToList().IndexOf(key)));
+                OnPropertyChanged(new PropertyChangedEventArgs("Count"));
             }
         }
 
@@ -68,13 +66,13 @@ namespace System.Collections.ObjectModel
         public new bool Remove(TKey key)
         {
             TValue value;
-            if (base.TryGetValue(key, out value))
+            if (TryGetValue(key, out value))
             {
                 var item = new KeyValuePair<TKey, TValue>(key, base[key]);
                 var index = Keys.ToList().IndexOf(key);
                 bool result = base.Remove(key);
-                this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
-                this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
+                OnPropertyChanged(new PropertyChangedEventArgs("Count"));
                 return result;
             }
             return false;
@@ -83,24 +81,18 @@ namespace System.Collections.ObjectModel
         public new void Clear()
         {
             base.Clear();
-            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            OnPropertyChanged(new PropertyChangedEventArgs("Count"));
         }
 
         protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
-            if (this.CollectionChanged != null)
-            {
-                this.CollectionChanged(this, e);
-            }
+            CollectionChanged?.Invoke(this, e);
         }
 
         protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
         {
-            if (this.PropertyChanged != null)
-            {
-                this.PropertyChanged(this, e);
-            }
+            PropertyChanged?.Invoke(this, e);
         }
     }
 }

@@ -2,15 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using TAS.Remoting.Client;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    [DebuggerDisplay("{EventName}")]
+    [DebuggerDisplay("{" + nameof(EventName) + "}")]
     public class Event : ProxyBase, IEvent
     {
         public ulong Id { get { return Get<ulong>(); } set { SetLocalValue(value); } }
@@ -205,21 +203,21 @@ namespace TAS.Remoting.Model
             switch (e.MemberName)
             {
                 case nameof(IEvent.Deleted):
-                    _deleted.Invoke(this, ConvertEventArgs<EventArgs>(e));
+                    _deleted?.Invoke(this, ConvertEventArgs<EventArgs>(e));
                     break;
                 case nameof(IEvent.PositionChanged):
-                    _positionChanged.Invoke(this, ConvertEventArgs<EventPositionEventArgs>(e));
+                    _positionChanged?.Invoke(this, ConvertEventArgs<EventPositionEventArgs>(e));
                     break;
                 case nameof(IEvent.Relocated):
-                    _relocated.Invoke(this, ConvertEventArgs<EventArgs>(e));
+                    _relocated?.Invoke(this, ConvertEventArgs<EventArgs>(e));
                     return;
                 case nameof(IEvent.Saved):
-                    _saved.Invoke(this, ConvertEventArgs<EventArgs>(e));
+                    _saved?.Invoke(this, ConvertEventArgs<EventArgs>(e));
                     return;
                 case nameof(IEvent.SubEventChanged):
                     var ea = ConvertEventArgs<CollectionOperationEventArgs<IEvent>>(e);
                     _subeventChanged(ea);
-                    _subEventChanged.Invoke(this, ea);
+                    _subEventChanged?.Invoke(this, ea);
                     return;
             }
         }
@@ -229,8 +227,8 @@ namespace TAS.Remoting.Model
         public bool AllowDelete() { return Query<bool>(); }
 
         public void Delete() { Invoke(); }
-        public void InsertAfter(IEvent e) { Invoke(parameters: new[] { e }); }
-        public void InsertBefore(IEvent e) { Invoke(parameters: new[] { e }); }
+        public void InsertAfter(IEvent e) { Invoke(parameters: new object[] { e }); }
+        public void InsertBefore(IEvent e) { Invoke(parameters: new object[] { e }); }
         public void InsertUnder(IEvent se, bool fromEnd) { Invoke(parameters: new object[] { se, fromEnd }); }
         public void MoveDown() { Invoke(); }
         public void MoveUp() { Invoke(); }

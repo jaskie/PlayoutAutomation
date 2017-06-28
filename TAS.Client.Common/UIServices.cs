@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
-using System.Windows;
 
-namespace TAS.Client
+namespace TAS.Client.Common
 {
     /// <summary>
     ///   Contains helper methods for UI, so far just one for showing a waitcursor
@@ -17,7 +14,7 @@ namespace TAS.Client
         /// <summary>
         ///   A value indicating whether the UI is currently busy
         /// </summary>
-        private static bool IsBusy;
+        private static bool _isBusy;
 
         /// <summary>
         /// Sets the busystate as busy.
@@ -33,13 +30,12 @@ namespace TAS.Client
         /// <param name="busy">if set to <c>true</c> the application is now busy.</param>
         private static void SetBusyState(bool busy)
         {
-            if (busy != IsBusy)
-            {
-                IsBusy = busy;
-                Mouse.OverrideCursor = busy ? Cursors.Wait : null;
-                if (IsBusy)
-                    new DispatcherTimer(TimeSpan.Zero, DispatcherPriority.ContextIdle, dispatcherTimer_Tick, Application.Current.Dispatcher);
-            }
+            if (busy == _isBusy)
+                return;
+            _isBusy = busy;
+            Mouse.OverrideCursor = busy ? Cursors.Wait : null;
+            if (_isBusy)
+                new DispatcherTimer(TimeSpan.Zero, DispatcherPriority.ContextIdle, dispatcherTimer_Tick, Application.Current.Dispatcher);
         }
 
         /// <summary>
@@ -50,12 +46,11 @@ namespace TAS.Client
         private static void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             var dispatcherTimer = sender as DispatcherTimer;
-            if (dispatcherTimer != null)
-            {
-                SetBusyState(false);
-                dispatcherTimer.Stop();
-                dispatcherTimer.Tick -= dispatcherTimer_Tick;
-            }
+            if (dispatcherTimer == null)
+                return;
+            SetBusyState(false);
+            dispatcherTimer.Stop();
+            dispatcherTimer.Tick -= dispatcherTimer_Tick;
         }
     }
 }

@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Windows.Input;
 
 namespace TAS.Client.Common
 {
     public class UICommand : ICommand
     {
+        private bool _handleExceptions = true;
+        private bool _chcekBeforeExecute = true;
+
         public Predicate<object> CanExecuteDelegate { get; set; }
         public Action<object> ExecuteDelegate { get; set; }
-        private bool _handleExceptions = true;
         public bool HandleExceptions { get { return _handleExceptions; } set { _handleExceptions = value; } }
-        private bool _chcekBeforeExecute = true;
         public bool CheckBeforeExecute { get { return _chcekBeforeExecute; } set { _chcekBeforeExecute = value; } }
         #region ICommand Members
 

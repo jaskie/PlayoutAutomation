@@ -56,7 +56,7 @@ namespace TAS.Server
 
         [JsonProperty]
         public bool LoudnessCheck { get; set; }
-        
+
         internal override bool Execute()
         {
             if (Kind == TFileOperationKind.Convert)
@@ -70,34 +70,33 @@ namespace TAS.Server
                     if (sourceMedia == null)
                         throw new ArgumentException("ConvertOperation: Source is not of type IngestMedia");
                     bool success = false;
-                    if (((IngestDirectory)sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
-                        using (TempMedia localSourceMedia = (TempMedia)OwnerFileManager.TempDirectory.CreateMedia(sourceMedia))
+                    if (((IngestDirectory) sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
+                        using (TempMedia localSourceMedia =
+                            (TempMedia) OwnerFileManager.TempDirectory.CreateMedia(sourceMedia))
                         {
-                            AddOutputMessage($"Copying to local file {localSourceMedia.FullPath}");
-                            localSourceMedia.PropertyChanged += LocalSourceMedia_PropertyChanged;
-                            if (sourceMedia.CopyMediaTo(localSourceMedia, ref Aborted))
+                            try
                             {
-                                AddOutputMessage("Verifing local file");
-                                localSourceMedia.Verify();
-                                try
+                                AddOutputMessage($"Copying to local file {localSourceMedia.FullPath}");
+                                localSourceMedia.PropertyChanged += LocalSourceMedia_PropertyChanged;
+                                if (sourceMedia.CopyMediaTo(localSourceMedia, ref Aborted))
                                 {
+                                    AddOutputMessage("Verifing local file");
+                                    localSourceMedia.Verify();
                                     if (DestProperties.MediaType == TMediaType.Still)
                                         success = ConvertStill(localSourceMedia);
                                     else
                                         success = ConvertMovie(localSourceMedia, localSourceMedia.StreamInfo);
+                                    if (!success)
+                                        TryCount--;
+                                    return success;
                                 }
-                                finally
-                                {
-                                    localSourceMedia.PropertyChanged -= LocalSourceMedia_PropertyChanged;
-                                }
-
-                                if (!success)
-                                    TryCount--;
-                                return success;
+                                return false;
                             }
-                            return false;
+                            finally
+                            {
+                                localSourceMedia.PropertyChanged -= LocalSourceMedia_PropertyChanged;
+                            }
                         }
-
                     else
                     {
                         if (sourceMedia.IsVerified)
@@ -105,7 +104,7 @@ namespace TAS.Server
                             if (DestProperties.MediaType == TMediaType.Still)
                                 success = ConvertStill(sourceMedia);
                             else
-                                success = ConvertMovie(sourceMedia, ((IngestMedia)sourceMedia).StreamInfo);
+                                success = ConvertMovie(sourceMedia, ((IngestMedia) sourceMedia).StreamInfo);
                             if (!success)
                                 TryCount--;
                         }
@@ -141,32 +140,31 @@ namespace TAS.Server
         {
             CreateDestMediaIfNotExists();
             MediaBase destMedia = Dest as MediaBase;
-            if (destMedia != null)
+            if (destMedia == null || string.IsNullOrEmpty(localSourceMedia?.FileName))
+                return false;
+            destMedia.MediaType = TMediaType.Still;
+            Size destSize = destMedia.VideoFormat == TVideoFormat.Other ? VideoFormatDescription.Descriptions[TVideoFormat.HD1080i5000].ImageSize : destMedia.FormatDescription().ImageSize;
+            Image bmp = new Bitmap(destSize.Width, destSize.Height, PixelFormat.Format32bppArgb);
+            Graphics graphics = Graphics.FromImage(bmp);
+            graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            if (Path.GetExtension(localSourceMedia.FileName).ToLowerInvariant() == ".tga")
             {
-                destMedia.MediaType = TMediaType.Still;
-                Size destSize = destMedia.VideoFormat == TVideoFormat.Other ? VideoFormatDescription.Descriptions[TVideoFormat.HD1080i5000].ImageSize : destMedia.FormatDescription().ImageSize;
-                Image bmp = new Bitmap(destSize.Width, destSize.Height, PixelFormat.Format32bppArgb);
-                Graphics graphics = Graphics.FromImage(bmp);
-                graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                if (Path.GetExtension(localSourceMedia.FileName).ToLowerInvariant() == ".tga")
-                {
-                    var tgaImage = new TargaImage(localSourceMedia.FullPath);
-                    graphics.DrawImage(tgaImage.Image, 0, 0, destSize.Width, destSize.Height);
-                }
-                else
-                    graphics.DrawImage(new Bitmap(localSourceMedia.FullPath), 0, 0, destSize.Width, destSize.Height);
-                ImageCodecInfo imageCodecInfo = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FilenameExtension.Split(';').Select(se => se.Trim('*')).Contains(FileUtils.DefaultFileExtension(TMediaType.Still).ToUpperInvariant()));
-                System.Drawing.Imaging.Encoder encoder = System.Drawing.Imaging.Encoder.Quality;
-                EncoderParameter encoderParameter = new EncoderParameter(encoder, 90L);
-                EncoderParameters encoderParameters = new EncoderParameters(1);
-                encoderParameters.Param[0] = encoderParameter;
-                bmp.Save(destMedia.FullPath, imageCodecInfo, encoderParameters);
-                destMedia.MediaStatus = TMediaStatus.Copied;
-                destMedia.Verify();
-                OperationStatus = FileOperationStatus.Finished;
-                return true;
+                var tgaImage = new TargaImage(localSourceMedia.FullPath);
+                graphics.DrawImage(tgaImage.Image, 0, 0, destSize.Width, destSize.Height);
             }
-            else return false;
+            else
+                graphics.DrawImage(new Bitmap(localSourceMedia.FullPath), 0, 0, destSize.Width, destSize.Height);
+            ImageCodecInfo imageCodecInfo = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FilenameExtension.Split(';').Select(se => se.Trim('*')).Contains(FileUtils.DefaultFileExtension(TMediaType.Still).ToUpperInvariant()));
+            if (imageCodecInfo == null)
+                return false;
+            System.Drawing.Imaging.Encoder encoder = System.Drawing.Imaging.Encoder.Quality;
+            EncoderParameter encoderParameter = new EncoderParameter(encoder, 90L);
+            EncoderParameters encoderParameters = new EncoderParameters(1) {Param = {[0] = encoderParameter}};
+            bmp.Save(destMedia.FullPath, imageCodecInfo, encoderParameters);
+            destMedia.MediaStatus = TMediaStatus.Copied;
+            destMedia.Verify();
+            OperationStatus = FileOperationStatus.Finished;
+            return true;
         }
 
         #region Movie conversion
@@ -184,6 +182,8 @@ namespace TAS.Server
             List<string> videoFilters = new List<string>();
             StringBuilder ep = new StringBuilder();
             var sourceDir = Source.Directory as IngestDirectory;
+            if (sourceDir == null)
+                return string.Empty;
             #region Video
             ep.AppendFormat(" -c:v {0}", sourceDir.VideoCodec);
             if (sourceDir.VideoCodec == TVideoCodec.copy)
@@ -259,7 +259,7 @@ namespace TAS.Server
                 {
                     ep.AppendFormat(" -b:a {0}k", (int)(2 * 128 * sourceDir.AudioBitrateRatio));
                     MediaConversion audiChannelMappingConversion = MediaConversion.AudioChannelMapingConversions[AudioChannelMappingConversion];
-                    int inputTotalChannels = audioStreams.Sum(s => s.ChannelCount);
+//                    int inputTotalChannels = audioStreams.Sum(s => s.ChannelCount);
                     int requiredOutputChannels;
                     switch ((TAudioChannelMappingConversion)audiChannelMappingConversion.OutputFormat)
                     {
@@ -281,14 +281,14 @@ namespace TAS.Server
                     }
                     if (audioStreams.Length > 1 && requiredOutputChannels > audioStreams[0].ChannelCount)
                     {
-                        int audio_stream_count = 0;
+                        //int audio_stream_count = 0;
                         StringBuilder pf = new StringBuilder();
                         foreach (StreamInfo stream in audioStreams)
                         {
                             pf.AppendFormat("[0:{0}]", stream.Index);
-                            audio_stream_count += stream.ChannelCount;
+                            //audio_stream_count += stream.ChannelCount;
                         }
-                        audioFilters.Add(string.Format("{0}amerge=inputs={1}", pf.ToString(), audioStreams.Length));
+                        audioFilters.Add($"{pf}amerge=inputs={audioStreams.Length}");
                     }
                     AddConversion(audiChannelMappingConversion, audioFilters);
                     if (AudioVolume != 0)
@@ -309,8 +309,8 @@ namespace TAS.Server
                     ep.AppendFormat(" -map 0:{0}", audioStream.Index);
             }
             #endregion // audio
-            var filters = videoFilters.Concat(audioFilters);
-            if (filters.Any())
+            var filters = videoFilters.Concat(audioFilters).ToArray();
+            if (filters.Length > 0)
                 ep.AppendFormat(" -filter_complex \"{0}\"", string.Join(",", filters));
             return ep.ToString();
         }

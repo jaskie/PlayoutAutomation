@@ -1,8 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
 
@@ -16,9 +12,9 @@ namespace TAS.Remoting.Model
 
         public DateTime KillDate { get { return Get<DateTime>(); } set { Set(value); } }
 
-        public UInt64 IdProgramme { get { return Get<UInt64>(); } set { Set(value); } }
+        public ulong IdProgramme { get { return Get<ulong>(); } set { Set(value); } }
 
-        public UInt64 IdPersistentMedia { get; set; }
+        public ulong IdPersistentMedia { get; set; }
 
         public bool IsModified { get; set; }
 

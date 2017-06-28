@@ -2,16 +2,17 @@
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using System.Threading;
 
 namespace TAS.Remoting
 {
     public class ReferenceResolver : IReferenceResolver, IDisposable
     {
+        readonly ConcurrentDictionary<Guid, IDto> _knownDtos = new ConcurrentDictionary<Guid, IDto>();
+        private int _disposed;
+
         public ReferenceResolver()
         {
             Debug.WriteLine("Created ReferenceResolver");
@@ -22,7 +23,23 @@ namespace TAS.Remoting
             Debug.WriteLine("Finalized ReferenceResolver");
         }
 #endif
-        readonly ConcurrentDictionary<Guid, IDto> _knownDtos = new ConcurrentDictionary<Guid, IDto>();
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref _disposed, 1) == default(int))
+            {
+                var allKeys = _knownDtos.Keys;
+                foreach (var key in allKeys)
+                {
+                    IDto value;
+                    if (_knownDtos.TryRemove(key, out value))
+                    {
+                        value.PropertyChanged -= _referencePropertyChanged;
+                        value.Disposed -= _reference_Disposed;
+                    }
+                }
+            }
+        }
+
 
         #region IReferenceResolver
         public void AddReference(object context, string reference, object value)
@@ -110,24 +127,6 @@ namespace TAS.Remoting
         public event EventHandler<PropertyChangedEventArgs> ReferencePropertyChanged;
         public event EventHandler ReferenceDisposed;
 
-        private bool _disposed = false;
-        public void Dispose()
-        {
-            if (!_disposed)
-            {
-                _disposed = true;
-                var allKeys = _knownDtos.Keys;
-                foreach (var key in allKeys)
-                {
-                    IDto value;
-                    if (_knownDtos.TryRemove(key, out value))
-                    {
-                        value.PropertyChanged -= _referencePropertyChanged;
-                        value.Disposed -= _reference_Disposed;
-                    }
-                }
-            }
-        }
     }
 
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Controls;
 
@@ -55,8 +51,10 @@ namespace TAS.Client.Common
         private static void OnMouseDoubleClick(object sender, RoutedEventArgs e)
         {
             Control control = sender as Control;
-            ICommand command = (ICommand)control.GetValue(CommandProperty);
-            object commandParameter = control.GetValue(CommandParameterProperty);
+            if (control == null)
+                return;
+            var command = (ICommand)control.GetValue(CommandProperty);
+            var commandParameter = control.GetValue(CommandParameterProperty);
             if (command.CanExecute(commandParameter))
                 command.Execute(commandParameter);
         }

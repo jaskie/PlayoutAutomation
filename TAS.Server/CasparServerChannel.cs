@@ -1,29 +1,25 @@
 ﻿#undef DEBUG
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Svt.Caspar;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Xml.Serialization;
-using System.ComponentModel;
 using TAS.Remoting.Server;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using TAS.Server.Common;
-using System.Threading;
 using System.Text.RegularExpressions;
 using TAS.Server.Common.Interfaces;
 using TAS.Server.Media;
 
 namespace TAS.Server
 {
-    public class CasparServerChannel : DtoBase, IPlayoutServerChannelProperties, IPlayoutServerChannel
+    public class CasparServerChannel : DtoBase, IPlayoutServerChannel
     {
         private Channel _casparChannel;
-        private readonly SimpleDictionary<VideoLayer, bool> outputAspectNarrow = new SimpleDictionary<VideoLayer, bool>();
+        private readonly SimpleDictionary<VideoLayer, bool> _outputAspectNarrow = new SimpleDictionary<VideoLayer, bool>();
         private readonly ConcurrentDictionary<VideoLayer, Event> _loadedNext = new ConcurrentDictionary<VideoLayer, Event>();
         private readonly ConcurrentDictionary<VideoLayer, Event> _visible = new ConcurrentDictionary<VideoLayer, Event>();
         private bool _isServerConnected;
@@ -343,7 +339,7 @@ namespace TAS.Server
             {
                 channel.Clear();
                 channel.ClearMixer((int)VideoLayer.Program);
-                outputAspectNarrow[VideoLayer.Program] = false;
+                _outputAspectNarrow[VideoLayer.Program] = false;
                 _visible.Clear();
                 _loadedNext.Clear();
                 VolumeChanged?.Invoke(this, new VolumeChangedEventArgs(VideoLayer.Program, 1.0m));
@@ -381,11 +377,11 @@ namespace TAS.Server
         public void SetAspect(VideoLayer layer, bool narrow)
         {
             var channel = _casparChannel;
-            var oldAspectNarrow = outputAspectNarrow[layer];
+            var oldAspectNarrow = _outputAspectNarrow[layer];
             if (oldAspectNarrow != narrow
                 && CheckConnected(channel))
             {
-                outputAspectNarrow[layer] = narrow;
+                _outputAspectNarrow[layer] = narrow;
                 if (narrow)
                     channel.Fill((int)layer, 0.125f, 0f, 0.75f, 1f, 10, Easing.Linear);
                 else
@@ -487,7 +483,7 @@ namespace TAS.Server
         {
             if (sender == _casparChannel)
             {
-                var values = e.AudioData.dBFS.Where(f => f != null);
+                var values = e.AudioData.dBFS.Where(f => f.HasValue).Select(f=> f.Value).ToArray();
                 if (values.Any())
                     AudioLevel = (int)values.Average();
             }
@@ -502,7 +498,6 @@ namespace TAS.Server
         }
 
         public event EventHandler<VolumeChangedEventArgs> VolumeChanged;
-
         
         private CasparItem _getItem(Event aEvent)
         {
@@ -520,7 +515,7 @@ namespace TAS.Server
                     item.FieldOrderInverted = media.FieldOrderInverted;
                 item.VideoLayer = (int)aEvent.Layer;
                 item.Loop = false;
-                item.Transition.Type = (Svt.Caspar.TransitionType)aEvent.TransitionType;
+                item.Transition.Type = (TransitionType)aEvent.TransitionType;
                 item.Transition.Duration = (int)((aEvent.TransitionTime.Ticks - aEvent.TransitionPauseTime.Ticks) / aEvent.Engine.FrameTicks);
                 item.Transition.Pause = (int)(aEvent.TransitionPauseTime.Ticks / aEvent.Engine.FrameTicks);
                 item.Transition.Easing = (Easing)aEvent.TransitionEasing; 
@@ -553,10 +548,8 @@ namespace TAS.Server
                 data.DataPairs.Add(new CGDataPair(field.Key, new CGTextFieldData(field.Value)));
             return data;
         }
-
-        #endregion // Utilities
         
-        static TVideoFormat CasparModeToVideoFormat(VideoMode mode)
+        private TVideoFormat CasparModeToVideoFormat(VideoMode mode)
         {
             switch (mode)
             {
@@ -612,8 +605,10 @@ namespace TAS.Server
                     return TVideoFormat.Other;
             }
         }
+
+        #endregion // Utilities
     }
-    
+
     public class VolumeChangedEventArgs : EventArgs
     {
         public VolumeChangedEventArgs(VideoLayer layer, decimal volume)
@@ -621,7 +616,9 @@ namespace TAS.Server
             Layer = layer;
             Volume = volume;
         }
+        [JsonProperty]
         public decimal Volume { get; private set; }
+        [JsonProperty]
         public VideoLayer Layer { get; private set; }
     }
 

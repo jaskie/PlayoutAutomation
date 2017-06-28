@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace TAS.Remoting
 {
@@ -13,7 +10,7 @@ namespace TAS.Remoting
             TypeName = typeName;
             AssemblyName = assemblyName;
         }
-        public string TypeName { get; private set; }
-        public string AssemblyName { get; private set; }
+        public string TypeName { get; }
+        public string AssemblyName { get; }
     }
 }

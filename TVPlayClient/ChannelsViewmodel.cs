@@ -14,11 +14,12 @@ namespace TVPlayClient
             _channels.ForEach(c => c.Initialize());
         }
 
+        public List<ChannelWrapperViewmodel> Channels => _channels;
+
         protected override void OnDispose()
         {
             _channels?.ForEach(c => c.Dispose());
         }
 
-        public List<ChannelWrapperViewmodel> Channels => _channels;
     }
 }

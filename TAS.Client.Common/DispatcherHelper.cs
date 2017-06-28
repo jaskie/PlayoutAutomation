@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Threading;
+﻿using System.Windows.Threading;
 
 namespace TAS.Client.Common
 {
     public class DispatcherHelper
     {
-        private static readonly DispatcherOperationCallback exitFrameCallback = ExitFrame;
+        private static readonly DispatcherOperationCallback ExitFrameCallback = ExitFrame;
 
         /// <summary>
         /// Processes all UI messages currently in the message queue.
@@ -16,13 +12,13 @@ namespace TAS.Client.Common
         public static void WaitForPriority()
         {
             // Create new nested message pump.
-            DispatcherFrame nestedFrame = new DispatcherFrame();
+            var nestedFrame = new DispatcherFrame();
 
             // Dispatch a callback to the current message queue, when getting called,
             // this callback will end the nested message loop.
             // The priority of this callback should be lower than that of event message you want to process.
-            DispatcherOperation exitOperation = Dispatcher.CurrentDispatcher.BeginInvoke(
-                DispatcherPriority.ContextIdle, exitFrameCallback, nestedFrame);
+            var exitOperation = Dispatcher.CurrentDispatcher.BeginInvoke(
+                DispatcherPriority.ContextIdle, ExitFrameCallback, nestedFrame);
 
             // pump the nested message loop, the nested message loop will immediately
             // process the messages left inside the message queue.
@@ -35,12 +31,13 @@ namespace TAS.Client.Common
             }
         }
 
-        private static Object ExitFrame(Object state)
+        private static object ExitFrame(object state)
         {
-            DispatcherFrame frame = state as DispatcherFrame;
+            var frame = state as DispatcherFrame;
 
             // Exit the nested message loop.
-            frame.Continue = false;
+            if (frame != null)
+                frame.Continue = false;
             return null;
         }
 
