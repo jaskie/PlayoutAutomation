@@ -19,7 +19,7 @@ namespace TAS.Client.ViewModels
 
         private void _engine_FixedTimeEventOperation(object sender, CollectionOperationEventArgs<IEvent> e)
         {
-            if (e.Operation == CollectionOperation.Insert)
+            if (e.Operation == CollectionOperation.Add)
                 _fixedTimeEvents.Add(new EventPanelAutoStartEventViewmodel(e.Item));
             if (e.Operation == CollectionOperation.Remove)
                 _fixedTimeEvents.Remove(_fixedTimeEvents.FirstOrDefault(evm => evm.Event == e.Item));

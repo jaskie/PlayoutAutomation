@@ -589,7 +589,7 @@ namespace TAS.Server
                     if (parent.SetField(ref parent._duration, parent._computedDuration(), nameof(Duration)))
                         parent._durationChanged();
                     if (next != null)
-                        parent.NotifySubEventChanged(next, CollectionOperation.Insert);
+                        parent.NotifySubEventChanged(next, CollectionOperation.Add);
                 }
                 if (prior != null)
                 {
@@ -624,7 +624,7 @@ namespace TAS.Server
                     e2Parent._subEvents.Value.Remove(e2);
                     e2Parent.NotifySubEventChanged(e2, CollectionOperation.Remove);
                     e2Parent._subEvents.Value.Add(this);
-                    e2Parent.NotifySubEventChanged(this, CollectionOperation.Insert);
+                    e2Parent.NotifySubEventChanged(this, CollectionOperation.Add);
                 }
                 if (e2Prior != null)
                     e2Prior.Next = this;
@@ -668,7 +668,7 @@ namespace TAS.Server
                     e2Parent._subEvents.Value.Remove(this);
                     e2Parent.NotifySubEventChanged(this, CollectionOperation.Remove);
                     e2Parent._subEvents.Value.Add(e3);
-                    e2Parent.NotifySubEventChanged(e3, CollectionOperation.Insert);
+                    e2Parent.NotifySubEventChanged(e3, CollectionOperation.Add);
                 }
                 if (e2Prior != null)
                     e2Prior.Next = e3;
@@ -755,7 +755,7 @@ namespace TAS.Server
                     {
                         parent._subEvents.Value.Remove(this);
                         parent._subEvents.Value.Add(eventToInsert);
-                        parent.NotifySubEventChanged(eventToInsert, CollectionOperation.Insert);
+                        parent.NotifySubEventChanged(eventToInsert, CollectionOperation.Add);
                         Parent = null;
                     }
                     eventToInsert.Parent = parent;
@@ -803,7 +803,7 @@ namespace TAS.Server
                     subEventToAdd.Parent = this;
                     subEventToAdd.IsHold = false;
                     _subEvents.Value.Add(subEventToAdd);
-                    NotifySubEventChanged(subEventToAdd, CollectionOperation.Insert);
+                    NotifySubEventChanged(subEventToAdd, CollectionOperation.Add);
                     Duration = _computedDuration();
                     Event prior = subEventToAdd.Prior as Event;
                     if (prior != null)

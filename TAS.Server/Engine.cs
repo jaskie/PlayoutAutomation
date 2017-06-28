@@ -31,7 +31,7 @@ namespace TAS.Server
         public readonly object RundownSync = new object();
         private readonly object _tickLock = new object();
         private readonly SynchronizedCollection<Event> _visibleEvents = new SynchronizedCollection<Event>(); // list of visible events
-        private readonly ObservableSynchronizedCollection<IEvent> _runningEvents = new ObservableSynchronizedCollection<IEvent>(); // list of events loaded and playing 
+        private readonly List<IEvent> _runningEvents = new List<IEvent>(); // list of events loaded and playing 
         private readonly ConcurrentDictionary<VideoLayer, IEvent> _preloadedEvents = new ConcurrentDictionary<VideoLayer, IEvent>();
         private readonly SynchronizedCollection<IEvent> _rootEvents = new SynchronizedCollection<IEvent>();
         private readonly SynchronizedCollection<Event> _fixedTimeEvents = new SynchronizedCollection<Event>();
@@ -61,7 +61,6 @@ namespace TAS.Server
 
         public Engine()
         {
-            _runningEvents.CollectionOperation += _runningEventsOperation;
             _engineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
             Database.ConnectionStateChanged += _database_ConnectionStateChanged;
@@ -180,20 +179,20 @@ namespace TAS.Server
             get { return _engineState; }
             private set
             {
-                lock (_runningEvents.SyncRoot)
+                lock (_tickLock)
                     if (SetField(ref _engineState, value))
                     {
                         if (value == TEngineState.Hold)
-                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && ((Event)e).IsFinished()).ToList())
+                            foreach (var ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && ((Event)e).IsFinished()).ToArray())
                             {
-                                _pause(ev, true);
+                                _pause((Event)ev, true);
                                 Debug.WriteLine(ev, "Hold: Played");
                             }
                         if (value == TEngineState.Idle && _runningEvents.Count > 0)
                         {
-                            foreach (Event ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && ((Event)e).IsFinished()).ToList())
+                            foreach (var ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && ((Event)e).IsFinished()).ToArray())
                             {
-                                _pause(ev, true);
+                                _pause((Event)ev, true);
                                 Debug.WriteLine(ev, "Idle: Played");
                             }
                         }
@@ -497,14 +496,7 @@ namespace TAS.Server
                 EngineState = TEngineState.Hold;
                 foreach (var e in _visibleEvents.ToList())
                     _stop(e);
-                foreach (Event e in _runningEvents.ToList())
-                {
-                    _runningEvents.Remove(e);
-                    if (e.Position == 0)
-                        e.PlayState = TPlayState.Scheduled;
-                    else
-                        e.PlayState = TPlayState.Aborted;
-                }
+                _clearRunning();
             }
             _load(aEvent as Event);
         }
@@ -516,10 +508,10 @@ namespace TAS.Server
                 if (EngineState == TEngineState.Hold)
                 {
                     _visibleEvents.Where(e => e.PlayState == TPlayState.Played).ToList().ForEach(e => _stop(e));
-                    foreach (Event e in _runningEvents.ToList())
+                    foreach (var e in _runningEvents.ToArray())
                     {
                         if (!(e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading))
-                            _play(e, false);
+                            _play((Event)e, false);
                     }
                     EngineState = TEngineState.Running;
                 }
@@ -535,14 +527,7 @@ namespace TAS.Server
             {
                 EngineState = TEngineState.Running;
                 var eventsToStop = _visibleEvents.Where(e => e.PlayState == TPlayState.Played || e.PlayState == TPlayState.Playing).ToList();
-                foreach (Event e in _runningEvents.ToList())
-                {
-                    _runningEvents.Remove(e);
-                    if (e.Position == 0)
-                        e.PlayState = TPlayState.Scheduled;
-                    else
-                        e.PlayState = TPlayState.Aborted;
-                }
+                _clearRunning();
                 _play(ets, true);
                 foreach (Event e in eventsToStop)
                     _stop(e);
@@ -553,8 +538,10 @@ namespace TAS.Server
         {
             Debug.WriteLine(aEvent, $"Schedule {aEvent.PlayState}");
             lock (_tickLock)
+            {
                 EngineState = TEngineState.Running;
-            _run((Event)aEvent);
+                _run((Event) aEvent);
+            }
             NotifyEngineOperation(aEvent, TEngineOperation.Schedule);
         }
 
@@ -565,21 +552,19 @@ namespace TAS.Server
             Event ev;
             lock (_visibleEvents.SyncRoot)
                 ev = _visibleEvents.FirstOrDefault(e => e.Layer == aVideoLayer);
-            if (ev != null)
+            lock (_tickLock)
             {
-                ev.PlayState = TPlayState.Aborted;
-                ev.SaveDelayed();
-                RemoveVisibleEvent(ev);
-                _runningEvents.Remove(ev);
+                if (ev != null)
+                {
+                    ev.PlayState = ev.Position == 0 ? TPlayState.Scheduled : TPlayState.Aborted;
+                    ev.SaveDelayed();
+                    RemoveVisibleEvent(ev);
+                    _runningEvents.Remove(ev);
+                    RunningEventsOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(ev, CollectionOperation.Remove));
+                }
+                _playoutChannelPRI?.Clear(aVideoLayer);
+                _playoutChannelSEC?.Clear(aVideoLayer);
             }
-            if (ev != null)
-            {
-                ev.PlayState = TPlayState.Scheduled;
-                ev.SaveDelayed();
-                _runningEvents.Remove(ev);
-            }
-            _playoutChannelPRI?.Clear(aVideoLayer);
-            _playoutChannelSEC?.Clear(aVideoLayer);
             if (aVideoLayer == VideoLayer.Program)
                 lock (_tickLock)
                     Playing = null;
@@ -588,19 +573,19 @@ namespace TAS.Server
         public void Clear()
         {
             Logger.Info("{0} {1}: Clear all", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this);
-            _clearRunning();
-            _visibleEvents.Clear();
-            ForcedNext = null;
-            _playoutChannelPRI?.Clear();
-            _playoutChannelSEC?.Clear();
-            PreviewUnload();
-            NotifyEngineOperation(null, TEngineOperation.Clear);
-            ProgramAudioVolume = 1.0m;
             lock (_tickLock)
             {
+                _clearRunning();
+                _visibleEvents.Clear();
+                ForcedNext = null;
+                _playoutChannelPRI?.Clear();
+                _playoutChannelSEC?.Clear();
+                PreviewUnload();
+                ProgramAudioVolume = 1.0m;
                 EngineState = TEngineState.Idle;
                 Playing = null;
             }
+            NotifyEngineOperation(null, TEngineOperation.Clear);
         }
 
         public void ClearMixer()
@@ -620,8 +605,7 @@ namespace TAS.Server
         {
             Action<Event> rerun = aEvent =>
             {
-                if (!_runningEvents.Contains(aEvent))
-                    _runningEvents.Add(aEvent);
+                _run(aEvent);
                 if (aEvent.EventType != TEventType.Rundown)
                 {
                     AddVisibleEvent(aEvent);
@@ -630,23 +614,26 @@ namespace TAS.Server
             };
 
             var ev = aRundown as Event;
-            while (ev != null)
-            {
-                if (_currentTicks >= ev.ScheduledTime.Ticks && _currentTicks < ev.ScheduledTime.Ticks + ev.Duration.Ticks)
-                {
-                    ev.Position = (_currentTicks - ev.ScheduledTime.Ticks) / FrameTicks;
-                    var st = ev.StartTime;
-                    ev.PlayState = TPlayState.Playing;
-                    ev.StartTime = st;
-                    rerun(ev);
-                    foreach (var se in ev.SubEvents)
-                        RestartRundown(se);
-                    break;
-                }
-                ev = ev.GetEnabledSuccessor();
-            }
             lock (_tickLock)
+            {
+                while (ev != null)
+                {
+                    if (_currentTicks >= ev.ScheduledTime.Ticks &&
+                        _currentTicks < ev.ScheduledTime.Ticks + ev.Duration.Ticks)
+                    {
+                        ev.Position = (_currentTicks - ev.ScheduledTime.Ticks) / FrameTicks;
+                        var st = ev.StartTime;
+                        ev.PlayState = TPlayState.Playing;
+                        ev.StartTime = st;
+                        rerun(ev);
+                        foreach (var se in ev.SubEvents)
+                            RestartRundown(se);
+                        break;
+                    }
+                    ev = ev.GetEnabledSuccessor();
+                }
                 EngineState = TEngineState.Running;
+            }
         }
         
         public MediaDeleteDenyReason CanDeleteMedia(PersistentMedia media)
@@ -852,7 +839,7 @@ namespace TAS.Server
         internal void AddFixedTimeEvent(Event e)
         {
             _fixedTimeEvents.Add(e);
-            FixedTimeEventOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Insert));
+            FixedTimeEventOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Add));
         }
         internal void RemoveFixedTimeEvent(Event e)
         {
@@ -1001,6 +988,7 @@ namespace TAS.Server
                         {
                             e.PlayState = ((Event)e).IsFinished() ? TPlayState.Played : TPlayState.Aborted;
                             _runningEvents.Remove(e);
+                            RunningEventsOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Remove));
                         }
                         e.SaveDelayed();
                     });                        
@@ -1062,18 +1050,13 @@ namespace TAS.Server
         private void _clearRunning()
         {
             Debug.WriteLine("_clearRunning");
-            foreach (var e in _runningEvents.ToList())
+            foreach (var e in _runningEvents.ToArray())
             {
-                if (e.PlayState == TPlayState.Playing)
-                    e.PlayState = TPlayState.Aborted;
-                if (e.PlayState == TPlayState.Fading)
-                    e.PlayState = TPlayState.Played;
-                if (e.PlayState == TPlayState.Paused)
-                    e.PlayState = TPlayState.Scheduled;
-                if (e.IsModified)
-                    e.SaveDelayed();
+                _runningEvents.Remove(e);
+                e.PlayState = ((Event) e).Position == 0 ? TPlayState.Scheduled : TPlayState.Aborted;
+                RunningEventsOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Remove));
+                e.SaveDelayed();
             }
-            _runningEvents.Clear();
         }
 
         private void _setAspectRatio(Event aEvent)
@@ -1098,18 +1081,15 @@ namespace TAS.Server
         private void _run(Event aEvent)
         {
             var eventType = aEvent.EventType;
-            if (eventType == TEventType.Animation || eventType == TEventType.CommandScript)
+            if (eventType == TEventType.Animation || eventType == TEventType.CommandScript || _runningEvents.Contains(aEvent))
                 return;
-            lock (_runningEvents.SyncRoot)
-            {
-                if (!_runningEvents.Contains(aEvent))
-                    _runningEvents.Add(aEvent);
-            }
+            _runningEvents.Add(aEvent);
+            RunningEventsOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(aEvent, CollectionOperation.Add));
         }
 
         private void _stop(Event aEvent)
         {
-            aEvent.PlayState = ((Event)aEvent).Position == 0 ? TPlayState.Scheduled : ((Event)aEvent).IsFinished() ? TPlayState.Played : TPlayState.Aborted;
+            aEvent.PlayState = aEvent.Position == 0 ? TPlayState.Scheduled : aEvent.IsFinished() ? TPlayState.Played : TPlayState.Aborted;
             aEvent.SaveDelayed();
             lock (_visibleEvents.SyncRoot)
                 if (_visibleEvents.Contains(aEvent))
@@ -1119,8 +1099,8 @@ namespace TAS.Server
                     {
                         Debug.WriteLine("{0} Stop: {1}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), aEvent.EventName);
                         Logger.Info("{0} {1}: Stop {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aEvent.EventName);
-                        _playoutChannelPRI?.Stop((Event)aEvent);
-                        _playoutChannelSEC?.Stop((Event)aEvent);
+                        _playoutChannelPRI?.Stop(aEvent);
+                        _playoutChannelSEC?.Stop(aEvent);
                     }
                     RemoveVisibleEvent(aEvent);
                 }
@@ -1183,7 +1163,6 @@ namespace TAS.Server
             {
                 if (EngineState == TEngineState.Running)
                 {
-                    lock (_runningEvents.SyncRoot)
                         foreach (var e in _runningEvents.Where(ev => ev.PlayState == TPlayState.Playing || ev.PlayState == TPlayState.Fading))
                             ((Event)e).Position += nFrames;
 
@@ -1242,9 +1221,7 @@ namespace TAS.Server
                         }
                     }
 
-                    IEnumerable<IEvent> runningEvents;
-                    lock (_runningEvents.SyncRoot)
-                        runningEvents = _runningEvents.Where(e => e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading).ToList();
+                    IEnumerable<IEvent> runningEvents = _runningEvents.Where(e => e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading).ToList();
                     foreach (Event e in runningEvents)
                     {
                         if (e.IsFinished())
@@ -1290,6 +1267,7 @@ namespace TAS.Server
                 if (startEvent != null)
                 {
                     _runningEvents.Remove(startEvent);
+                    RunningEventsOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(startEvent, CollectionOperation.Remove));
                     startEvent.PlayState = TPlayState.Scheduled;
                     Start(startEvent);
                 }
@@ -1360,7 +1338,6 @@ namespace TAS.Server
         protected override void DoDispose()
         {
             base.DoDispose();
-            _runningEvents.CollectionOperation -= _runningEventsOperation;
             foreach (Event e in _rootEvents)
                 e.SaveLoadedTree();
             CGElementsController?.Dispose();
@@ -1395,8 +1372,8 @@ namespace TAS.Server
                 {
                     foreach (var e in playingEvents)
                     {
-                        ((Event)e).Position = (_currentTicks - e.ScheduledTime.Ticks) / FrameTicks;
-                        _runningEvents.Add(e);
+                        e.Position = (_currentTicks - e.ScheduledTime.Ticks) / FrameTicks;
+                        _run(e);
                         AddVisibleEvent(e);
                     }
                     _engineState = TEngineState.Running;
@@ -1505,10 +1482,6 @@ namespace TAS.Server
             EventSaved?.Invoke(this, new EventEventArgs(sender as IEvent));
         }
 
-        private void _runningEventsOperation(object sender, CollectionOperationEventArgs<IEvent> e)
-        {
-            RunningEventsOperation?.Invoke(sender, new CollectionOperationEventArgs<IEvent>(e.Item, e.Operation));
-        }
 
         private MediaBase _findPreviewMedia(MediaBase media)
         {

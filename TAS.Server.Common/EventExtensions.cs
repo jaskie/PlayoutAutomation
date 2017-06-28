@@ -117,7 +117,8 @@ namespace TAS.Server.Common
         }
         public static void SaveDelayed(this IEvent aEvent)
         {
-            ThreadPool.QueueUserWorkItem(o => aEvent.Save());
+            if (aEvent.IsModified)
+                ThreadPool.QueueUserWorkItem(o => aEvent.Save());
         }
 
         public static long LengthInFrames(this IEvent aEvent)

@@ -188,7 +188,7 @@ namespace TAS.Remoting.Model
                 var list = subEvents as IList<IEvent>;
                 if (list != null)
                 {
-                    if (e.Operation == CollectionOperation.Insert)
+                    if (e.Operation == CollectionOperation.Add)
                         list.Add(e.Item);
                     else
                         list.Remove(e.Item);

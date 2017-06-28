@@ -270,7 +270,7 @@ namespace TAS.Client.ViewModels
             {
                 if (e.Operation == CollectionOperation.Remove && !IsExpanded && HasDummyChild && Event.SubEventsCount == 0)
                     Childrens.Remove(DummyChild);
-                if (e.Operation == CollectionOperation.Insert && !IsExpanded && !HasDummyChild && Event.SubEventsCount > 0)
+                if (e.Operation == CollectionOperation.Add && !IsExpanded && !HasDummyChild && Event.SubEventsCount > 0)
                     Childrens.Add(DummyChild);
             });
         }
