@@ -692,8 +692,7 @@ namespace TAS.Server.Common.Database
                     {
                         var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
                         if (fieldsDeserialized != null)
-                            foreach (var field in fieldsDeserialized)
-                                animatedEvent.Fields.Add(field);
+                            animatedEvent.Fields = fieldsDeserialized;
                     }
                 }
             }
@@ -1124,8 +1123,7 @@ VALUES
                             {
                                 var fieldsDeserialized = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(templateFields);
                                 if (fieldsDeserialized != null)
-                                    foreach (var field in fieldsDeserialized)
-                                        nm.Fields.Add(field);
+                                    nm.Fields = fieldsDeserialized;
                             }
                             nm.Method = (TemplateMethod)dataReader.GetByte("Method");
                             nm.TemplateLayer = dataReader.GetInt32("TemplateLayer");

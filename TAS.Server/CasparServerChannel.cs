@@ -19,7 +19,7 @@ namespace TAS.Server
     public class CasparServerChannel : DtoBase, IPlayoutServerChannel
     {
         private Channel _casparChannel;
-        private readonly SimpleDictionary<VideoLayer, bool> _outputAspectNarrow = new SimpleDictionary<VideoLayer, bool>();
+        private readonly ConcurrentDictionary<VideoLayer, bool> _outputAspectNarrow = new ConcurrentDictionary<VideoLayer, bool>();
         private readonly ConcurrentDictionary<VideoLayer, Event> _loadedNext = new ConcurrentDictionary<VideoLayer, Event>();
         private readonly ConcurrentDictionary<VideoLayer, Event> _visible = new ConcurrentDictionary<VideoLayer, Event>();
         private bool _isServerConnected;
@@ -377,7 +377,8 @@ namespace TAS.Server
         public void SetAspect(VideoLayer layer, bool narrow)
         {
             var channel = _casparChannel;
-            var oldAspectNarrow = _outputAspectNarrow[layer];
+            bool oldAspectNarrow;
+            _outputAspectNarrow.TryGetValue(layer, out oldAspectNarrow);
             if (oldAspectNarrow != narrow
                 && CheckConnected(channel))
             {

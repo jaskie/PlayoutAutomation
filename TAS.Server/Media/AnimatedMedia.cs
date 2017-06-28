@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using TAS.Server.Common;
@@ -11,12 +12,11 @@ namespace TAS.Server.Media
     {
         private TemplateMethod _method;
         private int _templateLayer;
-        private readonly SimpleDictionary<string, string> _fields = new SimpleDictionary<string, string>();
+        private readonly ConcurrentDictionary<string, string> _fields = new ConcurrentDictionary<string, string>();
 
 
         public AnimatedMedia(IMediaDirectory directory, Guid guid, ulong idPersistentMedia) : base(directory, guid, idPersistentMedia)
         {
-            _fields.DictionaryOperation += _fields_DictionaryOperation;
             base.MediaType = TMediaType.Animation;
         }
 
@@ -28,7 +28,8 @@ namespace TAS.Server.Media
             {
                 _fields.Clear();
                 foreach (var kvp in value)
-                    _fields.Add(kvp);
+                    _fields.TryAdd(kvp.Key, kvp.Value);
+                IsModified = true;
             }
         }
 
@@ -75,17 +76,6 @@ namespace TAS.Server.Media
                 IsVerified = true;
                 MediaStatus = TMediaStatus.Available;
             }
-        }
-
-        protected override void DoDispose()
-        {
-            _fields.DictionaryOperation -= _fields_DictionaryOperation;
-            base.DoDispose();
-        }
-
-        private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
-        {
-            IsModified = true;
         }
 
     }

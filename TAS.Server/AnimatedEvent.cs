@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
@@ -10,7 +11,7 @@ namespace TAS.Server
     {
         private int _templateLayer;
         private TemplateMethod _method;
-        private readonly SimpleDictionary<string, string> _fields;
+        private readonly ConcurrentDictionary<string, string> _fields;
         
         internal AnimatedEvent(
                     Engine engine,
@@ -60,18 +61,11 @@ namespace TAS.Server
                         false, 0, 0, 0
                         )
         {
-            _fields = new SimpleDictionary<string, string>(fields);
-            _fields.DictionaryOperation += _fields_DictionaryOperation;
+            _fields = new ConcurrentDictionary<string, string>(fields);
             _method = method;
             _templateLayer = templateLayer;
         }
 
-        protected override void DoDispose()
-        {
-            base.DoDispose();
-            _fields.DictionaryOperation -= _fields_DictionaryOperation;
-        }
-        
         [JsonProperty]
         public IDictionary<string, string> Fields
         {
@@ -80,7 +74,8 @@ namespace TAS.Server
             {
                 _fields.Clear();
                 foreach (var kvp in value)
-                    _fields.Add(kvp);
+                    _fields.TryAdd(kvp.Key, kvp.Value);
+                IsModified = true;
             }
         }
 
@@ -90,10 +85,6 @@ namespace TAS.Server
         [JsonProperty]
         public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value); } }
 
-        private void _fields_DictionaryOperation(object sender, DictionaryOperationEventArgs<string, string> e)
-        {
-            IsModified = true;
-        }
 
     }
 }
