@@ -5,21 +5,26 @@
 namespace TAS {
 	namespace FFMpegUtils {
 
-		// unmanaged opbject
+		AVFormatContext * open_file(char * fileName)
+		{
+			AVFormatContext * ctx = nullptr;
+			if (avformat_open_input(&ctx, fileName, NULL, NULL) == 0)
+				avformat_find_stream_info(ctx, NULL);
+			return ctx;
+		}
+
+		// unmanaged object
 		_FFMpegWrapper::_FFMpegWrapper(char* fileName)
 		{
-			av_register_all();
-			pFormatCtx=NULL;
-			if (avformat_open_input(&pFormatCtx, fileName, NULL, NULL) == 0)
-				avformat_find_stream_info(pFormatCtx, NULL);
+			av_register_all();			
+			pFormatCtx = std::unique_ptr<AVFormatContext, std::function<void(AVFormatContext *)>>(open_file(fileName), ([](AVFormatContext * ctx)
+			{				
+				if (ctx->oformat && !(ctx->oformat->flags & AVFMT_NOFILE))
+					avio_close(ctx->pb);
+				avformat_free_context(ctx);
+			}));
 		};
-
-		_FFMpegWrapper::~_FFMpegWrapper()
-		{
-			if (pFormatCtx)
-				avformat_close_input(&pFormatCtx); 
-		};
-
+		
 		int64_t _FFMpegWrapper::getFrameCount()
 		{
 			if (pFormatCtx)
@@ -41,13 +46,11 @@ namespace TAS {
 			int64_t frameCount = 0;
 			if (pFormatCtx)
 			{
-				AVPacket *pOutput;
-				pOutput = (AVPacket *) av_malloc(sizeof(AVPacket));
-				while (av_read_frame(pFormatCtx, pOutput) >= 0)
+				std::unique_ptr<AVPacket, std::function<void(AVPacket *)>> packet(av_packet_alloc(), [](AVPacket *p) { av_packet_free(&p); });
+				while (av_read_frame(pFormatCtx.get(), packet.get()) >= 0)
 				{
-					if (pOutput->stream_index == streamIndex)
+					if (packet->stream_index == streamIndex)
 						frameCount++;
-					av_free_packet(pOutput);
 				}
 			}
 			return frameCount; 
@@ -101,39 +104,29 @@ namespace TAS {
 					AVCodecContext *codecCtx = pFormatCtx->streams[i]->codec;
 					if (codecCtx->codec_type == AVMEDIA_TYPE_VIDEO)
 					{
-						AVFrame *picture = av_frame_alloc();
-						AVPacket *packet = (AVPacket *)av_malloc(sizeof(AVPacket));
-						AVCodec *pCodec = avcodec_find_decoder(codecCtx->codec_id);
-						try
+						std::unique_ptr<AVFrame, std::function<void(AVFrame *)>> picture(av_frame_alloc(), [](AVFrame *frame) { av_frame_free(&frame); });
+						std::unique_ptr<AVPacket, std::function<void(AVPacket *)>> packet(av_packet_alloc(), [](AVPacket *p) { av_packet_free(&p); });
+						AVCodec * codec = avcodec_find_decoder(codecCtx->codec_id);
+						if (avcodec_open2(codecCtx, NULL, NULL) < 0)
 						{
-							if (avcodec_open2(codecCtx, pCodec, NULL) < 0)
+							return NULL; // unable to open codec
+						}
+						bool readSuccess = true;
+						int frameFinished = 0;
+						int bytesDecoded = 0;
+						do
+						{
+							readSuccess = (av_read_frame(pFormatCtx.get(), packet.get()) == 0);
+							if (readSuccess
+								&& packet->stream_index == i
+								&& packet->size > 0
+								&& (bytesDecoded = avcodec_decode_video2(codecCtx, picture.get(), &frameFinished, packet.get())) > 0)
 							{
-								av_frame_free(&picture);
-								return NULL; // unable to open coden
+								if (frameFinished)
+									return picture.get();
 							}
-							bool readSuccess = true;
-							int frameFinished = 0;
-							int bytesDecoded = 0;
-							do
-							{
-								readSuccess = (av_read_frame(pFormatCtx, packet) == 0);
-								if (readSuccess
-									&& packet->stream_index == i
-									&& packet->size > 0
-									&& (bytesDecoded = avcodec_decode_video2(codecCtx, picture, &frameFinished, packet)) > 0)
-								{
-									if (frameFinished)
-										return picture;
-								}
-							} while (!frameFinished && readSuccess);
-							av_frame_free(&picture);
-							return NULL;
-						}
-						finally
-						{
-							avcodec_close(codecCtx);
-							av_free_packet(packet);
-						}
+						} while (!frameFinished && readSuccess);
+						return NULL;
 					}
 				}
 			}
@@ -144,56 +137,48 @@ namespace TAS {
 		{
 			if (pFormatCtx)
 			{
-				for (unsigned int i=0; i<pFormatCtx->nb_streams; i++)
+				for (unsigned int i = 0; i < pFormatCtx->nb_streams; i++)
 				{
 					AVCodecContext *codecCtx = pFormatCtx->streams[i]->codec;
 					if (codecCtx->codec_type == AVMEDIA_TYPE_VIDEO)
 					{
 						if (codecCtx->field_order == AV_FIELD_UNKNOWN)
 						{
-							AVFrame *picture = av_frame_alloc();
-							AVPacket *packet = (AVPacket *)av_malloc(sizeof(AVPacket));
-							AVCodec *pCodec = avcodec_find_decoder(codecCtx->codec_id);
-							try
+							std::unique_ptr<AVFrame, std::function<void(AVFrame *)>> picture(av_frame_alloc(), [](AVFrame *frame) { av_frame_free(&frame); });
+							std::unique_ptr<AVPacket, std::function<void(AVPacket *)>> packet(av_packet_alloc(), [](AVPacket *p) { av_packet_free(&p); });
+							AVCodec * codec = avcodec_find_decoder(codecCtx->codec_id);
+							if (avcodec_open2(codecCtx, codec, NULL) < 0)
+								return AV_FIELD_UNKNOWN; // unable to open coden
+							bool readSuccess = true;
+							int frameFinished = 0;
+							int bytesDecoded = 0;
+							do
 							{
-								if (avcodec_open2(codecCtx, pCodec, NULL) < 0)
-									return AV_FIELD_UNKNOWN; // unable to open coden
-								bool readSuccess = true;
-								int frameFinished = 0;
-								int bytesDecoded = 0;
-								do
+								readSuccess = (av_read_frame(pFormatCtx.get(), packet.get()) == 0);
+								if (readSuccess
+									&& packet->stream_index == i
+									&& packet->size > 0
+									&& (bytesDecoded = avcodec_decode_video2(codecCtx, picture.get(), &frameFinished, packet.get())) > 0)
 								{
-									readSuccess = (av_read_frame(pFormatCtx, packet) == 0);
-									if (readSuccess
-										&& packet->stream_index == i
-										&& packet->size > 0
-										&& (bytesDecoded = avcodec_decode_video2(codecCtx, picture, &frameFinished, packet)) > 0)
+									if (frameFinished)
 									{
-										if (frameFinished)
-										{
-											if (picture->interlaced_frame)
-												if (picture->top_field_first)
-													return AV_FIELD_TT;
-												else
-													return AV_FIELD_BB;
+										if (picture->interlaced_frame)
+											if (picture->top_field_first)
+												return AV_FIELD_TT;
 											else
-												return AV_FIELD_PROGRESSIVE;
-										}
+												return AV_FIELD_BB;
+										else
+											return AV_FIELD_PROGRESSIVE;
 									}
-								} while (!frameFinished && readSuccess);
-								return AV_FIELD_UNKNOWN;
-							}
-							finally
-							{
-								avcodec_close(codecCtx);
-								av_frame_free(&picture);
-								av_free_packet(packet);
-							}
+								}
+							} while (!frameFinished && readSuccess);
+							return AV_FIELD_UNKNOWN;
 						}
-						else
-						return codecCtx->field_order;
 					}
-				} 
+					else
+						return codecCtx->field_order;
+
+				}
 			}
 			return AV_FIELD_UNKNOWN;
 		}

@@ -187,9 +187,7 @@
     <ClCompile Include="VideoDecoder.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\svt\svt.caspar\mediainfo.cs" />
     <None Include="app.ico" />
-    <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc" />

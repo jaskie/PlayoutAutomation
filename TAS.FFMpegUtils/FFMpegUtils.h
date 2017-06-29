@@ -49,12 +49,11 @@ namespace TAS {
 	class _FFMpegWrapper
 	{
 	private:
-		AVFormatContext* pFormatCtx;
+		std::unique_ptr<AVFormatContext, std::function<void(AVFormatContext *)>> pFormatCtx;
 		int64_t countFrames(unsigned int streamIndex);
 		AVFrame* decodeFirstFrame();
 	public:
 		_FFMpegWrapper(char* fileName);
-		~_FFMpegWrapper();
 		int64_t getFrameCount();
 		int64_t getAudioDuration();
 		int getHeight();
@@ -65,7 +64,6 @@ namespace TAS {
 		AVRational getSAR();
 		AVRational getFrameRate();
 		char* _FFMpegWrapper::getTimeCode();
-		bool readNextPacket(AVPacket* packetToRead);
 	};
 
 	// managed code
