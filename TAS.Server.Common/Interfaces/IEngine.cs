@@ -64,10 +64,10 @@ namespace TAS.Server.Common.Interfaces
         void Clear(VideoLayer aVideoLayer);
         void ClearMixer();
         void RestartRundown(IEvent aRundown);
-        IEvent ForcedNext { get; set; }
         void Schedule(IEvent aEvent);
         void ReSchedule(IEvent aEvent);
         void Restart();
+        void ForceNext(IEvent aEvent);
         void Execute(string command);
         DateTime CurrentTime { get; }
         ICGElementsController CGElementsController { get; }
@@ -75,6 +75,7 @@ namespace TAS.Server.Common.Interfaces
         IEvent Playing { get; }
         IEvent NextToPlay { get; }
         IEvent NextWithRequestedStartTime { get; }
+        IEvent ForcedNext { get; }
         bool IsWideScreen { get; }
         event EventHandler<EventEventArgs> EventSaved;
         event EventHandler<EventEventArgs> EventDeleted;

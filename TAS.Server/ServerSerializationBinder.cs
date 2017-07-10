@@ -1,11 +1,8 @@
-﻿using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
 using TAS.Remoting;
 using TAS.Server.Media;
+using Newtonsoft.Json.Serialization;
 
 namespace TAS.Server
 {
@@ -28,26 +25,26 @@ namespace TAS.Server
                 case "TAS.Client.Model.ArchiveDirectory":
                     return typeof(ArchiveDirectory);
                 case "TAS.Client.Model.FileManager":
-                    return typeof(TAS.Server.FileManager);
+                    return typeof(FileManager);
                 case "TAS.Client.Model.MediaSegment":
                     return typeof(MediaSegment);
                 case "TAS.Client.Model.ConvertOperation":
-                    return typeof(TAS.Server.ConvertOperation);
+                    return typeof(ConvertOperation);
                 case "TAS.Client.Model.FileOperation":
-                    return typeof(TAS.Server.ConvertOperation);
+                    return typeof(ConvertOperation);
                 case "TAS.Client.Model.Engine":
-                    return typeof(TAS.Server.Engine);
+                    return typeof(Engine);
                 case "TAS.Client.Model.MediaManager":
-                    return typeof(TAS.Server.MediaManager);
+                    return typeof(MediaManager);
                 case "TAS.Client.Model.CasparServerChannel":
-                    return typeof(TAS.Server.CasparServerChannel);
+                    return typeof(CasparServerChannel);
                 case "TAS.Client.Model.CasparServer":
-                    return typeof(TAS.Server.CasparServer);
+                    return typeof(CasparServer);
                 default:
                     if (assemblyName == "System")
                         return Type.GetType(typeName, true);
                     else
-                        return Type.GetType(string.Format("{0}, {1}", typeName, assemblyName), true);
+                        return Type.GetType($"{typeName}, {assemblyName}", true);
             }
         }
         public void BindToName(Type serializedType, out string assemblyName, out string typeName)

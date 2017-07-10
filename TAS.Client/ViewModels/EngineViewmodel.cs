@@ -373,10 +373,7 @@ namespace TAS.Client.ViewModels
 
         private void _forceNext(object obj)
         {
-            if (IsForcedNext)
-                _engine.ForcedNext = null;
-            else
-                _engine.ForcedNext = _selectedEvent.Event;
+            _engine.ForceNext(IsForcedNext ? null : _selectedEvent.Event);
         }
 
         private bool _canForceNextSelected(object obj)

@@ -21,7 +21,7 @@ namespace TAS.Remoting.Model
 
         public TEngineState EngineState { get { return Get<TEngineState>(); } set { SetLocalValue(value); } }
 
-        public IEvent ForcedNext { get { return Get<Event>(); } set { Set(value); } }
+        public IEvent ForcedNext { get { return Get<Event>(); } set { SetLocalValue(value); } }
 
         public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetLocalValue(value); } }
 
@@ -60,7 +60,7 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEngine.PreviewMedia))]
         private Media _previewMedia { get { return Get<Media>(); } set { SetLocalValue(value); } }
         [JsonIgnore]
-        public IMedia PreviewMedia { get { return _previewMedia; } }
+        public IMedia PreviewMedia => _previewMedia;
         public long PreviewPosition { get { return Get<long>(); } set { Set(value); } }
         public long PreviewSeek { get { return Get<long>(); } set { SetLocalValue(value); } }
         public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal audioLevel)
@@ -176,6 +176,8 @@ namespace TAS.Remoting.Model
         public void Start(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
         
         public void StartLoaded() { Invoke(); }
+
+        public void ForceNext(IEvent aEvent) { Invoke(parameters: new object[] { aEvent }); }
 
         public void Execute(string command)
         {

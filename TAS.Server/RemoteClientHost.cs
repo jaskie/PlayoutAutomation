@@ -1,25 +1,25 @@
-﻿using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
+using System.Threading;
 using System.Xml.Serialization;
 using TAS.Remoting.Server;
 using TAS.Server.Common.Interfaces;
 using WebSocketSharp.Server;
+using Newtonsoft.Json.Serialization;
 
 namespace TAS.Server
 {
     public class RemoteClientHost : IDisposable, IRemoteHostConfig
     {
         [XmlAttribute]
-        public ushort ListenPort { get; set; }
         private WebSocketServer _server;
-        private static ISerializationBinder ServerBinder = new ServerSerializationBinder();
-        private static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(RemoteClientHost));
+        private int _disposed;
+
+        private static readonly ISerializationBinder ServerBinder = new ServerSerializationBinder();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(RemoteClientHost));
+
+        [XmlAttribute]
+        public ushort ListenPort { get; set; }
 
         public bool Initialize(Engine engine)
         {
@@ -40,22 +40,13 @@ namespace TAS.Server
             return false;
         }
 
-        bool _disposed = false;
-        void _doDispose(bool disposed)
-        {
-            if (!disposed)
-            {
-                _disposed = true;
-                UnInitialize();
-            }
-        }
-
         public void Dispose()
         {
-            _doDispose(_disposed);
+            if (Interlocked.Exchange(ref _disposed, 1) == default(int))
+                UnInitialize();
         }
 
-        internal void UnInitialize()
+        public void UnInitialize()
         {
             _server?.Stop();
         }
