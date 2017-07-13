@@ -13,7 +13,15 @@
     <Window.Resources>
         <client:MainWindowViewmodel x:Key="MainWindowVM"/>
     </Window.Resources>
-    <TabControl Padding="0" TabStripPlacement="Left" BorderThickness="0" DataContext="{StaticResource MainWindowVM}" ItemsSource="{Binding Channels}">
+    <TabControl ItemsSource="{Binding Tabs}" Padding="0" TabStripPlacement="Left" BorderThickness="0" DataContext="{StaticResource MainWindowVM}">
+        <TabControl.Resources>
+            <DataTemplate DataType="{x:Type vm:ChannelViewmodel}">
+                <views:ChannelView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:UserManagerViewmodel}">
+                <views:UserManagerView/>
+            </DataTemplate>
+        </TabControl.Resources>
         <TabControl.Template>
             <ControlTemplate TargetType="{x:Type TabControl}">
                 <Grid KeyboardNavigation.TabNavigation="Local">
@@ -26,8 +34,7 @@
                             <VisualState x:Name="Disabled">
                                 <Storyboard>
                                     <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
-                                                Storyboard.TargetProperty="(Border.BorderBrush).
-                    (SolidColorBrush.Color)">
+                                                Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)">
                                         <EasingColorKeyFrame KeyTime="0"
                                          Value="#FFAAAAAA" />
                                     </ColorAnimationUsingKeyFrames>
@@ -65,7 +72,7 @@
                                 Name="Border"
                                 BorderThickness="1" 
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="5, 0, 0, 5"
+                                CornerRadius="2, 0, 0, 2"
                                 >
                                 <ContentPresenter x:Name="ContentSite"
                                     VerticalAlignment="Center"
@@ -87,7 +94,7 @@
                 <Setter Property="HeaderTemplate">
                     <Setter.Value>
                         <DataTemplate>
-                            <TextBlock Text="{Binding ChannelName}">
+                            <TextBlock Text="{Binding DisplayName}">
                                 <TextBlock.LayoutTransform>
                                     <TransformGroup>
                                         <RotateTransform Angle="270" />
@@ -106,10 +113,5 @@
                 </Style.Triggers>
             </Style>
         </TabControl.ItemContainerStyle>
-        <TabControl.ContentTemplate>
-            <DataTemplate DataType="{x:Type vm:ChannelViewmodel}">
-                <views:ChannelView/>
-            </DataTemplate>
-        </TabControl.ContentTemplate>
     </TabControl>
 </Window>

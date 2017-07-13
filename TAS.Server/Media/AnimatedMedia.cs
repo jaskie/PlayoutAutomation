@@ -53,9 +53,11 @@ namespace TAS.Server.Media
                 else
                 if (IdPersistentMedia == 0)
                     result = this.DbInsert(directory.Server.Id);
-                else
-                if (IsModified)
-                    result = this.DbUpdate(directory.Server.Id);
+                else if (IsModified)
+                {
+                    this.DbUpdate(directory.Server.Id);
+                    result = true;
+                }
             }
             IsModified = false;
             return result;

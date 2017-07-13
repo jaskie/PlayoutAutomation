@@ -153,6 +153,8 @@ namespace TAS.Server.Common
                 if (next != null)
                     return next;
                 aEvent = current.GetVisualParent();
+                if (aEvent == null)
+                    return null;
             }
         }
 

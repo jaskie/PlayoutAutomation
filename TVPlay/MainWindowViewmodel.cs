@@ -20,7 +20,8 @@ namespace TAS.Client
                 {
                     EngineController.Initialize();
                     var engines = EngineController.Engines;
-                    Channels = new List<ChannelViewmodel>(engines.Select(engine => new ChannelViewmodel(engine, true, true, true)));
+                    Tabs = new List<ViewmodelBase>(engines.Select(engine => new ChannelViewmodel(engine, true, true, true)));
+                    Tabs.Add(new UserManagerViewmodel());
                 }
                 catch (TypeInitializationException e)
                 {
@@ -35,11 +36,11 @@ namespace TAS.Client
             }
         }
         
-        public List<ChannelViewmodel> Channels { get; }
+        public List<ViewmodelBase> Tabs { get; }
 
         protected override void OnDispose()
         {
-            Channels.ToList().ForEach(c => c.Dispose());
+            Tabs.ToList().ForEach(c => c.Dispose());
         }
     }
 }

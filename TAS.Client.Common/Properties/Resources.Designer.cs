@@ -516,6 +516,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Users.
+        /// </summary>
+        public static string _users {
+            get {
+                return ResourceManager.GetString("_users", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid command.
         /// </summary>
         public static string _validate_CommandSyntax {

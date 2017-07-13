@@ -49,24 +49,21 @@ namespace TAS.Client.ViewModels
             IArchiveDirectory archiveDirectory = mediaManager.ArchiveDirectory;
             if (archiveDirectory != null)
                 MediaDirectories.Insert(0, new MediaDirectoryViewmodel(archiveDirectory));
-
             IAnimationDirectory animationDirectoryPRI = mediaManager.AnimationDirectoryPRI;
             if (animationDirectoryPRI != null)
                 MediaDirectories.Insert(0, new MediaDirectoryViewmodel(animationDirectoryPRI));
             IAnimationDirectory animationDirectorySEC = mediaManager.AnimationDirectorySEC;
             if (animationDirectorySEC != null)
                 MediaDirectories.Insert(0, new MediaDirectoryViewmodel(animationDirectorySEC));
-
             IServerDirectory serverDirectoryPRI = mediaManager.MediaDirectoryPRI;
-            MediaDirectoryViewmodel serverDirectoryPRIVm = new MediaDirectoryViewmodel(serverDirectoryPRI);
             if (serverDirectoryPRI != null)
-                MediaDirectories.Insert(0, serverDirectoryPRIVm);
+                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(serverDirectoryPRI));
             IServerDirectory serverDirectorySEC = mediaManager.MediaDirectorySEC;
             if (serverDirectorySEC != null && serverDirectorySEC != serverDirectoryPRI)
                 MediaDirectories.Insert(1, new MediaDirectoryViewmodel(serverDirectorySEC));
 
             _mediaCategory = MediaCategories.FirstOrDefault();
-            SelectedDirectory = serverDirectoryPRIVm;
+            SelectedDirectory = MediaDirectories.FirstOrDefault();
             if (mediaManager.FileManager != null)
                 FileManagerViewmodel = new FileManagerViewmodel(mediaManager.FileManager);
             RecordersViewmodel = new RecordersViewmodel(mediaManager.Recorders);

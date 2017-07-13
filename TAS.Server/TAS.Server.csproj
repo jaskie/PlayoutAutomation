@@ -100,10 +100,14 @@
     <Compile Include="Media\TempDirectory.cs" />
     <Compile Include="Media\AnimatedMedia.cs" />
     <Compile Include="Media\TempMedia.cs" />
+    <Compile Include="Security\Aco.cs" />
+    <Compile Include="Security\AuthenticationService.cs" />
+    <Compile Include="Security\Group.cs" />
     <Compile Include="Security\IpAddressIdentity.cs" />
     <Compile Include="Security\IpAddressPrincipal.cs" />
     <Compile Include="Security\PrincipalStorage.cs" />
     <Compile Include="Security\Roles.cs" />
+    <Compile Include="Security\User.cs" />
     <Compile Include="XDCAM\XDCAMMedia.cs" />
     <Compile Include="PluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

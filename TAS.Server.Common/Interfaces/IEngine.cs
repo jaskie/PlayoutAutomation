@@ -17,7 +17,7 @@ namespace TAS.Server.Common.Interfaces
         TEngineState EngineState { get; }
         RationalNumber FrameRate { get; }
         IEnumerable<IEvent> GetRootEvents();
-        void AddRootEvent(IEvent ev);
+        void AddRootEvent(IEvent aEvent);
         List<IEvent> FixedTimeEvents { get; }
 
         IEvent CreateNewEvent(

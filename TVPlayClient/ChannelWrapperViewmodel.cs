@@ -75,7 +75,7 @@ namespace TVPlayClient
                             Application.Current?.Dispatcher.BeginInvoke((Action)delegate 
                             {
                                 Channel = new ChannelViewmodel(engine, _configurationChannel.ShowEngine, _configurationChannel.ShowMedia, _configurationChannel.AllowControl);
-                                TabName = Channel.ChannelName;
+                                TabName = Channel.DisplayName;
                                 IsLoading = false;
                             });
                             return;

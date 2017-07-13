@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.Security.Principal;
 using System.Threading;
 using System.Windows;
@@ -25,7 +26,7 @@ namespace TAS.Client
             else
                 CultureManager.UICulture = new System.Globalization.CultureInfo(uiCulture);
             Thread.CurrentPrincipal = new GenericPrincipal(new GenericIdentity("Console"),
-                new[] {Roles.Media, Roles.Playout, Roles.Preview});
+                new[] {Roles.Media, Roles.Playout, Roles.Preview, Roles.UserAdmin});
         }
         protected override void OnExit(ExitEventArgs e)
         {

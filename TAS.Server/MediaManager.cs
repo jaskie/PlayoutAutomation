@@ -102,10 +102,7 @@ namespace TAS.Server
             AnimationDirectoryPRV = ((CasparServerChannel)_engine.PlayoutChannelPRV)?.Owner.AnimationDirectory;
             IMediaDirectory[] initializationList = { MediaDirectoryPRI, MediaDirectorySEC, MediaDirectoryPRV, AnimationDirectoryPRI, AnimationDirectorySEC, AnimationDirectoryPRV, ArchiveDirectory };
             foreach (var mediaDirectory in initializationList.Distinct())
-            {
-                var dir = (MediaDirectory)mediaDirectory;
-                dir.Initialize();
-            }
+                (mediaDirectory as MediaDirectory)?.Initialize();
             if (ArchiveDirectory != null)
                 ArchiveDirectory.MediaDeleted += ArchiveDirectory_MediaDeleted;
 

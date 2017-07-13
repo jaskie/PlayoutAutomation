@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿//#undef DEBUG
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -42,10 +42,10 @@ namespace TAS.Server.Common.Database
             _connection.Close();
         }
 
-        public static string ConnectionStringPrimary { get { return _connectionStringPrimary; } }
-        public static string ConnectionStringSecondary { get { return _connectionStringSecondary; } }
+        public static string ConnectionStringPrimary => _connectionStringPrimary;
+        public static string ConnectionStringSecondary => _connectionStringSecondary;
 
-        public static ConnectionStateRedundant ConnectionState { get { return _connection.StateRedundant; } }
+        public static ConnectionStateRedundant ConnectionState => _connection.StateRedundant;
 
         #region Configuration Functions
         public static bool TestConnect(string connectionString)
@@ -78,12 +78,15 @@ namespace TAS.Server.Common.Database
             {
                 lock (_connection)
                     dbVersionStr = (string)command.ExecuteScalar();
-                var regexMatchDB = System.Text.RegularExpressions.Regex.Match(dbVersionStr, @"\d+");
-                if (regexMatchDB.Success)
-                    int.TryParse(regexMatchDB.Value, out dbVersionNr);
+                var regexMatchDb = System.Text.RegularExpressions.Regex.Match(dbVersionStr, @"\d+");
+                if (regexMatchDb.Success)
+                    int.TryParse(regexMatchDb.Value, out dbVersionNr);
             }
-            catch { }
-            var schemaUpdates = new System.Resources.ResourceManager("TAS.Server.Common.Database.SchemaUpdates", System.Reflection.Assembly.GetExecutingAssembly());
+            catch
+            {
+                // ignored
+            }
+            var schemaUpdates = new System.Resources.ResourceManager("TAS.Server.Common.Database.SchemaUpdates", Assembly.GetExecutingAssembly());
             var resourceEnumerator = schemaUpdates.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true).GetEnumerator();
             while (resourceEnumerator.MoveNext())
             {
@@ -99,21 +102,24 @@ namespace TAS.Server.Common.Database
             return false;
         }
 
-        public static bool UpdateDB()
+        public static bool UpdateDb()
         {
             var command = new DbCommandRedundant("select `value` from `params` where `SECTION`=\"DATABASE\" and `key`=\"VERSION\"", _connection);
-            string dbVersionStr;
-            int dbVersionNr = 0; int resVersionNr;
+            int dbVersionNr = 0;
             try
             {
+                string dbVersionStr;
                 lock (_connection)
                     dbVersionStr = (string)command.ExecuteScalar();
-                var regexMatchDB = System.Text.RegularExpressions.Regex.Match(dbVersionStr, @"\d+");
-                if (regexMatchDB.Success)
-                    int.TryParse(regexMatchDB.Value, out dbVersionNr);
+                var regexMatchDb = System.Text.RegularExpressions.Regex.Match(dbVersionStr, @"\d+");
+                if (regexMatchDb.Success)
+                    int.TryParse(regexMatchDb.Value, out dbVersionNr);
             }
-            catch { }
-            var schemaUpdates = new System.Resources.ResourceManager("TAS.Server.Common.Database.SchemaUpdates", System.Reflection.Assembly.GetExecutingAssembly());
+            catch
+            {
+                // ignored
+            }
+            var schemaUpdates = new System.Resources.ResourceManager("TAS.Server.Common.Database.SchemaUpdates", Assembly.GetExecutingAssembly());
             var resourceEnumerator = schemaUpdates.GetResourceSet(System.Globalization.CultureInfo.CurrentCulture, true, true).GetEnumerator();
             var updatesPending = new SortedList<int, string>();
             while (resourceEnumerator.MoveNext())
@@ -121,6 +127,7 @@ namespace TAS.Server.Common.Database
                 if (resourceEnumerator.Key is string && resourceEnumerator.Value is string)
                 {
                     var regexMatchRes = System.Text.RegularExpressions.Regex.Match((string)resourceEnumerator.Key, @"\d+");
+                    int resVersionNr;
                     if (regexMatchRes.Success
                         && int.TryParse(regexMatchRes.Value, out resVersionNr)
                         && resVersionNr > dbVersionNr)
@@ -331,13 +338,12 @@ namespace TAS.Server.Common.Database
                 cmd.Parameters.AddWithValue("@StartTypeManual", (byte)TStartType.Manual);
                 cmd.Parameters.AddWithValue("@StartTypeOnFixedTime", (byte)TStartType.OnFixedTime);
                 cmd.Parameters.AddWithValue("@StartTypeNone", (byte)TStartType.None);
-                IEvent NewEvent;
                 using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
                     {
-                        NewEvent = _eventRead((IEngine)engine, dataReader);
-                        engine.AddRootEvent(NewEvent);
+                        var newEvent = _eventRead(engine, dataReader);
+                        engine.AddRootEvent(newEvent);
                     }
                     dataReader.Close();
                 }
@@ -387,13 +393,12 @@ namespace TAS.Server.Common.Database
                     DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM rundownevent WHERE idEngine=@idEngine and PlayState=@PlayState", _connection);
                     cmd.Parameters.AddWithValue("@idEngine", ((IPersistent)engine).Id);
                     cmd.Parameters.AddWithValue("@PlayState", TPlayState.Playing);
-                    IEvent newEvent;
                     List<IEvent> foundEvents = new List<IEvent>();
                     using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                     {
                         while (dataReader.Read())
                         {
-                            newEvent = _eventRead(engine, dataReader);
+                            var newEvent = _eventRead(engine, dataReader);
                             foundEvents.Add(newEvent);
                         }
                         dataReader.Close();
@@ -431,7 +436,6 @@ namespace TAS.Server.Common.Database
             }
             return reason;
         }
-
 
         #endregion //IEngine
 
@@ -492,17 +496,20 @@ namespace TAS.Server.Common.Database
             }
         }
 
-        private static System.Reflection.ConstructorInfo _archiveMediaConstructorInfo;
+        private static ConstructorInfo _archiveMediaConstructorInfo;
 
         private static T _readArchiveMedia<T>(DbDataReaderRedundant dataReader, IArchiveDirectory dir) where T: IArchiveMedia
         {
             if (_archiveMediaConstructorInfo == null)
                 _archiveMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IArchiveDirectory), typeof(Guid), typeof(UInt64) });
-            byte typVideo = dataReader.IsDBNull(dataReader.GetOrdinal("typVideo")) ? (byte)0 : dataReader.GetByte("typVideo");
-            T media = (T)_archiveMediaConstructorInfo.Invoke(new object[] { dir, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idArchiveMedia") });
-            media._mediaReadFields(dataReader);
-            media.IsModified = false;
-            return media;
+            if (_archiveMediaConstructorInfo != null)
+            {
+                T media = (T)_archiveMediaConstructorInfo.Invoke(new object[] { dir, dataReader.GetGuid("MediaGuid"), dataReader.GetUInt64("idArchiveMedia") });
+                media._mediaReadFields(dataReader);
+                media.IsModified = false;
+                return media;
+            }
+            throw new ApplicationException("No IArchiveMedia constructor found");
         }
 
         public static void DbSearch<T>(this IArchiveDirectory dir) where T: IArchiveMedia
@@ -510,16 +517,16 @@ namespace TAS.Server.Common.Database
             string search = dir.SearchString;
             lock (_connection)
             {
-                var textSearches = from text in search.ToLower().Split(' ').Where(s => !string.IsNullOrEmpty(s)) select "(LOWER(MediaName) LIKE \"%" + text + "%\" or LOWER(FileName) LIKE \"%" + text + "%\")";
+                var textSearches = (from text in search.ToLower().Split(' ').Where(s => !string.IsNullOrEmpty(s)) select "(LOWER(MediaName) LIKE \"%" + text + "%\" or LOWER(FileName) LIKE \"%" + text + "%\")").ToArray();
                 DbCommandRedundant cmd;
                 if (dir.SearchMediaCategory == null)
                     cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive" 
-                                                + ((textSearches.Count() > 0) ? " and" + string.Join(" and", textSearches) : string.Empty)
+                                                + (textSearches.Length > 0 ? " and" + string.Join(" and", textSearches) : string.Empty)
                                                 + " order by idArchiveMedia DESC LIMIT 0, 1000;", _connection);
                 else
                 {
                     cmd = new DbCommandRedundant(@"SELECT * FROM archivemedia WHERE idArchive=@idArchive and ((flags >> 4) & 3)=@Category"
-                                                + ((textSearches.Count() > 0) ? " and" + string.Join(" and", textSearches) : string.Empty)
+                                                + (textSearches.Length > 0 ? " and" + string.Join(" and", textSearches) : string.Empty)
                                                 + " order by idArchiveMedia DESC LIMIT 0, 1000;", _connection);
                     cmd.Parameters.AddWithValue("@Category", (uint)dir.SearchMediaCategory);
                 }
@@ -533,7 +540,7 @@ namespace TAS.Server.Common.Database
             }
         }
 
-        private static System.Reflection.ConstructorInfo _archiveDirectoryConstructorInfo;
+        private static ConstructorInfo _archiveDirectoryConstructorInfo;
         public static IArchiveDirectory LoadArchiveDirectory<T>(this IMediaManager manager, UInt64 idArchive) where T: IArchiveDirectory
         {
             lock (_connection)
@@ -541,7 +548,7 @@ namespace TAS.Server.Common.Database
                 if (_archiveDirectoryConstructorInfo == null)
                     _archiveDirectoryConstructorInfo = typeof(T).GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, CallingConventions.Any,  new[] { typeof(IMediaManager), typeof(ulong), typeof(string) }, null);
                 string query = "SELECT Folder FROM archive WHERE idArchive=@idArchive;";
-                string folder = null;
+                string folder;
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
                 cmd.Parameters.AddWithValue("@idArchive", idArchive);
                 folder = (string)cmd.ExecuteScalar();
@@ -639,7 +646,7 @@ namespace TAS.Server.Common.Database
                         while (dataReader.Read())
                             subevents.Add(_eventRead(engine, dataReader));
                     }
-                    foreach (IEventPesistent e in subevents)
+                    foreach (var e in subevents)
                         if (e is ITemplated)
                         {
                             _readAnimatedEvent(e.Id, e as ITemplated);
@@ -914,17 +921,15 @@ WHERE idRundownEvent=@idRundownEvent;";
 
         public static bool DbDelete(this IEventPesistent aEvent)
         {
-            bool success = false;
             lock (_connection)
             {
                 string query = "DELETE FROM RundownEvent WHERE idRundownEvent=@idRundownEvent;";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
                 cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
                 cmd.ExecuteNonQuery();
-                success = true;
                 Debug.WriteLine("Event DbDelete Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
+                return true;
             }
-            return success;
         }
 
         public static void AsRunLogWrite(this IEventPesistent e)
@@ -1003,7 +1008,7 @@ VALUES
         #endregion // IEvent
 
         #region Media
-        private static bool _mediaFillParamsAndExecute(DbCommandRedundant cmd, IPersistentMedia media, ulong serverId)
+        private static void _mediaFillParamsAndExecute(DbCommandRedundant cmd, IPersistentMedia media, ulong serverId)
         {
             cmd.Parameters.AddWithValue("@idProgramme", media.IdProgramme);
             cmd.Parameters.AddWithValue("@idAux", media.IdAux);
@@ -1015,10 +1020,10 @@ VALUES
                 cmd.Parameters.AddWithValue("@KillDate", DBNull.Value);
             else
                 cmd.Parameters.AddWithValue("@KillDate", media.KillDate);
-            uint flags = ((media is IServerMedia && (media as IServerMedia).DoNotArchive) ? (uint)0x1 : (uint)0x0)
-                        | (media.Protected ? (uint)0x2 : (uint)0x0)
-                        | (media.FieldOrderInverted ? (uint)0x4 : (uint)0x0)
-                        | ((uint)(media.MediaCategory) << 4) // bits 4-7 of 1st byte
+            uint flags = ((media is IServerMedia && (media as IServerMedia).DoNotArchive) ? 0x1 : (uint)0x0)
+                        | (media.Protected ? 0x2 : (uint)0x0)
+                        | (media.FieldOrderInverted ? 0x4 : (uint)0x0)
+                        | ((uint)media.MediaCategory << 4) // bits 4-7 of 1st byte
                         | ((uint)media.MediaEmphasis << 8) // bits 1-3 of second byte
                         | ((uint)media.Parental << 12) // bits 4-7 of second byte
                         ;
@@ -1035,7 +1040,7 @@ VALUES
             }
             if (media is IArchiveMedia && media.Directory is IArchiveDirectory)
             {
-                cmd.Parameters.AddWithValue("@idArchive", (((media as IArchiveMedia).Directory) as IArchiveDirectory).idArchive);
+                cmd.Parameters.AddWithValue("@idArchive", ((IArchiveDirectory)((IArchiveMedia)media).Directory).idArchive);
                 cmd.Parameters.AddWithValue("@typVideo", (byte)media.VideoFormat);
             }
             cmd.Parameters.AddWithValue("@MediaName", media.MediaName);
@@ -1062,12 +1067,11 @@ VALUES
             }
             catch (Exception e)
             { Debug.WriteLine(media, e.Message); }
-            return true;
         }
 
         private static void _mediaReadFields(this IPersistentMedia media, DbDataReaderRedundant dataReader)
         {
-            uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flags")) ? (uint)0 : dataReader.GetUInt32("flags");
+            uint flags = dataReader.IsDBNull(dataReader.GetOrdinal("flags")) ? 0 : dataReader.GetUInt32("flags");
             media.MediaName = dataReader.IsDBNull(dataReader.GetOrdinal("MediaName")) ? string.Empty : dataReader.GetString("MediaName");
             media.Duration = dataReader.IsDBNull(dataReader.GetOrdinal("Duration")) ? default(TimeSpan) : dataReader.GetTimeSpan("Duration");
             media.DurationPlay = dataReader.IsDBNull(dataReader.GetOrdinal("DurationPlay")) ? default(TimeSpan) : dataReader.GetTimeSpan("DurationPlay");
@@ -1096,8 +1100,8 @@ VALUES
             media.MediaCategory = (TMediaCategory)((flags >> 4) & 0xF); // bits 4-7 of 1st byte
         }
 
-        static System.Reflection.ConstructorInfo _serverMediaConstructorInfo;
-        static System.Reflection.ConstructorInfo _animatedMediaConstructorInfo;
+        static ConstructorInfo _serverMediaConstructorInfo;
+        static ConstructorInfo _animatedMediaConstructorInfo;
         public static void Load<T>(this IAnimationDirectory directory, ulong serverId) where T: IAnimatedMedia
         {
             Debug.WriteLine(directory, "AnimationDirectory load started");
@@ -1105,6 +1109,8 @@ VALUES
             {
                 if (_animatedMediaConstructorInfo == null)
                     _animatedMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IMediaDirectory), typeof(Guid), typeof(UInt64) });
+                if (_animatedMediaConstructorInfo == null)
+                    throw new ApplicationException("No constructor found for IAnimatedMedia");
 
                 DbCommandRedundant cmd = new DbCommandRedundant("SELECT servermedia.*, media_templated.`Fields`, media_templated.`Method`, media_templated.`TemplateLayer` FROM serverMedia LEFT JOIN media_templated ON servermedia.MediaGuid = media_templated.MediaGuid WHERE idServer=@idServer and typMedia = @typMedia", _connection);
                 cmd.Parameters.AddWithValue("@idServer", serverId);
@@ -1151,6 +1157,8 @@ VALUES
             {
                 if (_serverMediaConstructorInfo == null)
                     _serverMediaConstructorInfo = typeof(T).GetConstructor(new[] { typeof(IMediaDirectory), typeof(Guid), typeof(UInt64), typeof(IArchiveDirectory) });
+                if (_serverMediaConstructorInfo == null)
+                    throw new ApplicationException("No constructor found for IServerMedia");
 
                 DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM serverMedia WHERE idServer=@idServer and typMedia in (@typMediaMovie, @typMediaStill)", _connection);
                 cmd.Parameters.AddWithValue("@idServer", serverId);
@@ -1202,7 +1210,7 @@ VALUES
             }
         }
 
-        private static bool _update_media_templated(IAnimatedMedia media)
+        private static void _update_media_templated(IAnimatedMedia media)
         {
             try
             {
@@ -1213,12 +1221,10 @@ VALUES
                 cmd.Parameters.AddWithValue("@Method", (byte)media.Method);
                 cmd.Parameters.AddWithValue("@Fields", Newtonsoft.Json.JsonConvert.SerializeObject(media.Fields));
                 cmd.ExecuteNonQuery();
-                return true;
             }
             catch (Exception e)
             {
                 Debug.WriteLine("_update_media_templated failed with {0}", e.Message, null);
-                return false;
             }
         }
 
@@ -1272,7 +1278,6 @@ VALUES
 
         private static bool _dbInsert(IPersistentMedia media, ulong serverId)
         {
-            bool success = false;
             string query =
 @"INSERT INTO servermedia 
 (idServer, MediaName, Folder, FileName, FileSize, LastUpdated, Duration, DurationPlay, idProgramme, statusMedia, typMedia, typAudio, typVideo, TCStart, TCPlay, AudioVolume, AudioLevelIntegrated, AudioLevelPeak, idAux, KillDate, MediaGuid, flags) 
@@ -1281,14 +1286,12 @@ VALUES
             DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
             _mediaFillParamsAndExecute(cmd, media, serverId);
             media.IdPersistentMedia = (UInt64)cmd.LastInsertedId;
-            success = true;
-            Debug.WriteLineIf(success, media, "ServerMediaInserte-d");
-            return success;
+            Debug.WriteLine(media, "ServerMediaInserte-d");
+            return true;
         }
 
         public static bool DbInsert(this IArchiveMedia archiveMedia, ulong serverid)
         {
-            bool success = false;
             lock (_connection)
             {
                 string query =
@@ -1299,9 +1302,8 @@ VALUES
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
                 _mediaFillParamsAndExecute(cmd, archiveMedia, serverid);
                 archiveMedia.IdPersistentMedia = (UInt64)cmd.LastInsertedId;
-                success = true;
             }
-            return success;
+            return true;
         }
 
         public static bool DbDelete(this IServerMedia serverMedia)
@@ -1357,45 +1359,37 @@ VALUES
             }
         }
 
-        public static bool DbUpdate(this IAnimatedMedia animatedMedia, ulong serverId)
+        public static void DbUpdate(this IAnimatedMedia animatedMedia, ulong serverId)
         {
-            bool result = false;
             lock (_connection)
             {
                 using (var transaction = _connection.BeginTransaction())
                 {
                     try
                     {
-                        result = _dbUpdate(animatedMedia, serverId);
-                        if (result)
-                            result = _update_media_templated(animatedMedia);
+                        _dbUpdate(animatedMedia, serverId);
+                        _update_media_templated(animatedMedia);
+                        transaction.Commit();
                     }
-                    finally
+                    catch
                     {
-                        if (result)
-                            transaction.Commit();
-                        else
-                            transaction.Rollback();
+                        transaction.Rollback();
                     }
                 }
             }
-            return result;
         }
 
 
-        public static bool DbUpdate(this IServerMedia serverMedia, ulong serverId)
+        public static void DbUpdate(this IServerMedia serverMedia, ulong serverId)
         {
             lock (_connection)
-                return _dbUpdate(serverMedia, serverId);
+                _dbUpdate(serverMedia, serverId);
         }
 
-        private static bool _dbUpdate(IPersistentMedia serverMedia, ulong serverId)
+        private static void _dbUpdate(IPersistentMedia serverMedia, ulong serverId)
         {
-            bool success = false;
-            lock (_connection)
-            {
-                string query =
-@"UPDATE ServerMedia SET 
+            string query =
+                @"UPDATE ServerMedia SET 
 idServer=@idServer, 
 MediaName=@MediaName, 
 Folder=@Folder, 
@@ -1419,17 +1413,14 @@ KillDate=@KillDate,
 MediaGuid=@MediaGuid, 
 flags=@flags 
 WHERE idServerMedia=@idServerMedia;";
-                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
-                cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.IdPersistentMedia);
-                success = _mediaFillParamsAndExecute(cmd, serverMedia, serverId);
-                Debug.WriteLineIf(success, serverMedia, "ServerMediaUpdate-d");
-            }
-            return success;
+            DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+            cmd.Parameters.AddWithValue("@idServerMedia", serverMedia.IdPersistentMedia);
+            _mediaFillParamsAndExecute(cmd, serverMedia, serverId);
+            Debug.WriteLine(serverMedia, "ServerMediaUpdate-d");
         }
 
-        public static bool DbUpdate(this IArchiveMedia archiveMedia, ulong serverId)
+        public static void DbUpdate(this IArchiveMedia archiveMedia, ulong serverId)
         {
-            bool success = false;
             lock (_connection)
             {
                 string query =
@@ -1459,10 +1450,9 @@ flags=@flags
 WHERE idArchiveMedia=@idArchiveMedia;";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
                 cmd.Parameters.AddWithValue("@idArchiveMedia", archiveMedia.IdPersistentMedia);
-                success = _mediaFillParamsAndExecute(cmd, archiveMedia, serverId);
-                Debug.WriteLineIf(success, archiveMedia, "ArchiveMediaUpdate-d");
+                _mediaFillParamsAndExecute(cmd, archiveMedia, serverId);
+                Debug.WriteLine(archiveMedia, "ArchiveMediaUpdate-d");
             }
-            return success;
         }
 
 
@@ -1470,7 +1460,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
 
         #region MediaSegment
         private static System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference> _mediaSegments = new System.Collections.Concurrent.ConcurrentDictionary<Guid, WeakReference>();
-        private static System.Reflection.ConstructorInfo _mediaSegmentsConstructorInfo;
+        private static ConstructorInfo _mediaSegmentsConstructorInfo;
         private static IMediaSegments _findInDictionary(Guid mediaGuid)
         {
             WeakReference existingRef;
@@ -1491,6 +1481,9 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                 if (_mediaSegmentsConstructorInfo == null)
                     _mediaSegmentsConstructorInfo = typeof(T).GetConstructor(new[] { typeof(Guid) });
 
+                if (_mediaSegmentsConstructorInfo == null)
+                    throw new ApplicationException("No constructor found for IMediaSegments");
+
                 Guid mediaGuid = media.MediaGuid;
                 DbCommandRedundant cmd = new DbCommandRedundant("SELECT * FROM MediaSegments where MediaGuid = @MediaGuid;", _connection);
                 cmd.Parameters.AddWithValue("@MediaGuid", mediaGuid);
@@ -1509,7 +1502,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                             dataReader.IsDBNull(dataReader.GetOrdinal("TCOut")) ? default(TimeSpan) : dataReader.GetTimeSpan("TCOut"),
                             dataReader.IsDBNull(dataReader.GetOrdinal("SegmentName")) ? string.Empty : dataReader.GetString("SegmentName")
                             );
-                        (newSegment as IPersistent).Id = dataReader.GetUInt64("idMediaSegment");
+                        ((IPersistent)newSegment).Id = dataReader.GetUInt64("idMediaSegment");
                     }
                     dataReader.Close();
                 }
@@ -1536,6 +1529,8 @@ WHERE idArchiveMedia=@idArchiveMedia;";
         public static UInt64 DbSave(this IMediaSegment mediaSegment)
         {
             var ps = mediaSegment as IMediaSegmentPersistent;
+            if (ps == null)
+                return 0;
             lock (_connection)
             {
                 DbCommandRedundant command;
@@ -1551,11 +1546,114 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                 command.Parameters.AddWithValue("@TCOut", mediaSegment.TcOut);
                 command.Parameters.AddWithValue("@SegmentName", mediaSegment.SegmentName);
                 command.ExecuteNonQuery();
-                return (UInt64)command.LastInsertedId;
+                return (ulong)command.LastInsertedId;
             }
         }
 
 
         #endregion // MediaSegment
+
+        #region ACO
+
+        public static void DbInsertAco(this IAco aco)
+        {
+            var pAco = aco as IPersistent;
+            if (pAco == null)
+            {
+#if  DEBUG
+                throw new NoNullAllowedException("DbInsertAco: operation on null");
+#endif
+                return;
+            }
+            lock (_connection)
+            {
+                {
+                    var cmd = new DbCommandRedundant(@"insert into aco set typAco=@typAco, Config=@Config;", _connection);
+                    var serializer = new XmlSerializer(pAco.GetType());
+                    using (var writer = new StringWriter())
+                    {
+                        serializer.Serialize(writer, pAco);
+                        cmd.Parameters.AddWithValue("@Config", writer.ToString());
+                    }
+                    cmd.Parameters.AddWithValue("@typAco", (int) aco.AcoType);
+                    cmd.ExecuteNonQuery();
+                    pAco.Id = (ulong)cmd.LastInsertedId;
+                }
+            }
+        }
+
+        public static void DbDeleteAco(this IAco aco)
+        {
+            var pAco = aco as IPersistent;
+            if (pAco == null || pAco.Id == 0)
+            {
+#if  DEBUG
+                throw new ApplicationException("DbDeleteAco: operation on null or not saved object");
+#endif
+                return;
+            }
+            lock (_connection)
+            {
+                {
+                    var cmd = new DbCommandRedundant(@"delete from aco where idACO=@idACO;", _connection);
+                    cmd.Parameters.AddWithValue("@idACO", pAco.Id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static void DbUpdateAco(this IAco aco)
+        {
+            var pAco = aco as IPersistent;
+            if (pAco == null || pAco.Id == 0)
+            {
+#if  DEBUG
+                throw new ApplicationException("DbUpdateAco: operation on null or not saved object");
+#endif
+                return;
+            }
+            lock (_connection)
+            {
+                {
+                    var cmd = new DbCommandRedundant(@"update aco set Config=@Config where idACO=@idACO;", _connection);
+                    var serializer = new XmlSerializer(pAco.GetType());
+                    using (var writer = new StringWriter())
+                    {
+                        serializer.Serialize(writer, pAco);
+                        cmd.Parameters.AddWithValue("@Config", writer.ToString());
+                    }
+                    cmd.Parameters.AddWithValue("@idACO", pAco.Id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static List<T> DbLoadUsers<T>() where T : IUser
+        {
+            var users = new List<T>();
+            lock (_connection)
+            {
+                var cmd = new DbCommandRedundant("select * from aco where typACO=@typACO;", _connection);
+                cmd.Parameters.AddWithValue("@typACO", (int) TAco.User);
+                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        var reader = new StringReader(dataReader.GetString("Config"));
+                        var serializer = new XmlSerializer(typeof(T));
+                        var user = (T)serializer.Deserialize(reader);
+                        var pUser = user as IPersistent;
+                        if (pUser != null)
+                            pUser.Id = dataReader.GetUInt64("idACO");
+                        users.Add(user);
+                    }
+                    dataReader.Close();
+                    return users;
+                }
+            }
+        }
+
+        #endregion
+
     }
 }

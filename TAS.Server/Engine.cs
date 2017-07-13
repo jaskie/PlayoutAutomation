@@ -35,7 +35,7 @@ namespace TAS.Server
         private readonly SynchronizedCollection<Event> _visibleEvents = new SynchronizedCollection<Event>(); // list of visible events
         private readonly List<IEvent> _runningEvents = new List<IEvent>(); // list of events loaded and playing 
         private readonly ConcurrentDictionary<VideoLayer, IEvent> _preloadedEvents = new ConcurrentDictionary<VideoLayer, IEvent>();
-        private readonly SynchronizedCollection<IEvent> _rootEvents = new SynchronizedCollection<IEvent>();
+        private readonly SynchronizedCollection<Event> _rootEvents = new SynchronizedCollection<Event>();
         private readonly SynchronizedCollection<Event> _fixedTimeEvents = new SynchronizedCollection<Event>();
         private readonly ConcurrentDictionary<ulong, IEvent> _events = new ConcurrentDictionary<ulong, IEvent>();
         private Event _playing;
@@ -650,10 +650,11 @@ namespace TAS.Server
             return this.DbMediaInUse(serverMedia);
         }
 
-        public IEnumerable<IEvent> GetRootEvents() { lock (_rootEvents.SyncRoot) return _rootEvents.ToList(); }
+        public IEnumerable<IEvent> GetRootEvents() { lock (_rootEvents.SyncRoot) return _rootEvents.Cast<IEvent>().ToList(); }
 
-        public void AddRootEvent(IEvent ev)
+        public void AddRootEvent(IEvent aEvent)
         {
+            var ev = aEvent as Event;
             if (ev == null)
                 return;
             _rootEvents.Add(ev);
@@ -836,7 +837,6 @@ namespace TAS.Server
         }
         
         // private methods
-
         private void _start(Event aEvent)
         {
             lock (_tickLock)
@@ -1372,13 +1372,12 @@ namespace TAS.Server
         
         protected override void DoDispose()
         {
-            base.DoDispose();
-            foreach (Event e in _rootEvents)
+            foreach (var e in _rootEvents)
                 e.SaveLoadedTree();
-            CGElementsController?.Dispose();
-            var remote = Remote;
-            remote?.Dispose();
             Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
+            CGElementsController?.Dispose();
+            Remote?.Dispose();
+            base.DoDispose();
         }
 
         private void NotifyEngineOperation(IEvent aEvent, TEngineOperation operation)

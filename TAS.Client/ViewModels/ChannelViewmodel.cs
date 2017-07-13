@@ -10,7 +10,7 @@ namespace TAS.Client.ViewModels
 
         public ChannelViewmodel(IEngine engine, bool showEngine, bool showMedia, bool allowPlayControl)
         {
-            ChannelName = engine.EngineName;
+            DisplayName = engine.EngineName;
             if (showEngine)
                 Engine = new EngineViewmodel(engine, engine, allowPlayControl);
             if (showMedia)
@@ -21,7 +21,7 @@ namespace TAS.Client.ViewModels
 
         public ICommand CommandSwitchTab { get; }
 
-        public string ChannelName { get; }
+        public string DisplayName { get; }
 
         public EngineViewmodel Engine { get; }
 

@@ -2,7 +2,7 @@ CREATE TABLE `archive` (
   `idArchive` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `Folder` varchar(255) COLLATE `utf8_general_ci` DEFAULT NULL,
   PRIMARY KEY (`idArchive`)
-) ENGINE=InnoDB;
+);
 
 CREATE TABLE `archivemedia` (
   `idArchiveMedia` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -31,7 +31,7 @@ CREATE TABLE `archivemedia` (
   PRIMARY KEY (`idArchiveMedia`),
   KEY `idxArchive` (`idArchive`),
   KEY `idxMediaGuid` (`MediaGuid`)
-) ENGINE=InnoDB;
+);
 
 CREATE TABLE `asrunlog` (
   `idAsRunLog` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -48,7 +48,7 @@ CREATE TABLE `asrunlog` (
   `Flags` bigint(20) unsigned DEFAULT NULL,
   PRIMARY KEY (`idAsRunLog`),
   KEY `ixExecuteTime` (`ExecuteTime`)
-) ENGINE=InnoDB;
+);
 
 CREATE TABLE `customcommand` (
   `idCustomCommand` bigint(20) unsigned NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE `customcommand` (
   `CommandIn` varchar(250) COLLATE `utf8_general_ci` DEFAULT NULL,
   `CommandOut` varchar(250) COLLATE `utf8_general_ci` DEFAULT NULL,
   PRIMARY KEY (`idCustomCommand`)
-) ENGINE=InnoDB;
+);
 
 CREATE TABLE `engine` (
   `idEngine` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -71,7 +71,7 @@ CREATE TABLE `engine` (
   `idArchive` bigint(20) DEFAULT NULL,
   `Config` text COLLATE `utf8_general_ci`,
   PRIMARY KEY (`idEngine`)
-) ENGINE=InnoDB;
+);
 
 CREATE TABLE `mediasegments` (
   `idMediaSegment` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -81,7 +81,7 @@ CREATE TABLE `mediasegments` (
   `SegmentName` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`idMediaSegment`),
   KEY `ixMediaGuid` (`MediaGuid`)
-) ENGINE=InnoDB;
+);
 
 CREATE TABLE `media_templated` (
   `MediaGuid` binary(16) NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE `media_templated` (
   `TemplateLayer` INT NULL,
   `Fields` text,
   PRIMARY KEY (`MediaGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE `rundownevent` (
   `idRundownEvent` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -121,7 +121,7 @@ CREATE TABLE `rundownevent` (
   KEY `idEventBinding` (`idEventBinding`) USING BTREE,
   KEY `id_ScheduledTime` (`ScheduledTime`) USING BTREE,
   KEY `idPlaystate` (`PlayState`) USING BTREE
-) ENGINE=InnoDB;
+);
 
 CREATE TABLE `rundownevent_templated` (
   `idrundownevent_templated` bigint(20) unsigned NOT NULL,
@@ -129,14 +129,14 @@ CREATE TABLE `rundownevent_templated` (
   `TemplateLayer` INT NULL,
   `Fields` text,
   PRIMARY KEY (`idrundownevent_templated`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE `server` (
   `idServer` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `typServer` int(11) DEFAULT NULL,
   `Config` text COLLATE `utf8_general_ci`,
   PRIMARY KEY (`idServer`)
-) ENGINE=InnoDB;
+);
 
 CREATE TABLE `servermedia` (
   `idserverMedia` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -165,7 +165,7 @@ CREATE TABLE `servermedia` (
   PRIMARY KEY (`idserverMedia`),
   KEY `idxServer` (`idServer`),
   KEY `idxMediaGuid` (`MediaGuid`)
-) ENGINE=InnoDB;
+);
 
 CREATE TABLE `params` (
   `Section` VARCHAR(50) NOT NULL,
@@ -173,4 +173,36 @@ CREATE TABLE `params` (
   `Value` VARCHAR(100) NULL,
   PRIMARY KEY (`Section`, `Key`));
 
-INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', 'V6');
+CREATE TABLE `aco` (
+  `idACO` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `typACO` int(11) DEFAULT NULL,
+  `Config` text,
+  PRIMARY KEY (`idACO`)
+) COMMENT='groups, users, roles';
+
+CREATE TABLE `rundownevent_acl` (
+  `idRundownevent_ACL` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `idRundownEvent` bigint(20) unsigned DEFAULT NULL,
+  `idACO` bigint(20) unsigned DEFAULT NULL,
+  `ACL` bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY (`idRundownevent_ACL`),
+  KEY `idRundownEvent_idx` (`idRundownEvent`),
+  KEY `idACO_idx` (`idACO`),
+  CONSTRAINT `rundownevent_acl_ACO` FOREIGN KEY (`idACO`) REFERENCES `aco` (`idACO`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `rundownevent_acl_RundownEvent` FOREIGN KEY (`idRundownEvent`) REFERENCES `rundownevent` (`idRundownEvent`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE `engine_acl` (
+  `idEngine_ACL` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `idEngine` bigint(20) unsigned DEFAULT NULL,
+  `idACO` bigint(20) unsigned DEFAULT NULL,
+  `ACL` bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY (`idEngine_ACL`),
+  KEY `idEngine_idx` (`idEngine`),
+  KEY `idAco_idx` (`idACO`),
+  CONSTRAINT `engine_acl_ACO` FOREIGN KEY (`idACO`) REFERENCES `aco` (`idACO`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `engine_acl_Engine` FOREIGN KEY (`idEngine`) REFERENCES `engine` (`idEngine`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+INSERT INTO `params` (`Section`, `Key`, `Value`) VALUES ('DATABASE', 'VERSION', 'V8');
