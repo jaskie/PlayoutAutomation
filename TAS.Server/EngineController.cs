@@ -30,7 +30,7 @@ namespace TAS.Server
                 s.RecordersSer.ForEach(r => r.SetOwner(s));
             });
             
-            AuthenticationService = new AuthenticationService(Database.DbLoadUsers<User>(), null);
+            AuthenticationService = new AuthenticationService(Database.DbLoad<User>(), Database.DbLoad<Group>());
             Engines = Database.DbLoadEngines<Engine>(ulong.Parse(ConfigurationManager.AppSettings["Instance"]));
             foreach (var e in Engines)
                 e.Initialize(_servers);

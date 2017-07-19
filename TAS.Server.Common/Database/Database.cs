@@ -1628,13 +1628,16 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             }
         }
 
-        public static List<T> DbLoadUsers<T>() where T : IUser
+        public static List<T> DbLoad<T>() where T : IAco
         {
             var users = new List<T>();
             lock (_connection)
             {
                 var cmd = new DbCommandRedundant("select * from aco where typACO=@typACO;", _connection);
-                cmd.Parameters.AddWithValue("@typACO", (int) TAco.User);
+                if (typeof(IUser).IsAssignableFrom(typeof(T)))
+                    cmd.Parameters.AddWithValue("@typACO", (int) TAco.User);
+                if (typeof(IGroup).IsAssignableFrom(typeof(T)))
+                    cmd.Parameters.AddWithValue("@typACO", (int)TAco.Group);
                 using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())

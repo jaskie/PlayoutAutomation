@@ -101,6 +101,7 @@
     <Compile Include="Media\AnimatedMedia.cs" />
     <Compile Include="Media\TempMedia.cs" />
     <Compile Include="Security\Aco.cs" />
+    <Compile Include="Security\AcoHive.cs" />
     <Compile Include="Security\AuthenticationService.cs" />
     <Compile Include="Security\Group.cs" />
     <Compile Include="Security\IpAddressIdentity.cs" />

@@ -17,14 +17,14 @@ namespace TAS.Server.Common.Database
             _reader = command.ExecuteReader(behavior);
         }
 
-        public override object this[string name] { get { return _reader[name]; } }
+        public override object this[string name] => _reader[name];
 
-        public override object this[int ordinal] { get { return _reader[ordinal]; } }
-        public override int Depth { get { return _reader.Depth; } }
-        public override int FieldCount { get { return _reader.FieldCount; } }
-        public override bool HasRows { get { return _reader.HasRows; } }
-        public override bool IsClosed { get { return _reader.IsClosed; } }
-        public override int RecordsAffected { get { return _reader.RecordsAffected; } }
+        public override object this[int ordinal] => _reader[ordinal];
+        public override int Depth => _reader.Depth;
+        public override int FieldCount => _reader.FieldCount;
+        public override bool HasRows => _reader.HasRows;
+        public override bool IsClosed => _reader.IsClosed;
+        public override int RecordsAffected => _reader.RecordsAffected;
         public override void Close() { _reader.Close(); }
         protected override void Dispose(bool disposing)
         {

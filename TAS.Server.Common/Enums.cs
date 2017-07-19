@@ -536,7 +536,7 @@ namespace TAS.Server.Common
     {
         User,
         Group,
-        Role
+        //Role
     }
 
 }

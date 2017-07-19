@@ -9,7 +9,7 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Security
 {
-    public class Group: Aco
+    public class Group: Aco, IGroup
     {
         [XmlIgnore]
         public override TAco AcoType { get; } = TAco.Group;

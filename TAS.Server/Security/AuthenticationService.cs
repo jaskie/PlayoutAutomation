@@ -14,63 +14,28 @@ namespace TAS.Server.Security
     public class AuthenticationService
     {
 
-        private readonly List<User> _users;
-        private readonly List<Group> _groups;
+        private readonly AcoHive<User> _users;
+        private readonly AcoHive<Group> _groups;
 
         public AuthenticationService(List<User> users, List<Group> groups)
         {
             users.ForEach(u => u.PopulateGroups(groups));
-            _users = users;
-            _groups = groups;
+            _users = new AcoHive<User>(users);
+            _groups = new AcoHive<Group>(groups);
         }
 
+        public IList<User> Users => _users.Items.ToList();
 
-        public IList<User> Users
-        {
-            get
-            {
-                lock (((IList) _users).SyncRoot)
-                    return _users.ToList();
-            }
-        }
-
-        public IList<Group> Groups
-        {
-            get
-            {
-                lock (((IList) _groups).SyncRoot)
-                    return _groups.ToList();
-            }
-        }
+        public IList<Group> Groups => _groups.Items.ToList();
 
         public User AddUser(string userName)
         {
-            var newUser = new User
-            {
-                Name = userName
-            };
-            lock (((IList)_users).SyncRoot)
-                _users.Add(newUser);
-            newUser.DbInsertAco();
-            UsersOperartion?.Invoke(this, new CollectionOperationEventArgs<IUser>(newUser, CollectionOperation.Add));
-            return newUser;
+            return _users.Add(userName);
         }
 
         public bool RemoveUser(User user)
         {
-            bool isRemoved;
-            lock (((IList) _users).SyncRoot)
-                isRemoved = _users.Remove(user);
-            if (isRemoved)
-            {
-                user.DbDeleteAco();
-                UsersOperartion?.Invoke(this, new CollectionOperationEventArgs<IUser>(user, CollectionOperation.Remove));
-            }
-            return isRemoved;
+            return _users.Remove(user);
         }
-
-        public event EventHandler<CollectionOperationEventArgs<IUser>> UsersOperartion;
-        
-
     }
 }
