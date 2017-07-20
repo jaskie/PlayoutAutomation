@@ -126,7 +126,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="SetPropertyAction.cs" />
-    <Compile Include="StatusIndicator.xaml.cs">
+    <Compile Include="Controls\StatusIndicator.xaml.cs">
       <DependentUpon>StatusIndicator.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\TimecodeEdit.cs" />
@@ -173,11 +173,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="StatusIndicator.xaml">
+    <Page Include="Controls\StatusIndicator.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Styles.xaml">
+    <Page Include="Styles\Styles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

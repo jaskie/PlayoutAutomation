@@ -429,7 +429,7 @@
         </ContentControl>
         <StatusBar Grid.Row="3" Grid.ColumnSpan="2">
             <StackPanel Orientation="Horizontal" Visibility="{Binding DisplayDirectoryInfo, Converter={StaticResource BoolToVis}}" >
-                <common:StatusIndicator IsGreen="{Binding IsMediaDirectoryOk}" Margin="10,0,0,0"/>
+                <controls:StatusIndicator IsGreen="{Binding IsMediaDirectoryOk}" Margin="10,0,0,0"/>
                 <TextBlock Text="{Resx _statusbar.TotalItems}" Margin="5, 0"/>
                 <TextBlock Text="{Binding ItemsCount}" />
                 <StackPanel Orientation="Horizontal" Visibility="{Binding DirectoryTotalSpace, Converter={StaticResource ZeroToVis}}">

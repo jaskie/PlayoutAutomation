@@ -16,6 +16,25 @@
         <Setter Property="Margin" Value="0"/>
         <Setter Property="BorderBrush" Value="Gray"/>
     </Style>
+
+    <Style TargetType="Border" x:Key="EventPanelIsHoldBorder" >
+        <Setter Property="Height" Value="6"/>
+        <Setter Property="Visibility" Value="{Binding IsHold, Converter={StaticResource BoolToVis}}"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="True">
+                <Setter Property="Background" Value="OrangeRed"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                <Setter Property="Background" Value="DimGray"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style TargetType="Border" x:Key="EventPanelIsStartBorder" >
+        <Setter Property="Background" Value="#FFEBBDA0"/>
+        <Setter Property="Height" Value="15"/>
+        <Setter Property="Visibility" Value="{Binding IsStartEvent,  Converter={StaticResource BoolToVis}}"/>
+        <Setter Property="Padding" Value="50, 0"/>
+    </Style>
     <Style TargetType="TextBlock" x:Key="EventPanelTextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsEnabled}" Value="False">
@@ -32,7 +51,18 @@
         <Setter Property="FontSize" Value="9" />
         <Setter Property="Text" Value="{Binding MediaFileName}"/>
     </Style>
-    <Style TargetType="Image" x:Key="EventPanelImage" >
+    <Style TargetType="Label" x:Key="HeaderLabel" BasedOn="{StaticResource {x:Type Label}}">
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="DimGray"/>
+        <Setter Property="Background" Value="Gray"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Height" Value="35"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontStretch" Value="Expanded"/>
+    </Style>
+    <Style TargetType="Image" x:Key="EventPanelImage" BasedOn="{StaticResource {x:Type Image}}" >
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsEnabled}" Value="False">
                 <Setter Property="Opacity" Value="0.5"/>
@@ -53,26 +83,7 @@
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
     </Style>
-
-    <Style TargetType="Border" x:Key="EventPanelIsHoldBorder">
-        <Setter Property="Height" Value="6"/>
-        <Setter Property="Visibility" Value="{Binding IsHold, Converter={StaticResource BoolToVis}}"/>
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding IsEnabled}" Value="True">
-                <Setter Property="Background" Value="OrangeRed"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding IsEnabled}" Value="False">
-                <Setter Property="Background" Value="DimGray"/>
-            </DataTrigger>
-        </Style.Triggers>
-    </Style>
-    <Style TargetType="Border" x:Key="EventPanelIsStartBorder">
-        <Setter Property="Background" Value="#FFEBBDA0"/>
-        <Setter Property="Height" Value="15"/>
-        <Setter Property="Visibility" Value="{Binding IsStartEvent,  Converter={StaticResource BoolToVis}}"/>
-        <Setter Property="Padding" Value="50, 0"/>
-    </Style>
-    <Style TargetType="Image" x:Key="MediaCategoryImage">
+    <Style TargetType="Image" x:Key="MediaCategoryImage" BasedOn="{StaticResource {x:Type Image}}">
         <Style.Triggers>
             <DataTrigger Binding="{Binding}" Value="Show">
                 <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/show.png"/>
@@ -119,7 +130,7 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
-    <Style TargetType="Image" x:Key="EventTypeEventTypeImage">
+    <Style TargetType="Image" x:Key="EventTypeEventTypeImage" BasedOn="{StaticResource {x:Type Image}}">
         <Style.Triggers>
             <DataTrigger Binding="{Binding EventType}" Value="Rundown">
                 <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventTypes/Rundown.gif"/>

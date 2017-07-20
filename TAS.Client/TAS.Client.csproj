@@ -449,6 +449,7 @@
     <EmbeddedResource Include="Views\TemplatedEditView.resx">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\UserManagerView.resx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

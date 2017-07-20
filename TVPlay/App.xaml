@@ -9,7 +9,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/TAS.Client.Common;component/Converters.xaml"/>
-                <ResourceDictionary Source="/TAS.Client.Common;component/Styles.xaml"/>
+                <ResourceDictionary Source="/TAS.Client.Common;component/Styles/Styles.xaml"/>
                 <ResourceDictionary Source="/TAS.Client.Common;component/Controls/Resources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

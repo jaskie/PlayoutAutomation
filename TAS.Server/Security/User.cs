@@ -12,9 +12,9 @@ namespace TAS.Server.Security
 {
     public class User: SecurityObjectBase, IUser, IIdentity
     {
-        private readonly List<Role> _groups = new List<Role>();
+        private readonly List<Role> _roles = new List<Role>();
 
-        private ulong[] _groupIds;
+        private ulong[] _rolesIds;
 
         [XmlIgnore]
         public override SceurityObjectType SceurityObjectTypeType { get; } = SceurityObjectType.User;
@@ -28,41 +28,41 @@ namespace TAS.Server.Security
         {
             get
             {
-                lock (((IList) _groups).SyncRoot)
-                    return _groups.Cast<IRole>().ToList();
+                lock (((IList) _roles).SyncRoot)
+                    return _roles.Cast<IRole>().ToList();
             }
         }
 
         [XmlArray(nameof(Roles)), XmlArrayItem(nameof(Role))]
-        public ulong[] GroupsId
+        public ulong[] RolesId
         {
             get
             {
-                lock (((IList)_groups).SyncRoot)
-                    return _groups.Select(g => g.Id).ToArray();
+                lock (((IList)_roles).SyncRoot)
+                    return _roles.Select(g => g.Id).ToArray();
             }
             set
             {
-                _groupIds = value;
+                _rolesIds = value;
             }
         }
 
-        public void GroupAdd(Role group)
+        public void RoleAdd(Role role)
         {
-            lock (((IList)_groups).SyncRoot)
+            lock (((IList)_roles).SyncRoot)
             {
-                _groups.Add(group);
+                _roles.Add(role);
             }
             this.DbUpdate();
             NotifyPropertyChanged(nameof(Roles));
         }
 
-        public bool GroupRemove(Role group)
+        public bool RoleRemove(Role role)
         {
             bool isRemoved;
-            lock (((IList)_groups).SyncRoot)
+            lock (((IList)_roles).SyncRoot)
             {
-                isRemoved = _groups.Remove(group);
+                isRemoved = _roles.Remove(role);
             }
             if (isRemoved)
             {
@@ -72,21 +72,21 @@ namespace TAS.Server.Security
             return isRemoved;
         }
 
-        internal void PopulateGroups(List<Role> allGroups)
+        internal void PopulateRoles(List<Role> allRoles)
         {
-            if (allGroups == null || _groupIds == null)
+            if (allRoles == null || _rolesIds == null)
                 return;
-            lock (((IList)_groups).SyncRoot)
-                Array.ForEach(_groupIds, id =>
+            lock (((IList)_roles).SyncRoot)
+                Array.ForEach(_rolesIds, id =>
                 {
-                    lock (((IList)allGroups).SyncRoot)
+                    lock (((IList)allRoles).SyncRoot)
                     {
-                        var group = allGroups.FirstOrDefault(g => g.Id == id);
+                        var group = allRoles.FirstOrDefault(g => g.Id == id);
                         if (group != null)
-                            _groups.Add(group);
+                            _roles.Add(group);
                     }
                 });
-            _groupIds = null;
+            _rolesIds = null;
         }
 
     }

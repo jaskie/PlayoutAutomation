@@ -294,7 +294,7 @@
                 <Style TargetType="Label">
                     <Setter Property="VerticalAlignment" Value="Center"/>
                 </Style>
-                <Style TargetType="common:StatusIndicator">
+                <Style TargetType="controls:StatusIndicator">
                     <Setter Property="VerticalAlignment" Value="Center"/>
                     <Setter Property="Height" Value="14"/>
                 </Style>
@@ -310,7 +310,7 @@
                         <MenuItem Margin="0" Padding="0" Height="{Binding ActualHeight, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Menu}}}" >
                             <MenuItem.Header>
                                 <StackPanel Orientation="Horizontal">
-                                    <common:StatusIndicator IsGreen="{Binding NoAlarms}" Height="15"/>
+                                    <controls:StatusIndicator IsGreen="{Binding NoAlarms}" Height="15"/>
                                     <TextBlock>
                                         <TextBlock.Text>
                                             <Binding Path="NoAlarms">
@@ -324,7 +324,7 @@
                             </MenuItem.Header>
                             <StackPanel>
                                 <StackPanel Margin="2" Orientation="Horizontal" Visibility="{Binding ServerPRIExists, Converter={StaticResource BoolToVis}}">
-                                    <common:StatusIndicator IsGreen="{Binding ServerConnectedPRI}"/>
+                                    <controls:StatusIndicator IsGreen="{Binding ServerConnectedPRI}"/>
                                     <TextBlock>
                                         <TextBlock.Text>
                                             <Binding Path="ServerConnectedPRI">
@@ -336,7 +336,7 @@
                                     </TextBlock>
                                 </StackPanel>
                                 <StackPanel Margin="2" Orientation="Horizontal" Visibility="{Binding ServerSECExists, Converter={StaticResource BoolToVis}}">
-                                    <common:StatusIndicator IsGreen="{Binding ServerConnectedSEC}"/>
+                                    <controls:StatusIndicator IsGreen="{Binding ServerConnectedSEC}"/>
                                     <TextBlock>
                                         <TextBlock.Text>
                                             <Binding Path="ServerConnectedSEC">
@@ -348,7 +348,7 @@
                                     </TextBlock>
                                 </StackPanel>
                                 <StackPanel Margin="2" Orientation="Horizontal" Visibility="{Binding ServerPRVExists, Converter={StaticResource BoolToVis}}">
-                                    <common:StatusIndicator IsGreen="{Binding ServerConnectedPRV}"/>
+                                    <controls:StatusIndicator IsGreen="{Binding ServerConnectedPRV}"/>
                                     <TextBlock>
                                         <TextBlock.Text>
                                             <Binding Path="ServerConnectedPRV">
@@ -360,7 +360,7 @@
                                     </TextBlock>
                                 </StackPanel>
                                 <StackPanel Margin="2" Orientation="Horizontal">
-                                    <common:StatusIndicator IsGreen="{Binding DatabaseOK}"/>
+                                    <controls:StatusIndicator IsGreen="{Binding DatabaseOK}"/>
                                     <TextBlock>
                                         <TextBlock.Text>
                                             <Binding Path="DatabaseOK">
