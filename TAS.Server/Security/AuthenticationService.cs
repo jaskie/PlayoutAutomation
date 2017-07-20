@@ -15,18 +15,18 @@ namespace TAS.Server.Security
     {
 
         private readonly AcoHive<User> _users;
-        private readonly AcoHive<Group> _groups;
+        private readonly AcoHive<Role> _groups;
 
-        public AuthenticationService(List<User> users, List<Group> groups)
+        public AuthenticationService(List<User> users, List<Role> groups)
         {
             users.ForEach(u => u.PopulateGroups(groups));
             _users = new AcoHive<User>(users);
-            _groups = new AcoHive<Group>(groups);
+            _groups = new AcoHive<Role>(groups);
         }
 
         public IList<User> Users => _users.Items.ToList();
 
-        public IList<Group> Groups => _groups.Items.ToList();
+        public IList<Role> Groups => _groups.Items.ToList();
 
         public User AddUser(string userName)
         {

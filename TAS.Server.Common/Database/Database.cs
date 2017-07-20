@@ -1553,15 +1553,15 @@ WHERE idArchiveMedia=@idArchiveMedia;";
 
         #endregion // MediaSegment
 
-        #region ACO
+        #region Security
 
-        public static void DbInsertAco(this IAco aco)
+        public static void DbInsert(this ISecurityObject aco)
         {
             var pAco = aco as IPersistent;
             if (pAco == null)
             {
 #if  DEBUG
-                throw new NoNullAllowedException("DbInsertAco: operation on null");
+                throw new NoNullAllowedException("DbInsert: operation on null");
 #endif
                 return;
             }
@@ -1575,20 +1575,20 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                         serializer.Serialize(writer, pAco);
                         cmd.Parameters.AddWithValue("@Config", writer.ToString());
                     }
-                    cmd.Parameters.AddWithValue("@typAco", (int) aco.AcoType);
+                    cmd.Parameters.AddWithValue("@typAco", (int) aco.SceurityObjectTypeType);
                     cmd.ExecuteNonQuery();
                     pAco.Id = (ulong)cmd.LastInsertedId;
                 }
             }
         }
 
-        public static void DbDeleteAco(this IAco aco)
+        public static void DbDelete(this ISecurityObject aco)
         {
             var pAco = aco as IPersistent;
             if (pAco == null || pAco.Id == 0)
             {
 #if  DEBUG
-                throw new ApplicationException("DbDeleteAco: operation on null or not saved object");
+                throw new ApplicationException("DbDelete: operation on null or not saved object");
 #endif
                 return;
             }
@@ -1602,13 +1602,13 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             }
         }
 
-        public static void DbUpdateAco(this IAco aco)
+        public static void DbUpdate(this ISecurityObject aco)
         {
             var pAco = aco as IPersistent;
             if (pAco == null || pAco.Id == 0)
             {
 #if  DEBUG
-                throw new ApplicationException("DbUpdateAco: operation on null or not saved object");
+                throw new ApplicationException("DbUpdate: operation on null or not saved object");
 #endif
                 return;
             }
@@ -1628,16 +1628,16 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             }
         }
 
-        public static List<T> DbLoad<T>() where T : IAco
+        public static List<T> DbLoad<T>() where T : ISecurityObject
         {
             var users = new List<T>();
             lock (_connection)
             {
                 var cmd = new DbCommandRedundant("select * from aco where typACO=@typACO;", _connection);
                 if (typeof(IUser).IsAssignableFrom(typeof(T)))
-                    cmd.Parameters.AddWithValue("@typACO", (int) TAco.User);
-                if (typeof(IGroup).IsAssignableFrom(typeof(T)))
-                    cmd.Parameters.AddWithValue("@typACO", (int)TAco.Group);
+                    cmd.Parameters.AddWithValue("@typACO", (int) SceurityObjectType.User);
+                if (typeof(IRole).IsAssignableFrom(typeof(T)))
+                    cmd.Parameters.AddWithValue("@typACO", (int)SceurityObjectType.Role);
                 using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())

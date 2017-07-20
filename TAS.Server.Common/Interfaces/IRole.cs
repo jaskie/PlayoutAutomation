@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TAS.Server.Security
+namespace TAS.Server.Common.Interfaces
 {
-    class PrincipalStorage
+    public interface IRole: ISecurityObject
     {
     }
 }

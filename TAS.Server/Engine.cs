@@ -488,7 +488,7 @@ namespace TAS.Server
         [JsonProperty]
         public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value); } }
         
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Playout)]
         public void Load(IEvent aEvent)
         {
             Debug.WriteLine(aEvent, "Load");
@@ -502,14 +502,14 @@ namespace TAS.Server
             _load(aEvent as Event);
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Playout)]
         public void StartLoaded()
         {
             Debug.WriteLine("StartLoaded executed");
             _startLoaded();
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Playout)]
         public void Start(IEvent aEvent)
         {
             Debug.WriteLine(aEvent, "Start");
@@ -519,7 +519,7 @@ namespace TAS.Server
             _start(ets);
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Playout)]
         public void Schedule(IEvent aEvent)
         {
             Debug.WriteLine(aEvent, $"Schedule {aEvent.PlayState}");
@@ -531,7 +531,7 @@ namespace TAS.Server
             NotifyEngineOperation(aEvent, TEngineOperation.Schedule);
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Playout)]
         public void Clear(VideoLayer aVideoLayer)
         {
             Debug.WriteLine(aVideoLayer, "Clear");
@@ -557,7 +557,7 @@ namespace TAS.Server
                     Playing = null;
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Playout)]
         public void Clear()
         {
             Logger.Info("{0} {1}: Clear all", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this);
@@ -576,14 +576,14 @@ namespace TAS.Server
             _previewUnload();
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Playout)]
         public void ClearMixer()
         {
             _playoutChannelPRI?.ClearMixer();
             _playoutChannelSEC?.ClearMixer();
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Playout)]
         public void Restart()
         {
             Logger.Info("{0} {1}: Restart", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this);
@@ -591,7 +591,7 @@ namespace TAS.Server
                 _restartEvent(e);
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Playout)]
         public void RestartRundown(IEvent aRundown)
         {
             Action<Event> rerun = aEvent =>
@@ -627,7 +627,7 @@ namespace TAS.Server
             }
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Playout)]
         public void ForceNext(IEvent aEvent)
         {
             ForcedNext = aEvent;
@@ -718,7 +718,7 @@ namespace TAS.Server
             return result;
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Playout)]
         public void ReSchedule(IEvent aEvent)
         {
             ThreadPool.QueueUserWorkItem(o => {
@@ -739,7 +739,7 @@ namespace TAS.Server
             _playoutChannelSEC?.Execute(command);
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Preview)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Preview)]
         public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal previewAudioVolume)
         {
             MediaBase mediaToLoad = _findPreviewMedia(media as MediaBase);
@@ -763,20 +763,20 @@ namespace TAS.Server
             }
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Preview)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Preview)]
         public void PreviewUnload()
         {
             _previewUnload();
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Preview)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Preview)]
         public void PreviewPlay()
         {
             if (_previewMedia != null && _playoutChannelPRV?.Play(VideoLayer.Preview) == true)
                 PreviewIsPlaying = true;
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Preview)]
+        [PrincipalPermission(SecurityAction.Demand, Role = Role.Preview)]
         public void PreviewPause()
         {
             _playoutChannelPRV?.Pause(VideoLayer.Preview);

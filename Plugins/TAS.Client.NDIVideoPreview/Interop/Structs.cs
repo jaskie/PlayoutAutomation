@@ -166,7 +166,7 @@ namespace TAS.Client.NDIVideoPreview.Interop
         public bool show_local_sources;
 
         /// <summary>
-        /// Groups to search for sources. UTF-8 string
+        /// Roles to search for sources. UTF-8 string
         /// </summary>
         public IntPtr p_groups;
 

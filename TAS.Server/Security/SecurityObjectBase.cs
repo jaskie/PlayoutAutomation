@@ -12,12 +12,12 @@ using TAS.Server.Common.Interfaces;
 namespace TAS.Server.Security
 {
     /// <summary>
-    /// Access Control Object - base class for User, Group and Role
+    /// base class for User and Role
     /// </summary>
-    public abstract class Aco: DtoBase, IAco, IPersistent
+    public abstract class SecurityObjectBase: DtoBase, ISecurityObject, IPersistent
     {
         private string _name;
-        public abstract TAco AcoType { get; }
+        public abstract SceurityObjectType SceurityObjectTypeType { get; }
 
         [XmlIgnore]
         public ulong Id { get; set; }
@@ -28,7 +28,7 @@ namespace TAS.Server.Security
             set
             {
                 if (SetField(ref _name, value))
-                    this.DbUpdateAco();
+                    this.DbUpdate();
             }
         }
 

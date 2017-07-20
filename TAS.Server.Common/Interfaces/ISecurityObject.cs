@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 namespace TAS.Server.Common.Interfaces
 {
     /// <summary>
-    /// Access Control Object - base interface for User, Group and Role
+    /// base interface for IUser and IRole
     /// </summary>
-    public interface IAco
+    public interface ISecurityObject
     {
-        TAco AcoType { get; }
+        SceurityObjectType SceurityObjectTypeType { get; }
         string Name { get; set; }
     }
 }

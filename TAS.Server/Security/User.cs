@@ -10,35 +10,30 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Security
 {
-    public class User: Aco, IUser, IIdentity
+    public class User: SecurityObjectBase, IUser, IIdentity
     {
-        private readonly List<Group> _groups = new List<Group>();
+        private readonly List<Role> _groups = new List<Role>();
 
         private ulong[] _groupIds;
 
-        public User()
-        {
-            
-        }
-
         [XmlIgnore]
-        public override TAco AcoType { get; } = TAco.User;
+        public override SceurityObjectType SceurityObjectTypeType { get; } = SceurityObjectType.User;
 
         public string AuthenticationType { get; } = "Internal";
 
         public bool IsAuthenticated => !string.IsNullOrEmpty(Name);
 
         [XmlIgnore]
-        public IList<IGroup> Groups
+        public IList<IRole> Roles
         {
             get
             {
                 lock (((IList) _groups).SyncRoot)
-                    return _groups.Cast<IGroup>().ToList();
+                    return _groups.Cast<IRole>().ToList();
             }
         }
 
-        [XmlArray(nameof(Groups)), XmlArrayItem(nameof(Group))]
+        [XmlArray(nameof(Roles)), XmlArrayItem(nameof(Role))]
         public ulong[] GroupsId
         {
             get
@@ -52,17 +47,17 @@ namespace TAS.Server.Security
             }
         }
 
-        public void GroupAdd(Group group)
+        public void GroupAdd(Role group)
         {
             lock (((IList)_groups).SyncRoot)
             {
                 _groups.Add(group);
             }
-            this.DbUpdateAco();
-            NotifyPropertyChanged(nameof(Groups));
+            this.DbUpdate();
+            NotifyPropertyChanged(nameof(Roles));
         }
 
-        public bool GroupRemove(Group group)
+        public bool GroupRemove(Role group)
         {
             bool isRemoved;
             lock (((IList)_groups).SyncRoot)
@@ -71,13 +66,13 @@ namespace TAS.Server.Security
             }
             if (isRemoved)
             {
-                this.DbUpdateAco();
-                NotifyPropertyChanged(nameof(Groups));
+                this.DbUpdate();
+                NotifyPropertyChanged(nameof(Roles));
             }
             return isRemoved;
         }
 
-        internal void PopulateGroups(List<Group> allGroups)
+        internal void PopulateGroups(List<Role> allGroups)
         {
             if (allGroups == null || _groupIds == null)
                 return;

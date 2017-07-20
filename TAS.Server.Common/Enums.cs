@@ -530,13 +530,12 @@ namespace TAS.Server.Common
     }
 
     /// <summary>
-    /// Access Control Object (user, group, role) kind
+    /// Scurity Object (user or role) kind
     /// </summary>
-    public enum TAco
+    public enum SceurityObjectType
     {
         User,
-        Group,
-        //Role
+        Role,
     }
 
 }

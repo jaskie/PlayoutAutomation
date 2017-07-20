@@ -81,7 +81,7 @@
     <Compile Include="EventProxy.cs" />
     <Compile Include="FileOperationEventArgs.cs" />
     <Compile Include="FileUtils.cs" />
-    <Compile Include="Interfaces\IAco.cs" />
+    <Compile Include="Interfaces\ISecurityObject.cs" />
     <Compile Include="Interfaces\IEnginePlugin.cs" />
     <Compile Include="Interfaces\IEnginePluginFactory.cs" />
     <Compile Include="EventEventArgs.cs" />
@@ -98,7 +98,7 @@
     <Compile Include="Interfaces\IFileOperation.cs" />
     <Compile Include="Interfaces\ICGElementsController.cs" />
     <Compile Include="Interfaces\IGpi.cs" />
-    <Compile Include="Interfaces\IGroup.cs" />
+    <Compile Include="Interfaces\IRole.cs" />
     <Compile Include="Interfaces\IIngestDirectory.cs" />
     <Compile Include="Interfaces\IIngestMedia.cs" />
     <Compile Include="Interfaces\ILoudnessOperation.cs" />

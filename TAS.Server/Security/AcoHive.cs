@@ -10,7 +10,7 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Security
 {
-    public class AcoHive<TItem> where TItem : IAco, new()
+    public class AcoHive<TItem> where TItem : ISecurityObject, new()
     {
         private readonly List<TItem> _items;
 
@@ -36,7 +36,7 @@ namespace TAS.Server.Security
             };
             lock (((IList)_items).SyncRoot)
                 _items.Add(newItem);
-            newItem.DbInsertAco();
+            newItem.DbInsert();
             AcoOperartion?.Invoke(this, new CollectionOperationEventArgs<TItem>(newItem, CollectionOperation.Add));
             return newItem;
         }
@@ -48,7 +48,7 @@ namespace TAS.Server.Security
                 isRemoved = _items.Remove(item);
             if (isRemoved)
             {
-                item.DbDeleteAco();
+                item.DbDelete();
                 AcoOperartion?.Invoke(this, new CollectionOperationEventArgs<TItem>(item, CollectionOperation.Remove));
             }
             return isRemoved;
