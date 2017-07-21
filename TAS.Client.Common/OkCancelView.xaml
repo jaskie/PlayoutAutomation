@@ -1,5 +1,4 @@
 ﻿<Window x:Class="TAS.Client.Common.OkCancelView"
-        ResxExtension.DefaultResxName="TAS.Client.Common.OkCancelView" Language="{UICulture}" 
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
@@ -31,18 +30,9 @@
                     <Setter Property="Margin" Value="5, 0"/>
                 </Style>
             </StackPanel.Resources>
-            <Button IsDefault="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandOK}">
-                <DockPanel>
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png"></controls:AutoGreyableImage>
-                    <Label Content="{Resx _ok}" />
-                </DockPanel>
-            </Button>
-            <Button IsCancel="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandClose}">
-                <DockPanel>
-                    <Image Source="/TAS.Client.Common;component/Images/Actions/delete.png"></Image>
-                    <Label Content="{Resx _cancel}" />
-                </DockPanel>
-            </Button>
+            <Button IsDefault="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandOK}" Style="{StaticResource OkButton}"/>
+            <Button IsCancel="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandClose}" Style="{StaticResource CancelButton}" />
+           
         </StackPanel>
         <ContentControl Content="{Binding Editor}"/>
         </DockPanel>

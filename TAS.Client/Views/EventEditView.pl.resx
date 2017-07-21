@@ -138,12 +138,6 @@
   <data name="_buttonCancel.ToolTip" xml:space="preserve">
     <value>Cofnij zmiany | Ctrl+U</value>
   </data>
-  <data name="_buttonRevert.Caption" xml:space="preserve">
-    <value>Cofnij</value>
-  </data>
-  <data name="_buttonSave.Caption" xml:space="preserve">
-    <value>Zapisz</value>
-  </data>
   <data name="_buttonSave.ToolTip" xml:space="preserve">
     <value>Zapisz zmiany | Ctrl+S</value>
   </data>

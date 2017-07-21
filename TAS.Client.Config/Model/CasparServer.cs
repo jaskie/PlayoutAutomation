@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
@@ -21,6 +22,16 @@ namespace TAS.Client.Config.Model
         public override string ToString()
         {
             return ServerAddress;
+        }
+
+        public void Save()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Delete()
+        {
+            throw new NotImplementedException();
         }
     }
 

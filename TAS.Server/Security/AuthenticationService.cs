@@ -12,31 +12,57 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Security
 {
-    public class AuthenticationService: DtoBase
+    public class AuthenticationService: DtoBase, IAuthenticationService
     {
-
         private readonly AcoHive<User> _users;
-        private readonly AcoHive<Role> _roles;
+        private readonly AcoHive<Group> _groups;
 
-        public AuthenticationService(List<User> users, List<Role> roles)
+        public AuthenticationService(List<User> users, List<Group> roles)
         {
-            users.ForEach(u => u.PopulateRoles(roles));
+            users.ForEach(u => u.PopulateGroups(roles));
             _users = new AcoHive<User>(users);
-            _roles = new AcoHive<Role>(roles);
+            _users.AcoOperartion += Users_AcoOperation;
+
+            _groups = new AcoHive<Group>(roles);
+            _groups.AcoOperartion += Groups_AcoOperation;
         }
 
-        public IList<User> Users => _users.Items.ToList();
+        public IEnumerable<IUser> Users => _users.Items;
 
-        public IList<Role> Roles => _roles.Items.ToList();
+        public IEnumerable<IGroup> Groups => _groups.Items;
 
-        public User AddUser(string userName)
+        public IUser CreateUser() => new User(this);
+
+        public IGroup CreateGroup() => new Group(this);
+
+        public bool AddUser(IUser user) => _users.Add((User)user);
+        
+        public bool RemoveUser(IUser user) => _users.Remove((User)user);
+
+        public bool AddGroup(IGroup group) => _groups.Add((Group)group);
+
+        public bool RemoveGroup(IGroup group) => _groups.Remove((Group)group);
+
+
+        public event EventHandler<CollectionOperationEventArgs<IUser>> UsersOperation;
+
+        public event EventHandler<CollectionOperationEventArgs<IGroup>> GroupsOperation;
+
+        protected override void DoDispose()
         {
-            return _users.Add(userName);
+            _users.AcoOperartion -= Users_AcoOperation;
+            _groups.AcoOperartion -= Groups_AcoOperation;
+            base.DoDispose();
         }
 
-        public bool RemoveUser(User user)
+        private void Users_AcoOperation(object sender, CollectionOperationEventArgs<User> e)
         {
-            return _users.Remove(user);
+            UsersOperation?.Invoke(this, new CollectionOperationEventArgs<IUser>(e.Item, e.Operation));
+        }
+
+        private void Groups_AcoOperation(object sender, CollectionOperationEventArgs<Group> e)
+        {
+            GroupsOperation?.Invoke(this, new CollectionOperationEventArgs<IGroup>(e.Item, e.Operation));
         }
     }
 }

@@ -23,9 +23,22 @@ namespace TAS.Server
         private bool _needUpdateChannels;
         private Svt.Caspar.CasparDevice _casparDevice;
 
+        #region IPersistent
+
         [XmlIgnore]
         [JsonProperty]
         public ulong Id { get; set; }
+
+        public void Save()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Delete()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
 
         public string ServerAddress { get; set; }
 

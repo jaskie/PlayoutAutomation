@@ -45,6 +45,7 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -128,6 +129,7 @@
     <Compile Include="ViewModels\PreviewViewmodel.cs" />
     <Compile Include="ViewModels\RecordersViewmodel.cs" />
     <Compile Include="ViewModels\UserManagerViewmodel.cs" />
+    <Compile Include="ViewModels\UserViewmodel.cs" />
     <Compile Include="Views\ChannelView.xaml.cs">
       <DependentUpon>ChannelView.xaml</DependentUpon>
     </Compile>
@@ -212,6 +214,9 @@
     </Compile>
     <Compile Include="Views\UserManagerView.xaml.cs">
       <DependentUpon>UserManagerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserView.xaml.cs">
+      <DependentUpon>UserView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -345,6 +350,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\UserView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\ChannelView.pl.resx">
@@ -450,6 +459,7 @@
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\UserManagerView.resx" />
+    <EmbeddedResource Include="Views\UserView.resx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

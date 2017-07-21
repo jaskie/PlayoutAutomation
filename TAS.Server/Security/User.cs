@@ -12,9 +12,12 @@ namespace TAS.Server.Security
 {
     public class User: SecurityObjectBase, IUser, IIdentity
     {
-        private readonly List<Role> _roles = new List<Role>();
 
-        private ulong[] _rolesIds;
+        public User(IAuthenticationService authenticationService): base(authenticationService) { }
+
+        private readonly List<Group> _groups = new List<Group>();
+
+        private ulong[] _groupsIds;
 
         [XmlIgnore]
         public override SceurityObjectType SceurityObjectTypeType { get; } = SceurityObjectType.User;
@@ -24,69 +27,86 @@ namespace TAS.Server.Security
         public bool IsAuthenticated => !string.IsNullOrEmpty(Name);
 
         [XmlIgnore]
-        public IList<IRole> Roles
+        public IList<IGroup> Groups
         {
             get
             {
-                lock (((IList) _roles).SyncRoot)
-                    return _roles.Cast<IRole>().ToList();
+                lock (((IList) _groups).SyncRoot)
+                    return _groups.Cast<IGroup>().ToList();
             }
         }
 
-        [XmlArray(nameof(Roles)), XmlArrayItem(nameof(Role))]
-        public ulong[] RolesId
+        [XmlArray(nameof(Groups)), XmlArrayItem(nameof(Group))]
+        public ulong[] GroupsId
         {
             get
             {
-                lock (((IList)_roles).SyncRoot)
-                    return _roles.Select(g => g.Id).ToArray();
+                lock (((IList)_groups).SyncRoot)
+                    return _groups.Select(g => g.Id).ToArray();
             }
             set
             {
-                _rolesIds = value;
+                _groupsIds = value;
             }
         }
 
-        public void RoleAdd(Role role)
+        public void GroupAdd(Group group)
         {
-            lock (((IList)_roles).SyncRoot)
+            lock (((IList)_groups).SyncRoot)
             {
-                _roles.Add(role);
+                _groups.Add(group);
             }
             this.DbUpdate();
-            NotifyPropertyChanged(nameof(Roles));
+            NotifyPropertyChanged(nameof(Groups));
         }
 
-        public bool RoleRemove(Role role)
+        public bool GroupRemove(Group group)
         {
             bool isRemoved;
-            lock (((IList)_roles).SyncRoot)
+            lock (((IList)_groups).SyncRoot)
             {
-                isRemoved = _roles.Remove(role);
+                isRemoved = _groups.Remove(group);
             }
             if (isRemoved)
             {
                 this.DbUpdate();
-                NotifyPropertyChanged(nameof(Roles));
+                NotifyPropertyChanged(nameof(Groups));
             }
             return isRemoved;
         }
 
-        internal void PopulateRoles(List<Role> allRoles)
+        public override void Save()
         {
-            if (allRoles == null || _rolesIds == null)
+            if (Id == default(ulong))
+            {
+                AuthenticationService.AddUser(this);
+                this.DbInsert();
+            }
+            else
+                this.DbUpdate();
+        }
+
+        public override void Delete()
+        {
+            AuthenticationService.RemoveUser(this);
+            this.DbDelete();
+        }
+
+        internal void PopulateGroups(List<Group> allGroups)
+        {
+            if (allGroups == null || _groupsIds == null)
                 return;
-            lock (((IList)_roles).SyncRoot)
-                Array.ForEach(_rolesIds, id =>
+            lock (((IList)_groups).SyncRoot)
+                Array.ForEach(_groupsIds, id =>
                 {
-                    lock (((IList)allRoles).SyncRoot)
+                    lock (((IList)allGroups).SyncRoot)
                     {
-                        var group = allRoles.FirstOrDefault(g => g.Id == id);
+                        var group = allGroups.FirstOrDefault(g => g.Id == id);
                         if (group != null)
-                            _roles.Add(group);
+                            _groups.Add(group);
                     }
                 });
-            _rolesIds = null;
+            _groupsIds = null;
         }
 
     }

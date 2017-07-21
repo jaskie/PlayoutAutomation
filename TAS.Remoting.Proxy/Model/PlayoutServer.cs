@@ -35,6 +35,16 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
+        public void Save()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Delete()
+        {
+            throw new NotImplementedException();
+        }
+
         protected override void OnEventNotification(WebSocketMessage e) { }
 
     }

@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace TAS.Server.Common.Interfaces
 {
-    public interface IUser: ISecurityObject
+    public interface IUser: ISecurityObject, IPersistent
     {
-        IList<IRole> Roles { get; }
+        IList<IGroup> Groups { get; }
     }
 }

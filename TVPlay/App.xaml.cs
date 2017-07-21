@@ -5,6 +5,7 @@ using System.Threading;
 using System.Windows;
 using TAS.Server;
 using Infralution.Localization.Wpf;
+using TAS.Server.Common;
 using TAS.Server.Security;
 
 namespace TAS.Client
@@ -16,7 +17,6 @@ namespace TAS.Client
     {
         public App()
         {
-            
             #region hacks
             Common.WpfHacks.ApplyGridViewRowPresenter_CellMargin();
             #endregion
@@ -26,7 +26,7 @@ namespace TAS.Client
             else
                 CultureManager.UICulture = new System.Globalization.CultureInfo(uiCulture);
             Thread.CurrentPrincipal = new GenericPrincipal(new GenericIdentity("Console"),
-                new[] {Role.Media, Role.Playout, Role.Preview, Role.UserAdmin});
+                new[] {Roles.Media, Roles.Playout, Roles.Preview, Roles.UserAdmin});
         }
         protected override void OnExit(ExitEventArgs e)
         {

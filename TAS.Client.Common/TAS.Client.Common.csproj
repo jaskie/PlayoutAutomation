@@ -48,6 +48,7 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="PresentationFramework.Aero" />
     <Reference Include="PresentationFramework.Classic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -177,18 +178,20 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Styles\Buttons.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\Images.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Styles\Styles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="OkCancelView.pl.resx">
-      <DependentUpon>OkCancelView.xaml</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="OkCancelView.resx">
-      <DependentUpon>OkCancelView.xaml</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.pl.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.pl.Designer.cs</LastGenOutput>
@@ -199,6 +202,8 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Styles\Styles.pl.resx" />
+    <EmbeddedResource Include="Styles\Styles.resx" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Actions\apply.png" />
@@ -524,6 +529,11 @@
     <Resource Include="Images\Actions\go-jump.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <SsdtUnitTestVersion>2.0</SsdtUnitTestVersion>
+  </PropertyGroup>
+  <Import Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.Sql.UnitTesting.targets" Condition="'$(SQLDBExtensionsRefPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.Sql.UnitTesting.targets" Condition="'$(SQLDBExtensionsRefPath)' == ''" />
   <PropertyGroup>
     <SsdtUnitTestVersion>2.0</SsdtUnitTestVersion>
   </PropertyGroup>

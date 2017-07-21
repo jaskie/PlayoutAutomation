@@ -38,13 +38,12 @@
                 </Button>
 
             </StackPanel>
-            <StackPanel FlowDirection="RightToLeft" Orientation="Horizontal" >
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" >
                 <StackPanel.Resources>
                     <Style TargetType="Button">
                         <Setter Property="Margin" Value="5" />
                         <Setter Property="Width" Value="80" />
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                        <Setter Property="FlowDirection" Value="LeftToRight"/>
                     </Style>
                     <Style TargetType="Label">
                         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -52,18 +51,8 @@
                         <Setter Property="Padding" Value="0"/>
                     </Style>
                 </StackPanel.Resources>
-                <Button IsDefault="True" ToolTip="{Resx _buttonSave.ToolTip}" Command="{Binding CommandSaveEdit}" >
-                    <DockPanel>
-                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png"/>
-                        <Label Content="{Resx _buttonSave.Caption}" />
-                    </DockPanel>
-                </Button>
-                <Button IsCancel="True" ToolTip="{Resx _buttonCancel.ToolTip}" Command="{Binding CommandUndoEdit}">
-                    <DockPanel>
-                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png"/>
-                        <Label Content="{Resx _buttonRevert.Caption}" />
-                    </DockPanel>
-                </Button>
+                <Button IsCancel="True" ToolTip="{Resx _buttonCancel.ToolTip}" Command="{Binding CommandUndoEdit}" Style="{StaticResource UndoButton}"/>
+                <Button IsDefault="True" ToolTip="{Resx _buttonSave.ToolTip}" Command="{Binding CommandSaveEdit}" Style="{StaticResource OkButton}" />
             </StackPanel>
         </Grid>
         <ScrollViewer Grid.Row="1" Padding="2" VerticalScrollBarVisibility="Auto" >

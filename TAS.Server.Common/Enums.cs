@@ -535,7 +535,7 @@ namespace TAS.Server.Common
     public enum SceurityObjectType
     {
         User,
-        Role,
+        Group,
     }
 
 }

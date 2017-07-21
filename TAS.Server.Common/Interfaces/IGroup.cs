@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TAS.Server.Common.Interfaces
 {
-    public interface IRole: ISecurityObject
+    public interface IGroup: ISecurityObject, IPersistent
     {
     }
 }

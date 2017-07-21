@@ -117,10 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="_cancel" xml:space="preserve">
-    <value>Anuluj</value>
+  <data name="_buttonCancel.Caption" xml:space="preserve">
+    <value>Cancel</value>
   </data>
-  <data name="_ok" xml:space="preserve">
-    <value>OK</value>
+  <data name="_buttonCancel.ToolTip" xml:space="preserve">
+    <value>Cancel action</value>
+  </data>
+  <data name="_buttonOk.Caption" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="_buttonOk.ToolTip" xml:space="preserve">
+    <value>Apply changes</value>
+  </data>
+  <data name="_buttonUndo.Caption" xml:space="preserve">
+    <value>Revert</value>
+  </data>
+  <data name="_buttonUndo.ToolTip" xml:space="preserve">
+    <value>Revert changes</value>
   </data>
 </root>

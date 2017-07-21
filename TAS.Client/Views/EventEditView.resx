@@ -138,12 +138,6 @@
   <data name="_buttonCancel.ToolTip" xml:space="preserve">
     <value>Rollback changes  | Ctrl+U</value>
   </data>
-  <data name="_buttonRevert.Caption" xml:space="preserve">
-    <value>Revert</value>
-  </data>
-  <data name="_buttonSave.Caption" xml:space="preserve">
-    <value>Save</value>
-  </data>
   <data name="_buttonSave.ToolTip" xml:space="preserve">
     <value>Save changes | Ctrl+S</value>
   </data>

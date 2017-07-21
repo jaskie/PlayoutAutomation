@@ -30,8 +30,6 @@ namespace TAS.Server.Common.Interfaces
         void MoveUp();
         void MoveDown();
         void Remove();
-        void Save();
-        void Delete();
         bool AllowDelete();
         bool IsModified { get; set; }
         bool IsDeleted { get; }

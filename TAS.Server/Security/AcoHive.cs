@@ -10,7 +10,7 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Security
 {
-    public class AcoHive<TItem> where TItem : ISecurityObject, new()
+    public class AcoHive<TItem> where TItem : ISecurityObject
     {
         private readonly List<TItem> _items;
 
@@ -28,17 +28,20 @@ namespace TAS.Server.Security
             }
         }
 
-        public TItem Add(string name)
+        public bool Add(TItem item)
         {
-            var newItem = new TItem
+            bool result = false;
+            lock (((IList) _items).SyncRoot)
             {
-                Name = name
-            };
-            lock (((IList)_items).SyncRoot)
-                _items.Add(newItem);
-            newItem.DbInsert();
-            AcoOperartion?.Invoke(this, new CollectionOperationEventArgs<TItem>(newItem, CollectionOperation.Add));
-            return newItem;
+                if (!_items.Contains(item))
+                {
+                    _items.Add(item);
+                    result = true;
+                }
+            }
+            if (result)
+                AcoOperartion?.Invoke(this, new CollectionOperationEventArgs<TItem>(item, CollectionOperation.Add));
+            return result;
         }
 
         public bool Remove(TItem item)

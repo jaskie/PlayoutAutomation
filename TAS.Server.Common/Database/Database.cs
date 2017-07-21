@@ -1526,9 +1526,9 @@ WHERE idArchiveMedia=@idArchiveMedia;";
         }
 
 
-        public static UInt64 DbSave(this IMediaSegment mediaSegment)
+        public static ulong DbSave(this IMediaSegment mediaSegment)
         {
-            var ps = mediaSegment as IMediaSegmentPersistent;
+            var ps = mediaSegment as IPersistent;
             if (ps == null)
                 return 0;
             lock (_connection)
@@ -1541,7 +1541,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                     command = new DbCommandRedundant("UPDATE mediasegments SET TCIn = @TCIn, TCOut = @TCOut, SegmentName = @SegmentName WHERE idMediaSegment=@idMediaSegment AND MediaGuid = @MediaGuid;", _connection);
                     command.Parameters.AddWithValue("@idMediaSegment", ps.Id);
                 }
-                command.Parameters.AddWithValue("@MediaGuid", ps.Owner.MediaGuid);
+                command.Parameters.AddWithValue("@MediaGuid", mediaSegment.Owner.MediaGuid);
                 command.Parameters.AddWithValue("@TCIn", mediaSegment.TcIn);
                 command.Parameters.AddWithValue("@TCOut", mediaSegment.TcOut);
                 command.Parameters.AddWithValue("@SegmentName", mediaSegment.SegmentName);
@@ -1636,8 +1636,8 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                 var cmd = new DbCommandRedundant("select * from aco where typACO=@typACO;", _connection);
                 if (typeof(IUser).IsAssignableFrom(typeof(T)))
                     cmd.Parameters.AddWithValue("@typACO", (int) SceurityObjectType.User);
-                if (typeof(IRole).IsAssignableFrom(typeof(T)))
-                    cmd.Parameters.AddWithValue("@typACO", (int)SceurityObjectType.Role);
+                if (typeof(IGroup).IsAssignableFrom(typeof(T)))
+                    cmd.Parameters.AddWithValue("@typACO", (int)SceurityObjectType.Group);
                 using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())

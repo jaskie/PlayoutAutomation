@@ -5,9 +5,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TAS.Client.Views"
+             xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              mc:Ignorable="d" 
-             d:DataContext="{x:Type vm:UserManagerViewmodel}"
+             d:DataContext="{d:DesignInstance vm:UserManagerViewmodel}"
              d:DesignHeight="600" d:DesignWidth="600">
     <TabControl>
         <TabItem Header="{Resx _users}">
@@ -18,18 +19,29 @@
                 </Grid.ColumnDefinitions>
                 <DockPanel Margin="1">
                     <Label DockPanel.Dock="Top" Content="{Resx _userList}" Style="{StaticResource HeaderLabel}"/>
-                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-                        <Button Content="Adduser"/>
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="30" >
+                        <StackPanel.Resources>
+                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                <Setter Property="Margin" Value="2"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <Button Command="{Binding CommandAddUser}">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
+                        </Button>
+                        <Button Command="{Binding CommandDeleteUser}">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
+                        </Button>
                     </StackPanel>
-                    <DataGrid ItemsSource="{Binding Users}" AutoGenerateColumns="False" >
+                    <DataGrid ItemsSource="{Binding Users}" AutoGenerateColumns="False" IsReadOnly="True">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Binding="{Binding Name}"/>
+                            <DataGridTextColumn Binding="{Binding UserName}" Width="*"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>
-                <StackPanel Grid.Column="1" Margin="1">
-                    <Label Content="{Resx _selectedUser}" Style="{StaticResource HeaderLabel}"/>
-                </StackPanel>
+                <DockPanel Grid.Column="1" Margin="1">
+                    <Label DockPanel.Dock="Top" Content="{Resx _selectedUser}" Style="{StaticResource HeaderLabel}"/>
+                    <local:UserView DataContext="{Binding SelectedUser}"/>
+                </DockPanel>
             </Grid>
         </TabItem>
         <TabItem Header="{Resx _roles}">

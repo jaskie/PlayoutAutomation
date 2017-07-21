@@ -21,7 +21,7 @@ namespace TAS.Client
                     EngineController.Initialize();
                     var engines = EngineController.Engines;
                     Tabs = new List<ViewmodelBase>(engines.Select(engine => new ChannelViewmodel(engine, true, true, true)));
-                    Tabs.Add(new UserManagerViewmodel());
+                    Tabs.Add(new UserManagerViewmodel(EngineController.AuthenticationService));
                 }
                 catch (TypeInitializationException e)
                 {
