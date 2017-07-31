@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Configuration;
 using System.Linq;
-using System.Text;
 using System.Windows.Input;
 using System.Xml.Serialization;
 using TAS.Client.Common;
@@ -13,51 +11,37 @@ namespace TAS.Client.Config
 {
     public class IngestDirectoriesViewmodel: OkCancelViewmodelBase<IEnumerable<IngestDirectory>>
     {
-        public ICommand CommandAdd { get; private set; }
-        public ICommand CommandDelete { get; private set; }
-        public ICommand CommandUp { get; private set; }
-        public ICommand CommandDown { get; private set; }
-        public ICommand CommandAddSub { get; private set; }
-        private readonly ObservableCollection<IngestDirectoryViewmodel> _directories;
         private readonly string _fileName;
+        private bool _added;
+        private bool _deleted;
+        private bool _moved;
+        private IngestDirectoryViewmodel _selectedDirectory;
 
-        public IngestDirectoriesViewmodel(string fileName) : base(Deserialize(fileName), new IngestDirectoriesView(), string.Format("Ingest directories ({0})", System.IO.Path.GetFullPath(fileName))) 
+
+        public IngestDirectoriesViewmodel(string fileName) : base(Deserialize(fileName), typeof(IngestDirectoriesView),
+            $"Ingest directories ({System.IO.Path.GetFullPath(fileName)})") 
         {
-            _directories = new ObservableCollection<IngestDirectoryViewmodel>();
-            foreach (var item in Model.Select(d => new IngestDirectoryViewmodel(d, _directories)))
-                _directories.Add(item);
+            foreach (var item in Model.Select(d => new IngestDirectoryViewmodel(d, Directories)))
+            {
+                item.Load();
+                Directories.Add(item);
+            }
             _fileName = fileName;
             _createCommands();
         }
 
-        private static IEnumerable<IngestDirectory> Deserialize(string fileName)
-        {
-            try
-            {
-                XmlSerializer reader = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
-                System.IO.StreamReader file = new System.IO.StreamReader(fileName);
-                try
-                {
-                    return (IEnumerable<IngestDirectory>)reader.Deserialize(file);
-                }
-                finally
-                {
-                    file.Close();
-                }
-            }
-            catch (NullReferenceException)
-            {
-                return new List<IngestDirectory>();
-            }
-        }
+        public ICommand CommandAdd { get; private set; }
 
-        public ObservableCollection<IngestDirectoryViewmodel> Directories { get { return _directories; } }
-        IngestDirectoryViewmodel _selectedDirectory;
+        public ICommand CommandDelete { get; private set; }
+
+        public ICommand CommandUp { get; private set; }
+
+        public ICommand CommandDown { get; private set; }
+
+        public ICommand CommandAddSub { get; private set; }
+
+        public ObservableCollection<IngestDirectoryViewmodel> Directories { get; } = new ObservableCollection<IngestDirectoryViewmodel>();
         
-        private bool _added;
-        private bool _deleted;
-        private bool _moved;
-
         public IngestDirectoryViewmodel SelectedDirectory
         {
             get { return _selectedDirectory; }
@@ -71,26 +55,22 @@ namespace TAS.Client.Config
             }
         }
         
-        protected override void OnDispose()
-        {
-            
-        }
-        
-        public override bool IsModified { get { return _added || _deleted || _moved|| _directories.Any(d => d.IsModified); } }
+        public override bool IsModified { get { return _added || _deleted || _moved|| Directories.Any(d => d.IsModified); } }
 
-        public override void ModelUpdate(object parameter)
+        public override void Update(object parameter = null)
         {
-            _directories.Where(d => d.IsModified).All(d =>
-            {
-                d.ModelUpdate();
-                return true;
-            });
+            Directories.Where(d => d.IsModified).ToList().ForEach(d => d.Update());
             XmlSerializer writer = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(_fileName))
             {
-                writer.Serialize(file, _directories.Select(d => d.Model).ToList());
+                writer.Serialize(file, Directories.Select(d => d.Model).ToList());
                 file.Close();
             }
+        }
+
+        protected override void OnDispose()
+        {
+
         }
 
         private void _createCommands()
@@ -143,8 +123,8 @@ namespace TAS.Client.Config
 
         private void _add(object obj)
         {
-            var newDir = new IngestDirectoryViewmodel(new IngestDirectory(), _directories) { DirectoryName = Common.Properties.Resources._title_NewDirectory };
-            _directories.Add(newDir);
+            var newDir = new IngestDirectoryViewmodel(new IngestDirectory(), Directories) { DirectoryName = Common.Properties.Resources._title_NewDirectory };
+            Directories.Add(newDir);
             _added = true;
             SelectedDirectory = newDir;
         }
@@ -171,8 +151,7 @@ namespace TAS.Client.Config
                 int index = collection.IndexOf(_selectedDirectory);
                 return index >= 0 && index < collection.Count - 1;
             }
-            else
-                return false;
+            return false;
         }
 
         private void _down(object o)
@@ -192,12 +171,29 @@ namespace TAS.Client.Config
         private bool _canUp(object o)
         {
             var collection = SelectedDirectory?.OwnerCollection;
-            if (collection != null)
-                return collection.IndexOf(_selectedDirectory) > 0;
-            else
-                return false;
+            return collection?.IndexOf(_selectedDirectory) > 0;
         }
 
+        private static IEnumerable<IngestDirectory> Deserialize(string fileName)
+        {
+            try
+            {
+                XmlSerializer reader = new XmlSerializer(typeof(List<IngestDirectory>), new XmlRootAttribute("IngestDirectories"));
+                System.IO.StreamReader file = new System.IO.StreamReader(fileName);
+                try
+                {
+                    return (IEnumerable<IngestDirectory>)reader.Deserialize(file);
+                }
+                finally
+                {
+                    file.Close();
+                }
+            }
+            catch (NullReferenceException)
+            {
+                return new List<IngestDirectory>();
+            }
+        }
 
     }
 }

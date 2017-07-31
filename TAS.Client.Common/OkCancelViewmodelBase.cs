@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -9,23 +10,27 @@ namespace TAS.Client.Common
         public delegate bool OnOkDelegate(object parameter);
         private bool? _showResult;
         private OkCancelView _currentWindow;
+        private string _title;
 
-        public OkCancelViewmodelBase(TM model, UserControl editor, string windowTitle):base(model, editor)
+        protected OkCancelViewmodelBase(TM model, Type editor, string windowTitle) : base(model)
         {
             CommandClose = new UICommand { CanExecuteDelegate = CanClose, ExecuteDelegate = Close };
-            CommandApply = new UICommand { CanExecuteDelegate = CanApply, ExecuteDelegate = o => ModelUpdate() };
+            CommandApply = new UICommand { CanExecuteDelegate = CanApply, ExecuteDelegate = o => Update() };
             CommandOK = new UICommand { CanExecuteDelegate = CanOK, ExecuteDelegate = Ok };
-            _title = windowTitle;
+            Title = windowTitle;
+            Editor = (UserControl)Activator.CreateInstance(editor);
+            Editor.DataContext = this;
         }
 
-        private string _title;
-        public string Title { get { return _title; } set { SetField(ref _title, value); } }
+        public string Title { get { return _title; } set { SetField(ref _title, value, setIsModified: false); } }
+
+        public UserControl Editor { get; }
 
         public bool OkCancelButtonsActivateViaKeyboard { get; set; } = true;
 
         protected virtual void Ok(object o)
         {
-            ModelUpdate();
+            Update();
             _currentWindow.DialogResult = true;
         }
 
@@ -44,7 +49,7 @@ namespace TAS.Client.Common
             _showResult = _currentWindow.ShowDialog();
             _currentWindow = null;
             if (_showResult == false)
-                ModelLoad();
+                Load();
             return _showResult;
         }
 

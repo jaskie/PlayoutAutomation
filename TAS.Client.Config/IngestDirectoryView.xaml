@@ -119,17 +119,17 @@
             </StackPanel>
             <CheckBox IsChecked="{Binding IsExport}" Content="Allow export to this directory"/>
             <StackPanel Visibility="{Binding IsExport, Converter={StaticResource BoolToVis}}">
-                <StackPanel Visibility="{Binding IsXDCAM, Converter={StaticResource InvertedBoolToVis}}">
+                <StackPanel Visibility="{Binding IsMxf, Converter={StaticResource InvertedBoolToVis}}">
                     <Label Content="Export file format"/>
                     <ComboBox ItemsSource="{Binding ExportContainerFormats}" SelectedItem="{Binding ExportContainerFormat}"/>
-                    <StackPanel Visibility="{Binding IsMXF,Converter={StaticResource InvertedBoolToVis}}">
+                    <StackPanel Visibility="{Binding IsMxf,Converter={StaticResource InvertedBoolToVis}}">
                         <Label Content="Export encode parameters"/>
                         <TextBox Text="{Binding ExportParams, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
                         <Label Content="Export video format"/>
                         <ComboBox ItemsSource="{Binding ExportVideoFormats}" SelectedItem="{Binding ExportVideoFormat}"/>
                     </StackPanel>
                 </StackPanel>
-                <StackPanel Visibility="{Binding IsMXF, Converter={StaticResource BoolToVis}}">
+                <StackPanel Visibility="{Binding IsMxf, Converter={StaticResource BoolToVis}}">
                     <Label Content="Export video format"/>
                     <ComboBox ItemsSource="{Binding MXFVideoExportFormats}" SelectedItem="{Binding MXFVideoExportFormat}"/>
                     <Label Content="Export audio format"/>

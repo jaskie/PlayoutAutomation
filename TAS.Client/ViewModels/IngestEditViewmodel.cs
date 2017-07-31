@@ -14,7 +14,7 @@ namespace TAS.Client.ViewModels
     {
         private ConvertOperationViewModel _selectedOperation;
 
-        public IngestEditViewmodel(IList<IConvertOperation> convertionList, IPreview preview, IMediaManager mediaManager): base(convertionList, new Views.IngestEditorView(), resources._window_IngestAs)
+        public IngestEditViewmodel(IList<IConvertOperation> convertionList, IPreview preview, IMediaManager mediaManager): base(convertionList, typeof(Views.IngestEditorView), resources._window_IngestAs)
         {
             OperationList = new ObservableCollection<ConvertOperationViewModel>(from op in convertionList select new ConvertOperationViewModel(op, preview, mediaManager));
             SelectedOperation = OperationList.FirstOrDefault();

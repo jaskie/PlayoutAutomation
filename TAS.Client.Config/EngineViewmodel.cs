@@ -19,7 +19,7 @@ namespace TAS.Client.Config
         private int _cgStartDelay;
         private ulong _instance;
         public EngineViewmodel(Model.Engine engine)
-            : base(engine, new EngineView())
+            : base(engine)
         {
             _channels = new List<object>() { TAS.Client.Common.Properties.Resources._none_ };
             Model.Servers.ForEach(s => s.Channels.ForEach(c => _channels.Add(c)));
@@ -52,10 +52,12 @@ namespace TAS.Client.Config
 
         private void _manageArchiveDirectories(object obj)
         {
-            var dialog = new ArchiveDirectoriesViewmodel(Model.ArchiveDirectories);
-            if (dialog.ShowDialog() == true)
+            using (var dialog = new ArchiveDirectoriesViewmodel(Model.ArchiveDirectories))
             {
-                _archiveDirectories = new List<object>() { TAS.Client.Common.Properties.Resources._none_ };
+                dialog.Load();
+                if (dialog.ShowDialog() != true)
+                    return;
+                _archiveDirectories = new List<object>() {TAS.Client.Common.Properties.Resources._none_};
                 _archiveDirectories.AddRange(Model.ArchiveDirectories.Directories);
                 NotifyPropertyChanged(nameof(ArchiveDirectories));
                 ArchiveDirectory = dialog.SelectedDirectory;
@@ -64,14 +66,11 @@ namespace TAS.Client.Config
 
         protected override void OnDispose() { }
 
-        static readonly Array _videoFormats = Enum.GetValues(typeof(TVideoFormat));
-        public Array VideoFormats { get { return _videoFormats; } }
+        public Array VideoFormats { get; } = Enum.GetValues(typeof(TVideoFormat));
 
-        static readonly Array _aspectRatioControls = Enum.GetValues(typeof(TAspectRatioControl));
-        public Array AspectRatioControls { get { return _aspectRatioControls; } }
+        public Array AspectRatioControls { get; } = Enum.GetValues(typeof(TAspectRatioControl));
 
-        static readonly Array _crawlEnableBehaviors = Enum.GetValues(typeof(TCrawlEnableBehavior));
-        public Array CrawlEnableBehaviors { get { return _crawlEnableBehaviors; } }
+        public Array CrawlEnableBehaviors { get; } = Enum.GetValues(typeof(TCrawlEnableBehavior));
 
         public string EngineName { get { return _engineName; } set { SetField(ref _engineName, value); } }
         public TAspectRatioControl AspectRatioControl { get { return _aspectRatioControl; } set { SetField(ref _aspectRatioControl, value); } }
@@ -104,7 +103,7 @@ namespace TAS.Client.Config
         public UICommand CommandManageArchiveDirectories { get; private set; }
 
 
-        public override void ModelUpdate(object destObject = null)
+        public override void Update(object destObject = null)
         {
             if (IsModified)
             {
@@ -121,7 +120,7 @@ namespace TAS.Client.Config
                 Model.IdArchive = _archiveDirectory is Model.ArchiveDirectory ? ((Model.ArchiveDirectory)_archiveDirectory).idArchive : 0;
                 Model.IsModified = true;
             }
-            base.ModelUpdate(destObject);
+            base.Update(destObject);
         }
     }
 }

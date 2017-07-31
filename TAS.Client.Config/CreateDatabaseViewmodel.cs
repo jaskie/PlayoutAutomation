@@ -1,37 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using TAS.Client.Common;
 
 namespace TAS.Client.Config
 {
     public class CreateDatabaseViewmodel: OkCancelViewmodelBase<Model.CreateDatabase>
     {
-        public CreateDatabaseViewmodel(): base(new Model.CreateDatabase(), new CreateDatabaseView(), "Create database") 
+        private string _connectionString;
+        private string _collation;
+
+        public CreateDatabaseViewmodel(): base(new Model.CreateDatabase(), typeof(CreateDatabaseView), "Create database") 
         {
-            _commandEditConnectionString = new UICommand() { ExecuteDelegate = _editConnectionString };
+            CommandEditConnectionString = new UICommand() { ExecuteDelegate = _editConnectionString };
         }
-        private void _editConnectionString(object obj)
-        {
-            var vm = new ConnectionStringViewmodel(ConnectionString);
-            if (vm.ShowDialog() == true)
-                ConnectionString = vm.ConnectionString;
-        }
-        protected override void OnDispose() { }
-        string _connectionString;
+
         public string ConnectionString { get { return _connectionString; } set { SetField(ref _connectionString, value); } }
-        string _collation;
+
         public string Collation { get { return _collation; } set { SetField(ref _collation, value); } }
-        readonly UICommand _commandEditConnectionString;
-        public ICommand CommandEditConnectionString { get { return _commandEditConnectionString; } }
-        public static string[] Collations { get { return TAS.Client.Config.Model.CreateDatabase.Collations; } }
+
+        public static string[] Collations => Config.Model.CreateDatabase.Collations;
+
+        public ICommand CommandEditConnectionString { get; }
+
+        protected override void OnDispose() { }
+
         protected override void Ok(object o)
         {
-            ModelUpdate(null);
+            Update();
             if (Model.CreateEmptyDatabase())
                 base.Ok(o);
+        }
+
+        private void _editConnectionString(object obj)
+        {
+            using (var vm = new ConnectionStringViewmodel(ConnectionString))
+            {
+                vm.Load();
+                if (vm.ShowDialog() == true)
+                    ConnectionString = vm.ConnectionString;
+            }
         }
     }
 }

@@ -37,6 +37,12 @@
                 <DataGridTextColumn Header="Name" MinWidth="170" Binding="{Binding EngineName}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <ContentControl Grid.Column="1" Grid.RowSpan="2" Content="{Binding SelectedEngine.Editor}"/>
+        <ContentControl Grid.Column="1" Grid.RowSpan="2" Content="{Binding SelectedEngine}">
+            <ContentControl.ContentTemplate>
+                <DataTemplate DataType="{x:Type vm:EngineViewmodel}">
+                    <vm:EngineView/>
+                </DataTemplate>
+            </ContentControl.ContentTemplate>
+        </ContentControl>
     </Grid>
 </UserControl>

@@ -12,9 +12,14 @@ namespace TAS.Client.Config
         private PlayoutServerViewmodel _selectedServer;
 
         public PlayoutServersViewmodel(string connectionString, string connectionStringSecondary)
-            : base(new Model.PlayoutServers(connectionString, connectionStringSecondary), new PlayoutServersView(), "Playout servers")
+            : base(new Model.PlayoutServers(connectionString, connectionStringSecondary), typeof(PlayoutServersView), "Playout servers")
         {
-            PlayoutServers = new ObservableCollection<PlayoutServerViewmodel>(Model.Servers.Select(s => new PlayoutServerViewmodel(s)));
+            PlayoutServers = new ObservableCollection<PlayoutServerViewmodel>(Model.Servers.Select(s =>
+                {
+                    var vm = new PlayoutServerViewmodel(s);
+                    vm.Load();
+                    return vm;
+                }));
             PlayoutServers.CollectionChanged += PlayoutServers_CollectionChanged;
             CommandAdd = new UICommand { ExecuteDelegate = Add };
             CommandDelete = new UICommand { ExecuteDelegate = o => PlayoutServers.Remove(_selectedServer), CanExecuteDelegate = o => _selectedServer != null };
@@ -30,12 +35,17 @@ namespace TAS.Client.Config
 
         public ObservableCollection<PlayoutServerViewmodel> PlayoutServers { get; }
 
-        public override void ModelUpdate(object destObject = null)
+        public override void Update(object destObject = null)
         {
             foreach (PlayoutServerViewmodel s in PlayoutServers)
-                s.ModelUpdate();
+                s.Update();
             Model.Save();
-            base.ModelUpdate(destObject);
+            base.Update(destObject);
+        }
+
+        protected override void OnDispose()
+        {
+            PlayoutServers.CollectionChanged -= PlayoutServers_CollectionChanged;
         }
 
         private void PlayoutServers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -61,9 +71,5 @@ namespace TAS.Client.Config
             SelectedServer = newPlayoutServerViewmodel;            
         }
 
-        protected override void OnDispose()
-        {
-            PlayoutServers.CollectionChanged -= PlayoutServers_CollectionChanged;
-        }
     }
 }

@@ -19,7 +19,7 @@
 
     <Style TargetType="Button" x:Key="UndoButton" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Margin" Value="5" />
-        <Setter Property="Width" Value="80" />
+        <Setter Property="Width" Value="90" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="IsCancel" Value="True"/>
         <Setter Property="ToolTip" Value="{Resx _buttonUndo.ToolTip, ResxName=TAS.Client.Common.Styles.Styles}"/>
@@ -35,7 +35,7 @@
 
     <Style TargetType="Button" x:Key="OkButton" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Margin" Value="5" />
-        <Setter Property="Width" Value="80" />
+        <Setter Property="Width" Value="90" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="IsDefault" Value="True"/>
         <Setter Property="ToolTip" Value="{Resx _buttonOk.ToolTip, ResxName=TAS.Client.Common.Styles.Styles}"/>
@@ -51,7 +51,7 @@
 
     <Style TargetType="Button" x:Key="CancelButton" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Margin" Value="5" />
-        <Setter Property="Width" Value="80" />
+        <Setter Property="Width" Value="90" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="IsCancel" Value="True"/>
         <Setter Property="ToolTip" Value="{Resx _buttonCancel.ToolTip, ResxName=TAS.Client.Common.Styles.Styles}"/>

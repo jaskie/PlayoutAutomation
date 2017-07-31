@@ -6,6 +6,8 @@ namespace TAS.Client.Config
 {
     public class MainWindowViewmodel: ViewmodelBase
     {
+        private Model.ConfigFile _configFile;
+
         public MainWindowViewmodel()
         {
             CommandIngestFoldersSetup = new UICommand { ExecuteDelegate = _ingestFoldersSetup };
@@ -16,18 +18,39 @@ namespace TAS.Client.Config
             if (File.Exists("TVPlay.exe"))
                 ConfigFile = new Model.ConfigFile("TVPlay.exe");
         }
+
+        public ICommand CommandIngestFoldersSetup { get; }
+        public ICommand CommandConfigFileEdit { get; }
+        public ICommand CommandConfigFileSelect { get; }
+        public ICommand CommandPlayoutServersSetup { get; }
+        public ICommand CommandEnginesSetup { get; }
+
+        public Model.ConfigFile ConfigFile
+        {
+            get { return _configFile; }
+            set { SetField(ref _configFile, value); }
+        }
+
         protected override void OnDispose() { }
         
         private void _enginesSetup(object obj)
         {
-            EnginesViewmodel vm = new EnginesViewmodel(_configFile.connectionStrings.tasConnectionString, _configFile.connectionStrings.tasConnectionStringSecondary);
-            vm.ShowDialog();
+            using (var vm = new EnginesViewmodel(_configFile.connectionStrings.tasConnectionString,
+                _configFile.connectionStrings.tasConnectionStringSecondary))
+            {
+                vm.Load();
+                vm.ShowDialog();
+            }
         }
         
         private void _serversSetup(object obj)
         {
-            PlayoutServersViewmodel vm = new PlayoutServersViewmodel( _configFile.connectionStrings.tasConnectionString, _configFile.connectionStrings.tasConnectionStringSecondary);
-            vm.ShowDialog();
+            using (var vm = new PlayoutServersViewmodel(_configFile.connectionStrings.tasConnectionString,
+                _configFile.connectionStrings.tasConnectionStringSecondary))
+            {
+                vm.Load();
+                vm.ShowDialog();
+            }
         }
                 
         private void _configFileSelect(object obj)
@@ -40,26 +63,16 @@ namespace TAS.Client.Config
         private void _configFileEdit(object obj)
         {
             ConfigFileViewmodel vm = new ConfigFileViewmodel(_configFile);
+            vm.Load();
             vm.ShowDialog();
         }
 
         private void _ingestFoldersSetup(object obj)
         {
             IngestDirectoriesViewmodel vm = new IngestDirectoriesViewmodel(_configFile.appSettings.IngestFolders);
+            vm.Load();
             vm.ShowDialog();
         }
 
-        public ICommand CommandIngestFoldersSetup { get; } 
-        public ICommand CommandConfigFileEdit { get; }
-        public ICommand CommandConfigFileSelect { get; }
-        public ICommand CommandPlayoutServersSetup { get; }
-        public ICommand CommandEnginesSetup { get; }
-
-        Model.ConfigFile _configFile;
-        public Model.ConfigFile ConfigFile
-        {
-            get { return _configFile; }
-            set { SetField(ref _configFile, value); }
-        }
     }
 }

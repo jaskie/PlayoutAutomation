@@ -1,87 +1,116 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Server.Common;
 using TAS.Server.Common.Database;
 
 namespace TAS.Client.Config
 {
     public class ConfigFileViewmodel : OkCancelViewmodelBase<Model.ConfigFile>
     {
+        private string _ingestFolders;
+        private string _localDevices;
+        private string _tempDirectory;
+        private int _instance;
+        private string _tasConnectionString;
+        private string _tasConnectionStringSecondary;
+        private bool _isBackupInstance;
+        private bool _isConnectionStringSecondary;
+        private string _uiLanguage;
 
         protected override void OnDispose() { }
         public ConfigFileViewmodel(Model.ConfigFile configFile)
-            : base(configFile, new ConfigFileView(), $"Config file ({configFile.FileName})")
+            : base(configFile, typeof(ConfigFileView), $"Config file ({configFile.FileName})")
         {
-            _commandEditConnectionString = new UICommand() { ExecuteDelegate = _editConnectionString };
-            _commandEditConnectionStringSecondary = new UICommand() { ExecuteDelegate = _editConnectionStringSecondary };
-            _commandTestConnectivity = new UICommand() { ExecuteDelegate = _testConnectivity, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionString) };
-            _commandTestConnectivitySecodary = new UICommand { ExecuteDelegate = _testConnectivitySecondary, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionStringSecondary) && _isConnectionStringSecondary };
-            _commandCreateDatabase = new UICommand() { ExecuteDelegate = _createDatabase, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionString) };
-            _commandCloneDatabase = new UICommand() { ExecuteDelegate = _clonePrimaryDatabase, CanExecuteDelegate = o => !(string.IsNullOrWhiteSpace(tasConnectionString) || string.IsNullOrWhiteSpace(tasConnectionStringSecondary)) };
+            CommandEditConnectionString = new UICommand { ExecuteDelegate = _editConnectionString };
+            CommandEditConnectionStringSecondary = new UICommand { ExecuteDelegate = _editConnectionStringSecondary };
+            CommandTestConnectivity = new UICommand { ExecuteDelegate = _testConnectivity, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionString) };
+            CommandTestConnectivitySecodary = new UICommand { ExecuteDelegate = _testConnectivitySecondary, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionStringSecondary) && _isConnectionStringSecondary };
+            CommandCreateDatabase = new UICommand { ExecuteDelegate = _createDatabase, CanExecuteDelegate = o => !string.IsNullOrWhiteSpace(tasConnectionString) };
+            CommandCloneDatabase = new UICommand { ExecuteDelegate = _clonePrimaryDatabase, CanExecuteDelegate = o => !(string.IsNullOrWhiteSpace(tasConnectionString) || string.IsNullOrWhiteSpace(tasConnectionStringSecondary)) };
         }
+
+        public string IngestFolders { get { return _ingestFolders; } set { SetField(ref _ingestFolders, value); } }
+
+        public string LocalDevices { get { return _localDevices; } set { SetField(ref _localDevices, value); } }
+
+        public string TempDirectory { get { return _tempDirectory; } set { SetField(ref _tempDirectory, value); } }
+
+        public int Instance { get { return _instance; } set { SetField(ref _instance, value); } }
+
+        public string tasConnectionString { get { return _tasConnectionString; } set { SetField(ref _tasConnectionString, value); } }
+
+        public string tasConnectionStringSecondary { get { return _tasConnectionStringSecondary; } set { SetField(ref _tasConnectionStringSecondary, value); } }
+
+        public bool IsBackupInstance { get { return _isBackupInstance; } set { SetField(ref _isBackupInstance, value); } }
+
+        public bool IsSConnectionStringSecondary { get { return _isConnectionStringSecondary; } set { SetField(ref _isConnectionStringSecondary, value); } }
+
+        public string UiLanguage { get { return _uiLanguage; } set { SetField(ref _uiLanguage, value); } }
+
+        public string ExeDirectory => Path.GetDirectoryName(Model.FileName);
+
 
         private void _createDatabase(object obj)
         {
-            var vm = new CreateDatabaseViewmodel();
-            vm.ConnectionString = this.tasConnectionString;
-            if (vm.ShowDialog() == true)
-                if (vm.ConnectionString == this.tasConnectionString)
-                    vm.ShowMessage("Database created successfully", "Create database", MessageBoxButton.OK, MessageBoxImage.Information);
-                else
-                    if (vm.ShowMessage("Database created successfully. Use the new database?", "Create database", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                    this.tasConnectionString = vm.ConnectionString;
+            using (var vm = new CreateDatabaseViewmodel {ConnectionString = tasConnectionString})
+            {
+                vm.Load();
+                if (vm.ShowDialog() != true)
+                    return;
+                if (vm.ConnectionString == tasConnectionString)
+                    vm.ShowMessage("Database created successfully", "Create database", MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                else if (vm.ShowMessage("Database created successfully. Use the new database?", "Create database",
+                             MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    tasConnectionString = vm.ConnectionString;
+            }
         }
 
-        protected override void ModelLoad(object source)
+        public override void Load(object source = null)
         {
-            base.ModelLoad(Model.appSettings);
-            base.ModelLoad(Model.connectionStrings);
+            base.Load(Model.appSettings);
+            base.Load(Model.connectionStrings);
             _isConnectionStringSecondary = !string.IsNullOrWhiteSpace(tasConnectionStringSecondary);
         }
 
-        public override void ModelUpdate(object destObject)
+        public override void Update(object destObject = null)
         {
-            base.ModelUpdate(Model.appSettings);
+            base.Update(Model.appSettings);
             if (!_isConnectionStringSecondary)
                 tasConnectionStringSecondary = string.Empty;
-            base.ModelUpdate(Model.connectionStrings);
+            base.Update(Model.connectionStrings);
             Model.Save();
         }
 
-        readonly UICommand _commandEditConnectionString;
-        public ICommand CommandEditConnectionString { get { return _commandEditConnectionString; } }
-        readonly UICommand _commandEditConnectionStringSecondary;
-        public ICommand CommandEditConnectionStringSecondary { get { return _commandEditConnectionStringSecondary; } }
-        readonly UICommand _commandTestConnectivity;
-        public ICommand CommandTestConnectivity { get { return _commandTestConnectivity; } }
-        readonly UICommand _commandCreateDatabase;
-        public ICommand CommandCreateDatabase { get { return _commandCreateDatabase; } }
-        readonly UICommand _commandCloneDatabase;
-        public ICommand CommandCloneDatabase { get { return _commandCloneDatabase; } }
-        readonly UICommand _commandTestConnectivitySecodary;
-        public ICommand CommandTestConnectivitySecodary { get { return _commandTestConnectivitySecodary; } }
-        readonly List<CultureInfo> _supportedLanguages = new List<CultureInfo>{ CultureInfo.InvariantCulture, new CultureInfo("en"), new CultureInfo("pl")};
-        public List<CultureInfo> SupportedLanguages { get { return _supportedLanguages; } }
+        public ICommand CommandEditConnectionString { get; }
+        public ICommand CommandEditConnectionStringSecondary { get; }
+        public ICommand CommandTestConnectivity { get; }
+        public ICommand CommandCreateDatabase { get; }
+        public ICommand CommandCloneDatabase { get; }
+        public ICommand CommandTestConnectivitySecodary { get; }
+        public List<CultureInfo> SupportedLanguages { get; } = new List<CultureInfo> { CultureInfo.InvariantCulture, new CultureInfo("en"), new CultureInfo("pl") };
 
         private void _editConnectionString(object obj)
         {
-            var vm = new ConnectionStringViewmodel(_tasConnectionString);
-            if (vm.ShowDialog() == true)
-                tasConnectionString = vm.ConnectionString;
+            using (var vm = new ConnectionStringViewmodel(_tasConnectionString))
+            {
+                vm.Load();
+                if (vm.ShowDialog() == true)
+                    tasConnectionString = vm.ConnectionString;
+            }
         }
-
+    
         private void _editConnectionStringSecondary(object obj)
         {
-            var vm = new ConnectionStringViewmodel(_tasConnectionStringSecondary);
-            if (vm.ShowDialog() == true)
-                tasConnectionStringSecondary = vm.ConnectionString;
+            using (var vm = new ConnectionStringViewmodel(_tasConnectionStringSecondary))
+            {
+                vm.Load();
+                if (vm.ShowDialog() == true)
+                    tasConnectionStringSecondary = vm.ConnectionString;
+            }
         }
 
         private void _testConnectivity(object obj)
@@ -130,28 +159,6 @@ namespace TAS.Client.Config
             else
                 ShowMessage("Database clonning failed", "Database clone", MessageBoxButton.OK, MessageBoxImage.Error);
         }
-
-        string _ingestFolders;
-        public string IngestFolders { get { return _ingestFolders; } set { SetField(ref _ingestFolders, value); } }
-        string _localDevices;
-        public string LocalDevices { get { return _localDevices; } set { SetField(ref _localDevices, value); } }
-        string _tempDirectory;
-        public string TempDirectory { get { return _tempDirectory; } set { SetField(ref _tempDirectory, value); } }
-        int _instance;
-        public int Instance { get { return _instance; } set { SetField(ref _instance, value); } }
-        string _tasConnectionString;
-        public string tasConnectionString { get { return _tasConnectionString; } set { SetField(ref _tasConnectionString, value); } }
-        string _tasConnectionStringSecondary;
-        bool _isBackupInstance;
-        public bool IsBackupInstance { get { return _isBackupInstance; } set { SetField(ref _isBackupInstance, value); } }
-
-        public string tasConnectionStringSecondary { get { return _tasConnectionStringSecondary; } set { SetField(ref _tasConnectionStringSecondary, value); } }
-        private bool _isConnectionStringSecondary;
-        public bool IsSConnectionStringSecondary { get { return _isConnectionStringSecondary; } set { SetField(ref _isConnectionStringSecondary, value); } }
-        string _uiLanguage;
-        public string UiLanguage { get { return _uiLanguage; } set { SetField(ref _uiLanguage, value); } }
-        
-        public string ExeDirectory { get { return Path.GetDirectoryName(Model.FileName); } }
 
     }
 }

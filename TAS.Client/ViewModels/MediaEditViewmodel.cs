@@ -48,10 +48,10 @@ namespace TAS.Client.ViewModels
 
 
 
-        public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, PreviewViewmodel previewVm, bool showButtons) : base(media, new MediaEditView())
+        public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, PreviewViewmodel previewVm, bool showButtons) : base(media)
         {
-            CommandSaveEdit = new UICommand { ExecuteDelegate = ModelUpdate, CanExecuteDelegate = o => CanSave() };
-            CommandCancelEdit = new UICommand { ExecuteDelegate = ModelLoad, CanExecuteDelegate = o => IsModified };
+            CommandSaveEdit = new UICommand { ExecuteDelegate = Update, CanExecuteDelegate = o => CanSave() };
+            CommandCancelEdit = new UICommand { ExecuteDelegate = Load, CanExecuteDelegate = o => IsModified };
             CommandRefreshStatus = new UICommand { ExecuteDelegate = _refreshStatus };
             CommandCheckVolume = new UICommand { ExecuteDelegate = _checkVolume, CanExecuteDelegate = (o) => !_isVolumeChecking };
             _previewVm = previewVm;
@@ -74,7 +74,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandRefreshStatus { get; }
         public ICommand CommandCheckVolume { get; }
 
-        public override void ModelUpdate(object destObject = null)
+        public override void Update(object destObject = null)
         {
             if (IsModified)
             {
@@ -102,7 +102,7 @@ namespace TAS.Client.ViewModels
 
         public void Revert()
         {
-            ModelLoad();
+            Load();
         }
 
         #region Command methods
@@ -136,6 +136,7 @@ namespace TAS.Client.ViewModels
                     var co = (KeyValueEditViewmodel)o;
                     return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
                 };
+                kve.Load();
                 if (kve.ShowDialog() == true)
                     _fields.Add(kve.Key, kve.Value);
             }
@@ -143,10 +144,12 @@ namespace TAS.Client.ViewModels
 
         private void _editField(object obj)
         {
-            if (SelectedField != null)
+            if (SelectedField == null)
+                return;
+            var selected = (KeyValuePair<string, string>)SelectedField;
+            using (var kve = new KeyValueEditViewmodel(selected, false))
             {
-                var selected = (KeyValuePair<string, string>)SelectedField;
-                var kve = new KeyValueEditViewmodel(selected, false);
+                kve.Load();
                 if (kve.ShowDialog() == true)
                     _fields[kve.Key] = kve.Value;
             }

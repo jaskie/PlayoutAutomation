@@ -7,7 +7,7 @@ namespace TAS.Client.ViewModels
     {
         private readonly MediaEditViewmodel _editViewModel;
         public MediaEditWindowViewmodel(IMedia media, IMediaManager mediaManager)
-            : base(media, new MediaEditView(), media.MediaName)
+            : base(media, typeof(MediaEditView), media.MediaName)
         {
             _editViewModel = new MediaEditViewmodel(media, mediaManager, null, false);
             Editor.DataContext = _editViewModel;
@@ -20,10 +20,10 @@ namespace TAS.Client.ViewModels
 
         public override bool IsModified => base.IsModified || _editViewModel.IsModified;
 
-        public override void ModelUpdate(object destObject = null)
+        public override void Update(object destObject = null)
         {
-            _editViewModel.ModelUpdate();
-            base.ModelUpdate(destObject);
+            _editViewModel.Update();
+            base.Update(destObject);
         }
     }
 }

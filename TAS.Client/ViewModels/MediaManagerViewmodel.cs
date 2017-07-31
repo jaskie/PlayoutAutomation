@@ -653,6 +653,7 @@ namespace TAS.Client.ViewModels
                 {
                     using (IngestEditViewmodel ievm = new IngestEditViewmodel(ingestList, _preview, _mediaManager))
                     {
+                        ievm.Load();
                         if (ievm.ShowDialog() == true)
                         {
                             foreach (var operationVm in ievm.OperationList)
@@ -671,7 +672,7 @@ namespace TAS.Client.ViewModels
                     case MessageBoxResult.Cancel:
                         return false;
                     case MessageBoxResult.Yes:
-                        EditMedia.ModelUpdate();
+                        EditMedia.Update();
                         break;
                     case MessageBoxResult.No:
                         EditMedia.Revert();

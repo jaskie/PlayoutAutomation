@@ -841,9 +841,12 @@ namespace TAS.Client.ViewModels
             var editObject = obj ?? SelectedField;
             if (editObject != null)
             {
-                var kve = new KeyValueEditViewmodel((KeyValuePair<string, string>) editObject, true);
-                if (kve.ShowDialog() == true)
-                    _fields[kve.Key] = kve.Value;
+                using (var kve = new KeyValueEditViewmodel((KeyValuePair<string, string>) editObject, true))
+                {
+                    kve.Load();
+                    if (kve.ShowDialog() == true)
+                        _fields[kve.Key] = kve.Value;
+                }
             }
         }
 
@@ -860,7 +863,10 @@ namespace TAS.Client.ViewModels
         private void _editMovie(object obj)
         {
             using (var evm = new MediaEditWindowViewmodel(_event.Media, _engine.MediaManager))
+            {
+                evm.Load();
                 evm.ShowDialog();
+            }
         }
 
         private void _checkVolume(object obj)

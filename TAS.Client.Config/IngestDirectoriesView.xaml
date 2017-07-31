@@ -51,6 +51,12 @@
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
         </controls:TreeViewEx>
-        <ContentControl Grid.Column="1" Grid.RowSpan="2" Margin="5" Content="{Binding SelectedDirectory.Editor}"/>
+        <ContentControl Grid.Column="1" Grid.RowSpan="2" Margin="5" Content="{Binding SelectedDirectory}">
+            <ContentControl.ContentTemplate>
+                <DataTemplate DataType="{x:Type vm:IngestDirectoryViewmodel}">
+                    <vm:IngestDirectoryView/>
+                </DataTemplate>
+            </ContentControl.ContentTemplate>
+        </ContentControl>
     </Grid>
 </UserControl>

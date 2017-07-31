@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Server.Common.Interfaces;
 
@@ -34,6 +35,9 @@ namespace TAS.Client.ViewModels
         {
             _user.Delete();
         }
+
+
+        //public ICommand CommandSaveEdit => new UICommand { ExecuteDelegate = }
 
         protected override void OnDispose()
         {

@@ -32,7 +32,7 @@
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
                         </Button>
                     </StackPanel>
-                    <DataGrid ItemsSource="{Binding Users}" AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" AutoGenerateColumns="False" IsReadOnly="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding UserName}" Width="*"/>
                         </DataGrid.Columns>
