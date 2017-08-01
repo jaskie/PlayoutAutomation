@@ -38,11 +38,11 @@
             </DataGrid.Columns>
         </DataGrid>
         <ContentControl Grid.Column="1" Grid.RowSpan="2" Content="{Binding SelectedEngine}">
-            <ContentControl.ContentTemplate>
+            <ContentControl.Resources>
                 <DataTemplate DataType="{x:Type vm:EngineViewmodel}">
                     <vm:EngineView/>
                 </DataTemplate>
-            </ContentControl.ContentTemplate>
+            </ContentControl.Resources>
         </ContentControl>
     </Grid>
 </UserControl>

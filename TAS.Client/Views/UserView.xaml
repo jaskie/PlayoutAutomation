@@ -33,7 +33,7 @@
 
         </StackPanel>
         <Label DockPanel.Dock="Top" Content="{Resx _name}"/>
-        <TextBox DockPanel.Dock="Top" Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox DockPanel.Dock="Top" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"/>
         <DataGrid/>
 

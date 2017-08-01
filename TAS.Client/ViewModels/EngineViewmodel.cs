@@ -58,7 +58,7 @@ namespace TAS.Client.ViewModels
             _composePlugins();
 
 
-            // Creating PreviewViewmodel
+            // Creating Preview
             if (preview != null && allowPlayControl)
                 _previewViewmodel = new PreviewViewmodel(preview) { IsSegmentsVisible = true };
 

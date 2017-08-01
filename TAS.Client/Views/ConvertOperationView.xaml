@@ -126,11 +126,11 @@
                     </Grid>
                 </StackPanel>
                 <ContentControl Content="{Binding PreviewViewmodel}">
-                    <ContentControl.ContentTemplate>
+                    <ContentControl.Resources>
                         <DataTemplate DataType="vm:PreviewViewModel">
                             <views:PreviewView />
                         </DataTemplate>
-                    </ContentControl.ContentTemplate>
+                    </ContentControl.Resources>
                 </ContentControl>
             </StackPanel>
         </Expander>

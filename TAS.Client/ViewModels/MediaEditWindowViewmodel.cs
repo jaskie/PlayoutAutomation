@@ -3,27 +3,22 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditWindowViewmodel : OkCancelViewmodelBase<IMedia>
+    public class MediaEditWindowViewmodel : OkCancelViewmodelBase<MediaEditViewmodel>
     {
-        private readonly MediaEditViewmodel _editViewModel;
         public MediaEditWindowViewmodel(IMedia media, IMediaManager mediaManager)
-            : base(media, typeof(MediaEditView), media.MediaName)
+            : base(new MediaEditViewmodel(media, mediaManager, null, false), typeof(MediaEditView), media.MediaName)
         {
-            _editViewModel = new MediaEditViewmodel(media, mediaManager, null, false);
-            Editor.DataContext = _editViewModel;
+            Editor.DataContext = Model;
         }
 
         protected override void OnDispose()
         {
-            _editViewModel.Dispose();
+            Model.Dispose();
         }
-
-        public override bool IsModified => base.IsModified || _editViewModel.IsModified;
 
         public override void Update(object destObject = null)
         {
-            _editViewModel.Update();
-            base.Update(destObject);
+            Model.Update();
         }
     }
 }

@@ -88,11 +88,21 @@ namespace TAS.Server
         public IMediaDirectory RecordingDirectory => _ownerServer.MediaDirectory;
 
 
-        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string fileName)
+        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName)
         {
             _tcFormat = channel.VideoFormat;
             var directory = (ServerDirectory)_ownerServer.MediaDirectory;
-            var newMedia = new ServerMedia(directory, Guid.NewGuid(), 0, ArchiveDirectory) { FileName = fileName, MediaName = fileName, TcStart = tcIn, TcPlay = tcIn, Duration = tcOut - tcIn, MediaStatus = TMediaStatus.Copying, LastUpdated = DateTime.UtcNow, MediaType = TMediaType.Movie };
+            var newMedia = new ServerMedia(directory, Guid.NewGuid(), 0, ArchiveDirectory)
+            {
+                FileName = fileName,
+                MediaName = mediaName,
+                TcStart = tcIn,
+                TcPlay = tcIn,
+                Duration = tcOut - tcIn,
+                MediaStatus = TMediaStatus.Copying,
+                LastUpdated = DateTime.UtcNow,
+                MediaType = TMediaType.Movie
+            };
             if (_recorder?.Capture(channel.Id, tcIn.ToSMPTETimecodeString(channel.VideoFormat), tcOut.ToSMPTETimecodeString(channel.VideoFormat), narrowMode, fileName) == true)
             {
 //                directory.MediaAdd(newMedia);
@@ -109,11 +119,21 @@ namespace TAS.Server
             return null;
         }
 
-        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string fileName)
+        public IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string mediaName, string fileName)
         {
             _tcFormat = channel.VideoFormat;
             var directory = (ServerDirectory)_ownerServer.MediaDirectory;
-            var newMedia = new ServerMedia(directory, Guid.NewGuid(), 0, ArchiveDirectory) { FileName = fileName, MediaName = fileName, TcStart = TimeSpan.Zero, TcPlay=TimeSpan.Zero, Duration = timeLimit, MediaStatus = TMediaStatus.Copying, LastUpdated = DateTime.UtcNow, MediaType = TMediaType.Movie };
+            var newMedia = new ServerMedia(directory, Guid.NewGuid(), 0, ArchiveDirectory)
+            {
+                FileName = fileName,
+                MediaName = mediaName,
+                TcStart = TimeSpan.Zero,
+                TcPlay =TimeSpan.Zero,
+                Duration = timeLimit,
+                MediaStatus = TMediaStatus.Copying,
+                LastUpdated = DateTime.UtcNow,
+                MediaType = TMediaType.Movie
+            };
             if (_recorder?.Capture(channel.Id,  timeLimit.ToSMPTEFrames(channel.VideoFormat), narrowMode, fileName) == true)
             {
                 RecordingMedia = newMedia;

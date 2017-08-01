@@ -12,6 +12,8 @@ namespace TAS.Server.Security
 {
     public class User: SecurityObjectBase, IUser, IIdentity
     {
+        public User(): base(null)
+        { }
 
         public User(IAuthenticationService authenticationService): base(authenticationService) { }
 

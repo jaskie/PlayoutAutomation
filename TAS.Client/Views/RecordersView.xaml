@@ -22,10 +22,9 @@
                     <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
                 </Trigger>
             </Style.Triggers>
-        </Style>
-        <Style TargetType="controls:TimecodeEdit" BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+        <Style TargetType="controls:TimecodeEdit" BasedOn="{StaticResource {x:Type TextBox}}"/>
         <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
@@ -41,11 +40,17 @@
             <ComboBox MinWidth="120" ItemsSource="{Binding Channels}" SelectedItem="{Binding Channel}" DisplayMemberPath="ChannelName" />
         </ToolBar>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-            <Label Content="{Resx _fileName}"/>
-            <TextBox Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="220" VerticalAlignment="Center"/>
+            <Label Content="{Resx _externalId}"/>
+            <TextBox Text="{Binding IdAux, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="90" />
+            <Label Content="{Resx _mediaName}"/>
+            <TextBox Text="{Binding MediaName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" Width="200" />
             <Label Content="{Resx _fileFormat}"/>
             <ComboBox ItemsSource="{Binding FileFormats}" SelectedItem="{Binding FileFormat, ValidatesOnDataErrors=True}" Width="80"/>
-            <CheckBox Visibility="{Binding IsStandardDefinition, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsNarrowMode}" Content="4:3" VerticalAlignment="Center" Margin="5, 0"/>
+            <CheckBox Visibility="{Binding IsStandardDefinition, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsNarrowMode}" Content="4:3" Margin="5, 0" VerticalAlignment="Center"/>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <Label Content="{Resx _fileName}"/>
+            <TextBox Text="{Binding FileName, ValidatesOnDataErrors=True, Mode=OneWay}" IsReadOnly="True" MinWidth="150" HorizontalContentAlignment="Right" Background="{DynamicResource {x:Static SystemColors.ControlColor}}"/>
         </StackPanel>
         <Expander IsExpanded="True">
             <Expander.Header>

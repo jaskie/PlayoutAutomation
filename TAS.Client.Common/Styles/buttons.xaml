@@ -23,12 +23,14 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="IsCancel" Value="True"/>
         <Setter Property="ToolTip" Value="{Resx _buttonUndo.ToolTip, ResxName=TAS.Client.Common.Styles.Styles}"/>
-        <Setter Property="Content">
+        <Setter Property="ContentTemplate">
             <Setter.Value>
-                <DockPanel>
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png" Margin="5 0"/>
-                    <TextBlock Text="{Resx _buttonUndo.Caption, ResxName=TAS.Client.Common.Styles.Styles}" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </DockPanel>
+                <DataTemplate>
+                    <DockPanel>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png" Margin="5 0"/>
+                        <TextBlock Text="{Resx _buttonUndo.Caption, ResxName=TAS.Client.Common.Styles.Styles}" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </DockPanel>
+                </DataTemplate>
             </Setter.Value>
         </Setter>
     </Style>
@@ -39,12 +41,14 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="IsDefault" Value="True"/>
         <Setter Property="ToolTip" Value="{Resx _buttonOk.ToolTip, ResxName=TAS.Client.Common.Styles.Styles}"/>
-        <Setter Property="Content">
+        <Setter Property="ContentTemplate">
             <Setter.Value>
-                <DockPanel>
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png" Margin="5 0"/>
-                    <TextBlock Text="{Resx _buttonOk.Caption, ResxName=TAS.Client.Common.Styles.Styles}" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </DockPanel>
+                <DataTemplate>
+                    <DockPanel>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/apply.png" Margin="5 0"/>
+                        <TextBlock Text="{Resx _buttonOk.Caption, ResxName=TAS.Client.Common.Styles.Styles}" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </DockPanel>
+                </DataTemplate>
             </Setter.Value>
         </Setter>
     </Style>
@@ -55,12 +59,14 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="IsCancel" Value="True"/>
         <Setter Property="ToolTip" Value="{Resx _buttonCancel.ToolTip, ResxName=TAS.Client.Common.Styles.Styles}"/>
-        <Setter Property="Content">
+        <Setter Property="ContentTemplate">
             <Setter.Value>
-                <DockPanel>
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/delete.png" Margin="5 0"/>
-                    <TextBlock Text="{Resx _buttonCancel.Caption, ResxName=TAS.Client.Common.Styles.Styles}" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </DockPanel>
+                <DataTemplate>
+                    <DockPanel>
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/delete.png" Margin="5 0"/>
+                        <TextBlock Text="{Resx _buttonCancel.Caption, ResxName=TAS.Client.Common.Styles.Styles}" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </DockPanel>
+                </DataTemplate>
             </Setter.Value>
         </Setter>
     </Style>

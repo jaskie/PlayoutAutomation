@@ -105,148 +105,6 @@ namespace TAS.Client.ViewModels
             Load();
         }
 
-        #region Command methods
-
-        private bool _canDeleteField(object obj)
-        {
-            return SelectedField != null;
-        }
-
-        private void _deleteField(object obj)
-        {
-            if (SelectedField != null)
-            {
-                var selected = (KeyValuePair<string, string>)SelectedField;
-                _fields.Remove(selected.Key);
-                SelectedField = null;
-            }
-        }
-
-        private bool _canAddField(object obj)
-        {
-            return IsAnimatedMedia;
-        }
-
-        private void _addField(object obj)
-        {
-            using (var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), false))
-            {
-                kve.OnOk += (o) =>
-                {
-                    var co = (KeyValueEditViewmodel)o;
-                    return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
-                };
-                kve.Load();
-                if (kve.ShowDialog() == true)
-                    _fields.Add(kve.Key, kve.Value);
-            }
-        }
-
-        private void _editField(object obj)
-        {
-            if (SelectedField == null)
-                return;
-            var selected = (KeyValuePair<string, string>)SelectedField;
-            using (var kve = new KeyValueEditViewmodel(selected, false))
-            {
-                kve.Load();
-                if (kve.ShowDialog() == true)
-                    _fields[kve.Key] = kve.Value;
-            }
-        }
-
-        void _refreshStatus(object o)
-        {
-            Model.ReVerify();
-        }
-
-        AutoResetEvent _checkVolumeSignal;
-        void _checkVolume(object o)
-        {
-            if (_isVolumeChecking)
-                return;
-            IsVolumeChecking = true;
-            IFileManager fileManager = _mediaManager.FileManager;
-            ILoudnessOperation operation = fileManager.CreateLoudnessOperation();
-            operation.Source = Model;
-            operation.MeasureStart = TcPlay - TcStart;
-            operation.MeasureDuration = DurationPlay;
-            operation.AudioVolumeMeasured += _audioVolumeMeasured;
-            operation.Finished += _audioVolumeFinished;
-            _checkVolumeSignal = new AutoResetEvent(false);
-            fileManager.Queue(operation, true);
-        }
-
-        private void _audioVolumeFinished(object sender, EventArgs e)
-        {
-            ThreadPool.QueueUserWorkItem((o) =>
-            {
-                _checkVolumeSignal.WaitOne(5000);
-                IsVolumeChecking = false; // finishCallback
-                ((ILoudnessOperation)sender).Finished -= _audioVolumeFinished;
-                ((ILoudnessOperation)sender).AudioVolumeMeasured -= _audioVolumeMeasured;
-                _checkVolumeSignal.Dispose();
-                _checkVolumeSignal = null;
-            });
-        }
-
-        private void _audioVolumeMeasured(object sender, AudioVolumeEventArgs e)
-        {
-            AudioVolume = e.AudioVolume;
-            AutoResetEvent signal = _checkVolumeSignal;
-            signal?.Set();
-        }
-
-        #endregion //Command methods
-
-        private void OnMediaPropertyChanged(object media, PropertyChangedEventArgs e)
-        {
-            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    if (!string.IsNullOrEmpty(e.PropertyName))
-                    {
-                        PropertyInfo sourcePi = Model.GetType().GetProperty(e.PropertyName);
-                        PropertyInfo destPi = GetType().GetProperty(e.PropertyName);
-                        if (sourcePi != null
-                            && destPi != null
-                            && sourcePi.CanRead
-                            && destPi.CanWrite)
-                        {
-                            bool oldModified = IsModified;
-                            destPi.SetValue(this, sourcePi.GetValue(Model, null), null);
-                            IsModified = oldModified;
-                            NotifyPropertyChanged(e.PropertyName);
-                        }
-                    }
-                }),
-            null);
-
-            if (e.PropertyName == nameof(IMedia.MediaStatus))
-            {
-                NotifyPropertyChanged(e.PropertyName);
-                NotifyPropertyChanged(nameof(IsIngestDataShown));
-            }
-            if (e.PropertyName == nameof(IMedia.MediaGuid))
-            {
-                NotifyPropertyChanged(e.PropertyName);
-            }
-        }
-
-        private void _onPreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (_previewVm.LoadedMedia == Model
-                && _previewVm.SelectedSegment == null)
-            {
-                if (e.PropertyName == nameof(PreviewViewmodel.TcIn))
-                {
-                    TcPlay = _previewVm.TcIn;
-                    DurationPlay = _previewVm.DurationSelection;
-                }
-                if (e.PropertyName == nameof(PreviewViewmodel.TcOut))
-                    DurationPlay = _previewVm.DurationSelection;
-            }
-        }
-
         public bool IsVolumeChecking
         {
             get { return _isVolumeChecking; }
@@ -441,6 +299,7 @@ namespace TAS.Client.ViewModels
         }
 
         public Array MediaCategories { get; } = Enum.GetValues(typeof(TMediaCategory));
+
         public TMediaCategory MediaCategory
         {
             get { return _mediaCategory; }
@@ -473,6 +332,7 @@ namespace TAS.Client.ViewModels
         public object SelectedField { get; set; }
 
         public Array Methods { get; } = Enum.GetValues(typeof(TemplateMethod));
+
         public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value); } }
 
         public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value); } }
@@ -534,6 +394,15 @@ namespace TAS.Client.ViewModels
         public override string ToString()
         {
             return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(MediaType)} - {_mediaName}";
+        }
+
+        protected override void OnDispose()
+        {
+            Model.PropertyChanged -= OnMediaPropertyChanged;
+            if (_previewVm != null)
+                _previewVm.PropertyChanged -= _onPreviewPropertyChanged;
+            if (Model is IAnimatedMedia)
+                _fields.CollectionChanged -= _fields_CollectionChanged;
         }
 
         private void _fields_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -598,16 +467,149 @@ namespace TAS.Client.ViewModels
                 validationResult = resources._validate_DurationInvalid;
             return validationResult;
         }
+        
+        #region Command methods
 
-        protected override void OnDispose()
+        private bool _canDeleteField(object obj)
         {
-            Model.PropertyChanged -= OnMediaPropertyChanged;
-            if (_previewVm != null)
-                _previewVm.PropertyChanged -= _onPreviewPropertyChanged;
-            if (Model is IAnimatedMedia)
-                _fields.CollectionChanged -= _fields_CollectionChanged;
+            return SelectedField != null;
         }
 
+        private void _deleteField(object obj)
+        {
+            if (SelectedField != null)
+            {
+                var selected = (KeyValuePair<string, string>)SelectedField;
+                _fields.Remove(selected.Key);
+                SelectedField = null;
+            }
+        }
+
+        private bool _canAddField(object obj)
+        {
+            return IsAnimatedMedia;
+        }
+
+        private void _addField(object obj)
+        {
+            using (var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), false))
+            {
+                kve.OnOk += (o) =>
+                {
+                    var co = (KeyValueEditViewmodel)o;
+                    return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
+                };
+                kve.Load();
+                if (kve.ShowDialog() == true)
+                    _fields.Add(kve.Key, kve.Value);
+            }
+        }
+
+        private void _editField(object obj)
+        {
+            if (SelectedField == null)
+                return;
+            var selected = (KeyValuePair<string, string>)SelectedField;
+            using (var kve = new KeyValueEditViewmodel(selected, false))
+            {
+                kve.Load();
+                if (kve.ShowDialog() == true)
+                    _fields[kve.Key] = kve.Value;
+            }
+        }
+
+        void _refreshStatus(object o)
+        {
+            Model.ReVerify();
+        }
+
+        AutoResetEvent _checkVolumeSignal;
+        void _checkVolume(object o)
+        {
+            if (_isVolumeChecking)
+                return;
+            IsVolumeChecking = true;
+            IFileManager fileManager = _mediaManager.FileManager;
+            ILoudnessOperation operation = fileManager.CreateLoudnessOperation();
+            operation.Source = Model;
+            operation.MeasureStart = TcPlay - TcStart;
+            operation.MeasureDuration = DurationPlay;
+            operation.AudioVolumeMeasured += _audioVolumeMeasured;
+            operation.Finished += _audioVolumeFinished;
+            _checkVolumeSignal = new AutoResetEvent(false);
+            fileManager.Queue(operation, true);
+        }
+
+        private void _audioVolumeFinished(object sender, EventArgs e)
+        {
+            ThreadPool.QueueUserWorkItem((o) =>
+            {
+                _checkVolumeSignal.WaitOne(5000);
+                IsVolumeChecking = false; // finishCallback
+                ((ILoudnessOperation)sender).Finished -= _audioVolumeFinished;
+                ((ILoudnessOperation)sender).AudioVolumeMeasured -= _audioVolumeMeasured;
+                _checkVolumeSignal.Dispose();
+                _checkVolumeSignal = null;
+            });
+        }
+
+        private void _audioVolumeMeasured(object sender, AudioVolumeEventArgs e)
+        {
+            AudioVolume = e.AudioVolume;
+            AutoResetEvent signal = _checkVolumeSignal;
+            signal?.Set();
+        }
+
+        #endregion //Command methods
+
+        private void OnMediaPropertyChanged(object media, PropertyChangedEventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    if (!string.IsNullOrEmpty(e.PropertyName))
+                    {
+                        PropertyInfo sourcePi = Model.GetType().GetProperty(e.PropertyName);
+                        PropertyInfo destPi = GetType().GetProperty(e.PropertyName);
+                        if (sourcePi != null
+                            && destPi != null
+                            && sourcePi.CanRead
+                            && destPi.CanWrite)
+                        {
+                            bool oldModified = IsModified;
+                            destPi.SetValue(this, sourcePi.GetValue(Model, null), null);
+                            IsModified = oldModified;
+                            NotifyPropertyChanged(e.PropertyName);
+                        }
+                    }
+                }),
+                null);
+
+            if (e.PropertyName == nameof(IMedia.MediaStatus))
+            {
+                NotifyPropertyChanged(e.PropertyName);
+                NotifyPropertyChanged(nameof(IsIngestDataShown));
+            }
+            if (e.PropertyName == nameof(IMedia.MediaGuid))
+            {
+                NotifyPropertyChanged(e.PropertyName);
+            }
+        }
+
+        private void _onPreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (_previewVm.LoadedMedia == Model
+                && _previewVm.SelectedSegment == null)
+            {
+                if (e.PropertyName == nameof(PreviewViewmodel.TcIn))
+                {
+                    TcPlay = _previewVm.TcIn;
+                    DurationPlay = _previewVm.DurationSelection;
+                }
+                if (e.PropertyName == nameof(PreviewViewmodel.TcOut))
+                    DurationPlay = _previewVm.DurationSelection;
+            }
+        }
+        
 
     }
 

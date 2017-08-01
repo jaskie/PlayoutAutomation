@@ -34,7 +34,7 @@
                     </StackPanel>
                     <DataGrid ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" AutoGenerateColumns="False" IsReadOnly="True">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Binding="{Binding UserName}" Width="*"/>
+                            <DataGridTextColumn Binding="{Binding Name}" Width="*"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>

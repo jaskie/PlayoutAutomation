@@ -42,7 +42,7 @@ namespace TAS.Client.ViewModels
             _mediaManager = mediaManager;
             _preview = preview;
             if (preview != null)
-                PreviewViewmodel = new PreviewViewmodel(preview);
+                Preview = new PreviewViewmodel(preview);
 
             MediaDirectories = new List<MediaDirectoryViewmodel>();
             MediaDirectories.AddRange(mediaManager.IngestDirectories.Where(d => d.ContainsImport()).Select(d => new MediaDirectoryViewmodel(d, true)));
@@ -65,12 +65,12 @@ namespace TAS.Client.ViewModels
             _mediaCategory = MediaCategories.FirstOrDefault();
             SelectedDirectory = MediaDirectories.FirstOrDefault();
             if (mediaManager.FileManager != null)
-                FileManagerViewmodel = new FileManagerViewmodel(mediaManager.FileManager);
-            RecordersViewmodel = new RecordersViewmodel(mediaManager.Recorders);
-            RecordersViewmodel.PropertyChanged += _recordersViewmodel_PropertyChanged;
+                FileManager = new FileManagerViewmodel(mediaManager.FileManager);
+            Recorders = new RecordersViewmodel(mediaManager.Recorders);
+            Recorders.PropertyChanged += _recordersViewmodel_PropertyChanged;
             _previewDisplay = true;
             ComposePlugins();
-            VideoPreview?.SetSource(RecordersViewmodel.Channel?.PreviewUrl);
+            VideoPreview?.SetSource(Recorders.Channel?.PreviewUrl);
 
             CommandSearch = new UICommand { ExecuteDelegate = _search, CanExecuteDelegate = _canSearch };
             CommandClearFilters = new UICommand { ExecuteDelegate = _clearFilters, CanExecuteDelegate = _canClearFilters };
@@ -99,18 +99,18 @@ namespace TAS.Client.ViewModels
         public ICommand CommandSyncPriToSec { get; }
         public ICommand CommandCloneAnimation { get; }
 
-        public PreviewViewmodel PreviewViewmodel { get; }
+        public PreviewViewmodel Preview { get; }
 
 #pragma warning disable CS0649 
         [Import(AllowDefault = true)]
         public Common.Plugin.IVideoPreview VideoPreview { get; private set; }
 #pragma warning restore
 
-        public FileManagerViewmodel FileManagerViewmodel { get; }
+        public FileManagerViewmodel FileManager { get; }
 
-        public RecordersViewmodel RecordersViewmodel { get; }
+        public RecordersViewmodel Recorders { get; }
 
-        public bool PreviewDisplay { get { return _previewDisplay; } set { SetField(ref _previewDisplay, value); } }
+        public bool IsPreviewDisplay { get { return _previewDisplay; } set { SetField(ref _previewDisplay, value); } }
 
         public MediaViewViewmodel SelectedMedia
         {
@@ -131,9 +131,10 @@ namespace TAS.Client.ViewModels
                     if (media is IIngestMedia
                         && !media.IsVerified)
                         media.ReVerify();
-                    if (PreviewViewmodel != null)
-                        PreviewViewmodel.Media = media;
-                    EditMedia = _selectedMedia == null ? null : new MediaEditViewmodel(_selectedMedia.Media, _mediaManager, PreviewViewmodel, true);
+                    if (Preview != null)
+                        Preview.Media = media;
+                    EditMedia = _selectedMedia == null ? null : new MediaEditViewmodel(_selectedMedia.Media, _mediaManager, Preview, true);
+                    EditMedia?.Load();
                 }
             }
         }
@@ -144,8 +145,8 @@ namespace TAS.Client.ViewModels
             set
             {
                 MediaEditViewmodel oldEditMedia = _editMedia;
-                if (SetField(ref _editMedia, value) && oldEditMedia != null)
-                    oldEditMedia.Dispose();
+                if (SetField(ref _editMedia, value))
+                    oldEditMedia?.Dispose();
             }
         }
 
@@ -265,11 +266,10 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             SelectedDirectory = null;
-            if (RecordersViewmodel != null)
-                RecordersViewmodel.PropertyChanged -= _recordersViewmodel_PropertyChanged;
+            if (Recorders != null)
+                Recorders.PropertyChanged -= _recordersViewmodel_PropertyChanged;
         }
-
-
+        
         public ObservableCollection<MediaViewViewmodel> MediaItems
         {
             get { return _mediaItems; }
@@ -279,14 +279,14 @@ namespace TAS.Client.ViewModels
                     SelectedMedia = null;
             }
         }
-
         
         public override string ToString()
         {
             return resources._media;
         }
+        
 
-
+        // private methods
         private void ComposePlugins()
         {
             try
@@ -383,11 +383,11 @@ namespace TAS.Client.ViewModels
                     if (!string.IsNullOrEmpty((dir as IArchiveDirectory).SearchString))
                         SearchText = (dir as IArchiveDirectory).SearchString;
             }
-            PreviewDisplay = PreviewViewmodel != null
+            IsPreviewDisplay = Preview != null
                              && dir != null
                              && (!(dir is IIngestDirectory) || (dir as IIngestDirectory).AccessType == TDirectoryAccessType.Direct);
-            if (PreviewViewmodel != null)
-                PreviewViewmodel.IsSegmentsVisible = dir is IServerDirectory || dir is IArchiveDirectory;
+            if (Preview != null)
+                Preview.IsSegmentsVisible = dir is IServerDirectory || dir is IArchiveDirectory;
             _reloadFiles(directory);
             SelectedMedia = null;
             NotifyPropertyChanged(nameof(SelectedDirectory));
@@ -410,17 +410,18 @@ namespace TAS.Client.ViewModels
 
         private void _recordersViewmodel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(RecordersViewmodel.RecordingMedia))
+            if (e.PropertyName == nameof(Recorders.RecordingMedia))
             {
                 var media = ((RecordersViewmodel)sender).RecordingMedia;
                 if (media != null)
                 {
-                    EditMedia = new MediaEditViewmodel(media, _mediaManager, PreviewViewmodel, true);
-                    if (PreviewViewmodel != null)
-                        PreviewViewmodel.Media = media;
+                    EditMedia = new MediaEditViewmodel(media, _mediaManager, Preview, true);
+                    EditMedia.Load();
+                    if (Preview != null)
+                        Preview.Media = media;
                 }
             }
-            if (e.PropertyName == nameof(RecordersViewmodel.Channel))
+            if (e.PropertyName == nameof(Recorders.Channel))
             {
                 VideoPreview?.SetSource(((RecordersViewmodel)sender).Channel?.PreviewUrl);
             }
@@ -638,7 +639,7 @@ namespace TAS.Client.ViewModels
                         MediaCategory = sourceMedia.MediaCategory
                     };
                     ingestList.Add(
-                        FileManagerViewmodel.CreateConvertOperation(
+                        FileManager.CreateConvertOperation(
                             sourceMedia,
                             destMediaProperties,
                             directory,

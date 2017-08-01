@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:TAS.Client.Config"
-             xmlns:common="clr-namespace:TAS.Client;assembly=TAS.Client.Common"
              d:DataContext="{x:Type vm:IngestDirectoryViewmodel}"
              mc:Ignorable="d" 
              >

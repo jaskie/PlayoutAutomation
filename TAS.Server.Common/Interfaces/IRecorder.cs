@@ -11,8 +11,8 @@ namespace TAS.Server.Common.Interfaces
         void Abort();
         void DeckFastForward();
         void DeckRewind();
-        IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string fileName);
-        IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string fileName);
+        IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName);
+        IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string mediaName, string fileName);
         void Finish();
         void GoToTimecode(TimeSpan tc, TVideoFormat format);
         void SetTimeLimit(TimeSpan limit);

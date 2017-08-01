@@ -32,8 +32,8 @@
             </StackPanel.Resources>
             <Button IsDefault="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandOK}" Style="{StaticResource OkButton}"/>
             <Button IsCancel="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandClose}" Style="{StaticResource CancelButton}" />
-           
+
         </StackPanel>
         <ContentControl Content="{Binding Editor}"/>
-        </DockPanel>
+    </DockPanel>
 </Window>

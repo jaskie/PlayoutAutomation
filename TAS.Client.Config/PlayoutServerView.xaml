@@ -88,7 +88,13 @@
                     </DataGrid>
                 </DockPanel>
             </DockPanel>
-            <ContentControl Margin="5, 0, 0, 0" Grid.Column="1" Content="{Binding SelectedPlayoutServerChannel.Editor}"/>
+            <ContentControl Margin="5, 0, 0, 0" Grid.Column="1" Content="{Binding SelectedPlayoutServerChannel}">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type vm:PlayoutServerChannelViewmodel}">
+                        <vm:PlayoutServerChannelView/>
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
         </Grid>
     </ScrollViewer>
 </UserControl>

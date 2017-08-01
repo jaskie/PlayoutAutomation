@@ -19,7 +19,6 @@ namespace TAS.Client.Common
             CommandOK = new UICommand { CanExecuteDelegate = CanOK, ExecuteDelegate = Ok };
             Title = windowTitle;
             Editor = (UserControl)Activator.CreateInstance(editor);
-            Editor.DataContext = this;
         }
 
         public string Title { get { return _title; } set { SetField(ref _title, value, setIsModified: false); } }

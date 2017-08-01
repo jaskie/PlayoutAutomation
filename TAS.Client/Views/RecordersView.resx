@@ -180,4 +180,10 @@
   <data name="_recordTimeLeft" xml:space="preserve">
     <value>Time left</value>
   </data>
+  <data name="_externalId" xml:space="preserve">
+    <value>Id</value>
+  </data>
+  <data name="_mediaName" xml:space="preserve">
+    <value>Media name</value>
+  </data>
 </root>

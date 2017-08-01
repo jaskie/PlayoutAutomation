@@ -9,39 +9,31 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class UserViewmodel: ViewmodelBase
+    public class UserViewmodel: EditViewmodelBase<IUser>
     {
-        private readonly IUser _user;
-        private string _userName;
+        private string _name;
 
-        public UserViewmodel(IUser user)
+        public UserViewmodel(IUser user): base(user)
         {
-            _user = user;
         }
 
-        public string UserName
+        public string Name
         {
-            get { return _userName; }
-            set { SetField(ref _userName, value); }
+            get { return _name; }
+            set { SetField(ref _name, value); }
         }
 
-        public void Save()
+        public override void Update(object destObject = null)
         {
-            _user.Name = UserName;
-            _user.Save();
+            base.Update(destObject);
+            Model.Save();
         }
 
-        public void Delete()
-        {
-            _user.Delete();
-        }
-
-
-        //public ICommand CommandSaveEdit => new UICommand { ExecuteDelegate = }
+        
+        public ICommand CommandSaveEdit => new UICommand {ExecuteDelegate = o => Update(), CanExecuteDelegate = o => IsModified};
 
         protected override void OnDispose()
         {
-            
         }
     }
 }

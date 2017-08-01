@@ -19,7 +19,11 @@ namespace TAS.Server.Security
 
         public AuthenticationService(List<User> users, List<Group> roles)
         {
-            users.ForEach(u => u.PopulateGroups(roles));
+            users.ForEach(u =>
+            {
+                u.AuthenticationService = this;
+                u.PopulateGroups(roles);
+            });
             _users = new AcoHive<User>(users);
             _users.AcoOperartion += Users_AcoOperation;
 

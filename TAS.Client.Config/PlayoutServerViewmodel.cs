@@ -21,12 +21,22 @@ namespace TAS.Client.Config
 
         public PlayoutServerViewmodel(Model.CasparServer playoutServer): base(playoutServer)
         {
-            PlayoutServerChannels = new ObservableCollection<PlayoutServerChannelViewmodel>(playoutServer.Channels.Select(p => new PlayoutServerChannelViewmodel(p)));
+            PlayoutServerChannels = new ObservableCollection<PlayoutServerChannelViewmodel>(playoutServer.Channels.Select(p =>
+                {
+                    var newVm = new PlayoutServerChannelViewmodel(p);
+                    newVm.Load();
+                    return newVm;
+                }));
             PlayoutServerChannels.CollectionChanged += _playoutServerChannels_CollectionChanged;
             CommandAddChannel = new UICommand { ExecuteDelegate = _addChannel };
             CommandDeleteChannel = new UICommand { ExecuteDelegate = _removeChannel, CanExecuteDelegate = o => _selectedPlayoutServerChannel != null };
 
-            PlayoutServerRecorders = new ObservableCollection<PlayoutRecorderViewmodel>(playoutServer.Recorders.Select(r => new PlayoutRecorderViewmodel(r)));
+            PlayoutServerRecorders = new ObservableCollection<PlayoutRecorderViewmodel>(playoutServer.Recorders.Select(r =>
+            {
+                var newVm = new PlayoutRecorderViewmodel(r);
+                newVm.Load();
+                return newVm;
+            }));
             PlayoutServerRecorders.CollectionChanged += _playoutRecorders_CollectionChanged;
             CommandAddRecorder = new UICommand { ExecuteDelegate = _addRecorder };
             CommandDeleteRecorder = new UICommand { ExecuteDelegate = _removeRecorder, CanExecuteDelegate = o => _selectedPlayoutRecorder != null };

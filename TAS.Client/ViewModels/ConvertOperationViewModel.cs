@@ -322,12 +322,7 @@ namespace TAS.Client.ViewModels
 
         private void _makeFileName()
         {
-            List<string> filenameParts = new List<string>();
-            if (!string.IsNullOrWhiteSpace(IdAux))
-                filenameParts.Add(IdAux);
-            if (!string.IsNullOrWhiteSpace(DestMediaName))
-                filenameParts.Add(DestMediaName);
-            DestFileName = FileUtils.SanitizeFileName(string.Join(" ", filenameParts)) + FileUtils.DefaultFileExtension(_convertOperation.DestProperties.MediaType);
+            DestFileName = MediaExtensions.MakeFileName(IdAux, DestMediaName, FileUtils.DefaultFileExtension(_convertOperation.DestProperties.MediaType));
         }
 
         private string ValidateTc()

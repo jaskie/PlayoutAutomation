@@ -15,7 +15,12 @@ namespace TAS.Client.Config
         public EnginesViewmodel(string connectionString, string connectionStringSecondary)
             : base(new Model.Engines(connectionString, connectionStringSecondary), typeof(EnginesView), "Engines")
         {
-            Engines = new ObservableCollection<EngineViewmodel>(Model.EngineList.Select(e => new EngineViewmodel(e)));
+            Engines = new ObservableCollection<EngineViewmodel>(Model.EngineList.Select(e =>
+            {
+                var newVm = new EngineViewmodel(e);
+                newVm.Load();
+                return newVm;
+            }));
             Engines.CollectionChanged += _engines_CollectionChanged;
             CommandAdd = new UICommand { ExecuteDelegate = _add };
             CommandDelete = new UICommand { ExecuteDelegate = o => Engines.Remove(_selectedEngine), CanExecuteDelegate = o => _selectedEngine != null };

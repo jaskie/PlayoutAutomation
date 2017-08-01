@@ -45,7 +45,12 @@ namespace TAS.Client.Config
         {
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
             OwnerCollection = ownerCollection;
-            SubDirectoriesVM = new ObservableCollection<IngestDirectoryViewmodel>(model.SubDirectoriesSerialized.Select(s => new IngestDirectoryViewmodel(s, SubDirectoriesVM)));
+            SubDirectoriesVM = new ObservableCollection<IngestDirectoryViewmodel>(model.SubDirectoriesSerialized.Select(s =>
+            {
+                var newVm = new IngestDirectoryViewmodel(s, SubDirectoriesVM);
+                newVm.Load();
+                return newVm;
+            }));
         }
         
         #region Enumerations

@@ -18,13 +18,15 @@ namespace TAS.Server.Security
     public abstract class SecurityObjectBase: DtoBase, ISecurityObject, IPersistent
     {
         private string _name;
-        public abstract SceurityObjectType SceurityObjectTypeType { get; }
-        protected readonly IAuthenticationService AuthenticationService;
 
         protected SecurityObjectBase(IAuthenticationService authenticationService)
         {
             AuthenticationService = authenticationService;
         }
+
+        public abstract SceurityObjectType SceurityObjectTypeType { get; }
+        [XmlIgnore]
+        public IAuthenticationService AuthenticationService { get; set; }
 
         [XmlIgnore]
         public ulong Id { get; set; }
@@ -33,11 +35,7 @@ namespace TAS.Server.Security
         public string Name
         {
             get { return _name; }
-            set
-            {
-                if (SetField(ref _name, value))
-                    this.DbUpdate();
-            }
+            set { SetField(ref _name, value); }
         }
 
         public abstract void Save();

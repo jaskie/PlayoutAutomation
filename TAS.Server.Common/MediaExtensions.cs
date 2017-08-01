@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Common
@@ -24,8 +25,18 @@ namespace TAS.Server.Common
         public static TimeSpan TcLastFrame(this IMedia media)
         {
             var frameRate = FrameRate(media);
-            return ((media.TcStart + media.Duration).ToSMPTEFrames(frameRate) -1).SMPTEFramesToTimeSpan(frameRate);
+            return ((media.TcStart + media.Duration).ToSMPTEFrames(frameRate) - 1).SMPTEFramesToTimeSpan(frameRate);
         }
 
+        public static string MakeFileName(string idAux, string mediaName, string fileExtension)
+        {
+            var filenameParts = new List<string>();
+            if (!string.IsNullOrWhiteSpace(idAux))
+                filenameParts.Add(idAux);
+            if (!string.IsNullOrWhiteSpace(mediaName))
+                filenameParts.Add(mediaName);
+            return (FileUtils.SanitizeFileName(string.Join(" ", filenameParts)) +
+                   fileExtension).Trim();
+        }
     }
 }
