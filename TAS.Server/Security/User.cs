@@ -17,7 +17,7 @@ namespace TAS.Server.Security
 
         public User(IAuthenticationService authenticationService): base(authenticationService) { }
 
-        private readonly List<Group> _groups = new List<Group>();
+        private readonly List<IGroup> _groups = new List<IGroup>();
 
         private ulong[] _groupsIds;
 
@@ -34,7 +34,7 @@ namespace TAS.Server.Security
             get
             {
                 lock (((IList) _groups).SyncRoot)
-                    return _groups.Cast<IGroup>().ToList();
+                    return _groups.ToList();
             }
         }
 
@@ -52,7 +52,7 @@ namespace TAS.Server.Security
             }
         }
 
-        public void GroupAdd(Group group)
+        public void GroupAdd(IGroup group)
         {
             lock (((IList)_groups).SyncRoot)
             {
@@ -62,7 +62,7 @@ namespace TAS.Server.Security
             NotifyPropertyChanged(nameof(Groups));
         }
 
-        public bool GroupRemove(Group group)
+        public bool GroupRemove(IGroup group)
         {
             bool isRemoved;
             lock (((IList)_groups).SyncRoot)

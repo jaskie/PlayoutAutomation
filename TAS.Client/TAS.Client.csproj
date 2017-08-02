@@ -129,6 +129,7 @@
     <Compile Include="ViewModels\PreviewViewmodel.cs" />
     <Compile Include="ViewModels\RecordersViewmodel.cs" />
     <Compile Include="ViewModels\UserManagerViewmodel.cs" />
+    <Compile Include="ViewModels\GroupViewmodel.cs" />
     <Compile Include="ViewModels\UserViewmodel.cs" />
     <Compile Include="Views\ChannelView.xaml.cs">
       <DependentUpon>ChannelView.xaml</DependentUpon>
@@ -214,6 +215,9 @@
     </Compile>
     <Compile Include="Views\UserManagerView.xaml.cs">
       <DependentUpon>UserManagerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\GroupView.xaml.cs">
+      <DependentUpon>GroupView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UserView.xaml.cs">
       <DependentUpon>UserView.xaml</DependentUpon>
@@ -350,6 +354,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\GroupView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\UserView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -459,6 +467,7 @@
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\UserManagerView.resx" />
+    <EmbeddedResource Include="Views\GroupView.resx" />
     <EmbeddedResource Include="Views\UserView.resx" />
   </ItemGroup>
   <ItemGroup>

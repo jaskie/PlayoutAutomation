@@ -7,7 +7,8 @@
              xmlns:local="clr-namespace:TAS.Client.Views"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
-             
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance {x:Type vm:UserViewmodel}}"
              d:DesignHeight="300" d:DesignWidth="300">
@@ -15,27 +16,37 @@
        
     </UserControl.Resources>
     <DockPanel>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right" Height="35">
-            <StackPanel.Resources>
-                <Style TargetType="{x:Type Button}">
-                    <Setter Property="Margin" Value="5" />
-                    <Setter Property="Width" Value="80" />
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                </Style>
-                <Style TargetType="{x:Type Label}">
-                    <Setter Property="VerticalAlignment" Value="Center"/>
-                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                    <Setter Property="Padding" Value="0"/>
-                </Style>
-            </StackPanel.Resources>
-            <Button Command="{Binding CommandUndoEdit}" Style="{StaticResource UndoButton}" />
-            <Button Command="{Binding CommandSaveEdit}" Style="{StaticResource OkButton}"/>
+        <StackPanel DockPanel.Dock="Top">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="35">
+                <StackPanel.Resources>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Margin" Value="5" />
+                        <Setter Property="Width" Value="80" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                    <Style TargetType="{x:Type Label}">
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                        <Setter Property="Padding" Value="0"/>
+                    </Style>
+                </StackPanel.Resources>
+                <Button Command="{Binding CommandUndo}" Style="{StaticResource UndoButton}" />
+                <Button Command="{Binding CommandSave}" Style="{StaticResource OkButton}"/>
 
+            </StackPanel>
+            <Label Content="{Resx _name}"/>
+            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+            <StackPanel Orientation="Horizontal"/>
+            <Label Content="{Resx _groupMembership}"/>
         </StackPanel>
-        <Label DockPanel.Dock="Top" Content="{Resx _name}"/>
-        <TextBox DockPanel.Dock="Top" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"/>
-        <DataGrid/>
+        <xctk:CheckListBox ItemsSource="{Binding AllGroups}" SelectedItemsOverride="{Binding GroupMember}">
+            <xctk:CheckListBox.Resources>
+                <DataTemplate DataType="{x:Type vm:GroupViewmodel}">
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </xctk:CheckListBox.Resources>
+            
+        </xctk:CheckListBox>
 
     </DockPanel>
 </UserControl>

@@ -5,13 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using TAS.Server.Common;
+using TAS.Server.Common.Database;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Security
 {
     public class Group: SecurityObjectBase, IGroup
     {
-
+        public Group():base(null) { }
         public Group(IAuthenticationService authenticationService): base(authenticationService) { }
 
         [XmlIgnore]
@@ -19,12 +20,19 @@ namespace TAS.Server.Security
 
         public override void Save()
         {
-            throw new NotImplementedException();
+            if (Id == default(ulong))
+            {
+                AuthenticationService.AddGroup(this);
+                this.DbInsert();
+            }
+            else
+                this.DbUpdate();
         }
 
         public override void Delete()
         {
-            throw new NotImplementedException();
+            AuthenticationService.RemoveGroup(this);
+            this.DbDelete();
         }
     }
 }

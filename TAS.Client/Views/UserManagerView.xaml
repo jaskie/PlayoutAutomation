@@ -25,10 +25,10 @@
                                 <Setter Property="Margin" Value="2"/>
                             </Style>
                         </StackPanel.Resources>
-                        <Button Command="{Binding CommandAddUser}">
+                        <Button Command="{Binding CommandAddUser}" ToolTip="{Resx _addUser.ToolTip}">
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
                         </Button>
-                        <Button Command="{Binding CommandDeleteUser}">
+                        <Button Command="{Binding CommandDeleteUser}" ToolTip="{Resx _deleteUser.ToolTip}">
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
                         </Button>
                     </StackPanel>
@@ -40,21 +40,54 @@
                 </DockPanel>
                 <DockPanel Grid.Column="1" Margin="1">
                     <Label DockPanel.Dock="Top" Content="{Resx _selectedUser}" Style="{StaticResource HeaderLabel}"/>
-                    <local:UserView DataContext="{Binding SelectedUser}"/>
+                    <ContentControl Content="{Binding SelectedUser}">
+                        <ContentControl.Resources>
+                            <DataTemplate DataType="{x:Type vm:UserViewmodel}">
+                                <local:UserView/>
+                            </DataTemplate>
+                        </ContentControl.Resources>
+                    </ContentControl>
                 </DockPanel>
             </Grid>
         </TabItem>
-        <TabItem Header="{Resx _roles}">
-            <DockPanel >
-                <DataGrid ItemsSource="{Binding Roles}"
-                          AutoGenerateColumns="False"   
-                          
-                >
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Name}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </DockPanel>
+        <TabItem Header="{Resx _groups}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <DockPanel Margin="1">
+                    <Label DockPanel.Dock="Top" Content="{Resx _groupList}" Style="{StaticResource HeaderLabel}"/>
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="30" >
+                        <StackPanel.Resources>
+                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                <Setter Property="Margin" Value="2"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <Button Command="{Binding CommandAddGroup}" ToolTip="{Resx _addGroup.ToolTip}">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
+                        </Button>
+                        <Button Command="{Binding CommandDeleteGroup}" ToolTip="{Resx _deleteGroup.ToolTip}">
+                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
+                        </Button>
+                    </StackPanel>
+                    <DataGrid ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Name}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+                <DockPanel Grid.Column="1" Margin="1">
+                    <Label DockPanel.Dock="Top" Content="{Resx _selectedGroup}" Style="{StaticResource HeaderLabel}"/>
+                    <ContentControl Content="{Binding SelectedGroup}">
+                        <ContentControl.Resources>
+                            <DataTemplate DataType="{x:Type vm:GroupViewmodel}">
+                                <local:GroupView/>
+                            </DataTemplate>
+                        </ContentControl.Resources>
+                    </ContentControl>
+                </DockPanel>
+            </Grid>
         </TabItem>
     </TabControl>
 </UserControl>

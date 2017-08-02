@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TAS.Remoting.Server;
 using TAS.Server.Common;
-using TAS.Server.Common.Database;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Security
@@ -17,17 +11,19 @@ namespace TAS.Server.Security
         private readonly AcoHive<User> _users;
         private readonly AcoHive<Group> _groups;
 
-        public AuthenticationService(List<User> users, List<Group> roles)
+        public AuthenticationService(List<User> users, List<Group> groups)
         {
             users.ForEach(u =>
             {
                 u.AuthenticationService = this;
-                u.PopulateGroups(roles);
+                u.PopulateGroups(groups);
             });
+            groups.ForEach(g => g.AuthenticationService = this);
+
             _users = new AcoHive<User>(users);
             _users.AcoOperartion += Users_AcoOperation;
 
-            _groups = new AcoHive<Group>(roles);
+            _groups = new AcoHive<Group>(groups);
             _groups.AcoOperartion += Groups_AcoOperation;
         }
 

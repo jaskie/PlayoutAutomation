@@ -9,5 +9,7 @@ namespace TAS.Server.Common.Interfaces
     public interface IUser: ISecurityObject, IPersistent
     {
         IList<IGroup> Groups { get; }
+        void GroupAdd(IGroup group);
+        bool GroupRemove(IGroup group);
     }
 }
