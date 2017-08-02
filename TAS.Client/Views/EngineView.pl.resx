@@ -343,4 +343,7 @@ Działa natychmiastowo, do końca odtwarzanego klipu.</value>
   <data name="_menu.Edit.Undo" xml:space="preserve">
     <value>Przywróć usunięte</value>
   </data>
+  <data name="_userManager" xml:space="preserve">
+    <value>Zarządzanie użytkownikami</value>
+  </data>
 </root>

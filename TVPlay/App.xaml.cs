@@ -25,8 +25,7 @@ namespace TAS.Client
                 CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
             else
                 CultureManager.UICulture = new System.Globalization.CultureInfo(uiCulture);
-            Thread.CurrentPrincipal = new GenericPrincipal(new GenericIdentity("Console"),
-                new[] {Roles.Media, Roles.Playout, Roles.Preview, Roles.UserAdmin});
+            Thread.CurrentPrincipal = new Principal(new LocalUser(), Roles.Media, Roles.Playout, Roles.Preview, Roles.UserAdmin);
         }
         protected override void OnExit(ExitEventArgs e)
         {

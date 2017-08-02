@@ -466,9 +466,24 @@
     <EmbeddedResource Include="Views\TemplatedEditView.resx">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\UserManagerView.resx" />
-    <EmbeddedResource Include="Views\GroupView.resx" />
-    <EmbeddedResource Include="Views\UserView.resx" />
+    <EmbeddedResource Include="Views\UserManagerView.pl.resx" >
+      <DependentUpon>UserManagerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\UserManagerView.resx" >
+      <DependentUpon>UserManagerView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\GroupView.resx" >
+      <DependentUpon>GroupView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\GroupView.pl.resx" >
+      <DependentUpon>GroupView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\UserView.pl.resx" >
+      <DependentUpon>UserView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\UserView.resx" >
+      <DependentUpon>UserView.xaml</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

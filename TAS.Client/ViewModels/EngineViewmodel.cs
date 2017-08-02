@@ -21,6 +21,7 @@ namespace TAS.Client.ViewModels
     public class EngineViewmodel : ViewmodelBase
     {
         private readonly IEngine _engine;
+        private readonly IAuthenticationService _authenticationService;
         private readonly PreviewViewmodel _previewViewmodel;
         private readonly EventEditViewmodel _eventEditViewmodel;
         private readonly VideoFormatDescription _videoFormatDescription;
@@ -39,10 +40,11 @@ namespace TAS.Client.ViewModels
         private readonly ObservableCollection<EventPanelViewmodelBase> _multiSelectedEvents;
 
 
-        public EngineViewmodel(IEngine engine, IPreview preview, bool allowPlayControl)
+        public EngineViewmodel(IEngine engine, IPreview preview, bool allowPlayControl, IAuthenticationService authenticationService)
         {
             Debug.WriteLine($"Creating EngineViewmodel for {engine}");
             _engine = engine;
+            _authenticationService = authenticationService;
             VideoFormat = engine.VideoFormat;
             _videoFormatDescription = engine.FormatDescription;
             _allowPlayControl = allowPlayControl;
@@ -147,6 +149,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandSaveEdit { get; private set; }
         public ICommand CommandUndoEdit { get; private set; }
         #endregion // Editor commands
+        public ICommand CommandUserManager { get; private set; }
 
         public IEngine Engine => _engine;
 
@@ -249,7 +252,18 @@ namespace TAS.Client.ViewModels
 
             CommandSaveRundown = new UICommand { ExecuteDelegate = _saveRundown, CanExecuteDelegate = o => SelectedEvent != null && SelectedEvent.Event.EventType == TEventType.Rundown };
             CommandLoadRundown = new UICommand { ExecuteDelegate = _loadRundown, CanExecuteDelegate = o => o.Equals("Under") ? _canAddSubRundown(o) : _canAddNextRundown(o) };
+            CommandUserManager = new UICommand {ExecuteDelegate = _userManager, CanExecuteDelegate = _canUserManager};
 
+        }
+
+        private void _userManager(object obj)
+        {
+            
+        }
+
+        private bool _canUserManager(object obj)
+        {
+            return true;
         }
 
         private bool _canUndelete(object obj)

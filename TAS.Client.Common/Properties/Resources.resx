@@ -278,9 +278,6 @@ Do you really want to run this BACKUP play-out?</value>
   <data name="_unknown_" xml:space="preserve">
     <value>Unknown</value>
   </data>
-  <data name="_users" xml:space="preserve">
-    <value>Users</value>
-  </data>
   <data name="_validateStartPlayMustBeInsideFile" xml:space="preserve">
     <value>Start of play must be between start and end clip timecode.</value>
   </data>

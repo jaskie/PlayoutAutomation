@@ -8,11 +8,11 @@ namespace TAS.Client.ViewModels
     {
         private int _selectedTabIndex;
 
-        public ChannelViewmodel(IEngine engine, bool showEngine, bool showMedia, bool allowPlayControl)
+        public ChannelViewmodel(IEngine engine, bool showEngine, bool showMedia, bool allowPlayControl, IAuthenticationService authenticationService)
         {
             DisplayName = engine.EngineName;
             if (showEngine)
-                Engine = new EngineViewmodel(engine, engine, allowPlayControl);
+                Engine = new EngineViewmodel(engine, engine, allowPlayControl, authenticationService);
             if (showMedia)
                 MediaManager = new MediaManagerViewmodel(engine.MediaManager, engine);
             CommandSwitchTab = new UICommand { ExecuteDelegate = o => SelectedTabIndex = _selectedTabIndex == 0 ? 1 : 0, CanExecuteDelegate = o => showEngine && showMedia };

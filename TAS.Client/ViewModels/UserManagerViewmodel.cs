@@ -41,8 +41,6 @@ namespace TAS.Client.ViewModels
             authenticationService.GroupsOperation += AuthenticationService_GroupsOperation;
         }
         
-        public string DisplayName { get; } = Common.Properties.Resources._users;
-
         public ObservableCollection<UserViewmodel> Users { get; }
 
         public UserViewmodel SelectedUser { get { return _selectedUser; }  set { SetField(ref _selectedUser, value); } }

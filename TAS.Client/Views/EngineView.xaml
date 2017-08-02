@@ -137,6 +137,7 @@
                         </Style>
                     </MenuItem.ItemContainerStyle>
                 </MenuItem>
+                <MenuItem Header="{Resx _userManager}" Command="{Binding CommandUserManager}"/>
 
                 <!--<MenuItem Header="Playout">
                     <MenuItem Header="Wznów" Command="{Binding CommandResume}" />

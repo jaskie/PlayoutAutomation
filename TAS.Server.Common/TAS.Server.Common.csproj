@@ -145,6 +145,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="RationalNumber.cs" />
+    <Compile Include="AuthenticationTypes.cs" />
     <Compile Include="Roles.cs" />
     <Compile Include="SMPTETimecodeExtensions.cs" />
     <Compile Include="VideoFormatDescription.cs" />

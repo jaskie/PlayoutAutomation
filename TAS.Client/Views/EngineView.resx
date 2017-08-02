@@ -331,4 +331,7 @@ Effective until current clip ends.</value>
   <data name="_menu.Edit.Undo" xml:space="preserve">
     <value>Restore deleted</value>
   </data>
+  <data name="_userManager" xml:space="preserve">
+    <value>User manager</value>
+  </data>
 </root>

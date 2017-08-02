@@ -12,6 +12,5 @@ namespace TAS.Server.Common.Interfaces
     public interface ISecurityObject
     {
         SceurityObjectType SceurityObjectTypeType { get; }
-        string Name { get; set; }
     }
 }

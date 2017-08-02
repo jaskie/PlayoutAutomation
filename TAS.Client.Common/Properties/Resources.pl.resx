@@ -278,9 +278,6 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   <data name="_unknown_" xml:space="preserve">
     <value>Nieznany</value>
   </data>
-  <data name="_users" xml:space="preserve">
-    <value>Użytkownicy</value>
-  </data>
   <data name="_validateStartPlayMustBeInsideFile" xml:space="preserve">
     <value>Rozpoczęcie odtwarzania musi się zawierać pomiędzy TC początkowym i końcowym klipu.</value>
   </data>

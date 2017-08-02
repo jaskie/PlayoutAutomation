@@ -8,5 +8,6 @@ namespace TAS.Server.Common.Interfaces
 {
     public interface IGroup: ISecurityObject, IPersistent
     {
+        string Name { get; set; }
     }
 }
