@@ -6,8 +6,8 @@ namespace TAS.Server.Common.Interfaces
 {
     public interface IAuthenticationService
     {
-        IEnumerable<IUser> Users { get; }
-        IEnumerable<IGroup> Groups { get; }
+        IList<IUser> Users { get; }
+        IList<IGroup> Groups { get; }
         IUser CreateUser();
         IGroup CreateGroup();
         bool AddUser(IUser user);
@@ -16,6 +16,11 @@ namespace TAS.Server.Common.Interfaces
         bool RemoveGroup(IGroup group);
         event EventHandler<CollectionOperationEventArgs<IUser>> UsersOperation;
         event EventHandler<CollectionOperationEventArgs<IGroup>> GroupsOperation;
-
     }
+
+    public interface IAuthenticationServicePersitency
+    {
+        ISecurityObject FindSecurityObject(ulong id);
+    }
+
 }

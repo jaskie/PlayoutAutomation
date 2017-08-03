@@ -21,7 +21,6 @@ namespace TAS.Client.ViewModels
 {
     public class EngineViewmodel : ViewmodelBase
     {
-        private readonly IAuthenticationService _authenticationService;
         private readonly EventEditViewmodel _eventEditViewmodel;
         private readonly VideoFormatDescription _videoFormatDescription;
         private readonly EngineCGElementsControllerViewmodel _cGElementsControllerViewmodel;
@@ -42,7 +41,7 @@ namespace TAS.Client.ViewModels
         {
             Debug.WriteLine($"Creating EngineViewmodel for {engine}");
             Engine = engine;
-            _authenticationService = authenticationService;
+            AuthenticationService = authenticationService;
             VideoFormat = engine.VideoFormat;
             _videoFormatDescription = engine.FormatDescription;
             _allowPlayControl = allowPlayControl;
@@ -163,10 +162,12 @@ namespace TAS.Client.ViewModels
 
         public IEngine Engine { get; }
 
+        public IAuthenticationService AuthenticationService { get; }
+
         public EventPanelViewmodelBase RootEventViewModel { get; }
 
         public PreviewViewmodel PreviewViewmodel { get; }
-
+        
         public bool IsSearchPanelVisible { get { return _isSearchPanelVisible; } set { SetField(ref _isSearchPanelVisible, value); } }
 
         public bool IsSearchBoxFocused { get { return _isSearchBoxFocused; } set { SetField(ref _isSearchBoxFocused, value); } }
@@ -271,18 +272,7 @@ namespace TAS.Client.ViewModels
         [PrincipalPermission(SecurityAction.Demand, Role = Roles.UserAdmin)]
         private void _userManager(object obj)
         {
-            var vm = new UserManagerViewmodel(_authenticationService);
-            var newWindow = new Window
-            {
-                Title = resources._windows_UserManager,
-                Width = 500,
-                Height = 400,
-                Owner = Application.Current.MainWindow,
-                Content = new Views.UserManagerView {DataContext = vm}
-            };
-            newWindow.Closed += (sender, args) =>
-                vm.Dispose();
-            newWindow.Show();
+            UiServices.ShowWindow<Views.UserManagerView>(new UserManagerViewmodel(AuthenticationService), resources._windows_UserManager, 500, 400);
         }
 
         private bool _canUserManager(object obj)

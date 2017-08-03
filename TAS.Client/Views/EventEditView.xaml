@@ -14,8 +14,10 @@
              mc:Ignorable="d" 
              d:DataContext="{x:Type vm:EventEditViewmodel}"
              d:DesignWidth="360"
+             BorderThickness="0 1 0 0" 
+             BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey }}"
              >
-    <DockPanel>
+    <DockPanel Visibility="{Binding IsEmpty, Converter={StaticResource InvertedBoolToVis}}">
         <Grid DockPanel.Dock="Top" Height="37">
             <Grid.Resources>
                 <Style TargetType="Button">
@@ -39,23 +41,11 @@
 
             </StackPanel>
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" >
-                <StackPanel.Resources>
-                    <Style TargetType="Button">
-                        <Setter Property="Margin" Value="5" />
-                        <Setter Property="Width" Value="80" />
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                    </Style>
-                    <Style TargetType="Label">
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="Padding" Value="0"/>
-                    </Style>
-                </StackPanel.Resources>
                 <Button IsCancel="True" ToolTip="{Resx _buttonCancel.ToolTip}" Command="{Binding CommandUndoEdit}" Style="{StaticResource UndoButton}"/>
                 <Button IsDefault="True" ToolTip="{Resx _buttonSave.ToolTip}" Command="{Binding CommandSaveEdit}" Style="{StaticResource OkButton}" />
             </StackPanel>
         </Grid>
-        <ScrollViewer Grid.Row="1" Padding="2" VerticalScrollBarVisibility="Auto" >
+        <ScrollViewer Padding="2" VerticalScrollBarVisibility="Auto" >
             <ScrollViewer.Resources>
                 <Style TargetType="Label">
                     <Setter Property="Width" Value="88"/>
@@ -99,8 +89,7 @@
                     <Setter Property="Margin" Value="10, 3, 3, 0"/>
                 </Style>
             </ScrollViewer.Resources>
-
-            <DockPanel Grid.Row="2" IsEnabled="{Binding IsEditEnabled}">
+            <DockPanel IsEnabled="{Binding IsEditEnabled}">
                 <DockPanel DockPanel.Dock="Top">
                     <Label Content="{Resx _eventType}"/>
                     <TextBox Name="EventType"  Text="{Binding EventType}" IsEnabled="False" />
@@ -109,174 +98,183 @@
                     <Label Content="{Resx _name}"/>
                     <TextBox Name="EventName" Text="{Binding EventName, UpdateSourceTrigger=PropertyChanged}" />
                 </DockPanel>
-                <StackPanel DockPanel.Dock="Top" Visibility="{Binding IsNotContainer, Converter={StaticResource BoolToVis}}" >
-                    <DockPanel>
-                        <CheckBox Content="{Resx _starting}" IsChecked="{Binding IsEnabled}" HorizontalContentAlignment="Right" VerticalAlignment="Center" ToolTip="{Resx _starting.ToolTip}" />
-                        <Button DockPanel.Dock="Right" Visibility="{Binding IsStartEvent, Converter={StaticResource BoolToVis}}" Command="{Binding CommandTriggerStartType}">
-                            <Image>
-                                <Image.Style>
-                                    <Style TargetType="Image">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding StartType}" Value="Manual">
-                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventActions/clock-play.png"/>
-                                                <Setter Property="ToolTip" Value="{Resx _setStartTypeToFixedTime.ToolTip, ResxName=TAS.Client.Views.EventEditView}"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding StartType}" Value="OnFixedTime">
-                                                <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventActions/clock-stop.png"/>
-                                                <Setter Property="ToolTip" Value="{Resx _setStartTypeToManual.ToolTip, ResxName=TAS.Client.Views.EventEditView}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Image.Style>
-                            </Image>
-                        </Button>
-                        <TextBox Text="{Binding StartType}" IsEnabled="False" />
-                    </DockPanel>
-                    <DockPanel Visibility="{Binding IsStartEvent, Converter={StaticResource InvertedBoolToVis}}">
-                        <Label/>
-                        <TextBox Text="{Binding BoundEventName, Mode=OneWay}" IsReadOnly="True" Background="#F0F0F0"/>
-                    </DockPanel>
-                    <Grid Visibility="{Binding IsAutoStartEvent, Converter={StaticResource BoolToVis}}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Label Content="Autostart"/>
-                        <CheckBox Grid.Column="1" Content="{Resx _autoStartForced}" ToolTip="{Resx _autoStartForced.ToolTip}" IsChecked="{Binding AutoStartForced}" Margin="1,3" Width="110"/>
-                        <CheckBox Grid.Column="2" Content="{Resx _autoStartEveryday}" IsChecked="{Binding AutoStartDaily}" Margin="1,3" Width="Auto" />
-                    </Grid>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Label/>
-                        <CheckBox Grid.Column="1" Content="{Resx _hold}" IsChecked="{Binding IsHold}" IsEnabled="{Binding CanHold}" ToolTip="{Resx _hold.ToolTip}"  Margin="1,3" Width="110"/>
-                        <CheckBox Grid.Column="2" Content="{Resx _loop}" IsChecked="{Binding IsLoop}" IsEnabled="{Binding CanLoop}" Margin="1,3" />
-                    </Grid>
-                    <DockPanel>
-                        <Label Content="{Resx _scheduledTime}" />
-                        <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsStartEvent}">
-                            <TextBox Text="{Binding ScheduledDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, StringFormat=d}" Width="100" Visibility="{Binding IsScheduledDateVisible, Converter={StaticResource BoolToVis}}"/>
-                            <Label Content="{Resx _at}" Width="Auto"/>
-                            <controls:TimecodeEdit Grid.Column="1" Timecode="{Binding ScheduledTimeOfDay, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
-                        </StackPanel>
-                    </DockPanel>
-                    <DockPanel Visibility="{Binding IsMovieOrLiveOrRundown, Converter={StaticResource BoolToVis}}">
-                        <Label Content="{Resx _requiredAt}" />
-                        <xctk:MaskedTextBox AutoSelectBehavior="OnFocus" Text="{Binding RequestedStartTime, UpdateSourceTrigger=PropertyChanged}" Mask="00:00:00" ToolTip="{Resx _requiredAt.ToolTip}" Margin="1" />
-                    </DockPanel>
-                    <DockPanel Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
-                        <Label Content="{Resx _clip}" />
-                        <Button DockPanel.Dock="Right" ToolTip="{Resx _changeMovie.ToolTip}" Command="{Binding CommandChangeMovie}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/select.png" />
-                        </Button>
-                        <Button DockPanel.Dock="Right" ToolTip="{Resx _editMovie.ToolTip}" Command="{Binding CommandEditMovie}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png" />
-                        </Button>
-                        <TextBox Text="{Binding Media.FileName, Mode=OneWay}" IsReadOnly="True" VerticalContentAlignment="Center" Background="#F0F0F0" />
-                    </DockPanel>
-                    <StackPanel Visibility="{Binding IsMovieOrLive, Converter={StaticResource BoolToVis}}" >
-                        <Grid>
+                <Grid >
+                    <DockPanel Visibility="{Binding IsContainer, Converter={StaticResource InvertedBoolToVis}}">
+                        <DockPanel DockPanel.Dock="Top">
+                            <CheckBox Content="{Resx _starting}" IsChecked="{Binding IsEnabled}" HorizontalContentAlignment="Right" VerticalAlignment="Center" ToolTip="{Resx _starting.ToolTip}" />
+                            <Button DockPanel.Dock="Right" Visibility="{Binding IsStartEvent, Converter={StaticResource BoolToVis}}" Command="{Binding CommandTriggerStartType}" Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}">
+                                <Image>
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding StartType}" Value="Manual">
+                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventActions/clock-play.png"/>
+                                                    <Setter Property="ToolTip" Value="{Resx _setStartTypeToFixedTime.ToolTip, ResxName=TAS.Client.Views.EventEditView}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding StartType}" Value="OnFixedTime">
+                                                    <Setter Property="Source" Value="/TAS.Client.Common;component/Images/EventActions/clock-stop.png"/>
+                                                    <Setter Property="ToolTip" Value="{Resx _setStartTypeToManual.ToolTip, ResxName=TAS.Client.Views.EventEditView}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                            </Button>
+                            <TextBox Text="{Binding StartType}" IsEnabled="False" />
+                        </DockPanel>
+                        <DockPanel DockPanel.Dock="Top" Visibility="{Binding IsStartEvent, Converter={StaticResource InvertedBoolToVis}}">
+                            <Label/>
+                            <TextBox Text="{Binding BoundEventName, Mode=OneWay}" IsReadOnly="True" Background="#F0F0F0"/>
+                        </DockPanel>
+                        <Grid DockPanel.Dock="Top" Visibility="{Binding IsAutoStartEvent, Converter={StaticResource BoolToVis}}">
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <DockPanel>
-                                <Label Content="{Resx _duration}" />
-                                <controls:TimecodeEdit Timecode="{Binding Duration, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" IsEnabled="{Binding IsDurationEnabled}" Height="21" VerticalAlignment="Top" />
-                            </DockPanel>
-                            <DockPanel Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
-                                <Label Content="{Resx _scheduledTC}" />
-                                <controls:TimecodeEdit Timecode="{Binding ScheduledTc, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
-                            </DockPanel>
+                            <Label Content="Autostart"/>
+                            <CheckBox Grid.Column="1" Content="{Resx _autoStartForced}" ToolTip="{Resx _autoStartForced.ToolTip}" IsChecked="{Binding AutoStartForced}" Margin="1,3" Width="110"/>
+                            <CheckBox Grid.Column="2" Content="{Resx _autoStartEveryday}" IsChecked="{Binding AutoStartDaily}" Margin="1,3" Width="Auto" />
                         </Grid>
-                        <DockPanel>
-                            <Label Content="{Resx _transitionType}" />
+                        <Grid DockPanel.Dock="Top">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Label/>
+                            <CheckBox Grid.Column="1" Content="{Resx _hold}" IsChecked="{Binding IsHold}" IsEnabled="{Binding CanHold}" ToolTip="{Resx _hold.ToolTip}"  Margin="1,3" Width="110"/>
+                            <CheckBox Grid.Column="2" Content="{Resx _loop}" IsChecked="{Binding IsLoop}" IsEnabled="{Binding CanLoop}" Margin="1,3" />
+                        </Grid>
+                        <DockPanel DockPanel.Dock="Top" Visibility="{Binding IsContainer, Converter={StaticResource InvertedBoolToVis}}">
+                            <Label Content="{Resx _scheduledTime}" />
+                            <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsStartEvent}">
+                                <TextBox Text="{Binding ScheduledDate, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, StringFormat=d}" Width="100" Visibility="{Binding IsScheduledDateVisible, Converter={StaticResource BoolToVis}}"/>
+                                <Label Content="{Resx _at}" Width="Auto"/>
+                                <controls:TimecodeEdit Grid.Column="1" Timecode="{Binding ScheduledTimeOfDay, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
+                            </StackPanel>
+                        </DockPanel>
+                        <DockPanel DockPanel.Dock="Top" Visibility="{Binding IsMovieOrLiveOrRundown, Converter={StaticResource BoolToVis}}">
+                            <Label Content="{Resx _requiredAt}" />
+                            <xctk:MaskedTextBox AutoSelectBehavior="OnFocus" Text="{Binding RequestedStartTime, UpdateSourceTrigger=PropertyChanged}" Mask="00:00:00" ToolTip="{Resx _requiredAt.ToolTip}" Margin="1" />
+                        </DockPanel>
+                        <DockPanel DockPanel.Dock="Top" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
+                            <Label Content="{Resx _clip}" />
+                            <Button DockPanel.Dock="Right" ToolTip="{Resx _changeMovie.ToolTip}" Command="{Binding CommandChangeMovie}">
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/select.png" />
+                            </Button>
+                            <Button DockPanel.Dock="Right" ToolTip="{Resx _editMovie.ToolTip}" Command="{Binding CommandEditMovie}">
+                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png" />
+                            </Button>
+                            <TextBox Text="{Binding Media.FileName, Mode=OneWay}" IsReadOnly="True" VerticalContentAlignment="Center" Background="#F0F0F0" />
+                        </DockPanel>
+                        <StackPanel DockPanel.Dock="Top" Visibility="{Binding IsMovieOrLive, Converter={StaticResource BoolToVis}}" >
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
                                     <ColumnDefinition/>
-                                    <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <ComboBox Width="Auto" ItemsSource="{Binding TransitionTypes}" SelectedValue="{Binding TransitionType}" />
-                                <Grid Grid.Column="1" Grid.ColumnSpan="2" Visibility="{Binding IsTransitionPropertiesVisible,Converter={StaticResource BoolToVis}}">
+                                <DockPanel>
+                                    <Label Content="{Resx _duration}" />
+                                    <controls:TimecodeEdit Timecode="{Binding Duration, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" IsEnabled="{Binding IsDurationEnabled}" Height="21" VerticalAlignment="Top" />
+                                </DockPanel>
+                                <DockPanel Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
+                                    <Label Content="{Resx _scheduledTC}" />
+                                    <controls:TimecodeEdit Timecode="{Binding ScheduledTc, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
+                                </DockPanel>
+                            </Grid>
+                            <DockPanel>
+                                <Label Content="{Resx _transitionType}" />
+                                <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition/>
                                         <ColumnDefinition/>
+                                        <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
-                                    <Label Width="Auto" Content="{Resx _easingType}"/>
-                                    <ComboBox Grid.Column="1" Width="Auto" ItemsSource="{Binding TransitionEasings}" SelectedValue="{Binding TransitionEasing}"/>
+                                    <ComboBox Width="Auto" ItemsSource="{Binding TransitionTypes}" SelectedValue="{Binding TransitionType}" />
+                                    <Grid Grid.Column="1" Grid.ColumnSpan="2" Visibility="{Binding IsTransitionPropertiesVisible,Converter={StaticResource BoolToVis}}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Width="Auto" Content="{Resx _easingType}"/>
+                                        <ComboBox Grid.Column="1" Width="Auto" ItemsSource="{Binding TransitionEasings}" SelectedValue="{Binding TransitionEasing}"/>
+                                    </Grid>
                                 </Grid>
-                            </Grid>
-                        </DockPanel>
-                        <DockPanel Visibility="{Binding IsTransitionPropertiesVisible,Converter={StaticResource BoolToVis}}">
-                            <Label Content="{Resx _transitionLength}" ToolTip="{Resx _transitionLength.ToolTip}" />
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <controls:FrameEdit Timecode="{Binding TransitionTime, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
-                                <Label Grid.Column="1"  Width="Auto" Content="{Resx _transitionPauseLength}" ToolTip="{Resx _transitionPauseLength.ToolTip}" />
-                                <controls:FrameEdit Grid.Column="2" Timecode="{Binding TransitionPauseTime, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
-                            </Grid>
-                        </DockPanel>
-                        <DockPanel>
-                            <CheckBox Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" IsChecked="{Binding HasAudioVolume}" ToolTip="{Resx _audioVolume.ToolTip}" />
-                            <Button DockPanel.Dock="Right" ToolTip="{Resx _checkVolume.ToolTip}" Command="{Binding CommandCheckVolume}">
-                                <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png" />
-                            </Button>
-                            <Label DockPanel.Dock="Right" VerticalAlignment="Center" Content="dB" Width="25" />
-                            <TextBox DockPanel.Dock="Right" Grid.Column="2" Width="40" Text="{Binding AudioVolumeLevel, StringFormat={}{0:0.0}, UpdateSourceTrigger=LostFocus}"/>
-                            <Slider  VerticalAlignment="Stretch" Margin="5, 0" Minimum="-18" Maximum="18" Value="{Binding AudioVolumeLevel}"/>
-                        </DockPanel>
-                        <Grid Visibility="{Binding IsDisplayCGElements, Converter={StaticResource BoolToVis}}" >
-                            <StackPanel Visibility="{Binding IsCGEnabled, Converter={StaticResource BoolToVis}}">
-                                <StackPanel Orientation="Horizontal">
-                                    <Label Content="{Resx _gpiLogo}" />
-                                    <ComboBox ItemsSource="{Binding Logos}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Logo}"/>
-                                    <Label Content="{Resx _gpiCrawl}" Width="44"/>
-                                    <ComboBox ItemsSource="{Binding Crawls}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Crawl}"/>
+                            </DockPanel>
+                            <DockPanel Visibility="{Binding IsTransitionPropertiesVisible,Converter={StaticResource BoolToVis}}">
+                                <Label Content="{Resx _transitionLength}" ToolTip="{Resx _transitionLength.ToolTip}" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <controls:FrameEdit Timecode="{Binding TransitionTime, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
+                                    <Label Grid.Column="1"  Width="Auto" Content="{Resx _transitionPauseLength}" ToolTip="{Resx _transitionPauseLength.ToolTip}" />
+                                    <controls:FrameEdit Grid.Column="2" Timecode="{Binding TransitionPauseTime, ValidatesOnDataErrors=True}" VideoFormat="{Binding VideoFormat}" />
+                                </Grid>
+                            </DockPanel>
+                            <DockPanel>
+                                <CheckBox Content="{Resx _audioVolume}" HorizontalContentAlignment="Right" IsChecked="{Binding HasAudioVolume}" ToolTip="{Resx _audioVolume.ToolTip}" />
+                                <Button DockPanel.Dock="Right" ToolTip="{Resx _checkVolume.ToolTip}" Command="{Binding CommandCheckVolume}">
+                                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/volume-measure.png" />
+                                </Button>
+                                <Label DockPanel.Dock="Right" VerticalAlignment="Center" Content="dB" Width="25" />
+                                <TextBox DockPanel.Dock="Right" Grid.Column="2" Width="40" Text="{Binding AudioVolumeLevel, StringFormat={}{0:0.0}, UpdateSourceTrigger=LostFocus}"/>
+                                <Slider  VerticalAlignment="Stretch" Margin="5, 0" Minimum="-18" Maximum="18" Value="{Binding AudioVolumeLevel}"/>
+                            </DockPanel>
+                            <Grid Visibility="{Binding IsDisplayCGElements, Converter={StaticResource BoolToVis}}" >
+                                <StackPanel Visibility="{Binding IsCGEnabled, Converter={StaticResource BoolToVis}}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Content="{Resx _gpiLogo}" />
+                                        <ComboBox ItemsSource="{Binding Logos}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Logo}"/>
+                                        <Label Content="{Resx _gpiCrawl}" Width="44"/>
+                                        <ComboBox ItemsSource="{Binding Crawls}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Crawl}"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Content="{Resx _gpiParental}"/>
+                                        <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Parental}" />
+                                    </StackPanel>
                                 </StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <Label Content="{Resx _gpiParental}"/>
-                                    <ComboBox ItemsSource="{Binding Parentals}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding Parental}" />
-                                </StackPanel>
-                            </StackPanel>
-                            <CheckBox Content="CG" IsChecked="{Binding IsCGEnabled}" VerticalAlignment="Top" Margin="10,5,0,0" />
+                                <CheckBox Content="CG" IsChecked="{Binding IsCGEnabled}" VerticalAlignment="Top" Margin="10,5,0,0" />
+                            </Grid>
+                        </StackPanel>
+                        <Grid DockPanel.Dock="Top" Visibility="{Binding IsStillImage, Converter={StaticResource BoolToVis}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="{Resx _duration}" />
+                            <controls:TimecodeEdit Grid.Column="1" Text="{Binding Duration}" VideoFormat="{Binding VideoFormat}" IsEnabled="{Binding IsDurationEnabled}"  />
                         </Grid>
-                    </StackPanel>
-                    <Grid DockPanel.Dock="Top" Visibility="{Binding IsStillImage, Converter={StaticResource BoolToVis}}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Label Content="{Resx _duration}" />
-                        <controls:TimecodeEdit Grid.Column="1" Text="{Binding Duration}" VideoFormat="{Binding VideoFormat}" IsEnabled="{Binding IsDurationEnabled}"  />
-                    </Grid>
-                    <Grid Visibility="{Binding IsDisplayBindToEnd,Converter={StaticResource BoolToVis}}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Label Content="{Resx _scheduledDelay}" />
-                        <DockPanel Grid.Column="1" DockPanel.Dock="Top" >
-                            <controls:TimecodeEdit Text="{Binding ScheduledDelay}" VideoFormat="{Binding VideoFormat}" />
+                        <Grid DockPanel.Dock="Top" Visibility="{Binding IsDisplayBindToEnd,Converter={StaticResource BoolToVis}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="{Resx _scheduledDelay}" />
+                            <DockPanel Grid.Column="1" DockPanel.Dock="Top" >
+                                <controls:TimecodeEdit Text="{Binding ScheduledDelay}" VideoFormat="{Binding VideoFormat}" />
+                            </DockPanel>
+                            <CheckBox Grid.Column="2" Content="{Resx _fromEnd}" IsChecked="{Binding BindToEnd}" />
+                        </Grid>
+                        <DockPanel DockPanel.Dock="Top" Visibility="{Binding IsCommandScript, Converter={StaticResource BoolToVis}}">
+                            <Label Content="{Resx _command}" />
+                            <TextBox Text="{Binding Command, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Resx _command.ToolTip}"/>
                         </DockPanel>
-                        <CheckBox Grid.Column="2" Content="{Resx _fromEnd}" IsChecked="{Binding BindToEnd}" />
-                    </Grid>
-                    <DockPanel DockPanel.Dock="Top" Visibility="{Binding IsCommandScript, Converter={StaticResource BoolToVis}}">
-                        <Label Content="{Resx _command}" />
-                        <TextBox Text="{Binding Command, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}" ToolTip="{Resx _command.ToolTip}"/>
+                        <views:TemplatedEditView Visibility="{Binding IsAnimation, Converter={StaticResource BoolToVis}}"/>
                     </DockPanel>
-                    <views:TemplatedEditView Visibility="{Binding IsAnimation, Converter={StaticResource BoolToVis}}"/>
-                </StackPanel>
+                    <ContentControl Visibility="{Binding IsContainer, Converter={StaticResource BoolToVis}}" Content="{Binding EventRightsEditViewmodel}">
+                        <ContentControl.Resources>
+                            <DataTemplate DataType="{x:Type vm:EventRightsEditViewmodel}">
+                                <views:EventRightsEditView></views:EventRightsEditView>
+                            </DataTemplate>
+                        </ContentControl.Resources>
+                    </ContentControl>
+                </Grid>
             </DockPanel>
         </ScrollViewer>
     </DockPanel>

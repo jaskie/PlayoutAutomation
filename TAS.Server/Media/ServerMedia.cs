@@ -59,17 +59,17 @@ namespace TAS.Server.Media
                     if (MediaStatus == TMediaStatus.Deleted)
                     {
                         if (IdPersistentMedia != 0)
-                            result = this.DbDelete();
+                            result = this.DbDeleteMedia();
                     }
                     else
                     {
                         if (directory != null)
                         {
                             if (IdPersistentMedia == 0)
-                                result = this.DbInsert(directory.Server.Id);
+                                result = this.DbInsertMedia(directory.Server.Id);
                             else if (IsModified)
                             {
-                                this.DbUpdate(directory.Server.Id);
+                                this.DbUpdateMedia(directory.Server.Id);
                                 result = true;
                             }
                         }

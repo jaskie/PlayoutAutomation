@@ -9,7 +9,7 @@ namespace TAS.Server.Common.Interfaces
         ulong IdEventBinding { get; }
     }
 
-    public interface IEvent: IEventProperties, IPersistent, INotifyPropertyChanged
+    public interface IEvent: IEventProperties, IAclObject, IPersistent, INotifyPropertyChanged
     {
         TPlayState PlayState { get; set; }
         IMedia Media { get; set; }
@@ -17,12 +17,13 @@ namespace TAS.Server.Common.Interfaces
         TimeSpan Length { get; }
         DateTime EndTime { get; }
         TimeSpan? Offset { get; }
-
+        
         IEvent Next { get; }
         IEvent Prior { get; }
         IEvent Parent { get; }
 
-        IList<IEvent> SubEvents { get; }
+        List<IEvent> SubEvents { get; }
+
         int SubEventsCount { get; }
         void InsertAfter(IEvent e);
         void InsertBefore(IEvent e);

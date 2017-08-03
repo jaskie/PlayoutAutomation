@@ -79,8 +79,10 @@
     <Compile Include="EventExtensions.cs" />
     <Compile Include="EventPositionEventArgs.cs" />
     <Compile Include="EventProxy.cs" />
+    <Compile Include="Interfaces\IAclItem.cs" />
     <Compile Include="FileOperationEventArgs.cs" />
     <Compile Include="FileUtils.cs" />
+    <Compile Include="Interfaces\IAclObject.cs" />
     <Compile Include="Interfaces\IAuthenticationService.cs" />
     <Compile Include="Interfaces\ISecurityObject.cs" />
     <Compile Include="Interfaces\IEnginePlugin.cs" />
@@ -144,8 +146,14 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="Properties\Rights.Designer.cs">
+      <DependentUpon>Rights.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
     <Compile Include="RationalNumber.cs" />
     <Compile Include="AuthenticationTypes.cs" />
+    <Compile Include="Rights.cs" />
     <Compile Include="Roles.cs" />
     <Compile Include="SMPTETimecodeExtensions.cs" />
     <Compile Include="VideoFormatDescription.cs" />
@@ -163,6 +171,10 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Enums.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Rights.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Rights.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

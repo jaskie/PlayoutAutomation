@@ -844,7 +844,7 @@ namespace TAS.Server.Common.Database
         }
 
 
-        public static bool DbInsert(this IEventPesistent aEvent)
+        public static bool DbInsertEvent(this IEventPesistent aEvent)
         {
             lock (_connection)
             {
@@ -859,7 +859,7 @@ VALUES
                         if (_eventFillParamsAndExecute(cmd, aEvent))
                         {
                             aEvent.Id = (ulong)cmd.LastInsertedId;
-                            Debug.WriteLine("Event DbInsert Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
+                            Debug.WriteLine("Event DbInsertSecurityObject Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
                             if (aEvent is ITemplated)
                                 _eventAnimatedSave(aEvent.Id, aEvent as ITemplated, true);
                             transaction.Commit();
@@ -870,7 +870,7 @@ VALUES
             return false;
         }
 
-        public static bool DbUpdate(this IEventPesistent aEvent)
+        public static bool DbUpdateEvent<TEvent>(this TEvent aEvent) where  TEvent: IEventPesistent
         {
             lock (_connection)
             {
@@ -907,7 +907,7 @@ WHERE idRundownEvent=@idRundownEvent;";
                         cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
                         if (_eventFillParamsAndExecute(cmd, aEvent))
                         {
-                            Debug.WriteLine("Event DbUpdate Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
+                            Debug.WriteLine("Event DbUpdateSecurityObject Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
                             if (aEvent is ITemplated)
                                 _eventAnimatedSave(aEvent.Id, aEvent as ITemplated, false);
                             transaction.Commit();
@@ -919,7 +919,7 @@ WHERE idRundownEvent=@idRundownEvent;";
             return false;
         }
 
-        public static bool DbDelete(this IEventPesistent aEvent)
+        public static bool DbDeleteEvent(this IEventPesistent aEvent)
         {
             lock (_connection)
             {
@@ -927,7 +927,7 @@ WHERE idRundownEvent=@idRundownEvent;";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
                 cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
                 cmd.ExecuteNonQuery();
-                Debug.WriteLine("Event DbDelete Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
+                Debug.WriteLine("Event DbDeleteMediaSegment Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
                 return true;
             }
         }
@@ -1006,6 +1006,88 @@ VALUES
         }
 
         #endregion // IEvent
+
+        #region ACL
+
+        public static List<IAclItem> DbReadEventAclList<TEventAcl>(IEventPesistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclItem, IPersistent, new()
+        {
+            if (aEvent == null)
+                return null;
+            lock (_connection)
+            {
+                DbCommandRedundant cmd =
+                    new DbCommandRedundant("SELECT * FROM rundownevent_acl WHERE idRundownEvent = @idRundownEvent;",
+                        _connection);
+                cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
+                List<IAclItem> acl = new List<IAclItem>();
+                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        var item = new TEventAcl
+                        {
+                            Id = dataReader.GetUInt64("idRundownevent_ACL"),
+                            Owner = aEvent,
+                            SecurityObject = authenticationService.FindSecurityObject(dataReader.GetUInt64("idACO")),
+                            Acl = dataReader.GetUInt64("ACL")
+                        };
+                        acl.Add(item);
+                    }
+                }
+                return acl;
+            }
+        }
+
+        public static bool DbInsertEventAcl<TEventAcl>(this TEventAcl acl) where TEventAcl: IAclItem, IPersistent
+        {
+            if (acl?.Owner == null)
+                return false;
+            lock (_connection)
+            {
+                using (DbCommandRedundant cmd =
+                    new DbCommandRedundant(
+                        "INSERT INTO rundownevent_acl (idRundownEvent, idACO, ACL) VALUES (@idRundownEvent, @idACO, @ACL);",
+                        _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idRundownEvent", acl.Owner.Id);
+                    cmd.Parameters.AddWithValue("@idACO", acl.Id);
+                    cmd.Parameters.AddWithValue("@ACL", acl.Acl);
+                    if (cmd.ExecuteNonQuery() == 1)
+                        acl.Id = (ulong) cmd.LastInsertedId;
+                    return true;
+                }
+            }
+        }
+
+        public static bool DbUpdateEventAcl<TEventAcl>(this TEventAcl acl) where TEventAcl: IAclItem, IPersistent
+        {
+            lock (_connection)
+            {
+                using (DbCommandRedundant cmd =
+                    new DbCommandRedundant(
+                        "UPDATE rundownevent_acl SET ACL=@ACL WHERE idRundownevent_ACL=@idRundownevent_ACL;",
+                        _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idRundownevent_ACL", acl.Id);
+                    cmd.Parameters.AddWithValue("@ACL", acl.Acl);
+                    return cmd.ExecuteNonQuery() == 1;
+                }
+            }
+        }
+
+        public static bool DbDeleteEventAcl<TEventAcl>(this TEventAcl acl) where TEventAcl : IAclItem, IPersistent
+        {
+            lock (_connection)
+            {
+                string query = "DELETE FROM rundownevent_acl WHERE idRundownevent_ACL=@idRundownevent_ACL;";
+                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                cmd.Parameters.AddWithValue("@idRundownevent_ACL", acl.Id);
+                cmd.ExecuteNonQuery();
+                return cmd.ExecuteNonQuery() == 1;
+            }
+        }
+
+        #endregion //ACL
 
         #region Media
         private static void _mediaFillParamsAndExecute(DbCommandRedundant cmd, IPersistentMedia media, ulong serverId)
@@ -1245,7 +1327,7 @@ VALUES
             }
         }
 
-        public static bool DbInsert(this IAnimatedMedia animatedMedia, ulong serverId )
+        public static bool DbInsertMedia(this IAnimatedMedia animatedMedia, ulong serverId )
         {
             bool result = false;
             lock (_connection)
@@ -1254,7 +1336,7 @@ VALUES
                 {
                     try
                     {
-                        result = _dbInsert(animatedMedia, serverId);
+                        result = _dbInsertMedia(animatedMedia, serverId);
                         if (result)
                             result = _insert_media_templated(animatedMedia);
                     }
@@ -1270,13 +1352,13 @@ VALUES
             return result;
         }
 
-        public static bool DbInsert(this IServerMedia serverMedia, ulong serverId)
+        public static bool DbInsertMedia(this IServerMedia serverMedia, ulong serverId)
         {
             lock (_connection)
-                return _dbInsert(serverMedia, serverId);
+                return _dbInsertMedia(serverMedia, serverId);
         }
 
-        private static bool _dbInsert(IPersistentMedia media, ulong serverId)
+        private static bool _dbInsertMedia(IPersistentMedia media, ulong serverId)
         {
             string query =
 @"INSERT INTO servermedia 
@@ -1290,7 +1372,7 @@ VALUES
             return true;
         }
 
-        public static bool DbInsert(this IArchiveMedia archiveMedia, ulong serverid)
+        public static bool DbInsertMedia(this IArchiveMedia archiveMedia, ulong serverid)
         {
             lock (_connection)
             {
@@ -1306,15 +1388,15 @@ VALUES
             return true;
         }
 
-        public static bool DbDelete(this IServerMedia serverMedia)
+        public static bool DbDeleteMedia(this IServerMedia serverMedia)
         {
             lock (_connection)
             {
-                return _dbDelete(serverMedia);
+                return _dbDeleteMedia(serverMedia);
             }
         }
 
-        public static bool DbDelete(this IAnimatedMedia animatedMedia)
+        public static bool DbDeleteMedia(this IAnimatedMedia animatedMedia)
         {
             lock (_connection)
             {
@@ -1323,7 +1405,7 @@ VALUES
                 {
                     try
                     {
-                        result = _dbDelete(animatedMedia);
+                        result = _dbDeleteMedia(animatedMedia);
                         if (result)
                             result = _delete_media_templated(animatedMedia);
                     }
@@ -1340,7 +1422,7 @@ VALUES
         }
 
 
-        private static bool _dbDelete(IPersistentMedia serverMedia)
+        private static bool _dbDeleteMedia(IPersistentMedia serverMedia)
         {
             string query = "DELETE FROM ServerMedia WHERE idServerMedia=@idServerMedia;";
             DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
@@ -1348,7 +1430,7 @@ VALUES
             return cmd.ExecuteNonQuery() == 1;
         }
 
-        public static bool DbDelete(this IArchiveMedia archiveMedia)
+        public static bool DbDeleteMedia(this IArchiveMedia archiveMedia)
         {
             lock (_connection)
             {
@@ -1359,7 +1441,7 @@ VALUES
             }
         }
 
-        public static void DbUpdate(this IAnimatedMedia animatedMedia, ulong serverId)
+        public static void DbUpdateMedia(this IAnimatedMedia animatedMedia, ulong serverId)
         {
             lock (_connection)
             {
@@ -1367,7 +1449,7 @@ VALUES
                 {
                     try
                     {
-                        _dbUpdate(animatedMedia, serverId);
+                        _dbUpdateMedia(animatedMedia, serverId);
                         _update_media_templated(animatedMedia);
                         transaction.Commit();
                     }
@@ -1380,13 +1462,13 @@ VALUES
         }
 
 
-        public static void DbUpdate(this IServerMedia serverMedia, ulong serverId)
+        public static void DbUpdateMedia(this IServerMedia serverMedia, ulong serverId)
         {
             lock (_connection)
-                _dbUpdate(serverMedia, serverId);
+                _dbUpdateMedia(serverMedia, serverId);
         }
 
-        private static void _dbUpdate(IPersistentMedia serverMedia, ulong serverId)
+        private static void _dbUpdateMedia(IPersistentMedia serverMedia, ulong serverId)
         {
             string query =
                 @"UPDATE ServerMedia SET 
@@ -1419,7 +1501,7 @@ WHERE idServerMedia=@idServerMedia;";
             Debug.WriteLine(serverMedia, "ServerMediaUpdate-d");
         }
 
-        public static void DbUpdate(this IArchiveMedia archiveMedia, ulong serverId)
+        public static void DbUpdateMedia(this IArchiveMedia archiveMedia, ulong serverId)
         {
             lock (_connection)
             {
@@ -1510,7 +1592,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             }
         }
 
-        public static void DbDelete(this IMediaSegment mediaSegment)
+        public static void DbDeleteMediaSegment(this IMediaSegment mediaSegment)
         {
             var ps = mediaSegment as IPersistent;
             if (ps != null && ps.Id!= 0)
@@ -1526,7 +1608,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
         }
 
 
-        public static ulong DbSave(this IMediaSegment mediaSegment)
+        public static ulong DbSaveMediaSegment(this IMediaSegment mediaSegment)
         {
             var ps = mediaSegment as IPersistent;
             if (ps == null)
@@ -1555,13 +1637,13 @@ WHERE idArchiveMedia=@idArchiveMedia;";
 
         #region Security
 
-        public static void DbInsert(this ISecurityObject aco)
+        public static void DbInsertSecurityObject(this ISecurityObject aco)
         {
             var pAco = aco as IPersistent;
             if (pAco == null)
             {
 #if  DEBUG
-                throw new NoNullAllowedException("DbInsert: operation on null");
+                throw new NoNullAllowedException("DbInsertSecurityObject: operation on null");
 #endif
                 return;
             }
@@ -1582,13 +1664,13 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             }
         }
 
-        public static void DbDelete(this ISecurityObject aco)
+        public static void DbDeleteSecurityObject(this ISecurityObject aco)
         {
             var pAco = aco as IPersistent;
             if (pAco == null || pAco.Id == 0)
             {
 #if  DEBUG
-                throw new ApplicationException("DbDelete: operation on null or not saved object");
+                throw new ApplicationException("DbDeleteMediaSegment: operation on null or not saved object");
 #endif
                 return;
             }
@@ -1602,13 +1684,13 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             }
         }
 
-        public static void DbUpdate(this ISecurityObject aco)
+        public static void DbUpdateSecurityObject(this ISecurityObject aco)
         {
             var pAco = aco as IPersistent;
             if (pAco == null || pAco.Id == 0)
             {
 #if  DEBUG
-                throw new ApplicationException("DbUpdate: operation on null or not saved object");
+                throw new ApplicationException("DbUpdateSecurityObject: operation on null or not saved object");
 #endif
                 return;
             }

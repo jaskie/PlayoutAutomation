@@ -442,8 +442,8 @@ namespace TAS.Server.Media
                     {
                         ThreadPool.QueueUserWorkItem(o =>
                         {
-                            (prevMedia as IAnimatedMedia)?.DbDelete();
-                            (prevMedia as IServerMedia)?.DbDelete();
+                            (prevMedia as IAnimatedMedia)?.DbDeleteMedia();
+                            (prevMedia as IServerMedia)?.DbDeleteMedia();
                             Logger.Warn("Media {0} replaced in dictionary. Previous media deleted in database.",
                                 prevMedia);
                         });

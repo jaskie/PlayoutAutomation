@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -23,6 +24,51 @@ namespace TAS.Client.Common
         {
             SetBusyState(true);
         }
+
+        /// <summary>
+        /// Shows window with content and dispose provided viewmodel
+        /// </summary>
+        /// <typeparam name="TView">type of UserControl class to show content</typeparam>
+        /// <param name="viewmodel">DataContext of the view</param>
+        public static void ShowWindow<TView>(ViewmodelBase viewmodel, string windowTitle, double width, double height) where TView: UserControl, new()
+        {
+            var newWindow = new Window
+            {
+                Title = windowTitle,
+                Width = width,
+                Height = height,
+                Owner = Application.Current.MainWindow,
+                Content = new TView { DataContext = viewmodel }
+            };
+            newWindow.Closed += (sender, args) => viewmodel.Dispose();
+            newWindow.Show();
+        }
+
+        /// <summary>
+        /// Shows modal dialog with content and dispose provided viewmodel
+        /// </summary>
+        /// <typeparam name="TView">type of UserControl class to show content</typeparam>
+        /// <param name="viewmodel">DataContext of the view</param>
+        public static bool? ShowDialog<TView>(ViewmodelBase viewmodel, string windowTitle, double width, double height) where TView : UserControl, new()
+        {
+            try
+            {
+                var newWindow = new Window
+                {
+                    Title = windowTitle,
+                    Width = width,
+                    Height = height,
+                    Owner = Application.Current.MainWindow,
+                    Content = new TView {DataContext = viewmodel}
+                };
+                return newWindow.ShowDialog();
+            }
+            finally
+            {
+                viewmodel.Dispose();
+            }
+        }
+
 
         /// <summary>
         /// Sets the busystate to busy or not busy.

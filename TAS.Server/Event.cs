@@ -12,10 +12,11 @@ using System.Runtime.CompilerServices;
 using TAS.Server.Common.Database;
 using TAS.Server.Common.Interfaces;
 using TAS.Server.Media;
+using TAS.Server.Security;
 
 namespace TAS.Server
 {
-    [DebuggerDisplay("{_eventName}")]
+    [DebuggerDisplay("{" + nameof(_eventName) + "}")]
     public class Event : DtoBase, IEventPesistent, IComparable
     {
         bool _isForcedNext;
@@ -30,6 +31,7 @@ namespace TAS.Server
         private Lazy<Event> _parent;
         private Lazy<Event> _prior;
         private Lazy<Event> _next;
+        private Lazy<List<IAclItem>> _rights;
         private bool _isDeleted;
         private bool _isCGEnabled;
         private byte _crawl;
@@ -165,6 +167,8 @@ namespace TAS.Server
                     return (Event)Engine.DbReadEvent(_idEventBinding);
                 return null;
             });
+
+            _rights = new Lazy<List<IAclItem>>(() => Database.DbReadEventAclList<EventAclItem>(this, EngineController.AuthenticationService));
         }
         #endregion //Constructor
 
@@ -410,9 +414,39 @@ namespace TAS.Server
                 _setMedia(null, value);
             }
         }
-        
+
         #endregion //IEventProperties
-        
+
+        #region IAclObject
+
+        public List<IAclItem> Rights
+        {
+            get
+            {
+                lock (_rights) return _rights.Value;
+            }
+        }
+
+        public IAclItem AddRightFor(ISecurityObject securityObject)
+        {
+            var right = new EventAclItem { Owner = this, SecurityObject = securityObject };
+            lock (_rights)
+            {
+                _rights.Value.Add(right);
+            }
+            return right;
+        }
+
+        public bool DeleteRight(IAclItem item)
+        {
+            lock (_rights)
+            {
+                return _rights.Value.Remove(item);
+            }
+        }
+
+        #endregion // IAclObject
+
         [JsonProperty]
         public bool IsForcedNext { get { return _isForcedNext; } set { SetField(ref _isForcedNext, value); } }
 
@@ -451,7 +485,7 @@ namespace TAS.Server
         }
 
         public event EventHandler<EventPositionEventArgs> PositionChanged;
-        public IList<IEvent> SubEvents { get { lock (_subEvents.Value.SyncRoot) return _subEvents.Value.Cast<IEvent>().ToList(); } }
+        public List<IEvent> SubEvents { get { lock (_subEvents.Value.SyncRoot) return _subEvents.Value.Cast<IEvent>().ToList(); } }
 
         public int SubEventsCount => _subEvents.Value.Count;
 
@@ -900,9 +934,9 @@ namespace TAS.Server
             try
             {
                 if (_id == 0)
-                    this.DbInsert();
+                    this.DbInsertEvent();
                 else
-                    this.DbUpdate();
+                    this.DbUpdateEvent();
                 IsModified = false;
                 NotifySaved();
             }
@@ -1038,7 +1072,7 @@ namespace TAS.Server
                 (se as Event)?._delete();
             }
             _isDeleted = true;
-            this.DbDelete();
+            this.DbDeleteEvent();
             NotifyDeleted();
             _isModified = false;
             Dispose();

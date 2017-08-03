@@ -10,53 +10,60 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Security
 {
-    public class AcoHive<TItem> where TItem : ISecurityObject
+    public class AcoHive<TItem> where TItem : ISecurityObject, IPersistent
+
     {
-        private readonly List<TItem> _items;
+    private readonly List<TItem> _items;
 
-        internal AcoHive(IEnumerable<TItem> items)
-        {
-            _items = new List<TItem>(items);
-        }
+    internal AcoHive(IEnumerable<TItem> items)
+    {
+        _items = new List<TItem>(items);
+    }
 
-        public IList<TItem> Items
+    public IList<TItem> Items
+    {
+        get
         {
-            get
-            {
-                lock (((IList)_items).SyncRoot)
-                    return _items.ToList();
-            }
-        }
-
-        public bool Add(TItem item)
-        {
-            bool result = false;
             lock (((IList) _items).SyncRoot)
-            {
-                if (!_items.Contains(item))
-                {
-                    _items.Add(item);
-                    result = true;
-                }
-            }
-            if (result)
-                AcoOperartion?.Invoke(this, new CollectionOperationEventArgs<TItem>(item, CollectionOperation.Add));
-            return result;
+                return _items.ToList();
         }
+    }
 
-        public bool Remove(TItem item)
+    public bool Add(TItem item)
+    {
+        bool result = false;
+        lock (((IList) _items).SyncRoot)
         {
-            bool isRemoved;
-            lock (((IList)_items).SyncRoot)
-                isRemoved = _items.Remove(item);
-            if (isRemoved)
+            if (!_items.Contains(item))
             {
-                item.DbDelete();
-                AcoOperartion?.Invoke(this, new CollectionOperationEventArgs<TItem>(item, CollectionOperation.Remove));
+                _items.Add(item);
+                result = true;
             }
-            return isRemoved;
         }
+        if (result)
+            AcoOperartion?.Invoke(this, new CollectionOperationEventArgs<TItem>(item, CollectionOperation.Add));
+        return result;
+    }
 
-        public event EventHandler<CollectionOperationEventArgs<TItem>> AcoOperartion;
+    public bool Remove(TItem item)
+    {
+        bool isRemoved;
+        lock (((IList) _items).SyncRoot)
+            isRemoved = _items.Remove(item);
+        if (isRemoved)
+        {
+            item.DbDeleteSecurityObject();
+            AcoOperartion?.Invoke(this, new CollectionOperationEventArgs<TItem>(item, CollectionOperation.Remove));
+        }
+        return isRemoved;
+    }
+
+    public TItem FindById(ulong id)
+    {
+        lock (((IList) _items).SyncRoot)
+            return _items.Find(i => i.Id == id);
+    }
+
+    public event EventHandler<CollectionOperationEventArgs<TItem>> AcoOperartion;
     }
 }

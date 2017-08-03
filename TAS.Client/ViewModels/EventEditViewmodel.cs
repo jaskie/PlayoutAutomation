@@ -19,7 +19,7 @@ namespace TAS.Client.ViewModels
         private readonly EngineViewmodel _engineViewModel;
         private readonly PreviewViewmodel _previewViewModel;
         private MediaSearchViewmodel _mediaSearchViewModel;
-
+        private EventRightsEditViewmodel _eventRightsEditViewmodel;
         private IEvent _event;
         private bool _isLoading;
         private IMedia _media;
@@ -333,14 +333,9 @@ namespace TAS.Client.ViewModels
 
         public bool IsTransitionPropertiesVisible => _transitionType != TTransitionType.Cut;
 
-        public bool IsNotContainer
-        {
-            get
-            {
-                var ev = _event;
-                return ev != null && ev.EventType != TEventType.Container;
-            }
-        }
+        public bool IsEmpty => _event == null;
+
+        public bool IsContainer => _event?.EventType == TEventType.Container;
 
         public bool CanHold => _event != null && _event.Prior != null;
 
@@ -723,6 +718,22 @@ namespace TAS.Client.ViewModels
 
         public IEnumerable<ICGElement> Parentals => _engine.CGElementsController?.Parentals;
 
+        public EventRightsEditViewmodel EventRightsEditViewmodel
+        {
+            get { return _eventRightsEditViewmodel; }
+            private set
+            {
+                var oldValue = _eventRightsEditViewmodel;
+                if (SetField(ref _eventRightsEditViewmodel, value, setIsModified: false))
+                {
+                    if (value != null)
+                        value.Modified += Rights_Modified;
+                    if (oldValue != null)
+                        oldValue.Modified -= Rights_Modified;
+                }
+            }
+        }
+
         public override string ToString()
         {
             return $"{Infralution.Localization.Wpf.ResourceEnumConverter.ConvertToString(EventType)} - {EventName}";
@@ -778,6 +789,8 @@ namespace TAS.Client.ViewModels
             if (e2Save != null && e2Save.IsModified)
             {
                 e2Save.Save();
+                if (EventRightsEditViewmodel?.IsModified == true)
+                    EventRightsEditViewmodel.Save();
                 _load(null);
             }
         }
@@ -812,6 +825,7 @@ namespace TAS.Client.ViewModels
                             zeroPi.SetValue(this, null, null);
                     }
                 }
+                EventRightsEditViewmodel = e2Load?.EventType == TEventType.Container ? new EventRightsEditViewmodel(e2Load, _engineViewModel.AuthenticationService) : null;
             }
             finally
             {
@@ -1139,6 +1153,12 @@ namespace TAS.Client.ViewModels
             EventName = e.MediaName;
             _setCGElements(e.Media);
         }
+
+        private void Rights_Modified(object sender, EventArgs e)
+        {
+            IsModified = true;
+        }
+
     }
 
 }

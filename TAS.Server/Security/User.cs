@@ -78,16 +78,16 @@ namespace TAS.Server.Security
             if (Id == default(ulong))
             {
                 AuthenticationService.AddUser(this);
-                this.DbInsert();
+                this.DbInsertSecurityObject();
             }
             else
-                this.DbUpdate();
+                this.DbUpdateSecurityObject();
         }
 
         public override void Delete()
         {
             AuthenticationService.RemoveUser(this);
-            this.DbDelete();
+            this.DbDeleteSecurityObject();
         }
 
         internal void PopulateGroups(List<Group> allGroups)

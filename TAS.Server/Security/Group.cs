@@ -23,16 +23,16 @@ namespace TAS.Server.Security
             if (Id == default(ulong))
             {
                 AuthenticationService.AddGroup(this);
-                this.DbInsert();
+                this.DbInsertSecurityObject();
             }
             else
-                this.DbUpdate();
+                this.DbUpdateSecurityObject();
         }
 
         public override void Delete()
         {
             AuthenticationService.RemoveGroup(this);
-            this.DbDelete();
+            this.DbDeleteSecurityObject();
         }
     }
 }

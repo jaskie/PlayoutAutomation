@@ -111,6 +111,7 @@
     <Compile Include="ViewModels\EventPanelRundownViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelStillViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelViewmodelBase.cs" />
+    <Compile Include="ViewModels\EventRightsEditViewmodel.cs" />
     <Compile Include="ViewModels\ExportMediaLogoViewmodel.cs" />
     <Compile Include="ViewModels\ExportViewmodel.cs" />
     <Compile Include="ViewModels\FileManagerViewmodel.cs" />
@@ -179,6 +180,9 @@
     <Compile Include="Views\EventPanelStillView.xaml.cs">
       <DependentUpon>EventPanelStillView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\EventRightsEditView.xaml.cs">
+      <DependentUpon>EventRightsEditView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ExportView.xaml.cs">
       <DependentUpon>ExportView.xaml</DependentUpon>
     </Compile>
@@ -209,6 +213,9 @@
     </Compile>
     <Compile Include="Views\RecordersView.xaml.cs">
       <DependentUpon>RecordersView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SecurityObjectSelectorView.xaml.cs">
+      <DependentUpon>SecurityObjectSelectorView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TemplatedEditView.xaml.cs">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
@@ -306,6 +313,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\EventRightsEditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ExportView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -343,6 +354,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\RecordersView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SecurityObjectSelectorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -466,22 +481,22 @@
     <EmbeddedResource Include="Views\TemplatedEditView.resx">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\UserManagerView.pl.resx" >
+    <EmbeddedResource Include="Views\UserManagerView.pl.resx">
       <DependentUpon>UserManagerView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\UserManagerView.resx" >
+    <EmbeddedResource Include="Views\UserManagerView.resx">
       <DependentUpon>UserManagerView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\GroupView.resx" >
+    <EmbeddedResource Include="Views\GroupView.resx">
       <DependentUpon>GroupView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\GroupView.pl.resx" >
+    <EmbeddedResource Include="Views\GroupView.pl.resx">
       <DependentUpon>GroupView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\UserView.pl.resx" >
+    <EmbeddedResource Include="Views\UserView.pl.resx">
       <DependentUpon>UserView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\UserView.resx" >
+    <EmbeddedResource Include="Views\UserView.resx">
       <DependentUpon>UserView.xaml</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>

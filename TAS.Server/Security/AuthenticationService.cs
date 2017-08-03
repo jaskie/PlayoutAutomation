@@ -6,10 +6,10 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Security
 {
-    public class AuthenticationService: DtoBase, IAuthenticationService
+    public class AuthenticationService: DtoBase, IAuthenticationService, IAuthenticationServicePersitency
     {
-        private readonly AcoHive<User> _users;
-        private readonly AcoHive<Group> _groups;
+        private readonly AcoHive<IUser> _users;
+        private readonly AcoHive<IGroup> _groups;
 
         public AuthenticationService(List<User> users, List<Group> groups)
         {
@@ -20,16 +20,16 @@ namespace TAS.Server.Security
             });
             groups.ForEach(g => g.AuthenticationService = this);
 
-            _users = new AcoHive<User>(users);
+            _users = new AcoHive<IUser>(users);
             _users.AcoOperartion += Users_AcoOperation;
 
-            _groups = new AcoHive<Group>(groups);
+            _groups = new AcoHive<IGroup>(groups);
             _groups.AcoOperartion += Groups_AcoOperation;
         }
 
-        public IEnumerable<IUser> Users => _users.Items;
+        public IList<IUser> Users => _users.Items;
 
-        public IEnumerable<IGroup> Groups => _groups.Items;
+        public IList<IGroup> Groups => _groups.Items;
 
         public IUser CreateUser() => new User(this);
 
@@ -43,6 +43,11 @@ namespace TAS.Server.Security
 
         public bool RemoveGroup(IGroup group) => _groups.Remove((Group)group);
 
+        public ISecurityObject FindSecurityObject(ulong id)
+        {
+            return (ISecurityObject)_groups.FindById(id) ?? _users.FindById(id);
+        }
+
 
         public event EventHandler<CollectionOperationEventArgs<IUser>> UsersOperation;
 
@@ -55,12 +60,12 @@ namespace TAS.Server.Security
             base.DoDispose();
         }
 
-        private void Users_AcoOperation(object sender, CollectionOperationEventArgs<User> e)
+        private void Users_AcoOperation(object sender, CollectionOperationEventArgs<IUser> e)
         {
             UsersOperation?.Invoke(this, new CollectionOperationEventArgs<IUser>(e.Item, e.Operation));
         }
 
-        private void Groups_AcoOperation(object sender, CollectionOperationEventArgs<Group> e)
+        private void Groups_AcoOperation(object sender, CollectionOperationEventArgs<IGroup> e)
         {
             GroupsOperation?.Invoke(this, new CollectionOperationEventArgs<IGroup>(e.Item, e.Operation));
         }
