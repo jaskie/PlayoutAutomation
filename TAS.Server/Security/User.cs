@@ -58,7 +58,6 @@ namespace TAS.Server.Security
             {
                 _groups.Add(group);
             }
-            this.DbUpdate();
             NotifyPropertyChanged(nameof(Groups));
         }
 
@@ -70,10 +69,7 @@ namespace TAS.Server.Security
                 isRemoved = _groups.Remove(group);
             }
             if (isRemoved)
-            {
-                this.DbUpdate();
                 NotifyPropertyChanged(nameof(Groups));
-            }
             return isRemoved;
         }
 

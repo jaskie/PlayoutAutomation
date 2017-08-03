@@ -12,6 +12,7 @@ using TAS.Client.Common;
 using TAS.Server.Common;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition;
+using System.Security.Permissions;
 using TAS.Client.Common.Plugin;
 using TAS.Server.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
@@ -20,14 +21,11 @@ namespace TAS.Client.ViewModels
 {
     public class EngineViewmodel : ViewmodelBase
     {
-        private readonly IEngine _engine;
         private readonly IAuthenticationService _authenticationService;
-        private readonly PreviewViewmodel _previewViewmodel;
         private readonly EventEditViewmodel _eventEditViewmodel;
         private readonly VideoFormatDescription _videoFormatDescription;
         private readonly EngineCGElementsControllerViewmodel _cGElementsControllerViewmodel;
         private readonly bool _allowPlayControl;
-        private readonly EventPanelViewmodelBase _rootEventViewModel;
         private EventPanelViewmodelBase _selectedEvent;
         private DateTime _currentTime;
         private TimeSpan _timeToAttention;
@@ -43,29 +41,29 @@ namespace TAS.Client.ViewModels
         public EngineViewmodel(IEngine engine, IPreview preview, bool allowPlayControl, IAuthenticationService authenticationService)
         {
             Debug.WriteLine($"Creating EngineViewmodel for {engine}");
-            _engine = engine;
+            Engine = engine;
             _authenticationService = authenticationService;
             VideoFormat = engine.VideoFormat;
             _videoFormatDescription = engine.FormatDescription;
             _allowPlayControl = allowPlayControl;
 
             // Creating root EventViewmodel
-            _rootEventViewModel = new EventPanelRootViewmodel(this);
-            _engine.EngineTick += _engineTick;
-            _engine.EngineOperation += _engineOperation;
-            _engine.PropertyChanged += _enginePropertyChanged;
-            _engine.VisibleEventAdded += _engine_VisibleEventAdded;
-            _engine.VisibleEventRemoved += _engine_VisibleEventRemoved;
-            _engine.RunningEventsOperation += OnEngineRunningEventsOperation;
+            RootEventViewModel = new EventPanelRootViewmodel(this);
+            Engine.EngineTick += _engineTick;
+            Engine.EngineOperation += _engineOperation;
+            Engine.PropertyChanged += _enginePropertyChanged;
+            Engine.VisibleEventAdded += _engine_VisibleEventAdded;
+            Engine.VisibleEventRemoved += _engine_VisibleEventRemoved;
+            Engine.RunningEventsOperation += OnEngineRunningEventsOperation;
             _composePlugins();
 
 
             // Creating Preview
             if (preview != null && allowPlayControl)
-                _previewViewmodel = new PreviewViewmodel(preview) { IsSegmentsVisible = true };
+                PreviewViewmodel = new PreviewViewmodel(preview) { IsSegmentsVisible = true };
 
             // Creating EventEditViewmodel
-            _eventEditViewmodel = new EventEditViewmodel(this, _previewViewmodel);
+            _eventEditViewmodel = new EventEditViewmodel(this, PreviewViewmodel);
 
             _createCommands();
 
@@ -150,14 +148,28 @@ namespace TAS.Client.ViewModels
         public ICommand CommandUndoEdit { get; private set; }
         #endregion // Editor commands
         public ICommand CommandUserManager { get; private set; }
+        
+        public bool IsDebugBuild
+        {
+            get
+            {
+#if DEBUG
+                return true;
+#else
+                return false;
+#endif
+            }
+        }
 
-        public IEngine Engine => _engine;
+        public IEngine Engine { get; }
+
+        public EventPanelViewmodelBase RootEventViewModel { get; }
+
+        public PreviewViewmodel PreviewViewmodel { get; }
 
         public bool IsSearchPanelVisible { get { return _isSearchPanelVisible; } set { SetField(ref _isSearchPanelVisible, value); } }
 
         public bool IsSearchBoxFocused { get { return _isSearchBoxFocused; } set { SetField(ref _isSearchBoxFocused, value); } }
-
-        public PreviewViewmodel PreviewViewmodel => _previewViewmodel;
 
         public EngineCGElementsControllerViewmodel CGElementsControllerViewmodel => _cGElementsControllerViewmodel;
 
@@ -169,7 +181,7 @@ namespace TAS.Client.ViewModels
                 if (SetField(ref _trackPlayingEvent, value))
                     if (value)
                     {
-                        IEvent cp = _engine.Playing;
+                        IEvent cp = Engine.Playing;
                         if (cp != null)
                             SetOnTopView(cp);
                     }
@@ -181,38 +193,38 @@ namespace TAS.Client.ViewModels
 
         protected override void OnDispose()
         {
-            _engine.EngineTick -= _engineTick;
-            _engine.EngineOperation -= _engineOperation;
-            _engine.PropertyChanged -= _enginePropertyChanged;
-            _engine.VisibleEventAdded -= _engine_VisibleEventAdded;
-            _engine.VisibleEventRemoved -= _engine_VisibleEventRemoved;
-            _engine.RunningEventsOperation -= OnEngineRunningEventsOperation;
+            Engine.EngineTick -= _engineTick;
+            Engine.EngineOperation -= _engineOperation;
+            Engine.PropertyChanged -= _enginePropertyChanged;
+            Engine.VisibleEventAdded -= _engine_VisibleEventAdded;
+            Engine.VisibleEventRemoved -= _engine_VisibleEventRemoved;
+            Engine.RunningEventsOperation -= OnEngineRunningEventsOperation;
 
             _multiSelectedEvents.CollectionChanged -= _selectedEvents_CollectionChanged;
             EventClipboard.ClipboardChanged -= _engineViewmodel_ClipboardChanged;
-            if (_engine.PlayoutChannelPRI != null)
-                _engine.PlayoutChannelPRI.PropertyChanged -= OnServerChannelPropertyChanged;
-            if (_engine.PlayoutChannelSEC != null)
-                _engine.PlayoutChannelSEC.PropertyChanged -= OnServerChannelPropertyChanged;
-            if (_engine.PlayoutChannelPRV != null)
-                _engine.PlayoutChannelPRV.PropertyChanged -= OnServerChannelPropertyChanged;
+            if (Engine.PlayoutChannelPRI != null)
+                Engine.PlayoutChannelPRI.PropertyChanged -= OnServerChannelPropertyChanged;
+            if (Engine.PlayoutChannelSEC != null)
+                Engine.PlayoutChannelSEC.PropertyChanged -= OnServerChannelPropertyChanged;
+            if (Engine.PlayoutChannelPRV != null)
+                Engine.PlayoutChannelPRV.PropertyChanged -= OnServerChannelPropertyChanged;
             if (_videoPreview != null)
                 _videoPreview.Dispose();
         }
         
 
-        #region Command methods
+#region Command methods
 
         private void _createCommands()
         {
-            CommandClearAll = new UICommand() { ExecuteDelegate = o => _engine.Clear(), CanExecuteDelegate = _canClear };
-            CommandClearLayer = new UICommand() { ExecuteDelegate = layer => _engine.Clear((VideoLayer)int.Parse((string)layer)), CanExecuteDelegate = _canClear };
-            CommandClearMixer = new UICommand() { ExecuteDelegate = o => _engine.ClearMixer(), CanExecuteDelegate = _canClear };
-            CommandRestart = new UICommand() { ExecuteDelegate = ev => _engine.Restart(), CanExecuteDelegate = _canClear };
+            CommandClearAll = new UICommand() { ExecuteDelegate = o => Engine.Clear(), CanExecuteDelegate = _canClear };
+            CommandClearLayer = new UICommand() { ExecuteDelegate = layer => Engine.Clear((VideoLayer)int.Parse((string)layer)), CanExecuteDelegate = _canClear };
+            CommandClearMixer = new UICommand() { ExecuteDelegate = o => Engine.ClearMixer(), CanExecuteDelegate = _canClear };
+            CommandRestart = new UICommand() { ExecuteDelegate = ev => Engine.Restart(), CanExecuteDelegate = _canClear };
             CommandStartSelected = new UICommand() { ExecuteDelegate = _startSelected, CanExecuteDelegate = _canStartSelected };
             CommandLoadSelected = new UICommand() { ExecuteDelegate = _loadSelected, CanExecuteDelegate = _canLoadSelected };
-            CommandScheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.Schedule(_selectedEvent.Event), CanExecuteDelegate = _canScheduleSelected };
-            CommandRescheduleSelected = new UICommand() { ExecuteDelegate = o => _engine.ReSchedule(_selectedEvent.Event), CanExecuteDelegate = _canRescheduleSelected };
+            CommandScheduleSelected = new UICommand() { ExecuteDelegate = o => Engine.Schedule(_selectedEvent.Event), CanExecuteDelegate = _canScheduleSelected };
+            CommandRescheduleSelected = new UICommand() { ExecuteDelegate = o => Engine.ReSchedule(_selectedEvent.Event), CanExecuteDelegate = _canRescheduleSelected };
             CommandForceNextSelected = new UICommand() { ExecuteDelegate = _forceNext, CanExecuteDelegate = _canForceNextSelected };
             CommandTrackingToggle = new UICommand() { ExecuteDelegate = o => TrackPlayingEvent = !TrackPlayingEvent };
             CommandDebugToggle = new UICommand() { ExecuteDelegate = _debugShow };
@@ -221,7 +233,7 @@ namespace TAS.Client.ViewModels
             CommandNewRootRundown = new UICommand() { ExecuteDelegate = _addNewRootRundown };
             CommandNewContainer = new UICommand() { ExecuteDelegate = _newContainer };
             CommandSearchMissingEvents = new UICommand() { ExecuteDelegate = _searchMissingEvents };
-            CommandStartLoaded = new UICommand() { ExecuteDelegate = o => _engine.StartLoaded(), CanExecuteDelegate = o => _engine.EngineState == TEngineState.Hold };
+            CommandStartLoaded = new UICommand() { ExecuteDelegate = o => Engine.StartLoaded(), CanExecuteDelegate = o => Engine.EngineState == TEngineState.Hold };
             CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _multiSelectedEvents.Count > 0 };
             CommandCopySelected = new UICommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _multiSelectedEvents.Count > 0 };
             CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _multiSelectedEvents.Count > 0  };
@@ -256,14 +268,26 @@ namespace TAS.Client.ViewModels
 
         }
 
+        [PrincipalPermission(SecurityAction.Demand, Role = Roles.UserAdmin)]
         private void _userManager(object obj)
         {
-            
+            var vm = new UserManagerViewmodel(_authenticationService);
+            var newWindow = new Window
+            {
+                Title = resources._windows_UserManager,
+                Width = 500,
+                Height = 400,
+                Owner = Application.Current.MainWindow,
+                Content = new Views.UserManagerView {DataContext = vm}
+            };
+            newWindow.Closed += (sender, args) =>
+                vm.Dispose();
+            newWindow.Show();
         }
 
         private bool _canUserManager(object obj)
         {
-            return true;
+            return Thread.CurrentPrincipal.IsInRole(Roles.UserAdmin);
         }
 
         private bool _canUndelete(object obj)
@@ -299,8 +323,8 @@ namespace TAS.Client.ViewModels
                         .Deserialize<EventProxy>(jreader);
                     if (proxy != null)
                     {
-                        var mediaFiles = (_engine.MediaManager.MediaDirectoryPRI ?? _engine.MediaManager.MediaDirectorySEC)?.GetFiles();
-                        var animationFiles = (_engine.MediaManager.AnimationDirectoryPRI ?? _engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
+                        var mediaFiles = (Engine.MediaManager.MediaDirectoryPRI ?? Engine.MediaManager.MediaDirectorySEC)?.GetFiles();
+                        var animationFiles = (Engine.MediaManager.AnimationDirectoryPRI ?? Engine.MediaManager.AnimationDirectorySEC)?.GetFiles();
                         var newEvent = obj.Equals("Under") ? proxy.InsertUnder(SelectedEvent.Event, false, mediaFiles, animationFiles) : proxy.InsertAfter(SelectedEvent.Event, mediaFiles, animationFiles);
                         LastAddedEvent = newEvent;
                     }
@@ -387,12 +411,12 @@ namespace TAS.Client.ViewModels
 
         private void _forceNext(object obj)
         {
-            _engine.ForceNext(IsForcedNext ? null : _selectedEvent.Event);
+            Engine.ForceNext(IsForcedNext ? null : _selectedEvent.Event);
         }
 
         private bool _canForceNextSelected(object obj)
         {
-            return _engine.EngineState == TEngineState.Running && (_canLoadSelected(obj) || IsForcedNext);
+            return Engine.EngineState == TEngineState.Running && (_canLoadSelected(obj) || IsForcedNext);
         }
 
         private void _toggleLayer(object obj)
@@ -486,7 +510,7 @@ namespace TAS.Client.ViewModels
                             && (m.IsEnabled || exportAll)
                             && m.Media?.FileExists() == true;
                     })
-                    && _engine.MediaManager.IngestDirectories.Any(d => d.IsExport);
+                    && Engine.MediaManager.IngestDirectories.Any(d => d.IsExport);
         }
 
         private void _exportMedia(object obj)
@@ -504,18 +528,18 @@ namespace TAS.Client.ViewModels
                 e.Event.ScheduledTc, 
                 e.Event.Duration, 
                 e.Event.GetAudioVolume()));
-            using (new ExportViewmodel(_engine.MediaManager, selections)) { }
+            using (new ExportViewmodel(Engine.MediaManager, selections)) { }
         }
 
         private void _startSelected(object obj)
         {
             var eventToStart = SelectedEvent.Event;
-            if (_engine.EngineState != TEngineState.Running
-                || _engine.Playing?.EventType == TEventType.Live 
+            if (Engine.EngineState != TEngineState.Running
+                || Engine.Playing?.EventType == TEventType.Live 
                 || (string)obj == "Force"
                 || MessageBox.Show(string.Format(resources._query_PlayWhileRunning), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
                 )
-                _engine.Start(eventToStart);
+                Engine.Start(eventToStart);
         }
 
         private bool _canStartSelected(object o)
@@ -531,11 +555,11 @@ namespace TAS.Client.ViewModels
         private void _loadSelected(object obj)
         {
             var eventToLoad = SelectedEvent.Event;
-            if (_engine.EngineState != TEngineState.Running
-                || _engine.Playing?.EventType == TEventType.Live
+            if (Engine.EngineState != TEngineState.Running
+                || Engine.Playing?.EventType == TEventType.Live
                 || MessageBox.Show(string.Format(resources._query_LoadWhileRunning), resources._caption_Confirmation, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.OK
                 )
-                _engine.Load(eventToLoad);
+                Engine.Load(eventToLoad);
         }
 
         private bool _canLoadSelected(object o)
@@ -567,34 +591,34 @@ namespace TAS.Client.ViewModels
                 return;
             IEvent ev = _selectedEvent?.Event;
             if (ev != null)
-                _engine.RestartRundown(ev);
+                Engine.RestartRundown(ev);
         }
 
         private void _restartLayer(object obj)
         {
             if (!_allowPlayControl)
                 return;
-            _engine.Restart();
+            Engine.Restart();
         }
 
         private void _addNewRootRundown(object o)
         {
-            IEvent newEvent = _engine.CreateNewEvent(
+            IEvent newEvent = Engine.CreateNewEvent(
                 eventType: TEventType.Rundown,
                 eventName: resources._title_NewRundown,
                 startType: TStartType.Manual,
                 scheduledTime: _currentTime);
-            _engine.AddRootEvent(newEvent);
+            Engine.AddRootEvent(newEvent);
             newEvent.Save();
             LastAddedEvent = newEvent;
         }
 
         private void _newContainer(object o)
         {
-            IEvent newEvent = _engine.CreateNewEvent(
+            IEvent newEvent = Engine.CreateNewEvent(
                 eventType: TEventType.Container,
                 eventName: resources._title_NewContainer);
-            _engine.AddRootEvent(newEvent);
+            Engine.AddRootEvent(newEvent);
             newEvent.Save();
             LastAddedEvent = newEvent;
         }
@@ -652,14 +676,14 @@ namespace TAS.Client.ViewModels
             _debugWindow.Show();
         }
 
-        #endregion // Commands
+#endregion // Commands
 
-        #region MediaSearch
+#region MediaSearch
         public void AddMediaEvent(IEvent baseEvent, TStartType startType, TMediaType mediaType, VideoLayer layer, bool closeAfterAdd)
         {
             if (baseEvent != null && _mediaSearchViewModel == null)
             {
-                _mediaSearchViewModel = new MediaSearchViewmodel(_engine, _engine.MediaManager, mediaType, layer, closeAfterAdd, baseEvent.Media?.FormatDescription());
+                _mediaSearchViewModel = new MediaSearchViewmodel(Engine, Engine.MediaManager, mediaType, layer, closeAfterAdd, baseEvent.Media?.FormatDescription());
                 _mediaSearchViewModel.BaseEvent = baseEvent;
                 _mediaSearchViewModel.NewEventStartType = startType;
                 _mediaSearchViewModel.SearchWindowClosed += _mediaSearchViewModelSearchWindowClosed;
@@ -717,9 +741,9 @@ namespace TAS.Client.ViewModels
         /// Used to determine if it should be selected when it's viewmodel is created
         /// </summary>
         public IEvent LastAddedEvent { get; private set; }
-        #endregion // MediaSearch
+#endregion // MediaSearch
 
-        #region Search panel
+#region Search panel
 
         private bool _isSearchPanelVisible;
         private void _showSearchPanel(object obj)
@@ -795,9 +819,8 @@ namespace TAS.Client.ViewModels
                     IsSearchNotFound = true;
             }
         }
-        #endregion
+#endregion
 
-        public EventPanelViewmodelBase RootEventViewModel => _rootEventViewModel;
 
         public EventPanelViewmodelBase SelectedEvent
         {
@@ -817,8 +840,8 @@ namespace TAS.Client.ViewModels
                     {
                         newSelected.PropertyChanged += _onSelectedEventPropertyChanged;
                     }
-                    if (_previewViewmodel != null)
-                        _previewViewmodel.Event = newSelected;
+                    if (PreviewViewmodel != null)
+                        PreviewViewmodel.Event = newSelected;
                     _eventEditViewmodel.Event = newSelected;
                     var re = value as EventPanelRundownElementViewmodelBase;
                     if (re != null && _mediaSearchViewModel != null)
@@ -837,8 +860,8 @@ namespace TAS.Client.ViewModels
 
         public bool Pst2Prv
         {
-            get { return _engine.Pst2Prv; }
-            set { _engine.Pst2Prv = value; }
+            get { return Engine.Pst2Prv; }
+            set { Engine.Pst2Prv = value; }
         }
 
         public DateTime CurrentTime
@@ -857,11 +880,11 @@ namespace TAS.Client.ViewModels
 
         public bool FieldOrderInverted
         {
-            get { return _engine.FieldOrderInverted; }
-            set { _engine.FieldOrderInverted = value; }
+            get { return Engine.FieldOrderInverted; }
+            set { Engine.FieldOrderInverted = value; }
         }
 
-        public string EngineName => _engine.EngineName;
+        public string EngineName => Engine.EngineName;
 
         public bool AllowPlayControl => _allowPlayControl;
 
@@ -869,25 +892,25 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                var aEvent = _engine.Playing;
+                var aEvent = Engine.Playing;
                 return aEvent != null && aEvent.Layer == VideoLayer.Program && aEvent.EventType == TEventType.Movie;
             }
         }
 
         public decimal ProgramAudioVolume //decibels
         {
-            get { return (decimal)(20 * Math.Log10((double)_engine.ProgramAudioVolume)); }
+            get { return (decimal)(20 * Math.Log10((double)Engine.ProgramAudioVolume)); }
             set
             {
                 decimal volume = (decimal)Math.Pow(10, (double)value / 20);
                 if (value != volume)
-                    _engine.ProgramAudioVolume = volume;
+                    Engine.ProgramAudioVolume = volume;
             }
         }
 
         public bool IsAnimationDirAvailable
         {
-            get { return _engine.MediaManager.AnimationDirectoryPRI != null || _engine.MediaManager.AnimationDirectorySEC != null;  }
+            get { return Engine.MediaManager.AnimationDirectoryPRI != null || Engine.MediaManager.AnimationDirectorySEC != null;  }
         }
 
         public bool IsPreviewPanelVisible
@@ -908,38 +931,38 @@ namespace TAS.Client.ViewModels
 
         public bool ServerPRIExists
         {
-            get { return _engine?.PlayoutChannelPRI != null; }
+            get { return Engine?.PlayoutChannelPRI != null; }
         }
 
         public bool ServerConnectedPRI
         {
-            get { return _engine?.PlayoutChannelPRI?.IsServerConnected == true; }
+            get { return Engine?.PlayoutChannelPRI?.IsServerConnected == true; }
         }
 
         public bool ServerSECExists
         {
-            get { return _engine?.PlayoutChannelSEC != null; }
+            get { return Engine?.PlayoutChannelSEC != null; }
         }
 
         public bool ServerConnectedSEC
         {
-            get { return _engine?.PlayoutChannelSEC?.IsServerConnected == true; }
+            get { return Engine?.PlayoutChannelSEC?.IsServerConnected == true; }
         }
 
         public bool ServerPRVExists
         {
-            get { return _engine?.PlayoutChannelPRV != null; }
+            get { return Engine?.PlayoutChannelPRV != null; }
         }
 
         public bool ServerConnectedPRV
         {
-            get { return _engine?.PlayoutChannelPRV?.IsServerConnected == true; }
+            get { return Engine?.PlayoutChannelPRV?.IsServerConnected == true; }
         }
 
         public bool DatabaseOK
         {
             get {
-                var state = _engine.DatabaseConnectionState;
+                var state = Engine.DatabaseConnectionState;
                 return (state & ConnectionStateRedundant.Open) > 0 
                     && (state & (ConnectionStateRedundant.BrokenPrimary | ConnectionStateRedundant.BrokenSecondary | ConnectionStateRedundant.Desynchronized)) == 0; } 
         }
@@ -948,7 +971,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                var e = _engine.Playing;
+                var e = Engine.Playing;
                 return e == null ? string.Empty : e.EventName;
             }
         }
@@ -957,14 +980,14 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                var e = _engine.NextToPlay;
+                var e = Engine.NextToPlay;
                 return e == null ? string.Empty : e.EventName;
             }
         }
 
         public IEvent NextWithRequestedStartTime
         {
-            get { return _engine.NextWithRequestedStartTime; }
+            get { return Engine.NextWithRequestedStartTime; }
         }
 
         public int SelectedCount
@@ -979,7 +1002,7 @@ namespace TAS.Client.ViewModels
 
         public bool IsForcedNext
         {
-            get { return _engine.ForcedNext != null; }
+            get { return Engine.ForcedNext != null; }
         }
 
         public int AudioLevelPRI 
@@ -988,10 +1011,10 @@ namespace TAS.Client.ViewModels
             private set { SetField(ref _audioVolumePGM, value); }
         }
 
-        #region Plugin
+#region Plugin
         CompositionContainer _uiContainer;
 
-#pragma warning disable CS0649 
+#pragma warning disable CS0649
         [ImportMany]
         IUiPlugin[] _plugins = null;
         [Import(AllowDefault = true)]
@@ -1034,22 +1057,22 @@ namespace TAS.Client.ViewModels
         [Export]
         private PluginExecuteContext _getPluginContext()
         {
-            return new PluginExecuteContext { Engine = _engine, Event = _selectedEvent == null ? null : _selectedEvent.Event };
+            return new PluginExecuteContext { Engine = Engine, Event = _selectedEvent == null ? null : _selectedEvent.Event };
         }
 
-        #endregion // Plugin
+#endregion // Plugin
 
         public bool CGControllerExists
         {
-            get { return _engine.CGElementsController != null; }
+            get { return Engine.CGElementsController != null; }
         }
 
         public bool CGControllerIsMaster
         {
-            get { return _engine.CGElementsController?.IsMaster == true; }
+            get { return Engine.CGElementsController?.IsMaster == true; }
         }
 
-        public TEngineState EngineState => _engine.EngineState;
+        public TEngineState EngineState => Engine.EngineState;
 
         public IEnumerable<IEvent> VisibleEvents => _visibleEvents;
 
@@ -1072,7 +1095,7 @@ namespace TAS.Client.ViewModels
         
         public void _searchMissingEvents(object o)
         {
-            _engine.SearchMissingEvents();
+            Engine.SearchMissingEvents();
         }
 
         private void _onSelectedEventPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -1091,7 +1114,7 @@ namespace TAS.Client.ViewModels
                     if (_trackPlayingEvent)
                         Application.Current.Dispatcher.BeginInvoke((Action)delegate()
                         {
-                            var pe = _engine.Playing;
+                            var pe = Engine.Playing;
                             if (pe != null)
                                 SetOnTopView(pe);
                         }, null);
@@ -1140,7 +1163,7 @@ namespace TAS.Client.ViewModels
                 NotifyPropertyChanged(nameof(ServerConnectedPRI));
                 NotifyPropertyChanged(nameof(NoAlarms));
             }
-            if (sender == _engine.PlayoutChannelPRI && e.PropertyName == nameof(IPlayoutServerChannel.AudioLevel))
+            if (sender == Engine.PlayoutChannelPRI && e.PropertyName == nameof(IPlayoutServerChannel.AudioLevel))
                 AudioLevelPRI = ((IPlayoutServerChannel)sender).AudioLevel;
         }
         
@@ -1230,13 +1253,13 @@ namespace TAS.Client.ViewModels
                         TMediaCategory category = e.Media.MediaCategory;
                         var cgController = Engine.CGElementsController;
                         var defaultCrawl = cgController == null ? 0 : cgController.DefaultCrawl;
-                        newEvent = _engine.CreateNewEvent(
+                        newEvent = Engine.CreateNewEvent(
                             eventName: e.MediaName,
                             videoLayer: VideoLayer.Program,
                             eventType: TEventType.Movie,
                             scheduledTC: e.TCIn,
                             duration: e.Duration,
-                            isCGEnabled: _engine.EnableCGElementsForNewEvents,
+                            isCGEnabled: Engine.EnableCGElementsForNewEvents,
                             crawl: (byte)((
                                               Engine.CrawlEnableBehavior == TCrawlEnableBehavior.ShowsOnly && category == TMediaCategory.Show)
                                           || (Engine.CrawlEnableBehavior == TCrawlEnableBehavior.AllButCommercials && (category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Fill || category == TMediaCategory.Insert || category == TMediaCategory.Uncategorized))
@@ -1246,14 +1269,14 @@ namespace TAS.Client.ViewModels
                         );
                         break;
                     case TMediaType.Still:
-                        newEvent = _engine.CreateNewEvent(
+                        newEvent = Engine.CreateNewEvent(
                             eventName: e.MediaName,
                             eventType: TEventType.StillImage,
                             videoLayer: mediaSearchVm.Layer,
                             duration: mediaSearchVm.BaseEvent.Duration);
                         break;
                     case TMediaType.Animation:
-                        newEvent = _engine.CreateNewEvent(
+                        newEvent = Engine.CreateNewEvent(
                             eventName: e.MediaName,
                             eventType: TEventType.Animation,
                             videoLayer: VideoLayer.Animation);
@@ -1289,7 +1312,7 @@ namespace TAS.Client.ViewModels
         private EventPanelViewmodelBase _GetEventViewModel(IEvent aEvent)
         {
             IEnumerable<IEvent> rt = aEvent.GetVisualRootTrack().Reverse();
-            EventPanelViewmodelBase evm = _rootEventViewModel;
+            EventPanelViewmodelBase evm = RootEventViewModel;
             foreach (IEvent ev in rt)
             {
                 if (evm != null)

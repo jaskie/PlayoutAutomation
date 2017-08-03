@@ -676,5 +676,14 @@ namespace TAS.Client.Common.Properties {
                 return ResourceManager.GetString("_window_IngestAs", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User manager.
+        /// </summary>
+        public static string _windows_UserManager {
+            get {
+                return ResourceManager.GetString("_windows_UserManager", resourceCulture);
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Xml.Serialization;
@@ -20,7 +21,7 @@ namespace TAS.Remoting.Server
 #if DEBUG
         ~DtoBase()
         {
-            Debug.WriteLine(this, string.Format("{0} Finalized", GetType().FullName));
+            Debug.WriteLine(this, $"{GetType().FullName} Finalized");
         }
 #endif // DEBUG
 

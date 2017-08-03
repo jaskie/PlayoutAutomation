@@ -326,6 +326,9 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   <data name="_validate_TransitionTimeInvalid" xml:space="preserve">
     <value>Czas przejścia jest dłuższy, niż czas trwania.</value>
   </data>
+  <data name="_windows_UserManager" xml:space="preserve">
+    <value>Zarządzanie użytkownikami</value>
+  </data>
   <data name="_window_CommandScriptItemEditWindowTitle" xml:space="preserve">
     <value>Edycja komendy serwera</value>
   </data>
