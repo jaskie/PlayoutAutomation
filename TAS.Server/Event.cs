@@ -1,6 +1,7 @@
 ﻿#undef DEBUG
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Diagnostics;
 using System.ComponentModel;
@@ -419,11 +420,11 @@ namespace TAS.Server
 
         #region IAclObject
 
-        public List<IAclItem> Rights
+        public IReadOnlyCollection<IAclItem> Rights
         {
             get
             {
-                lock (_rights) return _rights.Value;
+                lock (_rights) return _rights.Value.AsReadOnly();
             }
         }
 

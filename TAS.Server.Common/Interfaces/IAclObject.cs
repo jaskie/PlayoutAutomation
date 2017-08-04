@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace TAS.Server.Common.Interfaces
     /// </summary>
     public interface IAclObject
     {
-        List<IAclItem> Rights { get; }
+        IReadOnlyCollection<IAclItem> Rights { get; }
         IAclItem AddRightFor(ISecurityObject securityObject);
         bool DeleteRight(IAclItem item);
     }
