@@ -79,7 +79,7 @@
     <Compile Include="EventExtensions.cs" />
     <Compile Include="EventPositionEventArgs.cs" />
     <Compile Include="EventProxy.cs" />
-    <Compile Include="Interfaces\IAclItem.cs" />
+    <Compile Include="Interfaces\IAclRight.cs" />
     <Compile Include="FileOperationEventArgs.cs" />
     <Compile Include="FileUtils.cs" />
     <Compile Include="Interfaces\IAclObject.cs" />

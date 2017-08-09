@@ -12,8 +12,8 @@ namespace TAS.Server.Common.Interfaces
     /// </summary>
     public interface IAclObject
     {
-        IReadOnlyCollection<IAclItem> Rights { get; }
-        IAclItem AddRightFor(ISecurityObject securityObject);
-        bool DeleteRight(IAclItem item);
+        IReadOnlyCollection<IAclRight> Rights { get; }
+        IAclRight AddRightFor(ISecurityObject securityObject);
+        bool DeleteRight(IAclRight item);
     }
 }

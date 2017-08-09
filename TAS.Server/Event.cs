@@ -32,7 +32,7 @@ namespace TAS.Server
         private Lazy<Event> _parent;
         private Lazy<Event> _prior;
         private Lazy<Event> _next;
-        private Lazy<List<IAclItem>> _rights;
+        private Lazy<List<IAclRight>> _rights;
         private bool _isDeleted;
         private bool _isCGEnabled;
         private byte _crawl;
@@ -169,7 +169,7 @@ namespace TAS.Server
                 return null;
             });
 
-            _rights = new Lazy<List<IAclItem>>(() => Database.DbReadEventAclList<EventAclItem>(this, EngineController.AuthenticationService));
+            _rights = new Lazy<List<IAclRight>>(() => Database.DbReadEventAclList<EventAclItem>(this, EngineController.AuthenticationService));
         }
         #endregion //Constructor
 
@@ -420,7 +420,7 @@ namespace TAS.Server
 
         #region IAclObject
 
-        public IReadOnlyCollection<IAclItem> Rights
+        public IReadOnlyCollection<IAclRight> Rights
         {
             get
             {
@@ -428,7 +428,7 @@ namespace TAS.Server
             }
         }
 
-        public IAclItem AddRightFor(ISecurityObject securityObject)
+        public IAclRight AddRightFor(ISecurityObject securityObject)
         {
             var right = new EventAclItem { Owner = this, SecurityObject = securityObject };
             lock (_rights)
@@ -438,7 +438,7 @@ namespace TAS.Server
             return right;
         }
 
-        public bool DeleteRight(IAclItem item)
+        public bool DeleteRight(IAclRight item)
         {
             lock (_rights)
             {

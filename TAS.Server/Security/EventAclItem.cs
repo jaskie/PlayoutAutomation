@@ -9,7 +9,7 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Security
 {
-    public class EventAclItem: IAclItem, IPersistent
+    public class EventAclItem: IAclRight, IPersistent
     {
         public IPersistent Owner { get; set; }
         public ISecurityObject SecurityObject { get; set; }

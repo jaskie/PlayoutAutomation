@@ -1009,7 +1009,7 @@ VALUES
 
         #region ACL
 
-        public static List<IAclItem> DbReadEventAclList<TEventAcl>(IEventPesistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclItem, IPersistent, new()
+        public static List<IAclRight> DbReadEventAclList<TEventAcl>(IEventPesistent aEvent, IAuthenticationServicePersitency authenticationService) where TEventAcl: IAclRight, IPersistent, new()
         {
             if (aEvent == null)
                 return null;
@@ -1019,7 +1019,7 @@ VALUES
                     new DbCommandRedundant("SELECT * FROM rundownevent_acl WHERE idRundownEvent = @idRundownEvent;",
                         _connection);
                 cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
-                List<IAclItem> acl = new List<IAclItem>();
+                List<IAclRight> acl = new List<IAclRight>();
                 using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())
@@ -1038,7 +1038,7 @@ VALUES
             }
         }
 
-        public static bool DbInsertEventAcl<TEventAcl>(this TEventAcl acl) where TEventAcl: IAclItem, IPersistent
+        public static bool DbInsertEventAcl<TEventAcl>(this TEventAcl acl) where TEventAcl: IAclRight, IPersistent
         {
             if (acl?.Owner == null)
                 return false;
@@ -1059,7 +1059,7 @@ VALUES
             }
         }
 
-        public static bool DbUpdateEventAcl<TEventAcl>(this TEventAcl acl) where TEventAcl: IAclItem, IPersistent
+        public static bool DbUpdateEventAcl<TEventAcl>(this TEventAcl acl) where TEventAcl: IAclRight, IPersistent
         {
             lock (_connection)
             {
@@ -1075,7 +1075,7 @@ VALUES
             }
         }
 
-        public static bool DbDeleteEventAcl<TEventAcl>(this TEventAcl acl) where TEventAcl : IAclItem, IPersistent
+        public static bool DbDeleteEventAcl<TEventAcl>(this TEventAcl acl) where TEventAcl : IAclRight, IPersistent
         {
             lock (_connection)
             {

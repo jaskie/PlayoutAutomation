@@ -5,7 +5,7 @@ namespace TAS.Server.Common.Interfaces
     /// <summary>
     /// Access control list item
     /// </summary>
-    public interface IAclItem
+    public interface IAclRight
     {
         /// <summary>
         /// Object to which rights are controlled against
