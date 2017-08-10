@@ -20,17 +20,8 @@
                 <DockPanel Margin="1">
                     <Label DockPanel.Dock="Top" Content="{Resx _userList}" Style="{StaticResource HeaderLabel}"/>
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="30" >
-                        <StackPanel.Resources>
-                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                                <Setter Property="Margin" Value="2"/>
-                            </Style>
-                        </StackPanel.Resources>
-                        <Button Command="{Binding CommandAddUser}" ToolTip="{Resx _addUser.ToolTip}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
-                        </Button>
-                        <Button Command="{Binding CommandDeleteUser}" ToolTip="{Resx _deleteUser.ToolTip}">
-                            <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
-                        </Button>
+                        <Button Command="{Binding CommandAddUser}" Style="{StaticResource AddButtonStyle}" Margin="2" ToolTip="{Resx _addUser.ToolTip}"/>
+                        <Button Command="{Binding CommandDeleteUser}" Style="{StaticResource DeleteButtonStyle}" Margin="2" ToolTip="{Resx _deleteUser.ToolTip}"/>
                     </StackPanel>
                     <DataGrid ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" AutoGenerateColumns="False" IsReadOnly="True">
                         <DataGrid.Columns>

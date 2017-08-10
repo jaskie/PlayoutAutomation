@@ -30,8 +30,8 @@
                     <Setter Property="Margin" Value="5, 0"/>
                 </Style>
             </StackPanel.Resources>
-            <Button IsDefault="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandOK}" Style="{StaticResource OkButton}"/>
-            <Button IsCancel="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandClose}" Style="{StaticResource CancelButton}" />
+            <Button IsDefault="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandOK}" Style="{StaticResource OkButtonStyle}"/>
+            <Button IsCancel="{Binding OkCancelButtonsActivateViaKeyboard}" Command="{Binding CommandClose}" Style="{StaticResource CancelButtonStyle}" />
 
         </StackPanel>
         <ContentControl Content="{Binding Editor}"/>

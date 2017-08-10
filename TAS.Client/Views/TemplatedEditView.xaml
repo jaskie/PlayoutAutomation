@@ -21,16 +21,10 @@
         </DockPanel>
         <ToolBar Visibility="{Binding KeyIsReadOnly, Converter={StaticResource InvertedBoolToVis}}" DockPanel.Dock="Top">
             <ToolBarPanel Height="24" Orientation="Horizontal">
-                <Button Command="{Binding CommandAddField}" Padding="0" ToolTip="{Resx _addField.ToolTip}">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
-                </Button>
-                <Button Command="{Binding CommandEditField}" Padding="0" ToolTip="{Resx _editField.ToolTip}">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
-                </Button>
+                <Button Command="{Binding CommandAddField}" Style="{StaticResource AddButtonStyle}" ToolTip="{Resx _addField.ToolTip}"/>
+                <Button Command="{Binding CommandEditField}" Style="{StaticResource EditButtonStyle}" ToolTip="{Resx _editField.ToolTip}"/>
                 <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
-                <Button Command="{Binding CommandDeleteField}" Padding="0" ToolTip="{Resx _deleteField.ToolTip}">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
-                </Button>
+                <Button Command="{Binding CommandDeleteField}" Style="{StaticResource DeleteButtonStyle}" ToolTip="{Resx _deleteField.ToolTip}"/>
             </ToolBarPanel>
         </ToolBar>
         <DataGrid ItemsSource="{Binding Fields}" IsReadOnly="True" AutoGenerateColumns="False" MinHeight="50" 

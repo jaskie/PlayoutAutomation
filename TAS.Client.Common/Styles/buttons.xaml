@@ -17,7 +17,7 @@
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
     </Style>
 
-    <Style TargetType="Button" x:Key="UndoButton" BasedOn="{StaticResource {x:Type Button}}">
+    <Style TargetType="Button" x:Key="UndoButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Margin" Value="5" />
         <Setter Property="Width" Value="90" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -35,7 +35,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="Button" x:Key="OkButton" BasedOn="{StaticResource {x:Type Button}}">
+    <Style TargetType="Button" x:Key="OkButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Margin" Value="5" />
         <Setter Property="Width" Value="90" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -53,7 +53,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="Button" x:Key="CancelButton" BasedOn="{StaticResource {x:Type Button}}">
+    <Style TargetType="Button" x:Key="CancelButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Margin" Value="5" />
         <Setter Property="Width" Value="90" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -71,5 +71,48 @@
         </Setter>
     </Style>
 
+    <Style TargetType="Button" x:Key="AddButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/add-small.png"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>        
+    </Style>
+
+    <Style TargetType="Button" x:Key="EditButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/edit.png"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Button" x:Key="DeleteButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Button" x:Key="SaveButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/save-small.png" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 </ResourceDictionary>

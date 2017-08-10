@@ -30,8 +30,8 @@
                         <Setter Property="Padding" Value="0"/>
                     </Style>
                 </StackPanel.Resources>
-                <Button Command="{Binding CommandUndo}" Style="{StaticResource UndoButton}" />
-                <Button Command="{Binding CommandSave}" Style="{StaticResource OkButton}"/>
+                <Button Command="{Binding CommandUndo}" Style="{StaticResource UndoButtonStyle}" />
+                <Button Command="{Binding CommandSave}" Style="{StaticResource OkButtonStyle}"/>
 
             </StackPanel>
             <Label Content="{Resx _name}"/>

@@ -41,8 +41,8 @@
 
             </StackPanel>
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" >
-                <Button IsCancel="True" ToolTip="{Resx _buttonCancel.ToolTip}" Command="{Binding CommandUndoEdit}" Style="{StaticResource UndoButton}"/>
-                <Button IsDefault="True" ToolTip="{Resx _buttonSave.ToolTip}" Command="{Binding CommandSaveEdit}" Style="{StaticResource OkButton}" />
+                <Button IsCancel="True" ToolTip="{Resx _buttonCancel.ToolTip}" Command="{Binding CommandUndoEdit}" Style="{StaticResource UndoButtonStyle}"/>
+                <Button IsDefault="True" ToolTip="{Resx _buttonSave.ToolTip}" Command="{Binding CommandSaveEdit}" Style="{StaticResource OkButtonStyle}" />
             </StackPanel>
         </Grid>
         <ScrollViewer Padding="2" VerticalScrollBarVisibility="Auto" >

@@ -8,8 +8,8 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <DockPanel>
         <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Right" Orientation="Horizontal">
-            <Button Style="{StaticResource OkButton}"/>
-            <Button Style="{StaticResource CancelButton}"/>
+            <Button Style="{StaticResource OkButtonStyle}"/>
+            <Button Style="{StaticResource CancelButtonStyle}"/>
         </StackPanel>
         <Grid></Grid>
     </DockPanel>

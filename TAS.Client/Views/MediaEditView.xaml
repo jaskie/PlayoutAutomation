@@ -19,8 +19,8 @@
     </UserControl.InputBindings>
     <DockPanel MinWidth="200" >
         <StackPanel DockPanel.Dock="Top" Visibility="{Binding ShowButtons, Converter={StaticResource BoolToVis}}" FlowDirection="RightToLeft" Orientation="Horizontal" Height="37">
-            <Button Command="{Binding CommandSaveEdit}" Style="{StaticResource OkButton}"/>
-            <Button Command="{Binding CommandCancelEdit}" Style="{StaticResource UndoButton}"/>
+            <Button Command="{Binding CommandSaveEdit}" Style="{StaticResource OkButtonStyle}"/>
+            <Button Command="{Binding CommandCancelEdit}" Style="{StaticResource UndoButtonStyle}"/>
         </StackPanel>
         <ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto">
             <StackPanel>
