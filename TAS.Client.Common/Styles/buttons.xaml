@@ -71,8 +71,14 @@
         </Setter>
     </Style>
 
-    <Style TargetType="Button" x:Key="AddButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
+    <Style TargetType="Button" x:Key="SmallToolButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Padding" Value="0"/>
+        <Setter Property="Width" Value="22"/>
+        <Setter Property="Height" Value="22"/>
+        <Setter Property="Margin" Value="1"/>
+    </Style>
+
+    <Style TargetType="Button" x:Key="AddButtonStyle" BasedOn="{StaticResource SmallToolButtonStyle}">
         <Setter Property="ContentTemplate">
             <Setter.Value>
                 <DataTemplate>
@@ -82,8 +88,7 @@
         </Setter>        
     </Style>
 
-    <Style TargetType="Button" x:Key="EditButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Padding" Value="0"/>
+    <Style TargetType="Button" x:Key="EditButtonStyle" BasedOn="{StaticResource SmallToolButtonStyle}">
         <Setter Property="ContentTemplate">
             <Setter.Value>
                 <DataTemplate>
@@ -93,8 +98,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="Button" x:Key="DeleteButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Padding" Value="0"/>
+    <Style TargetType="Button" x:Key="DeleteButtonStyle" BasedOn="{StaticResource SmallToolButtonStyle}">
         <Setter Property="ContentTemplate">
             <Setter.Value>
                 <DataTemplate>
@@ -104,8 +108,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="Button" x:Key="SaveButtonStyle" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Padding" Value="0"/>
+    <Style TargetType="Button" x:Key="SaveButtonStyle" BasedOn="{StaticResource SmallToolButtonStyle}">
         <Setter Property="ContentTemplate">
             <Setter.Value>
                 <DataTemplate>

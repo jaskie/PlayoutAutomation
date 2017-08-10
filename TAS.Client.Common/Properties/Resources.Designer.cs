@@ -678,6 +678,15 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Select an object.
+        /// </summary>
+        public static string _window_SecurityObjectSelectorWindowTitle {
+            get {
+                return ResourceManager.GetString("_window_SecurityObjectSelectorWindowTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to User manager.
         /// </summary>
         public static string _windows_UserManager {

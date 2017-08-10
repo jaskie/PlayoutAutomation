@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TAS.Client.Common;
+using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
@@ -13,7 +14,7 @@ namespace TAS.Client.ViewModels
     {
         private readonly IEvent _ev;
         private readonly IAuthenticationService _authenticationService;
-        private AclRightViewmodel _selectedRight;
+        private EventRightViewmodel _selectedRight;
         private ISecurityObject _selectedAclObject;
 
         public EventRightsEditViewmodel(IEvent ev, IAuthenticationService authenticationService)
@@ -21,7 +22,7 @@ namespace TAS.Client.ViewModels
             _ev = ev;
             _authenticationService = authenticationService;
             AclObjects = authenticationService.Users.Cast<ISecurityObject>().Concat(authenticationService.Groups).ToArray();
-            Rights = new ObservableCollection<AclRightViewmodel>(ev.Rights.Select(r => new AclRightViewmodel(r)));
+            Rights = new ObservableCollection<EventRightViewmodel>(ev.Rights.Select(r => new EventRightViewmodel(r)));
             CommandAddRight = new UICommand {ExecuteDelegate = _addRight, CanExecuteDelegate = _canAddRight};
             CommandDeleteRight = new UICommand { ExecuteDelegate = _deleteRight, CanExecuteDelegate = _canDeleteRight };
         }
@@ -39,9 +40,9 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _selectedAclObject, value, setIsModified: false); }
         }
 
-        public ObservableCollection<AclRightViewmodel> Rights { get; }
+        public ObservableCollection<EventRightViewmodel> Rights { get; }
 
-        public AclRightViewmodel SelectedRight
+        public EventRightViewmodel SelectedRight
         {
             get { return _selectedRight; }
             set { SetField(ref _selectedRight, value, setIsModified: false); }
@@ -67,16 +68,23 @@ namespace TAS.Client.ViewModels
 
         private void _addRight(object obj)
         {
-            var right = _ev.AddRightFor(_selectedAclObject);
-            if (right == null)
-                return;
-            Rights.Add(new AclRightViewmodel(right));
-            IsModified = true;
+            using (var selector = new SecurityObjectSelectorViewmodel(_authenticationService))
+            {
+                if (selector.ShowDialog() != true)
+                    return;
+                var right = _ev.AddRightFor(selector.SelectedSecurityObject);
+                if (right == null)
+                    return;
+                var newRightVm = new EventRightViewmodel(right);
+                Rights.Add(newRightVm);
+                SelectedRight = newRightVm;
+                IsModified = true;
+            }
         }
 
         private bool _canAddRight(object obj)
         {
-            return _selectedAclObject != null;
+            return true;
         }
 
         private bool _canDeleteRight(object obj)

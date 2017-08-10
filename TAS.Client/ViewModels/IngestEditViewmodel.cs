@@ -51,7 +51,7 @@ namespace TAS.Client.ViewModels
             }
         }
         
-        protected override bool CanOK(object parameter)
+        protected override bool CanOk(object parameter)
         {
             return IsValid;
         }

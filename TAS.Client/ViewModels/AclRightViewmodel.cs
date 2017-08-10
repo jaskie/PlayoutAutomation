@@ -8,17 +8,20 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class AclRightViewmodel: ViewmodelBase
+    public abstract class AclRightViewmodel: ViewmodelBase
     {
-        public AclRightViewmodel(IAclRight right)
+        protected AclRightViewmodel(IAclRight right)
         {
             Right = right;
         }
 
         public IAclRight Right { get; }
 
-        public void Save()
+        protected ulong Acl;
+
+        public virtual void Save()
         {
+            Right.Acl = Acl;
             (Right as IPersistent)?.Save();
         }
 

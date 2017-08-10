@@ -1050,7 +1050,7 @@ VALUES
                         _connection))
                 {
                     cmd.Parameters.AddWithValue("@idRundownEvent", acl.Owner.Id);
-                    cmd.Parameters.AddWithValue("@idACO", acl.Id);
+                    cmd.Parameters.AddWithValue("@idACO", ((IPersistent)acl.SecurityObject).Id);
                     cmd.Parameters.AddWithValue("@ACL", acl.Acl);
                     if (cmd.ExecuteNonQuery() == 1)
                         acl.Id = (ulong) cmd.LastInsertedId;

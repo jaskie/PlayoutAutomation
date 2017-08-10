@@ -335,4 +335,7 @@ Do you really want to run this BACKUP play-out?</value>
   <data name="_window_IngestAs" xml:space="preserve">
     <value>Ingest as...</value>
   </data>
+  <data name="_window_SecurityObjectSelectorWindowTitle" xml:space="preserve">
+    <value>Select an object</value>
+  </data>
 </root>

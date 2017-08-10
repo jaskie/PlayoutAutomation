@@ -335,4 +335,7 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   <data name="_window_IngestAs" xml:space="preserve">
     <value>Zaingestuj jako...</value>
   </data>
+  <data name="_window_SecurityObjectSelectorWindowTitle" xml:space="preserve">
+    <value>Wybierz obiekt</value>
+  </data>
 </root>

@@ -113,6 +113,7 @@
     <Compile Include="ViewModels\EventPanelStillViewmodel.cs" />
     <Compile Include="ViewModels\EventPanelViewmodelBase.cs" />
     <Compile Include="ViewModels\EventRightsEditViewmodel.cs" />
+    <Compile Include="ViewModels\EventRightViewmodel.cs" />
     <Compile Include="ViewModels\ExportMediaLogoViewmodel.cs" />
     <Compile Include="ViewModels\ExportViewmodel.cs" />
     <Compile Include="ViewModels\FileManagerViewmodel.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="ViewModels\MediaViewViewmodel.cs" />
     <Compile Include="ViewModels\PreviewViewmodel.cs" />
     <Compile Include="ViewModels\RecordersViewmodel.cs" />
+    <Compile Include="ViewModels\SecurityObjectSelectorViewmodel.cs" />
     <Compile Include="ViewModels\UserManagerViewmodel.cs" />
     <Compile Include="ViewModels\GroupViewmodel.cs" />
     <Compile Include="ViewModels\UserViewmodel.cs" />
@@ -422,6 +424,7 @@
     <EmbeddedResource Include="Views\EventPanelView.resx">
       <DependentUpon>EventPanelView.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventRightsEditView.resx" />
     <EmbeddedResource Include="Views\ExportView.pl.resx">
       <DependentUpon>ExportView.xaml</DependentUpon>
     </EmbeddedResource>
@@ -475,6 +478,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\RecordersView.pl.resx">
       <DependentUpon>RecordersView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\SecurityObjectSelectorView.pl.resx">
+      <DependentUpon>SecurityObjectSelectorView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\SecurityObjectSelectorView.resx">
+      <DependentUpon>SecurityObjectSelectorView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TemplatedEditView.pl.resx">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>

@@ -12,6 +12,9 @@ namespace TAS.Server.Security
     public class EventAclItem: IAclRight, IPersistent
     {
         public IPersistent Owner { get; set; }
+        /// <summary>
+        /// object to who right is assigned
+        /// </summary>
         public ISecurityObject SecurityObject { get; set; }
         public ulong Acl { get; set; }
         public ulong Id { get; set; }

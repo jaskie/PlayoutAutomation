@@ -528,6 +528,11 @@
   <ItemGroup>
     <Resource Include="Images\Actions\go-jump.png" />
   </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\Secutity\group.png" />
+    <Resource Include="Images\Secutity\user.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <SsdtUnitTestVersion>2.0</SsdtUnitTestVersion>
