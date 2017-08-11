@@ -118,21 +118,21 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="_addNewRight" xml:space="preserve">
-    <value>Add new authorization</value>
+    <value>Dodaj nowego uprawnionego</value>
   </data>
   <data name="_create" xml:space="preserve">
-    <value>Create</value>
+    <value>Tworzenie</value>
   </data>
   <data name="_delete" xml:space="preserve">
-    <value>Delete</value>
+    <value>Usuwanie</value>
   </data>
   <data name="_modify" xml:space="preserve">
-    <value>Modify</value>
+    <value>Zmiana</value>
   </data>
   <data name="_name" xml:space="preserve">
-    <value>Name</value>
+    <value>Nazwa</value>
   </data>
   <data name="_removeSelectedRight" xml:space="preserve">
-    <value>Remove selected authorization</value>
+    <value>Usuń zaznaczone uprawnienie</value>
   </data>
 </root>

@@ -440,9 +440,13 @@ namespace TAS.Server
 
         public bool DeleteRight(IAclRight item)
         {
+            var right = (EventAclItem)item;
             lock (_rights)
             {
-                return _rights.Value.Remove(item);
+                var success = _rights.Value.Remove(right);
+                if (success)
+                    right.DbDeleteEventAcl();
+                return success;
             }
         }
 

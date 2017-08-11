@@ -16,22 +16,27 @@ namespace TAS.Client.ViewModels
         private readonly IAuthenticationService _authenticationService;
         private EventRightViewmodel _selectedRight;
         private ISecurityObject _selectedAclObject;
+        private readonly IReadOnlyCollection<IAclRight> _originalRights;
 
         public EventRightsEditViewmodel(IEvent ev, IAuthenticationService authenticationService)
         {
             _ev = ev;
             _authenticationService = authenticationService;
             AclObjects = authenticationService.Users.Cast<ISecurityObject>().Concat(authenticationService.Groups).ToArray();
-            Rights = new ObservableCollection<EventRightViewmodel>(ev.Rights.Select(r => new EventRightViewmodel(r)));
+            _originalRights = ev.Rights;
+            Rights = new ObservableCollection<EventRightViewmodel>(_originalRights.Select(r => new EventRightViewmodel(r)));
+            foreach (var eventRightViewmodel in Rights)
+            {
+                eventRightViewmodel.Modified += EventRightViewmodel_Modified;
+            }
             CommandAddRight = new UICommand {ExecuteDelegate = _addRight, CanExecuteDelegate = _canAddRight};
             CommandDeleteRight = new UICommand { ExecuteDelegate = _deleteRight, CanExecuteDelegate = _canDeleteRight };
         }
 
-
         public UICommand CommandAddRight { get; }
+
         public UICommand CommandDeleteRight { get; }
         
-
         public ISecurityObject[] AclObjects { get; }
 
         public ISecurityObject SelectedAclObject
@@ -55,14 +60,19 @@ namespace TAS.Client.ViewModels
                 if (aclRightViewmodel.IsModified)
                     aclRightViewmodel.Save();
             }
+            foreach (var right in _originalRights)
+            {
+                if (!Rights.Any(r => r.Right == right))
+                    _ev.DeleteRight(right);
+            }
         }
-
 
         protected override void OnDispose()
         {
             foreach (var aclRightViewmodel in Rights)
             {
                 aclRightViewmodel.Dispose();
+                aclRightViewmodel.Modified -= EventRightViewmodel_Modified;
             }
         }
 
@@ -78,6 +88,7 @@ namespace TAS.Client.ViewModels
                 var newRightVm = new EventRightViewmodel(right);
                 Rights.Add(newRightVm);
                 SelectedRight = newRightVm;
+                SelectedRight.Modified += EventRightViewmodel_Modified;
                 IsModified = true;
             }
         }
@@ -89,19 +100,24 @@ namespace TAS.Client.ViewModels
 
         private bool _canDeleteRight(object obj)
         {
-            return _selectedRight != null;
+            return SelectedRight != null;
         }
 
         private void _deleteRight(object obj)
         {
-            var rightToDelete = _selectedRight;
-            if (_ev.DeleteRight(rightToDelete.Right)
-                && Rights.Remove(rightToDelete))
-            { 
+            var rightToDelete = SelectedRight;
+            if (Rights.Remove(rightToDelete))
+            {
                 rightToDelete.Dispose();
+                rightToDelete.Modified -= EventRightViewmodel_Modified;
+                IsModified = true;
             }
         }
 
+        private void EventRightViewmodel_Modified(object sender, EventArgs e)
+        {
+            IsModified = true;
+        }
 
     }
 }

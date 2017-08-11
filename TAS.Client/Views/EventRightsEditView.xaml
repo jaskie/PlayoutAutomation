@@ -9,15 +9,49 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <DockPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-            <Button Command="{Binding CommandAddRight}" Style="{StaticResource AddButtonStyle}"/>
-            <Button Command="{Binding CommandDeleteRight}" Style="{StaticResource DeleteButtonStyle}"/>
+            <Button Command="{Binding CommandAddRight}" Style="{StaticResource AddButtonStyle}" ToolTip="{Resx _addNewRight}"/>
+            <Button Command="{Binding CommandDeleteRight}" Style="{StaticResource DeleteButtonStyle}" ToolTip="{Resx _removeSelectedRight}"/>
         </StackPanel>
-            <DataGrid ItemsSource="{Binding Rights}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
+            <DataGrid ItemsSource="{Binding Rights}" SelectedItem="{Binding SelectedRight}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type DataGridCell}">
+                                <Border Background="{TemplateBinding Background}" Padding="2">
+                                    <ContentPresenter VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </DataGrid.CellStyle>
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="C" Binding="{Binding Create}"/>
-                <DataGridCheckBoxColumn Header="D" Binding="{Binding Delete}"/>
-                <DataGridCheckBoxColumn Header="M" Binding="{Binding Modify}"/>
-                <DataGridTextColumn Width="*" Header="{Resx _name, ResxName=TAS.Client.Views.EventRightsEditView}" Binding="{Binding SecurityObject.Name}"/>
+                <DataGridCheckBoxColumn Binding="{Binding Create}">
+                    <DataGridCheckBoxColumn.Header>
+                        <TextBlock Text="C" ToolTip="{Resx _create, ResxName=TAS.Client.Views.EventRightsEditView}"></TextBlock>
+                    </DataGridCheckBoxColumn.Header>
+                </DataGridCheckBoxColumn>
+                <DataGridCheckBoxColumn Binding="{Binding Delete}" >
+                    <DataGridCheckBoxColumn.Header>
+                        <TextBlock Text="D" ToolTip="{Resx _delete, ResxName=TAS.Client.Views.EventRightsEditView}"></TextBlock>
+                    </DataGridCheckBoxColumn.Header>
+                </DataGridCheckBoxColumn>
+                <DataGridCheckBoxColumn Binding="{Binding Modify}">
+                    <DataGridCheckBoxColumn.Header>
+                        <TextBlock Text="M" ToolTip="{Resx _modify, ResxName=TAS.Client.Views.EventRightsEditView}"></TextBlock>
+                    </DataGridCheckBoxColumn.Header>
+                </DataGridCheckBoxColumn>
+                <DataGridTemplateColumn Width="*" Header="{Resx _name, ResxName=TAS.Client.Views.EventRightsEditView}" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DockPanel>
+                                <Image DataContext="{Binding SecurityObject}" Style="{StaticResource SecurityObjectTypeImage}" Height="16" />
+                                <TextBlock Text="{Binding SecurityObject.Name}" VerticalAlignment="Top" Margin="3, 0, 0, 0"/>
+                            </DockPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

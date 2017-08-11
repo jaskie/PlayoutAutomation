@@ -194,7 +194,7 @@
                 <Button Command="{Binding CommandRescheduleSelected}" ToolTip="{Resx _toolbar.Reschedule}">
                     <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/undo.png" Stretch="None" />
                 </Button>
-                <ComboBox Margin="2" SelectedIndex="0" Grid.Column="0" Padding="5" >
+                <ComboBox Margin="2" SelectedIndex="0" Padding="5" VerticalAlignment="Center" >
                     <ComboBoxItem ToolTip="{Resx _toolbar.ClearAll}" >
                         <Button Command="{Binding CommandClearAll}" Style="{StaticResource controlPanelButtons}">
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/EventActions/stop.png" />

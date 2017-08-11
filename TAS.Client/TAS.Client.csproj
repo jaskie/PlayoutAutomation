@@ -424,7 +424,12 @@
     <EmbeddedResource Include="Views\EventPanelView.resx">
       <DependentUpon>EventPanelView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\EventRightsEditView.resx" />
+    <EmbeddedResource Include="Views\EventRightsEditView.pl.resx" >
+      <DependentUpon>EventRightsEditView.xaml</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\EventRightsEditView.resx" >
+      <DependentUpon>EventRightsEditView.xaml</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\ExportView.pl.resx">
       <DependentUpon>ExportView.xaml</DependentUpon>
     </EmbeddedResource>

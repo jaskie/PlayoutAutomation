@@ -1082,7 +1082,6 @@ VALUES
                 string query = "DELETE FROM rundownevent_acl WHERE idRundownevent_ACL=@idRundownevent_ACL;";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
                 cmd.Parameters.AddWithValue("@idRundownevent_ACL", acl.Id);
-                cmd.ExecuteNonQuery();
                 return cmd.ExecuteNonQuery() == 1;
             }
         }
