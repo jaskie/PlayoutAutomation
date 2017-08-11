@@ -25,11 +25,11 @@ namespace TAS.Server.Common.Interfaces
         List<IEvent> SubEvents { get; }
 
         int SubEventsCount { get; }
-        void InsertAfter(IEvent e);
-        void InsertBefore(IEvent e);
-        void InsertUnder(IEvent se, bool fromEnd);
-        void MoveUp();
-        void MoveDown();
+        bool InsertAfter(IEvent e);
+        bool InsertBefore(IEvent e);
+        bool InsertUnder(IEvent se, bool fromEnd);
+        bool MoveUp();
+        bool MoveDown();
         void Remove();
         bool AllowDelete();
         bool IsModified { get; set; }

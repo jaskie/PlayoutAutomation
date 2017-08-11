@@ -14,6 +14,7 @@ namespace TAS.Client.ViewModels
     {
         private string _name;
         private readonly UserManagerViewmodel _owner;
+        private bool _isAdmin;
 
         public UserViewmodel(IUser user, UserManagerViewmodel owner): base(user)
         {
@@ -26,6 +27,12 @@ namespace TAS.Client.ViewModels
         {
             get { return _name; }
             set { SetField(ref _name, value); }
+        }
+
+        public bool IsAdmin
+        {
+            get { return _isAdmin; }
+            set { SetField(ref _isAdmin, value); }
         }
 
         public override void Update(object destObject = null)

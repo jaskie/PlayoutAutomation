@@ -9,8 +9,9 @@ namespace TAS.Server.Common.Interfaces
 {
     public interface IUser: ISecurityObject, IIdentity, IPersistent
     {
-        IList<IGroup> Groups { get; }
+        IReadOnlyCollection<IGroup> Groups { get; }
         void GroupAdd(IGroup group);
         bool GroupRemove(IGroup group);
+        bool IsAdmin { get; set; }
     }
 }

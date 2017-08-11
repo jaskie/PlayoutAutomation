@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Principal;
 using System.Xml.Serialization;
 using TAS.Server.Common;
 using TAS.Server.Common.Database;
@@ -10,7 +9,7 @@ using TAS.Server.Common.Interfaces;
 
 namespace TAS.Server.Security
 {
-    public class User: SecurityObjectBase, IUser, IIdentity
+    public class User: SecurityObjectBase, IUser
     {
         public User(): base(null)
         { }
@@ -20,6 +19,7 @@ namespace TAS.Server.Security
         private readonly List<IGroup> _groups = new List<IGroup>();
 
         private ulong[] _groupsIds;
+        private bool _isAdmin;
 
         [XmlIgnore]
         public override SceurityObjectType SceurityObjectTypeType { get; } = SceurityObjectType.User;
@@ -28,13 +28,19 @@ namespace TAS.Server.Security
 
         public bool IsAuthenticated => !string.IsNullOrEmpty(Name);
 
+        public bool IsAdmin
+        {
+            get { return _isAdmin; }
+            set { SetField(ref _isAdmin, value); }
+        }
+
         [XmlIgnore]
-        public IList<IGroup> Groups
+        public IReadOnlyCollection<IGroup> Groups
         {
             get
             {
                 lock (((IList) _groups).SyncRoot)
-                    return _groups.ToList();
+                    return _groups.AsReadOnly();
             }
         }
 

@@ -37,7 +37,7 @@ namespace TAS.Server
         private readonly ConcurrentDictionary<VideoLayer, IEvent> _preloadedEvents = new ConcurrentDictionary<VideoLayer, IEvent>();
         private readonly SynchronizedCollection<Event> _rootEvents = new SynchronizedCollection<Event>();
         private readonly SynchronizedCollection<Event> _fixedTimeEvents = new SynchronizedCollection<Event>();
-        private readonly ConcurrentDictionary<ulong, IEvent> _events = new ConcurrentDictionary<ulong, IEvent>();
+        private readonly ConcurrentDictionary<Guid, IEvent> _events = new ConcurrentDictionary<Guid, IEvent>();
         private Event _playing;
         private Event _forcedNext;
         private IEnumerable<IGpi> _localGpis;
@@ -695,17 +695,13 @@ namespace TAS.Server
         )
         {
             IEvent result;
-            if (_events.TryGetValue(idRundownEvent, out result))
-                return result;
             if (eventType == TEventType.Animation)
                 result = new AnimatedEvent(this, idRundownEvent, idEventBinding, videoLayer, startType, playState, scheduledTime, duration, scheduledDelay, mediaGuid, eventName, startTime, isEnabled, fields, method, templateLayer);
             else if (eventType == TEventType.CommandScript)
                 result = new CommandScriptEvent(this, idRundownEvent, idEventBinding, startType, playState, scheduledDelay, eventName, startTime, isEnabled, command);
             else
                 result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
-            if (idRundownEvent == 0)
-                result.Save();
-            if (_events.TryAdd(((Event)result).Id, result))
+            if (_events.TryAdd(((Event)result).DtoGuid, result))
             {
                 result.Saved += _eventSaved;
                 result.Deleted += _eventDeleted;
@@ -866,7 +862,7 @@ namespace TAS.Server
         {
             _rootEvents.Remove(aEvent);
             IEvent eventToRemove;
-            if (_events.TryRemove(aEvent.Id, out eventToRemove))
+            if (_events.TryRemove(aEvent.DtoGuid, out eventToRemove))
             {
                 aEvent.Saved -= _eventSaved;
                 aEvent.Deleted -= _eventDeleted;

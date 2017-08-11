@@ -120,6 +120,9 @@
   <data name="_groupMembership" xml:space="preserve">
     <value>Group membership</value>
   </data>
+  <data name="_isAdmin" xml:space="preserve">
+    <value>Administrator</value>
+  </data>
   <data name="_name" xml:space="preserve">
     <value>User name</value>
   </data>

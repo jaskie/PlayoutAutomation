@@ -10,6 +10,7 @@ using TAS.Remoting.Server;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using TAS.Server.Common.Database;
 using TAS.Server.Common.Interfaces;
 using TAS.Server.Media;
@@ -253,7 +254,12 @@ namespace TAS.Server
         public string EventName
         {
             get { return _eventName; }
-            set { SetField(ref _eventName, value); }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _eventName, value);
+            }
         }
 
         [JsonProperty]
@@ -273,17 +279,53 @@ namespace TAS.Server
         }
 
         [JsonProperty]
-        public bool IsHold { get { return _isHold; } set { SetField(ref _isHold, value); } }
-        
-        [JsonProperty]
-        public bool IsLoop { get { return _isLoop; } set { SetField(ref _isLoop, value); } }
+        public bool IsHold
+        {
+            get { return _isHold; }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _isHold, value);
+            }
+        }
 
         [JsonProperty]
-        public string IdAux { get { return _idAux; } set { SetField(ref _idAux, value); } }
+        public bool IsLoop
+        {
+            get { return _isLoop; }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _isLoop, value);
+            }
+        }
 
         [JsonProperty]
-        public ulong IdProgramme { get { return _idProgramme; } set { SetField(ref _idProgramme, value); } }
-        
+        public string IdAux
+        {
+            get { return _idAux; }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _idAux, value);
+            }
+        }
+
+        [JsonProperty]
+        public ulong IdProgramme
+        {
+            get { return _idProgramme; }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _idProgramme, value);
+            }
+        }
+
         [JsonProperty]
         public VideoLayer Layer { get { return _layer; } set { SetField(ref _layer, value); } }
 
@@ -293,6 +335,8 @@ namespace TAS.Server
             get { return _requestedStartTime; }
             set
             {
+                if (!HaveRight(EventRight.Modify))
+                    return;
                 if (SetField(ref _requestedStartTime, value))
                     NotifyPropertyChanged(nameof(Offset)); 
             }
@@ -302,11 +346,25 @@ namespace TAS.Server
         public TimeSpan ScheduledDelay
         {
             get { return _scheduledDelay; }
-            set { SetField(ref _scheduledDelay, ((Engine)Engine).AlignTimeSpan(value)); }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _scheduledDelay, ((Engine) Engine).AlignTimeSpan(value));
+            }
         }
 
         [JsonProperty]
-        public TimeSpan ScheduledTc { get { return _scheduledTc; } set { SetField(ref _scheduledTc, ((Engine)Engine).AlignTimeSpan(value)); } }
+        public TimeSpan ScheduledTc
+        {
+            get { return _scheduledTc; }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _scheduledTc, ((Engine) Engine).AlignTimeSpan(value));
+            }
+        }
 
         [JsonProperty]
         public DateTime ScheduledTime
@@ -314,7 +372,7 @@ namespace TAS.Server
             get { return _scheduledTime; }
             set
             {
-                if (_startType == TStartType.Manual || _startType == TStartType.OnFixedTime && _playState == TPlayState.Scheduled)
+                if (_startType == TStartType.Manual || _startType == TStartType.OnFixedTime && _playState == TPlayState.Scheduled && HaveRight(EventRight.Modify))
                     _setScheduledTime(((Engine)Engine).AlignDateTime(value));
             }
         }
@@ -357,6 +415,8 @@ namespace TAS.Server
             get { return _startType; }
             set
             {
+                if (!HaveRight(EventRight.Modify))
+                    return;
                 var oldValue = _startType;
                 if (SetField(ref _startType, value))
                 {
@@ -374,6 +434,8 @@ namespace TAS.Server
             get { return _transitionTime; }
             set
             {
+                if (!HaveRight(EventRight.Modify))
+                    return;
                 if (SetField(ref _transitionTime, ((Engine)Engine).AlignTimeSpan(value)))
                 {
                     _uppdateScheduledTime();
@@ -386,25 +448,49 @@ namespace TAS.Server
         public TimeSpan TransitionPauseTime
         {
             get { return _transitionPauseTime; }
-            set { SetField(ref _transitionPauseTime, ((Engine)Engine).AlignTimeSpan(value)); }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _transitionPauseTime, ((Engine)Engine).AlignTimeSpan(value));
+            }
         }
 
         [JsonProperty]
         public TTransitionType TransitionType
         {
             get { return _transitionType; }
-            set { SetField(ref _transitionType, value); }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _transitionType, value);
+            }
         }
 
         [JsonProperty]
         public TEasing TransitionEasing
         {
             get { return _transitionEasing; }
-            set { SetField(ref _transitionEasing, value); }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _transitionEasing, value);
+            }
         }
 
         [JsonProperty]
-        public AutoStartFlags AutoStartFlags { get { return _autoStartFlags; } set { SetField(ref _autoStartFlags, value); } }
+        public AutoStartFlags AutoStartFlags
+        {
+            get { return _autoStartFlags; }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _autoStartFlags, value);
+            }
+        }
 
         [JsonProperty]
         public Guid MediaGuid
@@ -453,7 +539,7 @@ namespace TAS.Server
         #endregion // IAclObject
 
         [JsonProperty]
-        public bool IsForcedNext { get { return _isForcedNext; } set { SetField(ref _isForcedNext, value); } }
+        public bool IsForcedNext { get { return _isForcedNext; } internal set { SetField(ref _isForcedNext, value); } }
 
         public bool IsModified
         {
@@ -519,8 +605,10 @@ namespace TAS.Server
             get { return ServerMediaPRI; }
             set
             {
+                if (!HaveRight(EventRight.Modify))
+                    return;
                 var newMedia = value as PersistentMedia;
-                _setMedia(newMedia, newMedia == null ? Guid.Empty: newMedia.MediaGuid);
+                _setMedia(newMedia, newMedia?.MediaGuid ?? Guid.Empty);
             }
         }
 
@@ -582,19 +670,55 @@ namespace TAS.Server
         }
         
         public bool IsDeleted => _isDeleted;
-        
-        [JsonProperty]
-        public bool IsCGEnabled { get { return _isCGEnabled; } set { SetField(ref _isCGEnabled, value); } }
 
         [JsonProperty]
-        public byte Crawl { get { return _crawl; } set { SetField(ref _crawl, value); } }
+        public bool IsCGEnabled
+        {
+            get { return _isCGEnabled; }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _isCGEnabled, value);
+            }
+        }
 
         [JsonProperty]
-        public byte Logo { get { return _logo; }  set { SetField(ref _logo, value); } }
+        public byte Crawl
+        {
+            get { return _crawl; }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _crawl, value);
+            }
+        }
 
         [JsonProperty]
-        public byte Parental { get { return _parental; } set { SetField(ref _parental, value); } }
-        
+        public byte Logo
+        {
+            get { return _logo; }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _logo, value);
+            }
+        }
+
+        [JsonProperty]
+        public byte Parental
+        {
+            get { return _parental; }
+            set
+            {
+                if (!HaveRight(EventRight.Modify))
+                    return;
+                SetField(ref _parental, value);
+            }
+        }
+
         public event EventHandler Relocated;
 
         public event EventHandler Deleted;
@@ -644,8 +768,10 @@ namespace TAS.Server
             StartType = TStartType.None;
         }
 
-        public void MoveUp()
+        public bool MoveUp()
         {
+            if (!HaveRight(EventRight.Modify))
+                return false;
             Event e2;
             Event e4;
             lock (_engine.RundownSync)
@@ -655,7 +781,7 @@ namespace TAS.Server
                 e4 = Next as Event; // load if nescessary
                 Debug.Assert(e2 != null, "Cannot move up - it's the first event");
                 if (e2 == null)
-                    return;
+                    return false;
                 Event e2Parent = e2.Parent as Event;
                 Event e2Prior = e2.Prior as Event;
                 if (e2Parent != null)
@@ -685,11 +811,13 @@ namespace TAS.Server
             e2.Save();
             Save();
             NotifyRelocated();
-
+            return true;
         }
 
-        public void MoveDown()
+        public bool MoveDown()
         {
+            if (!HaveRight(EventRight.Modify))
+                return false;
             Event e3;
             Event e4;
             lock (_engine.RundownSync)
@@ -698,7 +826,7 @@ namespace TAS.Server
                 e3 = Next as Event; // load if nescessary
                 Debug.Assert(e3 != null, "Cannot move down - it's the last event");
                 if (e3 == null)
-                    return;
+                    return false;
                 e4 = e3.Next as Event;
                 Event e2Parent = Parent as Event;
                 Event e2Prior = Prior as Event;
@@ -729,140 +857,141 @@ namespace TAS.Server
             Save();
             e3.Save();
             NotifyRelocated();
+            return true;
         }
 
-        public void InsertAfter(IEvent e)
+        public bool InsertAfter(IEvent e)
         {
-            Event eventToInsert = e as Event;
-            if (eventToInsert != null)
+            if (!HaveRight(EventRight.Create))
+                return false;
+            Event eventToInsert = (Event) e;
+            Event next;
+            lock (_engine.RundownSync)
             {
-                Event next;
-                lock (_engine.RundownSync)
-                {
-                    Event oldParent = eventToInsert.Parent as Event;
-                    Event oldPrior = eventToInsert.Prior as Event;
-                    if (oldParent != null)
-                        oldParent._subEventsRemove(eventToInsert);
-                    if (oldPrior != null)
-                        oldPrior.Next = null;
+                Event oldParent = eventToInsert.Parent as Event;
+                Event oldPrior = eventToInsert.Prior as Event;
+                if (oldParent != null)
+                    oldParent._subEventsRemove(eventToInsert);
+                if (oldPrior != null)
+                    oldPrior.Next = null;
 
-                    next = this.Next as Event;
-                    if (next == eventToInsert)
-                        return;
-                    this.Next = eventToInsert;
-                    eventToInsert.StartType = TStartType.After;
-                    eventToInsert.Prior = this;
+                next = this.Next as Event;
+                if (next == eventToInsert)
+                    return false;
+                this.Next = eventToInsert;
+                eventToInsert.StartType = TStartType.After;
+                eventToInsert.Prior = this;
 
-                    // notify about relocation
-                    eventToInsert.NotifyRelocated();
-                    eventToInsert.Next = next;
-
-                    if (next != null)
-                        next.Prior = eventToInsert;
-                }
-                //time calculations
-                eventToInsert._uppdateScheduledTime();
-                eventToInsert._durationChanged();
-
-                // save key events
-                eventToInsert.Save();
-                next?.Save();
-            }
-        }
-
-        public void InsertBefore(IEvent e)
-        {
-            Event eventToInsert = e as Event;
-            if (eventToInsert != null)
-            {
-                lock (_engine.RundownSync)
-                {
-                    Event prior = this.Prior as Event;
-                    Event parent = this.Parent as Event;
-                    Event oldParent = eventToInsert.Parent as Event;
-                    Event oldPrior = eventToInsert.Prior as Event;
-                    if (oldParent != null)
-                        oldParent._subEventsRemove(eventToInsert);
-                    if (oldPrior != null)
-                        oldPrior.Next = null;
-
-                    eventToInsert.StartType = _startType;
-                    if (prior == null)
-                        eventToInsert.IsHold = false;
-
-                    if (parent != null)
-                    {
-                        parent._subEvents.Value.Remove(this);
-                        parent._subEvents.Value.Add(eventToInsert);
-                        parent.NotifySubEventChanged(eventToInsert, CollectionOperation.Add);
-                        Parent = null;
-                    }
-                    eventToInsert.Parent = parent;
-                    eventToInsert.Prior = prior;
-
-                    if (prior != null)
-                        prior.Next = eventToInsert;
-
-                    // notify about relocation
-                    eventToInsert.NotifyRelocated();
-                    this.Prior = eventToInsert;
-                    eventToInsert.Next = this;
-                    this.StartType = TStartType.After;
-                }
-                // time calculations
-                eventToInsert._uppdateScheduledTime();
-                eventToInsert._durationChanged();
-
-                eventToInsert.Save();
-                this.Save();
-            }
-        }
-
-        public void InsertUnder(IEvent se, bool fromEnd)
-        {
-            Event subEventToAdd = se as Event;
-            if (subEventToAdd != null)
-            {
-                lock (_engine.RundownSync)
-                {
-                    Event oldPrior = subEventToAdd.Prior as Event;
-                    Event oldParent = subEventToAdd.Parent as Event;
-                    if (oldParent != null)
-                        oldParent._subEventsRemove(subEventToAdd);
-                    if (oldPrior != null)
-                        oldPrior.Next = null;
-                    if (EventType == TEventType.Container)
-                    {
-                        if (!(subEventToAdd.StartType == TStartType.Manual ||
-                              subEventToAdd.StartType == TStartType.OnFixedTime)) // do not change if valid
-                            subEventToAdd.StartType = TStartType.Manual;
-                    }
-                    else
-                        subEventToAdd.StartType = fromEnd ? TStartType.WithParentFromEnd : TStartType.WithParent;
-                    subEventToAdd.Parent = this;
-                    subEventToAdd.IsHold = false;
-                    _subEvents.Value.Add(subEventToAdd);
-                    NotifySubEventChanged(subEventToAdd, CollectionOperation.Add);
-                    Duration = _computedDuration();
-                    Event prior = subEventToAdd.Prior as Event;
-                    if (prior != null)
-                    {
-                        prior.Next = null;
-                        subEventToAdd.Prior = null;
-                        prior._durationChanged();
-                    }
-                }
-                subEventToAdd._uppdateScheduledTime();
                 // notify about relocation
-                subEventToAdd.NotifyRelocated();
-                Event lastToInsert = subEventToAdd.Next as Event;
-                while (lastToInsert != null)
-                {
-                    lastToInsert.NotifyRelocated();
-                    lastToInsert = lastToInsert.Next as Event;
-                }
-                subEventToAdd.Save();
+                eventToInsert.NotifyRelocated();
+                eventToInsert.Next = next;
+
+                if (next != null)
+                    next.Prior = eventToInsert;
             }
+            //time calculations
+            eventToInsert._uppdateScheduledTime();
+            eventToInsert._durationChanged();
+
+            // save key events
+            eventToInsert.Save();
+            next?.Save();
+            return true;
+        }
+
+        public bool InsertBefore(IEvent e)
+        {
+            if (!HaveRight(EventRight.Create))
+                return false;
+            Event eventToInsert = (Event) e;
+            lock (_engine.RundownSync)
+            {
+                Event prior = this.Prior as Event;
+                Event parent = this.Parent as Event;
+                Event oldParent = eventToInsert.Parent as Event;
+                Event oldPrior = eventToInsert.Prior as Event;
+                if (oldParent != null)
+                    oldParent._subEventsRemove(eventToInsert);
+                if (oldPrior != null)
+                    oldPrior.Next = null;
+
+                eventToInsert.StartType = _startType;
+                if (prior == null)
+                    eventToInsert.IsHold = false;
+
+                if (parent != null)
+                {
+                    parent._subEvents.Value.Remove(this);
+                    parent._subEvents.Value.Add(eventToInsert);
+                    parent.NotifySubEventChanged(eventToInsert, CollectionOperation.Add);
+                    Parent = null;
+                }
+                eventToInsert.Parent = parent;
+                eventToInsert.Prior = prior;
+
+                if (prior != null)
+                    prior.Next = eventToInsert;
+
+                // notify about relocation
+                eventToInsert.NotifyRelocated();
+                this.Prior = eventToInsert;
+                eventToInsert.Next = this;
+                this.StartType = TStartType.After;
+            }
+            // time calculations
+            eventToInsert._uppdateScheduledTime();
+            eventToInsert._durationChanged();
+
+            eventToInsert.Save();
+            this.Save();
+            return true;
+        }
+
+        public bool InsertUnder(IEvent se, bool fromEnd)
+        {
+            if (!HaveRight(EventRight.Create))
+                return false;
+            Event subEventToAdd = (Event) se;
+            lock (_engine.RundownSync)
+            {
+                Event oldPrior = subEventToAdd.Prior as Event;
+                Event oldParent = subEventToAdd.Parent as Event;
+                if (oldParent != null)
+                    oldParent._subEventsRemove(subEventToAdd);
+                if (oldPrior != null)
+                    oldPrior.Next = null;
+                if (EventType == TEventType.Container)
+                {
+                    if (!(subEventToAdd.StartType == TStartType.Manual ||
+                          subEventToAdd.StartType == TStartType.OnFixedTime)) // do not change if valid
+                        subEventToAdd.StartType = TStartType.Manual;
+                }
+                else
+                    subEventToAdd.StartType = fromEnd ? TStartType.WithParentFromEnd : TStartType.WithParent;
+                subEventToAdd.Parent = this;
+                subEventToAdd.IsHold = false;
+                _subEvents.Value.Add(subEventToAdd);
+                NotifySubEventChanged(subEventToAdd, CollectionOperation.Add);
+                Duration = _computedDuration();
+                Event prior = subEventToAdd.Prior as Event;
+                if (prior != null)
+                {
+                    prior.Next = null;
+                    subEventToAdd.Prior = null;
+                    prior._durationChanged();
+                }
+            }
+            subEventToAdd._uppdateScheduledTime();
+            // notify about relocation
+            subEventToAdd.NotifyRelocated();
+            Event lastToInsert = subEventToAdd.Next as Event;
+            while (lastToInsert != null)
+            {
+                lastToInsert.NotifyRelocated();
+                lastToInsert = lastToInsert.Next as Event;
+            }
+            subEventToAdd.Save();
+            return true;
         }
 
         /// <summary>
@@ -910,7 +1039,9 @@ namespace TAS.Server
 
         public void Delete()
         {
-            if (!IsDeleted && AllowDelete())
+            if (!IsDeleted 
+                && HaveRight(EventRight.Delete)
+                && AllowDelete())
                 _delete();
         }
 
@@ -1287,7 +1418,31 @@ namespace TAS.Server
             }
             return null;
         }
-        
+
+        private ulong EffectiveRights()
+        {
+            IUser identity = (IUser)Thread.CurrentPrincipal?.Identity;
+            if (identity == null)
+                return 0;
+            if (identity.IsAdmin)
+                return ulong.MaxValue; // Full rights
+            var visualParent = _getVisualParent();
+            ulong acl = visualParent?.EffectiveRights() ?? 0;
+            var groups = identity.Groups;
+            lock (_rights)
+            {
+                var userRights = _rights.Value.Where(r => r.SecurityObject == identity || groups.Any(g => g == r.SecurityObject));
+                foreach (var right in userRights)
+                    acl |= right.Acl;
+            }
+            return acl;
+        }
+
+        private bool HaveRight(EventRight right)
+        {
+            return (EffectiveRights() & (ulong)right) > 0;
+        }
+
         private void NotifySaved()
         {
             Saved?.Invoke(this, EventArgs.Empty);
@@ -1302,6 +1457,7 @@ namespace TAS.Server
         {
             Relocated?.Invoke(this, EventArgs.Empty);
         }
+
        
     }
 

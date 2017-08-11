@@ -18,6 +18,8 @@ namespace TAS.Client
 
         public bool IsAuthenticated { get; } = true;
 
+        public bool IsAdmin { get; set; } = true;
+
         public ulong Id { get; set; }
 
         public void Save()
@@ -30,7 +32,7 @@ namespace TAS.Client
             throw new NotImplementedException();
         }
 
-        public IList<IGroup> Groups { get; } = new List<IGroup>();
+        public IReadOnlyCollection<IGroup> Groups { get; } = new List<IGroup>();
 
         public void GroupAdd(IGroup group)
         {

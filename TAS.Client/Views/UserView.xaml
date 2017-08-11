@@ -36,7 +36,7 @@
             </StackPanel>
             <Label Content="{Resx _name}"/>
             <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
-            <StackPanel Orientation="Horizontal"/>
+            <CheckBox IsChecked="{Binding IsAdmin}" Content="{Resx _isAdmin}" Margin="5" />
             <Label Content="{Resx _groupMembership}"/>
         </StackPanel>
         <xctk:CheckListBox ItemsSource="{Binding AllGroups}" SelectedItemsOverride="{Binding GroupMember}">
@@ -45,7 +45,6 @@
                     <TextBlock Text="{Binding Name}"/>
                 </DataTemplate>
             </xctk:CheckListBox.Resources>
-            
         </xctk:CheckListBox>
 
     </DockPanel>
