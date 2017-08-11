@@ -12,6 +12,8 @@ using WebSocketSharp;
 using WebSocketSharp.Server;
 using delegateKey = System.Tuple<System.Guid, string>;
 using Newtonsoft.Json.Serialization;
+using TAS.Server.Common;
+using TAS.Server.Common.Interfaces;
 
 namespace TAS.Remoting.Server
 {
@@ -19,12 +21,14 @@ namespace TAS.Remoting.Server
     {
         private readonly JsonSerializer _serializer;
         private readonly IDto _initialObject;
+        private readonly IAuthenticationService _authenticationService;
         private readonly ReferenceResolver _referenceResolver;
         private readonly ConcurrentDictionary<Tuple<Guid, string>, Delegate> _delegates;
 
-        public CommunicationBehavior(IDto initialObject)
+        public CommunicationBehavior(IDto initialObject, IAuthenticationService authenticationService)
         {
             _initialObject = initialObject;
+            _authenticationService = authenticationService;
             _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
             Debug.WriteLine(initialObject, "Server: created behavior for");
             _serializer = JsonSerializer.CreateDefault();
@@ -51,6 +55,7 @@ namespace TAS.Remoting.Server
         protected override void OnMessage(MessageEventArgs e)
         {
             //Thread.CurrentPrincipal = 
+            var user = _authenticationService.FindUser(AuthenticationSource.IpAddress, Context.Host);
             WebSocketMessage message = Deserialize<WebSocketMessage>(e.Data);
             try
             {

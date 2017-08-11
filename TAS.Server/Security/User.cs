@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
+using System.Threading;
 using System.Xml.Serialization;
 using TAS.Server.Common;
 using TAS.Server.Common.Database;
@@ -20,11 +22,15 @@ namespace TAS.Server.Security
 
         private ulong[] _groupsIds;
         private bool _isAdmin;
+        private AuthenticationSource _authenticationSource;
+        private string _authenticationObject;
+        private Principal _principal;
+        private readonly object _principalLock = new object();
 
         [XmlIgnore]
         public override SceurityObjectType SceurityObjectTypeType { get; } = SceurityObjectType.User;
 
-        public string AuthenticationType { get; } = "Internal";
+        public string AuthenticationType => _authenticationSource.ToString();
 
         public bool IsAuthenticated => !string.IsNullOrEmpty(Name);
 
@@ -32,6 +38,18 @@ namespace TAS.Server.Security
         {
             get { return _isAdmin; }
             set { SetField(ref _isAdmin, value); }
+        }
+
+        public AuthenticationSource AuthenticationSource
+        {
+            get { return _authenticationSource; }
+            set { SetField(ref _authenticationSource, value); }
+        }
+
+        public string AuthenticationObject
+        {
+            get { return _authenticationObject; }
+            set { SetField(ref _authenticationObject, value); }
         }
 
         [XmlIgnore]
@@ -96,6 +114,13 @@ namespace TAS.Server.Security
             this.DbDeleteSecurityObject();
         }
 
+        protected override bool SetField<T>(ref T field, T value, string propertyName = null)
+        {
+            lock(_principalLock)
+                _principal = null;
+            return base.SetField(ref field, value, propertyName);
+        }
+
         internal void PopulateGroups(List<Group> allGroups)
         {
             if (allGroups == null || _groupsIds == null)
@@ -113,5 +138,14 @@ namespace TAS.Server.Security
             _groupsIds = null;
         }
 
+        internal IPrincipal GetPrincipal()
+        {
+            lock (_principalLock)
+            {
+                if (_principal == null)
+                    _principal = new Principal(this, IsAdmin ? Roles.All : new[] {Roles.Media, Roles.Preview, Roles.Playout});
+                return _principal;
+            }
+        }
     }
 }

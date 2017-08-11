@@ -16,14 +16,14 @@ namespace TAS.Client.ViewModels
         private readonly IAuthenticationService _authenticationService;
         private EventRightViewmodel _selectedRight;
         private ISecurityObject _selectedAclObject;
-        private readonly IReadOnlyCollection<IAclRight> _originalRights;
+        private readonly List<IAclRight> _originalRights;
 
         public EventRightsEditViewmodel(IEvent ev, IAuthenticationService authenticationService)
         {
             _ev = ev;
             _authenticationService = authenticationService;
             AclObjects = authenticationService.Users.Cast<ISecurityObject>().Concat(authenticationService.Groups).ToArray();
-            _originalRights = ev.Rights;
+            _originalRights = ev.Rights.ToList();
             Rights = new ObservableCollection<EventRightViewmodel>(_originalRights.Select(r => new EventRightViewmodel(r)));
             foreach (var eventRightViewmodel in Rights)
             {

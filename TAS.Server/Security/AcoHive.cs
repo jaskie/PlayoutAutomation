@@ -58,10 +58,10 @@ namespace TAS.Server.Security
         return isRemoved;
     }
 
-    public TItem FindById(ulong id)
+    public TItem Find(Predicate<TItem> match)
     {
         lock (((IList) _items).SyncRoot)
-            return _items.Find(i => i.Id == id);
+            return _items.Find(match);
     }
 
     public event EventHandler<CollectionOperationEventArgs<TItem>> AcoOperartion;

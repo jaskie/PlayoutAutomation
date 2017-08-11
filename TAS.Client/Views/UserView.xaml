@@ -37,8 +37,15 @@
             <Label Content="{Resx _name}"/>
             <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
             <CheckBox IsChecked="{Binding IsAdmin}" Content="{Resx _isAdmin}" Margin="5" />
-            <Label Content="{Resx _groupMembership}"/>
+            <DockPanel>
+                <Label Content="{Resx _authenticationSource}"/>
+                <ComboBox ItemsSource="{Binding AuthenticationSources}" SelectedItem="{Binding AuthenticationSource}" VerticalAlignment="Center"/>
+            </DockPanel>
+            <Label Content="{Resx _authenticationObject}"/>
+            <TextBox Text="{Binding AuthenticationObject, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
+        <Separator DockPanel.Dock="Top" Margin="5" />
+        <Label DockPanel.Dock="Top" Content="{Resx _groupMembership}"/>
         <xctk:CheckListBox ItemsSource="{Binding AllGroups}" SelectedItemsOverride="{Binding GroupMember}">
             <xctk:CheckListBox.Resources>
                 <DataTemplate DataType="{x:Type vm:GroupViewmodel}">

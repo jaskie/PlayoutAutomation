@@ -61,6 +61,33 @@ namespace TAS.Server.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Console.
+        /// </summary>
+        public static string AuthenticationSource_Console {
+            get {
+                return ResourceManager.GetString("AuthenticationSource_Console", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Station IP address.
+        /// </summary>
+        public static string AuthenticationSource_IpAddress {
+            get {
+                return ResourceManager.GetString("AuthenticationSource_IpAddress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows credentials.
+        /// </summary>
+        public static string AuthenticationSource_WindowsCredentials {
+            get {
+                return ResourceManager.GetString("AuthenticationSource_WindowsCredentials", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Aborted.
         /// </summary>
         public static string FileOperationStatus_Aborted {

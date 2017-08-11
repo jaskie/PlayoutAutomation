@@ -435,4 +435,13 @@
   <data name="TIngestDirectoryKind_XDCAM" xml:space="preserve">
     <value>XDCAM drive</value>
   </data>
+  <data name="AuthenticationSource_Console" xml:space="preserve">
+    <value>Console</value>
+  </data>
+  <data name="AuthenticationSource_IpAddress" xml:space="preserve">
+    <value>Station IP address</value>
+  </data>
+  <data name="AuthenticationSource_WindowsCredentials" xml:space="preserve">
+    <value>Windows credentials</value>
+  </data>
 </root>

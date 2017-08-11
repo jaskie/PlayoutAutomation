@@ -13,5 +13,7 @@ namespace TAS.Server.Common.Interfaces
         void GroupAdd(IGroup group);
         bool GroupRemove(IGroup group);
         bool IsAdmin { get; set; }
+        AuthenticationSource AuthenticationSource { get; set; }
+        string AuthenticationObject { get; set; }
     }
 }

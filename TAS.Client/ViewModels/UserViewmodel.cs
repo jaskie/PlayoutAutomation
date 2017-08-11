@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using TAS.Client.Common;
+using TAS.Server.Common;
 using TAS.Server.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
@@ -15,6 +16,8 @@ namespace TAS.Client.ViewModels
         private string _name;
         private readonly UserManagerViewmodel _owner;
         private bool _isAdmin;
+        private AuthenticationSource _authenticationSource;
+        private string _authenticationObject;
 
         public UserViewmodel(IUser user, UserManagerViewmodel owner): base(user)
         {
@@ -27,6 +30,20 @@ namespace TAS.Client.ViewModels
         {
             get { return _name; }
             set { SetField(ref _name, value); }
+        }
+
+        public AuthenticationSource AuthenticationSource
+        {
+            get { return _authenticationSource; }
+            set { SetField(ref _authenticationSource, value); }
+        }
+
+        public AuthenticationSource[] AuthenticationSources { get; } = Enum.GetValues(typeof(AuthenticationSource)).Cast<AuthenticationSource>().Where(a => a != AuthenticationSource.Console).ToArray();
+
+        public string AuthenticationObject
+        {
+            get { return _authenticationObject; }
+            set { SetField(ref _authenticationObject, value); }
         }
 
         public bool IsAdmin

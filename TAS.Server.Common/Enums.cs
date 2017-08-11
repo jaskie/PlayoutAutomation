@@ -538,4 +538,19 @@ namespace TAS.Server.Common
         Group,
     }
 
+    class AuthenticationSourceEnumConverter : ResourceEnumConverter
+    {
+        public AuthenticationSourceEnumConverter()
+            : base(typeof(AuthenticationSource), Properties.Enums.ResourceManager)
+        { }
+    }
+
+    [TypeConverter(typeof(AuthenticationSourceEnumConverter))]
+    public enum AuthenticationSource
+    {
+        Console, // user 
+        WindowsCredentials,
+        IpAddress
+    }
+
 }

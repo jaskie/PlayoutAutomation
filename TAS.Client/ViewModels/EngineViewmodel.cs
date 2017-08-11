@@ -209,8 +209,7 @@ namespace TAS.Client.ViewModels
                 Engine.PlayoutChannelSEC.PropertyChanged -= OnServerChannelPropertyChanged;
             if (Engine.PlayoutChannelPRV != null)
                 Engine.PlayoutChannelPRV.PropertyChanged -= OnServerChannelPropertyChanged;
-            if (_videoPreview != null)
-                _videoPreview.Dispose();
+            _videoPreview?.Dispose();
         }
         
 
@@ -266,7 +265,6 @@ namespace TAS.Client.ViewModels
             CommandSaveRundown = new UICommand { ExecuteDelegate = _saveRundown, CanExecuteDelegate = o => SelectedEvent != null && SelectedEvent.Event.EventType == TEventType.Rundown };
             CommandLoadRundown = new UICommand { ExecuteDelegate = _loadRundown, CanExecuteDelegate = o => o.Equals("Under") ? _canAddSubRundown(o) : _canAddNextRundown(o) };
             CommandUserManager = new UICommand {ExecuteDelegate = _userManager, CanExecuteDelegate = _canUserManager};
-
         }
 
         [PrincipalPermission(SecurityAction.Demand, Role = Roles.UserAdmin)]

@@ -15,7 +15,7 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="2*"/>
                 </Grid.ColumnDefinitions>
                 <DockPanel Margin="1">
                     <Label DockPanel.Dock="Top" Content="{Resx _userList}" Style="{StaticResource HeaderLabel}"/>

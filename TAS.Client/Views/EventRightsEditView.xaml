@@ -27,17 +27,17 @@
                 </Style>
             </DataGrid.CellStyle>
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Binding="{Binding Create}">
+                <DataGridCheckBoxColumn Binding="{Binding Create, UpdateSourceTrigger=PropertyChanged}">
                     <DataGridCheckBoxColumn.Header>
                         <TextBlock Text="C" ToolTip="{Resx _create, ResxName=TAS.Client.Views.EventRightsEditView}"></TextBlock>
                     </DataGridCheckBoxColumn.Header>
                 </DataGridCheckBoxColumn>
-                <DataGridCheckBoxColumn Binding="{Binding Delete}" >
+                <DataGridCheckBoxColumn Binding="{Binding Delete, UpdateSourceTrigger=PropertyChanged}" >
                     <DataGridCheckBoxColumn.Header>
                         <TextBlock Text="D" ToolTip="{Resx _delete, ResxName=TAS.Client.Views.EventRightsEditView}"></TextBlock>
                     </DataGridCheckBoxColumn.Header>
                 </DataGridCheckBoxColumn>
-                <DataGridCheckBoxColumn Binding="{Binding Modify}">
+                <DataGridCheckBoxColumn Binding="{Binding Modify, UpdateSourceTrigger=PropertyChanged}">
                     <DataGridCheckBoxColumn.Header>
                         <TextBlock Text="M" ToolTip="{Resx _modify, ResxName=TAS.Client.Views.EventRightsEditView}"></TextBlock>
                     </DataGridCheckBoxColumn.Header>

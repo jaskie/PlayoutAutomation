@@ -45,9 +45,13 @@ namespace TAS.Server.Security
 
         public ISecurityObject FindSecurityObject(ulong id)
         {
-            return (ISecurityObject)_groups.FindById(id) ?? _users.FindById(id);
+            return (ISecurityObject)_groups.Find(i => i.Id == id) ?? _users.Find(i => i.Id == id);
         }
 
+        public IUser FindUser(AuthenticationSource source, string authenticationObject)
+        {
+            return _users.Find(u => u.AuthenticationSource == source && u.AuthenticationObject == authenticationObject);
+        }
 
         public event EventHandler<CollectionOperationEventArgs<IUser>> UsersOperation;
 

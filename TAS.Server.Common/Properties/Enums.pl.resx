@@ -438,4 +438,13 @@
   <data name="TIngestDirectoryKind_XDCAM" xml:space="preserve">
     <value>Napęd XDCAM</value>
   </data>
+  <data name="AuthenticationSource_Console" xml:space="preserve">
+    <value>Konsola</value>
+  </data>
+  <data name="AuthenticationSource_IpAddress" xml:space="preserve">
+    <value>Adres IP stacji</value>
+  </data>
+  <data name="AuthenticationSource_WindowsCredentials" xml:space="preserve">
+    <value>Login Windows</value>
+  </data>
 </root>

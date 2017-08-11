@@ -16,6 +16,7 @@ namespace TAS.Server.Common.Interfaces
         bool RemoveGroup(IGroup group);
         event EventHandler<CollectionOperationEventArgs<IUser>> UsersOperation;
         event EventHandler<CollectionOperationEventArgs<IGroup>> GroupsOperation;
+        IUser FindUser(AuthenticationSource source, string authenticationObject);
     }
 
     public interface IAuthenticationServicePersitency
