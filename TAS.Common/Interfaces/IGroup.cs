@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TAS.Common.Interfaces
 {
-    public interface IGroup: ISecurityObject, IPersistent
+    public interface IGroup: ISecurityObject
     {
         string Name { get; set; }
     }

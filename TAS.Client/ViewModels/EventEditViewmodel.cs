@@ -825,7 +825,7 @@ namespace TAS.Client.ViewModels
                             zeroPi.SetValue(this, null, null);
                     }
                 }
-                EventRightsEditViewmodel = e2Load?.EventType == TEventType.Container ? new EventRightsEditViewmodel(e2Load, _engineViewModel.AuthenticationService) : null;
+                EventRightsEditViewmodel = e2Load?.EventType == TEventType.Container ? new EventRightsEditViewmodel(e2Load, _engineViewModel.Engine.AuthenticationService) : null;
             }
             finally
             {

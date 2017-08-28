@@ -80,6 +80,8 @@ namespace TAS.Remoting.Model
 
         public bool Pst2Prv { get { return Get<bool>(); } set { SetLocalValue(value); } }
 
+        public IAuthenticationService AuthenticationService { get { return Get<Security.AuthenticationService>(); }  set { SetLocalValue(value); } }
+
         public IEnumerable<IEvent> GetRootEvents() { return Query<List<IEvent>>(); }
 
         public int ServerChannelPRI { get; set; }

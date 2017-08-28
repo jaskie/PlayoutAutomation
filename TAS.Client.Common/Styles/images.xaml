@@ -81,10 +81,10 @@
     </Style>
     <Style x:Key="SecurityObjectTypeImage" TargetType="Image" BasedOn="{StaticResource {x:Type Image}}">
         <Style.Triggers>
-            <DataTrigger Binding="{Binding SceurityObjectTypeType}" Value="User">
+            <DataTrigger Binding="{Binding SecurityObjectTypeType}" Value="User">
                 <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Secutity/user.png"/>
             </DataTrigger>
-            <DataTrigger Binding="{Binding SceurityObjectTypeType}" Value="Group">
+            <DataTrigger Binding="{Binding SecurityObjectTypeType}" Value="Group">
                 <Setter Property="Source" Value="/TAS.Client.Common;component/Images/Secutity/group.png"/>
             </DataTrigger>
         </Style.Triggers>

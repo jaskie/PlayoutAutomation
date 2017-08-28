@@ -19,8 +19,8 @@ namespace TAS.Client.ViewModels
             Groups = authenticationService.Groups;
         }
 
-        public IList<IUser> Users { get; }
-        public IList<IGroup> Groups { get; }
+        public IEnumerable<IUser> Users { get; }
+        public IEnumerable<IGroup> Groups { get; }
 
         public ISecurityObject SelectedSecurityObject
         {

@@ -77,6 +77,7 @@ namespace TAS.Common.Interfaces
         IEvent NextWithRequestedStartTime { get; }
         IEvent ForcedNext { get; }
         bool IsWideScreen { get; }
+        IAuthenticationService AuthenticationService { get; }
         event EventHandler<EventEventArgs> EventSaved;
         event EventHandler<EventEventArgs> EventDeleted;
         event EventHandler<EngineTickEventArgs> EngineTick;

@@ -16,7 +16,7 @@ namespace TAS.Server.Security
         public Group(IAuthenticationService authenticationService): base(authenticationService) { }
 
         [XmlIgnore]
-        public override SceurityObjectType SceurityObjectTypeType { get; } = SceurityObjectType.Group;
+        public override SecurityObjectType SecurityObjectTypeType { get; } = SecurityObjectType.Group;
 
         public override void Save()
         {

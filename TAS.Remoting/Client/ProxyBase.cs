@@ -82,10 +82,7 @@ namespace TAS.Remoting.Client
             if (handler == null && !DtoGuid.Equals(Guid.Empty))
             {
                 var client = _client;
-                if (client != null)
-                {
-                    client.EventAdd(this, eventName);
-                }
+                client?.EventAdd(this, eventName);
             }
         }
 

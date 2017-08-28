@@ -1657,7 +1657,7 @@ WHERE idArchiveMedia=@idArchiveMedia;";
                         serializer.Serialize(writer, pAco);
                         cmd.Parameters.AddWithValue("@Config", writer.ToString());
                     }
-                    cmd.Parameters.AddWithValue("@typAco", (int) aco.SceurityObjectTypeType);
+                    cmd.Parameters.AddWithValue("@typAco", (int) aco.SecurityObjectTypeType);
                     cmd.ExecuteNonQuery();
                     pAco.Id = (ulong)cmd.LastInsertedId;
                 }
@@ -1717,9 +1717,9 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             {
                 var cmd = new DbCommandRedundant("select * from aco where typACO=@typACO;", _connection);
                 if (typeof(IUser).IsAssignableFrom(typeof(T)))
-                    cmd.Parameters.AddWithValue("@typACO", (int) SceurityObjectType.User);
+                    cmd.Parameters.AddWithValue("@typACO", (int) SecurityObjectType.User);
                 if (typeof(IGroup).IsAssignableFrom(typeof(T)))
-                    cmd.Parameters.AddWithValue("@typACO", (int)SceurityObjectType.Group);
+                    cmd.Parameters.AddWithValue("@typACO", (int)SecurityObjectType.Group);
                 using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
                 {
                     while (dataReader.Read())

@@ -59,6 +59,14 @@ namespace TAS.Remoting
                     return typeof(Model.CGElementsController);
                 case "TAS.Server.CGElement":
                     return typeof(Model.CGElement);
+                case "TAS.Server.Security.AuthenticationService":
+                    return typeof(Model.Security.AuthenticationService);
+                case "TAS.Server.Security.User":
+                    return typeof(Model.Security.User);
+                case "TAS.Server.Security.Group":
+                    return typeof(Model.Security.Group);
+                case "TAS.Server.Security.EventAclItem":
+                    return typeof(Model.Security.EventAclItem);
                 default:
                         return Type.GetType($"{typeName}, {assemblyName}", true);
             }

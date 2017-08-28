@@ -238,7 +238,7 @@ namespace TAS.Remoting.Client
             funcAsyncResult.AsyncWaitHandle.WaitOne();
             if (funcAsyncResult.IsCompleted)
                 return resultFunc.EndInvoke(funcAsyncResult);
-            else return null;
+            return null;
         }
 
         private T _send<T>(WebSocketMessage query)
@@ -248,8 +248,7 @@ namespace TAS.Remoting.Client
                 _clientSocket.Send(Serialize(query));
                 return MethodParametersAlignment.AlignType<T>(WaitForResponse(query).Response);
             }
-            else
-                return default(T);
+            return default(T);
         }
 
     }

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using TAS.Remoting.Client;
 using TAS.Common;
@@ -86,7 +87,7 @@ namespace TAS.Remoting.Model
 
         public TStartType StartType { get { return Get<TStartType>(); } set { Set(value); } }
 
-        public IList<IEvent> SubEvents
+        public List<IEvent> SubEvents
         {
             get
             {
@@ -108,8 +109,16 @@ namespace TAS.Remoting.Model
 
         public TTransitionType TransitionType { get { return Get<TTransitionType>(); } set { Set(value); } }
 
+        [JsonProperty(nameof(Rights))]
+        private ReadOnlyCollection<Security.EventAclItem> _rights { get { return Get<ReadOnlyCollection<Security.EventAclItem>>(); } set {SetLocalValue(value); } }
+        [JsonIgnore]
+        public IReadOnlyCollection<IAclRight> Rights => _rights;
+
+        public IAclRight AddRightFor(ISecurityObject securityObject) { return  Query<IAclRight>(parameters: new object[] {securityObject}); }
+        public bool DeleteRight(IAclRight item) { return Query<bool>(parameters: new object[] {item}); }
+
         #region Event handlers
-        event EventHandler _deleted;
+        private event EventHandler _deleted;
         public event EventHandler Deleted
         {
             add
@@ -123,7 +132,7 @@ namespace TAS.Remoting.Model
                 EventRemove(_deleted);
             }
         }
-        event EventHandler<EventPositionEventArgs> _positionChanged;
+        private event EventHandler<EventPositionEventArgs> _positionChanged;
         public event EventHandler<EventPositionEventArgs> PositionChanged
         {
             add
@@ -137,7 +146,7 @@ namespace TAS.Remoting.Model
                 EventRemove(_positionChanged);
             }
         }
-        event EventHandler _relocated;
+        private event EventHandler _relocated;
         public event EventHandler Relocated
         {
             add
@@ -151,7 +160,7 @@ namespace TAS.Remoting.Model
                 EventRemove(_relocated);
             }
         }
-        event EventHandler _saved;
+        private event EventHandler _saved;
         public event EventHandler Saved
         {
             add
@@ -165,7 +174,7 @@ namespace TAS.Remoting.Model
                 EventRemove(_saved);
             }
         }
-        event EventHandler<CollectionOperationEventArgs<IEvent>> _subEventChanged;
+        private event EventHandler<CollectionOperationEventArgs<IEvent>> _subEventChanged;
         public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged
         {
             add
@@ -177,24 +186,6 @@ namespace TAS.Remoting.Model
             {
                 _subEventChanged -= value;
                 EventRemove(_subEventChanged);
-            }
-        }
-
-        private void _subeventChanged(CollectionOperationEventArgs<IEvent> e)
-        {
-            object subEvents;
-            if (Properties.TryGetValue(nameof(SubEvents), out subEvents))
-            {
-                var list = subEvents as IList<IEvent>;
-                if (list != null)
-                {
-                    if (e.Operation == CollectionOperation.Add)
-                        list.Add(e.Item);
-                    else
-                        list.Remove(e.Item);
-                    SubEventsCount = list.Count;
-                    NotifyPropertyChanged(nameof(SubEventsCount));
-                }
             }
         }
 
@@ -227,15 +218,41 @@ namespace TAS.Remoting.Model
         public bool AllowDelete() { return Query<bool>(); }
 
         public void Delete() { Invoke(); }
-        public void InsertAfter(IEvent e) { Invoke(parameters: new object[] { e }); }
-        public void InsertBefore(IEvent e) { Invoke(parameters: new object[] { e }); }
-        public void InsertUnder(IEvent se, bool fromEnd) { Invoke(parameters: new object[] { se, fromEnd }); }
-        public void MoveDown() { Invoke(); }
-        public void MoveUp() { Invoke(); }
+
+        public bool InsertAfter(IEvent e) { return Query<bool>(parameters: new object[] { e }); }
+
+        public bool InsertBefore(IEvent e) { return Query<bool>(parameters: new object[] { e }); }
+
+        public bool InsertUnder(IEvent se, bool fromEnd) { return Query<bool>(parameters: new object[] { se, fromEnd }); }
+
+        public bool MoveDown() { return Query <bool>(); }
+
+        public bool MoveUp() { return Query<bool>(); }
+
         public void Remove() { Invoke(); }
+
         public void Save()
         {
             Invoke();
         }
+
+        private void _subeventChanged(CollectionOperationEventArgs<IEvent> e)
+        {
+            object subEvents;
+            if (Properties.TryGetValue(nameof(SubEvents), out subEvents))
+            {
+                var list = subEvents as IList<IEvent>;
+                if (list != null)
+                {
+                    if (e.Operation == CollectionOperation.Add)
+                        list.Add(e.Item);
+                    else
+                        list.Remove(e.Item);
+                    SubEventsCount = list.Count;
+                    NotifyPropertyChanged(nameof(SubEventsCount));
+                }
+            }
+        }
+
     }
 }

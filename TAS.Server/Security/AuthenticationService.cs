@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using TAS.Remoting.Server;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -27,9 +28,11 @@ namespace TAS.Server.Security
             _groups.AcoOperartion += Groups_AcoOperation;
         }
 
-        public IList<IUser> Users => _users.Items;
+        [JsonProperty]
+        public IEnumerable<IUser> Users => _users.Items;
 
-        public IList<IGroup> Groups => _groups.Items;
+        [JsonProperty]
+        public IEnumerable<IGroup> Groups => _groups.Items;
 
         public IUser CreateUser() => new User(this);
 

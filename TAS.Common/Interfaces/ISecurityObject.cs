@@ -9,8 +9,8 @@ namespace TAS.Common.Interfaces
     /// <summary>
     /// base interface for IUser and IGroup
     /// </summary>
-    public interface ISecurityObject
+    public interface ISecurityObject: IPersistent
     {
-        SceurityObjectType SceurityObjectTypeType { get; }
+        SecurityObjectType SecurityObjectTypeType { get; }
     }
 }

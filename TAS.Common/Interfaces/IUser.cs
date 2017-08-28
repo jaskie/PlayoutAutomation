@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TAS.Common.Interfaces
 {
-    public interface IUser: ISecurityObject, IIdentity, IPersistent
+    public interface IUser: ISecurityObject, IIdentity
     {
         IReadOnlyCollection<IGroup> Groups { get; }
         void GroupAdd(IGroup group);

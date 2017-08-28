@@ -55,8 +55,8 @@ namespace TAS.Server
         private decimal _previewAudioVolume;
         private bool _previewLoaded;
         private bool _previewIsPlaying;
-
-
+        private AuthenticationService _authenticationService;
+        
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Engine));
         private static TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
 
@@ -128,7 +128,7 @@ namespace TAS.Server
         public IMediaManager MediaManager => _mediaManager;
 
         [XmlIgnore]
-        [JsonProperty(nameof(CGElementsController))]
+        [JsonProperty]
         public ICGElementsController CGElementsController { get; private set; }
 
         public RemoteClientHost Remote { get; set; }
@@ -231,10 +231,11 @@ namespace TAS.Server
             }
         }
         
-        public void Initialize(IList<CasparServer> servers)
+        public void Initialize(IList<CasparServer> servers, AuthenticationService authenticationService)
         {
             Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Initializing engine {0}", this);
+            _authenticationService = authenticationService;
 
             var recorders = new List<CasparRecorder>();
 
@@ -784,6 +785,10 @@ namespace TAS.Server
         #region  IPersistent properties
         [XmlIgnore]
         public ulong Id { get; set; }
+
+        [XmlIgnore]
+        [JsonProperty]
+        public IAuthenticationService AuthenticationService => _authenticationService;
 
         public void Save()
         {

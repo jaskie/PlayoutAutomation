@@ -170,7 +170,7 @@ namespace TAS.Server
                 return null;
             });
 
-            _rights = new Lazy<List<IAclRight>>(() => Db.DbReadEventAclList<EventAclItem>(this, EngineController.AuthenticationService));
+            _rights = new Lazy<List<IAclRight>>(() => Db.DbReadEventAclList<EventAclItem>(this, _engine.AuthenticationService as IAuthenticationServicePersitency));
         }
         #endregion //Constructor
 
@@ -506,6 +506,7 @@ namespace TAS.Server
 
         #region IAclObject
 
+        [JsonProperty(IsReference = false, ItemIsReference = true)]
         public IReadOnlyCollection<IAclRight> Rights
         {
             get

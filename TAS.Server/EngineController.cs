@@ -14,7 +14,6 @@ namespace TAS.Server
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(EngineController));
 
         public static List<Engine> Engines { get; private set; }
-        public static AuthenticationService AuthenticationService { get; private set; }
 
         public static void Initialize()
         {
@@ -29,11 +28,11 @@ namespace TAS.Server
                 s.ChannelsSer.ForEach(c => c.Owner = s);
                 s.RecordersSer.ForEach(r => r.SetOwner(s));
             });
-            
-            AuthenticationService = new AuthenticationService(Db.DbLoad<User>(), Db.DbLoad<Group>());
+
+            AuthenticationService authenticationService = new AuthenticationService(Db.DbLoad<User>(), Db.DbLoad<Group>());
             Engines = Db.DbLoadEngines<Engine>(ulong.Parse(ConfigurationManager.AppSettings["Instance"]));
             foreach (var e in Engines)
-                e.Initialize(_servers);
+                e.Initialize(_servers, authenticationService);
             Logger.Debug("Engines initialized");
         }
 

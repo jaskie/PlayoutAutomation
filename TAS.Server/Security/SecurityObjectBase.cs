@@ -1,5 +1,5 @@
-﻿using System.Runtime.Serialization;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
+using Newtonsoft.Json;
 using TAS.Remoting.Server;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -9,7 +9,7 @@ namespace TAS.Server.Security
     /// <summary>
     /// base class for User and Group
     /// </summary>
-    public abstract class SecurityObjectBase: DtoBase, ISecurityObject, IPersistent
+    public abstract class SecurityObjectBase: DtoBase, ISecurityObject
     {
         private string _name;
 
@@ -18,14 +18,14 @@ namespace TAS.Server.Security
             AuthenticationService = authenticationService;
         }
 
-        public abstract SceurityObjectType SceurityObjectTypeType { get; }
+        public abstract SecurityObjectType SecurityObjectTypeType { get; }
         [XmlIgnore]
         public IAuthenticationService AuthenticationService { get; set; }
 
         [XmlIgnore]
         public ulong Id { get; set; }
 
-        [DataMember]
+        [JsonProperty]
         public string Name
         {
             get { return _name; }

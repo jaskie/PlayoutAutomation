@@ -37,11 +37,10 @@ namespace TAS.Client.ViewModels
         private readonly ObservableCollection<EventPanelViewmodelBase> _multiSelectedEvents;
 
 
-        public EngineViewmodel(IEngine engine, IPreview preview, bool allowPlayControl, IAuthenticationService authenticationService)
+        public EngineViewmodel(IEngine engine, IPreview preview, bool allowPlayControl)
         {
             Debug.WriteLine($"Creating EngineViewmodel for {engine}");
             Engine = engine;
-            AuthenticationService = authenticationService;
             VideoFormat = engine.VideoFormat;
             _videoFormatDescription = engine.FormatDescription;
             _allowPlayControl = allowPlayControl;
@@ -162,8 +161,6 @@ namespace TAS.Client.ViewModels
 
         public IEngine Engine { get; }
 
-        public IAuthenticationService AuthenticationService { get; }
-
         public EventPanelViewmodelBase RootEventViewModel { get; }
 
         public PreviewViewmodel PreviewViewmodel { get; }
@@ -270,7 +267,7 @@ namespace TAS.Client.ViewModels
         [PrincipalPermission(SecurityAction.Demand, Role = Roles.UserAdmin)]
         private void _userManager(object obj)
         {
-            UiServices.ShowWindow<Views.UserManagerView>(new UserManagerViewmodel(AuthenticationService), resources._windows_UserManager, 500, 400);
+            UiServices.ShowWindow<Views.UserManagerView>(new UserManagerViewmodel(Engine.AuthenticationService), resources._windows_UserManager, 500, 400);
         }
 
         private bool _canUserManager(object obj)

@@ -20,7 +20,7 @@ namespace TAS.Client
                 {
                     EngineController.Initialize();
                     var engines = EngineController.Engines;
-                    Tabs = new List<ViewmodelBase>(engines.Select(engine => new ChannelViewmodel(engine, true, true, true, EngineController.AuthenticationService)));
+                    Tabs = new List<ViewmodelBase>(engines.Select(engine => new ChannelViewmodel(engine, true, true, true)));
                 }
                 catch (TypeInitializationException e)
                 {

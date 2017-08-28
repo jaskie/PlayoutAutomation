@@ -27,7 +27,7 @@ namespace TAS.Server.Security
         private readonly object _principalLock = new object();
 
         [XmlIgnore]
-        public override SceurityObjectType SceurityObjectTypeType { get; } = SceurityObjectType.User;
+        public override SecurityObjectType SecurityObjectTypeType { get; } = SecurityObjectType.User;
 
         public string AuthenticationType => _authenticationSource.ToString();
 

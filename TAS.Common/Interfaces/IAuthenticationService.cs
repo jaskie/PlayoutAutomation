@@ -6,8 +6,8 @@ namespace TAS.Common.Interfaces
 {
     public interface IAuthenticationService
     {
-        IList<IUser> Users { get; }
-        IList<IGroup> Groups { get; }
+        IEnumerable<IUser> Users { get; }
+        IEnumerable<IGroup> Groups { get; }
         IUser CreateUser();
         IGroup CreateGroup();
         bool AddUser(IUser user);

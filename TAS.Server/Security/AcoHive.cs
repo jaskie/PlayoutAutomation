@@ -10,7 +10,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Server.Security
 {
-    public class AcoHive<TItem> where TItem : ISecurityObject, IPersistent
+    public class AcoHive<TItem> where TItem : ISecurityObject
 
     {
     private readonly List<TItem> _items;

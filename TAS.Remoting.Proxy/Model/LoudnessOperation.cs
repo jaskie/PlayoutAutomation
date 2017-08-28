@@ -6,7 +6,7 @@ namespace TAS.Remoting.Model
 {
     public class LoudnessOperation : FileOperation, ILoudnessOperation
     {
-        event EventHandler<AudioVolumeEventArgs> _audioVolumeMeasured;
+        private event EventHandler<AudioVolumeEventArgs> _audioVolumeMeasured;
         public event EventHandler<AudioVolumeEventArgs> AudioVolumeMeasured
         {
             add

@@ -530,9 +530,9 @@ namespace TAS.Common
     }
 
     /// <summary>
-    /// Scurity Object (user or role) kind
+    /// Scurity Object (user or group) kind
     /// </summary>
-    public enum SceurityObjectType
+    public enum SecurityObjectType
     {
         User,
         Group,

@@ -10,7 +10,7 @@ namespace TAS.Client
 {
     internal class LocalUser: IUser
     {
-        public SceurityObjectType SceurityObjectTypeType { get; } = SceurityObjectType.User;
+        public SecurityObjectType SecurityObjectTypeType { get; } = SecurityObjectType.User;
 
         public string Name { get; set; } = Properties.Resources._localUserName;
 
