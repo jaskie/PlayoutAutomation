@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Xml.Serialization;
 using TAS.Remoting.Server;
-using TAS.Server.Common.Interfaces;
+using TAS.Common.Interfaces;
 using WebSocketSharp.Server;
 using Newtonsoft.Json.Serialization;
 

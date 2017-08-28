@@ -3,8 +3,8 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
 using TAS.Client.Common;
-using TAS.Server.Common;
-using TAS.Server.Common.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {

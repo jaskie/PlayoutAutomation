@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using TAS.Server.Common;
-using TAS.Server.Common.Database;
-using TAS.Server.Common.Interfaces;
+using TAS.Common;
+using TAS.Database;
+using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
 {

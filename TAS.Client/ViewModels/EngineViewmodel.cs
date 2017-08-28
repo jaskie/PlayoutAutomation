@@ -9,12 +9,12 @@ using System.Windows.Input;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using TAS.Client.Common;
-using TAS.Server.Common;
+using TAS.Common;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition;
 using System.Security.Permissions;
 using TAS.Client.Common.Plugin;
-using TAS.Server.Common.Interfaces;
+using TAS.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels

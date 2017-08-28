@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using TAS.Server.Common.Database;
+using TAS.Database;
 
 namespace TAS.Client.Config.Model
 {
@@ -12,19 +12,19 @@ namespace TAS.Client.Config.Model
         {
             try
             {
-                Database.Open(connectionStringPrimary, connectionStringSecondary);
-                Directories = Database.DbLoadArchiveDirectories<ArchiveDirectory>();
+                Db.Open(connectionStringPrimary, connectionStringSecondary);
+                Directories = Db.DbLoadArchiveDirectories<ArchiveDirectory>();
                 Directories.ForEach(d => d.IsModified = false);
             }
             finally
             {
-                Database.Close();
+                Db.Close();
             }
         }
 
         public void Save()
         {
-            Database.Open();
+            Db.Open();
             try
             {
                 foreach (var dir in Directories.ToList())
@@ -44,7 +44,7 @@ namespace TAS.Client.Config.Model
             }
             finally
             {
-                Database.Close();
+                Db.Close();
             }
         }
 

@@ -6,8 +6,8 @@ using System.IO;
 using System.Threading;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
-using TAS.Server.Common;
-using TAS.Server.Common.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
 {

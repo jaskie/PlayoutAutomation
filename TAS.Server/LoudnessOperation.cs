@@ -3,8 +3,8 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using TAS.Server.Common;
-using TAS.Server.Common.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
 using TAS.Server.Media;
 
 namespace TAS.Server

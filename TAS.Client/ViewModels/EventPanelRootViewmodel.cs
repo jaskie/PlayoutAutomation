@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using TAS.Server.Common;
-using TAS.Server.Common.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {

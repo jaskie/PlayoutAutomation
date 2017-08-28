@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using TAS.Server.Common;
-using TAS.Server.Common.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
 {

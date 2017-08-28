@@ -4,7 +4,7 @@ using System.Windows.Data;
 using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Media;
-using TAS.Server.Common;
+using TAS.Common;
 
 namespace TAS.Client.Common
 {

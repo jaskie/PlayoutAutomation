@@ -28,7 +28,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{3F90
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.LocalDevices", "Plugins\TAS.Server.LocalDevices\TAS.Server.LocalDevices.csproj", "{08504AA1-0378-4F07-94AE-F1A40911E1AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server.Common", "TAS.Server.Common\TAS.Server.Common.csproj", "{9ACA6AE7-49ED-4599-91AC-927680CF9623}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Common", "TAS.Common\TAS.Common.csproj", "{9ACA6AE7-49ED-4599-91AC-927680CF9623}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.Common", "TAS.Client.Common\TAS.Client.Common.csproj", "{BCCACA68-8BB6-4D9C-B546-795A2A8DEE93}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -73,6 +73,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Client.NDIVideoPreview"
 	ProjectSection(ProjectDependencies) = postProject
 		{B2FD5EA3-CB51-470B-A58B-E2400983DD79} = {B2FD5EA3-CB51-470B-A58B-E2400983DD79}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Database", "TAS.Database\TAS.Database.csproj", "{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -339,6 +341,18 @@ Global
 		{41219373-E25E-48C8-AD64-EAB58244E713}.Release|x64.Build.0 = Release|Any CPU
 		{41219373-E25E-48C8-AD64-EAB58244E713}.Release|x86.ActiveCfg = Release|Any CPU
 		{41219373-E25E-48C8-AD64-EAB58244E713}.Release|x86.Build.0 = Release|Any CPU
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}.Debug|x64.Build.0 = Debug|Any CPU
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}.Debug|x86.Build.0 = Debug|Any CPU
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}.Release|x64.ActiveCfg = Release|Any CPU
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}.Release|x64.Build.0 = Release|Any CPU
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}.Release|x86.ActiveCfg = Release|Any CPU
+		{4703CD4F-FA9B-4E2D-91A1-19BC1A73230D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

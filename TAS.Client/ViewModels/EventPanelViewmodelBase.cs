@@ -5,8 +5,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows;
 using TAS.Client.Common;
-using TAS.Server.Common;
-using TAS.Server.Common.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
 
 

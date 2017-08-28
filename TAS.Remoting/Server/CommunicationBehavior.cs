@@ -12,8 +12,8 @@ using WebSocketSharp;
 using WebSocketSharp.Server;
 using delegateKey = System.Tuple<System.Guid, string>;
 using Newtonsoft.Json.Serialization;
-using TAS.Server.Common;
-using TAS.Server.Common.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Server
 {

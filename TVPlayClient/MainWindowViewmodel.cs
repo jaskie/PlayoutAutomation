@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Xml.Serialization;
 using TAS.Client.Common;
-using TAS.Server.Common;
+using TAS.Common;
 
 namespace TVPlayClient
 {

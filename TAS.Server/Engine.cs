@@ -5,14 +5,14 @@ using System.Linq;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Xml.Serialization;
-using TAS.Server.Common;
+using TAS.Common;
 using System.Collections.Concurrent;
 using TAS.Remoting.Server;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
-using TAS.Server.Common.Database;
-using TAS.Server.Common.Interfaces;
+using TAS.Database;
+using TAS.Common.Interfaces;
 using TAS.Server.Media;
 using TAS.Server.Security;
 
@@ -65,7 +65,7 @@ namespace TAS.Server
         {
             _engineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
-            Database.ConnectionStateChanged += _database_ConnectionStateChanged;
+            Db.ConnectionStateChanged += _database_ConnectionStateChanged;
         }
 
         public event EventHandler<EngineTickEventArgs> EngineTick;
@@ -310,7 +310,7 @@ namespace TAS.Server
             Logger.Debug("Engine {0} initialized", this);
         }
         
-        public ConnectionStateRedundant DatabaseConnectionState { get; } = Database.ConnectionState;
+        public ConnectionStateRedundant DatabaseConnectionState { get; } = Db.ConnectionState;
         
         [XmlIgnore]
         public List<IEvent> FixedTimeEvents { get { lock (_fixedTimeEvents.SyncRoot) return _fixedTimeEvents.Cast<IEvent>().ToList(); } }
@@ -1382,7 +1382,7 @@ namespace TAS.Server
         {
             foreach (var e in _rootEvents)
                 e.SaveLoadedTree();
-            Database.ConnectionStateChanged -= _database_ConnectionStateChanged;
+            Db.ConnectionStateChanged -= _database_ConnectionStateChanged;
             CGElementsController?.Dispose();
             Remote?.Dispose();
             base.DoDispose();

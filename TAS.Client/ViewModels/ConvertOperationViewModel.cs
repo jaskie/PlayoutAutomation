@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.ComponentModel;
-using TAS.Server.Common;
-using TAS.Server.Common.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels

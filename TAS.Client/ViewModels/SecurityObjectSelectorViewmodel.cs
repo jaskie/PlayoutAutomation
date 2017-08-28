@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TAS.Client.Common;
-using TAS.Server.Common.Interfaces;
+using TAS.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels

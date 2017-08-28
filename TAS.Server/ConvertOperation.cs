@@ -10,8 +10,8 @@ using TAS.FFMpegUtils;
 using Newtonsoft.Json;
 using System.Drawing;
 using System.Drawing.Imaging;
-using TAS.Server.Common;
-using TAS.Server.Common.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
 using TAS.Server.Dependencies;
 using TAS.Server.Media;
 

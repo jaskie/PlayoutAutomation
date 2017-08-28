@@ -1,8 +1,8 @@
 ﻿using System;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
-using TAS.Server.Common.Database;
-using TAS.Server.Common.Interfaces;
+using TAS.Database;
+using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
 {

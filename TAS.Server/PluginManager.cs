@@ -7,9 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using TAS.Server.Common.Interfaces;
+using TAS.Common.Interfaces;
 
-namespace TAS.Server.Common
+namespace TAS.Server
 {
     public static class PluginManager
     {

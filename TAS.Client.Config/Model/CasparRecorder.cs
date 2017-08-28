@@ -1,4 +1,4 @@
-﻿using TAS.Server.Common.Interfaces;
+﻿using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config.Model
 {

@@ -9,9 +9,9 @@ using System.Xml.Serialization;
 using TAS.Remoting.Server;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
-using TAS.Server.Common;
+using TAS.Common;
 using System.Text.RegularExpressions;
-using TAS.Server.Common.Interfaces;
+using TAS.Common.Interfaces;
 using TAS.Server.Media;
 
 namespace TAS.Server

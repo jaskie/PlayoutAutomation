@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
-using TAS.Server.Common.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
 {

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Drawing;
 using TAS.Remoting.Client;
-using TAS.Server.Common.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {

@@ -110,9 +110,9 @@
       <Project>{86071de4-1a5d-4889-b54a-08da101b2b51}</Project>
       <Name>TAS.Client.Config</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TAS.Server.Common\TAS.Server.Common.csproj">
+    <ProjectReference Include="..\TAS.Common\TAS.Common.csproj">
       <Project>{9aca6ae7-49ed-4599-91ac-927680cf9623}</Project>
-      <Name>TAS.Server.Common</Name>
+      <Name>TAS.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

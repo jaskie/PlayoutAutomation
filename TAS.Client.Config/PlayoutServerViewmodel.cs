@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Server.Common;
+using TAS.Common;
 
 namespace TAS.Client.Config
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.IO;
-using TAS.Server.Common.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using TAS.Client.Common.Plugin;
-using TAS.Server.Common;
+using TAS.Common;
 
 namespace UiPluginExample
 {

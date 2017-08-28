@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 using TAS.FFMpegUtils;
-using TAS.Server.Common;
-using TAS.Server.Common.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Server.Media
 {

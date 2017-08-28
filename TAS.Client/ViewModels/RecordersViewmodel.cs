@@ -6,8 +6,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Server.Common;
-using TAS.Server.Common.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
 
 

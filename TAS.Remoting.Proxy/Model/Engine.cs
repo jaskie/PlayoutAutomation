@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using TAS.Remoting.Client;
-using TAS.Server.Common;
-using TAS.Server.Common.Interfaces;
+using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {

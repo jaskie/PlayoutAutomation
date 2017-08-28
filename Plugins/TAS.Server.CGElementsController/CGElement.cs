@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
-using TAS.Server.Common;
+using TAS.Common;
 using Newtonsoft.Json;
 using System.Drawing;
 using TAS.Remoting;
-using TAS.Server.Common.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {

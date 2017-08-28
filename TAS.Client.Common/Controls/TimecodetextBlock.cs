@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using TAS.Server.Common;
+using TAS.Common;
 
 namespace TAS.Client.Common.Controls
 {

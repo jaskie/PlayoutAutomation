@@ -5,7 +5,7 @@ using System.Threading;
 using System.Windows;
 using TAS.Server;
 using Infralution.Localization.Wpf;
-using TAS.Server.Common;
+using TAS.Common;
 using TAS.Server.Security;
 
 namespace TAS.Client

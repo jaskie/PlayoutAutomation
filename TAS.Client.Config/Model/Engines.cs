@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using TAS.Server.Common.Database;
+using TAS.Database;
 
 namespace TAS.Client.Config.Model
 {
@@ -16,9 +16,9 @@ namespace TAS.Client.Config.Model
             ArchiveDirectories = new ArchiveDirectories(connectionStringPrimary, connectionStringSecondary);
             try
             {
-                Database.Open();
-                EngineList = Database.DbLoadEngines<Engine>();
-                Servers = Database.DbLoadServers<CasparServer>();
+                Db.Open();
+                EngineList = Db.DbLoadEngines<Engine>();
+                Servers = Db.DbLoadServers<CasparServer>();
                 Servers.ForEach(s =>
                 {
                     s.Channels.ForEach(c => c.Owner = s);
@@ -33,7 +33,7 @@ namespace TAS.Client.Config.Model
             }
             finally
             {
-                Database.Close();
+                Db.Close();
             }
         }
 
@@ -41,7 +41,7 @@ namespace TAS.Client.Config.Model
         {
             try
             {
-                Database.Open(ConnectionStringPrimary, ConnectionStringSecondary);
+                Db.Open(ConnectionStringPrimary, ConnectionStringSecondary);
                 EngineList.ForEach(e =>
                 {
                     if (e.IsModified)
@@ -56,7 +56,7 @@ namespace TAS.Client.Config.Model
             }
             finally
             {
-                Database.Close();
+                Db.Close();
             }
         }
 

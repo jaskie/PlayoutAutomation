@@ -5,14 +5,14 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Diagnostics;
 using System.ComponentModel;
-using TAS.Server.Common;
+using TAS.Common;
 using TAS.Remoting.Server;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using TAS.Server.Common.Database;
-using TAS.Server.Common.Interfaces;
+using TAS.Database;
+using TAS.Common.Interfaces;
 using TAS.Server.Media;
 using TAS.Server.Security;
 
@@ -170,7 +170,7 @@ namespace TAS.Server
                 return null;
             });
 
-            _rights = new Lazy<List<IAclRight>>(() => Database.DbReadEventAclList<EventAclItem>(this, EngineController.AuthenticationService));
+            _rights = new Lazy<List<IAclRight>>(() => Db.DbReadEventAclList<EventAclItem>(this, EngineController.AuthenticationService));
         }
         #endregion //Constructor
 

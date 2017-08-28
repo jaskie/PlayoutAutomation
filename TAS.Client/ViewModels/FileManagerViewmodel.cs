@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Collections.ObjectModel;
 using System.Windows;
-using TAS.Server.Common;
+using TAS.Common;
 using System.Windows.Input;
 using TAS.Client.Common;
 using System.Windows.Threading;
-using TAS.Server.Common.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {

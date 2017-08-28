@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using TAS.Server.Common.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.Common
 {

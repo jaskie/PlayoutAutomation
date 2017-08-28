@@ -6,9 +6,9 @@ using System.Reflection;
 using System.ComponentModel;
 using System.Windows.Input;
 using TAS.Client.Common;
-using TAS.Server.Common;
+using TAS.Common;
 using System.Runtime.CompilerServices;
-using TAS.Server.Common.Interfaces;
+using TAS.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels

@@ -8,7 +8,7 @@ using System.IO;
 using System.ComponentModel.Composition;
 using System.Xml;
 using System.Collections.Specialized;
-using TAS.Server.Common.Interfaces;
+using TAS.Common.Interfaces;
 
 namespace TAS.Server
 {

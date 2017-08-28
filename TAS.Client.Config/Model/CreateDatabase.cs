@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using TAS.Server.Common.Database;
+using TAS.Database;
 
 namespace TAS.Client.Config.Model
 {
@@ -43,7 +43,7 @@ namespace TAS.Client.Config.Model
 
         public bool CreateEmptyDatabase()
         {
-            return Database.CreateEmptyDatabase(ConnectionString, Collation);
+            return Db.CreateEmptyDatabase(ConnectionString, Collation);
         }
     }
 }

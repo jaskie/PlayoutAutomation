@@ -11,11 +11,11 @@ using System.Reflection;
 using System.Threading;
 using System.Diagnostics;
 using System.ServiceModel;
-using TAS.Server.Common;
+using TAS.Common;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
-using TAS.Server.Common.Database;
-using TAS.Server.Common.Interfaces;
+using TAS.Database;
+using TAS.Common.Interfaces;
 using TAS.Server.Media;
 
 namespace TAS.Server

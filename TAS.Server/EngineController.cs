@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Net;
-using TAS.Server.Common.Database;
+using TAS.Database;
 using TAS.Server.Security;
 
 namespace TAS.Server
@@ -22,16 +22,16 @@ namespace TAS.Server
             Logger.Debug("Connecting to database");
             ConnectionStringSettings connectionStringPrimary = ConfigurationManager.ConnectionStrings["tasConnectionString"];
             ConnectionStringSettings connectionStringSecondary = ConfigurationManager.ConnectionStrings["tasConnectionStringSecondary"];
-            Database.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
-            _servers = Database.DbLoadServers<CasparServer>();
+            Db.Open(connectionStringPrimary?.ConnectionString, connectionStringSecondary?.ConnectionString);
+            _servers = Db.DbLoadServers<CasparServer>();
             _servers.ForEach(s =>
             {
                 s.ChannelsSer.ForEach(c => c.Owner = s);
                 s.RecordersSer.ForEach(r => r.SetOwner(s));
             });
             
-            AuthenticationService = new AuthenticationService(Database.DbLoad<User>(), Database.DbLoad<Group>());
-            Engines = Database.DbLoadEngines<Engine>(ulong.Parse(ConfigurationManager.AppSettings["Instance"]));
+            AuthenticationService = new AuthenticationService(Db.DbLoad<User>(), Db.DbLoad<Group>());
+            Engines = Db.DbLoadEngines<Engine>(ulong.Parse(ConfigurationManager.AppSettings["Instance"]));
             foreach (var e in Engines)
                 e.Initialize(_servers);
             Logger.Debug("Engines initialized");
