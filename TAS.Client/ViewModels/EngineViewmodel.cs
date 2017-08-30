@@ -965,15 +965,12 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                var e = Engine.NextToPlay;
+                var e = Engine.GetNextToPlay();
                 return e == null ? string.Empty : e.EventName;
             }
         }
 
-        public IEvent NextWithRequestedStartTime
-        {
-            get { return Engine.NextWithRequestedStartTime; }
-        }
+        public IEvent NextWithRequestedStartTime => Engine.GetNextWithRequestedStartTime();
 
         public int SelectedCount
         {
@@ -1186,7 +1183,7 @@ namespace TAS.Client.ViewModels
         {
             if (e.PropertyName == nameof(IEngine.ProgramAudioVolume)
                 || e.PropertyName == nameof(IEngine.EngineState)
-                || e.PropertyName == nameof(IEngine.NextToPlay)
+                || e.PropertyName == nameof(IEngine.GetNextToPlay)
                 || e.PropertyName == nameof(IEngine.FieldOrderInverted)
             )
                 NotifyPropertyChanged(e.PropertyName);

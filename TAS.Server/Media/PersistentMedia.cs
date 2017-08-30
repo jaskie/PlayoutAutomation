@@ -54,7 +54,8 @@ namespace TAS.Server.Media
             get { return _protected; }
             set { SetField(ref _protected, value); }
         }
-        public IMediaSegments MediaSegments => _mediaSegments.Value;
+
+        public IMediaSegments GetMediaSegments() => _mediaSegments.Value;
 
         public override void CloneMediaProperties(IMediaProperties fromMedia)
         {

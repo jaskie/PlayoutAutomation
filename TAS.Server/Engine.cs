@@ -22,19 +22,35 @@ namespace TAS.Server
     {
         private string _engineName;
         private bool _pst2Prv;
+
+        [JsonProperty(nameof(PlayoutChannelPRI), TypeNameHandling = TypeNameHandling.Objects)]
         private CasparServerChannel _playoutChannelPRI;
+
+        [JsonProperty(nameof(PlayoutChannelSEC), TypeNameHandling = TypeNameHandling.Objects)]
         private CasparServerChannel _playoutChannelSEC;
+
+        [JsonProperty(nameof(PlayoutChannelPRV), TypeNameHandling = TypeNameHandling.Objects)]
         private CasparServerChannel _playoutChannelPRV;
 
-        [JsonProperty(nameof(MediaManager), TypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty(nameof(MediaManager), TypeNameHandling = TypeNameHandling.Objects, ItemIsReference = true)]
         private readonly MediaManager _mediaManager;
+
+        [JsonProperty(nameof(AuthenticationService), TypeNameHandling = TypeNameHandling.Objects)]
+        private AuthenticationService _authenticationService;
+
         Thread _engineThread;
         private long _currentTicks;
         public readonly object RundownSync = new object();
         private readonly object _tickLock = new object();
-        private readonly SynchronizedCollection<Event> _visibleEvents = new SynchronizedCollection<Event>(); // list of visible events
+
+        private readonly SynchronizedCollection<Event> _visibleEvents = new SynchronizedCollection<Event>()
+            ; // list of visible events
+
         private readonly List<IEvent> _runningEvents = new List<IEvent>(); // list of events loaded and playing 
-        private readonly ConcurrentDictionary<VideoLayer, IEvent> _preloadedEvents = new ConcurrentDictionary<VideoLayer, IEvent>();
+
+        private readonly ConcurrentDictionary<VideoLayer, IEvent> _preloadedEvents =
+            new ConcurrentDictionary<VideoLayer, IEvent>();
+
         private readonly SynchronizedCollection<Event> _rootEvents = new SynchronizedCollection<Event>();
         private readonly SynchronizedCollection<Event> _fixedTimeEvents = new SynchronizedCollection<Event>();
         private readonly ConcurrentDictionary<Guid, IEvent> _events = new ConcurrentDictionary<Guid, IEvent>();
@@ -55,8 +71,8 @@ namespace TAS.Server
         private decimal _previewAudioVolume;
         private bool _previewLoaded;
         private bool _previewIsPlaying;
-        private AuthenticationService _authenticationService;
-        
+
+
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Engine));
         private static TimeSpan _preloadTime = new TimeSpan(0, 0, 2); // time to preload event
 
@@ -81,6 +97,7 @@ namespace TAS.Server
 
 
         #region IEngineProperties
+
         // xml-ignored properties are readed from table's fields, rest is from xml ("Config" field)
         [XmlIgnore]
         public ulong Instance { get; set; }
@@ -120,8 +137,9 @@ namespace TAS.Server
 
         [JsonProperty]
         public TCrawlEnableBehavior CrawlEnableBehavior { get; set; }
+
         #endregion //IEngineProperties
-        
+
         public TArchivePolicyType ArchivePolicy { get; set; } = TArchivePolicyType.NoArchive;
 
         [XmlIgnore]
@@ -135,7 +153,12 @@ namespace TAS.Server
         public TAspectRatioControl AspectRatioControl { get; set; }
         public double VolumeReferenceLoudness { get; set; }
 
-        public int TimeCorrection { get { return (int)_timeCorrection.TotalMilliseconds; } set { _timeCorrection = TimeSpan.FromMilliseconds(value); } }
+        public int TimeCorrection
+        {
+            get { return (int) _timeCorrection.TotalMilliseconds; }
+            set { _timeCorrection = TimeSpan.FromMilliseconds(value); }
+        }
+
         [XmlIgnore]
         public DateTime CurrentTime { get; private set; }
 
@@ -148,7 +171,7 @@ namespace TAS.Server
         {
             return new TimeSpan((ts.Ticks / FrameTicks) * FrameTicks);
         }
-        
+
         [XmlIgnore]
         public IPlayoutServerChannel PlayoutChannelPRI => _playoutChannelPRI;
 
@@ -159,6 +182,7 @@ namespace TAS.Server
         public IPlayoutServerChannel PlayoutChannelPRV => _playoutChannelPRV;
 
         [XmlIgnore]
+        [JsonProperty]
         public long FrameTicks { get; private set; }
 
         [XmlIgnore]
@@ -173,6 +197,7 @@ namespace TAS.Server
         public VideoFormatDescription FormatDescription { get; private set; }
 
         [XmlIgnore]
+        [JsonProperty]
         public TEngineState EngineState
         {
             get { return _engineState; }
@@ -182,16 +207,20 @@ namespace TAS.Server
                     if (SetField(ref _engineState, value))
                     {
                         if (value == TEngineState.Hold)
-                            foreach (var ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && ((Event)e).IsFinished()).ToArray())
+                            foreach (var ev in _runningEvents.Where(e =>
+                                (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) &&
+                                ((Event) e).IsFinished()).ToArray())
                             {
-                                _pause((Event)ev, true);
+                                _pause((Event) ev, true);
                                 Debug.WriteLine(ev, "Hold: Played");
                             }
                         if (value == TEngineState.Idle && _runningEvents.Count > 0)
                         {
-                            foreach (var ev in _runningEvents.Where(e => (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) && ((Event)e).IsFinished()).ToArray())
+                            foreach (var ev in _runningEvents.Where(e =>
+                                (e.PlayState == TPlayState.Playing || e.PlayState == TPlayState.Fading) &&
+                                ((Event) e).IsFinished()).ToArray())
                             {
-                                _pause((Event)ev, true);
+                                _pause((Event) ev, true);
                                 Debug.WriteLine(ev, "Idle: Played");
                             }
                         }
@@ -200,6 +229,7 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
+        [JsonProperty]
         public bool FieldOrderInverted
         {
             get { return _fieldOrderInverted; }
@@ -215,6 +245,7 @@ namespace TAS.Server
         }
 
         [XmlIgnore]
+        [JsonProperty]
         public decimal ProgramAudioVolume
         {
             get { return _programAudioVolume; }
@@ -223,14 +254,14 @@ namespace TAS.Server
                 if (SetField(ref _programAudioVolume, value))
                 {
                     var playing = Playing;
-                    int transitioDuration = playing == null ? 0 : (int)playing.TransitionTime.ToSMPTEFrames(FrameRate);
+                    int transitioDuration = playing == null ? 0 : (int) playing.TransitionTime.ToSMPTEFrames(FrameRate);
                     _playoutChannelPRI?.SetVolume(VideoLayer.Program, value, transitioDuration);
                     if (_playoutChannelSEC != null && !(_playoutChannelSEC == _playoutChannelPRV && _previewLoaded))
                         _playoutChannelSEC.SetVolume(VideoLayer.Program, value, transitioDuration);
                 }
             }
         }
-        
+
         public void Initialize(IList<CasparServer> servers, AuthenticationService authenticationService)
         {
             Debug.WriteLine(this, "Begin initializing");
@@ -251,8 +282,8 @@ namespace TAS.Server
             if (sPRV != null && sPRV != sPRI && sPRV != sSEC)
                 recorders.AddRange(sPRV.Recorders.Select(r => r as CasparRecorder));
             _playoutChannelPRV = (CasparServerChannel) sPRV?.Channels.FirstOrDefault(c => c.Id == ServerChannelPRV);
-            _mediaManager.Recorders = recorders;
-            
+            _mediaManager.SetRecorders(recorders);
+
 
             _localGpis = this.ComposeParts<IGpi>();
             _plugins = this.ComposeParts<IEnginePlugin>();
@@ -310,11 +341,17 @@ namespace TAS.Server
             Debug.WriteLine(this, "Engine initialized");
             Logger.Debug("Engine {0} initialized", this);
         }
-        
+
         public ConnectionStateRedundant DatabaseConnectionState { get; } = Db.ConnectionState;
-        
+
         [XmlIgnore]
-        public List<IEvent> FixedTimeEvents { get { lock (_fixedTimeEvents.SyncRoot) return _fixedTimeEvents.Cast<IEvent>().ToList(); } }
+        public List<IEvent> FixedTimeEvents
+        {
+            get
+            {
+                lock (_fixedTimeEvents.SyncRoot) return _fixedTimeEvents.Cast<IEvent>().ToList();
+            }
+        }
 
         [XmlIgnore]
         public ICollection<IEventPesistent> VisibleEvents => _visibleEvents.Cast<IEventPesistent>().ToList();
@@ -339,28 +376,21 @@ namespace TAS.Server
             }
         }
 
-        [XmlIgnore]
-        public IEvent NextToPlay
+        public IEvent GetNextToPlay()
         {
-            get
-            {
-                var e = _playing;
-                if (e == null)
-                    return null;
-                e = _successor(e);
-                if (e == null)
-                    return null;
-                if (e.EventType == TEventType.Rundown)
-                    return e.FindVisibleSubEvent();
-                return e;
-            }
+            var e = _playing;
+            if (e == null)
+                return null;
+            e = _successor(e);
+            if (e == null)
+                return null;
+            if (e.EventType == TEventType.Rundown)
+                return e.FindVisibleSubEvent();
+            return e;
         }
 
-        [XmlIgnore]
-        public IEvent NextWithRequestedStartTime
+        public IEvent GetNextWithRequestedStartTime()
         {
-            get
-            {
                 var e = _playing;
                 if (e == null)
                     return null;
@@ -368,10 +398,9 @@ namespace TAS.Server
                     e = e.GetEnabledSuccessor();
                 while (e != null && e.RequestedStartTime == null);
                 return e;
-            }
         }
 
-        [XmlIgnore]
+        [XmlIgnore, JsonProperty]
         public IEvent ForcedNext
         {
             get { return _forcedNext; }
@@ -384,7 +413,7 @@ namespace TAS.Server
                     if (SetField(ref _forcedNext, (Event)value))
                     {
                         Debug.WriteLine(value, "ForcedNext");
-                        NotifyPropertyChanged(nameof(NextToPlay));
+                        NotifyPropertyChanged(nameof(GetNextToPlay));
                         if (_forcedNext != null)
                             _forcedNext.IsForcedNext = true;
                         if (oldForcedNext != null)
@@ -394,8 +423,7 @@ namespace TAS.Server
             }
         }
 
-        [JsonProperty]
-        [XmlIgnore]
+        [XmlIgnore, JsonProperty]
         public bool IsWideScreen
         {
             get { return _isWideScreen; }
@@ -410,7 +438,7 @@ namespace TAS.Server
             }
         }
 
-        [XmlIgnore]
+        [XmlIgnore, JsonProperty]
         public bool Pst2Prv
         {
             get { return _pst2Prv; }
@@ -425,12 +453,11 @@ namespace TAS.Server
                 }
             }
         }
-        
-        [JsonProperty]
-        public  IMedia PreviewMedia => _previewMedia;
-        
-        [XmlIgnore]
-        [JsonProperty]
+
+        [XmlIgnore, JsonProperty]
+        public IMedia PreviewMedia => _previewMedia;
+
+        [XmlIgnore, JsonProperty]
         public long PreviewSeek => _previewSeek;
 
         [XmlIgnore]
@@ -787,7 +814,6 @@ namespace TAS.Server
         public ulong Id { get; set; }
 
         [XmlIgnore]
-        [JsonProperty]
         public IAuthenticationService AuthenticationService => _authenticationService;
 
         public void Save()
@@ -998,7 +1024,7 @@ namespace TAS.Server
                     {
                         if (e.PlayState == TPlayState.Playing)
                         {
-                            e.PlayState = ((Event)e).IsFinished() ? TPlayState.Played : TPlayState.Aborted;
+                            ((Event)e).PlayState = ((Event)e).IsFinished() ? TPlayState.Played : TPlayState.Aborted;
                             _runningEvents.Remove(e);
                             RunningEventsOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Remove));
                         }
@@ -1080,7 +1106,7 @@ namespace TAS.Server
             foreach (var e in _runningEvents.ToArray())
             {
                 _runningEvents.Remove(e);
-                e.PlayState = ((Event) e).Position == 0 ? TPlayState.Scheduled : TPlayState.Aborted;
+                ((Event)e).PlayState = ((Event) e).Position == 0 ? TPlayState.Scheduled : TPlayState.Aborted;
                 RunningEventsOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Remove));
                 e.SaveDelayed();
             }
@@ -1163,7 +1189,7 @@ namespace TAS.Server
 
         private void _loadPST()
         {
-            Event ev = NextToPlay as Event;
+            Event ev = GetNextToPlay() as Event;
             if (ev != null && PlayoutChannelPRV != null)
             {
                 MediaBase media = ev.ServerMediaPRV;

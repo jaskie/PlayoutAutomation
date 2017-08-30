@@ -9,52 +9,88 @@ namespace TAS.Remoting.Model
 {
     public class MediaManager : ProxyBase, IMediaManager
     {
-        public void ArchiveMedia(IEnumerable<IServerMedia> mediaList, bool deleteAfter)
-        {
-            Invoke(parameters: new object[] { mediaList, deleteAfter });
-        }
 
-        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete)
-        {
-            return Query<List<MediaDeleteDenyReason>>(parameters: new object[] { mediaList, forceDelete });
-        }
+        #pragma warning disable CS0649
 
-        public void Export(IEnumerable<MediaExportDescription> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat)
-        {
-            Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory, mXFAudioExportFormat, mXFVideoExportFormat });
-        }
+        [JsonProperty(nameof(IMediaManager.AnimationDirectoryPRI))]
+        private AnimationDirectory _animationDirectoryPRI;
 
-        public IAnimationDirectory AnimationDirectoryPRI { get { return Get<AnimationDirectory>(); } set { SetLocalValue(value); } }
-        public IAnimationDirectory AnimationDirectorySEC { get { return Get<AnimationDirectory>(); } set { SetLocalValue(value); } }
-        public IAnimationDirectory AnimationDirectoryPRV { get { return Get<AnimationDirectory>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IMediaManager.MediaDirectoryPRI))]
+        private ServerDirectory _mediaDirectoryPri;
 
-        public IArchiveDirectory ArchiveDirectory { get { return Get<ArchiveDirectory>(); } set { SetLocalValue(value); } }
-
-
-        public IFileManager FileManager { get { return Get<FileManager>(); } set { SetLocalValue(value); } }
-
-        public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IMediaManager.AnimationDirectorySEC))]
+        private AnimationDirectory _animationDirectorySEC;
 
         [JsonProperty(nameof(IMediaManager.IngestDirectories))]
-        private List<IngestDirectory> _ingestDirectories { get { return Get<List<IngestDirectory>>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
+        private List<IngestDirectory> _ingestDirectories;
+        
+        [JsonProperty(nameof(IMediaManager.AnimationDirectoryPRV))]
+        private AnimationDirectory _animationDirectoryPRV;
+
+        
+        [JsonProperty(nameof(IMediaManager.ArchiveDirectory))]
+        private ArchiveDirectory _archiveDirectory;
+
+        [JsonProperty(nameof(IMediaManager.Recorders))]
+        private List<Recorder> _recorders;
+
+        [JsonProperty(nameof(IMediaManager.MediaDirectorySEC))]
+        private ServerDirectory _mediaDirectorySec;
+
+
+        [JsonProperty(nameof(IMediaManager.FileManager))]
+        private FileManager _fileManager;
+
+        [JsonProperty(nameof(IMediaManager.MediaDirectoryPRV))]
+        private ServerDirectory _mediaDirectoryPrv;
+
+        [JsonProperty(nameof(IMediaManager.FormatDescription))]
+        private VideoFormatDescription _videoFormatDescription;
+
+        [JsonProperty(nameof(IMediaManager.VideoFormat))]
+        private TVideoFormat _videoFormat;
+
+        [JsonProperty(nameof(IEngine.CGElementsController))]
+        private CGElementsController _cgElementsController;
+
+        #pragma warning restore
+
+        public ICGElementsController CGElementsController => _cgElementsController;
+
+        public IEngine Engine { get { return Get<Engine>(); } set { SetLocalValue(value); } }
+
+        public IFileManager FileManager => _fileManager;
+
+        public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetLocalValue(value); } }
+        
         public IEnumerable<IIngestDirectory> IngestDirectories => _ingestDirectories;
+
+        public IAnimationDirectory AnimationDirectoryPRI => _animationDirectoryPRI;
+
+        public IAnimationDirectory AnimationDirectorySEC => _animationDirectorySEC;
+
+        public IAnimationDirectory AnimationDirectoryPRV => _animationDirectoryPRV;
+
+        public IServerDirectory MediaDirectoryPRI => _mediaDirectoryPri;
+
+        public IArchiveDirectory ArchiveDirectory => _archiveDirectory;
+
+        public IServerDirectory MediaDirectorySEC => _mediaDirectorySec;
+
+        public IServerDirectory MediaDirectoryPRV => _mediaDirectoryPrv;
+
+        public TVideoFormat VideoFormat => _videoFormat;
+
 
         public void MeasureLoudness(IEnumerable<IMedia> mediaList)
         {
             Invoke(parameters: mediaList);
         }
-
-        public IServerDirectory MediaDirectoryPRI { get { return Get<ServerDirectory>(); } set { SetLocalValue(value); } }
-        public IServerDirectory MediaDirectorySEC { get { return Get<ServerDirectory>(); } set { SetLocalValue(value); } }
-        public IServerDirectory MediaDirectoryPRV { get { return Get<ServerDirectory>(); } set { SetLocalValue(value); } }
-
+       
         public IMedia GetPRVMedia(IMedia media)
         {
-            return Query<Media>(parameters: media);
+            return Query<MediaBase>(parameters: media);
         }
-
-        public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { SetLocalValue(value); } }
 
         public void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool toTop) { Invoke(parameters: new object[] { mediaList, toTop }); }
 
@@ -83,17 +119,24 @@ namespace TAS.Remoting.Model
             Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory });
         }
 
-        [JsonProperty(nameof(IEngine.CGElementsController))]
-        private CGElementsController _cgElementsController { get { return Get<CGElementsController>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
-        public ICGElementsController CGElementsController => _cgElementsController;
 
-        public IEngine Engine { get { return Get<Engine>(); } set { SetLocalValue(value); } }
-
-        [JsonProperty(nameof(IMediaManager.Recorders))]
-        private List<Recorder> _recorders { get { return Get<List<Recorder>>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
         public IEnumerable<IRecorder> Recorders => _recorders;
+
+        public void ArchiveMedia(IEnumerable<IServerMedia> mediaList, bool deleteAfter)
+        {
+            Invoke(parameters: new object[] { mediaList, deleteAfter });
+        }
+
+        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete)
+        {
+            return Query<List<MediaDeleteDenyReason>>(parameters: new object[] { mediaList, forceDelete });
+        }
+
+        public void Export(IEnumerable<MediaExportDescription> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat)
+        {
+            Invoke(parameters: new object[] { exportList, asSingleFile, singleFilename, directory, mXFAudioExportFormat, mXFVideoExportFormat });
+        }
+
 
         protected override void OnEventNotification(WebSocketMessage e) { }
 

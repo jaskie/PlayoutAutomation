@@ -8,8 +8,8 @@ namespace TAS.Common.Interfaces
     {
         Guid MediaGuid { get; }
         IEnumerable<IMediaSegment> Segments { get; }
-        bool Remove(IMediaSegment segment);
         int Count { get; }
+        bool Remove(IMediaSegment segment);
         IMediaSegment Add(TimeSpan tcIn, TimeSpan tcOut, string segmentName);
         event EventHandler<MediaSegmentEventArgs> SegmentAdded;
         event EventHandler<MediaSegmentEventArgs> SegmentRemoved;

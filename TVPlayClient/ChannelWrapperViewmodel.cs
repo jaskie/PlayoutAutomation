@@ -26,6 +26,9 @@ namespace TVPlayClient
 
         public void Initialize()
         {
+#if DEBUG
+         Thread.Sleep(5000);   
+#endif
             _createView();
         }
 

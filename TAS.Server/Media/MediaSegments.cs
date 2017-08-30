@@ -11,6 +11,7 @@ namespace TAS.Server.Media
     public class MediaSegments : DtoBase, IMediaSegments
     {
         private readonly Dictionary<Guid, IMediaSegment> _segments = new Dictionary<Guid, IMediaSegment>();
+
         public MediaSegments(Guid mediaGuid)
         {
             MediaGuid = mediaGuid;
@@ -24,10 +25,21 @@ namespace TAS.Server.Media
         {
             get
             {
-                lock (((IDictionary)_segments).SyncRoot)
+                lock (((IDictionary) _segments).SyncRoot)
                     return _segments.Values.ToList();
             }
         }
+
+        [JsonProperty]
+        public int Count
+        {
+            get
+            {
+                lock (((IDictionary) _segments).SyncRoot)
+                    return _segments.Count;
+            }
+        }
+
 
         public IMediaSegment Add(TimeSpan tcIn, TimeSpan tcOut, string segmentName)
         {
@@ -38,9 +50,6 @@ namespace TAS.Server.Media
             NotifyPropertyChanged(nameof(Count));
             return result;
         }
-
-        public event EventHandler<MediaSegmentEventArgs> SegmentAdded;
-        public event EventHandler<MediaSegmentEventArgs> SegmentRemoved;
 
         public bool Remove(IMediaSegment segment)
         {
@@ -55,14 +64,7 @@ namespace TAS.Server.Media
             return result;
         }
 
-        [JsonProperty]
-        public int Count
-        {
-            get
-            {
-                lock (((IDictionary) _segments).SyncRoot)
-                    return _segments.Count;
-            }
-        }
+        public event EventHandler<MediaSegmentEventArgs> SegmentAdded;
+        public event EventHandler<MediaSegmentEventArgs> SegmentRemoved;
     }
 }

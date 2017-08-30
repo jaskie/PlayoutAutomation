@@ -1,15 +1,26 @@
-﻿using TAS.Common;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
+using TAS.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
     public class ArchiveDirectory : MediaDirectory, IArchiveDirectory
     {
-        public ulong idArchive { get { return Get<ulong>(); } set { Set(value); } }
+        [JsonProperty(nameof(IArchiveDirectory.idArchive))]
+        private ulong _idArchive;
 
-        public TMediaCategory? SearchMediaCategory { get { return Get<TMediaCategory?>(); } set { Set(value); } }
+        [JsonProperty(nameof(IArchiveDirectory.SearchMediaCategory))]
+        private TMediaCategory? _searchMediaCategory;
+
+        [JsonProperty(nameof(IArchiveDirectory.SearchString))]
+        private string _searchString;
+
+        public ulong idArchive { get { return _idArchive; } set { Set(value); } }
+
+        public TMediaCategory? SearchMediaCategory { get { return _searchMediaCategory; } set { Set(value); } }
         
-        public string SearchString { get { return Get<string>(); } set { Set(value); } }
+        public string SearchString { get { return _searchString; } set { Set(value); } }
 
         public void ArchiveRestore(IArchiveMedia srcMedia, IServerDirectory destDirectory, bool toTop)
         {
@@ -24,6 +35,11 @@ namespace TAS.Remoting.Model
         public override IMedia CreateMedia(IMediaProperties mediaProperties)
         {
             return Query<IMedia>(parameters: new object[] { mediaProperties });
+        }
+
+        public override IEnumerable<IMedia> GetFiles()
+        {
+            return Query<List<ArchiveMedia>>();
         }
 
         public IArchiveMedia Find(IMediaProperties media)

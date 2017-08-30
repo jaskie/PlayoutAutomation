@@ -5,64 +5,163 @@ using System.Diagnostics;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Remoting.Model.Security;
 
 namespace TAS.Remoting.Model
 {
     public class Engine : ProxyBase, IEngine
     {
+        [JsonProperty(nameof(IEngine.CurrentTime))]
+        private DateTime _currentTime;
+
+        [JsonProperty(nameof(IEngine.EngineName))]
+        private string _engineName;
+
+        [JsonProperty(nameof(IEngine.EngineState))]
+        private TEngineState _engineState;
+
+        [JsonProperty(nameof(IEngine.ForcedNext))]
+        private IEvent _forcedNext;
+
+        [JsonProperty(nameof(IEngine.FormatDescription))]
+        private VideoFormatDescription _formatDescription;
+
+        [JsonProperty(nameof(IEngine.FrameRate))]
+        private RationalNumber _frameRate;
+
+        [JsonProperty(nameof(IEngine.FrameTicks))]
+        private long _frameTicks;
+
+        [JsonProperty(nameof(IEngine.CGElementsController))]
+        private CGElementsController _cGElementsController;
+
+        [JsonProperty(nameof(IEngine.EnableCGElementsForNewEvents))]
+        private bool _enableCGElementsForNewEvents;
+
+        [JsonProperty(nameof(IEngine.CrawlEnableBehavior))]
+        private TCrawlEnableBehavior _crawlEnableBehavior;
+
+        [JsonProperty(nameof(IEngine.FieldOrderInverted))]
+        private bool _fieldOrderInverted;
+
+        [JsonProperty(nameof(IEngine.MediaManager))]
+        private MediaManager _mediaManager;
+
+        [JsonProperty(nameof(IEngine.PlayoutChannelPRI))]
+        private PlayoutServerChannel _playoutChannelPRI;
+
+        [JsonProperty(nameof(IEngine.PlayoutChannelSEC))]
+        private PlayoutServerChannel _playoutChannelSEC;
+
+        [JsonProperty(nameof(IEngine.PlayoutChannelPRV))]
+        private PlayoutServerChannel _playoutChannelPrv;
+
+        [JsonProperty(nameof(IEngine.IsWideScreen))]
+        private bool _isWideScreen;
+
+        [JsonProperty(nameof(IEngine.PreviewAudioVolume))]
+        private decimal _previewAudioVolume;
+
+        [JsonProperty(nameof(IEngine.PreviewIsPlaying))]
+        private bool _previewIsPlaying;
+
+        [JsonProperty(nameof(IEngine.PreviewLoaded))]
+        private bool _previewLoaded;
+
+        [JsonProperty(nameof(IEngine.PreviewMedia))]
+        private MediaBase _previewMedia;
+
+        [JsonProperty(nameof(IEngine.PreviewPosition))]
+        private long _previewPosition;
+
+        [JsonProperty(nameof(IEngine.PreviewSeek))]
+        private long _previewSeek;
+
+        [JsonProperty(nameof(IEngine.ProgramAudioVolume))]
+        private decimal _programAudioVolume;
+
+        [JsonProperty(nameof(IEngine.Pst2Prv))]
+        private bool _pst2Prv;
+
+        [JsonProperty(nameof(IEngine.AuthenticationService))]
+        private AuthenticationService _authenticationService;
+
+        [JsonProperty(nameof(IEngine.VideoFormat))]
+        private TVideoFormat _videoFormat;
+
+        [JsonProperty(nameof(IEngine.DatabaseConnectionState))]
+        private ConnectionStateRedundant _databaseConnectionState;
+
+        [JsonProperty(nameof(IEngine.Playing))]
+        private Event _playing;
+
         public Engine()
         {
             Debug.WriteLine("Engine created.");
         }
+        
+        public DateTime CurrentTime => _currentTime;
 
-        public DateTime CurrentTime => Get<DateTime>();
+        public string EngineName => _engineName;
 
-        public string EngineName { get { return Get<string>(); } set { SetLocalValue(value); } }
+        public TEngineState EngineState => _engineState;
 
-        public TEngineState EngineState { get { return Get<TEngineState>(); } set { SetLocalValue(value); } }
+        public IEvent ForcedNext => _forcedNext;
 
-        public IEvent ForcedNext { get { return Get<Event>(); } set { SetLocalValue(value); } }
+        public VideoFormatDescription FormatDescription => _formatDescription;
 
-        public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetLocalValue(value); } }
+        public RationalNumber FrameRate => _frameRate;
 
-        public RationalNumber FrameRate { get { return Get<RationalNumber>(); } set { SetLocalValue(value); } }
+        public long FrameTicks => _frameTicks;
 
-        public long FrameTicks { get { return Get<long>(); } set { SetLocalValue(value); } }
-
-        [JsonProperty(nameof(IEngine.CGElementsController))]
-        private CGElementsController _cGElementsController { get { return Get<CGElementsController>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
         public ICGElementsController CGElementsController => _cGElementsController;
 
-        public bool EnableCGElementsForNewEvents { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        public bool EnableCGElementsForNewEvents
+        {
+            get { return _enableCGElementsForNewEvents; }
+            set { Set(value); }
+        }
 
-        public TCrawlEnableBehavior CrawlEnableBehavior { get { return Get<TCrawlEnableBehavior>(); } set { SetLocalValue(value); } }
+        public TCrawlEnableBehavior CrawlEnableBehavior
+        {
+            get { return _crawlEnableBehavior; }
+            set { Set(value); }
+        }
 
-        public bool FieldOrderInverted { get { return Get<bool>(); } set { Set(value); } }
+        public bool FieldOrderInverted { get { return _fieldOrderInverted; } set { Set(value); } }
 
-        public IMediaManager MediaManager { get { return Get<MediaManager>(); } set { SetLocalValue(value); } }
+        public IMediaManager MediaManager => _mediaManager;
 
-        public IEvent NextToPlay { get { return Get<Event>(); } set { SetLocalValue(value); } }
+        public IPlayoutServerChannel PlayoutChannelPRI => _playoutChannelPRI;
 
-        public IEvent NextWithRequestedStartTime { get { return Get<Event>(); } set { SetLocalValue(value); } }
+        public IPlayoutServerChannel PlayoutChannelSEC => _playoutChannelSEC;
 
-        public IPlayoutServerChannel PlayoutChannelPRI { get { return Get<PlayoutServerChannel>(); } set { SetLocalValue(value); } }
+        public bool IsWideScreen => _isWideScreen;
 
-        public IPlayoutServerChannel PlayoutChannelSEC { get { return Get<PlayoutServerChannel>(); } set { SetLocalValue(value); } }
+        public IEvent GetNextToPlay() { return Query<Event>(); }
 
-        public bool IsWideScreen { get { return Get<bool>(); }  set { Set(value); } }
+        public IEvent GetNextWithRequestedStartTime() { return Query<Event>(); }
 
         #region IPreview
-        public IPlayoutServerChannel PlayoutChannelPRV { get { return Get<IPlayoutServerChannel>(); } set { SetLocalValue(value); } }
-        public decimal PreviewAudioVolume { get { return Get<decimal>(); } set { Set(value); } }
-        public bool PreviewIsPlaying { get { return Get<bool>(); } set { SetLocalValue(value); } }
-        public bool PreviewLoaded { get { return Get<bool>(); } set { SetLocalValue(value); } }
-        [JsonProperty(nameof(IEngine.PreviewMedia))]
-        private Media _previewMedia { get { return Get<Media>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
+
+        public IPlayoutServerChannel PlayoutChannelPRV => _playoutChannelPrv;
+
+        public decimal PreviewAudioVolume
+        {
+            get { return _previewAudioVolume; }
+            set { Set(value); }
+        }
+
+        public bool PreviewIsPlaying => _previewIsPlaying;
+
+        public bool PreviewLoaded => _previewLoaded;
+
         public IMedia PreviewMedia => _previewMedia;
-        public long PreviewPosition { get { return Get<long>(); } set { Set(value); } }
-        public long PreviewSeek { get { return Get<long>(); } set { SetLocalValue(value); } }
+
+        public long PreviewPosition { get { return _previewPosition; } set { Set(value); } }
+
+        public long PreviewSeek => _previewSeek;
+
         public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal audioLevel)
         {
             Invoke(parameters: new object[] { media, seek, duration, position, audioLevel });
@@ -76,25 +175,18 @@ namespace TAS.Remoting.Model
 
         #endregion IPreview
 
-        public decimal ProgramAudioVolume { get { return Get<decimal>(); } set { Set(value); } }
+        public decimal ProgramAudioVolume { get { return _programAudioVolume; } set { Set(value); } }
 
-        public bool Pst2Prv { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        public bool Pst2Prv { get { return _pst2Prv; } set { Set(value); } }
 
-        public IAuthenticationService AuthenticationService { get { return Get<Security.AuthenticationService>(); }  set { SetLocalValue(value); } }
+        public IAuthenticationService AuthenticationService => _authenticationService;
 
-        public IEnumerable<IEvent> GetRootEvents() { return Query<List<IEvent>>(); }
+        public IEnumerable<IEvent> GetRootEvents() { return Query<List<Event>>(); }
 
-        public int ServerChannelPRI { get; set; }
-        public int ServerChannelPRV { get; set; }
-        public int ServerChannelSEC { get; set; }
+        public TVideoFormat VideoFormat { get { return _videoFormat; } set { Set(value); } }
 
-        public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { SetLocalValue(value); } }
+        public ConnectionStateRedundant DatabaseConnectionState => _databaseConnectionState;
 
-
-        public ConnectionStateRedundant DatabaseConnectionState { get { return Get<ConnectionStateRedundant>(); } set { SetLocalValue(value); } }
-        [JsonProperty(nameof(IEngine.Playing))]
-        private Event _playing { get { return Get<Event>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
         public IEvent Playing => _playing;
 
         public List<IEvent> FixedTimeEvents

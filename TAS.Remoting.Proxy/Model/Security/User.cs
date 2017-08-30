@@ -1,29 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using TAS.Common;
 using TAS.Common.Interfaces;
-using TAS.Remoting.Client;
 
 namespace TAS.Remoting.Model.Security
 {
     public class User: SecurityObjectBase, IUser
     {
-        public string Name { get { return Get<string>(); } set { Set(value); } }
+#pragma warning disable CS0649 
+        [JsonProperty(nameof(IUser.Name))]
+        private string _name;
+        
+        [JsonProperty(nameof(IUser.IsAuthenticated))]
+        private bool _isAuthenticated;
 
-        public string AuthenticationType { get { return Get<string>(); } set { Set(value); } }
+        [JsonProperty(nameof(IUser.AuthenticationType))]
+        private string _authenticationType;
 
-        public bool IsAuthenticated { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IUser.IsAdmin))]
+        private bool _isAdmin;
 
-        [JsonProperty(nameof(Groups))]
-        private ReadOnlyCollection<Group> _groups { get { return Get<ReadOnlyCollection<Group>>(); }  set { SetLocalValue(value);} }
-        [JsonIgnore]
-        public IReadOnlyCollection<IGroup> Groups => _groups;
+        [JsonProperty(nameof(IUser.AuthenticationSource))]
+        private AuthenticationSource _authenticationSource;
+
+        [JsonProperty(nameof(IUser.AuthenticationObject))]
+        private string _authenticationObject;
+#pragma warning restore
+
+        public string Name { get { return _name; } set { Set(value); } }
+
+        public string AuthenticationType { get { return _authenticationType; } set { Set(value); } }
+
+        public bool IsAuthenticated { get { return _isAuthenticated; } set { Set(value); } }
+
+        public ReadOnlyCollection<IGroup> GetGroups()
+        {
+            return Query<ReadOnlyCollection<IGroup>>();
+        }
 
         public void GroupAdd(IGroup group)
         {
@@ -35,15 +48,14 @@ namespace TAS.Remoting.Model.Security
             return Query<bool>(parameters: new object[] { group });
         }
 
-        public bool IsAdmin { get { return Get<bool>(); } set { Set(value); } }
+        public bool IsAdmin { get { return _isAdmin; } set { Set(value); } }
 
-        public AuthenticationSource AuthenticationSource { get { return Get<AuthenticationSource>(); } set { Set(value);} }
+        public AuthenticationSource AuthenticationSource { get { return _authenticationSource; } set { Set(value);} }
 
-        public string AuthenticationObject { get { return Get<string>(); } set { Set(value); } }
+        public string AuthenticationObject { get { return _authenticationObject; } set { Set(value); } }
         
         protected override void OnEventNotification(WebSocketMessage e)
         {
-            throw new NotImplementedException();
         }
     }
 }

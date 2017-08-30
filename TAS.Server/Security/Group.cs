@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
+using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Database;
 using TAS.Common.Interfaces;
@@ -15,7 +11,7 @@ namespace TAS.Server.Security
         public Group():base(null) { }
         public Group(IAuthenticationService authenticationService): base(authenticationService) { }
 
-        [XmlIgnore]
+        [JsonProperty, XmlIgnore]
         public override SecurityObjectType SecurityObjectTypeType { get; } = SecurityObjectType.Group;
 
         public override void Save()
@@ -33,6 +29,7 @@ namespace TAS.Server.Security
         {
             AuthenticationService.RemoveGroup(this);
             this.DbDeleteSecurityObject();
+            Dispose();
         }
     }
 }

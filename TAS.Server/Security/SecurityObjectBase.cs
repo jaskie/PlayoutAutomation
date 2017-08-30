@@ -19,7 +19,8 @@ namespace TAS.Server.Security
         }
 
         public abstract SecurityObjectType SecurityObjectTypeType { get; }
-        [XmlIgnore]
+
+        [JsonProperty, XmlIgnore]
         public IAuthenticationService AuthenticationService { get; set; }
 
         [XmlIgnore]

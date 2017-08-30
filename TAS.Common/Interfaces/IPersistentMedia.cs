@@ -4,8 +4,8 @@ namespace TAS.Common.Interfaces
 {
     public interface IPersistentMedia: IMedia, IPersistentMediaProperties
     {
-        IMediaSegments MediaSegments { get; }
         bool IsModified { get; set; }
+        IMediaSegments GetMediaSegments();
         bool Save();
     }
 

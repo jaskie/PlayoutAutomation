@@ -7,14 +7,25 @@ namespace TAS.Remoting.Model
 {
     public class CGElement : ProxyBase, ICGElement
     {
-        public byte Id { get { return Get<byte>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(ICGElement.Id))]
+        private byte _id;
 
-        [JsonConverter(typeof(BitmapConverter))]
-        public Bitmap Image { get { return Get<Bitmap>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(ICGElement.Image)), JsonConverter(typeof(BitmapConverter))]
+        private Bitmap _image;
 
-        public string ImageFile { get { return Get<string>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(ICGElement.ImageFile))]
+        private string _imageFile;
 
-        public string Name { get { return Get<string>(); }  set { SetLocalValue(value); } }
+        [JsonProperty(nameof(ICGElement.Name))]
+        private string _name;
+
+        public byte Id => _id;
+        
+        public Bitmap Image => _image;
+
+        public string ImageFile => _imageFile;
+
+        public string Name => _name;
 
         protected override void OnEventNotification(WebSocketMessage e) { }
     }

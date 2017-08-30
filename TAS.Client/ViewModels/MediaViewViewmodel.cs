@@ -14,6 +14,7 @@ namespace TAS.Client.ViewModels
     {
         public readonly IMedia Media;
         private readonly Lazy<ObservableCollection<MediaSegmentViewmodel>> _mediaSegments;
+        private IMediaSegments _segments;
         private bool _isExpanded;
         private MediaSegmentViewmodel _selectedSegment;
 
@@ -26,9 +27,10 @@ namespace TAS.Client.ViewModels
             {
                 _mediaSegments = new Lazy<ObservableCollection<MediaSegmentViewmodel>>(() =>
                 {
-                    var result = new ObservableCollection<MediaSegmentViewmodel>(pm.MediaSegments.Segments.Select(ms => new MediaSegmentViewmodel(pm, ms)));
-                    pm.MediaSegments.SegmentAdded += MediaSegments_SegmentAdded;
-                    pm.MediaSegments.SegmentRemoved += _mediaSegments_SegmentRemoved;
+                    _segments = pm.GetMediaSegments();
+                    var result = new ObservableCollection<MediaSegmentViewmodel>(_segments.Segments.Select(ms => new MediaSegmentViewmodel(pm, ms)));
+                    _segments.SegmentAdded += MediaSegments_SegmentAdded;
+                    _segments.SegmentRemoved += _mediaSegments_SegmentRemoved;
                     return result;
                 });
             }
@@ -38,10 +40,10 @@ namespace TAS.Client.ViewModels
         {
             Media.PropertyChanged -= OnMediaPropertyChanged;
             var pm = Media as IPersistentMedia;
-            if (pm != null && _mediaSegments.IsValueCreated)
+            if (_segments != null)
             {
-                pm.MediaSegments.SegmentAdded -= MediaSegments_SegmentAdded;
-                pm.MediaSegments.SegmentRemoved -= _mediaSegments_SegmentRemoved;
+                _segments.SegmentAdded -= MediaSegments_SegmentAdded;
+                _segments.SegmentRemoved -= _mediaSegments_SegmentRemoved;
             }
         }
 
@@ -66,7 +68,7 @@ namespace TAS.Client.ViewModels
         public TMediaCategory MediaCategory => Media.MediaType == TMediaType.Movie ? Media.MediaCategory : TMediaCategory.Uncategorized;
         public TMediaStatus MediaStatus => Media.MediaStatus;
         public TMediaEmphasis MediaEmphasis => (Media as IPersistentMedia)?.MediaEmphasis ?? TMediaEmphasis.None;
-        public int SegmentCount => (Media as IPersistentMedia)?.MediaSegments.Count ?? 0;
+        public int SegmentCount => _mediaSegments.Value.Count;
         public bool HasSegments => SegmentCount != 0;
         public bool IsTrimmed => TcPlay != TcStart || Duration != DurationPlay;
         public bool IsArchived => (Media as IServerMedia)?.IsArchived ?? false;
@@ -127,7 +129,7 @@ namespace TAS.Client.ViewModels
                 if (segment != null)
                     _mediaSegments.Value.Remove(segment);
                 NotifyPropertyChanged(nameof(HasSegments));
-                if ((Media is IPersistentMedia) && (Media as IPersistentMedia).MediaSegments.Count == 0)
+                if (Media is IPersistentMedia && _segments?.Count == 0)
                     IsExpanded = false;
             }));
         }
@@ -136,7 +138,7 @@ namespace TAS.Client.ViewModels
         {
             Application.Current.Dispatcher.BeginInvoke((Action)(() =>
             {
-                _mediaSegments.Value.Add(new MediaSegmentViewmodel((Media as IPersistentMedia), e.Segment));
+                _mediaSegments.Value.Add(new MediaSegmentViewmodel(Media as IPersistentMedia, e.Segment));
                 NotifyPropertyChanged(nameof(HasSegments));
             }));
         }

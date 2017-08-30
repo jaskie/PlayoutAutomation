@@ -4,7 +4,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
 {
-    public class PersistentMedia : Media, IPersistentMedia
+    public class PersistentMedia : MediaBase, IPersistentMedia
     {
         public TMediaEmphasis MediaEmphasis { get { return Get<TMediaEmphasis>(); } set { Set(value); } }
 
@@ -20,7 +20,7 @@ namespace TAS.Remoting.Model
 
         public bool Protected { get { return Get<bool>(); } set { Set(value); } }
 
-        public IMediaSegments MediaSegments { get { return Get<MediaSegments>(); } set { SetLocalValue(value); } }
+        public IMediaSegments GetMediaSegments() { return Query<MediaSegments>(); } 
 
         public bool Save()
         {

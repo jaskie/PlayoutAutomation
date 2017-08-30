@@ -32,7 +32,7 @@ namespace TAS.Remoting.Model
 
         public DateTime ScheduledTime { get { return Get<DateTime>(); } set { SetLocalValue(value); } }
 
-        public IMedia Source { get { return Get<Media>(); } set { Set(value); } }
+        public IMedia Source { get { return Get<MediaBase>(); } set { Set(value); } }
 
         public DateTime StartTime { get { return Get<DateTime>(); } set { SetLocalValue(value); } }
 

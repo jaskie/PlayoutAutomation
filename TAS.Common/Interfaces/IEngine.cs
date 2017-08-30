@@ -73,8 +73,8 @@ namespace TAS.Common.Interfaces
         ICGElementsController CGElementsController { get; }
         void SearchMissingEvents();
         IEvent Playing { get; }
-        IEvent NextToPlay { get; }
-        IEvent NextWithRequestedStartTime { get; }
+        IEvent GetNextToPlay();
+        IEvent GetNextWithRequestedStartTime();
         IEvent ForcedNext { get; }
         bool IsWideScreen { get; }
         IAuthenticationService AuthenticationService { get; }

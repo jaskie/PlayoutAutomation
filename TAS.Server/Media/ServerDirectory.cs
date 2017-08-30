@@ -42,8 +42,8 @@ namespace TAS.Server.Media
         public override void MediaRemove(IMedia media)
         {
             media.MediaStatus = TMediaStatus.Deleted;
-            media.IsVerified = false;
-            (media as ServerMedia)?.Save();
+            ((ServerMedia)media).IsVerified = false;
+            ((ServerMedia)media).Save();
             base.MediaRemove(media);
         }
 

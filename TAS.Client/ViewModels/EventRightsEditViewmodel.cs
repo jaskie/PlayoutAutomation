@@ -23,7 +23,7 @@ namespace TAS.Client.ViewModels
             _ev = ev;
             _authenticationService = authenticationService;
             AclObjects = authenticationService.Users.Cast<ISecurityObject>().Concat(authenticationService.Groups).ToArray();
-            _originalRights = ev.Rights.ToList();
+            _originalRights = ev.GetRights().ToList();
             Rights = new ObservableCollection<EventRightViewmodel>(_originalRights.Select(r => new EventRightViewmodel(r)));
             foreach (var eventRightViewmodel in Rights)
             {

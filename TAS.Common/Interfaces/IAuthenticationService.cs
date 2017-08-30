@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
+using System.Collections.ObjectModel;
 
 namespace TAS.Common.Interfaces
 {
     public interface IAuthenticationService
     {
-        IEnumerable<IUser> Users { get; }
-        IEnumerable<IGroup> Groups { get; }
         IUser CreateUser();
         IGroup CreateGroup();
         bool AddUser(IUser user);
@@ -17,6 +15,8 @@ namespace TAS.Common.Interfaces
         event EventHandler<CollectionOperationEventArgs<IUser>> UsersOperation;
         event EventHandler<CollectionOperationEventArgs<IGroup>> GroupsOperation;
         IUser FindUser(AuthenticationSource source, string authenticationObject);
+        IEnumerable<IUser> Users { get; }
+        IEnumerable<IGroup> Groups { get; }
     }
 
     public interface IAuthenticationServicePersitency

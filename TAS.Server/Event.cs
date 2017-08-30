@@ -22,48 +22,88 @@ namespace TAS.Server
     public class Event : DtoBase, IEventPesistent, IComparable
     {
         bool _isForcedNext;
+
         private bool _isModified;
+
         TPlayState _playState;
+
         private long _position;
+
+        [JsonProperty(nameof(IEventPesistent.Engine))]
         private readonly Engine _engine;
+
         private Lazy<SynchronizedCollection<Event>> _subEvents;
+
         private Lazy<PersistentMedia> _serverMediaPRI;
+
         private Lazy<PersistentMedia> _serverMediaSEC;
+
         private Lazy<PersistentMedia> _serverMediaPRV;
+
         private Lazy<Event> _parent;
+
         private Lazy<Event> _prior;
+
         private Lazy<Event> _next;
+
         private Lazy<List<IAclRight>> _rights;
+
         private bool _isDeleted;
+
         private bool _isCGEnabled;
+
         private byte _crawl;
+
         private byte _logo;
+
         private byte _parental;
 
         private ulong _id;
+
         private ulong _idEventBinding;
 
         private decimal? _audioVolume;
+
         private TimeSpan _duration;
+
         private bool _isEnabled = true;
+
         private TEventType _eventType;
+
         private bool _isHold;
+
         private bool _isLoop;
+
         private string _idAux;
+
         private ulong _idProgramme;
+
         private VideoLayer _layer = VideoLayer.None;
+
         private TimeSpan? _requestedStartTime;
+
         private TimeSpan _scheduledDelay;
+
         private TimeSpan _scheduledTc;
+
         private DateTime _scheduledTime;
+
         private DateTime _startTime;
+
         private TimeSpan _startTc;
+
         private TStartType _startType;
+
         private TimeSpan _transitionTime;
+
         private TimeSpan _transitionPauseTime;
+
         private TTransitionType _transitionType;
+
         private TEasing _transitionEasing;
+
         private AutoStartFlags _autoStartFlags;
+
         private Guid _mediaGuid;
         
         static NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Event));
@@ -214,23 +254,6 @@ namespace TAS.Server
             set { _setDuration(((Engine)Engine).AlignTimeSpan(value)); }
         }
 
-        private void _setDuration(TimeSpan newDuration)
-        {
-            if (SetField(ref _duration, newDuration, nameof(Duration)))
-            {
-                if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
-                {
-                    foreach (Event e in SubEvents.Where(ev => ev.EventType == TEventType.StillImage))
-                    {
-                        TimeSpan nd = e._duration + newDuration - _duration;
-                        e._setDuration(nd > TimeSpan.Zero ? nd : TimeSpan.Zero);
-                    }
-                }
-                _durationChanged();
-            }
-
-        }
-
         [JsonProperty]
         public bool IsEnabled
         {
@@ -377,24 +400,6 @@ namespace TAS.Server
             }
         }
 
-        private void _setScheduledTime(DateTime time)
-        {
-            if (SetField(ref _scheduledTime, time, nameof(ScheduledTime)))
-            {
-                Debug.WriteLine($"Scheduled time updated: {this}");
-                Event toUpdate = _getSuccessor();
-                if (toUpdate != null)
-                    toUpdate._uppdateScheduledTime();  // trigger update all next events
-                lock (_subEvents.Value.SyncRoot)
-                {
-                    foreach (Event ev in _subEvents.Value) //update all sub-events
-                        ev._uppdateScheduledTime();
-                }
-                NotifyPropertyChanged(nameof(Offset));
-                NotifyPropertyChanged(nameof(EndTime));
-            }
-        }
-
         [JsonProperty]
         public DateTime StartTime
         {
@@ -506,13 +511,9 @@ namespace TAS.Server
 
         #region IAclObject
 
-        [JsonProperty(IsReference = false, ItemIsReference = true)]
-        public IReadOnlyCollection<IAclRight> Rights
+        public IEnumerable<IAclRight> GetRights()
         {
-            get
-            {
-                lock (_rights) return _rights.Value.AsReadOnly();
-            }
+            lock (_rights) return _rights.Value.AsReadOnly();
         }
 
         public IAclRight AddRightFor(ISecurityObject securityObject)
@@ -576,9 +577,9 @@ namespace TAS.Server
             }
         }
 
-        public event EventHandler<EventPositionEventArgs> PositionChanged;
-        public List<IEvent> SubEvents { get { lock (_subEvents.Value.SyncRoot) return _subEvents.Value.Cast<IEvent>().ToList(); } }
+        public IEnumerable<IEvent> SubEvents { get { lock (_subEvents.Value.SyncRoot) return _subEvents.Value; } }
 
+        [JsonProperty]
         public int SubEventsCount => _subEvents.Value.Count;
 
         public IEngine Engine => _engine;
@@ -659,6 +660,7 @@ namespace TAS.Server
             }
         }
 
+        [JsonProperty]
         public TimeSpan? Offset
         {
             get
@@ -669,7 +671,8 @@ namespace TAS.Server
                 return null;
             }
         }
-        
+
+        [JsonProperty]
         public bool IsDeleted => _isDeleted;
 
         [JsonProperty]
@@ -719,6 +722,8 @@ namespace TAS.Server
                 SetField(ref _parental, value);
             }
         }
+
+        public event EventHandler<EventPositionEventArgs> PositionChanged;
 
         public event EventHandler Relocated;
 
@@ -1170,8 +1175,7 @@ namespace TAS.Server
         {
             return _position >= _duration.Ticks / Engine.FrameTicks;
         }
-
-
+        
         protected override void DoDispose()
         {
             var media = _serverMediaPRI;
@@ -1404,6 +1408,41 @@ namespace TAS.Server
             NotifyPropertyChanged(nameof(Media));
         }
 
+        private void _setDuration(TimeSpan newDuration)
+        {
+            if (SetField(ref _duration, newDuration, nameof(Duration)))
+            {
+                if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
+                {
+                    foreach (Event e in SubEvents.Where(ev => ev.EventType == TEventType.StillImage))
+                    {
+                        TimeSpan nd = e._duration + newDuration - _duration;
+                        e._setDuration(nd > TimeSpan.Zero ? nd : TimeSpan.Zero);
+                    }
+                }
+                _durationChanged();
+            }
+
+        }
+
+        private void _setScheduledTime(DateTime time)
+        {
+            if (SetField(ref _scheduledTime, time, nameof(ScheduledTime)))
+            {
+                Debug.WriteLine($"Scheduled time updated: {this}");
+                Event toUpdate = _getSuccessor();
+                if (toUpdate != null)
+                    toUpdate._uppdateScheduledTime();  // trigger update all next events
+                lock (_subEvents.Value.SyncRoot)
+                {
+                    foreach (Event ev in _subEvents.Value) //update all sub-events
+                        ev._uppdateScheduledTime();
+                }
+                NotifyPropertyChanged(nameof(Offset));
+                NotifyPropertyChanged(nameof(EndTime));
+            }
+        }
+
         private void NotifySubEventChanged(Event e, CollectionOperation operation)
         {
             SubEventChanged?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, operation));
@@ -1429,7 +1468,7 @@ namespace TAS.Server
                 return ulong.MaxValue; // Full rights
             var visualParent = _getVisualParent();
             ulong acl = visualParent?.EffectiveRights() ?? 0;
-            var groups = identity.Groups;
+            var groups = identity.GetGroups();
             lock (_rights)
             {
                 var userRights = _rights.Value.Where(r => r.SecurityObject == identity || groups.Any(g => g == r.SecurityObject));

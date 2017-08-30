@@ -13,6 +13,7 @@ using System.Threading;
 
 namespace TAS.Remoting.Client
 {
+    [JsonObject(IsReference = true, MemberSerialization = MemberSerialization.OptIn)]
     public abstract class ProxyBase : IDto
     {
         private int _isDisposed;
@@ -43,14 +44,15 @@ namespace TAS.Remoting.Client
             object result;
             FindPropertyName(ref propertyName);
             if (Properties.TryGetValue(propertyName, out result))
-                return  (T)result;
-            var client = _client;
-            if (client != null)
-            {
-                result = client.Get<T>(this, propertyName);
-                Properties[propertyName] = result;
-                return (T)result;
-            }
+                if (typeof(T).IsEnum && result is long)
+                {
+                    int ev = (int)(long) result;
+                    return (T)Enum.Parse(typeof(T), ev.ToString());
+                }
+                else
+                    return (T) result;
+            if (_client != null)
+                _client.Get<T>(this, propertyName);
             return default(T);
         }
         
@@ -169,17 +171,15 @@ namespace TAS.Remoting.Client
                     if (eav != null)
                     {
                         Type type = GetType();
-                        PropertyInfo property =
+                        MemberInfo property =
                             type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).FirstOrDefault(p => p.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Any(a => ((JsonPropertyAttribute)a).PropertyName == eav.PropertyName));
                         if (property != null)
                             Debug.WriteLine(property.Name);
                         if (property == null)
                             property = type.GetProperty(eav.PropertyName);
-                        //                        if (property.Name == "Commands")
-                        //                            Debug.WriteLine(property.Name);
                         object value = eav.Value;
                         if (property != null)
-                            MethodParametersAlignment.AlignType(ref value, property.PropertyType);
+                            MethodParametersAlignment.AlignType(ref value, property.ReflectedType);
                         Properties[eav.PropertyName] = value;
                         NotifyPropertyChanged(eav.PropertyName);
                     }

@@ -24,7 +24,9 @@ namespace TAS.Server
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(MediaManager));
 
+        [JsonProperty(nameof(Engine), TypeNameHandling = TypeNameHandling.Objects)]
         private readonly Engine _engine;
+        [JsonProperty(nameof(FileManager), TypeNameHandling = TypeNameHandling.Objects)]
         private readonly FileManager _fileManager;
         private readonly List<CasparRecorder> _recorders;
         private readonly object _lockSynchronizeMediaSecToPri = new object();
@@ -45,18 +47,25 @@ namespace TAS.Server
 
         public IEngine Engine => _engine;
 
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
         public IServerDirectory MediaDirectoryPRI { get; private set; }
 
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
         public IServerDirectory MediaDirectorySEC { get; private set; }
 
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
         public IServerDirectory MediaDirectoryPRV { get; private set; }
 
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
         public IAnimationDirectory AnimationDirectoryPRI { get; private set; }
 
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
         public IAnimationDirectory AnimationDirectorySEC { get; private set; }
 
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
         public IAnimationDirectory AnimationDirectoryPRV { get; private set; }
 
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
         public IArchiveDirectory ArchiveDirectory { get; private set; }
 
         public ICGElementsController CGElementsController => _engine.CGElementsController;
@@ -71,22 +80,7 @@ namespace TAS.Server
         public IEnumerable<IIngestDirectory> IngestDirectories => _ingestDirectories;
 
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
-        public IEnumerable<IRecorder> Recorders
-        {
-            get { return _recorders; }
-            internal set
-            {
-                foreach (var recorder in _recorders)
-                    recorder.CaptureSuccess -= _recorder_CaptureSuccess;
-                _recorders.Clear();
-                foreach (CasparRecorder recorder in value)
-                {
-                    recorder.ArchiveDirectory = ArchiveDirectory;
-                    _recorders.Add(recorder);
-                    recorder.CaptureSuccess += _recorder_CaptureSuccess;
-                }
-            }
-        }
+        public IEnumerable<IRecorder> Recorders => _recorders;
 
         public void Initialize()
         {
@@ -334,7 +328,20 @@ namespace TAS.Server
             return _engine.EngineName + ":MediaManager";
         }
 
-        
+        internal void SetRecorders(List<CasparRecorder> recorders)
+        {
+            foreach (var recorder in _recorders)
+                recorder.CaptureSuccess -= _recorder_CaptureSuccess;
+            _recorders.Clear();
+            foreach (CasparRecorder recorder in recorders)
+            {
+                recorder.ArchiveDirectory = ArchiveDirectory;
+                _recorders.Add(recorder);
+                recorder.CaptureSuccess += _recorder_CaptureSuccess;
+            }
+        }
+
+
         // private methods
 
         private void _loadIngestDirs(string fileName)
@@ -384,7 +391,7 @@ namespace TAS.Server
                     || e.PropertyName == nameof(IServerMedia.IsArchived)
                     || e.PropertyName == nameof(IServerMedia.Protected)
                     || e.PropertyName == nameof(IServerMedia.FieldOrderInverted)
-                    || e.PropertyName == nameof(IServerMedia.MediaSegments)
+                    || e.PropertyName == nameof(IServerMedia.GetMediaSegments)
                     ))
             {
                 ServerMedia compMedia = _findComplementaryMedia(e.Media as ServerMedia);

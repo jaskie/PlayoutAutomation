@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -36,7 +34,10 @@ namespace TAS.Client
             throw new NotImplementedException();
         }
 
-        public IReadOnlyCollection<IGroup> Groups { get; } = new List<IGroup>();
+        public ReadOnlyCollection<IGroup> GetGroups()
+        {
+            return new List<IGroup>().AsReadOnly();
+        }
 
         public void GroupAdd(IGroup group)
         {

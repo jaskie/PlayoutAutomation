@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using Newtonsoft.Json;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -8,25 +10,37 @@ namespace TAS.Remoting.Model
 {
     public abstract class MediaDirectory : ProxyBase, IMediaDirectory
     {
-        public TDirectoryAccessType AccessType { get; set; }
-        public string DirectoryName { get { return Get<string>(); } set { Set(value); } }
+        [JsonProperty(nameof(IMediaDirectory.DirectoryName))]
+        private string _directoryName;
 
-        private List<IMedia> _files;
-        public  IList<IMedia> GetFiles()
-        {
-            _files = Query<List<IMedia>>();
-            return _files;
-        }
+        [JsonProperty(nameof(IMediaDirectory.Folder))]
+        private string _folder;
 
-        public string Folder { get { return Get<string>(); } set { Set(value); } }
+        [JsonProperty(nameof(IMediaDirectory.PathSeparator))]
+        private char _pathSeparator;
 
-        public char PathSeparator { get { return Get<char>(); }  set { Set(value); } }
+        [JsonProperty(nameof(IMediaDirectory.IsInitialized))]
+        private bool _isInitialized;
 
-        public bool IsInitialized { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IMediaDirectory.VolumeFreeSize))]
+        private long _volumeFreeSize;
 
-        public long VolumeFreeSize { get { return Get<long>(); } internal set { Set(value); } }
+        [JsonProperty(nameof(IMediaDirectory.VolumeTotalSize))]
+        private long _volumeTotalSize;
 
-        public long VolumeTotalSize { get { return Get<long>(); } internal set { Set(value); } }
+        public string DirectoryName { get { return _directoryName; } set { Set(value); } }
+
+        public abstract IEnumerable<IMedia> GetFiles();
+        
+        public string Folder { get { return _folder; } set { Set(value); } }
+
+        public char PathSeparator => _pathSeparator;
+
+        public bool IsInitialized => _isInitialized;
+
+        public long VolumeFreeSize => _volumeFreeSize;
+
+        public long VolumeTotalSize => _volumeTotalSize;
 
         #region Event handling
         private event EventHandler<MediaEventArgs> MediaAddedEvent;

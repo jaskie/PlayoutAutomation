@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Model
@@ -14,5 +15,11 @@ namespace TAS.Remoting.Model
         {
             return Query<IAnimatedMedia>(parameters: new object[] { mediaProperties });
         }
+
+        public override IEnumerable<IMedia> GetFiles()
+        {
+            return Query<List<AnimatedMedia>>();
+        }
+
     }
 }

@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Dynamic;
 
 namespace TAS.Remoting
 {
@@ -22,12 +25,11 @@ namespace TAS.Remoting
             Exception
         }
 
-        public WebSocketMessage()
+        protected WebSocketMessage()
         {
-            MessageGuid = Guid.NewGuid();
         }
         [JsonProperty]
-        public readonly Guid MessageGuid;
+        public Guid MessageGuid;
         [JsonProperty]
         public Guid DtoGuid;
         [JsonProperty]
@@ -43,18 +45,60 @@ namespace TAS.Remoting
         public string MemberName;
         [JsonProperty(TypeNameHandling = TypeNameHandling.Auto, ItemTypeNameHandling = TypeNameHandling.Auto)]
         public object[] Parameters;
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Auto, ItemTypeNameHandling = TypeNameHandling.Auto, IsReference = true, ItemIsReference = true)]
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Auto)]
         public object Response;
-        public void ConvertToResponse(object response)
-        {
-            Response = response;
-            Parameters = null;
-        }
 
         public override string ToString()
         {
-            return string.Format("WebSocketMessage: {0}:{1}:{2}", MessageType, MemberName, MessageGuid);
+            return $"WebSocketMessage: {MessageType}:{MemberName}:{MessageGuid}";
         }
+
+        // server-side factory
+        public static WebSocketMessage Create(WebSocketMessage query, object response)
+        {
+            if (response is IEnumerable)
+                return new WebSocketResponseArrayMessage
+                {
+                    MessageGuid = query.MessageGuid,
+                    DtoGuid = query.DtoGuid,
+                    DtoName = query.DtoName,
+                    MemberName = query.MemberName,
+                    MessageType = query.MessageType,
+                    Response = response
+                };
+            return new WebSocketMessage
+            {
+                MessageGuid = query.MessageGuid,
+                DtoGuid = query.DtoGuid,
+                DtoName = query.DtoName,
+                MemberName = query.MemberName,
+                MessageType = query.MessageType,
+                Response = response
+            };
+        }
+
+        // client-side factory
+        public static WebSocketMessage Create(WebSocketMessageType messageType, IDto dto, string memberName, params object[] parameters)
+        {
+            return new WebSocketMessage
+            {
+                MessageType = messageType,
+                MessageGuid = Guid.NewGuid(),
+                MemberName = memberName,
+#if DEBUG
+            DtoName = dto?.ToString(),
+#endif
+                DtoGuid = dto?.DtoGuid ?? Guid.Empty,
+
+                Parameters = parameters
+            };
+        }
+    }
+
+    public class WebSocketResponseArrayMessage: WebSocketMessage
+    {
+        [JsonProperty(TypeNameHandling = TypeNameHandling.None, ItemTypeNameHandling = TypeNameHandling.Objects)]
+        public new object Response;
     }
 
     public class WebSocketMessageEventArgs: EventArgs

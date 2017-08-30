@@ -11,7 +11,7 @@ namespace TAS.Common.Interfaces
 
     public interface IEvent: IEventProperties, IAclObject, IPersistent, INotifyPropertyChanged
     {
-        TPlayState PlayState { get; set; }
+        TPlayState PlayState { get; }
         IMedia Media { get; set; }
         IEngine Engine { get; }
         TimeSpan Length { get; }
@@ -22,7 +22,7 @@ namespace TAS.Common.Interfaces
         IEvent Prior { get; }
         IEvent Parent { get; }
 
-        List<IEvent> SubEvents { get; }
+        IEnumerable<IEvent> SubEvents { get; }
 
         int SubEventsCount { get; }
         bool InsertAfter(IEvent e);
@@ -49,7 +49,7 @@ namespace TAS.Common.Interfaces
         TimeSpan Duration { get; set; }
         bool IsEnabled { get; set; }
         string EventName { get; set; }
-        TEventType EventType { get; set; }
+        TEventType EventType { get; }
         bool IsHold { get; set; }
         bool IsLoop { get; set; }
         string IdAux { get; set; } // auxiliary Id for external systems

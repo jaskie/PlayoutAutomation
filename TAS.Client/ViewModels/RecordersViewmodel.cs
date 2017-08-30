@@ -347,7 +347,7 @@ namespace TAS.Client.ViewModels
 
         private void SetRecordTimeLimit(object obj)
         {
-            _recorder?.SetTimeLimit(TimeLimit);
+            _recorder.CaptureTimeLimit = TimeLimit;
         }
 
         private void GoToTimecode(object obj)

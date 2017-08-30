@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -49,8 +50,7 @@ namespace TAS.Server.Media
         }
 #endif
 
-        [XmlIgnore]
-        [JsonProperty]
+        [XmlIgnore, JsonProperty]
         public virtual long VolumeFreeSize
         {
             get { return _volumeFreeSize; }
@@ -64,8 +64,7 @@ namespace TAS.Server.Media
             }
         }
 
-        [XmlIgnore]
-        [JsonProperty]
+        [XmlIgnore, JsonProperty]
         public virtual long VolumeTotalSize
         {
             get { return _volumeTotalSize; }
@@ -89,7 +88,7 @@ namespace TAS.Server.Media
         [JsonProperty]
         public virtual char PathSeparator => Path.DirectorySeparatorChar;
 
-        [XmlIgnore]
+        [XmlIgnore, JsonProperty]
         public bool IsInitialized
         {
             get { return _isInitialized; }
@@ -124,10 +123,10 @@ namespace TAS.Server.Media
      
         public abstract void Refresh();
 
-        public virtual IList<IMedia> GetFiles()
+        public virtual IEnumerable<IMedia> GetFiles()
         {
             lock (((IDictionary)Files).SyncRoot)
-                return Files.Values.Cast<IMedia>().ToList();
+                return Files.Values.Cast<IMedia>().ToList().AsReadOnly();
         }
         
         public virtual bool FileExists(string filename, string subfolder = null)
@@ -167,8 +166,6 @@ namespace TAS.Server.Media
         }
 
         public abstract void SweepStaleMedia();
-
-        public bool Exists => Directory.Exists(_folder);
 
         public virtual MediaBase FindMediaByMediaGuid(Guid mediaGuid)
         {

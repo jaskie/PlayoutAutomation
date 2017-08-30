@@ -8,14 +8,24 @@ namespace TAS.Remoting.Model
 {
     public class MediaSegments : ProxyBase, IMediaSegments
     {
-        public int Count { get { return Get<int>(); } set { SetLocalValue(value); } }
-
-        public Guid MediaGuid { get { return Get<Guid>(); } set { SetLocalValue(value); } }
+        #pragma warning disable CS0649
 
         [JsonProperty(nameof(IMediaSegments.Segments))]
-        private List<MediaSegment> _segments { get { return Get<List<MediaSegment>>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
+        private List<MediaSegment> _segments;
+
+        [JsonProperty(nameof(IMediaSegments.Count))]
+        private int _count;
+
+        [JsonProperty(nameof(IMediaSegments.MediaGuid))]
+        private Guid _mediaGuid;
+
         public IEnumerable<IMediaSegment> Segments => _segments;
+
+        #pragma warning restore
+
+        public int Count => _count;
+
+        public Guid MediaGuid => _mediaGuid;
 
         #region Event handling 
         private event EventHandler<MediaSegmentEventArgs> _segmentAdded;

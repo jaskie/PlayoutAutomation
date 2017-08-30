@@ -1,13 +1,21 @@
 ﻿using System;
+using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace TAS.Remoting
 {
     public static class MethodParametersAlignment
     {
-        public static T AlignType<T>(object input)
+        public static T AlignType<T>(this JsonSerializer serializer, object input)
         {
             if (input == null)
                 return default(T);
+            if (input is JArray)
+                using (var reader = new StringReader(input.ToString()))
+                {
+                    return (T)serializer.Deserialize(reader, typeof(T));
+                }
             AlignType(ref input, typeof(T));
             return (T)input;
         }

@@ -22,7 +22,7 @@ namespace TAS.Client.ViewModels
         public UserViewmodel(IUser user, UserManagerViewmodel owner): base(user)
         {
             _owner = owner;
-            GroupMember = new ObservableCollection<GroupViewmodel>(user.Groups.Select(g => owner.Groups.FirstOrDefault(vm => vm.Model == g)));
+            GroupMember = new ObservableCollection<GroupViewmodel>(user.GetGroups().Select(g => owner.Groups.FirstOrDefault(vm => vm.Model == g)));
             GroupMember.CollectionChanged += _groupMember_CollectionChanged;
         }
 
@@ -54,7 +54,7 @@ namespace TAS.Client.ViewModels
 
         public override void Update(object destObject = null)
         {
-            var actualGroups = Model.Groups;
+            var actualGroups = Model.GetGroups();
             foreach (var group in AllGroups)
             {
                 if (GroupMember.Contains(group) && !actualGroups.Contains(group.Model))

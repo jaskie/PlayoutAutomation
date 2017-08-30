@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using TAS.Common;
 using TAS.Database;
 using TAS.Common.Interfaces;
@@ -20,12 +18,12 @@ namespace TAS.Server.Security
         _items = new List<TItem>(items);
     }
 
-    public IList<TItem> Items
+    public ReadOnlyCollection<TItem> Items
     {
         get
         {
             lock (((IList) _items).SyncRoot)
-                return _items.ToList();
+                return _items.AsReadOnly();
         }
     }
 

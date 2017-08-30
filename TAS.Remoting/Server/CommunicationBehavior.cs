@@ -184,10 +184,10 @@ namespace TAS.Remoting.Server
             base.OnError(e);
         }
 
-        private void _sendResponse(WebSocketMessage message, object response)
+        private void _sendResponse(WebSocketMessage queryMessage, object response)
         {
-            message.ConvertToResponse(response);
-            var serialized = _serialize(message);
+            var responseMessage = WebSocketMessage.Create(queryMessage, response);
+            var serialized = _serialize(responseMessage);
             //Debug.WriteLine(serialized);
             Send(serialized);
         }
@@ -271,25 +271,19 @@ namespace TAS.Remoting.Server
             {
                 PropertyInfo p = o.GetType().GetProperty(ea.PropertyName);
                 if (p?.CanRead == true)
-                    eventArgs = new PropertyChangedWithValueEventArgs(ea.PropertyName, p.GetValue(o, null));
+                    eventArgs = PropertyChangedWithDataEventArgs.Create(ea.PropertyName, p.GetValue(o, null));
                 else
                 {
-                    eventArgs = new PropertyChangedWithValueEventArgs(ea.PropertyName, null);
+                    eventArgs = PropertyChangedWithDataEventArgs.Create(ea.PropertyName, null);
                     Debug.WriteLine(o, $"{GetType()}: Couldn't get value of {ea.PropertyName}");
                 }
             }
             else
                 eventArgs = e;
-            WebSocketMessage message = new WebSocketMessage()
-            {
-                DtoGuid = dto.DtoGuid,
-                Response = eventArgs,
-                MessageType = WebSocketMessage.WebSocketMessageType.EventNotification,
-                MemberName = eventName,
-#if DEBUG
-                DtoName = dto.ToString(),
-#endif
-            };
+            WebSocketMessage message = WebSocketMessage.Create(
+                WebSocketMessage.WebSocketMessageType.EventNotification,
+                dto,
+                eventName);
             string s = _serialize(message);
             Send(s);
             //Debug.WriteLine($"Server: Notification {eventName} on {dto} sent:\n{s}");
@@ -311,14 +305,9 @@ namespace TAS.Remoting.Server
                     Debug.WriteLine($"Server: Delegate {dk.Item2}  on {dto} removed;");
                 }
             }
-            WebSocketMessage message = new WebSocketMessage()
-            {
-                DtoGuid = dto.DtoGuid,
-                MessageType = WebSocketMessage.WebSocketMessageType.ObjectDisposed,
-#if DEBUG
-                DtoName = dto.ToString(),
-#endif
-            };
+            WebSocketMessage message = WebSocketMessage.Create(
+                WebSocketMessage.WebSocketMessageType.ObjectDisposed,
+                dto, null);
             Send(_serialize(message));
             Debug.WriteLine($"Server: ObjectDisposed notification on {dto} sent");
         }

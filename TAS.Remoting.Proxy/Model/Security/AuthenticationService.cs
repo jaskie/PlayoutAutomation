@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -9,45 +10,27 @@ namespace TAS.Remoting.Model.Security
 {
     public class AuthenticationService: ProxyBase, IAuthenticationService
     {
-        [JsonProperty(nameof(Users))]
-        private List<User> _users { get { return Get<List<User>>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IAuthenticationService.Users))]
+        private List<User> _users;
         [JsonIgnore]
         public IEnumerable<IUser> Users => _users;
 
-        [JsonProperty(nameof(Groups))]
-        private List<Group> _groups { get { return Get<List<Group>>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IAuthenticationService.Groups))]
+        private List<Group> _groups;
         [JsonIgnore]
         public IEnumerable<IGroup> Groups => _groups;
 
-        public IUser CreateUser()
-        {
-            return Query<User>();
-        }
+        public IUser CreateUser() => Query<User>();
+        
+        public IGroup CreateGroup() => Query<Group>();
 
-        public IGroup CreateGroup()
-        {
-            return Query<Group>();
-        }
+        public bool AddUser(IUser user) => Query<bool>(parameters: new object[] {user});
+        
+        public bool RemoveUser(IUser user) => Query<bool>(parameters: new object[] { user });
 
-        public bool AddUser(IUser user)
-        {
-            return Query<bool>(parameters: new object[] {user});
-        }
+        public bool AddGroup(IGroup group) => Query<bool>(parameters: new object[] { group });
 
-        public bool RemoveUser(IUser user)
-        {
-            return Query<bool>(parameters: new object[] { user });
-        }
-
-        public bool AddGroup(IGroup group)
-        {
-            return Query<bool>(parameters: new object[] { group });
-        }
-
-        public bool RemoveGroup(IGroup group)
-        {
-            return Query<bool>(parameters: new object[] { group });
-        }
+        public bool RemoveGroup(IGroup group) => Query<bool>(parameters: new object[] { group });
 
         private event EventHandler<CollectionOperationEventArgs<IUser>> _usersOperation;
         public event EventHandler<CollectionOperationEventArgs<IUser>> UsersOperation

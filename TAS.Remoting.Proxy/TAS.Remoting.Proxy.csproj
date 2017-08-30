@@ -73,7 +73,7 @@
     <Compile Include="Model\IngestDirectory.cs" />
     <Compile Include="Model\IngestMedia.cs" />
     <Compile Include="Model\LoudnessOperation.cs" />
-    <Compile Include="Model\Media.cs" />
+    <Compile Include="Model\MediaBase.cs" />
     <Compile Include="Model\MediaDirectory.cs" />
     <Compile Include="Model\MediaManager.cs" />
     <Compile Include="Model\MediaSegment.cs" />

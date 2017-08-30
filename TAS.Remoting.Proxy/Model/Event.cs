@@ -6,116 +6,247 @@ using System.Diagnostics;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
+using TAS.Remoting.Model.Security;
 
 namespace TAS.Remoting.Model
 {
     [DebuggerDisplay("{" + nameof(EventName) + "}")]
     public class Event : ProxyBase, IEvent
     {
-        public ulong Id { get { return Get<ulong>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IEvent.Id))]
+        private ulong _id;
 
-        public decimal? AudioVolume { get { return Get<decimal?>(); }  set { Set(value); } }
+        [JsonProperty(nameof(IEvent.AudioVolume))]
+        private decimal? _audioVolume;
 
-        public AutoStartFlags AutoStartFlags { get { return Get<AutoStartFlags>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.AutoStartFlags))]
+        private AutoStartFlags _autoStartFlags;
 
-        public byte Crawl { get { return Get<byte>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.Crawl))]
+        private byte _crawl;
 
-        public TimeSpan Duration { get { return Get<TimeSpan>(); } set { Set(value); } }
-        
-        public DateTime EndTime { get { return Get<DateTime>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.Duration))]
+        private TimeSpan _duration;
 
-        public IEngine Engine { get { return Get<Engine>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.EndTime))]
+        private DateTime _endTime;
 
-        public string EventName { get { return Get<string>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.Engine))]
+        private IEngine _engine;
 
-        public TEventType EventType { get { return Get<TEventType>(); } set { SetLocalValue(value); } }
-        
-        public string IdAux { get { return Get<string>(); } set { Set(value); } }
-        
-        public ulong IdProgramme { get { return Get<ulong>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.EventName))]
+        private string _eventName;
 
-        public bool IsCGEnabled { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.EventType))]
+        private TEventType _eventType;
 
-        public bool IsDeleted { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.IdAux))]
+        private string _idAux;
 
-        public bool IsEnabled { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.IdProgramme))]
+        private ulong _idProgramme;
 
-        public bool IsForcedNext { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.IsCGEnabled))]
+        private bool _isCGEnabled;
 
-        public bool IsHold { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.IsDeleted))]
+        private bool _isDeleted;
 
-        public bool IsLoop { get { return Get<bool>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.IsEnabled))]
+        private bool _isEnabled;
 
-        public bool IsModified { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IEvent.IsForcedNext))]
+        private bool _isForcedNext;
 
-        public VideoLayer Layer { get { return Get<VideoLayer>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.IsHold))]
+        private bool _isHold;
 
-        public TimeSpan Length { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IEvent.IsLoop))]
+        private bool _isLoop;
 
-        public byte Logo { get { return Get<byte>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.IsModified))]
+        private bool _isModified;
+
+        [JsonProperty(nameof(IEvent.Layer))]
+        private VideoLayer _layer;
+
+        [JsonProperty(nameof(IEvent.Length))]
+        private TimeSpan _length;
+
+        [JsonProperty(nameof(IEvent.Logo))]
+        private byte _logo;
 
         [JsonProperty(nameof(IEvent.Media))]
-        private Media _media { get { return Get<Media>(); } set { Set(value); } }
-        [JsonIgnore]
-        public IMedia Media { get { return _media; } set { _media = value as Media; } }
+        private MediaBase _media;
 
-        public Guid MediaGuid { get { return Get<Guid>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.MediaGuid))]
+        private Guid _mediaGuid;
 
-        public IEvent Next { get { return Get<Event>(); } set { Set(value); } }
-        
-        public TimeSpan? Offset { get { return Get<TimeSpan?>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.Offset))]
+        private TimeSpan? _offset;
 
-        public IEvent Parent { get { return Get<Event>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.Parental))]
+        private byte _parental;
 
-        public byte Parental { get { return Get<byte>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.PlayState))]
+        private TPlayState _playState;
 
-        public TPlayState PlayState { get { return Get<TPlayState>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.RequestedStartTime))]
+        private TimeSpan? _requestedStartTime;
 
-        public IEvent Prior { get { return Get<Event>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.ScheduledDelay))]
+        private TimeSpan _scheduledDelay;
 
-        public TimeSpan? RequestedStartTime { get { return Get<TimeSpan?>(); }  set { Set(value); } }
+        [JsonProperty(nameof(IEvent.ScheduledTc))]
+        private TimeSpan _scheduledTc;
 
-        public TimeSpan ScheduledDelay { get { return Get<TimeSpan>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.ScheduledTime))]
+        private DateTime _scheduledTime;
 
-        public TimeSpan ScheduledTc { get { return Get<TimeSpan>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.StartTc))]
+        private TimeSpan _startTc;
 
-        public DateTime ScheduledTime { get { return Get<DateTime>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.StartTime))]
+        private DateTime _startTime;
 
-        public TimeSpan StartTc { get { return Get<TimeSpan>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.StartType))]
+        private TStartType _startType;
 
-        public DateTime StartTime { get { return Get<DateTime>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.SubEventsCount))]
+        private int _subEventsCount;
 
-        public TStartType StartType { get { return Get<TStartType>(); } set { Set(value); } }
+        [JsonProperty(nameof(IEvent.TransitionEasing))]
+        private TEasing _transitionEasing;
 
-        public List<IEvent> SubEvents
+        [JsonProperty(nameof(IEvent.TransitionPauseTime))]
+        private TimeSpan _transitionPauseTime;
+
+        [JsonProperty(nameof(IEvent.TransitionTime))]
+        private TimeSpan _transitionTime;
+
+        [JsonProperty(nameof(IEvent.TransitionType))]
+        private TTransitionType _transitionType;
+
+        private Lazy<IEvent> _parent;
+
+        private Lazy<IEvent> _next;
+
+        private Lazy<IEvent> _prior;
+
+        private Lazy<IEnumerable<IEvent>> _subEvents;
+
+
+        public Event()
         {
-            get
-            {
-                var result = Get<List<IEvent>>();
-                if (result == null)
-                    result = new List<IEvent>();
-                return result;
-            }
-            set { SetLocalValue(value); }
+            _subEvents = new Lazy<IEnumerable<IEvent>>(() => Get<List<Event>>(nameof(IEvent.SubEvents)));
+            _parent = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Parent)));
+            _next = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Next)));
+            _prior = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Prior)));
         }
 
-        public int SubEventsCount { get { return Get<int>(); } set { SetLocalValue(value); } }
+        public ulong Id
+        {
+            get { return _id; }
+            set { _id = value; }
+        }
 
-        public TEasing TransitionEasing { get { return Get<TEasing>(); } set { Set(value); } }
+        public decimal? AudioVolume { get { return _audioVolume; }  set { Set(value); } }
 
-        public TimeSpan TransitionPauseTime { get { return Get<TimeSpan>(); } set { Set(value); } }
+        public AutoStartFlags AutoStartFlags { get { return _autoStartFlags; } set { Set(value); } }
 
-        public TimeSpan TransitionTime { get { return Get<TimeSpan>(); } set { Set(value); } }
+        public byte Crawl { get { return _crawl; } set { Set(value); } }
 
-        public TTransitionType TransitionType { get { return Get<TTransitionType>(); } set { Set(value); } }
+        public TimeSpan Duration { get { return _duration; } set { Set(value); } }
+        
+        public DateTime EndTime => _endTime;
 
-        [JsonProperty(nameof(Rights))]
-        private ReadOnlyCollection<Security.EventAclItem> _rights { get { return Get<ReadOnlyCollection<Security.EventAclItem>>(); } set {SetLocalValue(value); } }
-        [JsonIgnore]
-        public IReadOnlyCollection<IAclRight> Rights => _rights;
+        public IEngine Engine => _engine;
 
-        public IAclRight AddRightFor(ISecurityObject securityObject) { return  Query<IAclRight>(parameters: new object[] {securityObject}); }
-        public bool DeleteRight(IAclRight item) { return Query<bool>(parameters: new object[] {item}); }
+        public string EventName { get { return _eventName; } set { Set(value); } }
+
+        public TEventType EventType => _eventType;
+        
+        public string IdAux { get { return _idAux; } set { Set(value); } }
+        
+        public ulong IdProgramme { get { return _idProgramme; } set { Set(value); } }
+
+        public bool IsCGEnabled { get { return _isCGEnabled; } set { Set(value); } }
+
+        public bool IsDeleted => _isDeleted;
+
+        public bool IsEnabled { get { return _isEnabled; } set { Set(value); } }
+
+        public bool IsForcedNext => _isForcedNext;
+
+        public bool IsHold { get { return _isHold; } set { Set(value); } }
+
+        public bool IsLoop { get { return _isLoop; } set { Set(value); } }
+
+        public bool IsModified { get { return _isModified; } set { SetLocalValue(value); } }
+
+        public VideoLayer Layer { get { return _layer; } set { Set(value); } }
+
+        public TimeSpan Length => _length;
+
+        public byte Logo { get { return _logo; } set { Set(value); } }
+
+        public IMedia Media { get { return _media; } set { Set(value); } }
+
+        public Guid MediaGuid { get { return _mediaGuid; } set { Set(value); } }
+
+        [JsonProperty]
+        public IEvent Next
+        {
+            get { return _next.Value; }
+            set { _next = new Lazy<IEvent>(() => value); }
+        }
+
+        [JsonProperty]
+        public IEvent Parent
+        {
+            get { return _parent.Value; }
+            set { _parent = new Lazy<IEvent>(() => value); }
+        }
+
+        [JsonProperty]
+        public IEvent Prior
+        {
+            get { return _prior.Value; }
+            set { _prior = new Lazy<IEvent>(() => value); }
+        }
+
+        public TimeSpan? Offset => _offset;
+
+        public byte Parental { get { return _parental; } set { Set(value); } }
+
+        public TPlayState PlayState => _playState;
+
+
+        public TimeSpan? RequestedStartTime { get { return _requestedStartTime; }  set { Set(value); } }
+
+        public TimeSpan ScheduledDelay { get { return _scheduledDelay; } set { Set(value); } }
+
+        public TimeSpan ScheduledTc { get { return _scheduledTc; } set { Set(value); } }
+
+        public DateTime ScheduledTime { get { return _scheduledTime; } set { Set(value); } }
+
+        public TimeSpan StartTc { get { return _startTc; } set { Set(value); } }
+
+        public DateTime StartTime => _startTime;
+
+        public TStartType StartType { get { return _startType; } set { Set(value); } }
+
+        public IEnumerable<IEvent> SubEvents => _subEvents.Value;
+
+        public int SubEventsCount { get { return _subEventsCount; } set { SetLocalValue(value); } }
+
+        public TEasing TransitionEasing { get { return _transitionEasing; } set { Set(value); } }
+
+        public TimeSpan TransitionPauseTime { get { return _transitionPauseTime; } set { Set(value); } }
+
+        public TimeSpan TransitionTime { get { return _transitionTime; } set { Set(value); } }
+
+        public TTransitionType TransitionType { get { return _transitionType; } set { Set(value); } }
 
         #region Event handlers
         private event EventHandler _deleted;
@@ -235,6 +366,12 @@ namespace TAS.Remoting.Model
         {
             Invoke();
         }
+
+        public IEnumerable<IAclRight> GetRights() => Query<ReadOnlyCollection<EventAclItem>>();
+
+        public IAclRight AddRightFor(ISecurityObject securityObject) { return Query<IAclRight>(parameters: new object[] { securityObject }); }
+
+        public bool DeleteRight(IAclRight item) { return Query<bool>(parameters: new object[] { item }); }
 
         private void _subeventChanged(CollectionOperationEventArgs<IEvent> e)
         {

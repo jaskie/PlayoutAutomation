@@ -243,7 +243,7 @@ namespace TAS.Client
                     return false;
                 if ((destEvent.EventType == TEventType.Movie || destEvent.EventType == TEventType.Live) && sourceEvent.EventType != TEventType.StillImage)
                     return false;
-                if (destEvent.EventType == TEventType.Rundown && (source.EventType == TEventType.StillImage || destEvent.SubEvents.Count > 0))
+                if (destEvent.EventType == TEventType.Rundown && (source.EventType == TEventType.StillImage || destEvent.SubEventsCount > 0))
                     return false;
                 if (destEvent.EventType == TEventType.Container && source.EventType != TEventType.Rundown)
                     return false;

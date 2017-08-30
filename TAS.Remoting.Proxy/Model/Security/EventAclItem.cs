@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 using TAS.Remoting.Client;
 
@@ -6,13 +6,24 @@ namespace TAS.Remoting.Model.Security
 {
     public class EventAclItem: ProxyBase, IAclRight
     {
+        [JsonProperty(nameof(IAclRight.Owner))]
+        private Event _owner;
+
+        [JsonProperty(nameof(IAclRight.SecurityObject))]
+        private ISecurityObject _securityObject;
+
+        [JsonProperty(nameof(IAclRight.Acl))]
+        private ulong _acl;
+
+        public IPersistent Owner { get { return _owner; } set {Set(value);} }
+
+        public ISecurityObject SecurityObject { get { return _securityObject; } set {Set(value);} }
+
+        public ulong Acl { get { return _acl; } set {Set(value);} }
+
         protected override void OnEventNotification(WebSocketMessage e)
         {
-            throw new NotImplementedException();
-        }
 
-        public IPersistent Owner { get { return Get<Event>(); } set {SetLocalValue(value);} }
-        public ISecurityObject SecurityObject { get; set; }
-        public ulong Acl { get { return Get<ulong>(); } set {Set(value);} }
+        }
     }
 }

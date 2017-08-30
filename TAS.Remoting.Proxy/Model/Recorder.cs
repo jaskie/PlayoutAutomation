@@ -10,42 +10,99 @@ namespace TAS.Remoting.Model
     public class Recorder : ProxyBase, IRecorder
     {
         #region IRecorder
+
+        #pragma warning disable CS0649
+
         [JsonProperty(nameof(IRecorder.Channels))]
-        private List<PlayoutServerChannel> _channels { get { return Get<List<PlayoutServerChannel>>(); } set { SetLocalValue(value); } }
-        [JsonIgnore]
+        private List<PlayoutServerChannel> _channels;
+
+        [JsonProperty(nameof(IRecorder.RecordingDirectory))]
+        private ServerDirectory _recordingDirectory;
+
+        [JsonProperty(nameof(IRecorder.CurrentTc))]
+        private TimeSpan _currentTc;
+
+        [JsonProperty(nameof(IRecorder.DeckControl))]
+        private TDeckControl _deckControl;
+
+        [JsonProperty(nameof(IRecorder.DeckState))]
+        private TDeckState _deckState;
+
+        [JsonProperty(nameof(IRecorder.Id))]
+        private int _id;
+
+        [JsonProperty(nameof(IRecorder.IsDeckConnected))]
+        private bool _isDeckConnected;
+
+        [JsonProperty(nameof(IRecorder.IsServerConnected))]
+        private bool _isServerConnected;
+
+        [JsonProperty(nameof(IRecorder.RecorderName))]
+        private string _recorderName;
+
+        [JsonProperty(nameof(IRecorder.RecordingMedia))]
+        private IMedia _recordingMedia;
+
+        [JsonProperty(nameof(IRecorder.TimeLimit))]
+        private TimeSpan _timeLimit;
+
+        [JsonProperty(nameof(IRecorder.CaptureTimeLimit))]
+        private TimeSpan _captureTimeLimit;
+
+        [JsonProperty(nameof(IRecorder.CaptureTcIn))]
+        private TimeSpan _captureTcIn;
+
+        [JsonProperty(nameof(IRecorder.CaptureTcOut))]
+        private TimeSpan _captureTcOut;
+
+        [JsonProperty(nameof(IRecorder.CaptureNarrowMode))]
+        private bool _captureNarrowMode;
+
+        [JsonProperty(nameof(IRecorder.CaptureChannel))]
+        private IPlayoutServerChannel _captureChannel;
+
+        [JsonProperty(nameof(IRecorder.CaptureFileName))]
+        private string _captureFileName;
+
+        #pragma warning restore
+
         public IEnumerable<IPlayoutServerChannel> Channels => _channels;
 
-        public TimeSpan CurrentTc { get { return Get<TimeSpan>(); }  set { SetLocalValue(value); } }
+        public TimeSpan CurrentTc => _currentTc;
 
-        public TDeckControl DeckControl { get { return Get<TDeckControl>(); } set { SetLocalValue(value); } }
+        public TDeckControl DeckControl => _deckControl;
 
-        public TDeckState DeckState { get { return Get<TDeckState>(); } set { SetLocalValue(value); } }
-        
-        public int Id { get { return Get<int>(); } set { SetLocalValue(value); } }
+        public TDeckState DeckState => _deckState;
 
-        public bool IsDeckConnected { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        public int Id => _id;
 
-        public bool IsServerConnected { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        public bool IsDeckConnected => _isDeckConnected;
 
-        public string RecorderName { get { return Get<string>(); } set { SetLocalValue(value); } }
-        
-        public IMediaDirectory RecordingDirectory { get { return Get<MediaDirectory>(); } set { SetLocalValue(value); } }
+        public bool IsServerConnected => _isServerConnected;
 
-        public IMedia RecordingMedia { get { return Get<IMedia>(); } set { SetLocalValue(value); } }
+        public string RecorderName => _recorderName;
 
-        public TimeSpan TimeLimit { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
+        public IMediaDirectory RecordingDirectory => _recordingDirectory;
 
-        public TimeSpan CaptureTimeLimit { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
+        public IMedia RecordingMedia => _recordingMedia;
 
-        public TimeSpan CaptureTcIn { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
+        public TimeSpan TimeLimit => _timeLimit;
 
-        public TimeSpan CaptureTcOut { get { return Get<TimeSpan>(); } set { SetLocalValue(value); } }
+        public TimeSpan CaptureTimeLimit
+        {
+            get { return _captureTimeLimit; }
+            set { Set(value); }
+        }
 
-        public bool CaptureNarrowMode { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        public TimeSpan CaptureTcIn => _captureTcIn;
 
-        public IPlayoutServerChannel CaptureChannel { get { return Get<PlayoutServerChannel>(); } set { SetLocalValue(value); } }
+        public TimeSpan CaptureTcOut => _captureTcOut;
 
-        public string CaptureFileName { get { return Get<string>(); } set { SetLocalValue(value); } }
+        public bool CaptureNarrowMode => _captureNarrowMode;
+
+        public IPlayoutServerChannel CaptureChannel => _captureChannel;
+
+        public string CaptureFileName => _captureFileName;
 
         public void Abort() { Invoke(); }
 
@@ -76,7 +133,6 @@ namespace TAS.Remoting.Model
             return Query<IMedia>(parameters: new object[] { channel, timeLimit, fileName });
         }
 
-        public void SetTimeLimit(TimeSpan limit) { Invoke(parameters: new object[] { limit }); }
         #endregion IRecorder
 
         protected override void OnEventNotification(WebSocketMessage e) { }

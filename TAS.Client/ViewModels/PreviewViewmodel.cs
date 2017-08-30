@@ -96,14 +96,14 @@ namespace TAS.Client.ViewModels
                 {
                     if (pm != null)
                     {
-                        pm.MediaSegments.SegmentAdded -= _mediaSegments_SegmentAdded;
-                        pm.MediaSegments.SegmentRemoved -= _mediaSegments_SegmentRemoved;
+                        pm.GetMediaSegments().SegmentAdded -= _mediaSegments_SegmentAdded;
+                        pm.GetMediaSegments().SegmentRemoved -= _mediaSegments_SegmentRemoved;
                     }
                     pm = value as IPersistentMedia;
                     if (pm != null)
                     {
-                        pm.MediaSegments.SegmentAdded += _mediaSegments_SegmentAdded;
-                        pm.MediaSegments.SegmentRemoved += _mediaSegments_SegmentRemoved;
+                        pm.GetMediaSegments().SegmentAdded += _mediaSegments_SegmentAdded;
+                        pm.GetMediaSegments().SegmentRemoved += _mediaSegments_SegmentRemoved;
                     }
                     _mediaLoad(value, true);
                 }
@@ -359,7 +359,7 @@ namespace TAS.Client.ViewModels
                             return;
                         if (msVm == null)
                         {
-                            _lastAddedSegment = media.MediaSegments.Add(TcIn, TcOut, SelectedSegmentName);
+                            _lastAddedSegment = media.GetMediaSegments().Add(TcIn, TcOut, SelectedSegmentName);
                             _lastAddedSegment.Save();
                         }
                         else
@@ -394,7 +394,7 @@ namespace TAS.Client.ViewModels
                     {
                         var media = LoadedMedia as IPersistentMedia;
                         if (media != null)
-                            _lastAddedSegment = media.MediaSegments.Add(TcIn, TcOut, Common.Properties.Resources._title_NewSegment);
+                            _lastAddedSegment = media.GetMediaSegments().Add(TcIn, TcOut, Common.Properties.Resources._title_NewSegment);
                     },
             };
             CommandSetSegmentNameFocus = new UICommand()
@@ -458,7 +458,7 @@ namespace TAS.Client.ViewModels
                 if (reloadSegments && media is IPersistentMedia)
                 {
                     MediaSegments.Clear();
-                    foreach (IMediaSegment ms in ((IPersistentMedia)media).MediaSegments.Segments)
+                    foreach (IMediaSegment ms in ((IPersistentMedia)media).GetMediaSegments().Segments)
                         MediaSegments.Add(new MediaSegmentViewmodel((IPersistentMedia)media, ms));
                 }
                 _loadedSeek = (tcIn.Ticks - media.TcStart.Ticks) / _formatDescription.FrameTicks;
@@ -536,7 +536,7 @@ namespace TAS.Client.ViewModels
             Application.Current.Dispatcher.BeginInvoke((Action)delegate
             {
                 IPersistentMedia media = _loadedMedia as IPersistentMedia;
-                if (media == null || sender != media.MediaSegments)
+                if (media == null || sender != media.GetMediaSegments())
                     return;
                 var vM = _mediaSegments.FirstOrDefault(s => s.MediaSegment == e.Segment);
                 if (vM != null)
@@ -551,7 +551,7 @@ namespace TAS.Client.ViewModels
             Application.Current.Dispatcher.BeginInvoke((Action)delegate 
             {
                 IPersistentMedia media = _loadedMedia as IPersistentMedia;
-                if (media != null && sender == media.MediaSegments)
+                if (media != null && sender == media.GetMediaSegments())
                 {
                     var newVm = new MediaSegmentViewmodel(media, e.Segment);
                     _mediaSegments.Add(newVm);

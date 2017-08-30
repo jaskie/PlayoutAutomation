@@ -8,7 +8,7 @@ namespace TAS.Common.Interfaces
         IMediaDirectory Directory { get; }
         bool FileExists();
         bool Delete();
-        bool IsVerified { get; set; }
+        bool IsVerified { get; }
         void ReVerify();
         void Verify();
         void GetLoudness();

@@ -18,6 +18,7 @@ namespace TAS.Server
         public TFileOperationKind Kind { get; set; }
 
         private readonly object _destMediaLock = new object();
+
         protected MediaBase DestMedia;
         protected MediaBase SourceMedia;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(FileOperation));

@@ -147,7 +147,7 @@ namespace TAS.Server.Media
         public List<IngestDirectory> XmlSubDirectories;
 
         [XmlIgnore]
-        [JsonProperty]
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
         public IEnumerable<IIngestDirectoryProperties> SubDirectories => XmlSubDirectories;
 
         public string Username { get; set; }

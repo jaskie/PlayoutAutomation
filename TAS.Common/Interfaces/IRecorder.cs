@@ -15,7 +15,6 @@ namespace TAS.Common.Interfaces
         IMedia Capture(IPlayoutServerChannel channel, TimeSpan timeLimit, bool narrowMode, string mediaName, string fileName);
         void Finish();
         void GoToTimecode(TimeSpan tc, TVideoFormat format);
-        void SetTimeLimit(TimeSpan limit);
         TimeSpan CurrentTc { get; }
         TimeSpan TimeLimit { get; }
         TDeckControl DeckControl { get; }
@@ -28,7 +27,7 @@ namespace TAS.Common.Interfaces
         string CaptureFileName { get; }
         TimeSpan CaptureTcIn { get; }
         TimeSpan CaptureTcOut { get; }
-        TimeSpan CaptureTimeLimit { get; }
+        TimeSpan CaptureTimeLimit { get; set; }
         bool CaptureNarrowMode { get; }
         IPlayoutServerChannel CaptureChannel { get; }
     }

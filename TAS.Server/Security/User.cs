@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security.Principal;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Database;
 using TAS.Common.Interfaces;
@@ -26,42 +28,43 @@ namespace TAS.Server.Security
         private Principal _principal;
         private readonly object _principalLock = new object();
 
-        [XmlIgnore]
+        [JsonProperty, XmlIgnore]
         public override SecurityObjectType SecurityObjectTypeType { get; } = SecurityObjectType.User;
 
+        [JsonProperty]
         public string AuthenticationType => _authenticationSource.ToString();
 
+        [JsonProperty]
         public bool IsAuthenticated => !string.IsNullOrEmpty(Name);
 
+        [JsonProperty]
         public bool IsAdmin
         {
             get { return _isAdmin; }
             set { SetField(ref _isAdmin, value); }
         }
 
+        [JsonProperty]
         public AuthenticationSource AuthenticationSource
         {
             get { return _authenticationSource; }
             set { SetField(ref _authenticationSource, value); }
         }
 
+        [JsonProperty]
         public string AuthenticationObject
         {
             get { return _authenticationObject; }
             set { SetField(ref _authenticationObject, value); }
         }
 
-        [XmlIgnore]
-        public IReadOnlyCollection<IGroup> Groups
+        public ReadOnlyCollection<IGroup> GetGroups()
         {
-            get
-            {
-                lock (((IList) _groups).SyncRoot)
-                    return _groups.AsReadOnly();
-            }
+            lock (((IList) _groups).SyncRoot)
+                return _groups.AsReadOnly();
         }
 
-        [XmlArray(nameof(Groups)), XmlArrayItem(nameof(Group))]
+        [XmlArray(nameof(GetGroups)), XmlArrayItem(nameof(Group))]
         public ulong[] GroupsId
         {
             get
@@ -81,7 +84,7 @@ namespace TAS.Server.Security
             {
                 _groups.Add(group);
             }
-            NotifyPropertyChanged(nameof(Groups));
+            NotifyPropertyChanged(nameof(GetGroups));
         }
 
         public bool GroupRemove(IGroup group)
@@ -92,7 +95,7 @@ namespace TAS.Server.Security
                 isRemoved = _groups.Remove(group);
             }
             if (isRemoved)
-                NotifyPropertyChanged(nameof(Groups));
+                NotifyPropertyChanged(nameof(GetGroups));
             return isRemoved;
         }
 
@@ -111,6 +114,7 @@ namespace TAS.Server.Security
         {
             AuthenticationService.RemoveUser(this);
             this.DbDeleteSecurityObject();
+            Dispose();
         }
 
         protected override bool SetField<T>(ref T field, T value, string propertyName = null)

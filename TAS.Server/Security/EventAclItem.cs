@@ -47,6 +47,7 @@ namespace TAS.Server.Security
         public void Delete()
         {
             this.DbDeleteEventAcl();
+            Dispose();
         }
     }
 }
