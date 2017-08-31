@@ -7,7 +7,6 @@ using System.Threading;
 using WebSocketSharp;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting.Client
@@ -19,7 +18,6 @@ namespace TAS.Remoting.Client
         private readonly JsonSerializer _serializer;
         private readonly ReferenceResolver _referenceResolver;
         private readonly ConcurrentDictionary<Guid, WebSocketMessage> _receivedMessages = new ConcurrentDictionary<Guid, WebSocketMessage>();
-        private readonly BinaryFormatter _messageFormatter = new BinaryFormatter();
 
 
         private const int QueryTimeout =
@@ -165,7 +163,7 @@ namespace TAS.Remoting.Client
         {
             Debug.WriteLine(e.Data);
             WebSocketMessage message;
-            message = WebSocketMessage.Deserialize(_messageFormatter, e.RawData);
+            message = WebSocketMessage.Deserialize(e.RawData);
 
             switch (message.MessageType)
             {
@@ -226,7 +224,7 @@ namespace TAS.Remoting.Client
         {
             if (_clientSocket.ReadyState == WebSocketState.Open)
             {
-                _clientSocket.Send(query.Serialize(_messageFormatter));
+                _clientSocket.Send(query.Serialize());
                 using (var reader = new StringReader(WaitForResponse(query).Value))
                 {
                     return (T)_serializer.Deserialize(reader, typeof(T));

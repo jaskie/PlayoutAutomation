@@ -7,8 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading;
 using Newtonsoft.Json;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -26,7 +24,6 @@ namespace TAS.Remoting.Server
         private readonly IAuthenticationService _authenticationService;
         private readonly ReferenceResolver _referenceResolver;
         private readonly ConcurrentDictionary<Tuple<Guid, string>, Delegate> _delegates;
-        private readonly BinaryFormatter _messageFormatter = new BinaryFormatter();
 
 
         public CommunicationBehavior(IDto initialObject, IAuthenticationService authenticationService)
@@ -60,8 +57,8 @@ namespace TAS.Remoting.Server
         {
             //Thread.CurrentPrincipal = 
             var user = _authenticationService.FindUser(AuthenticationSource.IpAddress, Context.Host);
-            WebSocketMessage message = WebSocketMessage.Deserialize(_messageFormatter, e.RawData);
-            object parameters = DeserializeDto<object[]>(message.Value);
+            WebSocketMessage message = WebSocketMessage.Deserialize(e.RawData);
+            object parameters = DeserializeDto<object[]>(message.GetValueStream());
             try
             {
                 if (message.MessageType == WebSocketMessage.WebSocketMessageType.RootQuery)
@@ -151,7 +148,7 @@ namespace TAS.Remoting.Server
             {
                 message.MessageType = WebSocketMessage.WebSocketMessageType.Exception;
                 SerializeDto(message, ex);
-                Send(message.Serialize(_messageFormatter));
+                Send(message.Serialize());
                 Debug.WriteLine(ex);
             }
 
@@ -192,7 +189,7 @@ namespace TAS.Remoting.Server
         private void _sendResponse(WebSocketMessage message, object response)
         {
             SerializeDto(message, response);
-            var serialized = message.Serialize(_messageFormatter);
+            var serialized = message.Serialize();
             Send(serialized);
         }
 
@@ -205,15 +202,13 @@ namespace TAS.Remoting.Server
             }
         }
 
-        private T DeserializeDto<T>(string s)
+        private T DeserializeDto<T>(Stream stream)
         {
-            //Debug.WriteLine(s);
-            if (string.IsNullOrWhiteSpace(s))
+            if (stream == null)
                 return default(T);
-            using (StringReader reader = new StringReader(s))
+            using (var reader = new StreamReader(stream))
             {
-                object value = _serializer.Deserialize(reader, typeof(T));
-                return (T)value;
+                return (T)_serializer.Deserialize(reader, typeof(T));
             }
         }
 
@@ -289,7 +284,7 @@ namespace TAS.Remoting.Server
                 MessageType = WebSocketMessage.WebSocketMessageType.EventNotification,
                 DtoGuid = dto.DtoGuid,
                 MemberName = eventName};
-            var bytes = message.Serialize(_messageFormatter);
+            var bytes = message.Serialize();
             Send(bytes);
             //Debug.WriteLine($"Server: Notification {eventName} on {dto} sent:\n{s}");
         }
@@ -315,7 +310,7 @@ namespace TAS.Remoting.Server
                 MessageType = WebSocketMessage.WebSocketMessageType.ObjectDisposed,
                 DtoGuid = dto.DtoGuid
             };
-            Send(message.Serialize(_messageFormatter));
+            Send(message.Serialize());
             Debug.WriteLine($"Server: ObjectDisposed notification on {dto} sent");
         }
 
