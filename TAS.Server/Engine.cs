@@ -10,7 +10,6 @@ using System.Collections.Concurrent;
 using TAS.Remoting.Server;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
-using System.Security.Permissions;
 using TAS.Database;
 using TAS.Common.Interfaces;
 using TAS.Server.Media;
@@ -23,19 +22,19 @@ namespace TAS.Server
         private string _engineName;
         private bool _pst2Prv;
 
-        [JsonProperty(nameof(PlayoutChannelPRI), TypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty(nameof(PlayoutChannelPRI), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
         private CasparServerChannel _playoutChannelPRI;
 
-        [JsonProperty(nameof(PlayoutChannelSEC), TypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty(nameof(PlayoutChannelSEC), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
         private CasparServerChannel _playoutChannelSEC;
 
-        [JsonProperty(nameof(PlayoutChannelPRV), TypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty(nameof(PlayoutChannelPRV), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
         private CasparServerChannel _playoutChannelPRV;
 
-        [JsonProperty(nameof(MediaManager), TypeNameHandling = TypeNameHandling.Objects, ItemIsReference = true)]
+        [JsonProperty(nameof(MediaManager), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
         private readonly MediaManager _mediaManager;
 
-        [JsonProperty(nameof(AuthenticationService), TypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty(nameof(AuthenticationService), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
         private AuthenticationService _authenticationService;
 
         Thread _engineThread;
@@ -64,6 +63,7 @@ namespace TAS.Server
         private decimal _programAudioVolume = 1;
         private bool _fieldOrderInverted;
 
+        [JsonProperty(nameof(PreviewMedia), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
         private IMedia _previewMedia;
         private long _previewDuration;
         private long _previewPosition;
@@ -454,7 +454,7 @@ namespace TAS.Server
             }
         }
 
-        [XmlIgnore, JsonProperty]
+        [XmlIgnore]
         public IMedia PreviewMedia => _previewMedia;
 
         [XmlIgnore, JsonProperty]
@@ -484,7 +484,7 @@ namespace TAS.Server
             }
         }
 
-        [XmlIgnore]
+        [XmlIgnore, JsonProperty]
         public decimal PreviewAudioVolume
         {
             get { return _previewAudioVolume; }
@@ -513,7 +513,6 @@ namespace TAS.Server
         [JsonProperty]
         public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value); } }
         
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
         public void Load(IEvent aEvent)
         {
             Debug.WriteLine(aEvent, "Load");
@@ -527,14 +526,12 @@ namespace TAS.Server
             _load(aEvent as Event);
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
         public void StartLoaded()
         {
             Debug.WriteLine("StartLoaded executed");
             _startLoaded();
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
         public void Start(IEvent aEvent)
         {
             Debug.WriteLine(aEvent, "Start");
@@ -544,7 +541,6 @@ namespace TAS.Server
             _start(ets);
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
         public void Schedule(IEvent aEvent)
         {
             Debug.WriteLine(aEvent, $"Schedule {aEvent.PlayState}");
@@ -556,7 +552,6 @@ namespace TAS.Server
             NotifyEngineOperation(aEvent, TEngineOperation.Schedule);
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
         public void Clear(VideoLayer aVideoLayer)
         {
             Debug.WriteLine(aVideoLayer, "Clear");
@@ -582,7 +577,6 @@ namespace TAS.Server
                     Playing = null;
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
         public void Clear()
         {
             Logger.Info("{0} {1}: Clear all", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this);
@@ -601,14 +595,12 @@ namespace TAS.Server
             _previewUnload();
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
         public void ClearMixer()
         {
             _playoutChannelPRI?.ClearMixer();
             _playoutChannelSEC?.ClearMixer();
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
         public void Restart()
         {
             Logger.Info("{0} {1}: Restart", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this);
@@ -616,7 +608,6 @@ namespace TAS.Server
                 _restartEvent(e);
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
         public void RestartRundown(IEvent aRundown)
         {
             Action<Event> rerun = aEvent =>
@@ -652,7 +643,6 @@ namespace TAS.Server
             }
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
         public void ForceNext(IEvent aEvent)
         {
             ForcedNext = aEvent;
@@ -739,7 +729,6 @@ namespace TAS.Server
             return result;
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Playout)]
         public void ReSchedule(IEvent aEvent)
         {
             ThreadPool.QueueUserWorkItem(o => {
@@ -760,7 +749,6 @@ namespace TAS.Server
             _playoutChannelSEC?.Execute(command);
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Preview)]
         public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal previewAudioVolume)
         {
             MediaBase mediaToLoad = _findPreviewMedia(media as MediaBase);
@@ -784,20 +772,17 @@ namespace TAS.Server
             }
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Preview)]
         public void PreviewUnload()
         {
             _previewUnload();
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Preview)]
         public void PreviewPlay()
         {
             if (_previewMedia != null && _playoutChannelPRV?.Play(VideoLayer.Preview) == true)
                 PreviewIsPlaying = true;
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.Preview)]
         public void PreviewPause()
         {
             _playoutChannelPRV?.Pause(VideoLayer.Preview);

@@ -12,12 +12,16 @@ namespace TAS.Remoting.Model.Security
     {
         [JsonProperty(nameof(IAuthenticationService.Users))]
         private List<User> _users;
-        [JsonIgnore]
-        public IEnumerable<IUser> Users => _users;
 
         [JsonProperty(nameof(IAuthenticationService.Groups))]
         private List<Group> _groups;
-        [JsonIgnore]
+
+        private event EventHandler<CollectionOperationEventArgs<IUser>> _usersOperation;
+
+        private event EventHandler<CollectionOperationEventArgs<IGroup>> _groupsOperation;
+
+        public IEnumerable<IUser> Users => _users;
+
         public IEnumerable<IGroup> Groups => _groups;
 
         public IUser CreateUser() => Query<User>();
@@ -32,7 +36,6 @@ namespace TAS.Remoting.Model.Security
 
         public bool RemoveGroup(IGroup group) => Query<bool>(parameters: new object[] { group });
 
-        private event EventHandler<CollectionOperationEventArgs<IUser>> _usersOperation;
         public event EventHandler<CollectionOperationEventArgs<IUser>> UsersOperation
         {
             add
@@ -47,7 +50,6 @@ namespace TAS.Remoting.Model.Security
             }
         }
 
-        private event EventHandler<CollectionOperationEventArgs<IGroup>> _groupsOperation;
         public event EventHandler<CollectionOperationEventArgs<IGroup>> GroupsOperation
         {
             add

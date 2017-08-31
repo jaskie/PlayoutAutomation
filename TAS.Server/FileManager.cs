@@ -34,7 +34,7 @@ namespace TAS.Server
         public event EventHandler<FileOperationEventArgs> OperationAdded;
         public event EventHandler<FileOperationEventArgs> OperationCompleted;
 
-        public IConvertOperation CreateConvertOperation() { return new ConvertOperation(this); }
+        public IIngestOperation CreateConvertOperation() { return new IngestOperation(this); }
         public ILoudnessOperation CreateLoudnessOperation()
         {
             return new LoudnessOperation(this);

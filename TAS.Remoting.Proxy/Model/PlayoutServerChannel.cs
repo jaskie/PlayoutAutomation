@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 using TAS.Remoting.Client;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -7,21 +8,39 @@ namespace TAS.Remoting.Model
 {
     public class PlayoutServerChannel : ProxyBase, IPlayoutServerChannel
     {
-        public string ChannelName { get { return Get<string>(); } set { SetLocalValue(value); } }
+        #pragma warning disable CS0649
 
-        public int Id { get { return Get<int>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IPlayoutServerChannel.ChannelName))]
+        private string _channelName;
 
-        public string LiveDevice { get { return Get<string>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IPlayoutServerChannel.Id))]
+        private int _id;
 
-        public decimal MasterVolume { get { return Get<decimal>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IPlayoutServerChannel.IsServerConnected))]
+        private bool _isServerConnected;
 
-        public bool IsServerConnected { get { return Get<bool>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IPlayoutServerChannel.VideoFormat))]
+        private TVideoFormat _videoFormat;
 
-        public TVideoFormat VideoFormat { get { return Get<TVideoFormat>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IPlayoutServerChannel.AudioLevel))]
+        private int _audioLevel;
 
-        public int AudioLevel { get { return Get<int>(); } set { SetLocalValue(value); } }
+        [JsonProperty(nameof(IPlayoutServerChannel.PreviewUrl))]
+        private string _previewUrl;
 
-        public string PreviewUrl { get { return Get<string>(); } set { SetLocalValue(value); } }
+        #pragma warning restore
+
+        public string ChannelName => _channelName;
+
+        public int Id => _id;
+
+        public bool IsServerConnected => _isServerConnected;
+
+        public TVideoFormat VideoFormat => _videoFormat;
+
+        public int AudioLevel => _audioLevel;
+
+        public string PreviewUrl => _previewUrl;
 
         public void Clear()
         {

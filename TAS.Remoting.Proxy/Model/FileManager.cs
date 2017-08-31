@@ -8,8 +8,42 @@ namespace TAS.Remoting.Model
 {
     public class FileManager : ProxyBase, IFileManager
     {
+        private event EventHandler<FileOperationEventArgs> _operationAdded;
+
+        private event EventHandler<FileOperationEventArgs> _operationCompleted;
+
         public IEnumerable<IFileOperation> GetOperationQueue() { return Query<List<IFileOperation>>(); }
-        event EventHandler<FileOperationEventArgs> _operationAdded;
+
+        public IIngestOperation CreateConvertOperation()
+        {
+            return Query<IngestOperation>();
+        }
+
+        public IFileOperation CreateSimpleOperation()
+        {
+            return Query<FileOperation>();
+        }
+
+        public ILoudnessOperation CreateLoudnessOperation()
+        {
+            return Query<LoudnessOperation>();
+        }
+
+        public void Queue(IFileOperation operation, bool toTop)
+        {
+            Invoke(parameters: new object[] { operation, toTop });
+        }
+      
+        public void QueueList(IEnumerable<IFileOperation> operationList, bool toTop)
+        {
+            Invoke(parameters: new object[] { operationList, toTop });
+        }
+
+        public void CancelPending()
+        {
+            Invoke();
+        }
+
         public event EventHandler<FileOperationEventArgs> OperationAdded
         {
             add
@@ -24,7 +58,6 @@ namespace TAS.Remoting.Model
             }
         }
 
-        event EventHandler<FileOperationEventArgs> _operationCompleted;
         public event EventHandler<FileOperationEventArgs> OperationCompleted
         {
             add
@@ -39,21 +72,6 @@ namespace TAS.Remoting.Model
             }
         }
 
-        public IConvertOperation CreateConvertOperation()
-        {
-            return Query<ConvertOperation>();
-        }
-
-        public IFileOperation CreateSimpleOperation()
-        {
-            return Query<FileOperation>();
-        }
-
-        public ILoudnessOperation CreateLoudnessOperation()
-        {
-            return Query<LoudnessOperation>();
-        }
-
         protected override void OnEventNotification(WebSocketMessage e)
         {
             if (e.MemberName == nameof(OperationAdded))
@@ -66,20 +84,5 @@ namespace TAS.Remoting.Model
             }
         }
 
-        public void Queue(IFileOperation operation, bool toTop)
-        {
-            Invoke(parameters: new object[] { operation, toTop });
-        }
-      
-
-        public void QueueList(IEnumerable<IFileOperation> operationList, bool toTop)
-        {
-            Invoke(parameters: new object[] { operationList, toTop });
-        }
-
-        public void CancelPending()
-        {
-            Invoke();
-        }
     }
 }

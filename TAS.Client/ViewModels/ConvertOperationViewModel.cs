@@ -11,7 +11,7 @@ namespace TAS.Client.ViewModels
 {
     public class ConvertOperationViewModel: FileOperationViewmodel, IDataErrorInfo
     {
-        private readonly IConvertOperation _convertOperation;
+        private readonly IIngestOperation _convertOperation;
         private readonly PreviewViewmodel _previewVm;
         private readonly IMediaManager _mediaManager;
 
@@ -31,7 +31,7 @@ namespace TAS.Client.ViewModels
         private TMediaEmphasis _destMediaEmphasis;
         private TVideoFormat _destMediaVideoFormat;
         
-        public ConvertOperationViewModel(IConvertOperation operation, IPreview preview, IMediaManager mediaManager)
+        public ConvertOperationViewModel(IIngestOperation operation, IPreview preview, IMediaManager mediaManager)
             : base(operation)
         {
             _convertOperation = operation;
@@ -279,13 +279,13 @@ namespace TAS.Client.ViewModels
         
         protected override void OnFileOperationPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IConvertOperation.AspectConversion)
-                || e.PropertyName == nameof(IConvertOperation.AudioChannelMappingConversion)
-                || e.PropertyName == nameof(IConvertOperation.AudioVolume)
-                || e.PropertyName == nameof(IConvertOperation.SourceFieldOrderEnforceConversion)
-                || e.PropertyName == nameof(IConvertOperation.OperationOutput)
-                || e.PropertyName == nameof(IConvertOperation.StartTC)
-                || e.PropertyName == nameof(IConvertOperation.Duration)
+            if (e.PropertyName == nameof(IIngestOperation.AspectConversion)
+                || e.PropertyName == nameof(IIngestOperation.AudioChannelMappingConversion)
+                || e.PropertyName == nameof(IIngestOperation.AudioVolume)
+                || e.PropertyName == nameof(IIngestOperation.SourceFieldOrderEnforceConversion)
+                || e.PropertyName == nameof(IIngestOperation.OperationOutput)
+                || e.PropertyName == nameof(IIngestOperation.StartTC)
+                || e.PropertyName == nameof(IIngestOperation.Duration)
             )
                 NotifyPropertyChanged(e.PropertyName);
             else

@@ -34,7 +34,7 @@ namespace TAS.Remoting
                 case "TAS.Server.CasparRecorder":
                     return typeof(Model.Recorder);
                 case "TAS.Server.ConvertOperation":
-                    return typeof(Model.ConvertOperation);
+                    return typeof(Model.IngestOperation);
                 case "TAS.Server.FileOperation":
                     return typeof(Model.FileOperation);
                 case "TAS.Server.LoudnessOperation":

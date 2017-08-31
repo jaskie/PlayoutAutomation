@@ -17,7 +17,7 @@ using TAS.Server.Media;
 
 namespace TAS.Server
 {
-    public class ConvertOperation : FFMpegOperation, IConvertOperation
+    public class IngestOperation : FFMpegOperation, IIngestOperation
     {
 
         private TAspectConversion _aspectConversion;
@@ -25,7 +25,7 @@ namespace TAS.Server
         private decimal _audioVolume;
         private TFieldOrder _sourceFieldOrderEnforceConversion;
 
-        internal ConvertOperation(FileManager ownerFileManager) : base(ownerFileManager)
+        internal IngestOperation(FileManager ownerFileManager) : base(ownerFileManager)
         {
             Kind = TFileOperationKind.Convert;
             _aspectConversion = TAspectConversion.NoConversion;

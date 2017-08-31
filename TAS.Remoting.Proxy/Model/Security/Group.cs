@@ -18,8 +18,5 @@ namespace TAS.Remoting.Model.Security
 
         public string Name { get { return _name; } set { Set(value); } }
 
-        protected override void OnEventNotification(WebSocketMessage e)
-        {
-        }
     }
 }

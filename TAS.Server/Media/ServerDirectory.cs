@@ -12,9 +12,9 @@ namespace TAS.Server.Media
 {
     public class ServerDirectory : MediaDirectory, IServerDirectory
     {
-        internal readonly IPlayoutServer Server;
+        internal readonly IPlayoutServerProperties Server;
 
-        public ServerDirectory(IPlayoutServer server, MediaManager manager)
+        public ServerDirectory(IPlayoutServerProperties server, MediaManager manager)
             : base(manager)
         {
             Server = server;

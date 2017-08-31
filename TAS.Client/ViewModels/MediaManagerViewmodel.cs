@@ -615,7 +615,7 @@ namespace TAS.Client.ViewModels
             IMediaDirectory currentDir = _selectedDirectory?.Directory;
             if (currentDir is IIngestDirectory)
             {
-                List<IConvertOperation> ingestList = new List<IConvertOperation>();
+                List<IIngestOperation> ingestList = new List<IIngestOperation>();
                 var selectedMedia = _getSelections();
                 ThreadPool.QueueUserWorkItem(o =>
                 {

@@ -39,6 +39,7 @@ namespace TAS.Server
         public string LiveDevice { get; set; }
 
         [XmlIgnore]
+        [JsonProperty]
         public TVideoFormat VideoFormat { get; set; }
 
         [XmlIgnore]

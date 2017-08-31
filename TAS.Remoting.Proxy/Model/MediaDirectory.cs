@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 using TAS.Remoting.Client;
 using TAS.Common;
@@ -10,6 +9,8 @@ namespace TAS.Remoting.Model
 {
     public abstract class MediaDirectory : ProxyBase, IMediaDirectory
     {
+        #pragma warning disable CS0649
+
         [JsonProperty(nameof(IMediaDirectory.DirectoryName))]
         private string _directoryName;
 
@@ -27,6 +28,8 @@ namespace TAS.Remoting.Model
 
         [JsonProperty(nameof(IMediaDirectory.VolumeTotalSize))]
         private long _volumeTotalSize;
+
+        #pragma warning restore
 
         public string DirectoryName { get { return _directoryName; } set { Set(value); } }
 

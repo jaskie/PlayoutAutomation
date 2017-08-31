@@ -19,6 +19,9 @@ namespace TAS.Remoting.Client
         private int _isDisposed;
         private RemoteClient _client;
 
+        // property cache
+        private readonly ConcurrentDictionary<string, object> _properties = new ConcurrentDictionary<string, object>();
+
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _isDisposed, 1) == default(int))
@@ -42,8 +45,7 @@ namespace TAS.Remoting.Client
         protected T Get<T>([CallerMemberName] string propertyName = null)
         {
             object result;
-            FindPropertyName(ref propertyName);
-            if (Properties.TryGetValue(propertyName, out result))
+            if (_properties.TryGetValue(propertyName, out result))
                 if (typeof(T).IsEnum && result is long)
                 {
                     int ev = (int)(long) result;
@@ -55,13 +57,10 @@ namespace TAS.Remoting.Client
                 _client.Get<T>(this, propertyName);
             return default(T);
         }
-        
+
         protected void Set<T>(T value, [CallerMemberName] string propertyName = null)
         {
-            FindPropertyName(ref propertyName);
-            var client = _client;
-            if (SetLocalValue(value, propertyName))
-                client?.Set(this, value, propertyName);
+            _client?.Set(this, value, propertyName);
         }
 
         protected void Invoke([CallerMemberName] string methodName = null, params object[] parameters)
@@ -98,14 +97,13 @@ namespace TAS.Remoting.Client
             }
         }
 
-        protected bool SetLocalValue(object value, [CallerMemberName] string propertyName = null)
+        private bool SetLocalValue(object value, [CallerMemberName] string propertyName = null)
         {
             object oldValue;
-            FindPropertyName(ref propertyName);
-            if (!Properties.TryGetValue(propertyName, out oldValue)  // here values may be boxed
+            if (!_properties.TryGetValue(propertyName, out oldValue)  // here values may be boxed
                 || (oldValue != value && (oldValue != null && !oldValue.Equals(value)) || (value != null && !value.Equals(oldValue))))
             {
-                Properties[propertyName] = value;
+                _properties[propertyName] = value;
                 NotifyPropertyChanged(propertyName);
                 return true;
             }
@@ -126,8 +124,6 @@ namespace TAS.Remoting.Client
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        protected ConcurrentDictionary<string, object> Properties = new ConcurrentDictionary<string, object>();
-
         protected virtual void DoDispose()
         {
             _client.EventNotification -= OnEventNotificationMessage;
@@ -145,21 +141,6 @@ namespace TAS.Remoting.Client
             _client = client;
         }
 
-        private void FindPropertyName(ref string propertyName)
-        {
-            var property = GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.NonPublic);
-            if (property != null)
-            {
-                var attributes = property.GetCustomAttributes(typeof(JsonPropertyAttribute), true);
-                foreach (JsonPropertyAttribute attr in attributes)
-                    if (!string.IsNullOrWhiteSpace(attr.PropertyName))
-                    {
-                        propertyName = attr.PropertyName;
-                        return;
-                    }
-            }
-        }
-
         private void OnEventNotificationMessage(object sender, WebSocketMessageEventArgs e)
         {
             if (e.Message.DtoGuid == DtoGuid)
@@ -171,16 +152,25 @@ namespace TAS.Remoting.Client
                     if (eav != null)
                     {
                         Type type = GetType();
-                        MemberInfo property =
-                            type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).FirstOrDefault(p => p.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Any(a => ((JsonPropertyAttribute)a).PropertyName == eav.PropertyName));
-                        if (property != null)
-                            Debug.WriteLine(property.Name);
-                        if (property == null)
-                            property = type.GetProperty(eav.PropertyName);
-                        object value = eav.Value;
-                        if (property != null)
-                            MethodParametersAlignment.AlignType(ref value, property.ReflectedType);
-                        Properties[eav.PropertyName] = value;
+                        FieldInfo field =
+                            type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).FirstOrDefault(p => p.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Any(a => ((JsonPropertyAttribute)a).PropertyName == eav.PropertyName));
+                        if (field == null)
+                        {
+                            var property = type.GetProperty(eav.PropertyName);
+                            if (property != null)
+                            {
+                                var value = eav.Value;
+                                MethodParametersAlignment.AlignType(ref value, property.PropertyType);
+                                if (_properties.ContainsKey(eav.PropertyName))
+                                    _properties[eav.PropertyName] = value;
+                            }
+                        }
+                        else
+                        {
+                            var value = eav.Value;
+                                MethodParametersAlignment.AlignType(ref value, field.ReflectedType);
+                            field.SetValue(this, value);
+                        }
                         NotifyPropertyChanged(eav.PropertyName);
                     }
                 }

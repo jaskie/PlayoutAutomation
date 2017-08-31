@@ -11,6 +11,8 @@ namespace TAS.Remoting.Model
 {
     public class Engine : ProxyBase, IEngine
     {
+        #pragma warning disable CS0649 
+
         [JsonProperty(nameof(IEngine.CurrentTime))]
         private DateTime _currentTime;
 
@@ -94,6 +96,8 @@ namespace TAS.Remoting.Model
 
         [JsonProperty(nameof(IEngine.Playing))]
         private Event _playing;
+
+        #pragma warning restore
 
         public Engine()
         {

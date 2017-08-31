@@ -7,6 +7,8 @@ namespace TAS.Remoting.Model
 {
     public class CGElement : ProxyBase, ICGElement
     {
+        #pragma warning disable CS0649
+
         [JsonProperty(nameof(ICGElement.Id))]
         private byte _id;
 
@@ -18,6 +20,8 @@ namespace TAS.Remoting.Model
 
         [JsonProperty(nameof(ICGElement.Name))]
         private string _name;
+
+        #pragma warning restore
 
         public byte Id => _id;
         

@@ -10,11 +10,11 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    internal class IngestEditViewmodel : OkCancelViewmodelBase<IList<IConvertOperation>>
+    internal class IngestEditViewmodel : OkCancelViewmodelBase<IList<IIngestOperation>>
     {
         private ConvertOperationViewModel _selectedOperation;
 
-        public IngestEditViewmodel(IList<IConvertOperation> convertionList, IPreview preview, IMediaManager mediaManager): base(convertionList, typeof(Views.IngestEditorView), resources._window_IngestAs)
+        public IngestEditViewmodel(IList<IIngestOperation> convertionList, IPreview preview, IMediaManager mediaManager): base(convertionList, typeof(Views.IngestEditorView), resources._window_IngestAs)
         {
             OperationList = new ObservableCollection<ConvertOperationViewModel>(from op in convertionList select new ConvertOperationViewModel(op, preview, mediaManager));
             SelectedOperation = OperationList.FirstOrDefault();

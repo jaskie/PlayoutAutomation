@@ -50,9 +50,9 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        internal IConvertOperation CreateConvertOperation(IMedia sourceMedia, IMediaProperties destMediaProperties, IMediaDirectory destDirectory, TVideoFormat outputFormat, decimal audioVolume, TFieldOrder sourceFieldOrderEnforceConversion, TAspectConversion aspectConversion, bool loudnessCheck)
+        internal IIngestOperation CreateConvertOperation(IMedia sourceMedia, IMediaProperties destMediaProperties, IMediaDirectory destDirectory, TVideoFormat outputFormat, decimal audioVolume, TFieldOrder sourceFieldOrderEnforceConversion, TAspectConversion aspectConversion, bool loudnessCheck)
         {
-            IConvertOperation result = _fileManager.CreateConvertOperation();
+            IIngestOperation result = _fileManager.CreateConvertOperation();
             result.Source = sourceMedia;
             result.DestProperties = destMediaProperties;
             result.DestDirectory = destDirectory;

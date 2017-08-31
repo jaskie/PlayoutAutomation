@@ -2,7 +2,7 @@
 
 namespace TAS.Common.Interfaces
 {
-    public interface IConvertOperation: IFileOperation
+    public interface IIngestOperation: IFileOperation
     {
         TAspectConversion AspectConversion { get; set; }
         TAudioChannelMappingConversion AudioChannelMappingConversion { get; set; }

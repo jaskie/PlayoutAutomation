@@ -6,7 +6,7 @@ namespace TAS.Common.Interfaces
     public interface IFileManager
     {
         IEnumerable<IFileOperation> GetOperationQueue();
-        IConvertOperation CreateConvertOperation();
+        IIngestOperation CreateConvertOperation();
         ILoudnessOperation CreateLoudnessOperation();
         IFileOperation CreateSimpleOperation();
         event EventHandler<FileOperationEventArgs> OperationAdded;

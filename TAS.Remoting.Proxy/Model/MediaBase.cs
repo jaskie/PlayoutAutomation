@@ -8,6 +8,8 @@ namespace TAS.Remoting.Model
 {
     public abstract class MediaBase : ProxyBase, IMedia
     {
+        #pragma warning disable CS0649 
+
         [JsonProperty(nameof(IMedia.AudioChannelMapping))]
         private TAudioChannelMapping _audioChannelMapping;
 
@@ -73,6 +75,8 @@ namespace TAS.Remoting.Model
 
         [JsonProperty(nameof(IMedia.Directory))]
         private MediaDirectory _directory;
+
+        #pragma warning restore
 
         public TAudioChannelMapping AudioChannelMapping { get { return _audioChannelMapping; } set { Set(value); } }
 

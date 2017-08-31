@@ -7,6 +7,8 @@ namespace TAS.Remoting.Model
 {
     public class ArchiveDirectory : MediaDirectory, IArchiveDirectory
     {
+        #pragma warning disable CS0649
+
         [JsonProperty(nameof(IArchiveDirectory.idArchive))]
         private ulong _idArchive;
 
@@ -15,6 +17,8 @@ namespace TAS.Remoting.Model
 
         [JsonProperty(nameof(IArchiveDirectory.SearchString))]
         private string _searchString;
+
+        #pragma warning restore
 
         public ulong idArchive { get { return _idArchive; } set { Set(value); } }
 

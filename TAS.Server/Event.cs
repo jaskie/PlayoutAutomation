@@ -1461,7 +1461,7 @@ namespace TAS.Server
 
         private ulong EffectiveRights()
         {
-            IUser identity = (IUser)Thread.CurrentPrincipal?.Identity;
+            IUser identity = Thread.CurrentPrincipal.Identity as IUser;
             if (identity == null)
                 return 0;
             if (identity.IsAdmin)

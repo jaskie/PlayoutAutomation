@@ -57,12 +57,12 @@ namespace TAS.Remoting.Model
 
         public ICGElementsController CGElementsController => _cgElementsController;
 
-        public IEngine Engine { get { return Get<Engine>(); } set { SetLocalValue(value); } }
+        public IEngine Engine => Get<Engine>();
 
         public IFileManager FileManager => _fileManager;
 
-        public VideoFormatDescription FormatDescription { get { return Get<VideoFormatDescription>(); } set { SetLocalValue(value); } }
-        
+        public VideoFormatDescription FormatDescription => _videoFormatDescription;
+
         public IEnumerable<IIngestDirectory> IngestDirectories => _ingestDirectories;
 
         public IAnimationDirectory AnimationDirectoryPRI => _animationDirectoryPRI;

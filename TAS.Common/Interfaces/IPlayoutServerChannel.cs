@@ -2,19 +2,21 @@
 
 namespace TAS.Common.Interfaces
 {
-    public interface IPlayoutServerChannel: IPlayoutServerChannelProperties, INotifyPropertyChanged
+    public interface IPlayoutServerChannel: INotifyPropertyChanged
     {
+        int Id { get; }
         bool IsServerConnected { get; }
-        int  AudioLevel { get; } 
+        int  AudioLevel { get; }
+        string ChannelName { get; }
+        TVideoFormat VideoFormat { get; }
+        string PreviewUrl { get; }
     }
 
     public interface IPlayoutServerChannelProperties
     {
-        int Id { get; }
         string ChannelName { get; set; }
         decimal MasterVolume { get; set; }
         string LiveDevice { get; set; }
         string PreviewUrl { get; set; }
-        TVideoFormat VideoFormat { get; }
     }
 }

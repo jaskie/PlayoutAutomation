@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -6,7 +7,21 @@ namespace TAS.Remoting.Model
 {
     public class LoudnessOperation : FileOperation, ILoudnessOperation
     {
+        #pragma warning disable CS0649
+
+        [JsonProperty(nameof(ILoudnessOperation.MeasureDuration))]
+        private TimeSpan _measureDuration;
+
+        [JsonProperty(nameof(ILoudnessOperation.MeasureStart))]
+        private TimeSpan _measureStart;
+
+        #pragma warning restore
+
         private event EventHandler<AudioVolumeEventArgs> _audioVolumeMeasured;
+
+        public TimeSpan MeasureDuration { get { return Get<TimeSpan>(); } set { Set(value); } }
+        public TimeSpan MeasureStart { get { return Get<TimeSpan>(); } set { Set(value); } }
+
         public event EventHandler<AudioVolumeEventArgs> AudioVolumeMeasured
         {
             add
@@ -21,6 +36,7 @@ namespace TAS.Remoting.Model
                 EventRemove(_audioVolumeMeasured);
             }
         }
+
         protected override void OnEventNotification(WebSocketMessage e)
         {
             if (e.MemberName == nameof(AudioVolumeMeasured))
@@ -28,8 +44,5 @@ namespace TAS.Remoting.Model
             else
                 base.OnEventNotification(e);
         }
-        
-        public TimeSpan MeasureDuration { get { return Get<TimeSpan>(); }  set { Set(value); } }
-        public TimeSpan MeasureStart { get { return Get<TimeSpan>(); } set { Set(value); } }
     }
 }

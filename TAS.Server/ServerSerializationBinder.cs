@@ -29,9 +29,9 @@ namespace TAS.Server
                 case "TAS.Client.Model.MediaSegment":
                     return typeof(MediaSegment);
                 case "TAS.Client.Model.ConvertOperation":
-                    return typeof(ConvertOperation);
+                    return typeof(IngestOperation);
                 case "TAS.Client.Model.FileOperation":
-                    return typeof(ConvertOperation);
+                    return typeof(IngestOperation);
                 case "TAS.Client.Model.Engine":
                     return typeof(Engine);
                 case "TAS.Client.Model.MediaManager":

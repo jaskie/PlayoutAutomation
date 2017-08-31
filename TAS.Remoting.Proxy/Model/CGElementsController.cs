@@ -9,6 +9,8 @@ namespace TAS.Remoting.Model
     public class CGElementsController : ProxyBase, ICGElementsController
 
     {
+        #pragma warning disable CS0649 
+
         [JsonProperty(nameof(ICGElementsController.Crawls))]
         private List<CGElement> _crawls;
         [JsonProperty(nameof(ICGElementsController.Logos))]
@@ -47,6 +49,8 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(ICGElementsController.VisibleAuxes))]
         private byte[] _visibleAuxes;
 
+        #pragma warning restore
+
         public IEnumerable<ICGElement> Crawls => _crawls;
 
         public IEnumerable<ICGElement> Logos => _logos;
@@ -71,7 +75,7 @@ namespace TAS.Remoting.Model
 
         public byte Parental { get { return _parental; } set { Set(value); }  }
 
-        public byte[] VisibleAuxes { get { return _visibleAuxes; } set { SetLocalValue(value); } }
+        public byte[] VisibleAuxes => _visibleAuxes;
 
         public event EventHandler Started;
 

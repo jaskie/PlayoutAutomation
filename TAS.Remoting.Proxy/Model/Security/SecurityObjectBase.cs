@@ -19,7 +19,7 @@ namespace TAS.Remoting.Model.Security
         [JsonProperty(nameof(ISecurityObject.SecurityObjectTypeType))]
         private SecurityObjectType _securityObjectType;
 
-        public SecurityObjectType SecurityObjectTypeType { get { return _securityObjectType; } set { SetLocalValue(value); } }
+        public SecurityObjectType SecurityObjectTypeType => _securityObjectType;
 
         public ulong Id { get; set; }
 
@@ -33,5 +33,8 @@ namespace TAS.Remoting.Model.Security
             Invoke();
         }
 
+        protected override void OnEventNotification(WebSocketMessage e)
+        {
+        }
     }
 }

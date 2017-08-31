@@ -13,6 +13,8 @@ namespace TAS.Remoting.Model
     [DebuggerDisplay("{" + nameof(EventName) + "}")]
     public class Event : ProxyBase, IEvent
     {
+        #pragma warning disable CS0649 
+
         [JsonProperty(nameof(IEvent.Id))]
         private ulong _id;
 
@@ -77,7 +79,7 @@ namespace TAS.Remoting.Model
         private byte _logo;
 
         [JsonProperty(nameof(IEvent.Media))]
-        private MediaBase _media;
+        private ServerMedia _media;
 
         [JsonProperty(nameof(IEvent.MediaGuid))]
         private Guid _mediaGuid;
@@ -135,6 +137,7 @@ namespace TAS.Remoting.Model
 
         private Lazy<IEnumerable<IEvent>> _subEvents;
 
+        #pragma warning restore
 
         public Event()
         {
@@ -182,7 +185,7 @@ namespace TAS.Remoting.Model
 
         public bool IsLoop { get { return _isLoop; } set { Set(value); } }
 
-        public bool IsModified { get { return _isModified; } set { SetLocalValue(value); } }
+        public bool IsModified { get { return _isModified; } set { Set(value); } }
 
         public VideoLayer Layer { get { return _layer; } set { Set(value); } }
 
@@ -238,7 +241,7 @@ namespace TAS.Remoting.Model
 
         public IEnumerable<IEvent> SubEvents => _subEvents.Value;
 
-        public int SubEventsCount { get { return _subEventsCount; } set { SetLocalValue(value); } }
+        public int SubEventsCount => _subEventsCount;
 
         public TEasing TransitionEasing { get { return _transitionEasing; } set { Set(value); } }
 
@@ -338,7 +341,6 @@ namespace TAS.Remoting.Model
                     return;
                 case nameof(IEvent.SubEventChanged):
                     var ea = ConvertEventArgs<CollectionOperationEventArgs<IEvent>>(e);
-                    _subeventChanged(ea);
                     _subEventChanged?.Invoke(this, ea);
                     return;
             }
@@ -372,24 +374,6 @@ namespace TAS.Remoting.Model
         public IAclRight AddRightFor(ISecurityObject securityObject) { return Query<IAclRight>(parameters: new object[] { securityObject }); }
 
         public bool DeleteRight(IAclRight item) { return Query<bool>(parameters: new object[] { item }); }
-
-        private void _subeventChanged(CollectionOperationEventArgs<IEvent> e)
-        {
-            object subEvents;
-            if (Properties.TryGetValue(nameof(SubEvents), out subEvents))
-            {
-                var list = subEvents as IList<IEvent>;
-                if (list != null)
-                {
-                    if (e.Operation == CollectionOperation.Add)
-                        list.Add(e.Item);
-                    else
-                        list.Remove(e.Item);
-                    SubEventsCount = list.Count;
-                    NotifyPropertyChanged(nameof(SubEventsCount));
-                }
-            }
-        }
 
     }
 }

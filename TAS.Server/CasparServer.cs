@@ -16,7 +16,7 @@ namespace TAS.Server
 
     public delegate void CommandNotifier(DateTime when, string command, Event sender);
 
-    public class CasparServer : DtoBase, IPlayoutServer
+    public class CasparServer : DtoBase, IPlayoutServer, IPlayoutServerProperties
     {
         private bool _isConnected;
         private bool _isInitialized;
@@ -44,28 +44,30 @@ namespace TAS.Server
 
         public int OscPort { get; set; }
 
-        [JsonProperty]
         public string MediaFolder { get; set; }
 
-        [JsonProperty]
         public string AnimationFolder { get; set; }
 
         public TServerType ServerType { get; set; }
 
-        [XmlIgnore]
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects), XmlIgnore]
         public IServerDirectory MediaDirectory { get; private set; }
 
-        [XmlIgnore]
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects), XmlIgnore]
         public IAnimationDirectory AnimationDirectory { get; private set; }
 
         [XmlArray(nameof(Channels))]
         public List<CasparServerChannel> ChannelsSer { get; set; }
+
         [XmlIgnore]
+        [JsonProperty(TypeNameHandling = TypeNameHandling.None, ItemIsReference = true, ItemTypeNameHandling = TypeNameHandling.Objects)]
         public IEnumerable<IPlayoutServerChannel> Channels => ChannelsSer;
 
         [XmlArray(nameof(Recorders))]
         public List<CasparRecorder> RecordersSer { get; set; }
+
         [XmlIgnore]
+        [JsonProperty(TypeNameHandling = TypeNameHandling.None, ItemIsReference = true, ItemTypeNameHandling = TypeNameHandling.Objects)]
         public IEnumerable<IRecorder> Recorders => RecordersSer;
 
         [JsonProperty]

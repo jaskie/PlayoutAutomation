@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace TAS.Common.Interfaces
 {
-    public interface IPlayoutServer: IPlayoutServerProperties, INotifyPropertyChanged
+    public interface IPlayoutServer: INotifyPropertyChanged
     {
         bool IsConnected { get; }
         IServerDirectory MediaDirectory { get; }

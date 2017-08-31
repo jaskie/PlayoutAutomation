@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 using TAS.Remoting.Client;
 using TAS.Common.Interfaces;
 
@@ -6,11 +7,24 @@ namespace TAS.Remoting.Model
 {
     public class MediaSegment : ProxyBase, IMediaSegment
     {
-        public string SegmentName { get { return Get<string>(); } set { Set(value); } }
+        #pragma warning disable CS0649 
 
-        public TimeSpan TcIn { get { return Get<TimeSpan>(); } set { Set(value); } }
+        [JsonProperty(nameof(IMediaSegment.SegmentName))]
+        private string _segmentName;
 
-        public TimeSpan TcOut { get { return Get<TimeSpan>(); } set { Set(value); } }
+        [JsonProperty(nameof(IMediaSegment.TcIn))]
+        private TimeSpan _tcIn;
+
+        [JsonProperty(nameof(IMediaSegment.TcOut))]
+        private TimeSpan _tcOut;
+
+        #pragma warning restore
+
+        public string SegmentName { get { return _segmentName; } set { Set(value); } }
+
+        public TimeSpan TcIn { get { return _tcIn; } set { Set(value); } }
+
+        public TimeSpan TcOut { get { return _tcOut; } set { Set(value); } }
         
         public void Delete()
         {
