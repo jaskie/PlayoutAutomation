@@ -48,8 +48,8 @@ namespace TAS.Remoting.Client
             if (_properties.TryGetValue(propertyName, out result))
                 if (typeof(T).IsEnum && result is long)
                 {
-                    int ev = (int)(long) result;
-                    return (T)Enum.Parse(typeof(T), ev.ToString());
+                    int ev = (int) (long) result;
+                    return (T) Enum.Parse(typeof(T), ev.ToString());
                 }
                 else
                     return (T) result;
@@ -100,8 +100,9 @@ namespace TAS.Remoting.Client
         private bool SetLocalValue(object value, [CallerMemberName] string propertyName = null)
         {
             object oldValue;
-            if (!_properties.TryGetValue(propertyName, out oldValue)  // here values may be boxed
-                || (oldValue != value && (oldValue != null && !oldValue.Equals(value)) || (value != null && !value.Equals(oldValue))))
+            if (!_properties.TryGetValue(propertyName, out oldValue) // here values may be boxed
+                || (oldValue != value && (oldValue != null && !oldValue.Equals(value)) ||
+                    (value != null && !value.Equals(oldValue))))
             {
                 _properties[propertyName] = value;
                 NotifyPropertyChanged(propertyName);
@@ -110,13 +111,10 @@ namespace TAS.Remoting.Client
             return false;
         }
 
-        protected abstract void OnEventNotification(WebSocketMessage e);
+        protected abstract void OnEventNotification(string memberName, EventArgs e);
 
-        protected virtual void OnEventRegistration(WebSocketMessage e) { }
-
-        protected T ConvertEventArgs<T>(WebSocketMessage e) where T : EventArgs
+        protected virtual void OnEventRegistration(WebSocketMessage e)
         {
-            return (T)e.Response;
         }
 
         protected void NotifyPropertyChanged(string propertyName)
@@ -145,39 +143,36 @@ namespace TAS.Remoting.Client
         {
             if (e.Message.DtoGuid == DtoGuid)
             {
-                Debug.WriteLine($"ProxyBase: Event {e.Message.MemberName} notified on {this} with value {e.Message.Response}");
+                //Debug.WriteLine($"ProxyBase: Event {e.Message.MemberName} notified on {this} with value {e.Message.Response}");
                 if (e.Message.MemberName == nameof(INotifyPropertyChanged.PropertyChanged))
                 {
-                    PropertyChangedWithValueEventArgs eav = e.Message.Response as PropertyChangedWithValueEventArgs;
-                    if (eav != null)
-                    {
-                        Type type = GetType();
-                        FieldInfo field =
-                            type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).FirstOrDefault(p => p.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Any(a => ((JsonPropertyAttribute)a).PropertyName == eav.PropertyName));
-                        if (field == null)
-                        {
-                            var property = type.GetProperty(eav.PropertyName);
-                            if (property != null)
-                            {
-                                var value = eav.Value;
-                                MethodParametersAlignment.AlignType(ref value, property.PropertyType);
-                                if (_properties.ContainsKey(eav.PropertyName))
-                                    _properties[eav.PropertyName] = value;
-                            }
-                        }
-                        else
-                        {
-                            var value = eav.Value;
-                                MethodParametersAlignment.AlignType(ref value, field.ReflectedType);
-                            field.SetValue(this, value);
-                        }
-                        NotifyPropertyChanged(eav.PropertyName);
-                    }
+                    //PropertyChangedWithValueEventArgs eav = e.Message.Response as PropertyChangedWithValueEventArgs;
+                    //if (eav != null)
+                    //{
+                    //    Type type = GetType();
+                    //    FieldInfo field =
+                    //        type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).FirstOrDefault(p => p.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Any(a => ((JsonPropertyAttribute)a).PropertyName == eav.PropertyName));
+                    //    if (field == null)
+                    //    {
+                    //        var property = type.GetProperty(eav.PropertyName);
+                    //        if (property != null)
+                    //        {
+                    //            var value = eav.Value;
+                    //            MethodParametersAlignment.AlignType(ref value, property.PropertyType);
+                    //            if (_properties.ContainsKey(eav.PropertyName))
+                    //                _properties[eav.PropertyName] = value;
+                    //        }
+                    //    }
+                    //    else
+                    //    {
+                    //        var value = eav.Value;
+                    //            MethodParametersAlignment.AlignType(ref value, field.ReflectedType);
+                    //        field.SetValue(this, value);
+                    //    }
+                    //    NotifyPropertyChanged(eav.PropertyName);
                 }
-                else OnEventNotification(e.Message);
             }
+            //else OnEventNotification(e.Message);
         }
-
-
     }
 }

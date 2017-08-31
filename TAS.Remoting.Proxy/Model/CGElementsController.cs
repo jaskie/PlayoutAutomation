@@ -94,7 +94,7 @@ namespace TAS.Remoting.Model
             Invoke(parameters: new[] { auxNr });
         }
 
-        protected override void OnEventNotification(WebSocketMessage e) { }
+        protected override void OnEventNotification(string memberName, EventArgs e) { }
 
     }
 }

@@ -37,12 +37,12 @@ namespace TAS.Remoting.Model
             }
         }
 
-        protected override void OnEventNotification(WebSocketMessage e)
+        protected override void OnEventNotification(string memberName, EventArgs e)
         {
-            if (e.MemberName == nameof(AudioVolumeMeasured))
-                _audioVolumeMeasured?.Invoke(this, ConvertEventArgs<AudioVolumeEventArgs>(e));
+            if (memberName == nameof(AudioVolumeMeasured))
+                _audioVolumeMeasured?.Invoke(this, (AudioVolumeEventArgs)e);
             else
-                base.OnEventNotification(e);
+                base.OnEventNotification(memberName, e);
         }
     }
 }

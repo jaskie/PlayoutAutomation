@@ -323,24 +323,24 @@ namespace TAS.Remoting.Model
             }
         }
 
-        protected override void OnEventNotification(WebSocketMessage e)
+        protected override void OnEventNotification(string memberName, EventArgs e)
         {
-            switch (e.MemberName)
+            switch (memberName)
             {
                 case nameof(IEvent.Deleted):
-                    _deleted?.Invoke(this, ConvertEventArgs<EventArgs>(e));
+                    _deleted?.Invoke(this, e);
                     break;
                 case nameof(IEvent.PositionChanged):
-                    _positionChanged?.Invoke(this, ConvertEventArgs<EventPositionEventArgs>(e));
+                    _positionChanged?.Invoke(this, (EventPositionEventArgs)e);
                     break;
                 case nameof(IEvent.Relocated):
-                    _relocated?.Invoke(this, ConvertEventArgs<EventArgs>(e));
+                    _relocated?.Invoke(this, e);
                     return;
                 case nameof(IEvent.Saved):
-                    _saved?.Invoke(this, ConvertEventArgs<EventArgs>(e));
+                    _saved?.Invoke(this, e);
                     return;
                 case nameof(IEvent.SubEventChanged):
-                    var ea = ConvertEventArgs<CollectionOperationEventArgs<IEvent>>(e);
+                    var ea = (CollectionOperationEventArgs<IEvent>)e;
                     _subEventChanged?.Invoke(this, ea);
                     return;
             }

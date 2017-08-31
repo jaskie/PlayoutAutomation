@@ -106,14 +106,14 @@ namespace TAS.Remoting.Model
             }
         }
 
-        protected override void OnEventNotification(WebSocketMessage e)
+        protected override void OnEventNotification(string memberName, EventArgs e)
         {
-            if (e.MemberName == nameof(MediaAdded))
-                    MediaAddedEvent?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
-            if (e.MemberName == nameof(MediaRemoved))
-                MediaRemovedEvent?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
-            if (e.MemberName == nameof(MediaVerified))
-                MediaVerifiedEvent?.Invoke(this, ConvertEventArgs<MediaEventArgs>(e));
+            if (memberName == nameof(MediaAdded))
+                    MediaAddedEvent?.Invoke(this, (MediaEventArgs)e);
+            if (memberName == nameof(MediaRemoved))
+                MediaRemovedEvent?.Invoke(this, (MediaEventArgs)e);
+            if (memberName == nameof(MediaVerified))
+                MediaVerifiedEvent?.Invoke(this, (MediaEventArgs)e);
         }
 
         #endregion // Ehent handling

@@ -3,9 +3,11 @@ using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using Newtonsoft.Json;
 using WebSocketSharp;
@@ -24,6 +26,8 @@ namespace TAS.Remoting.Server
         private readonly IAuthenticationService _authenticationService;
         private readonly ReferenceResolver _referenceResolver;
         private readonly ConcurrentDictionary<Tuple<Guid, string>, Delegate> _delegates;
+        private readonly BinaryFormatter _messageFormatter = new BinaryFormatter();
+
 
         public CommunicationBehavior(IDto initialObject, IAuthenticationService authenticationService)
         {
@@ -56,7 +60,8 @@ namespace TAS.Remoting.Server
         {
             //Thread.CurrentPrincipal = 
             var user = _authenticationService.FindUser(AuthenticationSource.IpAddress, Context.Host);
-            WebSocketMessage message = Deserialize<WebSocketMessage>(e.Data);
+            WebSocketMessage message = WebSocketMessage.Deserialize(_messageFormatter, e.RawData);
+            object parameters = DeserializeDto<object[]>(message.Value);
             try
             {
                 if (message.MessageType == WebSocketMessage.WebSocketMessageType.RootQuery)
@@ -65,88 +70,88 @@ namespace TAS.Remoting.Server
                 }
                 else // method of particular object
                 {
-                    IDto objectToInvoke = _referenceResolver.ResolveReference(message.DtoGuid);
-                    if (objectToInvoke != null)
-                    {
-                        if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query
-                            || message.MessageType == WebSocketMessage.WebSocketMessageType.Invoke)
-                        {
-                            Type objectToInvokeType = objectToInvoke.GetType();
-                            MethodInfo methodToInvoke = objectToInvokeType.GetMethods()
-                                .FirstOrDefault(m => m.Name == message.MemberName &&
-                                                     m.GetParameters().Length == message.Parameters.Length);
-                            if (methodToInvoke != null)
-                            {
-                                ParameterInfo[] methodParameters = methodToInvoke.GetParameters();
-                                _alignContentTypes(ref message.Parameters,
-                                    methodParameters.Select(p => p.ParameterType).ToArray());
-                                for (int i = 0; i < methodParameters.Length; i++)
-                                    MethodParametersAlignment.AlignType(ref message.Parameters[i],
-                                        methodParameters[i].ParameterType);
-                                object response = methodToInvoke.Invoke(objectToInvoke,
-                                    BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.Public, null,
-                                    message.Parameters, null);
-                                if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query)
-                                    _sendResponse(message, response);
-                            }
-                            else
-                                throw new ApplicationException(
-                                    $"Server: unknown method: {objectToInvoke}:{message.MemberName}");
-                        }
-                        else if (message.MessageType == WebSocketMessage.WebSocketMessageType.Get
-                                 || message.MessageType == WebSocketMessage.WebSocketMessageType.Set)
-                        {
-                            PropertyInfo property = objectToInvoke.GetType().GetProperty(message.MemberName);
-                            if (property != null)
-                            {
-                                if (message.MessageType == WebSocketMessage.WebSocketMessageType.Get &&
-                                    property.CanRead)
-                                {
-                                    object response = property.GetValue(objectToInvoke, null);
-                                    _sendResponse(message, response);
-                                }
-                                else // Set
-                                {
-                                    if (property.CanWrite)
-                                    {
-                                        _alignContentTypes(ref message.Parameters, new[] {property.PropertyType});
-                                        property.SetValue(objectToInvoke, message.Parameters[0], null);
-                                    }
-                                    else
-                                        throw new ApplicationException(
-                                            $"Server: not writable property: {objectToInvoke}:{message.MemberName}");
-                                }
-                            }
-                            else
-                                throw new ApplicationException(
-                                    $"Server: unknown property: {objectToInvoke}:{message.MemberName}");
-                        }
-                        else if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventAdd
-                                 || message.MessageType == WebSocketMessage.WebSocketMessageType.EventRemove)
-                        {
-                            EventInfo ei = objectToInvoke.GetType().GetEvent(message.MemberName);
-                            if (ei != null)
-                            {
-                                if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventAdd)
-                                    _addDelegate(objectToInvoke, ei);
-                                else if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventRemove)
-                                    _removeDelegate(objectToInvoke, ei);
-                            }
-                            else
-                                throw new ApplicationException(
-                                    $"Server: unknown event: {objectToInvoke}:{message.MemberName}");
-                        }
-                    }
-                    else
-                        _sendResponse(message, null);
+                    //IDto objectToInvoke = _referenceResolver.ResolveReference(message.DtoGuid);
+                    //if (objectToInvoke != null)
+                    //{
+                    //    if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query
+                    //        || message.MessageType == WebSocketMessage.WebSocketMessageType.Invoke)
+                    //    {
+                    //        Type objectToInvokeType = objectToInvoke.GetType();
+                    //        MethodInfo methodToInvoke = objectToInvokeType.GetMethods()
+                    //            .FirstOrDefault(m => m.Name == message.MemberName &&
+                    //                                 m.GetParameters().Length == message.ValueCount);
+                    //        if (methodToInvoke != null)
+                    //        {
+                    //            ParameterInfo[] methodParameters = methodToInvoke.GetParameters();
+                    //            _alignContentTypes(ref message.ValueCount,
+                    //                methodParameters.Select(p => p.ParameterType).ToArray());
+                    //            for (int i = 0; i < methodParameters.Length; i++)
+                    //                MethodParametersAlignment.AlignType(ref message.Parameters[i],
+                    //                    methodParameters[i].ParameterType);
+                    //            object response = methodToInvoke.Invoke(objectToInvoke,
+                    //                BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.Public, null,
+                    //                message.Parameters, null);
+                    //            if (message.MessageType == WebSocketMessage.WebSocketMessageType.Query)
+                    //                _sendResponse(message, response);
+                    //        }
+                    //        else
+                    //            throw new ApplicationException(
+                    //                $"Server: unknown method: {objectToInvoke}:{message.MemberName}");
+                    //    }
+                    //    else if (message.MessageType == WebSocketMessage.WebSocketMessageType.Get
+                    //             || message.MessageType == WebSocketMessage.WebSocketMessageType.Set)
+                    //    {
+                    //        PropertyInfo property = objectToInvoke.GetType().GetProperty(message.MemberName);
+                    //        if (property != null)
+                    //        {
+                    //            if (message.MessageType == WebSocketMessage.WebSocketMessageType.Get &&
+                    //                property.CanRead)
+                    //            {
+                    //                object response = property.GetValue(objectToInvoke, null);
+                    //                _sendResponse(message, response);
+                    //            }
+                    //            else // Set
+                    //            {
+                    //                if (property.CanWrite)
+                    //                {
+                    //                    _alignContentTypes(ref message.Parameters, new[] {property.PropertyType});
+                    //                    property.SetValue(objectToInvoke, message.Parameters[0], null);
+                    //                }
+                    //                else
+                    //                    throw new ApplicationException(
+                    //                        $"Server: not writable property: {objectToInvoke}:{message.MemberName}");
+                    //            }
+                    //        }
+                    //        else
+                    //            throw new ApplicationException(
+                    //                $"Server: unknown property: {objectToInvoke}:{message.MemberName}");
+                    //    }
+                    //    else if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventAdd
+                    //             || message.MessageType == WebSocketMessage.WebSocketMessageType.EventRemove)
+                    //    {
+                    //        EventInfo ei = objectToInvoke.GetType().GetEvent(message.MemberName);
+                    //        if (ei != null)
+                    //        {
+                    //            if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventAdd)
+                    //                _addDelegate(objectToInvoke, ei);
+                    //            else if (message.MessageType == WebSocketMessage.WebSocketMessageType.EventRemove)
+                    //                _removeDelegate(objectToInvoke, ei);
+                    //        }
+                    //        else
+                    //            throw new ApplicationException(
+                    //                $"Server: unknown event: {objectToInvoke}:{message.MemberName}");
+                    //    }
+                    //}
+                    //else
+                    //    _sendResponse(message, null);
                     //throw new ApplicationException(string.Format("Server: unknown DTO: {0} on {1}", message.DtoGuid, message));
                 }
             }
             catch (Exception ex)
             {
                 message.MessageType = WebSocketMessage.WebSocketMessageType.Exception;
-                message.Response = ex;
-                Send(_serialize(message));
+                SerializeDto(message, ex);
+                Send(message.Serialize(_messageFormatter));
                 Debug.WriteLine(ex);
             }
 
@@ -184,30 +189,30 @@ namespace TAS.Remoting.Server
             base.OnError(e);
         }
 
-        private void _sendResponse(WebSocketMessage queryMessage, object response)
+        private void _sendResponse(WebSocketMessage message, object response)
         {
-            var responseMessage = WebSocketMessage.Create(queryMessage, response);
-            var serialized = _serialize(responseMessage);
-            //Debug.WriteLine(serialized);
+            SerializeDto(message, response);
+            var serialized = message.Serialize(_messageFormatter);
             Send(serialized);
         }
 
-        private string _serialize(WebSocketMessage message)
+        private void SerializeDto(WebSocketMessage message, object response)
         {
-            using (System.IO.StringWriter writer = new System.IO.StringWriter())
+            using (var writer = new StringWriter())
             {
-                _serializer.Serialize(writer, message);
-                return writer.ToString();
+                _serializer.Serialize(writer, response);
+                message.Value = writer.ToString();
             }
         }
 
-        private T Deserialize<T>(string s)
+        private T DeserializeDto<T>(string s)
         {
             //Debug.WriteLine(s);
-            using (System.IO.StringReader stringReader = new System.IO.StringReader(s))
-            using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
+            if (string.IsNullOrWhiteSpace(s))
+                return default(T);
+            using (StringReader reader = new StringReader(s))
             {
-                object value = _serializer.Deserialize(jsonReader, typeof(T));
+                object value = _serializer.Deserialize(reader, typeof(T));
                 return (T)value;
             }
         }
@@ -280,12 +285,12 @@ namespace TAS.Remoting.Server
             }
             else
                 eventArgs = e;
-            WebSocketMessage message = WebSocketMessage.Create(
-                WebSocketMessage.WebSocketMessageType.EventNotification,
-                dto,
-                eventName);
-            string s = _serialize(message);
-            Send(s);
+            WebSocketMessage message = new WebSocketMessage { 
+                MessageType = WebSocketMessage.WebSocketMessageType.EventNotification,
+                DtoGuid = dto.DtoGuid,
+                MemberName = eventName};
+            var bytes = message.Serialize(_messageFormatter);
+            Send(bytes);
             //Debug.WriteLine($"Server: Notification {eventName} on {dto} sent:\n{s}");
         }
 
@@ -305,10 +310,12 @@ namespace TAS.Remoting.Server
                     Debug.WriteLine($"Server: Delegate {dk.Item2}  on {dto} removed;");
                 }
             }
-            WebSocketMessage message = WebSocketMessage.Create(
-                WebSocketMessage.WebSocketMessageType.ObjectDisposed,
-                dto, null);
-            Send(_serialize(message));
+            WebSocketMessage message = new WebSocketMessage
+            {
+                MessageType = WebSocketMessage.WebSocketMessageType.ObjectDisposed,
+                DtoGuid = dto.DtoGuid
+            };
+            Send(message.Serialize(_messageFormatter));
             Debug.WriteLine($"Server: ObjectDisposed notification on {dto} sent");
         }
 

@@ -33,7 +33,7 @@ namespace TAS.Remoting.Model.Security
             Invoke();
         }
 
-        protected override void OnEventNotification(WebSocketMessage e)
+        protected override void OnEventNotification(string memberName, EventArgs e)
         {
         }
     }

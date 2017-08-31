@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using System.Drawing;
 using TAS.Remoting.Client;
 using TAS.Common.Interfaces;
@@ -31,6 +32,6 @@ namespace TAS.Remoting.Model
 
         public string Name => _name;
 
-        protected override void OnEventNotification(WebSocketMessage e) { }
+        protected override void OnEventNotification(string memberName, EventArgs e) { }
     }
 }

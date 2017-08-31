@@ -352,21 +352,21 @@ namespace TAS.Remoting.Model
         // do not implement this in remote client as is used only for debugging puproses
         public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
 
-        protected override void OnEventNotification(WebSocketMessage e)
+        protected override void OnEventNotification(string memberName, EventArgs e)
         {
-            switch (e.MemberName)
+            switch (memberName)
             {
                 case nameof(IEngine.EngineTick):
-                    _engineTick?.Invoke(this, ConvertEventArgs<EngineTickEventArgs>(e));
+                    _engineTick?.Invoke(this, (EngineTickEventArgs)e);
                     break;
                 case nameof(IEngine.EngineOperation):
-                    _engineOperation?.Invoke(this, ConvertEventArgs<EngineOperationEventArgs>(e));
+                    _engineOperation?.Invoke(this, (EngineOperationEventArgs)e);
                     break;
                 case nameof(IEngine.EventSaved):
-                    _eventSaved?.Invoke(this, ConvertEventArgs<EventEventArgs>(e));
+                    _eventSaved?.Invoke(this, (EventEventArgs)e);
                     break;
                 case nameof(IEngine.EventDeleted):
-                    _eventDeleted?.Invoke(this, ConvertEventArgs<EventEventArgs>(e));
+                    _eventDeleted?.Invoke(this, (EventEventArgs)e);
                     break;
             }
         }

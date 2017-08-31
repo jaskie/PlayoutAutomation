@@ -7,6 +7,7 @@ using System.Threading;
 using WebSocketSharp;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting.Client
@@ -18,6 +19,8 @@ namespace TAS.Remoting.Client
         private readonly JsonSerializer _serializer;
         private readonly ReferenceResolver _referenceResolver;
         private readonly ConcurrentDictionary<Guid, WebSocketMessage> _receivedMessages = new ConcurrentDictionary<Guid, WebSocketMessage>();
+        private readonly BinaryFormatter _messageFormatter = new BinaryFormatter();
+
 
         private const int QueryTimeout =
 #if DEBUG 
@@ -72,13 +75,13 @@ namespace TAS.Remoting.Client
 
         public T GetInitalObject<T>()
         {
-            WebSocketMessage query = WebSocketMessage.Create(WebSocketMessage.WebSocketMessageType.RootQuery, null, null);
+            WebSocketMessage query = WebSocketMessageCreate(WebSocketMessage.WebSocketMessageType.RootQuery, null, null);
             return _send<T>(query);
         }
 
         public T Query<T>(ProxyBase dto, string methodName, params object[] parameters)
         {
-            WebSocketMessage query = WebSocketMessage.Create(
+            WebSocketMessage query = WebSocketMessageCreate(
                 WebSocketMessage.WebSocketMessageType.Query,
                 dto,
                 methodName,
@@ -88,7 +91,7 @@ namespace TAS.Remoting.Client
 
         public T Get<T>(ProxyBase dto, string propertyName)
         {
-            WebSocketMessage query = WebSocketMessage.Create(
+            WebSocketMessage query = WebSocketMessageCreate(
                 WebSocketMessage.WebSocketMessageType.Get,
                 dto,
                 propertyName
@@ -98,7 +101,7 @@ namespace TAS.Remoting.Client
 
         public void Invoke(ProxyBase dto, string methodName, params object[] parameters)
         {
-            WebSocketMessage query = WebSocketMessage.Create(
+            WebSocketMessage query = WebSocketMessageCreate(
                 WebSocketMessage.WebSocketMessageType.Invoke,
                 dto,
                 methodName,
@@ -109,7 +112,7 @@ namespace TAS.Remoting.Client
 
         public void Set(ProxyBase dto, object value, string propertyName)
         {
-            WebSocketMessage query = WebSocketMessage.Create(
+            WebSocketMessage query = WebSocketMessageCreate(
                 WebSocketMessage.WebSocketMessageType.Set,
                 dto,
                 propertyName,
@@ -120,7 +123,7 @@ namespace TAS.Remoting.Client
 
         public void EventAdd(ProxyBase dto, string eventName)
         {
-            WebSocketMessage query = WebSocketMessage.Create(
+            WebSocketMessage query = WebSocketMessageCreate(
                 WebSocketMessage.WebSocketMessageType.EventAdd,
                 dto,
                 eventName);
@@ -130,7 +133,7 @@ namespace TAS.Remoting.Client
 
         public void EventRemove(ProxyBase dto, string eventName)
         {
-            WebSocketMessage query = WebSocketMessage.Create(
+            WebSocketMessage query = WebSocketMessageCreate(
                 WebSocketMessage.WebSocketMessageType.EventRemove,
                 dto,
                 eventName);
@@ -162,11 +165,8 @@ namespace TAS.Remoting.Client
         {
             Debug.WriteLine(e.Data);
             WebSocketMessage message;
-            using (StringReader stringReader = new StringReader(e.Data))
-            using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
-            {
-                message = _serializer.Deserialize<WebSocketMessage>(jsonReader);
-            }
+            message = WebSocketMessage.Deserialize(_messageFormatter, e.RawData);
+
             switch (message.MessageType)
             {
                 case WebSocketMessage.WebSocketMessageType.EventNotification:
@@ -212,17 +212,27 @@ namespace TAS.Remoting.Client
             return null;
         }
 
+        private WebSocketMessage WebSocketMessageCreate(WebSocketMessage.WebSocketMessageType webSocketMessageType, IDto dto, string memberName, params object[] parameters)
+        {
+            return new WebSocketMessage
+            {
+                MessageType = webSocketMessageType,
+                DtoGuid = dto?.DtoGuid ?? Guid.Empty,
+                MemberName = memberName
+            };
+        }
+
         private T _send<T>(WebSocketMessage query)
         {
             if (_clientSocket.ReadyState == WebSocketState.Open)
             {
-                _clientSocket.Send(Serialize(query));
-                return _serializer.AlignType<T>(WaitForResponse(query).Response);
+                _clientSocket.Send(query.Serialize(_messageFormatter));
+                using (var reader = new StringReader(WaitForResponse(query).Value))
+                {
+                    return (T)_serializer.Deserialize(reader, typeof(T));
+                }
             }
             return default(T);
         }
-
     }
-
-
 }

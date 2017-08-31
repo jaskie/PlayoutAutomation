@@ -1,16 +1,12 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Dynamic;
+﻿using System;
+using System.IO;
+using System.Runtime.Serialization;
 
 namespace TAS.Remoting
 {
-    [JsonObject(MemberSerialization.OptIn, IsReference = false)]
+    [Serializable]
     public class WebSocketMessage
     {
-        [JsonConverter(typeof(StringEnumConverter))]
         public enum WebSocketMessageType
         {
             RootQuery,
@@ -25,80 +21,54 @@ namespace TAS.Remoting
             Exception
         }
 
-        protected WebSocketMessage()
-        {
-        }
-        [JsonProperty]
         public Guid MessageGuid;
-        [JsonProperty]
         public Guid DtoGuid;
-        [JsonProperty]
         public WebSocketMessageType MessageType;
 #if DEBUG
-        [JsonProperty]
         public string DtoName;
 #endif
         /// <summary>
         /// Object member (method, property or event) name
         /// </summary>
-        [JsonProperty]
         public string MemberName;
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Auto, ItemTypeNameHandling = TypeNameHandling.Auto)]
-        public object[] Parameters;
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Auto)]
-        public object Response;
+
+        /// <summary>
+        /// when client invokes a method on Dto, ValueCount is count of parameters passed
+        /// </summary>
+        public int ValueCount;
+
+        /// <summary>
+        /// JSON-Serialized object
+        /// </summary>
+        public string Value;
+
+        /// <summary>
+        /// Client-side constructor
+        /// </summary>
+
 
         public override string ToString()
         {
             return $"WebSocketMessage: {MessageType}:{MemberName}:{MessageGuid}";
         }
 
-        // server-side factory
-        public static WebSocketMessage Create(WebSocketMessage query, object response)
+        public byte[] Serialize(IFormatter formatter)
         {
-            if (response is IEnumerable)
-                return new WebSocketResponseArrayMessage
-                {
-                    MessageGuid = query.MessageGuid,
-                    DtoGuid = query.DtoGuid,
-                    DtoName = query.DtoName,
-                    MemberName = query.MemberName,
-                    MessageType = query.MessageType,
-                    Response = response
-                };
-            return new WebSocketMessage
+            using (var stream = new MemoryStream())
             {
-                MessageGuid = query.MessageGuid,
-                DtoGuid = query.DtoGuid,
-                DtoName = query.DtoName,
-                MemberName = query.MemberName,
-                MessageType = query.MessageType,
-                Response = response
-            };
+                formatter.Serialize(stream, this);
+                return stream.ToArray();
+            }
         }
 
-        // client-side factory
-        public static WebSocketMessage Create(WebSocketMessageType messageType, IDto dto, string memberName, params object[] parameters)
+        public static WebSocketMessage Deserialize(IFormatter formatter, byte[] rawData)
         {
-            return new WebSocketMessage
+            using (var stream = new MemoryStream(rawData))
             {
-                MessageType = messageType,
-                MessageGuid = Guid.NewGuid(),
-                MemberName = memberName,
-#if DEBUG
-            DtoName = dto?.ToString(),
-#endif
-                DtoGuid = dto?.DtoGuid ?? Guid.Empty,
-
-                Parameters = parameters
-            };
+                return (WebSocketMessage)formatter.Deserialize(stream);
+            }
         }
-    }
 
-    public class WebSocketResponseArrayMessage: WebSocketMessage
-    {
-        [JsonProperty(TypeNameHandling = TypeNameHandling.None, ItemTypeNameHandling = TypeNameHandling.Objects)]
-        public new object Response;
     }
 
     public class WebSocketMessageEventArgs: EventArgs
@@ -109,4 +79,6 @@ namespace TAS.Remoting
         }
         public WebSocketMessage Message { get; }
     }
+
+
 }

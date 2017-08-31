@@ -24,9 +24,9 @@ namespace TAS.Server
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(MediaManager));
 
-        [JsonProperty(nameof(Engine), TypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty(nameof(Engine), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
         private readonly Engine _engine;
-        [JsonProperty(nameof(FileManager), TypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty(nameof(FileManager), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
         private readonly FileManager _fileManager;
         private readonly List<CasparRecorder> _recorders;
         private readonly object _lockSynchronizeMediaSecToPri = new object();
@@ -76,10 +76,10 @@ namespace TAS.Server
         [JsonProperty]
         public TVideoFormat VideoFormat => _engine.VideoFormat;
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects, TypeNameHandling = TypeNameHandling.None)]
         public IEnumerable<IIngestDirectory> IngestDirectories => _ingestDirectories;
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Objects, TypeNameHandling = TypeNameHandling.None)]
         public IEnumerable<IRecorder> Recorders => _recorders;
 
         public void Initialize()
