@@ -60,6 +60,17 @@ namespace TAS.Remoting.Client
 
         protected void Set<T>(T value, [CallerMemberName] string propertyName = null)
         {
+            Type type = GetType();
+            FieldInfo field = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+                .FirstOrDefault(p =>
+                    p.GetCustomAttributes(typeof(JsonPropertyAttribute), true)
+                        .Any(a => ((JsonPropertyAttribute) a).PropertyName == propertyName));
+            if (field != null)
+            {
+                var currentValue = field.GetValue(this);
+                if (value.Equals(currentValue))
+                    return;
+            }
             _client?.Set(this, value, propertyName);
         }
 
@@ -97,25 +108,7 @@ namespace TAS.Remoting.Client
             }
         }
 
-        private bool SetLocalValue(object value, [CallerMemberName] string propertyName = null)
-        {
-            object oldValue;
-            if (!_properties.TryGetValue(propertyName, out oldValue) // here values may be boxed
-                || (oldValue != value && (oldValue != null && !oldValue.Equals(value)) ||
-                    (value != null && !value.Equals(oldValue))))
-            {
-                _properties[propertyName] = value;
-                NotifyPropertyChanged(propertyName);
-                return true;
-            }
-            return false;
-        }
-
-        protected abstract void OnEventNotification(string memberName, EventArgs e);
-
-        protected virtual void OnEventRegistration(WebSocketMessage e)
-        {
-        }
+        protected abstract void OnEventNotification(WebSocketMessage message);
 
         protected void NotifyPropertyChanged(string propertyName)
         {
@@ -124,7 +117,6 @@ namespace TAS.Remoting.Client
 
         protected virtual void DoDispose()
         {
-            _client.EventNotification -= OnEventNotificationMessage;
             _client = null;
             Disposed?.Invoke(this, EventArgs.Empty);
         }
@@ -135,44 +127,55 @@ namespace TAS.Remoting.Client
             var client = context.Context as RemoteClient;
             if (client == null)
                 return;
-            client.EventNotification += OnEventNotificationMessage;
             _client = client;
         }
 
-        private void OnEventNotificationMessage(object sender, WebSocketMessageEventArgs e)
+        protected T Deserialize<T>(WebSocketMessage message)
         {
-            if (e.Message.DtoGuid == DtoGuid)
+            if (_client == null)
+                return default(T);
+            return _client.Deserialize<T>(message);
+        }
+
+        internal void OnEventNotificationMessage(WebSocketMessage message)
+        {
+            if (message.MemberName == nameof(INotifyPropertyChanged.PropertyChanged))
             {
-                //Debug.WriteLine($"ProxyBase: Event {e.Message.MemberName} notified on {this} with value {e.Message.Response}");
-                if (e.Message.MemberName == nameof(INotifyPropertyChanged.PropertyChanged))
+                PropertyChangedWithDataEventArgs eav = Deserialize<PropertyChangedWithDataEventArgs>(message);
+                if (eav != null)
                 {
-                    //PropertyChangedWithValueEventArgs eav = e.Message.Response as PropertyChangedWithValueEventArgs;
-                    //if (eav != null)
-                    //{
-                    //    Type type = GetType();
-                    //    FieldInfo field =
-                    //        type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).FirstOrDefault(p => p.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Any(a => ((JsonPropertyAttribute)a).PropertyName == eav.PropertyName));
-                    //    if (field == null)
-                    //    {
-                    //        var property = type.GetProperty(eav.PropertyName);
-                    //        if (property != null)
-                    //        {
-                    //            var value = eav.Value;
-                    //            MethodParametersAlignment.AlignType(ref value, property.PropertyType);
-                    //            if (_properties.ContainsKey(eav.PropertyName))
-                    //                _properties[eav.PropertyName] = value;
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        var value = eav.Value;
-                    //            MethodParametersAlignment.AlignType(ref value, field.ReflectedType);
-                    //        field.SetValue(this, value);
-                    //    }
-                    //    NotifyPropertyChanged(eav.PropertyName);
+                    Type type = GetType();
+                    FieldInfo field = GetField(type, eav.PropertyName);
+                    if (field == null)
+                    {
+                        var property = type.GetProperty(eav.PropertyName);
+                        if (property != null)
+                        {
+                            var value = eav.Value;
+                            MethodParametersAlignment.AlignType(ref value, property.PropertyType);
+                            if (_properties.ContainsKey(eav.PropertyName))
+                                _properties[eav.PropertyName] = value;
+                        }
+                    }
+                    else
+                    {
+                        var value = eav.Value;
+                        MethodParametersAlignment.AlignType(ref value, field.FieldType);
+                        field.SetValue(this, value);
+                    }
+                    NotifyPropertyChanged(eav.PropertyName);
                 }
             }
-            //else OnEventNotification(e.Message);
+            else OnEventNotification(message);
+        }
+
+        protected FieldInfo GetField(Type t, string fieldName)
+        {
+            if (t == null)
+                return null;
+            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+            FieldInfo foundField = t.GetFields(flags).FirstOrDefault(f => f.GetCustomAttributes(typeof(JsonPropertyAttribute), true).Any(a =>((JsonPropertyAttribute)a).PropertyName == fieldName));
+            return foundField ?? GetField(t.BaseType, fieldName);
         }
     }
 }

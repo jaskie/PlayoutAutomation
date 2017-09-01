@@ -72,15 +72,15 @@ namespace TAS.Remoting.Model
             }
         }
 
-        protected override void OnEventNotification(string memberName, EventArgs e)
+        protected override void OnEventNotification(WebSocketMessage message)
         {
-            if (memberName == nameof(OperationAdded))
+            if (message.MemberName == nameof(OperationAdded))
             {
-                _operationAdded?.Invoke(this, (FileOperationEventArgs)e);
+                _operationAdded?.Invoke(this, Deserialize<FileOperationEventArgs>(message));
             }
-            if (memberName == nameof(OperationCompleted))
+            if (message.MemberName == nameof(OperationCompleted))
             {
-                _operationCompleted?.Invoke(this, (FileOperationEventArgs)e);
+                _operationCompleted?.Invoke(this, Deserialize<FileOperationEventArgs>(message));
             }
         }
 

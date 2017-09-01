@@ -141,7 +141,7 @@ namespace TAS.Remoting.Model
 
         public Event()
         {
-            _subEvents = new Lazy<IEnumerable<IEvent>>(() => Get<List<Event>>(nameof(IEvent.SubEvents)));
+            _subEvents = new Lazy<IEnumerable<IEvent>>(() => Get<ReadOnlyCollection<IEvent>>(nameof(IEvent.SubEvents)));
             _parent = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Parent)));
             _next = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Next)));
             _prior = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Prior)));
@@ -323,24 +323,24 @@ namespace TAS.Remoting.Model
             }
         }
 
-        protected override void OnEventNotification(string memberName, EventArgs e)
+        protected override void OnEventNotification(WebSocketMessage message)
         {
-            switch (memberName)
+            switch (message.MemberName)
             {
                 case nameof(IEvent.Deleted):
-                    _deleted?.Invoke(this, e);
+                    _deleted?.Invoke(this, Deserialize<EventArgs>(message));
                     break;
                 case nameof(IEvent.PositionChanged):
-                    _positionChanged?.Invoke(this, (EventPositionEventArgs)e);
+                    _positionChanged?.Invoke(this, Deserialize<EventPositionEventArgs>(message));
                     break;
                 case nameof(IEvent.Relocated):
-                    _relocated?.Invoke(this, e);
+                    _relocated?.Invoke(this, Deserialize<EventArgs>(message));
                     return;
                 case nameof(IEvent.Saved):
-                    _saved?.Invoke(this, e);
+                    _saved?.Invoke(this, Deserialize<EventArgs>(message));
                     return;
                 case nameof(IEvent.SubEventChanged):
-                    var ea = (CollectionOperationEventArgs<IEvent>)e;
+                    var ea = Deserialize<CollectionOperationEventArgs<IEvent>>(message);
                     _subEventChanged?.Invoke(this, ea);
                     return;
             }

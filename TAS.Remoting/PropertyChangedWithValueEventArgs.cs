@@ -16,6 +16,16 @@ namespace TAS.Remoting
                 return new PropertyChangedWithArrayEventArgs(propertyName, value);
             return new PropertyChangedWithValueEventArgs(propertyName, value);
         }
+
+        public virtual object Value
+        {
+            get
+            {
+                return (this as PropertyChangedWithValueEventArgs)?.Value ??
+                       (this as PropertyChangedWithArrayEventArgs)?.Value;
+            }
+            protected set { throw new System.NotImplementedException(); }
+        }
     }
 
     [DebuggerDisplay("{PropertyName} = {Value}")]
@@ -27,7 +37,7 @@ namespace TAS.Remoting
         }
 
         [JsonProperty]
-        public virtual object Value { get; private set; }
+        public override object Value { get; protected set; }
     }
 
     [DebuggerDisplay("{PropertyName} = {Value}")]
@@ -38,7 +48,7 @@ namespace TAS.Remoting
             Value = value;
         }
 
-        [JsonProperty(ItemIsReference = true, TypeNameHandling = TypeNameHandling.None, ItemTypeNameHandling = TypeNameHandling.Objects)]
-        public virtual object Value { get; }
+        [JsonProperty(ItemIsReference = true, TypeNameHandling = TypeNameHandling.All, ItemTypeNameHandling = TypeNameHandling.All)]
+        public virtual object Value { get; protected set; }
     }
 }

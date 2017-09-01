@@ -152,7 +152,7 @@ namespace TAS.Remoting.Model
             return $"{MediaName}";
         }
 
-        protected override void OnEventNotification(string memberName, EventArgs e) { }
+        protected override void OnEventNotification(WebSocketMessage message) { }
 
     }
 }

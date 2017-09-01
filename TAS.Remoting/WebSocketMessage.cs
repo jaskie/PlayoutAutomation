@@ -1,20 +1,16 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting
 {
     [Serializable]
     public class WebSocketMessage
     {
-        private static readonly byte[] Version = { 0x1, 0x0,
-#if DEBUG
-    0x1
-#else
-    0x0
-#endif
-        };
         public enum WebSocketMessageType: byte
         {
             RootQuery,
@@ -29,7 +25,55 @@ namespace TAS.Remoting
             Exception
         }
 
-        public Guid MessageGuid;
+        private static readonly byte[] Version = { 0x1, 0x0,
+#if DEBUG
+            0x1
+#else
+    0x0
+#endif
+        };
+
+        private readonly byte[] _rawData;
+        private readonly int _valueStartIndex;
+
+        public WebSocketMessage()
+        {
+            MessageGuid = Guid.NewGuid();
+        }
+
+        public WebSocketMessage(byte[] rawData)
+        {
+            int index = 0;
+            var version = new byte[Version.Length];
+            Buffer.BlockCopy(rawData, index, version, 0, version.Length);
+            index += version.Length;
+            MessageType = (WebSocketMessageType) rawData[index];
+            index += 1;
+            byte[] guidBuffer = new byte[16];
+            Buffer.BlockCopy(rawData, index, guidBuffer, 0, guidBuffer.Length);
+            index += guidBuffer.Length;
+            MessageGuid = new Guid(guidBuffer);
+            Buffer.BlockCopy(rawData, index, guidBuffer, 0, guidBuffer.Length);
+            index += guidBuffer.Length;
+            DtoGuid = new Guid(guidBuffer);
+            int stringLength;
+            if (version[2] == 0x1) // debug packet version - DtoName
+            {
+                stringLength = BitConverter.ToInt32(rawData, index);
+                index += sizeof(int);
+                DtoName = Encoding.ASCII.GetString(rawData, index, stringLength);
+                index += stringLength;
+            }
+            stringLength = BitConverter.ToInt32(rawData, index);
+            index += sizeof(int);
+            MemberName = Encoding.ASCII.GetString(rawData, index, stringLength);
+            index += stringLength;
+            ValueCount = BitConverter.ToInt32(rawData, index);
+            _valueStartIndex = index + sizeof(int);
+            _rawData = rawData;
+        }
+
+        public readonly Guid MessageGuid;
         public Guid DtoGuid;
         public WebSocketMessageType MessageType;
 #if DEBUG
@@ -45,30 +89,24 @@ namespace TAS.Remoting
         /// </summary>
         public int ValueCount;
 
-        /// <summary>
-        /// JSON-Serialized object
-        /// </summary>
-        public string Value;
-
-        /// <summary>
-        /// Client-side constructor
-        /// </summary>
-
-
         public override string ToString()
         {
             return $"WebSocketMessage: {MessageType}:{MemberName}:{MessageGuid}";
         }
 
-        public byte[] Serialize()
+        public byte[] ToByteArray(Stream value)
         {
             using (var stream = new MemoryStream())
             {
                 stream.Write(Version, 0, Version.Length);
+
                 stream.WriteByte((byte)MessageType);
+
                 stream.Write(MessageGuid.ToByteArray(), 0, 16);
+
                 stream.Write(DtoGuid.ToByteArray(), 0, 16);
-                if (Version[2] == 0x1) // debug packet version
+
+                if (Version[2] == 0x1) // debug packet version - DtoName
                 {
                     if (string.IsNullOrEmpty(DtoName))
                         stream.Write(BitConverter.GetBytes(0), 0, sizeof(int));
@@ -79,6 +117,8 @@ namespace TAS.Remoting
                         stream.Write(dtoName, 0, dtoName.Length);
                     }
                 }
+
+                // MemberName
                 if (string.IsNullOrEmpty(MemberName))
                     stream.Write(BitConverter.GetBytes(0), 0, sizeof(int));
                 else
@@ -87,34 +127,45 @@ namespace TAS.Remoting
                     stream.Write(BitConverter.GetBytes(memberName.Length), 0, sizeof(int));
                     stream.Write(memberName, 0, memberName.Length);
                 }
-
+                stream.Write(BitConverter.GetBytes(ValueCount), 0, sizeof(int));
+                if (value != null)
+                {
+                    value.Position = 0;
+                    value.CopyTo(stream);
+                }
                 return stream.ToArray();
             }
         }
+
         public Stream GetValueStream()
         {
-            throw new NotImplementedException();
-        }
-
-
-        public static WebSocketMessage Deserialize(byte[] rawData)
-        {
-            using (var stream = new MemoryStream(rawData))
-            {
-                throw new NotImplementedException();
-            }
+#if DEBUG
+            var s = Encoding.UTF8.GetString(_rawData, _valueStartIndex, _rawData.Length - _valueStartIndex);
+            Debug.WriteLine(s);
+#endif
+            return _rawData.Length > _valueStartIndex ? new MemoryStream(_rawData, _valueStartIndex, _rawData.Length - _valueStartIndex) : null;
         }
 
     }
 
-    public class WebSocketMessageEventArgs: EventArgs
+    [JsonObject(IsReference = false)]
+    public class WebSocketMessageValue
     {
-        public WebSocketMessageEventArgs(WebSocketMessage message)
-        {
-            Message = message;
-        }
-        public WebSocketMessage Message { get; }
+    
     }
+
+    public class WebSocketMessageSingleValue : WebSocketMessageValue
+    {
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Objects)]
+        public object Value;
+    }
+
+    public class WebSocketMessageArrayValue : WebSocketMessageValue
+    {
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Arrays, ItemTypeNameHandling = TypeNameHandling.Objects)]
+        public object[] Value;
+    }
+
 
 
 }

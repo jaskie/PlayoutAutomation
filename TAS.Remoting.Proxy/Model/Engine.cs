@@ -185,7 +185,7 @@ namespace TAS.Remoting.Model
 
         public IAuthenticationService AuthenticationService => _authenticationService;
 
-        public IEnumerable<IEvent> GetRootEvents() { return Query<List<Event>>(); }
+        public IEnumerable<IEvent> GetRootEvents() { return Query<List<IEvent>>(); }
 
         public TVideoFormat VideoFormat { get { return _videoFormat; } set { Set(value); } }
 
@@ -352,21 +352,21 @@ namespace TAS.Remoting.Model
         // do not implement this in remote client as is used only for debugging puproses
         public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
 
-        protected override void OnEventNotification(string memberName, EventArgs e)
+        protected override void OnEventNotification(WebSocketMessage message)
         {
-            switch (memberName)
+            switch (message.MemberName)
             {
                 case nameof(IEngine.EngineTick):
-                    _engineTick?.Invoke(this, (EngineTickEventArgs)e);
+                    _engineTick?.Invoke(this, Deserialize<EngineTickEventArgs>(message));
                     break;
                 case nameof(IEngine.EngineOperation):
-                    _engineOperation?.Invoke(this, (EngineOperationEventArgs)e);
+                    _engineOperation?.Invoke(this, Deserialize<EngineOperationEventArgs>(message));
                     break;
                 case nameof(IEngine.EventSaved):
-                    _eventSaved?.Invoke(this, (EventEventArgs)e);
+                    _eventSaved?.Invoke(this, Deserialize<EventEventArgs>(message));
                     break;
                 case nameof(IEngine.EventDeleted):
-                    _eventDeleted?.Invoke(this, (EventEventArgs)e);
+                    _eventDeleted?.Invoke(this, Deserialize<EventEventArgs>(message));
                     break;
             }
         }

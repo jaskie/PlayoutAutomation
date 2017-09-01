@@ -138,7 +138,7 @@ namespace TAS.Remoting.Model
         }
 
 
-        protected override void OnEventNotification(string memberName, EventArgs e) { }
+        protected override void OnEventNotification(WebSocketMessage message) { }
 
 
     }

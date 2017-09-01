@@ -60,19 +60,19 @@ namespace TAS.Remoting.Model
             }
         }
 
-        protected override void OnEventNotification(string memberName, EventArgs e)
+        protected override void OnEventNotification(WebSocketMessage message)
         {
-            switch (memberName)
+            switch (message.MemberName)
             {
                 case nameof(IMediaSegments.SegmentAdded):
-                    var eAdded = (MediaSegmentEventArgs)e;
+                    var eAdded = Deserialize<MediaSegmentEventArgs>(message);
                     _segments.Add(eAdded.Segment as MediaSegment);
                     _segmentAdded?.Invoke(this, eAdded);
                     break;
                 case nameof(IMediaSegments.SegmentRemoved):
-                    var eRemoved = (MediaSegmentEventArgs)e;
+                    var eRemoved = Deserialize<MediaSegmentEventArgs>(message);
                     _segments.Remove(eRemoved.Segment as MediaSegment);
-                    _segmentRemoved?.Invoke(this, (MediaSegmentEventArgs)e);
+                    _segmentRemoved?.Invoke(this, eRemoved);
                     break;
             }
         }

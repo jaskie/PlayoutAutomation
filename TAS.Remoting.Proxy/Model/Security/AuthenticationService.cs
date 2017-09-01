@@ -69,17 +69,16 @@ namespace TAS.Remoting.Model.Security
             throw new NotImplementedException();
         }
 
-        protected override void OnEventNotification(string memberName, EventArgs e)
+        protected override void OnEventNotification(WebSocketMessage message)
         {
-            switch (memberName)
+            switch (message.MemberName)
             {
 
                 case nameof(UsersOperation):
-                    _usersOperation?.Invoke(this, (CollectionOperationEventArgs<IUser>) e);
+                    _usersOperation?.Invoke(this, Deserialize<CollectionOperationEventArgs<IUser>>(message));
                     break;
                 case nameof(GroupsOperation):
-
-                    _groupsOperation?.Invoke(this, (CollectionOperationEventArgs<IGroup>) e);
+                    _groupsOperation?.Invoke(this, Deserialize<CollectionOperationEventArgs<IGroup>>(message));
                     break;
             }
         }

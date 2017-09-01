@@ -7,6 +7,7 @@ using System.Threading;
 using WebSocketSharp;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using System.Text;
 using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting.Client
@@ -37,7 +38,7 @@ namespace TAS.Remoting.Client
             _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
             _referenceResolver = new ReferenceResolver();
             _serializer.ReferenceResolver = _referenceResolver;
-            _serializer.TypeNameHandling = TypeNameHandling.None;
+            _serializer.TypeNameHandling = TypeNameHandling.Auto;
 #if DEBUG
             _serializer.Formatting = Formatting.Indented;
 #endif
@@ -63,7 +64,6 @@ namespace TAS.Remoting.Client
             }
         }
 
-        public event EventHandler<WebSocketMessageEventArgs> EventNotification;
         public event EventHandler Connected;
         public event EventHandler Disconnected;
 
@@ -73,70 +73,77 @@ namespace TAS.Remoting.Client
 
         public T GetInitalObject<T>()
         {
-            WebSocketMessage query = WebSocketMessageCreate(WebSocketMessage.WebSocketMessageType.RootQuery, null, null);
-            return _send<T>(query);
+            WebSocketMessage queryMessage = WebSocketMessageCreate(WebSocketMessage.WebSocketMessageType.RootQuery, null, null, 0);
+            return SendAndGetResponse<T>(queryMessage, null);
         }
 
         public T Query<T>(ProxyBase dto, string methodName, params object[] parameters)
         {
-            WebSocketMessage query = WebSocketMessageCreate(
+            WebSocketMessage queryMessage = WebSocketMessageCreate(
                 WebSocketMessage.WebSocketMessageType.Query,
                 dto,
                 methodName,
-                parameters);
-            return _send<T>(query);
+                parameters.Length);
+            return SendAndGetResponse<T>(queryMessage, new WebSocketMessageArrayValue {Value = parameters});
         }
 
         public T Get<T>(ProxyBase dto, string propertyName)
         {
-            WebSocketMessage query = WebSocketMessageCreate(
+            WebSocketMessage queryMessage = WebSocketMessageCreate(
                 WebSocketMessage.WebSocketMessageType.Get,
                 dto,
-                propertyName
+                propertyName,
+                0
             );
-            return _send<T>(query);
+            return SendAndGetResponse<T>(queryMessage, null);
         }
 
         public void Invoke(ProxyBase dto, string methodName, params object[] parameters)
         {
-            WebSocketMessage query = WebSocketMessageCreate(
+            WebSocketMessage queryMessage = WebSocketMessageCreate(
                 WebSocketMessage.WebSocketMessageType.Invoke,
                 dto,
                 methodName,
-                parameters);
+                parameters.Length);
             if (_clientSocket.ReadyState == WebSocketState.Open)
-                _clientSocket.SendAsync(Serialize(query), null);
+                using (var valueStream = Serialize(new WebSocketMessageArrayValue { Value = parameters }))
+                {
+                    _clientSocket.Send(queryMessage.ToByteArray(valueStream));
+                }
         }
 
         public void Set(ProxyBase dto, object value, string propertyName)
         {
-            WebSocketMessage query = WebSocketMessageCreate(
+            WebSocketMessage queryMessage = WebSocketMessageCreate(
                 WebSocketMessage.WebSocketMessageType.Set,
                 dto,
                 propertyName,
-                value);
+                1);
             if (_clientSocket.ReadyState == WebSocketState.Open)
-                _clientSocket.Send(Serialize(query));
+                using (var valueStream = Serialize(value))
+                    _clientSocket.Send(queryMessage.ToByteArray(valueStream));
         }
 
         public void EventAdd(ProxyBase dto, string eventName)
         {
-            WebSocketMessage query = WebSocketMessageCreate(
+            WebSocketMessage queryMessage = WebSocketMessageCreate(
                 WebSocketMessage.WebSocketMessageType.EventAdd,
                 dto,
-                eventName);
+                eventName,
+                0);
             if (_clientSocket.ReadyState == WebSocketState.Open)
-                _clientSocket.SendAsync(Serialize(query), null);
+                _clientSocket.Send(queryMessage.ToByteArray(null));
         }
 
         public void EventRemove(ProxyBase dto, string eventName)
         {
-            WebSocketMessage query = WebSocketMessageCreate(
+            WebSocketMessage queryMessage = WebSocketMessageCreate(
                 WebSocketMessage.WebSocketMessageType.EventRemove,
                 dto,
-                eventName);
+                eventName,
+                0);
             if (_clientSocket.ReadyState == WebSocketState.Open)
-                _clientSocket.SendAsync(Serialize(query), null);
+                _clientSocket.Send(queryMessage.ToByteArray(null));
         }
 
 
@@ -150,25 +157,40 @@ namespace TAS.Remoting.Client
             Disconnected?.Invoke(this, e);
         }
 
-        private string Serialize(object o)
+        private Stream Serialize(object o)
         {
-            using (var writer = new StringWriter())
+            if (o == null)
+                return null;
+            var stream = new MemoryStream();
+            using (var writer = new StreamWriter(stream, Encoding.UTF8, 1024, true))
             {
                 _serializer.Serialize(writer, o);
-                return writer.ToString();
+                return stream;
             }
+        }
+
+        internal T Deserialize<T>(WebSocketMessage message)
+        {
+            using (var valueStream = message.GetValueStream())
+            {
+                if (valueStream != null)
+                    using (var reader = new StreamReader(valueStream))
+                    using (var jsonReader = new JsonTextReader(reader))
+                    {
+                        return _serializer.Deserialize<T>(jsonReader);
+                    }
+            }
+            return default(T);
         }
 
         private void _clientSocket_OnMessage(object sender, MessageEventArgs e)
         {
-            Debug.WriteLine(e.Data);
-            WebSocketMessage message;
-            message = WebSocketMessage.Deserialize(e.RawData);
-
+            WebSocketMessage message = new WebSocketMessage(e.RawData);
             switch (message.MessageType)
             {
                 case WebSocketMessage.WebSocketMessageType.EventNotification:
-                    EventNotification?.Invoke(this, new WebSocketMessageEventArgs(message));
+                    var proxy = _referenceResolver.ResolveReference(message.DtoGuid) as ProxyBase;
+                    proxy.OnEventNotificationMessage(message);
                     break;
                 case WebSocketMessage.WebSocketMessageType.ObjectDisposed:
                     _referenceResolver.RemoveReference(message.DtoGuid);
@@ -210,25 +232,28 @@ namespace TAS.Remoting.Client
             return null;
         }
 
-        private WebSocketMessage WebSocketMessageCreate(WebSocketMessage.WebSocketMessageType webSocketMessageType, IDto dto, string memberName, params object[] parameters)
+        private WebSocketMessage WebSocketMessageCreate(WebSocketMessage.WebSocketMessageType webSocketMessageType, IDto dto, string memberName, int paramsCount)
         {
             return new WebSocketMessage
             {
                 MessageType = webSocketMessageType,
                 DtoGuid = dto?.DtoGuid ?? Guid.Empty,
-                MemberName = memberName
+                MemberName = memberName,
+                ValueCount = paramsCount
             };
         }
 
-        private T _send<T>(WebSocketMessage query)
+        private T SendAndGetResponse<T>(WebSocketMessage query, object value)
         {
             if (_clientSocket.ReadyState == WebSocketState.Open)
             {
-                _clientSocket.Send(query.Serialize());
-                using (var reader = new StringReader(WaitForResponse(query).Value))
+                using (var valueStream = Serialize(value))
                 {
-                    return (T)_serializer.Deserialize(reader, typeof(T));
+                    _clientSocket.Send(query.ToByteArray(valueStream));
                 }
+                var response = WaitForResponse(query);
+
+                return Deserialize<T>(response);
             }
             return default(T);
         }

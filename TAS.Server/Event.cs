@@ -577,7 +577,7 @@ namespace TAS.Server
             }
         }
 
-        public IEnumerable<IEvent> SubEvents { get { lock (_subEvents.Value.SyncRoot) return _subEvents.Value; } }
+        public IEnumerable<IEvent> SubEvents { get { lock (_subEvents.Value.SyncRoot) return _subEvents.Value.ToArray(); } }
 
         [JsonProperty]
         public int SubEventsCount => _subEvents.Value.Count;

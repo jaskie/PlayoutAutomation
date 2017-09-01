@@ -109,11 +109,11 @@ namespace TAS.Remoting.Model
             Invoke();
         }
 
-        protected override void OnEventNotification(string memberName, EventArgs e)
+        protected override void OnEventNotification(WebSocketMessage message)
         {
-            if (memberName == nameof(Finished))
+            if (message.MemberName == nameof(Finished))
             {
-                _finished?.Invoke(this, e);
+                _finished?.Invoke(this, Deserialize<EventArgs>(message));
             }
         }
     }

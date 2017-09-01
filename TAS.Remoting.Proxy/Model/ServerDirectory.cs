@@ -9,7 +9,7 @@ namespace TAS.Remoting.Model
     {
         public override IEnumerable<IMedia> GetFiles()
         {
-            return Query<List<ServerMedia>>();
+            return Query<ReadOnlyCollection<IMedia>>();
         }
 
         public override IMedia CreateMedia(IMediaProperties mediaProperties)

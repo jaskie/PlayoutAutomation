@@ -135,7 +135,7 @@ namespace TAS.Remoting.Model
 
         #endregion IRecorder
 
-        protected override void OnEventNotification(string memberName, EventArgs e) { }
+        protected override void OnEventNotification(WebSocketMessage message) { }
 
     }
 }
