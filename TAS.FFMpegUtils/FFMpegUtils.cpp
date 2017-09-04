@@ -13,18 +13,23 @@ namespace TAS {
 			return ctx;
 		}
 
+		AVCodecContext * open_codec(AVCodecContext * codec)
+		{
+			if (avcodec_open2(codec, NULL, NULL) == 0)
+				return codec;
+			return nullptr;
+		}
+
 		// unmanaged object
 		_FFMpegWrapper::_FFMpegWrapper(char* fileName)
 		{
 			av_register_all();			
 			pFormatCtx = std::unique_ptr<AVFormatContext, std::function<void(AVFormatContext *)>>(open_file(fileName), ([](AVFormatContext * ctx)
-			{				
-				if (ctx->oformat && !(ctx->oformat->flags & AVFMT_NOFILE))
-					avio_close(ctx->pb);
-				avformat_free_context(ctx);
+			{			
+				avformat_close_input(&ctx);
 			}));
 		};
-		
+
 		int64_t _FFMpegWrapper::getFrameCount()
 		{
 			if (pFormatCtx)
@@ -106,8 +111,10 @@ namespace TAS {
 					{
 						std::unique_ptr<AVFrame, std::function<void(AVFrame *)>> picture(av_frame_alloc(), [](AVFrame *frame) { av_frame_free(&frame); });
 						std::unique_ptr<AVPacket, std::function<void(AVPacket *)>> packet(av_packet_alloc(), [](AVPacket *p) { av_packet_free(&p); });
-						AVCodec * codec = avcodec_find_decoder(codecCtx->codec_id);
-						if (avcodec_open2(codecCtx, NULL, NULL) < 0)
+						std::unique_ptr<AVCodecContext, std::function<void(AVCodecContext *)>> opened_context(open_codec(codecCtx), [](AVCodecContext * ctx) {
+							avcodec_close(ctx);
+						});
+						if (!opened_context)
 						{
 							return NULL; // unable to open codec
 						}
@@ -120,7 +127,7 @@ namespace TAS {
 							if (readSuccess
 								&& packet->stream_index == i
 								&& packet->size > 0
-								&& (bytesDecoded = avcodec_decode_video2(codecCtx, picture.get(), &frameFinished, packet.get())) > 0)
+								&& (bytesDecoded = avcodec_decode_video2(opened_context.get(), picture.get(), &frameFinished, packet.get())) > 0)
 							{
 								if (frameFinished)
 									return picture.get();
@@ -144,11 +151,18 @@ namespace TAS {
 					{
 						if (codecCtx->field_order == AV_FIELD_UNKNOWN)
 						{
-							std::unique_ptr<AVFrame, std::function<void(AVFrame *)>> picture(av_frame_alloc(), [](AVFrame *frame) { av_frame_free(&frame); });
-							std::unique_ptr<AVPacket, std::function<void(AVPacket *)>> packet(av_packet_alloc(), [](AVPacket *p) { av_packet_free(&p); });
+							std::unique_ptr<AVFrame, std::function<void(AVFrame *)>> picture(av_frame_alloc(), [](AVFrame *frame) { 
+								av_frame_free(&frame); }
+							);
+							std::unique_ptr<AVPacket, std::function<void(AVPacket *)>> packet(av_packet_alloc(), [](AVPacket *p) { 
+								av_packet_free(&p); 
+							});
 							AVCodec * codec = avcodec_find_decoder(codecCtx->codec_id);
-							if (avcodec_open2(codecCtx, codec, NULL) < 0)
-								return AV_FIELD_UNKNOWN; // unable to open coden
+							std::unique_ptr<AVCodecContext, std::function<void(AVCodecContext *)>> opened_context(open_codec(codecCtx), [](AVCodecContext * ctx) {
+								avcodec_close(ctx);
+							});
+							if (!opened_context)
+								return AV_FIELD_UNKNOWN; // unable to open codec
 							bool readSuccess = true;
 							int frameFinished = 0;
 							int bytesDecoded = 0;
@@ -158,7 +172,7 @@ namespace TAS {
 								if (readSuccess
 									&& packet->stream_index == i
 									&& packet->size > 0
-									&& (bytesDecoded = avcodec_decode_video2(codecCtx, picture.get(), &frameFinished, packet.get())) > 0)
+									&& (bytesDecoded = avcodec_decode_video2(opened_context.get(), picture.get(), &frameFinished, packet.get())) > 0)
 								{
 									if (frameFinished)
 									{
@@ -314,7 +328,5 @@ namespace TAS {
 			else
 				return nullptr;
 		}
-
-
 	}
 }

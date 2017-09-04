@@ -4,7 +4,7 @@
     <LocalDebuggerCommand>$(SolutionDir)TVPlay\bin\$(Configuration)\TVPlay.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(SolutionDir)TVPlay\bin\$(Configuration)\</LocalDebuggerWorkingDirectory>
-    <LocalDebuggerDebuggerType>NativeOnly</LocalDebuggerDebuggerType>
+    <LocalDebuggerDebuggerType>Mixed</LocalDebuggerDebuggerType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerCommand>$(SolutionDir)TVPlay\bin\$(Configuration)\TVPlay.exe</LocalDebuggerCommand>
