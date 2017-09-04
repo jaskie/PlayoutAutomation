@@ -50,7 +50,7 @@ namespace TAS.Client.Config
                 if (_selectedDirectory != value)
                 {
                     _selectedDirectory = value;
-                    NotifyPropertyChanged(nameof(SelectedDirectory));
+                    NotifyPropertyChanged();
                 }
             }
         }

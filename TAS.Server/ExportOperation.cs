@@ -46,7 +46,7 @@ namespace TAS.Server
 
         public TimeSpan Duration { get; set; }
 
-        public decimal AudioVolume { get; set; }
+        public double AudioVolume { get; set; }
 
         public string DestMediaName { get; set; }
 

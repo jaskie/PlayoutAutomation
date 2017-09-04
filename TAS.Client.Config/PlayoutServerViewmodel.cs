@@ -76,14 +76,7 @@ namespace TAS.Client.Config
         public PlayoutServerChannelViewmodel SelectedPlayoutServerChannel
         {
             get { return _selectedPlayoutServerChannel; }
-            set
-            {
-                if (_selectedPlayoutServerChannel != value)
-                {
-                    _selectedPlayoutServerChannel = value;
-                    NotifyPropertyChanged(nameof(SelectedPlayoutServerChannel));
-                }
-            }
+            set { SetField(ref _selectedPlayoutServerChannel, value); }
         }
 
         public ObservableCollection<PlayoutServerChannelViewmodel> PlayoutServerChannels { get; }
@@ -95,11 +88,7 @@ namespace TAS.Client.Config
             get { return _selectedPlayoutRecorder; }
             set
             {
-                if (_selectedPlayoutRecorder != value)
-                {
-                    _selectedPlayoutRecorder = value;
-                    NotifyPropertyChanged(nameof(SelectedPlayoutRecorder));
-                }
+                SetField(ref _selectedPlayoutRecorder, value);
             }
         }
 

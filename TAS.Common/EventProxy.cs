@@ -8,7 +8,7 @@ namespace TAS.Common
 {
     public class EventProxy : IEventProperties
     {
-        public decimal? AudioVolume { get; set; }
+        public double? AudioVolume { get; set; }
         public TimeSpan Duration { get; set; }
         public string EventName { get; set; }
         public TEventType EventType { get; set; }

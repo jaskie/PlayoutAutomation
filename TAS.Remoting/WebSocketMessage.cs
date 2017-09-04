@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Text;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace TAS.Remoting
 {
@@ -57,11 +55,13 @@ namespace TAS.Remoting
             index += guidBuffer.Length;
             DtoGuid = new Guid(guidBuffer);
             int stringLength;
-            if (version[2] == 0x1) // debug packet version - DtoName
+            if (version[2] == 0x1) // DtoName only in debug packet version
             {
                 stringLength = BitConverter.ToInt32(rawData, index);
                 index += sizeof(int);
+#if DEBUG
                 DtoName = Encoding.ASCII.GetString(rawData, index, stringLength);
+#endif
                 index += stringLength;
             }
             stringLength = BitConverter.ToInt32(rawData, index);
@@ -106,17 +106,16 @@ namespace TAS.Remoting
 
                 stream.Write(DtoGuid.ToByteArray(), 0, 16);
 
-                if (Version[2] == 0x1) // debug packet version - DtoName
+#if DEBUG
+                if (string.IsNullOrEmpty(DtoName))
+                    stream.Write(BitConverter.GetBytes(0), 0, sizeof(int));
+                else
                 {
-                    if (string.IsNullOrEmpty(DtoName))
-                        stream.Write(BitConverter.GetBytes(0), 0, sizeof(int));
-                    else
-                    {
-                        byte[] dtoName = Encoding.ASCII.GetBytes(DtoName);
-                        stream.Write(BitConverter.GetBytes(dtoName.Length), 0, sizeof(int));
-                        stream.Write(dtoName, 0, dtoName.Length);
-                    }
+                    byte[] dtoName = Encoding.ASCII.GetBytes(DtoName);
+                    stream.Write(BitConverter.GetBytes(dtoName.Length), 0, sizeof(int));
+                    stream.Write(dtoName, 0, dtoName.Length);
                 }
+#endif
 
                 // MemberName
                 if (string.IsNullOrEmpty(MemberName))
@@ -162,7 +161,7 @@ namespace TAS.Remoting
 
     public class WebSocketMessageArrayValue : WebSocketMessageValue
     {
-        [JsonProperty(TypeNameHandling = TypeNameHandling.Arrays, ItemTypeNameHandling = TypeNameHandling.Objects)]
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Arrays, ItemTypeNameHandling = TypeNameHandling.Objects | TypeNameHandling.Arrays)]
         public object[] Value;
     }
 

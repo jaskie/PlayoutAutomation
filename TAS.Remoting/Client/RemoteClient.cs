@@ -38,7 +38,7 @@ namespace TAS.Remoting.Client
             _serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
             _referenceResolver = new ReferenceResolver();
             _serializer.ReferenceResolver = _referenceResolver;
-            _serializer.TypeNameHandling = TypeNameHandling.Auto;
+            _serializer.TypeNameHandling = TypeNameHandling.Objects | TypeNameHandling.Arrays;
 #if DEBUG
             _serializer.Formatting = Formatting.Indented;
 #endif

@@ -107,7 +107,7 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException();
         }
 
-        public void SetVolume(VideoLayer videolayer, decimal volume)
+        public void SetVolume(VideoLayer videolayer, double volume)
         {
             throw new NotImplementedException();
         }

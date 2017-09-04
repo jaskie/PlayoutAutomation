@@ -24,7 +24,7 @@ namespace TAS.Server
         private bool _isRunningConvertOperation;
         private bool _isRunningExportOperation;
         internal readonly TempDirectory TempDirectory;
-        internal decimal ReferenceLoudness;
+        internal double ReferenceLoudness;
 
         internal FileManager(TempDirectory tempDirectory)
         {
@@ -34,7 +34,23 @@ namespace TAS.Server
         public event EventHandler<FileOperationEventArgs> OperationAdded;
         public event EventHandler<FileOperationEventArgs> OperationCompleted;
 
-        public IIngestOperation CreateConvertOperation() { return new IngestOperation(this); }
+        public IIngestOperation CreateConvertOperation(IIngestMedia sourceMedia, IMediaDirectory destDirectory)
+        {
+            var sourceDirectory = sourceMedia.Directory as IIngestDirectory;
+            if (sourceDirectory == null)
+                return null;
+            return new IngestOperation(this)
+            {
+                Source = sourceMedia,
+                DestDirectory = destDirectory,
+                AudioVolume = sourceDirectory.AudioVolume,
+                SourceFieldOrderEnforceConversion = sourceDirectory.SourceFieldOrder,
+                AspectConversion = sourceDirectory.AspectConversion,
+                LoudnessCheck = sourceDirectory.MediaLoudnessCheckAfterIngest,
+                StartTC = sourceMedia.TcStart,
+                Duration = sourceMedia.Duration
+            };
+        }
         public ILoudnessOperation CreateLoudnessOperation()
         {
             return new LoudnessOperation(this);

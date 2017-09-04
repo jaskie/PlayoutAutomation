@@ -60,7 +60,7 @@ namespace TAS.Server
         private TimeSpan _timeCorrection;
         private bool _isWideScreen;
         private TEngineState _engineState;
-        private decimal _programAudioVolume = 1;
+        private double _programAudioVolume = 1;
         private bool _fieldOrderInverted;
 
         [JsonProperty(nameof(PreviewMedia), TypeNameHandling = TypeNameHandling.Objects, IsReference = true)]
@@ -68,7 +68,7 @@ namespace TAS.Server
         private long _previewDuration;
         private long _previewPosition;
         private long _previewSeek;
-        private decimal _previewAudioVolume;
+        private double _previewAudioVolume;
         private bool _previewLoaded;
         private bool _previewIsPlaying;
 
@@ -246,7 +246,7 @@ namespace TAS.Server
 
         [XmlIgnore]
         [JsonProperty]
-        public decimal ProgramAudioVolume
+        public double ProgramAudioVolume
         {
             get { return _programAudioVolume; }
             set
@@ -485,13 +485,13 @@ namespace TAS.Server
         }
 
         [XmlIgnore, JsonProperty]
-        public decimal PreviewAudioVolume
+        public double PreviewAudioVolume
         {
             get { return _previewAudioVolume; }
             set
             {
                 if (SetField(ref _previewAudioVolume, value))
-                    _playoutChannelPRV.SetVolume(VideoLayer.Preview, (decimal)Math.Pow(10, (double)value / 20), 0);
+                    _playoutChannelPRV.SetVolume(VideoLayer.Preview, (double)Math.Pow(10, (double)value / 20), 0);
             }
         }
         
@@ -587,7 +587,7 @@ namespace TAS.Server
                 ForcedNext = null;
                 _playoutChannelPRI?.Clear();
                 _playoutChannelSEC?.Clear();
-                ProgramAudioVolume = 1.0m;
+                ProgramAudioVolume = 1;
                 EngineState = TEngineState.Idle;
                 Playing = null;
             }
@@ -695,7 +695,7 @@ namespace TAS.Server
             TimeSpan transitionPauseTime = default(TimeSpan),
             TTransitionType transitionType = TTransitionType.Cut,
             TEasing transitionEasing = TEasing.Linear,
-            decimal? audioVolume = null,
+            double? audioVolume = null,
             ulong idProgramme = 0,
             string idAux = "",
             bool isEnabled = true,
@@ -749,7 +749,7 @@ namespace TAS.Server
             _playoutChannelSEC?.Execute(command);
         }
 
-        public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal previewAudioVolume)
+        public void PreviewLoad(IMedia media, long seek, long duration, long position, double previewAudioVolume)
         {
             MediaBase mediaToLoad = _findPreviewMedia(media as MediaBase);
             Debug.WriteLine(mediaToLoad, "Loading");
@@ -1027,7 +1027,7 @@ namespace TAS.Server
                 if (aEvent.Layer == VideoLayer.Program)
                 {
                     Playing = aEvent;
-                    ProgramAudioVolume = (decimal)Math.Pow(10, (double)aEvent.GetAudioVolume() / 20); ;
+                    ProgramAudioVolume = (double)Math.Pow(10, (double)aEvent.GetAudioVolume() / 20); ;
                     _setAspectRatio(aEvent);
                     var cgController = CGElementsController;
                     if (cgController?.IsConnected == true && cgController.IsCGEnabled)

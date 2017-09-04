@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Newtonsoft.Json;
 using TAS.Remoting.Client;
 using TAS.Common;
@@ -146,6 +147,11 @@ namespace TAS.Remoting.Model
         public override string ToString()
         {
             return DirectoryName;
+        }
+
+        public string GetUniqueFileName(string fileName)
+        {
+            return Query<string>(parameters: new object[] {fileName});
         }
 
         public abstract IMedia CreateMedia(IMediaProperties mediaProperties);

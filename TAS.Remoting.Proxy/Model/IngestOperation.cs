@@ -17,7 +17,7 @@ namespace TAS.Remoting.Model
         private TAudioChannelMappingConversion _audioChannelMappingConversion;
 
         [JsonProperty(nameof(IIngestOperation.AudioVolume))]
-        private decimal _audioVolume;
+        private double _audioVolume;
 
         [JsonProperty(nameof(IIngestOperation.SourceFieldOrderEnforceConversion))]
         private TFieldOrder _sourceFieldOrderEnforceConversion;
@@ -38,7 +38,7 @@ namespace TAS.Remoting.Model
 
         public TAspectConversion AspectConversion { get { return _aspectConversion; } set { Set(value); } }
         public TAudioChannelMappingConversion AudioChannelMappingConversion { get { return _audioChannelMappingConversion; } set { Set(value); } }
-        public decimal AudioVolume { get { return _audioVolume; } set { Set(value); } }
+        public double AudioVolume { get { return _audioVolume; } set { Set(value); } }
         public TFieldOrder SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { Set(value); } }
         public TimeSpan StartTC { get { return _startTc; } set { Set(value); } }
         public TimeSpan Duration { get { return _duration; } set { Set(value); } }

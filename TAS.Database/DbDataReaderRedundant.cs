@@ -207,6 +207,12 @@ namespace TAS.Database
             return _reader.GetDecimal(name);
         }
 
+
+        public double GetDouble(string name)
+        {
+            return _reader.GetDouble(name);
+        }
+
         #endregion // field falues
 
         public override string GetName(int ordinal)

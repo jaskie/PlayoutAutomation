@@ -68,7 +68,7 @@ namespace TAS.Client.ViewModels
         public TMediaCategory MediaCategory => Media.MediaType == TMediaType.Movie ? Media.MediaCategory : TMediaCategory.Uncategorized;
         public TMediaStatus MediaStatus => Media.MediaStatus;
         public TMediaEmphasis MediaEmphasis => (Media as IPersistentMedia)?.MediaEmphasis ?? TMediaEmphasis.None;
-        public int SegmentCount => _mediaSegments.Value.Count;
+        public int SegmentCount => _mediaSegments?.Value.Count ?? 0;
         public bool HasSegments => SegmentCount != 0;
         public bool IsTrimmed => TcPlay != TcStart || Duration != DurationPlay;
         public bool IsArchived => (Media as IServerMedia)?.IsArchived ?? false;
@@ -123,6 +123,8 @@ namespace TAS.Client.ViewModels
 
         private void _mediaSegments_SegmentRemoved(object sender, MediaSegmentEventArgs e)
         {
+            if (_mediaSegments == null)
+                return;
             Application.Current.Dispatcher.BeginInvoke((Action)(() =>
             {
                 var segment = _mediaSegments.Value.FirstOrDefault(ms => ms.MediaSegment == e.Segment);
@@ -136,6 +138,8 @@ namespace TAS.Client.ViewModels
 
         private void MediaSegments_SegmentAdded(object sender, MediaSegmentEventArgs e)
         {
+            if (_mediaSegments == null)
+                return;
             Application.Current.Dispatcher.BeginInvoke((Action)(() =>
             {
                 _mediaSegments.Value.Add(new MediaSegmentViewmodel(Media as IPersistentMedia, e.Segment));

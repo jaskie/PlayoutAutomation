@@ -38,7 +38,7 @@ namespace TAS.Client.ViewModels
         private TEasing _transitionEasing;
         private TimeSpan _transitionTime;
         private TimeSpan _transitionPauseTime;
-        private decimal? _audioVolume;
+        private double? _audioVolume;
         private DateTime _scheduledTime;
         private TimeSpan? _requestedStartTime;
         private TimeSpan _duration;
@@ -519,7 +519,7 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _transitionPauseTime, value); }
         }
 
-        public decimal? AudioVolume
+        public double? AudioVolume
         {
             get { return _audioVolume; }
             set
@@ -532,9 +532,9 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public decimal AudioVolumeLevel
+        public double AudioVolumeLevel
         {
-            get { return _audioVolume != null ? (decimal) _audioVolume : _media != null ? _media.AudioVolume : 0m; }
+            get { return _audioVolume != null ? (double) _audioVolume : _media != null ? _media.AudioVolume : 0; }
             set
             {
                 if (SetField(ref _audioVolume, value))
@@ -550,7 +550,7 @@ namespace TAS.Client.ViewModels
             get { return _audioVolume != null; }
             set
             {
-                if (SetField(ref _audioVolume, value ? (_media != null ? (decimal?) _media.AudioVolume : 0m) : null))
+                if (SetField(ref _audioVolume, value ? (_media != null ? (double?) _media.AudioVolume : 0) : null))
                 {
                     NotifyPropertyChanged(nameof(AudioVolume));
                     NotifyPropertyChanged(nameof(AudioVolumeLevel));

@@ -23,7 +23,7 @@ namespace TAS.Client.ViewModels
         public string MediaName => MediaExport.Media.MediaName;
         public TimeSpan StartTC { get { return MediaExport.StartTC; } set { SetField(ref MediaExport.StartTC, value); } }
         public TimeSpan Duration { get { return MediaExport.Duration; } set { SetField(ref MediaExport.Duration, value); } }
-        public decimal AudioVolume { get { return MediaExport.AudioVolume; } set { SetField(ref MediaExport.AudioVolume, value); } }
+        public double AudioVolume { get { return MediaExport.AudioVolume; } set { SetField(ref MediaExport.AudioVolume, value); } }
         public ObservableCollection<ExportMediaLogoViewmodel> Logos => _logos;
         public UICommand CommandAddLogo { get; }
         public MediaExportDescription MediaExport { get; }

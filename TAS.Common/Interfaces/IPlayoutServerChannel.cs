@@ -15,7 +15,7 @@ namespace TAS.Common.Interfaces
     public interface IPlayoutServerChannelProperties
     {
         string ChannelName { get; set; }
-        decimal MasterVolume { get; set; }
+        double MasterVolume { get; set; }
         string LiveDevice { get; set; }
         string PreviewUrl { get; set; }
     }

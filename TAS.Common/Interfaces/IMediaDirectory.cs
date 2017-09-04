@@ -6,16 +6,18 @@ namespace TAS.Common.Interfaces
 {
     public interface IMediaDirectory : IMediaDirectoryProperties, INotifyPropertyChanged, IDisposable
     {
-        bool FileExists(string filename, string subfolder = null);
-        bool DirectoryExists();
         bool IsInitialized { get; }
-        IEnumerable<IMedia> GetFiles();
-        void Refresh();
-        void SweepStaleMedia();
         long VolumeTotalSize { get; }
         long VolumeFreeSize { get; }
         char PathSeparator { get; }
+
+        bool DirectoryExists();
+        IEnumerable<IMedia> GetFiles();
+        void Refresh();
+        void SweepStaleMedia();
         IMedia CreateMedia(IMediaProperties mediaProperties);
+        bool FileExists(string filename, string subfolder = null);
+        string GetUniqueFileName(string fileName);
 
         event EventHandler<MediaEventArgs> MediaAdded;
         event EventHandler<MediaEventArgs> MediaRemoved;

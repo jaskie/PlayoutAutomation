@@ -54,6 +54,7 @@ namespace TAS.Server
         [JsonProperty]
         public IMediaDirectory DestDirectory { get; set; }
 
+        [JsonProperty]
         public IMedia Source { get { return SourceMedia; } set { SetField(ref SourceMedia, value as MediaBase); } }
 
         public IMedia Dest { get { return DestMedia; }  protected set { SetField(ref DestMedia, value as MediaBase); } }

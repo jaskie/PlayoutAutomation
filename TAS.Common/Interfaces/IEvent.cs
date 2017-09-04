@@ -45,7 +45,7 @@ namespace TAS.Common.Interfaces
 
     public interface IEventProperties : ICGElementsState
     {
-        decimal? AudioVolume { get; set; }
+        double? AudioVolume { get; set; }
         TimeSpan Duration { get; set; }
         bool IsEnabled { get; set; }
         string EventName { get; set; }

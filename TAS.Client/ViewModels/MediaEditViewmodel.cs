@@ -32,7 +32,7 @@ namespace TAS.Client.ViewModels
         private TVideoFormat _videoFormat;
         private bool _fieldOrderInverted;
         private TAudioChannelMapping _audioChannelMapping;
-        private decimal _audioVolume;
+        private double _audioVolume;
         private string _mediaName;
         private TMediaEmphasis _mediaEmphasis;
         private DateTime? _killDate;
@@ -211,7 +211,7 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _audioChannelMapping, value); }
         }
 
-        public decimal AudioVolume
+        public double AudioVolume
         {
             get { return _audioVolume; }
             set { SetField(ref _audioVolume, value); }

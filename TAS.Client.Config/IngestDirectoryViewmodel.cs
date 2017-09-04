@@ -17,7 +17,7 @@ namespace TAS.Client.Config
         private string _username;
         private string _password;
         private TAspectConversion _aspectConversion;
-        private decimal _audioVolume;
+        private double _audioVolume;
         private bool _deleteSource;
         private TIngestDirectoryKind _kind;
         private bool _isWAN;
@@ -37,8 +37,8 @@ namespace TAS.Client.Config
         private string[] _extensions;
         private TVideoCodec _videoCodec;
         private TAudioCodec _audioCodec;
-        private decimal _videoBitrateRatio;
-        private decimal _audioBitrateRatio;
+        private double _videoBitrateRatio;
+        private double _audioBitrateRatio;
         private TVideoFormat _exportVideoFormat;
         
         public IngestDirectoryViewmodel(IngestDirectory model, ObservableCollection<IngestDirectoryViewmodel> ownerCollection):base(model)
@@ -78,7 +78,7 @@ namespace TAS.Client.Config
 
         public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value); } }
 
-        public decimal AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value); } }
+        public double AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value); } }
 
         public bool DeleteSource { get { return _deleteSource; } set { SetField(ref _deleteSource, value); } }
 
@@ -152,9 +152,9 @@ namespace TAS.Client.Config
             }
         }
 
-        public decimal VideoBitrateRatio { get { return _videoBitrateRatio; } set { SetField(ref _videoBitrateRatio, value); }}
+        public double VideoBitrateRatio { get { return _videoBitrateRatio; } set { SetField(ref _videoBitrateRatio, value); }}
 
-        public decimal AudioBitrateRatio { get { return _audioBitrateRatio; } set { SetField(ref _audioBitrateRatio, value); } }
+        public double AudioBitrateRatio { get { return _audioBitrateRatio; } set { SetField(ref _audioBitrateRatio, value); } }
 
         public IEnumerable<IIngestDirectoryProperties> SubDirectories { get { return SubDirectoriesVM.Select(vm => vm.Model); } }
 

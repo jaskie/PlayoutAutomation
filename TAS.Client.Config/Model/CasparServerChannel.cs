@@ -7,11 +7,11 @@ namespace TAS.Client.Config.Model
     {
         public CasparServerChannel()
         {
-            MasterVolume = 1m;
+            MasterVolume = 1;
         }
         public int Id { get; set; }
         public string ChannelName { get; set; }
-        public decimal MasterVolume { get; set; } 
+        public double MasterVolume { get; set; } 
         public string LiveDevice { get; set; }
         public string PreviewUrl { get; set; }
 

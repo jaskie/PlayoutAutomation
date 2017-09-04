@@ -14,13 +14,13 @@ namespace TAS.Remoting.Model
         private TAudioChannelMapping _audioChannelMapping;
 
         [JsonProperty(nameof(IMedia.AudioLevelIntegrated))]
-        private decimal _audioLevelIntegrated;
+        private double _audioLevelIntegrated;
 
         [JsonProperty(nameof(IMedia.AudioLevelPeak))]
-        private decimal _audioLevelPeak;
+        private double _audioLevelPeak;
 
         [JsonProperty(nameof(IMedia.AudioVolume))]
-        private decimal _audioVolume;
+        private double _audioVolume;
 
         [JsonProperty(nameof(IMedia.Duration))]
         private TimeSpan _duration;
@@ -80,11 +80,11 @@ namespace TAS.Remoting.Model
 
         public TAudioChannelMapping AudioChannelMapping { get { return _audioChannelMapping; } set { Set(value); } }
 
-        public decimal AudioLevelIntegrated { get { return _audioLevelIntegrated; } set { Set(value); } }
+        public double AudioLevelIntegrated { get { return _audioLevelIntegrated; } set { Set(value); } }
 
-        public decimal AudioLevelPeak { get { return _audioLevelPeak; } set { Set(value); } }
+        public double AudioLevelPeak { get { return _audioLevelPeak; } set { Set(value); } }
 
-        public decimal AudioVolume { get { return _audioVolume; } set { Set(value); } }
+        public double AudioVolume { get { return _audioVolume; } set { Set(value); } }
 
         public virtual IMediaDirectory Directory => _directory;
 

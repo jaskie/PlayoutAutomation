@@ -24,19 +24,19 @@ namespace TAS.Server.Media
             set { }
         }
 
-        public override decimal AudioLevelIntegrated
+        public override double AudioLevelIntegrated
         {
             get { return OriginalMedia.AudioLevelIntegrated; }
             set {  }
         }
 
-        public override decimal AudioLevelPeak
+        public override double AudioLevelPeak
         {
             get { return OriginalMedia.AudioLevelPeak; }
             set { }
         }
 
-        public override decimal AudioVolume
+        public override double AudioVolume
         {
             get { return OriginalMedia.AudioVolume; }
             set { }

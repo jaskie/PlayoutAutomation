@@ -6,9 +6,9 @@ namespace TAS.Common
     public class MediaProxy : IMediaProperties
     {
         public TAudioChannelMapping AudioChannelMapping { get; set; }
-        public decimal AudioLevelIntegrated { get; set; }
-        public decimal AudioLevelPeak { get; set; }
-        public decimal AudioVolume { get; set; }
+        public double AudioLevelIntegrated { get; set; }
+        public double AudioLevelPeak { get; set; }
+        public double AudioVolume { get; set; }
         public TimeSpan Duration { get; set; }
         public TimeSpan DurationPlay { get; set; }
         public string FileName { get; set; }

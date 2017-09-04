@@ -62,7 +62,7 @@ namespace TAS.Remoting.Model
         private bool _isWideScreen;
 
         [JsonProperty(nameof(IEngine.PreviewAudioVolume))]
-        private decimal _previewAudioVolume;
+        private double _previewAudioVolume;
 
         [JsonProperty(nameof(IEngine.PreviewIsPlaying))]
         private bool _previewIsPlaying;
@@ -80,7 +80,7 @@ namespace TAS.Remoting.Model
         private long _previewSeek;
 
         [JsonProperty(nameof(IEngine.ProgramAudioVolume))]
-        private decimal _programAudioVolume;
+        private double _programAudioVolume;
 
         [JsonProperty(nameof(IEngine.Pst2Prv))]
         private bool _pst2Prv;
@@ -150,7 +150,7 @@ namespace TAS.Remoting.Model
 
         public IPlayoutServerChannel PlayoutChannelPRV => _playoutChannelPrv;
 
-        public decimal PreviewAudioVolume
+        public double PreviewAudioVolume
         {
             get { return _previewAudioVolume; }
             set { Set(value); }
@@ -166,7 +166,7 @@ namespace TAS.Remoting.Model
 
         public long PreviewSeek => _previewSeek;
 
-        public void PreviewLoad(IMedia media, long seek, long duration, long position, decimal audioLevel)
+        public void PreviewLoad(IMedia media, long seek, long duration, long position, double audioLevel)
         {
             Invoke(parameters: new object[] { media, seek, duration, position, audioLevel });
         }
@@ -179,7 +179,7 @@ namespace TAS.Remoting.Model
 
         #endregion IPreview
 
-        public decimal ProgramAudioVolume { get { return _programAudioVolume; } set { Set(value); } }
+        public double ProgramAudioVolume { get { return _programAudioVolume; } set { Set(value); } }
 
         public bool Pst2Prv { get { return _pst2Prv; } set { Set(value); } }
 
@@ -221,7 +221,7 @@ namespace TAS.Remoting.Model
                     TimeSpan transitionPauseTime = default(TimeSpan),
                     TTransitionType transitionType = TTransitionType.Cut,
                     TEasing transitionEasing = TEasing.Linear,
-                    decimal? audioVolume = null,
+                    double? audioVolume = null,
                     ulong idProgramme = 0,
                     string idAux = "",
                     bool isEnabled = true,

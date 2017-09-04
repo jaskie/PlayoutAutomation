@@ -27,9 +27,9 @@ namespace TAS.Server.Media
         private TVideoFormat _videoFormat;
         private bool _fieldOrderInverted;
         private TAudioChannelMapping _audioChannelMapping;
-        private decimal _audioVolume;
-        private decimal _audioLevelIntegrated;
-        private decimal _audioLevelPeak;
+        private double _audioVolume;
+        private double _audioLevelIntegrated;
+        private double _audioLevelPeak;
         private TMediaCategory _mediaCategory;
         private byte _parental;
         private Guid _mediaGuid;
@@ -190,21 +190,21 @@ namespace TAS.Server.Media
         }
 
         [JsonProperty]
-        public virtual decimal AudioVolume // correction amount on play
+        public virtual double AudioVolume // correction amount on play
         {
             get { return _audioVolume; }
             set { SetField(ref _audioVolume, value); }
         }
 
         [JsonProperty]
-        public virtual decimal AudioLevelIntegrated //measured
+        public virtual double AudioLevelIntegrated //measured
         {
             get { return _audioLevelIntegrated; }
             set { SetField(ref _audioLevelIntegrated, value); }
         }
 
         [JsonProperty]
-        public virtual decimal AudioLevelPeak //measured
+        public virtual double AudioLevelPeak //measured
         {
             get { return _audioLevelPeak; }
             set { SetField(ref _audioLevelPeak, value); }
@@ -257,6 +257,7 @@ namespace TAS.Server.Media
             set { SetField(ref _verified, value); }
         }
 
+        [JsonProperty]
         public IMediaDirectory Directory => _directory;
 
         #endregion //IMediaProperties

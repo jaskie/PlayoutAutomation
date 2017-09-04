@@ -4,12 +4,12 @@ namespace TAS.Common
 {
     public class AudioVolumeEventArgs : EventArgs
     {
-        public AudioVolumeEventArgs(decimal audioVolume)
+        public AudioVolumeEventArgs(double audioVolume)
         {
             AudioVolume = audioVolume;
         }
 
         [Newtonsoft.Json.JsonProperty]
-        public decimal AudioVolume { get; private set; }
+        public double AudioVolume { get; private set; }
     }
 }

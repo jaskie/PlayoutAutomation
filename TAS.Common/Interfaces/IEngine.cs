@@ -12,7 +12,7 @@ namespace TAS.Common.Interfaces
         IMediaManager MediaManager { get; }
         ConnectionStateRedundant DatabaseConnectionState { get; }
         bool Pst2Prv { get; set; }
-        decimal ProgramAudioVolume { get; set; }
+        double ProgramAudioVolume { get; set; }
         bool FieldOrderInverted { get; set; }
         TEngineState EngineState { get; }
         RationalNumber FrameRate { get; }
@@ -40,7 +40,7 @@ namespace TAS.Common.Interfaces
             TimeSpan transitionPauseTime = default(TimeSpan),
             TTransitionType transitionType = TTransitionType.Cut,
             TEasing transitionEasing = TEasing.Linear,
-            decimal? audioVolume = null,
+            double? audioVolume = null,
             ulong idProgramme = 0,
             string idAux = "",
             bool isEnabled = true,

@@ -9,7 +9,7 @@ namespace TAS.Common
     [DataContract]
     public class MediaExportDescription
     {
-        public MediaExportDescription(IMedia media, List<IMedia> logos, TimeSpan startTC, TimeSpan duration, decimal audioVolume)
+        public MediaExportDescription(IMedia media, List<IMedia> logos, TimeSpan startTC, TimeSpan duration, double audioVolume)
         {
             Media = media;
             Logos = logos.ToArray();
@@ -26,7 +26,7 @@ namespace TAS.Common
         [DataMember]
         public TimeSpan StartTC;
         [DataMember]
-        public decimal AudioVolume;
+        public double AudioVolume;
 
         public void AddLogo(IMedia logo)
         {

@@ -7,7 +7,7 @@ namespace TAS.Client.Config
     {
         private string _channelName;
         private int _id;
-        private decimal _masterVolume;
+        private double _masterVolume;
         private string _liveDevice;
         private string _previewUrl;
 
@@ -19,7 +19,7 @@ namespace TAS.Client.Config
 
         public int Id { get { return _id; } set { SetField(ref _id, value); } }
 
-        public decimal MasterVolume { get { return _masterVolume; } set { SetField(ref _masterVolume, value); } }
+        public double MasterVolume { get { return _masterVolume; } set { SetField(ref _masterVolume, value); } }
 
         public string LiveDevice { get { return _liveDevice; } set { SetField(ref _liveDevice, value); } }
 

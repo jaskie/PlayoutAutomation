@@ -94,7 +94,7 @@ namespace TAS.Common
             }
         }
 
-        public MediaConversion (decimal volume)
+        public MediaConversion (double volume)
         {
             FFMpegFilter = string.Format(System.Globalization.CultureInfo.InvariantCulture, "volume={0:F3}dB", volume);
         }

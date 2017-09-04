@@ -32,8 +32,8 @@ namespace TAS.Server.Media
         internal IngestDirectory() : base(null)
         {
             IsImport = true;
-            AudioBitrateRatio = 1.0M;
-            VideoBitrateRatio = 1.0M;
+            AudioBitrateRatio = 1;
+            VideoBitrateRatio = 1;
         }
 
         public bool DeleteSource { get; set; }
@@ -86,8 +86,8 @@ namespace TAS.Server.Media
         [JsonProperty]
         public TAudioCodec AudioCodec { get; set; }
 
-        public decimal VideoBitrateRatio { get; set; }
-        public decimal AudioBitrateRatio { get; set; }
+        public double VideoBitrateRatio { get; set; }
+        public double AudioBitrateRatio { get; set; }
         
         [DefaultValue(true)]
         [JsonProperty]
@@ -112,7 +112,7 @@ namespace TAS.Server.Media
         public TMediaCategory MediaCategory { get; set; }
 
         [JsonProperty]
-        public decimal AudioVolume { get; set; }
+        public double AudioVolume { get; set; }
 
         [JsonProperty]
         public TFieldOrder SourceFieldOrder { get; set; }

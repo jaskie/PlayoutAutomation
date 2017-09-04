@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using TAS.Client.Common;
 using resources = TAS.Client.Common.Properties.Resources;
 using System.Windows.Input;
+using TAS.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
@@ -16,7 +18,26 @@ namespace TAS.Client.ViewModels
 
         public IngestEditViewmodel(IList<IIngestOperation> convertionList, IPreview preview, IMediaManager mediaManager): base(convertionList, typeof(Views.IngestEditorView), resources._window_IngestAs)
         {
-            OperationList = new ObservableCollection<ConvertOperationViewModel>(from op in convertionList select new ConvertOperationViewModel(op, preview, mediaManager));
+
+           
+            //}
+
+
+        OperationList = new ObservableCollection<ConvertOperationViewModel>(convertionList.Select(op =>
+            {
+                string destFileName = $"{Path.GetFileNameWithoutExtension(op.Source.FileName)}{FileUtils.DefaultFileExtension(op.Source.MediaType)}";
+                IPersistentMediaProperties destMediaProperties = new PersistentMediaProxy
+                {
+                    FileName = op.DestDirectory.GetUniqueFileName(destFileName),
+                    MediaName = FileUtils.GetFileNameWithoutExtension(destFileName, op.Source.MediaType),
+                    MediaType = op.Source.MediaType == TMediaType.Unknown ? TMediaType.Movie : op.Source.MediaType,
+                    Duration = op.Source.Duration,
+                    TcStart =  op.StartTC,
+                    MediaGuid = op.Source.MediaGuid,
+                    MediaCategory = op.Source.MediaCategory
+                };
+                return new ConvertOperationViewModel(op, destMediaProperties, preview, mediaManager);
+            }));
             SelectedOperation = OperationList.FirstOrDefault();
             foreach (var c in OperationList)
                 c.PropertyChanged += _convertOperationPropertyChanged;

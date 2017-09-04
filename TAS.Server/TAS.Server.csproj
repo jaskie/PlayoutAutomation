@@ -57,10 +57,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TAS.FFMpegUtils, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\TAS.FFMpegUtils\x64\Release\TAS.FFMpegUtils.dll</HintPath>
-    </Reference>
     <Reference Include="websocket-sharp, Version=1.0.2.59611, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
       <HintPath>..\packages\WebSocketSharp.1.0.3-rc11\lib\websocket-sharp.dll</HintPath>
       <Private>True</Private>
@@ -137,6 +133,10 @@
     <ProjectReference Include="..\TAS.Database\TAS.Database.csproj">
       <Project>{4703cd4f-fa9b-4e2d-91a1-19bc1a73230d}</Project>
       <Name>TAS.Database</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TAS.FFMpegUtils\FFMpegUtils.vcxproj">
+      <Project>{aaa90fdf-4e13-490e-a4a4-9b83f522f6c4}</Project>
+      <Name>TAS.FFMpegUtils</Name>
     </ProjectReference>
     <ProjectReference Include="..\TAS.Remoting\TAS.Remoting.csproj">
       <Project>{15324b69-7d18-49f3-9141-b024079356e8}</Project>

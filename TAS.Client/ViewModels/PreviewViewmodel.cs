@@ -449,7 +449,7 @@ namespace TAS.Client.ViewModels
             _startTc = GetStartTc();
             TimeSpan duration = _duration;
             TimeSpan tcIn = _startTc;
-            decimal audioVolume = _event != null && _event.AudioVolume != null ? (decimal)_event.AudioVolume : media != null ? media.AudioVolume : 0M;
+            double audioVolume = _event != null && _event.AudioVolume != null ? (double)_event.AudioVolume : media != null ? media.AudioVolume : 0;
             if (media != null
                 && duration.Ticks >= _formatDescription.FrameTicks)
             {
@@ -574,7 +574,7 @@ namespace TAS.Client.ViewModels
             IEvent ev = _event;
             IMedia media = ev == null ? null : ev.Media;
             if (e.PropertyName == nameof(IEvent.AudioVolume) && _preview.PreviewLoaded && ev != null && media != null)
-                _preview.PreviewAudioVolume = ev.AudioVolume == null ? media.AudioVolume : (decimal)ev.AudioVolume;
+                _preview.PreviewAudioVolume = ev.AudioVolume ?? media.AudioVolume;
         }
 
     }

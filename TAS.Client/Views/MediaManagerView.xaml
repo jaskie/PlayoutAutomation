@@ -393,7 +393,7 @@
                 </DockPanel>
             </TabItem>
             <TabItem Header="{Resx _recorders}">
-                <views:RecordersView DataContext="{Binding Recorders}"/>
+                <views:RecordersView DataContext="{Binding RecordersViewmodel}"/>
             </TabItem>
         </TabControl>
         <GridSplitter Grid.Column="1" ResizeDirection="Columns" Grid.RowSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Left"  Background="DarkGray" Width="3" Cursor="SizeWE" />
@@ -415,7 +415,7 @@
                     <RowDefinition MinHeight="55"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <ContentControl Visibility="{Binding IsPreviewDisplay, Converter={StaticResource BoolToVis}}" Margin="3, 3, 0, 0" Content="{Binding Preview}" >
+                <ContentControl Visibility="{Binding IsPreviewDisplay, Converter={StaticResource BoolToVis}}" Margin="3, 3, 0, 0" Content="{Binding PreviewViewmodel}" >
                     <ContentControl.ContentTemplate>
                         <DataTemplate DataType="{x:Type vm:PreviewViewmodel}">
                             <views:PreviewView/>
@@ -428,7 +428,7 @@
             </Grid>
         </Grid>
         <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" ResizeBehavior="BasedOnAlignment" ResizeDirection="Rows" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-        <views:FileManagerView Grid.Row="2" DataContext="{Binding FileManager}" />
+        <views:FileManagerView Grid.Row="2" DataContext="{Binding FileManagerViewmodel}" />
         <StatusBar Grid.Row="3" Grid.ColumnSpan="2">
             <StackPanel Orientation="Horizontal" Visibility="{Binding DisplayDirectoryInfo, Converter={StaticResource BoolToVis}}" >
                 <controls:StatusIndicator IsGreen="{Binding IsMediaDirectoryOk}" Margin="10,0,0,0"/>

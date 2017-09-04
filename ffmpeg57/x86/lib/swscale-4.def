@@ -4,7 +4,6 @@ EXPORTS
     sws_alloc_context
     sws_alloc_set_opts
     sws_cloneVec
-    sws_context_class DATA
     sws_convVec
     sws_convertPalette8ToPacked24
     sws_convertPalette8ToPacked32
@@ -26,7 +25,6 @@ EXPORTS
     sws_isSupportedOutput
     sws_normalizeVec
     sws_printVec2
-    sws_rgb2rgb_init
     sws_scale
     sws_scaleVec
     sws_setColorspaceDetails

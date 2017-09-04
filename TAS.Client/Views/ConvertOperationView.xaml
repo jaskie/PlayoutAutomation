@@ -6,7 +6,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              xmlns:views="clr-namespace:TAS.Client.Views"
-             xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              d:DataContext="{x:Type vm:ConvertOperationViewModel}"
              mc:Ignorable="d" 
@@ -127,7 +126,7 @@
                 </StackPanel>
                 <ContentControl Content="{Binding PreviewViewmodel}">
                     <ContentControl.Resources>
-                        <DataTemplate DataType="vm:PreviewViewModel">
+                        <DataTemplate DataType="{x:Type vm:PreviewViewmodel}">
                             <views:PreviewView />
                         </DataTemplate>
                     </ContentControl.Resources>

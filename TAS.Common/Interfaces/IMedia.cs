@@ -17,9 +17,9 @@ namespace TAS.Common.Interfaces
     public interface IMediaProperties
     {
         TAudioChannelMapping AudioChannelMapping { get; set; }
-        decimal AudioLevelIntegrated { get; set; }
-        decimal AudioLevelPeak { get; set; }
-        decimal AudioVolume { get; set; }
+        double AudioLevelIntegrated { get; set; }
+        double AudioLevelPeak { get; set; }
+        double AudioVolume { get; set; }
         TimeSpan Duration { get; set; }
         TimeSpan DurationPlay { get; set; }
         string FileName { get; set; }

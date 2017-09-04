@@ -229,7 +229,7 @@ namespace TAS.Client.ViewModels
 
         public string Layer => Event.Layer.ToString();
 
-        public decimal AudioVolume => Event == null || Event.AudioVolume == null ? 0m : (decimal)Event.AudioVolume;
+        public double AudioVolume => Event == null ? 0 : Event.AudioVolume.GetValueOrDefault();
 
         public TMediaCategory MediaCategory => _media?.MediaCategory ?? TMediaCategory.Uncategorized;
 

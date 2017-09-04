@@ -158,18 +158,18 @@ namespace TAS.Common
             }
         }
 
-        public static decimal GetAudioVolume(this IEvent aEvent)
+        public static double GetAudioVolume(this IEvent aEvent)
         {
             var volume = aEvent.AudioVolume;
             if (volume != null)
-                return (decimal)volume;
+                return volume.Value;
             if (aEvent.EventType == TEventType.Movie)
             {
                 var m = aEvent.Media;
                 if (m != null)
                     return m.AudioVolume;
             }
-            return 0m;
+            return 0;
         }
 
         public static IEnumerable<IEvent> AllSubEvents(this IEvent e)

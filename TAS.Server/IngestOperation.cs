@@ -22,7 +22,7 @@ namespace TAS.Server
 
         private TAspectConversion _aspectConversion;
         private TAudioChannelMappingConversion _audioChannelMappingConversion;
-        private decimal _audioVolume;
+        private double _audioVolume;
         private TFieldOrder _sourceFieldOrderEnforceConversion;
 
         internal IngestOperation(FileManager ownerFileManager) : base(ownerFileManager)
@@ -40,7 +40,7 @@ namespace TAS.Server
         public TAudioChannelMappingConversion AudioChannelMappingConversion { get { return _audioChannelMappingConversion; } set { SetField(ref _audioChannelMappingConversion, value); } }
 
         [JsonProperty]
-        public decimal AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value); } }
+        public double AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value); } }
 
         [JsonProperty]
         public TFieldOrder SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { SetField(ref _sourceFieldOrderEnforceConversion, value); } }

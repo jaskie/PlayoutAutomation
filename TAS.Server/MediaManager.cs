@@ -86,7 +86,7 @@ namespace TAS.Server
         {
             Debug.WriteLine(this, "Begin initializing");
             Logger.Debug("Begin initializing");
-            _fileManager.ReferenceLoudness = Convert.ToDecimal(_engine.VolumeReferenceLoudness);
+            _fileManager.ReferenceLoudness = _engine.VolumeReferenceLoudness;
             ArchiveDirectory = this.LoadArchiveDirectory<ArchiveDirectory>(_engine.IdArchive);
             MediaDirectoryPRI = ((CasparServerChannel)_engine.PlayoutChannelPRI)?.Owner.MediaDirectory;
             MediaDirectorySEC = ((CasparServerChannel)_engine.PlayoutChannelSEC)?.Owner.MediaDirectory;

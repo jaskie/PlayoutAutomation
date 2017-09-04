@@ -19,7 +19,7 @@ namespace TAS.Remoting.Model
         private ulong _id;
 
         [JsonProperty(nameof(IEvent.AudioVolume))]
-        private decimal? _audioVolume;
+        private double? _audioVolume;
 
         [JsonProperty(nameof(IEvent.AutoStartFlags))]
         private AutoStartFlags _autoStartFlags;
@@ -142,9 +142,7 @@ namespace TAS.Remoting.Model
         public Event()
         {
             _subEvents = new Lazy<IEnumerable<IEvent>>(() => Get<ReadOnlyCollection<IEvent>>(nameof(IEvent.SubEvents)));
-            _parent = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Parent)));
-            _next = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Next)));
-            _prior = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Prior)));
+            ResetSlibbings();
         }
 
         public ulong Id
@@ -153,7 +151,7 @@ namespace TAS.Remoting.Model
             set { _id = value; }
         }
 
-        public decimal? AudioVolume { get { return _audioVolume; }  set { Set(value); } }
+        public double? AudioVolume { get { return _audioVolume; }  set { Set(value); } }
 
         public AutoStartFlags AutoStartFlags { get { return _autoStartFlags; } set { Set(value); } }
 
@@ -334,6 +332,7 @@ namespace TAS.Remoting.Model
                     _positionChanged?.Invoke(this, Deserialize<EventPositionEventArgs>(message));
                     break;
                 case nameof(IEvent.Relocated):
+                    ResetSlibbings();
                     _relocated?.Invoke(this, Deserialize<EventArgs>(message));
                     return;
                 case nameof(IEvent.Saved):
@@ -374,6 +373,13 @@ namespace TAS.Remoting.Model
         public IAclRight AddRightFor(ISecurityObject securityObject) { return Query<IAclRight>(parameters: new object[] { securityObject }); }
 
         public bool DeleteRight(IAclRight item) { return Query<bool>(parameters: new object[] { item }); }
+
+        private void ResetSlibbings()
+        {
+            _parent = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Parent)));
+            _next = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Next)));
+            _prior = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Prior)));
+        }
 
     }
 }

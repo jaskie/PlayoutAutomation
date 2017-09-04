@@ -41,6 +41,8 @@ namespace TAS.Remoting
                     return typeof(Model.LoudnessOperation);
                 case "TAS.Server.ExportOperation":
                     return typeof(Model.FileOperation);
+                case "TAS.Server.IngestOperation":
+                    return typeof(Model.IngestOperation);
                 case "TAS.Server.Engine":
                     return typeof(Model.Engine);
                 case "TAS.Server.Event":

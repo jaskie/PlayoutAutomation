@@ -54,7 +54,11 @@ namespace TAS.Remoting.Client
                 else
                     return (T) result;
             if (_client != null)
-                _client.Get<T>(this, propertyName);
+            {
+                result = _client.Get<T>(this, propertyName);
+                _properties[propertyName] = result;
+                return (T)result;
+            }
             return default(T);
         }
 

@@ -31,7 +31,7 @@ namespace TAS.Server
         [JsonProperty]
         public string ChannelName { get; set; }
 
-        public decimal MasterVolume { get; set; } = 1;
+        public double MasterVolume { get; set; } = 1;
 
         [JsonProperty]
         public string PreviewUrl { get; set; }
@@ -343,7 +343,7 @@ namespace TAS.Server
                 _outputAspectNarrow[VideoLayer.Program] = false;
                 _visible.Clear();
                 _loadedNext.Clear();
-                VolumeChanged?.Invoke(this, new VolumeChangedEventArgs(VideoLayer.Program, 1.0m));
+                VolumeChanged?.Invoke(this, new VolumeChangedEventArgs(VideoLayer.Program, 1));
                 Debug.WriteLine(this, "CasparClear");
             }
         }
@@ -358,7 +358,7 @@ namespace TAS.Server
             }
         }
 
-        public void SetVolume(VideoLayer videolayer, decimal volume, int transitionDuration)
+        public void SetVolume(VideoLayer videolayer, double volume, int transitionDuration)
         {
             var channel = _casparChannel;
             if (CheckConnected(channel))
@@ -613,13 +613,13 @@ namespace TAS.Server
 
     public class VolumeChangedEventArgs : EventArgs
     {
-        public VolumeChangedEventArgs(VideoLayer layer, decimal volume)
+        public VolumeChangedEventArgs(VideoLayer layer, double volume)
         {
             Layer = layer;
             Volume = volume;
         }
         [JsonProperty]
-        public decimal Volume { get; private set; }
+        public double Volume { get; private set; }
         [JsonProperty]
         public VideoLayer Layer { get; private set; }
     }

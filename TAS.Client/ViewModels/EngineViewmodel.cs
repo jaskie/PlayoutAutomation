@@ -882,12 +882,12 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public decimal ProgramAudioVolume //decibels
+        public double ProgramAudioVolume //decibels
         {
-            get { return (decimal)(20 * Math.Log10((double)Engine.ProgramAudioVolume)); }
+            get { return (double)(20 * Math.Log10((double)Engine.ProgramAudioVolume)); }
             set
             {
-                decimal volume = (decimal)Math.Pow(10, (double)value / 20);
+                double volume = (double)Math.Pow(10, (double)value / 20);
                 if (value != volume)
                     Engine.ProgramAudioVolume = volume;
             }

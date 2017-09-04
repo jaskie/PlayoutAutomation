@@ -19,7 +19,7 @@ namespace TAS.Remoting.Model
         private TAspectConversion _aspectConversion;
 
         [JsonProperty(nameof(IIngestDirectory.AudioVolume))]
-        private decimal _audioVolume;
+        private double _audioVolume;
 
         [JsonProperty(nameof(IIngestDirectory.DeleteSource))]
         private bool _deleteSource;
@@ -82,10 +82,10 @@ namespace TAS.Remoting.Model
         private TAudioCodec _audioCodec;
 
         [JsonProperty(nameof(IIngestDirectory.VideoBitrateRatio))]
-        private decimal _videoBitrateRatio;
+        private double _videoBitrateRatio;
 
         [JsonProperty(nameof(IIngestDirectory.AudioBitrateRatio))]
-        private decimal _audioBitrateRatio;
+        private double _audioBitrateRatio;
 
         [JsonProperty(nameof(IIngestDirectory.Extensions))]
         private string[] _extensions;
@@ -108,7 +108,7 @@ namespace TAS.Remoting.Model
 
         public TAspectConversion AspectConversion => _aspectConversion;
 
-        public decimal AudioVolume => _audioVolume;
+        public double AudioVolume => _audioVolume;
 
         public bool DeleteSource => _deleteSource;
 
@@ -150,9 +150,9 @@ namespace TAS.Remoting.Model
 
         public TAudioCodec AudioCodec => _audioCodec;
 
-        public decimal VideoBitrateRatio => _videoBitrateRatio;
+        public double VideoBitrateRatio => _videoBitrateRatio;
 
-        public decimal AudioBitrateRatio => _audioBitrateRatio;
+        public double AudioBitrateRatio => _audioBitrateRatio;
 
         public string[] Extensions => _extensions;
 

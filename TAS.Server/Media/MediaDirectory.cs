@@ -461,6 +461,11 @@ namespace TAS.Server.Media
             ((MediaBase)media).Dispose();
         }
 
+        public string GetUniqueFileName(string fileName)
+        {
+            return FileUtils.GetUniqueFileName(_folder, fileName);
+        }
+
         protected virtual void OnMediaRenamed(MediaBase media, string newFullPath)
         {
             Logger.Trace("Media {0} renamed: {1}", media, newFullPath);

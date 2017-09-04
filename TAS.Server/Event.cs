@@ -62,7 +62,7 @@ namespace TAS.Server
 
         private ulong _idEventBinding;
 
-        private decimal? _audioVolume;
+        private double? _audioVolume;
 
         private TimeSpan _duration;
 
@@ -130,7 +130,7 @@ namespace TAS.Server
                     TimeSpan transitionPauseTime, 
                     TTransitionType transitionType,
                     TEasing transitionEasing,
-                    decimal? audioVolume,
+                    double? audioVolume,
                     UInt64 idProgramme,
                     string idAux,
                     bool isEnabled,
@@ -241,7 +241,7 @@ namespace TAS.Server
         #region IEventProperties
 
         [JsonProperty]
-        public decimal? AudioVolume
+        public double? AudioVolume
         {
             get { return _audioVolume; }
             set { SetField(ref _audioVolume, value); }

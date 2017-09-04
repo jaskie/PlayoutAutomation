@@ -22,8 +22,8 @@ namespace TAS.Server
         private static readonly Regex RegexLoudnesslProgress = new Regex(lProgressPattern, RegexOptions.None);
         private static readonly Regex RegexLoudnessProgress = new Regex(ProgressPattern, RegexOptions.None);
 
-        private decimal _loudness;
-        private decimal _samplePeak = decimal.MinValue;
+        private double _loudness;
+        private double _samplePeak = double.MinValue;
         private bool _loudnessMeasured;
         private bool _samplePeakMeasured;
 
@@ -120,7 +120,7 @@ namespace TAS.Server
                         Regex regexLufs = new Regex(LufsPattern, RegexOptions.None);
                         Match valueMatch = regexLufs.Match(luFsLineMatch.Value);
                         if (valueMatch.Success)
-                            _loudnessMeasured = (decimal.TryParse(valueMatch.Value.Trim(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out _loudness));
+                            _loudnessMeasured = (double.TryParse(valueMatch.Value.Trim(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out _loudness));
                     }
                     if (!_samplePeakMeasured)
                     {
@@ -130,14 +130,14 @@ namespace TAS.Server
                             Regex regexLufs = new Regex(LufsPattern, RegexOptions.None);
                             Match valueMatch = regexLufs.Match(truePeakLineMatch.Value);
                             if (valueMatch.Success)
-                                _samplePeakMeasured = (decimal.TryParse(valueMatch.Value.Trim(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out _samplePeak));
+                                _samplePeakMeasured = (double.TryParse(valueMatch.Value.Trim(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out _samplePeak));
                             else
                                 _loudnessMeasured = false;
                         }
                     }
                     if (_samplePeakMeasured && _loudnessMeasured)
                     {
-                        decimal volume = -Math.Max(_loudness - OwnerFileManager.ReferenceLoudness, _samplePeak); // prevents automatic amplification over 0dBFS
+                        double volume = -Math.Max(_loudness - OwnerFileManager.ReferenceLoudness, _samplePeak); // prevents automatic amplification over 0dBFS
                         var h = AudioVolumeMeasured;
                         if (h == null)
                         {
