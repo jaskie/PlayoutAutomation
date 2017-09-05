@@ -83,7 +83,8 @@
     <Compile Include="Model\PlayoutServerChannel.cs" />
     <Compile Include="Model\Recorder.cs" />
     <Compile Include="Model\Security\AuthenticationService.cs" />
-    <Compile Include="Model\Security\EventAclItem.cs" />
+    <Compile Include="Model\Security\EngineAclRight.cs" />
+    <Compile Include="Model\Security\EventAclRight.cs" />
     <Compile Include="Model\Security\Group.cs" />
     <Compile Include="Model\Security\SecurityObjectBase.cs" />
     <Compile Include="Model\Security\User.cs" />

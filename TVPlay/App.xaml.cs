@@ -1,11 +1,8 @@
-﻿using System;
-using System.Configuration;
-using System.Security.Principal;
+﻿using System.Configuration;
 using System.Threading;
 using System.Windows;
 using TAS.Server;
 using Infralution.Localization.Wpf;
-using TAS.Common;
 using TAS.Server.Security;
 
 namespace TAS.Client
@@ -25,7 +22,7 @@ namespace TAS.Client
                 CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
             else
                 CultureManager.UICulture = new System.Globalization.CultureInfo(uiCulture);
-            Thread.CurrentPrincipal = new Principal(new LocalUser(), Roles.All);
+            Thread.CurrentPrincipal = new Principal(new LocalUser());
         }
         protected override void OnExit(ExitEventArgs e)
         {

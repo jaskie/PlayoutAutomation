@@ -67,8 +67,10 @@ namespace TAS.Remoting
                     return typeof(Model.Security.User);
                 case "TAS.Server.Security.Group":
                     return typeof(Model.Security.Group);
-                case "TAS.Server.Security.EventAclItem":
-                    return typeof(Model.Security.EventAclItem);
+                case "TAS.Server.Security.EventAclRight":
+                    return typeof(Model.Security.EventAclRight);
+                case "TAS.Server.Security.EngineAclRight":
+                    return typeof(Model.Security.EngineAclRight);
                 default:
                         return Type.GetType($"{typeName}, {assemblyName}", true);
             }

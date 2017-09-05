@@ -32,7 +32,7 @@ namespace TAS.Server
         [JsonProperty(nameof(IEventPesistent.Engine))]
         private readonly Engine _engine;
 
-        private Lazy<SynchronizedCollection<Event>> _subEvents;
+        private readonly Lazy<SynchronizedCollection<Event>> _subEvents;
 
         private Lazy<PersistentMedia> _serverMediaPRI;
 
@@ -210,7 +210,7 @@ namespace TAS.Server
                 return null;
             });
 
-            _rights = new Lazy<List<IAclRight>>(() => Db.DbReadEventAclList<EventAclItem>(this, _engine.AuthenticationService as IAuthenticationServicePersitency));
+            _rights = new Lazy<List<IAclRight>>(() => Db.DbReadEventAclList<EventAclRight>(this, _engine.AuthenticationService as IAuthenticationServicePersitency));
         }
         #endregion //Constructor
 
@@ -518,7 +518,7 @@ namespace TAS.Server
 
         public IAclRight AddRightFor(ISecurityObject securityObject)
         {
-            var right = new EventAclItem { Owner = this, SecurityObject = securityObject };
+            var right = new EventAclRight { Owner = this, SecurityObject = securityObject };
             lock (_rights)
             {
                 _rights.Value.Add(right);
@@ -528,12 +528,12 @@ namespace TAS.Server
 
         public bool DeleteRight(IAclRight item)
         {
-            var right = (EventAclItem)item;
+            var right = (AclRightBase)item;
             lock (_rights)
             {
                 var success = _rights.Value.Remove(right);
                 if (success)
-                    right.DbDeleteEventAcl();
+                    right.Delete();
                 return success;
             }
         }
@@ -1107,7 +1107,15 @@ namespace TAS.Server
             }
             return true;
         }
-        
+
+        public bool HaveRight(EventRight right)
+        {
+            if (_engine.HaveRight(EngineRight.Rundown))
+                return true;
+            return (EffectiveRights() & (ulong)right) > 0;
+        }
+
+
         internal PersistentMedia ServerMediaPRI => _serverMediaPRI?.Value;
 
         internal PersistentMedia ServerMediaSEC => _serverMediaSEC?.Value;
@@ -1476,11 +1484,6 @@ namespace TAS.Server
                     acl |= right.Acl;
             }
             return acl;
-        }
-
-        private bool HaveRight(EventRight right)
-        {
-            return (EffectiveRights() & (ulong)right) > 0;
         }
 
         private void NotifySaved()

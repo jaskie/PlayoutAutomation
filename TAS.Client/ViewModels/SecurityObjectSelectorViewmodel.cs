@@ -3,20 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
-using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class SecurityObjectSelectorViewmodel: OkCancelViewmodelBase
+    public class SecurityObjectSelectorViewmodel: ViewmodelBase, ICloseable
     {
         private ISecurityObject _selectedSecurityObject;
         
-        public SecurityObjectSelectorViewmodel(IAuthenticationService authenticationService): base(typeof(Views.SecurityObjectSelectorView), resources._window_SecurityObjectSelectorWindowTitle)
+        public SecurityObjectSelectorViewmodel(IAuthenticationService authenticationService)//: base(typeof(Views.SecurityObjectSelectorView), resources._window_SecurityObjectSelector)
         {
             Users = authenticationService.Users;
             Groups = authenticationService.Groups;
+            CommandOk = new UICommand { ExecuteDelegate = _ok, CanExecuteDelegate = _canOk };
         }
 
         public IEnumerable<IUser> Users { get; }
@@ -32,14 +33,21 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        protected override bool CanOk(object parameter)
+
+        public ICommand CommandOk { get; }
+
+        public event EventHandler ClosedOk;
+
+        protected override void OnDispose() {}
+
+        private bool _canOk(object obj)
         {
             return _selectedSecurityObject != null;
         }
 
-        protected override void OnDispose()
+        private void _ok(object obj)
         {
-            
+            ClosedOk?.Invoke(this, EventArgs.Empty);
         }
     }
 }

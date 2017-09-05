@@ -6,31 +6,38 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TAS.Client.Views"
              mc:Ignorable="d" 
-             Height="300" Width="300">
-    <TabControl>
-        <TabItem Header="{Resx _users}" >
-            <ListView ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedSecurityObject}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <DockPanel>
-                            <Image Source="/TAS.Client.Common;component/Images/Secutity/user.png"/>
-                            <TextBlock Text="{Binding Name}"/>
-                        </DockPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </TabItem>
-        <TabItem Header="{Resx _groups}">
-            <ListView ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedSecurityObject}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <DockPanel>
-                            <Image Source="/TAS.Client.Common;component/Images/Secutity/group.png"/>
-                            <TextBlock Text="{Binding Name}"/>
-                        </DockPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </TabItem>
-    </TabControl>
+             d:DesignHeight="300" d:DesignWidth="300">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="37" HorizontalAlignment="Right">
+            <Button Style="{StaticResource CancelButtonStyle}" />
+            <Button Command="{Binding CommandOk}" Style="{StaticResource OkButtonStyle}" 
+                    />
+        </StackPanel>
+        <TabControl>
+            <TabItem Header="{Resx _users}" >
+                <ListView ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedSecurityObject}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel>
+                                <Image Source="/TAS.Client.Common;component/Images/Secutity/user.png"/>
+                                <TextBlock Text="{Binding Name}"/>
+                            </DockPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </TabItem>
+            <TabItem Header="{Resx _groups}">
+                <ListView ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedSecurityObject}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel>
+                                <Image Source="/TAS.Client.Common;component/Images/Secutity/group.png"/>
+                                <TextBlock Text="{Binding Name}"/>
+                            </DockPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
 </UserControl>

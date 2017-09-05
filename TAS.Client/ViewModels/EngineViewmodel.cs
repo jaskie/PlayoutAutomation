@@ -146,7 +146,8 @@ namespace TAS.Client.ViewModels
         public ICommand CommandUndoEdit { get; private set; }
         #endregion // Editor commands
         public ICommand CommandUserManager { get; private set; }
-        
+        public ICommand CommandEngineRights { get; private set; }
+
         public bool IsDebugBuild
         {
             get
@@ -262,17 +263,29 @@ namespace TAS.Client.ViewModels
             CommandSaveRundown = new UICommand { ExecuteDelegate = _saveRundown, CanExecuteDelegate = o => SelectedEvent != null && SelectedEvent.Event.EventType == TEventType.Rundown };
             CommandLoadRundown = new UICommand { ExecuteDelegate = _loadRundown, CanExecuteDelegate = o => o.Equals("Under") ? _canAddSubRundown(o) : _canAddNextRundown(o) };
             CommandUserManager = new UICommand {ExecuteDelegate = _userManager, CanExecuteDelegate = _canUserManager};
+
+            CommandEngineRights = new UICommand { ExecuteDelegate = _engineRights, CanExecuteDelegate = _canEngineRights };
         }
 
-        [PrincipalPermission(SecurityAction.Demand, Role = Roles.UserAdmin)]
+        private void _engineRights(object obj)
+        {
+            using (var vm = new EngineRightsEditViewmodel(Engine, Engine.AuthenticationService))
+                UiServices.ShowDialog<Views.EngineRightsEditView>(vm, string.Format(resources._window_EngineRights, EngineName), 500, 400);
+        }
+
+        private bool _canEngineRights(object obj)
+        {
+            return true;
+        }
+
         private void _userManager(object obj)
         {
-            UiServices.ShowWindow<Views.UserManagerView>(new UserManagerViewmodel(Engine.AuthenticationService), resources._windows_UserManager, 500, 400);
+            UiServices.ShowWindow<Views.UserManagerView>(new UserManagerViewmodel(Engine.AuthenticationService), resources._window_UserManager, 500, 400, true);
         }
 
         private bool _canUserManager(object obj)
         {
-            return Thread.CurrentPrincipal.IsInRole(Roles.UserAdmin);
+            return ((IUser) Thread.CurrentPrincipal.Identity)?.IsAdmin == true;
         }
 
         private bool _canUndelete(object obj)

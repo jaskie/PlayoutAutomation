@@ -5,7 +5,7 @@ using TAS.Remoting.Client;
 
 namespace TAS.Remoting.Model.Security
 {
-    public class EventAclItem: ProxyBase, IAclRight
+    public class EventAclRight: ProxyBase, IAclRight
     {
         [JsonProperty(nameof(IAclRight.Owner))]
         private Event _owner;

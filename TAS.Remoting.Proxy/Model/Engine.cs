@@ -282,6 +282,17 @@ namespace TAS.Remoting.Model
             throw new NotImplementedException(); // method used by server plugin only
         }
 
+        public IEnumerable<IAclRight> GetRights() => Query<List<EngineAclRight>>();
+
+        public IAclRight AddRightFor(ISecurityObject securityObject) { return Query<IAclRight>(parameters: new object[] { securityObject }); }
+
+        public bool DeleteRight(IAclRight item) { return Query<bool>(parameters: new object[] { item }); }
+
+        public bool HaveRight(EngineRight right)
+        {
+            return Query<bool>(parameters: new object[] {right});
+        }
+
         #region Event handling
         event EventHandler<EngineOperationEventArgs> _engineOperation;
         public event EventHandler<EngineOperationEventArgs> EngineOperation

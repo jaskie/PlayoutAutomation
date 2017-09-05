@@ -61,16 +61,34 @@ namespace TAS.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Media.
+        ///   Looks up a localized string similar to Media - delete.
         /// </summary>
-        public static string EngineRights_Media {
+        public static string EngineRights_MediaDelete {
             get {
-                return ResourceManager.GetString("EngineRights_Media", resourceCulture);
+                return ResourceManager.GetString("EngineRights_MediaDelete", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Play.
+        ///   Looks up a localized string similar to Media - properties edit.
+        /// </summary>
+        public static string EngineRights_MediaEdit {
+            get {
+                return ResourceManager.GetString("EngineRights_MediaEdit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Media - ingest.
+        /// </summary>
+        public static string EngineRights_MediaIngest {
+            get {
+                return ResourceManager.GetString("EngineRights_MediaIngest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Play rundowns.
         /// </summary>
         public static string EngineRights_Play {
             get {
@@ -79,7 +97,16 @@ namespace TAS.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Rundown.
+        ///   Looks up a localized string similar to Preview on channel.
+        /// </summary>
+        public static string EngineRights_Preview {
+            get {
+                return ResourceManager.GetString("EngineRights_Preview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rundowns - full edit access.
         /// </summary>
         public static string EngineRights_Rundown {
             get {

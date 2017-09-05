@@ -329,13 +329,16 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   <data name="_windows_UserManager" xml:space="preserve">
     <value>Zarządzanie użytkownikami</value>
   </data>
-  <data name="_window_CommandScriptItemEditWindowTitle" xml:space="preserve">
+  <data name="_window_CommandScriptItemEdit" xml:space="preserve">
     <value>Edycja komendy serwera</value>
   </data>
   <data name="_window_IngestAs" xml:space="preserve">
     <value>Zaingestuj jako...</value>
   </data>
-  <data name="_window_SecurityObjectSelectorWindowTitle" xml:space="preserve">
+  <data name="_window_SecurityObjectSelector" xml:space="preserve">
     <value>Wybierz obiekt</value>
+  </data>
+  <data name="_window_EngineRights" xml:space="preserve">
+    <value>Uprawnienia do {0}</value>
   </data>
 </root>

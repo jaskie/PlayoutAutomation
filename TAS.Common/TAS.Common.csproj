@@ -118,6 +118,11 @@
     <Compile Include="MediaEventArgs.cs" />
     <Compile Include="MediaExtensions.cs" />
     <Compile Include="MediaProxy.cs" />
+    <Compile Include="Properties\Rights.pl.Designer.cs">
+      <DependentUpon>Rights.pl.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
     <Compile Include="RedundantConnectionStateEventArgs.cs" />
     <Compile Include="MediaConversion.cs" />
     <Compile Include="MediaDeleteDenyReason.cs" />
@@ -154,6 +159,10 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Enums.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Rights.pl.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Rights.pl.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Rights.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

@@ -13,7 +13,7 @@ namespace TAS.Common.Interfaces
         IPersistent Owner { get; set; }
 
         /// <summary>
-        /// Object that HAVE rights to Owner
+        /// Object that have rights to Owner
         /// </summary>
         ISecurityObject SecurityObject { get; set; }
         

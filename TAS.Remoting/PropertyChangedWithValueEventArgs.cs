@@ -49,6 +49,6 @@ namespace TAS.Remoting
         }
 
         [JsonProperty(ItemIsReference = true, TypeNameHandling = TypeNameHandling.All, ItemTypeNameHandling = TypeNameHandling.All)]
-        public virtual object Value { get; protected set; }
+        public override object Value { get; protected set; }
     }
 }

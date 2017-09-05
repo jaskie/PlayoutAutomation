@@ -346,4 +346,7 @@ Działa natychmiastowo, do końca odtwarzanego klipu.</value>
   <data name="_userManager" xml:space="preserve">
     <value>Zarządzanie użytkownikami</value>
   </data>
+  <data name="_engineRights" xml:space="preserve">
+    <value>Uprawnienia użytkowników</value>
+  </data>
 </root>

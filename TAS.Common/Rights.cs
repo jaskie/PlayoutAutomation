@@ -35,7 +35,10 @@ namespace TAS.Common
     public enum EngineRight
     {
         Play = 0x01,
+        Preview = 0x02,
         Rundown = 0x10,
-        Media = 0x20
+        MediaIngest = 0x20,
+        MediaEdit = 0x40,
+        MediaDelete = 0x80,
     }
 }

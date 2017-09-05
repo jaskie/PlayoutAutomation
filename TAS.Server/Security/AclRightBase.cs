@@ -11,7 +11,7 @@ using TAS.Remoting.Server;
 
 namespace TAS.Server.Security
 {
-    public class EventAclItem: DtoBase, IAclRight, IPersistent
+    public abstract class AclRightBase: DtoBase, IAclRight, IPersistent
     {
         private ulong _acl;
         private ISecurityObject _securityObject;
@@ -36,18 +36,8 @@ namespace TAS.Server.Security
 
         public ulong Id { get; set; }
 
-        public void Save()
-        {
-            if (Id == default(ulong))
-                this.DbInsertEventAcl();
-            else
-                this.DbUpdateEventAcl();
-        }
+        public abstract void Save();
 
-        public void Delete()
-        {
-            this.DbDeleteEventAcl();
-            Dispose();
-        }
+        public abstract void Delete();
     }
 }

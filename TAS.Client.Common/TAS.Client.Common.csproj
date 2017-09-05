@@ -104,6 +104,7 @@
     <Compile Include="Controls\FilenameEntry.xaml.cs">
       <DependentUpon>FilenameEntry.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ICloseable.cs" />
     <Compile Include="IngestDirectoryExtensions.cs" />
     <Compile Include="ObservableDictionary.cs" />
     <Compile Include="Plugin\IUiMenuItem.cs" />

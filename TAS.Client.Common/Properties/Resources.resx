@@ -326,16 +326,19 @@ Do you really want to run this BACKUP play-out?</value>
   <data name="_validate_TransitionTimeInvalid" xml:space="preserve">
     <value>Transition time exceeds clip duration.</value>
   </data>
-  <data name="_windows_UserManager" xml:space="preserve">
+  <data name="_window_UserManager" xml:space="preserve">
     <value>User manager</value>
   </data>
-  <data name="_window_CommandScriptItemEditWindowTitle" xml:space="preserve">
+  <data name="_window_CommandScriptItemEdit" xml:space="preserve">
     <value>Edit server command</value>
   </data>
   <data name="_window_IngestAs" xml:space="preserve">
     <value>Ingest as...</value>
   </data>
-  <data name="_window_SecurityObjectSelectorWindowTitle" xml:space="preserve">
+  <data name="_window_SecurityObjectSelector" xml:space="preserve">
     <value>Select an object</value>
+  </data>
+  <data name="_window_EngineRights" xml:space="preserve">
+    <value>{0} rights</value>
   </data>
 </root>

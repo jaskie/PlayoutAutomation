@@ -26,11 +26,11 @@ namespace TAS.Client.Common
         }
 
         /// <summary>
-        /// Shows window with content and dispose provided viewmodel
+        /// Shows window with content
         /// </summary>
         /// <typeparam name="TView">type of UserControl class to show content</typeparam>
         /// <param name="viewmodel">DataContext of the view</param>
-        public static void ShowWindow<TView>(ViewmodelBase viewmodel, string windowTitle, double width, double height) where TView: UserControl, new()
+        public static void ShowWindow<TView>(ViewmodelBase viewmodel, string windowTitle, double width, double height, bool disposeVm) where TView: UserControl, new()
         {
             var newWindow = new Window
             {
@@ -40,35 +40,31 @@ namespace TAS.Client.Common
                 Owner = Application.Current.MainWindow,
                 Content = new TView { DataContext = viewmodel }
             };
-            newWindow.Closed += (sender, args) => viewmodel.Dispose();
+            if (disposeVm)
+                newWindow.Closed += (sender, args) => viewmodel.Dispose();
             newWindow.Show();
         }
 
         /// <summary>
-        /// Shows modal dialog with content and dispose provided viewmodel
+        /// Shows modal dialog with content 
         /// </summary>
         /// <typeparam name="TView">type of UserControl class to show content</typeparam>
         /// <param name="viewmodel">DataContext of the view</param>
-        public static bool? ShowDialog<TView>(ViewmodelBase viewmodel, string windowTitle, double width, double height) where TView : UserControl, new()
+        public static bool? ShowDialog<TView>(ViewmodelBase viewmodel, string windowTitle, double width, double height)
+            where TView : UserControl, new()
         {
-            try
+            var newWindow = new Window
             {
-                var newWindow = new Window
-                {
-                    Title = windowTitle,
-                    Width = width,
-                    Height = height,
-                    Owner = Application.Current.MainWindow,
-                    Content = new TView {DataContext = viewmodel}
-                };
-                return newWindow.ShowDialog();
-            }
-            finally
-            {
-                viewmodel.Dispose();
-            }
+                Title = windowTitle,
+                Width = width,
+                Height = height,
+                Owner = Application.Current.MainWindow,
+                Content = new TView {DataContext = viewmodel}
+            };
+            if (viewmodel is ICloseable)
+                ((ICloseable) viewmodel).ClosedOk += (o, e) => { newWindow.DialogResult = true; };
+            return newWindow.ShowDialog();
         }
-
 
         /// <summary>
         /// Sets the busystate to busy or not busy.

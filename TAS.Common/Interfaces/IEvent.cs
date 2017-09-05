@@ -35,6 +35,7 @@ namespace TAS.Common.Interfaces
         bool IsModified { get; set; }
         bool IsDeleted { get; }
         bool IsForcedNext { get; }
+        bool HaveRight(EventRight right);
 
         event EventHandler Saved;
         event EventHandler Deleted;

@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 namespace TAS.Common.Interfaces
 {
-    public interface IEngine : IPreview, IEngineProperties
+    public interface IEngine : IPreview, IEngineProperties, IAclObject
     {
         long FrameTicks { get; }
         IPlayoutServerChannel PlayoutChannelPRI { get; }
@@ -78,6 +78,7 @@ namespace TAS.Common.Interfaces
         IEvent ForcedNext { get; }
         bool IsWideScreen { get; }
         IAuthenticationService AuthenticationService { get; }
+        bool HaveRight(EngineRight right);
         event EventHandler<EventEventArgs> EventSaved;
         event EventHandler<EventEventArgs> EventDeleted;
         event EventHandler<EngineTickEventArgs> EngineTick;

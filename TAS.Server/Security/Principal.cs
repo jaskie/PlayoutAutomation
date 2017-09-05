@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Security.Principal;
 using TAS.Common.Interfaces;
 
 namespace TAS.Server.Security
@@ -11,15 +6,14 @@ namespace TAS.Server.Security
     public class Principal: IPrincipal
     {
         private readonly string[] _roles;
-        public Principal(IUser user, params string[] roles)
+        public Principal(IUser user)
         {
             Identity = user;
-            _roles = roles;
         }
 
         public bool IsInRole(string role)
         {
-            return _roles.Contains(role);
+            return false;
         }
 
         public IIdentity Identity { get; }

@@ -117,31 +117,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="EngineRights_MediaDelete" xml:space="preserve">
-    <value>Media - delete</value>
+  <data name="_addNewRight" xml:space="preserve">
+    <value>Dodaj nowe uprawnienie</value>
   </data>
-  <data name="EngineRights_MediaEdit" xml:space="preserve">
-    <value>Media - properties edit</value>
+  <data name="_mediaDelete" xml:space="preserve">
+    <value>Usuwanie mediów</value>
   </data>
-  <data name="EngineRights_MediaIngest" xml:space="preserve">
-    <value>Media - ingest</value>
+  <data name="_mediaEdit" xml:space="preserve">
+    <value>Zmiana właściwości mediów</value>
   </data>
-  <data name="EngineRights_Play" xml:space="preserve">
-    <value>Play rundowns</value>
+  <data name="_mediaIngest" xml:space="preserve">
+    <value>Pobieranie nowych mediów</value>
   </data>
-  <data name="EngineRights_Preview" xml:space="preserve">
-    <value>Preview on channel</value>
+  <data name="_name" xml:space="preserve">
+    <value>Nazwa</value>
   </data>
-  <data name="EngineRights_Rundown" xml:space="preserve">
-    <value>Rundowns - full edit access</value>
+  <data name="_play" xml:space="preserve">
+    <value>Odtwarzanie</value>
   </data>
-  <data name="EventRights_Create" xml:space="preserve">
-    <value>Create</value>
+  <data name="_preview" xml:space="preserve">
+    <value>Podgląd</value>
   </data>
-  <data name="EventRights_Delete" xml:space="preserve">
-    <value>Delete</value>
+  <data name="_removeSelectedRight" xml:space="preserve">
+    <value>Usuń zaznaczone uprawnienie</value>
   </data>
-  <data name="EventRights_Modify" xml:space="preserve">
-    <value>Modify</value>
+  <data name="_rundown" xml:space="preserve">
+    <value>Tworzenie playlisty</value>
   </data>
 </root>

@@ -53,6 +53,7 @@ namespace TAS.Server
         private readonly SynchronizedCollection<Event> _rootEvents = new SynchronizedCollection<Event>();
         private readonly SynchronizedCollection<Event> _fixedTimeEvents = new SynchronizedCollection<Event>();
         private readonly ConcurrentDictionary<Guid, IEvent> _events = new ConcurrentDictionary<Guid, IEvent>();
+        private readonly Lazy<List<IAclRight>> _rights;
         private Event _playing;
         private Event _forcedNext;
         private IEnumerable<IGpi> _localGpis;
@@ -82,6 +83,7 @@ namespace TAS.Server
             _engineState = TEngineState.NotInitialized;
             _mediaManager = new MediaManager(this);
             Db.ConnectionStateChanged += _database_ConnectionStateChanged;
+            _rights = new Lazy<List<IAclRight>>(() => Db.DbReadEngineAclList<EngineAclRight>(this, AuthenticationService as IAuthenticationServicePersitency));
         }
 
         public event EventHandler<EngineTickEventArgs> EngineTick;
@@ -342,6 +344,7 @@ namespace TAS.Server
             Logger.Debug("Engine {0} initialized", this);
         }
 
+        [JsonProperty]
         public ConnectionStateRedundant DatabaseConnectionState { get; } = Db.ConnectionState;
 
         [XmlIgnore]
@@ -812,6 +815,50 @@ namespace TAS.Server
         }
         #endregion
 
+        #region IAclObject
+
+        public IEnumerable<IAclRight> GetRights()
+        {
+            lock (_rights) return _rights.Value.AsReadOnly();
+        }
+
+        public IAclRight AddRightFor(ISecurityObject securityObject)
+        {
+            var right = new EngineAclRight { Owner = this, SecurityObject = securityObject };
+            lock (_rights)
+            {
+                _rights.Value.Add(right);
+            }
+            return right;
+        }
+
+        public bool DeleteRight(IAclRight item)
+        {
+            var right = (AclRightBase)item;
+            lock (_rights)
+            {
+                var success = _rights.Value.Remove(right);
+                if (success)
+                    right.Delete();
+                return success;
+            }
+        }
+
+        #endregion // IAclObject
+
+        public bool HaveRight(EngineRight right)
+        {
+            IUser identity = Thread.CurrentPrincipal.Identity as IUser;
+            if (identity == null)
+                return false;
+            if (identity.IsAdmin)
+                return true; // Full rights
+            lock (_rights)
+            {
+                return _rights.Value.Any(r => r.SecurityObject == identity && (r.Acl & (ulong)right) > 0);
+            }
+        }
+
         // internal methods
         internal void UnInitialize()
         {
@@ -859,7 +906,7 @@ namespace TAS.Server
                 FixedTimeEventOperation?.Invoke(this, new CollectionOperationEventArgs<IEvent>(e, CollectionOperation.Remove));
             }
         }
-        
+
         // private methods
         private void _start(Event aEvent)
         {

@@ -118,30 +118,30 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="EngineRights_MediaDelete" xml:space="preserve">
-    <value>Media - delete</value>
+    <value>Media - usuwanie</value>
   </data>
   <data name="EngineRights_MediaEdit" xml:space="preserve">
-    <value>Media - properties edit</value>
+    <value>Media - zmiana właściwości</value>
   </data>
   <data name="EngineRights_MediaIngest" xml:space="preserve">
-    <value>Media - ingest</value>
+    <value>Media - pobieranie</value>
   </data>
   <data name="EngineRights_Play" xml:space="preserve">
-    <value>Play rundowns</value>
+    <value>Odtwarzanie playlisty</value>
   </data>
   <data name="EngineRights_Preview" xml:space="preserve">
-    <value>Preview on channel</value>
+    <value>Podgląd w kanale</value>
   </data>
   <data name="EngineRights_Rundown" xml:space="preserve">
-    <value>Rundowns - full edit access</value>
+    <value>Playlisty - pełny dostęp</value>
   </data>
   <data name="EventRights_Create" xml:space="preserve">
-    <value>Create</value>
+    <value>Tworzenie</value>
   </data>
   <data name="EventRights_Delete" xml:space="preserve">
-    <value>Delete</value>
+    <value>Usuwanie</value>
   </data>
   <data name="EventRights_Modify" xml:space="preserve">
-    <value>Modify</value>
+    <value>Zmiana</value>
   </data>
 </root>

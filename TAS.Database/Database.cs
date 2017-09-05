@@ -1087,6 +1087,82 @@ VALUES
             }
         }
 
+
+        public static List<IAclRight> DbReadEngineAclList<TEngineAcl>(IPersistent engine, IAuthenticationServicePersitency authenticationService) where TEngineAcl : IAclRight, IPersistent, new()
+        {
+            lock (_connection)
+            {
+                DbCommandRedundant cmd =
+                    new DbCommandRedundant("SELECT * FROM engine_acl WHERE idEngine=@idEngine;",
+                        _connection);
+                cmd.Parameters.AddWithValue("@idEngine", engine.Id);
+                List<IAclRight> acl = new List<IAclRight>();
+                using (DbDataReaderRedundant dataReader = cmd.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        var item = new TEngineAcl()
+                        {
+                            Id = dataReader.GetUInt64("idEngine_ACL"),
+                            Owner = engine,
+                            SecurityObject = authenticationService.FindSecurityObject(dataReader.GetUInt64("idACO")),
+                            Acl = dataReader.GetUInt64("ACL")
+                        };
+                        acl.Add(item);
+                    }
+                }
+                return acl;
+            }
+        }
+
+        public static bool DbInsertEngineAcl<TEventAcl>(this TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        {
+            if (acl?.Owner == null)
+                return false;
+            lock (_connection)
+            {
+                using (DbCommandRedundant cmd =
+                    new DbCommandRedundant(
+                        "INSERT INTO engine_acl (idEngine, idACO, ACL) VALUES (@idEngine, @idACO, @ACL);",
+                        _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idEngine", acl.Owner.Id);
+                    cmd.Parameters.AddWithValue("@idACO", ((IPersistent)acl.SecurityObject).Id);
+                    cmd.Parameters.AddWithValue("@ACL", acl.Acl);
+                    if (cmd.ExecuteNonQuery() == 1)
+                        acl.Id = (ulong)cmd.LastInsertedId;
+                    return true;
+                }
+            }
+        }
+
+        public static bool DbUpdateEngineAcl<TEventAcl>(this TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        {
+            lock (_connection)
+            {
+                using (DbCommandRedundant cmd =
+                    new DbCommandRedundant(
+                        "UPDATE engine_acl SET ACL=@ACL WHERE idEngine_ACL=@idEngine_ACL;",
+                        _connection))
+                {
+                    cmd.Parameters.AddWithValue("@idEngine_ACL", acl.Id);
+                    cmd.Parameters.AddWithValue("@ACL", acl.Acl);
+                    return cmd.ExecuteNonQuery() == 1;
+                }
+            }
+        }
+
+        public static bool DbDeleteEngineAcl<TEventAcl>(this TEventAcl acl) where TEventAcl : IAclRight, IPersistent
+        {
+            lock (_connection)
+            {
+                string query = "DELETE FROM engine_acl WHERE idEngine_ACL=@idEngine_ACL;";
+                DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
+                cmd.Parameters.AddWithValue("@idEngine_ACL", acl.Id);
+                return cmd.ExecuteNonQuery() == 1;
+            }
+        }
+
         #endregion //ACL
 
         #region Media
@@ -1642,10 +1718,12 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             var pAco = aco as IPersistent;
             if (pAco == null)
             {
+#pragma warning disable CS0162
 #if  DEBUG
-                throw new NoNullAllowedException("DbInsertSecurityObject: operation on null");
+                throw new ArgumentNullException("DbInsertSecurityObject: operation on null");
 #endif
                 return;
+#pragma warning restore
             }
             lock (_connection)
             {
@@ -1669,10 +1747,12 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             var pAco = aco as IPersistent;
             if (pAco == null || pAco.Id == 0)
             {
+#pragma warning disable CS0162
 #if  DEBUG
-                throw new ApplicationException("DbDeleteMediaSegment: operation on null or not saved object");
+                throw new ArgumentNullException("DbDeleteMediaSegment: operation on null or not saved object");
 #endif
                 return;
+#pragma warning restore
             }
             lock (_connection)
             {
@@ -1689,10 +1769,12 @@ WHERE idArchiveMedia=@idArchiveMedia;";
             var pAco = aco as IPersistent;
             if (pAco == null || pAco.Id == 0)
             {
-#if  DEBUG
-                throw new ApplicationException("DbUpdateSecurityObject: operation on null or not saved object");
+#pragma warning disable CS0162
+#if DEBUG
+                throw new ArgumentNullException("DbUpdateSecurityObject: operation on null or not saved object");
 #endif
                 return;
+#pragma warning restore
             }
             lock (_connection)
             {

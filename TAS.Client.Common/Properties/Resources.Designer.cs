@@ -662,9 +662,18 @@ namespace TAS.Client.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Edit server command.
         /// </summary>
-        public static string _window_CommandScriptItemEditWindowTitle {
+        public static string _window_CommandScriptItemEdit {
             get {
-                return ResourceManager.GetString("_window_CommandScriptItemEditWindowTitle", resourceCulture);
+                return ResourceManager.GetString("_window_CommandScriptItemEdit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} rights.
+        /// </summary>
+        public static string _window_EngineRights {
+            get {
+                return ResourceManager.GetString("_window_EngineRights", resourceCulture);
             }
         }
         
@@ -680,18 +689,18 @@ namespace TAS.Client.Common.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Select an object.
         /// </summary>
-        public static string _window_SecurityObjectSelectorWindowTitle {
+        public static string _window_SecurityObjectSelector {
             get {
-                return ResourceManager.GetString("_window_SecurityObjectSelectorWindowTitle", resourceCulture);
+                return ResourceManager.GetString("_window_SecurityObjectSelector", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to User manager.
         /// </summary>
-        public static string _windows_UserManager {
+        public static string _window_UserManager {
             get {
-                return ResourceManager.GetString("_windows_UserManager", resourceCulture);
+                return ResourceManager.GetString("_window_UserManager", resourceCulture);
             }
         }
     }

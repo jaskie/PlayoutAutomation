@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
@@ -9,33 +10,36 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class EventRightsEditViewmodel: ViewmodelBase
+    public class EngineRightsEditViewmodel: ViewmodelBase, ICloseable
     {
-        private readonly IEvent _ev;
+        private readonly IEngine _engine;
         private readonly IAuthenticationService _authenticationService;
-        private EventRightViewmodel _selectedRight;
+        private EngineRightViewmodel _selectedRight;
         private ISecurityObject _selectedAclObject;
         private readonly List<IAclRight> _originalRights;
 
-        public EventRightsEditViewmodel(IEvent ev, IAuthenticationService authenticationService)
+        public EngineRightsEditViewmodel(IEngine engine, IAuthenticationService authenticationService)
         {
-            _ev = ev;
+            _engine = engine;
             _authenticationService = authenticationService;
             AclObjects = authenticationService.Users.Cast<ISecurityObject>().Concat(authenticationService.Groups).ToArray();
-            _originalRights = ev.GetRights().ToList();
-            Rights = new ObservableCollection<EventRightViewmodel>(_originalRights.Select(r => new EventRightViewmodel(r)));
+            _originalRights = engine.GetRights().ToList();
+            Rights = new ObservableCollection<EngineRightViewmodel>(_originalRights.Select(r => new EngineRightViewmodel(r)));
             foreach (var eventRightViewmodel in Rights)
             {
                 eventRightViewmodel.Modified += EventRightViewmodel_Modified;
             }
             CommandAddRight = new UICommand {ExecuteDelegate = _addRight, CanExecuteDelegate = _canAddRight};
             CommandDeleteRight = new UICommand { ExecuteDelegate = _deleteRight, CanExecuteDelegate = _canDeleteRight };
+            CommandOk = new UICommand {ExecuteDelegate = _ok, CanExecuteDelegate = _canOk};
         }
 
-        public UICommand CommandAddRight { get; }
+        public ICommand CommandAddRight { get; }
+               
+        public ICommand CommandDeleteRight { get; }
 
-        public UICommand CommandDeleteRight { get; }
-        
+        public ICommand CommandOk { get; }
+       
         public ISecurityObject[] AclObjects { get; }
 
         public ISecurityObject SelectedAclObject
@@ -44,15 +48,17 @@ namespace TAS.Client.ViewModels
             set { SetField(ref _selectedAclObject, value, setIsModified: false); }
         }
 
-        public ObservableCollection<EventRightViewmodel> Rights { get; }
+        public ObservableCollection<EngineRightViewmodel> Rights { get; }
 
-        public EventRightViewmodel SelectedRight
+        public EngineRightViewmodel SelectedRight
         {
             get { return _selectedRight; }
             set { SetField(ref _selectedRight, value, setIsModified: false); }
         }
 
-        public void Save()
+        public event EventHandler ClosedOk;
+
+        private void _save()
         {
             foreach (var aclRightViewmodel in Rights)
             {
@@ -61,8 +67,8 @@ namespace TAS.Client.ViewModels
             }
             foreach (var right in _originalRights)
             {
-                if (!Rights.Any(r => r.Right == right))
-                    _ev.DeleteRight(right);
+                if (Rights.All(r => r.Right != right))
+                    _engine.DeleteRight(right);
             }
         }
 
@@ -79,12 +85,12 @@ namespace TAS.Client.ViewModels
         {
             using (var selector = new SecurityObjectSelectorViewmodel(_authenticationService))
             {
-                if  (UiServices.ShowDialog<Views.SecurityObjectSelectorView>(selector, resources._window_SecurityObjectSelector, 500, 400) != true)
+                if (UiServices.ShowDialog<Views.SecurityObjectSelectorView>(selector, resources._window_SecurityObjectSelector, 500, 400) != true)
                     return;
-                var right = _ev.AddRightFor(selector.SelectedSecurityObject);
+                var right = _engine.AddRightFor(selector.SelectedSecurityObject);
                 if (right == null)
                     return;
-                var newRightVm = new EventRightViewmodel(right);
+                var newRightVm = new EngineRightViewmodel(right);
                 Rights.Add(newRightVm);
                 SelectedRight = newRightVm;
                 SelectedRight.Modified += EventRightViewmodel_Modified;
@@ -116,6 +122,17 @@ namespace TAS.Client.ViewModels
         private void EventRightViewmodel_Modified(object sender, EventArgs e)
         {
             IsModified = true;
+        }
+
+        private void _ok(object obj)
+        {
+            _save();
+            ClosedOk?.Invoke(this, EventArgs.Empty);
+        }
+
+        private bool _canOk(object obj)
+        {
+            return IsModified;
         }
 
     }

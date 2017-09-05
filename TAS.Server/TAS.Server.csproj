@@ -96,7 +96,9 @@
     <Compile Include="Media\TempDirectory.cs" />
     <Compile Include="Media\AnimatedMedia.cs" />
     <Compile Include="Media\TempMedia.cs" />
-    <Compile Include="Security\EventAclItem.cs" />
+    <Compile Include="Security\AclRightBase.cs" />
+    <Compile Include="Security\EngineAclRight.cs" />
+    <Compile Include="Security\EventAclRight.cs" />
     <Compile Include="Security\Principal.cs" />
     <Compile Include="Security\SecurityObjectBase.cs" />
     <Compile Include="Security\AcoHive.cs" />

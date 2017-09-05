@@ -368,11 +368,17 @@ namespace TAS.Remoting.Model
             Invoke();
         }
 
-        public IEnumerable<IAclRight> GetRights() => Query<ReadOnlyCollection<EventAclItem>>();
+        public IEnumerable<IAclRight> GetRights() => Query<ReadOnlyCollection<EventAclRight>>();
 
         public IAclRight AddRightFor(ISecurityObject securityObject) { return Query<IAclRight>(parameters: new object[] { securityObject }); }
 
         public bool DeleteRight(IAclRight item) { return Query<bool>(parameters: new object[] { item }); }
+
+        public bool HaveRight(EventRight right)
+        {
+            return Query<bool>(parameters: new object[] { right });
+        }
+
 
         private void ResetSlibbings()
         {

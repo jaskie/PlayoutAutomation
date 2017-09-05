@@ -334,4 +334,7 @@ Effective until current clip ends.</value>
   <data name="_userManager" xml:space="preserve">
     <value>User manager</value>
   </data>
+  <data name="_engineRights" xml:space="preserve">
+    <value>User rights</value>
+  </data>
 </root>

@@ -137,6 +137,8 @@
                         </Style>
                     </MenuItem.ItemContainerStyle>
                 </MenuItem>
+                <Separator/>
+                <MenuItem Header="{Resx _engineRights}" Command="{Binding CommandEngineRights}"/>
                 <MenuItem Header="{Resx _userManager}" Command="{Binding CommandUserManager}"/>
 
                 <!--<MenuItem Header="Playout">
@@ -271,7 +273,7 @@
                 </TextBlock.ToolTip>
             </TextBlock>
             <DockPanel Grid.Column="4" Grid.RowSpan="4">
-                <ProgressBar Value="{Binding AudioLevelPRI}" DockPanel.Dock="Left" Orientation="Vertical" Minimum="-60" Maximum="0" Width="15" Margin="0, 0, 5, 0" Style="{DynamicResource VerticalVolumeGaugeStyle}" />
+                <ProgressBar Value="{Binding AudioLevelPRI}" DockPanel.Dock="Left" Orientation="Vertical" Minimum="-60" Maximum="0" Width="15" Margin="0, 0, 5, 0" UseLayoutRounding="True" Style="{DynamicResource VerticalVolumeGaugeStyle}" />
                 <CheckBox DockPanel.Dock="Top" Visibility="{Binding IsInterlacedFormat, Converter={StaticResource BoolToVis}}" Content="{Resx _toolbar.FieldOrderInverted}" ToolTip="{Resx _toolbar.FieldOrderInverted.ToolTip}" IsChecked="{Binding FieldOrderInverted}" IsEnabled="{Binding IsPlayingMovie}"/>
                 <Label DockPanel.Dock="Top" Content="Audio"/>
                 <Grid DockPanel.Dock="Top">
