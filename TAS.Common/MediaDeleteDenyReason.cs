@@ -10,9 +10,10 @@ namespace TAS.Common
         public enum MediaDeleteDenyReasonEnum
         {
             NoDeny,
-            MediaInFutureSchedule,
+            InFutureSchedule,
             Protected,
             Unknown,
+            InsufficentRights
         }
         [DataMember]
         public MediaDeleteDenyReasonEnum Reason;

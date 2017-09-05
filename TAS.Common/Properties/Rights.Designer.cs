@@ -61,6 +61,15 @@ namespace TAS.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Media - archive.
+        /// </summary>
+        public static string EngineRights_MediaArchive {
+            get {
+                return ResourceManager.GetString("EngineRights_MediaArchive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Media - delete.
         /// </summary>
         public static string EngineRights_MediaDelete {

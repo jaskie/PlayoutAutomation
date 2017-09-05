@@ -1059,7 +1059,7 @@ namespace TAS.Server
                 if (nev.EventType == TEventType.Movie
                     && nev.Media == media
                     && nev.ScheduledTime >= Engine.CurrentTime)
-                    return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Event = nev, Media = media };
+                    return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.InFutureSchedule, Event = nev, Media = media };
                 foreach (Event se in nev._subEvents.Value.ToList())
                 {
                     MediaDeleteDenyReason reason = se.CheckCanDeleteMedia(media);

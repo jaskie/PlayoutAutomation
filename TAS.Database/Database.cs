@@ -433,7 +433,7 @@ namespace TAS.Database
                     futureScheduled.IsModified = false;
                 }
                 if (futureScheduled != null)
-                    return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule, Media = serverMedia, Event = futureScheduled };
+                    return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.InFutureSchedule, Media = serverMedia, Event = futureScheduled };
             }
             return reason;
         }

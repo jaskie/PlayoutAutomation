@@ -120,6 +120,9 @@
   <data name="_addNewRight" xml:space="preserve">
     <value>Add new authorization</value>
   </data>
+  <data name="_mediaArchive" xml:space="preserve">
+    <value>Media archive</value>
+  </data>
   <data name="_mediaDelete" xml:space="preserve">
     <value>Delete media</value>
   </data>

@@ -518,6 +518,9 @@ namespace TAS.Server
         
         public void Load(IEvent aEvent)
         {
+            if (!HaveRight(EngineRight.Play))
+                return;
+
             Debug.WriteLine(aEvent, "Load");
             lock (_tickLock)
             {
@@ -531,12 +534,18 @@ namespace TAS.Server
 
         public void StartLoaded()
         {
+            if (!HaveRight(EngineRight.Play))
+                return;
+
             Debug.WriteLine("StartLoaded executed");
             _startLoaded();
         }
 
         public void Start(IEvent aEvent)
         {
+            if (!HaveRight(EngineRight.Play))
+                return;
+
             Debug.WriteLine(aEvent, "Start");
             var ets = aEvent as Event;
             if (ets == null)
@@ -546,6 +555,9 @@ namespace TAS.Server
 
         public void Schedule(IEvent aEvent)
         {
+            if (!HaveRight(EngineRight.Play))
+                return;
+
             Debug.WriteLine(aEvent, $"Schedule {aEvent.PlayState}");
             lock (_tickLock)
             {
@@ -557,6 +569,9 @@ namespace TAS.Server
 
         public void Clear(VideoLayer aVideoLayer)
         {
+            if (!HaveRight(EngineRight.Play))
+                return;
+
             Debug.WriteLine(aVideoLayer, "Clear");
             Logger.Info("{0} {1}: Clear layer {2}", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this, aVideoLayer);
             Event ev;
@@ -582,6 +597,9 @@ namespace TAS.Server
 
         public void Clear()
         {
+            if (!HaveRight(EngineRight.Play))
+                return;
+
             Logger.Info("{0} {1}: Clear all", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this);
             lock (_tickLock)
             {
@@ -600,12 +618,18 @@ namespace TAS.Server
 
         public void ClearMixer()
         {
+            if (!HaveRight(EngineRight.Play))
+                return;
+
             _playoutChannelPRI?.ClearMixer();
             _playoutChannelSEC?.ClearMixer();
         }
 
         public void Restart()
         {
+            if (!HaveRight(EngineRight.Play))
+                return;
+
             Logger.Info("{0} {1}: Restart", CurrentTime.TimeOfDay.ToSMPTETimecodeString(FrameRate), this);
             foreach (var e in _visibleEvents.ToList())
                 _restartEvent(e);
@@ -613,41 +637,19 @@ namespace TAS.Server
 
         public void RestartRundown(IEvent aRundown)
         {
-            Action<Event> rerun = aEvent =>
-            {
-                _run(aEvent);
-                if (aEvent.EventType != TEventType.Rundown)
-                {
-                    AddVisibleEvent(aEvent);
-                    _restartEvent(aEvent);
-                }
-            };
-
-            var ev = aRundown as Event;
+            if (!HaveRight(EngineRight.Play))
+                return;
             lock (_tickLock)
             {
-                while (ev != null)
-                {
-                    if (_currentTicks >= ev.ScheduledTime.Ticks &&
-                        _currentTicks < ev.ScheduledTime.Ticks + ev.Duration.Ticks)
-                    {
-                        ev.Position = (_currentTicks - ev.ScheduledTime.Ticks) / FrameTicks;
-                        var st = ev.StartTime;
-                        ev.PlayState = TPlayState.Playing;
-                        ev.StartTime = st;
-                        rerun(ev);
-                        foreach (var se in ev.SubEvents)
-                            RestartRundown(se);
-                        break;
-                    }
-                    ev = ev.GetEnabledSuccessor();
-                }
+                _restartRundown(aRundown);
                 EngineState = TEngineState.Running;
             }
         }
 
         public void ForceNext(IEvent aEvent)
         {
+            if (!HaveRight(EngineRight.Play))
+                return;
             ForcedNext = aEvent;
         }
 
@@ -734,6 +736,9 @@ namespace TAS.Server
 
         public void ReSchedule(IEvent aEvent)
         {
+            if (!HaveRight(EngineRight.Play))
+                return;
+
             ThreadPool.QueueUserWorkItem(o => {
                 try
                 {
@@ -754,6 +759,8 @@ namespace TAS.Server
 
         public void PreviewLoad(IMedia media, long seek, long duration, long position, double previewAudioVolume)
         {
+            if (!HaveRight(EngineRight.Preview))
+                return;
             MediaBase mediaToLoad = _findPreviewMedia(media as MediaBase);
             Debug.WriteLine(mediaToLoad, "Loading");
             if (mediaToLoad != null)
@@ -777,17 +784,23 @@ namespace TAS.Server
 
         public void PreviewUnload()
         {
+            if (!HaveRight(EngineRight.Preview))
+                return;
             _previewUnload();
         }
 
         public void PreviewPlay()
         {
+            if (!HaveRight(EngineRight.Preview))
+                return;
             if (_previewMedia != null && _playoutChannelPRV?.Play(VideoLayer.Preview) == true)
                 PreviewIsPlaying = true;
         }
 
         public void PreviewPause()
         {
+            if (!HaveRight(EngineRight.Preview))
+                return;
             _playoutChannelPRV?.Pause(VideoLayer.Preview);
            PreviewIsPlaying = false;
         }
@@ -1262,6 +1275,37 @@ namespace TAS.Server
                 return;
             _playoutChannelPRI?.ReStart(ev);
             _playoutChannelSEC?.ReStart(ev);
+        }
+
+        private void _restartRundown(IEvent aRundown)
+        {
+            Action<Event> rerun = aEvent =>
+            {
+                _run(aEvent);
+                if (aEvent.EventType != TEventType.Rundown)
+                {
+                    AddVisibleEvent(aEvent);
+                    _restartEvent(aEvent);
+                }
+            };
+
+            var ev = aRundown as Event;
+            while (ev != null)
+            {
+                if (_currentTicks >= ev.ScheduledTime.Ticks &&
+                    _currentTicks < ev.ScheduledTime.Ticks + ev.Duration.Ticks)
+                {
+                    ev.Position = (_currentTicks - ev.ScheduledTime.Ticks) / FrameTicks;
+                    var st = ev.StartTime;
+                    ev.PlayState = TPlayState.Playing;
+                    ev.StartTime = st;
+                    rerun(ev);
+                    foreach (var se in ev.SubEvents)
+                        _restartRundown(se);
+                    break;
+                }
+                ev = ev.GetEnabledSuccessor();
+            }
         }
 
         private void _tick(long nFrames)

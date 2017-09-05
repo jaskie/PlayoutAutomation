@@ -61,6 +61,11 @@
                         <TextBlock Text="MD" ToolTip="{Resx _mediaDelete, ResxName=TAS.Client.Views.EngineRightsEditView}"></TextBlock>
                     </DataGridCheckBoxColumn.Header>
                 </DataGridCheckBoxColumn>
+                <DataGridCheckBoxColumn Binding="{Binding MediaArchive, UpdateSourceTrigger=PropertyChanged}">
+                    <DataGridCheckBoxColumn.Header>
+                        <TextBlock Text="MA" ToolTip="{Resx _mediaArchive, ResxName=TAS.Client.Views.EngineRightsEditView}"></TextBlock>
+                    </DataGridCheckBoxColumn.Header>
+                </DataGridCheckBoxColumn>
                 <DataGridTemplateColumn Width="*" Header="{Resx _name, ResxName=TAS.Client.Views.EngineRightsEditView}" >
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

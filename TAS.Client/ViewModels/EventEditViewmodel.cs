@@ -201,7 +201,7 @@ namespace TAS.Client.ViewModels
             get
             {
                 var ev = _event;
-                return ev != null && ev.PlayState == TPlayState.Scheduled;
+                return ev != null && ev.PlayState == TPlayState.Scheduled && _event.HaveRight(EventRight.Modify);
             }
         }
 
@@ -847,7 +847,8 @@ namespace TAS.Client.ViewModels
 
         private bool _canTriggerStartType(object obj)
         {
-            return StartType == TStartType.Manual || StartType == TStartType.OnFixedTime;
+            return (StartType == TStartType.Manual || StartType == TStartType.OnFixedTime)
+                   && _event.HaveRight(EventRight.Modify);
         }
 
         private void _editField(object obj)
@@ -912,10 +913,10 @@ namespace TAS.Client.ViewModels
 
         private bool _canChangeMovie(object o)
         {
-            IEvent ev = _event;
-            return ev != null
-                   && ev.PlayState == TPlayState.Scheduled
-                   && ev.EventType == TEventType.Movie;
+            return _event != null
+                   && _event.PlayState == TPlayState.Scheduled
+                   && _event.EventType == TEventType.Movie
+                   && _event.HaveRight(EventRight.Modify);
         }
 
         private bool _canEditMovie(object o)
@@ -924,7 +925,8 @@ namespace TAS.Client.ViewModels
             return ev != null
                    && ev.Media != null
                    && ev.PlayState == TPlayState.Scheduled
-                   && ev.EventType == TEventType.Movie;
+                   && ev.EventType == TEventType.Movie
+                   && _engine.HaveRight(EngineRight.MediaEdit);
         }
 
         private bool _canCheckVolume(object o)
@@ -934,9 +936,9 @@ namespace TAS.Client.ViewModels
 
         private bool _canSave(object o)
         {
-            IEvent ev = _event;
-            return ev != null
-                   && (IsModified || ev.IsModified);
+            return _event != null
+                   && (IsModified || _event.IsModified)
+                   && _event.HaveRight(EventRight.Modify);
         }
 
         private void _setCGElements(IMedia media)
@@ -959,7 +961,8 @@ namespace TAS.Client.ViewModels
             IEvent prior = _event?.Prior;
             return prior != null && prior.PlayState == TPlayState.Scheduled &&
                    _event.PlayState == TPlayState.Scheduled && !IsLoop
-                   && (prior.StartType == TStartType.After || !IsHold);
+                   && (prior.StartType == TStartType.After || !IsHold)
+                   && _event.HaveRight(EventRight.Modify);
         }
 
         private bool _canMoveDown(object o)
@@ -967,7 +970,8 @@ namespace TAS.Client.ViewModels
             IEvent next = _event?.Next;
             return next != null && next.PlayState == TPlayState.Scheduled && _event.PlayState == TPlayState.Scheduled &&
                    !next.IsLoop
-                   && (_event.StartType == TStartType.After || !next.IsHold);
+                   && (_event.StartType == TStartType.After || !next.IsHold)
+                   && _event.HaveRight(EventRight.Modify);
         }
 
         #endregion // command methods

@@ -16,6 +16,7 @@ namespace TAS.Client.ViewModels
         private bool _mediaIngest;
         private bool _mediaEdit;
         private bool _mediaDelete;
+        private bool _mediaArchive;
 
         public EngineRightViewmodel(IAclRight right) : base(right)
         {
@@ -26,6 +27,7 @@ namespace TAS.Client.ViewModels
             _mediaIngest = (right.Acl & (ulong)EngineRight.MediaIngest) != 0;
             _mediaEdit = (right.Acl & (ulong)EngineRight.MediaEdit) != 0;
             _mediaDelete = (right.Acl & (ulong)EngineRight.MediaDelete) != 0;
+            _mediaArchive = (right.Acl & (ulong) EngineRight.MediaArchive) != 0;
         }
 
         public bool Play
@@ -103,6 +105,19 @@ namespace TAS.Client.ViewModels
                         Acl |= (ulong)EngineRight.MediaDelete;
                     else
                         Acl &= ~(ulong)EngineRight.MediaDelete;
+            }
+        }
+
+        public bool MediaArchive
+        {
+            get { return _mediaArchive; }
+            set
+            {
+                if (SetField(ref _mediaArchive, value))
+                    if (value)
+                        Acl |= (ulong)EngineRight.MediaArchive;
+                    else
+                        Acl &= ~(ulong)EngineRight.MediaArchive;
             }
         }
 

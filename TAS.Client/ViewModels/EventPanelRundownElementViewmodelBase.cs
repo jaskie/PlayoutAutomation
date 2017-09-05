@@ -18,28 +18,27 @@ namespace TAS.Client.ViewModels
             Media = ev.Media;
             ev.PositionChanged += EventPositionChanged;
 
-            CommandToggleHold = new UICommand()
+            CommandToggleHold = new UICommand
             {
-                ExecuteDelegate = (o) =>
+                ExecuteDelegate = o =>
                 {
                     Event.IsHold = !Event.IsHold;
                     Event.Save();
                 },
-                CanExecuteDelegate = (o) => Event.PlayState == TPlayState.Scheduled &&
-                                            Event.StartType == TStartType.After
+                CanExecuteDelegate = _canToggleHold
             };
-            CommandToggleEnabled = new UICommand()
+            CommandToggleEnabled = new UICommand
             {
-                ExecuteDelegate = (o) =>
+                ExecuteDelegate = o =>
                 {
                     Event.IsEnabled = !Event.IsEnabled;
                     Event.Save();
                 },
-                CanExecuteDelegate = (o) => Event.PlayState == TPlayState.Scheduled
+                CanExecuteDelegate = o => Event.PlayState == TPlayState.Scheduled && Event.HaveRight(EventRight.Modify)
             };
-            CommandToggleLayer = new UICommand()
+            CommandToggleLayer = new UICommand
             {
-                ExecuteDelegate = (l) =>
+                ExecuteDelegate = l =>
                 {
                     VideoLayer layer = (VideoLayer) sbyte.Parse((string) l);
                     if (_hasSubItemsOnLayer(layer))
@@ -50,32 +49,30 @@ namespace TAS.Client.ViewModels
                     else
                         EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent, TMediaType.Still, layer, true);
                 },
-                CanExecuteDelegate = (o) => Event.PlayState == TPlayState.Scheduled ||
-                                            Event.PlayState == TPlayState.Playing ||
-                                            Event.PlayState == TPlayState.Paused
+                CanExecuteDelegate = _canToggleLayer
             };
-            CommandAddNextRundown = new UICommand()
+            CommandAddNextRundown = new UICommand
             {
                 ExecuteDelegate = o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Rundown, false),
                 CanExecuteDelegate = _canAddNextItem
             };
-            CommandAddNextEmptyMovie = new UICommand()
+            CommandAddNextEmptyMovie = new UICommand
             {
                 ExecuteDelegate = o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Movie, false),
                 CanExecuteDelegate = CanAddNextMovie
             };
-            CommandAddNextLive = new UICommand()
+            CommandAddNextLive = new UICommand
             {
                 ExecuteDelegate = o => EngineViewmodel.AddSimpleEvent(Event, TEventType.Live, false),
                 CanExecuteDelegate = CanAddNewLive
             };
-            CommandAddNextMovie = new UICommand()
+            CommandAddNextMovie = new UICommand
             {
                 ExecuteDelegate = o => EngineViewmodel.AddMediaEvent(Event, TStartType.After, TMediaType.Movie,
                     VideoLayer.Program, false),
                 CanExecuteDelegate = CanAddNextMovie
             };
-            CommandAddAnimation = new UICommand()
+            CommandAddAnimation = new UICommand
             {
                 ExecuteDelegate = o => EngineViewmodel.AddMediaEvent(Event, TStartType.WithParent,
                     TMediaType.Animation, VideoLayer.Animation, true),
@@ -86,6 +83,19 @@ namespace TAS.Client.ViewModels
                 ExecuteDelegate = o => EngineViewmodel.AddCommandScriptEvent(Event),
                 CanExecuteDelegate = o => Event.PlayState == TPlayState.Scheduled
             };
+        }
+
+        private bool _canToggleLayer(object obj)
+        {
+            return (Event.PlayState == TPlayState.Scheduled || Event.PlayState == TPlayState.Playing || Event.PlayState == TPlayState.Paused)
+                   && Event.HaveRight(EventRight.Modify);
+        }
+
+        private bool _canToggleHold(object o)
+        {
+            return Event.PlayState == TPlayState.Scheduled
+                   && Event.StartType == TStartType.After
+                   && Event.HaveRight(EventRight.Modify);
         }
 
         #region Commands
@@ -117,7 +127,9 @@ namespace TAS.Client.ViewModels
 
         bool _canAddNextItem(object o)
         {
-            return Event.PlayState != TPlayState.Played && !Event.IsLoop;
+            return Event.HaveRight(EventRight.Create)
+                   && Event.PlayState != TPlayState.Played 
+                   && !Event.IsLoop;
         }
 
         #endregion // Commands

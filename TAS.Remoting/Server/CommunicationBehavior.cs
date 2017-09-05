@@ -83,9 +83,9 @@ namespace TAS.Remoting.Server
                                 ParameterInfo[] methodParameters = methodToInvoke.GetParameters();
                                 //_alignContentTypes(ref message.ValueCount,
                                 //    methodParameters.Select(p => p.ParameterType).ToArray());
-                                //for (int i = 0; i < methodParameters.Length; i++)
-                                //    MethodParametersAlignment.AlignType(ref message.Parameters[i],
-                                //        methodParameters[i].ParameterType);
+                                for (int i = 0; i < methodParameters.Length; i++)
+                                    MethodParametersAlignment.AlignType(ref parameters.Value[i],
+                                        methodParameters[i].ParameterType);
                                 object response = methodToInvoke.Invoke(objectToInvoke,
                                     BindingFlags.Instance | BindingFlags.InvokeMethod | BindingFlags.Public, null,
                                     parameters.Value, null);

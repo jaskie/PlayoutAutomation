@@ -37,8 +37,9 @@ namespace TAS.Common
         Play = 0x01,
         Preview = 0x02,
         Rundown = 0x10,
-        MediaIngest = 0x20,
-        MediaEdit = 0x40,
-        MediaDelete = 0x80,
+        MediaIngest = 0x100,
+        MediaEdit = 0x200,
+        MediaDelete = 0x400,
+        MediaArchive = 0x800
     }
 }

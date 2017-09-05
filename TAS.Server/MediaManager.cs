@@ -2,15 +2,12 @@
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Runtime.Remoting.Messaging;
 using System.IO;
 using System.Configuration;
 using System.Xml.Serialization;
 using System.Reflection;
 using System.Threading;
 using System.Diagnostics;
-using System.ServiceModel;
 using TAS.Common;
 using Newtonsoft.Json;
 using TAS.Remoting.Server;
@@ -146,6 +143,9 @@ namespace TAS.Server
 
         public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete)
         {
+            if (!Engine.HaveRight(EngineRight.MediaDelete))
+                return new List<MediaDeleteDenyReason>(mediaList.Select(m => new MediaDeleteDenyReason() {Media = m, Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.InsufficentRights }));
+
             List<MediaDeleteDenyReason> result = new List<MediaDeleteDenyReason>();
             foreach (var media in mediaList)
                 result.Add(_deleteMedia(media, forceDelete));
@@ -154,12 +154,18 @@ namespace TAS.Server
 
         public void MeasureLoudness(IEnumerable<IMedia> mediaList)
         {
+            if (!Engine.HaveRight(EngineRight.MediaEdit))
+                return;
             foreach (IMedia m in mediaList)
                 m.GetLoudness();
         }
 
         public void ArchiveMedia(IEnumerable<IServerMedia> mediaList, bool deleteAfter)
         {
+            if (!Engine.HaveRight(EngineRight.MediaArchive) || 
+                (deleteAfter && !Engine.HaveRight(EngineRight.MediaDelete)))
+                return;
+
             IArchiveDirectory adir = ArchiveDirectory;
             if (adir == null)
                 return;

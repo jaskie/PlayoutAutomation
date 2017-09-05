@@ -320,7 +320,7 @@ namespace TAS.Client.ViewModels
                         {
                             case MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny:
                                 break;
-                            case MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.MediaInFutureSchedule:
+                            case MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.InFutureSchedule:
                                 reasonMsg.AppendLine().Append(reason.Media.MediaName).Append(": ").AppendFormat(resources._message_MediaDeleteDenyReason_Scheduled, reason.Event == null ? resources._unknown_ : reason.Event.EventName, reason.Event == null ? resources._unknown_ : reason.Event.ScheduledTime.ToLocalTime().ToString());
                                 break;
                             case MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.Protected:

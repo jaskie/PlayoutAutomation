@@ -544,10 +544,11 @@ namespace TAS.Client.ViewModels
         {
             IEvent ev = _selectedEvent?.Event;
             return _allowPlayControl
-                && ev != null
-                && ev.IsEnabled
-                && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused || ev.PlayState == TPlayState.Aborted)
-                && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie);
+                   && ev != null
+                   && ev.IsEnabled
+                   && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused || ev.PlayState == TPlayState.Aborted)
+                   && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie)
+                   && Engine.HaveRight(EngineRight.Play);
         }
 
         private void _loadSelected(object obj)
@@ -568,19 +569,26 @@ namespace TAS.Client.ViewModels
                 && ev != null
                 && ev.IsEnabled
                 && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Aborted)
-                && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie);
+                && (ev.EventType == TEventType.Rundown || ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie)
+                && Engine.HaveRight(EngineRight.Play);
         }
 
         private bool _canScheduleSelected(object o)
         {
             IEvent ev = _selectedEvent?.Event;
-            return _allowPlayControl && ev != null && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused) && ev.ScheduledTime >= _currentTime;
+            return _allowPlayControl
+                   && ev != null
+                   && (ev.PlayState == TPlayState.Scheduled || ev.PlayState == TPlayState.Paused)
+                   && ev.ScheduledTime >= _currentTime
+                   && Engine.HaveRight(EngineRight.Play);
         }
 
         private bool _canRescheduleSelected(object o)
         {
             IEvent ev = _selectedEvent?.Event;
-            return ev != null && (ev.PlayState == TPlayState.Aborted || ev.PlayState == TPlayState.Played);
+            return ev != null
+                   && Engine.HaveRight(EngineRight.Play)
+                   && (ev.PlayState == TPlayState.Aborted || ev.PlayState == TPlayState.Played);
         }
 
         private void _restartRundown(object o)
