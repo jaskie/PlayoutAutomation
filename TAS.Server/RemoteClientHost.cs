@@ -27,8 +27,13 @@ namespace TAS.Server
                 return false;
             try
             {
-                _server = new WebSocketServer(ListenPort);
-                _server.AddWebSocketService("/Engine", () => new ServerSession(engine, engine.AuthenticationService) { Binder = ServerBinder });
+                _server = new WebSocketServer(ListenPort) {NoDelay = true};
+                _server.AddWebSocketService<ServerSession>("/Engine", s =>
+                {
+                    s.Binder = ServerBinder;
+                    s.AuthenticationService = engine.AuthenticationService;
+                    s.InitialObject = engine;
+                });
                 _server.Start();
                 return true;
             }

@@ -23,18 +23,12 @@ namespace TAS.Remoting.Server
     public class ServerSession : WebSocketBehavior
     {
         private readonly JsonSerializer _serializer;
-        private readonly IDto _initialObject;
-        private readonly IAuthenticationService _authenticationService;
         private readonly ReferenceResolver _referenceResolver;
         private readonly ConcurrentDictionary<Tuple<Guid, string>, Delegate> _delegates;
 
-
-        public ServerSession(IDto initialObject, IAuthenticationService authenticationService)
+        public ServerSession()
         {
-            _initialObject = initialObject;
-            _authenticationService = authenticationService;
             _delegates = new ConcurrentDictionary<delegateKey, Delegate>();
-            Debug.WriteLine(initialObject, "Server: created behavior for");
             _serializer = JsonSerializer.CreateDefault();
             _referenceResolver = new ReferenceResolver();
             _referenceResolver.ReferencePropertyChanged += _referenceResolver_ReferencePropertyChanged;
@@ -50,10 +44,12 @@ namespace TAS.Remoting.Server
 #if DEBUG
         ~ServerSession()
         {
-            Debug.WriteLine("Finalized: {0} for {1}", this, _initialObject);
+            Debug.WriteLine("Finalized: {0} for {1}", this, InitialObject);
         }
 #endif
 
+        public IDto InitialObject;
+        public IAuthenticationService AuthenticationService;
         public ISerializationBinder Binder { get { return _serializer.SerializationBinder; } set { _serializer.SerializationBinder = value; } }
 
         protected override void OnMessage(MessageEventArgs e)
@@ -61,14 +57,14 @@ namespace TAS.Remoting.Server
             WebSocketMessage message = new WebSocketMessage(e.RawData);
             try
             {
-                var user = _authenticationService.FindUser(AuthenticationSource.IpAddress, Context?.UserEndPoint.Address.ToString());
+                var user = AuthenticationService.FindUser(AuthenticationSource.IpAddress, Context?.UserEndPoint.Address.ToString());
                 if (user == null)
                     throw new UnauthorizedAccessException($"Access from {Context?.UserEndPoint.Address} not allowed");
                 Thread.CurrentPrincipal = new GenericPrincipal(user, new string[0]);
 
                 if (message.MessageType == WebSocketMessage.WebSocketMessageType.RootQuery)
                 {
-                    _sendResponse(message, _initialObject);
+                    _sendResponse(message, InitialObject);
                 }
                 else // method of particular object
                 {

@@ -205,6 +205,7 @@ namespace TAS.Remoting.Client
         private void _clientSocket_OnOpen(object sender, EventArgs e)
         {
             Debug.WriteLine(this, "Connected");
+            _clientSocket.TcpClient.NoDelay = true;
             Connected?.Invoke(this, EventArgs.Empty);
         }
 
