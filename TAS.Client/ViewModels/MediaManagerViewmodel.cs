@@ -310,31 +310,34 @@ namespace TAS.Client.ViewModels
             List<IMedia> selection = _getSelections();
             if (MessageBox.Show(string.Format(resources._query_DeleteSelectedFiles, selection.AsString(Environment.NewLine)), resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.OK)
             {
-                var reasons = _mediaManager.DeleteMedia(selection, false).Where(r => r.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny);
+                var reasons = _mediaManager.DeleteMedia(selection, false).Where(r => r.Result != MediaDeleteResult.MediaDeleteResultEnum.Success);
                 if (reasons.Any())
                 {
                     StringBuilder reasonMsg = new StringBuilder();
                     foreach (var reason in reasons)
                     {
-                        switch (reason.Reason)
+                        switch (reason.Result)
                         {
-                            case MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny:
+                            case MediaDeleteResult.MediaDeleteResultEnum.Success:
                                 break;
-                            case MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.InFutureSchedule:
-                                reasonMsg.AppendLine().Append(reason.Media.MediaName).Append(": ").AppendFormat(resources._message_MediaDeleteDenyReason_Scheduled, reason.Event == null ? resources._unknown_ : reason.Event.EventName, reason.Event == null ? resources._unknown_ : reason.Event.ScheduledTime.ToLocalTime().ToString());
+                            case MediaDeleteResult.MediaDeleteResultEnum.InFutureSchedule:
+                                reasonMsg.AppendLine().Append(reason.Media.MediaName).Append(": ").AppendFormat(resources._message_MediaDeleteResult_Scheduled, reason.Event == null ? resources._unknown_ : reason.Event.EventName, reason.Event == null ? resources._unknown_ : reason.Event.ScheduledTime.ToLocalTime().ToString());
                                 break;
-                            case MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.Protected:
-                                reasonMsg.AppendLine().Append(reason.Media.MediaName).Append(": ").Append(resources._message_MediaDeleteDenyReason_Protected);
+                            case MediaDeleteResult.MediaDeleteResultEnum.Protected:
+                                reasonMsg.AppendLine().Append(reason.Media.MediaName).Append(": ").Append(resources._message_MediaDeleteResult_Protected);
+                                break;
+                            case MediaDeleteResult.MediaDeleteResultEnum.InsufficentRights:
+                                reasonMsg.AppendLine().Append(reason.Media.MediaName).Append(": ").Append(resources._message_MediaDeleteResult_InsufficientRights);
                                 break;
                             default:
-                                reasonMsg.AppendLine().Append(reason.Media.MediaName).Append(": ").Append(resources._message_MediaDeleteDenyReason_Unknown);
+                                reasonMsg.AppendLine().Append(reason.Media.MediaName).Append(": ").Append(resources._message_MediaDeleteResult_Unknown);
                                 break;
                         }
                     }
                     if (reasonMsg.Length > 0)
                     {
-                        if (MessageBox.Show(String.Join(Environment.NewLine, resources._message_MediaDeleteNotAllowed, reasonMsg.ToString(), Environment.NewLine, resources._message_DeleteAnyway), resources._caption_Error, MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.Yes)
-                            _mediaManager.DeleteMedia(reasons.Select(r => r.Media), true);
+                        if (MessageBox.Show(String.Join(Environment.NewLine, resources._message_MediaDeleteResult_NotAllowed, reasonMsg.ToString(), Environment.NewLine, resources._message_DeleteAnyway), resources._caption_Error, MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.Yes)
+                            _mediaManager.DeleteMedia(reasons.Select(r => r.Media).ToArray(), true);
                     }
                 }
             }

@@ -653,18 +653,18 @@ namespace TAS.Server
             ForcedNext = aEvent;
         }
 
-        public MediaDeleteDenyReason CanDeleteMedia(PersistentMedia media)
+        public MediaDeleteResult CanDeleteMedia(PersistentMedia media)
         {
-            MediaDeleteDenyReason reason = MediaDeleteDenyReason.NoDeny;
+            MediaDeleteResult reason = MediaDeleteResult.NoDeny;
             if (media.Protected)
-                return new MediaDeleteDenyReason { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.Protected, Media = media };
+                return new MediaDeleteResult { Result = MediaDeleteResult.MediaDeleteResultEnum.Protected, Media = media };
             ServerMedia serverMedia = media as ServerMedia;
             if (serverMedia == null)
                 return reason;
             foreach (Event e in _rootEvents.ToList())
             {
                 reason = e.CheckCanDeleteMedia(serverMedia);
-                if (reason.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
+                if (reason.Result != MediaDeleteResult.MediaDeleteResultEnum.Success)
                     return reason;
             }
             return this.DbMediaInUse(serverMedia);
@@ -866,9 +866,11 @@ namespace TAS.Server
                 return false;
             if (identity.IsAdmin)
                 return true; // Full rights
+            var groups = identity.GetGroups();
             lock (_rights)
             {
-                return _rights.Value.Any(r => r.SecurityObject == identity && (r.Acl & (ulong)right) > 0);
+                return _rights.Value.Any(r => r.SecurityObject == identity && (r.Acl & (ulong)right) > 0) 
+                    || groups.Any(g => _rights.Value.Any(r => r.SecurityObject == g && (r.Acl & (ulong)right) > 0));
             }
         }
 
@@ -951,7 +953,7 @@ namespace TAS.Server
                 && media.MediaType == TMediaType.Movie
                 && ArchivePolicy == TArchivePolicyType.ArchivePlayedAndNotUsedWhenDeleteEvent
                 && _mediaManager.ArchiveDirectory != null
-                && CanDeleteMedia(media).Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
+                && CanDeleteMedia(media).Result == MediaDeleteResult.MediaDeleteResultEnum.Success)
                 ThreadPool.QueueUserWorkItem(o => _mediaManager.ArchiveMedia(new List<IServerMedia>(new[] { media }), true));
         }
         

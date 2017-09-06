@@ -250,7 +250,7 @@ namespace TAS.Remoting.Model
 
         public void Clear() { Invoke(); }
 
-        public void Clear(VideoLayer aVideoLayer) { Invoke(parameters: new[] { aVideoLayer }); } 
+        public void Clear(VideoLayer aVideoLayer) { Invoke(parameters: new object[] { aVideoLayer }); } 
 
         public void ClearMixer() { Invoke(); }
 

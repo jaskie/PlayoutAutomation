@@ -415,9 +415,9 @@ namespace TAS.Database
             }
         }
 
-        public static MediaDeleteDenyReason DbMediaInUse(this IEngine engine, IServerMedia serverMedia)
+        public static MediaDeleteResult DbMediaInUse(this IEngine engine, IServerMedia serverMedia)
         {
-            MediaDeleteDenyReason reason = MediaDeleteDenyReason.NoDeny;
+            MediaDeleteResult reason = MediaDeleteResult.NoDeny;
             lock (_connection)
             {
                 string query = "select * from rundownevent where MediaGuid=@MediaGuid and ADDTIME(ScheduledTime, Duration) > UTC_TIMESTAMP();";
@@ -433,7 +433,7 @@ namespace TAS.Database
                     futureScheduled.IsModified = false;
                 }
                 if (futureScheduled != null)
-                    return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.InFutureSchedule, Media = serverMedia, Event = futureScheduled };
+                    return new MediaDeleteResult() { Result = MediaDeleteResult.MediaDeleteResultEnum.InFutureSchedule, Media = serverMedia, Event = futureScheduled };
             }
             return reason;
         }

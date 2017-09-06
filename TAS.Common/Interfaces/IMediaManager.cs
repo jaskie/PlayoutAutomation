@@ -22,7 +22,7 @@ namespace TAS.Common.Interfaces
         void CopyMediaToPlayout(IEnumerable<IMedia> mediaList, bool ToTop = false);
         void ArchiveMedia(IEnumerable<IServerMedia> mediaList, bool deleteAfter);
         void Export(IEnumerable<MediaExportDescription> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat);
-        IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete);
+        IEnumerable<MediaDeleteResult> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete);
 
         void ReloadIngestDirs();
         void SynchronizeMediaSecToPri(bool deleteNotExisted);

@@ -549,8 +549,8 @@ namespace TAS.Common
     public enum AuthenticationSource
     {
         Console, // user 
-        WindowsCredentials,
-        IpAddress
+        IpAddress,
+        // WindowsCredentials // not implemented yet
     }
 
 }

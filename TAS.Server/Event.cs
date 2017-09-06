@@ -1051,7 +1051,7 @@ namespace TAS.Server
                 _delete();
         }
 
-        public MediaDeleteDenyReason CheckCanDeleteMedia(IServerMedia media)
+        public MediaDeleteResult CheckCanDeleteMedia(IServerMedia media)
         {
             Event nev = this;
             while (nev != null)
@@ -1059,16 +1059,16 @@ namespace TAS.Server
                 if (nev.EventType == TEventType.Movie
                     && nev.Media == media
                     && nev.ScheduledTime >= Engine.CurrentTime)
-                    return new MediaDeleteDenyReason() { Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.InFutureSchedule, Event = nev, Media = media };
+                    return new MediaDeleteResult() { Result = MediaDeleteResult.MediaDeleteResultEnum.InFutureSchedule, Event = nev, Media = media };
                 foreach (Event se in nev._subEvents.Value.ToList())
                 {
-                    MediaDeleteDenyReason reason = se.CheckCanDeleteMedia(media);
-                    if (reason.Reason != MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
+                    MediaDeleteResult reason = se.CheckCanDeleteMedia(media);
+                    if (reason.Result != MediaDeleteResult.MediaDeleteResultEnum.Success)
                         return reason;
                 }
                 nev = nev.Next as Event;
             }
-            return MediaDeleteDenyReason.NoDeny;
+            return MediaDeleteResult.NoDeny;
         }
 
         public void Save()

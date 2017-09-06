@@ -154,16 +154,16 @@ Use TVPlay.config program to configure the system.</value>
     <value>Unable to refresh directory. Following error occurred:
 {0}</value>
   </data>
-  <data name="_message_MediaDeleteDenyReason_Protected" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_Protected" xml:space="preserve">
     <value>Media is delete-protected</value>
   </data>
-  <data name="_message_MediaDeleteDenyReason_Scheduled" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_Scheduled" xml:space="preserve">
     <value>Item is scheduled in {0} at {1}</value>
   </data>
-  <data name="_message_MediaDeleteDenyReason_Unknown" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_Unknown" xml:space="preserve">
     <value>Unknown reason</value>
   </data>
-  <data name="_message_MediaDeleteNotAllowed" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_NotAllowed" xml:space="preserve">
     <value>Delete not allowed due to following reason(s):</value>
   </data>
   <data name="_moreItems" xml:space="preserve">
@@ -340,5 +340,8 @@ Do you really want to run this BACKUP play-out?</value>
   </data>
   <data name="_window_EngineRights" xml:space="preserve">
     <value>{0} rights</value>
+  </data>
+  <data name="_message_MediaDeleteResult_InsufficientRights" xml:space="preserve">
+    <value>Insufficient user rights to delete media</value>
   </data>
 </root>

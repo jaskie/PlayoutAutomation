@@ -301,7 +301,7 @@ namespace TAS.Client.ViewModels
 
         private bool _canClear(object obj)
         {
-            return _allowPlayControl;
+            return _allowPlayControl && Engine.HaveRight(EngineRight.Play);
         }
 
         private void _loadRundown(object obj)

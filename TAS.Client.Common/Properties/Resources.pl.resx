@@ -154,16 +154,16 @@ Skonfiguruj system przy użyciu programu TVPlay.config.</value>
     <value>Odświeżenie katalogu nie powiodło się. Błąd, który wystąpił:
 {0}</value>
   </data>
-  <data name="_message_MediaDeleteDenyReason_Protected" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_Protected" xml:space="preserve">
     <value>Klip jest zabezpieczony przed usunięciem</value>
   </data>
-  <data name="_message_MediaDeleteDenyReason_Scheduled" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_Scheduled" xml:space="preserve">
     <value>Zaplanowany w {0} o {1}</value>
   </data>
-  <data name="_message_MediaDeleteDenyReason_Unknown" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_Unknown" xml:space="preserve">
     <value>Przyczyna nieznana</value>
   </data>
-  <data name="_message_MediaDeleteNotAllowed" xml:space="preserve">
+  <data name="_message_MediaDeleteResult_NotAllowed" xml:space="preserve">
     <value>Nie można usunąć klipów, ponieważ:</value>
   </data>
   <data name="_moreItems" xml:space="preserve">
@@ -340,5 +340,8 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   </data>
   <data name="_window_EngineRights" xml:space="preserve">
     <value>Uprawnienia do {0}</value>
+  </data>
+  <data name="_message_MediaDeleteResult_InsufficientRights" xml:space="preserve">
+    <value>Brak uprawnień do usunięcia klipu</value>
   </data>
 </root>

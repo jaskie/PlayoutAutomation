@@ -127,9 +127,9 @@ namespace TAS.Remoting.Model
             Invoke(parameters: new object[] { mediaList, deleteAfter });
         }
 
-        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete)
+        public IEnumerable<MediaDeleteResult> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete)
         {
-            return Query<List<MediaDeleteDenyReason>>(parameters: new object[] { mediaList, forceDelete });
+            return Query<List<MediaDeleteResult>>(parameters: new object[] { mediaList, forceDelete });
         }
 
         public void Export(IEnumerable<MediaExportDescription> exportList, bool asSingleFile, string singleFilename, IIngestDirectory directory, TmXFAudioExportFormat mXFAudioExportFormat, TmXFVideoExportFormat mXFVideoExportFormat)

@@ -7,7 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Security.Principal;
 using System.Text;
+using System.Threading;
 using Newtonsoft.Json;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -18,7 +20,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Remoting.Server
 {
-    public class CommunicationBehavior : WebSocketBehavior
+    public class ServerSession : WebSocketBehavior
     {
         private readonly JsonSerializer _serializer;
         private readonly IDto _initialObject;
@@ -27,7 +29,7 @@ namespace TAS.Remoting.Server
         private readonly ConcurrentDictionary<Tuple<Guid, string>, Delegate> _delegates;
 
 
-        public CommunicationBehavior(IDto initialObject, IAuthenticationService authenticationService)
+        public ServerSession(IDto initialObject, IAuthenticationService authenticationService)
         {
             _initialObject = initialObject;
             _authenticationService = authenticationService;
@@ -46,7 +48,7 @@ namespace TAS.Remoting.Server
         }
 
 #if DEBUG
-        ~CommunicationBehavior()
+        ~ServerSession()
         {
             Debug.WriteLine("Finalized: {0} for {1}", this, _initialObject);
         }
@@ -56,11 +58,14 @@ namespace TAS.Remoting.Server
 
         protected override void OnMessage(MessageEventArgs e)
         {
-            //Thread.CurrentPrincipal = 
-            var user = _authenticationService.FindUser(AuthenticationSource.IpAddress, Context.Host);
             WebSocketMessage message = new WebSocketMessage(e.RawData);
             try
             {
+                var user = _authenticationService.FindUser(AuthenticationSource.IpAddress, Context?.UserEndPoint.Address.ToString());
+                if (user == null)
+                    throw new UnauthorizedAccessException($"Access from {Context?.UserEndPoint.Address} not allowed");
+                Thread.CurrentPrincipal = new GenericPrincipal(user, new string[0]);
+
                 if (message.MessageType == WebSocketMessage.WebSocketMessageType.RootQuery)
                 {
                     _sendResponse(message, _initialObject);
@@ -81,8 +86,6 @@ namespace TAS.Remoting.Server
                             {
                                 var parameters = DeserializeDto<WebSocketMessageArrayValue>(message.GetValueStream());
                                 ParameterInfo[] methodParameters = methodToInvoke.GetParameters();
-                                //_alignContentTypes(ref message.ValueCount,
-                                //    methodParameters.Select(p => p.ParameterType).ToArray());
                                 for (int i = 0; i < methodParameters.Length; i++)
                                     MethodParametersAlignment.AlignType(ref parameters.Value[i],
                                         methodParameters[i].ParameterType);
@@ -155,7 +158,6 @@ namespace TAS.Remoting.Server
                 //Send(message.Serialize());
                 Debug.WriteLine(ex);
             }
-
         }
 
         protected override void OnClose(CloseEventArgs e)

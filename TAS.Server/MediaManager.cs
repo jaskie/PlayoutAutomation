@@ -141,12 +141,12 @@ namespace TAS.Server
             }
         }
 
-        public IEnumerable<MediaDeleteDenyReason> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete)
+        public IEnumerable<MediaDeleteResult> DeleteMedia(IEnumerable<IMedia> mediaList, bool forceDelete)
         {
             if (!Engine.HaveRight(EngineRight.MediaDelete))
-                return new List<MediaDeleteDenyReason>(mediaList.Select(m => new MediaDeleteDenyReason() {Media = m, Reason = MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.InsufficentRights }));
+                return new List<MediaDeleteResult>(mediaList.Select(m => new MediaDeleteResult() {Media = m, Result = MediaDeleteResult.MediaDeleteResultEnum.InsufficentRights }));
 
-            List<MediaDeleteDenyReason> result = new List<MediaDeleteDenyReason>();
+            List<MediaDeleteResult> result = new List<MediaDeleteResult>();
             foreach (var media in mediaList)
                 result.Add(_deleteMedia(media, forceDelete));
             return result;
@@ -504,17 +504,17 @@ namespace TAS.Server
             }
         }
 
-        private MediaDeleteDenyReason _deleteMedia(IMedia media, bool forceDelete)
+        private MediaDeleteResult _deleteMedia(IMedia media, bool forceDelete)
         {
             if (forceDelete)
             {
                 _fileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Delete, Source = media });
-                return MediaDeleteDenyReason.NoDeny;
+                return MediaDeleteResult.NoDeny;
             }
             else
             {
-                MediaDeleteDenyReason reason = (media is PersistentMedia) ? _engine.CanDeleteMedia(media as PersistentMedia) : MediaDeleteDenyReason.NoDeny;
-                if (reason.Reason == MediaDeleteDenyReason.MediaDeleteDenyReasonEnum.NoDeny)
+                MediaDeleteResult reason = (media is PersistentMedia) ? _engine.CanDeleteMedia(media as PersistentMedia) : MediaDeleteResult.NoDeny;
+                if (reason.Result == MediaDeleteResult.MediaDeleteResultEnum.Success)
                     _fileManager.Queue(new FileOperation(_fileManager) { Kind = TFileOperationKind.Delete, Source = media });
                 return reason;
             }
