@@ -26,7 +26,7 @@ namespace TAS.Client.ViewModels
         private readonly IMediaManager _mediaManager;
         private ICollectionView _mediaView;
         private readonly IPreview _preview;
-        bool _previewDisplay;
+        bool _isDisplayPreview;
         private MediaViewViewmodel _selectedMedia;
         private MediaEditViewmodel _editMedia;
         private IList _selectedMediaList;
@@ -68,7 +68,6 @@ namespace TAS.Client.ViewModels
                 FileManagerViewmodel = new FileManagerViewmodel(mediaManager.FileManager);
             RecordersViewmodel = new RecordersViewmodel(mediaManager.Recorders);
             RecordersViewmodel.PropertyChanged += _recordersViewmodel_PropertyChanged;
-            _previewDisplay = true;
             ComposePlugins();
             VideoPreview?.SetSource(RecordersViewmodel.Channel?.PreviewUrl);
 
@@ -110,7 +109,7 @@ namespace TAS.Client.ViewModels
 
         public RecordersViewmodel RecordersViewmodel { get; }
 
-        public bool IsPreviewDisplay { get { return _previewDisplay; } set { SetField(ref _previewDisplay, value); } }
+        public bool IsDisplayPreview { get { return _isDisplayPreview; } set { SetField(ref _isDisplayPreview, value); } }
 
         public MediaViewViewmodel SelectedMedia
         {
@@ -216,13 +215,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsDisplayFolder
-        {
-            get
-            {
-                return _selectedDirectory != null && (_selectedDirectory.IsArchiveDirectory || _selectedDirectory.IsRecursive);
-            }
-        }
+        public bool IsDisplayFolder => _selectedDirectory != null && (_selectedDirectory.IsArchiveDirectory || _selectedDirectory.IsRecursive);
 
         public bool IsDisplayClipNr => _selectedDirectory != null && _selectedDirectory.IsXdcam;
 
@@ -386,7 +379,7 @@ namespace TAS.Client.ViewModels
                     if (!string.IsNullOrEmpty((dir as IArchiveDirectory).SearchString))
                         SearchText = (dir as IArchiveDirectory).SearchString;
             }
-            IsPreviewDisplay = PreviewViewmodel != null
+            IsDisplayPreview = PreviewViewmodel != null
                              && dir != null
                              && (!(dir is IIngestDirectory) || (dir as IIngestDirectory).AccessType == TDirectoryAccessType.Direct);
             if (PreviewViewmodel != null)

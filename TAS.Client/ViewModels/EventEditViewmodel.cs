@@ -1126,7 +1126,7 @@ namespace TAS.Client.ViewModels
         {
             if (_mediaSearchViewModel == null)
             {
-                _mediaSearchViewModel = new MediaSearchViewmodel(_engineViewModel.Engine, _event.Engine.MediaManager,
+                _mediaSearchViewModel = new MediaSearchViewmodel(_engineViewModel.Engine.HaveRight(EngineRight.Preview) ? _engineViewModel.Engine : null, _event.Engine.MediaManager,
                     mediaType, VideoLayer.Program, true, videoFormatDescription)
                 {
                     BaseEvent = baseEvent,

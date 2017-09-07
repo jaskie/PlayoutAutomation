@@ -14,7 +14,6 @@ using Newtonsoft.Json;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using delegateKey = System.Tuple<System.Guid, string>;
-using Newtonsoft.Json.Serialization;
 using TAS.Common;
 using TAS.Common.Interfaces;
 

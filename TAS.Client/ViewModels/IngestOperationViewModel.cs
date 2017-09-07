@@ -9,7 +9,7 @@ using resources = TAS.Client.Common.Properties.Resources;
 
 namespace TAS.Client.ViewModels
 {
-    public class ConvertOperationViewModel: FileOperationViewmodel, IDataErrorInfo
+    public class IngestOperationViewModel: FileOperationViewmodel, IDataErrorInfo
     {
         private readonly IIngestOperation _convertOperation;
         private readonly PreviewViewmodel _previewVm;
@@ -25,7 +25,7 @@ namespace TAS.Client.ViewModels
         private TimeSpan _startTC;
         private TimeSpan _duration;
         
-        public ConvertOperationViewModel(IIngestOperation operation, IPersistentMediaProperties destMediaProperties, IPreview preview, IMediaManager mediaManager)
+        public IngestOperationViewModel(IIngestOperation operation, IPersistentMediaProperties destMediaProperties, IPreview preview, IMediaManager mediaManager)
             : base(operation)
         {
             _convertOperation = operation;

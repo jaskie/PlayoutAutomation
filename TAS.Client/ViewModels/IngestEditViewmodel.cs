@@ -14,7 +14,7 @@ namespace TAS.Client.ViewModels
 {
     internal class IngestEditViewmodel : OkCancelViewmodelBase<IList<IIngestOperation>>
     {
-        private ConvertOperationViewModel _selectedOperation;
+        private IngestOperationViewModel _selectedOperation;
 
         public IngestEditViewmodel(IList<IIngestOperation> convertionList, IPreview preview, IMediaManager mediaManager): base(convertionList, typeof(Views.IngestEditorView), resources._window_IngestAs)
         {
@@ -23,7 +23,7 @@ namespace TAS.Client.ViewModels
             //}
 
 
-        OperationList = new ObservableCollection<ConvertOperationViewModel>(convertionList.Select(op =>
+        OperationList = new ObservableCollection<IngestOperationViewModel>(convertionList.Select(op =>
             {
                 string destFileName = $"{Path.GetFileNameWithoutExtension(op.Source.FileName)}{FileUtils.DefaultFileExtension(op.Source.MediaType)}";
                 IPersistentMediaProperties destMediaProperties = new PersistentMediaProxy
@@ -36,7 +36,7 @@ namespace TAS.Client.ViewModels
                     MediaGuid = op.Source.MediaGuid,
                     MediaCategory = op.Source.MediaCategory
                 };
-                return new ConvertOperationViewModel(op, destMediaProperties, preview, mediaManager);
+                return new IngestOperationViewModel(op, destMediaProperties, preview, mediaManager);
             }));
             SelectedOperation = OperationList.FirstOrDefault();
             foreach (var c in OperationList)
@@ -47,9 +47,9 @@ namespace TAS.Client.ViewModels
 
         public ICommand CommandDeleteOperation { get; }
 
-        public ObservableCollection<ConvertOperationViewModel> OperationList { get; }
+        public ObservableCollection<IngestOperationViewModel> OperationList { get; }
 
-        public ConvertOperationViewModel SelectedOperation
+        public IngestOperationViewModel SelectedOperation
         {
             get { return _selectedOperation; }
             set { SetField(ref _selectedOperation, value); }
@@ -61,7 +61,7 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                foreach (ConvertOperationViewModel mediaVm in OperationList)
+                foreach (IngestOperationViewModel mediaVm in OperationList)
                 {
                     if (!mediaVm.IsValid)
                         return false;
@@ -79,14 +79,14 @@ namespace TAS.Client.ViewModels
 
         protected override void Ok(object o)
         {
-            foreach (ConvertOperationViewModel c in OperationList)
+            foreach (IngestOperationViewModel c in OperationList)
                 c.Apply();
             base.Ok(o);
         }
 
         private void _deleteOperation(object obj)
         {
-            var operation = obj as ConvertOperationViewModel;
+            var operation = obj as IngestOperationViewModel;
             if (operation == null)
                 return;
             int operaionIndex = OperationList.IndexOf(operation);
@@ -102,7 +102,7 @@ namespace TAS.Client.ViewModels
 
         void _convertOperationPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(ConvertOperationViewModel.IsValid))
+            if (e.PropertyName == nameof(IngestOperationViewModel.IsValid))
                 OnModified();
         }
 

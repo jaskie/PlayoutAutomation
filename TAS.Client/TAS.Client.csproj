@@ -94,7 +94,7 @@
     <Compile Include="ViewModels\AclRightViewmodel.cs" />
     <Compile Include="ViewModels\CGElementViewmodel.cs" />
     <Compile Include="ViewModels\ChannelViewmodel.cs" />
-    <Compile Include="ViewModels\ConvertOperationViewModel.cs" />
+    <Compile Include="ViewModels\IngestOperationViewModel.cs" />
     <Compile Include="ViewModels\EngineCGElementsControllerViewmodel.cs" />
     <Compile Include="ViewModels\EngineStateViewmodel.cs" />
     <Compile Include="ViewModels\EngineViewmodel.cs" />
@@ -134,14 +134,15 @@
     <Compile Include="ViewModels\PreviewViewmodel.cs" />
     <Compile Include="ViewModels\RecordersViewmodel.cs" />
     <Compile Include="ViewModels\SecurityObjectSelectorViewmodel.cs" />
+    <Compile Include="ViewModels\SplashScreenViewmodel.cs" />
     <Compile Include="ViewModels\UserManagerViewmodel.cs" />
     <Compile Include="ViewModels\GroupViewmodel.cs" />
     <Compile Include="ViewModels\UserViewmodel.cs" />
     <Compile Include="Views\ChannelView.xaml.cs">
       <DependentUpon>ChannelView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ConvertOperationView.xaml.cs">
-      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    <Compile Include="Views\IngestOperationView.xaml.cs">
+      <DependentUpon>IngestOperationView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\EngineCGElementsControllerView.xaml.cs">
       <DependentUpon>EngineCGElementsControllerView.xaml</DependentUpon>
@@ -225,6 +226,9 @@
     <Compile Include="Views\SecurityObjectSelectorView.xaml.cs">
       <DependentUpon>SecurityObjectSelectorView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SplashScreenView.xaml.cs">
+      <DependentUpon>SplashScreenView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\TemplatedEditView.xaml.cs">
       <DependentUpon>TemplatedEditView.xaml</DependentUpon>
     </Compile>
@@ -261,7 +265,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ConvertOperationView.xaml">
+    <Page Include="Views\IngestOperationView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -373,6 +377,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\SplashScreenView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\TemplatedEditView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -397,11 +405,11 @@
     <EmbeddedResource Include="Views\ChannelView.resx">
       <DependentUpon>ChannelView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\ConvertOperationView.pl.resx">
-      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    <EmbeddedResource Include="Views\IngestOperationView.pl.resx">
+      <DependentUpon>IngestOperationView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\ConvertOperationView.resx">
-      <DependentUpon>ConvertOperationView.xaml</DependentUpon>
+    <EmbeddedResource Include="Views\IngestOperationView.resx">
+      <DependentUpon>IngestOperationView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\EngineCGElementsControllerView.resx">
       <DependentUpon>EngineCGElementsControllerView.xaml</DependentUpon>
@@ -409,10 +417,10 @@
     <EmbeddedResource Include="Views\EngineCGElementsControllerView.pl.resx">
       <DependentUpon>EngineCGElementsControllerView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\EngineRightsEditView.pl.resx" >
+    <EmbeddedResource Include="Views\EngineRightsEditView.pl.resx">
       <DependentUpon>EngineRightsEditView.xaml</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\EngineRightsEditView.resx" >
+    <EmbeddedResource Include="Views\EngineRightsEditView.resx">
       <DependentUpon>EngineRightsEditView.xaml</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\EngineStateView.pl.resx">

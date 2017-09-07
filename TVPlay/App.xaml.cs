@@ -1,9 +1,11 @@
 ﻿using System.Configuration;
-using System.Security.Principal;
 using System.Threading;
 using System.Windows;
 using TAS.Server;
 using Infralution.Localization.Wpf;
+using TAS.Client.Views;
+using resources = TAS.Client.Common.Properties.Resources;
+
 
 namespace TAS.Client
 {
@@ -12,8 +14,14 @@ namespace TAS.Client
     /// </summary>
     public partial class App : Application
     {
+        private static readonly Mutex Mutex = new Mutex(false, "TASClientApplication");
+        bool _isSystemShutdown;
+        private Window _splash;
+
         public App()
         {
+            _splash = new SplashScreenView();
+            _splash.Show();
             #region hacks
             Common.WpfHacks.ApplyGridViewRowPresenter_CellMargin();
             #endregion
@@ -22,12 +30,16 @@ namespace TAS.Client
                 CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
             else
                 CultureManager.UICulture = new System.Globalization.CultureInfo(uiCulture);
-            Thread.CurrentPrincipal = new GenericPrincipal(new LocalUser(), new string[0]);
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
+
+        public bool IsIsSystemShutdown => _isSystemShutdown;
+
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
             EngineController.ShutDown();
+            Mutex.ReleaseMutex();
         }
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
@@ -38,6 +50,38 @@ namespace TAS.Client
             else
                 MessageBox.Show(window, e.Exception.Message, Common.Properties.Resources._caption_Error, MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            try
+            {
+                bool isBackupInstance;
+                bool.TryParse(ConfigurationManager.AppSettings["IsBackupInstance"], out isBackupInstance);
+                if ((!Mutex.WaitOne(5000) && 
+                        (MessageBox.Show(resources._query_StartAnotherInstance, resources._caption_Confirmation, MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                        || (isBackupInstance && MessageBox.Show(resources._query_StartBackupInstance, resources._caption_Confirmation, MessageBoxButton.YesNo) != MessageBoxResult.Yes)))
+                {
+                    _isSystemShutdown = true;
+                    Shutdown(0);
+                    return;
+                }
+            }
+            catch (AbandonedMutexException)
+            {
+                Mutex.ReleaseMutex();
+                Mutex.WaitOne();
+            }
+            base.OnStartup(e);
+            MainWindow = new MainWindow();
+            MainWindow.Show();
+            _splash?.Close();
+        }
+
+        protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
+        {
+            _isSystemShutdown = true;
+            base.OnSessionEnding(e);
         }
     }
 }

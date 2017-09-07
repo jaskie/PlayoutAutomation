@@ -25,34 +25,7 @@ namespace TAS.Client.Views
         {
             InitializeComponent();
         }
-
-        private MediaManagerViewmodel _mediaManagerViewModel;
-        public MediaManagerViewmodel MediaManagerViewmodel
-        {
-            get { return _mediaManagerViewModel; }
-            set
-            {
-                if (_mediaManagerViewModel != value)
-                {
-                    _mediaManagerViewModel = value;
-                    DataContext = _mediaManagerViewModel;
-                }
-            }
-        }
-
-        private PreviewViewmodel _previewViewModel;
-        public PreviewViewmodel PreviewViewmodel
-        {
-            get { return _previewViewModel; }
-            set
-            {
-                if (_previewViewModel != value)
-                {
-                    _previewViewModel = value;
-                }
-            }
-        }
-
+        
         private void UserControl_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.SystemKey == Key.LeftAlt)

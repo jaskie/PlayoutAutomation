@@ -1,0 +1,69 @@
+﻿<Window x:Class="TAS.Client.Views.SplashScreenView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
+             mc:Ignorable="d" 
+             ResizeMode="NoResize" 
+             WindowStyle="None"  
+             WindowStartupLocation="CenterScreen"
+             AllowsTransparency="True"
+             Height="300" Width="300" Background="{x:Null}">
+    <Window.Resources>
+        <vm:SplashScreenViewmodel x:Key="SplashScreenViewmodel"/>
+    </Window.Resources>
+    <Grid DataContext="{StaticResource SplashScreenViewmodel}">
+        <Viewbox Stretch="Uniform">
+            <Canvas Width="520" Height="520">
+                <Canvas >
+                    <Canvas >
+                        <Canvas.RenderTransform>
+                            <TranslateTransform X="4.0000011" Y="4.93361"/>
+                        </Canvas.RenderTransform>
+                        <Canvas >
+                            <Canvas.Resources>
+                                <LinearGradientBrush x:Key="Svgid1" MappingMode="Absolute" StartPoint="0,256" EndPoint="512,256">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStopCollection>
+                                            <GradientStop Color="#00AEEE" Offset="0"/>
+                                            <GradientStop Color="#0095DA" Offset="1"/>
+                                        </GradientStopCollection>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                                <LinearGradientBrush x:Key="Svgid2" MappingMode="Absolute" StartPoint="43,256" EndPoint="469,256">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStopCollection>
+                                            <GradientStop Color="#0095DA" Offset="0"/>
+                                            <GradientStop Color="#00AEEE" Offset="1"/>
+                                        </GradientStopCollection>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Canvas.Resources>
+                            <Ellipse Canvas.Left="0" Canvas.Top="0" Width="512" Height="512" Fill="{StaticResource Svgid1}"/>
+                            <Path Fill="{StaticResource Svgid2}">
+                                <Path.Data>
+                                    <PathGeometry Figures="m 256 469.33386 c -117.63147 0 -213.333344 -95.70239 -213.333344 -213.33334 0 -117.63146 95.701864 -213.333314 213.333344 -213.333314 117.63574 0 213.33334 95.701864 213.33334 213.333314 0 117.63095 -95.6976 213.33334 -213.33334 213.33334 z" FillRule="NonZero"/>
+                                </Path.Data>
+                            </Path>
+                        </Canvas>
+                        <Path Fill="#000000" Opacity="0.3">
+                            <Path.Data>
+                                <PathGeometry Figures="M 144.00053 144.00053 V 383.99948 H 383.99948 V 144.00053 H 144.00053 z m 43.75307 219.37386 h -23.84 v -23.84106 h 23.84 v 23.84106 z m 0 -43.72745 h -23.84 V 295.8064 h 23.84 v 23.84054 z m 0 -43.72641 h -23.84 v -23.84106 h 23.84 v 23.84106 z m 0 -43.72746 h -23.84 V 208.352 h 23.84 v 23.84107 z m 0 -43.72746 h -23.84 V 164.6256 h 23.84 v 23.84001 z M 321.12479 154.00053 V 258.99948 H 206.8752 V 154.00053 H 321.12479 z M 206.8752 373.99948 v -105 h 114.24959 v 105 H 206.8752 z m 157.2112 -10.62509 h -23.84107 v -23.84106 h 23.84107 v 23.84106 z m 0 -43.72745 H 340.24533 V 295.8064 h 23.84107 v 23.84054 z m 0 -43.72641 h -23.84107 v -23.84106 h 23.84107 v 23.84106 z m 0 -43.72746 H 340.24533 V 208.352 h 23.84107 v 23.84107 z m 0 -43.72746 H 340.24533 V 164.6256 h 23.84107 v 23.84001 z" FillRule="NonZero"/>
+                            </Path.Data>
+                        </Path>
+                        <Path Fill="#FFFFFFFF">
+                            <Path.Data>
+                                <PathGeometry Figures="M 136.00053 136.00053 V 375.99948 H 375.99948 V 136.00053 H 136.00053 z m 43.75307 219.37386 h -23.84 v -23.84106 h 23.84 v 23.84106 z m 0 -43.72745 h -23.84 V 287.8064 h 23.84 v 23.84054 z m 0 -43.72641 h -23.84 v -23.84106 h 23.84 v 23.84106 z m 0 -43.72746 h -23.84 V 200.352 h 23.84 v 23.84107 z m 0 -43.72746 h -23.84 V 156.6256 h 23.84 v 23.84001 z M 313.12479 146.00053 V 250.99947 H 198.8752 V 146.00053 H 313.12479 z M 198.8752 365.99948 v -105 h 114.24959 v 105 H 198.8752 z m 157.2112 -10.62509 h -23.84107 v -23.84106 h 23.84107 v 23.84106 z m 0 -43.72745 H 332.24533 V 287.8064 h 23.84107 v 23.84054 z m 0 -43.72641 h -23.84107 v -23.84106 h 23.84107 v 23.84106 z m 0 -43.72746 H 332.24533 V 200.352 h 23.84107 v 23.84107 z m 0 -43.72746 H 332.24533 V 156.6256 h 23.84107 v 23.84001 z" FillRule="NonZero"/>
+                            </Path.Data>
+                        </Path>
+                    </Canvas>
+                </Canvas>
+            </Canvas>
+        </Viewbox>
+        <StackPanel TextBlock.Foreground="White" TextBlock.FontSize="18" Margin="25" >
+            <TextBlock HorizontalAlignment="Center">TVPlay</TextBlock>
+            <TextBlock Text="{Binding Version}" HorizontalAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</Window>

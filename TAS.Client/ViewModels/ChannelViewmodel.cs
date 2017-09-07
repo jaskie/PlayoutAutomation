@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using TAS.Client.Common;
+using TAS.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
@@ -14,7 +15,7 @@ namespace TAS.Client.ViewModels
             if (showEngine)
                 Engine = new EngineViewmodel(engine, engine, allowPlayControl);
             if (showMedia)
-                MediaManager = new MediaManagerViewmodel(engine.MediaManager, engine);
+                MediaManager = new MediaManagerViewmodel(engine.MediaManager, engine.HaveRight(EngineRight.Preview) ? engine : null);
             CommandSwitchTab = new UICommand { ExecuteDelegate = o => SelectedTabIndex = _selectedTabIndex == 0 ? 1 : 0, CanExecuteDelegate = o => showEngine && showMedia };
             SelectedTabIndex = showEngine ? 0 : 1;
         }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
+using System.Threading;
 using System.Windows;
 using TAS.Client.Common;
 using TAS.Client.ViewModels;
@@ -18,6 +20,7 @@ namespace TAS.Client
             {
                 try
                 {
+                    Thread.CurrentPrincipal = new GenericPrincipal(new LocalUser(), new string[0]);
                     EngineController.Initialize();
                     var engines = EngineController.Engines;
                     Tabs = new List<ViewmodelBase>(engines.Select(engine => new ChannelViewmodel(engine, true, true, true)));

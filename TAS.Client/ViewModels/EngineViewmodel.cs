@@ -57,7 +57,7 @@ namespace TAS.Client.ViewModels
 
 
             // Creating Preview
-            if (preview != null && allowPlayControl)
+            if (preview != null && allowPlayControl && engine.HaveRight(EngineRight.Preview))
                 PreviewViewmodel = new PreviewViewmodel(preview) { IsSegmentsVisible = true };
 
             // Creating EventEditViewmodel
@@ -689,9 +689,12 @@ namespace TAS.Client.ViewModels
         {
             if (baseEvent != null && _mediaSearchViewModel == null)
             {
-                _mediaSearchViewModel = new MediaSearchViewmodel(Engine, Engine.MediaManager, mediaType, layer, closeAfterAdd, baseEvent.Media?.FormatDescription());
-                _mediaSearchViewModel.BaseEvent = baseEvent;
-                _mediaSearchViewModel.NewEventStartType = startType;
+                _mediaSearchViewModel = new MediaSearchViewmodel(Engine.HaveRight(EngineRight.Preview) ? Engine : null,
+                    Engine.MediaManager, mediaType, layer, closeAfterAdd, baseEvent.Media?.FormatDescription())
+                {
+                    BaseEvent = baseEvent,
+                    NewEventStartType = startType
+                };
                 _mediaSearchViewModel.SearchWindowClosed += _mediaSearchViewModelSearchWindowClosed;
                 _mediaSearchViewModel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
             }

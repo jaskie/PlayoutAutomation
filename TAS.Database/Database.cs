@@ -28,7 +28,6 @@ namespace TAS.Database
             _connection = new DbConnectionRedundant(_connectionStringPrimary, _connectionStringSecondary);
             _connection.StateRedundantChange += _connection_StateRedundantChange;
             _connection.Open();
-            //_connection.Update();
         }
 
         private static void _connection_StateRedundantChange(object sender, RedundantConnectionStateEventArgs e)

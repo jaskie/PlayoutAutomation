@@ -25,7 +25,7 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-            <views:ConvertOperationView DataContext="{Binding SelectedOperation}" Margin="5"/>
+            <views:IngestOperationView DataContext="{Binding SelectedOperation}" Margin="5"/>
         </DockPanel>
     </Grid>
 </UserControl>
