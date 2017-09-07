@@ -65,9 +65,9 @@
     <Compile Include="IDto.cs" />
     <Compile Include="MethodParametersAlignment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Server\ServerHost.cs" />
     <Compile Include="Server\ServerSession.cs" />
     <Compile Include="Server\DtoBase.cs" />
-    <Compile Include="TypeNameOverrideAttribute.cs" />
     <Compile Include="WebSocketMessage.cs" />
   </ItemGroup>
   <ItemGroup>

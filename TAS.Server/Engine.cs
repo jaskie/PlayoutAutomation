@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using TAS.Remoting.Server;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json.Serialization;
 using TAS.Database;
 using TAS.Common.Interfaces;
 using TAS.Server.Media;
@@ -151,7 +152,7 @@ namespace TAS.Server
         [JsonProperty]
         public ICGElementsController CGElementsController { get; private set; }
 
-        public RemoteClientHost Remote { get; set; }
+        public ServerHost Remote { get; set; }
         public TAspectRatioControl AspectRatioControl { get; set; }
         public double VolumeReferenceLoudness { get; set; }
 
@@ -327,7 +328,7 @@ namespace TAS.Server
             if (Remote != null)
             {
                 Debug.WriteLine(this, "Initializing Remote interface");
-                Remote.Initialize(this);
+                Remote.Initialize(this, "/Engine", _authenticationService);
             }
 
             if (_localGpis != null)

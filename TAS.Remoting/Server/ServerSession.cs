@@ -50,7 +50,6 @@ namespace TAS.Remoting.Server
 
         public IDto InitialObject;
         public IAuthenticationService AuthenticationService;
-        public ISerializationBinder Binder { get { return _serializer.SerializationBinder; } set { _serializer.SerializationBinder = value; } }
 
         protected override void OnMessage(MessageEventArgs e)
         {

@@ -9,30 +9,25 @@ using Newtonsoft.Json.Serialization;
 
 namespace TAS.Server
 {
-    public class RemoteClientHost : IDisposable, IRemoteHostConfig
+    public class ServerHost : IDisposable, IRemoteHostConfig
     {
-        [XmlAttribute]
         private WebSocketServer _server;
         private int _disposed;
-
-        private static readonly ISerializationBinder ServerBinder = new ServerSerializationBinder();
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(RemoteClientHost));
 
         [XmlAttribute]
         public ushort ListenPort { get; set; }
 
-        public bool Initialize(Engine engine)
+        public bool Initialize(DtoBase dto, string path, IAuthenticationService authenticationService)
         {
             if (ListenPort < 1024)
                 return false;
             try
             {
                 _server = new WebSocketServer(ListenPort) {NoDelay = true};
-                _server.AddWebSocketService<ServerSession>("/Engine", s =>
+                _server.AddWebSocketService<ServerSession>(path, s =>
                 {
-                    s.Binder = ServerBinder;
-                    s.AuthenticationService = engine.AuthenticationService;
-                    s.InitialObject = engine;
+                    s.AuthenticationService = authenticationService;
+                    s.InitialObject = dto;
                 });
                 _server.Start();
                 return true;
@@ -40,7 +35,6 @@ namespace TAS.Server
             catch(Exception e)
             {
                 Debug.WriteLine(e, "Initialization of RemoteClientHost error");
-                Logger.Error(e, "Initialization of RemoteClientHost error");
             }
             return false;
         }

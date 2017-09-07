@@ -61,10 +61,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\TAS.FFMpegUtils\x64\Release\TAS.FFMpegUtils.dll</HintPath>
     </Reference>
-    <Reference Include="websocket-sharp, Version=1.0.2.19289, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\dependencies\bin\websocket-sharp.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CasparRecorder.cs" />
@@ -111,8 +107,6 @@
     <Compile Include="XDCAM\XDCAMMedia.cs" />
     <Compile Include="PluginManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServerSerializationBinder.cs" />
-    <Compile Include="RemoteClientHost.cs" />
     <Compile Include="ExportOperation.cs" />
     <Compile Include="AnimatedEvent.cs" />
     <Compile Include="XDCAM\Alias.cs" />
