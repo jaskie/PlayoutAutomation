@@ -50,9 +50,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="websocket-sharp, Version=1.0.2.16469, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
+    <Reference Include="websocket-sharp, Version=1.0.2.19289, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\dependencies\websocket-sharp\websocket-sharp\bin\Release\websocket-sharp.dll</HintPath>
+      <HintPath>..\dependencies\bin\websocket-sharp.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
