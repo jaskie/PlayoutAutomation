@@ -240,7 +240,8 @@ namespace TAS.Client.ViewModels
                             ? resources._validate_FileNameEmpty
                             : string.Empty;
                     case nameof(FileName):
-                        return _recorder?.RecordingDirectory.FileExists(FileName) == true
+                        return 
+                            string.IsNullOrWhiteSpace(Path.GetFileNameWithoutExtension(FileName)) || _recorder?.RecordingDirectory.FileExists(FileName) == true
                             ? resources._validate_FileAlreadyExists
                             : string.Empty;
                 }

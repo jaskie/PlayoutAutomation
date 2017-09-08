@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 using TAS.Common.Interfaces;
 
 namespace TAS.Common
@@ -9,7 +10,7 @@ namespace TAS.Common
         {
             Event = ev;
         }
-        [Newtonsoft.Json.JsonProperty(IsReference = true)]
+        [JsonProperty(IsReference = true, TypeNameHandling = TypeNameHandling.Objects)]
         public IEvent Event { get; private set; }
     }
 }

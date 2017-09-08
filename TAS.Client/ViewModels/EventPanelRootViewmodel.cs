@@ -51,6 +51,8 @@ namespace TAS.Client.ViewModels
         private void _onEngineEventSaved(object o, EventEventArgs e) // when new event was created
         {
             Debug.WriteLine(e.Event, "EventSaved notified");
+            if (e.Event == null)
+                return;
             Application.Current.Dispatcher.BeginInvoke((Action)delegate
             {
                 EventPanelViewmodelBase vm = _placeEventInRundown(e.Event, false);

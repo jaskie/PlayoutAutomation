@@ -134,7 +134,6 @@
     <Compile Include="ViewModels\PreviewViewmodel.cs" />
     <Compile Include="ViewModels\RecordersViewmodel.cs" />
     <Compile Include="ViewModels\SecurityObjectSelectorViewmodel.cs" />
-    <Compile Include="ViewModels\SplashScreenViewmodel.cs" />
     <Compile Include="ViewModels\UserManagerViewmodel.cs" />
     <Compile Include="ViewModels\GroupViewmodel.cs" />
     <Compile Include="ViewModels\UserViewmodel.cs" />

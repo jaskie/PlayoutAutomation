@@ -285,7 +285,7 @@ namespace TAS.Client.ViewModels
 
         private bool _canUserManager(object obj)
         {
-            return ((IUser) Thread.CurrentPrincipal.Identity)?.IsAdmin == true;
+            return (Thread.CurrentPrincipal.Identity as IUser)?.IsAdmin == true;
         }
 
         private bool _canUndelete(object obj)

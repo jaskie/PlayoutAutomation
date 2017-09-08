@@ -234,14 +234,14 @@ namespace TAS.Client
             var sourceEvent = source as IEvent;
             var destEvent = dest as IEvent;
             if (destEvent == null 
-                || sourceEvent == null
-                || operation == ClipboardOperation.Cut && sourceEvent.Engine != destEvent.Engine)
+                || source == null
+                || operation == ClipboardOperation.Cut && sourceEvent?.Engine != destEvent.Engine)
                 return false;
             if (location == TPasteLocation.Under)
             {
                 if (destEvent.EventType == TEventType.StillImage)
                     return false;
-                if ((destEvent.EventType == TEventType.Movie || destEvent.EventType == TEventType.Live) && sourceEvent.EventType != TEventType.StillImage)
+                if ((destEvent.EventType == TEventType.Movie || destEvent.EventType == TEventType.Live) && source.EventType != TEventType.StillImage)
                     return false;
                 if (destEvent.EventType == TEventType.Rundown && (source.EventType == TEventType.StillImage || destEvent.SubEventsCount > 0))
                     return false;

@@ -5,6 +5,8 @@ using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Windows;
+using TAS.Client.Views;
+using TVPlayClient;
 
 namespace TAS.Client
 {
@@ -16,12 +18,21 @@ namespace TAS.Client
         public App()
         {
             Common.WpfHacks.ApplyGridViewRowPresenter_CellMargin();
-
+            new SplashScreenView().Show();
             string uiCulture = ConfigurationManager.AppSettings["UiLanguage"];
             if (string.IsNullOrWhiteSpace(uiCulture))
                 CultureManager.UICulture = System.Globalization.CultureInfo.CurrentUICulture;
             else
                 CultureManager.UICulture = new System.Globalization.CultureInfo(uiCulture);
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            var splash = MainWindow as SplashScreenView;
+            MainWindow = new MainWindow();
+            MainWindow.Show();
+            splash?.Close();
         }
     }
 }

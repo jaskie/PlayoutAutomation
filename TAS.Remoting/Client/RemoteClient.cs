@@ -190,7 +190,7 @@ namespace TAS.Remoting.Client
             {
                 case WebSocketMessage.WebSocketMessageType.EventNotification:
                     var proxy = _referenceResolver.ResolveReference(message.DtoGuid) as ProxyBase;
-                    proxy.OnEventNotificationMessage(message);
+                    proxy?.OnEventNotificationMessage(message);
                     break;
                 case WebSocketMessage.WebSocketMessageType.ObjectDisposed:
                     _referenceResolver.RemoveReference(message.DtoGuid);
