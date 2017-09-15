@@ -279,7 +279,7 @@ namespace TAS.Remoting.Model
             }
         }
         private event EventHandler _relocated;
-        public event EventHandler Relocated
+        public event EventHandler Located
         {
             add
             {
@@ -290,20 +290,6 @@ namespace TAS.Remoting.Model
             {
                 _relocated -= value;
                 EventRemove(_relocated);
-            }
-        }
-        private event EventHandler _saved;
-        public event EventHandler Saved
-        {
-            add
-            {
-                EventAdd(_saved);
-                _saved += value;
-            }
-            remove
-            {
-                _saved -= value;
-                EventRemove(_saved);
             }
         }
         private event EventHandler<CollectionOperationEventArgs<IEvent>> _subEventChanged;
@@ -331,12 +317,9 @@ namespace TAS.Remoting.Model
                 case nameof(IEvent.PositionChanged):
                     _positionChanged?.Invoke(this, Deserialize<EventPositionEventArgs>(message));
                     break;
-                case nameof(IEvent.Relocated):
+                case nameof(IEvent.Located):
                     ResetSlibbings();
                     _relocated?.Invoke(this, Deserialize<EventArgs>(message));
-                    return;
-                case nameof(IEvent.Saved):
-                    _saved?.Invoke(this, Deserialize<EventArgs>(message));
                     return;
                 case nameof(IEvent.SubEventChanged):
                     var ea = Deserialize<CollectionOperationEventArgs<IEvent>>(message);

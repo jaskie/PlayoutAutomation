@@ -115,14 +115,14 @@ namespace TAS.Client.ViewModels
                     {
                         ev.PropertyChanged -= _eventPropertyChanged;
                         ev.SubEventChanged -= _onSubeventChanged;
-                        ev.Relocated -= _onRelocated;
+                        ev.Located -= OnLocated;
                     }
                     _event = value;
                     if (value != null)
                     {
                         value.PropertyChanged += _eventPropertyChanged;
                         value.SubEventChanged += _onSubeventChanged;
-                        value.Relocated += _onRelocated;
+                        value.Located += OnLocated;
                     }
                     _load(null);
                 }
@@ -339,7 +339,7 @@ namespace TAS.Client.ViewModels
 
         public bool CanHold => _event != null && _event.Prior != null;
 
-        public bool CanLoop => _event != null && _event.GetSuccessor() == null;
+        public bool CanLoop => _event?.EventType == TEventType.Rundown && _event.GetSuccessor() == null;
 
         public bool IsEnabled
         {
@@ -1040,7 +1040,7 @@ namespace TAS.Client.ViewModels
         {
         }
 
-        private void _onRelocated(object o, EventArgs e)
+        private void OnLocated(object o, EventArgs e)
         {
             NotifyPropertyChanged(nameof(StartType));
             NotifyPropertyChanged(nameof(BoundEventName));
@@ -1121,8 +1121,7 @@ namespace TAS.Client.ViewModels
             return validationResult;
         }
 
-        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType,
-            VideoFormatDescription videoFormatDescription = null)
+        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType, VideoFormatDescription videoFormatDescription = null)
         {
             if (_mediaSearchViewModel == null)
             {

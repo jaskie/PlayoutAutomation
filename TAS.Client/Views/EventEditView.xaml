@@ -136,7 +136,7 @@
                             <CheckBox Grid.Column="1" Content="{Resx _autoStartForced}" ToolTip="{Resx _autoStartForced.ToolTip}" IsChecked="{Binding AutoStartForced}" Margin="1,3" Width="110"/>
                             <CheckBox Grid.Column="2" Content="{Resx _autoStartEveryday}" IsChecked="{Binding AutoStartDaily}" Margin="1,3" Width="Auto" />
                         </Grid>
-                        <Grid DockPanel.Dock="Top">
+                        <Grid DockPanel.Dock="Top" Visibility="{Binding IsMovieOrLive, Converter={StaticResource BoolToVis}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition/>
@@ -247,9 +247,9 @@
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
                             <Label Content="{Resx _duration}" />
-                            <controls:TimecodeEdit Grid.Column="1" Text="{Binding Duration}" VideoFormat="{Binding VideoFormat}" IsEnabled="{Binding IsDurationEnabled}"  />
+                            <controls:TimecodeEdit Grid.Column="1" Timecode="{Binding Duration}" VideoFormat="{Binding VideoFormat}" IsEnabled="{Binding IsDurationEnabled}"  />
                         </Grid>
-                        <Grid DockPanel.Dock="Top" Visibility="{Binding IsDisplayBindToEnd,Converter={StaticResource BoolToVis}}">
+                        <Grid DockPanel.Dock="Top" Visibility="{Binding IsDisplayBindToEnd, Converter={StaticResource BoolToVis}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition/>
@@ -257,7 +257,7 @@
                             </Grid.ColumnDefinitions>
                             <Label Content="{Resx _scheduledDelay}" />
                             <DockPanel Grid.Column="1" DockPanel.Dock="Top" >
-                                <controls:TimecodeEdit Text="{Binding ScheduledDelay}" VideoFormat="{Binding VideoFormat}" />
+                                <controls:TimecodeEdit Timecode="{Binding ScheduledDelay}" VideoFormat="{Binding VideoFormat}" />
                             </DockPanel>
                             <CheckBox Grid.Column="2" Content="{Resx _fromEnd}" IsChecked="{Binding BindToEnd}" />
                         </Grid>

@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿//#undef DEBUG
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +13,7 @@ namespace TAS.Client.ViewModels
     {
         public EventPanelRootViewmodel(EngineViewmodel engineViewmodel) : base(engineViewmodel)
         {
-            Engine.EventSaved += _onEngineEventSaved;
+            Engine.EventLocated += _onEngineEventLocated;
             Engine.EventDeleted += _engine_EventDeleted;
             foreach (var se in Engine.GetRootEvents())
                 _addRootEvent(se);
@@ -35,7 +35,7 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             base.OnDispose();
-            Engine.EventSaved -= _onEngineEventSaved;
+            Engine.EventLocated -= _onEngineEventLocated;
             Engine.EventDeleted -= _engine_EventDeleted;
         }
 
@@ -48,9 +48,9 @@ namespace TAS.Client.ViewModels
             });
         }
 
-        private void _onEngineEventSaved(object o, EventEventArgs e) // when new event was created
+        private void _onEngineEventLocated(object o, EventEventArgs e) // when new event was created
         {
-            Debug.WriteLine(e.Event, "EventSaved notified");
+            Debug.WriteLine(e.Event?.EventName, "EventLocated notified");
             if (e.Event == null)
                 return;
             Application.Current.Dispatcher.BeginInvoke((Action)delegate

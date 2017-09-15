@@ -82,7 +82,7 @@ namespace TAS.Common
                 result = engine.CreateNewEvent(
                         videoLayer: Layer,
                         eventType: EventType,
-                        startType: StartType,
+                        startType: TStartType.None,
                         playState: TPlayState.Scheduled,
                         scheduledTime: ScheduledTime,
                         duration: Duration,

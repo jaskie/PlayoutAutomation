@@ -93,7 +93,7 @@ namespace TAS.Server
 
         public event EventHandler<CollectionOperationEventArgs<IEvent>> PreloadedEventsOperation;
         public event EventHandler<CollectionOperationEventArgs<IEvent>> RunningEventsOperation;
-        public event EventHandler<EventEventArgs> EventSaved;
+        public event EventHandler<EventEventArgs> EventLocated;
         public event EventHandler<EventEventArgs> EventDeleted;
         public event EventHandler<CollectionOperationEventArgs<IEvent>> FixedTimeEventOperation;
 
@@ -726,7 +726,7 @@ namespace TAS.Server
                 result = new Event(this, idRundownEvent, idEventBinding, videoLayer, eventType, startType, playState, scheduledTime, duration, scheduledDelay, scheduledTC, mediaGuid, eventName, startTime, startTC, requestedStartTime, transitionTime, transitionPauseTime, transitionType, transitionEasing, audioVolume, idProgramme, idAux, isEnabled, isHold, isLoop, autoStartFlags, isCGEnabled, crawl, logo, parental);
             if (_events.TryAdd(((Event)result).DtoGuid, result))
             {
-                result.Saved += _eventSaved;
+                result.Located += _eventLocated;
                 result.Deleted += _eventDeleted;
             }
             if (startType == TStartType.OnFixedTime)
@@ -942,7 +942,7 @@ namespace TAS.Server
             IEvent eventToRemove;
             if (_events.TryRemove(aEvent.DtoGuid, out eventToRemove))
             {
-                aEvent.Saved -= _eventSaved;
+                aEvent.Located -= _eventLocated;
                 aEvent.Deleted -= _eventDeleted;
             }
             if (aEvent.StartType == TStartType.OnFixedTime)
@@ -1628,9 +1628,9 @@ namespace TAS.Server
             ((IDisposable)sender).Dispose();
         }
 
-        private void _eventSaved(object sender, EventArgs e)
+        private void _eventLocated(object sender, EventArgs e)
         {
-            EventSaved?.Invoke(this, new EventEventArgs(sender as IEvent));
+            EventLocated?.Invoke(this, new EventEventArgs(sender as IEvent));
         }
 
 

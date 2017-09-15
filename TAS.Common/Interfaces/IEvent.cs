@@ -37,9 +37,8 @@ namespace TAS.Common.Interfaces
         bool IsForcedNext { get; }
         bool HaveRight(EventRight right);
 
-        event EventHandler Saved;
         event EventHandler Deleted;
-        event EventHandler Relocated;
+        event EventHandler Located;
         event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
         event EventHandler<EventPositionEventArgs> PositionChanged;
     }

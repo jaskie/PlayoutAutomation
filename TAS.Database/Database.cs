@@ -1,4 +1,4 @@
-﻿//#undef DEBUG
+﻿#undef DEBUG
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -859,7 +859,7 @@ VALUES
                         if (_eventFillParamsAndExecute(cmd, aEvent))
                         {
                             aEvent.Id = (ulong)cmd.LastInsertedId;
-                            Debug.WriteLine("Event DbInsertSecurityObject Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
+                            Debug.WriteLine("DbInsertEvent Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
                             if (aEvent is ITemplated)
                                 _eventAnimatedSave(aEvent.Id, aEvent as ITemplated, true);
                             transaction.Commit();
@@ -907,7 +907,7 @@ WHERE idRundownEvent=@idRundownEvent;";
                         cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
                         if (_eventFillParamsAndExecute(cmd, aEvent))
                         {
-                            Debug.WriteLine("Event DbUpdateSecurityObject Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
+                            Debug.WriteLine("DbUpdateEvent Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
                             if (aEvent is ITemplated)
                                 _eventAnimatedSave(aEvent.Id, aEvent as ITemplated, false);
                             transaction.Commit();
@@ -927,7 +927,7 @@ WHERE idRundownEvent=@idRundownEvent;";
                 DbCommandRedundant cmd = new DbCommandRedundant(query, _connection);
                 cmd.Parameters.AddWithValue("@idRundownEvent", aEvent.Id);
                 cmd.ExecuteNonQuery();
-                Debug.WriteLine("Event DbDeleteMediaSegment Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
+                Debug.WriteLine("DbDeleteEvent Id={0}, EventName={1}", aEvent.Id, aEvent.EventName);
                 return true;
             }
         }

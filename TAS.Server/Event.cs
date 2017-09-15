@@ -58,8 +58,6 @@ namespace TAS.Server
 
         private byte _parental;
 
-        private ulong _id;
-
         private ulong _idEventBinding;
 
         private double? _audioVolume;
@@ -143,7 +141,7 @@ namespace TAS.Server
                     byte parental)
         {
             _engine = engine;
-            _id = idRundownEvent;
+            Id = idRundownEvent;
             _idEventBinding = idEventBinding;
             _layer = videoLayer;
             _eventType = eventType;
@@ -176,7 +174,7 @@ namespace TAS.Server
              _subEvents = new Lazy<SynchronizedCollection<Event>>(() =>
              {
                  var result = new SynchronizedCollection<Event>();
-                 if (_id != 0)
+                 if (Id != 0)
                  {
                      var seList = Engine.DbReadSubEvents(this);
                      foreach (Event e in seList)
@@ -195,6 +193,7 @@ namespace TAS.Server
                     next.Prior = this;
                 return next;
             });
+
             _prior = new Lazy<Event>(() =>
             {
                 Event prior = null;
@@ -224,16 +223,8 @@ namespace TAS.Server
         #region IEventPesistent 
         [XmlIgnore]
         [JsonProperty]
-        public ulong Id
-        {
-            get
-            {
-                if (_id == 0)
-                    Save();
-                return _id;
-            }
-            set { _id = value; }
-        }
+        public ulong Id {get; set; }
+
         public ulong IdEventBinding => _idEventBinding;
 
         #endregion
@@ -617,13 +608,11 @@ namespace TAS.Server
         public IEvent Parent
         {
             get { return _parent.Value; }
-            protected set            {
-                if (value != _parent.Value)
+            private set            {
+                if (_parent.IsValueCreated || value != _parent.Value)
                 {
                     Event v = value as Event;
                     _parent = new Lazy<Event>(() => v);
-                    if (v != null)
-                        _idEventBinding = v.Id;
                     NotifyPropertyChanged(nameof(Parent));
                 }
             }
@@ -632,14 +621,12 @@ namespace TAS.Server
         public IEvent Prior
         {
             get { return _prior.Value; }
-            protected set
+            private set
             {
-                if (value != _prior.Value)
+                if (!_prior.IsValueCreated || value != _prior.Value)
                 {
                     Event e = (Event)value;
                     _prior = new Lazy<Event>(() => e);
-                    if (value != null)
-                        _idEventBinding = e.Id;
                     NotifyPropertyChanged(nameof(Prior));
                 }
             }
@@ -648,9 +635,9 @@ namespace TAS.Server
         public IEvent Next
         {
             get { return _next.Value; }
-            protected set
+            private set
             {
-                if (value != _next.Value)
+                if (!_next.IsValueCreated || value != _next.Value)
                 {
                     _next = new Lazy<Event>(() => value as Event);
                     NotifyPropertyChanged(nameof(Next));
@@ -725,12 +712,10 @@ namespace TAS.Server
 
         public event EventHandler<EventPositionEventArgs> PositionChanged;
 
-        public event EventHandler Relocated;
+        public event EventHandler Located;
 
         public event EventHandler Deleted;
         
-        public event EventHandler Saved;
-
         public event EventHandler<CollectionOperationEventArgs<IEvent>> SubEventChanged;
 
         public void Remove()
@@ -816,7 +801,7 @@ namespace TAS.Server
             e4?.Save();
             e2.Save();
             Save();
-            NotifyRelocated();
+            NotifyLocated();
             return true;
         }
 
@@ -862,7 +847,7 @@ namespace TAS.Server
             e4?.Save();
             Save();
             e3.Save();
-            NotifyRelocated();
+            NotifyLocated();
             return true;
         }
 
@@ -889,7 +874,7 @@ namespace TAS.Server
                 eventToInsert.Prior = this;
 
                 // notify about relocation
-                eventToInsert.NotifyRelocated();
+                eventToInsert.NotifyLocated();
                 eventToInsert.Next = next;
 
                 if (next != null)
@@ -939,7 +924,7 @@ namespace TAS.Server
                     prior.Next = eventToInsert;
 
                 // notify about relocation
-                eventToInsert.NotifyRelocated();
+                eventToInsert.NotifyLocated();
                 this.Prior = eventToInsert;
                 eventToInsert.Next = this;
                 this.StartType = TStartType.After;
@@ -949,7 +934,7 @@ namespace TAS.Server
             eventToInsert._durationChanged();
 
             eventToInsert.Save();
-            this.Save();
+            Save();
             return true;
         }
 
@@ -978,7 +963,8 @@ namespace TAS.Server
                 subEventToAdd.IsHold = false;
                 _subEvents.Value.Add(subEventToAdd);
                 NotifySubEventChanged(subEventToAdd, CollectionOperation.Add);
-                Duration = _computedDuration();
+                if (_eventType == TEventType.Rundown)
+                    Duration = _computedDuration();
                 Event prior = subEventToAdd.Prior as Event;
                 if (prior != null)
                 {
@@ -989,13 +975,15 @@ namespace TAS.Server
             }
             subEventToAdd._uppdateScheduledTime();
             // notify about relocation
-            subEventToAdd.NotifyRelocated();
+            subEventToAdd.NotifyLocated();
             Event lastToInsert = subEventToAdd.Next as Event;
             while (lastToInsert != null)
             {
-                lastToInsert.NotifyRelocated();
+                lastToInsert.NotifyLocated();
                 lastToInsert = lastToInsert.Next as Event;
             }
+            if (_idEventBinding == 0)
+                Save();
             subEventToAdd.Save();
             return true;
         }
@@ -1073,14 +1061,26 @@ namespace TAS.Server
 
         public void Save()
         {
+            switch (_startType)
+            {
+                case TStartType.After:
+                    _idEventBinding = Prior?.Id ?? 0;
+                    break;
+                case TStartType.WithParent:
+                case TStartType.WithParentFromEnd:
+                    _idEventBinding = Parent?.Id ?? 0;
+                    break;
+                default:
+                    _idEventBinding = 0;
+                    break;
+            }
             try
             {
-                if (_id == 0)
+                if (Id == 0)
                     this.DbInsertEvent();
                 else
                     this.DbUpdateEvent();
                 IsModified = false;
-                NotifySaved();
             }
             catch (Exception e)
             {
@@ -1374,7 +1374,8 @@ namespace TAS.Server
         {
             if (_subEvents.Value.Remove(subEventToRemove))
             {
-                Duration = _computedDuration();
+                if (_eventType == TEventType.Rundown)
+                    Duration = _computedDuration();
                 NotifySubEventChanged(subEventToRemove, CollectionOperation.Remove);
             }
         }
@@ -1418,13 +1419,14 @@ namespace TAS.Server
 
         private void _setDuration(TimeSpan newDuration)
         {
+            var oldDuration = _duration;
             if (SetField(ref _duration, newDuration, nameof(Duration)))
             {
                 if (_eventType == TEventType.Live || _eventType == TEventType.Movie)
                 {
                     foreach (Event e in SubEvents.Where(ev => ev.EventType == TEventType.StillImage))
                     {
-                        TimeSpan nd = e._duration + newDuration - _duration;
+                        TimeSpan nd = e._duration + newDuration - oldDuration;
                         e._setDuration(nd > TimeSpan.Zero ? nd : TimeSpan.Zero);
                     }
                 }
@@ -1486,19 +1488,14 @@ namespace TAS.Server
             return acl;
         }
 
-        private void NotifySaved()
-        {
-            Saved?.Invoke(this, EventArgs.Empty);
-        }
-
         private void NotifyDeleted()
         {
             Deleted?.Invoke(this, EventArgs.Empty);
         }
 
-        private void NotifyRelocated()
+        private void NotifyLocated()
         {
-            Relocated?.Invoke(this, EventArgs.Empty);
+            Located?.Invoke(this, EventArgs.Empty);
         }
 
        

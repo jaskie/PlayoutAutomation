@@ -326,18 +326,18 @@ namespace TAS.Remoting.Model
 #endif
             }
         }
-        event EventHandler<EventEventArgs> _eventSaved;
-        public event EventHandler<EventEventArgs> EventSaved
+        event EventHandler<EventEventArgs> _eventLocated;
+        public event EventHandler<EventEventArgs> EventLocated
         {
             add
             {
-                EventAdd(_eventSaved);
-                _eventSaved += value;
+                EventAdd(_eventLocated);
+                _eventLocated += value;
             }
             remove
             {
-                _eventSaved -= value;
-                EventRemove(_eventSaved);
+                _eventLocated -= value;
+                EventRemove(_eventLocated);
             }
         }
         event EventHandler<EventEventArgs> _eventDeleted;
@@ -373,8 +373,8 @@ namespace TAS.Remoting.Model
                 case nameof(IEngine.EngineOperation):
                     _engineOperation?.Invoke(this, Deserialize<EngineOperationEventArgs>(message));
                     break;
-                case nameof(IEngine.EventSaved):
-                    _eventSaved?.Invoke(this, Deserialize<EventEventArgs>(message));
+                case nameof(IEngine.EventLocated):
+                    _eventLocated?.Invoke(this, Deserialize<EventEventArgs>(message));
                     break;
                 case nameof(IEngine.EventDeleted):
                     _eventDeleted?.Invoke(this, Deserialize<EventEventArgs>(message));

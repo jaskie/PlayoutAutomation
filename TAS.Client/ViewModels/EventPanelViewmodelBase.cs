@@ -63,7 +63,7 @@ namespace TAS.Client.ViewModels
             }
             Event.PropertyChanged += OnEventPropertyChanged;
             Event.SubEventChanged += OnSubeventChanged;
-            Event.Relocated += OnRelocated;
+            Event.Located += OnLocated;
         }
 
         protected override void OnDispose()
@@ -78,7 +78,7 @@ namespace TAS.Client.ViewModels
             {
                 Event.PropertyChanged -= OnEventPropertyChanged;
                 Event.SubEventChanged -= OnSubeventChanged;
-                Event.Relocated -= OnRelocated;
+                Event.Located -= OnLocated;
                 EngineViewmodel?.RemoveMultiSelected(this);
                 IsMultiSelected = false;
             }
@@ -251,7 +251,7 @@ namespace TAS.Client.ViewModels
         }
 
 
-        protected virtual void OnRelocated(object sender, EventArgs e)
+        protected virtual void OnLocated(object sender, EventArgs e)
         {
             if (_parent != null)
                 Application.Current.Dispatcher.BeginInvoke((Action)_updateLocation);
