@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.ComponentModel;
 using System.Windows.Data;
 using System.Diagnostics;
 using System.Windows.Input;
-using System.Threading;
 using TAS.Client.Common;
 using TAS.Common;
 using TAS.Common.Interfaces;
@@ -20,7 +18,6 @@ namespace TAS.Client.ViewModels
     {
         private readonly IMediaManager _manager;
         private readonly TMediaType _mediaType;
-        private readonly MediaSearchView _view;
         private readonly bool _closeAfterAdd;
         private readonly RationalNumber? _frameRate;
         private readonly VideoFormatDescription _videoFormatDescription;
@@ -48,13 +45,11 @@ namespace TAS.Client.ViewModels
                 _frameRate = _videoFormatDescription.FrameRate;
                 if (preview != null)
                     PreviewViewmodel = new PreviewViewmodel(preview) {IsSegmentsVisible = true};
-                WindowWidth = PreviewViewmodel != null ? 950 : 650;
             }
             else
             {
                 _videoFormatDescription = videoFormatDescription;
                 _frameRate = videoFormatDescription?.FrameRate;
-                WindowWidth = 750;
             }
             _mediaType = mediaType;
             if (PreviewViewmodel != null)
@@ -89,16 +84,11 @@ namespace TAS.Client.ViewModels
             _itemsView.SortDescriptions.Add(new SortDescription(nameof(MediaViewViewmodel.MediaName),
                 ListSortDirection.Ascending));
             _itemsView.Filter += _itemsFilter;
-            _view = new MediaSearchView {DataContext = this};
-            _view.Closed += _windowClosed;
-            _view.Show();
         }
 
         public ObservableCollection<MediaViewViewmodel> Items { get; }
 
         public ICommand CommandAdd { get; private set; }
-
-        public double WindowWidth { get; set; }
 
         public PreviewViewmodel PreviewViewmodel { get; }
 
@@ -192,7 +182,8 @@ namespace TAS.Client.ViewModels
         }
 
         public event EventHandler<MediaSearchEventArgs> MediaChoosen;
-        public event EventHandler<EventArgs> SearchWindowClosed;
+
+        public event EventHandler Disposed;
 
         internal Action<MediaSearchEventArgs> ExecuteAction;
 
@@ -388,15 +379,8 @@ namespace TAS.Client.ViewModels
             var handler = MediaChoosen;
             if (handler!= null && sm != null)
                 handler(this, new MediaSearchEventArgs(sm.Media, sm.SelectedSegment == null ? null : sm.SelectedSegment.MediaSegment, GetMediaName(), GetTCStart(), GetDuration()));
-            if (_closeAfterAdd)
-                _view.Close();
         }
 
-        private void _windowClosed(object o, EventArgs e)
-        {
-            SearchWindowClosed?.Invoke(this, e);
-        }
-        
         protected override void OnDispose()
         {
             BaseEvent = null;
@@ -412,9 +396,9 @@ namespace TAS.Client.ViewModels
                 _searchDirectory.MediaVerified -= _searchDirectory_MediaVerified;
             }
             _itemsView.Filter -= _itemsFilter;
-            _view.Closed -= _windowClosed;
             foreach (var item in Items)
                 item.Dispose();
+            Disposed?.Invoke(this, EventArgs.Empty);
             Debug.WriteLine("MediaSearchViewModel disposed");
         }
 

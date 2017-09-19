@@ -1,5 +1,5 @@
-﻿<Window Language="{UICulture}" ResxExtension.DefaultResxName="TAS.Client.Views.MediaSearchView"
-        x:Class="TAS.Client.MediaSearchView"
+﻿<UserControl Language="{UICulture}" ResxExtension.DefaultResxName="TAS.Client.Views.MediaSearchView"
+        x:Class="TAS.Client.Views.MediaSearchView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -10,16 +10,12 @@
         xmlns:vm="clr-namespace:TAS.Client.ViewModels"
         xmlns:views="clr-namespace:TAS.Client.Views"
         d:DataContext="{x:Type vm:MediaSearchViewmodel}"
-        Title="{Resx Window.Title}" 
-        Height="450" 
-        Width="{Binding WindowWidth, Mode=TwoWay}"
-        WindowStartupLocation="CenterOwner"
+        d:DesignHeight="450" 
         mc:Ignorable="d" 
-        ShowInTaskbar="False" SnapsToDevicePixels="True"
-        FocusManager.FocusedElement="{Binding ElementName=TbSearch}"
+        SnapsToDevicePixels="True"
         FontSize="12"
         >
-    <Window.Resources>
+    <UserControl.Resources>
         <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
         <ControlTemplate x:Key="ToggleButtonTemplate" TargetType="ToggleButton">
             <Grid
@@ -45,7 +41,7 @@
         <Style x:Key="ToggleButtonStyle" TargetType="ToggleButton">
             <Setter Property="Template" Value="{StaticResource ToggleButtonTemplate}" />
         </Style>
-    </Window.Resources>
+    </UserControl.Resources>
     <Grid Width="Auto">
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
@@ -65,8 +61,8 @@
                     <common:FocusExtension SelectAllOnFocus="True"/>
                 </i:Interaction.Behaviors>
             </TextBox>
-            <Button Grid.Column="4" HorizontalAlignment="Right" Content="{Binding OkButtonText}" Margin="5,3" Width="70" Command="{Binding CommandAdd}" Click="ButtonOKClick"  IsDefault="True" />
-            <Button Grid.Column="4" HorizontalAlignment="Left" Margin="5,3" Width="70" IsCancel="True" Click="ButtonCancel_Click"  Style="{StaticResource CancelButtonStyle}"/>
+            <Button Grid.Column="4" HorizontalAlignment="Right" Content="{Binding OkButtonText}" Margin="5,4" Width="70" Command="{Binding CommandAdd}" Click="ButtonOKClick"  IsDefault="True" />
+            <Button Grid.Column="4" HorizontalAlignment="Left" Margin="5,4" Width="70" Style="{StaticResource CancelButtonStyle}"/>
             <ComboBox Grid.Column="3" Margin="5,3" VerticalAlignment="Center" ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" >
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
@@ -78,7 +74,7 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
         </Grid>
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Width="650">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -231,4 +227,4 @@
             </DockPanel>
         </Grid>
     </Grid>
-</Window>
+</UserControl>

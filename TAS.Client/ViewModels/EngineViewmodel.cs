@@ -695,8 +695,12 @@ namespace TAS.Client.ViewModels
                     BaseEvent = baseEvent,
                     NewEventStartType = startType
                 };
-                _mediaSearchViewModel.SearchWindowClosed += _mediaSearchViewModelSearchWindowClosed;
                 _mediaSearchViewModel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
+                _mediaSearchViewModel.Disposed += (object sender, EventArgs args) =>
+                    {
+                        _mediaSearchViewModel = null;
+                    };
+                UiServices.ShowWindow<Views.MediaSearchView>(_mediaSearchViewModel, resources._window_MediaSearch, double.NaN, 450, true);
             }
         }
 
@@ -1237,15 +1241,6 @@ namespace TAS.Client.ViewModels
         }
 
         private bool _trackPlayingEvent = true;
-        
-        private void _mediaSearchViewModelSearchWindowClosed(object o, EventArgs e)
-        {
-            MediaSearchViewmodel mvs = (MediaSearchViewmodel)o;
-            mvs.SearchWindowClosed -= _mediaSearchViewModelSearchWindowClosed;
-            mvs.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
-            _mediaSearchViewModel.Dispose();
-            _mediaSearchViewModel = null;
-        }
 
         private void _mediaSearchViewModelMediaChoosen(object o, MediaSearchEventArgs e)
         {

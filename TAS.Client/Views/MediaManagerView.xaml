@@ -12,7 +12,6 @@
              xmlns:views="clr-namespace:TAS.Client.Views"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
-             xmlns:client="clr-namespace:TAS.Client"
              d:DataContext="{x:Type vm:MediaManagerViewmodel}"
              FontSize="13" KeyUp="UserControl_KeyUp"
              >
@@ -405,7 +404,7 @@
             <ContentControl Content="{Binding EditMedia}">
                 <ContentControl.Resources>
                     <DataTemplate DataType="{x:Type vm:MediaEditViewmodel}">
-                        <client:MediaEditView/>
+                        <views:MediaEditView/>
                     </DataTemplate>
                 </ContentControl.Resources>
             </ContentControl>

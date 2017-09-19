@@ -13,7 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TAS.Client.Common;
 
-namespace TAS.Client
+namespace TAS.Client.Views
 {
     /// <summary>
     /// Interaction logic for MediaEditUC.xaml

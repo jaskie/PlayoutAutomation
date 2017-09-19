@@ -7,7 +7,11 @@
         >
     <Grid>
         <DockPanel>
-            <DataGrid ItemsSource="{Binding OperationList}" SelectedItem="{Binding SelectedOperation}" AutoGenerateColumns="False" IsReadOnly="True" Visibility="{Binding ShowMediaList, Converter={StaticResource BoolToVis}}" Width="200">
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="37" HorizontalAlignment="Right">
+                    <Button Style="{StaticResource CancelButtonStyle}" />
+                    <Button Command="{Binding CommandOk}" Style="{StaticResource OkButtonStyle}" />
+                </StackPanel>
+                <DataGrid ItemsSource="{Binding OperationList}" SelectedItem="{Binding SelectedOperation}" AutoGenerateColumns="False" IsReadOnly="True" Visibility="{Binding ShowMediaList, Converter={StaticResource BoolToVis}}" Width="200">
                 <DataGrid.Resources>
                     <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
                 </DataGrid.Resources>

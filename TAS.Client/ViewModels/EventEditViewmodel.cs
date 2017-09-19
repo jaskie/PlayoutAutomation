@@ -858,8 +858,7 @@ namespace TAS.Client.ViewModels
             {
                 using (var kve = new KeyValueEditViewmodel((KeyValuePair<string, string>) editObject, true))
                 {
-                    kve.Load();
-                    if (kve.ShowDialog() == true)
+                    if (UiServices.ShowDialog<Views.KeyValueEditView>(kve, kve.Key, 400, 200) == true)
                         _fields[kve.Key] = kve.Value;
                 }
             }
@@ -879,8 +878,8 @@ namespace TAS.Client.ViewModels
         {
             using (var evm = new MediaEditWindowViewmodel(_event.Media, _engine.MediaManager))
             {
-                evm.Model.Load();
-                evm.ShowDialog();
+                evm.Editor.Load();
+                UiServices.ShowDialog<Views.MediaEditWindowView>(evm, evm.WindowTitle, double.NaN, double.NaN);
             }
         }
 
@@ -1132,17 +1131,7 @@ namespace TAS.Client.ViewModels
                     NewEventStartType = startType
                 };
                 _mediaSearchViewModel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
-                _mediaSearchViewModel.SearchWindowClosed += _searchWindowClosed;
             }
-        }
-
-        private void _searchWindowClosed(object sender, EventArgs e)
-        {
-            MediaSearchViewmodel mvs = (MediaSearchViewmodel) sender;
-            mvs.SearchWindowClosed -= _searchWindowClosed;
-            mvs.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
-            _mediaSearchViewModel.Dispose();
-            _mediaSearchViewModel = null;
         }
 
         private void _mediaSearchViewModelMediaChoosen(object o, MediaSearchEventArgs e)

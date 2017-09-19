@@ -1,24 +1,27 @@
-﻿using TAS.Client.Common;
+﻿using System.Windows.Input;
+using TAS.Client.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class MediaEditWindowViewmodel : OkCancelViewmodelBase<MediaEditViewmodel>
+    public class MediaEditWindowViewmodel : ViewmodelBase
     {
+        public MediaEditViewmodel Editor { get; }
+
+        public string WindowTitle { get; }
+
         public MediaEditWindowViewmodel(IMedia media, IMediaManager mediaManager)
-            : base(new MediaEditViewmodel(media, mediaManager, null, false), typeof(MediaEditView), media.MediaName)
         {
-            Editor.DataContext = Model;
+            Editor = new MediaEditViewmodel(media, mediaManager, null, false);
+            WindowTitle = media.MediaName;
         }
 
         protected override void OnDispose()
         {
-            Model.Dispose();
+            Editor.Dispose();
         }
 
-        public override void Update(object destObject = null)
-        {
-            Model.Update();
-        }
+        public ICommand CommandOk => Editor.CommandSaveEdit;
+
     }
 }

@@ -494,14 +494,13 @@ namespace TAS.Client.ViewModels
         {
             using (var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), false))
             {
-                kve.OnOk += (o) =>
-                {
-                    var co = (KeyValueEditViewmodel)o;
-                    return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
-                };
-                kve.Load();
-                if (kve.ShowDialog() == true)
+                if (UiServices.ShowDialog<Views.KeyValueEditView>(kve, resources._window_NewField, 400, 200) == true)
                     _fields.Add(kve.Key, kve.Value);
+                //kve.OnOk += (o) =>
+                //{
+                //    var co = (KeyValueEditViewmodel)o;
+                //    return (!string.IsNullOrWhiteSpace(co.Key) && !string.IsNullOrWhiteSpace(co.Value) && !co.Key.Contains(' ') && !_fields.ContainsKey(co.Key));
+                //};
             }
         }
 
@@ -512,9 +511,8 @@ namespace TAS.Client.ViewModels
             var selected = (KeyValuePair<string, string>)SelectedField;
             using (var kve = new KeyValueEditViewmodel(selected, false))
             {
-                kve.Load();
-                if (kve.ShowDialog() == true)
-                    _fields[kve.Key] = kve.Value;
+                if (UiServices.ShowDialog<Views.KeyValueEditView>(kve, resources._window_NewField, 400, 200) == true)
+                    _fields[kve.Key]= kve.Value;
             }
         }
 

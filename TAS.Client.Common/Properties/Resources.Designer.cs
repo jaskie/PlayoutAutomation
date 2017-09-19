@@ -696,6 +696,24 @@ namespace TAS.Client.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Search for media....
+        /// </summary>
+        public static string _window_MediaSearch {
+            get {
+                return ResourceManager.GetString("_window_MediaSearch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New field.
+        /// </summary>
+        public static string _window_NewField {
+            get {
+                return ResourceManager.GetString("_window_NewField", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select an object.
         /// </summary>
         public static string _window_SecurityObjectSelector {

@@ -14,17 +14,16 @@ using System.Collections.ObjectModel;
 using TAS.Client.ViewModels;
 using TAS.Client.Common;
 
-namespace TAS.Client
+namespace TAS.Client.Views
 {
     /// <summary>
     /// Interaction logic for Window1.xaml
     /// </summary>
-    public partial class MediaSearchView : Window
+    public partial class MediaSearchView : UserControl
     {
         public MediaSearchView()
         {
             InitializeComponent();
-            Owner = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive);
         }
 
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -54,11 +53,6 @@ namespace TAS.Client
 
         }
 
-        private void ButtonCancel_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
         private void tbSearch_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Down && gSearch.SelectedIndex < gSearch.Items.Count)
@@ -72,6 +66,5 @@ namespace TAS.Client
             if (TbSearch.Focus())
                 TbSearch.SelectAll();
         }
-
     }
 }

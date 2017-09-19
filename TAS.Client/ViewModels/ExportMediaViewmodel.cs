@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Forms;
 using TAS.Client.Common;
+using TAS.Client.Common.Properties;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -39,42 +41,27 @@ namespace TAS.Client.ViewModels
 
         private void _addLogo(object o)
         {
-            var svm = _searchViewmodel;
-            if (svm == null)
+            if (_searchViewmodel == null)
             {
-                svm = new MediaSearchViewmodel(
+                _searchViewmodel = new MediaSearchViewmodel(
                     null, // preview
                     _mediaManager,
                     TMediaType.Still, 
                     VideoLayer.CG1,
                     true, // close ater add
                     MediaExport.Media.FormatDescription());
-                svm.MediaChoosen += _searchMediaChoosen;
-                svm.SearchWindowClosed += _searchWindowClosed;
-                svm.ExecuteAction = (e) =>
-                {
-                    _logos.Add(new ExportMediaLogoViewmodel(this, e.Media));
-                    MediaExport.AddLogo(e.Media);
-                };
-                _searchViewmodel = svm;
+                    _searchViewmodel.MediaChoosen += _searchMediaChoosen;
+                _searchViewmodel.Disposed += (sender, args) => _searchViewmodel = null;
+                UiServices.ShowDialog<Views.MediaSearchView>(_searchViewmodel, Resources._window_MediaSearch, 650, 450);
             }
         }
 
         private void _searchMediaChoosen(object sender, MediaSearchEventArgs e)
         {
-            if (((MediaSearchViewmodel)sender).ExecuteAction != null)
-                ((MediaSearchViewmodel)sender).ExecuteAction(e);
+            _logos.Add(new ExportMediaLogoViewmodel(this, e.Media));
+            MediaExport.AddLogo(e.Media);
         }
 
-        private void _searchWindowClosed(object sender, EventArgs e)
-        {
-            MediaSearchViewmodel mvs = (MediaSearchViewmodel)sender;
-            mvs.MediaChoosen -= _searchMediaChoosen;
-            mvs.SearchWindowClosed -= _searchWindowClosed;
-            _searchViewmodel.Dispose();
-            _searchViewmodel = null;
-        }
-        
         protected override void OnDispose() { }
     }
 }

@@ -629,7 +629,7 @@ namespace TAS.Client.ViewModels
                 {
                     using (IngestEditViewmodel ievm = new IngestEditViewmodel(ingestList, _preview, _mediaManager))
                     {
-                        if (ievm.ShowDialog() == true)
+                        if (UiServices.ShowDialog<Views.IngestEditorView>(ievm, resources._window_IngestAs, double.NaN, double.NaN) == true)
                         {
                             foreach (var operationVm in ievm.OperationList)
                                 _mediaManager.FileManager.Queue(operationVm.FileOperation, false);

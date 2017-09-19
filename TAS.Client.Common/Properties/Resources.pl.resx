@@ -326,7 +326,7 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   <data name="_validate_TransitionTimeInvalid" xml:space="preserve">
     <value>Czas przejścia jest dłuższy, niż czas trwania.</value>
   </data>
-  <data name="_windows_UserManager" xml:space="preserve">
+  <data name="_window_UserManager" xml:space="preserve">
     <value>Zarządzanie użytkownikami</value>
   </data>
   <data name="_window_CommandScriptItemEdit" xml:space="preserve">
@@ -343,5 +343,11 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   </data>
   <data name="_message_MediaDeleteResult_InsufficientRights" xml:space="preserve">
     <value>Brak uprawnień do usunięcia klipu</value>
+  </data>
+  <data name="_window_MediaSearch" xml:space="preserve">
+    <value>Wyszukaj media...</value>
+  </data>
+  <data name="_window_NewField" xml:space="preserve">
+    <value>Nowe pole</value>
   </data>
 </root>

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
@@ -13,7 +10,7 @@ namespace TAS.Client.ViewModels
     {
         private ISecurityObject _selectedSecurityObject;
         
-        public SecurityObjectSelectorViewmodel(IAuthenticationService authenticationService)//: base(typeof(Views.SecurityObjectSelectorView), resources._window_SecurityObjectSelector)
+        public SecurityObjectSelectorViewmodel(IAuthenticationService authenticationService)
         {
             Users = authenticationService.Users;
             Groups = authenticationService.Groups;

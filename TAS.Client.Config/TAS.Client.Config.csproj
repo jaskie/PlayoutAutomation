@@ -132,6 +132,10 @@
     <Compile Include="Model\CasparServerChannel.cs" />
     <Compile Include="Model\PlayoutServers.cs" />
     <Compile Include="Model\RemoteHost.cs" />
+    <Compile Include="OkCancelView.xaml.cs">
+      <DependentUpon>OkCancelView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OkCancelViewmodelBase.cs" />
     <Compile Include="PlayoutRecorderViewmodel.cs" />
     <Compile Include="PlayoutServerChannelView.xaml.cs">
       <DependentUpon>PlayoutServerChannelView.xaml</DependentUpon>
@@ -177,6 +181,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="IngestDirectoryView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OkCancelView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

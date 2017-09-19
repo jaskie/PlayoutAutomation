@@ -12,27 +12,23 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    internal class IngestEditViewmodel : OkCancelViewmodelBase<IList<IIngestOperation>>
+    internal class IngestEditViewmodel : ViewmodelBase, ICloseable
     {
         private IngestOperationViewModel _selectedOperation;
 
-        public IngestEditViewmodel(IList<IIngestOperation> convertionList, IPreview preview, IMediaManager mediaManager): base(convertionList, typeof(Views.IngestEditorView), resources._window_IngestAs)
+        public IngestEditViewmodel(IList<IIngestOperation> convertionList, IPreview preview, IMediaManager mediaManager)
         {
-
-           
-            //}
-
-
-        OperationList = new ObservableCollection<IngestOperationViewModel>(convertionList.Select(op =>
+            OperationList = new ObservableCollection<IngestOperationViewModel>(convertionList.Select(op =>
             {
-                string destFileName = $"{Path.GetFileNameWithoutExtension(op.Source.FileName)}{FileUtils.DefaultFileExtension(op.Source.MediaType)}";
+                string destFileName =
+                    $"{Path.GetFileNameWithoutExtension(op.Source.FileName)}{FileUtils.DefaultFileExtension(op.Source.MediaType)}";
                 IPersistentMediaProperties destMediaProperties = new PersistentMediaProxy
                 {
                     FileName = op.DestDirectory.GetUniqueFileName(destFileName),
                     MediaName = FileUtils.GetFileNameWithoutExtension(destFileName, op.Source.MediaType),
                     MediaType = op.Source.MediaType == TMediaType.Unknown ? TMediaType.Movie : op.Source.MediaType,
                     Duration = op.Source.Duration,
-                    TcStart =  op.StartTC,
+                    TcStart = op.StartTC,
                     MediaGuid = op.Source.MediaGuid,
                     MediaCategory = op.Source.MediaCategory
                 };
@@ -41,11 +37,24 @@ namespace TAS.Client.ViewModels
             SelectedOperation = OperationList.FirstOrDefault();
             foreach (var c in OperationList)
                 c.PropertyChanged += _convertOperationPropertyChanged;
-            CommandDeleteOperation = new UICommand { ExecuteDelegate = _deleteOperation };
-            OkCancelButtonsActivateViaKeyboard = false;
+            CommandDeleteOperation = new UICommand {ExecuteDelegate = _deleteOperation};
+            CommandOk = new UICommand {ExecuteDelegate = _ok, CanExecuteDelegate = _canOk};
+        }
+
+        private void _ok(object obj)
+        {
+            foreach (IngestOperationViewModel c in OperationList)
+                c.Apply();
+            ClosedOk?.Invoke(this, EventArgs.Empty);
+        }
+
+        private bool _canOk(object obj)
+        {
+            return IsValid;
         }
 
         public ICommand CommandDeleteOperation { get; }
+        public ICommand CommandOk { get; }
 
         public ObservableCollection<IngestOperationViewModel> OperationList { get; }
 
@@ -72,17 +81,6 @@ namespace TAS.Client.ViewModels
             }
         }
         
-        protected override bool CanOk(object parameter)
-        {
-            return IsValid;
-        }
-
-        protected override void Ok(object o)
-        {
-            foreach (IngestOperationViewModel c in OperationList)
-                c.Apply();
-            base.Ok(o);
-        }
 
         private void _deleteOperation(object obj)
         {
@@ -116,7 +114,7 @@ namespace TAS.Client.ViewModels
             OperationList.Clear();
         }
 
-
+        public event EventHandler ClosedOk;
     }
 }
 

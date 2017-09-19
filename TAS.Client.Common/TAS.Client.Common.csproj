@@ -110,10 +110,6 @@
     <Compile Include="Plugin\IUiMenuItem.cs" />
     <Compile Include="Controls\MediaSeekSlider.cs" />
     <Compile Include="MouseDoubleClick.cs" />
-    <Compile Include="OkCancelView.xaml.cs">
-      <DependentUpon>OkCancelView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="OkCancelViewmodelBase.cs" />
     <Compile Include="Plugin\IUiPlugin.cs" />
     <Compile Include="Plugin\IVideoPreview.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -165,10 +161,6 @@
     <Page Include="Controls\FilenameEntry.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="OkCancelView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\Resources.xaml">
       <SubType>Designer</SubType>

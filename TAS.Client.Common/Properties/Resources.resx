@@ -344,4 +344,10 @@ Do you really want to run this BACKUP play-out?</value>
   <data name="_message_MediaDeleteResult_InsufficientRights" xml:space="preserve">
     <value>Insufficient user rights to delete media</value>
   </data>
+  <data name="_window_MediaSearch" xml:space="preserve">
+    <value>Search for media...</value>
+  </data>
+  <data name="_window_NewField" xml:space="preserve">
+    <value>New field</value>
+  </data>
 </root>
