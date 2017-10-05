@@ -280,7 +280,7 @@ namespace TAS.Client.ViewModels
 
         private void _userManager(object obj)
         {
-            UiServices.ShowWindow<Views.UserManagerView>(new UserManagerViewmodel(Engine.AuthenticationService), resources._window_UserManager, 500, 400, true);
+            UiServices.ShowWindow<Views.UserManagerView>(new UserManagerViewmodel(Engine.AuthenticationService), resources._window_UserManager, true);
         }
 
         private bool _canUserManager(object obj)
@@ -700,7 +700,7 @@ namespace TAS.Client.ViewModels
                     {
                         _mediaSearchViewModel = null;
                     };
-                UiServices.ShowWindow<Views.MediaSearchView>(_mediaSearchViewModel, resources._window_MediaSearch, double.NaN, 450, true);
+                UiServices.ShowWindow<Views.MediaSearchView>(_mediaSearchViewModel, resources._window_MediaSearch, true);
             }
         }
 

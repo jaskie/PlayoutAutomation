@@ -30,14 +30,13 @@ namespace TAS.Client.Common
         /// </summary>
         /// <typeparam name="TView">type of UserControl class to show content</typeparam>
         /// <param name="viewmodel">DataContext of the view</param>
-        public static void ShowWindow<TView>(ViewmodelBase viewmodel, string windowTitle, double width, double height, bool disposeVm) where TView: UserControl, new()
+        public static void ShowWindow<TView>(ViewmodelBase viewmodel, string windowTitle, bool disposeVm) where TView: UserControl, new()
         {
             var newWindow = new Window
             {
                 Title = windowTitle,
-                Width = width,
-                Height = height,
                 Owner = Application.Current.MainWindow,
+                SizeToContent = SizeToContent.WidthAndHeight,
                 Content = new TView { DataContext = viewmodel }
             };
             if (disposeVm)

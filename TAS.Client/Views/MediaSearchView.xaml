@@ -10,7 +10,7 @@
         xmlns:vm="clr-namespace:TAS.Client.ViewModels"
         xmlns:views="clr-namespace:TAS.Client.Views"
         d:DataContext="{x:Type vm:MediaSearchViewmodel}"
-        d:DesignHeight="450" 
+        Height="400"
         mc:Ignorable="d" 
         SnapsToDevicePixels="True"
         FontSize="12"
@@ -74,7 +74,7 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
         </Grid>
-        <Grid Grid.Row="1" Width="650">
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -82,9 +82,9 @@
             <ContentControl Grid.Column="1"  Width="330" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" >
                 <views:PreviewView DataContext="{Binding PreviewViewmodel}"/>
             </ContentControl>
-            <DockPanel>
+            <DockPanel Grid.Column="0">
                 <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Left" Margin="5" IsChecked="{Binding EnableCGElementsForNewEvents}" Content="{Resx _enableCGForNewEvents}" Visibility="{Binding CanEnableCGElements, Converter={StaticResource BoolToVis}}"/>
-                <DataGrid 
+                <DataGrid  
                 x:Name="gSearch" 
                 SelectionUnit="FullRow" 
                 SelectionMode="Single" 
@@ -107,14 +107,14 @@
                         </Style>
                     </DataGrid.RowStyle>
                     <DataGrid.Columns>
-                        <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" CanUserSort="False" Width="20" Visibility="{Binding Data.IsServerOrArchiveDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                        <DataGridTemplateColumn x:Name="toggleColumn" CanUserResize="False" Width="20" Visibility="{Binding Data.IsServerOrArchiveDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="HasSegments">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <ToggleButton Visibility="{Binding HasSegments, Converter={StaticResource BoolToVis}}" IsChecked="{Binding IsExpanded, UpdateSourceTrigger=PropertyChanged}" Width="14" Height="14" Style="{StaticResource ToggleButtonStyle}"  />
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn x:Name="isTrimmedColumn" Width="20" CanUserResize="False" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                        <DataGridTemplateColumn x:Name="isTrimmedColumn" Width="20" CanUserResize="False" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="IsTrimmed">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Image x:Name="trimmedImage" Height="16" />
@@ -122,45 +122,14 @@
                                         <DataTrigger Binding="{Binding IsTrimmed}" Value="True">
                                             <Setter Property="Source" TargetName="trimmedImage" Value="/TAS.Client.Common;component/Images/Indicators/scizors.png" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsTrimmed}" Value="False">
-                                            <Setter Property="Source" TargetName="trimmedImage" Value="{x:Null}" />
-                                        </DataTrigger>
                                     </DataTemplate.Triggers>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserSort="True" CanUserResize="False" Visibility="{Binding Data.IsServerOrArchiveDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                        <DataGridTemplateColumn Width="10" x:Name="categoryColumn" CanUserResize="False" Visibility="{Binding Data.IsServerOrArchiveDirectory, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="MediaCategory">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Image>
-                                        <Image.Style>
-                                            <Style TargetType="Image">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Show">
-                                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/show.png"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Commercial">
-                                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/commercial.png"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Promo">
-                                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/promo.png"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Sponsored">
-                                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/sponsored.png"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Fill">
-                                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/fill.png"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Insert">
-                                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/insert.png"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding MediaCategory}" Value="Jingle">
-                                                        <Setter Property="Source" Value="/TAS.Client.Common;component/Images/MediaCategories/jingle.png"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Image.Style>
-                                    </Image>
+                                    <Image DataContext="{Binding MediaCategory}" Style="{StaticResource MediaCategoryImage}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
@@ -172,7 +141,7 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTextColumn x:Name="ingestDateColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.IngestDate}" Binding="{Binding LastUpdated, StringFormat=g, Mode=OneWay}" />
-                        <DataGridTemplateColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}">
+                        <DataGridTemplateColumn x:Name="durationColumn" Header="{Resx ResxName=TAS.Client.Views.MediaSearchView, Key=_grid.Header.Duration}" Visibility="{Binding Data.IsMovie, Source={StaticResource proxy}, Converter={StaticResource BoolToVis}}" SortMemberPath="DurationPlay">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <controls:TimecodeTextBlock Timecode="{Binding DurationPlay}" VideoFormat="{Binding VideoFormat}"/>
