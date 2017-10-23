@@ -123,8 +123,8 @@
   <data name="_clearFinished" xml:space="preserve">
     <value>Wyczyść zakończone</value>
   </data>
-  <data name="_deleteFinished" xml:space="preserve">
-    <value>Usuwaj zakończone</value>
+  <data name="_deleteFinishedSuccessfully" xml:space="preserve">
+    <value>Usuwaj poprawnie zakończone</value>
   </data>
   <data name="_fileOperations" xml:space="preserve">
     <value>Operacje na plikach</value>

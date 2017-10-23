@@ -123,8 +123,8 @@
   <data name="_clearFinished" xml:space="preserve">
     <value>Clear</value>
   </data>
-  <data name="_deleteFinished" xml:space="preserve">
-    <value>Delete finished</value>
+  <data name="_deleteFinishedSuccessfully" xml:space="preserve">
+    <value>Delete finished successfully</value>
   </data>
   <data name="_fileOperations" xml:space="preserve">
     <value>File operation list</value>
