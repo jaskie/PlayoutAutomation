@@ -8,9 +8,9 @@ namespace TAS {
 		// unmanaged opbject
 		_FFMpegWrapper::_FFMpegWrapper(char* fileName)
 		{
+			pFormatCtx = NULL;
 			av_register_all();
 			av_log_set_level(AV_LOG_DEBUG);
-			pFormatCtx=NULL;
 			if (avformat_open_input(&pFormatCtx, fileName, NULL, NULL) == 0)
 				avformat_find_stream_info(pFormatCtx, NULL);
 		};
