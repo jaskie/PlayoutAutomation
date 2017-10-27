@@ -21,7 +21,7 @@
         <Grid VerticalAlignment="Center">
             <Label Content="{Resx _fileOperations}" Margin="20, 0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10, 0">
-                <CheckBox Content="{Resx _deleteFinished}" Margin="8, 0" VerticalAlignment="Center" IsChecked="{Binding ClearFinished}"/>
+                <CheckBox Content="{Resx _deleteFinishedSuccessfully}" Margin="8, 0" VerticalAlignment="Center" IsChecked="{Binding ClearFinished}"/>
                 <Button Margin="5,1,5,5" Command="{Binding CommandClearFinished}">
                     <StackPanel Orientation="Horizontal" Margin="5, 0">
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/trash-small.png"/>

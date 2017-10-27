@@ -54,9 +54,9 @@ namespace TAS.Client.ViewModels
         {
             Application.Current.Dispatcher.BeginInvoke((Action)(() =>
             {
-                if (_clearFinished)
+                if (_clearFinished && e.Operation.OperationStatus != FileOperationStatus.Failed)
                 {
-                    FileOperationViewmodel fovm = OperationList.FirstOrDefault(vm => vm.FileOperation == e.Operation);
+                    FileOperationViewmodel fovm = OperationList.FirstOrDefault(vm => vm.FileOperation == e.Operation); // don't remove failed
                     if (fovm != null)
                     {
                         OperationList.Remove(fovm);
