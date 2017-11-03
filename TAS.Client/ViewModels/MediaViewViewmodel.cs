@@ -39,7 +39,6 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             Media.PropertyChanged -= OnMediaPropertyChanged;
-            var pm = Media as IPersistentMedia;
             if (_segments != null)
             {
                 _segments.SegmentAdded -= MediaSegments_SegmentAdded;
@@ -47,15 +46,6 @@ namespace TAS.Client.ViewModels
             }
         }
 
-#if DEBUG
-        /// <summary>
-        /// Useful for ensuring that ViewModel objects are properly garbage collected.
-        /// </summary>
-        ~MediaViewViewmodel()
-        {
-            Debug.WriteLine(string.Format("{0} ({1}) ({2}) Finalized", this.GetType().Name, this, this.GetHashCode()));
-        }
-#endif
         public string MediaName => Media.MediaName;
         public string FileName => Media.FileName;
         public string Folder => Media.Folder;
@@ -72,7 +62,7 @@ namespace TAS.Client.ViewModels
         public bool HasSegments => SegmentCount != 0;
         public bool IsTrimmed => TcPlay != TcStart || Duration != DurationPlay;
         public bool IsArchived => (Media as IServerMedia)?.IsArchived ?? false;
-        public string ClipNr => (Media as IXdcamMedia)?.ClipNr > 0  ? $"{(Media as IXdcamMedia).ClipNr}/{(Media.Directory as IIngestDirectory)?.XdcamClipCount}" : string.Empty;
+        public string ClipNr => (Media as IXdcamMedia)?.ClipNr > 0  ? $"{((IXdcamMedia) Media).ClipNr}/{(Media.Directory as IIngestDirectory)?.XdcamClipCount}" : string.Empty;
         public TIngestStatus IngestStatus => (Media as IIngestMedia)?.IngestStatus ?? ((Media as IArchiveMedia)?.IngestStatus ?? TIngestStatus.NotReady);
         public TVideoFormat VideoFormat => Media.VideoFormat;
         public bool IsExpanded

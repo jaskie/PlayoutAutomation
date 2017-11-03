@@ -12,7 +12,6 @@ using TAS.Client.Common;
 using TAS.Common;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition;
-using System.Security.Permissions;
 using TAS.Client.Common.Plugin;
 using TAS.Common.Interfaces;
 using resources = TAS.Client.Common.Properties.Resources;
@@ -696,7 +695,7 @@ namespace TAS.Client.ViewModels
                     NewEventStartType = startType
                 };
                 _mediaSearchViewModel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
-                _mediaSearchViewModel.Disposed += (object sender, EventArgs args) =>
+                _mediaSearchViewModel.Disposed += (sender, args) =>
                     {
                         _mediaSearchViewModel = null;
                     };
@@ -912,65 +911,35 @@ namespace TAS.Client.ViewModels
 
         public double ProgramAudioVolume //decibels
         {
-            get { return (double)(20 * Math.Log10((double)Engine.ProgramAudioVolume)); }
+            get { return 20 * Math.Log10(Engine.ProgramAudioVolume); }
             set
             {
-                double volume = (double)Math.Pow(10, (double)value / 20);
-                if (value != volume)
+                var volume = Math.Pow(10, value / 20);
+                if (Math.Abs(value - volume) > double.Epsilon)
                     Engine.ProgramAudioVolume = volume;
             }
         }
 
-        public bool IsAnimationDirAvailable
-        {
-            get { return Engine.MediaManager.AnimationDirectoryPRI != null || Engine.MediaManager.AnimationDirectorySEC != null;  }
-        }
+        public bool IsAnimationDirAvailable => Engine.MediaManager.AnimationDirectoryPRI != null || Engine.MediaManager.AnimationDirectorySEC != null;
 
-        public bool IsPreviewPanelVisible
-        {
-            get { return PreviewViewmodel != null || VideoPreview != null; }
-        }
+        public bool IsPreviewPanelVisible => PreviewViewmodel != null || VideoPreview != null;
 
-        public bool NoAlarms
-        {
-            get
-            {
-                return (ServerConnectedPRI || !ServerPRIExists)
-                       && (ServerConnectedSEC || !ServerSECExists)
-                       && (ServerConnectedPRV || !ServerPRVExists)
-                       && DatabaseOK;
-            }
-        }
+        public bool NoAlarms => (ServerConnectedPRI || !ServerPRIExists)
+                                && (ServerConnectedSEC || !ServerSECExists)
+                                && (ServerConnectedPRV || !ServerPRVExists)
+                                && DatabaseOK;
 
-        public bool ServerPRIExists
-        {
-            get { return Engine?.PlayoutChannelPRI != null; }
-        }
+        public bool ServerPRIExists => Engine?.PlayoutChannelPRI != null;
 
-        public bool ServerConnectedPRI
-        {
-            get { return Engine?.PlayoutChannelPRI?.IsServerConnected == true; }
-        }
+        public bool ServerConnectedPRI => Engine?.PlayoutChannelPRI?.IsServerConnected == true;
 
-        public bool ServerSECExists
-        {
-            get { return Engine?.PlayoutChannelSEC != null; }
-        }
+        public bool ServerSECExists => Engine?.PlayoutChannelSEC != null;
 
-        public bool ServerConnectedSEC
-        {
-            get { return Engine?.PlayoutChannelSEC?.IsServerConnected == true; }
-        }
+        public bool ServerConnectedSEC => Engine?.PlayoutChannelSEC?.IsServerConnected == true;
 
-        public bool ServerPRVExists
-        {
-            get { return Engine?.PlayoutChannelPRV != null; }
-        }
+        public bool ServerPRVExists => Engine?.PlayoutChannelPRV != null;
 
-        public bool ServerConnectedPRV
-        {
-            get { return Engine?.PlayoutChannelPRV?.IsServerConnected == true; }
-        }
+        public bool ServerConnectedPRV => Engine?.PlayoutChannelPRV?.IsServerConnected == true;
 
         public bool DatabaseOK
         {
@@ -1000,20 +969,14 @@ namespace TAS.Client.ViewModels
 
         public IEvent NextWithRequestedStartTime => Engine.GetNextWithRequestedStartTime();
 
-        public int SelectedCount
-        {
-            get { return _multiSelectedEvents.Count; }
-        }
+        public int SelectedCount => _multiSelectedEvents.Count;
 
         public TimeSpan SelectedTime
         {
             get { return TimeSpan.FromTicks(_multiSelectedEvents.Sum(e => e.Event.Duration.Ticks)); }
         }
 
-        public bool IsForcedNext
-        {
-            get { return Engine.ForcedNext != null; }
-        }
+        public bool IsForcedNext => Engine.ForcedNext != null;
 
         public int AudioLevelPRI 
         {
@@ -1072,15 +1035,9 @@ namespace TAS.Client.ViewModels
 
 #endregion // Plugin
 
-        public bool CGControllerExists
-        {
-            get { return Engine.CGElementsController != null; }
-        }
+        public bool CGControllerExists => Engine.CGElementsController != null;
 
-        public bool CGControllerIsMaster
-        {
-            get { return Engine.CGElementsController?.IsMaster == true; }
-        }
+        public bool CGControllerIsMaster => Engine.CGElementsController?.IsMaster == true;
 
         public TEngineState EngineState => Engine.EngineState;
 
@@ -1155,9 +1112,7 @@ namespace TAS.Client.ViewModels
 
         private void SetOnTopView(IEvent pe)
         {
-            var evm = _GetEventViewModel(pe);
-            if (evm != null)
-                evm.SetOnTop();
+            GetEventViewModel(pe)?.SetOnTop();
         }
 
         private void _engineTick(object sender, EngineTickEventArgs e)
@@ -1170,24 +1125,18 @@ namespace TAS.Client.ViewModels
         {
             if (e.PropertyName == nameof(IPlayoutServerChannel.IsServerConnected))
             {
-                NotifyPropertyChanged(nameof(ServerConnectedPRI));
+                if (sender == Engine.PlayoutChannelPRI)
+                    NotifyPropertyChanged(nameof(ServerConnectedPRI));
+                if (sender == Engine.PlayoutChannelSEC)
+                    NotifyPropertyChanged(nameof(ServerConnectedSEC));
+                if (sender == Engine.PlayoutChannelPRV)
+                    NotifyPropertyChanged(nameof(ServerConnectedPRV));
                 NotifyPropertyChanged(nameof(NoAlarms));
             }
             if (sender == Engine.PlayoutChannelPRI && e.PropertyName == nameof(IPlayoutServerChannel.AudioLevel))
                 AudioLevelPRI = ((IPlayoutServerChannel)sender).AudioLevel;
         }
         
-        private void _onEngineVisibleEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
-        {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate()
-            {
-                if (e.Operation == CollectionOperation.Add)
-                    _visibleEvents.Add(e.Item);
-                else
-                    _visibleEvents.Remove(e.Item);
-            });
-        }
-
         private void OnEngineRunningEventsOperation(object o, CollectionOperationEventArgs<IEvent> e)
         {
             Application.Current.Dispatcher.BeginInvoke((Action)delegate()
@@ -1310,7 +1259,7 @@ namespace TAS.Client.ViewModels
             InvalidateRequerySuggested();
         }
 
-        private EventPanelViewmodelBase _GetEventViewModel(IEvent aEvent)
+        private EventPanelViewmodelBase GetEventViewModel(IEvent aEvent)
         {
             IEnumerable<IEvent> rt = aEvent.GetVisualRootTrack().Reverse();
             EventPanelViewmodelBase evm = RootEventViewModel;
@@ -1325,7 +1274,5 @@ namespace TAS.Client.ViewModels
             }
             return null;
         }
-
-
     }
 }
