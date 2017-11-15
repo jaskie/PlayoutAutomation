@@ -9,9 +9,9 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class ExportMediaViewmodel: ViewmodelBase
+    public class ExportMediaViewmodel : ViewmodelBase
     {
-        
+
         private readonly ObservableCollection<ExportMediaLogoViewmodel> _logos;
         private readonly IMediaManager _mediaManager;
         public ExportMediaViewmodel(IMediaManager mediaManager, MediaExportDescription mediaExport)
@@ -21,7 +21,7 @@ namespace TAS.Client.ViewModels
             _logos = new ObservableCollection<ExportMediaLogoViewmodel>(mediaExport.Logos.Select(l => new ExportMediaLogoViewmodel(this, l)));
             CommandAddLogo = new UICommand { ExecuteDelegate = _addLogo };
         }
-        
+
         public string MediaName => MediaExport.Media.MediaName;
         public TimeSpan StartTC { get { return MediaExport.StartTC; } set { SetField(ref MediaExport.StartTC, value); } }
         public TimeSpan Duration { get { return MediaExport.Duration; } set { SetField(ref MediaExport.Duration, value); } }
@@ -37,31 +37,25 @@ namespace TAS.Client.ViewModels
             MediaExport.RemoveLogo(exportMediaLogoViewModel.Logo);
         }
 
-        private MediaSearchViewmodel _searchViewmodel;
-
         private void _addLogo(object o)
         {
-            if (_searchViewmodel == null)
+            using (var vm = new MediaSearchViewmodel(
+                null, // preview
+                _mediaManager,
+                TMediaType.Still,
+                VideoLayer.CG1,
+                true, // close ater add
+                MediaExport.Media.FormatDescription()))
             {
-                _searchViewmodel = new MediaSearchViewmodel(
-                    null, // preview
-                    _mediaManager,
-                    TMediaType.Still, 
-                    VideoLayer.CG1,
-                    true, // close ater add
-                    MediaExport.Media.FormatDescription());
-                    _searchViewmodel.MediaChoosen += _searchMediaChoosen;
-                _searchViewmodel.Disposed += (sender, args) => _searchViewmodel = null;
-                UiServices.ShowDialog<Views.MediaSearchView>(_searchViewmodel, Resources._window_MediaSearch, 650, 450);
+                vm.MediaChoosen += (sender, args) =>
+                {
+                    _logos.Add(new ExportMediaLogoViewmodel(this, args.Media));
+                    MediaExport.AddLogo(args.Media);
+                };
+                UiServices.ShowDialog<Views.MediaSearchView>(vm, Resources._window_MediaSearch, 850, 350);
             }
         }
-
-        private void _searchMediaChoosen(object sender, MediaSearchEventArgs e)
-        {
-            _logos.Add(new ExportMediaLogoViewmodel(this, e.Media));
-            MediaExport.AddLogo(e.Media);
-        }
-
+    
         protected override void OnDispose() { }
     }
 }

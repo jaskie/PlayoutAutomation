@@ -18,7 +18,6 @@ namespace TAS.Client.ViewModels
         private readonly IEngine _engine;
         private readonly EngineViewmodel _engineViewModel;
         private readonly PreviewViewmodel _previewViewModel;
-        private MediaSearchViewmodel _mediaSearchViewModel;
         private EventRightsEditViewmodel _eventRightsEditViewmodel;
         private IEvent _event;
         private bool _isLoading;
@@ -876,10 +875,10 @@ namespace TAS.Client.ViewModels
 
         private void _editMovie(object obj)
         {
-            using (var evm = new MediaEditWindowViewmodel(_event.Media, _engine.MediaManager))
+            using (var evm = new MediaEditWindowViewmodel(_event.Media, _engine.MediaManager) )
             {
                 evm.Editor.Load();
-                UiServices.ShowDialog<Views.MediaEditWindowView>(evm, evm.WindowTitle, double.NaN, double.NaN);
+                UiServices.ShowDialog<Views.MediaEditWindowView>(evm, evm.WindowTitle, 400);
             }
         }
 
@@ -1122,16 +1121,14 @@ namespace TAS.Client.ViewModels
 
         private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType, VideoFormatDescription videoFormatDescription = null)
         {
-            if (_mediaSearchViewModel == null)
+            var vm = new MediaSearchViewmodel(_engineViewModel.Engine.HaveRight(EngineRight.Preview) ? _engineViewModel.Engine : null, _event.Engine.MediaManager,
+                mediaType, VideoLayer.Program, true, videoFormatDescription)
             {
-                _mediaSearchViewModel = new MediaSearchViewmodel(_engineViewModel.Engine.HaveRight(EngineRight.Preview) ? _engineViewModel.Engine : null, _event.Engine.MediaManager,
-                    mediaType, VideoLayer.Program, true, videoFormatDescription)
-                {
-                    BaseEvent = baseEvent,
-                    NewEventStartType = startType
-                };
-                _mediaSearchViewModel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
-            }
+                BaseEvent = baseEvent,
+                NewEventStartType = startType
+            };
+            vm.MediaChoosen += _mediaSearchViewModelMediaChoosen;
+            UiServices.ShowDialog<Views.MediaSearchView>(vm, resources._window_MediaSearch, (_previewViewModel != null && mediaType == TMediaType.Movie) ? 850 : 350, double.NaN);
         }
 
         private void _mediaSearchViewModelMediaChoosen(object o, MediaSearchEventArgs e)

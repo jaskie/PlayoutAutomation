@@ -20,8 +20,7 @@ namespace TAS.Client.Views
 
         protected void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            EventPanelViewmodelBase vm = e.NewValue as EventPanelViewmodelBase;
-            if (vm != null)
+            if (e.NewValue is EventPanelViewmodelBase vm)
             {
                 vm.View = (EventPanelView)sender;
                 _viewName = vm.EventName;
@@ -30,7 +29,6 @@ namespace TAS.Client.Views
                 DataContextChanged -= UserControl_DataContextChanged;
             }
         }
-        
 
 #if DEBUG
         ~EventPanelView()
@@ -42,19 +40,17 @@ namespace TAS.Client.Views
 
         internal void SetOnTop()
         {
-            DependencyObject parent = VisualTreeHelper.GetParent(this);
+            var parent = VisualTreeHelper.GetParent(this);
             while (parent != null && !(parent is ScrollViewer))
             {
                 parent = VisualTreeHelper.GetParent(parent);
             }
-            if (parent != null)
-            {
-                // Scroll to selected Item
-                Common.DispatcherHelper.WaitForPriority();
-                Point offset = TransformToAncestor(parent as ScrollViewer).Transform(new Point(0, 0));
-                (parent as ScrollViewer).ScrollToVerticalOffset(offset.Y + (parent as ScrollViewer).ContentVerticalOffset - ActualHeight);
-            }
+            if (parent == null)
+                return;
+            // Scroll to selected Item
+            Common.DispatcherHelper.WaitForPriority();
+            Point offset = TransformToAncestor(parent as ScrollViewer).Transform(new Point(0, 0));
+            (parent as ScrollViewer).ScrollToVerticalOffset(offset.Y + (parent as ScrollViewer).ContentVerticalOffset - ActualHeight);
         }
-
     }
 }

@@ -12,24 +12,29 @@
              xmlns:views="clr-namespace:TAS.Client.Views"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
-             d:DataContext="{x:Type vm:MediaManagerViewmodel}"
+             d:DataContext="{d:DesignInstance vm:MediaManagerViewmodel}"
              FontSize="13" KeyUp="UserControl_KeyUp"
              >
     <UserControl.Resources>
-        <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
-        <ControlTemplate x:Key="toggleButtonTemplate" TargetType="ToggleButton">
-            <Grid Width="15" Height="13" Background="Transparent">
-                <Path x:Name="ExpandPath" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="1,1,1,1" Fill="{StaticResource GlyphBrush}" Data="M 4 0 L 8 4 L 4 8 Z"/>
-            </Grid>
-            <ControlTemplate.Triggers>
-                <Trigger Property="IsChecked" Value="True">
-                    <Setter Property="Data" TargetName="ExpandPath" Value="M 0 4 L 8 4 L 4 8 Z"/>
-                </Trigger>
-            </ControlTemplate.Triggers>
-        </ControlTemplate>
-        <Style x:Key="toggleButtonStyle" TargetType="ToggleButton">
-            <Setter Property="Template" Value="{StaticResource toggleButtonTemplate}" />
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/TAS.Client.Common;component/Controls/Resources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
+            <ControlTemplate x:Key="toggleButtonTemplate" TargetType="ToggleButton">
+                <Grid Width="15" Height="13" Background="Transparent">
+                    <Path x:Name="ExpandPath" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="1,1,1,1" Fill="{StaticResource GlyphBrush}" Data="M 4 0 L 8 4 L 4 8 Z"/>
+                </Grid>
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsChecked" Value="True">
+                        <Setter Property="Data" TargetName="ExpandPath" Value="M 0 4 L 8 4 L 4 8 Z"/>
+                    </Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
+            <Style x:Key="toggleButtonStyle" TargetType="ToggleButton">
+                <Setter Property="Template" Value="{StaticResource toggleButtonTemplate}" />
+            </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding CommandRefresh}"/>

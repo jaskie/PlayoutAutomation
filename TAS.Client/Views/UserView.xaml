@@ -12,9 +12,6 @@
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance {x:Type vm:UserViewmodel}}"
              d:DesignHeight="300" d:DesignWidth="300">
-    <UserControl.Resources>
-       
-    </UserControl.Resources>
     <DockPanel>
         <StackPanel DockPanel.Dock="Top">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="35">

@@ -72,6 +72,7 @@
     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{x:Static SystemColors.HighlightColor}"/>
     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="{x:Static SystemColors.HighlightTextColor}"/>
     <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="../Converters.xaml"/>
         <ResourceDictionary Source="Images.xaml"/>
         <ResourceDictionary Source="Buttons.xaml"/>
     </ResourceDictionary.MergedDictionaries>

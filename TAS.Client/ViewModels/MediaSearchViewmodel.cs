@@ -18,7 +18,6 @@ namespace TAS.Client.ViewModels
     {
         private readonly IMediaManager _manager;
         private readonly TMediaType _mediaType;
-        private readonly bool _closeAfterAdd;
         private readonly RationalNumber? _frameRate;
         private readonly VideoFormatDescription _videoFormatDescription;
         private readonly IEngine _engine;
@@ -71,7 +70,6 @@ namespace TAS.Client.ViewModels
                 _searchDirectory.MediaRemoved += _searchDirectory_MediaRemoved;
                 _searchDirectory.MediaVerified += _searchDirectory_MediaVerified;
             }
-            _closeAfterAdd = closeAfterAdd;
             _mediaCategory = MediaCategories.FirstOrDefault();
             NewEventStartType = TStartType.After;
             if (!closeAfterAdd)
@@ -89,6 +87,8 @@ namespace TAS.Client.ViewModels
         public ObservableCollection<MediaViewViewmodel> Items { get; }
 
         public ICommand CommandAdd { get; private set; }
+
+        public ICommand CommandClose { get; private set; }
 
         public PreviewViewmodel PreviewViewmodel { get; }
 
@@ -183,7 +183,7 @@ namespace TAS.Client.ViewModels
 
         public event EventHandler<MediaSearchEventArgs> MediaChoosen;
 
-        public event EventHandler Disposed;
+        public event EventHandler OnClose;
 
         internal Action<MediaSearchEventArgs> ExecuteAction;
 
@@ -264,7 +264,8 @@ namespace TAS.Client.ViewModels
 
         private void _createCommands()
         {
-            CommandAdd = new UICommand() { ExecuteDelegate = _add, CanExecuteDelegate = _allowAdd };
+            CommandAdd = new UICommand { ExecuteDelegate = _add, CanExecuteDelegate = _allowAdd };
+            CommandClose = new UICommand { ExecuteDelegate = _close };
         }
 
         private TimeSpan GetTCStart()
@@ -381,6 +382,11 @@ namespace TAS.Client.ViewModels
                 handler(this, new MediaSearchEventArgs(sm.Media, sm.SelectedSegment == null ? null : sm.SelectedSegment.MediaSegment, GetMediaName(), GetTCStart(), GetDuration()));
         }
 
+        private void _close(object obj)
+        {
+            OnClose?.Invoke(this, EventArgs.Empty);
+        }
+
         protected override void OnDispose()
         {
             BaseEvent = null;
@@ -398,7 +404,7 @@ namespace TAS.Client.ViewModels
             _itemsView.Filter -= _itemsFilter;
             foreach (var item in Items)
                 item.Dispose();
-            Disposed?.Invoke(this, EventArgs.Empty);
+            OnClose?.Invoke(this, EventArgs.Empty);
             Debug.WriteLine("MediaSearchViewModel disposed");
         }
 

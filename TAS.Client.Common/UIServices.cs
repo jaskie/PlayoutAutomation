@@ -30,18 +30,18 @@ namespace TAS.Client.Common
         /// </summary>
         /// <typeparam name="TView">type of UserControl class to show content</typeparam>
         /// <param name="viewmodel">DataContext of the view</param>
-        public static void ShowWindow<TView>(ViewmodelBase viewmodel, string windowTitle, bool disposeVm) where TView: UserControl, new()
+        public static Window ShowWindow<TView>(ViewmodelBase viewmodel, string windowTitle, double width = double.NaN, double height = double.NaN) where TView: UserControl, new()
         {
             var newWindow = new Window
             {
                 Title = windowTitle,
                 Owner = Application.Current.MainWindow,
-                SizeToContent = SizeToContent.WidthAndHeight,
+                Width = width,
+                Height = height,
                 Content = new TView { DataContext = viewmodel }
             };
-            if (disposeVm)
-                newWindow.Closed += (sender, args) => viewmodel.Dispose();
             newWindow.Show();
+            return newWindow;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace TAS.Client.Common
         /// </summary>
         /// <typeparam name="TView">type of UserControl class to show content</typeparam>
         /// <param name="viewmodel">DataContext of the view</param>
-        public static bool? ShowDialog<TView>(ViewmodelBase viewmodel, string windowTitle, double width, double height)
+        public static bool? ShowDialog<TView>(ViewmodelBase viewmodel, string windowTitle, double width = double.NaN, double height = double.NaN)
             where TView : UserControl, new()
         {
             var newWindow = new Window

@@ -279,7 +279,9 @@ namespace TAS.Client.ViewModels
 
         private void _userManager(object obj)
         {
-            UiServices.ShowWindow<Views.UserManagerView>(new UserManagerViewmodel(Engine.AuthenticationService), resources._window_UserManager, true);
+            var vm = new UserManagerViewmodel(Engine.AuthenticationService);
+            UiServices.ShowWindow<Views.UserManagerView>(vm, resources._window_UserManager).Closed += (s, e) =>
+                vm.Dispose();
         }
 
         private bool _canUserManager(object obj)
@@ -694,12 +696,13 @@ namespace TAS.Client.ViewModels
                     BaseEvent = baseEvent,
                     NewEventStartType = startType
                 };
+                var window = UiServices.ShowWindow<Views.MediaSearchView>(_mediaSearchViewModel, resources._window_MediaSearch, (PreviewViewmodel != null && mediaType == TMediaType.Movie) ? 850 : 350 );
                 _mediaSearchViewModel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
-                _mediaSearchViewModel.Disposed += (sender, args) =>
-                    {
-                        _mediaSearchViewModel = null;
-                    };
-                UiServices.ShowWindow<Views.MediaSearchView>(_mediaSearchViewModel, resources._window_MediaSearch, true);
+                _mediaSearchViewModel.OnClose += (sender, args) =>
+                {
+                    _mediaSearchViewModel = null;
+                    window.Close();
+                };
             }
         }
 

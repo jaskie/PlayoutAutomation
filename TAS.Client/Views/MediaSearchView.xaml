@@ -9,10 +9,10 @@
         xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
         xmlns:vm="clr-namespace:TAS.Client.ViewModels"
         xmlns:views="clr-namespace:TAS.Client.Views"
-        d:DataContext="{x:Type vm:MediaSearchViewmodel}"
-        Height="400"
+        d:DataContext="{d:DesignInstance vm:MediaSearchViewmodel}"
         mc:Ignorable="d" 
-        SnapsToDevicePixels="True"
+        d:DesignHeight="400"
+        d:DesignWidth="700"
         FontSize="12"
         >
     <UserControl.Resources>
@@ -50,20 +50,21 @@
         <Grid Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="141*" />
+                <ColumnDefinition Width="209*"/>
                 <ColumnDefinition Width="10" />
                 <ColumnDefinition Width="180" />
                 <ColumnDefinition Width="160" />
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="{Resx _search}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <TextBox Name="TbSearch" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="tbSearch_KeyDown" >
+            <Label Grid.Column="0" Content="{Resx _search}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="18,2,18,2.4" />
+            <TextBox Name="TbSearch" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="tbSearch_KeyDown" Grid.ColumnSpan="3" Margin="0,6,9.2,6.4" >
                 <i:Interaction.Behaviors>
                     <common:FocusExtension SelectAllOnFocus="True"/>
                 </i:Interaction.Behaviors>
             </TextBox>
-            <Button Grid.Column="4" HorizontalAlignment="Right" Content="{Binding OkButtonText}" Margin="5,4" Width="70" Command="{Binding CommandAdd}" Click="ButtonOKClick"  IsDefault="True" />
-            <Button Grid.Column="4" HorizontalAlignment="Left" Margin="5,4" Width="70" Style="{StaticResource CancelButtonStyle}"/>
-            <ComboBox Grid.Column="3" Margin="5,3" VerticalAlignment="Center" ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" >
+            <Button Grid.Column="5" HorizontalAlignment="Right" Content="{Binding OkButtonText}" Margin="0,4,5.2,4.4" Width="70" Command="{Binding CommandAdd}" Click="ButtonOKClick"  IsDefault="True" />
+            <Button Grid.Column="5" HorizontalAlignment="Left" Margin="4.8,4,0,4.4" Width="70" Style="{StaticResource CancelButtonStyle}" Command="{Binding CommandClose}"/>
+            <ComboBox Grid.Column="4" Margin="4.8,4,5.2,4.4" VerticalAlignment="Center" ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" >
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -79,9 +80,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <ContentControl Grid.Column="1"  Width="330" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" >
-                <views:PreviewView DataContext="{Binding PreviewViewmodel}"/>
-            </ContentControl>
+            <views:PreviewView DataContext="{Binding PreviewViewmodel}" Grid.Column="1"  Width="330" Visibility="{Binding IsMovie, RelativeSource={RelativeSource PreviousData}, Converter={StaticResource BoolToVis}}"/>
             <DockPanel Grid.Column="0">
                 <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Left" Margin="5" IsChecked="{Binding EnableCGElementsForNewEvents}" Content="{Resx _enableCGForNewEvents}" Visibility="{Binding CanEnableCGElements, Converter={StaticResource BoolToVis}}"/>
                 <DataGrid  
