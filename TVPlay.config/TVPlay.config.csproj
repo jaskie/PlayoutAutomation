@@ -98,7 +98,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
+    <ProjectReference Include="..\dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj">
       <Project>{e3d700d5-bdfb-4777-8e9c-53e8f943ac58}</Project>
       <Name>Infralution.Localization.Wpf</Name>
     </ProjectReference>

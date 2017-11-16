@@ -13,13 +13,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPlay", "TVPlay\TVPlay.csp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TAS.FFMpegUtils", "TAS.FFMpegUtils\FFMpegUtils.vcxproj", "{AAA90FDF-4E13-490E-A4A4-9B83F522F6C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Net.FtpClient", "System.Net.FtpClient\source\System.Net.FtpClient.csproj", "{E963B766-56BF-4966-8917-88C1EE69D61A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Net.FtpClient", "dependencies\System.Net.FtpClient\source\System.Net.FtpClient.csproj", "{E963B766-56BF-4966-8917-88C1EE69D61A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infralution.Localization.Wpf", "Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj", "{E3D700D5-BDFB-4777-8E9C-53E8F943AC58}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infralution.Localization.Wpf", "dependencies\Infralution.Localization.Wpf\Infralution.Localization.Wpf.csproj", "{E3D700D5-BDFB-4777-8E9C-53E8F943AC58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svt.Network", "Svt\Svt.Network\Svt.Network.csproj", "{941ED6A5-C8DF-459D-BFCE-5C6ED9AC0492}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svt.Network", "dependencies\Svt\Svt.Network\Svt.Network.csproj", "{941ED6A5-C8DF-459D-BFCE-5C6ED9AC0492}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svt.Caspar", "Svt\Svt.Caspar\Svt.Caspar.csproj", "{9B56A150-ECE3-4099-AEA1-0F8E115DC374}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svt.Caspar", "dependencies\Svt\Svt.Caspar\Svt.Caspar.csproj", "{9B56A150-ECE3-4099-AEA1-0F8E115DC374}"
 	ProjectSection(ProjectDependencies) = postProject
 		{941ED6A5-C8DF-459D-BFCE-5C6ED9AC0492} = {941ED6A5-C8DF-459D-BFCE-5C6ED9AC0492}
 	EndProjectSection
@@ -50,7 +50,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Remoting", "TAS.Remotin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TAS.Server", "TAS.Server\TAS.Server.csproj", "{F268CD0E-804F-49CD-A3F2-341E5B6A9927}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup", "MySqlBackup\MySqlBackup.csproj", "{2625A6B7-505A-43F7-9282-24AFE5A3DB64}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlBackup", "dependencies\MySqlBackup\MySqlBackup.csproj", "{2625A6B7-505A-43F7-9282-24AFE5A3DB64}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UiPluginExample", "Plugins\UiPluginExample\UiPluginExample.csproj", "{D91C7587-4BF6-4D93-A853-B6D7D30FA319}"
 EndProject

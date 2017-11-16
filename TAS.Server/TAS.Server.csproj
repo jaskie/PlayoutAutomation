@@ -113,15 +113,15 @@
     <Compile Include="XDCAM\XdcamStream.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Svt\Svt.Caspar\Svt.Caspar.csproj">
+    <ProjectReference Include="..\dependencies\Svt\Svt.Caspar\Svt.Caspar.csproj">
       <Project>{9b56a150-ece3-4099-aea1-0f8e115dc374}</Project>
       <Name>Svt.Caspar</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Svt\Svt.Network\Svt.Network.csproj">
+    <ProjectReference Include="..\dependencies\Svt\Svt.Network\Svt.Network.csproj">
       <Project>{941ed6a5-c8df-459d-bfce-5c6ed9ac0492}</Project>
       <Name>Svt.Network</Name>
     </ProjectReference>
-    <ProjectReference Include="..\System.Net.FtpClient\source\System.Net.FtpClient.csproj">
+    <ProjectReference Include="..\dependencies\System.Net.FtpClient\source\System.Net.FtpClient.csproj">
       <Project>{e963b766-56bf-4966-8917-88c1ee69d61a}</Project>
       <Name>System.Net.FtpClient</Name>
     </ProjectReference>

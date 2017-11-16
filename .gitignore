@@ -19,6 +19,6 @@ Release
 /*.opendb
 /*.db
 *.user
-/TVPlay/bin
+/.vs
 /*.log
 /TAS.FFMpegUtils/x64
