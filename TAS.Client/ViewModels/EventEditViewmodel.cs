@@ -857,7 +857,7 @@ namespace TAS.Client.ViewModels
             {
                 using (var kve = new KeyValueEditViewmodel((KeyValuePair<string, string>) editObject, true))
                 {
-                    if (UiServices.ShowDialog<Views.KeyValueEditView>(kve, kve.Key, 400, 200) == true)
+                    if (UiServices.ShowDialog<Views.KeyValueEditView>(kve) == true)
                         _fields[kve.Key] = kve.Value;
                 }
             }
@@ -878,7 +878,7 @@ namespace TAS.Client.ViewModels
             using (var evm = new MediaEditWindowViewmodel(_event.Media, _engine.MediaManager) )
             {
                 evm.Editor.Load();
-                UiServices.ShowDialog<Views.MediaEditWindowView>(evm, evm.WindowTitle, 400);
+                UiServices.ShowDialog<Views.MediaEditWindowView>(evm);
             }
         }
 
@@ -1128,7 +1128,7 @@ namespace TAS.Client.ViewModels
                 NewEventStartType = startType
             };
             vm.MediaChoosen += _mediaSearchViewModelMediaChoosen;
-            UiServices.ShowDialog<Views.MediaSearchView>(vm, resources._window_MediaSearch, (_previewViewModel != null && mediaType == TMediaType.Movie) ? 850 : 350, double.NaN);
+            UiServices.ShowDialog<Views.MediaSearchView>(vm);
         }
 
         private void _mediaSearchViewModelMediaChoosen(object o, MediaSearchEventArgs e)

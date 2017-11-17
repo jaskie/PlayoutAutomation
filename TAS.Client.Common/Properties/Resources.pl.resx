@@ -326,28 +326,7 @@ Czy na pewno chcesz uruchomić REZERWOWĄ emisję?</value>
   <data name="_validate_TransitionTimeInvalid" xml:space="preserve">
     <value>Czas przejścia jest dłuższy, niż czas trwania.</value>
   </data>
-  <data name="_window_UserManager" xml:space="preserve">
-    <value>Zarządzanie użytkownikami</value>
-  </data>
-  <data name="_window_CommandScriptItemEdit" xml:space="preserve">
-    <value>Edycja komendy serwera</value>
-  </data>
-  <data name="_window_IngestAs" xml:space="preserve">
-    <value>Zaingestuj jako...</value>
-  </data>
-  <data name="_window_SecurityObjectSelector" xml:space="preserve">
-    <value>Wybierz obiekt</value>
-  </data>
-  <data name="_window_EngineRights" xml:space="preserve">
-    <value>Uprawnienia do {0}</value>
-  </data>
   <data name="_message_MediaDeleteResult_InsufficientRights" xml:space="preserve">
     <value>Brak uprawnień do usunięcia klipu</value>
-  </data>
-  <data name="_window_MediaSearch" xml:space="preserve">
-    <value>Wyszukaj media...</value>
-  </data>
-  <data name="_window_NewField" xml:space="preserve">
-    <value>Nowe pole</value>
   </data>
 </root>

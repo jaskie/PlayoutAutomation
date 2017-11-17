@@ -19,7 +19,7 @@ namespace TAS.Client.Views
     /// <summary>
     /// Interaction logic for EventRightsEditView.xaml
     /// </summary>
-    public partial class EngineRightsEditView : UserControl
+    public partial class EngineRightsEditView : Window
     {
         public EngineRightsEditView()
         {

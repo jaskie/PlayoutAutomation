@@ -1,25 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Collections.ObjectModel;
 using TAS.Client.ViewModels;
-using TAS.Client.Common;
 
 namespace TAS.Client.Views
 {
     /// <summary>
     /// Interaction logic for Window1.xaml
     /// </summary>
-    public partial class MediaSearchView : UserControl
+    public partial class MediaSearchView : Window
     {
         public MediaSearchView()
         {
@@ -35,7 +24,7 @@ namespace TAS.Client.Views
                 else
                     if (e.AddedItems[0] is MediaSegmentViewmodel 
                         && e.AddedItems[0] != _selectedMedia.SelectedSegment
-                        && (e.AddedItems[0] as MediaSegmentViewmodel).Media == _selectedMedia.Media )
+                        && (e.AddedItems[0] as MediaSegmentViewmodel)?.Media == _selectedMedia.Media )
                         _selectedMedia.SelectedSegment = (MediaSegmentViewmodel)e.AddedItems[0];
                     else
                         _selectedMedia.SelectedSegment = null;
@@ -48,7 +37,7 @@ namespace TAS.Client.Views
             if (e.AddedItems.Count > 0 && e.AddedItems[0] is MediaViewViewmodel)
             {
                 _selectedMedia = (MediaViewViewmodel)e.AddedItems[0];
-                (sender as DataGrid).ScrollIntoView(e.AddedItems[0]);
+                (sender as DataGrid)?.ScrollIntoView(e.AddedItems[0]);
             }
 
         }
@@ -61,10 +50,21 @@ namespace TAS.Client.Views
                 gSearch.SelectedIndex--;
         }
 
-        private void ButtonOKClick(object sender, RoutedEventArgs e)
+        private void ButtonOk_OnClick(object sender, RoutedEventArgs e)
         {
             if (TbSearch.Focus())
                 TbSearch.SelectAll();
+        }
+
+        private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var vm = e.NewValue as MediaSearchViewmodel;
+            Width = vm?.PreviewViewmodel == null ? 450 : 750;
+        }
+
+        private void BtnClose_OnClick(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

@@ -147,4 +147,7 @@
   <data name="_users" xml:space="preserve">
     <value>Users</value>
   </data>
+  <data name="_windowTitle" xml:space="preserve">
+    <value>Users and groups</value>
+  </data>
 </root>

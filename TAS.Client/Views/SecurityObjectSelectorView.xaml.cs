@@ -18,7 +18,7 @@ namespace TAS.Client.Views
     /// <summary>
     /// Interaction logic for SecurityObjectSelectorView.xaml
     /// </summary>
-    public partial class SecurityObjectSelectorView : UserControl
+    public partial class SecurityObjectSelectorView : Window
     {
         public SecurityObjectSelectorView()
         {

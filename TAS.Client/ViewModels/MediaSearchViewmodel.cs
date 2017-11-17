@@ -88,8 +88,6 @@ namespace TAS.Client.ViewModels
 
         public ICommand CommandAdd { get; private set; }
 
-        public ICommand CommandClose { get; private set; }
-
         public PreviewViewmodel PreviewViewmodel { get; }
 
         public string SearchText
@@ -183,8 +181,6 @@ namespace TAS.Client.ViewModels
 
         public event EventHandler<MediaSearchEventArgs> MediaChoosen;
 
-        public event EventHandler OnClose;
-
         internal Action<MediaSearchEventArgs> ExecuteAction;
 
         internal TStartType NewEventStartType;
@@ -265,7 +261,6 @@ namespace TAS.Client.ViewModels
         private void _createCommands()
         {
             CommandAdd = new UICommand { ExecuteDelegate = _add, CanExecuteDelegate = _allowAdd };
-            CommandClose = new UICommand { ExecuteDelegate = _close };
         }
 
         private TimeSpan GetTCStart()
@@ -382,11 +377,6 @@ namespace TAS.Client.ViewModels
                 handler(this, new MediaSearchEventArgs(sm.Media, sm.SelectedSegment == null ? null : sm.SelectedSegment.MediaSegment, GetMediaName(), GetTCStart(), GetDuration()));
         }
 
-        private void _close(object obj)
-        {
-            OnClose?.Invoke(this, EventArgs.Empty);
-        }
-
         protected override void OnDispose()
         {
             BaseEvent = null;
@@ -404,7 +394,6 @@ namespace TAS.Client.ViewModels
             _itemsView.Filter -= _itemsFilter;
             foreach (var item in Items)
                 item.Dispose();
-            OnClose?.Invoke(this, EventArgs.Empty);
             Debug.WriteLine("MediaSearchViewModel disposed");
         }
 

@@ -1,4 +1,4 @@
-﻿<UserControl Language="{UICulture}" ResxExtension.DefaultResxName="TAS.Client.Views.MediaSearchView"
+﻿<Window Language="{UICulture}" ResxExtension.DefaultResxName="TAS.Client.Views.MediaSearchView"
         x:Class="TAS.Client.Views.MediaSearchView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -11,60 +11,24 @@
         xmlns:views="clr-namespace:TAS.Client.Views"
         d:DataContext="{d:DesignInstance vm:MediaSearchViewmodel}"
         mc:Ignorable="d" 
-        d:DesignHeight="400"
-        d:DesignWidth="700"
-        FontSize="12"
+        Height="450"
+        Width="750"
+        FontSize="12" 
+        Title="{Resx _windowTitle}"
+        DataContextChanged="Window_DataContextChanged"
         >
-    <UserControl.Resources>
-        <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
-        <ControlTemplate x:Key="ToggleButtonTemplate" TargetType="ToggleButton">
-            <Grid
-            Width="15"
-            Height="13"
-            Background="Transparent">
-                <Path x:Name="ExpandPath"
-              HorizontalAlignment="Left" 
-              VerticalAlignment="Center" 
-              Margin="1,1,1,1"
-              Fill="{StaticResource GlyphBrush}"
-              Data="M 4 0 L 8 4 L 4 8 Z"/>
-            </Grid>
-            <ControlTemplate.Triggers>
-                <Trigger Property="IsChecked"
-                 Value="True">
-                    <Setter Property="Data"
-                  TargetName="ExpandPath"
-                  Value="M 0 4 L 8 4 L 4 8 Z"/>
-                </Trigger>
-            </ControlTemplate.Triggers>
-        </ControlTemplate>
-        <Style x:Key="ToggleButtonStyle" TargetType="ToggleButton">
-            <Setter Property="Template" Value="{StaticResource ToggleButtonTemplate}" />
-        </Style>
-    </UserControl.Resources>
     <Grid Width="Auto">
         <Grid.RowDefinitions>
-            <RowDefinition Height="30" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
         </Grid.RowDefinitions>
-        <Grid Grid.ColumnSpan="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="80" />
-                <ColumnDefinition Width="141*" />
-                <ColumnDefinition Width="209*"/>
-                <ColumnDefinition Width="10" />
-                <ColumnDefinition Width="180" />
-                <ColumnDefinition Width="160" />
-            </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="{Resx _search}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="18,2,18,2.4" />
-            <TextBox Name="TbSearch" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="tbSearch_KeyDown" Grid.ColumnSpan="3" Margin="0,6,9.2,6.4" >
-                <i:Interaction.Behaviors>
-                    <common:FocusExtension SelectAllOnFocus="True"/>
-                </i:Interaction.Behaviors>
-            </TextBox>
-            <Button Grid.Column="5" HorizontalAlignment="Right" Content="{Binding OkButtonText}" Margin="0,4,5.2,4.4" Width="70" Command="{Binding CommandAdd}" Click="ButtonOKClick"  IsDefault="True" />
-            <Button Grid.Column="5" HorizontalAlignment="Left" Margin="4.8,4,0,4.4" Width="70" Style="{StaticResource CancelButtonStyle}" Command="{Binding CommandClose}"/>
-            <ComboBox Grid.Column="4" Margin="4.8,4,5.2,4.4" VerticalAlignment="Center" ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" >
+        <DockPanel>
+            <Label Content="{Resx _search}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" />
+            <StackPanel DockPanel.Dock="Right" Height="35" Orientation="Horizontal">
+                <Button Style="{StaticResource CancelButtonStyle}" Click="BtnClose_OnClick"/>
+                <Button Style="{StaticResource OkButtonStyle}" Content="{Binding OkButtonText}" Command="{Binding CommandAdd}" Click="ButtonOk_OnClick" IsDefault="True" />
+            </StackPanel>
+            <ComboBox DockPanel.Dock="Right" Width="130" VerticalAlignment="Center" ItemsSource="{Binding MediaCategories}" SelectedValue="{Binding MediaCategory}" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}" >
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -74,13 +38,20 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-        </Grid>
+            <TextBox Name="TbSearch" VerticalAlignment="Center" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="tbSearch_KeyDown" Grid.ColumnSpan="3" Margin="0,6,9.2,6.4" >
+                <i:Interaction.Behaviors>
+                    <common:FocusExtension SelectAllOnFocus="True"/>
+                </i:Interaction.Behaviors>
+            </TextBox>
+        </DockPanel>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition />
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <views:PreviewView DataContext="{Binding PreviewViewmodel}" Grid.Column="1"  Width="330" Visibility="{Binding IsMovie, RelativeSource={RelativeSource PreviousData}, Converter={StaticResource BoolToVis}}"/>
+            <ContentControl Grid.Column="1" Visibility="{Binding IsMovie, Converter={StaticResource BoolToVis}}">
+                <views:PreviewView DataContext="{Binding PreviewViewmodel}" Width="330" />
+            </ContentControl>
             <DockPanel Grid.Column="0">
                 <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Left" Margin="5" IsChecked="{Binding EnableCGElementsForNewEvents}" Content="{Resx _enableCGForNewEvents}" Visibility="{Binding CanEnableCGElements, Converter={StaticResource BoolToVis}}"/>
                 <DataGrid  
@@ -96,13 +67,38 @@
                 RowHeaderWidth="0">
                     <DataGrid.Resources>
                         <common:BindingProxy x:Key="proxy" Data="{Binding}"/>
+                        <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
+                        <ControlTemplate x:Key="ToggleButtonTemplate" TargetType="ToggleButton">
+                            <Grid
+                                    Width="15"
+                                    Height="13"
+                                    Background="Transparent">
+                                <Path x:Name="ExpandPath"
+                                          HorizontalAlignment="Left" 
+                                          VerticalAlignment="Center" 
+                                          Margin="1,1,1,1"
+                                          Fill="{StaticResource GlyphBrush}"
+                                          Data="M 4 0 L 8 4 L 4 8 Z"/>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked"
+                                             Value="True">
+                                    <Setter Property="Data"
+                                                TargetName="ExpandPath"
+                                                Value="M 0 4 L 8 4 L 4 8 Z"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                        <Style x:Key="ToggleButtonStyle" TargetType="ToggleButton">
+                            <Setter Property="Template" Value="{StaticResource ToggleButtonTemplate}" />
+                        </Style>
                     </DataGrid.Resources>
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <Setter Property="DetailsVisibility" Value="{Binding IsExpanded, Converter={StaticResource BoolToVis}}" />
                             <Setter Property="common:MouseDoubleClick.Command" Value="{Binding ElementName=gSearch, Path=DataContext.CommandAdd}" />
                             <Setter Property="Background" Value="{Binding MediaEmphasis, Converter={StaticResource MediaEmphasisToBrush}}" />
-                            <EventSetter Event="MouseDoubleClick" Handler="ButtonOKClick"/>
+                            <EventSetter Event="MouseDoubleClick" Handler="ButtonOk_OnClick"/>
                         </Style>
                     </DataGrid.RowStyle>
                     <DataGrid.Columns>
@@ -195,4 +191,4 @@
             </DockPanel>
         </Grid>
     </Grid>
-</UserControl>
+</Window>

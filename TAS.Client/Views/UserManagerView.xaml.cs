@@ -18,7 +18,7 @@ namespace TAS.Client.Views
     /// <summary>
     /// Interaction logic for UserManagerView.xaml
     /// </summary>
-    public partial class UserManagerView : UserControl
+    public partial class UserManagerView : Window
     {
         public UserManagerView()
         {

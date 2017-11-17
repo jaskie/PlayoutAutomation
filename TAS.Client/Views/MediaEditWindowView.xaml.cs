@@ -18,7 +18,7 @@ namespace TAS.Client.Views
     /// <summary>
     /// Interaction logic for MediaEditWindowView.xaml
     /// </summary>
-    public partial class MediaEditWindowView : UserControl
+    public partial class MediaEditWindowView : Window
     {
         public MediaEditWindowView()
         {

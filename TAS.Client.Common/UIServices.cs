@@ -30,15 +30,12 @@ namespace TAS.Client.Common
         /// </summary>
         /// <typeparam name="TView">type of UserControl class to show content</typeparam>
         /// <param name="viewmodel">DataContext of the view</param>
-        public static Window ShowWindow<TView>(ViewmodelBase viewmodel, string windowTitle, double width = double.NaN, double height = double.NaN) where TView: UserControl, new()
+        public static Window ShowWindow<TView>(ViewmodelBase viewmodel) where TView: Window, new()
         {
-            var newWindow = new Window
+            var newWindow = new TView
             {
-                Title = windowTitle,
                 Owner = Application.Current.MainWindow,
-                Width = width,
-                Height = height,
-                Content = new TView { DataContext = viewmodel }
+                DataContext = viewmodel 
             };
             newWindow.Show();
             return newWindow;
@@ -49,16 +46,13 @@ namespace TAS.Client.Common
         /// </summary>
         /// <typeparam name="TView">type of UserControl class to show content</typeparam>
         /// <param name="viewmodel">DataContext of the view</param>
-        public static bool? ShowDialog<TView>(ViewmodelBase viewmodel, string windowTitle, double width = double.NaN, double height = double.NaN)
-            where TView : UserControl, new()
+        public static bool? ShowDialog<TView>(ViewmodelBase viewmodel)
+            where TView : Window, new()
         {
-            var newWindow = new Window
+            var newWindow = new TView
             {
-                Title = windowTitle,
-                Width = width,
-                Height = height,
                 Owner = Application.Current.MainWindow,
-                Content = new TView {DataContext = viewmodel}
+                DataContext = viewmodel
             };
             if (viewmodel is ICloseable)
                 ((ICloseable) viewmodel).ClosedOk += (o, e) => { newWindow.DialogResult = true; };

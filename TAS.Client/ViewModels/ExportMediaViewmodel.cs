@@ -52,7 +52,7 @@ namespace TAS.Client.ViewModels
                     _logos.Add(new ExportMediaLogoViewmodel(this, args.Media));
                     MediaExport.AddLogo(args.Media);
                 };
-                UiServices.ShowDialog<Views.MediaSearchView>(vm, Resources._window_MediaSearch, 850, 350);
+                UiServices.ShowDialog<Views.MediaSearchView>(vm);
             }
         }
     

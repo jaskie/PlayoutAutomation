@@ -79,7 +79,7 @@ namespace TAS.Client.ViewModels
         {
             using (var selector = new SecurityObjectSelectorViewmodel(_authenticationService))
             {
-                if  (UiServices.ShowDialog<Views.SecurityObjectSelectorView>(selector, resources._window_SecurityObjectSelector, 500, 400) != true)
+                if  (UiServices.ShowDialog<Views.SecurityObjectSelectorView>(selector) != true)
                     return;
                 var right = _ev.AddRightFor(selector.SelectedSecurityObject);
                 if (right == null)

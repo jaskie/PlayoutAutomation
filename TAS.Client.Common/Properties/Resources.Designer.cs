@@ -19,7 +19,7 @@ namespace TAS.Client.Common.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -665,69 +665,6 @@ namespace TAS.Client.Common.Properties {
         public static string _validateStartPlayMustBeInsideFile {
             get {
                 return ResourceManager.GetString("_validateStartPlayMustBeInsideFile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Edit server command.
-        /// </summary>
-        public static string _window_CommandScriptItemEdit {
-            get {
-                return ResourceManager.GetString("_window_CommandScriptItemEdit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0} rights.
-        /// </summary>
-        public static string _window_EngineRights {
-            get {
-                return ResourceManager.GetString("_window_EngineRights", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Ingest as....
-        /// </summary>
-        public static string _window_IngestAs {
-            get {
-                return ResourceManager.GetString("_window_IngestAs", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Search for media....
-        /// </summary>
-        public static string _window_MediaSearch {
-            get {
-                return ResourceManager.GetString("_window_MediaSearch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to New field.
-        /// </summary>
-        public static string _window_NewField {
-            get {
-                return ResourceManager.GetString("_window_NewField", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Select an object.
-        /// </summary>
-        public static string _window_SecurityObjectSelector {
-            get {
-                return ResourceManager.GetString("_window_SecurityObjectSelector", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to User manager.
-        /// </summary>
-        public static string _window_UserManager {
-            get {
-                return ResourceManager.GetString("_window_UserManager", resourceCulture);
             }
         }
     }

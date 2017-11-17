@@ -16,7 +16,7 @@ namespace TAS.Client.Views
     /// <summary>
     /// Interaction logic for IngestEditorWindow.xaml
     /// </summary>
-    public partial class IngestEditorView : UserControl
+    public partial class IngestEditorView : Window
     {
         public IngestEditorView()
         {

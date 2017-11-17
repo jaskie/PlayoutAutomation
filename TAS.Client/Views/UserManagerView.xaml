@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="TAS.Client.Views.UserManagerView"
+﻿<Window x:Class="TAS.Client.Views.UserManagerView"
              Language="{UICulture}" ResxExtension.DefaultResxName="TAS.Client.Views.UserManagerView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -9,7 +9,10 @@
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance vm:UserManagerViewmodel}"
-             d:DesignHeight="600" d:DesignWidth="600">
+             Height="600" 
+             Width="600"
+             Title="{Resx _windowTitle}"
+        >
     <TabControl>
         <TabItem Header="{Resx _users}">
             <Grid>
@@ -81,4 +84,4 @@
             </Grid>
         </TabItem>
     </TabControl>
-</UserControl>
+</Window>

@@ -132,4 +132,7 @@
   <data name="_search" xml:space="preserve">
     <value>Search</value>
   </data>
+  <data name="_windowTitle" xml:space="preserve">
+    <value>Search for media...</value>
+  </data>
 </root>

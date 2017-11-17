@@ -269,7 +269,7 @@ namespace TAS.Client.ViewModels
         private void _engineRights(object obj)
         {
             using (var vm = new EngineRightsEditViewmodel(Engine, Engine.AuthenticationService))
-                UiServices.ShowDialog<Views.EngineRightsEditView>(vm, string.Format(resources._window_EngineRights, EngineName), 500, 400);
+                UiServices.ShowDialog<Views.EngineRightsEditView>(vm);
         }
 
         private bool _canEngineRights(object obj)
@@ -280,7 +280,7 @@ namespace TAS.Client.ViewModels
         private void _userManager(object obj)
         {
             var vm = new UserManagerViewmodel(Engine.AuthenticationService);
-            UiServices.ShowWindow<Views.UserManagerView>(vm, resources._window_UserManager).Closed += (s, e) =>
+            UiServices.ShowWindow<Views.UserManagerView>(vm).Closed += (s, e) =>
                 vm.Dispose();
         }
 
@@ -688,21 +688,40 @@ namespace TAS.Client.ViewModels
 #region MediaSearch
         public void AddMediaEvent(IEvent baseEvent, TStartType startType, TMediaType mediaType, VideoLayer layer, bool closeAfterAdd)
         {
-            if (baseEvent != null && _mediaSearchViewModel == null)
+            if (baseEvent != null)
             {
-                _mediaSearchViewModel = new MediaSearchViewmodel(Engine.HaveRight(EngineRight.Preview) ? Engine : null,
-                    Engine.MediaManager, mediaType, layer, closeAfterAdd, baseEvent.Media?.FormatDescription())
+                if (_mediaSearchViewModel == null)
                 {
-                    BaseEvent = baseEvent,
-                    NewEventStartType = startType
-                };
-                var window = UiServices.ShowWindow<Views.MediaSearchView>(_mediaSearchViewModel, resources._window_MediaSearch, (PreviewViewmodel != null && mediaType == TMediaType.Movie) ? 850 : 350 );
-                _mediaSearchViewModel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
-                _mediaSearchViewModel.OnClose += (sender, args) =>
+                    var mediaSearchViewmodel = new MediaSearchViewmodel(
+                        Engine.HaveRight(EngineRight.Preview) ? Engine : null,
+                        Engine.MediaManager, mediaType, layer, closeAfterAdd, baseEvent.Media?.FormatDescription())
+                    {
+                        BaseEvent = baseEvent,
+                        NewEventStartType = startType
+                    };
+                    mediaSearchViewmodel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
+                    if (closeAfterAdd)
+                    {
+                        UiServices.ShowDialog<Views.MediaSearchView>(mediaSearchViewmodel);
+                        mediaSearchViewmodel.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
+                        mediaSearchViewmodel.Dispose();
+                    }
+                    else
+                    {
+                        _mediaSearchViewModel = mediaSearchViewmodel;
+                        var window = UiServices.ShowWindow<Views.MediaSearchView>(_mediaSearchViewModel);
+                        window.Closed += (sender, args) =>
+                        {
+                            _mediaSearchViewModel.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
+                            _mediaSearchViewModel.Dispose();
+                            _mediaSearchViewModel = null;
+                        };
+                    }
+                }
+                else
                 {
-                    _mediaSearchViewModel = null;
-                    window.Close();
-                };
+                    _mediaSearchViewModel.BaseEvent = baseEvent;
+                }
             }
         }
 

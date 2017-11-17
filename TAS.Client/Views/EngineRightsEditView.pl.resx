@@ -147,4 +147,7 @@
   <data name="_rundown" xml:space="preserve">
     <value>Tworzenie playlisty</value>
   </data>
+  <data name="_windowTitle" xml:space="preserve">
+    <value>Uprawnienia do kanału</value>
+  </data>
 </root>

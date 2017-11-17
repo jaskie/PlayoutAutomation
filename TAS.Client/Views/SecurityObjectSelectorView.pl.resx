@@ -123,4 +123,7 @@
   <data name="_users" xml:space="preserve">
     <value>Użytkownicy</value>
   </data>
+  <data name="_windowTitle" xml:space="preserve">
+    <value>Wybierz obiekt</value>
+  </data>
 </root>

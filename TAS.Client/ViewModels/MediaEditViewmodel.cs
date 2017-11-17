@@ -494,7 +494,7 @@ namespace TAS.Client.ViewModels
         {
             using (var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), false))
             {
-                if (UiServices.ShowDialog<Views.KeyValueEditView>(kve, resources._window_NewField, 400, 200) == true)
+                if (UiServices.ShowDialog<Views.KeyValueEditView>(kve) == true)
                     _fields.Add(kve.Key, kve.Value);
                 //kve.OnOk += (o) =>
                 //{
@@ -511,7 +511,7 @@ namespace TAS.Client.ViewModels
             var selected = (KeyValuePair<string, string>)SelectedField;
             using (var kve = new KeyValueEditViewmodel(selected, false))
             {
-                if (UiServices.ShowDialog<Views.KeyValueEditView>(kve, resources._window_NewField, 400, 200) == true)
+                if (UiServices.ShowDialog<Views.KeyValueEditView>(kve) == true)
                     _fields[kve.Key]= kve.Value;
             }
         }
