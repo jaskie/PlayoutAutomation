@@ -18,6 +18,8 @@ namespace TAS.Remoting
                     return typeof(Model.ServerMedia);
                 case "TAS.Server.IngestMedia":
                     return typeof(Model.IngestMedia);
+                case "TAS.Server.XDCAM.XDCAMMedia":
+                    return typeof(Model.XDCAMMedia);
                 case "TAS.Server.ArchiveMedia":
                     return typeof(Model.ArchiveMedia);
                 case "TAS.Server.AnimatedMedia":
