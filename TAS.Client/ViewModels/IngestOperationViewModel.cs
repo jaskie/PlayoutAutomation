@@ -45,7 +45,7 @@ namespace TAS.Client.ViewModels
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
             if (preview != null)
             {
-                _previewVm = new PreviewViewmodel(preview) { Media = operation.Source };
+                _previewVm = new PreviewViewmodel(preview) { SelectedMedia = operation.Source };
                 _previewVm.PropertyChanged += _previewVm_PropertyChanged;
             }
         }

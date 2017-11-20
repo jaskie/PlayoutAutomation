@@ -131,7 +131,7 @@ namespace TAS.Client.ViewModels
                         && !media.IsVerified)
                         media.ReVerify();
                     if (PreviewViewmodel != null)
-                        PreviewViewmodel.Media = media;
+                        PreviewViewmodel.SelectedMedia = media;
                     EditMedia = _selectedMedia == null ? null : new MediaEditViewmodel(_selectedMedia.Media, _mediaManager, PreviewViewmodel, true);
                     EditMedia?.Load();
                 }
@@ -414,7 +414,7 @@ namespace TAS.Client.ViewModels
                     EditMedia = new MediaEditViewmodel(media, _mediaManager, PreviewViewmodel, true);
                     EditMedia.Load();
                     if (PreviewViewmodel != null)
-                        PreviewViewmodel.Media = media;
+                        PreviewViewmodel.SelectedMedia = media;
                 }
             }
             if (e.PropertyName == nameof(RecordersViewmodel.Channel))

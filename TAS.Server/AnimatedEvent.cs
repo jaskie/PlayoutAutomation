@@ -61,7 +61,7 @@ namespace TAS.Server
                         false, 0, 0, 0
                         )
         {
-            _fields = new ConcurrentDictionary<string, string>(fields);
+            _fields = fields == null ? new ConcurrentDictionary<string, string>() : new ConcurrentDictionary<string, string>(fields);
             _method = method;
             _templateLayer = templateLayer;
         }

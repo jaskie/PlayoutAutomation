@@ -123,16 +123,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public IMedia SelectedMedia
-        {
-            get
-            {
-                var mediaVm = _selectedItem;
-                if (mediaVm != null)
-                    return mediaVm.Media;
-                return null;
-            }
-        }
+        public IMedia SelectedMedia => _selectedItem?.Media;
 
         public MediaViewViewmodel SelectedItem
         {
@@ -148,7 +139,7 @@ namespace TAS.Client.ViewModels
                         && !media.IsVerified)
                         media.ReVerify();
                     if (PreviewViewmodel != null)
-                        PreviewViewmodel.Media = media;
+                        PreviewViewmodel.SelectedMedia = media;
                     InvalidateRequerySuggested();
                 }
             }
@@ -187,7 +178,7 @@ namespace TAS.Client.ViewModels
 
         internal IEvent BaseEvent
         {
-            get { return _baseEvent; }
+            get => _baseEvent;
             set
             {
                 IEvent b = _baseEvent;
@@ -328,33 +319,46 @@ namespace TAS.Client.ViewModels
                     return pvlm.MediaName + " [fragment]";
             }
 
-            var mediaVm = SelectedItem;
-            if (mediaVm != null)
-            {
-                var segmentVM = mediaVm.SelectedSegment;
-                if (segmentVM == null)
-                    return mediaVm.MediaName;
-                return mediaVm.MediaName + " [" + segmentVM.SegmentName + "]";
-            }
-            return string.Empty;
+            if (SelectedItem == null)
+                return string.Empty;
+            return SelectedItem.SelectedSegment == null ? SelectedItem.MediaName : $"{SelectedItem.MediaName} [{SelectedItem.SelectedSegment.SegmentName}]";
         }
 
         private bool _allowAdd(object o)
         {
-            IMedia sm = SelectedMedia;
-            var be = _baseEvent;
-            var previewVM = PreviewViewmodel;
-            return (sm != null)
-                && (_mediaType != TMediaType.Movie || previewVM == null || previewVM.LoadedMedia == null || previewVM.LoadedMedia.MediaGuid == sm.MediaGuid) 
-                && (be == null
-                    || ((be.EventType == TEventType.Movie || be.EventType == TEventType.Live || be.EventType == TEventType.Rundown)
-                        && _mediaType == TMediaType.Movie 
-                        && ((NewEventStartType == TStartType.WithParent && be.PlayState == TPlayState.Scheduled) 
-                            || (NewEventStartType == TStartType.After && be.PlayState != TPlayState.Played && be.PlayState != TPlayState.Fading)))
-                    || ((be.EventType == TEventType.Movie || be.EventType == TEventType.Live) 
-                        && (_mediaType == TMediaType.Still || _mediaType == TMediaType.Animation)
-                        && NewEventStartType == TStartType.WithParent)
-                    );
+            if (SelectedMedia == null || BaseEvent == null)
+                return false;
+            if (PreviewViewmodel?.LoadedMedia != null &&
+                SelectedMedia.MediaGuid == PreviewViewmodel.LoadedMedia?.MediaGuid)
+                return false;
+            switch (NewEventStartType)
+            {
+                case TStartType.WithParent:
+                case TStartType.WithParentFromEnd:
+                    switch (BaseEvent.EventType)
+                    {
+                        case TEventType.Movie:
+                        case TEventType.Live:
+                            return BaseEvent.PlayState == TPlayState.Scheduled || (_mediaType == TMediaType.Still && BaseEvent.PlayState == TPlayState.Playing);
+                        default:
+                            return false;
+                    }
+                case TStartType.After:
+                    switch (BaseEvent.EventType)
+                    {
+                        case TEventType.Live:
+                        case TEventType.Movie:
+                            return BaseEvent.PlayState != TPlayState.Played;
+                        case TEventType.Rundown:
+                            var vp = BaseEvent.GetVisualParent();
+                            return BaseEvent.PlayState != TPlayState.Played && vp != null &&
+                                   vp.EventType != TEventType.Container;
+                        default:
+                            return false;
+                    }
+                default:
+                    return false;
+            }
         }
 
         private void _onBaseEventPropertyChanged(object sender, PropertyChangedEventArgs e)

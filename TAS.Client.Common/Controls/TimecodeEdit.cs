@@ -43,12 +43,12 @@ namespace TAS.Client.Common.Controls
 
         private void _updateText()
         {
-            Text = Timecode.ToSMPTETimecodeString(VideoFormat);
+            SetValue(TextProperty, Timecode.ToSMPTETimecodeString(VideoFormat));
         }
 
         public TimeSpan Timecode
         {
-           get { return (TimeSpan)GetValue(TimecodeProperty); }
+           get => (TimeSpan)GetValue(TimecodeProperty);
             set
             {
                 if (value == Timecode)
@@ -60,10 +60,7 @@ namespace TAS.Client.Common.Controls
 
         public TVideoFormat VideoFormat
         {
-            private get
-            {
-                return (TVideoFormat)GetValue(VideoFormatProperty);
-            }
+            get => (TVideoFormat)GetValue(VideoFormatProperty);
             set
             {
                 if (value == VideoFormat)

@@ -228,6 +228,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Plugins\FolderInfo.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </EmbeddedResource>

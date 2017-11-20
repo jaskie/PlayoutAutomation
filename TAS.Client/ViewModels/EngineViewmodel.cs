@@ -688,40 +688,39 @@ namespace TAS.Client.ViewModels
 #region MediaSearch
         public void AddMediaEvent(IEvent baseEvent, TStartType startType, TMediaType mediaType, VideoLayer layer, bool closeAfterAdd)
         {
-            if (baseEvent != null)
+            if (baseEvent == null)
+                return;
+            if (_mediaSearchViewModel == null)
             {
-                if (_mediaSearchViewModel == null)
+                var mediaSearchViewModel = new MediaSearchViewmodel(
+                    Engine.HaveRight(EngineRight.Preview) ? Engine : null,
+                    Engine.MediaManager, mediaType, layer, closeAfterAdd, baseEvent.Media?.FormatDescription())
                 {
-                    var mediaSearchViewmodel = new MediaSearchViewmodel(
-                        Engine.HaveRight(EngineRight.Preview) ? Engine : null,
-                        Engine.MediaManager, mediaType, layer, closeAfterAdd, baseEvent.Media?.FormatDescription())
-                    {
-                        BaseEvent = baseEvent,
-                        NewEventStartType = startType
-                    };
-                    mediaSearchViewmodel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
-                    if (closeAfterAdd)
-                    {
-                        UiServices.ShowDialog<Views.MediaSearchView>(mediaSearchViewmodel);
-                        mediaSearchViewmodel.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
-                        mediaSearchViewmodel.Dispose();
-                    }
-                    else
-                    {
-                        _mediaSearchViewModel = mediaSearchViewmodel;
-                        var window = UiServices.ShowWindow<Views.MediaSearchView>(_mediaSearchViewModel);
-                        window.Closed += (sender, args) =>
-                        {
-                            _mediaSearchViewModel.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
-                            _mediaSearchViewModel.Dispose();
-                            _mediaSearchViewModel = null;
-                        };
-                    }
+                    BaseEvent = baseEvent,
+                    NewEventStartType = startType
+                };
+                mediaSearchViewModel.MediaChoosen += _mediaSearchViewModelMediaChoosen;
+                if (closeAfterAdd)
+                {
+                    UiServices.ShowDialog<Views.MediaSearchView>(mediaSearchViewModel);
+                    mediaSearchViewModel.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
+                    mediaSearchViewModel.Dispose();
                 }
                 else
                 {
-                    _mediaSearchViewModel.BaseEvent = baseEvent;
+                    _mediaSearchViewModel = mediaSearchViewModel;
+                    var window = UiServices.ShowWindow<Views.MediaSearchView>(mediaSearchViewModel);
+                    window.Closed += (sender, args) =>
+                    {
+                        mediaSearchViewModel.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
+                        mediaSearchViewModel.Dispose();
+                        _mediaSearchViewModel = null;
+                    };
                 }
+            }
+            else
+            {
+                _mediaSearchViewModel.BaseEvent = baseEvent;
             }
         }
 
@@ -875,7 +874,7 @@ namespace TAS.Client.ViewModels
                         newSelected.PropertyChanged += _onSelectedEventPropertyChanged;
                     }
                     if (PreviewViewmodel != null)
-                        PreviewViewmodel.Event = newSelected;
+                        PreviewViewmodel.SelectedEvent = newSelected;
                     _eventEditViewmodel.Event = newSelected;
                     var re = value as EventPanelRundownElementViewmodelBase;
                     if (re != null && _mediaSearchViewModel != null)
