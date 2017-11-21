@@ -44,10 +44,7 @@ namespace TAS.Client.ViewModels
             AspectConversionsEnforce = new TAspectConversion[3];
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
             if (preview != null)
-            {
                 _previewVm = new PreviewViewmodel(preview) { SelectedMedia = operation.Source };
-                _previewVm.PropertyChanged += _previewVm_PropertyChanged;
-            }
         }
         
         public Array Categories { get; } = Enum.GetValues(typeof(TMediaCategory));
@@ -252,27 +249,28 @@ namespace TAS.Client.ViewModels
 
         protected virtual void OnSourceMediaPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IMedia.FileName))
-                NotifyPropertyChanged(nameof(SourceFileName));
-            if (e.PropertyName == nameof(IMedia.MediaStatus))
-                NotifyPropertyChanged(nameof(CanTrim));
-            if (e.PropertyName == nameof(IMedia.DurationPlay))
+            switch (e.PropertyName)
             {
-                Duration = _convertOperation.Source.DurationPlay;
-                NotifyPropertyChanged(nameof(CanTrim));
+                case nameof(IMedia.FileName):
+                    NotifyPropertyChanged(nameof(SourceFileName));
+                    break;
+                case nameof(IMedia.MediaStatus):
+                    NotifyPropertyChanged(nameof(CanTrim));
+                    break;
+                case nameof(IMedia.DurationPlay):
+                    Duration = _convertOperation.Source.DurationPlay;
+                    NotifyPropertyChanged(nameof(CanTrim));
+                    break;
+                case nameof(IMedia.TcPlay):
+                    StartTC = _convertOperation.Source.TcPlay;
+                    break;
             }
-            if (e.PropertyName == nameof(IMedia.TcPlay))
-                StartTC = _convertOperation.Source.TcPlay;
         }
 
         protected override void OnDispose()
         {
             _convertOperation.Source.PropertyChanged -= OnSourceMediaPropertyChanged;
-            if (_previewVm != null)
-            {
-                _previewVm.PropertyChanged -= _previewVm_PropertyChanged;
-                _previewVm.Dispose();
-            }
+            _previewVm?.Dispose();
             base.OnDispose();
         }
 
@@ -325,18 +323,5 @@ namespace TAS.Client.ViewModels
             }
             return null;
         }
-
-        private void _previewVm_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (_trim
-                && _previewVm.LoadedMedia == _convertOperation.Source
-                && (e.PropertyName == nameof(PreviewViewmodel.TcIn)
-                    || e.PropertyName == nameof(PreviewViewmodel.TcOut)))
-            {
-                StartTC = _previewVm.TcIn;
-                Duration = _previewVm.DurationSelection;
-            }
-        }
-
     }
 }

@@ -4,11 +4,6 @@
              DispatcherUnhandledException="Application_DispatcherUnhandledException"
              >
     <Application.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/TAS.Client.Common;component/Converters.xaml"/>
-                <ResourceDictionary Source="/TAS.Client.Common;component/Styles/Styles.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+        <ResourceDictionary Source="/TAS.Client.Common;component/Styles/Styles.xaml"/>
     </Application.Resources>
 </Application>

@@ -5,18 +5,17 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using TAS.Client.Common;
-using resources = TAS.Client.Common.Properties.Resources;
 using System.Windows.Input;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    internal class IngestEditViewmodel : ViewmodelBase, ICloseable
+    internal class IngestEditorViewmodel : ViewmodelBase
     {
         private IngestOperationViewModel _selectedOperation;
 
-        public IngestEditViewmodel(IList<IIngestOperation> convertionList, IPreview preview, IMediaManager mediaManager)
+        public IngestEditorViewmodel(IList<IIngestOperation> convertionList, IPreview preview, IMediaManager mediaManager)
         {
             OperationList = new ObservableCollection<IngestOperationViewModel>(convertionList.Select(op =>
             {
@@ -45,7 +44,6 @@ namespace TAS.Client.ViewModels
         {
             foreach (IngestOperationViewModel c in OperationList)
                 c.Apply();
-            ClosedOk?.Invoke(this, EventArgs.Empty);
         }
 
         private bool _canOk(object obj)
@@ -84,8 +82,7 @@ namespace TAS.Client.ViewModels
 
         private void _deleteOperation(object obj)
         {
-            var operation = obj as IngestOperationViewModel;
-            if (operation == null)
+            if (!(obj is IngestOperationViewModel operation))
                 return;
             int operaionIndex = OperationList.IndexOf(operation);
             if (OperationList.Remove(operation))
@@ -113,8 +110,7 @@ namespace TAS.Client.ViewModels
             }
             OperationList.Clear();
         }
-
-        public event EventHandler ClosedOk;
+        
     }
 }
 

@@ -132,8 +132,14 @@
   <data name="_buttonPlay.ToolTip" xml:space="preserve">
     <value>Play</value>
   </data>
+  <data name="_buttonPlayTheEnd.ToolTip" xml:space="preserve">
+    <value>Play end of the file</value>
+  </data>
   <data name="_buttonStop.ToolTip" xml:space="preserve">
     <value>Preview off</value>
+  </data>
+  <data name="_buttonUpdateSourceTc.ToolTip" xml:space="preserve">
+    <value>Set source TC to preview's In and Out</value>
   </data>
   <data name="_currentTC" xml:space="preserve">
     <value>Current TC</value>

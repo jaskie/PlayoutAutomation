@@ -11,29 +11,36 @@ namespace TAS.Client.ViewModels
 {
     public class ExportMediaViewmodel : ViewmodelBase
     {
-
-        private readonly ObservableCollection<ExportMediaLogoViewmodel> _logos;
         private readonly IMediaManager _mediaManager;
         public ExportMediaViewmodel(IMediaManager mediaManager, MediaExportDescription mediaExport)
         {
             MediaExport = mediaExport;
             _mediaManager = mediaManager;
-            _logos = new ObservableCollection<ExportMediaLogoViewmodel>(mediaExport.Logos.Select(l => new ExportMediaLogoViewmodel(this, l)));
+            Logos = new ObservableCollection<ExportMediaLogoViewmodel>(mediaExport.Logos.Select(l => new ExportMediaLogoViewmodel(this, l)));
             CommandAddLogo = new UICommand { ExecuteDelegate = _addLogo };
         }
 
         public string MediaName => MediaExport.Media.MediaName;
+
         public TimeSpan StartTC { get { return MediaExport.StartTC; } set { SetField(ref MediaExport.StartTC, value); } }
+
         public TimeSpan Duration { get { return MediaExport.Duration; } set { SetField(ref MediaExport.Duration, value); } }
+
         public double AudioVolume { get { return MediaExport.AudioVolume; } set { SetField(ref MediaExport.AudioVolume, value); } }
-        public ObservableCollection<ExportMediaLogoViewmodel> Logos => _logos;
+
+        public ObservableCollection<ExportMediaLogoViewmodel> Logos { get; }
+
         public UICommand CommandAddLogo { get; }
+
         public MediaExportDescription MediaExport { get; }
+
+        public TVideoFormat VideoFormat => _mediaManager.VideoFormat;
+
 
 
         internal void Remove(ExportMediaLogoViewmodel exportMediaLogoViewModel)
         {
-            _logos.Remove(exportMediaLogoViewModel);
+            Logos.Remove(exportMediaLogoViewModel);
             MediaExport.RemoveLogo(exportMediaLogoViewModel.Logo);
         }
 
@@ -46,16 +53,13 @@ namespace TAS.Client.ViewModels
                 VideoLayer.CG1,
                 true, // close ater add
                 MediaExport.Media.FormatDescription()))
-            {
-                vm.MediaChoosen += (sender, args) =>
+                if (UiServices.ShowDialog<Views.MediaSearchView>(vm) == true)
                 {
-                    _logos.Add(new ExportMediaLogoViewmodel(this, args.Media));
-                    MediaExport.AddLogo(args.Media);
-                };
-                UiServices.ShowDialog<Views.MediaSearchView>(vm);
-            }
+                    Logos.Add(new ExportMediaLogoViewmodel(this, vm.SelectedMedia));
+                    MediaExport.AddLogo(vm.SelectedMedia);
+                }
         }
-    
+
         protected override void OnDispose() { }
     }
 }

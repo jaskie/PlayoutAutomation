@@ -16,25 +16,20 @@
              FontSize="13" KeyUp="UserControl_KeyUp"
              >
     <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/TAS.Client.Common;component/Controls/Resources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-            <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
-            <ControlTemplate x:Key="toggleButtonTemplate" TargetType="ToggleButton">
-                <Grid Width="15" Height="13" Background="Transparent">
-                    <Path x:Name="ExpandPath" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="1,1,1,1" Fill="{StaticResource GlyphBrush}" Data="M 4 0 L 8 4 L 4 8 Z"/>
-                </Grid>
-                <ControlTemplate.Triggers>
-                    <Trigger Property="IsChecked" Value="True">
-                        <Setter Property="Data" TargetName="ExpandPath" Value="M 0 4 L 8 4 L 4 8 Z"/>
-                    </Trigger>
-                </ControlTemplate.Triggers>
-            </ControlTemplate>
-            <Style x:Key="toggleButtonStyle" TargetType="ToggleButton">
-                <Setter Property="Template" Value="{StaticResource toggleButtonTemplate}" />
-            </Style>
-        </ResourceDictionary>
+        <SolidColorBrush x:Key="GlyphBrush" Color="#444" />
+        <ControlTemplate x:Key="toggleButtonTemplate" TargetType="ToggleButton">
+            <Grid Width="15" Height="13" Background="Transparent">
+                <Path x:Name="ExpandPath" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="1,1,1,1" Fill="{StaticResource GlyphBrush}" Data="M 4 0 L 8 4 L 4 8 Z"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Data" TargetName="ExpandPath" Value="M 0 4 L 8 4 L 4 8 Z"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <Style x:Key="toggleButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Template" Value="{StaticResource toggleButtonTemplate}" />
+        </Style>
     </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding CommandRefresh}"/>
@@ -73,13 +68,15 @@
                             </Style>
                         </DockPanel.Resources>
                         <Label Content="{Resx _directory}"/>
-                        <toolkit:DropDownButton Name="folderCombo" VerticalAlignment="Center" Width="120" HorizontalContentAlignment="Stretch" ToolTip="{Binding SelectedDirectory.Folder}"
-                                    Template="{StaticResource ComboBoxTreeTemplate}">
-                            <toolkit:DropDownButton.Content>
-                                <TextBlock Text="{Binding SelectedDirectory}" Margin="2"/>
-                            </toolkit:DropDownButton.Content>
+                        <toolkit:DropDownButton Name="FolderCombo" VerticalAlignment="Center" Width="120" HorizontalContentAlignment="Stretch" Content="{Binding SelectedDirectory.DirectoryName}"  ToolTip="{Binding SelectedDirectory.Folder}" Margin="1">
+                            <toolkit:DropDownButton.Resources>
+                                <common:BindingProxy x:Key="Proxy" Data="{Binding}"/>
+                            </toolkit:DropDownButton.Resources>
                             <toolkit:DropDownButton.DropDownContent>
-                                <controls:TreeViewEx MinWidth="120" ItemsSource="{Binding MediaDirectories}" SelectedItem="{Binding SelectedDirectory}" SelectedItemChanged="TreeViewEx_SelectedItemChanged">
+                                <controls:TreeViewEx DataContext="{StaticResource Proxy}" MinWidth="120" ItemsSource="{Binding Data.MediaDirectories}" 
+                                                     SelectedItem="{Binding Data.SelectedDirectory}" SelectedItemChanged="TreeViewEx_SelectedItemChanged"
+                                                     Width="120"
+                                                     >
                                     <controls:TreeViewEx.ItemTemplate>
                                         <HierarchicalDataTemplate DataType="{x:Type vm:MediaDirectoryViewmodel}" ItemsSource="{Binding SubDirectories}">
                                             <TextBlock Text="{Binding DirectoryName}" ToolTip="{Binding Folder}"/>

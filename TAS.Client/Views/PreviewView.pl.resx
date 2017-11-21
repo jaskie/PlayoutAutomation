@@ -132,8 +132,14 @@
   <data name="_buttonPlay.ToolTip" xml:space="preserve">
     <value>Odtwarzaj</value>
   </data>
+  <data name="_buttonPlayTheEnd.ToolTip" xml:space="preserve">
+    <value>Odtwórz zakończenie</value>
+  </data>
   <data name="_buttonStop.ToolTip" xml:space="preserve">
     <value>Wyłącz podgląd</value>
+  </data>
+  <data name="_buttonUpdateSourceTc.ToolTip" xml:space="preserve">
+    <value>Ustaw TC żródła na czasy In i Out podglądu</value>
   </data>
   <data name="_currentTC" xml:space="preserve">
     <value>Bieżący TC</value>

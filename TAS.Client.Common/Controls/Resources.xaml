@@ -6,7 +6,6 @@
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/TAS.Client.Common;component/Controls/SearchTextBox.xaml"/>
-        <ResourceDictionary Source="/TAS.Client.Common;component/Controls/ComboBoxTree.xaml"/>
     </ResourceDictionary.MergedDictionaries>
     <Style x:Key="VerticalVolumeGaugeStyle" TargetType="{x:Type ProgressBar}">
         <Setter Property="Template">

@@ -12,7 +12,7 @@ namespace TAS.Client.ViewModels
 
         public MediaEditWindowViewmodel(IMedia media, IMediaManager mediaManager)
         {
-            Editor = new MediaEditViewmodel(media, mediaManager, null, false);
+            Editor = new MediaEditViewmodel(media, mediaManager, false);
             WindowTitle = media.MediaName;
         }
 

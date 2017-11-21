@@ -90,6 +90,8 @@ namespace TAS.Client.ViewModels
 
         public PreviewViewmodel PreviewViewmodel { get; }
 
+        public Views.MediaSearchView Window { get; set; }
+
         public string SearchText
         {
             get { return _searchText; }
@@ -207,7 +209,7 @@ namespace TAS.Client.ViewModels
 
         private void _searchDirectory_MediaVerified(object sender, MediaEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate
             {
                 _itemsView.Refresh();
             });
@@ -215,7 +217,7 @@ namespace TAS.Client.ViewModels
 
         private void _searchDirectory_MediaRemoved(object sender, MediaEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate
             {
                 var mvm = Items.FirstOrDefault(m => m.Media == e.Media);
                 if (mvm != null)
@@ -229,7 +231,7 @@ namespace TAS.Client.ViewModels
 
         private void _searchDirectory_MediaAdded(object sender, MediaEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+            Application.Current.Dispatcher.BeginInvoke((Action)delegate
             {
                 IMedia media = e.Media;
                 if (media != null 
@@ -240,8 +242,8 @@ namespace TAS.Client.ViewModels
 
         private bool _itemsFilter(object item)
         {
-            MediaViewViewmodel mvm = item as MediaViewViewmodel;
-            if (mvm == null || mvm.Media == null)
+            var mvm = item as MediaViewViewmodel;
+            if (mvm?.Media == null)
                 return false;
             string mediaName = mvm.MediaName.ToLower();
             return mvm.MediaStatus == TMediaStatus.Available
@@ -272,10 +274,10 @@ namespace TAS.Client.ViewModels
             var mediaVm = SelectedItem;
             if (mediaVm != null)
             {
-                var segmentVM = mediaVm.SelectedSegment;
-                if (segmentVM == null)
+                var segmentVm = mediaVm.SelectedSegment;
+                if (segmentVm == null)
                     return mediaVm.TcPlay;
-                return segmentVM.TcIn;
+                return segmentVm.TcIn;
             }
             return TimeSpan.Zero;
         }
@@ -298,10 +300,10 @@ namespace TAS.Client.ViewModels
             var mediaVm = SelectedItem;
             if (mediaVm != null)
             {
-                var segmentVM = mediaVm.SelectedSegment;
-                if (segmentVM == null)
+                var segmentVm = mediaVm.SelectedSegment;
+                if (segmentVm == null)
                     return mediaVm.DurationPlay;
-                return segmentVM.Duration;
+                return segmentVm.Duration;
             }
             return TimeSpan.Zero;
         }
@@ -328,8 +330,8 @@ namespace TAS.Client.ViewModels
         {
             if (SelectedMedia == null || BaseEvent == null)
                 return false;
-            if (PreviewViewmodel?.LoadedMedia != null &&
-                SelectedMedia.MediaGuid == PreviewViewmodel.LoadedMedia?.MediaGuid)
+            var loadedMedia = PreviewViewmodel?.LoadedMedia;
+            if (loadedMedia != null && SelectedMedia.MediaGuid != loadedMedia.MediaGuid)
                 return false;
             switch (NewEventStartType)
             {

@@ -13,7 +13,6 @@ namespace TAS.Client.ViewModels
     {
         private readonly IMediaManager _mediaManager;
         private MediaDirectoryViewmodel _selectedDirectory;
-        private Views.ExportView _view;
         private bool _concatMedia;
         private string _concatMediaName;
         private TmXFAudioExportFormat _mXFAudioExportFormat;
@@ -26,8 +25,6 @@ namespace TAS.Client.ViewModels
             Directories = mediaManager.IngestDirectories.Where(d => d.ContainsExport()).Select(d => new MediaDirectoryViewmodel(d, false, true)).ToList();
             SelectedDirectory = Directories.FirstOrDefault();
             CommandExport = new UICommand { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
-            _view = new Views.ExportView { DataContext = this, Owner = System.Windows.Application.Current.MainWindow, ShowInTaskbar=false };
-            _view.ShowDialog();
         }
 
         public ICommand CommandExport { get; }
@@ -103,7 +100,6 @@ namespace TAS.Client.ViewModels
         private void _export (object o)
         {
             _checking = true;
-            InvalidateRequerySuggested();
             try
             {
                 //TODO: check if exporting files fit in device free space
@@ -114,7 +110,6 @@ namespace TAS.Client.ViewModels
                 InvalidateRequerySuggested();
             }
             _mediaManager.Export(Items.Select(mevm => mevm.MediaExport).ToArray(), _concatMedia, _concatMediaName, (IIngestDirectory)SelectedDirectory.Directory, _mXFAudioExportFormat, _mXFVideoExportFormat);
-            _view.Close();
         }
 
         private bool _checking;
@@ -127,7 +122,6 @@ namespace TAS.Client.ViewModels
         
         protected override void OnDispose()
         {
-            _view = null;
         }
     }
 }

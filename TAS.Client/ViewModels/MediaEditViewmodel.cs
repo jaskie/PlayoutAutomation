@@ -16,7 +16,6 @@ namespace TAS.Client.ViewModels
 {
     public class MediaEditViewmodel: EditViewmodelBase<IMedia>, ITemplatedEdit, IDataErrorInfo
     {
-        private readonly PreviewViewmodel _previewVm;
         private readonly IMediaManager _mediaManager;
 
         private bool _isVolumeChecking;
@@ -48,17 +47,14 @@ namespace TAS.Client.ViewModels
 
 
 
-        public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, PreviewViewmodel previewVm, bool showButtons) : base(media)
+        public MediaEditViewmodel(IMedia media, IMediaManager mediaManager, bool showButtons) : base(media)
         {
             CommandSaveEdit = new UICommand { ExecuteDelegate = Update, CanExecuteDelegate = o => CanSave() };
             CommandCancelEdit = new UICommand { ExecuteDelegate = Load, CanExecuteDelegate = o => IsModified };
             CommandRefreshStatus = new UICommand { ExecuteDelegate = _refreshStatus };
             CommandCheckVolume = new UICommand { ExecuteDelegate = _checkVolume, CanExecuteDelegate = (o) => !_isVolumeChecking };
-            _previewVm = previewVm;
             _mediaManager = mediaManager;
             ShowButtons = showButtons;
-            if (previewVm != null)
-                previewVm.PropertyChanged += _onPreviewPropertyChanged;
             Model.PropertyChanged += OnMediaPropertyChanged;
             if (Model is IAnimatedMedia)
             {
@@ -316,7 +312,7 @@ namespace TAS.Client.ViewModels
 
         public IDictionary<string, string> Fields
         {
-            get { return _fields; }
+            get { return new Dictionary<string, string>(_fields); }
             set
             {
                 if (_fields != null)
@@ -399,8 +395,6 @@ namespace TAS.Client.ViewModels
         protected override void OnDispose()
         {
             Model.PropertyChanged -= OnMediaPropertyChanged;
-            if (_previewVm != null)
-                _previewVm.PropertyChanged -= _onPreviewPropertyChanged;
             if (Model is IAnimatedMedia)
                 _fields.CollectionChanged -= _fields_CollectionChanged;
         }
@@ -590,21 +584,6 @@ namespace TAS.Client.ViewModels
             if (e.PropertyName == nameof(IMedia.MediaGuid))
             {
                 NotifyPropertyChanged(e.PropertyName);
-            }
-        }
-
-        private void _onPreviewPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (_previewVm.LoadedMedia == Model
-                && _previewVm.SelectedSegment == null)
-            {
-                if (e.PropertyName == nameof(PreviewViewmodel.TcIn))
-                {
-                    TcPlay = _previewVm.TcIn;
-                    DurationPlay = _previewVm.DurationSelection;
-                }
-                if (e.PropertyName == nameof(PreviewViewmodel.TcOut))
-                    DurationPlay = _previewVm.DurationSelection;
             }
         }
         

@@ -132,7 +132,7 @@ namespace TAS.Client.ViewModels
                         media.ReVerify();
                     if (PreviewViewmodel != null)
                         PreviewViewmodel.SelectedMedia = media;
-                    EditMedia = _selectedMedia == null ? null : new MediaEditViewmodel(_selectedMedia.Media, _mediaManager, PreviewViewmodel, true);
+                    EditMedia = _selectedMedia == null ? null : new MediaEditViewmodel(_selectedMedia.Media, _mediaManager, true);
                     EditMedia?.Load();
                 }
             }
@@ -400,8 +400,8 @@ namespace TAS.Client.ViewModels
 
         private bool _canRefresh(object obj)
         {
-            var directory = _selectedDirectory?.Directory as IIngestDirectory;
-            return directory != null && (!directory.IsWAN || _searchText.Length >= MinSearchLength);
+            return _selectedDirectory?.Directory is IIngestDirectory directory 
+                && (!directory.IsWAN || _searchText.Length >= MinSearchLength);
         }
 
         private void _recordersViewmodel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -411,7 +411,7 @@ namespace TAS.Client.ViewModels
                 var media = ((RecordersViewmodel)sender).RecordingMedia;
                 if (media != null)
                 {
-                    EditMedia = new MediaEditViewmodel(media, _mediaManager, PreviewViewmodel, true);
+                    EditMedia = new MediaEditViewmodel(media, _mediaManager, true);
                     EditMedia.Load();
                     if (PreviewViewmodel != null)
                         PreviewViewmodel.SelectedMedia = media;
@@ -592,8 +592,10 @@ namespace TAS.Client.ViewModels
         private void _export(object obj)
         {
             var selections = _getSelections().Select(m => new MediaExportDescription(m, new List<IMedia>(), m.TcPlay, m.DurationPlay, m.AudioVolume));
-            using (new ExportViewmodel(_mediaManager, selections))
-            { }
+            using (var vm = new ExportViewmodel(_mediaManager, selections))
+            {
+                UiServices.ShowDialog<Views.ExportView>(vm);
+            }
         }
 
         private void _sweepStaleMedia(object o)
@@ -622,12 +624,11 @@ namespace TAS.Client.ViewModels
                     });
                 });
                 foreach (var sourceMedia in selectedMedia)
-                    if (sourceMedia is IIngestMedia)
-                        ingestList.Add(_mediaManager.FileManager.CreateConvertOperation((IIngestMedia) sourceMedia,
-                            _mediaManager.MediaDirectoryPRI));
+                    if (sourceMedia is IIngestMedia media)
+                        ingestList.Add(_mediaManager.FileManager.CreateConvertOperation(media, directory));
                 if (ingestList.Count != 0)
                 {
-                    using (IngestEditViewmodel ievm = new IngestEditViewmodel(ingestList, _preview, _mediaManager))
+                    using (IngestEditorViewmodel ievm = new IngestEditorViewmodel(ingestList, _preview, _mediaManager))
                     {
                         if (UiServices.ShowDialog<Views.IngestEditorView>(ievm) == true)
                         {
@@ -663,13 +664,12 @@ namespace TAS.Client.ViewModels
             IServerDirectory pri = _mediaManager.MediaDirectoryPRI;
             IServerDirectory sec = _mediaManager.MediaDirectorySEC;
             IServerDirectory dir = pri != null && pri.DirectoryExists() ? pri : sec != null && sec.DirectoryExists() ? sec : null;
-            if (dir != null)
-            {
-                if (_selectedDirectory.IsIngestDirectory)
-                    _ingestSelectionToDir(dir);
-                else
-                    _mediaManager.CopyMediaToPlayout(_getSelections(), true);
-            }
+            if (dir == null)
+                return;
+            if (_selectedDirectory.IsIngestDirectory)
+                _ingestSelectionToDir(dir);
+            else
+                _mediaManager.CopyMediaToPlayout(_getSelections(), true);
         }
 
         private bool _canSearch(object o)

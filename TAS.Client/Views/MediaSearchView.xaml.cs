@@ -55,7 +55,7 @@ namespace TAS.Client.Views
             if (TbSearch.Focus())
                 TbSearch.SelectAll();
             if (System.Windows.Interop.ComponentDispatcher.IsThreadModal)
-                Close();
+                DialogResult = true;
         }
 
         private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)

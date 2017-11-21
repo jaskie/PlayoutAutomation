@@ -117,7 +117,7 @@
     <Compile Include="ViewModels\ExportViewmodel.cs" />
     <Compile Include="ViewModels\FileManagerViewmodel.cs" />
     <Compile Include="ViewModels\FileOperationViewmodel.cs" />
-    <Compile Include="ViewModels\IngestEditViewmodel.cs" />
+    <Compile Include="ViewModels\IngestEditorViewmodel.cs" />
     <Compile Include="ViewModels\ITemplatedEdit.cs" />
     <Compile Include="ViewModels\KeyValueEditViewmodel.cs" />
     <Compile Include="ViewModels\MediaDirectoryViewmodel.cs" />

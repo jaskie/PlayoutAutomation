@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:TAS.Client.Views"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
              mc:Ignorable="d" 
-             Width="300"
+             Width="350"
              Title="{Binding Editor.MediaName}"
              d:DataContext="{d:DesignInstance vm:MediaEditWindowViewmodel}"
              d:DesignHeight="600"
@@ -17,7 +17,7 @@
             <Button Style="{StaticResource CancelButtonStyle}" />
             <Button Command="{Binding CommandOk}" Style="{StaticResource OkButtonStyle}" />
         </StackPanel>
-        <local:MediaEditView DataContext="{Binding Editor}"/>
+        <local:MediaEditView DataContext="{Binding Editor}" />
     </DockPanel>
 </Window>
 

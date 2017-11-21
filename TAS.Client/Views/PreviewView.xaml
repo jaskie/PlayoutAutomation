@@ -6,16 +6,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
-             xmlns:vm="clr-namespace:TAS.Client.ViewModels"
-             d:DataContext="{d:DesignInstance vm:PreviewViewmodel}"
              FontSize="12" 
              MinHeight="55"
              d:DesignHeight="300"
              >
     <UserControl.Resources>
-        <Style x:Key="controlButtonProperties" TargetType="Button" >
-            <Setter Property="Width" Value="40" />
-            <Setter Property="Margin" Value="8" />
+        <Style x:Key="ControlButtonProperties" TargetType="Button" >
+            <Setter Property="Width" Value="35" />
+            <Setter Property="Height" Value="35" />
+            <Setter Property="Margin" Value="4" />
         </Style>
     </UserControl.Resources>
     <UserControl.InputBindings>
@@ -27,21 +26,27 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" MinWidth="300" >
         <DockPanel IsEnabled="{Binding IsEnabled}">
-            <DockPanel DockPanel.Dock="Top">
-                <Button Command="{Binding CommandPause}" Style="{StaticResource controlButtonProperties}" ToolTip="{Resx _buttonPause.ToolTip}">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Paused.png" Stretch="None" />
-                </Button>
-                <Button Command="{Binding CommandPlay}" Style="{StaticResource controlButtonProperties}" ToolTip="{Resx _buttonPlay.ToolTip}">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Playing.png" Stretch="None" />
-                </Button>
-                <Button Command="{Binding CommandStop}" Style="{StaticResource controlButtonProperties}" ToolTip="{Resx _buttonStop.ToolTip}">
-                    <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/PlayStates/Aborted.png" Stretch="None" />
-                </Button>
-                <StackPanel>
-                    <TextBox Text="{Binding LoadedMedia.MediaName, Mode=OneWay}" Margin="3" IsEnabled="{Binding IsLoaded}" IsReadOnly="True"/>
-                    <TextBox Text="{Binding LoadedMedia.FileName, Mode=OneWay}" Margin="3" IsEnabled="{Binding IsLoaded}" IsReadOnly="True"/>
+            <Grid DockPanel.Dock="Top" >
+                <StackPanel Orientation="Horizontal">
+                    <Button Command="{Binding CommandPause}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPause.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-pause.png"  />
+                    </Button>
+                    <Button Command="{Binding CommandPlay}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPlay.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-start.png" />
+                    </Button>
+                    <Button Command="{Binding CommandPlayTheEnd}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPlayTheEnd.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-end.png" />
+                    </Button>
+                    <Button Command="{Binding CommandStop}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonStop.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png"  />
+                    </Button>
                 </StackPanel>
-            </DockPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Command="{Binding CommandUpdateSourceTc}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonUpdateSourceTc.ToolTip}">
+                        <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/time-update.png"  />
+                    </Button>
+                </StackPanel>
+            </Grid>
             <DockPanel IsEnabled="{Binding IsLoaded}">
                 <DockPanel.Resources>
                     <Style TargetType="Button">
@@ -51,13 +56,16 @@
                         <Setter Property="Padding" Value="0" />
                     </Style>
                 </DockPanel.Resources>
-                <controls:MediaSeekSlider DockPanel.Dock="Top" Margin="10" 
+                <Grid DockPanel.Dock="Top" >
+                    <controls:MediaSeekSlider Margin="10" 
                                         Position="{Binding SliderPosition}" 
                                         Maximum="{Binding LoadedDuration}" 
                                         SmallChange="1" LargeChange="{Binding FramesPerSecond}" 
                                         Interval="500" Delay="1000" TickPlacement="TopLeft" 
                                         TickFrequency="{Binding SliderTickFrequency}" 
                                         ToolTip="{Resx _slider.ToolTip}"/>
+                    <TextBlock Text="{Binding LoadedMedia.MediaName}" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                </Grid>
                 <Grid DockPanel.Dock="Top">
                     <Grid.Resources>                        
                         <Style TargetType="controls:TimecodeEdit">

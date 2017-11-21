@@ -16,7 +16,7 @@
         </StackPanel>
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="37" HorizontalAlignment="Right">
             <Button Style="{StaticResource CancelButtonStyle}" />
-            <Button Command="{Binding CommandOk}" Style="{StaticResource OkButtonStyle}" />
+            <Button Command="{Binding CommandOk}" Style="{StaticResource OkButtonStyle}" Click="ButtonOk_Click" />
         </StackPanel>
         <DataGrid ItemsSource="{Binding Rights}" SelectedItem="{Binding SelectedRight}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False">
             <DataGrid.CellStyle>

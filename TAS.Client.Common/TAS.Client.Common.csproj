@@ -97,7 +97,6 @@
     <Compile Include="Controls\FilenameEntry.xaml.cs">
       <DependentUpon>FilenameEntry.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ICloseable.cs" />
     <Compile Include="IngestDirectoryExtensions.cs" />
     <Compile Include="ObservableDictionary.cs" />
     <Compile Include="Plugin\IUiMenuItem.cs" />
@@ -139,10 +138,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Controls\ComboBoxTree.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Controls\SearchTextBox.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -215,7 +210,6 @@
     <Resource Include="Images\Config\file-open.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -513,10 +507,18 @@
   <ItemGroup>
     <Resource Include="Images\Actions\go-jump.png" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Resource Include="Images\Secutity\group.png" />
     <Resource Include="Images\Secutity\user.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\MediaNavigation\media-playback-pause.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\MediaNavigation\media-playback-end.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Actions\time-update.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

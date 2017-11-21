@@ -39,7 +39,7 @@ namespace TAS.Client.Views
 
         private void TreeViewEx_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            folderCombo.IsOpen = false;
+            FolderCombo.IsOpen = false;
         }
     }
 }

@@ -20,7 +20,6 @@ namespace TAS.Client.ViewModels
 {
     public class EngineViewmodel : ViewmodelBase
     {
-        private readonly EventEditViewmodel _eventEditViewmodel;
         private readonly VideoFormatDescription _videoFormatDescription;
         private readonly EngineCGElementsControllerViewmodel _cGElementsControllerViewmodel;
         private readonly bool _allowPlayControl;
@@ -60,7 +59,7 @@ namespace TAS.Client.ViewModels
                 PreviewViewmodel = new PreviewViewmodel(preview) { IsSegmentsVisible = true };
 
             // Creating EventEditViewmodel
-            _eventEditViewmodel = new EventEditViewmodel(this, PreviewViewmodel);
+            EventEditViewmodel = new EventEditViewmodel(this);
 
             _createCommands();
 
@@ -256,8 +255,8 @@ namespace TAS.Client.ViewModels
             CommandSearchShowPanel = new UICommand { ExecuteDelegate = _showSearchPanel };
             CommandSearchHidePanel = new UICommand { ExecuteDelegate = _hideSearchPanel };
 
-            CommandSaveEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandSaveEdit.Execute };
-            CommandUndoEdit = new UICommand { ExecuteDelegate = _eventEditViewmodel.CommandUndoEdit.Execute };
+            CommandSaveEdit = new UICommand { ExecuteDelegate = EventEditViewmodel.CommandSaveEdit.Execute };
+            CommandUndoEdit = new UICommand { ExecuteDelegate = EventEditViewmodel.CommandUndoEdit.Execute };
 
             CommandSaveRundown = new UICommand { ExecuteDelegate = _saveRundown, CanExecuteDelegate = o => SelectedEvent != null && SelectedEvent.Event.EventType == TEventType.Rundown };
             CommandLoadRundown = new UICommand { ExecuteDelegate = _loadRundown, CanExecuteDelegate = o => o.Equals("Under") ? _canAddSubRundown(o) : _canAddNextRundown(o) };
@@ -708,19 +707,20 @@ namespace TAS.Client.ViewModels
                 }
                 else
                 {
-                    _mediaSearchViewModel = mediaSearchViewModel;
-                    var window = UiServices.ShowWindow<Views.MediaSearchView>(mediaSearchViewModel);
-                    window.Closed += (sender, args) =>
+                    mediaSearchViewModel.Window = UiServices.ShowWindow<Views.MediaSearchView>(mediaSearchViewModel);
+                    mediaSearchViewModel.Window.Closed += (sender, args) =>
                     {
                         mediaSearchViewModel.MediaChoosen -= _mediaSearchViewModelMediaChoosen;
                         mediaSearchViewModel.Dispose();
                         _mediaSearchViewModel = null;
                     };
+                    _mediaSearchViewModel = mediaSearchViewModel;
                 }
             }
             else
             {
                 _mediaSearchViewModel.BaseEvent = baseEvent;
+                _mediaSearchViewModel.Window.WindowState = WindowState.Normal;
             }
         }
 
@@ -875,9 +875,8 @@ namespace TAS.Client.ViewModels
                     }
                     if (PreviewViewmodel != null)
                         PreviewViewmodel.SelectedEvent = newSelected;
-                    _eventEditViewmodel.Event = newSelected;
-                    var re = value as EventPanelRundownElementViewmodelBase;
-                    if (re != null && _mediaSearchViewModel != null)
+                    EventEditViewmodel.Event = newSelected;
+                    if (value is EventPanelRundownElementViewmodelBase re && _mediaSearchViewModel != null)
                     {
                         _mediaSearchViewModel.BaseEvent = re.Event;
                         _mediaSearchViewModel.NewEventStartType = TStartType.After;
@@ -889,7 +888,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public EventEditViewmodel EventEditViewmodel => _eventEditViewmodel;
+        public EventEditViewmodel EventEditViewmodel { get; }
 
         public bool Pst2Prv
         {

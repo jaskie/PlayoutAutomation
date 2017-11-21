@@ -17,7 +17,6 @@ namespace TAS.Client.ViewModels
     {
         private readonly IEngine _engine;
         private readonly EngineViewmodel _engineViewModel;
-        private readonly PreviewViewmodel _previewViewModel;
         private EventRightsEditViewmodel _eventRightsEditViewmodel;
         private IEvent _event;
         private bool _isLoading;
@@ -45,12 +44,9 @@ namespace TAS.Client.ViewModels
         private sbyte _layer;
 
 
-        public EventEditViewmodel(EngineViewmodel engineViewModel, PreviewViewmodel previewViewModel)
+        public EventEditViewmodel(EngineViewmodel engineViewModel)
         {
             _engineViewModel = engineViewModel;
-            _previewViewModel = previewViewModel;
-            if (previewViewModel != null)
-                previewViewModel.PropertyChanged += PreviewViewModel_PropertyChanged;
             _engine = engineViewModel.Engine;
             _fields.CollectionChanged += _fields_or_commands_CollectionChanged;
             CommandSaveEdit = new UICommand {ExecuteDelegate = _save, CanExecuteDelegate = _canSave};
@@ -761,8 +757,6 @@ namespace TAS.Client.ViewModels
         {
             if (_event != null)
                 Event = null;
-            if (_previewViewModel != null)
-                _previewViewModel.PropertyChanged -= PreviewViewModel_PropertyChanged;
             _fields.CollectionChanged -= _fields_or_commands_CollectionChanged;
         }
 
@@ -974,18 +968,6 @@ namespace TAS.Client.ViewModels
 
         #endregion // command methods
 
-        private void PreviewViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (_previewViewModel.LoadedMedia == Media
-                && IsEditEnabled
-                && (e.PropertyName == nameof(PreviewViewmodel.TcIn) || e.PropertyName == nameof(PreviewViewmodel.TcOut))
-                && _previewViewModel.SelectedSegment == null)
-            {
-                ScheduledTc = _previewViewModel.TcIn;
-                Duration = _previewViewModel.DurationSelection;
-            }
-        }
-
         private void _fields_or_commands_CollectionChanged(object sender,
             System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
@@ -1119,29 +1101,33 @@ namespace TAS.Client.ViewModels
             return validationResult;
         }
 
-        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType, VideoFormatDescription videoFormatDescription = null)
+        private void _chooseMedia(TMediaType mediaType, IEvent baseEvent, TStartType startType,
+            VideoFormatDescription videoFormatDescription = null)
         {
-            var vm = new MediaSearchViewmodel(_engineViewModel.Engine.HaveRight(EngineRight.Preview) ? _engineViewModel.Engine : null, _event.Engine.MediaManager,
+            using (var vm = new MediaSearchViewmodel(
+                _engineViewModel.Engine.HaveRight(EngineRight.Preview) ? _engineViewModel.Engine : null,
+                _event.Engine.MediaManager,
                 mediaType, VideoLayer.Program, true, videoFormatDescription)
             {
                 BaseEvent = baseEvent,
                 NewEventStartType = startType
-            };
-            vm.MediaChoosen += _mediaSearchViewModelMediaChoosen;
-            UiServices.ShowDialog<Views.MediaSearchView>(vm);
+            })
+            {
+                if (UiServices.ShowDialog<Views.MediaSearchView>(vm) == true)
+                {
+                    if (!(vm.SelectedMedia is IServerMedia media))
+                        return;
+                    Media = media;
+                    Duration = media.Duration;
+                    ScheduledTc = media.TcPlay;
+                    AudioVolume = null;
+                    EventName = media.MediaName;
+                    _setCGElements(media);
+                }
+            }
+
         }
 
-        private void _mediaSearchViewModelMediaChoosen(object o, MediaSearchEventArgs e)
-        {
-            if (e.Media?.MediaType != TMediaType.Movie)
-                return;
-            Media = e.Media;
-            Duration = e.Duration;
-            ScheduledTc = e.TCIn;
-            AudioVolume = null;
-            EventName = e.MediaName;
-            _setCGElements(e.Media);
-        }
 
         private void Rights_Modified(object sender, EventArgs e)
         {

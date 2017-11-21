@@ -26,5 +26,9 @@ namespace TAS.Client.Views
             InitializeComponent();
         }
 
+        private void ButtonOk_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = true;
+        }
     }
 }

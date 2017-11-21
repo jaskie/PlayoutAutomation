@@ -11,8 +11,7 @@
     <DockPanel>
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="37" HorizontalAlignment="Right">
             <Button Style="{StaticResource CancelButtonStyle}" />
-            <Button Command="{Binding CommandOk}" Style="{StaticResource OkButtonStyle}" 
-                    />
+            <Button Command="{Binding CommandOk}" Style="{StaticResource OkButtonStyle}" Click="Ok_OnClick" />
         </StackPanel>
         <TabControl>
             <TabItem Header="{Resx _users}" >

@@ -5,12 +5,11 @@ using System.Linq;
 using System.Windows.Input;
 using TAS.Client.Common;
 using TAS.Common.Interfaces;
-using resources = TAS.Client.Common.Properties.Resources;
 
 
 namespace TAS.Client.ViewModels
 {
-    public class EngineRightsEditViewmodel: ViewmodelBase, ICloseable
+    public class EngineRightsEditViewmodel: ViewmodelBase
     {
         private readonly IEngine _engine;
         private readonly IAuthenticationService _authenticationService;
@@ -31,7 +30,7 @@ namespace TAS.Client.ViewModels
             }
             CommandAddRight = new UICommand {ExecuteDelegate = _addRight, CanExecuteDelegate = _canAddRight};
             CommandDeleteRight = new UICommand { ExecuteDelegate = _deleteRight, CanExecuteDelegate = _canDeleteRight };
-            CommandOk = new UICommand {ExecuteDelegate = _ok, CanExecuteDelegate = _canOk};
+            CommandOk = new UICommand {ExecuteDelegate = o => _save(), CanExecuteDelegate = o => IsModified};
         }
 
         public ICommand CommandAddRight { get; }
@@ -55,8 +54,6 @@ namespace TAS.Client.ViewModels
             get { return _selectedRight; }
             set { SetField(ref _selectedRight, value, setIsModified: false); }
         }
-
-        public event EventHandler ClosedOk;
 
         private void _save()
         {
@@ -122,17 +119,6 @@ namespace TAS.Client.ViewModels
         private void EventRightViewmodel_Modified(object sender, EventArgs e)
         {
             IsModified = true;
-        }
-
-        private void _ok(object obj)
-        {
-            _save();
-            ClosedOk?.Invoke(this, EventArgs.Empty);
-        }
-
-        private bool _canOk(object obj)
-        {
-            return IsModified;
         }
 
     }

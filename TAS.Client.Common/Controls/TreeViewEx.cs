@@ -11,12 +11,12 @@ namespace TAS.Client.Common.Controls
     {
         public TreeViewEx()
         {
-            this.SelectedItemChanged += new RoutedPropertyChangedEventHandler<object>(TreeViewEx_SelectedItemChanged);
+            SelectedItemChanged += TreeViewEx_SelectedItemChanged;
         }
 
         void TreeViewEx_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            this.SelectedItem = e.NewValue;
+            SelectedItem = e.NewValue;
         }
 
         #region SelectedItem
@@ -26,8 +26,8 @@ namespace TAS.Client.Common.Controls
         /// </summary>
         public new object SelectedItem
         {
-            get { return this.GetValue(TreeViewEx.SelectedItemProperty); }
-            set { this.SetValue(TreeViewEx.SelectedItemProperty, value); }
+            get => GetValue(SelectedItemProperty);
+            set => SetValue(SelectedItemProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
@@ -38,12 +38,9 @@ namespace TAS.Client.Common.Controls
         static void SelectedItemProperty_Changed(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
             TreeViewEx targetObject = dependencyObject as TreeViewEx;
-            if (targetObject != null)
-            {
-                TreeViewItem tvi = targetObject.FindItemNode(targetObject.SelectedItem) as TreeViewItem;
-                if (tvi != null)
-                    tvi.IsSelected = true;
-            }
+            var tvi = targetObject?.FindItemNode(targetObject.SelectedItem);
+            if (tvi != null)
+                tvi.IsSelected = true;
         }
         #endregion SelectedItem   
 

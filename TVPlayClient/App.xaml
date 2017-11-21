@@ -3,12 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              >
     <Application.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/TAS.Client.Common;component/Converters.xaml"/>
-                <ResourceDictionary Source="/TAS.Client.Common;component/Styles/Styles.xaml"/>
-                <ResourceDictionary Source="/TAS.Client.Common;component/Controls/Resources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+        <ResourceDictionary Source="/TAS.Client.Common;component/Styles/Styles.xaml"/>
     </Application.Resources>
 </Application>

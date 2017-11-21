@@ -28,6 +28,7 @@ namespace TAS.Client.ViewModels
         private bool _isSegmentsVisible;
         private TimeSpan _duration;
         private TimeSpan _startTc;
+        private static readonly TimeSpan EndDuration = TimeSpan.FromSeconds(3);
 
 
         public PreviewViewmodel(IPreview preview)
@@ -233,6 +234,7 @@ namespace TAS.Client.ViewModels
 
         public UICommand CommandPause { get; private set; }
         public UICommand CommandPlay { get; private set; }
+        public UICommand CommandPlayTheEnd { get; private set; }
         public UICommand CommandStop { get; private set; }
         public UICommand CommandSeek { get; private set; }
         public UICommand CommandCopyToTcIn { get; private set; }
@@ -241,6 +243,8 @@ namespace TAS.Client.ViewModels
         public UICommand CommandDeleteSegment { get; private set; }
         public UICommand CommandNewSegment { get; private set; }
         public UICommand CommandSetSegmentNameFocus { get; private set; }
+        public UICommand CommandUpdateSourceTc { get; private set; }
+
 
         private void CreateCommands()
         {
@@ -282,6 +286,16 @@ namespace TAS.Client.ViewModels
                     },
                 CanExecuteDelegate = o => LoadedMedia?.MediaStatus == TMediaStatus.Available
                                           || _canLoad(SelectedMedia ?? SelectedEvent?.Media)
+            };
+            CommandPlayTheEnd = new UICommand
+            {
+                ExecuteDelegate = o =>
+                {
+                    if (LoadedMedia != null)
+                        Position = Duration - EndDuration;
+                    _preview.PreviewPlay();
+                },
+                CanExecuteDelegate = o => LoadedMedia?.MediaStatus == TMediaStatus.Available && Duration > EndDuration
             };
             CommandStop = new UICommand
             {
@@ -377,6 +391,36 @@ namespace TAS.Client.ViewModels
                         NotifyPropertyChanged(nameof(IsSegmentNameFocused));
                     },
             };
+
+            CommandUpdateSourceTc = new UICommand
+            {
+                CanExecuteDelegate = o =>
+                {
+                    if (IsLoaded && LoadedMedia == (SelectedMedia ?? SelectedEvent?.Media))
+                    {
+                        if (SelectedMedia != null)
+                            return SelectedMedia.TcStart != TcIn || SelectedMedia.DurationPlay != Duration;
+                        if (SelectedEvent != null)
+                            return SelectedEvent.ScheduledTc != TcIn || SelectedEvent.Duration != Duration;
+                    }
+                    return false;
+                },
+                ExecuteDelegate = o =>
+                {
+                    if (SelectedMedia is IPersistentMedia media)
+                    {
+                        media.TcPlay= TcIn;
+                        media.DurationPlay = DurationSelection;
+                        media.Save();
+                    }
+                    if (SelectedEvent != null)
+                    {
+                        SelectedEvent.ScheduledTc = TcIn;
+                        SelectedEvent.Duration = DurationSelection;
+                        SelectedEvent.Save();
+                    }
+                }
+            };
         }
 
         private bool _canStop(object o)
@@ -385,7 +429,7 @@ namespace TAS.Client.ViewModels
             IMedia media = LoadedMedia;
             if (media == null) 
                 return false;
-            TimeSpan duration = PlayWholeClip ? media.Duration : (segment == null ? media.Duration : segment.Duration);
+            TimeSpan duration = PlayWholeClip ? media.Duration : (segment?.Duration ?? media.Duration);
             return duration.Ticks >= _preview.FormatDescription.FrameTicks;
         }
 
@@ -447,9 +491,9 @@ namespace TAS.Client.ViewModels
         private void _mediaUnload()
         {
             _preview.PreviewUnload();
+            LoadedMedia = null;
             TcIn = TimeSpan.Zero;
             TcOut = TimeSpan.Zero;
-            LoadedMedia = null;
             _loadedSeek = 0;
             LoadedDuration = 0;
             StartTc = TimeSpan.Zero;

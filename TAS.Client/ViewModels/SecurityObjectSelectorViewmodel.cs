@@ -6,7 +6,7 @@ using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
 {
-    public class SecurityObjectSelectorViewmodel: ViewmodelBase, ICloseable
+    public class SecurityObjectSelectorViewmodel: ViewmodelBase
     {
         private ISecurityObject _selectedSecurityObject;
         
@@ -14,7 +14,7 @@ namespace TAS.Client.ViewModels
         {
             Users = authenticationService.Users;
             Groups = authenticationService.Groups;
-            CommandOk = new UICommand { ExecuteDelegate = _ok, CanExecuteDelegate = _canOk };
+            CommandOk = new UICommand { CanExecuteDelegate = _canOk };
         }
 
         public IEnumerable<IUser> Users { get; }
@@ -22,7 +22,7 @@ namespace TAS.Client.ViewModels
 
         public ISecurityObject SelectedSecurityObject
         {
-            get { return _selectedSecurityObject; }
+            get => _selectedSecurityObject;
             set
             {
                 if (SetField(ref _selectedSecurityObject, value))
@@ -33,18 +33,11 @@ namespace TAS.Client.ViewModels
 
         public ICommand CommandOk { get; }
 
-        public event EventHandler ClosedOk;
-
         protected override void OnDispose() {}
 
         private bool _canOk(object obj)
         {
             return _selectedSecurityObject != null;
-        }
-
-        private void _ok(object obj)
-        {
-            ClosedOk?.Invoke(this, EventArgs.Empty);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -30,7 +29,7 @@ namespace TAS.Client.Common
         /// </summary>
         /// <typeparam name="TView">type of UserControl class to show content</typeparam>
         /// <param name="viewmodel">DataContext of the view</param>
-        public static Window ShowWindow<TView>(ViewmodelBase viewmodel) where TView: Window, new()
+        public static TView ShowWindow<TView>(ViewmodelBase viewmodel) where TView: Window, new()
         {
             var newWindow = new TView
             {
@@ -52,10 +51,9 @@ namespace TAS.Client.Common
             var newWindow = new TView
             {
                 Owner = Application.Current.MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 DataContext = viewmodel
             };
-            if (viewmodel is ICloseable)
-                ((ICloseable) viewmodel).ClosedOk += (o, e) => { newWindow.DialogResult = true; };
             return newWindow.ShowDialog();
         }
 
@@ -80,8 +78,7 @@ namespace TAS.Client.Common
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private static void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            var dispatcherTimer = sender as DispatcherTimer;
-            if (dispatcherTimer == null)
+            if (!(sender is DispatcherTimer dispatcherTimer))
                 return;
             SetBusyState(false);
             dispatcherTimer.Stop();
