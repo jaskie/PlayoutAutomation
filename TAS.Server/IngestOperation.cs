@@ -24,6 +24,9 @@ namespace TAS.Server
         private TAudioChannelMappingConversion _audioChannelMappingConversion;
         private double _audioVolume;
         private TFieldOrder _sourceFieldOrderEnforceConversion;
+        private TimeSpan _startTc;
+        private TimeSpan _duration;
+        private bool _trim;
 
         internal IngestOperation(FileManager ownerFileManager) : base(ownerFileManager)
         {
@@ -34,25 +37,53 @@ namespace TAS.Server
         }
 
         [JsonProperty]
-        public TAspectConversion AspectConversion { get { return _aspectConversion; } set { SetField(ref _aspectConversion, value); } }
+        public TAspectConversion AspectConversion
+        {
+            get => _aspectConversion;
+            set => SetField(ref _aspectConversion, value);
+        }
 
         [JsonProperty]
-        public TAudioChannelMappingConversion AudioChannelMappingConversion { get { return _audioChannelMappingConversion; } set { SetField(ref _audioChannelMappingConversion, value); } }
+        public TAudioChannelMappingConversion AudioChannelMappingConversion
+        {
+            get => _audioChannelMappingConversion;
+            set => SetField(ref _audioChannelMappingConversion, value);
+        }
 
         [JsonProperty]
-        public double AudioVolume { get { return _audioVolume; } set { SetField(ref _audioVolume, value); } }
+        public double AudioVolume
+        {
+            get => _audioVolume;
+            set => SetField(ref _audioVolume, value);
+        }
 
         [JsonProperty]
-        public TFieldOrder SourceFieldOrderEnforceConversion { get { return _sourceFieldOrderEnforceConversion; } set { SetField(ref _sourceFieldOrderEnforceConversion, value); } }
+        public TFieldOrder SourceFieldOrderEnforceConversion
+        {
+            get => _sourceFieldOrderEnforceConversion;
+            set => SetField(ref _sourceFieldOrderEnforceConversion, value);
+        }
 
         [JsonProperty]
-        public TimeSpan StartTC { get; set; }
+        public TimeSpan StartTC
+        {
+            get => _startTc;
+            set => SetField(ref _startTc, value);
+        }
 
         [JsonProperty]
-        public TimeSpan Duration { get; set; }
+        public TimeSpan Duration
+        {
+            get => _duration;
+            set => SetField(ref _duration, value);
+        }
 
         [JsonProperty]
-        public bool Trim { get; set; }
+        public bool Trim
+        {
+            get => _trim;
+            set => SetField(ref _trim, value);
+        }
 
         [JsonProperty]
         public bool LoudnessCheck { get; set; }
@@ -196,7 +227,7 @@ namespace TAS.Server
             }
             else
             {
-                ep.AppendFormat(" -b:v {0}k", (int)(inputMedia.FormatDescription().ImageSize.Height * 13 * (double)sourceDir.VideoBitrateRatio));
+                ep.AppendFormat(" -b:v {0}k", (int)(inputMedia.FormatDescription().ImageSize.Height * 13 * sourceDir.VideoBitrateRatio));
                 VideoFormatDescription outputFormatDescription = Dest.FormatDescription();
                 VideoFormatDescription inputFormatDescription = inputMedia.FormatDescription();
                 AddConversion(MediaConversion.SourceFieldOrderEnforceConversions[SourceFieldOrderEnforceConversion], videoFilters);
@@ -291,7 +322,7 @@ namespace TAS.Server
                         audioFilters.Add($"{pf}amerge=inputs={audioStreams.Length}");
                     }
                     AddConversion(audiChannelMappingConversion, audioFilters);
-                    if (AudioVolume != 0)
+                    if (Math.Abs(AudioVolume) > Double.Epsilon)
                         AddConversion(new MediaConversion(AudioVolume), audioFilters);
                     ep.Append(" -ar 48000");
                 }

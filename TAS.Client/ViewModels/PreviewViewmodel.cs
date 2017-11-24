@@ -28,6 +28,7 @@ namespace TAS.Client.ViewModels
         private bool _isSegmentsVisible;
         private TimeSpan _duration;
         private TimeSpan _startTc;
+        private IIngestOperation _selectedIngestOperation;
         private static readonly TimeSpan EndDuration = TimeSpan.FromSeconds(3);
 
 
@@ -59,8 +60,6 @@ namespace TAS.Client.ViewModels
                             oldVal.PropertyChanged -= Media_PropertyChanged;
                         if (newVal != null)
                             newVal.PropertyChanged += Media_PropertyChanged;
-                        _selectedEvent = null;
-                        NotifyPropertyChanged(nameof(SelectedEvent));
                         InvalidateRequerySuggested();
                     }
                 }
@@ -79,12 +78,21 @@ namespace TAS.Client.ViewModels
                         oldEvent.PropertyChanged -= Event_PropertyChanged;
                     if (value != null)
                         value.PropertyChanged += Event_PropertyChanged;
-                    _selectedMedia = null;
-                    NotifyPropertyChanged(nameof(SelectedMedia));
                     InvalidateRequerySuggested();
                 }
             }
         }
+
+        public IIngestOperation SelectedIngestOperation
+        {
+            get => _selectedIngestOperation;
+            set
+            {
+                if (SetField(ref _selectedIngestOperation, value))
+                    InvalidateRequerySuggested();
+            }
+        }
+
 
         public IMedia LoadedMedia
         {
@@ -253,7 +261,7 @@ namespace TAS.Client.ViewModels
                 ExecuteDelegate = o =>
                     {
                         if (LoadedMedia == null)
-                            _mediaLoad(_selectedMedia ?? _selectedEvent?.Media, true);
+                            _mediaLoad(MediaToLoad, true);
                         else
                             if (_preview.PreviewIsPlaying)
                             _preview.PreviewPause();
@@ -264,7 +272,7 @@ namespace TAS.Client.ViewModels
                         }
                     },
                 CanExecuteDelegate = o => LoadedMedia?.MediaStatus == TMediaStatus.Available
-                                          || _canLoad(SelectedMedia ?? SelectedEvent?.Media)
+                                          || _canLoad(MediaToLoad)
             };
             CommandPlay = new UICommand
             {
@@ -285,7 +293,7 @@ namespace TAS.Client.ViewModels
                         }
                     },
                 CanExecuteDelegate = o => LoadedMedia?.MediaStatus == TMediaStatus.Available
-                                          || _canLoad(SelectedMedia ?? SelectedEvent?.Media)
+                                          || _canLoad(MediaToLoad)
             };
             CommandPlayTheEnd = new UICommand
             {
@@ -396,12 +404,14 @@ namespace TAS.Client.ViewModels
             {
                 CanExecuteDelegate = o =>
                 {
-                    if (IsLoaded && LoadedMedia == (SelectedMedia ?? SelectedEvent?.Media))
+                    if (IsLoaded && LoadedMedia == (MediaToLoad))
                     {
                         if (SelectedMedia != null)
-                            return SelectedMedia.TcStart != TcIn || SelectedMedia.DurationPlay != Duration;
+                            return SelectedMedia.TcStart != TcIn || SelectedMedia.DurationPlay != DurationSelection;
                         if (SelectedEvent != null)
-                            return SelectedEvent.ScheduledTc != TcIn || SelectedEvent.Duration != Duration;
+                            return SelectedEvent.ScheduledTc != TcIn || SelectedEvent.Duration != DurationSelection;
+                        if (SelectedIngestOperation != null)
+                            return SelectedIngestOperation.Trim && (SelectedIngestOperation.StartTC != TcIn || SelectedIngestOperation.Duration != DurationSelection);
                     }
                     return false;
                 },
@@ -418,6 +428,11 @@ namespace TAS.Client.ViewModels
                         SelectedEvent.ScheduledTc = TcIn;
                         SelectedEvent.Duration = DurationSelection;
                         SelectedEvent.Save();
+                    }
+                    if (SelectedIngestOperation != null)
+                    {
+                        SelectedIngestOperation.StartTC = TcIn;
+                        SelectedIngestOperation.Duration = DurationSelection;
                     }
                 }
             };
@@ -507,6 +522,8 @@ namespace TAS.Client.ViewModels
                 return _selectedSegment.TcIn;
             if (_selectedMedia != null)
                 return _playWholeClip ? _selectedMedia.TcStart : _selectedMedia.TcPlay;
+            if (SelectedIngestOperation != null)
+                return _playWholeClip ? _selectedIngestOperation.StartTC : _selectedIngestOperation.Source.TcStart;
             IMedia media = _selectedEvent?.Media;
             if (media != null)
                 return _playWholeClip ? media.TcStart : _selectedEvent.ScheduledTc;
@@ -519,6 +536,8 @@ namespace TAS.Client.ViewModels
                 return _selectedSegment.Duration;
             if (_selectedMedia != null)
                 return _playWholeClip ? _selectedMedia.Duration : _selectedMedia.DurationPlay;
+            if (SelectedIngestOperation != null)
+                return _playWholeClip ? _selectedIngestOperation.Duration : _selectedIngestOperation.Source.Duration;
             IMedia media = _selectedEvent?.Media;
             if (media != null)
                 return _playWholeClip ? media.Duration : _selectedEvent.Duration;
@@ -591,6 +610,8 @@ namespace TAS.Client.ViewModels
             if (e.PropertyName == nameof(IEvent.AudioVolume) && _preview.PreviewLoaded && ev != null && media != null)
                 _preview.PreviewAudioVolume = ev.AudioVolume ?? media.AudioVolume;
         }
+
+        private IMedia MediaToLoad => SelectedMedia ?? SelectedEvent?.Media ?? SelectedIngestOperation?.Source;
 
     }
 }

@@ -691,14 +691,12 @@ namespace TAS.Client.ViewModels
             get
             {
                 IEvent ev = Event;
-                if (ev != null)
-                {
-                    IEngine engine = ev.Engine;
-                    return (engine != null
-                            && (ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie)
-                            && (engine.CGElementsController != null));
-                }
-                return false;
+                if (ev == null)
+                    return false;
+                IEngine engine = ev.Engine;
+                return engine != null
+                        && (ev.EventType == TEventType.Live || ev.EventType == TEventType.Movie)
+                        && engine.CGElementsController != null;
             }
         }
 
