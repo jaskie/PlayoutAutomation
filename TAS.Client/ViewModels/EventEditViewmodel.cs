@@ -94,7 +94,7 @@ namespace TAS.Client.ViewModels
 
         public IEvent Event
         {
-            get { return _event; }
+            get => _event;
             set
             {
                 IEvent ev = _event;
@@ -266,6 +266,8 @@ namespace TAS.Client.ViewModels
 
         private int _templateLayer;
 
+        public bool IsDisplayCgMethod { get; } = true;
+
         public int TemplateLayer
         {
             get { return _templateLayer; }
@@ -293,11 +295,11 @@ namespace TAS.Client.ViewModels
 
         public TemplateMethod Method
         {
-            get { return _method; }
-            set { SetField(ref _method, value); }
+            get => _method;
+            set => SetField(ref _method, value);
         }
 
-        public bool KeyIsReadOnly => true;
+        public bool IsKeyReadOnly => true;
 
         public ICommand CommandEditField { get; }
 
@@ -847,7 +849,7 @@ namespace TAS.Client.ViewModels
             var editObject = obj ?? SelectedField;
             if (editObject != null)
             {
-                using (var kve = new KeyValueEditViewmodel((KeyValuePair<string, string>) editObject, true))
+                using (var kve = new KeyValueEditViewmodel((KeyValuePair<string, string>) editObject, false))
                 {
                     if (UiServices.ShowDialog<Views.KeyValueEditView>(kve) == true)
                         _fields[kve.Key] = kve.Value;

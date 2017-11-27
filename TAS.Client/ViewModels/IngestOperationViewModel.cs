@@ -20,25 +20,29 @@ namespace TAS.Client.ViewModels
         private TAudioChannelMappingConversion _audioChannelMappingConversion;
         private double _audioVolume;
         private TFieldOrder _sourceFieldOrderEnforceConversion;
-        private bool _trim;
         private bool _loudnessCheck;
-        private TimeSpan _startTC;
-        private TimeSpan _duration;
         
-        public IngestOperationViewModel(IIngestOperation operation, IPersistentMediaProperties destMediaProperties, IPreview preview, IMediaManager mediaManager)
+        public IngestOperationViewModel(IIngestOperation operation, IPreview preview, IMediaManager mediaManager)
             : base(operation)
         {
             _ingestOperation = operation;
             _mediaManager = mediaManager;
-            _destMediaProperties = destMediaProperties;
-
+            string destFileName = $"{Path.GetFileNameWithoutExtension(operation.Source.FileName)}{FileUtils.DefaultFileExtension(operation.Source.MediaType)}";
+            _destMediaProperties = new PersistentMediaProxy
+            {
+                FileName = operation.DestDirectory.GetUniqueFileName(destFileName),
+                MediaName = FileUtils.GetFileNameWithoutExtension(destFileName, operation.Source.MediaType),
+                MediaType = operation.Source.MediaType == TMediaType.Unknown ? TMediaType.Movie : operation.Source.MediaType,
+                Duration = operation.Source.Duration,
+                TcStart = operation.StartTC,
+                MediaGuid = operation.Source.MediaGuid,
+                MediaCategory = operation.Source.MediaCategory
+            };
+            
             _audioChannelMappingConversion = operation.AudioChannelMappingConversion;
             _aspectConversion = operation.AspectConversion;
             _audioVolume = operation.AudioVolume;
             _sourceFieldOrderEnforceConversion = operation.SourceFieldOrderEnforceConversion;
-            _duration = operation.Duration;
-            _startTC = operation.StartTC;
-            _trim = operation.Trim;
             _loudnessCheck = operation.LoudnessCheck;
             operation.Source.PropertyChanged += OnSourceMediaPropertyChanged;
             AspectConversionsEnforce = new TAspectConversion[3];
@@ -106,32 +110,41 @@ namespace TAS.Client.ViewModels
         
         public TimeSpan StartTC
         {
-            get => _startTC;
+            get => _destMediaProperties.TcStart;
             set
             {
-                if (SetField(ref _startTC, value))
-                    NotifyPropertyChanged(nameof(EndTC));
+                if (_destMediaProperties.TcStart == value)
+                    return;
+                _destMediaProperties.TcStart = value;
+                _destMediaProperties.TcPlay = value;
+                NotifyPropertyChanged(nameof(StartTC));
+                NotifyPropertyChanged(nameof(Duration));
+                NotifyPropertyChanged(nameof(EndTC));
             }
         }
 
         public TimeSpan Duration
         {
-            get => _duration;
+            get => _destMediaProperties.Duration;
             set
             {
-                if (SetField(ref _duration, value))
-                    NotifyPropertyChanged(nameof(EndTC));
+                if (_destMediaProperties.Duration == value)
+                    return;
+                _destMediaProperties.Duration = value;
+                _destMediaProperties.DurationPlay = value;
+                NotifyPropertyChanged(nameof(StartTC));
+                NotifyPropertyChanged(nameof(Duration));
+                NotifyPropertyChanged(nameof(EndTC));
             }
         }
 
         public TimeSpan EndTC
         {
-            get => ((_startTC + _duration).ToSMPTEFrames(SourceMediaFrameRate()) - 1).SMPTEFramesToTimeSpan(SourceMediaFrameRate());
+            get => ((StartTC + Duration).ToSMPTEFrames(SourceMediaFrameRate()) - 1).SMPTEFramesToTimeSpan(SourceMediaFrameRate());
             set
             {
-                var end = ((value - StartTC).ToSMPTEFrames(SourceMediaFrameRate()) + 1).SMPTEFramesToTimeSpan(SourceMediaFrameRate());
-                if (SetField(ref _duration, end))
-                    NotifyPropertyChanged(nameof(Duration));
+                var duration = ((value - StartTC).ToSMPTEFrames(SourceMediaFrameRate()) + 1).SMPTEFramesToTimeSpan(SourceMediaFrameRate());
+                Duration = duration;
             }
         }
 
@@ -194,22 +207,15 @@ namespace TAS.Client.ViewModels
 
         public void Apply()
         {
-            _ingestOperation.Trim = _trim;
             _ingestOperation.LoudnessCheck = _loudnessCheck;
             _ingestOperation.AudioVolume = _audioVolume;
-            _ingestOperation.StartTC = _startTC;
-            _ingestOperation.Duration = _duration;
+            _ingestOperation.StartTC = StartTC;
+            _ingestOperation.Duration = Duration;
             _ingestOperation.SourceFieldOrderEnforceConversion = _sourceFieldOrderEnforceConversion;
             _ingestOperation.AudioChannelMappingConversion = _audioChannelMappingConversion;
             _ingestOperation.AspectConversion = _aspectConversion;
             _ingestOperation.SourceFieldOrderEnforceConversion = _sourceFieldOrderEnforceConversion;
-
-
-            _destMediaProperties.TcStart = _startTC;
-            _destMediaProperties.TcPlay = _startTC;
-            _destMediaProperties.Duration = _duration;
-            _destMediaProperties.DurationPlay = _duration;
-            _ingestOperation.DestProperties = _destMediaProperties;  //required to pass this parameter from client to server application
+            _ingestOperation.DestProperties = _destMediaProperties; 
         }
 
         public string this[string propertyName]

@@ -312,16 +312,12 @@ namespace TAS.Client.ViewModels
 
         public IDictionary<string, string> Fields
         {
-            get { return new Dictionary<string, string>(_fields); }
+            get => _fields;
             set
             {
-                if (_fields != null)
-                {
-                    _fields.Clear();
-                    if (value != null)
-                        _fields.AddRange(value);
-                }
-
+                _fields.Clear();
+                if (value != null)
+                    _fields.AddRange(value);
             }
         }
 
@@ -329,9 +325,9 @@ namespace TAS.Client.ViewModels
 
         public Array Methods { get; } = Enum.GetValues(typeof(TemplateMethod));
 
-        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value); } }
+        public TemplateMethod Method { get => _method; set => SetField(ref _method, value); }
 
-        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value); } }
+        public int TemplateLayer { get => _templateLayer; set => SetField(ref _templateLayer, value); }
 
         public ICommand CommandEditField { get; }
 
@@ -339,9 +335,11 @@ namespace TAS.Client.ViewModels
 
         public ICommand CommandDeleteField { get; }
         
-        public bool KeyIsReadOnly => false;
+        public bool IsKeyReadOnly => false;
 
         #endregion // ITemplatedEdit
+
+        public bool IsDisplayCgMethod { get; } = false;
 
         public bool IsPersistentMedia => Model is IPersistentMedia;
 
@@ -486,7 +484,7 @@ namespace TAS.Client.ViewModels
 
         private void _addField(object obj)
         {
-            using (var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), false))
+            using (var kve = new KeyValueEditViewmodel(new KeyValuePair<string, string>(string.Empty, string.Empty), true))
             {
                 if (UiServices.ShowDialog<Views.KeyValueEditView>(kve) == true)
                     _fields.Add(kve.Key, kve.Value);
@@ -503,7 +501,7 @@ namespace TAS.Client.ViewModels
             if (SelectedField == null)
                 return;
             var selected = (KeyValuePair<string, string>)SelectedField;
-            using (var kve = new KeyValueEditViewmodel(selected, false))
+            using (var kve = new KeyValueEditViewmodel(selected, true))
             {
                 if (UiServices.ShowDialog<Views.KeyValueEditView>(kve) == true)
                     _fields[kve.Key]= kve.Value;

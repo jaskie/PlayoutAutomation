@@ -7,7 +7,8 @@ namespace TAS.Client.ViewModels
     public interface ITemplatedEdit: ITemplated
     {
         object SelectedField { get; set; }
-        bool KeyIsReadOnly { get; }
+        bool IsDisplayCgMethod { get; }
+        bool IsKeyReadOnly { get; }
         ICommand CommandEditField { get; }
         ICommand CommandAddField { get; }
         ICommand CommandDeleteField { get; }

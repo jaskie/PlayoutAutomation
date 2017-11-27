@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using TAS.Client.Common;
 using System.Windows.Input;
-using TAS.Common;
 using TAS.Common.Interfaces;
 
 namespace TAS.Client.ViewModels
@@ -17,22 +15,7 @@ namespace TAS.Client.ViewModels
 
         public IngestEditorViewmodel(IList<IIngestOperation> convertionList, IPreview preview, IMediaManager mediaManager)
         {
-            OperationList = new ObservableCollection<IngestOperationViewModel>(convertionList.Select(op =>
-            {
-                string destFileName =
-                    $"{Path.GetFileNameWithoutExtension(op.Source.FileName)}{FileUtils.DefaultFileExtension(op.Source.MediaType)}";
-                IPersistentMediaProperties destMediaProperties = new PersistentMediaProxy
-                {
-                    FileName = op.DestDirectory.GetUniqueFileName(destFileName),
-                    MediaName = FileUtils.GetFileNameWithoutExtension(destFileName, op.Source.MediaType),
-                    MediaType = op.Source.MediaType == TMediaType.Unknown ? TMediaType.Movie : op.Source.MediaType,
-                    Duration = op.Source.Duration,
-                    TcStart = op.StartTC,
-                    MediaGuid = op.Source.MediaGuid,
-                    MediaCategory = op.Source.MediaCategory
-                };
-                return new IngestOperationViewModel(op, destMediaProperties, preview, mediaManager);
-            }));
+            OperationList = new ObservableCollection<IngestOperationViewModel>(convertionList.Select(op => new IngestOperationViewModel(op, preview, mediaManager)));
             SelectedOperation = OperationList.FirstOrDefault();
             foreach (var c in OperationList)
                 c.PropertyChanged += _convertOperationPropertyChanged;
@@ -58,8 +41,8 @@ namespace TAS.Client.ViewModels
 
         public IngestOperationViewModel SelectedOperation
         {
-            get { return _selectedOperation; }
-            set { SetField(ref _selectedOperation, value); }
+            get => _selectedOperation;
+            set => SetField(ref _selectedOperation, value);
         }
 
         public bool ShowMediaList => OperationList.Count > 1;

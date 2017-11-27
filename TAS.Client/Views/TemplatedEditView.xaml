@@ -3,23 +3,21 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TAS.Client.Views"
-             mc:Ignorable="d" 
-             xmlns:client="clr-namespace:TAS.Client"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.ViewModels"
-             d:DataContext="{x:Type vm:ITemplatedEdit}"
+             d:DataContext="{d:DesignInstance vm:MediaEditViewmodel}"
              d:DesignHeight="300" d:DesignWidth="300">
     <DockPanel>
-        <DockPanel DockPanel.Dock="Top">
+        <DockPanel DockPanel.Dock="Top" Visibility="{Binding IsDisplayCgMethod, Converter={StaticResource BoolToVis}}">
             <Label Content="{Resx _templateLayer}"/>
-            <TextBox Width="30" Text="{Binding TemplateLayer, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox Width="30" Text="{Binding TemplateLayer, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
             <Label Content="{Resx _method}"/>
-            <ComboBox ItemsSource="{Binding Methods}" SelectedItem="{Binding Method}"/>
+            <ComboBox ItemsSource="{Binding Methods}" SelectedItem="{Binding Method}" VerticalAlignment="Center" />
         </DockPanel>
-        <ToolBar Visibility="{Binding KeyIsReadOnly, Converter={StaticResource InvertedBoolToVis}}" DockPanel.Dock="Top">
+        <ToolBar Visibility="{Binding IsKeyReadOnly, Converter={StaticResource InvertedBoolToVis}}" DockPanel.Dock="Top">
             <ToolBarPanel Height="24" Orientation="Horizontal">
                 <Button Command="{Binding CommandAddField}" Style="{StaticResource AddButtonStyle}" ToolTip="{Resx _addField.ToolTip}"/>
                 <Button Command="{Binding CommandEditField}" Style="{StaticResource EditButtonStyle}" ToolTip="{Resx _editField.ToolTip}"/>

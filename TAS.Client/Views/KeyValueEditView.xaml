@@ -22,7 +22,7 @@
         </DockPanel.Resources>
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="37" HorizontalAlignment="Right">
             <Button Style="{StaticResource CancelButtonStyle}" />
-            <Button Command="{Binding CommandOk}" Style="{StaticResource OkButtonStyle}" Click="Ok_OnClick" />
+            <Button Style="{StaticResource OkButtonStyle}" Click="Ok_OnClick" />
         </StackPanel>
         <StackPanel>
             <DockPanel>
