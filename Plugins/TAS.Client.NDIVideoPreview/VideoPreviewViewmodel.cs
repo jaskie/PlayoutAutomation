@@ -4,12 +4,15 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using NAudio.Wave;
 using TAS.Client.Common;
+using TAS.Client.NDIVideoPreview.Audio;
 using TAS.Client.NDIVideoPreview.Interop;
 
 namespace TAS.Client.NDIVideoPreview
@@ -17,6 +20,7 @@ namespace TAS.Client.NDIVideoPreview
     [Export(typeof(Common.Plugin.IVideoPreview))]
     public class VideoPreviewViewmodel : ViewmodelBase, Common.Plugin.IVideoPreview
     {
+        private const double MinAudioLevel = -60;
         private Dictionary<string, NDIlib_source_t> _ndiSources;
         private readonly ObservableCollection<string> _videoSources;
         private string _videoSource;
@@ -24,28 +28,43 @@ namespace TAS.Client.NDIVideoPreview
         private IntPtr _ndiReceiveInstance;
         private Thread _ndiReceiveThread;
         private volatile bool _exitReceiveThread;
-        private WriteableBitmap _videoBitmap;
-        private bool _displaySource;
+        private BitmapSource _videoBitmap;
+        private bool _isDisplaySource;
         private bool _displayPopup;
+        private bool _isDisplayAudioBars = true;
+        private double[] _audioLevels = new double[0];
+        private IEnumerable<AudioDevice> _audioDevices;
+        private AudioDevice _selectedAudioDevice;
+
+        // NAudio
+        private WaveOut _waveOut;
+        private WaveFormat _waveFormat;
+        private BufferedWaveProvider _bufferedProvider;
+
+        private bool _isPlayAudio;
 
         public VideoPreviewViewmodel()
         {
-            View = new VideoPreviewView { DataContext = this };
-            _videoSources = new ObservableCollection<string>(new []{ Common.Properties.Resources._none_ });
-            CommandRefreshSources = new UICommand { ExecuteDelegate = RefreshSources, CanExecuteDelegate = o => _ndiFindInstance != IntPtr.Zero};
-            CommandGotoNdiWebsite = new UICommand { ExecuteDelegate = GotoNdiWebsite };
-            CommandShowPopup = new UICommand { ExecuteDelegate = o => DisplayPopup = true };
-            CommandHidePopup = new UICommand { ExecuteDelegate = o => DisplayPopup = false };
+            View = new VideoPreviewView {DataContext = this};
+            _videoSources = new ObservableCollection<string>(new[] {Common.Properties.Resources._none_});
+            CommandRefreshSources = new UICommand
+            {
+                ExecuteDelegate = RefreshSources,
+                CanExecuteDelegate = o => _ndiFindInstance != IntPtr.Zero
+            };
+            CommandGotoNdiWebsite = new UICommand {ExecuteDelegate = GotoNdiWebsite};
+            CommandShowPopup = new UICommand {ExecuteDelegate = o => DisplayPopup = true};
+            CommandHidePopup = new UICommand {ExecuteDelegate = o => DisplayPopup = false};
             InitNdiFind();
             if (_ndiFindInstance != IntPtr.Zero)
-            ThreadPool.QueueUserWorkItem(o =>
-            {
-                if (Ndi.NDIlib_find_wait_for_sources(_ndiFindInstance, 5000))
+                ThreadPool.QueueUserWorkItem(o =>
                 {
-                    Thread.Sleep(3000);
-                    Application.Current?.Dispatcher.BeginInvoke((Action) delegate { RefreshSources(null); });
-                }
-            });
+                    if (Ndi.NDIlib_find_wait_for_sources(_ndiFindInstance, 5000))
+                    {
+                        Thread.Sleep(3000);
+                        Application.Current?.Dispatcher.BeginInvoke((Action) delegate { RefreshSources(null); });
+                    }
+                });
         }
 
         public ICommand CommandRefreshSources { get; }
@@ -107,7 +126,7 @@ namespace TAS.Client.NDIVideoPreview
 
         public string VideoSource
         {
-            get { return _videoSource; }
+            get => _videoSource;
             set
             {
                 if (SetField(ref _videoSource, value))
@@ -116,17 +135,64 @@ namespace TAS.Client.NDIVideoPreview
                     {
                         Disconnect();
                         VideoBitmap = null;
-                        DisplaySource = _ndiSources.ContainsKey(value);
-                        if (DisplaySource)
+                        AudioLevels = new double[0];
+                        IsDisplaySource = _ndiSources.ContainsKey(value);
+                        if (IsDisplaySource)
                             ThreadPool.QueueUserWorkItem(o => Connect(value));
                     }
                 }
             }
         }
 
-        public bool DisplaySource { get { return _displaySource; } set { SetField(ref _displaySource, value); } }
+        public bool IsDisplaySource
+        {
+            get => _isDisplaySource;
+            private set
+            {
+                if (SetField(ref _isDisplaySource, value))
+                    NotifyPropertyChanged(nameof(IsDisplayAudioBars));
+            }
+        }
 
-        public WriteableBitmap VideoBitmap { get { return _videoBitmap; } private set { SetField(ref _videoBitmap, value); } }
+        public BitmapSource VideoBitmap
+        {
+            get => _videoBitmap;
+            private set => SetField(ref _videoBitmap, value);
+        }
+
+        public bool IsDisplayAudioBars
+        {
+            get => _isDisplayAudioBars && _isDisplaySource;
+            set => SetField(ref _isDisplayAudioBars, value);
+        }
+
+        public AudioDevice SelectedAudioDevice
+        {
+            get => _selectedAudioDevice;
+            set
+            {
+                if (SetField(ref _selectedAudioDevice, value))
+                    SetSoundDevice(value);
+            }
+        }
+
+        public IEnumerable<AudioDevice> AudioDevices
+        {
+            get => _audioDevices;
+            private set => SetField(ref _audioDevices, value);
+        }
+
+        public bool IsPlayAudio
+        {
+            get => _isPlayAudio;
+            set => SetField(ref _isPlayAudio, value);
+        }
+
+        public double[] AudioLevels
+        {
+            get => _audioLevels;
+            private set => SetField(ref _audioLevels, value);
+        }
 
 
         protected override void OnDispose()
@@ -177,6 +243,12 @@ namespace TAS.Client.NDIVideoPreview
                     _ndiSources = sources;
                 }
             }
+            AudioDevices = AudioDevice.EnumerateDevices();
+            var previousAudioDevice = SelectedAudioDevice;
+            SelectedAudioDevice = previousAudioDevice == null
+                ? AudioDevices.FirstOrDefault()
+                : AudioDevices.FirstOrDefault(d => d.DeviceName.Equals(previousAudioDevice.DeviceName)) ?? AudioDevices.FirstOrDefault();
+
         }
 
         private void InitNdiFind()
@@ -200,7 +272,8 @@ namespace TAS.Client.NDIVideoPreview
             {
                 source_to_connect_to = source,
                 color_format = NDIlib_recv_color_format_e.NDIlib_recv_color_format_e_BGRX_BGRA,
-                bandwidth = NDIlib_recv_bandwidth_e.NDIlib_recv_bandwidth_lowest
+                bandwidth = NDIlib_recv_bandwidth_e.NDIlib_recv_bandwidth_lowest,
+                allow_video_fields = false
             };
 
             _ndiReceiveInstance = Ndi.NDIlib_recv_create(ref recvDescription);
@@ -245,25 +318,96 @@ namespace TAS.Client.NDIVideoPreview
                                 || VideoBitmap.PixelWidth != xres
                                 || VideoBitmap.PixelHeight != yres)
                                 VideoBitmap = new WriteableBitmap(xres, yres, 96, dpiY, System.Windows.Media.PixelFormats.Pbgra32, null);
-
+                            if (!(_videoBitmap is WriteableBitmap videoBitmap))
+                                return;
                             // update the writeable bitmap
-                            VideoBitmap?.Lock();
-                            VideoBitmap?.WritePixels(new Int32Rect(0, 0, xres, yres), videoFrame.p_data, bufferSize, stride);
-                            VideoBitmap?.Unlock();
+                            videoBitmap.Lock();
+                            videoBitmap.WritePixels(new Int32Rect(0, 0, xres, yres), videoFrame.p_data, bufferSize, stride);
+                            videoBitmap.Unlock();
                             Ndi.NDIlib_recv_free_video(recvInstance, ref videoFrame);
                         }));
                         break;
                     case NDIlib_frame_type_e.NDIlib_frame_type_audio:
+                        if (!(audioFrame.no_samples == 0 ||
+                              audioFrame.p_data == IntPtr.Zero))
+                        {
+                            var audioDevice = SelectedAudioDevice;
+                            // playing audio
+                            if (IsPlayAudio && audioDevice != null)
+                            {
+                                var isFormatChanged = false;
+                                if (_waveFormat == null ||
+                                    _waveFormat.Channels != audioFrame.no_channels ||
+                                    _waveFormat.SampleRate != audioFrame.sample_rate)
+                                {
+                                    _waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(audioFrame.sample_rate, audioFrame.no_channels);
+                                    isFormatChanged = true;
+                                }
+                                if (_bufferedProvider == null || isFormatChanged)
+                                {
+                                    _bufferedProvider = new BufferedWaveProvider(_waveFormat)
+                                    {
+                                        DiscardOnBufferOverflow = true
+                                    };
+                                }
+                                if (_waveOut == null || isFormatChanged || audioDevice != SelectedAudioDevice)
+                                {
+                                    // We can't guarantee audio sync or buffer fill, that's beyond the scope of this example.
+                                    // This is close enough to show that audio is received and converted correctly.
+                                    _waveOut?.Dispose();
+                                    _waveOut = new WaveOut
+                                    {
+                                        DesiredLatency = 100,
+                                        DeviceNumber = audioDevice.Id
+                                    };
+                                    _waveOut.Init(_bufferedProvider);
+                                    _waveOut.Play();
+                                }
+                                
+                                NDIlib_audio_frame_interleaved_32f_t interleavedFrame =
+                                    new NDIlib_audio_frame_interleaved_32f_t
+                                    {
+                                        sample_rate = audioFrame.sample_rate,
+                                        no_channels = audioFrame.no_channels,
+                                        no_samples = audioFrame.no_samples,
+                                        timecode = audioFrame.timecode
+                                    };
+                                int sizeInBytes = audioFrame.no_samples * audioFrame.no_channels * sizeof(float);
+                                byte[] audBuffer = new byte[sizeInBytes];
+                                GCHandle handle = GCHandle.Alloc(audBuffer, GCHandleType.Pinned);
+                                interleavedFrame.p_data = handle.AddrOfPinnedObject();
+                                Ndi.NDIlib_util_audio_to_interleaved_32f(ref audioFrame, ref interleavedFrame);
+                                handle.Free();
+                                _bufferedProvider.AddSamples(audBuffer, 0, sizeInBytes);
+                            }
+
+                            // volume measuring
+                            var channelSamples = new float[audioFrame.no_samples];
+                            var maxValues = new double[audioFrame.no_channels];
+                            for (int i = 0; i < audioFrame.no_channels; i++)
+                            {
+                                Marshal.Copy(audioFrame.p_data + (i * audioFrame.no_samples * sizeof(float)), channelSamples, 0, audioFrame.no_samples);
+                                maxValues[i] = 20 * Math.Log10(channelSamples.Max());
+                            }
+                            Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                AudioLevels = maxValues;
+                            }));
+                        }
                         Ndi.NDIlib_recv_free_audio(recvInstance, ref audioFrame);
                         break;
                     case NDIlib_frame_type_e.NDIlib_frame_type_metadata:
                         Ndi.NDIlib_recv_free_metadata(recvInstance, ref metadataFrame);
                         break;
-
                 }
 
             }
             Debug.WriteLine(this, "Receive thread exited");
+        }
+
+        private void SetSoundDevice(AudioDevice soundDevice)
+        {
+            
         }
 
         private void Disconnect()
@@ -277,6 +421,7 @@ namespace TAS.Client.NDIVideoPreview
             _exitReceiveThread = false;
             Ndi.NDIlib_recv_destroy(_ndiReceiveInstance);
             _ndiReceiveInstance = IntPtr.Zero;
+            _waveOut?.Dispose();
         }
 
     }

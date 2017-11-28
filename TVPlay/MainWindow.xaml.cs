@@ -16,6 +16,12 @@ namespace TAS.Client
             InitializeComponent();
         }
 
+        protected override void OnClosed(EventArgs e)
+        {
+            (TryFindResource("MainWindowVM") as MainWindowViewmodel)?.Dispose();
+            base.OnClosed(e);
+        }
+
         private void AppMainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
 #if DEBUG == false

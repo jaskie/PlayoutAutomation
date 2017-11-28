@@ -12,7 +12,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="200"
              d:DesignWidth="300"
-             d:DataContext="{x:Type local:VideoPreviewViewmodel}"
+             d:DataContext="{d:DesignInstance local:VideoPreviewViewmodel}"
              >
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
@@ -51,6 +51,43 @@
             </Button>
             <ComboBox ItemsSource="{Binding VideoSources}" SelectedItem="{Binding VideoSource}" VerticalAlignment="Center" x:Name="Selector" />
         </DockPanel>
-        <Image Visibility="{Binding DisplaySource, Converter={StaticResource BoolToVis}}" Name="VideoSurface" Source="{Binding VideoBitmap}" Grid.Row="1" />
+        <Grid Grid.Row="1">
+            <Grid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem IsChecked="{Binding IsDisplayAudioBars, Mode=TwoWay}" IsCheckable="True" Header="{Resx _isDisplayAudioBars, ResxName=TAS.Client.NDIVideoPreview.VideoPreviewView}"/>
+                    <MenuItem IsChecked="{Binding IsPlayAudio, Mode=TwoWay}" IsCheckable="True">
+                        <MenuItem.Header>
+                            <DockPanel>
+                                <TextBlock Text="{Resx _isPlayAudio, ResxName=TAS.Client.NDIVideoPreview.VideoPreviewView}" VerticalAlignment="Center"/>
+                                <ComboBox ItemsSource="{Binding AudioDevices}" SelectedItem="{Binding SelectedAudioDevice}" DisplayMemberPath="DeviceName" Width="150" Margin="5, 0, 0, 0"/>
+                            </DockPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                </ContextMenu>
+            </Grid.ContextMenu>
+            <Rectangle>
+                <Rectangle.Fill>
+                    <DrawingBrush TileMode="Tile" Viewport="0,0,16,16" ViewportUnits="Absolute">
+                        <DrawingBrush.Drawing>
+                            <GeometryDrawing Geometry="M0,0 H8 V8 H16 V16 H8 V8 H0Z" Brush="LightGray"/>
+                        </DrawingBrush.Drawing>
+                    </DrawingBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+            <Image Visibility="{Binding IsDisplaySource, Converter={StaticResource BoolToVis}}" Name="VideoSurface" Source="{Binding VideoBitmap}" />
+            <ItemsControl ItemsSource="{Binding AudioLevels}" Visibility="{Binding IsDisplayAudioBars, Converter={StaticResource BoolToVis}}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel VerticalAlignment="Bottom" IsItemsHost="True"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ProgressBar Value="{Binding Path=., Mode=OneWay}" Minimum="-60" Maximum="0" Height="5" Margin="3, 1" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
     </Grid>
 </UserControl>
+
