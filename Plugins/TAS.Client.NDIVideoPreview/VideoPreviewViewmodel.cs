@@ -47,6 +47,7 @@ namespace TAS.Client.NDIVideoPreview
         {
             View = new VideoPreviewView {DataContext = this};
             _videoSources = new ObservableCollection<string>(new[] {Common.Properties.Resources._none_});
+            _videoSource = _videoSources.FirstOrDefault();
             CommandRefreshSources = new UICommand
             {
                 ExecuteDelegate = RefreshSources,
@@ -83,8 +84,7 @@ namespace TAS.Client.NDIVideoPreview
         {
             if (string.IsNullOrWhiteSpace(sourceUrl))
                 return;
-            Uri sourceUri;
-            if ((Uri.TryCreate(sourceUrl, UriKind.Absolute, out sourceUri) && sourceUri.Scheme == "ndi")
+            if (Uri.TryCreate(sourceUrl, UriKind.Absolute, out var sourceUri) && sourceUri.Scheme == "ndi"
                 || string.Equals(sourceUrl.Substring(0, sourceUrl.IndexOf(':')), "ndi", StringComparison.InvariantCultureIgnoreCase))
                 Application.Current.Dispatcher.BeginInvoke((Action)delegate
                 {
@@ -95,7 +95,7 @@ namespace TAS.Client.NDIVideoPreview
                         source = _ndiSources.FirstOrDefault(s => Ndi.Utf8ToString(s.Value.p_ip_address) == sourceUri.Host).Key;
                     else
                     {
-                        string address = sourceUrl.Substring(sourceUrl.IndexOf("//") + 2);
+                        string address = sourceUrl.Substring(sourceUrl.IndexOf("//", StringComparison.Ordinal) + 2);
                         if (!string.IsNullOrWhiteSpace(address))
                         {
                             string host = address.Substring(0, address.IndexOf(':'));
@@ -169,11 +169,7 @@ namespace TAS.Client.NDIVideoPreview
         public AudioDevice SelectedAudioDevice
         {
             get => _selectedAudioDevice;
-            set
-            {
-                if (SetField(ref _selectedAudioDevice, value))
-                    SetSoundDevice(value);
-            }
+            set => SetField(ref _selectedAudioDevice, value);
         }
 
         public IEnumerable<AudioDevice> AudioDevices
@@ -222,12 +218,12 @@ namespace TAS.Client.NDIVideoPreview
                 var ndiSources = Ndi.NDIlib_find_get_current_sources(_ndiFindInstance, ref numSources);
                 if (numSources > 0)
                 {
-                    int sourceSizeInBytes = System.Runtime.InteropServices.Marshal.SizeOf(typeof(NDIlib_source_t));
+                    int sourceSizeInBytes = Marshal.SizeOf(typeof(NDIlib_source_t));
                     Dictionary<string, NDIlib_source_t> sources = new Dictionary<string, NDIlib_source_t>();
                     for (int i = 0; i < numSources; i++)
                     {
                         IntPtr p = IntPtr.Add(ndiSources, (i * sourceSizeInBytes));
-                        NDIlib_source_t src = (NDIlib_source_t)System.Runtime.InteropServices.Marshal.PtrToStructure(p, typeof(NDIlib_source_t));
+                        NDIlib_source_t src = (NDIlib_source_t)Marshal.PtrToStructure(p, typeof(NDIlib_source_t));
                         var ndiName = Ndi.Utf8ToString(src.p_ndi_name);
                         sources.Add(ndiName, src);
                         Debug.WriteLine($"Added source name:{Ndi.Utf8ToString(src.p_ndi_name)} address :{Ndi.Utf8ToString(src.p_ip_address)}");
@@ -290,6 +286,7 @@ namespace TAS.Client.NDIVideoPreview
             var recvInstance = _ndiReceiveInstance;
             if (recvInstance == IntPtr.Zero)
                 return;
+            var audioDevice = SelectedAudioDevice;
             while (!_exitReceiveThread)
             {
                 NDIlib_video_frame_t videoFrame = new NDIlib_video_frame_t();
@@ -331,7 +328,6 @@ namespace TAS.Client.NDIVideoPreview
                         if (!(audioFrame.no_samples == 0 ||
                               audioFrame.p_data == IntPtr.Zero))
                         {
-                            var audioDevice = SelectedAudioDevice;
                             // playing audio
                             if (IsPlayAudio && audioDevice != null)
                             {
@@ -340,7 +336,8 @@ namespace TAS.Client.NDIVideoPreview
                                     _waveFormat.Channels != audioFrame.no_channels ||
                                     _waveFormat.SampleRate != audioFrame.sample_rate)
                                 {
-                                    _waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(audioFrame.sample_rate, audioFrame.no_channels);
+                                    _waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(audioFrame.sample_rate,
+                                        audioFrame.no_channels);
                                     isFormatChanged = true;
                                 }
                                 if (_bufferedProvider == null || isFormatChanged)
@@ -352,9 +349,8 @@ namespace TAS.Client.NDIVideoPreview
                                 }
                                 if (_waveOut == null || isFormatChanged || audioDevice != SelectedAudioDevice)
                                 {
-                                    // We can't guarantee audio sync or buffer fill, that's beyond the scope of this example.
-                                    // This is close enough to show that audio is received and converted correctly.
                                     _waveOut?.Dispose();
+                                    audioDevice = SelectedAudioDevice;
                                     _waveOut = new WaveOut
                                     {
                                         DesiredLatency = 100,
@@ -363,7 +359,7 @@ namespace TAS.Client.NDIVideoPreview
                                     _waveOut.Init(_bufferedProvider);
                                     _waveOut.Play();
                                 }
-                                
+
                                 NDIlib_audio_frame_interleaved_32f_t interleavedFrame =
                                     new NDIlib_audio_frame_interleaved_32f_t
                                     {
@@ -386,8 +382,11 @@ namespace TAS.Client.NDIVideoPreview
                             var maxValues = new double[audioFrame.no_channels];
                             for (int i = 0; i < audioFrame.no_channels; i++)
                             {
-                                Marshal.Copy(audioFrame.p_data + (i * audioFrame.no_samples * sizeof(float)), channelSamples, 0, audioFrame.no_samples);
-                                maxValues[i] = 20 * Math.Log10(channelSamples.Max());
+                                Marshal.Copy(audioFrame.p_data + (i * audioFrame.no_samples * sizeof(float)),
+                                    channelSamples, 0, audioFrame.no_samples);
+                                maxValues[i] = 20 * Math.Log10(channelSamples.Max(s => Math.Abs(s)));
+                                if (maxValues[i] < MinAudioLevel)
+                                    maxValues[i] = MinAudioLevel;
                             }
                             Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                             {
@@ -400,14 +399,8 @@ namespace TAS.Client.NDIVideoPreview
                         Ndi.NDIlib_recv_free_metadata(recvInstance, ref metadataFrame);
                         break;
                 }
-
             }
             Debug.WriteLine(this, "Receive thread exited");
-        }
-
-        private void SetSoundDevice(AudioDevice soundDevice)
-        {
-            
         }
 
         private void Disconnect()
