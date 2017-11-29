@@ -342,6 +342,8 @@ namespace TAS.Client.ViewModels
                         case TEventType.Movie:
                         case TEventType.Live:
                             return BaseEvent.PlayState == TPlayState.Scheduled || (_mediaType == TMediaType.Still && BaseEvent.PlayState == TPlayState.Playing);
+                        case TEventType.Rundown:
+                            return BaseEvent.PlayState == TPlayState.Scheduled && BaseEvent.SubEventsCount == 0;
                         default:
                             return false;
                     }

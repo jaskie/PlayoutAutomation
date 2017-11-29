@@ -678,6 +678,7 @@ namespace TAS.Server
             if (ev == null)
                 return;
             _rootEvents.Add(ev);
+            EventLocated?.Invoke(this, new EventEventArgs(ev));
         }
 
         public IEvent CreateNewEvent(
