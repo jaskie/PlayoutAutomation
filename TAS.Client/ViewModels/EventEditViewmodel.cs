@@ -60,7 +60,11 @@ namespace TAS.Client.ViewModels
                 ExecuteDelegate = _triggerStartType,
                 CanExecuteDelegate = _canTriggerStartType
             };
-            CommandMoveUp = new UICommand {ExecuteDelegate = o => _event?.MoveUp(), CanExecuteDelegate = _canMoveUp};
+            CommandMoveUp = new UICommand
+            {
+                ExecuteDelegate = o => _event?.MoveUp(),
+                CanExecuteDelegate = _canMoveUp
+            };
             CommandMoveDown = new UICommand
             {
                 ExecuteDelegate = o => _event?.MoveDown(),

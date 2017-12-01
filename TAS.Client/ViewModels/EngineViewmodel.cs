@@ -230,9 +230,9 @@ namespace TAS.Client.ViewModels
             CommandNewContainer = new UICommand() { ExecuteDelegate = _newContainer };
             CommandSearchMissingEvents = new UICommand() { ExecuteDelegate = _searchMissingEvents };
             CommandStartLoaded = new UICommand() { ExecuteDelegate = o => Engine.StartLoaded(), CanExecuteDelegate = o => Engine.EngineState == TEngineState.Hold };
-            CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _multiSelectedEvents.Count > 0 };
+            CommandDeleteSelected = new UICommand() { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = _canDeleteSelected };
             CommandCopySelected = new UICommand() { ExecuteDelegate = _copySelected, CanExecuteDelegate = o => _multiSelectedEvents.Count > 0 };
-            CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = o => _multiSelectedEvents.Count > 0  };
+            CommandCutSelected = new UICommand() { ExecuteDelegate = _cutSelected, CanExecuteDelegate = _canDeleteSelected };
             CommandPasteSelected = new UICommand() { ExecuteDelegate = _pasteSelected, CanExecuteDelegate = o => EventClipboard.CanPaste(_selectedEvent, (EventClipboard.TPasteLocation)Enum.Parse(typeof(EventClipboard.TPasteLocation), o.ToString(), true)) };
             CommandExportMedia = new UICommand() { ExecuteDelegate = _exportMedia, CanExecuteDelegate = _canExportMedia };
             CommandUndelete = new UICommand() { ExecuteDelegate = _undelete, CanExecuteDelegate = _canUndelete };
@@ -263,6 +263,11 @@ namespace TAS.Client.ViewModels
             CommandUserManager = new UICommand {ExecuteDelegate = _userManager, CanExecuteDelegate = _canUserManager};
 
             CommandEngineRights = new UICommand { ExecuteDelegate = _engineRights, CanExecuteDelegate = _canEngineRights };
+        }
+
+        private bool _canDeleteSelected(object obj)
+        {
+            return _multiSelectedEvents.Count > 0 && _multiSelectedEvents.All(e => e.Event.AllowDelete());
         }
 
         private void _engineRights(object obj)
@@ -1234,7 +1239,7 @@ namespace TAS.Client.ViewModels
                                               Engine.CrawlEnableBehavior == TCrawlEnableBehavior.ShowsOnly && category == TMediaCategory.Show)
                                           || (Engine.CrawlEnableBehavior == TCrawlEnableBehavior.AllButCommercials && (category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Fill || category == TMediaCategory.Insert || category == TMediaCategory.Uncategorized))
                                 ? defaultCrawl : 0),
-                            logo: (byte)(category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ? 1 : 0),
+                            logo: (byte)(category == TMediaCategory.Fill || category == TMediaCategory.Show || category == TMediaCategory.Promo || category == TMediaCategory.Insert || category == TMediaCategory.Jingle ?  1 : 0),
                             parental: e.Media.Parental
                         );
                         break;

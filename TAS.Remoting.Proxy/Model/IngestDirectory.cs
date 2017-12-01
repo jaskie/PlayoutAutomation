@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Net;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -116,7 +114,11 @@ namespace TAS.Remoting.Model
 
         public string ExportParams => _exportParams;
 
-        public string Filter { get { return _filter; } set { Set(value); } }
+        public string Filter
+        {
+            get => _filter;
+            set => Set(value);
+        }
 
         public bool IsWAN => _isWan;
 
@@ -124,7 +126,7 @@ namespace TAS.Remoting.Model
 
         public bool IsRecursive => _isRecursive;
 
-        public bool IsExport => _isRecursive;
+        public bool IsExport => _isExport;
 
         public bool IsImport => _isImport;
 

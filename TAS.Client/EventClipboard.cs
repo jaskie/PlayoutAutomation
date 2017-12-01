@@ -235,7 +235,8 @@ namespace TAS.Client
             var destEvent = dest as IEvent;
             if (destEvent == null 
                 || source == null
-                || operation == ClipboardOperation.Cut && sourceEvent?.Engine != destEvent.Engine)
+                || (operation == ClipboardOperation.Cut && sourceEvent?.Engine != destEvent.Engine)
+                || !destEvent.HaveRight(EventRight.Create))
                 return false;
             if (location == TPasteLocation.Under)
             {

@@ -199,21 +199,34 @@ namespace TAS.Remoting.Model
         public IEvent Next
         {
             get { return _next.Value; }
-            set { _next = new Lazy<IEvent>(() => value); }
+            set
+            {
+                _next = new Lazy<IEvent>(() => value);
+                Debug.Write($"New Next for: {this} is {value}");
+            }
         }
 
         [JsonProperty]
         public IEvent Parent
         {
             get { return _parent.Value; }
-            set { _parent = new Lazy<IEvent>(() => value); }
+            set
+            {
+                _parent = new Lazy<IEvent>(() => value); 
+                Debug.Write($"New Parent for: {this} is {value}");
+            }
         }
 
         [JsonProperty]
         public IEvent Prior
         {
             get { return _prior.Value; }
-            set { _prior = new Lazy<IEvent>(() => value); }
+            set
+            {
+                _prior = new Lazy<IEvent>(() => value);
+                Debug.Write($"New Prior for: {this} is {value}");
+            }
+
         }
 
         public TimeSpan? Offset => _offset;
@@ -278,18 +291,18 @@ namespace TAS.Remoting.Model
                 EventRemove(_positionChanged);
             }
         }
-        private event EventHandler _relocated;
+        private event EventHandler _located;
         public event EventHandler Located
         {
             add
             {
-                EventAdd(_relocated);
-                _relocated += value;
+                EventAdd(_located);
+                _located += value;
             }
             remove
             {
-                _relocated -= value;
-                EventRemove(_relocated);
+                _located -= value;
+                EventRemove(_located);
             }
         }
         private event EventHandler<CollectionOperationEventArgs<IEvent>> _subEventChanged;
@@ -318,8 +331,7 @@ namespace TAS.Remoting.Model
                     _positionChanged?.Invoke(this, Deserialize<EventPositionEventArgs>(message));
                     break;
                 case nameof(IEvent.Located):
-                    ResetSlibbings();
-                    _relocated?.Invoke(this, Deserialize<EventArgs>(message));
+                    _located?.Invoke(this, Deserialize<EventArgs>(message));
                     return;
                 case nameof(IEvent.SubEventChanged):
                     var ea = Deserialize<CollectionOperationEventArgs<IEvent>>(message);
@@ -361,8 +373,7 @@ namespace TAS.Remoting.Model
         {
             return Query<bool>(parameters: new object[] { right });
         }
-
-
+        
         private void ResetSlibbings()
         {
             _parent = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Parent)));
@@ -370,5 +381,9 @@ namespace TAS.Remoting.Model
             _prior = new Lazy<IEvent>(() => Get<Event>(nameof(IEvent.Prior)));
         }
 
+        public override string ToString()
+        {
+            return $"{nameof(Event)}: {EventName}";
+        }
     }
 }

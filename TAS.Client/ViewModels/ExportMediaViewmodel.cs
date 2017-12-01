@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Forms;
 using TAS.Client.Common;
-using TAS.Client.Common.Properties;
 using TAS.Common;
 using TAS.Common.Interfaces;
 

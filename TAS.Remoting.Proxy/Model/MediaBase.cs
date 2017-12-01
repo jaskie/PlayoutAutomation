@@ -149,7 +149,7 @@ namespace TAS.Remoting.Model
 
         public override string ToString()
         {
-            return $"{MediaName}";
+            return $"Media: {MediaName}";
         }
 
         protected override void OnEventNotification(WebSocketMessage message) { }

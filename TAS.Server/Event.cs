@@ -568,7 +568,7 @@ namespace TAS.Server
             }
         }
 
-        public IEnumerable<IEvent> SubEvents { get { lock (_subEvents.Value.SyncRoot) return _subEvents.Value.ToArray(); } }
+        public IEnumerable<IEvent> SubEvents { get { lock (_subEvents) return _subEvents.Value.ToArray(); } }
 
         [JsonProperty]
         public int SubEventsCount => _subEvents.Value.Count;
@@ -611,8 +611,7 @@ namespace TAS.Server
             private set            {
                 if (_parent.IsValueCreated || value != _parent.Value)
                 {
-                    Event v = value as Event;
-                    _parent = new Lazy<Event>(() => v);
+                    _parent = new Lazy<Event>(() => (Event)value);
                     NotifyPropertyChanged(nameof(Parent));
                 }
             }
@@ -625,8 +624,7 @@ namespace TAS.Server
             {
                 if (!_prior.IsValueCreated || value != _prior.Value)
                 {
-                    Event e = (Event)value;
-                    _prior = new Lazy<Event>(() => e);
+                    _prior = new Lazy<Event>(() => (Event)value);
                     NotifyPropertyChanged(nameof(Prior));
                 }
             }
@@ -639,7 +637,7 @@ namespace TAS.Server
             {
                 if (!_next.IsValueCreated || value != _next.Value)
                 {
-                    _next = new Lazy<Event>(() => value as Event);
+                    _next = new Lazy<Event>(() => (Event)value);
                     NotifyPropertyChanged(nameof(Next));
                     if (value != null)
                         IsLoop = false;
@@ -737,9 +735,15 @@ namespace TAS.Server
                 }
                 if (parent != null)
                 {
-                    parent._subEventsRemove(this);
-                    if (next != null)
-                        parent._subEvents.Value.Add(next);
+                    lock (parent._subEvents)
+                    {
+                        parent._subEventsRemove(this);
+                        if (next != null)
+                        {
+                            parent._subEvents.Value.Add(next);
+                            parent.NotifyPropertyChanged(nameof(SubEventsCount));
+                        }
+                    }
                     if (parent.SetField(ref parent._duration, parent._computedDuration(), nameof(Duration)))
                         parent._durationChanged();
                     if (next != null)
@@ -777,10 +781,13 @@ namespace TAS.Server
                 Event e2Prior = e2.Prior as Event;
                 if (e2Parent != null)
                 {
-                    e2Parent._subEvents.Value.Remove(e2);
-                    e2Parent.NotifySubEventChanged(e2, CollectionOperation.Remove);
-                    e2Parent._subEvents.Value.Add(this);
-                    e2Parent.NotifySubEventChanged(this, CollectionOperation.Add);
+                    lock (e2Parent._subEvents)
+                    {
+                        e2Parent._subEvents.Value.Remove(e2);
+                        e2Parent.NotifySubEventChanged(e2, CollectionOperation.Remove);
+                        e2Parent._subEvents.Value.Add(this);
+                        e2Parent.NotifySubEventChanged(this, CollectionOperation.Add);
+                    }
                 }
                 if (e2Prior != null)
                     e2Prior.Next = this;
@@ -823,10 +830,13 @@ namespace TAS.Server
                 Event e2Prior = Prior as Event;
                 if (e2Parent != null)
                 {
-                    e2Parent._subEvents.Value.Remove(this);
-                    e2Parent.NotifySubEventChanged(this, CollectionOperation.Remove);
-                    e2Parent._subEvents.Value.Add(e3);
-                    e2Parent.NotifySubEventChanged(e3, CollectionOperation.Add);
+                    lock (e2Parent._subEvents)
+                    {
+                        e2Parent._subEvents.Value.Remove(this);
+                        e2Parent.NotifySubEventChanged(this, CollectionOperation.Remove);
+                        e2Parent._subEvents.Value.Add(e3);
+                        e2Parent.NotifySubEventChanged(e3, CollectionOperation.Add);
+                    }
                 }
                 if (e2Prior != null)
                     e2Prior.Next = e3;
@@ -838,8 +848,8 @@ namespace TAS.Server
                 StartType = TStartType.After;
                 e3.Next = this;
                 Parent = null;
-                Prior = e3;
                 Next = e4;
+                Prior = e3;
                 if (e4 != null)
                     e4.Prior = this;
             }
@@ -912,10 +922,13 @@ namespace TAS.Server
 
                 if (parent != null)
                 {
-                    parent._subEvents.Value.Remove(this);
-                    parent._subEvents.Value.Add(eventToInsert);
-                    parent.NotifySubEventChanged(eventToInsert, CollectionOperation.Add);
-                    Parent = null;
+                    lock (parent._subEvents)
+                    {
+                        parent._subEvents.Value.Remove(this);
+                        parent._subEvents.Value.Add(eventToInsert);
+                        parent.NotifySubEventChanged(eventToInsert, CollectionOperation.Add);
+                        Parent = null;
+                    }
                 }
                 eventToInsert.Parent = parent;
                 eventToInsert.Prior = prior;
@@ -961,7 +974,11 @@ namespace TAS.Server
                     subEventToAdd.StartType = fromEnd ? TStartType.WithParentFromEnd : TStartType.WithParent;
                 subEventToAdd.Parent = this;
                 subEventToAdd.IsHold = false;
-                _subEvents.Value.Add(subEventToAdd);
+                lock (_subEvents)
+                {
+                    _subEvents.Value.Add(subEventToAdd);
+                }
+                NotifyPropertyChanged(nameof(SubEventsCount));
                 NotifySubEventChanged(subEventToAdd, CollectionOperation.Add);
                 if (_eventType == TEventType.Rundown)
                     Duration = _computedDuration();
@@ -1048,11 +1065,14 @@ namespace TAS.Server
                     && nev.Media == media
                     && nev.ScheduledTime >= Engine.CurrentTime)
                     return new MediaDeleteResult() { Result = MediaDeleteResult.MediaDeleteResultEnum.InFutureSchedule, Event = nev, Media = media };
-                foreach (Event se in nev._subEvents.Value.ToList())
+                lock (nev._subEvents)
                 {
-                    MediaDeleteResult reason = se.CheckCanDeleteMedia(media);
-                    if (reason.Result != MediaDeleteResult.MediaDeleteResultEnum.Success)
-                        return reason;
+                    foreach (Event se in nev._subEvents.Value.ToList())
+                    {
+                        MediaDeleteResult reason = se.CheckCanDeleteMedia(media);
+                        if (reason.Result != MediaDeleteResult.MediaDeleteResultEnum.Success)
+                            return reason;
+                    }
                 }
                 nev = nev.Next as Event;
             }
@@ -1066,12 +1086,8 @@ namespace TAS.Server
                 case TStartType.After:
                     _idEventBinding = Prior?.Id ?? 0;
                     break;
-                case TStartType.WithParent:
-                case TStartType.WithParentFromEnd:
-                    _idEventBinding = Parent?.Id ?? 0;
-                    break;
                 default:
-                    _idEventBinding = 0;
+                    _idEventBinding = Parent?.Id ?? 0;
                     break;
             }
             try
@@ -1114,7 +1130,11 @@ namespace TAS.Server
                 return true;
             return (EffectiveRights() & (ulong)right) > 0;
         }
-
+        
+        public override string ToString()
+        {
+            return $"{EventType} {EventName}";
+        }
 
         internal PersistentMedia ServerMediaPRI => _serverMediaPRI?.Value;
 
@@ -1126,21 +1146,23 @@ namespace TAS.Server
         {
             if (IsModified && _engine != null)
                 Save();
-            var se = _subEvents;
-            if (se != null && se.IsValueCreated && se.Value != null)
+            lock (_subEvents)
             {
-                foreach (Event e in se.Value)
+                if (_subEvents != null && _subEvents.IsValueCreated && _subEvents.Value != null)
                 {
-                    Event ce = e;
-                    do
+                    foreach (Event e in _subEvents.Value)
                     {
-                        ce.SaveLoadedTree();
-                        var lne = ce._next;
-                        if (lne != null && lne.IsValueCreated)
-                            ce = lne.Value;
-                        else
-                            ce = null;
-                    } while (ce != null);
+                        Event ce = e;
+                        do
+                        {
+                            ce.SaveLoadedTree();
+                            var lne = ce._next;
+                            if (lne != null && lne.IsValueCreated)
+                                ce = lne.Value;
+                            else
+                                ce = null;
+                        } while (ce != null);
+                    }
                 }
             }
         }
@@ -1277,7 +1299,7 @@ namespace TAS.Server
             while (nextLevel != null)
                 if (nextLevel._eventType == TEventType.Rundown)
                 {
-                    lock (nextLevel._subEvents.Value.SyncRoot)
+                    lock (nextLevel._subEvents)
                         nextLevel = predecessor._subEvents.Value.FirstOrDefault();
                     if (nextLevel != null)
                     {
@@ -1372,11 +1394,15 @@ namespace TAS.Server
 
         private void _subEventsRemove(Event subEventToRemove)
         {
-            if (_subEvents.Value.Remove(subEventToRemove))
+            lock (_subEvents)
             {
-                if (_eventType == TEventType.Rundown)
-                    Duration = _computedDuration();
-                NotifySubEventChanged(subEventToRemove, CollectionOperation.Remove);
+                if (_subEvents.Value.Remove(subEventToRemove))
+                {
+                    if (_eventType == TEventType.Rundown)
+                        Duration = _computedDuration();
+                    NotifySubEventChanged(subEventToRemove, CollectionOperation.Remove);
+                    NotifyPropertyChanged(nameof(SubEventsCount));
+                }
             }
         }
 
@@ -1443,7 +1469,7 @@ namespace TAS.Server
                 Event toUpdate = _getSuccessor();
                 if (toUpdate != null)
                     toUpdate._uppdateScheduledTime();  // trigger update all next events
-                lock (_subEvents.Value.SyncRoot)
+                lock (_subEvents)
                 {
                     foreach (Event ev in _subEvents.Value) //update all sub-events
                         ev._uppdateScheduledTime();
@@ -1498,6 +1524,8 @@ namespace TAS.Server
             Located?.Invoke(this, EventArgs.Empty);
         }
 
+
+      
        
     }
 

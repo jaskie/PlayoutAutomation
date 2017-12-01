@@ -21,7 +21,7 @@ namespace TAS.Client.ViewModels
 
         public IEnumerable<EventPanelViewmodelBase> HiddenContainers
         {
-            get { return _childrens.Where(c => (c as EventPanelContainerViewmodel)?.IsVisible == false); }
+            get { return Childrens.Where(c => (c as EventPanelContainerViewmodel)?.IsVisible == false); }
         }
 
         public bool IsAnyContainerHidden => HiddenContainers.Any();
@@ -129,9 +129,9 @@ namespace TAS.Client.ViewModels
                         var evmPrior = Find(prior);
                         if (evmPrior != null)
                         {
-                            var pos = _childrens.IndexOf(evmPrior);
+                            var pos = Childrens.IndexOf(evmPrior);
                             newVm = CreateChildEventPanelViewmodelForEvent(e);
-                            _childrens.Insert(pos + 1, newVm);
+                            Childrens.Insert(pos + 1, newVm);
                         }
                     }
                     else
@@ -147,11 +147,11 @@ namespace TAS.Client.ViewModels
             if (!e.IsDeleted)
             {
                 var newEvm = CreateChildEventPanelViewmodelForEvent(e);
-                _childrens.Add(newEvm);
+                Childrens.Add(newEvm);
                 IEvent ne = e.Next;
                 while (ne != null)
                 {
-                    _childrens.Add(CreateChildEventPanelViewmodelForEvent(ne));
+                    Childrens.Add(CreateChildEventPanelViewmodelForEvent(ne));
                     Debug.WriteLine(ne, "Reading next for");
                     ne = ne.Next;
                 }

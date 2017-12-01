@@ -265,8 +265,7 @@ namespace TAS.Remoting.Server
 
         private void _notifyClient(object o, EventArgs e, string eventName)
         {
-            IDto dto = o as IDto;
-            if (dto == null)
+            if (!(o is IDto dto))
                 return;
             EventArgs eventArgs;
             PropertyChangedEventArgs ea = e as PropertyChangedEventArgs;
@@ -280,6 +279,7 @@ namespace TAS.Remoting.Server
                     eventArgs = PropertyChangedWithDataEventArgs.Create(ea.PropertyName, null);
                     Debug.WriteLine(o, $"{GetType()}: Couldn't get value of {ea.PropertyName}");
                 }
+                Debug.WriteLine($"Server: PropertyChanged {ea.PropertyName} on {dto} sent");
             }
             else
                 eventArgs = e;
@@ -295,7 +295,6 @@ namespace TAS.Remoting.Server
                 var bytes = message.ToByteArray(serialized);
                 Send(bytes);
             }
-            //Debug.WriteLine($"Server: Notification {eventName} on {dto} sent:\n{s}");
         }
 
         private void _referencedObjectDisposed(object o, EventArgs a)

@@ -1,4 +1,4 @@
-﻿//#undef DEBUG
+﻿#undef DEBUG
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Concurrent;
@@ -51,6 +51,7 @@ namespace TAS.Remoting
                 _knownDtos[id] = (IDto)value;
                 if ((p as Client.ProxyBase)?.DtoGuid == Guid.Empty)
                     ((Client.ProxyBase)p).DtoGuid = new Guid(reference);
+                Debug.WriteLine("Added reference {0} for {1}", reference, value);
             }
         }
 
@@ -82,9 +83,9 @@ namespace TAS.Remoting
         public object ResolveReference(object context, string reference)
         {
             Guid id = new Guid(reference);
-            IDto p;
-            _knownDtos.TryGetValue(id, out p);
-            return p;
+            _knownDtos.TryGetValue(id, out var value);
+            Debug.WriteLine("Resolved reference {0} with {1}", reference, value);
+            return value;
         }
 
         #endregion //IReferenceResolver

@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#undef DEBUG
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -139,8 +140,8 @@ namespace TAS.Remoting
         public Stream GetValueStream()
         {
 #if DEBUG
-            var s = Encoding.UTF8.GetString(_rawData, _valueStartIndex, _rawData.Length - _valueStartIndex);
-            Debug.WriteLine(s);
+            //var s = Encoding.UTF8.GetString(_rawData, _valueStartIndex, _rawData.Length - _valueStartIndex);
+            //Debug.WriteLine(s);
 #endif
             return _rawData.Length > _valueStartIndex ? new MemoryStream(_rawData, _valueStartIndex, _rawData.Length - _valueStartIndex) : null;
         }

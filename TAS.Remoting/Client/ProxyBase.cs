@@ -1,8 +1,7 @@
-﻿#undef DEBUG
+﻿//#undef DEBUG
 
 using Newtonsoft.Json;
 using System;
-using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -18,9 +17,6 @@ namespace TAS.Remoting.Client
     {
         private int _isDisposed;
         private RemoteClient _client;
-
-        // property cache
-        private readonly ConcurrentDictionary<string, object> _properties = new ConcurrentDictionary<string, object>();
 
         public void Dispose()
         {
@@ -44,22 +40,11 @@ namespace TAS.Remoting.Client
 
         protected T Get<T>([CallerMemberName] string propertyName = null)
         {
-            object result;
-            if (_properties.TryGetValue(propertyName, out result))
-                if (typeof(T).IsEnum && result is long)
-                {
-                    int ev = (int) (long) result;
-                    return (T) Enum.Parse(typeof(T), ev.ToString());
-                }
-                else
-                    return (T) result;
-            if (_client != null)
-            {
-                result = _client.Get<T>(this, propertyName);
-                _properties[propertyName] = result;
-                return (T)result;
-            }
-            return default(T);
+            if (string.IsNullOrEmpty(propertyName))
+                return default(T);
+            var result = _client.Get<T>(this, propertyName);
+            Debug.WriteLine($"Get:{result} for property {propertyName} of {this}");
+            return result;
         }
 
         protected void Set<T>(T value, [CallerMemberName] string propertyName = null)
@@ -75,31 +60,23 @@ namespace TAS.Remoting.Client
                 if (value.Equals(currentValue))
                     return;
             }
-            _client?.Set(this, value, propertyName);
+            _client.Set(this, value, propertyName);
         }
 
         protected void Invoke([CallerMemberName] string methodName = null, params object[] parameters)
         {
-            var client = _client;
-            if (client != null)
-                client.Invoke(this, methodName, parameters);
+            _client.Invoke(this, methodName, parameters);
         }
 
         protected T Query<T>([CallerMemberName] string methodName = "", params object[] parameters)
         {
-            var client = _client;
-            if (client != null)
-                return client.Query<T>(this, methodName, parameters);
-            return default(T);
+            return _client.Query<T>(this, methodName, parameters);
         }
 
         protected void EventAdd<T>(T handler, [CallerMemberName] string eventName = null)
         {
             if (handler == null && !DtoGuid.Equals(Guid.Empty))
-            {
-                var client = _client;
-                client?.EventAdd(this, eventName);
-            }
+                _client.EventAdd(this, eventName);
         }
 
         protected void EventRemove<T>(T handler, [CallerMemberName] string eventName = null)
@@ -128,10 +105,7 @@ namespace TAS.Remoting.Client
         [OnDeserialized]
         internal void OnDeserialized(StreamingContext context)
         {
-            var client = context.Context as RemoteClient;
-            if (client == null)
-                return;
-            _client = client;
+            _client = (RemoteClient)context.Context;
         }
 
         protected T Deserialize<T>(WebSocketMessage message)
@@ -148,6 +122,7 @@ namespace TAS.Remoting.Client
                 PropertyChangedWithDataEventArgs eav = Deserialize<PropertyChangedWithDataEventArgs>(message);
                 if (eav != null)
                 {
+                    Debug.WriteLine($"{this}: property notified {eav.PropertyName}, value {eav.Value}");
                     Type type = GetType();
                     FieldInfo field = GetField(type, eav.PropertyName);
                     if (field == null)
@@ -157,8 +132,7 @@ namespace TAS.Remoting.Client
                         {
                             var value = eav.Value;
                             MethodParametersAlignment.AlignType(ref value, property.PropertyType);
-                            if (_properties.ContainsKey(eav.PropertyName))
-                                _properties[eav.PropertyName] = value;
+                            property.SetValue(this, value);
                         }
                     }
                     else
