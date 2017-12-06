@@ -39,7 +39,7 @@ namespace Svt.Caspar
     public class RecorderList
     {
         [XmlElement("recorder", Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        public Recorder[] Recorders { get; set; }
+        public Recorder[] Recorders { get; set; } = new Recorder[0];
     }
 
     public class Recorder
@@ -99,9 +99,9 @@ namespace Svt.Caspar
             Connection.SendString($"RECORDER REWIND {Id}");
             return true;
         }
-        public bool GotoTimecode(string Timecode)
+        public bool GotoTimecode(string timecode)
         {
-            Connection.SendString($"RECORDER GOTO {Id} TC {Timecode}");
+            Connection.SendString($"RECORDER GOTO {Id} TC {timecode}");
             return true;
         }
 
@@ -184,7 +184,7 @@ namespace Svt.Caspar
         {
             Tc = tc;
         }
-        public string Tc { get; private set; }
+        public string Tc { get; }
     }
 
     public class FramesLeftEventArgs: EventArgs
@@ -193,7 +193,7 @@ namespace Svt.Caspar
         {
             FramesLeft = frames;
         }
-        public long FramesLeft { get; private set; }
+        public long FramesLeft { get; }
     }
 
     public class DeckStateEventArgs: EventArgs
@@ -202,7 +202,7 @@ namespace Svt.Caspar
         {
             State = state;
         }
-        public DeckState State { get; private set; }
+        public DeckState State { get; }
     }
 
     public class DeckControlEventArgs : EventArgs
@@ -211,7 +211,7 @@ namespace Svt.Caspar
         {
             ControlEvent = controlEvent;
         }
-        public DeckControl ControlEvent { get; private set; }
+        public DeckControl ControlEvent { get; }
     }
 
     public class DeckConnectedEventArgs : EventArgs
@@ -220,6 +220,6 @@ namespace Svt.Caspar
         {
             IsConnected = isConnected;
         }
-        public bool IsConnected { get; private set; }
+        public bool IsConnected { get; }
     }
 }
