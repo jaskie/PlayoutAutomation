@@ -7,6 +7,7 @@
 using namespace System;
 using namespace System::Runtime::InteropServices;
 
+struct AVDictionary {};
 
 namespace TAS {
 	namespace FFMpegUtils {

@@ -13,8 +13,8 @@ extern "C"
 {
 #include <libavcodec\avcodec.h>
 #include <libavformat\avformat.h>
-#include <libswscale\swscale.h>
-#include <libavutil\mem.h>
+#include <libavutil\rational.h>
+#include <libavutil\mathematics.h>
 }
 
 // Windows Header Files:

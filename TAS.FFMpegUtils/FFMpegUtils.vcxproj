@@ -116,7 +116,7 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <MinimalRebuild>
       </MinimalRebuild>
       <AdditionalIncludeDirectories>
@@ -128,7 +128,6 @@
       <SubSystem>Windows</SubSystem>
       <MinimumRequiredVersion>
       </MinimumRequiredVersion>
-      <AdditionalLibraryDirectories>$(ProgramFiles)\Microsoft DirectX SDK (June 2010)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -158,7 +157,6 @@
       <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;swscale.lib;avfilter.lib;postproc.lib;swresample.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <MinimumRequiredVersion>5.01</MinimumRequiredVersion>
-      <AdditionalLibraryDirectories>$(ProgramFiles)\Microsoft DirectX SDK (June 2010)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -166,25 +164,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FFMpegUtils.h" />
-    <ClInclude Include="FrameEventArgs.h" />
-    <ClInclude Include="Input.h" />
-    <ClInclude Include="Player.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Stdafx.h" />
-    <ClInclude Include="VideoDecoder.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="FFMpegUtils.cpp" />
-    <ClCompile Include="Input.cpp" />
-    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="VideoDecoder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.ico" />

@@ -66,9 +66,13 @@ namespace TAS {
 			if (pFormatCtx)
 			{
 				for (unsigned int i=0; i<pFormatCtx->nb_streams; i++)
-					if(pFormatCtx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_AUDIO) 
+					if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
 						//result is in AV_TIME_BASE units
-						return (pFormatCtx->streams[i]->duration * pFormatCtx->streams[i]->time_base.num * AV_TIME_BASE) / pFormatCtx->streams[i]->time_base.den; 
+					{
+						AVRational time_base = pFormatCtx->streams[i]->time_base;
+						int64_t duration = pFormatCtx->streams[i]->duration;
+						return av_rescale(duration * AV_TIME_BASE, time_base.num, time_base.den);
+					}
 			} 
 			// if not found
 			return 0; 
@@ -80,8 +84,8 @@ namespace TAS {
 			{
 				for (unsigned int i=0; i<pFormatCtx->nb_streams; i++)
 				{
-					if(pFormatCtx->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO) 
-						return pFormatCtx->streams[i]->codec->height;
+					if(pFormatCtx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_VIDEO) 
+						return pFormatCtx->streams[i]->codecpar->height;
 				} 
 			}
 			return 0; 
@@ -93,7 +97,7 @@ namespace TAS {
 			{
 				for (unsigned int i=0; i<pFormatCtx->nb_streams; i++)
 				{
-					if(pFormatCtx->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO) 
+					if(pFormatCtx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_VIDEO) 
 						return pFormatCtx->streams[i]->codec->width;
 				} 
 			}
