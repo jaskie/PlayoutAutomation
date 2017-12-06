@@ -22,7 +22,7 @@ namespace Svt.Caspar
 
         public string Version { get; private set; }
 
-        public bool IsConnected { get { return (Connection == null) ? false : Connection.IsConnected; } }
+        public bool IsConnected => Connection != null && Connection.IsConnected;
         public bool IsRecordingSupported { get; set; }
 
         [Obsolete("This event is obsolete. Use the new ConnectionStatusChanged instead")]
@@ -105,7 +105,7 @@ namespace Svt.Caspar
                             break;
                         case "recorder":
                             var recorders = Recorders;
-                            recorders.FirstOrDefault(r => r.Id == id)?.OscMessage(path, message.Arguments);
+                            recorders?.FirstOrDefault(r => r.Id == id)?.OscMessage(path, message.Arguments);
                             break;
                     }
             }
@@ -300,17 +300,15 @@ namespace Svt.Caspar
             newTemplates.Populate(templates);
             Templates = newTemplates;
 
-			if (UpdatedTemplates != null)
-				UpdatedTemplates(this, EventArgs.Empty);
-		}
+            UpdatedTemplates?.Invoke(this, EventArgs.Empty);
+        }
 
 		internal void OnUpdatedMediafiles(List<MediaInfo> mediafiles)
 		{
             Mediafiles = mediafiles;
 
-			if (UpdatedMediafiles != null)
-				UpdatedMediafiles(this, EventArgs.Empty);
-		}
+            UpdatedMediafiles?.Invoke(this, EventArgs.Empty);
+        }
 
 		internal void OnVersion(string version)
 		{
@@ -328,16 +326,13 @@ namespace Svt.Caspar
 		internal void OnUpdatedDataList(List<string> datafiles)
 		{
             Datafiles = datafiles;
-
-			if (UpdatedDatafiles != null)
-				UpdatedDatafiles(this, EventArgs.Empty);
-		}
+            UpdatedDatafiles?.Invoke(this, EventArgs.Empty);
+        }
 
 		internal void OnDataRetrieved(string data)
 		{
-			if(DataRetrieved != null)
-				DataRetrieved(this, new DataEventArgs(data));
-		}
+            DataRetrieved?.Invoke(this, new DataEventArgs(data));
+        }
 		#endregion
 	}
 
