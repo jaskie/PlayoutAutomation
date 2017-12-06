@@ -38,8 +38,7 @@ namespace TAS.Client.ViewModels
             Recorders = recorders;
             Recorder = Recorders.FirstOrDefault();
         }
-
-
+        
         public ICommand CommandPlay { get; private set; }
         public ICommand CommandStop { get; private set; }
         public ICommand CommandFastForward { get; private set; }
@@ -85,28 +84,8 @@ namespace TAS.Client.ViewModels
                     if (oldRecorder != null)
                         oldRecorder.PropertyChanged -= Recorder_PropertyChanged;
                     if (value != null)
-                    {
                         value.PropertyChanged += Recorder_PropertyChanged;
-                        Channels = value.Channels;
-                        Channel = value.CaptureChannel;
-                        CurrentTc = value.CurrentTc;
-                        RecorderTimeLeft = value.TimeLimit;
-                        DeckState = value.DeckState;
-                        DeckControl = value.DeckControl;
-                        TimeLimit = value.CaptureTimeLimit;
-                        TcIn = value.CaptureTcIn;
-                        TcOut = value.CaptureTcOut;
-                        IsNarrowMode = value.CaptureNarrowMode;
-                        MediaName = Path.GetFileNameWithoutExtension(value.CaptureFileName);
-                        TMovieContainerFormat fileFormat;
-                        string extension = Path.GetExtension(value.CaptureFileName);
-                        if (extension?.Length > 1
-                            && Enum.TryParse(extension.Substring(1), out fileFormat))
-                            FileFormat = fileFormat;
-                        else
-                            FileFormat = TMovieContainerFormat.mov;
-                        RecordingMedia = value.RecordingMedia;
-                    }
+                    ResetDefaults();
                 }
             }
         }
@@ -277,12 +256,12 @@ namespace TAS.Client.ViewModels
 
         private void RecordMedia_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(IMedia.MediaStatus))
-            {
-                NotifyPropertyChanged(nameof(CommandStartRecord));
-                NotifyPropertyChanged(nameof(CommandCapture));
-                NotifyPropertyChanged(nameof(CommandRecordFinish));
-            }
+            if (e.PropertyName != nameof(IMedia.MediaStatus))
+                return;
+            NotifyPropertyChanged(nameof(CommandStartRecord));
+            NotifyPropertyChanged(nameof(CommandCapture));
+            NotifyPropertyChanged(nameof(CommandRecordFinish));
+            Application.Current.Dispatcher.BeginInvoke((Action)ResetDefaults);
         }
 
         private void CreateCommands()
@@ -348,7 +327,7 @@ namespace TAS.Client.ViewModels
 
         private void SetRecordTimeLimit(object obj)
         {
-            _recorder.CaptureTimeLimit = TimeLimit;
+            _recorder.SetTimeLimit(TimeLimit);
         }
 
         private void GoToTimecode(object obj)
@@ -406,6 +385,22 @@ namespace TAS.Client.ViewModels
         private void FastForward(object obj)
         {
             _recorder?.DeckFastForward();
+        }
+
+        private void ResetDefaults()
+        {
+            if (_recorder == null)
+                return;
+            Channels = _recorder.Channels;
+            CurrentTc = _recorder.CurrentTc;
+            TimeLimit = TimeSpan.FromHours(2);
+            Channel = Channels.ElementAtOrDefault(_recorder.DefaultChannel) ?? Channels.LastOrDefault();
+            RecorderTimeLeft = _recorder.TimeLimit;
+            DeckState = _recorder.DeckState;
+            DeckControl = _recorder.DeckControl;
+            FileFormat = TMovieContainerFormat.mov;
+            RecordingMedia = _recorder.RecordingMedia;
+            IsNarrowMode = false;
         }
 
     }

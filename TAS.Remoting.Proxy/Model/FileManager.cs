@@ -14,7 +14,7 @@ namespace TAS.Remoting.Model
 
         public IEnumerable<IFileOperation> GetOperationQueue() { return Query<List<IFileOperation>>(); }
 
-        public IIngestOperation CreateConvertOperation(IIngestMedia sourceMedia, IMediaDirectory destDirectory)
+        public IIngestOperation CreateIngestOperation(IIngestMedia sourceMedia, IMediaDirectory destDirectory)
         {
             return Query<IngestOperation>(parameters: new object[] {sourceMedia, destDirectory});
         }

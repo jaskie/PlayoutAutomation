@@ -6,7 +6,7 @@
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"  
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              xmlns:vm="clr-namespace:TAS.Client.Config"
-             d:DataContext="{x:Type vm:PlayoutServerViewmodel}"
+             d:DataContext="{d:DesignInstance vm:PlayoutServerViewmodel}"
              mc:Ignorable="d" 
             >
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
@@ -60,6 +60,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Recorder Id" Binding="{Binding Id}"/>
                             <DataGridTextColumn Header="Recorder name" Binding="{Binding RecorderName}"/>
+                            <DataGridTextColumn Header="Default channel" Binding="{Binding DefaultChannel}"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>

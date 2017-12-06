@@ -20,8 +20,5 @@ namespace TAS.Client.ViewModels
         {
             Editor.Dispose();
         }
-
-        public ICommand CommandOk => Editor.CommandSaveEdit;
-
     }
 }

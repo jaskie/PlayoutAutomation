@@ -28,6 +28,9 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(ICGElementsController.DefaultCrawl))]
         private byte _defaultCrawl;
 
+        [JsonProperty(nameof(ICGElementsController.DefaultLogo))]
+        private byte _defaultLogo;
+
         [JsonProperty(nameof(ICGElementsController.IsCGEnabled))]
         private bool _isCgEnabled;
 
@@ -49,7 +52,8 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(ICGElementsController.VisibleAuxes))]
         private byte[] _visibleAuxes;
 
-        #pragma warning restore
+
+#pragma warning restore
 
         public IEnumerable<ICGElement> Crawls => _crawls;
 
@@ -62,6 +66,8 @@ namespace TAS.Remoting.Model
         public byte Crawl { get { return _crawl; } set { Set(value); } }
 
         public byte DefaultCrawl => _defaultCrawl;
+
+        public byte DefaultLogo => _defaultLogo;
 
         public bool IsCGEnabled { get { return _isCgEnabled; } set { Set(value); } }
 

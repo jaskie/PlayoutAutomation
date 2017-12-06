@@ -46,25 +46,10 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IRecorder.TimeLimit))]
         private TimeSpan _timeLimit;
 
-        [JsonProperty(nameof(IRecorder.CaptureTimeLimit))]
-        private TimeSpan _captureTimeLimit;
+        [JsonProperty(nameof(IRecorder.DefaultChannel))]
+        private readonly int _defaultChannel;
 
-        [JsonProperty(nameof(IRecorder.CaptureTcIn))]
-        private TimeSpan _captureTcIn;
-
-        [JsonProperty(nameof(IRecorder.CaptureTcOut))]
-        private TimeSpan _captureTcOut;
-
-        [JsonProperty(nameof(IRecorder.CaptureNarrowMode))]
-        private bool _captureNarrowMode;
-
-        [JsonProperty(nameof(IRecorder.CaptureChannel))]
-        private IPlayoutServerChannel _captureChannel;
-
-        [JsonProperty(nameof(IRecorder.CaptureFileName))]
-        private string _captureFileName;
-
-        #pragma warning restore
+#pragma warning restore
 
         public IEnumerable<IPlayoutServerChannel> Channels => _channels;
 
@@ -82,27 +67,13 @@ namespace TAS.Remoting.Model
 
         public string RecorderName => _recorderName;
 
+        public int DefaultChannel => _defaultChannel;
+
         public IMediaDirectory RecordingDirectory => _recordingDirectory;
 
         public IMedia RecordingMedia => _recordingMedia;
 
         public TimeSpan TimeLimit => _timeLimit;
-
-        public TimeSpan CaptureTimeLimit
-        {
-            get { return _captureTimeLimit; }
-            set { Set(value); }
-        }
-
-        public TimeSpan CaptureTcIn => _captureTcIn;
-
-        public TimeSpan CaptureTcOut => _captureTcOut;
-
-        public bool CaptureNarrowMode => _captureNarrowMode;
-
-        public IPlayoutServerChannel CaptureChannel => _captureChannel;
-
-        public string CaptureFileName => _captureFileName;
 
         public void Abort() { Invoke(); }
 
@@ -125,6 +96,11 @@ namespace TAS.Remoting.Model
         public void DeckStop() { Invoke(); }
 
         public void DeckPlay() { Invoke(); }
+
+        public void SetTimeLimit(TimeSpan value)
+        {
+            Invoke(parameters: new object[] {value});
+        }
 
         public void Finish() { Invoke(); }
 

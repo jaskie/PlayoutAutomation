@@ -15,7 +15,7 @@
     <DockPanel>
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="37" HorizontalAlignment="Right">
             <Button Style="{StaticResource CancelButtonStyle}" />
-            <Button Command="{Binding CommandOk}" Style="{StaticResource OkButtonStyle}" />
+            <Button Style="{StaticResource OkButtonStyle}" IsEnabled="{Binding Editor.IsModified}" Click="ButtonOk_Click" />
         </StackPanel>
         <local:MediaEditView DataContext="{Binding Editor}" />
     </DockPanel>

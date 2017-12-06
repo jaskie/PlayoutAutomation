@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TAS.Client.Config.Model;
 using TAS.Common;
+using TAS.Common.Interfaces;
 
 namespace TAS.Client.Config
 {
-    public class EngineViewmodel : Common.EditViewmodelBase<Model.Engine>
+    public class EngineViewmodel : Common.EditViewmodelBase<Model.Engine>, IEngineProperties
     {
         private TAspectRatioControl _aspectRatioControl;
         private string _engineName;
@@ -21,21 +23,21 @@ namespace TAS.Client.Config
         {
             _channels = new List<object>() { Common.Properties.Resources._none_ };
             Model.Servers.ForEach(s => s.Channels.ForEach(c => _channels.Add(c)));
-            _channelPRI = _channels.FirstOrDefault(c => c is Model.CasparServerChannel 
+            _channelPRI = _channels.FirstOrDefault(c => c is CasparServerChannel 
                                                         && ((Model.CasparServerChannel)c).Id == Model.ServerChannelPRI 
                                                         && ((Model.CasparServer)((Model.CasparServerChannel)c).Owner).Id == Model.IdServerPRI);
             if (_channelPRI == null) _channelPRI = _channels.First();
-            _channelSEC = _channels.FirstOrDefault(c => c is Model.CasparServerChannel
+            _channelSEC = _channels.FirstOrDefault(c => c is CasparServerChannel
                                                         && ((Model.CasparServerChannel)c).Id == Model.ServerChannelSEC
                                                         && ((Model.CasparServer)((Model.CasparServerChannel)c).Owner).Id == Model.IdServerSEC);
             if (_channelSEC == null) _channelSEC = _channels.First();
-            _channelPRV = _channels.FirstOrDefault(c => c is Model.CasparServerChannel
+            _channelPRV = _channels.FirstOrDefault(c => c is CasparServerChannel
                                                         && ((Model.CasparServerChannel)c).Id == Model.ServerChannelPRV
                                                         && ((Model.CasparServer)((Model.CasparServerChannel)c).Owner).Id == Model.IdServerPRV);
 
             _archiveDirectories = new List<object> { Common.Properties.Resources._none_ };
             _archiveDirectories.AddRange(Model.ArchiveDirectories.Directories);
-            _archiveDirectory = engine.IdArchive == 0 ? _archiveDirectories.First() : _archiveDirectories.FirstOrDefault(d =>  d is Model.ArchiveDirectory && ((Model.ArchiveDirectory)d).idArchive == engine.IdArchive);
+            _archiveDirectory = engine.IdArchive == 0 ? _archiveDirectories.First() : _archiveDirectories.FirstOrDefault(d =>  (d as ArchiveDirectory)?.idArchive == engine.IdArchive);
             if (_channelPRV == null) _channelPRV = _channels.First();
             if (Model.Remote != null)
             {
@@ -75,6 +77,7 @@ namespace TAS.Client.Config
         public double VolumeReferenceLoudness { get { return _volumeReferenceLoudness; } set { SetField(ref _volumeReferenceLoudness, value); } }
         public bool EnableCGElementsForNewEvents { get { return _enableCGElementsForNewEvents; } set { SetField(ref _enableCGElementsForNewEvents, value); } }
         public TCrawlEnableBehavior CrawlEnableBehavior { get { return _crawlEnableBehavior; } set { SetField(ref _crawlEnableBehavior, value); } }
+
         public int CGStartDelay { get { return _cgStartDelay; } set { SetField(ref _cgStartDelay, value); } }
 
         readonly List<object> _channels;
@@ -93,6 +96,7 @@ namespace TAS.Client.Config
         private bool _remoteHostEnabled;
         public bool RemoteHostEnabled { get { return _remoteHostEnabled; } set { SetField(ref _remoteHostEnabled, value); } }
         private ushort _remoteHostListenPort;
+        private byte _defaultLogo;
         public ushort RemoteHostListenPort { get { return _remoteHostListenPort; } set { SetField(ref _remoteHostListenPort, value); } }
 
         public Common.UICommand CommandManageArchiveDirectories { get; }

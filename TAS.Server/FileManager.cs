@@ -34,7 +34,7 @@ namespace TAS.Server
         public event EventHandler<FileOperationEventArgs> OperationAdded;
         public event EventHandler<FileOperationEventArgs> OperationCompleted;
 
-        public IIngestOperation CreateConvertOperation(IIngestMedia sourceMedia, IMediaDirectory destDirectory)
+        public IIngestOperation CreateIngestOperation(IIngestMedia sourceMedia, IMediaDirectory destDirectory)
         {
             var sourceDirectory = sourceMedia.Directory as IIngestDirectory;
             if (sourceDirectory == null)

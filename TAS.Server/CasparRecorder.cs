@@ -2,7 +2,6 @@
 using Svt.Caspar;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
 using TAS.Remoting.Server;
@@ -28,12 +27,6 @@ namespace TAS.Server
         private TDeckControl _deckControl;
         private bool _isDeckConnected;
         private bool _isServerConnected;
-        private string _captureFileName;
-        private TimeSpan _captureTcIn;
-        private TimeSpan _captureTcOut;
-        private bool _captureNarrowMode;
-        private IPlayoutServerChannel _captureChannel;
-        private TimeSpan _captureTimeLimit = TimeSpan.FromHours(2);
         private string _recorderName;
 
         #region Deserialized properties
@@ -46,6 +39,8 @@ namespace TAS.Server
             get { return _recorderName; }
             set { SetField(ref _recorderName, value); }
         }
+
+        public int DefaultChannel { get; set; }
 
         #endregion Deserialized properties
 
@@ -72,34 +67,11 @@ namespace TAS.Server
         public IEnumerable<IPlayoutServerChannel> Channels => _ownerServer.Channels;
 
         [JsonProperty, XmlIgnore]
-        public string CaptureFileName { get { return _captureFileName; } private set { SetField(ref _captureFileName, value); } }
-
-        [JsonProperty, XmlIgnore]
-        public TimeSpan CaptureTcIn { get { return _captureTcIn; } private set { SetField(ref _captureTcIn, value); } }
-
-        [JsonProperty, XmlIgnore]
-        public TimeSpan CaptureTcOut { get { return _captureTcOut; } private set { SetField(ref _captureTcOut, value); } }
-
-        [JsonProperty, XmlIgnore]
-        public TimeSpan CaptureTimeLimit { get { return _captureTimeLimit; } set { _setCaptureTimeLimit(value); } }
-
-        [JsonProperty, XmlIgnore]
-        public bool CaptureNarrowMode { get { return _captureNarrowMode; } private set { SetField(ref _captureNarrowMode, value); } }
-
-        [JsonProperty, XmlIgnore]
-        public IPlayoutServerChannel CaptureChannel { get { return _captureChannel; } set { SetField(ref _captureChannel, value); } }
-
-        [JsonProperty, XmlIgnore]
         public IMedia RecordingMedia { get { return _recordingMedia; } private set { SetField(ref _recordingMedia, value); } }
 
         [JsonProperty, XmlIgnore]
-        public IMediaDirectory RecordingDirectory
-        {
-            get { return _ownerServer.MediaDirectory; }
-            set { throw new NotImplementedException(); }
-        }
-
-
+        public IMediaDirectory RecordingDirectory => _ownerServer.MediaDirectory;
+        
         public IMedia Capture(IPlayoutServerChannel channel, TimeSpan tcIn, TimeSpan tcOut, bool narrowMode, string mediaName, string fileName)
         {
             _tcFormat = channel.VideoFormat;
@@ -117,13 +89,7 @@ namespace TAS.Server
             };
             if (_recorder?.Capture(channel.Id, tcIn.ToSMPTETimecodeString(channel.VideoFormat), tcOut.ToSMPTETimecodeString(channel.VideoFormat), narrowMode, fileName) == true)
             {
-//                directory.MediaAdd(newMedia);
                 RecordingMedia = newMedia;
-                CaptureFileName = fileName;
-                CaptureTcIn = tcIn;
-                CaptureTcOut = tcOut;
-                CaptureTimeLimit = tcOut - tcIn;
-                CaptureNarrowMode = narrowMode;
                 Logger.Debug("Started recording from {0} file {1} TcIn {2} TcOut {3}", channel.ChannelName, fileName, tcIn, tcOut);
                 return newMedia;
             }
@@ -149,16 +115,18 @@ namespace TAS.Server
             if (_recorder?.Capture(channel.Id,  timeLimit.ToSMPTEFrames(channel.VideoFormat), narrowMode, fileName) == true)
             {
                 RecordingMedia = newMedia;
-                CaptureFileName = fileName;
-                CaptureTcIn = TimeSpan.Zero;
-                CaptureTcOut = TimeSpan.Zero;
-                CaptureTimeLimit = timeLimit;
-                CaptureNarrowMode = narrowMode;
                 Logger.Debug("Started recording from {0} file {1} with time limit {2} ", channel.ChannelName, fileName, timeLimit);
                 return newMedia;
             }
             Logger.Error("Unsuccessfull recording from {0} file {1} with time limit {2}", channel.ChannelName, fileName, timeLimit);
             return null;
+        }
+
+        public void SetTimeLimit(TimeSpan value)
+        {
+            var media = RecordingMedia;
+            if (media != null)
+                _recorder?.SetTimeLimit(value.ToSMPTEFrames(media.VideoFormat));
         }
 
         public void Finish()
@@ -228,7 +196,6 @@ namespace TAS.Server
         internal void SetOwner(CasparServer owner)
         {
             _ownerServer = owner;
-            CaptureChannel = owner.Channels.LastOrDefault();
         }
 
         internal event EventHandler<MediaEventArgs> CaptureSuccess;
@@ -289,18 +256,6 @@ namespace TAS.Server
             if (e.Tc.IsValidSMPTETimecode(_tcFormat))
                 CurrentTc = e.Tc.SMPTETimecodeToTimeSpan(_tcFormat);
         }
-
-        private void _setCaptureTimeLimit(TimeSpan limit)
-        {
-            var videoFormat = _recordingMedia?.VideoFormat;
-            if (videoFormat.HasValue)
-            {
-                _recorder.SetTimeLimit(limit.ToSMPTEFrames(videoFormat.Value));
-                SetField(ref _captureTimeLimit, limit, nameof(CaptureTimeLimit));
-                Logger.Debug("Changed time limit {0} ", limit);
-            }
-        }
-
 
     }
 }

@@ -155,11 +155,11 @@
                                 <Label Content="{Resx _toolbar.Delete}"/>
                             </StackPanel>
                         </Button>
-                        <Button Grid.Row="1" HorizontalAlignment="Right" Margin="5" Width="30" Command="{Binding CommandSweepStaleMedia}" Visibility="Hidden">
+                        <Button HorizontalAlignment="Right" Margin="5" Width="30" Command="{Binding CommandSweepStaleMedia}" Visibility="Hidden">
                             <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/media-delete.png" />
                         </Button>
                     </ToolBar>
-                    <DataGrid Grid.Row="3" SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItems}" SelectedItem="{Binding Path=SelectedMedia, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
+                    <DataGrid SelectionUnit="FullRow" SelectionMode="Extended" AutoGenerateColumns="False" ItemsSource="{Binding MediaItems}" SelectedItem="{Binding Path=SelectedMedia, Mode=TwoWay}" RowHeaderWidth="0" IsReadOnly="True">
                         <i:Interaction.Behaviors>
                             <common:BindableSelectedItems SelectedItems="{Binding SelectedMediaList, Mode=OneWayToSource}"/>
                         </i:Interaction.Behaviors>

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"  
              xmlns:vm="clr-namespace:TAS.Client.Config"
-             d:DataContext="{x:Type vm:EngineViewmodel}"
+             d:DataContext="{d:DesignInstance vm:EngineViewmodel}"
              mc:Ignorable="d" 
              >
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
@@ -47,7 +47,7 @@
                 <ComboBox ItemsSource="{Binding ArchiveDirectories}" SelectedItem="{Binding ArchiveDirectory}"/>
             </DockPanel>
             <Separator Margin="5"/>
-            <HeaderedContentControl>
+            <Expander>
                 <HeaderedContentControl.Header>
                     <Label Content="CG graphics properties"/>
                 </HeaderedContentControl.Header>
@@ -58,9 +58,9 @@
                     <Label Content="CG start delay (negative if ahead)"/>
                     <TextBox Text="{Binding CGStartDelay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
-            </HeaderedContentControl>
+            </Expander>
             <Separator/>
-            <HeaderedContentControl>
+            <Expander>
                 <HeaderedContentControl.Header>
                     <Label Content="Remote control interface"/>
                 </HeaderedContentControl.Header>
@@ -71,7 +71,7 @@
                         <TextBox Text="{Binding RemoteHostListenPort, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </StackPanel>
-            </HeaderedContentControl>
+            </Expander>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

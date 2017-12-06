@@ -12,31 +12,29 @@ namespace TAS.Client.ViewModels
     internal class IngestEditorViewmodel : ViewmodelBase
     {
         private IngestOperationViewModel _selectedOperation;
+        private readonly IMediaManager _mediaManager;
 
         public IngestEditorViewmodel(IList<IIngestOperation> convertionList, IPreview preview, IMediaManager mediaManager)
         {
+            _mediaManager = mediaManager;
             OperationList = new ObservableCollection<IngestOperationViewModel>(convertionList.Select(op => new IngestOperationViewModel(op, preview, mediaManager)));
             SelectedOperation = OperationList.FirstOrDefault();
             foreach (var c in OperationList)
                 c.PropertyChanged += _convertOperationPropertyChanged;
             CommandDeleteOperation = new UICommand {ExecuteDelegate = _deleteOperation};
-            CommandOk = new UICommand {ExecuteDelegate = _ok, CanExecuteDelegate = _canOk};
         }
 
-        private void _ok(object obj)
+        public void ScheduleAll()
         {
             foreach (IngestOperationViewModel c in OperationList)
+            {
                 c.Apply();
-        }
-
-        private bool _canOk(object obj)
-        {
-            return IsValid;
+                _mediaManager.FileManager.Queue(c.FileOperation, false);
+            }
         }
 
         public ICommand CommandDeleteOperation { get; }
-        public ICommand CommandOk { get; }
-
+        
         public ObservableCollection<IngestOperationViewModel> OperationList { get; }
 
         public IngestOperationViewModel SelectedOperation
@@ -51,11 +49,11 @@ namespace TAS.Client.ViewModels
         {
             get
             {
-                foreach (IngestOperationViewModel mediaVm in OperationList)
+                foreach (IngestOperationViewModel operation in OperationList)
                 {
-                    if (!mediaVm.IsValid)
+                    if (!operation.IsValid)
                         return false;
-                    if (OperationList.Count(c => c.DestFileName == mediaVm.DestFileName) > 1)
+                    if (OperationList.Count(c => c.DestFileName == operation.DestFileName) > 1)
                         return false;
                 }
                 return true;

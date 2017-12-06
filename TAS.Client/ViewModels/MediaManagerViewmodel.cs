@@ -625,16 +625,13 @@ namespace TAS.Client.ViewModels
                 });
                 foreach (var sourceMedia in selectedMedia)
                     if (sourceMedia is IIngestMedia media)
-                        ingestList.Add(_mediaManager.FileManager.CreateConvertOperation(media, directory));
+                        ingestList.Add(_mediaManager.FileManager.CreateIngestOperation(media, directory));
                 if (ingestList.Count != 0)
                 {
                     using (IngestEditorViewmodel ievm = new IngestEditorViewmodel(ingestList, _preview, _mediaManager))
                     {
                         if (UiServices.ShowDialog<Views.IngestEditorView>(ievm) == true)
-                        {
-                            foreach (var operationVm in ievm.OperationList)
-                                _mediaManager.FileManager.Queue(operationVm.FileOperation, false);
-                        }
+                            ievm.ScheduleAll();
                     }
                 }
             }

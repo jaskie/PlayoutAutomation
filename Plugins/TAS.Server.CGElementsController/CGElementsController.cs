@@ -102,6 +102,8 @@ namespace TAS.Server
         [JsonProperty]
         public byte DefaultCrawl => 1;
 
+        public byte DefaultLogo => 1;
+
         [JsonProperty]
         public virtual bool IsConnected => true;
 

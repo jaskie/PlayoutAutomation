@@ -876,7 +876,8 @@ namespace TAS.Client.ViewModels
             using (var evm = new MediaEditWindowViewmodel(_event.Media, _engine.MediaManager) )
             {
                 evm.Editor.Load();
-                UiServices.ShowDialog<Views.MediaEditWindowView>(evm);
+                if (UiServices.ShowDialog<Views.MediaEditWindowView>(evm) == true)
+                    evm.Editor.Update();
             }
         }
 

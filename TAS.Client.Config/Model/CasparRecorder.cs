@@ -7,6 +7,8 @@ namespace TAS.Client.Config.Model
         internal object Owner;
         public int Id { get; set; }
         public string RecorderName { get; set; }
+        public int DefaultChannel { get; set; }
+
         public override string ToString()
         {
             return $"{RecorderName} ({Id})";

@@ -15,7 +15,7 @@
     <DockPanel>
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="37" HorizontalAlignment="Right">
             <Button Style="{StaticResource CancelButtonStyle}" />
-            <Button Command="{Binding CommandOk}" Style="{StaticResource OkButtonStyle}" Click="Ok_OnClick" />
+            <Button Style="{StaticResource OkButtonStyle}" IsEnabled="{Binding IsValid}" Click="Ok_OnClick" />
         </StackPanel>
         <DataGrid ItemsSource="{Binding OperationList}" SelectedItem="{Binding SelectedOperation}" AutoGenerateColumns="False" IsReadOnly="True" Visibility="{Binding ShowMediaList, Converter={StaticResource BoolToVis}}" Width="200">
             <DataGrid.Resources>

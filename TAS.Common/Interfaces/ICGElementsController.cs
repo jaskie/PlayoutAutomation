@@ -13,6 +13,8 @@ namespace TAS.Common.Interfaces
         void SetState(ICGElementsState state);
         byte[] VisibleAuxes { get; }
         byte DefaultCrawl { get; }
+        byte DefaultLogo { get; }
+
         bool IsMaster { get; }
         void ShowAux(int auxNr);
         void HideAux(int auxNr);
