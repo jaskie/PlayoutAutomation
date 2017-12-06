@@ -146,6 +146,16 @@ namespace TAS.Client.ViewModels
         public ICommand CommandUserManager { get; private set; }
         public ICommand CommandEngineRights { get; private set; }
 
+        #region PreviewCommands
+
+        public ICommand CommandPreviewPlay => PreviewViewmodel?.CommandPlay;
+        public ICommand CommandPreviewUnload => PreviewViewmodel?.CommandUnload;
+        public ICommand CommandPreviewFastForward => PreviewViewmodel?.CommandFastForward;
+        public ICommand CommandPreviewBackward => PreviewViewmodel?.CommandBackward;
+        public ICommand CommandPreviewFastForwardOneFrame => PreviewViewmodel?.CommandFastForwardOneFrame;
+        public ICommand CommandPreviewBackwardOneFrame => PreviewViewmodel?.CommandBackwardOneFrame;
+        #endregion
+
         public bool IsDebugBuild
         {
             get
@@ -1071,6 +1081,7 @@ namespace TAS.Client.ViewModels
         public IEnumerable<IEvent> RunningEvents => _runningEvents;
 
         public IEnumerable<EventPanelViewmodelBase> MultiSelectedEvents => _multiSelectedEvents;
+
 
         public void ClearSelection()
         {

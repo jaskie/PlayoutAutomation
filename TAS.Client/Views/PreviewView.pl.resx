@@ -172,7 +172,9 @@
     <value>Sekundę do przodu</value>
   </data>
   <data name="_slider.ToolTip" xml:space="preserve">
-    <value>Obrót kółkiem myszy przewija o sekundę, a z Shift - o ramkę</value>
+    <value>Obrót kółkiem myszy przewija o sekundę,
+z Shift - o ramkę,
+z Ctrl o 1/50 długości klipu</value>
   </data>
   <data name="_wholeFile.ToolTip" xml:space="preserve">
     <value>Odtwarzanie całego klipu</value>

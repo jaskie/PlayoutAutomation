@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Collections.ObjectModel;
 using TAS.Client.Common;
 using System.Windows;
+using System.Windows.Input;
 using TAS.Common;
 using TAS.Common.Interfaces;
 
@@ -177,7 +178,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public double SliderTickFrequency => (double)_loadedDuration / 50;
+        public long SliderTickFrequency => _loadedDuration / 50;
 
         public long SliderPosition
         {
@@ -240,19 +241,25 @@ namespace TAS.Client.ViewModels
 
         #region Commands
 
-        public UICommand CommandPause { get; private set; }
-        public UICommand CommandPlay { get; private set; }
-        public UICommand CommandPlayTheEnd { get; private set; }
-        public UICommand CommandStop { get; private set; }
-        public UICommand CommandSeek { get; private set; }
-        public UICommand CommandCopyToTcIn { get; private set; }
-        public UICommand CommandCopyToTcOut { get; private set; }
-        public UICommand CommandSaveSegment { get; private set; }
-        public UICommand CommandDeleteSegment { get; private set; }
-        public UICommand CommandNewSegment { get; private set; }
-        public UICommand CommandSetSegmentNameFocus { get; private set; }
-        public UICommand CommandUpdateSourceTc { get; private set; }
+        public ICommand CommandPause { get; private set; }
+        public ICommand CommandPlay { get; private set; }
+        public ICommand CommandPlayTheEnd { get; private set; }
+        public ICommand CommandUnload { get; private set; }
+        public ICommand CommandSeek { get; private set; }
+        public ICommand CommandCopyToTcIn { get; private set; }
+        public ICommand CommandCopyToTcOut { get; private set; }
+        public ICommand CommandSaveSegment { get; private set; }
+        public ICommand CommandDeleteSegment { get; private set; }
+        public ICommand CommandNewSegment { get; private set; }
+        public ICommand CommandSetSegmentNameFocus { get; private set; }
+        public ICommand CommandUpdateSourceTc { get; private set; }
 
+        public ICommand CommandFastForward { get; private set; }
+        public ICommand CommandBackward { get; private set; }
+        public ICommand CommandFastForwardOneFrame { get; private set; }
+        public ICommand CommandBackwardOneFrame { get; private set; }
+
+        
 
         private void CreateCommands()
         {
@@ -305,10 +312,10 @@ namespace TAS.Client.ViewModels
                 },
                 CanExecuteDelegate = o => LoadedMedia?.MediaStatus == TMediaStatus.Available && Duration > EndDuration
             };
-            CommandStop = new UICommand
+            CommandUnload = new UICommand
             {
                 ExecuteDelegate = o => _mediaUnload(),
-                CanExecuteDelegate = _canStop                   
+                CanExecuteDelegate = _canUnload                   
             };
             CommandSeek = new UICommand
             {
@@ -336,19 +343,19 @@ namespace TAS.Client.ViewModels
                         _preview.PreviewPosition = _preview.PreviewPosition + seekFrames;
                         NotifyPropertyChanged(nameof(Position));
                     },
-                CanExecuteDelegate = _canStop
+                CanExecuteDelegate = _canUnload
             };
 
             CommandCopyToTcIn = new UICommand
             {
                 ExecuteDelegate = o => TcIn = Position,
-                CanExecuteDelegate = _canStop
+                CanExecuteDelegate = _canUnload
             };
 
             CommandCopyToTcOut = new UICommand
             {
                 ExecuteDelegate = o => TcOut = Position,
-                CanExecuteDelegate = _canStop
+                CanExecuteDelegate = _canUnload
             };
 
             CommandSaveSegment = new UICommand
@@ -436,9 +443,29 @@ namespace TAS.Client.ViewModels
                     }
                 }
             };
+            CommandFastForwardOneFrame = new UICommand
+            {
+                ExecuteDelegate = o => SliderPosition = Math.Min(SliderPosition + 1, LoadedDuration),
+                CanExecuteDelegate = o => IsLoaded && SliderPosition < LoadedDuration
+            };
+            CommandFastForward = new UICommand
+            {
+                ExecuteDelegate = o => SliderPosition = Math.Min(SliderPosition + FramesPerSecond, LoadedDuration),
+                CanExecuteDelegate = o => IsLoaded && SliderPosition < LoadedDuration
+            };
+            CommandBackwardOneFrame = new UICommand
+            {
+                ExecuteDelegate = o => SliderPosition = Math.Max(SliderPosition - 1, 0),
+                CanExecuteDelegate = o => IsLoaded && SliderPosition > 0
+            };
+            CommandBackward = new UICommand
+            {
+                ExecuteDelegate = o => SliderPosition = Math.Max(SliderPosition - FramesPerSecond, 0),
+                CanExecuteDelegate = o => IsLoaded && SliderPosition > 0
+            };
         }
 
-        private bool _canStop(object o)
+        private bool _canUnload(object o)
         {
             MediaSegmentViewmodel segment = PlayWholeClip ? SelectedSegment : null;
             IMedia media = LoadedMedia;

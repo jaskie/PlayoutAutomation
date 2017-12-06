@@ -10,7 +10,7 @@
              xmlns:common="clr-namespace:TAS.Client.Common;assembly=TAS.Client.Common"
              xmlns:controls="clr-namespace:TAS.Client.Common.Controls;assembly=TAS.Client.Common"
              mc:Ignorable="d" 
-             d:DataContext="{x:Type vievmodels:EngineViewmodel}"
+             d:DataContext="{d:DesignInstance vievmodels:EngineViewmodel}"
              d:DesignHeight="850" d:DesignWidth="1150" Focusable="True" 
              FontSize="13"
              >
@@ -55,6 +55,14 @@
         <KeyBinding Command="{Binding CommandMoveUp}" Gesture="Alt+Up"/>
         <KeyBinding Command="{Binding CommandMoveDown}" Gesture="Alt+Down"/>
         <KeyBinding Command="{Binding CommandSearchShowPanel}" Gesture="Ctrl+F"/>
+        
+        <KeyBinding Command="{Binding CommandPreviewPlay}" Gesture="Ctrl+Space"/>
+        <KeyBinding Command="{Binding CommandPreviewUnload}" Gesture="Ctrl+Shift+Space"/>
+        <KeyBinding Command="{Binding CommandPreviewFastForward}" Gesture="Ctrl+OemPeriod"/>
+        <KeyBinding Command="{Binding CommandPreviewBackward}" Gesture="Ctrl+OemComma"/>
+        <KeyBinding Command="{Binding CommandPreviewFastForwardOneFrame}" Gesture="Ctrl+Shift+OemPeriod"/>
+        <KeyBinding Command="{Binding CommandPreviewBackwardOneFrame}" Gesture="Ctrl+Shift+OemComma"/>
+
     </UserControl.InputBindings>
     <UserControl.Style>
         <Style TargetType="UserControl">

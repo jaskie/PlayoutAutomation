@@ -172,7 +172,9 @@
     <value>One second forward</value>
   </data>
   <data name="_slider.ToolTip" xml:space="preserve">
-    <value>Mouse wheel scrolls of one second, with Shift key - by one frame</value>
+    <value>Mouse wheel scrolls of one second,
+with Shift key - by one frame,
+with Ctrl - by 1/50 of clip duration</value>
   </data>
   <data name="_wholeFile.ToolTip" xml:space="preserve">
     <value>Play whole file</value>

@@ -98,6 +98,15 @@ namespace TAS.Client.ViewModels
         public ICommand CommandSyncPriToSec { get; }
         public ICommand CommandCloneAnimation { get; }
 
+        #region PreviewCommands
+        public ICommand CommandPreviewPlay => PreviewViewmodel?.CommandPlay;
+        public ICommand CommandPreviewUnload => PreviewViewmodel?.CommandUnload;
+        public ICommand CommandPreviewFastForward => PreviewViewmodel?.CommandFastForward;
+        public ICommand CommandPreviewBackward => PreviewViewmodel?.CommandBackward;
+        public ICommand CommandPreviewFastForwardOneFrame => PreviewViewmodel?.CommandFastForwardOneFrame;
+        public ICommand CommandPreviewBackwardOneFrame => PreviewViewmodel?.CommandBackwardOneFrame;
+        #endregion
+
         public PreviewViewmodel PreviewViewmodel { get; }
 
 #pragma warning disable CS0649 

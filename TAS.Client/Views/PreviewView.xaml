@@ -37,7 +37,7 @@
                     <Button Command="{Binding CommandPlayTheEnd}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonPlayTheEnd.ToolTip}">
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-end.png" />
                     </Button>
-                    <Button Command="{Binding CommandStop}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonStop.ToolTip}">
+                    <Button Command="{Binding CommandUnload}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonStop.ToolTip}">
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/MediaNavigation/media-playback-stop.png"  />
                     </Button>
                 </StackPanel>

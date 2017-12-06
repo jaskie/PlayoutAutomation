@@ -34,6 +34,12 @@
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding CommandRefresh}"/>
         <KeyBinding Gesture="Ctrl+Delete" Command="{Binding CommandDeleteSelected}"/>
+        <KeyBinding Command="{Binding CommandPreviewPlay}" Gesture="Ctrl+Space"/>
+        <KeyBinding Command="{Binding CommandPreviewUnload}" Gesture="Ctrl+Shift+Space"/>
+        <KeyBinding Command="{Binding CommandPreviewFastForward}" Gesture="Ctrl+OemPeriod"/>
+        <KeyBinding Command="{Binding CommandPreviewBackward}" Gesture="Ctrl+OemComma"/>
+        <KeyBinding Command="{Binding CommandPreviewFastForwardOneFrame}" Gesture="Ctrl+Shift+OemPeriod"/>
+        <KeyBinding Command="{Binding CommandPreviewBackwardOneFrame}" Gesture="Ctrl+Shift+OemComma"/>
     </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
