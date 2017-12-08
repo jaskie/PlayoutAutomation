@@ -192,7 +192,7 @@ namespace TAS.Client.ViewModels
             }
         }
 
-        public bool IsInterlacedFormat { get; }
+        public bool IsInterlacedFormat { get; } = true;
 
 
         protected override void OnDispose()
