@@ -11,18 +11,18 @@ namespace TAS.Client.ViewModels
 {
     public class ExportViewmodel : ViewmodelBase
     {
-        private readonly IMediaManager _mediaManager;
+        private readonly IEngine _engine;
         private MediaDirectoryViewmodel _selectedDirectory;
         private bool _concatMedia;
         private string _concatMediaName;
         private TmXFAudioExportFormat _mXFAudioExportFormat;
         private TmXFVideoExportFormat _mXFVideoExportFormat;
 
-        public ExportViewmodel(IMediaManager mediaManager, IEnumerable<MediaExportDescription> exportList)
+        public ExportViewmodel(IEngine engine, IEnumerable<MediaExportDescription> exportList)
         {
-            _mediaManager = mediaManager;
-            Items = new ObservableCollection<ExportMediaViewmodel>(exportList.Select(media => new ExportMediaViewmodel(mediaManager, media)));
-            Directories = mediaManager.IngestDirectories.Where(d => d.ContainsExport()).Select(d => new MediaDirectoryViewmodel(d, false, true)).ToList();
+            _engine = engine;
+            Items = new ObservableCollection<ExportMediaViewmodel>(exportList.Select(media => new ExportMediaViewmodel(engine, media)));
+            Directories = engine.MediaManager.IngestDirectories.Where(d => d.ContainsExport()).Select(d => new MediaDirectoryViewmodel(d, false, true)).ToList();
             SelectedDirectory = Directories.FirstOrDefault();
             CommandExport = new UICommand { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
         }
@@ -109,7 +109,7 @@ namespace TAS.Client.ViewModels
                 _checking = false;
                 InvalidateRequerySuggested();
             }
-            _mediaManager.Export(Items.Select(mevm => mevm.MediaExport).ToArray(), _concatMedia, _concatMediaName, (IIngestDirectory)SelectedDirectory.Directory, _mXFAudioExportFormat, _mXFVideoExportFormat);
+            _engine.MediaManager?.Export(Items.Select(mevm => mevm.MediaExport).ToArray(), _concatMedia, _concatMediaName, (IIngestDirectory)SelectedDirectory.Directory, _mXFAudioExportFormat, _mXFVideoExportFormat);
         }
 
         private bool _checking;

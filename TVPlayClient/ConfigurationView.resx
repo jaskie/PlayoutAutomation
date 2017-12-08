@@ -123,9 +123,6 @@
   <data name="_address" xml:space="preserve">
     <value>Host address (with port number)</value>
   </data>
-  <data name="_allowControl" xml:space="preserve">
-    <value>Allow play-out control</value>
-  </data>
   <data name="_cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>

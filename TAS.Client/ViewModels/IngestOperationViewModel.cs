@@ -12,8 +12,8 @@ namespace TAS.Client.ViewModels
     public class IngestOperationViewModel: FileOperationViewmodel, IDataErrorInfo
     {
         private readonly IIngestOperation _ingestOperation;
+        private readonly IEngine _engine;
         private readonly PreviewViewmodel _previewVm;
-        private readonly IMediaManager _mediaManager;
         private readonly IPersistentMediaProperties _destMediaProperties;
 
         private TAspectConversion _aspectConversion;
@@ -22,11 +22,11 @@ namespace TAS.Client.ViewModels
         private TFieldOrder _sourceFieldOrderEnforceConversion;
         private bool _loudnessCheck;
         
-        public IngestOperationViewModel(IIngestOperation operation, IPreview preview, IMediaManager mediaManager)
+        public IngestOperationViewModel(IIngestOperation operation, IPreview preview, IEngine engine)
             : base(operation)
         {
             _ingestOperation = operation;
-            _mediaManager = mediaManager;
+            _engine = engine;
             string destFileName = $"{Path.GetFileNameWithoutExtension(operation.Source.FileName)}{FileUtils.DefaultFileExtension(operation.Source.MediaType)}";
             _destMediaProperties = new PersistentMediaProxy
             {
@@ -48,13 +48,13 @@ namespace TAS.Client.ViewModels
             AspectConversionsEnforce = new TAspectConversion[3];
             Array.Copy(AspectConversions, AspectConversionsEnforce, 3);
             if (preview != null)
-                _previewVm = new PreviewViewmodel(preview) { SelectedIngestOperation = operation };
+                _previewVm = new PreviewViewmodel(engine, preview) { SelectedIngestOperation = operation };
         }
 
         public Array Categories { get; } = Enum.GetValues(typeof(TMediaCategory));
         public TMediaCategory DestCategory { get => _destMediaProperties.MediaCategory; set => _destMediaProperties.MediaCategory = value; }
         
-        public IEnumerable<ICGElement> Parentals => _mediaManager?.CGElementsController?.Parentals;
+        public IEnumerable<ICGElement> Parentals => _engine?.CGElementsController?.Parentals;
         public byte DestParental { get => _destMediaProperties.Parental; set => _destMediaProperties.Parental = value; }
 
         public Array AspectConversions { get; } = Enum.GetValues(typeof(TAspectConversion));
@@ -186,7 +186,7 @@ namespace TAS.Client.ViewModels
             set => _destMediaProperties.VideoFormat = value;
         }
 
-        public bool ShowParentalCombo => _mediaManager?.CGElementsController?.Parentals != null;
+        public bool ShowParentalCombo => _engine?.CGElementsController?.Parentals != null;
 
         public bool CanTrim => EncodeVideo && EncodeAudio && _ingestOperation.Source.MediaStatus == TMediaStatus.Available && _ingestOperation.Source.Duration > TimeSpan.Zero;
 

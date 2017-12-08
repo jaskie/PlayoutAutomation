@@ -17,11 +17,11 @@ namespace TAS.Client
             if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()))
             {
                 Tabs = new List<ViewmodelBase>(
-                    EngineController.Engines.Select(engine => new ChannelViewmodel(engine, true, true, true)));
+                    EngineController.Engines.Select(engine => new ChannelViewmodel(engine, true, true)));
             }
         }
 
-        public List<ViewmodelBase> Tabs { get; }
+        public List<ViewmodelBase> Tabs { get; } = new List<ViewmodelBase>();
 
         protected override void OnDispose()
         {

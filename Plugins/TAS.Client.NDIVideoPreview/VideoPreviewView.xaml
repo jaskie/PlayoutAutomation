@@ -17,7 +17,7 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <Style x:Key="ProgressBarVolumeMeterStyle" TargetType="{x:Type ProgressBar}">
-            <Setter Property="Foreground" Value="#01D328"/>
+            <Setter Property="Background" Value="#ABABAB"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Minimum" Value="-60"/>
             <Setter Property="Maximum" Value="0"/>

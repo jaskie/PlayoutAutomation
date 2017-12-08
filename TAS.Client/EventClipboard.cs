@@ -50,7 +50,7 @@ namespace TAS.Client
                 _clearUndo();
                 return false;
             }
-            return Undos.Count > 0 && _undoEngine != null;
+            return Undos.Count > 0 && _undoEngine != null && _undoDest?.HaveRight(EventRight.Create) == true;
         }
 
         public static void Undo()

@@ -14,7 +14,6 @@
              mc:Ignorable="d" 
              d:DataContext="{x:Type vm:EventEditViewmodel}"
              d:DesignWidth="360"
-             BorderThickness="0 1 0 0" 
              BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey }}"
              >
     <DockPanel Visibility="{Binding IsEmpty, Converter={StaticResource InvertedBoolToVis}}">

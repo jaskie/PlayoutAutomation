@@ -77,7 +77,7 @@ namespace TVPlayClient
                             _client.Disconnected += _clientDisconected;
                             Application.Current?.Dispatcher.BeginInvoke((Action)delegate 
                             {
-                                Channel = new ChannelViewmodel(engine, _configurationChannel.ShowEngine, _configurationChannel.ShowMedia, _configurationChannel.AllowControl);
+                                Channel = new ChannelViewmodel(engine, _configurationChannel.ShowEngine, _configurationChannel.ShowMedia);
                                 TabName = Channel.DisplayName;
                                 IsLoading = false;
                             });

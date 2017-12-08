@@ -14,13 +14,13 @@ namespace TAS.Client.ViewModels
     {
         private IMedia _selectedMedia;
         private IEvent _selectedEvent;
+        private readonly IEngine _engine;
         private readonly IPreview _preview;
         private readonly IPlayoutServerChannel _channel;
         private readonly VideoFormatDescription _formatDescription;
         private IMediaSegment _lastAddedSegment;
         private bool _playWholeClip;
         private IMedia _loadedMedia;
-        private long _loadedSeek;
         private long _loadedDuration;
         private TimeSpan _tcIn;
         private TimeSpan _tcOut;
@@ -33,12 +33,13 @@ namespace TAS.Client.ViewModels
         private static readonly TimeSpan EndDuration = TimeSpan.FromSeconds(3);
 
 
-        public PreviewViewmodel(IPreview preview)
+        public PreviewViewmodel(IEngine engine, IPreview preview)
         {
             preview.PropertyChanged += PreviewPropertyChanged;
             _channel = preview.PlayoutChannelPRV;
             if (_channel != null)
                 _channel.PropertyChanged += OnChannelPropertyChanged;
+            _engine = engine;
             _preview = preview;
             _formatDescription = _preview.FormatDescription;
             CreateCommands();
@@ -162,8 +163,8 @@ namespace TAS.Client.ViewModels
 
         public TimeSpan Position
         {
-            get => _preview.PreviewMedia == null ? TimeSpan.Zero : TimeSpan.FromTicks((_preview.PreviewPosition + _preview.PreviewSeek) * TimeSpan.TicksPerSecond * _formatDescription.FrameRate.Den / _formatDescription.FrameRate.Num + _preview.PreviewMedia.TcStart.Ticks);
-            set => _preview.PreviewPosition = (value.Ticks - StartTc.Ticks) / _formatDescription.FrameTicks - _loadedSeek;
+            get => _preview.PreviewMedia == null ? TimeSpan.Zero : TimeSpan.FromTicks((_preview.PreviewPosition + _preview.PreviewSeek) * TimeSpan.TicksPerSecond * _formatDescription.FrameRate.Den / _formatDescription.FrameRate.Num + _loadedMedia.TcStart.Ticks);
+            set => _preview.PreviewPosition = (value.Ticks - _loadedMedia?.TcStart.Ticks) / _formatDescription.FrameTicks - _preview.PreviewSeek ?? 0;
         }
 
         public bool IsLoaded => LoadedMedia != null;
@@ -252,7 +253,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandDeleteSegment { get; private set; }
         public ICommand CommandNewSegment { get; private set; }
         public ICommand CommandSetSegmentNameFocus { get; private set; }
-        public ICommand CommandUpdateSourceTc { get; private set; }
+        public ICommand CommandTrimSource { get; private set; }
 
         public ICommand CommandFastForward { get; private set; }
         public ICommand CommandBackward { get; private set; }
@@ -307,7 +308,7 @@ namespace TAS.Client.ViewModels
                 ExecuteDelegate = o =>
                 {
                     if (LoadedMedia != null)
-                        Position = Duration - EndDuration;
+                        Position = StartTc + Duration - EndDuration;
                     _preview.PreviewPlay();
                 },
                 CanExecuteDelegate = o => LoadedMedia?.MediaStatus == TMediaStatus.Available && Duration > EndDuration
@@ -407,15 +408,15 @@ namespace TAS.Client.ViewModels
                     },
             };
 
-            CommandUpdateSourceTc = new UICommand
+            CommandTrimSource = new UICommand
             {
                 CanExecuteDelegate = o =>
                 {
                     if (IsLoaded && LoadedMedia == (MediaToLoad))
                     {
-                        if (SelectedMedia != null)
+                        if (SelectedMedia != null && _engine.HaveRight(EngineRight.MediaEdit))
                             return SelectedMedia.TcStart != TcIn || SelectedMedia.DurationPlay != DurationSelection;
-                        if (SelectedEvent != null)
+                        if (SelectedEvent?.HaveRight(EventRight.Modify) == true)
                             return SelectedEvent.ScheduledTc != TcIn || SelectedEvent.Duration != DurationSelection;
                         if (SelectedIngestOperation != null)
                             return SelectedIngestOperation.Trim && (SelectedIngestOperation.StartTC != TcIn || SelectedIngestOperation.Duration != DurationSelection);
@@ -521,12 +522,12 @@ namespace TAS.Client.ViewModels
                     foreach (IMediaSegment ms in ((IPersistentMedia)media).GetMediaSegments().Segments)
                         MediaSegments.Add(new MediaSegmentViewmodel((IPersistentMedia)media, ms));
                 }
-                _loadedSeek = (tcIn.Ticks - media.TcStart.Ticks) / _formatDescription.FrameTicks;
-                long newPosition = _preview.PreviewLoaded ? _preview.PreviewSeek + _preview.PreviewPosition - _loadedSeek : 0;
+                var seek = (tcIn.Ticks - media.TcStart.Ticks) / _formatDescription.FrameTicks;
+                long newPosition = _preview.PreviewLoaded ? _preview.PreviewSeek + _preview.PreviewPosition - seek : 0;
                 if (newPosition < 0)
                     newPosition = 0;
                 LoadedDuration = duration.Ticks / _formatDescription.FrameTicks;
-                _preview.PreviewLoad(media, _loadedSeek, LoadedDuration, newPosition, audioVolume);
+                _preview.PreviewLoad(media, seek, LoadedDuration, newPosition, audioVolume);
             }
         }
 
@@ -536,7 +537,6 @@ namespace TAS.Client.ViewModels
             LoadedMedia = null;
             TcIn = TimeSpan.Zero;
             TcOut = TimeSpan.Zero;
-            _loadedSeek = 0;
             LoadedDuration = 0;
             StartTc = TimeSpan.Zero;
             Duration = TimeSpan.Zero;

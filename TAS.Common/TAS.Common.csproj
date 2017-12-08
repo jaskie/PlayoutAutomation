@@ -147,6 +147,7 @@
     <Compile Include="Rights.cs" />
     <Compile Include="Roles.cs" />
     <Compile Include="SMPTETimecodeExtensions.cs" />
+    <Compile Include="CurrentUser.cs" />
     <Compile Include="VideoFormatDescription.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -9,13 +9,13 @@ namespace TAS.Client.ViewModels
     {
         private int _selectedTabIndex;
 
-        public ChannelViewmodel(IEngine engine, bool showEngine, bool showMedia, bool allowPlayControl)
+        public ChannelViewmodel(IEngine engine, bool showEngine, bool showMedia)
         {
             DisplayName = engine.EngineName;
             if (showEngine)
-                Engine = new EngineViewmodel(engine, engine, allowPlayControl);
+                Engine = new EngineViewmodel(engine, engine);
             if (showMedia)
-                MediaManager = new MediaManagerViewmodel(engine.MediaManager, engine.HaveRight(EngineRight.Preview) ? engine : null);
+                MediaManager = new MediaManagerViewmodel(engine, engine.HaveRight(EngineRight.Preview) ? engine : null);
             CommandSwitchTab = new UICommand { ExecuteDelegate = o => SelectedTabIndex = _selectedTabIndex == 0 ? 1 : 0, CanExecuteDelegate = o => showEngine && showMedia };
             SelectedTabIndex = showEngine ? 0 : 1;
         }
@@ -28,7 +28,11 @@ namespace TAS.Client.ViewModels
 
         public MediaManagerViewmodel MediaManager { get; }
 
-        public int SelectedTabIndex { get { return _selectedTabIndex; } set { SetField(ref _selectedTabIndex, value); } }
+        public int SelectedTabIndex
+        {
+            get => _selectedTabIndex;
+            set => SetField(ref _selectedTabIndex, value);
+        }
 
         protected override void OnDispose()
         {

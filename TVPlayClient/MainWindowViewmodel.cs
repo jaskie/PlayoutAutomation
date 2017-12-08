@@ -18,11 +18,13 @@ namespace TVPlayClient
 
         public MainWindowViewmodel()
         {
+            if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+                return;
             Application.Current.Dispatcher.ShutdownStarted += _dispatcher_ShutdownStarted;
             _configurationFile = Path.Combine(FileUtils.LocalApplicationDataPath, ConfigurationFileName);
             if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(new DependencyObject()))
                 _loadTabs();
-            CommandConfigure = new UICommand { ExecuteDelegate = _configure };
+            CommandConfigure = new UICommand {ExecuteDelegate = _configure};
         }
 
         public ICommand CommandConfigure { get; }

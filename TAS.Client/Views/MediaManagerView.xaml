@@ -40,6 +40,7 @@
         <KeyBinding Command="{Binding CommandPreviewBackward}" Gesture="Ctrl+OemComma"/>
         <KeyBinding Command="{Binding CommandPreviewFastForwardOneFrame}" Gesture="Ctrl+Shift+OemPeriod"/>
         <KeyBinding Command="{Binding CommandPreviewBackwardOneFrame}" Gesture="Ctrl+Shift+OemComma"/>
+        <KeyBinding Command="{Binding CommandPreviewTrimSource}" Gesture="Ctrl+T"/>
     </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -74,7 +75,7 @@
                             </Style>
                         </DockPanel.Resources>
                         <Label Content="{Resx _directory}"/>
-                        <toolkit:DropDownButton Name="FolderCombo" VerticalAlignment="Center" Width="120" HorizontalContentAlignment="Stretch" Content="{Binding SelectedDirectory.DirectoryName}"  ToolTip="{Binding SelectedDirectory.Folder}" Margin="1">
+                        <toolkit:DropDownButton Name="FolderCombo" VerticalAlignment="Center" Width="120" HorizontalContentAlignment="Stretch" ToolTip="{Binding SelectedDirectory.Folder}" Margin="1">
                             <toolkit:DropDownButton.Resources>
                                 <common:BindingProxy x:Key="Proxy" Data="{Binding}"/>
                             </toolkit:DropDownButton.Resources>
@@ -90,6 +91,9 @@
                                     </controls:TreeViewEx.ItemTemplate>
                                 </controls:TreeViewEx>
                             </toolkit:DropDownButton.DropDownContent>
+                            <toolkit:DropDownButton.Content>
+                                <TextBlock Text="{Binding SelectedDirectory.DirectoryName}"/>
+                            </toolkit:DropDownButton.Content>
                         </toolkit:DropDownButton>
 
                         <Button ToolTip="{Resx _refresh}" Margin="0, 2, 5, 2" Command="{Binding CommandRefresh}" VerticalAlignment="Center">

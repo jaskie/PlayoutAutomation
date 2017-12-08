@@ -12,6 +12,7 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Minimum" Value="-60"/>
         <Setter Property="Maximum" Value="0"/>
+        <Setter Property="Background" Value="#ABABAB"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ProgressBar}">

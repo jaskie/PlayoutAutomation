@@ -86,8 +86,6 @@ namespace TVPlayClient
         [XmlAttribute]
         public string Address { get; set; }
         [XmlAttribute]
-        public bool AllowControl { get; set; } = true;
-        [XmlAttribute]
         public bool ShowEngine { get; set; } = true;
         [XmlAttribute]
         public bool ShowMedia { get; set; } = true;

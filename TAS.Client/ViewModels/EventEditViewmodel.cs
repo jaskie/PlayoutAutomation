@@ -889,7 +889,7 @@ namespace TAS.Client.ViewModels
             var fileManager = _engine.MediaManager.FileManager;
             var operation = fileManager.CreateLoudnessOperation();
             operation.Source = _event.Media;
-            operation.MeasureStart = _event.StartTc - _media.TcStart;
+            operation.MeasureStart = _event.ScheduledTc - _media.TcStart;
             operation.MeasureDuration = _event.Duration;
             operation.AudioVolumeMeasured += _audioVolumeMeasured;
             operation.Finished += _audioVolumeFinished;
@@ -1111,7 +1111,7 @@ namespace TAS.Client.ViewModels
         {
             using (var vm = new MediaSearchViewmodel(
                 _engineViewModel.Engine.HaveRight(EngineRight.Preview) ? _engineViewModel.Engine : null,
-                _event.Engine.MediaManager,
+                _event.Engine,
                 mediaType, VideoLayer.Program, true, videoFormatDescription)
             {
                 BaseEvent = baseEvent,
@@ -1132,8 +1132,7 @@ namespace TAS.Client.ViewModels
             }
 
         }
-
-
+        
         private void Rights_Modified(object sender, EventArgs e)
         {
             IsModified = true;

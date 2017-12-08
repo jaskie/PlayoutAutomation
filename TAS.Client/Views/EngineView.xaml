@@ -62,6 +62,7 @@
         <KeyBinding Command="{Binding CommandPreviewBackward}" Gesture="Ctrl+OemComma"/>
         <KeyBinding Command="{Binding CommandPreviewFastForwardOneFrame}" Gesture="Ctrl+Shift+OemPeriod"/>
         <KeyBinding Command="{Binding CommandPreviewBackwardOneFrame}" Gesture="Ctrl+Shift+OemComma"/>
+        <KeyBinding Command="{Binding CommandPreviewTrimSource}" Gesture="Ctrl+T"/>
 
     </UserControl.InputBindings>
     <UserControl.Style>
@@ -575,28 +576,23 @@
                 </TabItem>
             </TabControl>-->
             <GridSplitter Grid.Column="0" ResizeDirection="Columns" HorizontalAlignment="Right" Background="DarkGray" Width="3" Cursor="SizeWE"/>
-            <Grid Grid.Column="1">
+            <Grid Grid.Column="1" >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" MinHeight="50"/>
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <views:EventEditView DataContext="{Binding EventEditViewmodel}"/>
-                <GridSplitter Visibility="{Binding IsPreviewPanelVisible, Converter={StaticResource BoolToVis}}" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-                <Grid Grid.Row="1" Margin="0, 3, 0, 0" Visibility="{Binding IsPreviewPanelVisible, Converter={StaticResource BoolToVis}}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="55"/>
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <ContentControl Content="{Binding PreviewViewmodel}">
-                        <ContentControl.ContentTemplate>
-                            <DataTemplate DataType="{x:Type vievmodels:PreviewViewmodel}" >
-                                <views:PreviewView/>
-                            </DataTemplate>
-                        </ContentControl.ContentTemplate>
-                    </ContentControl>
-                    <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
-                    <ContentControl Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" Margin="0, 3, 0, 0"  Content="{Binding VideoPreview.View}"/>
-                </Grid>
+                <views:EventEditView Margin="0, 0, 0, 3" DataContext="{Binding EventEditViewmodel}"/>
+                <GridSplitter Grid.Row="0" Visibility="{Binding PreviewViewmodel, Converter={StaticResource NullToVis}}"  HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
+                <ContentControl Grid.Row="1" Margin="0, 0, 0, 3" Content="{Binding PreviewViewmodel}">
+                    <ContentControl.Resources>
+                        <DataTemplate DataType="{x:Type vievmodels:PreviewViewmodel}" >
+                            <views:PreviewView/>
+                        </DataTemplate>
+                    </ContentControl.Resources>
+                </ContentControl>
+                <GridSplitter Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="1" ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="DarkGray" Height="3" Cursor="SizeNS"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding VideoPreview, Converter={StaticResource NullToVis}}" Grid.Row="2" Margin="0, 3, 0, 0" Content="{Binding VideoPreview.View}"/>
             </Grid>
         </Grid>
     </Grid>

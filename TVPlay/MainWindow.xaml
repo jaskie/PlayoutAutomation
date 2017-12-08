@@ -18,9 +18,6 @@
             <DataTemplate DataType="{x:Type vm:ChannelViewmodel}">
                 <views:ChannelView/>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:UserManagerViewmodel}">
-                <views:UserManagerView/>
-            </DataTemplate>
         </TabControl.Resources>
         <TabControl.Template>
             <ControlTemplate TargetType="{x:Type TabControl}">

@@ -24,6 +24,7 @@ namespace TAS.Client.ViewModels
     {
         private const int MinSearchLength = 3;
         private readonly IMediaManager _mediaManager;
+        private readonly IEngine _engine;
         private ICollectionView _mediaView;
         private readonly IPreview _preview;
         bool _isDisplayPreview;
@@ -37,51 +38,52 @@ namespace TAS.Client.ViewModels
         private MediaDirectoryViewmodel _selectedDirectory;
         private ObservableCollection<MediaViewViewmodel> _mediaItems;
 
-        public MediaManagerViewmodel(IMediaManager mediaManager, IPreview preview)
+        public MediaManagerViewmodel(IEngine engine, IPreview preview)
         {
-            _mediaManager = mediaManager;
+            _mediaManager =  engine.MediaManager;
+            _engine = engine;
             _preview = preview;
             if (preview != null)
-                PreviewViewmodel = new PreviewViewmodel(preview);
+                PreviewViewmodel = new PreviewViewmodel(engine, preview);
 
             MediaDirectories = new List<MediaDirectoryViewmodel>();
-            MediaDirectories.AddRange(mediaManager.IngestDirectories.Where(d => d.ContainsImport()).Select(d => new MediaDirectoryViewmodel(d, true)));
-            IArchiveDirectory archiveDirectory = mediaManager.ArchiveDirectory;
+            MediaDirectories.AddRange(_mediaManager.IngestDirectories.Where(d => d.ContainsImport()).Select(d => new MediaDirectoryViewmodel(d, true)));
+            IArchiveDirectory archiveDirectory = _mediaManager.ArchiveDirectory;
             if (archiveDirectory != null)
                 MediaDirectories.Insert(0, new MediaDirectoryViewmodel(archiveDirectory));
-            IAnimationDirectory animationDirectoryPRI = mediaManager.AnimationDirectoryPRI;
-            if (animationDirectoryPRI != null)
-                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(animationDirectoryPRI));
-            IAnimationDirectory animationDirectorySEC = mediaManager.AnimationDirectorySEC;
-            if (animationDirectorySEC != null)
-                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(animationDirectorySEC));
-            IServerDirectory serverDirectoryPRI = mediaManager.MediaDirectoryPRI;
-            if (serverDirectoryPRI != null)
-                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(serverDirectoryPRI));
-            IServerDirectory serverDirectorySEC = mediaManager.MediaDirectorySEC;
-            if (serverDirectorySEC != null && serverDirectorySEC != serverDirectoryPRI)
-                MediaDirectories.Insert(1, new MediaDirectoryViewmodel(serverDirectorySEC));
+            IAnimationDirectory animationDirectoryPri = _mediaManager.AnimationDirectoryPRI;
+            if (animationDirectoryPri != null)
+                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(animationDirectoryPri));
+            IAnimationDirectory animationDirectorySec = _mediaManager.AnimationDirectorySEC;
+            if (animationDirectorySec != null)
+                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(animationDirectorySec));
+            IServerDirectory serverDirectoryPri = _mediaManager.MediaDirectoryPRI;
+            if (serverDirectoryPri != null)
+                MediaDirectories.Insert(0, new MediaDirectoryViewmodel(serverDirectoryPri));
+            IServerDirectory serverDirectorySec = _mediaManager.MediaDirectorySEC;
+            if (serverDirectorySec != null && serverDirectorySec != serverDirectoryPri)
+                MediaDirectories.Insert(1, new MediaDirectoryViewmodel(serverDirectorySec));
 
             _mediaCategory = MediaCategories.FirstOrDefault();
             SelectedDirectory = MediaDirectories.FirstOrDefault();
-            if (mediaManager.FileManager != null)
-                FileManagerViewmodel = new FileManagerViewmodel(mediaManager.FileManager);
-            RecordersViewmodel = new RecordersViewmodel(mediaManager.Recorders);
+            if (_mediaManager.FileManager != null)
+                FileManagerViewmodel = new FileManagerViewmodel(_mediaManager.FileManager);
+            RecordersViewmodel = new RecordersViewmodel(_mediaManager.Recorders);
             RecordersViewmodel.PropertyChanged += _recordersViewmodel_PropertyChanged;
             ComposePlugins();
             VideoPreview?.SetSource(RecordersViewmodel.Channel?.PreviewUrl);
 
             CommandSearch = new UICommand { ExecuteDelegate = _search, CanExecuteDelegate = _canSearch };
             CommandClearFilters = new UICommand { ExecuteDelegate = _clearFilters, CanExecuteDelegate = _canClearFilters };
-            CommandDeleteSelected = new UICommand { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = _isSomethingSelected };
+            CommandDeleteSelected = new UICommand { ExecuteDelegate = _deleteSelected, CanExecuteDelegate = o => _isSomethingSelected() && engine.HaveRight(EngineRight.MediaDelete) };
             CommandIngestSelectedToServer = new UICommand { ExecuteDelegate = _ingestSelectedToServer, CanExecuteDelegate = _canIngestSelectedToServer };
-            CommandMoveSelectedToArchive = new UICommand { ExecuteDelegate = _moveSelectedToArchive, CanExecuteDelegate = o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && _isSomethingSelected(o) };
-            CommandCopySelectedToArchive = new UICommand { ExecuteDelegate = _copySelectedToArchive, CanExecuteDelegate = o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && _isSomethingSelected(o) };
-            CommandSweepStaleMedia = new UICommand { ExecuteDelegate = _sweepStaleMedia };
-            CommandGetLoudness = new UICommand { ExecuteDelegate = _getLoudness, CanExecuteDelegate = _isSomethingSelected };
+            CommandMoveSelectedToArchive = new UICommand { ExecuteDelegate = _moveSelectedToArchive, CanExecuteDelegate = o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && _isSomethingSelected() && engine.HaveRight(EngineRight.MediaArchive) && engine.HaveRight(EngineRight.MediaDelete) };
+            CommandCopySelectedToArchive = new UICommand { ExecuteDelegate = _copySelectedToArchive, CanExecuteDelegate = o => _selectedDirectory != null && _selectedDirectory.IsServerDirectory && _isSomethingSelected() && engine.HaveRight(EngineRight.MediaArchive) };
+            CommandSweepStaleMedia = new UICommand { ExecuteDelegate = _sweepStaleMedia, CanExecuteDelegate = o => CurrentUser.IsAdmin };
+            CommandGetLoudness = new UICommand { ExecuteDelegate = _getLoudness, CanExecuteDelegate = o => _isSomethingSelected() && engine.HaveRight(EngineRight.MediaEdit) };
             CommandExport = new UICommand { ExecuteDelegate = _export, CanExecuteDelegate = _canExport };
             CommandRefresh = new UICommand { ExecuteDelegate = ob => _refreshMediaDirectory(_selectedDirectory?.Directory), CanExecuteDelegate = _canRefresh };
-            CommandSyncPriToSec = new UICommand { ExecuteDelegate = _syncSecToPri, CanExecuteDelegate = o => _selectedDirectory.IsServerDirectory };
+            CommandSyncPriToSec = new UICommand { ExecuteDelegate = _syncSecToPri, CanExecuteDelegate = o => _selectedDirectory.IsServerDirectory && CurrentUser.IsAdmin};
             CommandCloneAnimation = new UICommand { ExecuteDelegate = _cloneAnimation, CanExecuteDelegate = _canCloneAnimation };
         }
 
@@ -105,6 +107,7 @@ namespace TAS.Client.ViewModels
         public ICommand CommandPreviewBackward => PreviewViewmodel?.CommandBackward;
         public ICommand CommandPreviewFastForwardOneFrame => PreviewViewmodel?.CommandFastForwardOneFrame;
         public ICommand CommandPreviewBackwardOneFrame => PreviewViewmodel?.CommandBackwardOneFrame;
+        public ICommand CommandPreviewTrimSource => PreviewViewmodel?.CommandTrimSource;
         #endregion
 
         public PreviewViewmodel PreviewViewmodel { get; }
@@ -118,11 +121,14 @@ namespace TAS.Client.ViewModels
 
         public RecordersViewmodel RecordersViewmodel { get; }
 
-        public bool IsDisplayPreview { get { return _isDisplayPreview; } set { SetField(ref _isDisplayPreview, value); } }
+        public bool IsDisplayPreview {
+            get => _isDisplayPreview;
+            private set => SetField(ref _isDisplayPreview, value);
+        }
 
         public MediaViewViewmodel SelectedMedia
         {
-            get { return _selectedMedia; }
+            get => _selectedMedia;
             set
             {
                 if (!_checkEditMediaSaved())
@@ -149,7 +155,7 @@ namespace TAS.Client.ViewModels
 
         public MediaEditViewmodel EditMedia
         {
-            get { return _editMedia; }
+            get => _editMedia;
             set
             {
                 MediaEditViewmodel oldEditMedia = _editMedia;
@@ -160,7 +166,7 @@ namespace TAS.Client.ViewModels
 
         public IList SelectedMediaList
         {
-            get { return _selectedMediaList; }
+            get => _selectedMediaList;
             set
             {
                 _selectedMediaList = value;
@@ -171,7 +177,7 @@ namespace TAS.Client.ViewModels
 
         public string SearchText
         {
-            get { return _searchText; }
+            get => _searchText;
             set
             {
                 if (SetField(ref _searchText, value))
@@ -182,7 +188,7 @@ namespace TAS.Client.ViewModels
         public IEnumerable<object> MediaCategories => new List<object> { resources._all_ }.Concat(Enum.GetValues(typeof(TMediaCategory)).Cast<object>());
         public object MediaCategory
         {
-            get { return _mediaCategory; }
+            get => _mediaCategory;
             set
             {
                 if (SetField(ref _mediaCategory, value))
@@ -196,7 +202,7 @@ namespace TAS.Client.ViewModels
         public IEnumerable<object> MediaTypes => new List<object> { resources._all_ }.Concat(Enum.GetValues(typeof(TMediaType)).Cast<object>());
         public object MediaType
         {
-            get { return _mediaType; }
+            get => _mediaType;
             set
             {
                 if (SetField(ref _mediaType, value))
@@ -211,7 +217,7 @@ namespace TAS.Client.ViewModels
 
         public MediaDirectoryViewmodel SelectedDirectory
         {
-            get { return _selectedDirectory; }
+            get => _selectedDirectory;
             set
             {
                 if (_checkEditMediaSaved())
@@ -240,14 +246,8 @@ namespace TAS.Client.ViewModels
 
         public bool IsMediaExportVisible { get { return MediaDirectories.Any(d => d.IsExport); } }
 
-        public bool DisplayDirectoryInfo
-        {
-            get
-            {
-                return _selectedDirectory != null
-                       && (_selectedDirectory.IsServerDirectory || _selectedDirectory.IsArchiveDirectory || (_selectedDirectory.IsIngestDirectory && (_selectedDirectory.AccessType == TDirectoryAccessType.Direct || _selectedDirectory.IsXdcam)));
-            }
-        }
+        public bool DisplayDirectoryInfo => _selectedDirectory != null
+                                            && (_selectedDirectory.IsServerDirectory || _selectedDirectory.IsArchiveDirectory || (_selectedDirectory.IsIngestDirectory && (_selectedDirectory.AccessType == TDirectoryAccessType.Direct || _selectedDirectory.IsXdcam)));
 
         public bool IsMediaDirectoryOk => _selectedDirectory?.IsOK == true;
 
@@ -255,26 +255,13 @@ namespace TAS.Client.ViewModels
 
         public float DirectoryFreeSpace => _selectedDirectory?.VolumeFreeSize / 1073741824F ?? 0F;
 
-        public float DirectoryFreePercentage
-        {
-            get
-            {
-                return _selectedDirectory == null ? 0 : _selectedDirectory.DirectoryFreePercentage;
-            }
-        }
+        public float DirectoryFreePercentage => _selectedDirectory == null ? 0 : _selectedDirectory.DirectoryFreePercentage;
 
         public int ItemsCount => _mediaItems?.Count(_filter) ?? 0;
 
-        protected override void OnDispose()
-        {
-            SelectedDirectory = null;
-            if (RecordersViewmodel != null)
-                RecordersViewmodel.PropertyChanged -= _recordersViewmodel_PropertyChanged;
-        }
-        
         public ObservableCollection<MediaViewViewmodel> MediaItems
         {
-            get { return _mediaItems; }
+            get => _mediaItems;
             private set
             {
                 if (SetField(ref _mediaItems, value))
@@ -286,7 +273,14 @@ namespace TAS.Client.ViewModels
         {
             return resources._media;
         }
-        
+
+        protected override void OnDispose()
+        {
+            SelectedDirectory = null;
+            if (RecordersViewmodel != null)
+                RecordersViewmodel.PropertyChanged -= _recordersViewmodel_PropertyChanged;
+        }
+
 
         // private methods
         private void ComposePlugins()
@@ -526,14 +520,14 @@ namespace TAS.Client.ViewModels
             return ml;
         }
 
-        private bool _isSomethingSelected(object o)
+        private bool _isSomethingSelected()
         {
             return _selectedMediaList != null && _selectedMediaList.Count > 0;
         }
 
         private bool _canIngestSelectedToServer(object o)
         {
-            return _selectedDirectory != null && (_selectedDirectory.IsIngestDirectory || _selectedDirectory.IsArchiveDirectory) && _isSomethingSelected(o);
+            return _selectedDirectory != null && _engine.HaveRight(EngineRight.MediaIngest) && (_selectedDirectory.IsIngestDirectory || _selectedDirectory.IsArchiveDirectory) && _isSomethingSelected();
         }
 
         private bool _canExport(object o)
@@ -569,7 +563,7 @@ namespace TAS.Client.ViewModels
 
         private bool _canCloneAnimation(object obj)
         {
-            return _selectedMedia?.Media is IAnimatedMedia;
+            return _selectedMedia?.Media is IAnimatedMedia && _engine.HaveRight(EngineRight.MediaEdit);
         }
 
         private void _refreshMediaDirectory(IMediaDirectory directory)
@@ -601,7 +595,7 @@ namespace TAS.Client.ViewModels
         private void _export(object obj)
         {
             var selections = _getSelections().Select(m => new MediaExportDescription(m, new List<IMedia>(), m.TcPlay, m.DurationPlay, m.AudioVolume));
-            using (var vm = new ExportViewmodel(_mediaManager, selections))
+            using (var vm = new ExportViewmodel(_engine, selections))
             {
                 UiServices.ShowDialog<Views.ExportView>(vm);
             }
@@ -637,7 +631,7 @@ namespace TAS.Client.ViewModels
                         ingestList.Add(_mediaManager.FileManager.CreateIngestOperation(media, directory));
                 if (ingestList.Count != 0)
                 {
-                    using (IngestEditorViewmodel ievm = new IngestEditorViewmodel(ingestList, _preview, _mediaManager))
+                    using (IngestEditorViewmodel ievm = new IngestEditorViewmodel(ingestList, _preview, _engine))
                     {
                         if (UiServices.ShowDialog<Views.IngestEditorView>(ievm) == true)
                             ievm.ScheduleAll();

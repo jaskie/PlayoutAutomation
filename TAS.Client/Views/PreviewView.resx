@@ -118,28 +118,28 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="_addSegment.ToolTip" xml:space="preserve">
-    <value>Add segment (Ctrl+N)</value>
+    <value>Add segment | Ctrl+N</value>
   </data>
   <data name="_buttonCopyTCIn.ToolTip" xml:space="preserve">
-    <value>Copy current TC to In (Ctrl+I)</value>
+    <value>Copy current TC to In | Ctrl+I</value>
   </data>
   <data name="_buttonCopyTCOut.ToolTip" xml:space="preserve">
-    <value>Copy current TC to Out (Ctrl+O)</value>
+    <value>Copy current TC to Out | Ctrl+O</value>
   </data>
   <data name="_buttonPause.ToolTip" xml:space="preserve">
     <value>First frame preview</value>
   </data>
   <data name="_buttonPlay.ToolTip" xml:space="preserve">
-    <value>Play</value>
+    <value>Play | Ctrl+Space</value>
   </data>
   <data name="_buttonPlayTheEnd.ToolTip" xml:space="preserve">
     <value>Play end of the file</value>
   </data>
   <data name="_buttonStop.ToolTip" xml:space="preserve">
-    <value>Preview off</value>
+    <value>Preview off | Ctrl+Shift+Space</value>
   </data>
-  <data name="_buttonUpdateSourceTc.ToolTip" xml:space="preserve">
-    <value>Set source TC to preview's In and Out</value>
+  <data name="_buttonTrimSource.ToolTip" xml:space="preserve">
+    <value>Trim source to preview's In and Out | Ctrl+T</value>
   </data>
   <data name="_currentTC" xml:space="preserve">
     <value>Current TC</value>
@@ -163,7 +163,7 @@
     <value>Press F2 to set on this field</value>
   </data>
   <data name="_save.ToolTip" xml:space="preserve">
-    <value>Save segment (Ctrl+S)</value>
+    <value>Save segment | Ctrl+S</value>
   </data>
   <data name="_secondBack.ToolTip" xml:space="preserve">
     <value>One second back</value>

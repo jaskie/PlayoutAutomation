@@ -9,22 +9,23 @@ namespace TAS.Client.ViewModels
 {
     public class ExportMediaViewmodel : ViewmodelBase
     {
-        private readonly IMediaManager _mediaManager;
-        public ExportMediaViewmodel(IMediaManager mediaManager, MediaExportDescription mediaExport)
+        private readonly IEngine _engine;
+
+        public ExportMediaViewmodel(IEngine engine, MediaExportDescription mediaExport)
         {
+            _engine = engine;
             MediaExport = mediaExport;
-            _mediaManager = mediaManager;
             Logos = new ObservableCollection<ExportMediaLogoViewmodel>(mediaExport.Logos.Select(l => new ExportMediaLogoViewmodel(this, l)));
             CommandAddLogo = new UICommand { ExecuteDelegate = _addLogo };
         }
 
         public string MediaName => MediaExport.Media.MediaName;
 
-        public TimeSpan StartTC { get { return MediaExport.StartTC; } set { SetField(ref MediaExport.StartTC, value); } }
+        public TimeSpan StartTC { get => MediaExport.StartTC; set => SetField(ref MediaExport.StartTC, value); }
 
-        public TimeSpan Duration { get { return MediaExport.Duration; } set { SetField(ref MediaExport.Duration, value); } }
+        public TimeSpan Duration { get => MediaExport.Duration; set => SetField(ref MediaExport.Duration, value); }
 
-        public double AudioVolume { get { return MediaExport.AudioVolume; } set { SetField(ref MediaExport.AudioVolume, value); } }
+        public double AudioVolume { get => MediaExport.AudioVolume; set => SetField(ref MediaExport.AudioVolume, value); }
 
         public ObservableCollection<ExportMediaLogoViewmodel> Logos { get; }
 
@@ -32,10 +33,8 @@ namespace TAS.Client.ViewModels
 
         public MediaExportDescription MediaExport { get; }
 
-        public TVideoFormat VideoFormat => _mediaManager.VideoFormat;
-
-
-
+        public TVideoFormat VideoFormat => _engine.VideoFormat;
+        
         internal void Remove(ExportMediaLogoViewmodel exportMediaLogoViewModel)
         {
             Logos.Remove(exportMediaLogoViewModel);
@@ -46,7 +45,7 @@ namespace TAS.Client.ViewModels
         {
             using (var vm = new MediaSearchViewmodel(
                 null, // preview
-                _mediaManager,
+                _engine,
                 TMediaType.Still,
                 VideoLayer.CG1,
                 true, // close ater add

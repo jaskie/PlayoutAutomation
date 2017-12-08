@@ -15,6 +15,7 @@
             <Setter Property="Width" Value="35" />
             <Setter Property="Height" Value="35" />
             <Setter Property="Margin" Value="4" />
+            <Setter Property="Focusable" Value="False"/>
         </Style>
     </UserControl.Resources>
     <UserControl.InputBindings>
@@ -42,7 +43,7 @@
                     </Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Command="{Binding CommandUpdateSourceTc}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonUpdateSourceTc.ToolTip}">
+                    <Button Command="{Binding CommandTrimSource}" Style="{StaticResource ControlButtonProperties}" ToolTip="{Resx _buttonUpdateSourceTc.ToolTip}">
                         <controls:AutoGreyableImage Source="/TAS.Client.Common;component/Images/Actions/time-update.png"  />
                     </Button>
                 </StackPanel>
@@ -85,7 +86,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <Label Content="Start TC" />
-                        <controls:TimecodeEdit Timecode="{Binding StartTc, Mode=OneWay}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
+                        <controls:TimecodeEdit Timecode="{Binding StartTc}" VideoFormat="{Binding VideoFormat}" IsReadOnly="True"/>
                         <controls:TimecodeEdit Timecode="{Binding TcIn}" VideoFormat="{Binding VideoFormat}" />
                     </StackPanel>
                     <StackPanel Grid.Column="1">

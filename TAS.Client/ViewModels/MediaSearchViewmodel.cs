@@ -32,18 +32,17 @@ namespace TAS.Client.ViewModels
         private readonly ICollectionView _itemsView;
         private string _okButtonText = "OK";
 
-        public MediaSearchViewmodel(IPreview preview, IMediaManager manager, TMediaType mediaType, VideoLayer layer,
+        public MediaSearchViewmodel(IPreview preview, IEngine engine, TMediaType mediaType, VideoLayer layer,
             bool closeAfterAdd, VideoFormatDescription videoFormatDescription)
         {
-            _manager = manager;
-            _engine = manager.Engine;
+            _engine = engine;
             Layer = layer;
             if (mediaType == TMediaType.Movie)
             {
-                _videoFormatDescription = manager.FormatDescription;
+                _videoFormatDescription = engine.FormatDescription;
                 _frameRate = _videoFormatDescription.FrameRate;
                 if (preview != null)
-                    PreviewViewmodel = new PreviewViewmodel(preview) {IsSegmentsVisible = true};
+                    PreviewViewmodel = new PreviewViewmodel(engine, preview) {IsSegmentsVisible = true};
             }
             else
             {

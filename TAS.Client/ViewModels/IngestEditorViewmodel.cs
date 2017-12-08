@@ -11,13 +11,13 @@ namespace TAS.Client.ViewModels
 {
     internal class IngestEditorViewmodel : ViewmodelBase
     {
+        private readonly IEngine _engine;
         private IngestOperationViewModel _selectedOperation;
-        private readonly IMediaManager _mediaManager;
 
-        public IngestEditorViewmodel(IList<IIngestOperation> convertionList, IPreview preview, IMediaManager mediaManager)
+        public IngestEditorViewmodel(IList<IIngestOperation> convertionList, IPreview preview, IEngine engine)
         {
-            _mediaManager = mediaManager;
-            OperationList = new ObservableCollection<IngestOperationViewModel>(convertionList.Select(op => new IngestOperationViewModel(op, preview, mediaManager)));
+            _engine = engine;
+            OperationList = new ObservableCollection<IngestOperationViewModel>(convertionList.Select(op => new IngestOperationViewModel(op, preview, engine)));
             SelectedOperation = OperationList.FirstOrDefault();
             foreach (var c in OperationList)
                 c.PropertyChanged += _convertOperationPropertyChanged;
@@ -29,7 +29,7 @@ namespace TAS.Client.ViewModels
             foreach (IngestOperationViewModel c in OperationList)
             {
                 c.Apply();
-                _mediaManager.FileManager.Queue(c.FileOperation, false);
+                _engine.MediaManager?.FileManager?.Queue(c.FileOperation, false);
             }
         }
 

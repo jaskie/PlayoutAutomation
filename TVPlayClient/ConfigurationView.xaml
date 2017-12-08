@@ -69,8 +69,7 @@
                                 <Label Content="{Resx _address}"/>
                                 <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" MinWidth="150" HorizontalAlignment="Left" />
                             </DockPanel>
-                            <UniformGrid Columns="3" Rows="1" Margin="5">
-                                <CheckBox IsChecked="{Binding AllowControl}" Content="{Resx _allowControl}"/>
+                            <UniformGrid Columns="2" Rows="1" Margin="5">
                                 <CheckBox IsChecked="{Binding ShowEngine}" Content="{Resx _showEngine}"/>
                                 <CheckBox IsChecked="{Binding ShowMedia}" Content="{Resx _showMedia}"/>
                             </UniformGrid>
