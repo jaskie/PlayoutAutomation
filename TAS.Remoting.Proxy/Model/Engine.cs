@@ -76,7 +76,7 @@ namespace TAS.Remoting.Model
         [JsonProperty(nameof(IEngine.PreviewPosition))]
         private long _previewPosition;
 
-        [JsonProperty(nameof(IEngine.PreviewSeek))]
+        [JsonProperty(nameof(IEngine.PreviewLoadedSeek))]
         private long _previewSeek;
 
         [JsonProperty(nameof(IEngine.ProgramAudioVolume))]
@@ -164,7 +164,7 @@ namespace TAS.Remoting.Model
 
         public long PreviewPosition { get { return _previewPosition; } set { Set(value); } }
 
-        public long PreviewSeek => _previewSeek;
+        public long PreviewLoadedSeek => _previewSeek;
 
         public void PreviewLoad(IMedia media, long seek, long duration, long position, double audioLevel)
         {

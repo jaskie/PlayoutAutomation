@@ -68,7 +68,7 @@ namespace TAS.Server
         private IMedia _previewMedia;
         private long _previewDuration;
         private long _previewPosition;
-        private long _previewSeek;
+        private long _previewLoadedSeek;
         private double _previewAudioVolume;
         private bool _previewLoaded;
         private bool _previewIsPlaying;
@@ -461,13 +461,13 @@ namespace TAS.Server
         public IMedia PreviewMedia => _previewMedia;
 
         [XmlIgnore, JsonProperty]
-        public long PreviewSeek => _previewSeek;
+        public long PreviewLoadedSeek => _previewLoadedSeek;
 
         [XmlIgnore]
         [JsonProperty]
         public long PreviewPosition // from 0 to duration
         {
-            get { return _previewPosition; }
+            get => _previewPosition;
             set
             {
                 if (_playoutChannelPRV != null && _previewMedia!=null)
@@ -479,10 +479,7 @@ namespace TAS.Server
                     if (newSeek > maxSeek)
                         newSeek = maxSeek;
                     if (SetField(ref _previewPosition, newSeek))
-                    {
-                        _playoutChannelPRV.Seek(VideoLayer.Preview, _previewSeek + newSeek);
-                        _previewPosition = newSeek;
-                    }
+                        _playoutChannelPRV.Seek(VideoLayer.Preview, _previewLoadedSeek + newSeek);
                 }
             }
         }
@@ -490,7 +487,7 @@ namespace TAS.Server
         [XmlIgnore, JsonProperty]
         public double PreviewAudioVolume
         {
-            get { return _previewAudioVolume; }
+            get => _previewAudioVolume;
             set
             {
                 if (SetField(ref _previewAudioVolume, value))
@@ -501,7 +498,7 @@ namespace TAS.Server
         [XmlIgnore]
         [JsonProperty]
         public bool PreviewLoaded {
-            get { return _previewLoaded; }
+            get => _previewLoaded;
             private set
             {
                 if (SetField(ref _previewLoaded, value))
@@ -514,8 +511,12 @@ namespace TAS.Server
 
         [XmlIgnore]
         [JsonProperty]
-        public bool PreviewIsPlaying { get { return _previewIsPlaying; } private set { SetField(ref _previewIsPlaying, value); } }
-        
+        public bool PreviewIsPlaying
+        {
+            get => _previewIsPlaying;
+            private set => SetField(ref _previewIsPlaying, value);
+        }
+
         public void Load(IEvent aEvent)
         {
             if (!HaveRight(EngineRight.Play))
@@ -767,7 +768,7 @@ namespace TAS.Server
             if (mediaToLoad != null)
             {
                 _previewDuration = duration;
-                _previewSeek = seek;
+                _previewLoadedSeek = seek;
                 _previewPosition = position;
                 _previewMedia = media;
                 _playoutChannelPRV.SetAspect(VideoLayer.Preview, media.VideoFormat == TVideoFormat.NTSC
@@ -779,7 +780,7 @@ namespace TAS.Server
                 PreviewIsPlaying = false;
                 NotifyPropertyChanged(nameof(PreviewMedia));
                 NotifyPropertyChanged(nameof(PreviewPosition));
-                NotifyPropertyChanged(nameof(PreviewSeek));
+                NotifyPropertyChanged(nameof(PreviewLoadedSeek));
             }
         }
 
@@ -1262,14 +1263,14 @@ namespace TAS.Server
             {
                 _previewDuration = 0;
                 _previewPosition = 0;
-                _previewSeek = 0;
+                _previewLoadedSeek = 0;
                 _previewMedia = null;
             }
             PreviewLoaded = false;
             PreviewIsPlaying = false;
             NotifyPropertyChanged(nameof(PreviewMedia));
             NotifyPropertyChanged(nameof(PreviewPosition));
-            NotifyPropertyChanged(nameof(PreviewSeek));
+            NotifyPropertyChanged(nameof(PreviewLoadedSeek));
         }
 
         private void _restartEvent(Event ev)

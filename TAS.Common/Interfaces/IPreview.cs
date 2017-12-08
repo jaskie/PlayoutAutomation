@@ -14,7 +14,7 @@ namespace TAS.Common.Interfaces
         bool PreviewLoaded { get; }
         bool PreviewIsPlaying { get; }
         long PreviewPosition { get; set; }
-        long PreviewSeek { get; }
+        long PreviewLoadedSeek { get; }
         double PreviewAudioVolume { get; set; }
     }
 }
