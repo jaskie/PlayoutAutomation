@@ -59,7 +59,7 @@ namespace TAS.Server.Media
         [JsonProperty]
         public string Folder
         {
-            get { return _folder; }
+            get => _folder;
             set
             {
                 if (SetField(ref _folder, value))
@@ -70,7 +70,7 @@ namespace TAS.Server.Media
         [JsonProperty]
         public string FileName
         {
-            get { return _fileName; }
+            get => _fileName;
             set
             {
                 var oldFullPath = FullPath;
@@ -98,15 +98,15 @@ namespace TAS.Server.Media
         [JsonProperty]
         public ulong FileSize 
         {
-            get { return _fileSize; }
-            set { SetField(ref _fileSize, value); }
+            get => _fileSize;
+            set => SetField(ref _fileSize, value);
         }
 
         [JsonProperty]
         public DateTime LastUpdated
         {
-            get { return _lastUpdated; }
-            set { SetField(ref _lastUpdated, value); }
+            get => _lastUpdated;
+            set => SetField(ref _lastUpdated, value);
         }
         //// to enable LastAccess: "FSUTIL behavior set disablelastaccess 0" on NTFS volume
         //// not stored in datebase
@@ -128,36 +128,36 @@ namespace TAS.Server.Media
         [JsonProperty]
         public virtual string MediaName
         {
-            get { return _mediaName; }
-            set { SetField(ref _mediaName, value); }
+            get => _mediaName;
+            set => SetField(ref _mediaName, value);
         }
 
         [JsonProperty]
-        public virtual TMediaType MediaType
+        public TMediaType MediaType
         {
-            get { return _mediaType; }
-            set { SetField(ref _mediaType, value); }
+            get => _mediaType;
+            set => SetField(ref _mediaType, value);
         }
 
         [JsonProperty]
         public virtual TimeSpan Duration
         {
-            get { return _duration; }
-            set { SetField(ref _duration, value); }
+            get => _duration;
+            set => SetField(ref _duration, value);
         }
 
         [JsonProperty]
         public virtual TimeSpan DurationPlay
         {
-            get { return _durationPlay; }
-            set { SetField(ref _durationPlay, value); }
+            get => _durationPlay;
+            set => SetField(ref _durationPlay, value);
         }
 
         [JsonProperty]
         public virtual TimeSpan TcStart 
         {
-            get { return _tcStart; }
-            set { SetField(ref _tcStart, value); }
+            get => _tcStart;
+            set => SetField(ref _tcStart, value);
         }
 
         [JsonProperty]
@@ -302,11 +302,8 @@ namespace TAS.Server.Media
 
         public virtual bool CopyMediaTo(MediaBase destMedia, ref bool abortCopy)
         {
-            bool copyResult = true;
-            var sIngestDir = _directory as IngestDirectory;
-            var dIngestDir = destMedia._directory as IngestDirectory;
-            if ((sIngestDir == null || sIngestDir.AccessType == TDirectoryAccessType.Direct)
-                && (dIngestDir == null || dIngestDir.AccessType == TDirectoryAccessType.Direct))
+            if ((!(_directory is IngestDirectory sIngestDir) || sIngestDir.AccessType == TDirectoryAccessType.Direct)
+                && (!(destMedia._directory is IngestDirectory dIngestDir) || dIngestDir.AccessType == TDirectoryAccessType.Direct))
             {
                 FileUtils.CreateDirectoryIfNotExists(Path.GetDirectoryName(destMedia.FullPath));
                 File.Copy(FullPath, destMedia.FullPath, true);
@@ -323,7 +320,7 @@ namespace TAS.Server.Media
                     var buffer = new byte[1024 * 1024];
                     ulong totalReadBytesCount = 0;
                     int readBytesCount;
-                    FileSize = (UInt64)source.Length;
+                    FileSize = (ulong)source.Length;
                     while ((readBytesCount = source.Read(buffer, 0, buffer.Length)) > 0)
                     {
                         if (abortCopy)
@@ -334,12 +331,12 @@ namespace TAS.Server.Media
                     }
                 }
             }
-            return copyResult;
+            return true;
         }
         
         public override string ToString()
         {
-            return string.Format("{0}:{1}", _directory?.DirectoryName, MediaName);
+            return $"{_directory?.DirectoryName}:{MediaName}";
         }
 
         public virtual bool FileExists()
@@ -401,7 +398,7 @@ namespace TAS.Server.Media
 
         public void GetLoudness()
         {
-            _directory.MediaManager.FileManager.Queue(new LoudnessOperation((FileManager)_directory.MediaManager.FileManager) { Source = this, MeasureStart = this.TcPlay - this.TcStart, MeasureDuration = this.DurationPlay }, false);
+            _directory.MediaManager.FileManager.Queue(new LoudnessOperation((FileManager)_directory.MediaManager.FileManager) { Source = this, MeasureStart = TcPlay - TcStart, MeasureDuration = DurationPlay }, false);
         }
 
         protected override void DoDispose()

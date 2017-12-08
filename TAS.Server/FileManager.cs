@@ -100,13 +100,13 @@ namespace TAS.Server
             Logger.Info("Operation scheduled: {0}", operation);
             NotifyOperation(OperationAdded, operation);
 
-            if ((operation.Kind == TFileOperationKind.Copy || operation.Kind == TFileOperationKind.Move || operation.Kind == TFileOperationKind.Convert))
+            if ((operation.Kind == TFileOperationKind.Copy || operation.Kind == TFileOperationKind.Move || operation.Kind == TFileOperationKind.Ingest))
             {
                 IMedia destMedia = operation.Dest;
                 if (destMedia != null)
                     destMedia.MediaStatus = TMediaStatus.CopyPending;
             }
-            if (operation.Kind == TFileOperationKind.Convert)
+            if (operation.Kind == TFileOperationKind.Ingest)
             {
                 lock (_queueConvertOperation.SyncRoot)
                 {

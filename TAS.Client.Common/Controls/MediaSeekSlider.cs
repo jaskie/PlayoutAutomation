@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace TAS.Client.Common.Controls
 {
@@ -56,13 +51,6 @@ namespace TAS.Client.Common.Controls
         public MediaSeekSlider(): base()
         {
             MouseWheel += _mouseWheel;
-            _draggingTimer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(100) };
-            _draggingTimer.Tick += _draggingTimer_Tick;
-        }
-
-        private void _draggingTimer_Tick(object sender, EventArgs e)
-        {
-            Position = Value;
         }
 
         private void _mouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
@@ -76,25 +64,15 @@ namespace TAS.Client.Common.Controls
             e.Handled = true;
         }
 
-        private DispatcherTimer _draggingTimer;
-
-        protected override void OnThumbDragStarted(DragStartedEventArgs e)
-        {
-            _draggingTimer.Start();
-            base.OnThumbDragStarted(e);
-        }
-
         protected override void OnThumbDragCompleted(DragCompletedEventArgs e)
         {
-            _draggingTimer.Stop();
             Position = Value;
             base.OnThumbDragCompleted(e);
         }
 
         protected override void OnValueChanged(double oldValue, double newValue)
         {
-            if (!_draggingTimer.IsEnabled)
-                Position = Value;
+            Position = Value;
             base.OnValueChanged(oldValue, newValue);
         }
 

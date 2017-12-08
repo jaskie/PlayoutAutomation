@@ -30,7 +30,7 @@ namespace TAS.Server
 
         internal IngestOperation(FileManager ownerFileManager) : base(ownerFileManager)
         {
-            Kind = TFileOperationKind.Convert;
+            Kind = TFileOperationKind.Ingest;
             _aspectConversion = TAspectConversion.NoConversion;
             _sourceFieldOrderEnforceConversion = TFieldOrder.Unknown;
             _audioChannelMappingConversion = TAudioChannelMappingConversion.FirstTwoChannels;
@@ -90,7 +90,7 @@ namespace TAS.Server
 
         internal override bool Execute()
         {
-            if (Kind == TFileOperationKind.Convert)
+            if (Kind == TFileOperationKind.Ingest)
             {
                 StartTime = DateTime.UtcNow;
                 OperationStatus = FileOperationStatus.InProgress;
@@ -99,7 +99,7 @@ namespace TAS.Server
                 {
                     MediaBase sourceMedia = Source as IngestMedia;
                     if (sourceMedia == null)
-                        throw new ArgumentException("ConvertOperation: Source is not of type IngestMedia");
+                        throw new ArgumentException("IngestOperation: Source is not of type IngestMedia");
                     bool success = false;
                     if (((IngestDirectory) sourceMedia.Directory).AccessType != TDirectoryAccessType.Direct)
                         using (TempMedia localSourceMedia =

@@ -27,7 +27,7 @@ namespace TAS.Server.Media
 
         private const string XmlFileExtension = ".xml";
 
-        internal object XdcamLockObject = new object();
+        internal readonly object XdcamLockObject = new object();
 
         internal IngestDirectory() : base(null)
         {

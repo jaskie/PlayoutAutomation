@@ -18,9 +18,9 @@ namespace TAS.Common
         { }
     }
 
-    public enum TDirectoryAccessType { Direct, FTP };
+    public enum TDirectoryAccessType { Direct, FTP }
 
-    public enum TFileOperationKind { None, Copy, Move, Convert, Export, Delete, Loudness };
+    public enum TFileOperationKind { None, Copy, Move, Ingest, Export, Delete, Loudness }
 
     [TypeConverter(typeof(FileOperationStatusEnumConverter))]
     public enum FileOperationStatus

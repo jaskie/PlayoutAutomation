@@ -16,7 +16,6 @@ namespace TAS.Client.ViewModels
 {
     public class MediaSearchViewmodel : ViewmodelBase
     {
-        private readonly IMediaManager _manager;
         private readonly TMediaType _mediaType;
         private readonly RationalNumber? _frameRate;
         private readonly VideoFormatDescription _videoFormatDescription;
@@ -53,11 +52,11 @@ namespace TAS.Client.ViewModels
             if (PreviewViewmodel != null)
                 PreviewViewmodel.PropertyChanged += _onPreviewViewModelPropertyChanged;
             IMediaDirectory pri = mediaType == TMediaType.Animation
-                ? (IMediaDirectory) _manager.AnimationDirectoryPRI
-                : _manager.MediaDirectoryPRI;
+                ? (IMediaDirectory) engine.MediaManager.AnimationDirectoryPRI
+                : engine.MediaManager.MediaDirectoryPRI;
             IMediaDirectory sec = mediaType == TMediaType.Animation
-                ? (IMediaDirectory) _manager.AnimationDirectorySEC
-                : _manager.MediaDirectorySEC;
+                ? (IMediaDirectory) engine.MediaManager.AnimationDirectorySEC
+                : engine.MediaManager.MediaDirectorySEC;
             _searchDirectory = pri != null && pri.DirectoryExists()
                 ? pri
                 : sec != null && sec.DirectoryExists()

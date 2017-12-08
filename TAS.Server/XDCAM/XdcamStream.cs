@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Net.FtpClient;
+using System.Threading;
 using TAS.Server.Media;
 
 namespace TAS.Server.XDCAM
@@ -17,10 +18,12 @@ namespace TAS.Server.XDCAM
         public XdcamStream(XdcamMedia media, bool forWrite)
         {
             
-            if (media == null || media.Directory == null)
-                throw new ApplicationException();
+            if (!(media?.Directory is IngestDirectory dir))
+                throw new ApplicationException("XDCAM media directory is not IngestDirectory");
             //var fileName = string.Join(media.Directory.PathSeparator.ToString(), media.Directory.Folder, "Clip",  $"{media.XdcamClipAlias?.clipId ?? media.XdcamClip.clipId}.MXF");
-            _client = ((IngestDirectory)media.Directory).GetFtpClient();
+            _client = dir.GetFtpClient();
+            if (!Monitor.TryEnter(dir.XdcamLockObject))
+                throw new ApplicationException("Directory is in use");
             try
             {
                 _client.Connect();
@@ -44,7 +47,6 @@ namespace TAS.Server.XDCAM
             {
                 _client.Disconnect();
             }
-
         }
 
         public override void Write(byte[] buffer, int offset, int count)
@@ -69,40 +71,22 @@ namespace TAS.Server.XDCAM
             return bytesRead;
         }
 
-        public override bool CanRead
-        {
-            get { return true; }
-        }
+        public override bool CanRead => true;
 
-        public override bool CanSeek
-        {
-            get { return false; }
-        }
+        public override bool CanSeek => false;
 
-        public override bool CanWrite
-        {
-            get { return false; }
-        }
+        public override bool CanWrite => false;
 
         public override void Flush()
         {
         }
 
-        public override long Length
-        {
-            get { return _currentStream == null || _isEditList ? -1 : _currentStream.Length; }
-        }
+        public override long Length => _currentStream == null || _isEditList ? -1 : _currentStream.Length;
 
         public override long Position
         {
-            get
-            {
-                throw new NotSupportedException();
-            }
-            set
-            {
-                throw new NotSupportedException();
-            }
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
         }
 
         public override long Seek(long offset, SeekOrigin origin)
@@ -133,6 +117,7 @@ namespace TAS.Server.XDCAM
             {
                 base.Dispose(disposing);
                 _client.Disconnect();
+                Monitor.Exit((_media.Directory as IngestDirectory)?.XdcamLockObject);
             }
         }
 

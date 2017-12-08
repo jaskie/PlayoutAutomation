@@ -265,7 +265,7 @@ namespace TAS.Server
             {
                 case TFileOperationKind.None:
                     return true;
-                case TFileOperationKind.Convert:
+                case TFileOperationKind.Ingest:
                 case TFileOperationKind.Export:
                     throw new InvalidOperationException("Invalid operation kind");
                 case TFileOperationKind.Copy:

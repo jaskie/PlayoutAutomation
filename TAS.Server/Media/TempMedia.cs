@@ -12,6 +12,7 @@ namespace TAS.Server.Media
         public TempMedia(TempDirectory directory, IMediaProperties originalMedia): base(directory, originalMedia.MediaGuid)
         {
             OriginalMedia = originalMedia;
+            MediaType = originalMedia.MediaType;
             FileName = $"{originalMedia.MediaGuid}{Path.GetExtension(originalMedia.FileName)}";
         }
 
@@ -72,11 +73,6 @@ namespace TAS.Server.Media
             set { }
         }
 
-        public override TMediaType MediaType
-        {
-            get { return OriginalMedia.MediaType; }
-            set { }
-        }
 
         public override TimeSpan TcPlay
         {

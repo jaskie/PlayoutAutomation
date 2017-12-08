@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using TAS.Remoting.Server;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using TAS.Database;
 using TAS.Common.Interfaces;
 using TAS.Server.Media;
@@ -19,6 +20,9 @@ namespace TAS.Server
 {
     public class Engine : DtoBase, IEngine, IEnginePersistent
     {
+
+        private const int PerviewPositionSetDelay = 100;
+
         private string _engineName;
         private bool _pst2Prv;
 
@@ -72,6 +76,8 @@ namespace TAS.Server
         private double _previewAudioVolume;
         private bool _previewLoaded;
         private bool _previewIsPlaying;
+        private CancellationTokenSource _previewPositionCancellationTokenSource;
+        private long _previewLastPositionSetTick;
 
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger(nameof(Engine));
@@ -470,16 +476,29 @@ namespace TAS.Server
             get => _previewPosition;
             set
             {
-                if (_playoutChannelPRV != null && _previewMedia!=null)
+                if (_playoutChannelPRV == null || _previewMedia == null)
+                    return;
+                if (_previewIsPlaying)
+                    PreviewPause();
+                long newSeek = value < 0 ? 0 : value;
+                long maxSeek = _previewDuration-1;
+                if (newSeek > maxSeek)
+                    newSeek = maxSeek;
+                if (SetField(ref _previewPosition, newSeek))
                 {
-                    if (_previewIsPlaying)
-                        PreviewPause();
-                    long newSeek = value < 0 ? 0 : value;
-                    long maxSeek = _previewDuration-1;
-                    if (newSeek > maxSeek)
-                        newSeek = maxSeek;
-                    if (SetField(ref _previewPosition, newSeek))
-                        _playoutChannelPRV.Seek(VideoLayer.Preview, _previewLoadedSeek + newSeek);
+                    _previewPositionCancellationTokenSource?.Cancel();
+                    var cancellationTokenSource = new  CancellationTokenSource();
+                    Task.Run(() =>
+                    {
+                        Thread.Sleep(PerviewPositionSetDelay);
+                        if (!cancellationTokenSource.IsCancellationRequested ||
+                            _currentTicks > _previewLastPositionSetTick + TimeSpan.TicksPerMillisecond * PerviewPositionSetDelay * 3)
+                        {
+                            _previewLastPositionSetTick = _currentTicks;
+                            _playoutChannelPRV.Seek(VideoLayer.Preview, _previewLoadedSeek + newSeek);
+                        }
+                    }, cancellationTokenSource.Token);
+                    _previewPositionCancellationTokenSource = cancellationTokenSource;
                 }
             }
         }
@@ -771,6 +790,7 @@ namespace TAS.Server
                 _previewLoadedSeek = seek;
                 _previewPosition = position;
                 _previewMedia = media;
+                _previewLastPositionSetTick = _currentTicks;
                 _playoutChannelPRV.SetAspect(VideoLayer.Preview, media.VideoFormat == TVideoFormat.NTSC
                                                                  || media.VideoFormat == TVideoFormat.PAL
                                                                  || media.VideoFormat == TVideoFormat.PAL_P);
@@ -1257,7 +1277,7 @@ namespace TAS.Server
             var media = _previewMedia;
             if (channel == null || media == null)
                 return;
-
+            _previewPositionCancellationTokenSource?.Cancel();
             channel.Clear(VideoLayer.Preview);
             lock (_tickLock)
             {

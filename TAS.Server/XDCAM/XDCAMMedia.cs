@@ -24,26 +24,15 @@ namespace TAS.Server.XDCAM
 
         public override Stream GetFileStream(bool forWrite)
         {
-            var dir = Directory as IngestDirectory;
-            if (dir != null)
+            if (Directory is IngestDirectory dir)
             {
-                if (Monitor.TryEnter(dir.XdcamLockObject, 1000))
-                    try
-                    {
-                        if (dir.AccessType == TDirectoryAccessType.Direct)
-                        {
-                            var fileName = Path.Combine(dir.Folder, "Clip", $"{(XdcamAlias != null ? XdcamAlias.clipId : XdcamClip.clipId)}.MXF");
-                            return new FileStream(fileName, forWrite ? FileMode.Create : FileMode.Open);
-                        }
-                        else
-                            return new XdcamStream(this, forWrite);
-                    }
-                    finally
-                    {
-                        Monitor.Exit(dir.XdcamLockObject);
-                    }
-                else
-                    return null;                
+                if (dir.AccessType == TDirectoryAccessType.Direct)
+                {
+                    var fileName = Path.Combine(dir.Folder, "Clip",
+                        $"{(XdcamAlias != null ? XdcamAlias.clipId : XdcamClip.clipId)}.MXF");
+                    return new FileStream(fileName, forWrite ? FileMode.Create : FileMode.Open);
+                }
+                return new XdcamStream(this, forWrite);
             }
             throw new InvalidOperationException("XDCAMMedia: _directory must be IngestDirectory");
         }
@@ -52,8 +41,7 @@ namespace TAS.Server.XDCAM
         {
             try
             {
-                var dir = Directory as IngestDirectory;
-                if (dir == null)
+                if (!(Directory is IngestDirectory dir))
                     throw new InvalidOperationException("XDCAMMedia: _directory is not IngestDirectory");
                 if (Monitor.TryEnter(dir.XdcamLockObject, 1000))
                     try

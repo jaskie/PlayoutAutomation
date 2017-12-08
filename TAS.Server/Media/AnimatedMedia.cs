@@ -17,13 +17,13 @@ namespace TAS.Server.Media
 
         public AnimatedMedia(IMediaDirectory directory, Guid guid, ulong idPersistentMedia) : base(directory, guid, idPersistentMedia)
         {
-            base.MediaType = TMediaType.Animation;
+            MediaType = TMediaType.Animation;
         }
 
         [JsonProperty]
         public IDictionary<string, string> Fields
         {
-            get { return _fields; }
+            get => new Dictionary<string, string>(_fields);
             set
             {
                 _fields.Clear();
@@ -34,10 +34,10 @@ namespace TAS.Server.Media
         }
 
         [JsonProperty]
-        public TemplateMethod Method { get { return _method; } set { SetField(ref _method, value); } }
+        public TemplateMethod Method { get => _method; set => SetField(ref _method, value); }
 
         [JsonProperty]
-        public int TemplateLayer { get { return _templateLayer; } set { SetField(ref _templateLayer, value); } }
+        public int TemplateLayer { get => _templateLayer; set => SetField(ref _templateLayer, value); }
 
         public override bool Save()
         {
@@ -66,18 +66,16 @@ namespace TAS.Server.Media
         public override void CloneMediaProperties(IMediaProperties fromMedia)
         {
             base.CloneMediaProperties(fromMedia);
-            var a = (fromMedia as AnimatedMedia);
-            if (a != null)
+            if (fromMedia is AnimatedMedia a)
                 Fields = a.Fields;
         }
 
         public override void Verify()
         {
-            if (FileExists())
-            {
-                IsVerified = true;
-                MediaStatus = TMediaStatus.Available;
-            }
+            if (!FileExists())
+                return;
+            IsVerified = true;
+            MediaStatus = TMediaStatus.Available;
         }
 
     }
