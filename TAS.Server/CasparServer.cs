@@ -148,7 +148,7 @@ namespace TAS.Server
             {
                 _needUpdateChannels = false;
                 foreach (var c in ChannelsSer)
-                    c.SetChannel(Array.Find(channels, csc => csc.ID == c.Id));
+                    c.AssignCasparChannel(Array.Find(channels, csc => csc.ID == c.Id));
             }
         }
 
@@ -157,10 +157,7 @@ namespace TAS.Server
             if (e.Connected)
             {
                 _casparDevice.RefreshTemplates();
-                if (_casparDevice.Channels.Length > 0)
-                    UpdateChannels(_casparDevice.Channels);
-                else
-                    _needUpdateChannels = true;
+                _needUpdateChannels = true;
             }
             IsConnected = e.Connected;
             Debug.WriteLine(e.Connected, "Caspar connected");

@@ -459,8 +459,10 @@ namespace TAS.Server
         #endregion //IPlayoutServerChannel
 
         internal CasparServer Owner { get; set; }
-        internal void SetChannel(Channel casparChannel)
+        internal void AssignCasparChannel(Channel casparChannel)
         {
+            if (casparChannel == null)
+                return;
             var oldChannel = _casparChannel;
             if (oldChannel != casparChannel)
             {
@@ -468,14 +470,17 @@ namespace TAS.Server
                 if (oldChannel != null)
                     oldChannel.AudioDataReceived -= Channel_AudioDataReceived;
                 if (casparChannel != null)
+                {
                     casparChannel.AudioDataReceived += Channel_AudioDataReceived;
-                VideoFormat = CasparModeToVideoFormat(_casparChannel.VideoMode);
-                Debug.WriteLine(this, "Caspar channel assigned");
-            }
-            if (Owner?.IsConnected == true)
-            {
-                ClearMixer();
-                casparChannel?.MasterVolume((float)MasterVolume);
+                    VideoFormat = CasparModeToVideoFormat(casparChannel.VideoMode);
+                    Debug.WriteLine(this, "Caspar channel assigned");
+
+                    if (Owner?.IsConnected == true)
+                    {
+                        ClearMixer();
+                        casparChannel?.MasterVolume((float)MasterVolume);
+                    }
+                }
             }
         }
 
